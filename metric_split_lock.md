@@ -154,14 +154,19 @@ matching= order-free (Hungarian), evaluate_on_val convention 버그 회피
 참고    = D3에서 EPnP+RANSAC 대비 reproj 5.27→3.12px, ADD 96.6→90.7mm
 ```
 
-### 3.2 per-domain dims **[LOCKED 정책 / SLOT 값 확정]**
+### 3.2 dims — **T0 실측 (2026-06-17): 1.10 × 1.30 × 0.12 m** (110×130×12cm)
+claim B(단일 파렛트) → 도메인별 아니라 **단일 값**. 기존 config 1.1×1.1×0.15 는 오류(정사각 가정 + H 0.15).
 ```
-W/D swap 버그 수정 필수.
-indoor          W=1.1 / D=1.3   [SLOT: 최종 확정]
-outside·night   W=1.3 / D=1.1   [SLOT]
-forklift        [SLOT]
-height H        [SLOT]
+height H      = 0.12  [LOCKED]   (config 0.15 → 0.12 정정 완료)
+width / depth = {1.1, 1.3} 직사각. 물리 치수는 상수(시점 무관). 미결 = "어느 변이
+                canonical_kp3d 의 width(X) 인자냐" 라벨 매칭 1개.  [확인 항목, 미정]
 ```
+> **swap 영향 범위 분리 (과장 금지):**
+> - keypoint-layer(reproj/PCK/gross) = **order-free Hungarian 이 흡수 → 무관. 4-arm 안 막음** (§3.1).
+> - ADD/translation 만 dims 에 민감 → W/D 한 번 확정하면 **영구**(시점마다 안 바뀜).
+> **확정법 (30분, pose 평가 때 — 3d-expert 난제 아님):** GT cuboid(3D)에서 **0-1 변 거리** 측정
+> (canonical_kp3d:92 width=앞면 좌우폭 0-1, depth=앞뒤 0-4). 1100mm↔width=1.1 / 1300mm↔width=1.3,
+> 0-4 변으로 교차검증. GT 3D 없으면 정면 프레임 0-1 픽셀비로 근사. 확정 후 config width/depth 동기.
 > order-free Hungarian이 W/D swap을 흡수하지만, ADD/translation은 dims에 민감 → per-frame/도메인
 > 정확 dims 확정 후 평가.
 

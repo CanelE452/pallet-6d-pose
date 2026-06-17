@@ -60,10 +60,12 @@ data:
 
 # --- Pallet Spec ---
 pallet:
-  # KS T-11형 standard pallet (meters)
-  width: 1.1                      # X axis (medium)
-  depth: 1.1                      # Z axis (long)
-  height: 0.15                    # Y axis (up)
+  # T0 실측(2026-06-17): 1.10 × 1.30 × 0.12 m (직사각). 기존 KS T-11 1.1×1.1×0.15 가정은 오류.
+  # ★ width/depth 축 배정({1.1,1.3} 중 어느 게 X=width)은 미정 — metric_split_lock §3.2 (GT 0-1 변으로 확정).
+  #   keypoint(order-free)는 무관, ADD만 영향. 아래 width/depth 는 확정 전이라 부정확(정사각 잔재).
+  width: 1.1                      # X axis [SLOT: 1.1 or 1.3 — W/D 확정 후]
+  depth: 1.1                      # Z axis [SLOT: 1.3 or 1.1] (실측상 한 변은 1.3, 정사각 아님)
+  height: 0.12                    # Y axis (up) — T0 확정 (was 0.15)
   keypoint_convention: "y_up"     # Y=UP, 8 cuboid corners + centroid
 
 # --- Camera Intrinsics ---
