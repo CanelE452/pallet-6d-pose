@@ -174,11 +174,29 @@ def _reproj_err_dict(proj_all, valid_idx, kps_2d, weights=None):
     return float(np.sum(arr * wt) / s)
 
 
-def _refine_with_init(obj, img, K, R0, t0):
-    """LM refine from given init. Returns (R, t) or None."""
+def _refine_with_init(obj, img, K, R0, t0, weights=None):
+    """LM refine from given init. Returns ``(R, t)`` or ``None``.
+
+    ``cv2.solvePnP(..., SOLVEPNP_ITERATIVE)`` does not expose per-point
+    weights.  The legacy, unweighted path therefore remains byte-for-byte the
+    same when ``weights is None``.  When weights are supplied, a small
+    weighted LM loop uses the analytic projection Jacobian returned by
+    :func:`cv2.projectPoints`.  This lets a future corner-uncertainty head
+    affect the actual refinement rather than only the final candidate score.
+    """
     try:
         rvec0, _ = cv2.Rodrigues(R0)
         tvec0 = t0.reshape(3, 1).astype(np.float64)
+        if weights is not None:
+            weights = np.asarray(weights, dtype=np.float64).reshape(-1)
+            if len(weights) != len(obj):
+                raise ValueError("weights must match the PnP correspondences")
+            if not np.isfinite(weights).all() or (weights < 0).any():
+                raise ValueError("weights must be finite and non-negative")
+            if np.count_nonzero(weights > 0) < 4:
+                return None
+            return _weighted_lm_refine(obj, img, K, rvec0, tvec0, weights)
+
         ok, rvec, tvec = cv2.solvePnP(
             obj, img, K, None,
             rvec=rvec0.copy(), tvec=tvec0.copy(),
@@ -191,6 +209,70 @@ def _refine_with_init(obj, img, K, R0, t0):
         return R, tvec.flatten()
     except cv2.error:
         return None
+
+
+def _weighted_lm_refine(obj, img, K, rvec0, tvec0, weights,
+                        max_iterations=20):
+    """Weighted six-DoF LM using OpenCV's projection Jacobian.
+
+    This intentionally has no SciPy dependency because ``annotate_pnp`` is
+    also used by the standalone annotation GUI.  ``weights`` are reliability
+    weights (larger = more trusted); the least-squares residual is multiplied
+    by ``sqrt(weight)``.
+    """
+    params = np.concatenate([
+        np.asarray(rvec0, dtype=np.float64).reshape(3),
+        np.asarray(tvec0, dtype=np.float64).reshape(3),
+    ])
+    img = np.asarray(img, dtype=np.float64).reshape(-1, 2)
+    sqrt_w = np.repeat(np.sqrt(np.asarray(weights, dtype=np.float64)), 2)
+    damping = 1e-3
+
+    def evaluate(p, need_jacobian):
+        projected, jacobian = cv2.projectPoints(
+            obj, p[:3].reshape(3, 1), p[3:].reshape(3, 1), K, None)
+        residual = projected.reshape(-1, 2) - img
+        weighted_residual = residual.reshape(-1) * sqrt_w
+        if not need_jacobian:
+            return weighted_residual, None
+        # OpenCV columns 0:3 and 3:6 are derivatives wrt rvec and tvec.
+        weighted_jacobian = jacobian[:, :6] * sqrt_w[:, None]
+        return weighted_residual, weighted_jacobian
+
+    residual, jacobian = evaluate(params, True)
+    if not np.isfinite(residual).all() or not np.isfinite(jacobian).all():
+        return None
+    cost = float(residual @ residual)
+
+    for _ in range(max_iterations):
+        normal = jacobian.T @ jacobian
+        gradient = jacobian.T @ residual
+        scale = np.maximum(np.diag(normal), 1.0)
+        try:
+            delta = np.linalg.solve(
+                normal + damping * np.diag(scale), -gradient)
+        except np.linalg.LinAlgError:
+            return None
+        if not np.isfinite(delta).all():
+            return None
+
+        trial = params + delta
+        trial_residual, _ = evaluate(trial, False)
+        trial_cost = float(trial_residual @ trial_residual)
+        if np.isfinite(trial_cost) and trial_cost < cost:
+            params = trial
+            cost = trial_cost
+            damping = max(damping * 0.3, 1e-9)
+            residual, jacobian = evaluate(params, True)
+            if np.linalg.norm(delta) < 1e-8:
+                break
+        else:
+            damping = min(damping * 10.0, 1e12)
+            if damping >= 1e12:
+                break
+
+    R, _ = cv2.Rodrigues(params[:3].reshape(3, 1))
+    return R, params[3:].copy()
 
 
 # 24 proper rotations of a cube (octahedral group) — face-flip ambiguity resolver
@@ -295,7 +377,63 @@ _CUBOID_FACES = [
 ]
 
 
-def _solve_pose_single(kps_2d, K, dims, extrapolated_mask=None, img_shape=None):
+def _correspondence_weights(valid_idx, extrapolated_mask=None,
+                            keypoint_weights=None,
+                            keypoint_uncertainties=None):
+    """Build normalized PnP reliability weights for ``valid_idx``.
+
+    ``keypoint_weights`` are direct confidences (larger is better).
+    ``keypoint_uncertainties`` are sigma-like values (smaller is better) and
+    are converted with inverse variance.  They are mutually exclusive.
+    Extrapolated annotation points retain their historical 0.3 multiplier.
+
+    Returns ``None`` only when no weighting input was supplied, preserving the
+    exact legacy OpenCV refinement path.
+    """
+    if keypoint_weights is not None and keypoint_uncertainties is not None:
+        raise ValueError(
+            "pass either keypoint_weights or keypoint_uncertainties, not both")
+    if (keypoint_weights is None and keypoint_uncertainties is None
+            and extrapolated_mask is None):
+        return None
+
+    reliability = []
+    for i in valid_idx:
+        value = 1.0
+        if keypoint_weights is not None:
+            if i < len(keypoint_weights) and keypoint_weights[i] is not None:
+                value = float(keypoint_weights[i])
+        elif keypoint_uncertainties is not None:
+            if (i < len(keypoint_uncertainties)
+                    and keypoint_uncertainties[i] is not None):
+                sigma = float(keypoint_uncertainties[i])
+                if not np.isfinite(sigma) or sigma < 0:
+                    raise ValueError(
+                        "keypoint uncertainties must be finite and non-negative")
+                value = 1.0 / max(sigma * sigma, 1e-6)
+        if not np.isfinite(value) or value < 0:
+            raise ValueError("keypoint weights must be finite and non-negative")
+        if (extrapolated_mask is not None and i < len(extrapolated_mask)
+                and extrapolated_mask[i]):
+            value *= 0.3
+        reliability.append(value)
+
+    arr = np.asarray(reliability, dtype=np.float64)
+    if np.count_nonzero(arr > 0) < 4:
+        raise ValueError("at least four detected keypoints need positive weight")
+
+    # Extreme inverse-variance ratios make the normal equations fragile and
+    # effectively turn soft uncertainty into accidental hard rejection.
+    positive = arr[arr > 0]
+    reference = float(np.median(positive))
+    if reference > 0:
+        arr = np.clip(arr / reference, 0.02, 50.0)
+    arr *= len(arr) / max(float(arr.sum()), 1e-12)  # mean reliability = 1
+    return arr.tolist()
+
+
+def _solve_pose_single(kps_2d, K, dims, extrapolated_mask=None, img_shape=None,
+                       keypoint_weights=None, keypoint_uncertainties=None):
     """단일 dim PnP — fix v7 weighted scoring + degenerate reject.
 
     Init candidates:
@@ -326,13 +464,20 @@ def _solve_pose_single(kps_2d, K, dims, extrapolated_mask=None, img_shape=None):
     obj = np.array([kp3d[i] for i in valid_idx], dtype=np.float64)
     img = np.array([kps_2d[i] for i in valid_idx], dtype=np.float64)
 
-    # v7: weighted reproj 용 — 외삽 점 (extrapolated_mask=True) 은 weight 0.3.
-    # extrapolated_mask 가 None 이면 모두 1.0 (기존 동작 동일).
-    if extrapolated_mask is None:
-        weights = None
-    else:
-        weights = [0.3 if (i < len(extrapolated_mask) and extrapolated_mask[i])
-                   else 1.0 for i in valid_idx]
+    # v7 extrapolation weight plus optional learned uncertainty/confidence.
+    # With no weighting inputs this is None, retaining the exact legacy path.
+    weights = _correspondence_weights(
+        valid_idx,
+        extrapolated_mask=extrapolated_mask,
+        keypoint_weights=keypoint_weights,
+        keypoint_uncertainties=keypoint_uncertainties,
+    )
+    # Backward compatibility: extrapolated_mask historically affected only
+    # candidate scoring.  Actual weighted LM is enabled exclusively by one of
+    # the new learned reliability inputs.
+    refine_weights = weights if (
+        keypoint_weights is not None or keypoint_uncertainties is not None
+    ) else None
 
     # v9 (2026-05-26): degenerate cuboid reject threshold —
     #   v7 fixed 1.5% image area (4608px² @ 640x480) 는 far-pallet (small click) 에서
@@ -411,7 +556,8 @@ def _solve_pose_single(kps_2d, K, dims, extrapolated_mask=None, img_shape=None):
     for R0, t0 in inits:
         for F in flips:
             R_init = R0 @ F
-            res = _refine_with_init(obj, img, K, R_init, t0)
+            res = _refine_with_init(
+                obj, img, K, R_init, t0, weights=refine_weights)
             if res is None:
                 continue
             R, t = res
@@ -487,6 +633,7 @@ def _solve_pose_single(kps_2d, K, dims, extrapolated_mask=None, img_shape=None):
         "_v8_tilt": best["tilt"],
         "_v8_n_after_hard_reject": len(cand_use),
         "_v8_hard_reject_fallback": not bool(v8_filtered),
+        "_weighted_pnp": refine_weights is not None,
     }
 
 
@@ -543,39 +690,83 @@ def _apply_perm_to_projected(proj_all, perm):
     return result
 
 
-def solve_pose(kps_2d, K, dims=PALLET_DIMS, extrapolated_mask=None, img_shape=None):
-    """auto dim 선택 (110 vs 130 정면) PnP — fix v7 weighted + degenerate reject.
+_CUBOID_AXIS_EDGES = {
+    "width": tuple(LR_PAIRS),
+    "height": tuple(TB_PAIRS),
+    "depth": tuple(FR_PAIRS),
+}
 
-    각 dim 의 _solve_pose_single 이 strict-pass candidate 중 reproj 최소 해를 선택.
-    두 dim 후보 중 strict-pass 우선 → 둘 다 strict-pass 면 reproj 최소,
-    둘 다 fail 면 viol_sum + reproj 최소.
 
-    extrapolated_mask (선택, length 9): True 인 idx 는 weight 0.3 (외삽 점, click
-    정확도 낮음). None 이면 모두 weight 1.0 (기존 동작).
-    img_shape (선택, (H, W, ...)): degenerate reject 의 image area 기준. None 이면
-    K 의 cx, cy 로 추정.
+def assess_keypoint_topology(kps_2d, min_corners=7,
+                             reject_missing_structural_edge=True,
+                             min_complete_edges_per_axis=2):
+    """Assess whether detected cuboid corners safely constrain PnP.
+
+    Only corner channels 0..7 count; centroid channel 8 cannot replace a
+    missing structural corner.  The conservative defaults accept 7/8 or 8/8
+    corners.  Lowering ``min_corners`` to 6 is supported for experiments, but
+    a pair of missing endpoints that removes an entire cuboid edge and weak
+    axis coverage are still reported separately.
+
+    Returns a JSON-friendly diagnostic dictionary with stable reason codes:
+    ``insufficient_corners``, ``missing_structural_edge``, and
+    ``insufficient_axis_coverage``.
     """
-    dims_a = PALLET_DIMS
-    dims_b = (PALLET_DIMS[1], PALLET_DIMS[0], PALLET_DIMS[2])  # 130 정면
-    pose_a = _solve_pose_single(kps_2d, K, dims_a, extrapolated_mask, img_shape)
-    pose_b = _solve_pose_single(kps_2d, K, dims_b, extrapolated_mask, img_shape)
-    candidates = [p for p in (pose_a, pose_b) if p is not None]
-    if not candidates:
-        return None
+    detected = {
+        i for i in range(min(8, len(kps_2d))) if kps_2d[i] is not None
+    }
+    missing = sorted(set(range(8)) - detected)
+    complete_by_axis = {}
+    missing_edges = []
+    for axis, edges in _CUBOID_AXIS_EDGES.items():
+        complete_by_axis[axis] = sum(
+            1 for a, b in edges if a in detected and b in detected)
+        for a, b in edges:
+            if a not in detected and b not in detected:
+                missing_edges.append({"axis": axis, "edge": [a, b]})
 
-    # strict-pass 우선, 그 다음 reproj 최소
-    strict = [p for p in candidates if p.get("_v6_strict_passed", False)]
-    if strict:
-        best = min(strict, key=lambda p: p["reproj_error_px"])
-    else:
-        best = min(candidates, key=lambda p: (
-            p.get("_v6_viol_sum", 0), p["reproj_error_px"]))
+    insufficient_axes = sorted(
+        axis for axis, count in complete_by_axis.items()
+        if count < int(min_complete_edges_per_axis))
+    reasons = []
+    if len(detected) < int(min_corners):
+        reasons.append("insufficient_corners")
+    if reject_missing_structural_edge and missing_edges:
+        reasons.append("missing_structural_edge")
+    if insufficient_axes:
+        reasons.append("insufficient_axis_coverage")
 
-    R, t = best["R"], best["t"]
-    kp3d = make_pallet_keypoints_3d(*best["dims"])
+    return {
+        "accepted": not reasons,
+        "reason": reasons[0] if reasons else "ok",
+        "reasons": reasons,
+        "n_corners": len(detected),
+        "detected_corners": sorted(detected),
+        "missing_corners": missing,
+        "missing_structural_edges": missing_edges,
+        "complete_edges_per_axis": complete_by_axis,
+        "insufficient_axes": insufficient_axes,
+        "min_corners": int(min_corners),
+        "min_complete_edges_per_axis": int(min_complete_edges_per_axis),
+    }
+
+
+def _validated_dims(dims):
+    """Return a positive finite ``(W, D, H)`` tuple."""
+    values = np.asarray(dims, dtype=np.float64).reshape(-1)
+    if len(values) != 3 or not np.isfinite(values).all() or (values <= 0).any():
+        raise ValueError("dims must contain three positive finite values (W, D, H)")
+    return tuple(float(v) for v in values)
+
+
+def _finalize_pose_candidate(pose, kps_2d, K, extrapolated_mask):
+    """Attach public projection/reprojection diagnostics to one W/D pose."""
+    pose = dict(pose)
+    pose["_selection_reproj_error_px"] = float(pose["reproj_error_px"])
+    R, t = pose["R"], pose["t"]
+    kp3d = make_pallet_keypoints_3d(*pose["dims"])
     proj_all = project_3d(kp3d, R, t, K)
 
-    # 진단용 perm 계산 (적용하지는 않음 — strict scoring 이 (R, t) 자체 정합)
     img_w_est = int(round(2.0 * K[0, 2]))
     img_h_est = int(round(2.0 * K[1, 2]))
     try:
@@ -583,28 +774,353 @@ def solve_pose(kps_2d, K, dims=PALLET_DIMS, extrapolated_mask=None, img_shape=No
     except Exception:
         perm = None
 
-    # 사용자 클릭 만으로 reproj 재계산
-    # v7: 직접 click 만 (외삽 점 제외) reproj 가 진짜 품질 지표 — 사용자에게 보여줌.
-    # extrapolated_mask 없으면 모든 클릭 사용 (기존 동작).
-    real_valid = [i for i in range(min(9, len(kps_2d))) if kps_2d[i] is not None]
+    real_valid = [
+        i for i in range(min(9, len(kps_2d))) if kps_2d[i] is not None
+    ]
     if extrapolated_mask is not None:
-        click_only = [i for i in real_valid
-                      if not (i < len(extrapolated_mask) and extrapolated_mask[i])]
+        click_only = [
+            i for i in real_valid
+            if not (i < len(extrapolated_mask) and extrapolated_mask[i])
+        ]
         report_idx = click_only if click_only else real_valid
     else:
         report_idx = real_valid
-    errs = []
+    errors = []
     for i in report_idx:
         u, v = proj_all[i]
-        # v7: project_3d sentinel = (-1, -1) — 그 외 u<0 은 valid image-out projection
         if u == -1.0 and v == -1.0:
             continue
-        errs.append(float(np.hypot(u - kps_2d[i][0], v - kps_2d[i][1])))
-    best["reproj_error_px"] = float(np.mean(errs)) if errs else best["reproj_error_px"]
-    best["projected_all"] = proj_all
-    best["v4_perm"] = perm
-    best["v4_warning"] = _check_v4_warning(kps_2d, proj_all, pose=best)
+        errors.append(float(np.hypot(
+            u - kps_2d[i][0], v - kps_2d[i][1])))
+    if errors:
+        pose["reproj_error_px"] = float(np.mean(errors))
+    pose["projected_all"] = proj_all
+    pose["v4_perm"] = perm
+    pose["v4_warning"] = _check_v4_warning(kps_2d, proj_all, pose=pose)
+    return pose
+
+
+def solve_pose_candidates(kps_2d, K, dims=None, extrapolated_mask=None,
+                          img_shape=None, keypoint_weights=None,
+                          keypoint_uncertainties=None, auto_swap_dims=True):
+    """Return the complete as-given and W/D-swapped PnP candidates.
+
+    Unlike historical ``solve_pose``, an explicit ``dims=(W,D,H)`` is now
+    honored.  Omitting it still reads the module-level ``PALLET_DIMS`` at call
+    time, preserving ``annotate_wood.py`` and GUI behavior that intentionally
+    override that global.
+
+    ``keypoint_weights`` (larger is better) and
+    ``keypoint_uncertainties`` (sigma, smaller is better) are mutually
+    exclusive and affect both LM refinement and candidate scoring.
+    """
+    base_dims = _validated_dims(PALLET_DIMS if dims is None else dims)
+    hypotheses = [("as_given", base_dims)]
+    swapped_dims = (base_dims[1], base_dims[0], base_dims[2])
+    if auto_swap_dims and not np.allclose(base_dims, swapped_dims):
+        hypotheses.append(("swapped", swapped_dims))
+
+    candidates = []
+    for hypothesis, candidate_dims in hypotheses:
+        pose = _solve_pose_single(
+            kps_2d, K, candidate_dims,
+            extrapolated_mask=extrapolated_mask,
+            img_shape=img_shape,
+            keypoint_weights=keypoint_weights,
+            keypoint_uncertainties=keypoint_uncertainties,
+        )
+        if pose is None:
+            continue
+        pose["_wd_hypothesis"] = hypothesis
+        candidates.append(_finalize_pose_candidate(
+            pose, kps_2d, K, extrapolated_mask))
+    return candidates
+
+
+def _pose_rank_key(pose):
+    """Historical candidate preference expressed as a sortable key."""
+    strict = bool(pose.get("_v6_strict_passed", False))
+    error = float(pose.get("_selection_reproj_error_px",
+                           pose["reproj_error_px"]))
+    if strict:
+        return (0, 0, error)
+    return (1, int(pose.get("_v6_viol_sum", 0)), error)
+
+
+def _pose_candidate_summary(pose):
+    return {
+        "hypothesis": pose.get("_wd_hypothesis", "as_given"),
+        "dims": tuple(float(v) for v in pose["dims"]),
+        "selection_reproj_error_px": float(
+            pose.get("_selection_reproj_error_px", pose["reproj_error_px"])),
+        "reported_reproj_error_px": float(pose["reproj_error_px"]),
+        "strict_passed": bool(pose.get("_v6_strict_passed", False)),
+        "violation_sum": int(pose.get("_v6_viol_sum", 0)),
+        "tilt": float(pose.get("_v8_tilt", 0.0)),
+    }
+
+
+def _select_pose_candidate(candidates, wd_ambiguity_abs_px=0.5,
+                           wd_ambiguity_rel=0.05,
+                           wd_as_given_prob=None,
+                           wd_prior_min_confidence=0.65):
+    """Select a pose and attach explicit W/D ambiguity/prior diagnostics.
+
+    A learned W/D head is permitted to break a tie only after reprojection and
+    invariant ranking establish that both candidates occupy the same quality
+    tier *and* their score gap is inside the ambiguity threshold.  It can
+    therefore never overturn a geometrically clear solution.
+    """
+    if not candidates:
+        return None
+    ordered = sorted(candidates, key=_pose_rank_key)
+    legacy_best = ordered[0]
+    selected = legacy_best
+    summaries = [_pose_candidate_summary(pose) for pose in candidates]
+
+    ambiguous = False
+    gap = None
+    ratio = None
+    threshold = None
+    competing = False
+    if len(ordered) >= 2:
+        alternative = ordered[1]
+        best_strict = bool(legacy_best.get("_v6_strict_passed", False))
+        alt_strict = bool(alternative.get("_v6_strict_passed", False))
+        competing = best_strict == alt_strict
+        if not best_strict:
+            competing = competing and (
+                int(legacy_best.get("_v6_viol_sum", 0))
+                == int(alternative.get("_v6_viol_sum", 0)))
+        best_error = float(legacy_best.get(
+            "_selection_reproj_error_px", legacy_best["reproj_error_px"]))
+        alt_error = float(alternative.get(
+            "_selection_reproj_error_px", alternative["reproj_error_px"]))
+        gap = max(0.0, alt_error - best_error)
+        ratio = (1.0 if abs(best_error) < 1e-12 and abs(alt_error) < 1e-12
+                 else alt_error / max(best_error, 1e-12))
+        threshold = max(
+            float(wd_ambiguity_abs_px),
+            float(wd_ambiguity_rel) * max(best_error, 1.0),
+        )
+        ambiguous = bool(competing and gap <= threshold)
+
+    prior_probability = None
+    prior_confidence = None
+    prior_used = False
+    if wd_as_given_prob is not None:
+        prior_probability = float(wd_as_given_prob)
+        if not np.isfinite(prior_probability) or not 0.0 <= prior_probability <= 1.0:
+            raise ValueError("wd_as_given_prob must be finite and in [0, 1]")
+        min_confidence = float(wd_prior_min_confidence)
+        if not 0.5 <= min_confidence <= 1.0:
+            raise ValueError("wd_prior_min_confidence must be in [0.5, 1.0]")
+        prior_confidence = max(prior_probability, 1.0 - prior_probability)
+        if (ambiguous and prior_confidence >= min_confidence
+                and abs(prior_probability - 0.5) > 1e-12):
+            preferred = "as_given" if prior_probability > 0.5 else "swapped"
+            preferred_candidates = [
+                pose for pose in ordered
+                if pose.get("_wd_hypothesis") == preferred
+            ]
+            if preferred_candidates:
+                selected = preferred_candidates[0]
+                prior_used = True
+
+    best = dict(selected)
+    best["_wd_ambiguous"] = ambiguous
+    best["_wd_competing_quality_tier"] = competing
+    best["_wd_score_gap_px"] = gap
+    best["_wd_error_ratio"] = ratio
+    best["_wd_ambiguity_threshold_px"] = threshold
+    best["_wd_candidates"] = summaries
+    best["_wd_n_candidates"] = len(candidates)
+    best["_wd_as_given_prob"] = prior_probability
+    best["_wd_prior_confidence"] = prior_confidence
+    best["_wd_prior_min_confidence"] = float(wd_prior_min_confidence)
+    best["_wd_prior_used"] = prior_used
+    best["_wd_prior_resolved_ambiguity"] = bool(ambiguous and prior_used)
+    best["_wd_legacy_hypothesis"] = legacy_best.get("_wd_hypothesis")
     return best
+
+
+def solve_pose(kps_2d, K, dims=None, extrapolated_mask=None, img_shape=None,
+               keypoint_weights=None, keypoint_uncertainties=None,
+               auto_swap_dims=True, wd_ambiguity_abs_px=0.5,
+               wd_ambiguity_rel=0.05, wd_as_given_prob=None,
+               wd_prior_min_confidence=0.65):
+    """Backward-compatible PnP with explicit W/D and uncertainty diagnostics.
+
+    Existing callers still receive the selected pose dictionary (or ``None``)
+    and are not rejected for ambiguity.  New callers that need fail-closed
+    behavior should use :func:`solve_pose_safe` and check ``result["accepted"]``.
+    """
+    candidates = solve_pose_candidates(
+        kps_2d, K, dims=dims,
+        extrapolated_mask=extrapolated_mask,
+        img_shape=img_shape,
+        keypoint_weights=keypoint_weights,
+        keypoint_uncertainties=keypoint_uncertainties,
+        auto_swap_dims=auto_swap_dims,
+    )
+    return _select_pose_candidate(
+        candidates,
+        wd_ambiguity_abs_px=wd_ambiguity_abs_px,
+        wd_ambiguity_rel=wd_ambiguity_rel,
+        wd_as_given_prob=wd_as_given_prob,
+        wd_prior_min_confidence=wd_prior_min_confidence,
+    )
+
+
+def _finite_convex_hull_area(points):
+    """Return a positive finite 2-D convex-hull area, otherwise ``None``."""
+    finite = []
+    for point in points:
+        if point is None:
+            continue
+        try:
+            xy = np.asarray(point, dtype=np.float64).reshape(-1)
+        except (TypeError, ValueError):
+            continue
+        if len(xy) < 2 or not np.isfinite(xy[:2]).all():
+            continue
+        finite.append(xy[:2])
+    if len(finite) < 3:
+        return None
+    try:
+        hull = cv2.convexHull(np.asarray(finite, dtype=np.float32))
+        area = float(cv2.contourArea(hull))
+    except cv2.error:
+        return None
+    if not np.isfinite(area) or area <= 0.0:
+        return None
+    return area
+
+
+def _projection_to_raw_area_ratio(pose, kps_2d):
+    """Compare the selected PnP footprint with pre-PnP detected corners.
+
+    The centroid channel is deliberately excluded.  Six finite raw cuboid
+    corners are required so a sparse/degenerate detection cannot become a new
+    rejection path merely because its hull is under-constrained.
+    """
+    if pose is None:
+        return None
+
+    raw_corners = []
+    for point in list(kps_2d)[:8]:
+        if point is None:
+            continue
+        try:
+            xy = np.asarray(point, dtype=np.float64).reshape(-1)
+        except (TypeError, ValueError):
+            continue
+        if len(xy) >= 2 and np.isfinite(xy[:2]).all():
+            raw_corners.append(xy[:2])
+    if len(raw_corners) < 6:
+        return None
+
+    projected_all = pose.get("projected_all")
+    if projected_all is None:
+        return None
+    raw_area = _finite_convex_hull_area(raw_corners)
+    projected_area = _finite_convex_hull_area(list(projected_all)[:8])
+    if raw_area is None or projected_area is None:
+        return None
+    ratio = projected_area / raw_area
+    return float(ratio) if np.isfinite(ratio) and ratio > 0.0 else None
+
+
+def solve_pose_safe(kps_2d, K, dims=None, extrapolated_mask=None,
+                    img_shape=None, keypoint_weights=None,
+                    keypoint_uncertainties=None, auto_swap_dims=True,
+                    min_corners=7, reject_missing_structural_edge=True,
+                    min_complete_edges_per_axis=2, require_strict=True,
+                    reject_wd_ambiguity=True, wd_ambiguity_abs_px=0.5,
+                    wd_ambiguity_rel=0.05, wd_as_given_prob=None,
+                    wd_prior_min_confidence=0.65,
+                    wd_prior_resolves_ambiguity=True,
+                    max_reproj_error_px=None,
+                    projection_contraction_threshold=0.75):
+    """Fail-closed single-image PnP wrapper with structured reason codes.
+
+    The return value is always a dictionary.  Consumers **must** check
+    ``accepted`` before using ``pose``; rejected W/D cases retain the selected
+    pose and both full candidates for debugging, but are not safe outputs.
+    """
+    contraction_threshold = float(projection_contraction_threshold)
+    if (not np.isfinite(contraction_threshold)
+            or not 0.0 <= contraction_threshold <= 1.0):
+        raise ValueError(
+            "projection_contraction_threshold must be finite and in [0, 1]")
+
+    topology = assess_keypoint_topology(
+        kps_2d,
+        min_corners=min_corners,
+        reject_missing_structural_edge=reject_missing_structural_edge,
+        min_complete_edges_per_axis=min_complete_edges_per_axis,
+    )
+    if not topology["accepted"]:
+        return {
+            "accepted": False,
+            "reason": topology["reason"],
+            "reasons": list(topology["reasons"]),
+            "pose": None,
+            "candidates": [],
+            "topology": topology,
+            "_projection_to_raw_area_ratio": None,
+            "_projection_contraction_threshold": contraction_threshold,
+        }
+
+    candidates = solve_pose_candidates(
+        kps_2d, K, dims=dims,
+        extrapolated_mask=extrapolated_mask,
+        img_shape=img_shape,
+        keypoint_weights=keypoint_weights,
+        keypoint_uncertainties=keypoint_uncertainties,
+        auto_swap_dims=auto_swap_dims,
+    )
+    pose = _select_pose_candidate(
+        candidates,
+        wd_ambiguity_abs_px=wd_ambiguity_abs_px,
+        wd_ambiguity_rel=wd_ambiguity_rel,
+        wd_as_given_prob=wd_as_given_prob,
+        wd_prior_min_confidence=wd_prior_min_confidence,
+    )
+    area_ratio = _projection_to_raw_area_ratio(pose, kps_2d)
+    if pose is not None:
+        pose["_projection_to_raw_area_ratio"] = area_ratio
+        pose["_projection_contraction_threshold"] = contraction_threshold
+
+    reasons = []
+    if pose is None:
+        reasons.append("pnp_failed")
+    else:
+        if require_strict and not pose.get("_v6_strict_passed", False):
+            reasons.append("invariant_violation")
+        ambiguity_resolved = bool(
+            wd_prior_resolves_ambiguity
+            and pose.get("_wd_prior_resolved_ambiguity", False))
+        if (reject_wd_ambiguity and pose.get("_wd_ambiguous", False)
+                and not ambiguity_resolved):
+            reasons.append("wd_ambiguous")
+        if (max_reproj_error_px is not None
+                and pose["reproj_error_px"] > float(max_reproj_error_px)):
+            reasons.append("reprojection_error")
+        if (area_ratio is not None
+                and area_ratio < contraction_threshold):
+            reasons.append("projection_contraction")
+
+    return {
+        "accepted": not reasons,
+        "reason": reasons[0] if reasons else "ok",
+        "reasons": reasons,
+        "pose": pose,
+        "candidates": candidates,
+        "topology": topology,
+        "_projection_to_raw_area_ratio": area_ratio,
+        "_projection_contraction_threshold": contraction_threshold,
+    }
 
 
 # ─── MANIPULATE 모드 ──────────────────────────────────────────────────────────

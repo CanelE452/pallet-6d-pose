@@ -58,7 +58,7 @@ GROSS_PX = 20.0
 def build_session_map():
     m = {}
     for base in ("outside", "night"):
-        for d in glob.glob(os.path.join(ROOT, "data", base, "capture*")):
+        for d in glob.glob(os.path.join(ROOT, "data", "pallet", "raw_data", base, "capture*")):
             sess = os.path.basename(d)
             for p in glob.glob(os.path.join(d, "rgb", "*.png")):
                 m[os.path.splitext(os.path.basename(p))[0]] = sess
@@ -80,7 +80,7 @@ def collect_val_frames():
             assert sess not in FINAL_TEST_SESSIONS, f"final-test leak: {fid}"
             ip = os.path.join(gt_dir, fid + ".png")
             if not os.path.exists(ip):
-                ip = os.path.join(ROOT, "data", dom, sess, "rgb", fid + ".png")
+                ip = os.path.join(ROOT, "data", "pallet", "raw_data", dom, sess, "rgb", fid + ".png")
             out.append((dom, fid, jp, ip))
     return out
 
@@ -147,17 +147,22 @@ def main():
             continue
         h0, w0 = img.shape[:2]
         rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        t = ((cv2.resize(rgb, (448, 448)).astype(np.float32) / 255.0 - mean) / std)
+        # ASPECT preprocess (extract_pl_v1 정합) — squash(400×400)는 비율왜곡이라 금지.
+        # short-side->400, 8의 배수. 정확한 aspect 역매핑 (k*_nw/bw)/_sc.
+        _sc = 400.0 / min(h0, w0)
+        _nw = max(8, int(round(w0 * _sc)) & ~7)
+        _nh = max(8, int(round(h0 * _sc)) & ~7)
+        t = ((cv2.resize(rgb, (_nw, _nh)).astype(np.float32) / 255.0 - mean) / std)
         tensor = torch.from_numpy(t.transpose(2, 0, 1)).float().unsqueeze(0).to(device)
         with torch.no_grad():
             out_bel, _ = model(tensor)
         belief = out_bel[-1][0].cpu().numpy()
         kps_bel = extract_keypoints_from_belief(belief, args.threshold)
         bh, bw = belief.shape[1], belief.shape[2]
-        sx, sy = bw / w0, bh / h0
+        ux, uy = _nw / bw, _nh / bh
         kp = []
         for k in kps_bel:
-            kp.append(None if k[0] < 0 else (k[0] / sx, k[1] / sy))
+            kp.append(None if k[0] < 0 else ((k[0] * ux) / _sc, (k[1] * uy) / _sc))
 
         pred8 = np.full((8, 2), np.nan)
         for i in range(8):
@@ -167,7 +172,7 @@ def main():
         if not np.isfinite(gt_err):
             continue
         _, diag_score = filt_diag(kp)
-        kpB = infer_flip_kp(model, img, device, mean, std, args.threshold)
+        kpB = infer_flip_kp(model, img, device, mean, std, args.threshold, preprocess="aspect")
         flip_score, _ = flip_consistency_score(kp, kpB)
         recs.append({"dom": dom, "frame": fid, "gt_err": float(gt_err),
                      "diag_score": (None if not np.isfinite(diag_score) else float(diag_score)),

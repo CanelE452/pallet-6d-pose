@@ -82,7 +82,7 @@ def run_inference(net, img_bgr, device, threshold):
     mean = np.array([0.485, 0.456, 0.406])
     std = np.array([0.229, 0.224, 0.225])
     rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    resized = cv2.resize(rgb, (448, 448))
+    resized = cv2.resize(rgb, (400, 400))  # 학습 입력(400×400)과 일치
     normed = (resized.astype(np.float32) / 255.0 - mean) / std
     tensor = torch.from_numpy(normed.transpose(2, 0, 1)).float().unsqueeze(0).to(device)
     with torch.no_grad():

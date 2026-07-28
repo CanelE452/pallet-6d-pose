@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "experiment": "paper_s2_teacher_hardtail_v5",
+  "description": "Teacher-constrained belief-tail screen for real under-coverage and PnP fit shrinkage; RGB-only fixed 400/50, ep57 init, existing Stage-B data only.",
+  "locked": {
+    "base_checkpoint": "weights/paper_s2_stageB/net_epoch_0057.pth",
+    "teacher_checkpoint": "weights/paper_s2_stageB/net_epoch_0057.pth",
+    "base_epoch": 57,
+    "input_size": 400,
+    "belief_size": 50,
+    "sigma": 2.0,
+    "seed": 42,
+    "batch_size": 12,
+    "workers": 6,
+    "learning_rate": 0.00002,
+    "quick_epoch_size": 6000,
+    "quick_delta_epochs": 3,
+    "full_epoch_size": 0,
+    "full_delta_epochs": 15,
+    "data": [
+      "data/pallet/training_data/mixed_v8_train",
+      "data/pallet/training_data/v4_split_base",
+      "data/pallet/training_data/aug_squash_v2",
+      "data/pallet/training_data/aug_trunc_v2",
+      "data/pallet/training_data/aug_scale_v2",
+      "data/pallet/training_data/paper_4pallet_mask_v1"
+    ],
+    "balance_groups": "mixed_v8_train|v4_split_base|aug_squash_v2|aug_trunc_v2|aug_scale_v2:60,paper_4pallet_mask_v1:40",
+    "diffpnp_index_dir": "data/pallet/results/paper_s2_scratch_diffpnp/pnp_valid_3d_index",
+    "diffpnp_root": "data/pallet/training_data",
+    "weights_namespace": "weights/paper_s2_teacher_hardtail_v5",
+    "results_namespace": "data/pallet/results/paper_s2_teacher_hardtail_v5",
+    "eval_namespace": "data/pallet/eval_results/paper_s2_teacher_hardtail_v5"
+  },
+  "common_train_flags": [
+    "--mask_aux",
+    "--mask_weight",
+    "0.0",
+    "--mask_warmup",
+    "0",
+    "--aspect_resize",
+    "--teacher_distill_weight",
+    "1.0",
+    "--teacher_peak_weight",
+    "0.005",
+    "--teacher_peak_threshold",
+    "0.3",
+    "--teacher_peak_margin",
+    "0.03",
+    "--diffpnp",
+    "--diffpnp_lambda",
+    "0.0",
+    "--diffpnp_temp",
+    "0.1",
+    "--diffpnp_warmup",
+    "0",
+    "--diffpnp_ramp",
+    "250"
+  ],
+  "refinement_train_flags": {
+    "schedule": [
+      "--refinement_warmup",
+      "0",
+      "--refinement_ramp",
+      "250"
+    ],
+    "quality": [
+      "--quality_weight",
+      "0.01"
+    ],
+    "extent": [
+      "--extent_weight",
+      "0.03",
+      "--extent_radius",
+      "5",
+      "--extent_temperature",
+      "0.1",
+      "--extent_tolerance",
+      "1.0"
+    ],
+    "signed": [
+      "--signed_weight",
+      "0.005",
+      "--signed_width_weight",
+      "1.0",
+      "--signed_depth_weight",
+      "1.0",
+      "--signed_radial_weight",
+      "1.0",
+      "--signed_overshoot_weight",
+      "0.25",
+      "--signed_overshoot_ratio",
+      "1.08"
+    ]
+  },
+  "arms": {
+    "teacher_cvar_extent": {
+      "description": "Train only the final belief tail on the ep57-teacher worst mask-extent quartile while distillation and peak hinges preserve detections.",
+      "trainable_scope": "belief_tail",
+      "train_flags": [
+        "--extent_loss",
+        "--extent_cvar_fraction",
+        "0.25",
+        "--trainable_scope",
+        "belief_tail"
+      ],
+      "features": [
+        "extent_loss"
+      ]
+    },
+    "teacher_signed": {
+      "description": "Train only the final belief tail with GT-direction signed W/depth/radial under-coverage plus ep57 anti-forgetting constraints.",
+      "trainable_scope": "belief_tail",
+      "train_flags": [
+        "--signed_footprint_loss",
+        "--trainable_scope",
+        "belief_tail"
+      ],
+      "features": [
+        "signed_footprint_loss"
+      ]
+    },
+    "teacher_cvar_signed": {
+      "description": "Combine teacher-worst mask extent and signed GT footprint while updating only the final belief tail.",
+      "trainable_scope": "belief_tail",
+      "train_flags": [
+        "--extent_loss",
+        "--extent_cvar_fraction",
+        "0.25",
+        "--signed_footprint_loss",
+        "--trainable_scope",
+        "belief_tail"
+      ],
+      "features": [
+        "extent_loss",
+        "signed_footprint_loss"
+      ]
+    },
+    "teacher_pnp_fit": {
+      "description": "Directly penalize rigid PnP projection shrink relative to detached decoded heatmap footprint, with teacher constraints and belief-tail-only updates.",
+      "trainable_scope": "belief_tail",
+      "train_flags": [
+        "--diffpnp_lambda",
+        "0.02",
+        "--diffpnp_geometry_weight",
+        "0.0",
+        "--diffpnp_undercoverage_weight",
+        "0.0",
+        "--diffpnp_fit_coverage_weight",
+        "20.0",
+        "--diffpnp_fit_span_margin",
+        "0.95",
+        "--diffpnp_fit_hard_span_threshold",
+        "0.90",
+        "--trainable_scope",
+        "belief_tail"
+      ],
+      "features": []
+    }
+  },
+  "evaluation": {
+    "quick_synthetic": "q1_500",
+    "full_synthetic": "val_1500",
+    "development_real": "filterval_123",
+    "secondary_real": "handannot17",
+    "evaluate_all_real_checkpoints": true,
+    "selection_policy": "scoped_span_preserve",
+    "preservation": {
+      "max_detection_drop_frames": 1,
+      "max_legacy_pnp_drop_frames": 1,
+      "max_safe_accept_drop_frames": 2,
+      "min_safe_good_delta_frames": 0,
+      "max_uc_eligible_drop_frames": 2,
+      "min_uc_improvement_frames": 3,
+      "max_safe_gross_increase_frames": 0
+    },
+    "membership_sha256": "4ad0348466f0be59f62d8566a6fa3d46946c0264cbd1f92ccf7255600a20032e",
+    "selection_uses": [
+      "synthetic",
+      "filterval"
+    ],
+    "selection_excludes": [
+      "handannot17",
+      "final_test"
+    ],
+    "sealed_session_names": [
+      "capturepallet09",
+      "capturepallet07",
+      "capturenight09",
+      "capturenight08"
+    ]
+  }
+}

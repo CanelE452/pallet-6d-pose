@@ -27,6 +27,12 @@ class State:
     pan = [0, 0]
     dirty = False       # 미저장 변경
     last_mouse = None
+    split = "eval"      # 이 프레임의 용도: "eval"(평가용) or "train". v 키로 토글, JSON 저장
+    # Goto (임의 frame 점프): trackbar 클릭/드래그 + G/: 번호 입력
+    goto = None         # 점프 목표 (selected 인덱스). 설정되면 main 루프가 소비
+    goto_mode = False   # 번호 입력 중
+    goto_buf = ""       # 입력 버퍼
+    annot_only = False  # True = n/p 가 어노된 frame(out_dir JSON 존재)만 이동
     # MANIPULATE mode (6DoF pose 직접 편집)
     mode = "click"      # "click" or "manip"
     locked_pose = None  # manip 진입 시 PnP pose snapshot (dict: R, t)
@@ -37,7 +43,7 @@ class State:
     line_pts = None     # list of [x, y] (max 4)
 
 
-def make_annotation(kps_2d, pose, image_shape, K, dims=None):
+def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval"):
     """NDDS 호환 JSON dict 생성.
 
     GT = 사용자가 클릭한 manual_kps 그대로. 안 찍은 점은 PnP projection 으로 fallback,
@@ -87,6 +93,7 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None):
                 "width": dims[0], "height": dims[2], "depth": dims[1],
             },
             "gt_source": "manual",
+            "split": split,
             "manual_kps": [list(p) if p is not None else None for p in kps_2d],
             "reproj_error_px": pose["reproj_error_px"],
         }],
@@ -113,6 +120,7 @@ def load_existing_annotation(state, out_json):
         with open(out_json, "r", encoding="utf-8") as f:
             data = json.load(f)
         manual = data["objects"][0].get("manual_kps")
+        state.split = data["objects"][0].get("split", "eval")
         if manual:
             state.kps_2d = [list(p) if p is not None else None for p in manual]
             state.active = next((i for i, k in enumerate(state.kps_2d) if k is None), 8)

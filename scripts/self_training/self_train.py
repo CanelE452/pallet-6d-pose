@@ -89,7 +89,7 @@ def self_training_loop(config, args):
 
     # LOO filter 면 default-ordering PnP 별도 필요
     filter_type = config["geometric_filter"].get("filter_type", "ransac")
-    if filter_type == "ransac_loo":
+    if filter_type in ("ransac_loo", "ransac_loo_flip"):
         loo_solver = PalletPnPSolver(
             camera_matrix,
             pallet_dims=(pallet_cfg["width"], pallet_cfg["depth"], pallet_cfg["height"]))
@@ -242,7 +242,7 @@ def parse_args():
     parser.add_argument("--epochs_per_round", type=int, default=None)
     parser.add_argument("--lr", type=float, default=None)
     parser.add_argument("--filter_type", type=str, default=None,
-                        choices=["ransac", "bc", "conf", "none", "ransac_loo"])
+                        choices=["ransac", "bc", "conf", "none", "ransac_loo", "ransac_loo_flip"])
     parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()
 

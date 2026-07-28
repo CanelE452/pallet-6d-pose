@@ -331,7 +331,7 @@ def main():
         img = cv2.imread(img_path)
         h_orig, w_orig = img.shape[:2]
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img_resized = cv2.resize(img_rgb, (448, 448))
+        img_resized = cv2.resize(img_rgb, (400, 400))  # 학습 입력(400×400)과 일치
         img_norm = (img_resized.astype(np.float32) / 255.0 - mean) / std
         tensor = torch.from_numpy(img_norm.transpose(2, 0, 1)).float().unsqueeze(0).to(device)
 

@@ -14,6 +14,34 @@ from utils import CreateBeliefMap
 from canonical_filters import filter_B as canonical_filter_B
 from canonical_filters import filter_C as canonical_filter_C
 
+# camera-facing 0123 L-R mirror swap (180° yaw). flip TTA 일관성 필터용.
+FLIP_PAIRS = [(0, 1), (3, 2), (4, 5), (7, 6)]
+
+
+def _flip_score(model, img_tensor, keypoints_2d, image_size, device, normalize,
+                peak_threshold=0.3):
+    """L-R flip TTA 일관성: flip 추론 → un-flip x(size-x) + FLIP_PAIRS swap →
+    원 예측과 코너별 거리. 양쪽 검출된 코너의 median px (겹침<4면 999)."""
+    flip_img = torch.flip(img_tensor, dims=[2])            # width축 L-R flip
+    with torch.no_grad():
+        out_bel, _ = model(normalize(flip_img.clone()).unsqueeze(0).to(device))
+    bmap = out_bel[-1][0].cpu().numpy()
+    kpf_raw = extract_peaks(bmap, threshold=peak_threshold, image_size=image_size)
+    kpf = [None] * 9
+    for i in range(8):
+        if kpf_raw[i] is not None:
+            kpf[i] = (image_size - kpf_raw[i][0], kpf_raw[i][1])   # un-flip
+    swap = list(range(9))
+    for a, b in FLIP_PAIRS:
+        swap[a], swap[b] = b, a
+    kpf_sw = [kpf[swap[i]] for i in range(9)]
+    dists = []
+    for i in range(8):
+        o, f = keypoints_2d[i], kpf_sw[i]
+        if o is not None and f is not None:
+            dists.append(float(np.hypot(o[0] - f[0], o[1] - f[1])))
+    return float(np.median(dists)) if len(dists) >= 4 else 999.0
+
 
 def extract_peaks(belief_maps, threshold=0.3, image_size=448):
     """belief maps (9, H, W) → 9 keypoints (u, v, conf) or None each.
@@ -119,7 +147,8 @@ def _apply_filter(filter_type, keypoints_2d, pnp_solver, geo_filter,
             return False, R, t, "filter_fail"
         return True, R, t, None
 
-    if filter_type == "ransac_loo":
+    if filter_type in ("ransac_loo", "ransac_loo_flip"):
+        # flip 게이트는 generate_pseudo_labels 에서 (model/img 필요) 별도 적용.
         is_valid, R, t, _ = geo_filter.solve_and_validate(keypoints_2d)
         if R is None:
             return False, None, None, "pnp_fail"
@@ -209,6 +238,15 @@ def generate_pseudo_labels(model, real_loader, pnp_solver, geo_filter,
                     else:
                         num_filter_fail += 1
                     continue
+
+                # flip 게이트 (ransac_loo_flip): L-R flip TTA 일관성 <= flip_tau
+                if "flip" in filter_type:
+                    flip_tau = float(gf_cfg.get("flip_tau", 10.0))
+                    fscore = _flip_score(model, img, keypoints_2d, image_size,
+                                         device, normalize, peak_threshold)
+                    if fscore > flip_tau:
+                        num_filter_fail += 1
+                        continue
 
                 pseudo_beliefs = generate_belief_maps_from_keypoints(
                     keypoints_2d, image_size=image_size,

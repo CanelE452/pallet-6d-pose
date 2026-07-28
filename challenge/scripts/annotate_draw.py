@@ -45,6 +45,14 @@ CUBOID_EDGES = [
 
 PANEL_W = 280  # 우측 키 안내 패널 폭
 
+
+def annot_button_rect(panel_h):
+    """패널 하단 'ANNOT-ONLY' 클릭 버튼의 panel-local 사각형 (x0,y0,x1,y1)."""
+    x0, x1 = 10, PANEL_W - 10
+    y1 = panel_h - 14
+    y0 = y1 - 42
+    return (x0, y0, x1, y1)
+
 # ─── Letterbox margin ─────────────────────────────────────────────────────────
 # 캡처 이미지(640x480) 밖으로 projection 되는 keypoint/cuboid 코너(특히 화면 하단의
 # far-bottom 6/7) 가 image 경계를 넘어가 안 보이는 문제 해결용 여백.
@@ -162,7 +170,8 @@ def _pose_dim_short(pose):
 
 
 def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
-                mode="click", trans_step=0.02, rot_step=5.0):
+                mode="click", trans_step=0.02, rot_step=5.0, split="eval",
+                annot_only=False):
     """우측 키 안내 + 현재 상태 패널."""
     panel = np.full((h, PANEL_W, 3), 25, dtype=np.uint8)
 
@@ -173,6 +182,8 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
     y = 18
     mode_color = (0, 255, 0) if mode == "click" else (0, 200, 255)
     put(y, f"MODE: {mode.upper()}  [m=toggle]", mode_color, 0.5, 2); y += 22
+    split_color = (0, 255, 0) if split == "eval" else (150, 150, 150)
+    put(y, f"SPLIT: {split.upper()}  [v=toggle]", split_color, 0.5, 2); y += 22
 
     if mode == "click":
         put(y, "KEYBOARD - CLICK", (255, 255, 0), 0.5, 1); y += 22
@@ -186,8 +197,11 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
         put(y, "s        save+next", (0, 255, 0));      y += 16
         put(y, "f        near-only save+next", (0, 255, 0)); y += 16
         put(y, "g        auto-fill save (4+pts)", (0, 255, 0)); y += 16
+        put(y, "v        eval/train toggle", (0, 255, 0)); y += 16
         put(y, "n / p    next / prev", (200, 200, 200)); y += 16
         put(y, ", / .    -10 / +10",   (200, 200, 200)); y += 16
+        put(y, "G / :    goto frame # (Enter)", (0, 255, 255)); y += 16
+        put(y, "slider   click/drag to jump", (0, 255, 255)); y += 16
         put(y, "c        centroid auto", (200, 200, 200)); y += 16
         put(y, "z        undo last",   (200, 200, 200)); y += 16
         put(y, "r        reset all",   (200, 200, 200)); y += 16
@@ -234,6 +248,17 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
         dim_text = _pose_dim_short(pose)
         if dim_text:
             put(y, dim_text, (180, 220, 255), 0.45); y += 16
+
+    # ── ANNOT-ONLY 클릭 버튼 (패널 하단) ──
+    bx0, by0, bx1, by1 = annot_button_rect(h)
+    bcol = (0, 150, 0) if annot_only else (60, 60, 60)
+    cv2.rectangle(panel, (bx0, by0), (bx1, by1), bcol, -1)
+    cv2.rectangle(panel, (bx0, by0), (bx1, by1), (210, 210, 210), 2)
+    label = "ANNOT-ONLY: ON" if annot_only else "ANNOT-ONLY: OFF"
+    cv2.putText(panel, label, (bx0 + 10, by0 + 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.48, (255, 255, 255), 2, cv2.LINE_AA)
+    cv2.putText(panel, "click to toggle (n/p=annot only)", (bx0 + 10, by1 - 8),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.34, (200, 200, 200), 1, cv2.LINE_AA)
     return panel
 
 
@@ -261,6 +286,16 @@ def render(state, frame_idx, total_frames, frame_name):
                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, col, 2)
     cv2.putText(vis, frame_name[:20], (w - 220, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.45, (180, 180, 180), 1)
+    # split 배지 (이미지 상단 중앙 — zoom 후에도 항상 보임)
+    _split = getattr(state, "split", "eval")
+    _sc = (0, 220, 0) if _split == "eval" else (150, 150, 150)
+    cv2.putText(vis, _split.upper(), (w // 2 - 30, 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.55, _sc, 2)
+    # goto 번호 입력 중이면 하단 바에 버퍼 표시
+    if getattr(state, "goto_mode", False):
+        cv2.rectangle(vis, (0, h - 30), (w, h), (0, 0, 0), -1)
+        cv2.putText(vis, f"GOTO frame #: {state.goto_buf}_   (Enter=go, Esc=cancel)",
+                    (10, h - 9), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
     # v6 컨벤션 critical 경고 (zoom 후에도 항상 보이도록 상단 bar 아래에 표시).
     # fix v6 strict invariants (LR/TB/FR pair) 위반 또는 사용자 click LR/TB 모순.
     if state.pose is not None and state.pose.get("v4_warning"):
@@ -289,5 +324,7 @@ def render(state, frame_idx, total_frames, frame_name):
     panel = build_panel(h, state.active, state.kps_2d, state.pose,
                         frame_idx, total_frames, state.zoom, state.dirty,
                         mode=state.mode, trans_step=state.trans_step,
-                        rot_step=state.rot_step_deg)
+                        rot_step=state.rot_step_deg,
+                        split=getattr(state, "split", "eval"),
+                        annot_only=getattr(state, "annot_only", False))
     return np.hstack([vis, panel])

@@ -166,12 +166,23 @@ def draw_overlay(img, pred_kps, gt_kps_orig, belief_maps, pnp_solver, label):
     return vis
 
 
+def aspect_resize(img, target=400):
+    """비율유지 resize: 짧은 변=target, 긴 변=비율 그대로(8의 배수). DOPE는 fully-conv라 정사각 불필요.
+    run_dope_live의 400/h는 가로영상(640×480) 전용 — 세로(portrait)면 너비가 짜부됨. 일반화하면
+    short-side→target 라야 가로/세로 모두 객체 크기 유지. belief→원본 역매핑은 belief.shape 기반이라 그대로 성립."""
+    h, w = img.shape[:2]
+    s = target / float(min(h, w))
+    nw = max(8, int(round(w * s)) & ~7)
+    nh = max(8, int(round(h * s)) & ~7)
+    return cv2.resize(img, (nw, nh))
+
+
 def infer(model, img_bgr, device):
     """DOPE 추론 → belief maps."""
     mean = np.array([0.485, 0.456, 0.406])
     std = np.array([0.229, 0.224, 0.225])
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    img_resized = cv2.resize(img_rgb, (448, 448))
+    img_resized = aspect_resize(img_rgb, 400)  # 비율유지(실배포 방식), squash 금지
     img_norm = (img_resized.astype(np.float32) / 255.0 - mean) / std
     tensor = torch.from_numpy(img_norm.transpose(2, 0, 1)).float().unsqueeze(0).to(device)
     with torch.no_grad():

@@ -433,3 +433,120 @@ diag+ransac_loo        3    8.8     8.5  100%    0  *low(3)
 - `outside_diag_0_6px.jpg` ~ `_2_7px.jpg` — diag 통과, cyan/magenta cuboid 거의 완전 일치(9kp 5.9~7px).
 - `night_diag_ratio_0_6px.jpg` ~ — diag∧ratio 통과, 저조도에도 9kp 6~7px 정합.
 - `indoor_ratio_0_6px.jpg` ~ — ratio 통과 best 3장(6~8px). 단 통과 전체 median은 13.7px(best만 청정, 나머지 산포 큼).
+
+---
+
+## ransac_loo reproj-threshold sweep (2026-06-08, **paper_base** 모델)
+
+> 목적: ransac_loo 순도(good%)는 s2에서 거의 완벽했으나 통과량(N)이 사망(1~3) → reproj threshold 완화로 양을 늘리며 순도 유지점(sweet spot)이 있는지 탐색.
+> 판단지표: 도메인별 [통과 N] + [good%(order-free 9kp reproj <10px)] + [9kp_med]. 양·순도 동시.
+> 모델: **weights/paper_base/final_net_epoch_0060.pth** (논문 트랙 base, GT셋 held-out — 누수 없음). 직전 pr_screening 표는 ft_s2(누수) 기준이라 직접 비교 불가.
+> 코드: `scripts/data_prep/eval/filter_loo_sweep.py` (캐시 `_full_paper_base.json` + per-frame GT json에서 K·dimensions_m 재독). dims=per-frame GT(W/D swap 자동 흡수). good = Hungarian 9kp(8코너+centroid) reproj <10px.
+> detectable(>=6코너): indoor 149 / outside 110 / night 57.
+
+### [ransac_loo threshold sweep]  (LOO_tau=0.05, consensus c>=6)
+```
+domain    tau_px    N   good%  9kp_med
+--------------------------------------
+indoor         3    0      --       --
+indoor         5    7     0.0     11.0
+indoor         8   17     0.0     12.1
+indoor        10   18     0.0     11.8
+indoor        12   18     0.0     11.8
+indoor        15   18     0.0     11.8
+--------------------------------------
+outside        3    1     0.0     13.9
+outside        5    3     0.0     15.0
+outside        8    4     0.0     16.7
+outside       10    6     0.0     24.7
+outside       12    6     0.0     24.7
+outside       15    7     0.0     20.0
+--------------------------------------
+night          3    1     0.0     14.7
+night          5    2     0.0     19.6
+night          8    3     0.0     21.6
+night         10    4     0.0     22.1
+night         12    4     0.0     22.1
+night         15    4     0.0     22.1
+```
+
+### [diag] (threshold-free)
+```
+domain       N   good%  9kp_med
+-------------------------------
+indoor      12    25.0     11.1
+outside      6    16.7     13.2
+night       13     7.7     20.8
+```
+
+### [fullkp] (threshold-free)
+```
+domain       N   good%  9kp_med
+-------------------------------
+indoor      36    11.1     12.3
+outside     31    12.9     17.6
+night       16     6.2     23.0
+```
+
+### sanity 대조군 — 동일 sweep을 s2 캐시로 (코드 검증 + s2엔 sweet spot 존재 확인)
+```
+[ransac_loo, s2]  tau   N   good%  9kp_med      [diag,s2]                [fullkp,s2]
+outside            3    1   100.0    9.4        outside 27 51.9% 9.9     outside 37 48.6% 10.0
+outside            5    3   100.0    9.3        night   10 60.0% 8.8     night   29 58.6% 9.1
+outside            8    4    75.0    9.4        indoor   7  0.0% 13.2    indoor  32  0.0% 14.1
+night              5    2   100.0    8.4
+night              8   10    70.0    9.0   ← s2 night sweet spot: tau=8, N 2→10, 순도 70% 유지
+night             15   15    73.3    8.6
+indoor(s2도 붕괴)  15   12    33.3   23.5
+```
+
+### 핵심 결론 (paper_base 기준 — 직전 s2 결론과 정반대)
+1. **paper_base에서는 ransac_loo good% = 모든 threshold·모든 도메인 0.0%.** threshold를 3→15로 완화하면 N은 늘지만(outside 1→7, night 1→4, indoor 0→18) 9kp_med가 11~25px로 그대로/악화. **sweet spot 없음.** 완화는 나쁜 PL만 더 통과시킴.
+2. **원인 = 모델 keypoint 정확도.** s2(누수 self-train) 대조군에서는 같은 코드로 outside/night가 tau 5~8px에서 순도 70~100%·9kp_med ~9px·N이 4~10으로 늘어 명확한 sweet spot 존재. 즉 "ransac_loo 순도 완벽"은 **s2의 성질이지 paper_base의 성질이 아니다.** paper_base는 코너 예측 자체가 9kp_med 11px+ 라 어떤 기하필터도 <10px PL을 못 만듦.
+3. **diag/fullkp 단독도 paper_base에선 good% 6~25%** (indoor diag 25%가 최고이나 N=12·9kp_med 11.1px). paper_base 단독으로 self-training용 청정 PL 확보 불가.
+4. **함의**: paper_base를 self-training 1라운드의 PL 소스로 직접 쓰는 건 부적합. (a) 합성 데이터로 base를 더 끌어올리거나, (b) good 기준 px를 12~13으로 올려 "약간 부정확하나 방향 맞는" PL을 허용하거나(품질 저하 감수), (c) 누수 없는 약한 self-train을 거쳐 코너 정확도를 먼저 올린 뒤 재필터하는 단계적 접근이 필요.
+5. unlabeled pool 추출량 추정: paper_base+ransac_loo(tau=8)는 detectable 대비 indoor 17/149(11%)·outside 4/110(4%)·night 3/57(5%) 통과하나 **good%=0** → 추출해도 학습에 해로움. 권장 추출량 = 0 (현 base·현 good기준).
+
+> 저장: `data/pallet/eval_results/filter_loo_sweep/sweep_paper_base.json`, `sweep_s2.json`, 콘솔표 `.txt`. paper_base 추론 캐시 `data/pallet/eval_results/filter_domain_analysis/_full_paper_base.json`.
+
+---
+
+## Flip-consistency 필터 (2026-06-08, paper_base)
+
+**질문:** 좌우 flip TTA 일관성이 `diag`(공간대각선 교점≈centroid, projective invariant — centroid만 봄)가 못 잡는 **back(4-7)/centroid 불안정**을 잡아 더 믿을만한 PL을 거르는가?
+
+**방법** (`scripts/data_prep/eval/filter_flip_consistency.py`, A 추론은 `_full_paper_base.json` 캐시 재활용, flip 추론만 신규):
+- A = 원본 9kp 예측. B = 이미지 좌우 flip 추론 → x un-flip(W-x) + camera-facing swap `0↔1,3↔2,4↔5,7↔6`(centroid 8 고정).
+- flip score = index-aligned 평균 per-kp ||A−B|| (px). A·B는 같은 모델의 같은 물리 코너 예측이라 swap 후 index 정합이 맞아 order-free 불필요. 판정(통과 PL 품질)은 GT 대비 order-free 9kp(Hungarian 8코너+centroid).
+
+```
+[reference: pool & diag-alone]
+scope       det good_pool%  diagN diag_med diag_good%
+indoor      117       6.8%     12     11.1      25.0%
+outside      58       6.9%      6     13.2      16.7%
+night        27       3.7%     13     20.8       7.7%
+ALL         202       6.4%     31     13.7      16.1%
+
+[flip consistency  tau-sweep]   (N / 9kp_med / good%)
+scope     tau=8           tau=10          tau=15
+indoor    8/13.2/0%       24/13.2/4%      89/12.6/6%
+outside   1/10.6/0%       4/10.7/25%      27/14.5/11%
+night     0/--/--         7/19.7/14%      10/20.2/10%
+ALL       9/13.1/0%       35/13.5/9%      126/13.0/7%
+
+[diag AND flip — flip이 diag 통과분의 나쁜 PL을 거르나]
+scope  tau=10 (combo N/9kp_med/good%)   diag-only  flip이 떨군 diag-pass(N, e9_med)
+indoor 4/10.6/25%                       N12 25%    drop 8 (med 11.4)
+night  5/19.7/20%                       N13 7.7%   drop 8 (med 23.0)
+ALL    10/12.3/20%                      N31 16.1%  drop 21 (med 13.9)
+```
+
+**상관:** Spearman(flip, GT 9kp err)=0.37(전체 196), **diag 통과분 안에서 0.48**, Pearson 0.58. → flip은 PL 품질과 단조 상관. diag-pass 안에서 flip이 떨군 21개 e9 median 13.9 vs 남긴 10개 12.3 (떨군 쪽이 더 나쁨 — 방향 맞음).
+
+### 결론 (정직하게)
+1. **flip은 품질의 유효한 프록시** — score가 GT 오차와 상관(0.37~0.58)하고, 특히 **diag 통과분 안에서 0.48로 diag가 못 본 변동을 잡음**. diag∧flip(tau=10)은 indoor good% 25%→(N4 유지)·night 7.7%→20%로 순도를 올림(다만 N 급감).
+2. **그러나 paper_base 천장이 결정적 제약.** detectable pool 자체 good%가 6.4%뿐(코너 예측 9kp_med 11px+). flip<=10이어도 good% 8.6%·9kp_med 13.5px. flip은 *상대적으로* 나쁜 걸 골라내지만, 모집단에 좋은 PL이 없어 **절대 순도(good%)는 여전히 한 자릿수**. (앞 ransac_loo/diag/fullkp 섹션과 동일 천장.)
+3. **systematic depth 붕괴 우려는 데이터상 부분적으로만 맞음.** flat-view depth 붕괴가 좌우대칭이면 flip해도 일관(score 작음)→못 거름이 예상이나, 실제로 flip score와 GT err가 양의 상관 → 붕괴 케이스 다수는 flip시 불일치도 동반(완전 systematic은 아님). 단 flip<=10인데 good 아닌 32개는 이 잔여(일관되게 틀림)로 추정.
+4. **함의:** flip은 diag/ransac_loo 대비 **버릴 이유 없는 보완 신호**(특히 diag 통과분의 2차 게이트로 0.48 상관). 하지만 단독으로도 조합으로도 **현 paper_base에선 청정 PL을 못 만든다**. 필터 개선이 아니라 base 코너 정확도(합성 보강/단계적 self-train)가 선결. flip의 진짜 가치는 base가 9kp_med<10px로 올라온 뒤 재평가해야 의미 있음(s2 캐시에선 다른 필터가 sweet spot 보였듯).
+
+> 저장: `data/pallet/eval_results/filter_flip_consistency/flip_consistency_paper_base.{txt,json}` (records에 frame별 flip/e9/diag 포함). 코드 `scripts/data_prep/eval/filter_flip_consistency.py`.

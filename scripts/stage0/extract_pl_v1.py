@@ -13,14 +13,23 @@ Design contract (judged by the stage-0 spec):
       filt_diag / canonical_kp3d from filter_pr_camfacing, and infer_flip_kp /
       flip_consistency_score from filter_flip_consistency. NO re-implemented geom.
   (2) input = split-lock pl_pool_frames.txt (pool sessions only).
-  (3) every PL json carries  source_model='paper_base_ep60'  to distinguish from
-      the 4-arm base-v2 PL (extract_pl_v5.py).
+  (3) every PL json carries  source_model='base_v2_sigma2_ep66'  to distinguish
+      from the 4-arm base-v2 PL (extract_pl_v5.py).
   (4) diag pass + flip score stored per PL as scores, gate decided later.
   final-test sessions never appear (they are not in pl_pool_frames.txt).
 
+Preprocessing (2026-06-19):
+  inference uses ASPECT (ratio-preserving short-side->400, non-square input),
+  NOT squash 400x400.  Predicted belief-map keypoints are remapped EXACTLY to
+  ORIGINAL-image px:  orig = (b * _nw/bw) / _sc , (b * _nh/bh) / _sc.  This is
+  the precise aspect inverse (avoids the ~1% &~7 systematic error in
+  evaluate_on_val._belief_to_orig which reuses the squash formula).  The flip
+  pass (infer_flip_kp) already returns ORIGINAL-px kp, so the flip score is on
+  the same (original-px) scale.
+
 Usage (user, GPU):
   conda run -n pallet-pose python scripts/stage0/extract_pl_v1.py \
-      --weights weights/paper_base/final_net_epoch_0060.pth \
+      --weights weights/paper_base_v2_s2/net_epoch_0066.pth \
       --output_dir data/pallet/pl/stage0_paper_base
 
 Smoke (CPU, no model):
@@ -41,16 +50,17 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 
-SOURCE_MODEL = "paper_base_ep60"
+SOURCE_MODEL = "base_v2_sigma2_ep66"
+RAW = os.path.join(ROOT, "data", "pallet", "raw_data")
 POOL_SESSION_DIRS = [
-    os.path.join(ROOT, "data", "outside", "capturepallet01", "rgb"),
-    os.path.join(ROOT, "data", "outside", "capturepallet10", "rgb"),
-    os.path.join(ROOT, "data", "outside", "capturepallet11", "rgb"),
-    os.path.join(ROOT, "data", "night", "capturenight01", "rgb"),
-    os.path.join(ROOT, "data", "night", "capturenight02", "rgb"),
-    os.path.join(ROOT, "data", "night", "capturenight03", "rgb"),
-    os.path.join(ROOT, "data", "night", "capturenight04", "rgb"),
-    os.path.join(ROOT, "data", "night", "capturenight10", "rgb"),
+    os.path.join(RAW, "outside", "capturepallet01", "rgb"),
+    os.path.join(RAW, "outside", "capturepallet10", "rgb"),
+    os.path.join(RAW, "outside", "capturepallet11", "rgb"),
+    os.path.join(RAW, "night", "capturenight01", "rgb"),
+    os.path.join(RAW, "night", "capturenight02", "rgb"),
+    os.path.join(RAW, "night", "capturenight03", "rgb"),
+    os.path.join(RAW, "night", "capturenight04", "rgb"),
+    os.path.join(RAW, "night", "capturenight10", "rgb"),
 ]
 DEFAULT_POOL = os.path.join(ROOT, "data", "pallet", "eval_results",
                             "split_lock", "pl_pool_frames.txt")
@@ -88,8 +98,10 @@ def resolve_pool_frames(pool_txt):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--weights", default=os.path.join(
-        ROOT, "weights", "paper_base", "final_net_epoch_0060.pth"))
+        ROOT, "weights", "paper_base_v2_s2", "net_epoch_0066.pth"))
     ap.add_argument("--pool_txt", default=DEFAULT_POOL)
+    ap.add_argument("--image_dir", default=None,
+                    help="if set, glob this dir for images directly (bypass pool_txt)")
     ap.add_argument("--output_dir", default=os.path.join(
         ROOT, "data", "pallet", "pl", "stage0_paper_base"))
     ap.add_argument("--threshold", type=float, default=0.3)
@@ -100,7 +112,15 @@ def main():
                     help="CPU-safe: resolve frames + write a manifest, NO model")
     args = ap.parse_args()
 
-    pairs, missing = resolve_pool_frames(args.pool_txt)
+    if args.image_dir:
+        imgs = []
+        for ext in ("*.png", "*.jpg", "*.jpeg"):
+            imgs += glob.glob(os.path.join(args.image_dir, ext))
+        pairs = [(os.path.splitext(os.path.basename(p))[0], p) for p in sorted(imgs)]
+        missing = []
+        print(f"[image_dir] {args.image_dir}: {len(pairs)} images")
+    else:
+        pairs, missing = resolve_pool_frames(args.pool_txt)
     if args.max_frames:
         pairs = pairs[:args.max_frames]
     n_out = sum(1 for _, p in pairs if domain_of(p) == "outside")
@@ -153,14 +173,23 @@ def main():
             continue
         h0, w0 = img.shape[:2]
         rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        t = ((cv2.resize(rgb, (448, 448)).astype(np.float32) / 255.0 - mean) / std)
+        # ── ASPECT preprocess (ratio-preserving short-side->400, non-square) ──
+        # 학습 입력은 RandomCrop400 (정사각 crop, 비율유지)이므로 short-side->400.
+        # squash(400x400)는 종횡비 왜곡 → 좌표 왜곡 + N 과소집계 → 사용 금지.
+        _sc = 400.0 / min(h0, w0)
+        _nw = max(8, int(round(w0 * _sc)) & ~7)   # 8의 배수 (FCN stride 8)
+        _nh = max(8, int(round(h0 * _sc)) & ~7)
+        img_resized = cv2.resize(rgb, (_nw, _nh))
+        t = ((img_resized.astype(np.float32) / 255.0 - mean) / std)
         tensor = torch.from_numpy(t.transpose(2, 0, 1)).float().unsqueeze(0).to(device)
         with torch.no_grad():
             out_bel, _ = model(tensor)
         belief = out_bel[-1][0].cpu().numpy()
         kps_bel = extract_keypoints_from_belief(belief, args.threshold)
         bh, bw = belief.shape[1], belief.shape[2]
-        sx, sy = bw / w0, bh / h0
+        # belief(bh×bw) → input(_nh×_nw) [FCN upsample _nw/bw≈8] → orig(/ _sc).
+        # 정확한 aspect 역매핑 (evaluate_on_val 의 squash재사용 ~1% 오차 회피).
+        ux, uy = _nw / bw, _nh / bh
 
         kp = []  # 9 entries, original-image px or None
         confs = []
@@ -168,12 +197,13 @@ def main():
             if k[0] < 0:
                 kp.append(None); confs.append(0.0)
             else:
-                kp.append((k[0] / sx, k[1] / sy)); confs.append(float(k[2]))
+                kp.append(((k[0] * ux) / _sc, (k[1] * uy) / _sc)); confs.append(float(k[2]))
         n_det = sum(1 for x in kp[:8] if x is not None)
 
         # scores (NOT gates) — reused geometry
         diag_pass, diag_score = filt_diag(kp)
-        kpB = infer_flip_kp(model, img, device, mean, std, args.threshold)
+        kpB = infer_flip_kp(model, img, device, mean, std, args.threshold,
+                            preprocess="aspect")
         flip_score, flip_ncmp = flip_consistency_score(kp, kpB)
 
         # NDDS dump — projected_cuboid 9 (None -> [-100,-100] so the loader

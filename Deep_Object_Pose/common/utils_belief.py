@@ -10,7 +10,6 @@ import colorsys
 import numpy as np
 import torch
 from PIL import Image, ImageDraw
-import torchvision.transforms as transforms
 
 from utils_math import length, normalize, py_ang
 
@@ -125,18 +124,44 @@ def GenerateMapAffinity(
     return torch.cat(affinities, 0)
 
 
-def CreateBeliefMap(size, pointsBelief, nbpoints, sigma=16, save=False):
+def CreateBeliefMap(
+    size,
+    pointsBelief,
+    nbpoints,
+    sigma=16,
+    save=False,
+    clip_at_border=False,
+):
     """keypoint 좌표 → Gaussian belief map 리스트 (nbpoints, size, size).
-    각 채널 = 한 keypoint 의 Gaussian peak. sigma = 1 이하면 gradient vanishing."""
+    각 채널 = 한 keypoint 의 Gaussian peak. sigma = 1 이하면 gradient vanishing.
+
+    ``clip_at_border=False`` preserves the historical DOPE target exactly: if
+    the full 4-sigma-wide support does not fit, the whole channel is empty.
+    With ``clip_at_border=True``, a keypoint whose *centre is inside* the map is
+    drawn and only the off-map Gaussian tail is clipped.  Far-outside points
+    are still ignored; this avoids inventing a border target for an actually
+    invisible corner.
+    """
     beliefsImg = []
     for numb_point in range(nbpoints):
         array = np.zeros([size, size])
         for point in pointsBelief:
             p = [point[numb_point][1], point[numb_point][0]]
             w = int(sigma * 2)
-            if p[0] - w >= 0 and p[0] + w < size and p[1] - w >= 0 and p[1] + w < size:
-                for i in range(int(p[0]) - w, int(p[0]) + w + 1):
-                    for j in range(int(p[1]) - w, int(p[1]) + w + 1):
+            full_support_inside = (
+                p[0] - w >= 0
+                and p[0] + w < size
+                and p[1] - w >= 0
+                and p[1] + w < size
+            )
+            centre_inside = 0 <= p[0] < size and 0 <= p[1] < size
+            if full_support_inside or (clip_at_border and centre_inside):
+                i0 = max(0, int(p[0]) - w)
+                i1 = min(size - 1, int(p[0]) + w)
+                j0 = max(0, int(p[1]) - w)
+                j1 = min(size - 1, int(p[1]) + w)
+                for i in range(i0, i1 + 1):
+                    for j in range(j0, j1 + 1):
                         array[i, j] = max(
                             np.exp(-(((i - p[0]) ** 2 + (j - p[1]) ** 2)
                                      / (2 * (sigma ** 2)))),

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "experiment": "paper_s2_rgb1_improve_v1",
+  "description": "Single-RGB, fixed 400 input / 50 belief-grid fine-tuning from PAPER_S2 ep57 using only existing Stage-B data.",
+  "locked": {
+    "base_checkpoint": "weights/paper_s2_stageB/net_epoch_0057.pth",
+    "base_epoch": 57,
+    "input_size": 400,
+    "belief_size": 50,
+    "sigma": 2.0,
+    "seed": 42,
+    "batch_size": 12,
+    "workers": 6,
+    "learning_rate": 0.00005,
+    "quick_epoch_size": 6000,
+    "quick_delta_epochs": 6,
+    "full_epoch_size": 0,
+    "full_delta_epochs": 15,
+    "data": [
+      "data/pallet/training_data/mixed_v8_train",
+      "data/pallet/training_data/v4_split_base",
+      "data/pallet/training_data/aug_squash_v2",
+      "data/pallet/training_data/aug_trunc_v2",
+      "data/pallet/training_data/aug_scale_v2",
+      "data/pallet/training_data/paper_4pallet_mask_v1"
+    ],
+    "balance_groups": "mixed_v8_train|v4_split_base|aug_squash_v2|aug_trunc_v2|aug_scale_v2:60,paper_4pallet_mask_v1:40",
+    "diffpnp_index_dir": "data/pallet/results/paper_s2_scratch_diffpnp/pnp_valid_3d_index",
+    "diffpnp_root": "data/pallet/training_data",
+    "weights_namespace": "weights/paper_s2_rgb1_improve_v1",
+    "results_namespace": "data/pallet/results/paper_s2_rgb1_improve_v1",
+    "eval_namespace": "data/pallet/eval_results/paper_s2_rgb1_improve_v1"
+  },
+  "common_train_flags": [
+    "--mask_aux",
+    "--mask_weight",
+    "0.01",
+    "--mask_warmup",
+    "0",
+    "--diffpnp",
+    "--diffpnp_lambda",
+    "0.005",
+    "--diffpnp_temp",
+    "0.1",
+    "--diffpnp_warmup",
+    "0",
+    "--diffpnp_ramp",
+    "1000"
+  ],
+  "refinement_train_flags": {
+    "schedule": [
+      "--refinement_warmup",
+      "0",
+      "--refinement_ramp",
+      "500"
+    ],
+    "quality": [
+      "--quality_weight",
+      "0.01"
+    ],
+    "extent": [
+      "--extent_weight",
+      "0.05",
+      "--extent_radius",
+      "5",
+      "--extent_temperature",
+      "0.1",
+      "--extent_tolerance",
+      "1.0"
+    ]
+  },
+  "arms": {
+    "control": {
+      "description": "Unchanged PAPER_S2 Stage-B objective continued from ep57.",
+      "train_flags": [],
+      "features": []
+    },
+    "border_target": {
+      "description": "Control plus clipped Gaussian targets for visible keypoints near the 50x50 border.",
+      "train_flags": ["--clip_belief_border"],
+      "features": ["clip_belief_border"]
+    },
+    "mask_extent": {
+      "description": "Control plus mask-to-belief feature fusion and mask extent coverage loss.",
+      "train_flags": [
+        "--mask_belief_fusion",
+        "--extent_loss"
+      ],
+      "features": ["mask_belief_fusion", "extent_loss"]
+    },
+    "uncertainty": {
+      "description": "Control plus calibrated corner uncertainty for weighted safe PnP.",
+      "train_flags": ["--corner_quality"],
+      "features": ["corner_quality"]
+    },
+    "full": {
+      "description": "All retained improvements; excludes offset and the invalid W/D ranking target.",
+      "train_flags": [
+        "--clip_belief_border",
+        "--mask_belief_fusion",
+        "--extent_loss",
+        "--corner_quality"
+      ],
+      "features": [
+        "clip_belief_border",
+        "mask_belief_fusion",
+        "extent_loss",
+        "corner_quality"
+      ]
+    }
+  },
+  "evaluation": {
+    "quick_synthetic": "q1_500",
+    "full_synthetic": "val_1500",
+    "development_real": "filterval_123",
+    "secondary_real": "handannot17",
+    "membership_sha256": "4ad0348466f0be59f62d8566a6fa3d46946c0264cbd1f92ccf7255600a20032e",
+    "selection_uses": ["synthetic", "filterval"],
+    "selection_excludes": ["handannot17", "final_test"],
+    "sealed_session_names": [
+      "capturepallet09",
+      "capturepallet07",
+      "capturenight09",
+      "capturenight08"
+    ]
+  }
+}

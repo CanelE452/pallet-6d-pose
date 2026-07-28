@@ -185,7 +185,10 @@ def main():
         # 이미지 로드 + 추론
         img = cv2.imread(img_path)
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img_resized = cv2.resize(img_rgb, (448, 448))
+        _h0, _w0 = img_rgb.shape[:2]  # 비율유지(short-side→400): 가로/세로 모두 객체크기 유지. squash 금지
+        _sc = 400.0 / min(_h0, _w0)
+        _nw = max(8, int(round(_w0 * _sc)) & ~7); _nh = max(8, int(round(_h0 * _sc)) & ~7)
+        img_resized = cv2.resize(img_rgb, (_nw, _nh))
         img_norm = (img_resized.astype(np.float32) / 255.0 - mean) / std
         tensor = torch.from_numpy(img_norm.transpose(2, 0, 1)).float().unsqueeze(0).to(device)
 

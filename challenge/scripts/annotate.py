@@ -26,6 +26,9 @@ Keypoint 순서 (**camera-facing convention, 2026-05-22 결정**):
   d             활성 idx 삭제
   r             전체 reset
   s             저장 + 다음 frame
+  v             이 frame eval/train 토글 (평가용 표시, JSON split 필드에 저장)
+  G 또는 :      frame 번호 입력 점프 (숫자 후 Enter, Esc 취소) — 상단 슬라이더 클릭/드래그도 가능
+  ANNOT-ONLY 버튼 (우측 패널 하단 클릭) = ON 이면 n/p 가 어노된 frame 만 이동 (어노된 것만 보기)
   f             near-only 자동 저장 (0~3 만 클릭, 4~7 자동 PnP projection 채움)
   g             auto-fill 저장 (4+ 점 클릭, 미클릭 idx 자동 PnP projection 채움) ★ truncation/occlusion
   x             parallelogram 외삽 (active idx ← 같은 face 의 나머지 3 corner) ★ truncation
@@ -71,7 +74,8 @@ from annotate_pnp import (
     parallelogram_extrapolate,
     PALLET_DIMS,
 )
-from annotate_draw import render, MARGIN_L, MARGIN_R, MARGIN_T, MARGIN_B
+from annotate_draw import (render, annot_button_rect,
+                           MARGIN_L, MARGIN_R, MARGIN_T, MARGIN_B)
 from annotate_io import (
     State, make_annotation, save_frame_json, load_existing_annotation,
 )
@@ -89,6 +93,15 @@ def on_mouse(event, x, y, flags, s: State):
     if s.img is not None:
         canvas_w = s.img.shape[1] + MARGIN_L + MARGIN_R
         if x >= canvas_w:
+            # 패널 영역 — ANNOT-ONLY 버튼 클릭만 처리, 나머지는 무시.
+            if event == cv2.EVENT_LBUTTONDOWN:
+                canvas_h = s.img.shape[0] + MARGIN_T + MARGIN_B
+                px, py = x - canvas_w, y
+                bx0, by0, bx1, by1 = annot_button_rect(canvas_h)
+                if bx0 <= px <= bx1 and by0 <= py <= by1:
+                    s.annot_only = not s.annot_only
+                    print(f"[Annot-only] {'ON' if s.annot_only else 'OFF'}"
+                          f"  (n/p 로 어노된 frame 만 이동)")
             return
     # MANIPULATE 모드에서는 마우스 클릭으로 점 안 찍음
     if s.mode != "click":
@@ -192,13 +205,13 @@ def _handle_manip_key(key, s, out_json, out_png, src_png, K):
         # locked_pose 의 projected_cuboid 를 그대로 manual_kps 로 덮어쓰기
         proj = s.pose["projected_all"]
         s.kps_2d = [list(p) if (p[0] >= 0 or p[1] >= 0) else None for p in proj]
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K)
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
         save_frame_json(out_json, out_png, src_png, ann)
         print(f"[Saved manip] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
         s.dirty = False
         s.mode = "click"
         s.locked_pose = None
-        return 'next'
+        return 'save-next'
     elif key == ord('Q'):
         return 'quit'
     return None
@@ -209,17 +222,23 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
     if key == ord('q'):
         return 'quit'
 
+    if key == ord('v'):
+        s.split = "train" if s.split == "eval" else "eval"
+        s.dirty = True
+        print(f"[Split] this frame -> {s.split.upper()}  (저장 시 JSON 에 반영)")
+        return None
+
     if key == ord('s'):
         if s.pose is None:
             print("[WARN] PnP 실패 — 최소 4점 필요. 저장 안 됨.")
             return None
         # manual_kps 는 사용자 클릭 그대로 저장 (위치 안 옮김).
         # swap 보정은 라벨링 후 fix_manual_swap.py 후처리.
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K)
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
         save_frame_json(out_json, out_png, src_png, ann)
         print(f"[Saved] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
         s.dirty = False
-        return 'next'
+        return 'save-next'
 
     if key == ord('f'):
         # Front-only 자동 저장: 0~3 만 클릭한 상태에서 PnP projection 으로 4~7 채움.
@@ -229,11 +248,11 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             return None
         proj = s.pose["projected_all"]
         s.kps_2d = [list(p) if (p[0] >= 0 or p[1] >= 0) else None for p in proj]
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K)
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
         save_frame_json(out_json, out_png, src_png, ann)
         print(f"[Saved front-only] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
         s.dirty = False
-        return 'next'
+        return 'save-next'
 
     if key == ord('g'):
         # Auto-fill 저장: 사용자가 클릭한 점은 그대로 두고, 미클릭 0~7 점은 PnP
@@ -256,7 +275,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             if s.kps_2d[i] is None and proj[i][0] >= 0:
                 s.kps_2d[i] = list(proj[i])
                 n_auto += 1
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K)
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
         save_frame_json(out_json, out_png, src_png, ann)
         print(f"[Saved auto-fill] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px "
               f"({n_clicked_07} manual + {n_auto} auto-fill) — 시각 확인 후 'n' 으로 다음 frame")
@@ -391,6 +410,9 @@ def main():
                     help="기본: challenge/data/<seq_name>_manual_gt")
     ap.add_argument("--stride",  type=int, default=30, help="N frame 마다 1개 annotate")
     ap.add_argument("--start",   type=int, default=0, help="시작 frame idx")
+    ap.add_argument("--default_split", choices=["eval", "train"], default="train",
+                    help="새 frame 의 기본 split (v 키로 토글). 기본 train — eval 로 쓸 것만 v "
+                         "로 표시. eval GT 대량 어노 시 --default_split eval.")
     args = ap.parse_args()
 
     seq = args.seq if os.path.isabs(args.seq) else os.path.join(_REPO, args.seq)
@@ -420,6 +442,22 @@ def main():
     cv2.namedWindow(win)
     s = State()
     cv2.setMouseCallback(win, on_mouse, s)
+    # frame 점프 슬라이더 (클릭/드래그로 임의 frame 이동). 번호 입력은 G/: 키.
+    if len(selected) > 1:
+        cv2.createTrackbar("frame", win, 0, len(selected) - 1, lambda v: None)
+
+    def _has_annot(ci):
+        st = os.path.splitext(os.path.basename(rgb_paths[selected[ci]]))[0]
+        return os.path.exists(os.path.join(out_dir, st + ".json"))
+
+    def _step_annot(ci, d):
+        """방향 d(+1/-1)로 어노된 다음 frame 인덱스. 없으면 제자리."""
+        j = ci + d
+        while 0 <= j < len(selected):
+            if _has_annot(j):
+                return j
+            j += d
+        return ci
 
     cur = 0
     while 0 <= cur < len(selected):
@@ -439,16 +477,62 @@ def main():
         s.zoom = 1.0
         s.pan = [0, 0]
         s.dirty = False
+        s.split = args.default_split   # 기본 split; 기존 JSON 있으면 load 가 override
         if load_existing_annotation(s, out_json):
             update_pose(s, K)
+        if len(selected) > 1:
+            cv2.setTrackbarPos("frame", win, cur)   # 슬라이더를 현재 위치에 동기화
 
         # 메인 루프 (한 프레임)
         next_action = None
+        prev_ao = s.annot_only
         while next_action is None:
             update_pose(s, K)
             vis = render(s, cur, len(selected), stem)
             cv2.imshow(win, vis)
             key = cv2.waitKey(20) & 0xFF
+
+            # 위젯(ANNOT-ONLY 버튼 / frame 슬라이더)은 키 입력이 없을 때(255)만 폴링한다.
+            # 키 처리 前에 폴링하면 실제 키입력(예: 's' 저장)을 삼킬 수 있어 분리.
+            if key == 255:
+                # ANNOT-ONLY 버튼 토글 감지 (마우스 콜백이 s.annot_only 변경)
+                if s.annot_only != prev_ao:
+                    prev_ao = s.annot_only
+                    if s.annot_only and not _has_annot(cur):   # 켜면 가까운 어노 frame 으로
+                        nj = _step_annot(cur, +1)
+                        if nj == cur:
+                            nj = _step_annot(cur, -1)
+                        if nj != cur:
+                            s.goto = nj
+                            next_action = 'goto'
+                # frame 슬라이더 드래그/클릭 점프
+                if next_action is None and len(selected) > 1:
+                    tb = cv2.getTrackbarPos("frame", win)
+                    if tb != cur:
+                        s.goto = tb
+                        next_action = 'goto'
+                continue
+
+            # ── Goto 번호 입력 모드 (G/: 로 진입, 숫자 타이핑 후 Enter) ──
+            if s.goto_mode:
+                if ord('0') <= key <= ord('9'):
+                    s.goto_buf += chr(key)
+                elif key in (13, 10):                       # Enter = 점프
+                    if s.goto_buf:
+                        s.goto = max(0, min(len(selected) - 1, int(s.goto_buf) - 1))
+                        s.goto_mode = False
+                        next_action = 'goto'
+                        continue
+                    s.goto_mode = False
+                elif key == 27:                             # Esc = 취소
+                    s.goto_mode = False
+                elif key in (8, 127):                       # Backspace
+                    s.goto_buf = s.goto_buf[:-1]
+                continue
+            if key in (ord('G'), ord(':')):
+                s.goto_mode = True
+                s.goto_buf = ""
+                continue
 
             # ── Mode toggle ──
             if key == ord('m'):
@@ -474,14 +558,20 @@ def main():
         # 다음 frame 결정
         if next_action == 'quit':
             break
+        elif next_action == 'save-next':
+            cur += 1                                    # 저장 후엔 항상 다음 sequential frame
         elif next_action == 'next':
-            cur += 1
+            cur = _step_annot(cur, +1) if s.annot_only else cur + 1
         elif next_action == 'prev':
-            cur = max(0, cur - 1)
+            cur = _step_annot(cur, -1) if s.annot_only else max(0, cur - 1)
         elif next_action == 'jump-10':
             cur = max(0, cur - 10)
         elif next_action == 'jump+10':
             cur = min(len(selected) - 1, cur + 10)
+        elif next_action == 'goto':
+            if s.goto is not None:
+                cur = max(0, min(len(selected) - 1, s.goto))
+            s.goto = None
 
     cv2.destroyAllWindows()
     saved = len(glob.glob(os.path.join(out_dir, "*.json")))

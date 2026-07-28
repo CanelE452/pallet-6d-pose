@@ -22,11 +22,43 @@ from PIL import Image, ImageDraw, ImageEnhance
 from utils_loaders import append_dot, loadimages
 from utils_belief import CreateBeliefMap, GenerateMapAffinity, VisualizeAffinityMap, VisualizeBeliefMap
 from utils_viz import save_image
+from heatmap_refinement import pseudo_label_channel_masks
 
 
 def crop(img, i, j, h, w):
     """PIL Image crop."""
     return img.crop((j, i, j + w, i + h))
+
+
+# --- DiffPnP3D (PAPER_S2) helpers -------------------------------------------
+# build_diffpnp3d_targets lives in Deep_Object_Pose/train/diffpnp3d_loss.py.
+# Lazy-imported so the loader has no import cost / dependency when DiffPnP is off.
+_BUILD_DIFFPNP_TARGETS = None
+# Non-degenerate placeholder pose/box for gated-out (valid=0) frames so the
+# batched Gauss-Newton solve never sees a singular system (frame is masked
+# afterwards). Values are arbitrary but well-conditioned.
+_DIFFPNP_FALLBACK_X = np.array([
+    [0.5, 0.075, -0.5], [-0.5, 0.075, -0.5], [-0.5, -0.075, -0.5], [0.5, -0.075, -0.5],
+    [0.5, 0.075, 0.5], [-0.5, 0.075, 0.5], [-0.5, -0.075, 0.5], [0.5, -0.075, 0.5],
+], dtype=np.float32)
+_DIFFPNP_FALLBACK_K = np.array([[600., 0., 320.], [0., 600., 240.], [0., 0., 1.]],
+                               dtype=np.float32)
+_DIFFPNP_FALLBACK_R = np.eye(3, dtype=np.float32)
+_DIFFPNP_FALLBACK_T = np.array([0., 0., 2.], dtype=np.float32)
+_DIFFPNP_FALLBACK_DIAG = 1.5
+
+
+def _build_diffpnp_targets(json_path, entry):
+    global _BUILD_DIFFPNP_TARGETS
+    if _BUILD_DIFFPNP_TARGETS is None:
+        import sys as _sys
+        _here = os.path.dirname(os.path.abspath(__file__))
+        _train = os.path.abspath(os.path.join(_here, "..", "train"))
+        if _train not in _sys.path:
+            _sys.path.insert(0, _train)
+        from diffpnp3d_loss import build_diffpnp3d_targets as _f
+        _BUILD_DIFFPNP_TARGETS = _f
+    return _BUILD_DIFFPNP_TARGETS(json_path, entry)
 
 
 class AddRandomContrast(object):
@@ -279,11 +311,56 @@ class CleanVisiiDopeLoader(data.Dataset):
     def __init__(self, path_dataset, objects=None, sigma=1, output_size=400,
                  extensions=["png"], debug=False,
                  use_s3=False, buckets=[], endpoint_url=None,
-                 truncation_aug_prob=0.0):
+                 truncation_aug_prob=0.0,
+                 pvnet_vec=False, pvnet_unit=False, pvnet_mask_rle=False,
+                 mask_aux=False,
+                 clip_belief_border=False,
+                 refinement_targets=False,
+                 aspect_resize=False, diffpnp_index=None):
         self.path_dataset = path_dataset
         self.objects_interest = list(map(str.lower, objects))
         self.sigma = sigma
         self.output_size = output_size
+        # PVNet-style dense vector head GT (flag-gated, default off => backward
+        # compatible). When True, __getitem__ additionally returns "pvnet_vec"
+        # (18,output_size,output_size) and "pvnet_mask" (1,output_size,output_size).
+        self.pvnet_vec = bool(pvnet_vec)
+        self.pvnet_unit = bool(pvnet_unit)
+        # v3 합성셋 전용: per-pixel real mask(mask_rle) 를 seg/vec-support 마스크로
+        # 쓴다(cuboid hull confound 제거). default False => 기존 데이터(mask_rle
+        # 없는 셋)는 동작 불변(hull fallback). json 에 mask_rle 없으면 frame 단위로
+        # 자동 hull fallback.
+        self.pvnet_mask_rle = bool(pvnet_mask_rle)
+        # B2 mask auxiliary (STEP13): emit a per-frame seg GT mask (1,output,output)
+        # decoded from JSON mask_rle ONLY, plus a scalar "pvnet_mask_valid" (1.0 if
+        # mask_rle present & spatially carried, else 0.0). Old data (no mask_rle ->
+        # valid=0) contributes NO mask loss (trainer masks it out). Does NOT build
+        # the dense vector field (heatmap+mask aux only). Default off => unchanged.
+        # Implies pvnet_mask_rle for the decode path below.
+        self.mask_aux = bool(mask_aux)
+        if self.mask_aux:
+            self.pvnet_mask_rle = True
+        # Fixed-50 heatmap improvements (all opt-in):
+        # - clip_belief_border keeps a Gaussian whose centre is inside the
+        #   belief map and clips only its off-map tail.
+        # - refinement_targets emits transformed 9-corner coordinates used by
+        #   the corner uncertainty calibration loss.
+        self.clip_belief_border = bool(clip_belief_border)
+        self.refinement_targets = bool(refinement_targets)
+        # DiffPnP3D (PAPER_S2) support (flag-gated, default off => unchanged).
+        # aspect_resize: replace the plain-frame A.RandomCrop(400) spatial op with
+        #   A.Resize(400,400) so belief<->orig is a FIXED anisotropic scale
+        #   (640x480 -> 400 -> output_size) that LocalSoftArgmax2D can invert.
+        # diffpnp_index: {abs_json_path -> audit index entry}. When provided,
+        #   __getitem__ emits per-frame DiffPnP3D targets (X,K,R,t,diag,valid).
+        #   Eligible (pnp_valid_3d & V8 & 640x480) frames additionally SKIP the
+        #   in-plane A.Rotate so their belief peaks stay consistent with the K
+        #   projection (rotation about the image centre is NOT a valid camera
+        #   roll, so it would break the 3D-corner geometry). Both default off =>
+        #   loader is byte-identical to before.
+        self.aspect_resize = bool(aspect_resize)
+        self.diffpnp_index = diffpnp_index
+        self.diffpnp = diffpnp_index is not None
         self.extensions = append_dot(extensions)
         self.debug = debug
         # On-the-fly truncation augmentation probability (0.0 = off, backward
@@ -371,9 +448,56 @@ class CleanVisiiDopeLoader(data.Dataset):
             all_kps = [[[-100, -100]] * 9]
         return all_kps
 
+    @staticmethod
+    def _pseudo_keypoint_valid(data_json):
+        """Return the explicit PL validity vector, or legacy all-valid flags."""
+        raw = data_json.get("pseudo_keypoint_valid")
+        if raw is None:
+            return torch.ones(9, dtype=torch.float32)
+        if not isinstance(raw, (list, tuple)) or len(raw) != 9:
+            raise ValueError(
+                "pseudo_keypoint_valid must be a length-9 list/tuple")
+        values = np.asarray(raw, dtype=np.float32)
+        if (not np.isfinite(values).all()
+                or not np.isin(values, [0.0, 1.0]).all()):
+            raise ValueError(
+                "pseudo_keypoint_valid entries must be finite binary flags")
+        return torch.from_numpy(values.copy())
+
     def __getitem__(self, index):
         img, data_json, img_name = self._load_raw(index)
         all_projected_cuboid_keypoints = self._collect_keypoints(data_json)
+        pseudo_keypoint_valid = self._pseudo_keypoint_valid(data_json)
+        belief_channel_mask, affinity_channel_mask = \
+            pseudo_label_channel_masks(pseudo_keypoint_valid)
+
+        # ---- DiffPnP3D eligibility (needed before building the aug pipeline) ---
+        # Eligible frames use the fixed anisotropic Resize AND skip A.Rotate so the
+        # belief peaks stay consistent with the K projection. Only non-S3 frames
+        # (we have the json path) participate.
+        diffpnp_entry = None
+        diffpnp_eligible = False
+        if self.diffpnp_index is not None and not self.use_s3:
+            path_json = self.imgs[index][2]
+            diffpnp_entry = self.diffpnp_index.get(os.path.abspath(path_json))
+            if diffpnp_entry is not None and \
+                    diffpnp_entry.get("pnp_valid_3d") and diffpnp_entry.get("V8"):
+                diffpnp_eligible = True
+
+        # ---- v3 real per-pixel mask (mask_rle) -----------------------------
+        # original-pixel space (640x480 등) 에서 디코드 후, 아래 keypoint 와 동일한
+        # spatial transform(crop/rotate/resize) 을 albumentations mask 로 통과시켜
+        # belief 격자 좌표계에 정합. mask_rle 없으면 None -> 기존 hull fallback.
+        real_mask_orig = None
+        if self.pvnet_mask_rle and len(data_json.get("objects", [])) > 0:
+            obj0 = data_json["objects"][0]
+            if "mask_rle" in obj0:
+                from utils_pvnet import decode_mask_rle
+                real_mask_orig = decode_mask_rle(obj0["mask_rle"]).astype(np.uint8)
+                if real_mask_orig.shape[:2] != img.shape[:2]:
+                    real_mask_orig = cv2.resize(
+                        real_mask_orig, (img.shape[1], img.shape[0]),
+                        interpolation=cv2.INTER_NEAREST)
 
         # ---- On-the-fly truncation augmentation -----------------------------
         # Applied on the ORIGINAL image (640x480 etc.) BEFORE albumentations,
@@ -422,23 +546,39 @@ class CleanVisiiDopeLoader(data.Dataset):
         # Note: Resize to a square 400x400 changes aspect (640x480 -> 1:1), the
         # same anisotropic scaling A.Resize applies; belief targets are built
         # from the transformed keypoints so they stay consistent.
-        spatial_op = (A.Resize(width=400, height=400) if applied_truncation
+        # aspect_resize (DiffPnP3D): plain frames use A.Resize(400,400) instead of
+        # A.RandomCrop so belief<->orig is a fixed anisotropic scale. Off => plain
+        # frames RandomCrop exactly as before.
+        use_resize = applied_truncation or self.aspect_resize
+        spatial_op = (A.Resize(width=400, height=400) if use_resize
                       else A.RandomCrop(width=400, height=400))
+        aug_ops = [spatial_op]
+        # DiffPnP3D-eligible frames skip the in-plane rotation (see __init__ note).
+        if not diffpnp_eligible:
+            aug_ops.append(A.Rotate(limit=180))
+        aug_ops += [
+            A.RandomBrightnessContrast(brightness_limit=0.35, contrast_limit=0.2, p=1),
+            A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20,
+                                 val_shift_limit=30, p=0.5),
+            A.RandomGamma(gamma_limit=(60, 140), p=0.3),
+            A.GaussNoise(p=0.5),
+        ]
         transform = A.Compose(
-            [
-                spatial_op,
-                A.Rotate(limit=180),
-                A.RandomBrightnessContrast(brightness_limit=0.35, contrast_limit=0.2, p=1),
-                A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20,
-                                     val_shift_limit=30, p=0.5),
-                A.RandomGamma(gamma_limit=(60, 140), p=0.3),
-                A.GaussNoise(p=0.5),
-            ],
+            aug_ops,
             keypoint_params=A.KeypointParams(format="xy", remove_invisible=False),
         )
-        transformed = transform(image=img, keypoints=flatten_projected_cuboid)
+        # real mask 가 있으면 keypoint 와 동일 spatial transform 으로 함께 통과.
+        # truncation 경로(applied_truncation)는 mask 와 정합이 보장되지 않으므로
+        # mask 동행을 생략(아래에서 hull fallback). quick screen 은 trunc off.
+        pass_mask = real_mask_orig if not applied_truncation else None
+        if pass_mask is not None:
+            transformed = transform(image=img, keypoints=flatten_projected_cuboid,
+                                    mask=pass_mask)
+        else:
+            transformed = transform(image=img, keypoints=flatten_projected_cuboid)
         img_transformed = transformed["image"]
         flatten_projected_cuboid_transformed = transformed["keypoints"]
+        real_mask_transformed = transformed.get("mask") if pass_mask is not None else None
 
         # resize to output_size if needed
         if not self.output_size == 400:
@@ -446,8 +586,16 @@ class CleanVisiiDopeLoader(data.Dataset):
                 [A.Resize(width=self.output_size, height=self.output_size)],
                 keypoint_params=A.KeypointParams(format="xy", remove_invisible=False),
             )
-            transformed = transform(
-                image=img_transformed, keypoints=flatten_projected_cuboid_transformed)
+            if real_mask_transformed is not None:
+                transformed = transform(
+                    image=img_transformed,
+                    keypoints=flatten_projected_cuboid_transformed,
+                    mask=real_mask_transformed)
+                real_mask_transformed = transformed.get("mask")
+            else:
+                transformed = transform(
+                    image=img_transformed,
+                    keypoints=flatten_projected_cuboid_transformed)
             img_transformed_output_size = transformed["image"]
             flatten_projected_cuboid_transformed_output_size = transformed["keypoints"]
         else:
@@ -477,6 +625,7 @@ class CleanVisiiDopeLoader(data.Dataset):
             size=int(self.output_size),
             pointsBelief=all_projected_cuboid_keypoints,
             sigma=self.sigma, nbpoints=9, save=False,
+            clip_at_border=self.clip_belief_border,
         )
         beliefs = torch.from_numpy(np.array(beliefs))
         affinities = GenerateMapAffinity(
@@ -512,14 +661,120 @@ class CleanVisiiDopeLoader(data.Dataset):
 
         visibility = self._compute_visibility(data_json, img.shape, self.output_size)
 
-        return {
+        out = {
             "img": img_tensor,
             "affinities": torch.clamp(affinities, -1, 1),
             "beliefs": torch.clamp(beliefs, 0, 1),
+            "belief_channel_mask": belief_channel_mask,
+            "affinity_channel_mask": affinity_channel_mask,
             "file_name": img_name,
             "img_original": img_original,
             "visibility": visibility,
         }
+
+        # Coordinates after exactly the same crop/rotate/resize as the belief
+        # target.  Unlike belief-channel presence, validity intentionally keeps
+        # genuine off-frame corners: those are useful high-error examples for
+        # the uncertainty head.  The historical [-100,-100] object sentinel is
+        # excluded, as are non-finite/corrupt coordinates.  Multi-object belief
+        # maps are ambiguous for a single per-channel coordinate and are gated.
+        if self.refinement_targets:
+            kp = np.zeros((9, 2), dtype=np.float32)
+            kp_valid = np.zeros(9, dtype=np.float32)
+            if len(all_projected_cuboid_keypoints) == 1:
+                arr = np.asarray(
+                    all_projected_cuboid_keypoints[0], dtype=np.float32)
+                if arr.shape == (9, 2):
+                    finite = np.isfinite(arr).all(axis=1)
+                    sentinel = (arr[:, 0] <= -90.0) & (arr[:, 1] <= -90.0)
+                    reasonable = (np.abs(arr) < 1.0e4).all(axis=1)
+                    valid = finite & (~sentinel) & reasonable
+                    kp[:] = np.where(finite[:, None], arr, 0.0)
+                    kp_valid[:] = valid.astype(np.float32)
+            out["refine_keypoints"] = torch.from_numpy(kp)
+            out["refine_keypoints_valid"] = torch.from_numpy(kp_valid)
+
+        # PVNet dense vector GT (flag-gated). Built from the same transformed
+        # keypoints (already in output_size/belief-grid coords), so it stays
+        # consistent with beliefs/affinities. First object only (DOPE pallet).
+        if self.pvnet_vec:
+            from utils_pvnet import make_vector_field
+            kps9 = np.array(all_projected_cuboid_keypoints[0], dtype=np.float32)
+            # real mask(mask_rle) 가 있으면 그것을 vec-support/seg GT 로 사용,
+            # 없으면 make_vector_field 가 cuboid hull 로 fallback(mask=None).
+            rmask = None
+            if real_mask_transformed is not None:
+                rmask = (np.asarray(real_mask_transformed) > 0).astype(np.uint8)
+            if kps9.shape == (9, 2) and not np.all(kps9 < 0):
+                vec, mask = make_vector_field(
+                    kps9, int(self.output_size), mask=rmask,
+                    unit=self.pvnet_unit)
+            else:
+                vec = np.zeros((18, int(self.output_size), int(self.output_size)),
+                               dtype=np.float32)
+                mask = np.zeros((int(self.output_size), int(self.output_size)),
+                                dtype=np.uint8)
+            out["pvnet_vec"] = torch.from_numpy(vec)
+            out["pvnet_mask"] = torch.from_numpy(mask).unsqueeze(0).float()
+
+        # B2 mask auxiliary (seg GT only, no vector field). Carries the real mask
+        # (mask_rle decode) through the SAME spatial transform as the keypoints, so
+        # it is aligned to the belief/output grid. valid=1.0 only when a real mask
+        # was available & carried (truncation frames & old data have no real mask
+        # -> valid=0.0, zero mask, no loss). Independent of pvnet_vec.
+        elif self.mask_aux:
+            if real_mask_transformed is not None:
+                m = (np.asarray(real_mask_transformed) > 0).astype(np.float32)
+                out["pvnet_mask"] = torch.from_numpy(m).unsqueeze(0)
+                out["pvnet_mask_valid"] = torch.tensor(1.0, dtype=torch.float32)
+            else:
+                out["pvnet_mask"] = torch.zeros(
+                    1, int(self.output_size), int(self.output_size),
+                    dtype=torch.float32)
+                out["pvnet_mask_valid"] = torch.tensor(0.0, dtype=torch.float32)
+
+        # DiffPnP3D per-frame targets (flag-gated). Eligible frames carry real
+        # X/K/R/t/diag with valid=1; all other frames carry a well-conditioned
+        # placeholder with valid=0 (masked out in the loss). Fixed shapes so the
+        # default collate stacks them across the batch (like pvnet_mask_valid).
+        if self.diffpnp_index is not None:
+            tgt = None
+            if diffpnp_eligible:
+                path_json = self.imgs[index][2]
+                t = _build_diffpnp_targets(path_json, diffpnp_entry)
+                # Belief-interior gate: CreateBeliefMap draws a gaussian only when a
+                # keypoint sits >= 2*sigma px from the belief border; edge corners
+                # get an EMPTY channel (soft-argmax garbage). V8 (inside image) is
+                # looser than this, so additionally require all 8 transformed
+                # corners inside [w, size-w) in belief coords. Resize is
+                # deterministic for eligible frames, so this gate is stable.
+                w = int(self.sigma * 2)
+                sz = int(self.output_size)
+                kp8 = all_projected_cuboid_keypoints[0][:8]
+                interior = all(
+                    (p[0] - w >= 0 and p[0] + w < sz
+                     and p[1] - w >= 0 and p[1] + w < sz)
+                    for p in kp8)
+                if (tuple(t["img_wh"]) == (640, 480) and t["pnp_valid"]
+                        and t["V8"] and interior):
+                    tgt = t
+            if tgt is not None:
+                out["diffpnp_valid"] = torch.tensor(1.0, dtype=torch.float32)
+                out["diffpnp_X"] = torch.tensor(tgt["X_i"], dtype=torch.float32)
+                out["diffpnp_K"] = torch.tensor(tgt["K"], dtype=torch.float32)
+                out["diffpnp_R"] = torch.tensor(tgt["R_gt"], dtype=torch.float32)
+                out["diffpnp_t"] = torch.tensor(tgt["t_gt"], dtype=torch.float32)
+                out["diffpnp_diag"] = torch.tensor(tgt["diag"], dtype=torch.float32)
+            else:
+                out["diffpnp_valid"] = torch.tensor(0.0, dtype=torch.float32)
+                out["diffpnp_X"] = torch.from_numpy(_DIFFPNP_FALLBACK_X.copy())
+                out["diffpnp_K"] = torch.from_numpy(_DIFFPNP_FALLBACK_K.copy())
+                out["diffpnp_R"] = torch.from_numpy(_DIFFPNP_FALLBACK_R.copy())
+                out["diffpnp_t"] = torch.from_numpy(_DIFFPNP_FALLBACK_T.copy())
+                out["diffpnp_diag"] = torch.tensor(_DIFFPNP_FALLBACK_DIAG,
+                                                   dtype=torch.float32)
+
+        return out
 
     def _compute_visibility(self, data_json, img_shape, output_size):
         """Per-keypoint geometry-derived visibility (3 levels):

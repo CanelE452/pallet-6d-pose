@@ -70,6 +70,19 @@ BOT_IDX = [2, 3, 6, 7]
 # opposite parallel edge pairs (same physical length in 3D)
 WIDTH_EDGES = [(0, 1), (3, 2), (4, 5), (7, 6)]
 DEPTH_EDGES = [(0, 4), (1, 5), (2, 6), (3, 7)]
+HEIGHT_EDGES = [(0, 3), (1, 2), (4, 7), (5, 6)]
+# Within each parallel group, edges that lie on the SAME physical face share a
+# vanishing point, so their 2D-length ratio is tightly bounded by perspective
+# (foreshortening is continuous along the face).  Cross-face edges (front vs
+# rear) can differ much more.  filt_edgelen compares co-planar opposite edges.
+#   W group:  front {0-1,3-2}, rear {4-5,7-6}
+#   D group:  top  {0-4,3-7}, bottom {1-5,2-6}
+#   H group:  left {0-3,4-7}, right {1-2,5-6}
+_FACE_EDGE_PAIRS = {
+    "W": [((0, 1), (3, 2)), ((4, 5), (7, 6))],
+    "D": [((0, 4), (3, 7)), ((1, 5), (2, 6))],
+    "H": [((0, 3), (4, 7)), ((1, 2), (5, 6))],
+}
 
 CONF_THRESHOLD = 0.5
 DEFAULT_GOOD_PX = 10.0
@@ -235,6 +248,61 @@ def filt_ratio(kp, tau=0.35):
     return score < tau, score
 
 
+def _edge_len(kp, a, b):
+    if kp[a] is None or kp[b] is None:
+        return None
+    return float(np.linalg.norm(np.asarray(kp[a], float) - np.asarray(kp[b], float)))
+
+
+def filt_edgelen(kp, tau=0.55, tau_h=1.20, h_min_px=4.0):
+    """PnP-free cuboid edge-length consistency (the 12 real edges only).
+
+    The 12 edges are grouped into 3 parallel groups (W/H/D). For a true cuboid
+    each group is 4 parallel 3D segments; their 2D projections are NOT equal
+    (perspective foreshortening), but two edges lying on the SAME physical face
+    share a vanishing point, so their length ratio is tightly bounded. We score
+    each group by the worst co-planar opposite-edge pair using the symmetric
+    log-ratio |log(L1/L2)|, then take the max over groups. depth-collapse (back
+    or bottom corners squashed toward the front) blows up the D/H pairs while
+    leaving the front face intact, so it is rejected; correct perspective boxes
+    pass.
+
+    The HEIGHT group is special: the pallet is very thin (H=0.11m), so H edges
+    are short (a few px) and noise-dominated. We therefore (a) require a larger
+    tolerance tau_h for H, and (b) skip any H pair whose edges are below
+    h_min_px (pure noise — not informative either way). H never causes a reject
+    on its own unless it is grossly inconsistent (tau_h).
+
+    Args:
+        kp: length-9 list of (x,y) or None (camera-facing 0123 convention).
+        tau: max |log-ratio| allowed for a W/D co-planar opposite-edge pair.
+        tau_h: looser tolerance for the (thin, noisy) H group.
+        h_min_px: skip H pairs whose edges are shorter than this (noise).
+    Returns (bool pass, float score). score = max normalized log-ratio
+    (0 = perfectly consistent); inf if too few edges to judge.
+    """
+    worst = 0.0
+    judged = False
+    for grp, pairs in _FACE_EDGE_PAIRS.items():
+        thr = tau_h if grp == "H" else tau
+        for (e1, e2) in pairs:
+            l1 = _edge_len(kp, *e1)
+            l2 = _edge_len(kp, *e2)
+            if l1 is None or l2 is None:
+                continue
+            if grp == "H" and (l1 < h_min_px or l2 < h_min_px):
+                continue  # both endpoints near-collapsed: H too short to trust
+            lo, hi = sorted((max(l1, 1e-6), max(l2, 1e-6)))
+            lr = float(np.log(hi / lo))           # >= 0, scale-free, symmetric
+            judged = True
+            # normalize each group's log-ratio by its own tolerance so the max
+            # over groups is comparable (score < 1.0  <=>  all pairs within tol)
+            worst = max(worst, lr / thr)
+    if not judged:
+        return False, float("inf")
+    return worst < 1.0, float(worst)
+
+
 def filt_fullkp(kp):
     n = sum(1 for i in range(9) if kp[i] is not None)
     return n == 9, n
@@ -357,7 +425,7 @@ def main():
     mean = np.array([0.485, 0.456, 0.406]); std = np.array([0.229, 0.224, 0.225])
 
     FILTERS = ["none", "conf", "ransac", "ransac_loo", "cf_strict",
-               "diag", "topbot", "ratio", "fullkp", "combo"]
+               "diag", "topbot", "ratio", "edgelen", "fullkp", "combo"]
     per_frame = []
 
     for ds_name, (ds_dir, img_dir) in sets.items():
@@ -448,15 +516,19 @@ def main():
             res["diag"] = filt_diag(kp)[0]
             res["topbot"] = filt_topbot(kp)[0]
             res["ratio"] = filt_ratio(kp)[0]
+            res["edgelen"] = filt_edgelen(kp)[0]
             res["fullkp"] = filt_fullkp(kp)[0]
             res["combo"] = filt_combo(kp)
 
+            edgelen_score = filt_edgelen(kp)[1]
             per_frame.append({
                 "dataset": ds_name, "frame": base,
                 "n_detected": n_det, "min_conf": round(float(min_conf), 4),
                 "mean_match_px": round(mean_match, 2) if np.isfinite(mean_match) else None,
                 "n_match": n_match, "good": good,
                 "ransac_consensus": int(n_cons),
+                "edgelen_score": round(edgelen_score, 4) if np.isfinite(edgelen_score) else None,
+                "kp": [list(p) if p is not None else None for p in kp],
                 "filters": {k: bool(v) for k, v in res.items()},
             })
             if (fi + 1) % 40 == 0:

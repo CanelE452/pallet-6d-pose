@@ -191,15 +191,15 @@ def load_model(weights_path, device):
     return model
 
 
-def extract_keypoints_from_belief(belief_maps, threshold=0.5):
+def extract_keypoints_from_belief(belief_maps, threshold=0.5, win=11):
     """belief map에서 keypoint 좌표 추출 (DOPE 공식 sub-pixel 방식).
 
     1. Gaussian filter로 노이즈 억제
     2. Non-maximum suppression으로 peak 탐색
-    3. 11x11 윈도우에서 weighted average로 sub-pixel 정밀도 확보
+    3. win x win 윈도우에서 weighted average로 sub-pixel 정밀도 확보 (기본 11)
     """
     OFFSET = 0.4395
-    WIN = 11
+    WIN = win
     RAN = WIN // 2
     keypoints = []
 
@@ -313,8 +313,14 @@ def main():
     parser.add_argument("--weights", required=True)
     parser.add_argument("--val_dir", required=True)
     parser.add_argument("--output_dir", default="data/pallet/eval_results")
+    parser.add_argument("--preprocess", choices=["squash", "letterbox", "pad", "aspect"], default="aspect",
+                        help="squash=resize(400,400) 비율왜곡(기존) / aspect=실배포(run_dope_live) 비율유지 height→400 width비례 / letterbox=비율보존+회색pad / pad=reflect-pad(truncation, dope_predict_mp4_pad)")
+    parser.add_argument("--pad", type=int, default=100,
+                        help="pad 모드 reflect-padding 픽셀 (each side)")
     parser.add_argument("--threshold", type=float, default=0.3,
                         help="Belief map peak threshold")
+    parser.add_argument("--peak_win", type=int, default=11,
+                        help="belief peak sub-pixel weighted-centroid 윈도우 크기 (홀수, 기본 11)")
     parser.add_argument("--max_frames", type=int, default=200)
     parser.add_argument("--fx", type=float, default=615.0)
     parser.add_argument("--fy", type=float, default=615.0)
@@ -357,10 +363,28 @@ def main():
         if not os.path.exists(json_path):
             continue
 
-        # 이미지 로드 + 전처리
+        # 이미지 로드 + 전처리 (squash | letterbox)
         img = cv2.imread(png_path)
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img_resized = cv2.resize(img_rgb, (448, 448))
+        h_orig, w_orig = img.shape[:2]
+        _mode = args.preprocess
+        _P = args.pad
+        if _mode == "letterbox":
+            _s = min(400.0 / w_orig, 400.0 / h_orig)
+            _nw, _nh = int(round(w_orig * _s)), int(round(h_orig * _s))
+            _px, _py = (400 - _nw) // 2, (400 - _nh) // 2
+            img_resized = np.zeros((400, 400, 3), dtype=img_rgb.dtype)
+            img_resized[_py:_py + _nh, _px:_px + _nw] = cv2.resize(img_rgb, (_nw, _nh))
+        elif _mode == "pad":  # reflect-pad P each side → resize(400) (truncation 정합)
+            padded = cv2.copyMakeBorder(img_rgb, _P, _P, _P, _P, cv2.BORDER_REFLECT)
+            img_resized = cv2.resize(padded, (400, 400))
+        elif _mode == "aspect":  # 비율유지 short-side→400 (가로/세로 모두 객체크기 유지), 비정사각
+            _sc = 400.0 / min(h_orig, w_orig)
+            _nw = max(8, int(round(w_orig * _sc)) & ~7)
+            _nh = max(8, int(round(h_orig * _sc)) & ~7)
+            img_resized = cv2.resize(img_rgb, (_nw, _nh))
+        else:  # squash (학습 RandomCrop 비율과 불일치 — 기존 호환/비교용)
+            img_resized = cv2.resize(img_rgb, (400, 400))
         img_norm = (img_resized.astype(np.float32) / 255.0 - mean) / std
         tensor = torch.from_numpy(img_norm.transpose(2, 0, 1)).float().unsqueeze(0).to(device)
 
@@ -368,7 +392,7 @@ def main():
             out_bel, out_aff = model(tensor)
 
         belief = out_bel[-1][0].cpu().numpy()
-        pred_kps = extract_keypoints_from_belief(belief, args.threshold)
+        pred_kps = extract_keypoints_from_belief(belief, args.threshold, win=args.peak_win)
 
         # GT 로드
         with open(json_path) as f:
@@ -377,25 +401,48 @@ def main():
         gt_cuboid = obj["projected_cuboid"]
         gt_centroid = obj["projected_cuboid_centroid"]
 
-        # 해상도 스케일 (orig <-> belief)
-        h_orig, w_orig = img.shape[:2]
         bh, bw = belief.shape[1], belief.shape[2]
-        sx, sy = bw / w_orig, bh / h_orig  # orig px → belief px
+
+        def _belief_to_orig(bx, by):
+            cx, cy = bx * 400.0 / bw, by * 400.0 / bh   # belief → 400 입력 캔버스
+            if _mode == "letterbox":
+                return (cx - _px) / _s, (cy - _py) / _s
+            if _mode == "pad":  # 400→padded(W+2P,H+2P)→ pad 제거
+                return cx * (w_orig + 2 * _P) / 400.0 - _P, cy * (h_orig + 2 * _P) / 400.0 - _P
+            return cx * w_orig / 400.0, cy * h_orig / 400.0  # squash
+
+        def _orig_to_belief(gx, gy):
+            if _mode == "letterbox":
+                cx, cy = gx * _s + _px, gy * _s + _py
+            elif _mode == "pad":
+                cx = (gx + _P) * 400.0 / (w_orig + 2 * _P)
+                cy = (gy + _P) * 400.0 / (h_orig + 2 * _P)
+            else:
+                cx, cy = gx * 400.0 / w_orig, gy * 400.0 / h_orig
+            return cx * bw / 400.0, cy * bh / 400.0
+
+        # orig→belief 등방 스케일 (order-free PCK 거리용)
+        if _mode == "letterbox":
+            sx = sy = _s * bw / 400.0
+        elif _mode == "pad":
+            sx, sy = bw / (w_orig + 2 * _P), bh / (h_orig + 2 * _P)
+        else:
+            sx, sy = bw / w_orig, bh / h_orig
 
         # 예측 keypoint (orig 해상도) + validity (9점)
         pred9 = np.full((9, 2), -1.0, dtype=np.float64)
         valid9 = np.zeros(9, dtype=bool)
         for k in range(9):
             if pred_kps[k][0] >= 0:
-                pred9[k] = [pred_kps[k][0] / sx, pred_kps[k][1] / sy]
+                pred9[k] = list(_belief_to_orig(pred_kps[k][0], pred_kps[k][1]))
                 valid9[k] = True
         gt9 = np.array(gt_cuboid + [gt_centroid], dtype=np.float64)  # orig 해상도
 
         pnp_total += 1
 
         # === same-index reference (convention 진단용) ===
-        gt_scaled_same = [(gx * sx, gy * sy) for gx, gy in gt_cuboid]
-        gt_scaled_same.append((gt_centroid[0] * sx, gt_centroid[1] * sy))
+        gt_scaled_same = [_orig_to_belief(gx, gy) for gx, gy in gt_cuboid]
+        gt_scaled_same.append(_orig_to_belief(gt_centroid[0], gt_centroid[1]))
         for thr in pck_same:
             c, t = compute_pck(pred_kps, gt_scaled_same, threshold_px=thr)
             pck_same[thr][0] += c
@@ -517,6 +564,9 @@ def main():
 
     # 결과 저장
     summary = {
+        "weights": args.weights,
+        "preprocess": args.preprocess,
+        "val_dir": args.val_dir,
         "matching": "order-free (48 cube automorphism, centroid fixed)",
         "cuboid_dims": list(CUBOID_DIMS),
         "pck": {f"@{thr}px": pck_counters[thr][0] / max(pck_counters[thr][1], 1) for thr in pck_counters},
@@ -531,6 +581,11 @@ def main():
         "volume_ratio_std": float(np.std(volume_ratios)) if volume_ratios else None,
         "volume_within_20pct": float(np.mean(np.abs(np.array(volume_ratios) - 1.0) < 0.2)) if volume_ratios else None,
         "num_frames": len(png_files),
+        # 검출 진단 (sigma↓ 정밀↑/검출↓ 트레이드오프 판별용): corner2d_count =
+        # 유효 코너검출(≥4 corner + perm 성공) 프레임 수 = corner median 표본 수.
+        "corner2d_count": len(corner2d_errors),
+        "pnp_total": pnp_total,
+        "detect_rate": len(corner2d_errors) / max(len(png_files), 1),
     }
     summary_path = os.path.join(args.output_dir, "eval_summary.json")
     with open(summary_path, "w") as f:
