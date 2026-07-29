@@ -113,6 +113,22 @@ archive/                        폐기 v8 (구 Y=UP keypoint_definition, data_pi
 data/pallet/real_data/README.md                 Real data split 정의, 촬영 프로토콜, AprilTag GT, 평가 메트릭
 ```
 
+### 감사 보고서 (`audits/`)
+
+`data/pallet/results/` 산출물은 `.gitignore` 대상이라 저장소에 남지 않는다.
+재현에 필요한 **핵심 Markdown 보고서만** 여기에 복사해 둔다 (표·그림·parquet 원본은 로컬).
+
+```
+파일                                내용
+──────────────────────────────────────────────────────────────────────────────
+MECHANISM_DIAGNOSTIC_REPORT.md      ep57 mechanism 진단 — failure class / first-break stage
+ARCHITECTURE_DECISION.md            failure class 별 architecture 후보 우선순위 (판정)
+MICRO_TRAIN_PLAN.md                 승격 gate 포함 micro-training 계획 (미실행)
+RUN_PROVENANCE.md                   checkpoint SHA / 환경 / baseline 재현 게이트 결과
+```
+
+재생성: `python scripts/stage0/paper_s2_mechanism_diagnostic.py --all`
+
 ### 작업 기록 (`history/`)
 
 ```
