@@ -20,7 +20,7 @@ import torchvision.transforms as transforms
 from PIL import Image, ImageDraw, ImageEnhance
 
 from utils_loaders import append_dot, loadimages
-from utils_belief import CreateBeliefMap, GenerateMapAffinity, VisualizeAffinityMap, VisualizeBeliefMap
+from utils_belief import CreateBeliefMap, GenerateMapAffinity, VisualizeAffinityMap, VisualizeBeliefMap, spatial_keypoint_validity
 from utils_viz import save_image
 from heatmap_refinement import pseudo_label_channel_masks
 
@@ -315,6 +315,7 @@ class CleanVisiiDopeLoader(data.Dataset):
                  pvnet_vec=False, pvnet_unit=False, pvnet_mask_rle=False,
                  mask_aux=False,
                  clip_belief_border=False,
+                 spatial_keypoint_mask=False,
                  refinement_targets=False,
                  aspect_resize=False, diffpnp_index=None):
         self.path_dataset = path_dataset
@@ -345,7 +346,13 @@ class CleanVisiiDopeLoader(data.Dataset):
         #   belief map and clips only its off-map tail.
         # - refinement_targets emits transformed 9-corner coordinates used by
         #   the corner uncertainty calibration loss.
+        # - spatial_keypoint_mask derives the belief/affinity channel validity
+        #   from the *transformed* keypoint position, so a keypoint that is
+        #   legitimately off the belief map is excluded from the loss instead
+        #   of being supervised as background negative.  Default off keeps the
+        #   historical all-ones GT mask byte-identical.
         self.clip_belief_border = bool(clip_belief_border)
+        self.spatial_keypoint_mask = bool(spatial_keypoint_mask)
         self.refinement_targets = bool(refinement_targets)
         # DiffPnP3D (PAPER_S2) support (flag-gated, default off => unchanged).
         # aspect_resize: replace the plain-frame A.RandomCrop(400) spatial op with
@@ -628,6 +635,19 @@ class CleanVisiiDopeLoader(data.Dataset):
             clip_at_border=self.clip_belief_border,
         )
         beliefs = torch.from_numpy(np.array(beliefs))
+        # Channel validity from the transformed position (opt-in).  Combined
+        # with the pseudo-label validity by AND so a pseudo-label that is
+        # already invalid never becomes valid again.  Single-object only: with
+        # several objects one belief channel carries several targets and a
+        # per-channel spatial mask would be ambiguous.
+        if self.spatial_keypoint_mask and len(all_projected_cuboid_keypoints) == 1:
+            spatial_valid = spatial_keypoint_validity(
+                np.asarray(all_projected_cuboid_keypoints[0], dtype=np.float64),
+                int(self.output_size),
+            )
+            combined = pseudo_keypoint_valid * torch.from_numpy(spatial_valid)
+            belief_channel_mask, affinity_channel_mask = \
+                pseudo_label_channel_masks(combined)
         affinities = GenerateMapAffinity(
             size=int(self.output_size), nb_vertex=8,
             pointsInterest=all_projected_cuboid_keypoints,

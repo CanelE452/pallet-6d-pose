@@ -173,3 +173,61 @@ def CreateBeliefMap(
             imgBelief = Image.fromarray((stack * 255).astype("uint8"))
             imgBelief.save("debug/{}.png".format(numb_point))
     return beliefsImg
+
+
+# --- spatial keypoint validity (PAPER_S2 A1 target semantics) ---------------
+# The historical loss treats every GT belief channel as valid, so a keypoint
+# that is legitimately outside the belief map is supervised as pure background
+# negative, and a keypoint whose centre is inside but whose Gaussian tail is
+# not gets an all-zero target under the same all-ones mask.  The mechanism
+# diagnosis showed both cases coexisting in the training data, which makes the
+# "no response" failure impossible to attribute.  This helper computes channel
+# validity from the *transformed* keypoint position alone, so it can be shared
+# by the GT path and by any pseudo-label path instead of overloading the
+# pseudo-label-only mask function.
+SENTINEL_COORDINATE = -90.0
+MAX_REASONABLE_COORDINATE = 1.0e4
+
+
+def spatial_keypoint_validity(points, size, strict=True):
+    """Per-keypoint belief-channel validity for one object.
+
+    Parameters
+    ----------
+    points:
+        ``(9, 2)`` transformed keypoints in belief-grid coordinates, ordered
+        ``(x, y)`` exactly as ``CreateBeliefMap`` consumes them.
+    size:
+        Belief map side length.
+    strict:
+        Raise on non-finite / absurd coordinates instead of silently masking
+        them.  Silent clamping is what hid this defect originally.
+
+    Returns
+    -------
+    numpy.ndarray
+        ``(9,)`` float32 in {0.0, 1.0}.  1.0 means "this channel carries a real
+        target and must contribute to the loss".  A keypoint whose centre lies
+        inside the map is valid (its clipped Gaussian is a genuine positive);
+        an exact sentinel or a legitimately off-map point is invalid, so it is
+        neither drawn nor supervised as background.
+    """
+    array = np.asarray(points, dtype=np.float64)
+    if array.shape != (9, 2):
+        raise ValueError(f"expected (9,2) keypoints, got {array.shape}")
+    finite = np.isfinite(array).all(axis=1)
+    sentinel = (array[:, 0] <= SENTINEL_COORDINATE) & (
+        array[:, 1] <= SENTINEL_COORDINATE
+    )
+    reasonable = (np.abs(array) < MAX_REASONABLE_COORDINATE).all(axis=1)
+    if strict and not np.all(finite & (reasonable | sentinel)):
+        bad = np.where(~(finite & (reasonable | sentinel)))[0].tolist()
+        raise ValueError(f"corrupt keypoint coordinates at indices {bad}")
+    centre_inside = (
+        (array[:, 0] >= 0.0)
+        & (array[:, 0] < float(size))
+        & (array[:, 1] >= 0.0)
+        & (array[:, 1] < float(size))
+    )
+    valid = finite & reasonable & (~sentinel) & centre_inside
+    return valid.astype(np.float32)
