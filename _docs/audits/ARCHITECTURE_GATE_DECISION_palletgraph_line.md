@@ -40,14 +40,20 @@
 - [확인] P2(oracle AMODAL) FAIL — 완벽한 line 기하조차 point-only pose 를 개선하지 못한다.
 
 [현재 판정]
-- [확인] point 가 이미 성공한 프레임에서 **oracle line 은 pose 를 개선하지 않는다**.  모든 lambda_line 보정값(0.25/0.50/1.00 fraction)에서 동일하다.
-- [확인] 지시문 Phase E4 규칙에 따라 P2 FAIL → **MSL 종료**, learned line head 를 학습하지 않는다 (Phase F 미실행).
-- [주의] 단 위 '시험하지 못한 것' 때문에, 이 결론을 'line 은 pose 에 무용' 으로 일반화하면 안 된다.  point 실패 프레임에서의 line 단독 초기화는 미검증이다.
+- [확인] 현재 파이프라인(point-PnP 초기값 + 6 iteration DGP)에서는 oracle line 을 넣어도 pose 가 개선되지 않는다.  lambda_line 보정값 3종 모두 동일.
+- [확인] 그러나 그 원인은 line 정보 부재가 아니라 **최적화가 line basin 에 도달하지 못함 + energy 불연속** 이다 (위 '판정 정정' 참조).
+- [판정] Phase F(learned MSL)는 실행하지 않는다.  다만 사유는 'MSL 이 틀렸다' 가 아니라 **'현재 설계로는 MSL 을 시험할 수 없다'** 이다.  learned head 를 붙여도 같은 최적화 한계에 걸린다.
 
 [architecture 결정]
-- MSL: REJECT
+- MSL: **INCONCLUSIVE** — oracle gate 는 FAIL 이지만, 그 FAIL 이 line 정보 부재가 아니라 (a) 초기 pose 가 line basin 밖 (b) visibility 로 인한 불연속 energy (c) point 실패 17 프레임 미검증 때문이므로 REJECT 로 확정하지 않는다.
 - DGP: INCONCLUSIVE (parity 미달)
 - SAP: DEFERRED (이번 실행에서 학습하지 않음)
+
+[★ 판정 정정 — line 정보는 있다, 도달을 못 했다]
+- [확인] oracle line map 을 그린 **GT pose 근처**에서 E_line 은 정상적으로 최소이고 단조 증가한다 (GT 기준 ±10° slice: 0.28 → 3.9/4.5).  즉 line evidence 에 pose 정보가 **없는 것이 아니다**.
+- [확인] 그러나 DGP 가 실제로 출발하는 **point-PnP pose 근처**에서는 E_line 의 최소가 GT 방향이 아니다 (에너지 지형 그림 참조).  line energy 의 basin 이 GT 주변에 좁게 있고 초기 pose 가 그 밖이며, 6 iteration × trust 0.05rad(2.9°) 로는 basin 에 진입하지 못한다.
+- [확인] 구현 불일치도 있다: P2 는 **amodal** line map 을 쓰는데 energy 는 `visibility_aware=True` 로 계산해 pose 마다 edge 집합이 바뀐다.  mean-over-edges 라서 edge 수가 바뀌면 값이 점프하고 지형이 계단형이 된다.
+- [판정] 따라서 이번 FAIL 은 **line 무용의 증거가 아니라 최적화 도달 실패**다.  MSL 을 REJECT 로 확정하지 않고 **INCONCLUSIVE** 로 되돌린다.
 
 [MSL 전제 점검 — mask support]
 - [확인] ep57 segmentation 은 real N87 에서 매우 약하다: **31/87 프레임(36%)은 mask 최대 확률조차 0.5 미만**, mask 면적 median 0.40%.
@@ -58,6 +64,7 @@
 - [확인] 같은 이유로 P0->P1 parity 도 집계 median 기준으로는 FAIL(yaw +0.71°) 이지만 paired 기준으로는 중립(Δyaw median +0.029°, pose success 동일)이다.
 
 [다음 admissible experiment]
-1. line 표현 트랙을 종료한다.  vector/offset/voting 계열에 이어 line 계열도 현재 데이터·backbone 에서 heatmap point 를 못 넘는다는 결과가 된다.
-2. mechanism diagnosis 의 결론(F2 = synthetic 에 없는 sim2real 실패 모드)대로 **데이터 소스 확보**를 선행한다.
+1. **DGP 최적화를 먼저 고친다** — (a) energy 의 visibility 집합을 초기 pose 로 고정하거나 soft weight 로 바꿔 연속화, (b) mean-over-edges 대신 sample 단위 합으로 정규화, (c) iteration/trust 를 늘리거나 multi-start 를 준다.  이걸 고치기 전 line 결론은 확정할 수 없다.
+2. **point 실패 17 프레임을 시험 가능하게 만든다** — line + 알려진 W/D/H 만으로 초기 pose 를 세우는 경로가 있어야 최상위 가설을 검증할 수 있다.  현재는 point 가 실패하면 line 이 개입조차 못한다.
+3. mask support 는 별개로 선결 — real 에서 31/87 프레임 mask 붕괴.
 3. full training / 3-seed / final-test 는 실행하지 않는다.
