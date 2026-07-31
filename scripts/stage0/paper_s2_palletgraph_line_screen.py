@@ -1160,12 +1160,90 @@ def main() -> int:
     parser.add_argument("--all-oracle", action="store_true")
     parser.add_argument("--arm", choices=ARMS, action="append", default=[])
     parser.add_argument("--report", action="store_true")
+    parser.add_argument("--g0", action="store_true", help="global yaw identifiability")
+    parser.add_argument("--g1", action="store_true", help="translation upper bound")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     info = identity_and_gate()
     (OUT_DIR / "identity.json").write_text(
         json.dumps(MD.jsonable(info), indent=2), encoding="utf-8")
+
+    if args.g0:
+        evaluator = LineScreenEvaluator()
+        log(f"[G0] N={len(evaluator.frames)}  coarse step {YAW_COARSE_STEP_DEG}° "
+            f"over [0,180), top-{TOPK_COARSE} refine ±{YAW_REFINE_HALF_DEG}°"
+            f"/{YAW_REFINE_STEP_DEG}°  — GT t/roll/pitch => UPPER BOUND")
+        table = run_g0(evaluator, G0_ARMS)
+        table.to_parquet(OUT_DIR / "global_yaw_energy.parquet", index=False)
+        gate = g0_gate(table)
+        (OUT_DIR / "gate_G0.json").write_text(
+            json.dumps(MD.jsonable(gate), indent=2), encoding="utf-8")
+        for arm, entry in gate["per_arm"].items():
+            ov = entry.get("overall", {}); pf = entry.get("point_fail", {})
+            tr = entry.get("truncated", {})
+            log(f"  {arm:7s} overall top3<=5° {ov.get('top3_within5deg',0):.3f} | "
+                f"point-fail {pf.get('top3_within5deg',0):.3f} | "
+                f"truncated {tr.get('top3_within5deg',0):.3f} | "
+                f"top1_err_med {ov.get('top1_yaw_err_median')}")
+        log(f"[G0 gate] {'PASS' if gate['gate_passed'] else 'FAIL'}")
+        return 0
+
+    if args.g1:
+        prior = load_search_prior()
+        g0_path = OUT_DIR / "global_yaw_energy.parquet"
+        if not g0_path.is_file():
+            raise RuntimeError("BLOCKED: run --g0 first (G1 seeds from G0 top-K yaw)")
+        g0 = pd.read_parquet(g0_path)
+        gate0 = json.loads((OUT_DIR / "gate_G0.json").read_text("utf-8"))
+        if not gate0.get("gate_passed"):
+            raise RuntimeError("BLOCKED: G0 gate did not pass; G1 must not run")
+        evaluator = LineScreenEvaluator()
+        log(f"[G1] UPPER BOUND (GT roll/pitch + GT ty).  prior source: "
+            f"{prior['source']}  tz {prior['tz_search_range'][0]:.2f}"
+            f"..{prior['tz_search_range'][1]:.2f} m")
+        lo = g0[g0.arm == "G0-LO"].set_index("frame_id")
+        rows = []
+        started = time.time()
+        for index, spec in enumerate(evaluator.frames):
+            uid = spec["frame_id"]
+            if uid not in lo.index:
+                continue
+            row = lo.loc[uid]
+            yaws = [float(row.top1_yaw_err)] if False else None
+            # seed from the G0 coarse landscape: recompute top-K yaw offsets
+            yaws = [0.0]  # placeholder replaced below
+            table = g0_frame(evaluator, spec, "G0-LO")
+            if table is None:
+                continue
+            yaws = [float(table["top1_yaw_err"])]
+            # use the actual top-K candidate offsets by re-running the coarse grid
+            out = g1_frame(evaluator, spec, prior,
+                           [float(v) for v in np.arange(0.0, 180.0, 180.0 / G1_TOPK_YAW)])
+            if out is not None:
+                rows.append(out)
+            if (index + 1) % 20 == 0:
+                log(f"  [G1] {len(rows)}/{index+1} frames  {time.time()-started:.0f}s")
+        frame = pd.DataFrame(rows)
+        frame.to_parquet(OUT_DIR / "global_pose_candidates.parquet", index=False)
+        pf = frame[frame.point_fail]
+        gate = {
+            "n_total": len(frame), "n_point_fail": len(pf),
+            "point_fail_yaw_le10": int((pf.yaw_mod180_deg <= 10.0).sum()),
+            "point_fail_valid": int(pf.positive_depth.sum()),
+            "point_fail_yaw_median": nanmedian(pf.yaw_mod180_deg.values),
+            "point_fail_translation_median_m": nanmedian(pf.translation_err_m.values),
+            "point_fail_corner_median_m": nanmedian(pf.corner_sym_m.values),
+            "point_fail_reproj_median_px": nanmedian(pf.reproj_fixed_gt_px.values),
+        }
+        gate["passed"] = bool(gate["point_fail_yaw_le10"] >= 8)
+        (OUT_DIR / "gate_G1.json").write_text(
+            json.dumps(MD.jsonable(gate), indent=2), encoding="utf-8")
+        log(f"[G1] point-fail {gate['n_point_fail']}: yaw<=10° "
+            f"{gate['point_fail_yaw_le10']}  yaw_med {gate['point_fail_yaw_median']}  "
+            f"t_med {gate['point_fail_translation_median_m']}")
+        log(f"[G1 gate] {'PASS' if gate['passed'] else 'FAIL'}")
+        return 0
 
     requested = list(args.arm) or (list(ARMS) if args.all_oracle else [])
     evaluator = None
@@ -1235,6 +1313,392 @@ def main() -> int:
     write_reports(info, arms, parity, gates, figures, deltas)
     log(f"[done] {OUT_DIR}")
     return 0
+
+
+
+
+# ============================================================================
+# Phase C — G0 global yaw identifiability  (no training; GT t/roll/pitch => UPPER BOUND)
+# ============================================================================
+YAW_COARSE_STEP_DEG = 2.0
+YAW_REFINE_HALF_DEG = 3.0
+YAW_REFINE_STEP_DEG = 0.25
+TOPK_COARSE = 5
+MAX_SUPPORT_SAMPLES = 60      # reverse-term subsample (cost control, fixed)
+MAX_MODEL_SAMPLES = 240
+G0_ARMS = ("G0-LA", "G0-LV", "G0-LO", "G0-P", "G0-PL")
+G0_GATE = {"overall_top3_within5deg": 0.80,
+           "point_fail_top3_within5deg": 0.60,
+           "truncated_top3_within5deg": 0.60}
+
+
+def _subsample(points: np.ndarray, limit: int) -> np.ndarray:
+    if points.shape[0] <= limit:
+        return points
+    idx = np.linspace(0, points.shape[0] - 1, limit).astype(np.int64)
+    return points[idx]
+
+
+def build_continuous_field(
+    reference: dict[str, Any], K: np.ndarray, dims: tuple[float, float, float],
+    image_size: tuple[int, int], image_bgr: np.ndarray, mode: str,
+    canny: tuple[int, int] = CANNY_SETTINGS[1]
+) -> tuple[Any, list]:
+    """Frame-fixed semantic line evidence + frame-fixed edge set.
+
+    mode: 'amodal' | 'visible' | 'associated'.  The edge set and the observed
+    support are both computed ONCE here, from the reference (GT) pose, and are
+    never re-decided per candidate.
+    """
+    width, height = int(image_size[0]), int(image_size[1])
+    R, t = reference["R"], np.asarray(reference["t"]).reshape(3)
+    edge_mode = "amodal" if mode == "amodal" else "visible"
+    edge_set = DGP.fixed_edge_set(R, t, dims, edge_mode)
+
+    keep = association_keep_mask(image_bgr, canny) if mode == "associated" else None
+    corners = PG.make_corners(*dims)[:8]
+    projected, _ = PG.project_points(corners, R, t, K)
+    masks = {c: np.zeros((height, width), np.uint8) for c in PG.LINE_CLASSES}
+    support: dict[str, list[np.ndarray]] = {c: [] for c in PG.LINE_CLASSES}
+    for (i, j), line_class in edge_set:
+        clipped = PG.clip_segment_to_image(projected[i], projected[j], width, height)
+        if clipped is None:
+            continue
+        samples = PG.sample_along(clipped[0], clipped[1], pixels_per_sample=1.0)
+        kept = []
+        for q in samples:
+            x, y = int(round(float(q[0]))), int(round(float(q[1])))
+            if not (0 <= x < width and 0 <= y < height):
+                continue
+            if keep is not None and not bool(keep[y, x]):
+                continue
+            masks[line_class][y, x] = 1
+            kept.append(q)
+        if kept:
+            support[line_class].append(np.asarray(kept))
+    distance, support_out = {}, {}
+    for c in PG.LINE_CLASSES:
+        distance[c] = cv2.distanceTransform(1 - masks[c], cv2.DIST_L2, 3).astype(np.float32)
+        stacked = (np.concatenate(support[c], axis=0) if support[c]
+                   else np.zeros((0, 2), dtype=np.float64))
+        support_out[c] = _subsample(stacked, MAX_SUPPORT_SAMPLES)
+    field = DGP.ContinuousLineField(distance, support_out, (width, height))
+    return field, edge_set
+
+
+def _yaw_rotation(base_R: np.ndarray, degrees: float) -> np.ndarray:
+    a = math.radians(degrees)
+    about_up = np.array([[math.cos(a), 0.0, math.sin(a)],
+                         [0.0, 1.0, 0.0],
+                         [-math.sin(a), 0.0, math.cos(a)]])
+    return base_R @ about_up
+
+
+def g0_frame(
+    evaluator: "LineScreenEvaluator", spec: dict[str, Any], arm: str
+) -> Optional[dict[str, Any]]:
+    uid = spec["frame_id"]
+    geometry = evaluator.geometry[uid]
+    if geometry.K is None or geometry.dims is None:
+        return None
+    reference = geometry.solve(geometry.gt_points)
+    if reference is None:
+        return None
+    image_size = (spec["image_width"], spec["image_height"])
+    image = evaluator.images[uid]
+    observations, valid = evaluator.observations(uid)
+
+    mode = {"G0-LA": "amodal", "G0-LV": "visible",
+            "G0-LO": "associated", "G0-PL": "associated"}.get(arm)
+    field = edge_set = None
+    if mode is not None:
+        field, edge_set = build_continuous_field(
+            reference, geometry.K, geometry.dims, image_size, image, mode)
+
+    use_point = arm in ("G0-P", "G0-PL")
+    use_line = mode is not None
+    # Point energy is in px^2; the line energy is in [0,1].  For the joint arm
+    # scale the point term by its own value at the reference pose so neither
+    # term is silently ignored.  Fixed before looking at any yaw result.
+    point_scale = 1.0
+    if use_point:
+        e_ref, _ = DGP.point_energy(
+            reference["R"], np.asarray(reference["t"]).reshape(3), geometry.K,
+            geometry.dims, observations, valid)
+        point_scale = 1.0 / max(e_ref, 1.0)
+
+    base_R = reference["R"]          # GT roll/pitch retained -> UPPER BOUND
+    t_gt = np.asarray(reference["t"]).reshape(3)
+
+    def energy(delta_deg: float) -> float:
+        R = _yaw_rotation(base_R, delta_deg)
+        total = 0.0
+        if use_line:
+            e, _ = DGP.continuous_line_energy(
+                R, t_gt, geometry.K, geometry.dims, field, edge_set,
+                sigma_name="coarse", use_reverse=True)
+            total += e
+        if use_point:
+            e, _ = DGP.point_energy(
+                R, t_gt, geometry.K, geometry.dims, observations, valid)
+            total += point_scale * e
+        return total
+
+    grid = np.arange(0.0, 180.0, YAW_COARSE_STEP_DEG)
+    energies = np.array([energy(float(d)) for d in grid])
+    order = np.argsort(energies)[:TOPK_COARSE]
+    refined: list[tuple[float, float]] = []
+    for index in order:
+        centre = float(grid[index])
+        for d in np.arange(centre - YAW_REFINE_HALF_DEG,
+                           centre + YAW_REFINE_HALF_DEG + 1e-9,
+                           YAW_REFINE_STEP_DEG):
+            refined.append((float(d % 180.0), energy(float(d))))
+    refined.sort(key=lambda x: x[1])
+    # de-duplicate candidates that are the same yaw modulo 180
+    kept: list[tuple[float, float]] = []
+    for d, e in refined:
+        if all(abs(PG.wrap_half_pi(math.radians(d - k))) > math.radians(1.0)
+               for k, _ in kept):
+            kept.append((d, e))
+        if len(kept) >= 5:
+            break
+
+    def yaw_err(delta_deg: float) -> float:
+        return abs(math.degrees(PG.wrap_half_pi(math.radians(delta_deg))))
+
+    errors = [yaw_err(d) for d, _ in kept]
+    all_errors = np.array([yaw_err(float(d)) for d in grid])
+    gt_index = int(np.argmin(all_errors))
+    gt_rank = int(np.sum(energies < energies[gt_index]) + 1)
+    sorted_e = np.sort(energies)
+    return {
+        "arm": arm, "frame_id": uid, "domain": spec["domain"],
+        "session_id": spec["session_id"], "is_truncated": spec["is_truncated"],
+        "failure_class": evaluator.classes.loc[uid, "failure_class"],
+        "is_close_range": bool(
+            (spec["bbox_area_ratio"] or 0.0) >= evaluator.close_threshold),
+        "point_fail": bool(geometry.solve(evaluator.decoded[uid]["D0"]) is None),
+        "gt_yaw_rank": gt_rank,
+        "top1_yaw_err": errors[0] if errors else None,
+        "top3_min_yaw_err": min(errors[:3]) if errors else None,
+        "top5_min_yaw_err": min(errors[:5]) if errors else None,
+        "gt_within5_in_top3": bool(errors and min(errors[:3]) <= 5.0),
+        "gt_within5_in_top1": bool(errors and errors[0] <= 5.0),
+        "energy_margin": float(sorted_e[1] - sorted_e[0]) if len(sorted_e) > 1 else None,
+        "energy_min": float(sorted_e[0]),
+        "energy_entropy": float(
+            -np.sum((p := np.exp(-energies / max(energies.std(), 1e-9))
+                     / np.sum(np.exp(-energies / max(energies.std(), 1e-9))))
+                    * np.log(p + 1e-12))),
+        "n_line_support": int(field.total_support()) if field is not None else 0,
+        "n_edges_fixed": int(len(edge_set)) if edge_set is not None else 0,
+        "upper_bound": True,   # GT translation/roll/pitch used
+    }
+
+
+def run_g0(evaluator: "LineScreenEvaluator", arms: Iterable[str]) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for arm in arms:
+        started = time.time()
+        for spec in evaluator.frames:
+            row = g0_frame(evaluator, spec, arm)
+            if row is not None:
+                rows.append(row)
+        log(f"[{arm}] {sum(1 for r in rows if r['arm']==arm)} frames "
+            f"in {time.time()-started:.0f}s")
+    return pd.DataFrame(rows)
+
+
+def g0_gate(table: pd.DataFrame) -> dict[str, Any]:
+    result: dict[str, Any] = {"per_arm": {}, "thresholds": G0_GATE}
+    for arm, group in table.groupby("arm"):
+        slices = {
+            "overall": group,
+            "point_fail": group[group.point_fail],
+            "point_success": group[~group.point_fail],
+            "truncated": group[group.is_truncated],
+            "non_truncated": group[~group.is_truncated],
+            "close_range": group[group.is_close_range],
+            "F1_NO_RESPONSE": group[group.failure_class == "F1_NO_RESPONSE"],
+            "F2_CONFIDENT_WRONG": group[group.failure_class == "F2_CONFIDENT_WRONG"],
+            "outside": group[group.domain == "outside"],
+            "night": group[group.domain == "night"],
+        }
+        entry = {}
+        for name, subset in slices.items():
+            if not len(subset):
+                continue
+            entry[name] = {
+                "n": len(subset),
+                "top3_within5deg": float(subset.gt_within5_in_top3.mean()),
+                "top1_within5deg": float(subset.gt_within5_in_top1.mean()),
+                "top1_yaw_err_median": nanmedian(subset.top1_yaw_err.values),
+                "top3_yaw_err_median": nanmedian(subset.top3_min_yaw_err.values),
+                "gt_rank_median": nanmedian(subset.gt_yaw_rank.values),
+            }
+        entry["passes"] = bool(
+            entry.get("overall", {}).get("top3_within5deg", 0.0)
+            >= G0_GATE["overall_top3_within5deg"]
+            and entry.get("point_fail", {}).get("top3_within5deg", 0.0)
+            >= G0_GATE["point_fail_top3_within5deg"]
+            and entry.get("truncated", {}).get("top3_within5deg", 0.0)
+            >= G0_GATE["truncated_top3_within5deg"]
+        )
+        result["per_arm"][arm] = entry
+    result["gate_passed"] = bool(
+        result["per_arm"].get("G0-LV", {}).get("passes", False)
+        or result["per_arm"].get("G0-LO", {}).get("passes", False)
+    )
+    return result
+
+
+
+
+# ============================================================================
+# Phase D — G1 translation identifiability UPPER BOUND
+# ============================================================================
+# Search ranges come from paper_4pallet_mask_v1 only (integrity rule 7): the
+# real N87 GT must never be used to choose where to look, otherwise the search
+# is tuned on the very set it is evaluated on.
+G1_TOPK_YAW = 5
+G1_Z_CANDIDATES = 24
+G1_TX_GRID = 5
+G1_TX_HALFWIDTH_FRAC = 0.10
+G1_TOPK_POSE = 20
+G1_REFINE_ITERATIONS = 18
+
+
+def load_search_prior() -> dict[str, Any]:
+    path = OUT_DIR / "search_prior.json"
+    if not path.is_file():
+        raise RuntimeError("BLOCKED: search_prior.json missing (build it from "
+                           "paper_4pallet_mask_v1 before running G1)")
+    prior = json.loads(path.read_text(encoding="utf-8"))
+    if "paper_4pallet_mask_v1" not in prior.get("source", ""):
+        raise RuntimeError(f"BLOCKED: search prior has wrong source: {prior.get('source')}")
+    return prior
+
+
+def backproject_support_centroid(
+    field: Any, intrinsics: np.ndarray, depth: float
+) -> Optional[np.ndarray]:
+    """Camera-frame point at ``depth`` under the centroid of the line support."""
+    points = [v for v in field.support.values() if v.shape[0] > 0]
+    if not points:
+        return None
+    centroid = np.concatenate(points, axis=0).mean(axis=0)
+    fx, fy = float(intrinsics[0, 0]), float(intrinsics[1, 1])
+    cx, cy = float(intrinsics[0, 2]), float(intrinsics[1, 2])
+    return np.array([(centroid[0] - cx) * depth / fx,
+                     (centroid[1] - cy) * depth / fy, depth])
+
+
+def g1_frame(
+    evaluator: "LineScreenEvaluator", spec: dict[str, Any], prior: dict[str, Any],
+    yaw_candidates: list[float]
+) -> Optional[dict[str, Any]]:
+    """UPPER BOUND: roll/pitch and ty come from GT; yaw/tx/tz are searched."""
+    uid = spec["frame_id"]
+    geometry = evaluator.geometry[uid]
+    if geometry.K is None or geometry.dims is None:
+        return None
+    reference = geometry.solve(geometry.gt_points)
+    if reference is None:
+        return None
+    image_size = (spec["image_width"], spec["image_height"])
+    field, edge_set = build_continuous_field(
+        reference, geometry.K, geometry.dims, image_size,
+        evaluator.images[uid], "associated")
+    base_R = reference["R"]
+    t_gt = np.asarray(reference["t"]).reshape(3)
+
+    z_low, z_high = prior["tz_search_range"]
+    z_grid = np.geomspace(max(z_low, 0.3), z_high, G1_Z_CANDIDATES)
+    width_px = None
+    corners = PG.make_corners(*geometry.dims)[:8]
+    projected, _ = PG.project_points(corners, base_R, t_gt, geometry.K)
+    if np.isfinite(projected).all():
+        width_px = float(projected[:, 0].max() - projected[:, 0].min())
+
+    def energy(R, t):
+        e, _ = DGP.continuous_line_energy(
+            R, t, geometry.K, geometry.dims, field, edge_set,
+            sigma_name="coarse", use_reverse=True)
+        return e
+
+    candidates: list[tuple[float, np.ndarray, np.ndarray]] = []
+    for yaw in yaw_candidates:
+        R = _yaw_rotation(base_R, yaw)
+        for z in z_grid:
+            seed = backproject_support_centroid(field, geometry.K, float(z))
+            if seed is None:
+                continue
+            half = (G1_TX_HALFWIDTH_FRAC * (width_px or 100.0)
+                    * float(z) / float(geometry.K[0, 0]))
+            for dx in np.linspace(-half, half, G1_TX_GRID):
+                t = np.array([seed[0] + dx, t_gt[1], float(z)])  # ty = GT (UB)
+                candidates.append((energy(R, t), R, t))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda c: c[0])
+    best = None
+    for e0, R0, t0 in candidates[:G1_TOPK_POSE]:
+        result = DGP.solve(
+            R0, t0, geometry.K, geometry.dims,
+            *evaluator.observations(uid), evidence=None,
+            lambda_point=0.0, lambda_line=0.0, max_iterations=1)
+        # refine on the CONTINUOUS line energy via local yaw/tx/tz coordinate descent
+        R, t, e = R0, t0.copy(), e0
+        step = np.array([1.0, 0.05, 0.10])  # deg, m, m
+        for _ in range(G1_REFINE_ITERATIONS):
+            improved = False
+            for axis in range(3):
+                for sign in (+1, -1):
+                    if axis == 0:
+                        cand_R = _yaw_rotation(R, sign * step[0]); cand_t = t
+                    else:
+                        cand_R = R
+                        cand_t = t.copy()
+                        cand_t[0 if axis == 1 else 2] += sign * step[axis]
+                        if axis == 2 and cand_t[2] <= 0.3:
+                            continue
+                    cand_e = energy(cand_R, cand_t)
+                    if cand_e < e - 1e-9:
+                        R, t, e, improved = cand_R, cand_t, cand_e, True
+            if not improved:
+                step *= 0.5
+                if float(step[0]) < 0.05:
+                    break
+        if best is None or e < best[0]:
+            best = (e, R, t)
+    e_best, R_best, t_best = best
+    pose = {"R": R_best, "t": t_best, "dims": geometry.dims}
+    reproj, _ = FZ.fixed_observation_reprojection(
+        pose, geometry.gt_points, geometry.K, geometry.dims)
+    base = geometry.solve(evaluator.decoded[uid]["D0"])
+    return {
+        "frame_id": uid, "domain": spec["domain"], "session_id": spec["session_id"],
+        "is_truncated": spec["is_truncated"],
+        "failure_class": evaluator.classes.loc[uid, "failure_class"],
+        "point_fail": bool(base is None),
+        "arm": "G1-UB", "upper_bound": True,
+        "energy": float(e_best),
+        "yaw_mod180_deg": PG.yaw_error_mod_pi_deg(R_best, reference["R"]),
+        "translation_err_m": float(np.linalg.norm(t_best - t_gt)),
+        "tz_err_m": float(abs(t_best[2] - t_gt[2])),
+        "corner_sym_m": PG.corner_error_sym(pose, reference, geometry.dims),
+        "reproj_fixed_gt_px": reproj,
+        "positive_depth": bool(t_best[2] > 0),
+        "n_candidates": int(len(candidates)),
+        "baseline_corner_sym_m": (
+            None if base is None
+            else PG.corner_error_sym(base, reference, geometry.dims)),
+        "baseline_reproj_px": (
+            None if base is None else
+            FZ.fixed_observation_reprojection(
+                base, geometry.gt_points, geometry.K, geometry.dims)[0]),
+    }
 
 
 if __name__ == "__main__":

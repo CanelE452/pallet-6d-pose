@@ -408,3 +408,191 @@ def solve_with_symmetry(
         c["hypothesis"]: c["final_energy"] for c in candidates
     }
     return best
+
+
+# ============================================================================
+# Continuous semantic-line energy (DGP v2)
+# ============================================================================
+# The v1 energy was discontinuous in pose for two reasons that a global search
+# cannot tolerate:
+#   (a) visibility was re-decided per candidate, so the *set* of contributing
+#       edges changed as the pose moved, and
+#   (b) the energy averaged per edge, so losing one edge rescaled the whole
+#       objective.
+# Together they made the yaw landscape a staircase (verified empirically), and
+# a staircase has no usable gradient and no meaningful global minimum.
+#
+# v2 fixes the edge set once per frame, normalises by SAMPLE weight rather than
+# by edge count, and reads a smooth distance field instead of a 1-pixel raster.
+COARSE_SIGMA_FRACTION = 0.020
+MID_SIGMA_FRACTION = 0.010
+FINE_SIGMA_FRACTION = 0.005
+MIN_EDGE_LENGTH_PX = 2.0
+
+
+def image_diagonal(image_size) -> float:
+    width, height = float(image_size[0]), float(image_size[1])
+    return math.sqrt(width * width + height * height)
+
+
+def sigma_schedule(image_size) -> dict[str, float]:
+    diagonal = image_diagonal(image_size)
+    return {
+        "coarse": COARSE_SIGMA_FRACTION * diagonal,
+        "mid": MID_SIGMA_FRACTION * diagonal,
+        "fine": FINE_SIGMA_FRACTION * diagonal,
+    }
+
+
+class ContinuousLineField:
+    """Distance-field semantic line evidence at three fixed scales.
+
+    ``support`` holds, per class, the observed line sample coordinates in image
+    pixels; it is what the REVERSE term matches against, and it is computed once
+    per frame so no candidate pose can change it.
+    """
+
+    def __init__(
+        self,
+        distance: dict[str, np.ndarray],
+        support: dict[str, np.ndarray],
+        image_size,
+        scale: int = 1,
+        class_agnostic: bool = False,
+    ) -> None:
+        self.image_size = (int(image_size[0]), int(image_size[1]))
+        self.scale = int(scale)
+        self.class_agnostic = bool(class_agnostic)
+        self.sigmas = sigma_schedule(self.image_size)
+        missing = set(PG.LINE_CLASSES) - set(distance)
+        if missing:
+            raise ValueError(f"missing distance fields: {sorted(missing)}")
+        self.distance = {
+            name: np.asarray(distance[name], dtype=np.float32)
+            for name in PG.LINE_CLASSES
+        }
+        self.support = {
+            name: np.asarray(support.get(name, np.zeros((0, 2))), dtype=np.float64)
+            for name in PG.LINE_CLASSES
+        }
+
+    def sample_distance(self, name: str, pixels: np.ndarray):
+        """Distance (in IMAGE pixels) at the given image-pixel coordinates."""
+        grid = self.distance[name]
+        coords = np.asarray(pixels, dtype=np.float64).reshape(-1, 2) / self.scale
+        values, inside = bilinear_sample(grid, coords)
+        return values * self.scale, inside
+
+    def total_support(self) -> int:
+        return int(sum(v.shape[0] for v in self.support.values()))
+
+
+def _rho(distance: np.ndarray, sigma: float) -> np.ndarray:
+    """Bounded, smooth line residual in [0,1]; 0 exactly on the line."""
+    return 1.0 - np.exp(-(distance**2) / (2.0 * sigma * sigma))
+
+
+def fixed_edge_set(
+    rotation, translation, dims, mode: str = "amodal"
+) -> list[tuple[tuple[int, int], str]]:
+    """Edges chosen ONCE per frame; never re-decided per candidate pose.
+
+    ``mode='amodal'``  -> all 12 edges.
+    ``mode='visible'`` -> edges self-visible at the given (reference) pose.
+    """
+    edges = PG.derive_edges(PG.make_corners(*dims))
+    if mode == "amodal":
+        return [(pair, name) for name, pairs in edges.items() for pair in pairs]
+    if mode != "visible":
+        raise ValueError(f"unknown edge-set mode: {mode}")
+    visibility = PG.visible_edges(rotation, translation, dims)
+    return [
+        (pair, name)
+        for name, pairs in edges.items()
+        for pair in pairs
+        if visibility[pair]
+    ]
+
+
+def continuous_line_energy(
+    rotation,
+    translation,
+    intrinsics,
+    dims,
+    field: ContinuousLineField,
+    edge_set: list[tuple[tuple[int, int], str]],
+    sigma_name: str = "coarse",
+    use_reverse: bool = True,
+    pixels_per_sample: float = 4.0,
+):
+    """Sample-weight-normalised forward(+reverse) line energy.
+
+    FORWARD  : projected model edge samples -> observed line distance field.
+    REVERSE  : observed line support samples -> nearest projected model edge of
+               the SAME semantic class.  Without it, a pose that puts one short
+               edge on a strong line while the rest of the structure is wrong
+               can score well.
+    """
+    sigma = field.sigmas[sigma_name]
+    corners = PG.make_corners(*dims)[:PG.N_CORNERS]
+    projected, depth = PG.project_points(corners, rotation, translation, intrinsics)
+    width, height = field.image_size
+
+    forward_num = 0.0
+    forward_den = 0.0
+    per_class_samples: dict[str, list[np.ndarray]] = {
+        name: [] for name in PG.LINE_CLASSES
+    }
+    n_edges_used = 0
+    for (i, j), line_class in edge_set:
+        if depth[i] <= 1e-6 or depth[j] <= 1e-6:
+            continue  # behind the camera: no image evidence exists
+        clipped = PG.clip_segment_to_image(projected[i], projected[j], width, height)
+        if clipped is None:
+            continue
+        start, end = clipped
+        if float(np.linalg.norm(end - start)) < MIN_EDGE_LENGTH_PX:
+            continue
+        samples = PG.sample_along(start, end, pixels_per_sample=pixels_per_sample)
+        distance, inside = field.sample_distance(line_class, samples)
+        if not bool(inside.any()):
+            continue
+        usable = distance[inside]
+        forward_num += float(np.sum(_rho(usable, sigma)))
+        forward_den += float(usable.size)
+        per_class_samples[line_class].append(samples[inside])
+        n_edges_used += 1
+
+    forward = forward_num / (forward_den + EPS) if forward_den > 0 else 1.0
+
+    reverse = 1.0
+    reverse_den = 0.0
+    if use_reverse:
+        reverse_num = 0.0
+        for line_class in PG.LINE_CLASSES:
+            observed = field.support[line_class]
+            if observed.shape[0] == 0:
+                continue
+            model = per_class_samples[line_class]
+            if not model:
+                # the model predicts no edge of this class where one is observed
+                reverse_num += float(observed.shape[0])
+                reverse_den += float(observed.shape[0])
+                continue
+            model_points = np.concatenate(model, axis=0)
+            deltas = observed[:, None, :] - model_points[None, :, :]
+            nearest = np.sqrt(np.min(np.einsum("ijk,ijk->ij", deltas, deltas), axis=1))
+            reverse_num += float(np.sum(_rho(nearest, sigma)))
+            reverse_den += float(nearest.size)
+        reverse = reverse_num / (reverse_den + EPS) if reverse_den > 0 else 1.0
+
+    energy = 0.5 * forward + 0.5 * reverse if use_reverse else forward
+    return float(energy), {
+        "E_forward": float(forward),
+        "E_reverse": float(reverse) if use_reverse else None,
+        "n_edges_used": int(n_edges_used),
+        "n_edges_fixed": int(len(edge_set)),
+        "n_forward_samples": int(forward_den),
+        "n_reverse_samples": int(reverse_den),
+        "sigma_px": float(sigma),
+    }

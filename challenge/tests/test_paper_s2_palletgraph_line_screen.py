@@ -327,3 +327,167 @@ def test_lambda_line_was_calibrated_not_guessed() -> None:
         for entry in entries:
             assert entry["lambda_line"] > 0.0
             assert entry["E_point_median"] > 0.0
+
+
+# ============================================================================
+# DGP v2 — continuity, fixed edge set, global search integrity
+# ============================================================================
+def _v2_field(rotation, translation, mode="visible"):
+    """Frame-fixed distance-field evidence built once from a reference pose."""
+    import cv2
+
+    edges = DGP.fixed_edge_set(rotation, translation, DIMS, mode)
+    width, height = SIZE
+    masks = {c: np.zeros((height, width), np.uint8) for c in PG.LINE_CLASSES}
+    support = {c: [] for c in PG.LINE_CLASSES}
+    projected, _ = PG.project_points(
+        PG.make_corners(*DIMS)[:8], rotation, translation, K)
+    for (i, j), line_class in edges:
+        clipped = PG.clip_segment_to_image(projected[i], projected[j], width, height)
+        if clipped is None:
+            continue
+        samples = PG.sample_along(clipped[0], clipped[1], pixels_per_sample=1.0)
+        for q in samples:
+            x, y = int(round(float(q[0]))), int(round(float(q[1])))
+            if 0 <= x < width and 0 <= y < height:
+                masks[line_class][y, x] = 1
+        support[line_class].append(samples)
+    distance, support_out = {}, {}
+    for c in PG.LINE_CLASSES:
+        distance[c] = cv2.distanceTransform(1 - masks[c], cv2.DIST_L2, 3).astype(np.float32)
+        support_out[c] = (np.concatenate(support[c], axis=0) if support[c]
+                          else np.zeros((0, 2)))
+    return DGP.ContinuousLineField(distance, support_out, SIZE), edges
+
+
+def test_edge_set_is_fixed_per_frame_not_per_candidate() -> None:
+    rotation, translation = rot_y(37.0), np.array([0.05, 0.30, 2.6])
+    field, edges = _v2_field(rotation, translation)
+    counts = set()
+    for degrees in np.arange(-12.0, 12.01, 0.5):
+        _, info = DGP.continuous_line_energy(
+            rotation @ rot_y(float(degrees)), translation, K, DIMS, field, edges)
+        counts.add(info["n_edges_fixed"])
+        assert info["n_edges_fixed"] == len(edges)
+    assert counts == {len(edges)}, "the fixed edge set must not depend on the candidate"
+
+
+def test_energy_is_continuous_in_yaw() -> None:
+    rotation, translation = rot_y(37.0), np.array([0.05, 0.30, 2.6])
+    field, edges = _v2_field(rotation, translation)
+    values = np.array([
+        DGP.continuous_line_energy(
+            rotation @ rot_y(float(d)), translation, K, DIMS, field, edges)[0]
+        for d in np.arange(-12.0, 12.01, 0.25)
+    ])
+    assert np.isfinite(values).all()
+    jumps = np.abs(np.diff(values))
+    assert jumps.max() < 0.02, f"staircase energy returned: max jump {jumps.max()}"
+
+
+def test_energy_minimum_at_reference_pose() -> None:
+    rotation, translation = rot_y(37.0), np.array([0.05, 0.30, 2.6])
+    field, edges = _v2_field(rotation, translation)
+    reference, _ = DGP.continuous_line_energy(rotation, translation, K, DIMS, field, edges)
+    for degrees in (-10.0, -5.0, -1.0, 1.0, 5.0, 10.0):
+        other, _ = DGP.continuous_line_energy(
+            rotation @ rot_y(degrees), translation, K, DIMS, field, edges)
+        assert other > reference
+
+
+def test_sample_wise_normalisation_is_scale_stable() -> None:
+    rotation, translation = rot_y(37.0), np.array([0.05, 0.30, 2.6])
+    field, visible = _v2_field(rotation, translation, "visible")
+    amodal = DGP.fixed_edge_set(rotation, translation, DIMS, "amodal")
+    e_visible, i_visible = DGP.continuous_line_energy(
+        rotation, translation, K, DIMS, field, visible)
+    e_amodal, i_amodal = DGP.continuous_line_energy(
+        rotation, translation, K, DIMS, field, amodal)
+    assert i_amodal["n_edges_fixed"] == 12
+    assert i_visible["n_edges_fixed"] < 12
+    assert 0.0 <= e_visible <= 1.0 and 0.0 <= e_amodal <= 1.0
+
+
+def test_energy_is_edge_order_independent() -> None:
+    import random
+
+    rotation, translation = rot_y(37.0), np.array([0.05, 0.30, 2.6])
+    field, edges = _v2_field(rotation, translation)
+    a, _ = DGP.continuous_line_energy(rotation, translation, K, DIMS, field, edges)
+    shuffled = list(edges)
+    random.Random(0).shuffle(shuffled)
+    b, _ = DGP.continuous_line_energy(rotation, translation, K, DIMS, field, shuffled)
+    assert a == pytest.approx(b, abs=1e-12)
+
+
+def test_semantic_class_permutation_worsens_energy() -> None:
+    rotation, translation = rot_y(37.0), np.array([0.05, 0.30, 2.6])
+    field, edges = _v2_field(rotation, translation)
+    reference, _ = DGP.continuous_line_energy(rotation, translation, K, DIMS, field, edges)
+    permutation = {"width": "depth", "depth": "vertical", "vertical": "width"}
+    swapped = DGP.ContinuousLineField(
+        {c: field.distance[permutation[c]] for c in PG.LINE_CLASSES},
+        {c: field.support[permutation[c]] for c in PG.LINE_CLASSES}, SIZE)
+    permuted, _ = DGP.continuous_line_energy(
+        rotation, translation, K, DIMS, swapped, edges)
+    assert permuted > reference
+
+
+def test_180_degree_equivalent_pose_has_equal_energy() -> None:
+    rotation, translation = rot_y(37.0), np.array([0.05, 0.30, 2.6])
+    field, _ = _v2_field(rotation, translation)
+    amodal = DGP.fixed_edge_set(rotation, translation, DIMS, "amodal")
+    a, _ = DGP.continuous_line_energy(rotation, translation, K, DIMS, field, amodal)
+    flipped_R, flipped_t = PG.apply_symmetry(rotation, translation)
+    b, _ = DGP.continuous_line_energy(flipped_R, flipped_t, K, DIMS, field, amodal)
+    assert a == pytest.approx(b, abs=1e-9)
+
+
+def test_sigma_schedule_is_fixed_fraction_of_image_diagonal() -> None:
+    sigmas = DGP.sigma_schedule(SIZE)
+    diagonal = DGP.image_diagonal(SIZE)
+    assert sigmas["coarse"] == pytest.approx(0.020 * diagonal)
+    assert sigmas["mid"] == pytest.approx(0.010 * diagonal)
+    assert sigmas["fine"] == pytest.approx(0.005 * diagonal)
+    assert sigmas["coarse"] > sigmas["mid"] > sigmas["fine"]
+
+
+# --- global search integrity -------------------------------------------------
+def test_search_prior_comes_only_from_the_allowed_training_root() -> None:
+    _require(OUT / "search_prior.json")
+    prior = json.loads((OUT / "search_prior.json").read_text("utf-8"))
+    assert prior["source"].endswith("paper_4pallet_mask_v1")
+    for banned in ("mixed_v8_train", "v4_split_base", "aug_squash_v2",
+                   "aug_trunc_v2", "aug_scale_v2"):
+        assert banned not in json.dumps(prior)
+    assert "N87" in prior.get("note", "") or "not used" in prior.get("note", "").lower()
+
+
+def test_g0_covers_every_frame_including_point_failures() -> None:
+    _require(OUT / "global_yaw_energy.parquet")
+    import pandas as pd
+
+    table = pd.read_parquet(OUT / "global_yaw_energy.parquet")
+    for arm, group in table.groupby("arm"):
+        assert len(group) == 87, f"{arm} evaluated {len(group)} frames, expected 87"
+        assert int(group.point_fail.sum()) == 17, "point-fail frames must not be dropped"
+        assert bool(group.upper_bound.all()), "G0 uses GT t/roll/pitch -> upper bound"
+
+
+def test_g1_marks_itself_as_upper_bound_and_keeps_point_fail_frames() -> None:
+    _require(OUT / "global_pose_candidates.parquet")
+    import pandas as pd
+
+    table = pd.read_parquet(OUT / "global_pose_candidates.parquet")
+    assert bool(table.upper_bound.all())
+    assert int(table.point_fail.sum()) == 17
+    assert bool((table.positive_depth).all())
+
+
+def test_training_root_allowlist_is_exact() -> None:
+    """Only paper_4pallet_mask_v1 may ever be used for learning."""
+    allowed = {"paper_4pallet_mask_v1"}
+    _require(OUT / "search_prior.json")
+    prior = json.loads((OUT / "search_prior.json").read_text("utf-8"))
+    used = {Path(prior["source"]).name}
+    assert used == allowed, f"training/prior root set is {used}, expected {allowed}"
