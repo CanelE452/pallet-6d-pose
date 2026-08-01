@@ -4,16 +4,23 @@ SAI produces *unsigned* semantic axes: a fitted 2-D line has no direction, so
 ``l^T K R a = 0`` holds equally for ``a`` and ``-a``.  Every sign combination
 therefore has identical line-plane energy, and the solver cannot tell a pallet
 from an upside-down pallet.  Measured on strict N87: 30/86 selected poses were
-vertically inverted, which index-wise reprojection exposed (155.6 px) while the
-symmetry-aware metrics hid it (rot_sym median 1.84 deg).
+vertically inverted.
+
+What actually went wrong in the previous gate (recorded precisely, because the
+first explanation was wrong): ``rotation_error_sym_deg`` did NOT hide the
+failure — it reported the forbidden width/depth-axis inversions as ~180 deg
+errors, exactly as it should.  The gate hid them, by judging on a *subset
+median*: with 30/86 inverted, the other 56 keep the median at 1.84 deg.  A
+catastrophic tail is invisible to a median.
 
 Two things live here:
 
-1. **Signed metrics** — a corrected error definition in which yaw+180 is still a
-   success (a pallet rotated about its own up-axis is the same placement) but a
-   top/base inversion is a failure.  The previous gate used a symmetry-aware
-   rotation error that folds in *any* 180-degree rotation, which is why an
-   inverted pose scored 1.84 deg.
+1. **Signed metrics** — an error definition in which yaw+180 is still a success
+   (a pallet rotated about its own up-axis is the same placement) while a
+   top/base inversion is a failure, plus vertical polarity as its own explicit
+   scalar so a tail can never again be averaged away.  Reprojection is
+   index-wise over the allowed permutations only; Hungarian matching would
+   re-pair an inverted pose's corners and report a small error.
 
 2. **Polarity scorers** — ways to pick, among candidates that differ only in
    sign, the physically upright one.  None of them re-solves the pose; they

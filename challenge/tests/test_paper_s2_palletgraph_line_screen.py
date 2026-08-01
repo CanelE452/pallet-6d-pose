@@ -804,3 +804,124 @@ def test_current_sai_failure_is_still_reproduced() -> None:
     assert len(valid) == 86
     assert int((valid.rotation_sym_deg > 90.0).sum()) == 30
     assert float(valid.reproj_fixed_gt_px.median()) == pytest.approx(155.6, abs=2.0)
+
+
+# ============================================================================
+# PPD learned head — target generation, split integrity, module contract
+# ============================================================================
+import polarity_aware_line_head as PLH  # noqa: E402
+
+
+def test_line_head_emits_exactly_five_maps_and_no_banned_output() -> None:
+    import torch
+
+    head = PLH.PolarityLineHead(feature_channels=8)
+    feature = torch.randn(2, 8, 25, 25)
+    gate = torch.ones(2, 1, 25, 25)
+    out = head(feature, gate)
+    assert out.shape == (2, 5, 25, 25)
+    assert PLH.CLASS_ORDER == (
+        "top_width", "top_depth", "base_width", "base_depth", "vertical")
+    source = (ROOT / "Deep_Object_Pose/common/polarity_aware_line_head.py").read_text("utf-8")
+    import io
+    import tokenize
+
+    identifiers = {
+        tok.string.lower()
+        for tok in tokenize.generate_tokens(io.StringIO(source).readline)
+        if tok.type == tokenize.NAME
+    }
+    for banned in ("voting", "vote_", "endpoint", "tangent", "offset_head"):
+        for name in identifiers:
+            assert banned not in name, f"banned representation '{banned}' in '{name}'"
+
+
+def test_soft_gate_is_never_hard_zero_and_is_detached() -> None:
+    import torch
+
+    logits = torch.full((1, 1, 20, 20), -30.0, requires_grad=True)
+    gate = PLH.soft_gate(logits)
+    assert float(gate.min()) >= PLH.GATE_EPSILON - 1e-6
+    assert float(gate.max()) <= 1.0 + 1e-6
+    assert not gate.requires_grad, "line loss must not train the mask head via the gate"
+
+
+def test_polarity_contrast_is_zero_for_a_perfect_prediction() -> None:
+    import torch
+
+    targets = torch.zeros(1, 5, 10, 10)
+    targets[0, 0, 2, 2] = 1.0      # top_width positive
+    targets[0, 2, 7, 7] = 1.0      # base_width positive
+    logits = torch.full((1, 5, 10, 10), -5.0)
+    logits[0, 0, 2, 2] = 10.0
+    logits[0, 2, 7, 7] = 10.0
+    loss = PLH.polarity_contrast_loss(logits, targets)
+    assert float(loss) < 1e-3
+
+
+def test_polarity_contrast_excludes_ambiguous_overlap() -> None:
+    import torch
+
+    targets = torch.zeros(1, 5, 10, 10)
+    targets[0, 0, 3, 3] = 1.0      # both paired classes high -> ambiguous
+    targets[0, 2, 3, 3] = 1.0
+    logits = torch.zeros(1, 5, 10, 10)
+    assert float(PLH.polarity_contrast_loss(logits, targets)) == pytest.approx(0.0, abs=1e-9)
+
+
+def test_outside_mask_penalty_is_one_sided() -> None:
+    import torch
+
+    logits = torch.full((1, 5, 8, 8), 5.0)
+    inside = torch.ones(1, 1, 8, 8)
+    outside = torch.full((1, 1, 8, 8), PLH.GATE_EPSILON)
+    assert float(PLH.outside_mask_penalty(logits, inside)) < float(
+        PLH.outside_mask_penalty(logits, outside))
+
+
+def test_target_uses_mask_rle_not_png() -> None:
+    source = (ROOT / "Deep_Object_Pose/common/polarity_aware_line_head.py").read_text("utf-8")
+    assert "mask_rle" in source
+    assert ".png" not in source.lower(), "PNG masks are gradient maps, not labels"
+
+
+def test_ppd_split_has_no_group_overlap_and_single_root() -> None:
+    _require(OUT / "ppd_train_manifest.json", OUT / "ppd_val_manifest.json")
+    train = json.loads((OUT / "ppd_train_manifest.json").read_text("utf-8"))
+    val = json.loads((OUT / "ppd_val_manifest.json").read_text("utf-8"))
+    assert train["root"].endswith("paper_4pallet_mask_v1")
+    assert val["root"] == train["root"]
+    assert not (set(train["groups"]) & set(val["groups"])), "group leakage"
+    assert not (set(f["file"] for f in train["frames"])
+                & set(f["file"] for f in val["frames"]))
+    for banned in ("mixed_v8_train", "v4_split_base", "aug_squash_v2",
+                   "aug_trunc_v2", "aug_scale_v2"):
+        assert banned not in json.dumps(train) and banned not in json.dumps(val)
+
+
+def test_ppd_manifest_hashes_record_the_allowed_root() -> None:
+    _require(OUT / "ppd_manifest_hashes.json")
+    hashes = json.loads((OUT / "ppd_manifest_hashes.json").read_text("utf-8"))
+    assert hashes["allowed_training_root"].endswith("paper_4pallet_mask_v1")
+    assert len([k for k in hashes if k.endswith(".json")]) >= 4
+
+
+def test_target_audit_gate_result_is_recorded_as_fail() -> None:
+    """The target gate failed; that verdict must stay visible in the artifacts."""
+    _require(OUT / "ppd_target_audit.csv")
+    import pandas as pd
+
+    audit = pd.read_csv(OUT / "ppd_target_audit.csv")
+    assert len(audit) == 200
+    assert float(audit.mask_frac.mean()) < 0.95, (
+        "if this now passes, the gate must be re-run before training")
+    # top classes really are the ones dropping out
+    assert float((audit.n_top_depth > 0).mean()) < float((audit.n_base_depth > 0).mean())
+
+
+def test_no_ppd_training_weights_were_produced() -> None:
+    """Target gate FAIL means no learned PPD arm may have been trained."""
+    weights = ROOT / "weights" / "paper_s2_ppd_screen"
+    if weights.exists():
+        assert not any(weights.rglob("*.pth")), (
+            "training ran despite the target gate failing")
