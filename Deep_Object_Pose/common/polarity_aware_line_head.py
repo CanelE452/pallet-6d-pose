@@ -289,3 +289,138 @@ def outside_mask_penalty(
     """One-sided: suppress line probability outside the mask, never require it."""
     probability = torch.sigmoid(line_logits).sum(dim=1, keepdim=True)
     return ((1.0 - gate) * probability).mean()
+
+
+# ============================================================================
+# Shared O0 gradient association (extracted verbatim; numeric output unchanged)
+# ============================================================================
+# The oracle O0 evidence used a Canny response with a distance-transform
+# tolerance to keep only the projected edge stretches that a real image
+# gradient actually supports.  Extracting it here (instead of re-deriving a
+# threshold) is what makes the learned T2 target and the oracle O0 evidence the
+# SAME definition; a fresh threshold would silently change what "observed"
+# means and make the learned-vs-oracle comparison meaningless.
+O0_CANNY = (100, 200)          # CANNY_SETTINGS[1] in the runner
+O0_ASSOCIATION_RADIUS_PX = 4.0
+
+
+def gradient_association_mask(
+    image_bgr: np.ndarray, canny: tuple[int, int] = O0_CANNY,
+    radius_px: float = O0_ASSOCIATION_RADIUS_PX
+) -> np.ndarray:
+    """Pixels within ``radius_px`` of a real image edge response.
+
+    Byte-identical to the runner's ``association_keep_mask``; a regression test
+    asserts the two agree on real frames.
+    """
+    import cv2
+
+    gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, canny[0], canny[1])
+    distance = cv2.distanceTransform(255 - edges, cv2.DIST_L2, 3)
+    return distance <= float(radius_px)
+
+
+# ============================================================================
+# Target modes (roles fixed BEFORE any number was produced)
+# ============================================================================
+# T0 MASK_FILTERED_LEGACY  — failure control.  Never the main target.
+# T1 SELF_VISIBLE_FULL     — geometry upper bound.  May include edges that have
+#                            no contrast in the image.  Never the main target.
+# T2 OBSERVED_FRAGMENT     — MAIN target, fixed in advance: self-visible
+#                            projection intersected with the SAME gradient
+#                            association the oracle O0 used, and NO mask
+#                            filtering.  mask_rle is pallet foreground, not a
+#                            definition of which cuboid lines are valid; a
+#                            pallet's fork slots make mask/hull = 0.52..0.80,
+#                            so mask filtering deletes legitimate top edges.
+TARGET_MODES = ("mask_filtered", "self_visible_full", "observed_fragment")
+MAIN_TARGET_MODE = "observed_fragment"
+
+
+def build_polarity_targets_v2(
+    rotation: np.ndarray, translation: np.ndarray, intrinsics: np.ndarray,
+    dims: tuple[float, float, float], image_size: tuple[int, int],
+    target_mode: str = MAIN_TARGET_MODE,
+    visible_mask: Optional[np.ndarray] = None,
+    image_bgr: Optional[np.ndarray] = None,
+    grid: int = TARGET_GRID, sigma_cells: float = TARGET_SIGMA_CELLS,
+    dilation_cells: int = MASK_DILATION_CELLS,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    """Five soft distance-field targets under one of the three fixed modes."""
+    import cv2
+
+    if target_mode not in TARGET_MODES:
+        raise ValueError(f"unknown target_mode {target_mode!r}")
+    if target_mode == "mask_filtered" and visible_mask is None:
+        raise ValueError("mask_filtered requires visible_mask")
+    if target_mode == "observed_fragment" and image_bgr is None:
+        raise ValueError("observed_fragment requires image_bgr")
+
+    width, height = int(image_size[0]), int(image_size[1])
+    edges = PPD.polarity_edge_classes(dims)
+    visibility = PG.visible_edges(rotation, translation, dims)
+    corners = PG.make_corners(*dims)[: PG.N_CORNERS]
+    projected, depth = PG.project_points(corners, rotation, translation, intrinsics)
+
+    keep_mask = None
+    if target_mode == "mask_filtered":
+        small = cv2.resize(np.asarray(visible_mask, np.uint8), (grid, grid),
+                           interpolation=cv2.INTER_NEAREST)
+        if dilation_cells > 0:
+            kernel = np.ones((2 * dilation_cells + 1,) * 2, np.uint8)
+            small = cv2.dilate(small, kernel)
+        keep_mask = small
+    elif target_mode == "observed_fragment":
+        keep_mask = gradient_association_mask(image_bgr)  # full image resolution
+
+    masks = {name: np.zeros((grid, grid), np.uint8) for name in CLASS_ORDER}
+    stats = {name: 0 for name in CLASS_ORDER}
+    projected_len = {name: 0 for name in CLASS_ORDER}
+    dropped = 0
+    for (i, j), line_class in edges:
+        if depth[i] <= 1e-6 or depth[j] <= 1e-6:
+            continue
+        if not visibility[(i, j)]:
+            continue
+        clipped = PG.clip_segment_to_image(projected[i], projected[j], width, height)
+        if clipped is None:
+            continue
+        for q in PG.sample_along(clipped[0], clipped[1], pixels_per_sample=1.0):
+            projected_len[line_class] += 1
+            px, py = int(round(float(q[0]))), int(round(float(q[1])))
+            gx = int(round(float(q[0]) * (grid - 1) / max(width - 1, 1)))
+            gy = int(round(float(q[1]) * (grid - 1) / max(height - 1, 1)))
+            if not (0 <= gx < grid and 0 <= gy < grid):
+                continue
+            if target_mode == "mask_filtered":
+                if not keep_mask[gy, gx]:
+                    dropped += 1
+                    continue
+            elif target_mode == "observed_fragment":
+                if not (0 <= px < width and 0 <= py < height and keep_mask[py, px]):
+                    dropped += 1
+                    continue
+            masks[line_class][gy, gx] = 1
+            stats[line_class] += 1
+
+    targets = np.zeros((len(CLASS_ORDER), grid, grid), dtype=np.float32)
+    for index, name in enumerate(CLASS_ORDER):
+        if masks[name].sum() == 0:
+            continue
+        distance = cv2.distanceTransform(1 - masks[name], cv2.DIST_L2, 3)
+        targets[index] = np.exp(-(distance**2) / (2.0 * sigma_cells**2))
+
+    total_projected = sum(projected_len.values())
+    info = {
+        "target_mode": target_mode,
+        "per_class_samples": stats,
+        "per_class_projected": projected_len,
+        "dropped": dropped,
+        "retained_fraction": (
+            sum(stats.values()) / max(total_projected, 1)),
+        "nonempty_classes": int(sum(1 for v in stats.values() if v > 0)),
+        "has_top": bool(stats["top_width"] + stats["top_depth"] > 0),
+        "has_base": bool(stats["base_width"] + stats["base_depth"] > 0),
+    }
+    return targets, info

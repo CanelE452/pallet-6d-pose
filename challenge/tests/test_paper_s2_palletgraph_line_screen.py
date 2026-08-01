@@ -925,3 +925,107 @@ def test_no_ppd_training_weights_were_produced() -> None:
     if weights.exists():
         assert not any(weights.rglob("*.pth")), (
             "training ran despite the target gate failing")
+
+
+# ============================================================================
+# PPD target semantics v2 — T0/T1/T2
+# ============================================================================
+def test_target_modes_and_main_are_fixed_in_advance() -> None:
+    assert PLH.TARGET_MODES == (
+        "mask_filtered", "self_visible_full", "observed_fragment")
+    assert PLH.MAIN_TARGET_MODE == "observed_fragment"
+
+
+def test_o0_gradient_helper_numeric_parity() -> None:
+    """The learned T2 target must use the SAME association the oracle used."""
+    assert PLH.O0_CANNY == LS.CANNY_SETTINGS[1]
+    assert PLH.O0_ASSOCIATION_RADIUS_PX == LS.ASSOCIATION_RADIUS_PX
+    rng = np.random.default_rng(0)
+    image = (rng.random((120, 160, 3)) * 255).astype(np.uint8)
+    a = LS.association_keep_mask(image, LS.CANNY_SETTINGS[1])
+    b = PLH.gradient_association_mask(image)
+    assert np.array_equal(a, b)
+
+
+def test_t2_does_not_use_mask_filtering() -> None:
+    import inspect
+
+    source = inspect.getsource(PLH.build_polarity_targets_v2)
+    assert 'if target_mode == "observed_fragment"' in source
+    # observed_fragment must be constructible without a mask at all
+    rotation, translation = rot_y(25.0), np.array([0.0, 0.2, 2.6])
+    rng = np.random.default_rng(1)
+    image = (rng.random((480, 640, 3)) * 255).astype(np.uint8)
+    targets, info = PLH.build_polarity_targets_v2(
+        rotation, translation, K, DIMS, SIZE,
+        target_mode="observed_fragment", image_bgr=image)
+    assert targets.shape == (5, PLH.TARGET_GRID, PLH.TARGET_GRID)
+    assert info["target_mode"] == "observed_fragment"
+    with pytest.raises(ValueError):
+        PLH.build_polarity_targets_v2(
+            rotation, translation, K, DIMS, SIZE, target_mode="observed_fragment")
+
+
+def test_t1_keeps_every_self_visible_sample() -> None:
+    rotation, translation = rot_y(25.0), np.array([0.0, 0.2, 2.6])
+    _, info = PLH.build_polarity_targets_v2(
+        rotation, translation, K, DIMS, SIZE, target_mode="self_visible_full")
+    assert info["dropped"] == 0
+    assert info["retained_fraction"] == pytest.approx(1.0, abs=1e-9)
+
+
+def test_mask_filtered_requires_a_mask_and_is_not_the_main_target() -> None:
+    rotation, translation = rot_y(25.0), np.array([0.0, 0.2, 2.6])
+    with pytest.raises(ValueError):
+        PLH.build_polarity_targets_v2(
+            rotation, translation, K, DIMS, SIZE, target_mode="mask_filtered")
+    assert PLH.MAIN_TARGET_MODE != "mask_filtered"
+
+
+def test_target_mode_comparison_is_recorded() -> None:
+    _require(OUT / "ppd_target_mode_metrics.csv")
+    import pandas as pd
+
+    table = pd.read_csv(OUT / "ppd_target_mode_metrics.csv")
+    assert len(table) == 200
+    for prefix in ("ma", "se", "ob"):
+        assert f"{prefix}_retained" in table.columns
+    # T1 keeps everything, T2 keeps the least (gradient association is strictest)
+    assert float(table.se_retained.mean()) == pytest.approx(1.0, abs=1e-6)
+    assert float(table.ob_retained.mean()) < float(table.ma_retained.mean())
+
+
+def test_t2_polarity_utility_is_recorded_and_best() -> None:
+    _require(OUT / "ppd_target_polarity_utility.json")
+    utility = json.loads((OUT / "ppd_target_polarity_utility.json").read_text("utf-8"))
+    per_mode = utility["per_mode"]
+    assert utility["upright_available"] == utility["n_with_candidates"]
+    accuracies = {
+        name: entry["correct"] / max(entry["n"], 1) for name, entry in per_mode.items()
+    }
+    assert accuracies["observed_fragment"] >= 0.95
+    assert accuracies["observed_fragment"] >= max(accuracies.values())
+
+
+def test_t2_gate_verdict_is_recorded_with_the_failing_item() -> None:
+    _require(OUT / "ppd_t2_gate_target.json")
+    gate = json.loads((OUT / "ppd_t2_gate_target.json").read_text("utf-8"))
+    assert gate["target_mode"] == "observed_fragment"
+    failing = [c["name"] for c in gate["checks"] if not c["pass"]]
+    passing = {c["name"]: c["value"] for c in gate["checks"] if c["pass"]}
+    # the polarity items must be among the passing ones
+    assert any("polarity acc" in name for name in passing)
+    assert any("inversion" in name for name in passing)
+    if failing:
+        assert gate["passed"] is False
+
+
+def test_no_ppd_t2_training_weights_exist_while_gate_fails() -> None:
+    _require(OUT / "ppd_t2_gate_target.json")
+    gate = json.loads((OUT / "ppd_t2_gate_target.json").read_text("utf-8"))
+    if not gate["passed"]:
+        for directory in (ROOT / "weights" / "paper_s2_ppd_t2_screen",
+                          ROOT / "weights" / "paper_s2_ppd_screen"):
+            if directory.exists():
+                assert not any(directory.rglob("*.pth")), (
+                    "training ran while the target gate was failing")
