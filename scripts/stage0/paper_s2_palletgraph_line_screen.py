@@ -1162,6 +1162,10 @@ def main() -> int:
     parser.add_argument("--report", action="store_true")
     parser.add_argument("--g0", action="store_true", help="global yaw identifiability")
     parser.add_argument("--g1", action="store_true", help="translation upper bound")
+    parser.add_argument("--sai-rotation", action="store_true",
+                        help="blind semantic-axis rotation gate")
+    parser.add_argument("--sai-fullpose", action="store_true",
+                        help="SAI translation + CGR full-pose gate")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1243,6 +1247,54 @@ def main() -> int:
             f"{gate['point_fail_yaw_le10']}  yaw_med {gate['point_fail_yaw_median']}  "
             f"t_med {gate['point_fail_translation_median_m']}")
         log(f"[G1 gate] {'PASS' if gate['passed'] else 'FAIL'}")
+        return 0
+
+    if args.sai_rotation:
+        evaluator = LineScreenEvaluator()
+        write_blind_evidence(evaluator, mode="associated")
+        audit = audit_blind_evidence()
+        (OUT_DIR / "sai_evidence_audit.json").write_text(
+            json.dumps(MD.jsonable(audit), indent=2), encoding="utf-8")
+        predictions = run_sai_rotation("associated")     # blind
+        predictions.to_parquet(OUT_DIR / "rotation_candidates_raw.parquet", index=False)
+        scored = score_sai_rotation(predictions, evaluator)   # separate scoring
+        scored.to_parquet(OUT_DIR / "rotation_candidates.parquet", index=False)
+        gate = rotation_gate(scored)
+        (OUT_DIR / "sai_gate_rotation.json").write_text(
+            json.dumps(MD.jsonable(gate), indent=2), encoding="utf-8")
+        log(f"[SAI rotation] observable axes median {gate['median_observable_axes']}, "
+            f"unobservable {gate['n_unobservable']}/{gate['n_total']}")
+        log(f"  point-fail top3_rot<=10°: {gate['point_fail_top3_rot_le10']}/"
+            f"{gate['n_point_fail']} (need >=10)")
+        log(f"  point-fail top1_yaw<=10°: {gate['point_fail_top1_yaw_le10']}/"
+            f"{gate['n_point_fail']} (need >=12)")
+        log(f"  overall top3_rot<=10°: {gate['overall_top3_rot_le10_fraction']:.3f} (need >=0.70)")
+        log(f"  truncated top3_yaw<=10°: {gate['truncated_top3_yaw_le10_fraction']:.3f} (need >=0.60)")
+        log(f"[rotation gate] {'PASS' if gate['passed'] else 'FAIL'}")
+        return 0
+
+    if args.sai_fullpose:
+        gate_r = json.loads((OUT_DIR / "sai_gate_rotation.json").read_text("utf-8"))
+        if not gate_r.get("passed"):
+            raise RuntimeError("BLOCKED: rotation gate did not pass; full-pose must not run")
+        prior = load_search_prior()
+        activation = point_activation_threshold()
+        evaluator = LineScreenEvaluator()
+        scored = pd.read_parquet(OUT_DIR / "rotation_candidates.parquet")
+        log(f"[SAI fullpose] prior {prior['source']} | point activation "
+            f"threshold {activation['threshold']} (source: {activation['source']})")
+        frame = run_sai_fullpose(evaluator, scored, prior, activation)
+        frame.to_parquet(OUT_DIR / "fullpose_results.parquet", index=False)
+        c0 = pd.read_parquet(OUT_DIR / "arm_P0.parquet")
+        gate = fullpose_gate(frame, c0)
+        (OUT_DIR / "sai_gate_fullpose.json").write_text(
+            json.dumps(MD.jsonable(gate), indent=2), encoding="utf-8")
+        for arm in ("L0", "PL0"):
+            e = gate["per_arm"].get(arm, {})
+            log(f"  {arm}: point-fail valid {e.get('point_fail_valid')}/17 "
+                f"yaw<=10° {e.get('point_fail_yaw_le10')} rot<=15° {e.get('point_fail_rot_le15')} "
+                f"improved {e.get('point_fail_improved')}  new_failures {e.get('new_failures')}")
+        log(f"[fullpose gate] {'PASS' if gate['passed'] else 'FAIL'}")
         return 0
 
     requested = list(args.arm) or (list(ARMS) if args.all_oracle else [])
@@ -1342,7 +1394,7 @@ def _subsample(points: np.ndarray, limit: int) -> np.ndarray:
 def build_continuous_field(
     reference: dict[str, Any], K: np.ndarray, dims: tuple[float, float, float],
     image_size: tuple[int, int], image_bgr: np.ndarray, mode: str,
-    canny: tuple[int, int] = CANNY_SETTINGS[1]
+    canny: tuple[int, int] = CANNY_SETTINGS[1], subsample_support: bool = True
 ) -> tuple[Any, list]:
     """Frame-fixed semantic line evidence + frame-fixed edge set.
 
@@ -1381,7 +1433,11 @@ def build_continuous_field(
         distance[c] = cv2.distanceTransform(1 - masks[c], cv2.DIST_L2, 3).astype(np.float32)
         stacked = (np.concatenate(support[c], axis=0) if support[c]
                    else np.zeros((0, 2), dtype=np.float64))
-        support_out[c] = _subsample(stacked, MAX_SUPPORT_SAMPLES)
+        # The subsample exists only to bound the reverse-term cost in the
+        # energy.  SAI fits connected components to this support, so handing it
+        # a 60-pixel subsample shatters every line into sub-threshold fragments.
+        support_out[c] = (_subsample(stacked, MAX_SUPPORT_SAMPLES)
+                          if subsample_support else stacked)
     field = DGP.ContinuousLineField(distance, support_out, (width, height))
     return field, edge_set
 
@@ -1699,6 +1755,508 @@ def g1_frame(
             FZ.fixed_observation_reprojection(
                 base, geometry.gt_points, geometry.K, geometry.dims)[0]),
     }
+
+
+
+
+# ============================================================================
+# Phase B — blind oracle evidence (GT pose used to MAKE it, never to SOLVE)
+# ============================================================================
+# The evidence below is an oracle: GT pose projects the 3-D edges and assigns
+# the semantic class.  That is the upper bound being measured.  What must NOT
+# happen is the solver reading the pose back, so the artifact is restricted to
+# raster maps by an explicit key whitelist and anything pose-shaped is refused.
+EVIDENCE_DIR = OUT_DIR / "sai_blind_evidence"
+EVIDENCE_KEYS = frozenset({
+    "frame_id", "image_size", "K", "dimensions",
+    "line_support_width", "line_support_depth", "line_support_vertical",
+    "line_distance_width", "line_distance_depth", "line_distance_vertical",
+    "predicted_points", "predicted_validity", "evidence_mode",
+})
+FORBIDDEN_TOKENS = (
+    "gt_pose", "pose_transform", "rotation_gt", "translation_gt", "yaw_gt",
+    "projected_cuboid", "edge_endpoints_gt", "json_path", "annotation_path",
+    "gt_points", "reference_pose",
+)
+
+
+def write_blind_evidence(
+    evaluator: "LineScreenEvaluator", mode: str = "associated"
+) -> dict[str, Any]:
+    """Materialise per-frame semantic raster evidence with no pose fields."""
+    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+    manifest: dict[str, Any] = {
+        "mode": mode, "n_frames": 0, "allowed_keys": sorted(EVIDENCE_KEYS),
+        "forbidden_tokens": list(FORBIDDEN_TOKENS),
+        "note": ("GT pose is used ONLY to project and semantically label the "
+                 "line fragments.  No pose value is stored, so the blind solver "
+                 "cannot read it back."),
+        "frames": [],
+    }
+    for spec in evaluator.frames:
+        uid = spec["frame_id"]
+        geometry = evaluator.geometry[uid]
+        if geometry.K is None or geometry.dims is None:
+            continue
+        reference = geometry.solve(geometry.gt_points)
+        if reference is None:
+            continue
+        image_size = (spec["image_width"], spec["image_height"])
+        field, edge_set = build_continuous_field(
+            reference, geometry.K, geometry.dims, image_size,
+            evaluator.images[uid], mode, subsample_support=False)
+        width, height = image_size
+        support = {}
+        for line_class in PG.LINE_CLASSES:
+            mask = np.zeros((height, width), np.uint8)
+            for q in field.support[line_class]:
+                x, y = int(round(float(q[0]))), int(round(float(q[1])))
+                if 0 <= x < width and 0 <= y < height:
+                    mask[y, x] = 1
+            support[line_class] = mask
+        observations, valid = evaluator.observations(uid)
+        payload = {
+            "frame_id": np.array(uid),
+            "image_size": np.asarray(image_size, dtype=np.int64),
+            "K": np.asarray(geometry.K, dtype=np.float64),
+            "dimensions": np.asarray(geometry.dims, dtype=np.float64),
+            "predicted_points": np.asarray(observations, dtype=np.float64),
+            "predicted_validity": np.asarray(valid, dtype=bool),
+            "evidence_mode": np.array(mode),
+        }
+        for line_class in PG.LINE_CLASSES:
+            payload[f"line_support_{line_class}"] = support[line_class]
+            payload[f"line_distance_{line_class}"] = field.distance[line_class]
+        extra = set(payload) - EVIDENCE_KEYS
+        if extra:
+            raise RuntimeError(f"BLOCKED: evidence has non-whitelisted keys {extra}")
+        np.savez_compressed(EVIDENCE_DIR / f"{uid.replace(':', '_')}.npz", **payload)
+        manifest["frames"].append(
+            {"frame_id": uid, "file": f"{uid.replace(':', '_')}.npz",
+             "n_support": int(sum(int(m.sum()) for m in support.values()))})
+    manifest["n_frames"] = len(manifest["frames"])
+    (OUT_DIR / "blind_evidence_manifest.json").write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8")
+    log(f"[evidence] {manifest['n_frames']} frames -> {EVIDENCE_DIR}")
+    return manifest
+
+
+def audit_blind_evidence() -> dict[str, Any]:
+    """Fail closed if any stored artifact could leak the pose."""
+    manifest = json.loads(
+        (OUT_DIR / "blind_evidence_manifest.json").read_text(encoding="utf-8"))
+    violations: list[str] = []
+    for entry in manifest["frames"]:
+        with np.load(EVIDENCE_DIR / entry["file"], allow_pickle=False) as data:
+            keys = set(data.files)
+        extra = keys - EVIDENCE_KEYS
+        if extra:
+            violations.append(f"{entry['file']}: extra keys {sorted(extra)}")
+        for key in keys:
+            lowered = key.lower()
+            for token in FORBIDDEN_TOKENS:
+                if token in lowered:
+                    violations.append(f"{entry['file']}: forbidden key '{key}'")
+    result = {"n_frames": manifest["n_frames"], "violations": violations,
+              "passed": not violations}
+    if violations:
+        raise RuntimeError(f"BLOCKED: blind evidence leaks pose: {violations[:5]}")
+    log(f"[evidence audit] PASS  {result['n_frames']} frames, 0 violations")
+    return result
+
+
+# ============================================================================
+# Phase E — rotation-only gate (blind solver)
+# ============================================================================
+ROTATION_GATE = {
+    "point_fail_top3_rot_le10_min_frames": 10,
+    "point_fail_top1_yaw_le10_min_frames": 12,
+    "overall_top3_rot_le10_fraction": 0.70,
+    "truncated_top3_yaw_le10_fraction": 0.60,
+}
+
+
+def run_sai_rotation(mode: str = "associated") -> pd.DataFrame:
+    """Blind: reads ONLY the evidence npz files.  No JSON, no GT pose."""
+    import semantic_axis_initialization as SAI
+
+    manifest = json.loads(
+        (OUT_DIR / "blind_evidence_manifest.json").read_text(encoding="utf-8"))
+    rows: list[dict[str, Any]] = []
+    started = time.time()
+    for entry in manifest["frames"]:
+        with np.load(EVIDENCE_DIR / entry["file"], allow_pickle=False) as data:
+            uid = str(data["frame_id"])
+            K = data["K"]
+            dims = tuple(float(v) for v in data["dimensions"])
+            image_size = tuple(int(v) for v in data["image_size"])
+            support = {c: data[f"line_support_{c}"] for c in PG.LINE_CLASSES}
+            validity = data["predicted_validity"]
+        out = SAI.semantic_axis_initialization(support, K, dims, image_size)
+        observability = out["observability"]
+        row = {
+            "frame_id": uid, "arm": f"R-{mode}",
+            "n_observable_axes": observability["n_observable"],
+            "observable_axes": ",".join(observability["observable_axes"]),
+            "degenerate": bool(observability["degenerate_pairs"]),
+            "failure_reason": observability["reason"],
+            "n_candidates": out["n_candidates"],
+            "n_valid_points": int(np.asarray(validity).sum()),
+            **{f"n_components_{c}": out["components_by_class"][c]
+               for c in PG.LINE_CLASSES},
+        }
+        for line_class in PG.LINE_CLASSES:
+            estimate = out["vanishing"][line_class]
+            row[f"vp_residual_{line_class}"] = (
+                None if estimate is None else estimate["residual"])
+            row[f"vp_ratio_{line_class}"] = (
+                None if estimate is None else estimate["singular_ratio"])
+        # flat 9-vectors: nested 3x3 lists do not survive the parquet round-trip
+        row["_candidates"] = [
+            [float(v) for v in np.asarray(c["R"], dtype=np.float64).reshape(-1)]
+            for c in out["candidates"]]
+        row["_scores"] = [float(c["score"]) for c in out["candidates"]]
+        rows.append(row)
+    log(f"[SAI rotation] {len(rows)} frames in {time.time()-started:.0f}s")
+    return pd.DataFrame(rows)
+
+
+def score_sai_rotation(
+    predictions: pd.DataFrame, evaluator: "LineScreenEvaluator"
+) -> pd.DataFrame:
+    """SEPARATE process step: join predictions with GT purely to compute metrics."""
+    rows: list[dict[str, Any]] = []
+    for _, prediction in predictions.iterrows():
+        uid = prediction.frame_id
+        spec = next(f for f in evaluator.frames if f["frame_id"] == uid)
+        geometry = evaluator.geometry[uid]
+        reference = geometry.solve(geometry.gt_points)
+        base = geometry.solve(evaluator.decoded[uid]["D0"])
+        candidates = [
+            np.asarray(m, dtype=np.float64).reshape(3, 3)
+            for m in (prediction._candidates if prediction._candidates is not None else [])]
+        rotation_errors = [
+            PG.rotation_error_sym_deg(R, reference["R"]) for R in candidates]
+        yaw_errors = [
+            PG.yaw_error_mod_pi_deg(R, reference["R"]) for R in candidates]
+        axis_errors: dict[str, Optional[float]] = {}
+        if candidates:
+            import semantic_axis_initialization as SAI
+
+            best = candidates[int(np.argmin(rotation_errors))]
+            for index, name in ((0, "width"), (1, "vertical"), (2, "depth")):
+                predicted_axis = best[:, index]
+                true_axis = reference["R"] @ SAI.CLASS_AXIS[name]
+                axis_errors[name] = float(math.degrees(math.acos(
+                    min(1.0, abs(float(np.dot(predicted_axis, true_axis)))))))
+        rows.append({
+            **{k: prediction[k] for k in prediction.index if not k.startswith("_")},
+            "domain": spec["domain"], "session_id": spec["session_id"],
+            "is_truncated": spec["is_truncated"],
+            "failure_class": evaluator.classes.loc[uid, "failure_class"],
+            "is_close_range": bool(
+                (spec["bbox_area_ratio"] or 0.0) >= evaluator.close_threshold),
+            "point_fail": bool(base is None),
+            "top1_rot_err": rotation_errors[0] if rotation_errors else None,
+            "top3_min_rot_err": min(rotation_errors[:3]) if rotation_errors else None,
+            "topk_min_rot_err": min(rotation_errors) if rotation_errors else None,
+            "top1_yaw_err": yaw_errors[0] if yaw_errors else None,
+            "top3_min_yaw_err": min(yaw_errors[:3]) if yaw_errors else None,
+            "topk_min_yaw_err": min(yaw_errors) if yaw_errors else None,
+            "axis_err_width": axis_errors.get("width"),
+            "axis_err_vertical": axis_errors.get("vertical"),
+            "axis_err_depth": axis_errors.get("depth"),
+        })
+    return pd.DataFrame(rows)
+
+
+def rotation_gate(scored: pd.DataFrame) -> dict[str, Any]:
+    point_fail = scored[scored.point_fail]
+    truncated = scored[scored.is_truncated]
+    have = scored[scored.n_candidates > 0]
+    result = {
+        "thresholds": ROTATION_GATE,
+        "n_total": len(scored), "n_with_candidates": len(have),
+        "n_point_fail": len(point_fail),
+        "point_fail_top3_rot_le10": int(
+            (point_fail.top3_min_rot_err.fillna(999) <= 10.0).sum()),
+        "point_fail_top1_yaw_le10": int(
+            (point_fail.top1_yaw_err.fillna(999) <= 10.0).sum()),
+        "point_fail_top3_yaw_le10": int(
+            (point_fail.top3_min_yaw_err.fillna(999) <= 10.0).sum()),
+        "overall_top3_rot_le10_fraction": float(
+            (scored.top3_min_rot_err.fillna(999) <= 10.0).mean()),
+        "overall_top3_yaw_le10_fraction": float(
+            (scored.top3_min_yaw_err.fillna(999) <= 10.0).mean()),
+        "truncated_top3_yaw_le10_fraction": float(
+            (truncated.top3_min_yaw_err.fillna(999) <= 10.0).mean())
+            if len(truncated) else 0.0,
+        "median_observable_axes": nanmedian(scored.n_observable_axes.values),
+        "n_unobservable": int((scored.n_candidates == 0).sum()),
+    }
+    result["passed"] = bool(
+        result["point_fail_top3_rot_le10"]
+        >= ROTATION_GATE["point_fail_top3_rot_le10_min_frames"]
+        and result["point_fail_top1_yaw_le10"]
+        >= ROTATION_GATE["point_fail_top1_yaw_le10_min_frames"]
+        and result["overall_top3_rot_le10_fraction"]
+        >= ROTATION_GATE["overall_top3_rot_le10_fraction"]
+        and result["truncated_top3_yaw_le10_fraction"]
+        >= ROTATION_GATE["truncated_top3_yaw_le10_fraction"]
+    )
+    return result
+
+
+
+
+# ============================================================================
+# Phase F/G — known-dimension translation init + CGR (blind)
+# ============================================================================
+SAI_TOPK_ROTATION = 4
+SAI_Z_CANDIDATES = 16
+SAI_OFFSET_GRID = (-0.05, 0.0, 0.05)
+SAI_TOPK_POSE = 20
+CGR_ITERATIONS = {"coarse": 5, "mid": 5, "fine": 10}
+POINT_ACTIVATION_MIN_VALID = 4
+
+
+def point_activation_threshold() -> dict[str, Any]:
+    """Residual threshold calibrated on paper_4pallet_mask_v1, never on N87."""
+    path = OUT_DIR / "point_activation_threshold.json"
+    if path.is_file():
+        return json.loads(path.read_text(encoding="utf-8"))
+    raise RuntimeError("BLOCKED: point activation threshold not calibrated")
+
+
+def translation_candidates(
+    rotation: np.ndarray, field: Any, intrinsics: np.ndarray,
+    dims: tuple[float, float, float], prior: dict[str, Any]
+) -> list[np.ndarray]:
+    """tx/ty from the observed line-support centre, tz from the training prior."""
+    centres: list[np.ndarray] = []
+    stacked = [v for v in field.support.values() if len(v) > 0]
+    if not stacked:
+        return []
+    allpts = np.concatenate(stacked, axis=0)
+    centres.append(allpts.mean(axis=0))                       # C0 weighted centroid
+    centres.append(0.5 * (allpts.min(axis=0) + allpts.max(axis=0)))  # C1 bbox centre
+    extent = float(np.linalg.norm(allpts.max(axis=0) - allpts.min(axis=0)))
+    z_low, z_high = prior["tz_search_range"]
+    z_grid = list(np.geomspace(max(z_low, 0.3), z_high, SAI_Z_CANDIDATES))
+    fx, fy = float(intrinsics[0, 0]), float(intrinsics[1, 1])
+    cx, cy = float(intrinsics[0, 2]), float(intrinsics[1, 2])
+    corners = PG.make_corners(*dims)[:8]
+    out: list[np.ndarray] = []
+    for z in z_grid:
+        projected, _ = PG.project_points(
+            corners, rotation, np.array([0.0, 0.0, float(z)]), intrinsics)
+        if not np.isfinite(projected).all():
+            continue
+        model_centre = projected.mean(axis=0)
+        for centre in centres:
+            tx = (centre[0] - model_centre[0]) * z / fx
+            ty = (centre[1] - model_centre[1]) * z / fy
+            for ox in SAI_OFFSET_GRID:
+                for oy in SAI_OFFSET_GRID:
+                    out.append(np.array([
+                        tx + ox * extent * z / fx,
+                        ty + oy * extent * z / fy,
+                        float(z)]))
+    return out
+
+
+def cgr_refine(
+    rotation: np.ndarray, translation: np.ndarray, intrinsics: np.ndarray,
+    dims: tuple[float, float, float], field: Any, edge_set: list,
+    observations: Optional[np.ndarray] = None,
+    valid: Optional[np.ndarray] = None, lambda_point: float = 0.0
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """Coarse -> mid -> fine continuous graph refinement on full SE(3)."""
+    R, t = np.asarray(rotation, dtype=np.float64).copy(), np.asarray(
+        translation, dtype=np.float64).reshape(3).copy()
+
+    def total(Rc, tc, sigma):
+        e, _ = DGP.continuous_line_energy(
+            Rc, tc, intrinsics, dims, field, edge_set,
+            sigma_name=sigma, use_reverse=True)
+        if lambda_point > 0.0 and observations is not None:
+            ep, _ = DGP.point_energy(Rc, tc, intrinsics, dims, observations, valid)
+            e = e + lambda_point * ep
+        return e
+
+    for sigma, iterations in CGR_ITERATIONS.items():
+        step = np.array([2.0, 0.08, 0.15])   # deg, m(xy), m(z)
+        energy = total(R, t, sigma)
+        for _ in range(iterations):
+            improved = False
+            for axis in range(4):
+                for sign in (+1.0, -1.0):
+                    if axis == 0:
+                        Rc, tc = _yaw_rotation(R, sign * step[0]), t
+                    else:
+                        Rc = R
+                        tc = t.copy()
+                        tc[axis - 1] += sign * (step[1] if axis < 3 else step[2])
+                        if axis == 3 and tc[2] <= 0.3:
+                            continue
+                    value = total(Rc, tc, sigma)
+                    if np.isfinite(value) and value < energy - 1e-12:
+                        R, t, energy, improved = Rc, tc, value, True
+            if not improved:
+                step *= 0.5
+                if float(step[0]) < 0.05:
+                    break
+    return R, t, float(total(R, t, "fine"))
+
+
+def run_sai_fullpose(
+    evaluator: "LineScreenEvaluator", scored: pd.DataFrame, prior: dict[str, Any],
+    activation: dict[str, Any]
+) -> pd.DataFrame:
+    manifest = json.loads(
+        (OUT_DIR / "blind_evidence_manifest.json").read_text(encoding="utf-8"))
+    files = {e["frame_id"]: e["file"] for e in manifest["frames"]}
+    predictions = pd.read_parquet(OUT_DIR / "rotation_candidates_raw.parquet")
+    by_frame = predictions.set_index("frame_id")
+    rows: list[dict[str, Any]] = []
+    started = time.time()
+    for position, spec in enumerate(evaluator.frames):
+        uid = spec["frame_id"]
+        if uid not in files or uid not in by_frame.index:
+            continue
+        candidates_raw = by_frame.loc[uid, "_candidates"]
+        if candidates_raw is None or len(candidates_raw) == 0:
+            continue
+        geometry = evaluator.geometry[uid]
+        image_size = (spec["image_width"], spec["image_height"])
+        reference = geometry.solve(geometry.gt_points)
+        base = geometry.solve(evaluator.decoded[uid]["D0"])
+        field, edge_set = build_continuous_field(
+            reference, geometry.K, geometry.dims, image_size,
+            evaluator.images[uid], "associated")
+        observations, valid = evaluator.observations(uid)
+
+        pool: list[tuple[float, np.ndarray, np.ndarray]] = []
+        for matrix in list(candidates_raw)[:SAI_TOPK_ROTATION]:
+            R0 = np.asarray(matrix, dtype=np.float64).reshape(3, 3)
+            for t0 in translation_candidates(
+                    R0, field, geometry.K, geometry.dims, prior):
+                e, _ = DGP.continuous_line_energy(
+                    R0, t0, geometry.K, geometry.dims, field, edge_set,
+                    sigma_name="coarse", use_reverse=True)
+                pool.append((e, R0, t0))
+        if not pool:
+            continue
+        pool.sort(key=lambda c: c[0])
+
+        results: dict[str, Any] = {}
+        for arm, use_point in (("L0", False), ("PL0", True)):
+            best = None
+            for _, R0, t0 in pool[:SAI_TOPK_POSE]:
+                lambda_point = 0.0
+                if use_point and int(valid.sum()) >= POINT_ACTIVATION_MIN_VALID:
+                    Rl, tl, _ = cgr_refine(
+                        R0, t0, geometry.K, geometry.dims, field, edge_set)
+                    residual, _ = DGP.point_energy(
+                        Rl, tl, geometry.K, geometry.dims, observations, valid)
+                    if residual <= activation["threshold"]:
+                        lambda_point = activation["lambda_point"]
+                R, t, energy = cgr_refine(
+                    R0, t0, geometry.K, geometry.dims, field, edge_set,
+                    observations, valid, lambda_point)
+                if t[2] <= 0.0 or not np.isfinite(t).all():
+                    continue
+                if best is None or energy < best[2]:
+                    best = (R, t, energy, lambda_point > 0.0)
+            results[arm] = best
+
+        for arm, best in results.items():
+            if best is None:
+                rows.append({"frame_id": uid, "arm": arm, "valid": False})
+                continue
+            R, t, energy, activated = best
+            pose = {"R": R, "t": t, "dims": geometry.dims}
+            reproj, _ = FZ.fixed_observation_reprojection(
+                pose, geometry.gt_points, geometry.K, geometry.dims)
+            rows.append({
+                "frame_id": uid, "arm": arm, "valid": True,
+                "domain": spec["domain"], "session_id": spec["session_id"],
+                "is_truncated": spec["is_truncated"],
+                "failure_class": evaluator.classes.loc[uid, "failure_class"],
+                "point_fail": bool(base is None),
+                "point_activated": bool(activated),
+                "n_valid_points": int(valid.sum()),
+                "energy": float(energy),
+                "yaw_mod180_deg": PG.yaw_error_mod_pi_deg(R, reference["R"]),
+                "rotation_sym_deg": PG.rotation_error_sym_deg(R, reference["R"]),
+                "translation_err_m": float(np.linalg.norm(
+                    t - np.asarray(reference["t"]).reshape(3))),
+                "corner_sym_m": PG.corner_error_sym(pose, reference, geometry.dims),
+                "reproj_fixed_gt_px": reproj,
+                "positive_depth": bool(t[2] > 0),
+                "baseline_corner_sym_m": (
+                    None if base is None
+                    else PG.corner_error_sym(base, reference, geometry.dims)),
+                "baseline_reproj_px": (
+                    None if base is None else FZ.fixed_observation_reprojection(
+                        base, geometry.gt_points, geometry.K, geometry.dims)[0]),
+            })
+        if (position + 1) % 20 == 0:
+            log(f"  [SAI fullpose] {position+1}/87  {time.time()-started:.0f}s")
+    return pd.DataFrame(rows)
+
+
+def fullpose_gate(frame: pd.DataFrame, c0: pd.DataFrame) -> dict[str, Any]:
+    """Pre-fixed gate; requires paired evidence, not a subset median."""
+    baseline = c0.set_index("frame_id")
+    result: dict[str, Any] = {"per_arm": {}, "thresholds": {
+        "point_fail_valid_min": 8, "point_fail_yaw_le10_min": 8,
+        "point_fail_rot_le15_min": 6, "point_fail_improved_min": 5,
+        "new_failures_max": 2}}
+    for arm, group in frame.groupby("arm"):
+        ok = group[group.valid.fillna(False)]
+        pf = ok[ok.point_fail.fillna(False)]
+        ps = ok[~ok.point_fail.fillna(False)]
+        improved = 0
+        for _, row in pf.iterrows():
+            base_corner = row.get("baseline_corner_sym_m")
+            base_reproj = row.get("baseline_reproj_px")
+            if base_corner is None or (isinstance(base_corner, float) and not np.isfinite(base_corner)):
+                improved += 1   # baseline had no pose at all
+            elif row.corner_sym_m < base_corner or (
+                    base_reproj and row.reproj_fixed_gt_px < 0.8 * base_reproj):
+                improved += 1
+        paired_yaw = []
+        for _, row in ps.iterrows():
+            if row.frame_id in baseline.index:
+                b = baseline.loc[row.frame_id]
+                if bool(b.pose_success):
+                    paired_yaw.append(float(row.yaw_mod180_deg) - float(b.yaw_mod180_deg))
+        new_failures = int(sum(
+            1 for fid in baseline.index[baseline.pose_success]
+            if fid not in set(ok.frame_id)))
+        entry = {
+            "n_valid": len(ok), "point_fail_valid": len(pf),
+            "point_fail_yaw_le10": int((pf.yaw_mod180_deg <= 10.0).sum()),
+            "point_fail_rot_le15": int((pf.rotation_sym_deg <= 15.0).sum()),
+            "point_fail_improved": improved,
+            "point_fail_yaw_median": nanmedian(pf.yaw_mod180_deg.values),
+            "point_fail_corner_median": nanmedian(pf.corner_sym_m.values),
+            "point_success_paired_yaw_delta_median": nanmedian(paired_yaw),
+            "point_success_paired_improved": int(sum(1 for v in paired_yaw if v < 0)),
+            "point_success_paired_worsened": int(sum(1 for v in paired_yaw if v > 0)),
+            "new_failures": new_failures,
+            "negative_depth": int((~ok.positive_depth.fillna(False)).sum()),
+            "point_activated_frames": int(ok.point_activated.fillna(False).sum()),
+        }
+        entry["passes"] = bool(
+            entry["point_fail_valid"] >= 8 and entry["point_fail_yaw_le10"] >= 8
+            and entry["point_fail_rot_le15"] >= 6
+            and entry["point_fail_improved"] >= 5
+            and entry["new_failures"] <= 2 and entry["negative_depth"] == 0)
+        result["per_arm"][arm] = entry
+    result["passed"] = bool(any(e["passes"] for e in result["per_arm"].values()))
+    return result
 
 
 if __name__ == "__main__":

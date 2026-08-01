@@ -491,3 +491,174 @@ def test_training_root_allowlist_is_exact() -> None:
     prior = json.loads((OUT / "search_prior.json").read_text("utf-8"))
     used = {Path(prior["source"]).name}
     assert used == allowed, f"training/prior root set is {used}, expected {allowed}"
+
+
+# ============================================================================
+# SAI — blind semantic-axis initialization
+# ============================================================================
+import semantic_axis_initialization as SAI  # noqa: E402
+
+
+def test_sai_signature_takes_no_gt_pose() -> None:
+    """The solver must be structurally unable to read the answer."""
+    import inspect
+
+    parameters = set(
+        inspect.signature(SAI.semantic_axis_initialization).parameters)
+    assert parameters == {"support", "intrinsics", "dims", "image_size"}
+    for banned in ("rotation", "translation", "pose", "gt", "reference", "R", "t"):
+        assert banned not in parameters
+
+
+def test_class_axes_match_the_live_corner_convention() -> None:
+    axes = SAI.verify_class_axes(DIMS)
+    assert set(axes) == {"width", "depth", "vertical"}
+    assert np.allclose(axes["width"], [1, 0, 0])
+    assert np.allclose(axes["vertical"], [0, 1, 0])
+    assert np.allclose(axes["depth"], [0, 0, 1])
+
+
+def test_weighted_tls_is_exact_on_a_perfect_line() -> None:
+    xs = np.linspace(10.0, 200.0, 60)
+    for slope, intercept in ((0.0, 50.0), (2.5, -30.0)):
+        points = np.stack([xs, slope * xs + intercept], axis=1)
+        line, rms = SAI.fit_line_weighted_tls(points)
+        assert rms < 1e-9
+        residual = points @ line[:2] + line[2]
+        assert np.abs(residual).max() < 1e-8
+    vertical = np.stack([np.full(60, 77.0), xs], axis=1)  # exactly vertical
+    line, rms = SAI.fit_line_weighted_tls(vertical)
+    assert rms < 1e-9
+    assert abs(abs(line[0]) - 1.0) < 1e-9
+
+
+def test_line_fit_is_invariant_to_pixel_order() -> None:
+    rng = np.random.default_rng(0)
+    xs = np.linspace(0.0, 100.0, 40)
+    points = np.stack([xs, 1.7 * xs + 12.0], axis=1)
+    a, _ = SAI.fit_line_weighted_tls(points)
+    shuffled = points[rng.permutation(points.shape[0])]
+    b, _ = SAI.fit_line_weighted_tls(shuffled)
+    assert np.allclose(np.abs(a), np.abs(b), atol=1e-9)
+
+
+def test_finite_and_infinite_vanishing_points() -> None:
+    converging = [
+        {"semantic_class": "width", "line": np.array([1.0, -1.0, 0.0]),
+         "support_length": 100.0, "support_mass": 100.0, "fit_rms": 0.1},
+        {"semantic_class": "width", "line": np.array([1.0, 1.0, -200.0]),
+         "support_length": 100.0, "support_mass": 100.0, "fit_rms": 0.1},
+    ]
+    estimate = SAI.vanishing_point(converging)
+    assert estimate is not None and np.isfinite(estimate["vanishing_point"]).all()
+    parallel = [
+        {"semantic_class": "depth", "line": np.array([0.0, 1.0, -10.0]),
+         "support_length": 100.0, "support_mass": 100.0, "fit_rms": 0.1},
+        {"semantic_class": "depth", "line": np.array([0.0, 1.0, -90.0]),
+         "support_length": 100.0, "support_mass": 100.0, "fit_rms": 0.1},
+    ]
+    estimate = SAI.vanishing_point(parallel)
+    assert estimate is not None
+    assert abs(float(estimate["vanishing_point"][2])) < 1e-6  # point at infinity
+
+
+def test_single_line_class_yields_no_vanishing_point() -> None:
+    assert SAI.vanishing_point([
+        {"semantic_class": "width", "line": np.array([1.0, 0.0, -5.0]),
+         "support_length": 100.0, "support_mass": 100.0, "fit_rms": 0.1}]) is None
+
+
+def test_axis_observability_fails_closed() -> None:
+    axis = np.array([0.0, 0.0, 1.0])
+    assert not SAI.axis_observability(
+        {"width": axis, "depth": None, "vertical": None})["usable"]
+    assert SAI.axis_observability(
+        {"width": np.array([1.0, 0, 0]), "depth": axis, "vertical": None})["usable"]
+    nearly_parallel = np.array([0.02, 0.0, 0.9998])
+    result = SAI.axis_observability(
+        {"width": nearly_parallel, "depth": axis, "vertical": None})
+    assert not result["usable"] and result["reason"] == "degenerate_axis_pair"
+
+
+def test_orthogonalize_returns_a_proper_rotation() -> None:
+    noisy = np.array([[1.0, 0.05, 0.0], [0.0, 0.98, 0.03], [0.02, 0.0, 1.01]])
+    rotation = SAI.orthogonalize(noisy)
+    assert rotation is not None
+    assert np.allclose(rotation @ rotation.T, np.eye(3), atol=1e-9)
+    assert float(np.linalg.det(rotation)) == pytest.approx(1.0, abs=1e-9)
+    assert SAI.orthogonalize(np.full((3, 3), np.nan)) is None
+
+
+def test_line_plane_residual_is_zero_at_the_true_rotation() -> None:
+    rotation = rot_y(28.0)
+    translation = np.array([0.03, 0.25, 2.7])
+    corners = PG.make_corners(*DIMS)[:8]
+    projected, _ = PG.project_points(corners, rotation, translation, K)
+    components = []
+    for name, pairs in PG.edge_sets(*DIMS).items():
+        for i, j in pairs:
+            line, _ = SAI.fit_line_weighted_tls(
+                np.stack([projected[i], projected[j]]))
+            components.append({
+                "semantic_class": name, "line": line,
+                "support_length": 100.0, "support_mass": 100.0, "fit_rms": 0.05})
+    assert SAI.line_plane_residual(rotation, components, K) < 1e-12
+
+
+def test_two_axis_case_completes_by_cross_product() -> None:
+    axes = {"width": np.array([1.0, 0.0, 0.0]),
+            "vertical": np.array([0.0, 1.0, 0.0]), "depth": None}
+    candidates, observability = SAI.rotation_candidates(axes, {}, K)
+    assert observability["usable"]
+    assert candidates
+    for candidate in candidates:
+        assert candidate["completed_axis"] == "depth"
+        assert float(np.linalg.det(candidate["R"])) == pytest.approx(1.0, abs=1e-6)
+
+
+def test_rotation_candidates_collapse_180_degree_duplicates() -> None:
+    axes = {"width": np.array([1.0, 0.0, 0.0]),
+            "vertical": np.array([0.0, 1.0, 0.0]),
+            "depth": np.array([0.0, 0.0, 1.0])}
+    candidates, _ = SAI.rotation_candidates(axes, {}, K)
+    for a, b in [(i, j) for i in range(len(candidates))
+                 for j in range(i + 1, len(candidates))]:
+        assert PG.rotation_error_sym_deg(
+            candidates[a]["R"], candidates[b]["R"]) >= 1.0
+
+
+def test_blind_evidence_has_no_pose_fields() -> None:
+    _require(OUT / "blind_evidence_manifest.json")
+    manifest = json.loads((OUT / "blind_evidence_manifest.json").read_text("utf-8"))
+    directory = OUT / "sai_blind_evidence"
+    for entry in manifest["frames"][:20]:
+        with np.load(directory / entry["file"], allow_pickle=False) as data:
+            keys = set(data.files)
+        assert keys <= set(manifest["allowed_keys"]), f"extra keys: {keys}"
+        for key in keys:
+            for token in manifest["forbidden_tokens"]:
+                assert token not in key.lower()
+
+
+def test_rotation_gate_recorded_and_wellformed() -> None:
+    _require(OUT / "sai_gate_rotation.json")
+    gate = json.loads((OUT / "sai_gate_rotation.json").read_text("utf-8"))
+    assert gate["n_total"] == 87
+    assert gate["n_point_fail"] == 17
+    assert isinstance(gate["passed"], bool)
+
+
+def test_fullpose_gate_records_the_reprojection_contradiction() -> None:
+    """The axis-sign failure must remain visible in the artifacts."""
+    _require(OUT / "fullpose_results.parquet")
+    import pandas as pd
+
+    frame = pd.read_parquet(OUT / "fullpose_results.parquet")
+    valid = frame[(frame.arm == "L0") & frame.valid.fillna(False)]
+    assert len(valid) > 0
+    # symmetry-aware rotation error above 90 deg cannot be a 180-degree
+    # equivalence (that is already folded in); it is a genuinely wrong pose.
+    flipped = valid[valid.rotation_sym_deg > 90.0]
+    if len(flipped):
+        assert float(flipped.reproj_fixed_gt_px.median()) > 100.0, (
+            "a wrong-axis pose must show up in index-wise reprojection")
