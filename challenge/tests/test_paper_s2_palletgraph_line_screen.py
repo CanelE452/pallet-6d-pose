@@ -1029,3 +1029,88 @@ def test_no_ppd_t2_training_weights_exist_while_gate_fails() -> None:
             if directory.exists():
                 assert not any(directory.rglob("*.pth")), (
                     "training ran while the target gate was failing")
+
+
+# ============================================================================
+# PPD T2 gate v2 + 32-frame overfit
+# ============================================================================
+def test_target_gate_v2_removed_the_top_and_base_proxy() -> None:
+    _require(OUT / "ppd_t2_gate_target.json")
+    gate = json.loads((OUT / "ppd_t2_gate_target.json").read_text("utf-8"))
+    assert gate["version"] == 2
+    removed = gate["removed_check"]
+    assert removed["name"].startswith("top_and_base_rate")
+    assert "proxy" in removed["reason"]
+    names = [c["name"] for c in gate["checks"]]
+    assert not any("top_and_base" in n for n in names), "the proxy must be gone, not relaxed"
+    assert any("polarity_evidence_rate" in n for n in names)
+    assert gate["passed"] is True
+
+
+def test_conditional_accuracy_is_reported_separately_from_availability() -> None:
+    """48/48 is conditional; 48/60 availability must not be folded into it."""
+    _require(OUT / "ppd_t2_gate_target.json")
+    gate = json.loads((OUT / "ppd_t2_gate_target.json").read_text("utf-8"))
+    conditional = gate["conditional_polarity_accuracy"]
+    availability = gate["candidate_pair_availability"]
+    assert conditional["n_candidate_pair_frames"] == availability["n"]
+    assert availability["total"] > availability["n"]
+    assert "NOT" in conditional["note"] or "not" in conditional["note"]
+    assert "gate" in availability["note"]
+
+
+def test_overfit_subset_uses_candidate_pair_frames_from_train_only() -> None:
+    _require(OUT / "ppd_overfit32_pair_manifest.json", OUT / "ppd_train_manifest.json")
+    subset = json.loads((OUT / "ppd_overfit32_pair_manifest.json").read_text("utf-8"))
+    train = json.loads((OUT / "ppd_train_manifest.json").read_text("utf-8"))
+    assert subset["n"] == 32
+    assert subset["source_split"] == "train"
+    assert "candidate-pair" in subset["criterion"]
+    assert "resize" in subset["note"]      # the forbidden path is recorded
+    train_files = {f["file"] for f in train["frames"]}
+    assert set(subset["files"]) <= train_files
+
+
+def test_overfit_arms_share_budget_and_report_polarity() -> None:
+    _require(OUT / "ppd_t2_gate_overfit.json")
+    result = json.loads((OUT / "ppd_t2_gate_overfit.json").read_text("utf-8"))
+    arms = {r["arm"] for r in result["raw"]}
+    assert arms == {"L0", "M0", "M1"}
+    for record in result["raw"]:
+        assert record["n_scored"] > 0
+        assert 0.0 <= record["candidate_polarity_acc"] <= 1.0
+        # recall is a rate: the earlier metric bug produced values above 1
+        for value in record["line_recall"].values():
+            assert 0.0 <= value <= 1.0
+        for value in record["line_precision"].values():
+            assert 0.0 <= value <= 1.0
+
+
+def test_overfit_gate_verdicts_are_recorded_per_check() -> None:
+    _require(OUT / "ppd_t2_gate_overfit.json")
+    result = json.loads((OUT / "ppd_t2_gate_overfit.json").read_text("utf-8"))
+    for arm, gate in result["per_arm"].items():
+        assert set(gate) >= {"H1_mask", "H2_line", "H3_candidate_polarity", "overall"}
+        # overall must not claim PASS while a sub-gate failed
+        if gate["overall"]:
+            assert gate["H2_line"] and gate["H3_candidate_polarity"]
+
+
+def test_no_heldout_training_while_overfit_gate_fails() -> None:
+    _require(OUT / "ppd_t2_gate_overfit.json")
+    result = json.loads((OUT / "ppd_t2_gate_overfit.json").read_text("utf-8"))
+    if not any(g["overall"] for g in result["per_arm"].values()):
+        for name in ("ppd_t2_gate_synthetic.json", "ppd_t2_gate_real.json"):
+            assert not (OUT / name).exists(), f"{name} exists despite the overfit gate failing"
+        directory = ROOT / "weights" / "paper_s2_ppd_t2_screen"
+        if directory.exists():
+            assert not any(directory.rglob("*.pth"))
+
+
+def test_loss_calibration_used_train_split_only() -> None:
+    _require(OUT / "ppd_t2_loss_calibration.json")
+    calibration = json.loads((OUT / "ppd_t2_loss_calibration.json").read_text("utf-8"))
+    assert "train" in calibration["source"]
+    assert "no update" in calibration["source"]
+    for key in ("lambda_pol", "lambda_mask", "lambda_out"):
+        assert calibration[key] > 0.0
