@@ -662,3 +662,145 @@ def test_fullpose_gate_records_the_reprojection_contradiction() -> None:
     if len(flipped):
         assert float(flipped.reproj_fixed_gt_px.median()) > 100.0, (
             "a wrong-axis pose must show up in index-wise reprojection")
+
+
+# ============================================================================
+# PPD — polarity metrics and scorers
+# ============================================================================
+import pallet_polarity_disambiguation as PPD  # noqa: E402
+
+
+def rot_x(degrees: float) -> np.ndarray:
+    a = np.radians(degrees)
+    return np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
+
+
+def rot_z(degrees: float) -> np.ndarray:
+    a = np.radians(degrees)
+    return np.array([[np.cos(a), -np.sin(a), 0], [np.sin(a), np.cos(a), 0], [0, 0, 1]])
+
+
+def test_object_up_axis_is_derived_not_hardcoded() -> None:
+    axis = PPD.object_up_axis(DIMS)
+    assert np.allclose(axis, [0.0, -1.0, 0.0], atol=1e-9)  # camera +Y is down
+
+
+def test_yaw180_is_allowed_and_preserves_polarity() -> None:
+    reference = rot_y(30.0) @ rot_x(-15.0)
+    flipped = reference @ PG.symmetry_rotation()
+    assert PPD.signed_rotation_error_deg(flipped, reference, DIMS) == pytest.approx(0.0, abs=1e-6)
+    assert PPD.polarity_correct(flipped, reference, DIMS)
+    assert PPD.vertical_polarity_error_deg(flipped, reference, DIMS) == pytest.approx(0.0, abs=1e-6)
+
+
+def test_vertical_inversion_is_not_an_allowed_symmetry() -> None:
+    reference = rot_y(30.0) @ rot_x(-15.0)
+    for banned in (rot_x(180.0), rot_z(180.0)):
+        inverted = reference @ banned
+        assert PPD.signed_rotation_error_deg(inverted, reference, DIMS) > 170.0
+        assert not PPD.polarity_correct(inverted, reference, DIMS)
+        assert PPD.vertical_polarity_error_deg(inverted, reference, DIMS) > 170.0
+
+
+def test_allowed_symmetry_set_has_exactly_two_elements() -> None:
+    symmetries = PPD.allowed_symmetries(DIMS)
+    assert len(symmetries) == 2
+    assert np.allclose(symmetries[0], np.eye(3))
+    assert np.allclose(symmetries[1], PG.symmetry_rotation())
+
+
+def test_fixed_indexed_reprojection_rejects_inverted_poses() -> None:
+    reference = rot_y(28.0) @ rot_x(-12.0)
+    translation = np.array([0.03, 0.25, 2.7])
+    observed, _ = PG.project_points(PG.make_corners(*DIMS), reference, translation, K)
+    observed = [list(p) for p in observed]
+    good = PPD.fixed_indexed_reprojection(
+        {"R": reference, "t": translation}, observed, K, DIMS)
+    allowed = PPD.fixed_indexed_reprojection(
+        {"R": reference @ PG.symmetry_rotation(), "t": translation}, observed, K, DIMS)
+    inverted = PPD.fixed_indexed_reprojection(
+        {"R": reference @ rot_x(180.0), "t": translation}, observed, K, DIMS)
+    assert good == pytest.approx(0.0, abs=1e-6)
+    assert allowed == pytest.approx(0.0, abs=1e-6)   # yaw+180 permutation allowed
+    assert inverted > 50.0, "an upside-down pose must not be matched away"
+
+
+def test_candidate_polarity_needs_no_ground_truth() -> None:
+    import inspect
+
+    parameters = set(inspect.signature(PPD.candidate_polarity).parameters)
+    assert parameters == {"rotation", "dims"}
+    upright = rot_y(20.0) @ rot_x(-10.0)
+    assert PPD.candidate_polarity(upright, DIMS) == "upright"
+    assert PPD.candidate_polarity(upright @ rot_x(180.0), DIMS) == "inverted"
+
+
+def test_polarity_edge_classes_are_five_and_derived_from_geometry() -> None:
+    classes = PPD.polarity_edge_classes(DIMS)
+    from collections import Counter
+
+    counts = Counter(name for _, name in classes)
+    assert set(counts) == set(PPD.POLARITY_CLASSES)
+    assert counts["vertical"] == 4
+    for name in ("top_width", "top_depth", "base_width", "base_depth"):
+        assert counts[name] == 2
+    corners = PG.make_corners(*DIMS)[:8]
+    axis = PPD.object_up_axis(DIMS)
+    level = corners @ axis
+    for (i, j), name in classes:
+        if name.startswith("top"):
+            assert 0.5 * (level[i] + level[j]) > 0.0
+        elif name.startswith("base"):
+            assert 0.5 * (level[i] + level[j]) < 0.0
+
+
+def test_spatial_softmax_is_invariant_to_additive_offset() -> None:
+    rng = np.random.default_rng(0)
+    heatmap = rng.random((50, 50))
+    a = PPD.spatial_softmax(heatmap, PPD.HEATMAP_TEMPERATURE)
+    b = PPD.spatial_softmax(heatmap + 7.5, PPD.HEATMAP_TEMPERATURE)
+    assert np.allclose(a, b, atol=1e-9)
+    assert float(a.sum()) == pytest.approx(1.0, abs=1e-9)
+
+
+def test_heatmap_scorer_uses_only_stages_4_5_6() -> None:
+    assert PPD.HEATMAP_STAGES == (3, 4, 5)   # zero-based -> stages 4,5,6
+    assert PPD.HEATMAP_WINDOW == 3
+    assert PPD.MIN_VALID_CORNERS == 4
+
+
+def test_heatmap_scorer_abstains_below_minimum_corners() -> None:
+    stages = np.zeros((6, 9, 50, 50), dtype=np.float32)
+    behind = np.array([0.0, 0.0, -3.0])   # object behind the camera
+    score, info = PPD.heatmap_polarity_score(
+        np.eye(3), behind, K, DIMS, stages, SIZE)
+    assert score is None and info["undecidable"] is True
+
+
+def test_select_polarity_returns_lowest_and_records_margin() -> None:
+    label, margin = PPD.select_polarity({"upright": 1.0, "inverted": 2.5})
+    assert label == "upright" and margin == pytest.approx(1.5)
+    assert PPD.select_polarity({"upright": None, "inverted": None}) == (None, None)
+
+
+def test_polarity_gate_artifacts_record_the_verdicts() -> None:
+    _require(OUT / "polarity_gate_frozen.json", OUT / "polarity_gate_oracle.json")
+    frozen = json.loads((OUT / "polarity_gate_frozen.json").read_text("utf-8"))
+    oracle = json.loads((OUT / "polarity_gate_oracle.json").read_text("utf-8"))
+    assert frozen["n_valid"] == oracle["n_valid"] == 86
+    # the correct-polarity candidate was always available: a selection problem
+    assert oracle["gt_upright_available"] == 86
+    assert oracle["vertical_inversion"] < frozen["vertical_inversion"]
+    assert oracle["reproj_indexed_median"] < frozen["reproj_indexed_median"]
+    assert oracle["negative_depth"] == 0
+
+
+def test_current_sai_failure_is_still_reproduced() -> None:
+    _require(OUT / "fullpose_results.parquet")
+    import pandas as pd
+
+    frame = pd.read_parquet(OUT / "fullpose_results.parquet")
+    valid = frame[(frame.arm == "L0") & frame.valid.fillna(False)]
+    assert len(valid) == 86
+    assert int((valid.rotation_sym_deg > 90.0).sum()) == 30
+    assert float(valid.reproj_fixed_gt_px.median()) == pytest.approx(155.6, abs=2.0)

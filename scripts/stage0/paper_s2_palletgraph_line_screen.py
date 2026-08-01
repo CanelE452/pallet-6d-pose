@@ -1166,6 +1166,9 @@ def main() -> int:
                         help="blind semantic-axis rotation gate")
     parser.add_argument("--sai-fullpose", action="store_true",
                         help="SAI translation + CGR full-pose gate")
+    parser.add_argument("--polarity", choices=("heatmap", "oracle_line"),
+                        action="append", default=[],
+                        help="polarity re-ranking scorer")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1295,6 +1298,27 @@ def main() -> int:
                 f"yaw<=10° {e.get('point_fail_yaw_le10')} rot<=15° {e.get('point_fail_rot_le15')} "
                 f"improved {e.get('point_fail_improved')}  new_failures {e.get('new_failures')}")
         log(f"[fullpose gate] {'PASS' if gate['passed'] else 'FAIL'}")
+        return 0
+
+    if args.polarity:
+        evaluator = LineScreenEvaluator()
+        for scorer in args.polarity:
+            scored = run_polarity_rerank(evaluator, scorer)
+            suffix = "frozen" if scorer == "heatmap" else "oracle"
+            scored.to_parquet(
+                OUT_DIR / f"{'heatmap' if scorer=='heatmap' else 'oracle'}_polarity_scores.parquet",
+                index=False)
+            gate = polarity_gate(scored, scorer)
+            (OUT_DIR / f"polarity_gate_{suffix}.json").write_text(
+                json.dumps(MD.jsonable(gate), indent=2), encoding="utf-8")
+            log(f"[{scorer}] valid {gate['n_valid']}  inversion "
+                f"{gate['vertical_inversion']}/{gate['n_valid']} "
+                f"({gate['vertical_inversion_fraction']:.3f})  "
+                f"reproj_indexed {gate['reproj_indexed_median']:.1f}px  "
+                f"yaw {gate['yaw_median']:.2f}°  "
+                f"point-fail correct {gate['point_fail_polarity_correct']}/{gate['n_point_fail']}  "
+                f"undecidable {gate['undecidable']}  "
+                f"gt_upright_available {gate['gt_upright_available']}")
         return 0
 
     requested = list(args.arm) or (list(ARMS) if args.all_oracle else [])
@@ -2257,6 +2281,273 @@ def fullpose_gate(frame: pd.DataFrame, c0: pd.DataFrame) -> dict[str, Any]:
         result["per_arm"][arm] = entry
     result["passed"] = bool(any(e["passes"] for e in result["per_arm"].values()))
     return result
+
+
+
+
+# ============================================================================
+# Phase C/D — candidate polarity grouping + frozen heatmap re-ranking
+# ============================================================================
+def run_polarity_rerank(
+    evaluator: "LineScreenEvaluator", scorer: str = "heatmap"
+) -> pd.DataFrame:
+    """Re-rank existing SAI candidates by polarity.  No pose is re-solved.
+
+    ``scorer='heatmap'`` reads the frozen ep57 belief cache (stages 4/5/6).
+    ``scorer='oracle_line'`` reads 5-class polarity line evidence.
+    """
+    import pallet_polarity_disambiguation as PPD
+
+    raw = pd.read_parquet(OUT_DIR / "rotation_candidates_raw.parquet").set_index("frame_id")
+    fullpose = pd.read_parquet(OUT_DIR / "fullpose_results.parquet")
+    l0 = fullpose[(fullpose.arm == "L0") & fullpose.valid.fillna(False)]
+    prior = load_search_prior()
+    tensors = MD.load_cached_tensors()
+    rows: list[dict[str, Any]] = []
+    started = time.time()
+
+    for position, spec in enumerate(evaluator.frames):
+        uid = spec["frame_id"]
+        if uid not in raw.index:
+            continue
+        candidates_raw = raw.loc[uid, "_candidates"]
+        if candidates_raw is None or len(candidates_raw) == 0:
+            continue
+        geometry = evaluator.geometry[uid]
+        dims = geometry.dims
+        image_size = (spec["image_width"], spec["image_height"])
+        reference = geometry.solve(geometry.gt_points)
+        rotations = [np.asarray(m, dtype=np.float64).reshape(3, 3)
+                     for m in candidates_raw]
+        groups = PPD.group_candidates(rotations, dims)
+
+        field, edge_set = build_continuous_field(
+            reference, geometry.K, dims, image_size,
+            evaluator.images[uid], "associated")
+        polarity_field = None
+        if scorer == "oracle_line":
+            polarity_field = build_polarity_field(
+                reference, geometry.K, dims, image_size, evaluator.images[uid])
+
+        belief = tensors[f"{uid}|belief_stages"].astype(np.float32)
+
+        # translation for each candidate: reuse the SAI initialisation, then a
+        # short line-only CGR, exactly as in the full-pose arm.
+        scored: list[dict[str, Any]] = []
+        for index, R0 in enumerate(rotations):
+            options = translation_candidates(R0, field, geometry.K, dims, prior)
+            if not options:
+                continue
+            best_t, best_e = None, float("inf")
+            for t0 in options:
+                e, _ = DGP.continuous_line_energy(
+                    R0, t0, geometry.K, dims, field, edge_set,
+                    sigma_name="coarse", use_reverse=True)
+                if e < best_e:
+                    best_t, best_e = t0, e
+            R, t, energy = cgr_refine(
+                R0, best_t, geometry.K, dims, field, edge_set)
+            if t[2] <= 0.0 or not np.isfinite(t).all():
+                continue
+            if scorer == "heatmap":
+                score, info = PPD.heatmap_polarity_score(
+                    R, t, geometry.K, dims, belief, image_size)
+            else:
+                score, info = polarity_line_score(
+                    R, t, geometry.K, dims, polarity_field)
+            scored.append({
+                "index": index, "R": R, "t": t, "line_energy": energy,
+                "score": score, "info": info,
+                "polarity": PPD.candidate_polarity(R, dims),
+            })
+        if not scored:
+            continue
+
+        by_polarity: dict[str, Optional[float]] = {}
+        best_of: dict[str, Any] = {}
+        for entry in scored:
+            if entry["score"] is None:
+                continue
+            label = entry["polarity"]
+            if label not in by_polarity or entry["score"] < by_polarity[label]:
+                by_polarity[label] = entry["score"]
+                best_of[label] = entry
+        chosen_label, margin = PPD.select_polarity(by_polarity)
+        undecidable = chosen_label is None
+        if undecidable:
+            chosen = min(scored, key=lambda e: e["line_energy"])
+        else:
+            chosen = best_of[chosen_label]
+
+        pose = {"R": chosen["R"], "t": chosen["t"], "dims": dims}
+        base_row = l0[l0.frame_id == uid]
+        rows.append({
+            "frame_id": uid, "scorer": scorer,
+            "domain": spec["domain"], "session_id": spec["session_id"],
+            "is_truncated": spec["is_truncated"],
+            "failure_class": evaluator.classes.loc[uid, "failure_class"],
+            "point_fail": bool(geometry.solve(evaluator.decoded[uid]["D0"]) is None),
+            "n_candidates": len(scored),
+            "n_upright_candidates": sum(1 for e in scored if e["polarity"] == "upright"),
+            "n_inverted_candidates": sum(1 for e in scored if e["polarity"] == "inverted"),
+            "upright_score": by_polarity.get("upright"),
+            "inverted_score": by_polarity.get("inverted"),
+            "score_margin": margin,
+            "selected_polarity": chosen["polarity"],
+            "undecidable": undecidable,
+            "valid_corners": chosen["info"].get("valid_corners"),
+            # --- GT-joined metrics (evaluation only) ---
+            "polarity_correct": PPD.polarity_correct(chosen["R"], reference["R"], dims),
+            "polarity_err_deg": PPD.vertical_polarity_error_deg(
+                chosen["R"], reference["R"], dims),
+            "signed_rot_deg": PPD.signed_rotation_error_deg(
+                chosen["R"], reference["R"], dims),
+            "yaw_mod180_deg": PG.yaw_error_mod_pi_deg(chosen["R"], reference["R"]),
+            "translation_err_m": float(np.linalg.norm(
+                chosen["t"] - np.asarray(reference["t"]).reshape(3))),
+            "corner_sym_m": PG.corner_error_sym(pose, reference, dims),
+            "reproj_indexed_px": PPD.fixed_indexed_reprojection(
+                pose, geometry.gt_points, geometry.K, dims),
+            "positive_depth": bool(chosen["t"][2] > 0),
+            "gt_upright_available": any(
+                PPD.polarity_correct(e["R"], reference["R"], dims) for e in scored),
+            "baseline_reproj_indexed_px": (
+                float(base_row.reproj_fixed_gt_px.iloc[0]) if len(base_row) else None),
+        })
+        if (position + 1) % 20 == 0:
+            log(f"  [{scorer}] {len(rows)}/{position+1}  {time.time()-started:.0f}s")
+    log(f"[polarity {scorer}] {len(rows)} frames in {time.time()-started:.0f}s")
+    return pd.DataFrame(rows)
+
+
+def polarity_gate(scored: pd.DataFrame, label: str) -> dict[str, Any]:
+    valid = scored[scored.positive_depth.fillna(False)]
+    point_fail = valid[valid.point_fail.fillna(False)]
+    n = len(valid)
+    result = {
+        "scorer": label, "n_valid": n,
+        "vertical_inversion": int((~valid.polarity_correct.fillna(False)).sum()),
+        "vertical_inversion_fraction": float(
+            (~valid.polarity_correct.fillna(False)).mean()) if n else 1.0,
+        "signed_rot_gt90_fraction": float((valid.signed_rot_deg > 90.0).mean()) if n else 1.0,
+        "reproj_indexed_median": nanmedian(valid.reproj_indexed_px.values),
+        "yaw_median": nanmedian(valid.yaw_mod180_deg.values),
+        "point_fail_polarity_correct": int(point_fail.polarity_correct.fillna(False).sum()),
+        "n_point_fail": len(point_fail),
+        "undecidable": int(valid.undecidable.fillna(False).sum()),
+        "gt_upright_available": int(valid.gt_upright_available.fillna(False).sum()),
+        "negative_depth": int((~scored.positive_depth.fillna(False)).sum()),
+    }
+    return result
+
+
+# ============================================================================
+# Phase E — oracle 5-class polarity-line evidence
+# ============================================================================
+class PolarityField:
+    """Distance fields for the five polarity classes, frame-fixed."""
+
+    def __init__(self, distance: dict[str, np.ndarray], support: dict[str, np.ndarray],
+                 image_size: tuple[int, int], edge_set: list) -> None:
+        self.distance = distance
+        self.support = support
+        self.image_size = image_size
+        self.edge_set = edge_set
+        self.sigmas = DGP.sigma_schedule(image_size)
+
+
+def build_polarity_field(
+    reference: dict[str, Any], K: np.ndarray, dims: tuple[float, float, float],
+    image_size: tuple[int, int], image_bgr: np.ndarray,
+    canny: tuple[int, int] = CANNY_SETTINGS[1]
+) -> PolarityField:
+    """Oracle-associated fragments labelled with top/base semantics.
+
+    GT pose is used ONLY to project and label; nothing pose-shaped is stored,
+    and the scorer below never receives the reference pose.
+    """
+    import pallet_polarity_disambiguation as PPD
+
+    width, height = int(image_size[0]), int(image_size[1])
+    edge_set = PPD.polarity_edge_classes(dims)
+    keep = association_keep_mask(image_bgr, canny)
+    corners = PG.make_corners(*dims)[:8]
+    projected, depth = PG.project_points(
+        corners, reference["R"], np.asarray(reference["t"]).reshape(3), K)
+    masks = {c: np.zeros((height, width), np.uint8) for c in PPD.POLARITY_CLASSES}
+    support: dict[str, list[np.ndarray]] = {c: [] for c in PPD.POLARITY_CLASSES}
+    for (i, j), line_class in edge_set:
+        if depth[i] <= 1e-6 or depth[j] <= 1e-6:
+            continue
+        clipped = PG.clip_segment_to_image(projected[i], projected[j], width, height)
+        if clipped is None:
+            continue
+        kept = []
+        for q in PG.sample_along(clipped[0], clipped[1], pixels_per_sample=1.0):
+            x, y = int(round(float(q[0]))), int(round(float(q[1])))
+            if 0 <= x < width and 0 <= y < height and bool(keep[y, x]):
+                masks[line_class][y, x] = 1
+                kept.append(q)
+        if kept:
+            support[line_class].append(np.asarray(kept))
+    distance, support_out = {}, {}
+    for c in PPD.POLARITY_CLASSES:
+        distance[c] = cv2.distanceTransform(1 - masks[c], cv2.DIST_L2, 3).astype(np.float32)
+        stacked = (np.concatenate(support[c], axis=0) if support[c]
+                   else np.zeros((0, 2), dtype=np.float64))
+        support_out[c] = _subsample(stacked, MAX_SUPPORT_SAMPLES)
+    return PolarityField(distance, support_out, (width, height), edge_set)
+
+
+def polarity_line_score(
+    rotation: np.ndarray, translation: np.ndarray, intrinsics: np.ndarray,
+    dims: tuple[float, float, float], field: PolarityField,
+    sigma_name: str = "coarse"
+) -> tuple[Optional[float], dict[str, Any]]:
+    """Sample-wise normalised forward+reverse energy over the 5 polarity classes."""
+    sigma = field.sigmas[sigma_name]
+    width, height = field.image_size
+    corners = PG.make_corners(*dims)[:8]
+    projected, depth = PG.project_points(corners, rotation, translation, intrinsics)
+    forward_num = forward_den = 0.0
+    per_class: dict[str, list[np.ndarray]] = {c: [] for c in field.distance}
+    for (i, j), line_class in field.edge_set:
+        if depth[i] <= 1e-6 or depth[j] <= 1e-6:
+            continue
+        clipped = PG.clip_segment_to_image(projected[i], projected[j], width, height)
+        if clipped is None:
+            continue
+        if float(np.linalg.norm(clipped[1] - clipped[0])) < DGP.MIN_EDGE_LENGTH_PX:
+            continue
+        samples = PG.sample_along(clipped[0], clipped[1], pixels_per_sample=4.0)
+        values, inside = DGP.bilinear_sample(field.distance[line_class], samples)
+        if not bool(inside.any()):
+            continue
+        usable = values[inside]
+        forward_num += float(np.sum(1.0 - np.exp(-(usable ** 2) / (2 * sigma * sigma))))
+        forward_den += float(usable.size)
+        per_class[line_class].append(samples[inside])
+    if forward_den <= 0:
+        return None, {"n_forward_samples": 0}
+    forward = forward_num / forward_den
+    reverse_num = reverse_den = 0.0
+    for line_class, observed in field.support.items():
+        if observed.shape[0] == 0:
+            continue
+        model = per_class[line_class]
+        if not model:
+            reverse_num += float(observed.shape[0]); reverse_den += float(observed.shape[0])
+            continue
+        points = np.concatenate(model, axis=0)
+        deltas = observed[:, None, :] - points[None, :, :]
+        nearest = np.sqrt(np.min(np.einsum("ijk,ijk->ij", deltas, deltas), axis=1))
+        reverse_num += float(np.sum(1.0 - np.exp(-(nearest ** 2) / (2 * sigma * sigma))))
+        reverse_den += float(nearest.size)
+    reverse = reverse_num / reverse_den if reverse_den > 0 else 1.0
+    return float(0.5 * forward + 0.5 * reverse), {
+        "n_forward_samples": int(forward_den), "n_reverse_samples": int(reverse_den),
+        "valid_corners": int((depth > 1e-6).sum()),
+    }
 
 
 if __name__ == "__main__":
