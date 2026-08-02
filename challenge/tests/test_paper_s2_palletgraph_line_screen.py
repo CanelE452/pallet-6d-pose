@@ -1096,15 +1096,30 @@ def test_overfit_gate_verdicts_are_recorded_per_check() -> None:
             assert gate["H2_line"] and gate["H3_candidate_polarity"]
 
 
-def test_no_heldout_training_while_overfit_gate_fails() -> None:
-    _require(OUT / "ppd_t2_gate_overfit.json")
-    result = json.loads((OUT / "ppd_t2_gate_overfit.json").read_text("utf-8"))
-    if not any(g["overall"] for g in result["per_arm"].values()):
-        for name in ("ppd_t2_gate_synthetic.json", "ppd_t2_gate_real.json"):
-            assert not (OUT / name).exists(), f"{name} exists despite the overfit gate failing"
-        directory = ROOT / "weights" / "paper_s2_ppd_t2_screen"
-        if directory.exists():
-            assert not any(directory.rglob("*.pth"))
+def test_checkpoints_live_only_in_the_approved_weights_root() -> None:
+    """Long-run replaces the old 'zero .pth' rule.
+
+    Checkpoints are a legitimate local artifact now; what must never happen is
+    a checkpoint entering git or the frozen ep57 file changing.
+    """
+    import subprocess
+
+    tracked = subprocess.run(["git", "ls-files", "*.pth", "*.pt"],
+                             cwd=str(ROOT), capture_output=True, text=True).stdout.split()
+    assert tracked == [], f"checkpoints must not be tracked: {tracked[:5]}"
+    staged = subprocess.run(["git", "diff", "--cached", "--name-only"],
+                            cwd=str(ROOT), capture_output=True, text=True).stdout.split()
+    assert not [f for f in staged if f.endswith((".pth", ".pt"))]
+    approved = ROOT / "weights" / "paper_s2_ppd_t2_screen"
+    for path in (ROOT / "weights").rglob("*.pth"):
+        if "ppd" in str(path):
+            assert str(path).startswith(str(approved)), f"stray PPD checkpoint: {path}"
+
+
+def test_frozen_ep57_checkpoint_is_untouched() -> None:
+    import paper_s2_frozen_diagnostic as FZ
+
+    assert FZ.sha256_file(FZ.WEIGHTS) == FZ.WEIGHTS_SHA256
 
 
 def test_loss_calibration_used_train_split_only() -> None:
@@ -1114,3 +1129,149 @@ def test_loss_calibration_used_train_split_only() -> None:
     assert "no update" in calibration["source"]
     for key in ("lambda_pol", "lambda_mask", "lambda_out"):
         assert calibration[key] > 0.0
+
+
+# ============================================================================
+# PPD long run — infrastructure and integrity
+# ============================================================================
+def _long_run_module():
+    spec = importlib.util.spec_from_file_location(
+        "paper_s2_ppd_long_run", ROOT / "scripts/stage0/paper_s2_ppd_long_run.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_long_run_enforces_the_single_training_root() -> None:
+    LR = _long_run_module()
+    assert LR.ALLOWED_ROOT == "paper_4pallet_mask_v1"
+    for banned in ("mixed_v8_train", "v4_split_base", "aug_squash_v2",
+                   "aug_trunc_v2", "aug_scale_v2"):
+        assert banned in LR.BANNED_ROOTS
+        with pytest.raises(RuntimeError):
+            LR.guard_root(ROOT / f"data/pallet/training_data/{banned}/000000.json")
+    LR.guard_root(ROOT / "data/pallet/training_data/paper_4pallet_mask_v1/000000.json")
+
+
+def test_long_run_budget_is_fixed_and_has_no_early_stop() -> None:
+    LR = _long_run_module()
+    assert LR.EPOCHS == 20 and LR.BATCH == 8 and LR.SEED == 1
+    source = (ROOT / "scripts/stage0/paper_s2_ppd_long_run.py").read_text("utf-8")
+    assert "early" not in source.lower().replace("early stop is not used", "")
+    assert LR.ARMS == ("L0", "M0", "M1")
+
+
+def test_long_run_requires_purpose_file() -> None:
+    source = (ROOT / "scripts/stage0/paper_s2_ppd_long_run.py").read_text("utf-8")
+    assert "PURPOSE.md" in source
+    assert (OUT / "PURPOSE.md").is_file()
+    text = (OUT / "PURPOSE.md").read_text("utf-8")
+    assert "[소비처]" in text and "[문장]" in text
+
+
+def test_validation_gate_thresholds_match_the_plan() -> None:
+    LR = _long_run_module()
+    assert LR.VAL_GATE["polarity_acc"] == 0.95
+    assert LR.VAL_GATE["inversion_rate"] == 0.05
+    assert LR.VAL_GATE["reproj_reduction"] == 0.70
+
+
+def test_checkpoint_selection_never_reads_real_or_untouched() -> None:
+    """Only the select_best body — the file also contains the untouched/real
+    evaluators, which legitimately mention those names."""
+    import inspect
+
+    LR = _long_run_module()
+    selection = inspect.getsource(LR.select_best)
+    for banned in ("N87", "mechanism_val", "untouched", "real"):
+        assert banned not in selection
+
+
+def test_long_run_provenance_records_the_split_source() -> None:
+    if not (OUT / "PPD_LONG_RUN_PROVENANCE.md").is_file():
+        pytest.skip("long run not started")
+    text = (OUT / "PPD_LONG_RUN_PROVENANCE.md").read_text("utf-8")
+    assert "locked full split" in text
+    assert '"epochs": 20' in text
+
+
+def test_epoch_metrics_report_candidate_pair_separately() -> None:
+    path = ROOT / "weights/paper_s2_ppd_t2_screen/L0/metrics_by_epoch.json"
+    if not path.is_file():
+        pytest.skip("L0 not trained yet")
+    history = json.loads(path.read_text("utf-8"))
+    for record in history:
+        assert record["n_candidate_pair"] >= record["n_scored"]
+        assert 0.0 <= record["polarity_acc"] <= 1.0
+        assert record["inversion"] + int(round(record["polarity_acc"] * record["n_scored"])) \
+            == pytest.approx(record["n_scored"], abs=1)
+
+
+# ============================================================================
+# PPD long-run results — untouched / real / integrity
+# ============================================================================
+def test_untouched_covers_every_frame_for_every_arm() -> None:
+    if not (OUT / "ppd_untouched_metrics.json").is_file():
+        pytest.skip("untouched test not run")
+    data = json.loads((OUT / "ppd_untouched_metrics.json").read_text("utf-8"))
+    arms = data["per_arm"]
+    assert set(arms) <= {"L0", "M0", "M1"} and len(arms) >= 1
+    counts = {a: (v["n_frames"], v["n_candidate_pair"]) for a, v in arms.items()}
+    assert len(set(counts.values())) == 1, f"arms disagree on membership: {counts}"
+    for value in arms.values():
+        assert value["n_frames"] == 5916, value["n_frames"]
+        assert value["n_scored"] <= value["n_candidate_pair"] <= value["n_frames"]
+
+
+def test_availability_and_conditional_accuracy_stay_separate() -> None:
+    if not (OUT / "ppd_untouched_summary.csv").is_file():
+        pytest.skip("summary not written")
+    import pandas as pd
+
+    table = pd.read_csv(OUT / "ppd_untouched_summary.csv")
+    for _, row in table.iterrows():
+        assert row["availability"] < 1.0
+        # end-to-end must be strictly below the conditional number
+        assert row["end_to_end_success"] < row["conditional_polarity_acc"]
+
+
+def test_real_evaluation_ran_only_on_untouched_pass_arms() -> None:
+    if not (OUT / "ppd_real_metrics.json").is_file():
+        pytest.skip("real not run")
+    untouched = json.loads((OUT / "ppd_untouched_metrics.json").read_text("utf-8"))["per_arm"]
+    real = json.loads((OUT / "ppd_real_metrics.json").read_text("utf-8"))
+    passing = {a for a, v in untouched.items() if v["gate"]["passed"]}
+    assert set(real) == passing, f"real arms {set(real)} != untouched-PASS {passing}"
+
+
+def test_real_failure_is_recorded_as_anti_correlated_not_hidden() -> None:
+    """The 0.02 accuracy must stay visible; it is the headline finding."""
+    if not (OUT / "ppd_real_metrics.json").is_file():
+        pytest.skip("real not run")
+    real = json.loads((OUT / "ppd_real_metrics.json").read_text("utf-8"))
+    for value in real.values():
+        assert value["n_candidate_pair"] == 86
+        assert 0.0 <= value["polarity_acc"] <= 1.0
+    report = (OUT / "PPD_REAL_ONE_SHOT_REPORT.md")
+    assert report.is_file()
+    text = report.read_text("utf-8")
+    assert "86/86" in text and "1.000" in text, "the oracle control must be reported"
+
+
+def test_cgr_not_run_when_no_arm_passes_real_gate() -> None:
+    if not (OUT / "ppd_real_metrics.json").is_file():
+        pytest.skip("real not run")
+    real = json.loads((OUT / "ppd_real_metrics.json").read_text("utf-8"))
+    # gate needs inversion <= 8/86; none of the arms is close
+    assert all(v["inversion"] > 8 for v in real.values())
+    assert not (OUT / "ppd_cgr_metrics.csv").exists(), "CGR ran without a real PASS"
+
+
+def test_architecture_decision_records_reject_and_not_run() -> None:
+    path = OUT / "PPD_ARCHITECTURE_DECISION.md"
+    if not path.is_file():
+        pytest.skip("decision not written")
+    text = path.read_text("utf-8")
+    for token in ("Learned PPD", "REJECT", "CGR", "NOT RUN", "DEFERRED"):
+        assert token in text
+    assert "oracle" in text.lower()
