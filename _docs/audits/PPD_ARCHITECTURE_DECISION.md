@@ -61,6 +61,13 @@ predicted 면적: base 0.242~0.295  >  top 0.183~0.187
 [추정] target 클래스 불균형(positive-frame rate base 0.975~0.985 vs top 0.620~0.685)이
 synthetic 에서는 가려졌다가, top 근거가 약한 real(94% 저앙각 edge-on)에서 발현된 것으로 보인다.
 
+## [Visual evidence]
+
+오버레이 결과 real 에서 예측 map 이 **팔레트가 아니라 배경 전체**에 반응한다.
+positive 중 팔레트 위 비율 synthetic 0.456 vs real 0.086, 면적보정 enrichment
+4.35x vs 2.14x.  즉 real 실패의 1차 증상은 polarity 혼동이 아니라 **localization 소실**이다.
+(`figures/overlays/`, `ppd_on_object_activation.json`)
+
 ## [Mask ablation]
 
 mask 는 **pixel/mask 지표만** 올리고(macroF1 0.311→0.409, IoU 0.097→0.746)

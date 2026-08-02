@@ -535,8 +535,8 @@ def evaluate_untouched(arms, base, ch, limit=0):
     return out, baseline
 
 
-def evaluate_real(arms, base, ch):
-    """One shot on the real mechanism-val N87.  Never used for selection."""
+def real_frames():
+    """Build the real mechanism-val N87 frame records (shared by eval and overlays)."""
     import importlib.util
     spec = importlib.util.spec_from_file_location(
         "LS", ROOT / "scripts/stage0/paper_s2_palletgraph_line_screen.py")
@@ -568,6 +568,12 @@ def evaluate_real(arms, base, ch):
             "failure_class": ev.classes.loc[uid, "failure_class"],
             "session": spec_f["session_id"], "domain": spec_f["domain"]})
     log(f"[real] {len(frames)} frames with candidates")
+    return frames
+
+
+def evaluate_real(arms, base, ch):
+    """One shot on the real mechanism-val N87.  Never used for selection."""
+    frames = real_frames()
     out = {}
     for arm in arms:
         line, mask, epoch = load_best(arm, ch)

@@ -45,6 +45,34 @@ predicted positive y-중심: 38.1 / 40.2 / 39.2 / 40.2 / 39.9  (5 class 모두 �
 [확인] base edge 가 실제 top 선 위에 얹히는 candidate 가 낮은 에너지를 받으므로,
 class 붕괴는 **계통적 inversion** 으로 귀결된다.  0.023 이 나오는 이유다.
 
+## 3b. 시각 증거 — real 에서는 map 이 **팔레트를 못 찾는다**
+
+오버레이(`figures/overlays/`)를 보면 숫자로는 안 보이던 게 나온다.
+real 프레임에서 예측 map 은 팔레트가 아니라 **나무·건물·울타리·바닥 전체**에 반응한다.
+top/base 를 헷갈리는 게 아니라 **애초에 대상 위에 있지 않다.**
+
+측정으로 확인 (positive = p>0.5, 영역 = GT-solved pose 의 cuboid convex hull):
+
+```
+                 positive 중 팔레트 위 비율   cuboid 면적 비율   enrichment
+synthetic val60        0.456                    0.105           4.35x
+real N87               0.086                    0.040           2.14x
+```
+
+[확인] real 은 positive 의 **91%가 배경**이다.  팔레트가 화면에서 더 작은 점(4.0% vs 10.5%)을
+보정한 enrichment 로도 4.35x → 2.14x 로 **절반**이 된다.
+[확인] 따라서 §3 의 "base 로 붕괴" 는 팔레트 위에서 일어나는 일이 아니라,
+**배경 활성이 line energy 를 지배**한 결과로 봐야 한다.  scoring 은 candidate edge 위를
+샘플링하므로, 배경에 넓게 깔린 base 확률이 뒤집힌 candidate 를 더 싸게 만든다.
+[확인] 맞힌 2 프레임도 map 이 깨끗해서가 아니다 — 같은 배경 오염을 보인다(우연히 부호가 맞음).
+
+[추정] L0 는 mask gate 가 없어 활성을 대상에 묶는 장치가 없다.  synthetic 은 배경이
+단순해 문제가 드러나지 않았다.  단 mask arm(M1)도 real 0.012 라 mask head 만으로는
+해결되지 않았다.
+
+파일: `figures/overlays/inverted_*.jpg`(84건 중 3), `correct_*.jpg`(2건 중 1),
+`synthetic_*.jpg`(대조 3), 수치 `ppd_on_object_activation.json`.
+
 ## 4. 도메인·truncation 이 원인이 아니다
 
 ```
