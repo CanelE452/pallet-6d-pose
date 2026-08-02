@@ -793,6 +793,123 @@ def _runnetwork(net, optimizer, local_rank, epoch, train_loader, writer=None,
     return global_step
 
 
+def build_training_loader(opt, output_size, use_mask_aux, use_clip_belief_border,
+                          refinement_targets, diffpnp_index, random_seed):
+    """Canonical dataset + ratio sampler + loader.
+
+    Extracted verbatim from main() so a screen runner can reuse the exact same
+    roots, augmentation, sampler weights and generator seeds instead of
+    re-implementing them.  main() calls this; behaviour is unchanged.
+    """
+    training_dataset = CleanVisiiDopeLoader(
+        opt.data,
+        sigma=opt.sigma,
+        output_size=output_size,
+        objects=opt.object,
+        use_s3=opt.use_s3,
+        buckets=opt.train_buckets,
+        endpoint_url=opt.endpoint,
+        truncation_aug_prob=opt.truncation_aug_prob,
+        mask_aux=use_mask_aux,
+        clip_belief_border=use_clip_belief_border,
+        refinement_targets=refinement_targets,
+        # Keep deterministic squash preprocessing available independently of
+        # DiffPnP.  Self-training can therefore preserve pseudo-label geometry
+        # without loading any PnP targets or adding a PnP loss.
+        aspect_resize=(getattr(opt, "aspect_resize", False)
+                       or getattr(opt, "diffpnp", False)),
+        diffpnp_index=diffpnp_index,
+    )
+    # Optional group-balanced sampling: give equal total draw-weight to samples
+    # whose image path contains opt.balance_substr vs the rest. Used to keep a
+    # smaller add-on set (e.g. addon_v1) from being drowned out by a larger base
+    # set (e.g. v3). Default None => original shuffle behaviour (unchanged).
+    train_sampler = None
+    # Keep the sampled frame order and worker-side augmentation RNG identical
+    # across ablation arms. Optional heads consume different amounts of the
+    # global torch RNG during construction, so the sampler/loader must not
+    # inherit that mutable state.
+    sampler_generator = torch.Generator()
+    sampler_generator.manual_seed(random_seed)
+    loader_generator = torch.Generator()
+    loader_generator.manual_seed(random_seed)
+    _epoch_n = getattr(opt, "epoch_size", None)
+    if not _epoch_n or _epoch_n <= 0:
+        _epoch_n = len(training_dataset)   # full dataset per epoch (default)
+    if getattr(opt, "balance_groups", None):
+        # N-way ratio sampler. Spec: "g1sub1|g1sub2:r1,g2sub:r2,...".
+        # Each comma-separated group = one or more '|'-joined path substrings and
+        # a ratio. A group's total draw-weight == its ratio, distributed
+        # uniformly per image inside the group (so larger sub-sources within a
+        # group are sampled proportionally more often). A sample belongs to the
+        # first group whose any substring matches. Unmatched samples are excluded
+        # (weight 0). Default None => unchanged.
+        import numpy as _np
+        paths = [t[0] for t in training_dataset.imgs]
+        specs = []  # list of (label, [substrs], ratio)
+        for tok in opt.balance_groups.split(","):
+            tok = tok.strip()
+            if not tok:
+                continue
+            subs_str, _, wstr = tok.rpartition(":")
+            subs = [s for s in subs_str.split("|") if s]
+            specs.append((subs_str, subs, float(wstr)))
+        w = _np.zeros(len(paths), dtype=_np.float64)
+        assigned = _np.zeros(len(paths), dtype=bool)
+        counts = {}
+        for label, subs, ratio in specs:
+            grp = _np.array(
+                [(not assigned[i]) and any(s in p for s in subs)
+                 for i, p in enumerate(paths)], dtype=bool)
+            n_g = int(grp.sum())
+            counts[label] = n_g
+            if n_g > 0 and ratio > 0:
+                w[grp] = ratio / n_g
+            assigned |= grp
+        n_unmatched = int((~assigned).sum())
+        if w.sum() <= 0:
+            print(f"[BALANCE-N] WARN no group matched ({counts}); falling back to shuffle")
+        else:
+            train_sampler = torch.utils.data.WeightedRandomSampler(
+                weights=torch.as_tensor(w, dtype=torch.double),
+                num_samples=_epoch_n,
+                replacement=True,
+                generator=sampler_generator,
+            )
+            ratios = {l: r for l, _, r in specs}
+            print(f"[BALANCE-N] ratio sampler ratios={ratios} counts={counts} "
+                  f"unmatched={n_unmatched} epoch_size={_epoch_n}")
+    elif getattr(opt, "balance_substr", None):
+        import numpy as _np
+        paths = [t[0] for t in training_dataset.imgs]
+        in_grp = _np.array([opt.balance_substr in p for p in paths], dtype=bool)
+        n_in, n_out = int(in_grp.sum()), int((~in_grp).sum())
+        if n_in == 0 or n_out == 0:
+            print(f"[BALANCE] WARN substr '{opt.balance_substr}' -> in={n_in} "
+                  f"out={n_out}; falling back to shuffle")
+        else:
+            w = _np.where(in_grp, 1.0 / n_in, 1.0 / n_out)
+            train_sampler = torch.utils.data.WeightedRandomSampler(
+                weights=torch.as_tensor(w, dtype=torch.double),
+                num_samples=_epoch_n,
+                replacement=True,
+                generator=sampler_generator,
+            )
+            print(f"[BALANCE] 1:1 group sampling on substr '{opt.balance_substr}': "
+                  f"in={n_in} out={n_out}, epoch_size={_epoch_n}")
+    training_data = torch.utils.data.DataLoader(
+        training_dataset,
+        batch_size=opt.batchsize,
+        shuffle=(train_sampler is None),
+        sampler=train_sampler,
+        num_workers=opt.workers,
+        pin_memory=True,
+        generator=loader_generator,
+    )
+    return training_dataset, training_data, train_sampler
+
+
+
 def main(opt):
     torch.autograd.set_detect_anomaly(False)
     torch.autograd.profiler.profile(False)
@@ -1007,112 +1124,10 @@ def main(opt):
               f"{n_valid} pnp_valid_3d&V8 (aspect_resize ON, rotate skipped on "
               f"eligible frames)")
 
-    training_dataset = CleanVisiiDopeLoader(
-        opt.data,
-        sigma=opt.sigma,
-        output_size=output_size,
-        objects=opt.object,
-        use_s3=opt.use_s3,
-        buckets=opt.train_buckets,
-        endpoint_url=opt.endpoint,
-        truncation_aug_prob=opt.truncation_aug_prob,
-        mask_aux=use_mask_aux,
-        clip_belief_border=use_clip_belief_border,
-        refinement_targets=(use_corner_quality or use_projected_span_loss
-                            or use_signed_footprint_loss),
-        # Keep deterministic squash preprocessing available independently of
-        # DiffPnP.  Self-training can therefore preserve pseudo-label geometry
-        # without loading any PnP targets or adding a PnP loss.
-        aspect_resize=(getattr(opt, "aspect_resize", False)
-                       or getattr(opt, "diffpnp", False)),
-        diffpnp_index=diffpnp_index,
-    )
-    # Optional group-balanced sampling: give equal total draw-weight to samples
-    # whose image path contains opt.balance_substr vs the rest. Used to keep a
-    # smaller add-on set (e.g. addon_v1) from being drowned out by a larger base
-    # set (e.g. v3). Default None => original shuffle behaviour (unchanged).
-    train_sampler = None
-    # Keep the sampled frame order and worker-side augmentation RNG identical
-    # across ablation arms. Optional heads consume different amounts of the
-    # global torch RNG during construction, so the sampler/loader must not
-    # inherit that mutable state.
-    sampler_generator = torch.Generator()
-    sampler_generator.manual_seed(random_seed)
-    loader_generator = torch.Generator()
-    loader_generator.manual_seed(random_seed)
-    _epoch_n = getattr(opt, "epoch_size", None)
-    if not _epoch_n or _epoch_n <= 0:
-        _epoch_n = len(training_dataset)   # full dataset per epoch (default)
-    if getattr(opt, "balance_groups", None):
-        # N-way ratio sampler. Spec: "g1sub1|g1sub2:r1,g2sub:r2,...".
-        # Each comma-separated group = one or more '|'-joined path substrings and
-        # a ratio. A group's total draw-weight == its ratio, distributed
-        # uniformly per image inside the group (so larger sub-sources within a
-        # group are sampled proportionally more often). A sample belongs to the
-        # first group whose any substring matches. Unmatched samples are excluded
-        # (weight 0). Default None => unchanged.
-        import numpy as _np
-        paths = [t[0] for t in training_dataset.imgs]
-        specs = []  # list of (label, [substrs], ratio)
-        for tok in opt.balance_groups.split(","):
-            tok = tok.strip()
-            if not tok:
-                continue
-            subs_str, _, wstr = tok.rpartition(":")
-            subs = [s for s in subs_str.split("|") if s]
-            specs.append((subs_str, subs, float(wstr)))
-        w = _np.zeros(len(paths), dtype=_np.float64)
-        assigned = _np.zeros(len(paths), dtype=bool)
-        counts = {}
-        for label, subs, ratio in specs:
-            grp = _np.array(
-                [(not assigned[i]) and any(s in p for s in subs)
-                 for i, p in enumerate(paths)], dtype=bool)
-            n_g = int(grp.sum())
-            counts[label] = n_g
-            if n_g > 0 and ratio > 0:
-                w[grp] = ratio / n_g
-            assigned |= grp
-        n_unmatched = int((~assigned).sum())
-        if w.sum() <= 0:
-            print(f"[BALANCE-N] WARN no group matched ({counts}); falling back to shuffle")
-        else:
-            train_sampler = torch.utils.data.WeightedRandomSampler(
-                weights=torch.as_tensor(w, dtype=torch.double),
-                num_samples=_epoch_n,
-                replacement=True,
-                generator=sampler_generator,
-            )
-            ratios = {l: r for l, _, r in specs}
-            print(f"[BALANCE-N] ratio sampler ratios={ratios} counts={counts} "
-                  f"unmatched={n_unmatched} epoch_size={_epoch_n}")
-    elif getattr(opt, "balance_substr", None):
-        import numpy as _np
-        paths = [t[0] for t in training_dataset.imgs]
-        in_grp = _np.array([opt.balance_substr in p for p in paths], dtype=bool)
-        n_in, n_out = int(in_grp.sum()), int((~in_grp).sum())
-        if n_in == 0 or n_out == 0:
-            print(f"[BALANCE] WARN substr '{opt.balance_substr}' -> in={n_in} "
-                  f"out={n_out}; falling back to shuffle")
-        else:
-            w = _np.where(in_grp, 1.0 / n_in, 1.0 / n_out)
-            train_sampler = torch.utils.data.WeightedRandomSampler(
-                weights=torch.as_tensor(w, dtype=torch.double),
-                num_samples=_epoch_n,
-                replacement=True,
-                generator=sampler_generator,
-            )
-            print(f"[BALANCE] 1:1 group sampling on substr '{opt.balance_substr}': "
-                  f"in={n_in} out={n_out}, epoch_size={_epoch_n}")
-    training_data = torch.utils.data.DataLoader(
-        training_dataset,
-        batch_size=opt.batchsize,
-        shuffle=(train_sampler is None),
-        sampler=train_sampler,
-        num_workers=opt.workers,
-        pin_memory=True,
-        generator=loader_generator,
-    )
+    training_dataset, training_data, train_sampler = build_training_loader(
+        opt, output_size, use_mask_aux, use_clip_belief_border,
+        (use_corner_quality or use_projected_span_loss or use_signed_footprint_loss),
+        diffpnp_index, random_seed)
     print(f"[REPRO] sampler/loader generators fixed at seed={random_seed}")
 
     if not training_data is None:

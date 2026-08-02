@@ -713,6 +713,21 @@ class CleanVisiiDopeLoader(data.Dataset):
                     kp_valid[:] = valid.astype(np.float32)
             out["refine_keypoints"] = torch.from_numpy(kp)
             out["refine_keypoints_valid"] = torch.from_numpy(kp_valid)
+            # Physical extent, when the source annotation carries it.  Purely
+            # additive: image, belief and affinity targets are untouched.  Roots
+            # without the field report dims_valid = 0 rather than a made-up size.
+            dims = np.zeros(3, dtype=np.float32)
+            dims_valid = np.zeros(1, dtype=np.float32)
+            source = (data_json.get("objects") or [{}])[0].get("dimensions_m")
+            if isinstance(source, dict):
+                try:
+                    dims[:] = [float(source["width"]), float(source["depth"]),
+                               float(source["height"])]
+                    dims_valid[:] = float(np.isfinite(dims).all() and (dims > 0).all())
+                except (KeyError, TypeError, ValueError):
+                    dims[:] = 0.0
+            out["dims_m"] = torch.from_numpy(dims)
+            out["dims_valid"] = torch.from_numpy(dims_valid)
 
         # PVNet dense vector GT (flag-gated). Built from the same transformed
         # keypoints (already in output_size/belief-grid coords), so it stays
