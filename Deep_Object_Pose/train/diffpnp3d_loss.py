@@ -523,3 +523,110 @@ def build_diffpnp3d_targets(frame_json_path, index_entry):
         "projected_cuboid": pc.astype(np.float64),      # (8,2) orig px (belief gen용)
         "img_wh": (Wi, Hi),
     }
+
+
+# ============================================================================
+# Deployment-aligned refinement: predicted seed, predicted observations
+# ============================================================================
+# The training-time loss above starts its Gauss-Newton from the GT pose and
+# reads a local 7x7 soft-argmax.  Neither is available at inference, so this
+# helper takes the pose the canonical OpenCV PnP actually returned and the same
+# nine predicted coordinates it was given, and never touches ground truth.
+GN_STEPS = 4
+GN_DAMPING = 1e-3
+GN_DELTA_CLIP = 0.5
+GN_COND_MAX = 1e8
+
+
+def refine_pose_from_predicted_seed(observed_xy, object_points, K,
+                                    R_seed, t_seed,
+                                    steps=GN_STEPS, damping=GN_DAMPING,
+                                    delta_clip=GN_DELTA_CLIP,
+                                    cond_max=GN_COND_MAX):
+    """Gauss-Newton on the predicted correspondences from the predicted pose.
+
+    observed_xy   (N,2) canonical decoder output in original image pixels
+    object_points (N,3) canonical 3D points, centroid included
+    K             (3,3) original intrinsics
+    R_seed,t_seed the pose canonical OpenCV PnP returned; detached, never GT
+
+    Returns the refined pose plus a health record.  A step whose observed
+    reprojection does not fall is rejected and the previous pose kept, and any
+    guard failure returns the seed unchanged with the reason recorded.
+    """
+    device = observed_xy.device if torch.is_tensor(observed_xy) else "cpu"
+    obs = torch.as_tensor(observed_xy, dtype=torch.float64, device=device)[None]
+    X = torch.as_tensor(object_points, dtype=torch.float64, device=device)[None]
+    Km = torch.as_tensor(K, dtype=torch.float64, device=device)[None]
+    R0 = torch.as_tensor(R_seed, dtype=torch.float64, device=device).detach()
+    t0 = torch.as_tensor(t_seed, dtype=torch.float64, device=device).detach()
+
+    rvec = _rotation_to_rodrigues(R0)[None].clone()
+    tvec = t0.reshape(1, 3).clone()
+
+    def residual_norm(r, t):
+        uv, cam = _project_batch(r, t, X, Km)
+        return float(torch.linalg.norm(uv - obs, dim=-1).mean()), cam
+
+    start_residual, _ = residual_norm(rvec, tvec)
+    health = {"accepted": 0, "rejected": 0, "fallback": False,
+              "fallback_reason": None, "cond_max": 0.0,
+              "rotation_update_norm": 0.0, "translation_update_norm": 0.0,
+              "observed_before": start_residual, "observed_after": start_residual}
+
+    best_r, best_t, best_res = rvec.clone(), tvec.clone(), start_residual
+    for _ in range(int(steps)):
+        uv, _ = _project_batch(best_r, best_t, X, Km)
+        residual = (uv - obs).reshape(1, -1, 1)
+        J = _jac_batch(best_r, best_t, X, Km)
+        JtJ = torch.bmm(J.transpose(1, 2), J)
+        eye6 = torch.eye(6, dtype=JtJ.dtype, device=JtJ.device)[None]
+        A = JtJ + damping * eye6
+        cond = torch.linalg.cond(A)
+        health["cond_max"] = max(health["cond_max"], float(cond))
+        if not torch.isfinite(cond) or float(cond) > cond_max:
+            health["fallback"], health["fallback_reason"] = True, "condition_number"
+            break
+        try:
+            delta = torch.linalg.solve(A, -torch.bmm(J.transpose(1, 2), residual))
+        except Exception:
+            health["fallback"], health["fallback_reason"] = True, "solve_failed"
+            break
+        delta = delta.reshape(1, 6)
+        if not torch.isfinite(delta).all():
+            health["fallback"], health["fallback_reason"] = True, "non_finite_delta"
+            break
+        norm = torch.linalg.norm(delta, dim=1, keepdim=True).clamp(min=1e-12)
+        delta = delta * (delta_clip / norm).clamp(max=1.0)
+        trial_r = best_r + delta[:, :3]
+        trial_t = best_t + delta[:, 3:]
+        trial_res, cam = residual_norm(trial_r, trial_t)
+        if not np.isfinite(trial_res) or float(cam[..., 2].min()) <= 0.0:
+            health["rejected"] += 1
+            continue
+        if trial_res >= best_res:
+            health["rejected"] += 1
+            continue
+        health["accepted"] += 1
+        health["rotation_update_norm"] += float(torch.linalg.norm(delta[:, :3]))
+        health["translation_update_norm"] += float(torch.linalg.norm(delta[:, 3:]))
+        best_r, best_t, best_res = trial_r, trial_t, trial_res
+
+    R = rodrigues_batch(best_r)[0]
+    if health["fallback"] or not torch.isfinite(R).all() \
+            or abs(float(torch.linalg.det(R)) - 1.0) > 1e-3:
+        health["fallback"] = True
+        health["fallback_reason"] = health["fallback_reason"] or "invalid_rotation"
+        return {"R": R0.cpu().numpy(), "t": t0.reshape(3).cpu().numpy()}, health
+    health["observed_after"] = best_res
+    return ({"R": R.cpu().numpy(), "t": best_t.reshape(3).cpu().numpy()}, health)
+
+
+def _rotation_to_rodrigues(R):
+    """SO(3) -> axis-angle, differentiable-friendly and torch-only."""
+    trace = torch.clamp((R[0, 0] + R[1, 1] + R[2, 2] - 1.0) / 2.0, -1.0, 1.0)
+    angle = torch.arccos(trace)
+    if float(angle) < 1e-9:
+        return torch.zeros(3, dtype=R.dtype, device=R.device)
+    axis = torch.stack([R[2, 1] - R[1, 2], R[0, 2] - R[2, 0], R[1, 0] - R[0, 1]])
+    return axis / (2.0 * torch.sin(angle)) * angle

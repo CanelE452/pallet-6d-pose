@@ -1,0 +1,133 @@
+# Run provenance
+
+```
+{
+ "head": "a6aa4dfe94cb49292a0972880f38cf2fd95064a0",
+ "checkpoint_sha256": "c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896",
+ "training_steps": 0,
+ "optimizer_steps": 0,
+ "baseline_gate": {
+  "strict_n": 87,
+  "gt2d_pose_success": 87,
+  "pred_pose_success": 70,
+  "yaw_median_deg": 6.02521554515198,
+  "fixed_gt_reproj_median_px": 23.161628981707747,
+  "expected": {
+   "strict_n": 87,
+   "gt2d_pose_success": 87,
+   "pred_pose_success": 70,
+   "yaw_median_deg": 6.025,
+   "fixed_gt_reproj_median_px": 23.162
+  },
+  "tolerance": {
+   "yaw_median_deg": 0.1,
+   "fixed_gt_reproj_median_px": 0.25
+  },
+  "problems": [],
+  "passed": true
+ },
+ "membership_sha256": "10a8b40b508698dfabe80f196c61b9b4563cde0a2171d5fe72ba5555b1dd699b",
+ "n_valid_frames": 70,
+ "solver": {
+  "steps": 4,
+  "damping": 0.001,
+  "delta_clip": 0.5,
+  "cond_max": 100000000.0
+ },
+ "correspondences": "8 corners + centroid (canonical, centroid included)"
+}
+```
+
+## gate
+
+```
+{
+ "summary": {
+  "n_frames": 70,
+  "membership_sha256": "10a8b40b508698dfabe80f196c61b9b4563cde0a2171d5fe72ba5555b1dd699b",
+  "observed_before_median": 11.959050371316536,
+  "observed_after_median": 6.345178776158015,
+  "d0_reproj_median": 23.161628981707747,
+  "d1_reproj_median": 24.204306232565582,
+  "d0_corner3d_median": 0.4516349644289557,
+  "d1_corner3d_median": 0.3649217260723767,
+  "d0_yaw_median": 6.025215545151966,
+  "d1_yaw_median": 6.7827543792456595,
+  "d0_rotation_median": 6.555459094655696,
+  "d1_rotation_median": 7.460003232702459,
+  "d0_translation_median": 0.4193913498272057,
+  "d1_translation_median": 0.2595056342353881,
+  "improved": 42,
+  "worsened": 28,
+  "unchanged": 0,
+  "accepted_steps_total": 95,
+  "rejected_steps_total": 185,
+  "fallback": 0,
+  "rotation_update_norm_median": 0.006950882701546582,
+  "translation_update_norm_median": 0.034610399254609375
+ },
+ "conditions": [
+  {
+   "name": "1 GT reproj -5%",
+   "passed": false,
+   "value": -0.04501744033985289
+  },
+  {
+   "name": "2 3D corner -5%",
+   "passed": true,
+   "value": 0.19199850584247524
+  },
+  {
+   "name": "3 improved > 2x worsened",
+   "passed": false,
+   "value": -14.0
+  },
+  {
+   "name": "4 yaw <= +0.25deg",
+   "passed": false,
+   "value": 0.7575388340936939
+  },
+  {
+   "name": "5 rotation <= +5%",
+   "passed": false,
+   "value": 0.13798333953211417
+  },
+  {
+   "name": "6 translation <= +5%",
+   "passed": true,
+   "value": -0.3812327451619889
+  },
+  {
+   "name": "7 F5-safe no 10% worse",
+   "passed": true,
+   "value": 0.0
+  },
+  {
+   "name": "8 no new negative depth",
+   "passed": true,
+   "value": 0.0
+  },
+  {
+   "name": "9 no NaN/Inf",
+   "passed": true,
+   "value": 0.0
+  },
+  {
+   "name": "10 fallback < 5%",
+   "passed": true,
+   "value": 0.0
+  },
+  {
+   "name": "11 no >20px catastrophic",
+   "passed": true,
+   "value": 0.0
+  },
+  {
+   "name": "12 >=5 frames with -10% reproj",
+   "passed": true,
+   "value": 7.0
+  }
+ ],
+ "passed": false
+}
+```
