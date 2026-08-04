@@ -3,6 +3,18 @@
 ```
 날짜          요약
 ──────────────────────────────────────────────────────────────────────────────────────
+2026-08-04    세션 종합 — PAPER_S2 9방향 전부 REJECT, 최종 base ep57 DOPE 확정(채택 변경 0)
+2026-08-03    변경 없음 — ep57(s2 diffpnp) 하이퍼파라미터 실측 조회 (scratch VGG19, epochs는 누적)
+2026-08-02    PPD long-run(real 0.023) / PGBC gates / corner replacement / raw-Q router /
+              stagewise loss / predseed DiffPnP — 전부 STOP·REJECT
+2026-08-01    PalletGraph MSL+DGP(판정 1회 뒤집힘) / SAI blind rotation ACCEPT /
+              PPD oracle PASS·frozen heatmap REJECT / T2 target gate / 32-frame overfit
+2026-07-29    ep57 target-semantics audit / mechanism diagnostic harness / micro arch screen
+2026-07-20    (기록 참조: 2026-07-20.md)
+2026-07-15    (기록 참조: 2026-07-15.md)
+2026-07-14    (기록 참조: 2026-07-14.md)
+2026-07-13    (기록 참조: 2026-07-13.md)
+2026-07-10    (기록 참조: 2026-07-10.md)
 2026-04-11    capture0403middle GT 130개 수동 보정, evaluate_real.py image_dir/cam_k 옵션 추가
 2026-04-10    capture0403middle AprilTag GT 생성 (440프레임, 5 tag empirical T, 99.3% 성공)
 2026-04-09    v10/v10_A noapril 추론, v8 vs v8_A vs v8_E 3모델 비교 (A=B∧C 최고, E=PnP/B 최고)
