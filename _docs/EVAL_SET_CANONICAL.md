@@ -20,6 +20,16 @@ challenge/data/capturepalletcad_manual_gt           22   22      22  manual
 `split` 은 **최상위가 아니라 `objects[0].split`** 에 있다.  최상위 `split` 을 읽으면
 전부 "없음" 으로 보인다 (2026-08-04 실제 발생한 오류).
 
+## night 이 0 장인 이유 (의도된 제외)
+
+사용자 확인(2026-08-04): **night 시퀀스는 가림(occlusion)이 심해 추론 자체가 성립하지
+않는 프레임이 많아** eval 로 표시하지 않았다.  `_night_eval_manual_gt` 43 장은
+train 10 / 미표시 33 이며 평가에 넣지 않는다.
+
+따라서 **야간 성능은 이 정본으로 측정하지 않는다.**  과거 night 를 포함해 얻은 결론
+(예: PPD real 에서 outside 0.023 = night 0.023 이므로 조도 가설 기각)은 그 시점의
+셋에 한정된 것으로 읽어야 한다.
+
 ## 선정 방법 (툴)
 
 `challenge/scripts/annotate.py`
