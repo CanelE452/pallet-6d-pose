@@ -548,3 +548,224 @@ def rerun_pgbc_gates(manifest, cache) -> dict[str, Any]:
         out["G2_passed"] = bool(out["G2_error_reduction"] >= 0.20
                                 and out["G2_bias_reduction"] >= 0.20)
     return out
+
+
+# ============================================================================
+# checkpoint-backed screens
+# ============================================================================
+def forward_stagewise(manifest, checkpoint) -> dict[str, np.ndarray]:
+    """#11 stagewise: plain DopeNetwork weights, same architecture as ep57."""
+    from models import DopeNetwork
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    net = DopeNetwork(numSeg=1)
+    net.load_state_dict(torch.load(str(checkpoint), map_location="cpu",
+                                   weights_only=True), strict=True)
+    net.to(device).eval()
+    cache = {}
+    with torch.no_grad():
+        for spec in manifest["frames"]:
+            image = cv2.imread(spec["image_path"])
+            tensor = FZ.preprocess_squash(image).to(device)
+            beliefs = net(tensor)[0]
+            cache[spec["frame_id"]] = np.stack(
+                [b[0, :MD.N_KP].detach().float().cpu().numpy() for b in beliefs]
+            ).astype(np.float32)
+    del net
+    torch.cuda.empty_cache()
+    return cache
+
+
+def forward_corner_replacement(manifest, checkpoint) -> dict[str, np.ndarray]:
+    """#9/#10: ScreenModel carries a proposal branch; only its base belief is
+    the deployable path, so that is what is decoded."""
+    SCREEN = _load("SCREEN", STAGE0 / "paper_s2_corner_replacement_screen.py")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = SCREEN.ScreenModel()
+    sample = torch.zeros(1, 3, 400, 400)
+    model.discover(sample)
+    model.set_trainable()
+    payload = torch.load(str(checkpoint), map_location="cpu", weights_only=True)
+    model.net.load_state_dict(payload["net"], strict=True)
+    model.branch.load_state_dict(payload["branch"], strict=True)
+    model.to(device).eval()
+    canonical = SCREEN.unit_canonical()
+    cache = {}
+    with torch.no_grad():
+        for spec in manifest["frames"]:
+            image = cv2.imread(spec["image_path"])
+            tensor = FZ.preprocess_squash(image).to(device)
+            frame = EvalFrame(spec)
+            dims = torch.tensor(np.asarray(frame.dims, np.float32))[None].to(device)
+            dims = dims / dims.amax(dim=-1, keepdim=True).clamp_min(1e-3)
+            result = model.forward_full(tensor, canonical[None].to(device), dims)
+            beliefs = result["beliefs"]
+            cache[spec["frame_id"]] = np.stack(
+                [b[0, :MD.N_KP].detach().float().cpu().numpy() for b in beliefs]
+            ).astype(np.float32)
+    del model
+    torch.cuda.empty_cache()
+    return cache
+
+
+def rerun_rawq_router(manifest, checkpoint) -> dict[str, Any]:
+    """#10: raw-Q proposal decoders and the base/proposal complementarity."""
+    SCREEN = _load("SCREEN", STAGE0 / "paper_s2_corner_replacement_screen.py")
+    import corner_branch_router as CBR
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = SCREEN.ScreenModel()
+    sample = torch.zeros(1, 3, 400, 400)
+    model.discover(sample)
+    model.set_trainable()
+    payload = torch.load(str(checkpoint), map_location="cpu", weights_only=True)
+    model.net.load_state_dict(payload["net"], strict=True)
+    model.branch.load_state_dict(payload["branch"], strict=True)
+    model.to(device).eval()
+    canonical = SCREEN.unit_canonical()
+
+    rows = []
+    with torch.no_grad():
+        for spec in manifest["frames"]:
+            frame = EvalFrame(spec)
+            image = cv2.imread(spec["image_path"])
+            tensor = FZ.preprocess_squash(image).to(device)
+            dims = torch.tensor(np.asarray(frame.dims, np.float32))[None].to(device)
+            dims = dims / dims.amax(dim=-1, keepdim=True).clamp_min(1e-3)
+            result = model.forward_full(tensor, canonical[None].to(device), dims)
+            logits = result["proposal"][0].float().cpu().numpy()
+            scale = (spec["image_width"] / BELIEF, spec["image_height"] / BELIEF)
+            belief = result["beliefs"][5][0].float().cpu().numpy()
+            base_points = MD.decode_all(belief, *scale, frame.gt_points)["D0"]
+            decoded = {name: fn(logits, scale) for name, fn in CBR.DECODERS.items()}
+            for corner in range(8):
+                gt = frame.gt_points[corner]
+                if gt is None:
+                    continue
+                entry = {"frame_id": spec["frame_id"], "domain": spec["domain"],
+                         "corner": corner,
+                         "group": "far" if corner in FAR else "near",
+                         "peak": float(belief[corner].max())}
+                point = base_points[corner]
+                entry["base_err"] = (np.nan if point is None else
+                                     float(np.hypot(point[0] - gt[0], point[1] - gt[1])))
+                for name, series in decoded.items():
+                    p = series[corner]
+                    entry[f"{name}_err"] = float(np.hypot(p[0] - gt[0], p[1] - gt[1]))
+                rows.append(entry)
+    del model
+    torch.cuda.empty_cache()
+    table = pd.DataFrame(rows)
+    table.to_csv(OUT / "rawq_corner_rows.csv", index=False)
+    valid = table.dropna(subset=["base_err"])
+    confident_wrong = valid[(valid.peak >= 0.5) & (valid.base_err > 20)]
+    gain = valid.base_err - valid.local_err
+    cw_gain = (confident_wrong.base_err - confident_wrong.local_err
+               if len(confident_wrong) else pd.Series([], dtype=float))
+    return {
+        "n_corners": int(len(valid)),
+        "base_median": float(valid.base_err.median()),
+        "argmax_median": float(valid.argmax_err.median()),
+        "local_median": float(valid.local_err.median()),
+        "dsnt_median": float(valid.dsnt_err.median()),
+        "proposal_better": float((gain > 0).mean()),
+        "better_by_10px": float((gain > 10).mean()),
+        "n_confident_wrong": int(len(confident_wrong)),
+        "cw_proposal_better": float((cw_gain > 0).mean()) if len(cw_gain) else np.nan,
+        "cw_better_by_10px": float((cw_gain > 10).mean()) if len(cw_gain) else np.nan,
+        "gate_D_passed": bool(len(cw_gain) and (cw_gain > 10).mean() >= 0.20),
+        # oracle upper bound: pick whichever coordinate is closer to GT, with a
+        # 3 px margin so ties keep the base.  This is the decisive gate.
+        "oracle_exact_median": float(np.minimum(valid.base_err,
+                                                valid.local_err).median()),
+        "oracle_margin_median": float(np.where(
+            valid.local_err + 3.0 < valid.base_err,
+            valid.local_err, valid.base_err).mean()
+            if False else np.median(np.where(valid.local_err + 3.0 < valid.base_err,
+                                             valid.local_err, valid.base_err))),
+        "oracle_margin_share": float(
+            ((valid.local_err + 3.0) < valid.base_err).mean()),
+    }
+
+
+def rerun_stage_trajectory(manifest, cache) -> dict[str, Any]:
+    """#1/#2: the stage-4 to stage-6 behaviour the whole programme was built on."""
+    rows = []
+    for spec in manifest["frames"]:
+        frame = EvalFrame(spec)
+        stack = cache[spec["frame_id"]]
+        scale = (spec["image_width"] / BELIEF, spec["image_height"] / BELIEF)
+        decoded = {s: MD.decode_all(stack[s], *scale, frame.gt_points)["D0"]
+                   for s in (3, 4, 5)}
+        for corner in range(8):
+            gt = frame.gt_points[corner]
+            if gt is None:
+                continue
+            entry = {"frame_id": spec["frame_id"], "domain": spec["domain"],
+                     "corner": corner,
+                     "group": "far" if corner in FAR else "near"}
+            for stage, index in ((4, 3), (5, 4), (6, 5)):
+                point = decoded[index][corner]
+                entry[f"err{stage}"] = (np.nan if point is None else
+                                        float(np.hypot(point[0] - gt[0],
+                                                       point[1] - gt[1])))
+                entry[f"peak{stage}"] = float(stack[index, corner].max())
+            rows.append(entry)
+    table = pd.DataFrame(rows)
+    far = table[table.group == "far"]
+    sharpen = ((table.peak6 > table.peak4 + 0.10)
+               & (table.err6 >= table.err4 - 2.0))
+    return {
+        "far_err_stage4": float(far.err4.median()),
+        "far_err_stage5": float(far.err5.median()),
+        "far_err_stage6": float(far.err6.median()),
+        "far_peak_stage4": float(far.peak4.median()),
+        "far_peak_stage6": float(far.peak6.median()),
+        "near_err_stage4": float(table[table.group == "near"].err4.median()),
+        "near_err_stage6": float(table[table.group == "near"].err6.median()),
+        "stage6_better_than_stage4": float((table.err6 < table.err4).mean()),
+        "sharpen_without_correction": int(sharpen.sum()),
+        "n_corners": int(len(table)),
+    }
+
+
+def rerun_flip_ambiguity(manifest, cache) -> dict[str, Any]:
+    """#4/#5/#6 share one question: can geometry alone fix the far face?
+
+    Oracle test -- replace the far-face corners with GT and see what the pose
+    does.  If the geometry is recoverable the pose should snap to the truth.
+    """
+    rows = []
+    for spec in manifest["frames"]:
+        frame = EvalFrame(spec)
+        stack = cache[spec["frame_id"]]
+        scale = (spec["image_width"] / BELIEF, spec["image_height"] / BELIEF)
+        points = MD.decode_all(stack[5], *scale, frame.gt_points)["D0"]
+        base = frame.metrics(frame.solve(points))
+        oracle_far = list(points)
+        for corner in FAR:
+            oracle_far[corner] = frame.gt_points[corner]
+        oracle_near = list(points)
+        for corner in NEAR:
+            oracle_near[corner] = frame.gt_points[corner]
+        rows.append({
+            "frame_id": spec["frame_id"], "domain": spec["domain"],
+            "base_reproj": base["reproj_fixed_gt_px"],
+            "base_yaw": base["yaw_err_deg"],
+            "far_oracle_reproj": frame.metrics(
+                frame.solve(oracle_far))["reproj_fixed_gt_px"],
+            "near_oracle_reproj": frame.metrics(
+                frame.solve(oracle_near))["reproj_fixed_gt_px"],
+        })
+    table = pd.DataFrame(rows)
+
+    def med(col):
+        return float(pd.to_numeric(table[col], errors="coerce").median())
+
+    return {"n_frames": int(len(table)), "base_reproj": med("base_reproj"),
+            "far_oracle_reproj": med("far_oracle_reproj"),
+            "near_oracle_reproj": med("near_oracle_reproj"),
+            "far_oracle_gain_pct": float(
+                (1 - med("far_oracle_reproj") / med("base_reproj")) * 100),
+            "near_oracle_gain_pct": float(
+                (1 - med("near_oracle_reproj") / med("base_reproj")) * 100)}
