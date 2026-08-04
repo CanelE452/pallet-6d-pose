@@ -3,6 +3,25 @@
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 DA 프레임워크.
 Python + PyTorch + Isaac Sim + DOPE.
 
+## 🛑 평가셋 (새 세션 필독 — 다른 셋 쓰지 말 것)
+
+> **평가는 `objects[0].split == "eval"` 인 manual GT 56장만 사용한다.**
+> 상세·이력·금지사항: `_docs/EVAL_SET_CANONICAL.md` (테스트로 강제:
+> `challenge/tests/test_eval_set_canonical.py`)
+
+```
+challenge/data/_outside_eval_manual_gt         22
+challenge/data/capture0403noapril_manual_gt    12
+challenge/data/capturepalletcad_manual_gt      22
+                                          합 56
+```
+
+- `split` 은 **최상위가 아니라 `objects[0].split`**. 최상위만 읽으면 전부 "없음" 으로 보인다.
+- `data/_eval_sets/outside_combined` / `night_combined` 는 **구본**(05-27, split 없음) — 평가 금지.
+- split 없는 JSON 을 eval 로 간주하지 않는다(구 규칙 폐기). `train` 표시 프레임 포함 금지.
+- ⚠️ PAPER_S2 의 N87(87장)은 이 규칙 이전에 만들어져 **eval 10장 누락 + train 13장 오염**.
+  07-29~08-04 판정의 적용범위는 그 셋 기준이다.
+
 ## ⚠️ 핵심 방향 (새 세션 필독 — v8 회귀 금지)
 
 > 새 세션에서 옛 문서(`_docs/filter/2026-04-11_selection.md`, "RANSAC c≥6", "Y=UP object-frame")를 보고 **v8 로 돌아가지 말 것.** 자세한 내용은 memory 의 [v8 폐기], [camera-facing convention], [두 트랙] 3개 메모리.
