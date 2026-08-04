@@ -769,3 +769,114 @@ def rerun_flip_ambiguity(manifest, cache) -> dict[str, Any]:
                 (1 - med("far_oracle_reproj") / med("base_reproj")) * 100),
             "near_oracle_gain_pct": float(
                 (1 - med("near_oracle_reproj") / med("base_reproj")) * 100)}
+
+
+# ============================================================================
+# Depth-role selective fusion (no training)
+# ============================================================================
+NEAR_BELIEF = slice(0, 4)
+FAR_BELIEF = slice(4, 8)
+CENTROID_BELIEF = slice(8, 9)
+NEAR_AFF = slice(0, 8)      # corner i uses affinity channels 2i, 2i+1
+FAR_AFF = slice(8, 16)
+STAGE_INDEX = {4: 3, 5: 4, 6: 5}
+
+
+def fuse_belief(stack, near_stage: int, far_stage: int,
+                centroid_stage: int = 6) -> np.ndarray:
+    """One 9-channel belief map assembled from per-role stages."""
+    out = np.empty_like(stack[STAGE_INDEX[6]])
+    out[NEAR_BELIEF] = stack[STAGE_INDEX[near_stage]][NEAR_BELIEF]
+    out[FAR_BELIEF] = stack[STAGE_INDEX[far_stage]][FAR_BELIEF]
+    out[CENTROID_BELIEF] = stack[STAGE_INDEX[centroid_stage]][CENTROID_BELIEF]
+    return out
+
+
+def fuse_from_sources(near_src, far_src, centroid_src) -> np.ndarray:
+    """Assemble from three already-selected 9-channel maps."""
+    out = np.empty_like(near_src)
+    out[NEAR_BELIEF] = near_src[NEAR_BELIEF]
+    out[FAR_BELIEF] = far_src[FAR_BELIEF]
+    out[CENTROID_BELIEF] = centroid_src[CENTROID_BELIEF]
+    return out
+
+
+def evaluate_belief_maps(manifest, maps: dict[str, np.ndarray],
+                         tag: str) -> pd.DataFrame:
+    """Same decoder and PnP as everywhere else, on a supplied belief map."""
+    rows = []
+    for spec in manifest["frames"]:
+        uid = spec["frame_id"]
+        frame = EvalFrame(spec)
+        belief = maps[uid]
+        scale_x = spec["image_width"] / BELIEF
+        scale_y = spec["image_height"] / BELIEF
+        points = MD.decode_all(belief, scale_x, scale_y, frame.gt_points)["D0"]
+        pose = frame.solve(points)
+        metrics = frame.metrics(pose)
+        entry = {"frame_id": uid, "domain": spec["domain"], "arm": tag,
+                 "image_width": spec["image_width"],
+                 "image_height": spec["image_height"],
+                 "gt_pose_ok": frame.gt_pose is not None, **metrics}
+        for corner in range(8):
+            gt = frame.gt_points[corner]
+            point = points[corner]
+            entry[f"peak_{corner}"] = float(belief[corner].max())
+            entry[f"peak4_{corner}"] = np.nan
+            if gt is None or point is None:
+                entry[f"err_{corner}"] = np.nan
+                entry[f"dx_{corner}"] = np.nan
+                entry[f"dy_{corner}"] = np.nan
+            else:
+                entry[f"err_{corner}"] = float(np.hypot(point[0] - gt[0],
+                                                        point[1] - gt[1]))
+                entry[f"dx_{corner}"] = float(point[0] - gt[0])
+                entry[f"dy_{corner}"] = float(point[1] - gt[1])
+            entry[f"err4_{corner}"] = np.nan
+        rows.append(entry)
+    return pd.DataFrame(rows)
+
+
+def arm_summary(manifest, table: pd.DataFrame, tag: str) -> dict[str, Any]:
+    classes = classify(table)
+    summary = pd.DataFrame(summarise(table, classes))
+    row = summary[summary.domain == "ALL"].iloc[0]
+    errors = np.concatenate([table[f"err_{k}"].to_numpy() for k in range(8)])
+    return {
+        "arm": tag, "frames": int(row.frames),
+        "pnp": int(row.pred_pnp_success),
+        "yaw": float(row.yaw_median_deg), "reproj": float(row.reproj_median_px),
+        "corner": float(row.corner_median_px), "near": float(row.near_median_px),
+        "far": float(row.far_median_px),
+        "far_near_ratio": float(row.far_median_px / max(row.near_median_px, 1e-9)),
+        "p90": float(np.nanpercentile(errors, 90)),
+        "t20": int(row.tail_gt20), "t50": int(row.tail_gt50),
+        "t100": int(row.tail_gt100), "nan_corner": int(row.nan_corner),
+        "f2": int(row.f2_frames), "f2_far": float(row.f2_far_median_px),
+        "f2_bias": float(row.f2_far_signed_bias_px),
+        "f1": int((classes.failure_class == "F1_NO_RESPONSE").sum()),
+    }
+
+
+def paired_bootstrap(base: pd.DataFrame, cand: pd.DataFrame, column: str,
+                     resamples: int = 10000, seed: int = 1) -> dict[str, float]:
+    """Frame-clustered: resample frames, never corners."""
+    merged = base[["frame_id", column]].merge(
+        cand[["frame_id", column]], on="frame_id", suffixes=("_b", "_c"))
+    delta = (pd.to_numeric(merged[f"{column}_c"], errors="coerce")
+             - pd.to_numeric(merged[f"{column}_b"], errors="coerce")).to_numpy()
+    delta = delta[np.isfinite(delta)]
+    if not len(delta):
+        return {"median": np.nan, "mean": np.nan, "ci_lo": np.nan,
+                "ci_hi": np.nan, "p_improve": np.nan,
+                "improved": 0, "worsened": 0, "tied": 0}
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, len(delta), size=(resamples, len(delta)))
+    means = delta[draws].mean(axis=1)
+    return {"median": float(np.median(delta)), "mean": float(delta.mean()),
+            "ci_lo": float(np.percentile(means, 2.5)),
+            "ci_hi": float(np.percentile(means, 97.5)),
+            "p_improve": float((means < 0).mean()),
+            "improved": int((delta < 0).sum()),
+            "worsened": int((delta > 0).sum()),
+            "tied": int((delta == 0).sum())}
