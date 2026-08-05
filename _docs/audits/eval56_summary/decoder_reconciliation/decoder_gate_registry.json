@@ -1,0 +1,686 @@
+{
+  "registry": {
+    "E2": {
+      "source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+      "extra_unavailable": []
+    },
+    "N2": {
+      "source": "pfdr/pfdr_gate.json :: <set>|N2",
+      "extra_unavailable": []
+    },
+    "N3": {
+      "source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+      "extra_unavailable": []
+    },
+    "S1": {
+      "source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+      "extra_unavailable": [
+        "F2_far_median",
+        "signed_far_bias"
+      ]
+    },
+    "C1": {
+      "source": "_docs/history/2026-08-04.md #9 corner replacement",
+      "extra_unavailable": [
+        "proposal_adoption_rate"
+      ]
+    }
+  },
+  "limits": {
+    "eval56": {
+      "reproj_drop": 0.1,
+      "p_improve": 0.9
+    },
+    "wood": {
+      "reproj_drop": 0.05,
+      "p_improve": 0.8
+    }
+  },
+  "gates": [
+    {
+      "set": "eval56",
+      "arm": "E2",
+      "path": "P0",
+      "source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": true,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": true,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "S1",
+      "path": "P0",
+      "source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": true,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": true,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "F2_far_median",
+        "signed_far_bias"
+      ],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "C1",
+      "path": "P0",
+      "source": "_docs/history/2026-08-04.md #9 corner replacement",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": false,
+        ">100 not increased": false,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "proposal_adoption_rate"
+      ],
+      "n_failed": 7,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "N2",
+      "path": "P0",
+      "source": "pfdr/pfdr_gate.json :: <set>|N2",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": true,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": true,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "N3",
+      "path": "P0",
+      "source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [],
+      "n_failed": 5,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "E2",
+      "path": "P1",
+      "source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": true,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": true,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "S1",
+      "path": "P1",
+      "source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+      "conditions": {
+        "PnP >= base": false,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": true,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "F2_far_median",
+        "signed_far_bias"
+      ],
+      "n_failed": 5,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "C1",
+      "path": "P1",
+      "source": "_docs/history/2026-08-04.md #9 corner replacement",
+      "conditions": {
+        "PnP >= base": false,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": false,
+        ">100 not increased": false,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "proposal_adoption_rate"
+      ],
+      "n_failed": 8,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "N2",
+      "path": "P1",
+      "source": "pfdr/pfdr_gate.json :: <set>|N2",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": true,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": true,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "N3",
+      "path": "P1",
+      "source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": true,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "eval56",
+      "arm": "E2",
+      "path": "P2",
+      "source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "eval56",
+      "arm": "S1",
+      "path": "P2",
+      "source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "F2_far_median",
+        "signed_far_bias",
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "eval56",
+      "arm": "C1",
+      "path": "P2",
+      "source": "_docs/history/2026-08-04.md #9 corner replacement",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "proposal_adoption_rate",
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "eval56",
+      "arm": "N2",
+      "path": "P2",
+      "source": "pfdr/pfdr_gate.json :: <set>|N2",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "eval56",
+      "arm": "N3",
+      "path": "P2",
+      "source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -10%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.90": false
+      },
+      "unavailable": [
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "wood",
+      "arm": "E2",
+      "path": "P0",
+      "source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": true,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [],
+      "n_failed": 4,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "S1",
+      "path": "P0",
+      "source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "F2_far_median",
+        "signed_far_bias"
+      ],
+      "n_failed": 5,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "C1",
+      "path": "P0",
+      "source": "_docs/history/2026-08-04.md #9 corner replacement",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": true,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": false,
+        ">100 not increased": false,
+        "NaN not increased": true,
+        "improved > worsened": true,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "proposal_adoption_rate"
+      ],
+      "n_failed": 5,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "N2",
+      "path": "P0",
+      "source": "pfdr/pfdr_gate.json :: <set>|N2",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": true,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": true,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "N3",
+      "path": "P0",
+      "source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": true
+      },
+      "unavailable": [],
+      "n_failed": 4,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "E2",
+      "path": "P1",
+      "source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+      "conditions": {
+        "PnP >= base": false,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": true,
+        "P(improve) >= 0.80": true
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "S1",
+      "path": "P1",
+      "source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+      "conditions": {
+        "PnP >= base": false,
+        "reproj -5%": true,
+        "far -10%": false,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "F2_far_median",
+        "signed_far_bias"
+      ],
+      "n_failed": 5,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "C1",
+      "path": "P1",
+      "source": "_docs/history/2026-08-04.md #9 corner replacement",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": true,
+        ">50 not increased": false,
+        ">100 not increased": false,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": true
+      },
+      "unavailable": [
+        "proposal_adoption_rate"
+      ],
+      "n_failed": 5,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "N2",
+      "path": "P1",
+      "source": "pfdr/pfdr_gate.json :: <set>|N2",
+      "conditions": {
+        "PnP >= base": false,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": false,
+        "improved > worsened": true,
+        "P(improve) >= 0.80": true
+      },
+      "unavailable": [],
+      "n_failed": 4,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "N3",
+      "path": "P1",
+      "source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": true,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": true
+      },
+      "unavailable": [],
+      "n_failed": 3,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "E2",
+      "path": "P2",
+      "source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "wood",
+      "arm": "S1",
+      "path": "P2",
+      "source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "F2_far_median",
+        "signed_far_bias",
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "wood",
+      "arm": "C1",
+      "path": "P2",
+      "source": "_docs/history/2026-08-04.md #9 corner replacement",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": false,
+        ">100 not increased": false,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "proposal_adoption_rate"
+      ],
+      "n_failed": 7,
+      "verdict": "REJECT"
+    },
+    {
+      "set": "wood",
+      "arm": "N2",
+      "path": "P2",
+      "source": "pfdr/pfdr_gate.json :: <set>|N2",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "set": "wood",
+      "arm": "N3",
+      "path": "P2",
+      "source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+      "conditions": {
+        "PnP >= base": true,
+        "reproj -5%": false,
+        "far -10%": false,
+        "near <= +5%": false,
+        ">50 not increased": true,
+        ">100 not increased": true,
+        "NaN not increased": true,
+        "improved > worsened": false,
+        "P(improve) >= 0.80": false
+      },
+      "unavailable": [
+        "every pose metric (no object produced)"
+      ],
+      "n_failed": 5,
+      "verdict": "INCONCLUSIVE"
+    }
+  ]
+}

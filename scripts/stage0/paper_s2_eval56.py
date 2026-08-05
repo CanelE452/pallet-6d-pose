@@ -1626,3 +1626,836 @@ def threshold_overlay_figures() -> int:
     fig.savefig(THRESH_OUT / "threshold_false_corner_examples.png", dpi=140)
     plt.close(fig)
     return 0
+
+
+# ============================================================================
+# decoder reconciliation — one model output, three decoders
+# ============================================================================
+DEC_OUT = OUT / "decoder_reconciliation"
+DEC_ARMS = ("B0", "E2", "S1", "C1", "N2", "N3")
+DEC_CHECKPOINTS = {
+    "S1": ROOT / "weights/paper_s2_stagewise_bias_screen/epoch_005.pth",
+    "C1": ROOT / "weights/paper_s2_corner_replacement_screen/epoch_005.pth",
+    "N2": ROOT / "weights/paper_s2_pfdr/N2/epoch_003.pth",
+    "N3": ROOT / "weights/paper_s2_pfdr/N3/epoch_003.pth",
+}
+# run_state.json in each weight directory: stagewise and corner-replacement are
+# epoch 5/5 completed, both PFDR arms 3/3 completed.  Prefixes recorded so a
+# swapped file is caught rather than silently evaluated.
+DEC_CHECKPOINT_SHA = {"S1": "99584084", "C1": "aad97f6b",
+                      "N2": "4b644fd8", "N3": "9db513f3"}
+
+
+def dec_config():
+    import yaml
+    payload = yaml.safe_load(
+        (ROOT / "challenge/config/task.yaml").read_text("utf-8"))
+    import decoder_paths as DP
+    return (DP.DeploymentConfig(payload["inference"]["belief"]),
+            payload["inference"]["gates"])
+
+
+@torch.no_grad()
+def dec_forward_arm(manifest, arm: str) -> dict[str, dict[str, np.ndarray]]:
+    """One forward per set x arm; every stage and the affinity kept as float32."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    cache: dict[str, dict[str, np.ndarray]] = {}
+
+    def store(uid, beliefs, affinities, final):
+        cache[uid] = {
+            "h4": beliefs[3][0, :MD.N_KP].float().cpu().numpy().astype(np.float32),
+            "h5": beliefs[4][0, :MD.N_KP].float().cpu().numpy().astype(np.float32),
+            "h6": beliefs[5][0, :MD.N_KP].float().cpu().numpy().astype(np.float32),
+            "a6": affinities[5][0].float().cpu().numpy().astype(np.float32),
+            "final": np.asarray(final, dtype=np.float32),
+        }
+
+    if arm in ("B0", "E2"):
+        model, _ = FZ.load_model(device)
+        for spec in manifest["frames"]:
+            tensor = FZ.preprocess_squash(cv2.imread(spec["image_path"])).to(device)
+            outputs = model(tensor)
+            beliefs, affinities = outputs[0], outputs[1]
+            h5 = beliefs[4][0, :MD.N_KP].float().cpu().numpy()
+            h6 = beliefs[5][0, :MD.N_KP].float().cpu().numpy()
+            final = h6.copy()
+            if arm == "E2":
+                final[FAR_BELIEF] = h5[FAR_BELIEF]
+            store(spec["frame_id"], beliefs, affinities, final)
+        del model
+    elif arm == "S1":
+        from models import DopeNetwork
+        net = DopeNetwork(numSeg=1)
+        net.load_state_dict(torch.load(str(DEC_CHECKPOINTS["S1"]),
+                                       map_location="cpu", weights_only=True),
+                            strict=True)
+        net.to(device).eval()
+        for spec in manifest["frames"]:
+            tensor = FZ.preprocess_squash(cv2.imread(spec["image_path"])).to(device)
+            outputs = net(tensor)
+            beliefs, affinities = outputs[0], outputs[1]
+            store(spec["frame_id"], beliefs, affinities,
+                  beliefs[5][0, :MD.N_KP].float().cpu().numpy())
+        del net
+    elif arm == "C1":
+        model = SCREEN.ScreenModel()
+        model.discover(torch.zeros(1, 3, 400, 400))
+        model.set_trainable()
+        payload = torch.load(str(DEC_CHECKPOINTS["C1"]), map_location="cpu",
+                             weights_only=True)
+        model.net.load_state_dict(payload["net"], strict=True)
+        model.branch.load_state_dict(payload["branch"], strict=True)
+        model.to(device).eval()
+        canonical = SCREEN.unit_canonical()[None].to(device)
+        for spec in manifest["frames"]:
+            frame = EvalFrame(spec)
+            tensor = FZ.preprocess_squash(cv2.imread(spec["image_path"])).to(device)
+            dims = torch.tensor(np.asarray(frame.dims, np.float32))[None].to(device)
+            dims = dims / dims.amax(dim=-1, keepdim=True).clamp_min(1e-3)
+            result = model.forward_full(tensor, canonical, dims)
+            beliefs, affinities = result["beliefs"], result["affinities"]
+            store(spec["frame_id"], beliefs, affinities,
+                  beliefs[5][0, :MD.N_KP].float().cpu().numpy())
+        del model
+    else:                                            # N2 / N3
+        trainer = PFDRTrainer(arm, device)
+        trainer.adapter.load_state_dict(
+            torch.load(str(DEC_CHECKPOINTS[arm]), map_location="cpu",
+                       weights_only=True))
+        trainer.adapter.to(device).eval()
+        for spec in manifest["frames"]:
+            tensor = FZ.preprocess_squash(cv2.imread(spec["image_path"])).to(device)
+            # one forward, then the adapter on its features -- trainer.fused()
+            # would re-run the base network a second time
+            shared = trainer.net.vgg(tensor)
+            outputs = trainer.net(tensor)
+            beliefs, affinities = outputs[0], outputs[1]
+            h4, h5, h6, a6 = beliefs[3], beliefs[4], beliefs[5], affinities[5]
+            delta = trainer.adapter(
+                trainer.PA.PFDRAdapter.build_input(shared, h4, h5, h6, a6))
+            fused = (trainer.PA.fuse_near(h6, delta) if arm == "N3"
+                     else trainer.PA.fuse_far(h5, h6, delta))
+            store(spec["frame_id"], beliefs, affinities,
+                  fused[0].float().cpu().numpy())
+        del trainer
+    torch.cuda.empty_cache()
+    return cache
+
+
+def dec_tensor_hash(array: np.ndarray) -> str:
+    assert array.dtype == np.float32, array.dtype
+    return hashlib.sha256(np.ascontiguousarray(array).tobytes()).hexdigest()
+
+
+def dec_evaluate_frame(spec, frame, entry, config, gates):
+    """P0, P1 and P2 on one frame's cached tensors."""
+    import decoder_paths as DP
+
+    belief, affinity = entry["final"], entry["a6"]
+    width, height = spec["image_width"], spec["image_height"]
+    scale_x, scale_y = width / BELIEF, height / BELIEF
+    row = {"frame_id": spec["frame_id"], "domain": spec["domain"],
+           "image_width": width, "image_height": height,
+           "belief_sha": dec_tensor_hash(belief),
+           "affinity_sha": dec_tensor_hash(affinity)}
+
+    # ---- P0: the mechanism decoder, untouched
+    p0_points = MD.decode_all(belief, scale_x, scale_y, frame.gt_points)["D0"]
+    row.update(dec_pose_metrics("P0", frame, p0_points))
+
+    # ---- P1: the repository's D2 extractor, then the same PnP wrapper
+    p1_points, p1_peaks = DP.decode_p1(belief, scale_x, scale_y)
+    row.update(dec_pose_metrics("P1", frame, p1_points))
+
+    # ---- P2: the deployment decoder
+    started = time.perf_counter()
+    results, solver = DP.run_p2(belief, affinity, frame.dims, frame.K,
+                                width, height, config)
+    K_proc = DP.squash_intrinsics(frame.K, width, height)
+    index, chosen, info, reason = DP.production_selection(results, gates,
+                                                          K_proc, solver)
+    row["P2_runtime_ms"] = 1000.0 * (time.perf_counter() - started)
+    row["P2_objects"] = len(results)
+    row["P2_solved_objects"] = sum(1 for r in results if r.get("location") is not None)
+    row["P2_selected_index"] = -1 if index is None else int(index)
+    row["P2_gate_reason"] = reason
+    row["P2_gate_pass"] = bool(index is not None)
+    pose = dec_pose_from_result(chosen)
+    row.update(dec_pose_metrics("P2", frame, dec_p2_points(chosen), pose=pose))
+    # solver-level outcome, before the deployment gates
+    solved = next((r for r in results if r.get("location") is not None), None)
+    row["P2_solver_success"] = solved is not None
+    return row, p0_points, p1_points, p1_peaks, results, solver
+
+
+def dec_p2_points(result):
+    """The nine 2D points the deployment decoder used, in squash space."""
+    if result is None:
+        return [None] * 9
+    raw = result.get("raw_points") or [None] * 9
+    return [None if p is None else [float(p[0]), float(p[1])] for p in raw]
+
+
+def dec_pose_from_result(result):
+    """Cuboid3d-frame pose -> camera-facing frame, centimetres -> metres."""
+    if result is None or result.get("location") is None:
+        return None
+    from pyrr import Quaternion, matrix33
+    import decoder_paths as DP
+
+    rotation = np.asarray(
+        matrix33.create_from_quaternion(Quaternion(result["quaternion"])),
+        dtype=np.float64)
+    translation = np.asarray(result["location"], dtype=np.float64) / 100.0
+    return {"R": DP.to_camfacing_pose(rotation), "t": translation}
+
+
+def dec_pose_metrics(path: str, frame, points, pose=None) -> dict[str, Any]:
+    """Same metric functions every arm in this programme has been judged by."""
+    if pose is None:
+        pose = frame.solve(points)
+    metrics = frame.metrics(pose)
+    out = {f"{path}_{key}": value for key, value in metrics.items()}
+    out[f"{path}_n_correspondence"] = int(sum(p is not None for p in points))
+    errors = []
+    for corner in range(8):
+        gt = frame.gt_points[corner]
+        point = points[corner]
+        error = (np.nan if (gt is None or point is None)
+                 else float(np.hypot(point[0] - gt[0], point[1] - gt[1])))
+        out[f"{path}_err_{corner}"] = error
+        out[f"{path}_det_{corner}"] = point is not None
+        errors.append(error)
+    finite = np.asarray([e for e in errors if np.isfinite(e)], dtype=float)
+    near = np.asarray([errors[k] for k in range(4) if np.isfinite(errors[k])])
+    far = np.asarray([errors[k] for k in range(4, 8) if np.isfinite(errors[k])])
+    out[f"{path}_corner_median"] = float(np.median(finite)) if len(finite) else np.nan
+    out[f"{path}_near_median"] = float(np.median(near)) if len(near) else np.nan
+    out[f"{path}_far_median"] = float(np.median(far)) if len(far) else np.nan
+    out[f"{path}_centroid_det"] = points[8] is not None
+    out[f"{path}_nan_corner"] = int(8 - len(finite))
+    out[f"{path}_t20"] = int((finite > 20).sum())
+    out[f"{path}_t50"] = int((finite > 50).sum())
+    out[f"{path}_t100"] = int((finite > 100).sum())
+    return out
+
+
+def dec_direct_cache_parity(manifest, config, gates, count: int = 10):
+    """Phase D3: the same tensors decoded straight from the forward, and after
+    a float32 round trip through the npz cache, must agree exactly."""
+    import decoder_paths as DP
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model, _ = FZ.load_model(device)
+    frames = manifest["frames"][:count]
+    rows = []
+    scratch = DEC_OUT / "_parity_roundtrip.npz"
+    DEC_OUT.mkdir(parents=True, exist_ok=True)
+    with torch.no_grad():
+        for spec in frames:
+            frame = EvalFrame(spec)
+            tensor = FZ.preprocess_squash(cv2.imread(spec["image_path"])).to(device)
+            beliefs, affinities = model(tensor)[0], model(tensor)[1]
+            belief = beliefs[5][0, :MD.N_KP].float().cpu().numpy().astype(np.float32)
+            affinity = affinities[5][0].float().cpu().numpy().astype(np.float32)
+            width, height = spec["image_width"], spec["image_height"]
+            direct, solver_a = DP.run_p2(belief, affinity, frame.dims, frame.K,
+                                         width, height, config)
+            np.savez_compressed(scratch, belief=belief, affinity=affinity)
+            payload = np.load(scratch)
+            cached, solver_b = DP.run_p2(payload["belief"], payload["affinity"],
+                                         frame.dims, frame.K, width, height, config)
+            K_proc = DP.squash_intrinsics(frame.K, width, height)
+            ia, ra, _, _ = DP.production_selection(direct, gates, K_proc, solver_a)
+            ib, rb, _, _ = DP.production_selection(cached, gates, K_proc, solver_b)
+            point_delta = 0.0
+            for pa, pb in zip(dec_p2_points(ra), dec_p2_points(rb)):
+                if pa is None or pb is None:
+                    point_delta = max(point_delta, 0.0 if pa is pb else np.inf)
+                    continue
+                point_delta = max(point_delta, abs(pa[0] - pb[0]), abs(pa[1] - pb[1]))
+            pose_a, pose_b = dec_pose_from_result(ra), dec_pose_from_result(rb)
+            if pose_a is None or pose_b is None:
+                pose_delta = 0.0 if pose_a is pose_b else float("inf")
+            else:
+                pose_delta = max(float(np.abs(pose_a["R"] - pose_b["R"]).max()),
+                                 float(np.abs(pose_a["t"] - pose_b["t"]).max()))
+            rows.append({"frame_id": spec["frame_id"], "domain": spec["domain"],
+                         "objects_direct": len(direct), "objects_cached": len(cached),
+                         "selected_direct": -1 if ia is None else ia,
+                         "selected_cached": -1 if ib is None else ib,
+                         "max_point_delta_px": point_delta,
+                         "max_pose_delta": pose_delta})
+    del model
+    torch.cuda.empty_cache()
+    scratch.unlink(missing_ok=True)
+    return pd.DataFrame(rows)
+
+
+def dec_association_rows(spec, frame, entry, p1_points, results, solver, config):
+    """Phase J: what happened to each P1 coordinate inside the deployment path."""
+    import decoder_paths as DP
+    from scipy.ndimage import gaussian_filter
+
+    chosen_index, chosen, _, _ = DP.production_selection(
+        results, dec_config()[1], DP.squash_intrinsics(
+            frame.K, spec["image_width"], spec["image_height"]), solver)
+    selected = dec_p2_points(chosen)
+    scale_x = spec["image_width"] / BELIEF
+    scale_y = spec["image_height"] / BELIEF
+    rows = []
+    for channel in range(9):
+        gt = frame.gt_points[channel]
+        p1 = p1_points[channel]
+        p2 = selected[channel] if channel < 9 else None
+        # the deployment coordinate lives in squash space; put it back in the
+        # original frame so the GT error is comparable across paths
+        p2_image = (None if p2 is None
+                    else [p2[0] * spec["image_width"] / DP.INPUT_SIZE,
+                          p2[1] * spec["image_height"] / DP.INPUT_SIZE])
+        smooth = gaussian_filter(entry["final"][channel], sigma=config.sigma)
+        rows.append({
+            "frame_id": spec["frame_id"], "domain": spec["domain"],
+            "channel": channel,
+            "role": "centroid" if channel == 8 else "near" if channel < 4 else "far",
+            "raw_peak": float(entry["final"][channel].max()),
+            "smoothed_peak": float(smooth.max()),
+            "p1_detected": p1 is not None,
+            "p2_in_object": p2 is not None,
+            "dropped_by_association": bool(p1 is not None and p2 is None),
+            "added_by_association": bool(p1 is None and p2 is not None),
+            "p1_err": (np.nan if (gt is None or p1 is None)
+                       else float(np.hypot(p1[0] - gt[0], p1[1] - gt[1]))),
+            "p2_err": (np.nan if (gt is None or p2_image is None)
+                       else float(np.hypot(p2_image[0] - gt[0],
+                                           p2_image[1] - gt[1]))),
+            "n_objects": len(results),
+            "selected_index": -1 if chosen_index is None else int(chosen_index),
+        })
+    return rows
+
+
+def dec_run(sets=("eval56", "wood")) -> int:
+    """Phase F/G: one forward per set x arm, three decoders on each tensor."""
+    DEC_OUT.mkdir(parents=True, exist_ok=True)
+    if hashlib.sha256(EP57.read_bytes()).hexdigest() != EP57_SHA:
+        raise SystemExit("BLOCKED: ep57 SHA mismatch")
+    for arm, path in DEC_CHECKPOINTS.items():
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if not digest.startswith(DEC_CHECKPOINT_SHA[arm]):
+            raise SystemExit(f"BLOCKED: {arm} checkpoint SHA {digest[:8]} "
+                             f"!= {DEC_CHECKPOINT_SHA[arm]}")
+    config, gates = dec_config()
+    log(f"deployment cfg thresh_map={config.thresh_map} "
+        f"thresh_points={config.thresh_points} thresh_angle={config.thresh_angle} "
+        f"sigma={config.sigma}; gates={gates}")
+
+    frame_rows, assoc_rows = [], []
+    for label in sets:
+        manifest = json.loads((OUT / f"{label}_manifest.json").read_text("utf-8"))
+        if label == "eval56":
+            parity = dec_direct_cache_parity(manifest, config, gates)
+            parity.to_csv(DEC_OUT / "decoder_direct_cache_parity.csv", index=False)
+            worst_point = float(parity.max_point_delta_px.max())
+            worst_pose = float(parity.max_pose_delta.max())
+            log(f"[D3] direct vs cache: max point {worst_point:.3e}px "
+                f"max pose {worst_pose:.3e}")
+            if not (worst_point <= 1e-6 and worst_pose <= 1e-6):
+                raise SystemExit("BLOCKED: P2 direct/cache parity failed")
+        for arm in DEC_ARMS:
+            started = time.perf_counter()
+            cache = dec_forward_arm(manifest, arm)
+            for spec in manifest["frames"]:
+                frame = EvalFrame(spec)
+                entry = cache[spec["frame_id"]]
+                row, _, p1_points, _, results, solver = dec_evaluate_frame(
+                    spec, frame, entry, config, gates)
+                row.update({"set": label, "arm": arm})
+                frame_rows.append(row)
+                if arm == "B0":
+                    for item in dec_association_rows(spec, frame, entry,
+                                                     p1_points, results,
+                                                     solver, config):
+                        assoc_rows.append({**item, "set": label, "arm": arm})
+            log(f"  {label} {arm}: {len(manifest['frames'])} frames in "
+                f"{time.perf_counter() - started:.1f}s")
+            del cache
+    frames = pd.DataFrame(frame_rows)
+    frames.to_parquet(DEC_OUT / "decoder_frames.parquet")
+    pd.DataFrame(assoc_rows).to_csv(DEC_OUT / "decoder_association_p1_p2.csv",
+                                    index=False)
+    log(f"[done] {DEC_OUT}")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# decoder reconciliation — analysis
+# ---------------------------------------------------------------------------
+DEC_PATHS = ("P0", "P1", "P2")
+
+
+def dec_pooled(table: pd.DataFrame, path: str) -> dict[str, Any]:
+    """Corner statistics pooled over corners, matching `summarise` not a
+    median of per-frame medians."""
+    errors = {k: pd.to_numeric(table[f"{path}_err_{k}"], errors="coerce").to_numpy()
+              for k in range(8)}
+    every = np.concatenate([errors[k] for k in range(8)])
+    near = np.concatenate([errors[k] for k in range(4)])
+    far = np.concatenate([errors[k] for k in range(4, 8)])
+    finite = every[np.isfinite(every)]
+    success = table[f"{path}_pose_success"].astype(bool)
+    reproj = pd.to_numeric(table[f"{path}_reproj_fixed_gt_px"], errors="coerce")
+    yaw = pd.to_numeric(table[f"{path}_yaw_err_deg"], errors="coerce")
+    rot = pd.to_numeric(table[f"{path}_rotation_err_deg"], errors="coerce")
+    trans = pd.to_numeric(table[f"{path}_translation_err_m"], errors="coerce")
+    nanmed = lambda v: float(np.nanmedian(v)) if np.isfinite(v).any() else np.nan
+    return {
+        "frames": int(len(table)),
+        "pnp_success": int(success.sum()),
+        "reproj_median_px": nanmed(reproj.to_numpy()),
+        "yaw_median_deg": nanmed(yaw.to_numpy()),
+        "rotation_median_deg": nanmed(rot.to_numpy()),
+        "translation_median_m": nanmed(trans.to_numpy()),
+        "corner_median_px": nanmed(every), "near_median_px": nanmed(near),
+        "far_median_px": nanmed(far),
+        "p90_px": (float(np.nanpercentile(finite, 90)) if len(finite) else np.nan),
+        "detected_corners": int(np.isfinite(every).sum()),
+        "nan_corner": int((~np.isfinite(every)).sum()),
+        "centroid_detected": int(table[f"{path}_centroid_det"].astype(bool).sum()),
+        "t20": int((finite > 20).sum()), "t50": int((finite > 50).sum()),
+        "t100": int((finite > 100).sum()),
+    }
+
+
+def dec_membership(table: pd.DataFrame) -> pd.DataFrame:
+    """Phase H: which paths solved each frame."""
+    rows = []
+    for _, row in table.iterrows():
+        flags = tuple(bool(row[f"{p}_pose_success"]) for p in DEC_PATHS)
+        p0, p1, p2 = flags
+        if p0 and p1 and p2:
+            klass = "R0_all"
+        elif p0 and not p1 and not p2:
+            klass = "R1_p0_only"
+        elif p1 and not p0 and not p2:
+            klass = "R2_p1_only"
+        elif p2 and not p0 and not p1:
+            klass = "R3_p2_only"
+        elif p0 and p1 and not p2:
+            klass = "R4_p0p1_not_p2"
+        elif p2 and not (p0 and p1):
+            klass = "R5_p2_not_both"
+        elif not any(flags):
+            klass = "R6_none"
+        else:
+            klass = "R7_mixed"
+        rows.append({
+            "set": row["set"], "arm": row["arm"], "frame_id": row.frame_id,
+            "domain": row.domain, "class": klass,
+            "P0_corners": int(row.P0_n_correspondence),
+            "P1_corners": int(row.P1_n_correspondence),
+            "P2_corners": int(row.P2_n_correspondence),
+            "P0_centroid": bool(row.P0_centroid_det),
+            "P1_centroid": bool(row.P1_centroid_det),
+            "P2_objects": int(row.P2_objects),
+            "P2_selected": int(row.P2_selected_index),
+            "P2_gate_reason": row.P2_gate_reason,
+            "P0_reproj": row.P0_reproj_fixed_gt_px,
+            "P1_reproj": row.P1_reproj_fixed_gt_px,
+            "P2_reproj": row.P2_reproj_fixed_gt_px,
+        })
+    return pd.DataFrame(rows)
+
+
+def dec_coordinate_rows(table: pd.DataFrame) -> pd.DataFrame:
+    """Phase I: corners both P0 and P1 accepted, and what moved."""
+    rows = []
+    for _, row in table.iterrows():
+        for corner in range(8):
+            if not (row[f"P0_det_{corner}"] and row[f"P1_det_{corner}"]):
+                continue
+            e0 = float(row[f"P0_err_{corner}"])
+            e1 = float(row[f"P1_err_{corner}"])
+            if not (np.isfinite(e0) and np.isfinite(e1)):
+                continue
+            rows.append({"set": row["set"], "arm": row["arm"],
+                         "frame_id": row.frame_id, "domain": row.domain,
+                         "corner": corner,
+                         "role": "near" if corner < 4 else "far",
+                         "p0_err": e0, "p1_err": e1, "delta": e1 - e0,
+                         "toward_gt": bool(e1 < e0)})
+    return pd.DataFrame(rows)
+
+
+def dec_paired(base: pd.DataFrame, cand: pd.DataFrame, path: str,
+               seed: int = 1) -> dict[str, Any]:
+    """Phase N: common-success paired reprojection, frames resampled."""
+    column = f"{path}_reproj_fixed_gt_px"
+    merged = base[["frame_id", f"{path}_pose_success", column]].merge(
+        cand[["frame_id", f"{path}_pose_success", column]],
+        on="frame_id", suffixes=("_b", "_c"))
+    both = merged[merged[f"{path}_pose_success_b"].astype(bool)
+                  & merged[f"{path}_pose_success_c"].astype(bool)]
+    delta = (pd.to_numeric(both[f"{column}_c"], errors="coerce")
+             - pd.to_numeric(both[f"{column}_b"], errors="coerce")).to_numpy()
+    delta = delta[np.isfinite(delta)]
+    out = {"n_common": int(len(delta)),
+           "improved": int((delta < 0).sum()), "worsened": int((delta > 0).sum()),
+           "tied": int((delta == 0).sum()),
+           "median_delta_px": float(np.median(delta)) if len(delta) else np.nan,
+           "p90_delta_px": (float(np.percentile(delta, 90)) if len(delta)
+                            else np.nan),
+           "catastrophic_ge10px": int((delta >= 10.0).sum()),
+           "new_failure": int((merged[f"{path}_pose_success_b"].astype(bool)
+                               & ~merged[f"{path}_pose_success_c"].astype(bool)).sum()),
+           "rescue": int((~merged[f"{path}_pose_success_b"].astype(bool)
+                          & merged[f"{path}_pose_success_c"].astype(bool)).sum())}
+    if len(delta):
+        rng = np.random.default_rng(seed)
+        draws = rng.integers(0, len(delta), size=(10000, len(delta)))
+        means = delta[draws].mean(axis=1)
+        out.update({"p_improve": float((means < 0).mean()),
+                    "ci_lo": float(np.percentile(means, 2.5)),
+                    "ci_hi": float(np.percentile(means, 97.5))})
+    else:
+        out.update({"p_improve": np.nan, "ci_lo": np.nan, "ci_hi": np.nan})
+    return out
+
+
+# Read from the recorded gate files, not re-invented.  E2 comes from
+# role_stage_static_gate.json and N2/N3 from pfdr/pfdr_gate.json; both record
+# the same nine conditions under slightly different labels.  S1 (#11 stagewise)
+# and C1 (#9 corner replacement) were screened with arm-specific metrics
+# (F2-far median, signed far bias) that this harness does not reproduce, so
+# those conditions are carried as unavailable rather than silently dropped.
+DEC_GATE_REGISTRY = {
+    "E2": {"source": "role_stage_static_gate.json :: eval56.E2_DRSF",
+           "extra_unavailable": []},
+    "N2": {"source": "pfdr/pfdr_gate.json :: <set>|N2", "extra_unavailable": []},
+    "N3": {"source": "pfdr/pfdr_gate.json :: <set>|N3 (negative control)",
+           "extra_unavailable": []},
+    "S1": {"source": "_docs/history/2026-08-04.md #11 stagewise bias loss",
+           "extra_unavailable": ["F2_far_median", "signed_far_bias"]},
+    "C1": {"source": "_docs/history/2026-08-04.md #9 corner replacement",
+           "extra_unavailable": ["proposal_adoption_rate"]},
+}
+DEC_GATE_LIMITS = {"eval56": {"reproj_drop": 0.10, "p_improve": 0.90},
+                   "wood": {"reproj_drop": 0.05, "p_improve": 0.80}}
+
+
+def dec_gate(label: str, arm: str, path: str, base: dict, cand: dict,
+             paired: dict) -> dict[str, Any]:
+    """The recorded nine conditions, applied on whichever path is being read."""
+    limits = DEC_GATE_LIMITS[label]
+    drop = lambda before, after: (np.nan if not np.isfinite(before) or before == 0
+                                  else (before - after) / before)
+    conditions = {
+        "PnP >= base": cand["pnp_success"] >= base["pnp_success"],
+        f"reproj -{int(limits['reproj_drop'] * 100)}%":
+            bool(drop(base["reproj_median_px"], cand["reproj_median_px"])
+                 >= limits["reproj_drop"]),
+        "far -10%": bool(drop(base["far_median_px"], cand["far_median_px"]) >= 0.10),
+        "near <= +5%": bool(cand["near_median_px"]
+                            <= base["near_median_px"] * 1.05 + 1e-9),
+        ">50 not increased": cand["t50"] <= base["t50"],
+        ">100 not increased": cand["t100"] <= base["t100"],
+        "NaN not increased": cand["nan_corner"] <= base["nan_corner"],
+        "improved > worsened": paired["improved"] > paired["worsened"],
+        f"P(improve) >= {limits['p_improve']:.2f}":
+            bool(np.isfinite(paired["p_improve"])
+                 and paired["p_improve"] >= limits["p_improve"]),
+    }
+    unavailable = list(DEC_GATE_REGISTRY[arm]["extra_unavailable"])
+    if cand["pnp_success"] == 0:
+        unavailable.append("every pose metric (no object produced)")
+    verdict = ("INCONCLUSIVE" if unavailable
+               else "ACCEPT" if all(conditions.values()) else "REJECT")
+    if unavailable and all(conditions.values()):
+        verdict = "INCONCLUSIVE"
+    elif unavailable:
+        verdict = "INCONCLUSIVE" if cand["pnp_success"] == 0 else "REJECT"
+    return {"set": label, "arm": arm, "path": path,
+            "source": DEC_GATE_REGISTRY[arm]["source"],
+            "conditions": {k: bool(v) for k, v in conditions.items()},
+            "unavailable": unavailable,
+            "n_failed": int(sum(1 for v in conditions.values() if not v)),
+            "verdict": verdict}
+
+
+def dec_analyse() -> int:
+    """Phases G-O over the evaluation written by dec_run()."""
+    frames = pd.read_parquet(DEC_OUT / "decoder_frames.parquet")
+    metrics, gates, paired_rows = [], [], []
+    for label in ("eval56", "wood"):
+        for path in DEC_PATHS:
+            base_table = frames[(frames.set == label) & (frames.arm == "B0")]
+            base = dec_pooled(base_table, path)
+            for arm in DEC_ARMS:
+                table = frames[(frames.set == label) & (frames.arm == arm)]
+                stats = dec_pooled(table, path)
+                stats.update({"set": label, "arm": arm, "path": path})
+                stats["P2_objects_total"] = int(table.P2_objects.sum())
+                stats["P2_gate_pass"] = int(table.P2_gate_pass.astype(bool).sum())
+                stats["P2_solver_success"] = int(
+                    table.P2_solver_success.astype(bool).sum())
+                metrics.append(stats)
+                if arm == "B0":
+                    continue
+                paired = dec_paired(base_table, table, path)
+                paired.update({"set": label, "arm": arm, "path": path})
+                paired_rows.append(paired)
+                gates.append(dec_gate(label, arm, path, base, stats, paired))
+    pd.DataFrame(metrics).to_csv(DEC_OUT / "decoder_arm_metrics.csv", index=False)
+    pd.DataFrame(paired_rows).to_csv(DEC_OUT / "decoder_paired_pose.csv", index=False)
+    membership = dec_membership(frames)
+    membership.to_csv(DEC_OUT / "decoder_frame_membership.csv", index=False)
+    coords = dec_coordinate_rows(frames)
+    coords.to_csv(DEC_OUT / "decoder_corner_p0_p1.csv", index=False)
+    verdicts = pd.DataFrame([{**{k: g[k] for k in
+                                 ("set", "arm", "path", "verdict", "n_failed")},
+                              "unavailable": ";".join(g["unavailable"]),
+                              "failed": ";".join(k for k, v in
+                                                 g["conditions"].items() if not v)}
+                             for g in gates])
+    verdicts.to_csv(DEC_OUT / "decoder_verdict_matrix.csv", index=False)
+    (DEC_OUT / "decoder_gate_registry.json").write_text(json.dumps({
+        "registry": DEC_GATE_REGISTRY, "limits": DEC_GATE_LIMITS,
+        "gates": gates}, indent=2, ensure_ascii=False), "utf-8")
+    log(f"[analyse] {len(metrics)} metric rows, {len(gates)} gate rows")
+    return 0
+
+
+def dec_figures() -> int:
+    """Phase P.  Figure 10 is written only if a flip candidate exists."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from scipy.ndimage import gaussian_filter
+
+    figures = DEC_OUT / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    metrics = pd.read_csv(DEC_OUT / "decoder_arm_metrics.csv")
+    verdicts = pd.read_csv(DEC_OUT / "decoder_verdict_matrix.csv")
+    coords = pd.read_csv(DEC_OUT / "decoder_corner_p0_p1.csv", dtype={"frame_id": str})
+    assoc = pd.read_csv(DEC_OUT / "decoder_association_p1_p2.csv", dtype={"frame_id": str})
+    paired = pd.read_csv(DEC_OUT / "decoder_paired_pose.csv")
+    membership = pd.read_csv(DEC_OUT / "decoder_frame_membership.csv",
+                             dtype={"frame_id": str})
+    sets, arms = ("eval56", "wood"), list(DEC_ARMS)
+
+    # 1 baseline across the three paths
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    base = metrics[metrics.arm == "B0"]
+    for axis, (column, title) in zip(axes, [
+            ("pnp_success", "PnP successes"),
+            ("reproj_median_px", "fixed-GT reprojection (px)"),
+            ("nan_corner", "corners never accepted")]):
+        width = 0.35
+        for offset, label in zip((-width / 2, width / 2), sets):
+            values = [float(base[(base.set == label)
+                                 & (base.path == p)][column].iloc[0])
+                      for p in DEC_PATHS]
+            values = [0 if not np.isfinite(v) else v for v in values]
+            axis.bar(np.arange(3) + offset, values, width, label=label)
+        axis.set_xticks(range(3))
+        axis.set_xticklabels(DEC_PATHS)
+        axis.set_title(title)
+        axis.legend(fontsize=8)
+        axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("B0 base: the deployment decoder produces nothing on ep57")
+    fig.tight_layout()
+    fig.savefig(figures / "path_baseline_comparison.png", dpi=150)
+    plt.close(fig)
+
+    # 2 verdict matrix
+    codes = {"ACCEPT": 2, "INCONCLUSIVE": 1, "REJECT": 0}
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    for axis, label in zip(axes, sets):
+        rows = [a for a in arms if a != "B0"]
+        grid = np.array([[codes[verdicts[(verdicts.set == label)
+                                         & (verdicts.arm == a)
+                                         & (verdicts.path == p)].verdict.iloc[0]]
+                          for p in DEC_PATHS] for a in rows])
+        axis.imshow(grid, cmap="RdYlGn", vmin=0, vmax=2, aspect="auto")
+        for i in range(len(rows)):
+            for j in range(3):
+                axis.text(j, i, ["REJECT", "INCONCL", "ACCEPT"][grid[i, j]],
+                          ha="center", va="center", fontsize=8)
+        axis.set_xticks(range(3)); axis.set_xticklabels(DEC_PATHS)
+        axis.set_yticks(range(len(rows))); axis.set_yticklabels(rows)
+        axis.set_title(label)
+    fig.suptitle("Every arm rejects on both decoders that can be evaluated")
+    fig.tight_layout()
+    fig.savefig(figures / "path_arm_verdict_matrix.png", dpi=150)
+    plt.close(fig)
+
+    # 3 coordinate displacement
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    for axis, label in zip(axes, sets):
+        sub = coords[(coords.set == label) & (coords.arm == "B0")]
+        for role, colour in (("near", "tab:blue"), ("far", "tab:red")):
+            values = sub[sub.role == role].delta
+            axis.hist(values, bins=40, range=(-25, 25), alpha=0.55,
+                      color=colour, label=f"{role} (toward GT "
+                                          f"{100 * sub[sub.role == role].toward_gt.mean():.0f}%)")
+        axis.axvline(0, color="black", lw=1)
+        axis.set_xlabel("P1 error - P0 error (px);  negative = closer to GT")
+        axis.set_title(label)
+        axis.legend(fontsize=8)
+        axis.grid(alpha=0.3)
+    fig.suptitle("Gaussian + NMS + 11x11 moves corners away from GT on this model")
+    fig.tight_layout()
+    fig.savefig(figures / "coordinate_p0_p1.png", dpi=150)
+    plt.close(fig)
+
+    # 4 association: why nothing survives
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    for axis, label in zip(axes, sets):
+        centroid = assoc[(assoc.set == label) & (assoc.channel == 8)]
+        axis.scatter(centroid.raw_peak, centroid.smoothed_peak, s=18,
+                     alpha=0.75, label="centroid channel")
+        axis.axhline(0.30, color="crimson", ls="--",
+                     label="thresh_map = thresh_points = 0.30")
+        axis.plot([0, 1], [0, 1], color="grey", lw=0.8, ls=":")
+        axis.set_xlabel("raw peak")
+        axis.set_ylabel("peak after the deployment sigma=3 blur")
+        axis.set_title(f"{label}: 0/{len(centroid)} frames clear the gate")
+        axis.legend(fontsize=8)
+        axis.grid(alpha=0.3)
+    fig.suptitle("No centroid peak survives, so no object is ever constructed")
+    fig.tight_layout()
+    fig.savefig(figures / "association_p1_p2.png", dpi=150)
+    plt.close(fig)
+
+    # 5 membership
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.2))
+    for axis, label in zip(axes, sets):
+        table = membership[membership.set == label]
+        counts = table.groupby(["arm", "class"]).size().unstack(fill_value=0)
+        counts = counts.reindex(arms)
+        bottom = np.zeros(len(counts))
+        for column in counts.columns:
+            axis.bar(counts.index, counts[column], bottom=bottom, label=column)
+            bottom += counts[column].to_numpy()
+        axis.set_ylabel("frames")
+        axis.set_title(label)
+        axis.legend(fontsize=7)
+        axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("PnP membership across P0 / P1 / P2")
+    fig.tight_layout()
+    fig.savefig(figures / "membership_sankey.png", dpi=150)
+    plt.close(fig)
+
+    # 6 paired pose
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    width = 0.35
+    for axis, label in zip(axes, sets):
+        sub = paired[(paired.set == label) & paired.path.isin(("P0", "P1"))]
+        rows = [a for a in arms if a != "B0"]
+        for offset, path in zip((-width / 2, width / 2), ("P0", "P1")):
+            values = [float(sub[(sub.arm == a) & (sub.path == path)]
+                            .median_delta_px.iloc[0]) for a in rows]
+            axis.bar(np.arange(len(rows)) + offset, values, width, label=path)
+        axis.axhline(0, color="black", lw=1)
+        axis.set_xticks(range(len(rows))); axis.set_xticklabels(rows)
+        axis.set_ylabel("median paired reprojection delta (px)")
+        axis.set_title(label)
+        axis.legend(fontsize=8)
+        axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("Common-success paired deltas: same sign on both decoders")
+    fig.tight_layout()
+    fig.savefig(figures / "path_reprojection_paired.png", dpi=150)
+    plt.close(fig)
+    return figures
+
+
+def dec_figures_overlay() -> int:
+    """Phase P figures 7-10: rescue/regression, hypotheses, overlays, flips."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from scipy.ndimage import gaussian_filter
+
+    figures = DEC_OUT / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    paired = pd.read_csv(DEC_OUT / "decoder_paired_pose.csv")
+    membership = pd.read_csv(DEC_OUT / "decoder_frame_membership.csv",
+                             dtype={"frame_id": str})
+    verdicts = pd.read_csv(DEC_OUT / "decoder_verdict_matrix.csv")
+    frames = pd.read_parquet(DEC_OUT / "decoder_frames.parquet")
+
+    # 7 rescue and new failure per path
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    width = 0.35
+    for axis, label in zip(axes, ("eval56", "wood")):
+        sub = paired[(paired.set == label) & paired.path.isin(("P0", "P1", "P2"))]
+        rows = [a for a in DEC_ARMS if a != "B0"]
+        for offset, key, colour in ((-width / 2, "rescue", "tab:green"),
+                                    (width / 2, "new_failure", "tab:red")):
+            values = [float(sub[(sub.arm == a) & (sub.path == "P1")][key].iloc[0])
+                      for a in rows]
+            axis.bar(np.arange(len(rows)) + offset, values, width, label=f"P1 {key}",
+                     color=colour)
+        axis.set_xticks(range(len(rows))); axis.set_xticklabels(rows)
+        axis.set_ylabel("frames")
+        axis.set_title(f"{label} (P2 has no pose to rescue)")
+        axis.legend(fontsize=8)
+        axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("P1 rescue and new failure relative to the same-path base")
+    fig.tight_layout()
+    fig.savefig(figures / "p2_rescue_regression.png", dpi=150)
+    plt.close(fig)
+
+    # 8 hypotheses produced by the deployment path
+    fig, axis = plt.subplots(figsize=(7.5, 4.2))
+    counts = frames.groupby(["set", "arm"]).P2_objects.sum().unstack(fill_value=0)
+    counts = counts.reindex(columns=list(DEC_ARMS))
+    bottom = np.zeros(len(counts.columns))
+    for label in counts.index:
+        axis.bar(counts.columns, counts.loc[label], bottom=bottom, label=label)
+        bottom += counts.loc[label].to_numpy()
+    axis.set_ylabel("object hypotheses over the whole set")
+    axis.set_title("Deployment object hypotheses: essentially none exist to select from")
+    axis.legend(fontsize=8)
+    axis.grid(alpha=0.3, axis="y")
+    fig.tight_layout()
+    fig.savefig(figures / "p2_object_hypotheses.png", dpi=150)
+    plt.close(fig)
+
+    # 9 per-path overlay on two frames
+    manifests = {label: json.loads((OUT / f"{label}_manifest.json").read_text("utf-8"))
+                 for label in ("eval56", "wood")}
+    picks = [("eval56", manifests["eval56"]["frames"][0]),
+             ("wood", manifests["wood"]["frames"][0])]
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5.5))
+    for axis, (label, spec) in zip(axes, picks):
+        row = frames[(frames.set == label) & (frames.arm == "B0")
+                     & (frames.frame_id == spec["frame_id"])].iloc[0]
+        image = cv2.imread(spec["image_path"])
+        axis.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        frame = EvalFrame(spec)
+        for corner in range(8):
+            gt = frame.gt_points[corner]
+            if gt is not None:
+                axis.plot(gt[0], gt[1], "o", ms=8, mfc="none", mec="lime", mew=2)
+        axis.set_title(f"{label} {spec['domain']}\n"
+                       f"P0 {int(row.P0_n_correspondence)} pts, "
+                       f"P1 {int(row.P1_n_correspondence)} pts, "
+                       f"P2 {int(row.P2_objects)} objects "
+                       f"({row.P2_gate_reason})", fontsize=9)
+        axis.axis("off")
+    fig.suptitle("Green = GT.  The deployment path reaches no hypothesis to draw")
+    fig.tight_layout()
+    fig.savefig(figures / "decoder_failure_examples.png", dpi=140)
+    plt.close(fig)
+
+    # 10 only if a flip candidate exists
+    flips = []
+    for arm in [a for a in DEC_ARMS if a != "B0"]:
+        rows = verdicts[verdicts.arm == arm]
+        if (rows[rows.path == "P0"].verdict == "REJECT").all() and \
+           (rows[rows.path == "P2"].verdict == "ACCEPT").all():
+            flips.append(arm)
+    (figures / "verdict_flip_candidates.txt").write_text(
+        "NONE\n" if not flips else "\n".join(flips), "utf-8")
+    return len(flips)
