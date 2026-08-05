@@ -1073,3 +1073,556 @@ def pfdr_belief(arm: str, manifest, checkpoint) -> dict[str, np.ndarray]:
     del trainer
     torch.cuda.empty_cache()
     return cache
+
+
+# ============================================================================
+# threshold audit — decoder acceptance capability, zero training
+# ============================================================================
+# The evaluation path decodes through decode_all()['D0'], which is
+# FZ.heatmap_stats.  That function computes a raw argmax and a 7x7 local
+# softargmax on the *unsmoothed* map and then accepts the corner iff
+#     paper_s2_frozen_diagnostic.py:661   "detected": peak >= BELIEF_THRESHOLD
+# with BELIEF_THRESHOLD = 0.3 declared at line 73.  There is no Gaussian and no
+# NMS anywhere on this path -- those belong to the D2 decoder, which the
+# evaluation does not call.  So the single quantity this audit may vary is the
+# acceptance comparison, and the coordinate a newly accepted corner receives is
+# exactly the softargmax the frozen code already computed for it.
+THRESH_OUT = OUT / "threshold_audit"
+CANONICAL_THRESHOLD = 0.30
+
+# fixed before any result was seen; no arm is added or interpolated afterwards
+THRESHOLD_ARMS: dict[str, tuple[float, float, float]] = {
+    "T0": (0.300, 0.300, 0.300),   # base
+    "T1": (0.275, 0.275, 0.300),   # global
+    "T2": (0.250, 0.250, 0.300),
+    "T3": (0.225, 0.225, 0.300),
+    "T4": (0.200, 0.200, 0.300),
+    "R1": (0.275, 0.300, 0.300),   # near only
+    "R2": (0.250, 0.300, 0.300),
+    "R3": (0.225, 0.300, 0.300),
+    "C1": (0.300, 0.250, 0.300),   # far-only control
+}
+
+
+def channel_thresholds(spec: tuple[float, float, float]) -> np.ndarray:
+    near, far, centroid = spec
+    return np.asarray([near] * 4 + [far] * 4 + [centroid], dtype=np.float64)
+
+
+def decode_thresholded(belief: np.ndarray, scale_x: float, scale_y: float,
+                       gt_points, thresholds: np.ndarray):
+    """FZ.heatmap_stats verbatim; only the acceptance comparison is ours.
+
+    With 0.30 on every channel this returns decode_all()['D0'] bit for bit,
+    because the accepted coordinate is the same _soft_px the frozen decoder
+    would have handed back.
+    """
+    stats = [FZ.heatmap_stats(belief[k], scale_x, scale_y, gt_points[k])
+             for k in range(MD.N_KP)]
+    points, peaks = [], []
+    for k, stat in enumerate(stats):
+        peak = stat.get("peak")
+        peaks.append(None if peak is None else float(peak))
+        accept = (bool(stat.get("valid")) and peak is not None
+                  and float(peak) >= float(thresholds[k]))
+        points.append(FZ.point_xy(stat.get("_soft_px")) if accept else None)
+    return points, peaks
+
+
+def threshold_arm_tables(manifest, cache, arm: str,
+                         spec: tuple[float, float, float]):
+    """Frame-level metrics and corner-level bookkeeping for one arm."""
+    thresholds = channel_thresholds(spec)
+    base_thresholds = channel_thresholds(THRESHOLD_ARMS["T0"])
+    frame_rows, corner_rows = [], []
+    for entry in manifest["frames"]:
+        uid = entry["frame_id"]
+        frame = EvalFrame(entry)
+        belief = cache[uid][STAGE_INDEX[6]]
+        scale_x = entry["image_width"] / BELIEF
+        scale_y = entry["image_height"] / BELIEF
+        points, peaks = decode_thresholded(belief, scale_x, scale_y,
+                                           frame.gt_points, thresholds)
+        base_points, _ = decode_thresholded(belief, scale_x, scale_y,
+                                            frame.gt_points, base_thresholds)
+        pose = frame.solve(points)
+        metrics = frame.metrics(pose)
+        row = {"frame_id": uid, "domain": entry["domain"], "arm": arm,
+               "image_width": entry["image_width"],
+               "image_height": entry["image_height"],
+               "gt_pose_ok": frame.gt_pose is not None,
+               "n_correspondence": int(sum(p is not None for p in points)),
+               "n_correspondence_base": int(sum(p is not None
+                                                for p in base_points)),
+               **metrics}
+        for corner in range(8):
+            gt = frame.gt_points[corner]
+            point, base_point = points[corner], base_points[corner]
+            row[f"peak_{corner}"] = peaks[corner]
+            row[f"peak4_{corner}"] = np.nan
+            if gt is None or point is None:
+                row[f"err_{corner}"] = np.nan
+                row[f"dx_{corner}"] = np.nan
+                row[f"dy_{corner}"] = np.nan
+            else:
+                row[f"err_{corner}"] = float(np.hypot(point[0] - gt[0],
+                                                      point[1] - gt[1]))
+                row[f"dx_{corner}"] = float(point[0] - gt[0])
+                row[f"dy_{corner}"] = float(point[1] - gt[1])
+            row[f"err4_{corner}"] = np.nan
+        frame_rows.append(row)
+
+        for channel in range(MD.N_KP):
+            gt = frame.gt_points[channel]
+            point, base_point = points[channel], base_points[channel]
+            error = (np.nan if (gt is None or point is None)
+                     else float(np.hypot(point[0] - gt[0], point[1] - gt[1])))
+            corner_rows.append({
+                "frame_id": uid, "domain": entry["domain"], "arm": arm,
+                "channel": channel,
+                "role": ("centroid" if channel == 8
+                         else "near" if channel < 4 else "far"),
+                "raw_peak": peaks[channel],
+                "threshold": float(thresholds[channel]),
+                "baseline_detected": base_point is not None,
+                "arm_detected": point is not None,
+                "newly_detected": (point is not None and base_point is None),
+                "newly_lost": (point is None and base_point is not None),
+                "decoded_x": None if point is None else float(point[0]),
+                "decoded_y": None if point is None else float(point[1]),
+                "gt_x": None if gt is None else float(gt[0]),
+                "gt_y": None if gt is None else float(gt[1]),
+                "gt_error_px": error,
+                "gt20": bool(np.isfinite(error) and error > 20),
+                "gt50": bool(np.isfinite(error) and error > 50),
+                "gt100": bool(np.isfinite(error) and error > 100),
+                # this decoder path never groups by affinity; the solver takes
+                # the nine indexed points directly, so "association" is exactly
+                # "the channel was accepted".
+                "affinity_association": None,
+                "in_pnp_correspondence": point is not None,
+            })
+    return pd.DataFrame(frame_rows), pd.DataFrame(corner_rows)
+
+
+THRESHOLD_PARITY = {
+    "eval56": {"pnp": 50, "frames": 56, "reproj": 11.5578, "corner": 7.2411,
+               "near": 4.6755, "far": 11.4063, "t50": 45, "t100": 17,
+               "nan_corner": 119},
+    "wood": {"pnp": 44, "frames": 45, "reproj": 9.2839, "corner": 9.2255,
+             "near": 6.7325, "far": 14.1798, "t50": 40, "t100": 36,
+             "nan_corner": 51},
+}
+THRESHOLD_GATE = {
+    "eval56": {"pnp_min": 52, "t50_max": 45, "t100_max": 17,
+               "rescue_reproj_max": 17.34},
+    "wood": {"pnp_min": 44, "t50_max": 40, "t100_max": 36,
+             "rescue_reproj_max": 13.93},
+}
+
+
+def threshold_load(label: str):
+    manifest = json.loads((OUT / f"{label}_manifest.json").read_text("utf-8"))
+    payload = np.load(OUT / f"{label}_ep57_belief.npz")
+    return manifest, {key: payload[key] for key in payload.files}
+
+
+def threshold_common_success(base: pd.DataFrame, arm: pd.DataFrame):
+    merged = base[["frame_id", "domain", "pose_success",
+                   "reproj_fixed_gt_px"]].merge(
+        arm[["frame_id", "pose_success", "reproj_fixed_gt_px"]],
+        on="frame_id", suffixes=("_b", "_a"))
+    both = merged[merged.pose_success_b & merged.pose_success_a].copy()
+    both["delta"] = (pd.to_numeric(both.reproj_fixed_gt_px_a, errors="coerce")
+                     - pd.to_numeric(both.reproj_fixed_gt_px_b, errors="coerce"))
+    delta = both.delta.to_numpy(dtype=float)
+    delta = delta[np.isfinite(delta)]
+    base_median = float(np.nanmedian(
+        pd.to_numeric(both.reproj_fixed_gt_px_b, errors="coerce")))
+    arm_median = float(np.nanmedian(
+        pd.to_numeric(both.reproj_fixed_gt_px_a, errors="coerce")))
+    stats = {
+        "n_common": int(len(delta)),
+        "base_median_px": base_median, "arm_median_px": arm_median,
+        "relative_change_pct": (float("nan") if base_median == 0 else
+                                100.0 * (arm_median - base_median) / base_median),
+        "median_delta_px": float(np.median(delta)) if len(delta) else float("nan"),
+        "improved": int((delta < 0).sum()), "worsened": int((delta > 0).sum()),
+        "tied": int((delta == 0).sum()),
+        "p90_regression_px": (float(np.percentile(delta, 90)) if len(delta)
+                              else float("nan")),
+        "catastrophic_ge10px": int((delta >= 10.0).sum()),
+    }
+    if len(delta):
+        rng = np.random.default_rng(SEED)
+        draws = rng.integers(0, len(delta), size=(10000, len(delta)))
+        means = delta[draws].mean(axis=1)
+        stats["p_improve"] = float((means < 0).mean())
+        stats["ci_lo"] = float(np.percentile(means, 2.5))
+        stats["ci_hi"] = float(np.percentile(means, 97.5))
+    else:
+        stats["p_improve"] = float("nan")
+        stats["ci_lo"] = float("nan")
+        stats["ci_hi"] = float("nan")
+    merged["rescue"] = (~merged.pose_success_b) & merged.pose_success_a
+    merged["new_failure"] = merged.pose_success_b & (~merged.pose_success_a)
+    return stats, both, merged
+
+
+def threshold_new_corner_precision(corners: pd.DataFrame) -> dict[str, Any]:
+    fresh = corners[corners.newly_detected & (corners.channel < 8)]
+    errors = pd.to_numeric(fresh.gt_error_px, errors="coerce").to_numpy()
+    scored = errors[np.isfinite(errors)]
+    total = int(len(fresh))
+    def share(mask):
+        return float("nan") if not len(scored) else float(mask.sum()) / len(scored)
+    return {
+        "new_corners": total,
+        "new_corners_with_gt": int(len(scored)),
+        "median_error_px": float(np.median(scored)) if len(scored) else float("nan"),
+        "le10_frac": share(scored <= 10), "le20_frac": share(scored <= 20),
+        "le50_frac": share(scored <= 50), "gt50_frac": share(scored > 50),
+        "lost_corners": int((corners.newly_lost & (corners.channel < 8)).sum()),
+    }
+
+
+def threshold_rescue_rows(label, arm, frames_base, frames_arm, corners_arm,
+                          merged) -> list[dict[str, Any]]:
+    rows = []
+    rescued = merged[merged.rescue]
+    for _, entry in rescued.iterrows():
+        uid = entry.frame_id
+        arm_row = frames_arm[frames_arm.frame_id == uid].iloc[0]
+        base_row = frames_base[frames_base.frame_id == uid].iloc[0]
+        fresh = corners_arm[(corners_arm.frame_id == uid)
+                            & corners_arm.newly_detected]
+        rows.append({
+            "set": label, "arm": arm, "frame_id": uid,
+            "domain": entry.domain,
+            "base_correspondences": int(base_row.n_correspondence),
+            "arm_correspondences": int(arm_row.n_correspondence),
+            "new_channels": ",".join(str(int(c)) for c in fresh.channel),
+            "new_channel_errors_px": ",".join(
+                "nan" if not np.isfinite(v) else f"{v:.2f}"
+                for v in pd.to_numeric(fresh.gt_error_px, errors="coerce")),
+            "reproj_fixed_gt_px": (float(arm_row.reproj_fixed_gt_px)
+                                   if arm_row.reproj_fixed_gt_px is not None
+                                   else float("nan")),
+            "yaw_err_deg": (float(arm_row.yaw_err_deg)
+                            if arm_row.yaw_err_deg is not None else float("nan")),
+            "prior_failure": ("fewer_than_4_correspondences"
+                              if int(base_row.n_correspondence) < 4
+                              else "solver_returned_none_or_error"),
+            "rescue_cause": ("four_point_minimum"
+                             if int(base_row.n_correspondence) < 4
+                             <= int(arm_row.n_correspondence)
+                             else "correspondence_set_changed"),
+        })
+    return rows
+
+
+def threshold_gate(label, arm, summary, base_summary, common, precision,
+                   merged, rescue_rows) -> dict[str, Any]:
+    limits = THRESHOLD_GATE[label]
+    rescue_reproj = [r["reproj_fixed_gt_px"] for r in rescue_rows
+                     if np.isfinite(r["reproj_fixed_gt_px"])]
+    checks = {
+        "1_pnp_min": summary["pnp"] >= limits["pnp_min"],
+        "2_no_new_failure": int(merged.new_failure.sum()) == 0,
+        "3_common_reproj_within_2pct": (
+            np.isfinite(common["relative_change_pct"])
+            and common["relative_change_pct"] <= 2.0),
+        "4_improved_ge_worsened": common["improved"] >= common["worsened"],
+        "5_no_catastrophic_ge10px": common["catastrophic_ge10px"] == 0,
+        "6_t50_within": summary["t50"] <= limits["t50_max"],
+        "7_t100_within": summary["t100"] <= limits["t100_max"],
+        "8_new_corner_le20_ge70pct": (
+            precision["new_corners_with_gt"] == 0
+            or precision["le20_frac"] >= 0.70),
+        "9_new_corner_gt50_le10pct": (
+            precision["new_corners_with_gt"] == 0
+            or precision["gt50_frac"] <= 0.10),
+        "10_rescue_reproj_within": (
+            not rescue_reproj
+            or max(rescue_reproj) <= limits["rescue_reproj_max"]),
+    }
+    return {"set": label, "arm": arm,
+            "checks": {k: bool(v) for k, v in checks.items()},
+            "passed": bool(all(checks.values())),
+            "n_failed": int(sum(1 for v in checks.values() if not v))}
+
+
+def threshold_audit() -> int:
+    """Phase A..K.  base ep57 read-only, zero optimizer, zero training."""
+    THRESH_OUT.mkdir(parents=True, exist_ok=True)
+    log("threshold audit — decoder acceptance only, no training")
+    all_frames, all_corners, arm_metrics = {}, {}, []
+    gates, rescue_all, common_all, precision_all = [], [], [], []
+
+    for label in ("eval56", "wood"):
+        manifest, cache = threshold_load(label)
+        log(f"{label}: {len(manifest['frames'])} frames from cached ep57 belief")
+        frames_by_arm, corners_by_arm = {}, {}
+        for arm, spec in THRESHOLD_ARMS.items():
+            frames, corners = threshold_arm_tables(manifest, cache, arm, spec)
+            frames_by_arm[arm] = frames
+            corners_by_arm[arm] = corners
+            summary = arm_summary(manifest, frames, arm)
+            summary.update({"set": label, "near_threshold": spec[0],
+                            "far_threshold": spec[1],
+                            "centroid_threshold": spec[2]})
+            arm_metrics.append(summary)
+            log(f"  {arm} near={spec[0]:.3f} far={spec[1]:.3f} "
+                f"pnp={summary['pnp']} reproj={summary['reproj']:.4f} "
+                f"corner={summary['corner']:.4f} nan={summary['nan_corner']}")
+
+        # Phase A parity on T0
+        expect = THRESHOLD_PARITY[label]
+        got = [m for m in arm_metrics if m["set"] == label
+               and m["arm"] == "T0"][0]
+        for key, want in expect.items():
+            have = got["frames"] if key == "frames" else got[key]
+            ok = (abs(float(have) - float(want)) <= 1e-3
+                  if isinstance(want, float) else int(have) == int(want))
+            if not ok:
+                raise SystemExit(f"BLOCKED: {label} parity {key} "
+                                 f"{have} != {want}")
+        log(f"  {label} Phase A parity OK")
+
+        base_frames = frames_by_arm["T0"]
+        for arm in THRESHOLD_ARMS:
+            if arm == "T0":
+                continue
+            common, _, merged = threshold_common_success(base_frames,
+                                                         frames_by_arm[arm])
+            precision = threshold_new_corner_precision(corners_by_arm[arm])
+            rescue = threshold_rescue_rows(label, arm, base_frames,
+                                           frames_by_arm[arm],
+                                           corners_by_arm[arm], merged)
+            summary = [m for m in arm_metrics
+                       if m["set"] == label and m["arm"] == arm][0]
+            gate = threshold_gate(label, arm, summary, got, common,
+                                  precision, merged, rescue)
+            common.update({"set": label, "arm": arm,
+                           "rescue": int(merged.rescue.sum()),
+                           "new_failure": int(merged.new_failure.sum())})
+            precision.update({"set": label, "arm": arm})
+            common_all.append(common)
+            precision_all.append(precision)
+            rescue_all.extend(rescue)
+            gates.append(gate)
+        all_frames[label] = pd.concat(frames_by_arm.values(),
+                                      ignore_index=True)
+        all_corners[label] = pd.concat(corners_by_arm.values(),
+                                       ignore_index=True)
+
+    frames_table = pd.concat(
+        [df.assign(set=label) for label, df in all_frames.items()],
+        ignore_index=True)
+    corners_table = pd.concat(
+        [df.assign(set=label) for label, df in all_corners.items()],
+        ignore_index=True)
+    corners_table.to_csv(THRESH_OUT / "threshold_corner_rows.csv", index=False)
+    frames_table.to_csv(THRESH_OUT / "threshold_frame_rows.csv", index=False)
+    pd.DataFrame(arm_metrics).to_csv(THRESH_OUT / "threshold_arm_metrics.csv",
+                                     index=False)
+    pd.DataFrame(rescue_all).to_csv(THRESH_OUT / "threshold_rescue_frames.csv",
+                                    index=False)
+    pd.DataFrame(common_all).to_csv(THRESH_OUT / "threshold_common_success.csv",
+                                    index=False)
+    (THRESH_OUT / "threshold_gate.json").write_text(json.dumps({
+        "canonical_threshold": CANONICAL_THRESHOLD,
+        "arms": {k: list(v) for k, v in THRESHOLD_ARMS.items()},
+        "gate_limits": THRESHOLD_GATE,
+        "gates": gates,
+        "common_success": common_all,
+        "new_corner_precision": precision_all,
+    }, indent=2), "utf-8")
+    log(f"threshold audit written to {THRESH_OUT}")
+    for gate in gates:
+        state = "PASS" if gate["passed"] else "FAIL"
+        failed = [k for k, v in gate["checks"].items() if not v]
+        log(f"  gate {gate['set']:7s} {gate['arm']}: {state}  "
+            f"failed={failed}")
+    return 0
+
+
+def threshold_figures() -> int:
+    """Five figures for the acceptance audit; reads only the audit outputs."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    payload = json.loads((THRESH_OUT / "threshold_gate.json").read_text("utf-8"))
+    metrics = pd.read_csv(THRESH_OUT / "threshold_arm_metrics.csv")
+    precision = pd.DataFrame(payload["new_corner_precision"])
+    common = pd.DataFrame(payload["common_success"])
+    corners = pd.read_csv(THRESH_OUT / "threshold_corner_rows.csv")
+    globals_ = {"eval56": "tab:blue", "wood": "tab:orange"}
+    order = ["T1", "T2", "T3", "T4"]
+    near_order = ["R1", "R2", "R3"]
+
+    # 1 — recall against precision of the newly accepted corners
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    for label, colour in globals_.items():
+        sub = precision[(precision.set == label)
+                        & precision.arm.isin(order)].set_index("arm").loc[order]
+        axes[0].plot(sub.new_corners, 100 * sub.le20_frac, "o-", color=colour,
+                     label=f"{label} global")
+        near = precision[(precision.set == label)
+                         & precision.arm.isin(near_order)].set_index(
+                             "arm").loc[near_order]
+        axes[0].plot(near.new_corners, 100 * near.le20_frac, "s--",
+                     color=colour, alpha=0.6, label=f"{label} near-only")
+        for arm, row in sub.iterrows():
+            axes[0].annotate(arm, (row.new_corners, 100 * row.le20_frac),
+                             fontsize=8, xytext=(3, 4),
+                             textcoords="offset points")
+    axes[0].axhline(70, color="crimson", ls=":", label="gate: 70% within 20px")
+    axes[0].set_xlabel("newly accepted corners (recall)")
+    axes[0].set_ylabel("share within 20px of GT (%)")
+    axes[0].set_title("Lowering the gate buys corners that are not correct")
+    axes[0].legend(fontsize=7)
+    axes[0].grid(alpha=0.3)
+
+    for label, colour in globals_.items():
+        sub = precision[(precision.set == label)
+                        & precision.arm.isin(order)].set_index("arm").loc[order]
+        axes[1].plot(order, sub.median_error_px, "o-", color=colour,
+                     label=label)
+    axes[1].axhline(20, color="crimson", ls=":")
+    axes[1].set_yscale("log")
+    axes[1].set_ylabel("median error of new corners (px, log)")
+    axes[1].set_title("Wood: the new corners are hundreds of pixels off")
+    axes[1].legend(fontsize=8)
+    axes[1].grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(THRESH_OUT / "threshold_precision_recall.png", dpi=150)
+    plt.close(fig)
+
+    # 2 — PnP against threshold
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    for axis, label in zip(axes, globals_):
+        sub = metrics[metrics.set == label]
+        gl = sub[sub.arm.isin(["T0"] + order)].sort_values("near_threshold")
+        nr = sub[sub.arm.isin(["T0"] + near_order)].sort_values("near_threshold")
+        axis.plot(gl.near_threshold, gl.pnp, "o-", label="global")
+        axis.plot(nr.near_threshold, nr.pnp, "s--", label="near-only", alpha=0.7)
+        axis.axhline(THRESHOLD_GATE[label]["pnp_min"], color="crimson", ls=":",
+                     label=f"gate {THRESHOLD_GATE[label]['pnp_min']}")
+        axis.invert_xaxis()
+        axis.set_xlabel("corner acceptance threshold")
+        axis.set_ylabel("PnP successes")
+        axis.set_title(f"{label}")
+        axis.legend(fontsize=8)
+        axis.grid(alpha=0.3)
+    fig.suptitle("PnP count barely moves, and the gate is never reached on eval56")
+    fig.tight_layout()
+    fig.savefig(THRESH_OUT / "threshold_pnp_curve.png", dpi=150)
+    plt.close(fig)
+
+    # 3 — common-success guard
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    width = 0.35
+    for axis, label in zip(axes, globals_):
+        sub = common[(common.set == label)
+                     & common.arm.isin(order + near_order)]
+        sub = sub.set_index("arm").loc[order + near_order]
+        idx = np.arange(len(sub))
+        axis.bar(idx - width / 2, sub.improved, width, label="improved",
+                 color="tab:green")
+        axis.bar(idx + width / 2, sub.worsened, width, label="worsened",
+                 color="tab:red")
+        axis.set_xticks(idx)
+        axis.set_xticklabels(sub.index)
+        axis.set_ylabel("frames (common success only)")
+        axis.set_title(f"{label}: paired reprojection")
+        axis.legend(fontsize=8)
+        axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("On the frames that already solved, more get worse than better")
+    fig.tight_layout()
+    fig.savefig(THRESH_OUT / "threshold_common_success.png", dpi=150)
+    plt.close(fig)
+    return 0
+
+
+def threshold_overlay_figures() -> int:
+    """Rescue and false-corner examples drawn on the actual frames."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    corners = pd.read_csv(THRESH_OUT / "threshold_corner_rows.csv",
+                          dtype={"frame_id": str})
+    rescue = pd.read_csv(THRESH_OUT / "threshold_rescue_frames.csv",
+                         dtype={"frame_id": str})
+    manifests = {label: json.loads(
+        (OUT / f"{label}_manifest.json").read_text("utf-8"))
+        for label in ("eval56", "wood")}
+    lookup = {(label, entry["frame_id"]): entry
+              for label, manifest in manifests.items()
+              for entry in manifest["frames"]}
+
+    def draw(axis, label, uid, arm, title):
+        entry = lookup[(label, uid)]
+        image = cv2.imread(entry["image_path"])
+        axis.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        frame = EvalFrame(entry)
+        sub = corners[(corners.set == label) & (corners.frame_id == uid)
+                      & (corners.arm == arm) & (corners.channel < 8)]
+        for _, row in sub.iterrows():
+            gt = frame.gt_points[int(row.channel)]
+            if gt is not None:
+                axis.plot(gt[0], gt[1], "o", ms=7, mfc="none", mec="lime", mew=2)
+            if row.arm_detected and pd.notna(row.decoded_x):
+                colour = "red" if row.newly_detected else "deepskyblue"
+                axis.plot(row.decoded_x, row.decoded_y, "x", ms=9,
+                          color=colour, mew=2)
+                if row.newly_detected and gt is not None:
+                    axis.plot([row.decoded_x, gt[0]], [row.decoded_y, gt[1]],
+                              "-", color="red", lw=1.2, alpha=0.8)
+        axis.set_title(title, fontsize=9)
+        axis.axis("off")
+
+    # rescue examples
+    rows = rescue.drop_duplicates("frame_id")
+    fig, axes = plt.subplots(1, max(1, len(rows)), figsize=(6 * max(1, len(rows)), 5))
+    axes = np.atleast_1d(axes)
+    for axis, (_, row) in zip(axes, rows.iterrows()):
+        draw(axis, row["set"], row.frame_id, row.arm,
+             f"{row['set']} {row.arm} {row.domain}\n"
+             f"correspondences {int(row.base_correspondences)}"
+             f"->{int(row.arm_correspondences)}, "
+             f"reproj {row.reproj_fixed_gt_px:.0f}px, "
+             f"yaw {row.yaw_err_deg:.0f} deg\n"
+             "green=GT  blue=already accepted  red=newly accepted")
+    if not len(rows):
+        axes[0].text(0.5, 0.5, "no rescue frame", ha="center")
+        axes[0].axis("off")
+    fig.suptitle("The one PnP rescue lowering the gate buys: a nonsense pose")
+    fig.tight_layout()
+    fig.savefig(THRESH_OUT / "threshold_rescue_examples.png", dpi=140)
+    plt.close(fig)
+
+    # worst false corners on wood
+    false_corners = corners[(corners.set == "wood") & corners.newly_detected
+                            & (corners.channel < 8)
+                            & corners.gt_error_px.notna()]
+    false_corners = false_corners.sort_values("gt_error_px",
+                                              ascending=False).head(3)
+    fig, axes = plt.subplots(1, max(1, len(false_corners)),
+                             figsize=(6 * max(1, len(false_corners)), 5))
+    axes = np.atleast_1d(axes)
+    for axis, (_, row) in zip(axes, false_corners.iterrows()):
+        draw(axis, "wood", row.frame_id, row.arm,
+             f"wood {row.arm} channel {int(row.channel)}\n"
+             f"newly accepted at peak {row.raw_peak:.3f}, "
+             f"{row.gt_error_px:.0f}px from GT")
+    if not len(false_corners):
+        axes[0].text(0.5, 0.5, "no false corner", ha="center")
+        axes[0].axis("off")
+    fig.suptitle("Wood: what a lowered gate accepts on an unseen pallet")
+    fig.tight_layout()
+    fig.savefig(THRESH_OUT / "threshold_false_corner_examples.png", dpi=140)
+    plt.close(fig)
+    return 0
