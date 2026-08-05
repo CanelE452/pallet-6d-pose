@@ -1,3 +1,10 @@
+> **QUALIFIED 2026-08-06.**  The near verdict is overturned: that audit pooled
+> every patch to mean/max, which destroys spatial arrangement.  Preserving it
+> raises near hard-pair cross-set AUC from 0.78 to 0.94.  Read
+> `../spatial_relational_line_audit/FINAL_CAPACITY_GATE.md` first.  The far
+> verdict survives the correction; the encoder-change conclusion is downgraded
+> from settled to provisional.
+
 # Frozen-feature capacity gate
 
 Zero main-model training.  The only fitting is a fixed logistic probe
