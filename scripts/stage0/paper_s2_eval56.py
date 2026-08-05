@@ -3100,3 +3100,479 @@ def cal_figures() -> int:
     fig.savefig(figures / "failure_examples.png", dpi=140)
     plt.close(fig)
     return 0
+
+
+# ============================================================================
+# no-response frame analysis — why the centroid dies where corners live
+# ============================================================================
+# The compatibility audit failed on 13 of 87 frames whose raw centroid peak
+# never reaches 0.30, nine of them below 0.03.  Widening the centroid target
+# only helps if the shared feature is still looking at the pallet on those
+# frames, so the question is whether the corner channels survive there.
+NRF_OUT = CAL_OUT / "no_response_frames"
+NRF_DEAD_MAX = 0.30
+NRF_R0_MAX = 0.03
+
+
+def nrf_membership() -> dict[str, Any]:
+    """Phase A.  Matching rule fixed here, before any response was inspected:
+    same domain, same session preferred, then nearest bbox area ratio, greedy
+    without replacement over frames ordered by centroid peak."""
+    sweep = pd.read_csv(CAL_OUT / "sigma_calibration_frames.csv",
+                        dtype={"frame_id": str})
+    table = sweep[sweep.sigma_arm == "S00"]
+    meta = {f["frame_id"]: f for f in cal_n87_frames()}
+    dead = table[table.centroid_raw <= NRF_DEAD_MAX].sort_values("centroid_raw")
+    alive = table[table.centroid_raw > NRF_DEAD_MAX]
+    pool = [uid for uid in alive.frame_id]
+    controls, used = {}, set()
+    for uid in dead.frame_id:
+        want = meta[uid]
+        best, best_key = None, None
+        for candidate in pool:
+            if candidate in used:
+                continue
+            other = meta[candidate]
+            if other["domain"] != want["domain"]:
+                continue
+            key = (0 if other["session_id"] == want["session_id"] else 1,
+                   abs(np.log(max(other["bbox_area_ratio"], 1e-9))
+                       - np.log(max(want["bbox_area_ratio"], 1e-9))),
+                   candidate)
+            if best_key is None or key < best_key:
+                best, best_key = candidate, key
+        if best is not None:
+            controls[uid] = best
+            used.add(best)
+    members = {
+        "R0": sorted(dead[dead.centroid_raw < NRF_R0_MAX].frame_id),
+        "R1": sorted(dead[(dead.centroid_raw >= NRF_R0_MAX)
+                          & (dead.centroid_raw <= NRF_DEAD_MAX)].frame_id),
+        "C0": sorted(controls.values()),
+        "pairs": controls,
+    }
+    payload = json.dumps({k: members[k] for k in ("R0", "R1", "C0")},
+                         sort_keys=True)
+    members["membership_sha256"] = hashlib.sha256(
+        payload.encode("utf-8")).hexdigest()
+    members["matching_rule"] = ("same domain; same session preferred; then "
+                                "nearest |log bbox_area_ratio|; greedy, no "
+                                "replacement, ordered by centroid peak")
+    return members
+
+
+def nrf_grid_point(point, spec):
+    """Image-space GT to belief-grid coordinates."""
+    if point is None:
+        return None
+    return (float(point[0]) * BELIEF / spec["image_width"],
+            float(point[1]) * BELIEF / spec["image_height"])
+
+
+def nrf_channel_rows(spec, frame, stages) -> list[dict[str, Any]]:
+    """Phase B.  Every channel of H4, H5 and H6 against its own GT point."""
+    rows = []
+    for stage_name, belief in stages.items():
+        for channel in range(MD.N_KP):
+            values = np.asarray(belief[channel], dtype=np.float64)
+            peak = float(values.max())
+            flat = int(np.argmax(values))
+            ay, ax = np.unravel_index(flat, values.shape)
+            gt = nrf_grid_point(frame.gt_points[channel], spec)
+            entry = {"frame_id": spec["frame_id"], "domain": spec["domain"],
+                     "stage": stage_name, "channel": channel,
+                     "role": ("centroid" if channel == 8
+                              else "near" if channel < 4 else "far"),
+                     "raw_peak": peak, "argmax_x": float(ax), "argmax_y": float(ay),
+                     "gt_available": gt is not None}
+            positive = np.clip(values, 0.0, None)
+            entry["positive_mass"] = float(positive.sum())
+            half = positive >= 0.5 * peak if peak > 0 else np.zeros_like(positive, bool)
+            entry["half_max_area"] = int(half.sum())
+            entry["effective_sigma"] = float(
+                2.0 * np.sqrt(max(int(half.sum()), 0) / np.pi)
+                / (2.0 * np.sqrt(2.0 * np.log(2.0))))
+            probability = positive / max(positive.sum(), 1e-12)
+            entry["entropy"] = float(
+                -np.sum(probability * np.log(np.maximum(probability, 1e-300))))
+            ordered = np.sort(values.reshape(-1))[::-1]
+            entry["top1_top2_ratio"] = float(ordered[0] / max(ordered[1], 1e-12))
+            if gt is None:
+                entry["gt_inside"] = False
+                entry["belief_at_gt"] = np.nan
+                entry["argmax_to_gt_grid"] = np.nan
+                for size in (3, 5, 7):
+                    entry[f"gt_mass_{size}x{size}"] = np.nan
+                    entry[f"gt_mass_frac_{size}x{size}"] = np.nan
+            else:
+                gx, gy = gt
+                inside = 0 <= gx < BELIEF and 0 <= gy < BELIEF
+                entry["gt_inside"] = bool(inside)
+                iy, ix = int(round(gy)), int(round(gx))
+                entry["belief_at_gt"] = (float(values[min(max(iy, 0), BELIEF - 1),
+                                                      min(max(ix, 0), BELIEF - 1)])
+                                         if inside else np.nan)
+                entry["argmax_to_gt_grid"] = float(np.hypot(ax - gx, ay - gy))
+                for size in (3, 5, 7):
+                    radius = size // 2
+                    y0, y1 = max(0, iy - radius), min(BELIEF, iy + radius + 1)
+                    x0, x1 = max(0, ix - radius), min(BELIEF, ix + radius + 1)
+                    window = positive[y0:y1, x0:x1] if inside else np.zeros((1, 1))
+                    entry[f"gt_mass_{size}x{size}"] = float(window.sum())
+                    entry[f"gt_mass_frac_{size}x{size}"] = float(
+                        window.sum() / max(positive.sum(), 1e-12))
+            rows.append(entry)
+    return rows
+
+
+def nrf_classify(frame_rows: pd.DataFrame) -> dict[str, Any]:
+    """Phase C.  Conditions as written; T5 records the evidence rather than
+    forcing a frame into a category it does not meet."""
+    stage = frame_rows[frame_rows.stage == "H6"]
+    corners = stage[stage.channel < 8]
+    valid = corners[corners.gt_available]
+    centroid = stage[stage.channel == 8].iloc[0]
+    strong = int((valid.raw_peak > 0.30).sum())
+    errors = pd.to_numeric(valid.argmax_to_gt_grid, errors="coerce")
+    # grid units to pixels: the belief is 50 wide over the original frame
+    scale = 640.0 / BELIEF
+    corner_error_px = float(np.nanmedian(errors) * scale) if len(errors) else np.nan
+    evidence = {
+        "valid_corners": int(len(valid)),
+        "corners_above_030": strong,
+        "corner_peak_median": float(valid.raw_peak.median()) if len(valid) else np.nan,
+        "corner_peak_min": float(valid.raw_peak.min()) if len(valid) else np.nan,
+        "corner_peak_max": float(valid.raw_peak.max()) if len(valid) else np.nan,
+        "corner_median_gt_error_px": corner_error_px,
+        "corner_gt_mass_5x5": float(valid["gt_mass_frac_5x5"].median())
+        if len(valid) else np.nan,
+        "centroid_peak": float(centroid.raw_peak),
+        "centroid_gt_mass_5x5": float(centroid["gt_mass_frac_5x5"]),
+        "centroid_gt_inside": bool(centroid.gt_inside),
+        "centroid_gt_available": bool(centroid.gt_available),
+        "centroid_argmax_to_gt_px": float(centroid.argmax_to_gt_grid * scale)
+        if np.isfinite(centroid.argmax_to_gt_grid) else np.nan,
+    }
+    t1 = (strong >= 6 and np.isfinite(corner_error_px)
+          and corner_error_px <= 20.0 and evidence["centroid_peak"] <= 0.30)
+    t2 = strong <= 3 and evidence["centroid_peak"] <= 0.30
+    t3 = (evidence["centroid_peak"] > 0.30 or strong >= 4) and (
+        (np.isfinite(corner_error_px) and corner_error_px > 20.0)
+        or evidence["corner_gt_mass_5x5"] < 0.05)
+    t4 = (not evidence["centroid_gt_available"]) or (
+        evidence["centroid_gt_inside"] and evidence["centroid_gt_mass_5x5"] == 0.0
+        and evidence["centroid_peak"] > 0.0)
+    labels = [name for name, hit in (("T1_CENTROID_ONLY_NO_RESPONSE", t1),
+                                     ("T2_GLOBAL_NO_RESPONSE", t2),
+                                     ("T3_LOCALIZATION_WRONG", t3),
+                                     ("T4_TARGET_OR_VALIDITY_DEFECT", t4)) if hit]
+    if len(labels) == 1:
+        klass = labels[0]
+    elif not labels:
+        klass = "T5_MIXED"
+    else:
+        klass = "T5_MIXED"
+    return {"class": klass, "matched": ";".join(labels) or "none", **evidence}
+
+
+def nrf_ideal_channel(centre, sigma: float, amplitude: float) -> np.ndarray:
+    grid = np.arange(BELIEF, dtype=np.float64)
+    gx = np.exp(-((grid - centre[0]) ** 2) / (2.0 * sigma ** 2))
+    gy = np.exp(-((grid - centre[1]) ** 2) / (2.0 * sigma ** 2))
+    return (amplitude * np.outer(gy, gx)).astype(np.float32)
+
+
+def nrf_counterfactuals(spec, frame, belief, affinity, config, gates
+                        ) -> list[dict[str, Any]]:
+    """Phase E.  Only channel 8 is ever replaced; corners stay as predicted."""
+    import decoder_paths as DP
+
+    values = np.asarray(belief[8], dtype=np.float64)
+    peak = float(values.max())
+    flat = int(np.argmax(values))
+    ay, ax = np.unravel_index(flat, values.shape)
+    gt = nrf_grid_point(frame.gt_points[8], spec)
+    arms = {"BASE": None}
+    if gt is not None:
+        arms["U0_gt_ideal_s25"] = nrf_ideal_channel(gt, 2.5, 1.0)
+    arms["U1_width_only_s25"] = nrf_ideal_channel((float(ax), float(ay)), 2.5,
+                                                  max(peak, 0.0))
+    arms["U2_amplitude_only"] = (values / max(peak, 1e-12)).astype(np.float32)
+    if gt is not None:
+        arms["U3_gt_ideal_full_p2"] = arms["U0_gt_ideal_s25"]
+
+    rows = []
+    width, height = spec["image_width"], spec["image_height"]
+    K_proc = DP.squash_intrinsics(frame.K, width, height)
+    for name, replacement in arms.items():
+        armed = belief.copy()
+        if replacement is not None:
+            armed[8] = replacement
+        results, solver = DP.run_p2(armed, affinity, frame.dims, frame.K,
+                                    width, height, config)
+        index, chosen, _, reason = DP.production_selection(results, gates,
+                                                           K_proc, solver)
+        solved = [r for r in results if r.get("location") is not None]
+        pose = dec_pose_from_result(chosen if chosen is not None
+                                    else (solved[0] if solved else None))
+        metrics = frame.metrics(pose)
+        points = dec_p2_points(chosen if chosen is not None
+                               else (solved[0] if solved else None))
+        errors = []
+        for corner in range(8):
+            gt_point = frame.gt_points[corner]
+            point = points[corner]
+            errors.append(np.nan if (gt_point is None or point is None) else
+                          float(np.hypot(point[0] * width / DP.INPUT_SIZE - gt_point[0],
+                                         point[1] * height / DP.INPUT_SIZE - gt_point[1])))
+        finite = np.asarray([e for e in errors if np.isfinite(e)])
+        rows.append({
+            "frame_id": spec["frame_id"], "domain": spec["domain"], "arm": name,
+            "objects": len(results),
+            "object_built": len(results) > 0,
+            "associated_corners": int(max(
+                [sum(1 for p in (r.get("raw_points") or []) if p is not None)
+                 for r in results], default=0)),
+            "pnp_success": len(solved) > 0,
+            "gate_pass": index is not None, "gate_reason": reason,
+            "pose_success": pose is not None,
+            "reproj_fixed_gt_px": metrics["reproj_fixed_gt_px"],
+            "yaw_err_deg": metrics["yaw_err_deg"],
+            "corner_median_px": float(np.median(finite)) if len(finite) else np.nan,
+            "catastrophic_corner": bool(len(finite) and float(np.max(finite)) > 100.0),
+        })
+    return rows
+
+
+NRF_DOMAIN_FIELDS = ("luma_p10", "luma_p50", "luma_p90", "blur_score",
+                     "bbox_area_ratio", "bbox_width", "bbox_height",
+                     "distance_m", "elevation_deg", "azimuth_deg",
+                     "n_gt_inframe", "n_gt_valid", "is_truncated")
+
+
+def nrf_domain_rows(members, meta) -> pd.DataFrame:
+    """Phase D.  Matched descriptive statistics; 13 pairs is not a test."""
+    rows = []
+    for dead_id, control_id in members["pairs"].items():
+        for role, uid in (("dead", dead_id), ("control", control_id)):
+            entry = meta[uid]
+            row = {"pair": dead_id, "role": role, "frame_id": uid,
+                   "domain": entry["domain"], "session_id": entry["session_id"]}
+            for field in NRF_DOMAIN_FIELDS:
+                value = entry.get(field)
+                row[field] = np.nan if value is None else value
+            border = min(entry["bbox_x"], entry["bbox_y"],
+                         entry["image_width"] - (entry["bbox_x"] + entry["bbox_width"]),
+                         entry["image_height"] - (entry["bbox_y"] + entry["bbox_height"]))
+            row["border_proximity_px"] = float(border)
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def nrf_run() -> int:
+    """Phases A-F.  ep57 read only, zero training."""
+    NRF_OUT.mkdir(parents=True, exist_ok=True)
+    if hashlib.sha256(EP57.read_bytes()).hexdigest() != EP57_SHA:
+        raise SystemExit("BLOCKED: ep57 SHA mismatch")
+    config, gates = dec_config()
+    members = nrf_membership()
+    log(f"[A] R0 {len(members['R0'])} R1 {len(members['R1'])} "
+        f"C0 {len(members['C0'])} sha {members['membership_sha256'][:16]}")
+    if len(members["R0"]) + len(members["R1"]) != 13:
+        raise SystemExit("BLOCKED: no-response membership is not 13 frames")
+    (NRF_OUT / "nrf_membership.json").write_text(
+        json.dumps(members, indent=2), "utf-8")
+
+    frames = cal_n87_frames()
+    meta = {f["frame_id"]: f for f in frames}
+    targets = list(members["R0"]) + list(members["R1"]) + list(members["C0"])
+    selected = [meta[uid] for uid in targets]
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model, _ = FZ.load_model(device)
+    channel_rows, class_rows, counter_rows = [], [], []
+    with torch.no_grad():
+        for spec in selected:
+            frame = EvalFrame(spec)
+            tensor = FZ.preprocess_squash(cv2.imread(spec["image_path"])).to(device)
+            outputs = model(tensor)
+            stages = {name: outputs[0][index][0, :MD.N_KP].float().cpu().numpy()
+                      for name, index in (("H4", 3), ("H5", 4), ("H6", 5))}
+            affinity = outputs[1][5][0].float().cpu().numpy().astype(np.float32)
+            rows = nrf_channel_rows(spec, frame, stages)
+            channel_rows.extend(rows)
+            group = ("R0" if spec["frame_id"] in members["R0"]
+                     else "R1" if spec["frame_id"] in members["R1"] else "C0")
+            verdict = nrf_classify(pd.DataFrame(rows))
+            class_rows.append({"frame_id": spec["frame_id"], "group": group,
+                               "domain": spec["domain"], **verdict})
+            if group != "C0":
+                counter_rows.extend(nrf_counterfactuals(
+                    spec, frame, stages["H6"].astype(np.float32), affinity,
+                    config, gates))
+    del model
+    torch.cuda.empty_cache()
+
+    pd.DataFrame(channel_rows).to_csv(NRF_OUT / "nrf_channel_response.csv",
+                                      index=False)
+    taxonomy = pd.DataFrame(class_rows)
+    taxonomy.to_csv(NRF_OUT / "nrf_taxonomy.csv", index=False)
+    counter = pd.DataFrame(counter_rows)
+    counter.to_csv(NRF_OUT / "nrf_counterfactuals.csv", index=False)
+    nrf_domain_rows(members, meta).to_csv(NRF_OUT / "nrf_domain_association.csv",
+                                          index=False)
+
+    dead = taxonomy[taxonomy.group != "C0"]
+    counts = dead["class"].value_counts().to_dict()
+    log(f"[C] taxonomy {counts}")
+    t1 = int(counts.get("T1_CENTROID_ONLY_NO_RESPONSE", 0))
+    t2 = int(counts.get("T2_GLOBAL_NO_RESPONSE", 0))
+    t4 = int(counts.get("T4_TARGET_OR_VALIDITY_DEFECT", 0))
+    u1 = counter[counter.arm == "U1_width_only_s25"]
+    u0 = counter[counter.arm == "U0_gt_ideal_s25"]
+    base = counter[counter.arm == "BASE"]
+    u1_objects = int(u1.object_built.sum())
+    u0_objects = int(u0.object_built.sum())
+    u0_pnp = int(u0.pnp_success.sum())
+    catastrophic = int(u1.catastrophic_corner.sum())
+    gate = {
+        "T1": t1, "T2": t2, "T4": t4,
+        "U1_objects_built": u1_objects, "U0_objects_built": u0_objects,
+        "U0_pnp_success": u0_pnp,
+        "U2_objects_built": int(counter[counter.arm == "U2_amplitude_only"]
+                                .object_built.sum()),
+        "BASE_objects_built": int(base.object_built.sum()),
+        "U1_catastrophic": catastrophic,
+        "role_specific_target_width": bool(
+            t1 >= 8 and u1_objects >= 10 and catastrophic == 0),
+        "dual_bandwidth_head": bool(t1 >= 8 and u1_objects < 10 and u0_pnp > 0),
+        "width_not_primary": bool(t2 >= 7 or (u0_objects > 0 and u0_pnp == 0)),
+        "target_defect": bool(t4 >= 3),
+    }
+    (NRF_OUT / "nrf_gate.json").write_text(json.dumps(gate, indent=2), "utf-8")
+    log(f"[F] gate {json.dumps({k: v for k, v in gate.items() if isinstance(v, bool)})}")
+    return 0
+
+
+def nrf_figures() -> int:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    figures = NRF_OUT / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    taxonomy = pd.read_csv(NRF_OUT / "nrf_taxonomy.csv", dtype={"frame_id": str})
+    counter = pd.read_csv(NRF_OUT / "nrf_counterfactuals.csv", dtype={"frame_id": str})
+    domain = pd.read_csv(NRF_OUT / "nrf_domain_association.csv",
+                         dtype={"frame_id": str, "pair": str})
+    channels = pd.read_csv(NRF_OUT / "nrf_channel_response.csv",
+                           dtype={"frame_id": str})
+    dead = taxonomy[taxonomy.group != "C0"]
+    control = taxonomy[taxonomy.group == "C0"]
+
+    # 1 same-frame response
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4.2))
+    for axis, column, title in zip(axes, ("centroid_peak", "corner_peak_median",
+                                          "corners_above_030"),
+                                   ("centroid raw peak", "corner peak median",
+                                    "corners with peak > 0.30 (of 8)")):
+        axis.boxplot([dead[column], control[column]], labels=["no-response 13",
+                                                              "control 13"])
+        axis.scatter(np.ones(len(dead)) + np.random.default_rng(1).normal(0, .04, len(dead)),
+                     dead[column], s=18, alpha=.7, color="tab:red")
+        axis.scatter(2 + np.random.default_rng(2).normal(0, .04, len(control)),
+                     control[column], s=18, alpha=.7, color="tab:blue")
+        if column != "corners_above_030":
+            axis.axhline(0.30, color="crimson", ls="--", lw=1)
+        axis.set_title(title)
+        axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("The corners die with the centroid: this is not a centroid-only failure")
+    fig.tight_layout()
+    fig.savefig(figures / "nrf_channel_response.png", dpi=150)
+    plt.close(fig)
+
+    # 2 taxonomy
+    fig, axis = plt.subplots(figsize=(7.5, 4.0))
+    counts = dead["class"].value_counts()
+    axis.barh(counts.index, counts.values, color="tab:red")
+    for index, value in enumerate(counts.values):
+        axis.text(value + 0.1, index, str(value), va="center")
+    axis.set_xlabel("frames of 13")
+    axis.set_title("Every no-response frame is a global collapse, none centroid-only")
+    axis.grid(alpha=0.3, axis="x")
+    fig.tight_layout()
+    fig.savefig(figures / "nrf_taxonomy.png", dpi=150)
+    plt.close(fig)
+
+    # 3 counterfactuals
+    fig, axis = plt.subplots(figsize=(9, 4.2))
+    order = ["BASE", "U1_width_only_s25", "U2_amplitude_only",
+             "U0_gt_ideal_s25", "U3_gt_ideal_full_p2"]
+    order = [a for a in order if a in set(counter.arm)]
+    width = 0.35
+    objects = [int(counter[counter.arm == a].object_built.sum()) for a in order]
+    pnp = [int(counter[counter.arm == a].pnp_success.sum()) for a in order]
+    axis.bar(np.arange(len(order)) - width / 2, objects, width, label="object built")
+    axis.bar(np.arange(len(order)) + width / 2, pnp, width, label="PnP solved")
+    axis.set_xticks(range(len(order)))
+    axis.set_xticklabels([a.replace("_", "\n") for a in order], fontsize=8)
+    axis.set_ylabel("frames of 13")
+    axis.set_title("Even an oracle centroid reaches no pose: the corners are not there")
+    axis.legend(fontsize=8)
+    axis.grid(alpha=0.3, axis="y")
+    fig.tight_layout()
+    fig.savefig(figures / "nrf_counterfactual.png", dpi=150)
+    plt.close(fig)
+
+    # 4 matched pairs
+    dead_rows = domain[domain.role == "dead"].set_index("pair")
+    ctrl_rows = domain[domain.role == "control"].set_index("pair")
+    fields = ["luma_p50", "blur_score", "bbox_area_ratio", "distance_m",
+              "n_gt_inframe", "border_proximity_px"]
+    fig, axes = plt.subplots(2, 3, figsize=(13, 7))
+    for axis, field in zip(axes.ravel(), fields):
+        a = pd.to_numeric(dead_rows[field], errors="coerce")
+        b = pd.to_numeric(ctrl_rows.loc[dead_rows.index, field], errors="coerce")
+        for x, y in zip(b, a):
+            axis.plot([0, 1], [x, y], "-", color="grey", lw=0.8, alpha=0.7)
+        axis.scatter(np.zeros(len(b)), b, color="tab:blue", s=22, label="control")
+        axis.scatter(np.ones(len(a)), a, color="tab:red", s=22, label="no-response")
+        axis.set_xticks([0, 1]); axis.set_xticklabels(["control", "dead"])
+        axis.set_title(field, fontsize=9)
+        axis.grid(alpha=0.3, axis="y")
+    axes.ravel()[0].legend(fontsize=7)
+    fig.suptitle("Matched pairs: not darker, but nearer, larger and cut by the frame edge")
+    fig.tight_layout()
+    fig.savefig(figures / "nrf_domain_association.png", dpi=150)
+    plt.close(fig)
+
+    # 5 examples
+    meta = {f["frame_id"]: f for f in cal_n87_frames()}
+    members = json.loads((NRF_OUT / "nrf_membership.json").read_text("utf-8"))
+    picks = list(members["R0"])[:3]
+    fig, axes = plt.subplots(2, 3, figsize=(15, 8))
+    for column, uid in enumerate(picks):
+        spec = meta[uid]
+        row = taxonomy[taxonomy.frame_id == uid].iloc[0]
+        pair = members["pairs"][uid]
+        for line, target in enumerate((uid, pair)):
+            axis = axes[line, column]
+            entry = meta[target]
+            image = cv2.imread(entry["image_path"])
+            axis.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            frame = EvalFrame(entry)
+            for corner in range(8):
+                gt = frame.gt_points[corner]
+                if gt is not None:
+                    axis.plot(gt[0], gt[1], "o", ms=6, mfc="none", mec="lime", mew=2)
+            other = taxonomy[taxonomy.frame_id == target].iloc[0]
+            axis.set_title(f"{'NO-RESPONSE' if line == 0 else 'control'} "
+                           f"{entry['domain']}\ncentroid {other.centroid_peak:.4f}  "
+                           f"corners>0.30 {int(other.corners_above_030)}/8  "
+                           f"in-frame GT {entry['n_gt_inframe']}", fontsize=8)
+            axis.axis("off")
+    fig.suptitle("Top: no-response frames.  Bottom: their matched controls.  Green = GT")
+    fig.tight_layout()
+    fig.savefig(figures / "nrf_examples.png", dpi=140)
+    plt.close(fig)
+    return 0
