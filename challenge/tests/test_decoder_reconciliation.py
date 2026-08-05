@@ -252,10 +252,24 @@ def test_no_sealed_session_is_touched(wrapper_source):
 
 # 34, 35
 def test_no_source_data_written_and_no_new_result_root(wrapper_source):
+    """No write may target the datasets.
+
+    An earlier version banned the string "to_json", which also matched
+    `DataFrame.to_json(orient="records")` -- that returns a string and writes
+    nothing.  Check the write destinations instead.
+    """
     body = RUNNER.read_text("utf-8")
     body = body[body.index("def dec_config"):]
-    for name in ("cv2.imwrite", "to_json", "shutil"):
-        assert name not in body and name not in wrapper_source
+    for name in ("cv2.imwrite", "shutil", "os.remove", "rmtree"):
+        assert name not in body and name not in wrapper_source, name
+    writes = [line for line in (body + wrapper_source).splitlines()
+              if any(call in line for call in
+                     ("write_text(", "to_csv(", "to_parquet(", "savez",
+                      "to_json(path", "open("))]
+    for line in writes:
+        for protected in ("challenge/data", "data/pallet/real_data",
+                          "data/_eval_sets", "models_usd"):
+            assert protected not in line, line
     assert DEC.parent.name == "paper_s2_eval56"
     assert DEC.parent.parent == ROOT / "data/pallet/results"
 

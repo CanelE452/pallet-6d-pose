@@ -2459,3 +2459,644 @@ def dec_figures_overlay() -> int:
     (figures / "verdict_flip_candidates.txt").write_text(
         "NONE\n" if not flips else "\n".join(flips), "utf-8")
     return len(flips)
+
+
+# ============================================================================
+# decoder compatibility calibration — one field, chosen on N87 only
+# ============================================================================
+CAL_OUT = DEC_OUT / "compatibility_calibration"
+CAL_SIGMA_GRID = {"S00": 0.0, "S05": 0.5, "S10": 1.0, "S15": 1.5,
+                  "S20": 2.0, "S25": 2.5, "S30": 3.0}
+N87_MANIFEST = (ROOT / "data/pallet/results/paper_s2_mechanism_diagnostic"
+                / "mechanism_val_manifest.json")
+CHALLENGE_CONTROLS = {
+    "M1_challenge0123": ROOT / "weights/challenge0123/net_epoch_0060.pth",
+    "M2_challengenight": ROOT / "weights/challengenight/net_epoch_0120.pth",
+}
+
+
+def cal_n87_frames() -> list[dict[str, Any]]:
+    """The 87 real strict-filterval frames, never the final-test population."""
+    payload = json.loads(N87_MANIFEST.read_text("utf-8"))
+    frames = [f for f in payload["frames"]
+              if f["domain"] in ("outside", "night")
+              and not f.get("is_final_test", False)]
+    if len(frames) != 87:
+        raise SystemExit(f"BLOCKED: expected 87 N87 frames, got {len(frames)}")
+    for frame in frames:
+        for token in SEALED:
+            if token in frame["image_path"] or token in frame["json_path"]:
+                raise SystemExit(f"BLOCKED: sealed session in N87: {token}")
+    return frames
+
+
+def cal_blob_metrics(belief: np.ndarray, channel: int) -> dict[str, Any]:
+    """Width of one channel's response around its own peak."""
+    values = np.asarray(belief[channel], dtype=np.float64)
+    peak = float(values.max())
+    flat = int(np.argmax(values))
+    py, px = np.unravel_index(flat, values.shape)
+    positive = np.clip(values, 0.0, None)
+    out = {"channel": channel, "raw_peak": peak,
+           "positive_mass": float(positive.sum()),
+           "peak_y": int(py), "peak_x": int(px)}
+    for size in (3, 5, 7, 11):
+        radius = size // 2
+        y0, y1 = max(0, py - radius), min(values.shape[0], py + radius + 1)
+        x0, x1 = max(0, px - radius), min(values.shape[1], px + radius + 1)
+        window = positive[y0:y1, x0:x1]
+        out[f"mass_{size}x{size}"] = float(window.sum())
+        out[f"mass_frac_{size}x{size}"] = float(
+            window.sum() / max(positive.sum(), 1e-12))
+    half = positive >= 0.5 * peak
+    out["half_max_area"] = int(half.sum())
+    out["equivalent_radius"] = float(np.sqrt(max(int(half.sum()), 0) / np.pi))
+    # a Gaussian's half-maximum diameter is 2*sqrt(2 ln 2)*sigma
+    out["sigma_from_half_max"] = float(
+        2.0 * out["equivalent_radius"] / (2.0 * np.sqrt(2.0 * np.log(2.0))))
+    radius = 5
+    y0, y1 = max(0, py - radius), min(values.shape[0], py + radius + 1)
+    x0, x1 = max(0, px - radius), min(values.shape[1], px + radius + 1)
+    window = positive[y0:y1, x0:x1]
+    total = float(window.sum())
+    if total > 1e-12:
+        ys, xs = np.mgrid[y0:y1, x0:x1]
+        mean_y = float((window * ys).sum() / total)
+        mean_x = float((window * xs).sum() / total)
+        out["second_moment_sigma_y"] = float(
+            np.sqrt(max((window * (ys - mean_y) ** 2).sum() / total, 0.0)))
+        out["second_moment_sigma_x"] = float(
+            np.sqrt(max((window * (xs - mean_x) ** 2).sum() / total, 0.0)))
+        out["effective_sigma"] = float(
+            np.sqrt(out["second_moment_sigma_x"] * out["second_moment_sigma_y"]))
+    else:
+        out["second_moment_sigma_y"] = np.nan
+        out["second_moment_sigma_x"] = np.nan
+        out["effective_sigma"] = np.nan
+    from scipy.ndimage import gaussian_filter
+    for name, sigma in CAL_SIGMA_GRID.items():
+        smoothed = (values if sigma == 0
+                    else gaussian_filter(values, sigma=sigma))
+        smoothed_peak = float(smoothed.max())
+        out[f"peak_{name}"] = smoothed_peak
+        out[f"retention_{name}"] = float(smoothed_peak / max(peak, 1e-12))
+    return out
+
+
+@torch.no_grad()
+def cal_forward(frames, loader) -> dict[str, dict[str, np.ndarray]]:
+    """H6 and A6 for a frame list, float32, one forward each."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    net = loader(device)
+    cache = {}
+    for spec in frames:
+        tensor = FZ.preprocess_squash(cv2.imread(spec["image_path"])).to(device)
+        outputs = net(tensor)
+        cache[spec["frame_id"]] = {
+            "h6": outputs[0][5][0, :MD.N_KP].float().cpu().numpy().astype(np.float32),
+            "a6": outputs[1][5][0].float().cpu().numpy().astype(np.float32),
+        }
+    del net
+    torch.cuda.empty_cache()
+    return cache
+
+
+def cal_load_plain(path):
+    def loader(device):
+        from models import DopeNetwork
+        net = DopeNetwork(numSeg=1)
+        state = torch.load(str(path), map_location="cpu", weights_only=True)
+        state = {k.replace("module.", ""): v for k, v in state.items()}
+        net.load_state_dict(state, strict=False)
+        return net.to(device).eval()
+    return loader
+
+
+def cal_blob_width_audit() -> pd.DataFrame:
+    """Phase B: how wide each model's response is, per role."""
+    CAL_OUT.mkdir(parents=True, exist_ok=True)
+    rows = []
+    n87 = cal_n87_frames()
+    jobs = [("M0_ep57", n87, lambda d: FZ.load_model(d)[0])]
+    for name, path in CHALLENGE_CONTROLS.items():
+        if not path.is_file():
+            raise SystemExit(f"BLOCKED: control checkpoint missing {path}")
+        jobs.append((name, n87[:12], cal_load_plain(path)))
+    for model, frames, loader in jobs:
+        cache = cal_forward(frames, loader)
+        for spec in frames:
+            belief = cache[spec["frame_id"]]["h6"]
+            for channel in range(MD.N_KP):
+                entry = cal_blob_metrics(belief, channel)
+                entry.update({
+                    "model": model, "frame_id": spec["frame_id"],
+                    "domain": spec["domain"],
+                    "role": ("centroid" if channel == 8
+                             else "near" if channel < 4 else "far")})
+                rows.append(entry)
+        log(f"  blob width {model}: {len(frames)} frames")
+        del cache
+    table = pd.DataFrame(rows)
+    table.to_csv(CAL_OUT / "blob_width_metrics.csv", index=False)
+    return table
+
+
+def cal_sigma_sweep(frames, cache, config, gates, label: str) -> pd.DataFrame:
+    """Phase C: the full deployment decoder at each pre-fixed sigma."""
+    import decoder_paths as DP
+    from scipy.ndimage import gaussian_filter
+
+    rows = []
+    for name, sigma in CAL_SIGMA_GRID.items():
+        armed = DP.config_with_sigma(config, sigma)
+        started = time.perf_counter()
+        for spec in frames:
+            frame = EvalFrame(spec)
+            entry = cache[spec["frame_id"]]
+            belief, affinity = entry["h6"], entry["a6"]
+            width, height = spec["image_width"], spec["image_height"]
+            centroid_raw = float(belief[8].max())
+            smoothed = (belief[8] if sigma == 0
+                        else gaussian_filter(belief[8].astype(np.float64),
+                                             sigma=sigma))
+            centroid_smoothed = float(smoothed.max())
+            results, solver = DP.run_p2(belief, affinity, frame.dims, frame.K,
+                                        width, height, armed)
+            K_proc = DP.squash_intrinsics(frame.K, width, height)
+            index, chosen, _, reason = DP.production_selection(
+                results, gates, K_proc, solver)
+            solved = [r for r in results if r.get("location") is not None]
+            first = solved[0] if solved else None
+            pose = dec_pose_from_result(chosen if chosen is not None else first)
+            points = dec_p2_points(chosen if chosen is not None else first)
+            metrics = frame.metrics(pose)
+            corr = [len(r.get("raw_points") or []) - sum(
+                1 for p in (r.get("raw_points") or []) if p is None)
+                for r in results]
+            errors = []
+            for corner in range(8):
+                gt = frame.gt_points[corner]
+                point = points[corner]
+                errors.append(np.nan if (gt is None or point is None) else
+                              float(np.hypot(point[0] * width / DP.INPUT_SIZE - gt[0],
+                                             point[1] * height / DP.INPUT_SIZE - gt[1])))
+            finite = np.asarray([e for e in errors if np.isfinite(e)])
+            rows.append({
+                "set": label, "sigma_arm": name, "sigma": sigma,
+                "frame_id": spec["frame_id"], "domain": spec["domain"],
+                "centroid_raw": centroid_raw,
+                "centroid_smoothed": centroid_smoothed,
+                "centroid_survives": bool(centroid_smoothed > armed.thresh_map),
+                "objects": len(results),
+                "max_correspondences": int(max(corr)) if corr else 0,
+                "ge4_points": bool(corr and max(corr) >= 4),
+                "ge7_points": bool(corr and max(corr) >= 7),
+                "pnp_attempted": int(sum(1 for c in corr if c >= 4)),
+                "pnp_success": len(solved),
+                "gate_pass": bool(index is not None), "gate_reason": reason,
+                "negative_depth": bool(pose is not None and pose["t"][2] <= 0),
+                "pose_success": pose is not None,
+                "reproj_fixed_gt_px": metrics["reproj_fixed_gt_px"],
+                "yaw_err_deg": metrics["yaw_err_deg"],
+                "rotation_err_deg": metrics["rotation_err_deg"],
+                "translation_err_m": metrics["translation_err_m"],
+                "corner_median_px": (float(np.median(finite)) if len(finite)
+                                     else np.nan),
+                "nan_corner": int(8 - len(finite)),
+                "non_finite_pose": bool(pose is not None and
+                                        not np.isfinite(pose["t"]).all()),
+            })
+        log(f"  sigma {name} ({sigma}) on {label}: "
+            f"{time.perf_counter() - started:.1f}s")
+    return pd.DataFrame(rows)
+
+
+# N87 gate, fixed before the sweep ran.  D0's own N87 numbers are the reference:
+# predicted PnP 70/87 and fixed-GT reprojection 23.161629px.
+CAL_N87_REFERENCE = {"pnp": 70, "frames": 87, "reproj": 23.161629}
+CAL_N87_GATE = {"centroid_survival": 83, "object_construction": 83,
+                "pnp_candidate": 63, "positive_depth_frac": 0.95,
+                "reproj_worse_max": 0.10, "catastrophic_max": 1,
+                "objects_median_max": 2.0, "objects_p95_max": 5.0}
+
+
+def cal_n87_gate(sweep: pd.DataFrame, baseline: pd.DataFrame) -> pd.DataFrame:
+    """Phase D.  Every condition must hold; no arm is added afterwards."""
+    limits = CAL_N87_GATE
+    reference = baseline.set_index("frame_id")
+    rows = []
+    for name in CAL_SIGMA_GRID:
+        table = sweep[sweep.sigma_arm == name].set_index("frame_id")
+        survival = int(table.centroid_survives.sum())
+        objects = int((table.objects > 0).sum())
+        candidates = int((table.pnp_success > 0).sum())
+        positive = table[table.pose_success]
+        positive_frac = (float((~positive.negative_depth).mean())
+                         if len(positive) else 0.0)
+        common = table.index[table.pose_success & reference.pose_success.reindex(
+            table.index).fillna(False)]
+        delta = (pd.to_numeric(table.loc[common, "reproj_fixed_gt_px"],
+                               errors="coerce").to_numpy()
+                 - pd.to_numeric(reference.loc[common, "reproj_fixed_gt_px"],
+                                 errors="coerce").to_numpy())
+        delta = delta[np.isfinite(delta)]
+        base_median = float(np.nanmedian(pd.to_numeric(
+            reference.loc[common, "reproj_fixed_gt_px"], errors="coerce")))\
+            if len(common) else np.nan
+        arm_median = float(np.nanmedian(pd.to_numeric(
+            table.loc[common, "reproj_fixed_gt_px"], errors="coerce")))\
+            if len(common) else np.nan
+        worse = (np.nan if not np.isfinite(base_median) or base_median == 0
+                 else (arm_median - base_median) / base_median)
+        conditions = {
+            "centroid survival >= 83": survival >= limits["centroid_survival"],
+            "objects built >= 83": objects >= limits["object_construction"],
+            "PnP candidates >= 63": candidates >= limits["pnp_candidate"],
+            "positive depth >= 95%": positive_frac >= limits["positive_depth_frac"],
+            "reproj not >10% worse": bool(np.isfinite(worse)
+                                          and worse <= limits["reproj_worse_max"]),
+            "catastrophic <= 1": int((delta >= 10.0).sum()) <= limits["catastrophic_max"],
+            "objects median <= 2": float(table.objects.median()) <= limits["objects_median_max"],
+            "objects p95 <= 5": float(np.percentile(table.objects, 95)) <= limits["objects_p95_max"],
+            "association not collapsed": bool(candidates > 0 and
+                                              survival > 0 and
+                                              candidates >= 0.5 * survival),
+        }
+        rows.append({"sigma_arm": name, "sigma": CAL_SIGMA_GRID[name],
+                     "centroid_survival": survival, "objects_built": objects,
+                     "pnp_candidates": candidates,
+                     "positive_depth_frac": positive_frac,
+                     "gate_pass_frames": int(table.gate_pass.sum()),
+                     "n_common": int(len(common)),
+                     "reproj_base_median": base_median,
+                     "reproj_arm_median": arm_median,
+                     "reproj_relative": worse,
+                     "catastrophic_ge10px": int((delta >= 10.0).sum()),
+                     "objects_median": float(table.objects.median()),
+                     "objects_p95": float(np.percentile(table.objects, 95)),
+                     "passed": bool(all(conditions.values())),
+                     "failed": ";".join(k for k, v in conditions.items() if not v),
+                     **{f"cond::{k}": bool(v) for k, v in conditions.items()}})
+    return pd.DataFrame(rows)
+
+
+def cal_select_sigma(gate: pd.DataFrame) -> Optional[dict[str, Any]]:
+    """Lexicographic, no human step: PnP candidates, then reprojection, then
+    gate passes, then the larger sigma."""
+    passing = gate[gate.passed]
+    if not len(passing):
+        return None
+    ordered = passing.sort_values(
+        by=["pnp_candidates", "reproj_arm_median", "gate_pass_frames", "sigma"],
+        ascending=[False, True, False, False])
+    winner = ordered.iloc[0]
+    return {"sigma_arm": winner.sigma_arm, "sigma": float(winner.sigma),
+            "rule": "max pnp_candidates, min reproj, max gate_pass, max sigma",
+            "candidates": ordered.sigma_arm.tolist(),
+            "selected_on": "N87 strict-filterval only"}
+
+
+def cal_d0_n87_baseline(frames, cache) -> pd.DataFrame:
+    """D0 on the same N87 tensors: the reference the gate compares against."""
+    rows = []
+    for spec in frames:
+        frame = EvalFrame(spec)
+        belief = cache[spec["frame_id"]]["h6"]
+        scale_x = spec["image_width"] / BELIEF
+        scale_y = spec["image_height"] / BELIEF
+        points = MD.decode_all(belief, scale_x, scale_y, frame.gt_points)["D0"]
+        pose = frame.solve(points)
+        metrics = frame.metrics(pose)
+        rows.append({"frame_id": spec["frame_id"], "domain": spec["domain"],
+                     "pose_success": pose is not None, **metrics})
+    return pd.DataFrame(rows)
+
+
+def cal_run() -> int:
+    """Phases A-D, and E only if D selects a sigma."""
+    CAL_OUT.mkdir(parents=True, exist_ok=True)
+    if hashlib.sha256(EP57.read_bytes()).hexdigest() != EP57_SHA:
+        raise SystemExit("BLOCKED: ep57 SHA mismatch")
+    config, gates = dec_config()
+    if not (config.thresh_map == 0.30 and config.thresh_points == 0.30
+            and config.thresh_angle == 0.50 and config.threshold == 0.30):
+        raise SystemExit("BLOCKED: deployment thresholds are not the recorded ones")
+
+    log("Phase B — blob width audit")
+    widths = cal_blob_width_audit()
+
+    log("Phase C — sigma grid on N87 (selection set)")
+    frames = cal_n87_frames()
+    cache = cal_forward(frames, lambda d: FZ.load_model(d)[0])
+    baseline = cal_d0_n87_baseline(frames, cache)
+    baseline.to_csv(CAL_OUT / "n87_d0_baseline.csv", index=False)
+    log(f"  D0 N87 reference: PnP {int(baseline.pose_success.sum())}/87 "
+        f"reproj {float(np.nanmedian(pd.to_numeric(baseline.reproj_fixed_gt_px, errors='coerce'))):.6f}")
+    sweep = cal_sigma_sweep(frames, cache, config, gates, "N87")
+    sweep.to_csv(CAL_OUT / "sigma_calibration_frames.csv", index=False)
+
+    log("Phase D — N87 gate")
+    gate = cal_n87_gate(sweep, baseline)
+    gate.to_csv(CAL_OUT / "sigma_calibration_metrics.csv", index=False)
+    (CAL_OUT / "sigma_gate.json").write_text(json.dumps({
+        "grid": CAL_SIGMA_GRID, "gate": CAL_N87_GATE,
+        "reference": CAL_N87_REFERENCE,
+        "rows": json.loads(gate.to_json(orient="records"))}, indent=2), "utf-8")
+    for _, row in gate.iterrows():
+        log(f"  {row.sigma_arm} sigma={row.sigma:.1f}: centroid {row.centroid_survival}/87 "
+            f"objects {row.objects_built}/87 pnp {row.pnp_candidates}/87 "
+            f"obj_med {row.objects_median:.0f} p95 {row.objects_p95:.0f} "
+            f"{'PASS' if row.passed else 'FAIL: ' + row.failed}")
+
+    selected = cal_select_sigma(gate)
+    (CAL_OUT / "selected_sigma.json").write_text(json.dumps(
+        selected or {"selected": None, "reason": "no sigma cleared the N87 gate",
+                     "verdict": "CONFIG_ONLY_RESCUE = FAIL"}, indent=2), "utf-8")
+    if selected is None:
+        log("Phase D: no sigma passes -> CONFIG_ONLY_RESCUE = FAIL, "
+            "eval56/wood validation not run")
+        return 0
+    log(f"Phase D selected {selected['sigma_arm']} sigma={selected['sigma']}")
+
+    log("Phase E — eval56 / wood one-shot holdout")
+    holdout = []
+    for label in ("eval56", "wood"):
+        manifest = json.loads((OUT / f"{label}_manifest.json").read_text("utf-8"))
+        hold_cache = cal_forward(manifest["frames"], lambda d: FZ.load_model(d)[0])
+        single = {selected["sigma_arm"]: selected["sigma"]}
+        saved = dict(CAL_SIGMA_GRID)
+        CAL_SIGMA_GRID.clear(); CAL_SIGMA_GRID.update(single)
+        try:
+            holdout.append(cal_sigma_sweep(manifest["frames"], hold_cache,
+                                           config, gates, label))
+        finally:
+            CAL_SIGMA_GRID.clear(); CAL_SIGMA_GRID.update(saved)
+        del hold_cache
+    pd.concat(holdout, ignore_index=True).to_csv(
+        CAL_OUT / "holdout_compatibility.csv", index=False)
+    log("Phase E written")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# Phase H — target-width feasibility on ideal Gaussians
+# ---------------------------------------------------------------------------
+CAL_TARGET_GRID = {"G15": 1.5, "G20": 2.0, "G25": 2.5,
+                   "G30": 3.0, "G35": 3.5, "G40": 4.0}
+CAL_TARGET_REQUIREMENT = {"centroid_peak": 0.40, "corner_peak": 0.30,
+                          "corner_coord_bias": 1.0}
+
+
+def cal_ideal_belief(target_sigma: float, positions) -> np.ndarray:
+    """Nine ideal unit-peak Gaussians at the requested belief-grid positions."""
+    grid = np.arange(BELIEF, dtype=np.float64)
+    belief = np.zeros((MD.N_KP, BELIEF, BELIEF), dtype=np.float32)
+    for channel, (cx, cy) in enumerate(positions):
+        gx = np.exp(-((grid - cx) ** 2) / (2.0 * target_sigma ** 2))
+        gy = np.exp(-((grid - cy) ** 2) / (2.0 * target_sigma ** 2))
+        belief[channel] = np.outer(gy, gx).astype(np.float32)
+    return belief
+
+
+def cal_ideal_affinity(positions) -> np.ndarray:
+    """Unit vectors from every pixel toward the centroid, in detector layout."""
+    centroid = positions[8]
+    ys, xs = np.mgrid[0:BELIEF, 0:BELIEF].astype(np.float64)
+    dx, dy = centroid[0] - xs, centroid[1] - ys
+    norm = np.hypot(dx, dy)
+    norm[norm < 1e-9] = 1.0
+    affinity = np.zeros((16, BELIEF, BELIEF), dtype=np.float32)
+    for corner in range(8):
+        affinity[2 * corner] = (dx / norm / 10.0).astype(np.float32)
+        affinity[2 * corner + 1] = (dy / norm / 10.0).astype(np.float32)
+    return affinity
+
+
+def cal_target_feasibility(config) -> pd.DataFrame:
+    """What target width the deployment sigma=3 and 0.30 gate actually require.
+
+    The coordinates are read back through `ObjectDetector.find_objects` itself,
+    so the 11x11 weighted average and the +0.4395 offset are the deployment
+    ones; only the input is synthetic.
+    """
+    import decoder_paths as DP
+    from detector import ObjectDetector
+    from scipy.ndimage import gaussian_filter
+
+    rows = []
+    layouts = {
+        "center": [(18.0, 20.0), (32.0, 20.0), (32.0, 30.0), (18.0, 30.0),
+                   (20.0, 18.0), (30.0, 18.0), (30.0, 28.0), (20.0, 28.0),
+                   (25.0, 24.0)],
+        "border": [(3.0, 20.0), (17.0, 20.0), (17.0, 30.0), (3.0, 30.0),
+                   (5.0, 18.0), (15.0, 18.0), (15.0, 28.0), (5.0, 28.0),
+                   (10.0, 24.0)],
+    }
+    for name, target_sigma in CAL_TARGET_GRID.items():
+        for placement, positions in layouts.items():
+            belief = cal_ideal_belief(target_sigma, positions)
+            affinity = cal_ideal_affinity(positions)
+            smoothed = {c: gaussian_filter(belief[c].astype(np.float64),
+                                           sigma=config.sigma)
+                        for c in range(MD.N_KP)}
+            objects, all_peaks = ObjectDetector.find_objects(
+                torch.from_numpy(belief), torch.from_numpy(affinity), config,
+                scale_factor=1)
+            biases = []
+            for channel in range(8):
+                peaks = all_peaks[channel]
+                if not peaks:
+                    biases.append(np.nan)
+                    continue
+                best = max(peaks, key=lambda p: p[2])
+                cx, cy = positions[channel]
+                biases.append(float(np.hypot(best[0] - cx - 0.4395,
+                                             best[1] - cy - 0.4395)))
+            finite = [b for b in biases if np.isfinite(b)]
+            corner_peaks = [float(smoothed[c].max()) for c in range(8)]
+            rows.append({
+                "target_arm": name, "target_sigma": target_sigma,
+                "placement": placement,
+                "deployment_sigma": float(config.sigma),
+                "centroid_smoothed_peak": float(smoothed[8].max()),
+                "corner_smoothed_peak_min": float(np.min(corner_peaks)),
+                "corner_smoothed_peak_median": float(np.median(corner_peaks)),
+                "centroid_half_max_area": int((belief[8] >= 0.5).sum()),
+                "corner_coord_bias_median": (float(np.median(finite))
+                                             if finite else np.nan),
+                "corner_coord_bias_max": (float(np.max(finite))
+                                          if finite else np.nan),
+                "corners_localised": len(finite),
+                "objects_built": len(objects),
+                "centroid_margin": float(smoothed[8].max()) - config.thresh_map,
+                "centroid_ok": bool(float(smoothed[8].max())
+                                    >= CAL_TARGET_REQUIREMENT["centroid_peak"]),
+                "corner_peak_ok": bool(np.min(corner_peaks)
+                                       >= CAL_TARGET_REQUIREMENT["corner_peak"]),
+                "corner_bias_ok": bool(finite and np.max(finite)
+                                       <= CAL_TARGET_REQUIREMENT["corner_coord_bias"]),
+            })
+    return pd.DataFrame(rows)
+
+
+def cal_figures() -> int:
+    """Phase L.  6 and 7 need a compatibility PASS and are skipped without one."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    figures = CAL_OUT / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    widths = pd.read_csv(CAL_OUT / "blob_width_metrics.csv")
+    gate = pd.read_csv(CAL_OUT / "sigma_calibration_metrics.csv")
+    sweep = pd.read_csv(CAL_OUT / "sigma_calibration_frames.csv")
+    target = pd.read_csv(CAL_OUT / "target_width_feasibility.csv")
+    models = ["M0_ep57", "M1_challenge0123", "M2_challengenight"]
+    colours = dict(zip(models, ("tab:red", "tab:blue", "tab:green")))
+
+    # 1 blob width by model
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    width = 0.25
+    roles = ["near", "far", "centroid"]
+    for index, model in enumerate(models):
+        values = [widths[(widths.model == model) & (widths.role == r)]
+                  .sigma_from_half_max.median() for r in roles]
+        axes[0].bar(np.arange(3) + (index - 1) * width, values, width,
+                    label=model, color=colours[model])
+    axes[0].axhline(2.0, color="grey", ls=":", label="corner requirement 2.0")
+    axes[0].axhline(2.5, color="black", ls="--", label="centroid requirement 2.5")
+    axes[0].set_xticks(range(3)); axes[0].set_xticklabels(roles)
+    axes[0].set_ylabel("effective sigma from half-maximum area")
+    axes[0].set_title("ep57 blobs are about half the width")
+    axes[0].legend(fontsize=7)
+    axes[0].grid(alpha=0.3, axis="y")
+    for model in models:
+        sub = widths[(widths.model == model) & (widths.role == "centroid")]
+        axes[1].hist(sub.half_max_area, bins=25, alpha=0.55, label=model,
+                     color=colours[model])
+    axes[1].set_xlabel("centroid half-maximum area (belief cells)")
+    axes[1].set_title("centroid support")
+    axes[1].legend(fontsize=7)
+    axes[1].grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures / "blob_width_by_model.png", dpi=150)
+    plt.close(fig)
+
+    # 2 retention curve
+    sigmas = list(CAL_SIGMA_GRID.values())
+    fig, axis = plt.subplots(figsize=(7.5, 4.4))
+    for model in models:
+        sub = widths[(widths.model == model) & (widths.role == "centroid")]
+        values = [sub[f"retention_{k}"].median() for k in CAL_SIGMA_GRID]
+        axis.plot(sigmas, values, "o-", color=colours[model], label=model)
+    axis.axvline(3.0, color="crimson", ls="--", label="deployment sigma = 3")
+    axis.set_xlabel("smoothing sigma")
+    axis.set_ylabel("smoothed peak / raw peak")
+    axis.set_title("Centroid peak retention: ep57 loses two thirds where the others lose one")
+    axis.legend(fontsize=8)
+    axis.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures / "peak_retention_curve.png", dpi=150)
+    plt.close(fig)
+
+    # 3 centroid survival
+    fig, axis = plt.subplots(figsize=(7.5, 4.4))
+    axis.plot(gate.sigma, gate.centroid_survival, "o-", label="centroid > 0.30")
+    axis.axhline(83, color="crimson", ls="--", label="gate 83 / 87")
+    axis.axhline(74, color="grey", ls=":", label="ceiling at sigma = 0 (74)")
+    axis.set_xlabel("smoothing sigma"); axis.set_ylabel("frames of 87")
+    axis.set_title("No sigma reaches the gate; the ceiling is not the smoothing")
+    axis.legend(fontsize=8); axis.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures / "centroid_survival_curve.png", dpi=150)
+    plt.close(fig)
+
+    # 4 object construction
+    fig, axis = plt.subplots(figsize=(7.5, 4.4))
+    axis.plot(gate.sigma, gate.objects_built, "o-", label="frames with an object")
+    axis.plot(gate.sigma, gate.pnp_candidates, "s-", label="frames with a PnP pose")
+    axis.plot(gate.sigma, gate.gate_pass_frames, "^-", label="frames clearing live gates")
+    axis.axhline(83, color="crimson", ls="--", label="object gate 83")
+    axis.axhline(63, color="darkorange", ls=":", label="PnP gate 63")
+    axis.set_xlabel("smoothing sigma"); axis.set_ylabel("frames of 87")
+    axis.set_title("Object construction and PnP against sigma")
+    axis.legend(fontsize=8); axis.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures / "object_construction_curve.png", dpi=150)
+    plt.close(fig)
+
+    # 5 pose quality
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    axes[0].plot(gate.sigma, gate.reproj_arm_median, "o-", label="P2")
+    axes[0].plot(gate.sigma, gate.reproj_base_median, "s--", label="D0 on the same frames")
+    axes[0].set_xlabel("smoothing sigma")
+    axes[0].set_ylabel("fixed-GT reprojection median (px)")
+    axes[0].set_title("Pose quality on the common-success frames")
+    axes[0].legend(fontsize=8); axes[0].grid(alpha=0.3)
+    yaw = sweep[sweep.pose_success].groupby("sigma").yaw_err_deg.median()
+    negative = sweep.groupby("sigma").negative_depth.sum()
+    axes[1].plot(yaw.index, yaw.values, "o-", label="yaw median (deg)")
+    axes[1].plot(negative.index, negative.values, "s-", label="negative depth frames")
+    axes[1].set_xlabel("smoothing sigma")
+    axes[1].set_title("Yaw and depth sanity")
+    axes[1].legend(fontsize=8); axes[1].grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures / "calibration_pose_curve.png", dpi=150)
+    plt.close(fig)
+
+    # 8 target width feasibility
+    centre = target[target.placement == "center"]
+    fig, axis = plt.subplots(figsize=(7.5, 4.4))
+    axis.plot(centre.target_sigma, centre.centroid_smoothed_peak, "o-",
+              label="peak after the deployment sigma = 3")
+    axis.axhline(0.40, color="crimson", ls="--", label="centroid requirement 0.40")
+    axis.axhline(0.30, color="darkorange", ls=":", label="corner requirement 0.30")
+    ep57 = widths[(widths.model == "M0_ep57")].sigma_from_half_max.median()
+    axis.axvline(ep57, color="black", ls="-.", label=f"ep57 measured width {ep57:.2f}")
+    axis.set_xlabel("target sigma the model would have to produce")
+    axis.set_ylabel("smoothed peak")
+    axis.set_title("What width the deployment gate needs")
+    axis.legend(fontsize=8); axis.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures / "target_width_feasibility.png", dpi=150)
+    plt.close(fig)
+
+    # 9 centroid vs corner bandwidth
+    fig, axis = plt.subplots(figsize=(7.5, 4.4))
+    axis.plot(centre.target_sigma, centre.centroid_smoothed_peak, "o-",
+              label="centroid peak")
+    axis.plot(centre.target_sigma, centre.corner_smoothed_peak_min, "s-",
+              label="worst corner peak")
+    border = target[target.placement == "border"]
+    axis.plot(border.target_sigma, border.corner_coord_bias_max, "^--",
+              label="worst 11x11 coordinate bias (cells, border)")
+    axis.axhline(0.40, color="crimson", ls="--")
+    axis.axhline(0.30, color="darkorange", ls=":")
+    axis.axhline(1.0, color="grey", ls=":")
+    axis.set_xlabel("target sigma")
+    axis.set_title("Corner needs 2.0, centroid needs 2.5 -- different minima")
+    axis.legend(fontsize=8); axis.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures / "centroid_corner_bandwidth.png", dpi=150)
+    plt.close(fig)
+
+    # 10 failure examples
+    frames = cal_n87_frames()
+    dead = sweep[(sweep.sigma_arm == "S00") & (sweep.centroid_raw <= 0.30)]
+    picks = dead.head(3).frame_id.tolist()
+    lookup = {f["frame_id"]: f for f in frames}
+    fig, axes = plt.subplots(1, max(1, len(picks)), figsize=(6 * max(1, len(picks)), 5))
+    axes = np.atleast_1d(axes)
+    for axis, uid in zip(axes, picks):
+        spec = lookup[uid]
+        image = cv2.imread(spec["image_path"])
+        axis.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        row = dead[dead.frame_id == uid].iloc[0]
+        axis.set_title(f"{spec['domain']}  centroid raw peak {row.centroid_raw:.4f}\n"
+                       "no smoothing choice can lift this over 0.30", fontsize=9)
+        axis.axis("off")
+    fig.suptitle("The 13 frames where ep57 produces almost no centroid response")
+    fig.tight_layout()
+    fig.savefig(figures / "failure_examples.png", dpi=140)
+    plt.close(fig)
+    return 0

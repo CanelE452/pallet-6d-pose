@@ -185,3 +185,17 @@ def production_selection(results, gates: dict, K_proc: np.ndarray, solver):
         if ok:
             return index, candidate, info, "ok"
     return None, None, {}, reason
+
+
+def config_with_sigma(base: "DeploymentConfig", sigma: float) -> "DeploymentConfig":
+    """The one field this calibration may vary.
+
+    `find_objects` reads `config.sigma` and passes it straight to
+    `gaussian_filter` (detector.py:684).  Every other field -- thresh_map,
+    thresh_points, thresh_angle, threshold -- is copied unchanged, so no
+    threshold moves and the decoder code is untouched.
+    """
+    clone = DeploymentConfig.__new__(DeploymentConfig)
+    clone.__dict__.update(base.__dict__)
+    clone.sigma = float(sigma)
+    return clone
