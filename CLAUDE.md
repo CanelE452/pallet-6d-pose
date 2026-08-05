@@ -87,6 +87,23 @@ challenge/data/capturepalletcad_manual_gt      22
 - Isaac Sim 스크립트는 standalone 실행 (Isaac Sim 내장 Python), 모듈화: `scripts/data_prep/isaac_sim/sdg_*.py`
 - DOPE 데이터 로더: CleanVisiiDopeLoader (`{i:06d}.png` + `{i:06d}.json` 쌍)
 
+## Compaction Rules
+
+- **compact 시 원문 디테일 보존** (요약 금지):
+  - 정본 평가셋 규칙 — `objects[0].split=="eval"` 56장 + wood45.
+    평가뿐 아니라 **development·진단·probe subset 도 정본에서** 뽑는다
+    (`data/_eval_sets/*combined` 사용 금지 — 여기서 뽑아 판정 4건이 뒤집힌 이력)
+  - 현재 architecture 판정과 그 근거 한 줄
+  - 진행 중 실험의 checkpoint 경로·SHA·고정 상수(sigma/tau/threshold)
+  - 미해결 에러와 시도한 해결책
+  - 사용자가 명시한 제약(SEALED holdout, final-test 미접근 등)
+- **요약 허용**: 파일 탐색·Glob/Grep 과정, 이미 종결된 실험의 개별 수치
+  (`_docs/audits/`·`_docs/history/`에 있음 — 복붙 말고 가리킬 것), 중간 시행착오 턴
+- 탐색·조사는 subagent(Explore)에 위임해 main context 오염 방지
+- `/context` 60% 도달 시 작업 단위 마무리 후 수동 compact (auto trigger 회피)
+- 긴 실험 착수 전 `_docs/handoff/{날짜}_{실험명}.md`에 확정 사실을 남겨
+  compact 후에도 미지수 0에서 재개할 수 있게 한다
+
 ## Gotchas
 
 - Isaac Sim DLL 충돌: `CUDA_MODULE_LOADING=LAZY` + `PYTHONUNBUFFERED=1` 설정 필요
