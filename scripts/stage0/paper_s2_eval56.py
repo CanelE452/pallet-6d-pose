@@ -52,6 +52,7 @@ WOOD_FOLDERS = {
 SEALED = ("capturenight08", "capturenight09", "capturepallet07", "capturepallet09",
           "testset_full8_manifest", "handannot17")
 BELIEF = 50
+SEED = 1
 
 
 def _load(name: str, path: pathlib.Path):
@@ -62,6 +63,7 @@ def _load(name: str, path: pathlib.Path):
 
 
 MD = _load("MD", STAGE0 / "paper_s2_mechanism_diagnostic.py")
+SCREEN = _load("SCREEN", STAGE0 / "paper_s2_corner_replacement_screen.py")
 FZ = MD.FZ
 APNP = MD.APNP
 
@@ -880,3 +882,194 @@ def paired_bootstrap(base: pd.DataFrame, cand: pd.DataFrame, column: str,
             "improved": int((delta < 0).sum()),
             "worsened": int((delta > 0).sum()),
             "tied": int((delta == 0).sum())}
+
+
+# ============================================================================
+# PFDR — far-decoupled refinement adapter
+# ============================================================================
+PFDR_OUT = OUT / "pfdr"
+PFDR_WEIGHTS = ROOT / "weights/paper_s2_pfdr"
+
+
+class PFDRTrainer:
+    """ep57 stays frozen; only the four-channel adapter learns."""
+
+    def __init__(self, arm: str, device):
+        import pfdr_adapter as PA
+        import pfdr_pose_loss as PL
+        from models import DopeNetwork
+
+        self.PA, self.PL, self.arm, self.device = PA, PL, arm, device
+        if hashlib.sha256(EP57.read_bytes()).hexdigest() != EP57_SHA:
+            raise SystemExit("BLOCKED: checkpoint SHA mismatch")
+        state = torch.load(str(EP57), map_location="cpu", weights_only=True)
+        self.net = DopeNetwork(numSeg=1)
+        self.net.load_state_dict({k.removeprefix("module."): v
+                                  for k, v in state.items()}, strict=True)
+        self.net.to(device).eval()
+        for parameter in self.net.parameters():
+            parameter.requires_grad_(False)
+        torch.manual_seed(SEED)
+        self.adapter = PA.PFDRAdapter().to(device)
+
+    @torch.no_grad()
+    def base_forward(self, images):
+        shared = self.net.vgg(images)
+        beliefs, affinities = self.net(images)[0], self.net(images)[1]
+        return shared, beliefs, affinities
+
+    def fused(self, images):
+        shared, beliefs, affinities = self.base_forward(images)
+        h4, h5, h6, a6 = beliefs[3], beliefs[4], beliefs[5], affinities[5]
+        delta = self.adapter(self.PA.PFDRAdapter.build_input(shared, h4, h5, h6, a6))
+        if self.arm == "N3":
+            return self.PA.fuse_near(h6, delta), delta, h5, h6, a6
+        return self.PA.fuse_far(h5, h6, delta), delta, h5, h6, a6
+
+    def channels(self):
+        return self.PA.NEAR if self.arm == "N3" else self.PA.FAR
+
+
+def pfdr_batch_losses(trainer, batch, device, lambdas=None):
+    """group + anchor (+ pose consistency for N2/N3), reported separately."""
+    from heatmap_refinement import channel_masked_mse
+
+    images = batch["img"].to(device, non_blocking=True)
+    fused, delta, h5, h6, a6 = trainer.fused(images)
+    channels = trainer.channels()
+    target = batch["beliefs"].to(device)
+    mask = batch["belief_channel_mask"].to(device)
+    points = batch["refine_keypoints"].to(device)
+    flags = batch["refine_keypoints_valid"].to(device)
+    inside = ((points[..., 0] >= 0) & (points[..., 0] < BELIEF)
+              & (points[..., 1] >= 0) & (points[..., 1] < BELIEF))
+    valid = (flags > 0) & inside
+
+    group = channel_masked_mse(fused[:, channels], target[:, channels],
+                               mask[:, channels])
+    anchor = torch.nn.functional.huber_loss(
+        delta, torch.zeros_like(delta), reduction="mean", delta=0.10)
+    losses = {"group": group, "anchor": anchor}
+
+    if trainer.arm == "N1":
+        losses["l3d"] = torch.zeros((), device=device)
+        losses["lreproj"] = torch.zeros((), device=device)
+        return losses, fused
+
+    PA, PL = trainer.PA, trainer.PL
+    coords = PA.local_soft_argmax(fused)                      # B x 9 x 2, grid
+    free = torch.zeros(9, dtype=torch.bool, device=device)
+    free[channels] = True
+    observed = torch.where(free[None, :, None], coords, coords.detach())
+
+    dims = batch["dims_m"].to(device)
+    dims_ok = (batch["dims_valid"].to(device).squeeze(-1) > 0)
+    scale = torch.tensor([640.0 / BELIEF, 480.0 / BELIEF], device=device,
+                         dtype=coords.dtype)
+    observed_px = observed * scale
+    gt_px = points * scale
+
+    object_points, K, gt_r, gt_t, d3, d2, frame_ok = [], [], [], [], [], [], []
+    for index in range(images.shape[0]):
+        ok = bool(dims_ok[index]) and bool(valid[index].all())
+        w, d, h = [float(v) for v in dims[index]]
+        if not ok or min(w, d, h) <= 0:
+            ok = False
+            w = d = h = 1.0
+        corners = np.asarray(MD.APNP.make_pallet_keypoints_3d(w, d, h), float)[:9]
+        corners[8] = corners[:8].mean(axis=0)
+        object_points.append(corners)
+        K.append(np.array([[614.18, 0, 329.28], [0, 614.31, 234.53], [0, 0, 1.0]]))
+        d3.append(float(np.linalg.norm([w, d, h])))
+        d2.append(800.0)
+        frame_ok.append(ok)
+    X = torch.tensor(np.stack(object_points), dtype=coords.dtype, device=device)
+    Km = torch.tensor(np.stack(K), dtype=coords.dtype, device=device)
+    frame_ok = torch.tensor(frame_ok, dtype=torch.bool, device=device)
+
+    # GT pose from the GT 2D points, solved once with the same GN, detached
+    with torch.no_grad():
+        seed_r = torch.zeros(images.shape[0], 3, dtype=coords.dtype, device=device)
+        seed_t = torch.tensor([[0.0, 0.0, 3.0]], dtype=coords.dtype,
+                              device=device).expand(images.shape[0], 3).contiguous()
+        gt_r, gt_t, gt_ok = PL.gauss_newton(gt_px, X, Km, seed_r, seed_t)
+    frame_ok = frame_ok & gt_ok
+
+    pose = PL.pose_consistency(observed_px, X, Km, gt_r.detach(), gt_t.detach(),
+                               torch.tensor(d3, dtype=coords.dtype, device=device),
+                               torch.tensor(d2, dtype=coords.dtype, device=device),
+                               frame_ok)
+    losses["l3d"] = pose["l3d"]
+    losses["lreproj"] = pose["lreproj"]
+    return losses, fused
+
+
+def pfdr_train(arm: str, epochs: int = 3, batch: int = 12) -> dict[str, Any]:
+    """Exactly three epochs on the canonical loader; no selection, no early stop."""
+    device = torch.device("cuda")
+    torch.manual_seed(SEED)
+    np.random.seed(SEED)
+    options = SCREEN.canonical_options()
+    options.batchsize = batch
+    dataset, loader, _, _ = SCREEN.build_loader(options)
+    trainer = PFDRTrainer(arm, device)
+    calibration = json.loads(
+        (PFDR_OUT / "pfdr_grad_calibration.json").read_text("utf-8"))[arm]["lambda"]
+    optimiser = torch.optim.AdamW(trainer.adapter.parameters(), lr=3e-4,
+                                  weight_decay=1e-4)
+    root = PFDR_WEIGHTS / arm
+    root.mkdir(parents=True, exist_ok=True)
+    history = []
+    for epoch in range(1, epochs + 1):
+        trainer.adapter.train()
+        started = time.time()
+        totals: dict[str, list[float]] = {}
+        for index, batch_data in enumerate(loader):
+            losses, _ = pfdr_batch_losses(trainer, batch_data, device)
+            total = (losses["group"]
+                     + calibration["anchor"] * losses["anchor"]
+                     + calibration.get("l3d", 0.0) * losses["l3d"]
+                     + calibration.get("lreproj", 0.0) * losses["lreproj"])
+            optimiser.zero_grad(set_to_none=True)
+            total.backward()
+            torch.nn.utils.clip_grad_norm_(trainer.adapter.parameters(), 1.0)
+            optimiser.step()
+            totals.setdefault("total", []).append(float(total))
+            for key, value in losses.items():
+                totals.setdefault(key, []).append(float(value))
+            if index % 400 == 0:
+                log(f"    {arm} e{epoch} {index}/{len(loader)} "
+                    + " ".join(f"{k} {np.mean(v[-400:]):.5f}"
+                               for k, v in totals.items()))
+        row = {"arm": arm, "epoch": epoch, "minutes": (time.time() - started) / 60,
+               **{k: float(np.mean(v)) for k, v in totals.items()}}
+        history.append(row)
+        log(f"    {arm} epoch {epoch} done {row['minutes']:.1f} min  "
+            f"total {row['total']:.5f}")
+        torch.save(trainer.adapter.state_dict(), root / f"epoch_{epoch:03d}.pth")
+        torch.save(trainer.adapter.state_dict(), root / "last.pth")
+        torch.save(optimiser.state_dict(), root / "optimizer_last.pth")
+        (root / "run_state.json").write_text(json.dumps(
+            {"arm": arm, "epoch": epoch, "epochs": epochs,
+             "completed": epoch == epochs, "history": history}, indent=1))
+    del trainer
+    torch.cuda.empty_cache()
+    return {"history": history, "lambda": calibration}
+
+
+@torch.no_grad()
+def pfdr_belief(arm: str, manifest, checkpoint) -> dict[str, np.ndarray]:
+    device = torch.device("cuda")
+    trainer = PFDRTrainer(arm, device)
+    trainer.adapter.load_state_dict(torch.load(str(checkpoint), map_location="cpu",
+                                               weights_only=True))
+    trainer.adapter.to(device).eval()
+    cache = {}
+    for spec in manifest["frames"]:
+        image = cv2.imread(spec["image_path"])
+        tensor = FZ.preprocess_squash(image).to(device)
+        fused, _, _, _, _ = trainer.fused(tensor)
+        cache[spec["frame_id"]] = fused[0].float().cpu().numpy().astype(np.float32)
+    del trainer
+    torch.cuda.empty_cache()
+    return cache
