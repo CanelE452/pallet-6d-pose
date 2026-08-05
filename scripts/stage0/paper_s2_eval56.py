@@ -3576,3 +3576,684 @@ def nrf_figures() -> int:
     fig.savefig(figures / "nrf_examples.png", dpi=140)
     plt.close(fig)
     return 0
+
+
+# ============================================================================
+# reflect-padding audit — is the global collapse an input-boundary problem?
+# ============================================================================
+# The 13 blocking frames are truncated by the frame edge, and the project
+# already has an inference-time padding path for exactly that:
+#   challenge/scripts/dope_predict_mp4_pad.py:207  pad_frame
+#   challenge/scripts/dope_predict_mp4_pad.py:353  --pad default 100, reflect
+# That constant is the one this audit uses.  The other candidate,
+# pad_truncation_crops.required_pad, derives the pad from GT keypoints, which
+# is inadmissible at inference, so it is recorded and not used.
+PAD_OUT = CAL_OUT / "reflect_padding_audit"
+PAD_PIXELS = 100                       # dope_predict_mp4_pad.py:353, GT-free
+PAD_CONSTANT_VALUE = (127, 127, 127)   # fixed by this audit before running
+PAD_ARMS = ("A0_original", "A1_reflect", "A2_replicate", "A3_constant127")
+
+
+def pad_apply(image: np.ndarray, arm: str) -> np.ndarray:
+    """A0 untouched; the rest share one geometry and differ only in border.
+
+    A1 and A2 call the repository's own `pad_frame`.  A3 needs a 127 grey that
+    `pad_frame` does not expose, so its two lines are repeated here with the
+    same pad, the same interpolation and the same resize-back.
+    """
+    if arm == "A0_original":
+        return image
+    sys.path.insert(0, str(ROOT / "challenge/scripts")) \
+        if str(ROOT / "challenge/scripts") not in sys.path else None
+    from dope_predict_mp4_pad import pad_frame
+
+    if arm == "A1_reflect":
+        return pad_frame(image, PAD_PIXELS, "reflect")
+    if arm == "A2_replicate":
+        return pad_frame(image, PAD_PIXELS, "replicate")
+    if arm == "A3_constant127":
+        height, width = image.shape[:2]
+        padded = cv2.copyMakeBorder(image, PAD_PIXELS, PAD_PIXELS, PAD_PIXELS,
+                                    PAD_PIXELS, cv2.BORDER_CONSTANT,
+                                    value=PAD_CONSTANT_VALUE)
+        return cv2.resize(padded, (width, height),
+                          interpolation=cv2.INTER_LINEAR)
+    raise SystemExit(f"BLOCKED: unknown padding arm {arm}")
+
+
+def pad_geometry(arm: str, width: int, height: int) -> dict[str, float]:
+    """Offsets and the padded canvas the belief coordinates live on."""
+    if arm == "A0_original":
+        return {"left": 0, "top": 0, "canvas_w": float(width),
+                "canvas_h": float(height)}
+    return {"left": PAD_PIXELS, "top": PAD_PIXELS,
+            "canvas_w": float(width + 2 * PAD_PIXELS),
+            "canvas_h": float(height + 2 * PAD_PIXELS)}
+
+
+def pad_intrinsics(K: np.ndarray, arm: str, width: int, height: int
+                   ) -> np.ndarray:
+    """K for the padded canvas: shift the principal point, keep the focal."""
+    geometry = pad_geometry(arm, width, height)
+    padded = np.asarray(K, dtype=np.float64).copy()
+    padded[0, 2] += geometry["left"]
+    padded[1, 2] += geometry["top"]
+    return padded
+
+
+def pad_decode(belief: np.ndarray, arm: str, width: int, height: int,
+               thresholds: Optional[np.ndarray] = None):
+    """D0 decode on a padded frame, returned in ORIGINAL image coordinates.
+
+    The belief grid spans the padded canvas, so the scale is canvas/50 and the
+    offset is removed afterwards.  No GT reaches the decoder.
+    """
+    geometry = pad_geometry(arm, width, height)
+    scale_x = geometry["canvas_w"] / BELIEF
+    scale_y = geometry["canvas_h"] / BELIEF
+    if thresholds is None:
+        thresholds = channel_thresholds(THRESHOLD_ARMS["T0"])
+    points, peaks = decode_thresholded(belief, scale_x, scale_y,
+                                       [None] * MD.N_KP, thresholds)
+    original = [None if p is None else [p[0] - geometry["left"],
+                                        p[1] - geometry["top"]]
+                for p in points]
+    padded = points
+    return original, padded, peaks
+
+
+def pad_membership() -> dict[str, Any]:
+    """Phase A.  D13/C13 read from the prior audit, E44 recomputed."""
+    prior = json.loads(
+        (NRF_OUT / "nrf_membership.json").read_text("utf-8"))
+    if prior["membership_sha256"][:16] != "9230daa96f515e11":
+        raise SystemExit("BLOCKED: control membership drifted")
+    d13 = list(prior["R0"]) + list(prior["R1"])
+    c13 = list(prior["C0"])
+    n87 = {f["fid"] for f in cal_n87_frames()}
+    eval56 = json.loads((OUT / "eval56_manifest.json").read_text("utf-8"))
+    wood = json.loads((OUT / "wood_manifest.json").read_text("utf-8"))
+    overlap = sorted({f["frame_id"] for f in eval56["frames"]} & n87)
+    e44 = [f for f in eval56["frames"] if f["frame_id"] not in set(overlap)]
+    dead_fid = {uid.split(":")[-1] for uid in d13}
+    control_fid = {uid.split(":")[-1] for uid in c13}
+    e44_ids = {f["frame_id"] for f in e44}
+    wood_ids = {f["frame_id"] for f in wood["frames"]}
+    members = {
+        "D13": sorted(d13), "C13": sorted(c13),
+        "E44": sorted(e44_ids), "W45": sorted(wood_ids),
+        "n87_eval56_overlap": overlap,
+        "D13_inter_E44": sorted(dead_fid & e44_ids),
+        "C13_inter_E44": sorted(control_fid & e44_ids),
+        "D13_inter_W45": sorted(dead_fid & wood_ids),
+        "C13_inter_W45": sorted(control_fid & wood_ids),
+        "control_sha256": prior["membership_sha256"],
+    }
+    members["E44_sha256"] = hashlib.sha256(
+        json.dumps(members["E44"], sort_keys=True).encode()).hexdigest()
+    if members["D13_inter_E44"]:
+        raise SystemExit("BLOCKED: D13 leaks into E44")
+    if members["D13_inter_W45"] or members["C13_inter_W45"]:
+        raise SystemExit("BLOCKED: development frames leak into wood")
+    return members
+
+
+@torch.no_grad()
+def pad_forward(specs, arm: str) -> dict[str, dict[str, np.ndarray]]:
+    """One forward per frame per arm; every stage kept as float32."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model, _ = FZ.load_model(device)
+    cache = {}
+    for spec in specs:
+        image = cv2.imread(spec["image_path"])
+        if image is None:
+            raise SystemExit(f"BLOCKED: unreadable {spec['image_path']}")
+        tensor = FZ.preprocess_squash(pad_apply(image, arm)).to(device)
+        outputs = model(tensor)
+        cache[spec["frame_id"]] = {
+            "h4": outputs[0][3][0, :MD.N_KP].float().cpu().numpy().astype(np.float32),
+            "h5": outputs[0][4][0, :MD.N_KP].float().cpu().numpy().astype(np.float32),
+            "h6": outputs[0][5][0, :MD.N_KP].float().cpu().numpy().astype(np.float32),
+            "a6": outputs[1][5][0].float().cpu().numpy().astype(np.float32),
+        }
+    del model
+    torch.cuda.empty_cache()
+    return cache
+
+
+def pad_response_rows(spec, frame, arm, entry) -> list[dict[str, Any]]:
+    """Phase F.  GT is used for scoring only, never in the forward."""
+    from scipy.ndimage import gaussian_filter
+
+    width, height = spec["image_width"], spec["image_height"]
+    geometry = pad_geometry(arm, width, height)
+    scale_x = geometry["canvas_w"] / BELIEF
+    scale_y = geometry["canvas_h"] / BELIEF
+    rows = []
+    for stage in ("h4", "h5", "h6"):
+        belief = entry[stage]
+        for channel in range(MD.N_KP):
+            values = np.asarray(belief[channel], dtype=np.float64)
+            peak = float(values.max())
+            ay, ax = np.unravel_index(int(np.argmax(values)), values.shape)
+            gt_image = frame.gt_points[channel]
+            gt_grid = None
+            if gt_image is not None:
+                gt_grid = ((gt_image[0] + geometry["left"]) / scale_x,
+                           (gt_image[1] + geometry["top"]) / scale_y)
+            positive = np.clip(values, 0.0, None)
+            half = positive >= 0.5 * peak if peak > 0 else np.zeros_like(positive, bool)
+            smoothed = float(gaussian_filter(values, sigma=3).max())
+            row = {"frame_id": spec["frame_id"], "arm": arm, "stage": stage,
+                   "channel": channel,
+                   "role": ("centroid" if channel == 8
+                            else "near" if channel < 4 else "far"),
+                   "raw_peak": peak, "raw_above_030": bool(peak > 0.30),
+                   "smoothed_peak": smoothed,
+                   "smoothed_above_030": bool(smoothed > 0.30),
+                   "half_max_area": int(half.sum()),
+                   "effective_sigma": float(
+                       2.0 * np.sqrt(max(int(half.sum()), 0) / np.pi)
+                       / (2.0 * np.sqrt(2.0 * np.log(2.0))))}
+            probability = positive / max(positive.sum(), 1e-12)
+            row["entropy"] = float(
+                -np.sum(probability * np.log(np.maximum(probability, 1e-300))))
+            if gt_grid is None:
+                row.update({"gt_available": False, "belief_at_gt": np.nan,
+                            "argmax_to_gt_px": np.nan, "gt_inside_canvas": False})
+                for size in (3, 5, 7):
+                    row[f"gt_mass_frac_{size}x{size}"] = np.nan
+            else:
+                gx, gy = gt_grid
+                inside = 0 <= gx < BELIEF and 0 <= gy < BELIEF
+                iy, ix = int(round(gy)), int(round(gx))
+                row.update({"gt_available": True, "gt_inside_canvas": bool(inside),
+                            "belief_at_gt": (float(values[min(max(iy, 0), BELIEF - 1),
+                                                          min(max(ix, 0), BELIEF - 1)])
+                                             if inside else np.nan),
+                            "argmax_to_gt_px": float(np.hypot(
+                                (ax - gx) * scale_x, (ay - gy) * scale_y))})
+                for size in (3, 5, 7):
+                    radius = size // 2
+                    y0, y1 = max(0, iy - radius), min(BELIEF, iy + radius + 1)
+                    x0, x1 = max(0, ix - radius), min(BELIEF, ix + radius + 1)
+                    window = positive[y0:y1, x0:x1] if inside else np.zeros((1, 1))
+                    row[f"gt_mass_frac_{size}x{size}"] = float(
+                        window.sum() / max(positive.sum(), 1e-12))
+            rows.append(row)
+    return rows
+
+
+def pad_frame_evaluation(spec, frame, arm, entry, config, gates
+                         ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Phases G-I on one frame: D0 pose, P2 stage, per-corner localisation."""
+    import decoder_paths as DP
+    from scipy.ndimage import gaussian_filter
+
+    width, height = spec["image_width"], spec["image_height"]
+    geometry = pad_geometry(arm, width, height)
+    belief, affinity = entry["h6"], entry["a6"]
+
+    # ---- D0, in original image coordinates
+    points, padded_points, peaks = pad_decode(belief, arm, width, height)
+    pose = frame.solve(points)
+    metrics = frame.metrics(pose)
+    detected = [p is not None for p in points]
+    corner_hits = int(sum(detected[:8]))
+    row = {"frame_id": spec["frame_id"], "arm": arm, "domain": spec["domain"],
+           "centroid_raw": float(belief[8].max()),
+           "centroid_smoothed": float(gaussian_filter(
+               belief[8].astype(np.float64), sigma=config.sigma).max()),
+           "centroid_detected": bool(detected[8]),
+           "corners_detected": corner_hits,
+           "R_centroid": bool(belief[8].max() > 0.30),
+           "R4": bool(belief[8].max() > 0.30 and corner_hits >= 4),
+           "R6": bool(belief[8].max() > 0.30 and corner_hits >= 6),
+           "n_correspondence": int(sum(detected)),
+           "D0_pose_success": pose is not None, **{f"D0_{k}": v
+                                                   for k, v in metrics.items()}}
+    errors = []
+    corner_rows = []
+    for corner in range(8):
+        gt = frame.gt_points[corner]
+        point = points[corner]
+        error = (np.nan if (gt is None or point is None)
+                 else float(np.hypot(point[0] - gt[0], point[1] - gt[1])))
+        errors.append(error)
+        row[f"err_{corner}"] = error
+        row[f"det_{corner}"] = point is not None
+        row[f"peak_{corner}"] = float(peaks[corner])
+        inside = (gt is not None and 0 <= gt[0] < width and 0 <= gt[1] < height)
+        border = (np.nan if gt is None else
+                  float(min(gt[0], gt[1], width - gt[0], height - gt[1])))
+        corner_rows.append({
+            "frame_id": spec["frame_id"], "arm": arm, "corner": corner,
+            "role": "near" if corner < 4 else "far",
+            "raw_peak": float(peaks[corner]), "detected": point is not None,
+            "gt_available": gt is not None, "gt_inside_frame": bool(inside),
+            "border_distance_px": border, "gt_error_px": error,
+            "decoded_x": None if point is None else float(point[0]),
+            "decoded_y": None if point is None else float(point[1]),
+        })
+    finite = np.asarray([e for e in errors if np.isfinite(e)])
+    row["corner_median_px"] = float(np.median(finite)) if len(finite) else np.nan
+    row["nan_corner"] = int(8 - len(finite))
+    row["t50"] = int((finite > 50).sum())
+    row["t100"] = int((finite > 100).sum())
+
+    # ---- P2, on the same tensors, with the padded intrinsics
+    K_padded = pad_intrinsics(frame.K, arm, width, height)
+    canvas_w, canvas_h = geometry["canvas_w"], geometry["canvas_h"]
+    results, solver = DP.run_p2(belief, affinity, frame.dims, K_padded,
+                                int(canvas_w), int(canvas_h), config)
+    K_proc = DP.squash_intrinsics(K_padded, int(canvas_w), int(canvas_h))
+    index, chosen, _, reason = DP.production_selection(results, gates,
+                                                       K_proc, solver)
+    solved = [r for r in results if r.get("location") is not None]
+    p2_pose = dec_pose_from_result(chosen if chosen is not None
+                                   else (solved[0] if solved else None))
+    p2_metrics = frame.metrics(p2_pose)
+    associated = max([sum(1 for p in (r.get("raw_points") or []) if p is not None)
+                      for r in results], default=0)
+    smoothed_centroid = row["centroid_smoothed"]
+    if row["centroid_raw"] <= 0.30 and associated == 0 and not results:
+        stage = ("1_no_raw_response" if row["centroid_raw"] <= 0.30
+                 else "2_centroid_lost_in_smoothing")
+    if not results:
+        stage = ("1_no_raw_response" if row["centroid_raw"] <= 0.30
+                 else "2_centroid_lost_in_smoothing"
+                 if smoothed_centroid <= config.thresh_map
+                 else "3_object_construction_failed")
+    elif associated + 1 < 4:
+        stage = "4_insufficient_association"
+    elif not solved:
+        stage = "6_pnp_failed"
+    elif index is None:
+        stage = "7_live_gate_failed"
+    else:
+        stage = "8_reached_pose"
+    row.update({"P2_objects": len(results),
+                "P2_associated_corners": int(associated),
+                "P2_pnp_solved": len(solved),
+                "P2_gate_pass": bool(index is not None),
+                "P2_gate_reason": reason, "P2_failure_stage": stage,
+                "P2_pose_success": p2_pose is not None,
+                **{f"P2_{k}": v for k, v in p2_metrics.items()}})
+    return row, corner_rows
+
+
+PAD_D13_GATE = {"R4_min": 8, "centroid_min": 10, "corner_median_min": 4,
+                "new_le20_min": 0.60, "new_gt50_max": 0.15, "d0_pnp_min": 6,
+                "rescue_reproj_max": 30.0, "rescue_yaw_max": 15.0,
+                "catastrophic_max": 0}
+
+
+def pad_gate(arm: str, dead: pd.DataFrame, control: pd.DataFrame,
+             base_dead: pd.DataFrame, base_control: pd.DataFrame,
+             corners: pd.DataFrame, base_corners: pd.DataFrame
+             ) -> dict[str, Any]:
+    """Phase J.  Every condition fixed before the arms ran."""
+    limits = PAD_D13_GATE
+    fresh = []
+    base_peak = base_corners.set_index(["frame_id", "corner"]).raw_peak
+    for _, row in corners.iterrows():
+        key = (row.frame_id, row.corner)
+        was = float(base_peak.get(key, np.nan))
+        if row.raw_peak > 0.30 and np.isfinite(was) and was <= 0.30:
+            fresh.append(row.gt_error_px)
+    fresh = np.asarray([e for e in fresh if np.isfinite(e)], dtype=float)
+    rescued = dead[dead.D0_pose_success]
+    reproj = pd.to_numeric(rescued.D0_reproj_fixed_gt_px, errors="coerce")
+    yaw = pd.to_numeric(rescued.D0_yaw_err_deg, errors="coerce")
+
+    merged = base_control[["frame_id", "centroid_detected", "corners_detected",
+                           "D0_pose_success", "D0_reproj_fixed_gt_px"]].merge(
+        control[["frame_id", "centroid_detected", "corners_detected",
+                 "D0_pose_success", "D0_reproj_fixed_gt_px"]],
+        on="frame_id", suffixes=("_b", "_a"))
+    lost_centroid = int((merged.centroid_detected_b & ~merged.centroid_detected_a).sum())
+    corner_drop = merged.corners_detected_b - merged.corners_detected_a
+    both = merged[merged.D0_pose_success_b & merged.D0_pose_success_a]
+    delta = (pd.to_numeric(both.D0_reproj_fixed_gt_px_a, errors="coerce")
+             - pd.to_numeric(both.D0_reproj_fixed_gt_px_b, errors="coerce")).to_numpy()
+    delta = delta[np.isfinite(delta)]
+    base_median = float(np.nanmedian(pd.to_numeric(
+        both.D0_reproj_fixed_gt_px_b, errors="coerce"))) if len(both) else np.nan
+    arm_median = float(np.nanmedian(pd.to_numeric(
+        both.D0_reproj_fixed_gt_px_a, errors="coerce"))) if len(both) else np.nan
+    relative = (np.nan if not np.isfinite(base_median) or base_median == 0
+                else (arm_median - base_median) / base_median)
+
+    conditions = {
+        "R4 >= 8": int(dead.R4.sum()) >= limits["R4_min"],
+        "centroid recovery >= 10": int(dead.R_centroid.sum()) >= limits["centroid_min"],
+        "corner median >= 4": float(dead.corners_detected.median()) >= limits["corner_median_min"],
+        "new corner <=20px >= 60%": bool(len(fresh) and
+                                         (fresh <= 20).mean() >= limits["new_le20_min"]),
+        "new corner >50px <= 15%": bool(len(fresh) == 0 or
+                                        (fresh > 50).mean() <= limits["new_gt50_max"]),
+        "D0 PnP >= 6": int(dead.D0_pose_success.sum()) >= limits["d0_pnp_min"],
+        "rescued reproj <= 30px": bool(len(reproj) and
+                                       float(np.nanmedian(reproj)) <= limits["rescue_reproj_max"]),
+        "rescued yaw <= 15deg": bool(len(yaw) and
+                                     float(np.nanmedian(yaw)) <= limits["rescue_yaw_max"]),
+        "no reproj > 100px": bool(len(reproj) == 0 or
+                                  float(np.nanmax(reproj)) <= 100.0),
+        "C13 centroid lost = 0": lost_centroid == 0,
+        "C13 corner drop <= 1 everywhere": int((corner_drop > 1).sum()) == 0,
+        "C13 PnP not reduced": int(control.D0_pose_success.sum())
+        >= int(base_control.D0_pose_success.sum()),
+        "C13 reproj not >5% worse": bool(np.isfinite(relative) and relative <= 0.05),
+        "C13 improved >= worsened": int((delta < 0).sum()) >= int((delta > 0).sum()),
+        "C13 no catastrophic >=10px": int((delta >= 10.0).sum()) == 0,
+    }
+    return {"arm": arm, "conditions": {k: bool(v) for k, v in conditions.items()},
+            "passed": bool(all(conditions.values())),
+            "n_failed": int(sum(1 for v in conditions.values() if not v)),
+            "R4": int(dead.R4.sum()), "R6": int(dead.R6.sum()),
+            "centroid_recovered": int(dead.R_centroid.sum()),
+            "corner_median": float(dead.corners_detected.median()),
+            "d0_pnp": int(dead.D0_pose_success.sum()),
+            "new_corners": int(len(fresh)),
+            "new_le20_frac": float((fresh <= 20).mean()) if len(fresh) else np.nan,
+            "new_gt50_frac": float((fresh > 50).mean()) if len(fresh) else np.nan,
+            "rescued_reproj_median": float(np.nanmedian(reproj)) if len(reproj) else np.nan,
+            "rescued_yaw_median": float(np.nanmedian(yaw)) if len(yaw) else np.nan,
+            "c13_centroid_lost": lost_centroid,
+            "c13_pnp": int(control.D0_pose_success.sum()),
+            "c13_reproj_relative": relative,
+            "c13_improved": int((delta < 0).sum()),
+            "c13_worsened": int((delta > 0).sum()),
+            "c13_catastrophic": int((delta >= 10.0).sum())}
+
+
+def pad_select(gates: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    """Phase K.  Lexicographic, no manual step."""
+    passing = [g for g in gates if g["passed"]]
+    if not passing:
+        return None
+    order = {"A1_reflect": 0, "A2_replicate": 1, "A3_constant127": 2}
+    ranked = sorted(passing, key=lambda g: (
+        -g["R4"], -g["d0_pnp"],
+        g["rescued_reproj_median"] if np.isfinite(g["rescued_reproj_median"]) else 1e9,
+        g["c13_worsened"],
+        g["new_gt50_frac"] if np.isfinite(g["new_gt50_frac"]) else 1e9,
+        order.get(g["arm"], 9)))
+    return {"arm": ranked[0]["arm"], "pad_pixels": PAD_PIXELS,
+            "rule": "max R4, max D0 PnP, min rescued reproj, min C13 worsened, "
+                    "min new >50px, then reflect > replicate > constant",
+            "candidates": [g["arm"] for g in ranked],
+            "selected_on": "D13 + C13 only"}
+
+
+def pad_run() -> int:
+    """Phases A-K.  ep57 read only, zero training, holdouts untouched unless a
+    candidate is selected."""
+    PAD_OUT.mkdir(parents=True, exist_ok=True)
+    if hashlib.sha256(EP57.read_bytes()).hexdigest() != EP57_SHA:
+        raise SystemExit("BLOCKED: ep57 SHA mismatch")
+    config, gates_cfg = dec_config()
+    if not (config.sigma == 3 and config.thresh_map == 0.30
+            and config.thresh_points == 0.30 and config.thresh_angle == 0.50):
+        raise SystemExit("BLOCKED: deployment config is not the recorded one")
+    members = pad_membership()
+    (PAD_OUT / "padding_membership.json").write_text(
+        json.dumps(members, indent=2), "utf-8")
+    log(f"[A] D13 {len(members['D13'])} C13 {len(members['C13'])} "
+        f"E44 {len(members['E44'])} W45 {len(members['W45'])}  "
+        f"D13∩E44 {len(members['D13_inter_E44'])} "
+        f"C13∩E44 {len(members['C13_inter_E44'])}")
+
+    meta = {f["frame_id"]: f for f in cal_n87_frames()}
+    dev = [meta[uid] for uid in members["D13"] + members["C13"]]
+    dead_ids, control_ids = set(members["D13"]), set(members["C13"])
+
+    frame_rows, corner_rows, response_rows = [], [], []
+    for arm in PAD_ARMS:
+        started = time.perf_counter()
+        cache = pad_forward(dev, arm)
+        for spec in dev:
+            frame = EvalFrame(spec)
+            entry = cache[spec["frame_id"]]
+            response_rows.extend(pad_response_rows(spec, frame, arm, entry))
+            row, corners = pad_frame_evaluation(spec, frame, arm, entry,
+                                                config, gates_cfg)
+            row["group"] = "D13" if spec["frame_id"] in dead_ids else "C13"
+            frame_rows.append(row)
+            corner_rows.extend(corners)
+        log(f"  {arm}: {len(dev)} frames in {time.perf_counter() - started:.1f}s")
+        del cache
+    frames = pd.DataFrame(frame_rows)
+    corners = pd.DataFrame(corner_rows)
+    frames.to_csv(PAD_OUT / "padding_frames.csv", index=False)
+    corners.to_csv(PAD_OUT / "padding_corner_rows.csv", index=False)
+    pd.DataFrame(response_rows).to_csv(PAD_OUT / "padding_response_metrics.csv",
+                                       index=False)
+
+    base_dead = frames[(frames.arm == "A0_original") & (frames.group == "D13")]
+    base_control = frames[(frames.arm == "A0_original") & (frames.group == "C13")]
+    base_corners = corners[corners.arm == "A0_original"]
+    gate_rows = []
+    for arm in PAD_ARMS[1:]:
+        gate_rows.append(pad_gate(
+            arm,
+            frames[(frames.arm == arm) & (frames.group == "D13")],
+            frames[(frames.arm == arm) & (frames.group == "C13")],
+            base_dead, base_control,
+            corners[corners.arm == arm], base_corners))
+    (PAD_OUT / "padding_gate.json").write_text(json.dumps({
+        "gate": PAD_D13_GATE, "pad_pixels": PAD_PIXELS,
+        "constant_value": list(PAD_CONSTANT_VALUE),
+        "source": "challenge/scripts/dope_predict_mp4_pad.py:207,353",
+        "rows": gate_rows}, indent=2), "utf-8")
+    for entry in gate_rows:
+        failed = [k for k, v in entry["conditions"].items() if not v]
+        log(f"  gate {entry['arm']}: R4 {entry['R4']}/13 centroid "
+            f"{entry['centroid_recovered']}/13 corner_med {entry['corner_median']:.0f} "
+            f"D0pnp {entry['d0_pnp']}/13 -> "
+            f"{'PASS' if entry['passed'] else 'FAIL ' + str(failed)}")
+
+    selected = pad_select(gate_rows)
+    (PAD_OUT / "selected_padding.json").write_text(json.dumps(
+        selected or {"selected": None,
+                     "verdict": "PADDING_RECOVERY_FAIL",
+                     "reason": "no arm cleared the D13 gate"}, indent=2), "utf-8")
+    if selected is None:
+        log("[K] no arm passes -> PADDING_RECOVERY_FAIL, holdouts not spent")
+    else:
+        log(f"[K] selected {selected['arm']}")
+    return 0
+
+
+def pad_figures() -> int:
+    """Phase Q.  9 and the confirmatory panel are skipped without a candidate."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    figures = PAD_OUT / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    frames = pd.read_csv(PAD_OUT / "padding_frames.csv", dtype={"frame_id": str})
+    corners = pd.read_csv(PAD_OUT / "padding_corner_rows.csv",
+                          dtype={"frame_id": str})
+    gate = json.loads((PAD_OUT / "padding_gate.json").read_text("utf-8"))
+    members = json.loads((PAD_OUT / "padding_membership.json").read_text("utf-8"))
+    meta = {f["frame_id"]: f for f in cal_n87_frames()}
+    dead = set(members["D13"])
+    arms = list(PAD_ARMS)
+    short = [a.split("_", 1)[1] for a in arms]
+
+    # 1 geometry
+    fig, axes = plt.subplots(1, 4, figsize=(15, 4.2))
+    image = cv2.imread(meta[members["D13"][0]]["image_path"])
+    for axis, arm, name in zip(axes, arms, short):
+        axis.imshow(cv2.cvtColor(pad_apply(image, arm), cv2.COLOR_BGR2RGB))
+        geometry = pad_geometry(arm, image.shape[1], image.shape[0])
+        axis.set_title(f"{name}\ncanvas {int(geometry['canvas_w'])}x"
+                       f"{int(geometry['canvas_h'])}  offset "
+                       f"({geometry['left']},{geometry['top']})", fontsize=9)
+        axis.axis("off")
+    fig.suptitle(f"One geometry, four borders.  pad = {PAD_PIXELS}px per side, "
+                 "then resize back")
+    fig.tight_layout()
+    fig.savefig(figures / "padding_geometry.png", dpi=140)
+    plt.close(fig)
+
+    # 3 recovery counts
+    fig, axis = plt.subplots(figsize=(8.5, 4.4))
+    width = 0.25
+    for index, (column, label) in enumerate((("R_centroid", "centroid > 0.30"),
+                                             ("R4", "centroid + 4 corners"),
+                                             ("R6", "centroid + 6 corners"))):
+        values = [int(frames[(frames.arm == a) & (frames.group == "D13")][column].sum())
+                  for a in arms]
+        axis.bar(np.arange(len(arms)) + (index - 1) * width, values, width, label=label)
+    axis.axhline(8, color="crimson", ls="--", label="gate R4 >= 8")
+    axis.set_xticks(range(len(arms))); axis.set_xticklabels(short)
+    axis.set_ylabel("frames of 13")
+    axis.set_title("Response does come back -- and grey padding does it best")
+    axis.legend(fontsize=8); axis.grid(alpha=0.3, axis="y")
+    fig.tight_layout()
+    fig.savefig(figures / "response_recovery_counts.png", dpi=150)
+    plt.close(fig)
+
+    # 4 corner precision, split by whether the GT is on screen
+    base = corners[corners.arm == "A0_original"].set_index(["frame_id", "corner"]).raw_peak
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.4))
+    for axis, inside, title in ((axes[0], True, "GT inside the original frame"),
+                                (axes[1], False, "GT outside the frame")):
+        for arm, name in zip(arms[1:], short[1:]):
+            table = corners[(corners.arm == arm) & corners.frame_id.isin(dead)
+                            & (corners.gt_inside_frame == inside)]
+            fresh = [r.gt_error_px for _, r in table.iterrows()
+                     if r.raw_peak > 0.30
+                     and np.isfinite(base.get((r.frame_id, r.corner), np.nan))
+                     and base.get((r.frame_id, r.corner)) <= 0.30]
+            fresh = np.asarray([e for e in fresh if np.isfinite(e)])
+            if len(fresh):
+                axis.hist(np.clip(fresh, 0, 400), bins=30, alpha=0.5, label=f"{name} (n={len(fresh)})")
+        axis.axvline(20, color="crimson", ls="--", label="20px")
+        axis.set_xlabel("error of newly recovered corners (px)")
+        axis.set_title(title)
+        axis.legend(fontsize=8); axis.grid(alpha=0.3)
+    fig.suptitle("In-frame corners come back near GT; off-screen corners do not")
+    fig.tight_layout()
+    fig.savefig(figures / "corner_precision_after_padding.png", dpi=150)
+    plt.close(fig)
+
+    # 5 mode comparison
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4.2))
+    rows = {g["arm"]: g for g in gate["rows"]}
+    for axis, (key, title) in zip(axes, (("R4", "R4 recovery (of 13)"),
+                                         ("d0_pnp", "D0 PnP solved (of 13)"),
+                                         ("rescued_reproj_median",
+                                          "rescued pose reprojection (px)"))):
+        values = [rows[a][key] for a in arms[1:]]
+        axis.bar(short[1:], values, color=["tab:blue", "tab:orange", "tab:green"])
+        if key == "rescued_reproj_median":
+            axis.axhline(30, color="crimson", ls="--", label="gate 30px")
+            axis.legend(fontsize=8)
+        axis.set_title(title)
+        axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("Constant grey matches or beats reflect: this is not context continuation")
+    fig.tight_layout()
+    fig.savefig(figures / "mode_comparison.png", dpi=150)
+    plt.close(fig)
+
+    # 6 D0 pose rescue
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    for axis, (column, title, limit) in zip(axes, (
+            ("D0_reproj_fixed_gt_px", "fixed-GT reprojection (px)", 30.0),
+            ("D0_yaw_err_deg", "yaw error (deg)", 15.0))):
+        data, labels = [], []
+        for arm, name in zip(arms[1:], short[1:]):
+            table = frames[(frames.arm == arm) & (frames.group == "D13")
+                           & frames.D0_pose_success]
+            values = pd.to_numeric(table[column], errors="coerce").dropna()
+            if len(values):
+                data.append(values); labels.append(f"{name}\nn={len(values)}")
+        if data:
+            axis.boxplot(data, labels=labels)
+        axis.axhline(limit, color="crimson", ls="--", label=f"gate {limit:g}")
+        axis.set_title(title); axis.legend(fontsize=8); axis.grid(alpha=0.3, axis="y")
+    fig.suptitle("Poses are recovered, but not accurate enough to accept")
+    fig.tight_layout()
+    fig.savefig(figures / "p0_pose_rescue.png", dpi=150)
+    plt.close(fig)
+
+    # 7 P2 failure stage
+    fig, axis = plt.subplots(figsize=(9.5, 4.4))
+    stages = sorted(frames[frames.group == "D13"].P2_failure_stage.unique())
+    bottom = np.zeros(len(arms))
+    for stage in stages:
+        values = [int(((frames.arm == a) & (frames.group == "D13")
+                       & (frames.P2_failure_stage == stage)).sum()) for a in arms]
+        axis.bar(short, values, bottom=bottom, label=stage)
+        bottom += np.asarray(values, dtype=float)
+    axis.set_ylabel("frames of 13")
+    axis.set_title("Deployment never gets past the smoothing, whatever the padding")
+    axis.legend(fontsize=7); axis.grid(alpha=0.3, axis="y")
+    fig.tight_layout()
+    fig.savefig(figures / "p2_failure_stage.png", dpi=150)
+    plt.close(fig)
+
+    # 8 control regression
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    base_control = frames[(frames.arm == "A0_original") & (frames.group == "C13")]
+    for arm, name in zip(arms[1:], short[1:]):
+        table = frames[(frames.arm == arm) & (frames.group == "C13")]
+        merged = base_control[["frame_id", "D0_reproj_fixed_gt_px",
+                               "D0_pose_success", "corners_detected"]].merge(
+            table[["frame_id", "D0_reproj_fixed_gt_px", "D0_pose_success",
+                   "corners_detected"]], on="frame_id", suffixes=("_b", "_a"))
+        both = merged[merged.D0_pose_success_b & merged.D0_pose_success_a]
+        delta = (pd.to_numeric(both.D0_reproj_fixed_gt_px_a, errors="coerce")
+                 - pd.to_numeric(both.D0_reproj_fixed_gt_px_b, errors="coerce"))
+        axes[0].scatter([name] * len(delta), delta, s=22, alpha=0.8)
+        axes[1].scatter([name] * len(merged),
+                        merged.corners_detected_a - merged.corners_detected_b,
+                        s=22, alpha=0.8)
+    axes[0].axhline(0, color="black", lw=1); axes[0].axhline(10, color="crimson", ls="--")
+    axes[0].set_ylabel("paired reprojection delta (px)")
+    axes[0].set_title("C13: padding costs the healthy frames")
+    axes[1].axhline(0, color="black", lw=1)
+    axes[1].set_ylabel("corner count delta")
+    axes[1].set_title("C13: corners detected")
+    for axis in axes:
+        axis.grid(alpha=0.3, axis="y")
+    fig.tight_layout()
+    fig.savefig(figures / "matched_control_regression.png", dpi=150)
+    plt.close(fig)
+
+    # 2 / 10 before-after overlays
+    picks = members["D13"][:4]
+    fig, axes = plt.subplots(2, len(picks), figsize=(5 * len(picks), 8))
+    for column, uid in enumerate(picks):
+        spec = meta[uid]
+        image = cv2.imread(spec["image_path"])
+        for line, arm in enumerate(("A0_original", "A3_constant127")):
+            axis = axes[line, column]
+            axis.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            frame = EvalFrame(spec)
+            for corner in range(8):
+                gt = frame.gt_points[corner]
+                if gt is not None:
+                    axis.plot(gt[0], gt[1], "o", ms=6, mfc="none", mec="lime", mew=2)
+            table = corners[(corners.arm == arm) & (corners.frame_id == uid)]
+            for _, r in table.iterrows():
+                if r.detected and pd.notna(r.decoded_x):
+                    axis.plot(r.decoded_x, r.decoded_y, "x", ms=8,
+                              color="red" if not r.gt_inside_frame else "deepskyblue",
+                              mew=2)
+            row = frames[(frames.arm == arm) & (frames.frame_id == uid)].iloc[0]
+            axis.set_title(f"{arm.split('_', 1)[1]}  centroid {row.centroid_raw:.3f}  "
+                           f"corners {int(row.corners_detected)}/8", fontsize=8)
+            axis.set_xlim(0, spec["image_width"]); axis.set_ylim(spec["image_height"], 0)
+            axis.axis("off")
+    fig.suptitle("Green = GT, blue = recovered in-frame corner, red = recovered "
+                 "corner whose GT is off screen")
+    fig.tight_layout()
+    fig.savefig(figures / "dead_response_before_after.png", dpi=140)
+    fig.savefig(figures / "failure_examples.png", dpi=140)
+    plt.close(fig)
+    return 0
