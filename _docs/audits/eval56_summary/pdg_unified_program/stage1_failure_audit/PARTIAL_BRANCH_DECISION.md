@@ -1,3 +1,7 @@
+> **SUPERSEDED 2026-08-06.**  Every number below was measured on D13/C13, which
+> come from `data/_eval_sets/*combined` -- the set CLAUDE.md bars from evaluation.
+> See `CANONICAL_REEVALUATION.md`: three of these verdicts flip on canonical data.
+
 # Branch result so far — not the final mechanism
 
 Two of the seven hypotheses are closed.  Topology coverage and the C13
