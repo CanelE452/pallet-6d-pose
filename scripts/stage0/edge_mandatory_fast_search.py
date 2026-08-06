@@ -266,39 +266,132 @@ def phase_cigm_oracle(st):
     if not all(gates.values()): raise RuntimeError("HARD_BLOCKED_CIGM_ORACLE_PARITY")
 
 
+def _rank(values):
+    """Percentile rank within the train split.  NaN is never rank 0."""
+    a = np.asarray(values, float)
+    if not np.isfinite(a).all():
+        raise RuntimeError("HARD_BLOCKED_DIFFICULTY_MISSING_VALUE")
+    order = a.argsort(kind="stable")
+    rank = np.empty(len(a), float)
+    rank[order] = np.arange(len(a), dtype=float) / max(len(a) - 1, 1)
+    return rank
+
+
 def phase_subsets(st):
-    train = split_rows("train"); idx = index_rows()
-    def difficulty(r):
-        m = idx[r["index"]]
-        side = float(m["bbox_vis_min_side_px"] or 0); vkp = int(m["visible_kp_count"] or 0)
-        tiny = str(m["tiny_warning"]).lower() in ("true", "1")
-        if vkp <= 5 or tiny or side < 24: return "hard"
-        if vkp == 8 and side >= 60: return "easy"
-        return "medium"
-    pools = {"hard": [], "medium": [], "easy": []}
-    for r in train: pools[difficulty(r)].append(r["index"])
-    for k in pools: pools[k].sort()
-    def take(q, seed):
-        rng = random.Random(seed); out = []
-        for k, n in q.items():
-            avail = pools[k]
-            if len(avail) < n: raise RuntimeError(f"HARD_BLOCKED_SUBSET_QUOTA:{k} {len(avail)}<{n}")
-            out.extend(rng.sample(avail, n))
-        return sorted(out)
-    c6 = take(QUOTA_6K, 6); s2 = sorted(random.Random(2).sample(c6, 2000))
-    # keep the nesting exact: 2k drawn from 6k, 512 from 2k
-    s512 = sorted(random.Random(512).sample(s2, 512))
-    for name, ids in (("smoke512", s512), ("search2k", s2), ("confirm6k", c6)):
+    """Difficulty is a rank over the train split, never an absolute threshold.
+
+    The previous definition used visible_kp_count == 8 and a 60px side, chosen
+    without checking the column's meaning or its distribution, and the easy pool
+    came back empty.  A rank cannot be empty, and it is computed from train
+    metadata alone before any model result exists.
+    """
+    import cv2
+    idx = index_rows()
+    train = split_rows("train")
+    feats = []
+    for k, r in enumerate(train):
+        stem = r["index"]; m = idx[stem]
+        d = json.loads((ALLDIR / f"{stem}.json").read_text("utf-8"))
+        cd, o = d["camera_data"], d["objects"][0]
+        w, h = cd["width"], cd["height"]
+        pc = np.asarray(o["projected_cuboid"], float)
+        inside = ((pc[:, 0] >= 0) & (pc[:, 0] < w) & (pc[:, 1] >= 0) & (pc[:, 1] < h))
+        geom_in = int(inside.sum())
+        border = bool(((pc[:, 0] < 4) | (pc[:, 0] > w - 4) | (pc[:, 1] < 4)
+                       | (pc[:, 1] > h - 4)) & inside).__index__() if False else bool(
+            (inside & ((pc[:, 0] < 4) | (pc[:, 0] > w - 4)
+                       | (pc[:, 1] < 4) | (pc[:, 1] > h - 4))).any())
+        mv = cv2.imread(str(DATA / m["mask_visible"]), cv2.IMREAD_GRAYSCALE)
+        ma = cv2.imread(str(DATA / m["mask_amodal"]), cv2.IMREAD_GRAYSCALE)
+        if mv is None or ma is None:
+            raise RuntimeError("HARD_BLOCKED_DIFFICULTY_MISSING_VALUE: mask unreadable")
+        av = float((mv > 127).sum()); aa = float((ma > 127).sum())
+        occ = 1.0 - av / max(aa, 1.0)
+        img = cv2.imread(str(ALLDIR / f"{stem}.png"))
+        luma = float(np.median(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)))
+        size = float(m["bbox_vis_min_side_px"] or 0.0)
+        tiny = 1.0 if str(m["tiny_warning"]).lower() in ("true", "1") else 0.0
+        feats.append({"index": stem, "group": r["group_id"], "run": m["run"],
+                      "geom_in": geom_in, "trunc": 1.0 if geom_in < 8 else 0.0,
+                      "occ": occ, "size": size, "luma": luma,
+                      "border": 1.0 if border else 0.0, "tiny": tiny,
+                      "mode": m["diagnostic_mode"], "pallet": m["pallet_type"]})
+        if k % 2000 == 0:
+            st.beat("subsets", f"features {k}/{len(train)}")
+    occ_r = _rank([f["occ"] for f in feats])
+    size_r = _rank([f["size"] for f in feats])
+    luma_r = _rank([f["luma"] for f in feats])
+    for i, f in enumerate(feats):
+        f["D"] = (3.0 * (8 - f["geom_in"]) / 4 + 2.0 * f["trunc"] + 2.0 * occ_r[i]
+                  + 1.5 * (1 - size_r[i]) + 1.0 * (1 - luma_r[i])
+                  + 1.0 * f["border"] + 0.5 * f["tiny"])
+    feats.sort(key=lambda f: (-f["D"], hashlib.sha256(f["index"].encode()).hexdigest()))
+    n = len(feats); h_end = int(round(0.45 * n)); m_end = h_end + int(round(0.35 * n))
+    for i, f in enumerate(feats):
+        f["difficulty"] = "hard" if i < h_end else ("medium" if i < m_end else "easy")
+    pools = {k: [f for f in feats if f["difficulty"] == k] for k in ("hard", "medium", "easy")}
+    log(f"[subsets] pools " + ", ".join(f"{k} {len(v)}" for k, v in pools.items()))
+
+    def draw(quota, cap, seed, restrict=None):
+        picked = []
+        for level, want in quota.items():
+            avail = [f for f in pools[level] if restrict is None or f["index"] in restrict]
+            if len(avail) < want:
+                raise RuntimeError(f"HARD_BLOCKED_SUBSET_QUOTA:{level} {len(avail)}<{want}")
+            rng = random.Random(seed + hash(level) % 1000)
+            # spread over appearance groups first, then fill deterministically
+            bygroup = {}
+            for f in avail:
+                bygroup.setdefault(f["group"], []).append(f)
+            for g in bygroup:
+                bygroup[g].sort(key=lambda f: f["index"])
+            take, used = [], {g: 0 for g in bygroup}
+            groups = sorted(bygroup)
+            while len(take) < want:
+                progressed = False
+                for g in groups:
+                    if len(take) >= want:
+                        break
+                    if used[g] < cap and used[g] < len(bygroup[g]):
+                        take.append(bygroup[g][used[g]]); used[g] += 1; progressed = True
+                if not progressed:
+                    raise RuntimeError(f"HARD_BLOCKED_SUBSET_QUOTA:{level} group cap {cap}")
+            picked.extend(take)
+            del rng
+        return picked
+
+    c6 = draw(QUOTA_6K, 50, 6)
+    c6_ids = {f["index"] for f in c6}
+    s2 = draw(QUOTA_2K, 20, 2, restrict=c6_ids)
+    s2_ids = {f["index"] for f in s2}
+    s512 = sorted(s2_ids)[:512]
+    assert set(s512) <= s2_ids <= c6_ids <= {f["index"] for f in feats}
+    hold = {r["index"] for r in split_rows("validation")} | {r["index"] for r in split_rows("untouched")}
+    assert not (c6_ids & hold)
+    for name, ids in (("smoke512", sorted(s512)), ("search2k", sorted(s2_ids)),
+                      ("confirm6k", sorted(c6_ids))):
         with open(OUT / f"{name}_manifest.csv", "w", newline="") as f:
             w = csv.writer(f); w.writerow(["index"]); w.writerows([[i] for i in ids])
-    hold = {r["index"] for r in split_rows("validation")} | {r["index"] for r in split_rows("untouched")}
-    assert set(s512) <= set(s2) <= set(c6) <= {r["index"] for r in train}
-    assert not (set(c6) & hold)
+    with open(OUT / "difficulty_distribution.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["index", "group", "run", "geom_in", "trunc",
+                                          "occ", "size", "luma", "border", "tiny",
+                                          "mode", "pallet", "D", "difficulty"])
+        w.writeheader(); w.writerows(feats)
+    atomic(OUT / "difficulty_definition.json", json.dumps(
+        {"basis": "percentile rank within the train split; no absolute threshold",
+         "formula": "3*(8-geom_in)/4 + 2*trunc + 2*occ_rank + 1.5*(1-size_rank) "
+                    "+ 1*(1-luma_rank) + 1*border + 0.5*tiny",
+         "proportions": {"hard": 0.45, "medium": 0.35, "easy": 0.20},
+         "tie_break": "sha256(index)",
+         "visible_kp_count_used": False,
+         "missing_value_policy": "HARD_BLOCK, never substituted with an easy value",
+         "pools": {k: len(v) for k, v in pools.items()}}, indent=1))
     atomic(OUT / "nested_subset_summary.json", json.dumps(
         {"pools": {k: len(v) for k, v in pools.items()},
-         "smoke512": len(s512), "search2k": len(s2), "confirm6k": len(c6),
+         "smoke512": len(s512), "search2k": len(s2_ids), "confirm6k": len(c6_ids),
+         "group_cap": {"search2k": 20, "confirm6k": 50},
          "nesting_exact": True, "holdout_inclusion": 0}, indent=1))
-    log(f"[subsets] pools {[f'{k}:{len(v)}' for k,v in pools.items()]}  512/2000/6000 nested")
+    log(f"[subsets] 512/{len(s2_ids)}/{len(c6_ids)} nested, holdout inclusion 0")
 
 
 def phase_smoke(st):
