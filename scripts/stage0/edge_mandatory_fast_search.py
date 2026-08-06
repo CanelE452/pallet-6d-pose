@@ -460,6 +460,40 @@ def edge_losses(pred, tgt):
     return {"centre": centre, "orientation": orient, "length": length, "support": support}
 
 
+def calibrate_v2(median: dict) -> tuple[dict, dict]:
+    """Raw normalisation, no lower clamp.
+
+    The previous rule clipped lambda into [1e-3, 100].  With a belief anchor near
+    0.003 and edge medians near 30, four of five lambdas hit the floor -- and the
+    floor raised them, so centre carried 26x its intended weight and the target
+    shares stopped meaning anything.  The safeguard is now a block, not a clip:
+    an out-of-range lambda stops the run instead of silently rewriting the
+    objective.
+    """
+    anchor = median["belief"]
+    lam, rows = {}, {}
+    for k, share in TARGET_SHARE.items():
+        raw = share * anchor / max(median[k], 1e-9)
+        if not np.isfinite(raw) or not (1e-8 <= raw <= 1e4):
+            raise RuntimeError(f"HARD_BLOCKED_LOSS_SCALE_PATHOLOGY:{k}={raw:g}")
+        lam[k] = float(raw)
+        realized = lam[k] * median[k] / max(anchor, 1e-12)
+        rows[k] = {"median": median[k], "lambda": lam[k],
+                   "contribution": lam[k] * median[k], "realized_share": realized,
+                   "target_share": share,
+                   "relative_error": abs(realized / share - 1.0)}
+    worst = max(r["relative_error"] for r in rows.values())
+    report = {"anchor": "frozen A1 base belief, masked MSE over corner channels 0:8",
+              "median_belief_anchor": anchor, "components": rows,
+              "lower_clamp": "removed", "numerical_bound": "1e-8 <= lambda <= 1e4, HARD_BLOCK",
+              "max_relative_error": worst,
+              "CALIBRATION_V2": "PASS" if worst <= 0.01 else "FAIL",
+              "frozen": True}
+    if worst > 0.01:
+        raise RuntimeError(f"HARD_BLOCKED_CALIBRATION_FIDELITY:{worst:.3e}")
+    return lam, report
+
+
 def build_arm(arm, seed):
     import physical_edge_query as PEQmod, edge_guided_corner_fusion as EG
     import spatial_hcrm as HC
@@ -535,8 +569,11 @@ def run_training(st, manifest, steps, epochs, seed, tag):
                     out["corners"], kp, reduction="none") * inc_mask).sum() / inc_mask.sum().clamp_min(1.0) / 2
                 belief = (((out["final"][:, :8] - gt_belief) ** 2) * bmask).mean()
                 if lam is None and step < 16:
+                    # anchor is the frozen A1 base belief, identical for every arm,
+                    # so E1 and E2 calibrate on one scale rather than on their own output
+                    anchor = (((base[:, :8] - gt_belief) ** 2) * bmask).mean()
                     trace[a]["losses"].append({k: float(v) for k, v in el.items()}
-                                              | {"belief": float(belief)})
+                                              | {"belief": float(anchor)})
                     continue
                 loss = belief + sum(lam[k] * el[k] for k in el)
                 if not torch.isfinite(loss):
@@ -555,11 +592,11 @@ def run_training(st, manifest, steps, epochs, seed, tag):
             if lam is None and step >= 15:
                 med = {k: float(np.median([r[k] for r in trace[ARMS[0]]["losses"]]))
                        for k in trace[ARMS[0]]["losses"][0]}
-                lam = {k: float(np.clip(TARGET_SHARE[k] * med["belief"] / max(med[k], 1e-9),
-                                        1e-3, 100.0)) for k in TARGET_SHARE}
-                atomic(OUT / f"{tag}_lambda.json", json.dumps(
-                    {"median": med, "lambda": lam, "frozen": True}, indent=1))
-                log(f"[{tag}] lambda {json.dumps({k: round(v,4) for k,v in lam.items()})}")
+                lam, report = calibrate_v2(med)
+                atomic(OUT / f"{tag}_lambda.json", json.dumps(report, indent=1))
+                log(f"[{tag}] lambda {json.dumps({k: float(f'{v:.4g}') for k,v in lam.items()})}")
+                log(f"[{tag}] CALIBRATION_V2 {'PASS' if report['CALIBRATION_V2']=='PASS' else 'FAIL'}"
+                    f"  max share error {report['max_relative_error']:.2e}")
             step += 1
             if step % 20 == 0:
                 st.beat(tag, f"step {step}")
@@ -593,7 +630,7 @@ def phase_smoke(st):
                            "centroid_delta_0": EG.assert_passthrough(out["final"], base)["centroid_max_abs"] == 0.0}
     ok = all(all(v is True or v for v in c.values()) for c in checks.values())
     # checkpoint round-trip
-    d = WEIGHTS / "smoke"; d.mkdir(parents=True, exist_ok=True)
+    d = WEIGHTS / "R1B" / "smoke"; d.mkdir(parents=True, exist_ok=True)
     torch.save({k: m.state_dict() for k, m in r["arms"]["E1"][0].items()}, d / "E1.pth")
     checks["checkpoint_saved"] = (d / "E1.pth").is_file()
     atomic(OUT / "smoke.json", json.dumps(
@@ -614,7 +651,7 @@ def phase_round1(st):
          "trace": {a: {k: v for k, v in r["trace"][a].items() if k != "losses"} for a in ARMS},
          "validation": "PENDING"}, indent=1))
     for a in ARMS:
-        d = WEIGHTS / a; d.mkdir(parents=True, exist_ok=True)
+        d = WEIGHTS / "R1B" / a; d.mkdir(parents=True, exist_ok=True)
         torch.save({k: m.state_dict() for k, m in r["arms"][a][0].items()}, d / "round1.pth")
     log(f"[round1] {r['steps']} steps, A1 forwards {r['a1_forwards']}, checkpoints saved")
 
