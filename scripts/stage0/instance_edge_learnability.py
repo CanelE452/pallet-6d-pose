@@ -891,6 +891,64 @@ def select_checkpoint(history: list[dict[str, Any]]) -> dict[str, Any]:
 # ============================================================================
 # evaluation
 # ============================================================================
+_POOL = None
+
+
+def _pnp_init() -> None:
+    cv2.setNumThreads(1)
+    modules()
+
+
+def _pnp_task(task):
+    """One canonical solve plus its fixed-observation reprojection.
+
+    The solver is deterministic -- annotate_pnp reaches cv2.solvePnP and
+    cv2.solvePnPGeneric, never a RANSAC variant -- so splitting the work across
+    processes cannot change a number.  It is 98% of the evaluation cost and the
+    only part that does not fit on the GPU: OpenCV's calib3d has no CUDA
+    solvePnP, and the solver itself is the project's canonical one, so
+    replacing it would break comparability with every earlier verdict.
+    """
+    points, intrinsics, dims, shape, ground_truth = task
+    M = modules()
+    solver = M["FZ"].CurrentSolveCache(intrinsics, dims, shape, auto_swap_dims=True)
+    pose, _, _, _ = solver.solve(points)
+    if pose is None:
+        return False, None
+    value, _ = M["FZ"].fixed_observation_reprojection(pose, ground_truth,
+                                                     intrinsics, dims)
+    return True, value
+
+
+def start_pool(workers: int = 0):
+    """Start the solve pool.
+
+    Spawn, not fork: torch has already started thread pools by the time this
+    runs, and forking a multi-threaded process deadlocked reproducibly here.
+    Spawn costs a one-off worker import and was measured at 3.6x with results
+    identical to the sequential path, checked value by value rather than
+    approximately.
+    """
+    global _POOL
+    if _POOL is not None:
+        return _POOL
+    import multiprocessing
+    if workers <= 0:
+        workers = max(1, (os.cpu_count() or 2) - 2)
+    context = multiprocessing.get_context("spawn")
+    _POOL = context.Pool(workers, initializer=_pnp_init)
+    log(f"[pool] {workers} solve workers (spawn)")
+    return _POOL
+
+
+def solve_many(tasks: list) -> list:
+    if not tasks:
+        return []
+    if _POOL is None:
+        return [_pnp_task(task) for task in tasks]
+    return _POOL.map(_pnp_task, tasks, chunksize=max(1, len(tasks) // 64))
+
+
 def decode_batch(probability: np.ndarray, incidence: list[list[int]], grid: int,
                  width: float, height: float) -> list[list[float]]:
     M = modules()
@@ -1018,24 +1076,24 @@ def evaluate_synthetic(arm: str, model, encoder: FrozenEncoder,
     r4 = r6 = pnp = 0
     reproj: list[float] = []
     visibility_rows: list[dict[str, Any]] = []
+    decoded = [decode_batch(probabilities[index], incidence, grid, *frame.size)
+               for index, frame in enumerate(frames)]
+    solved = solve_many([] if quick else [
+        (points + [None], frame.K, frame.dims, (frame.size[1], frame.size[0], 3),
+         list(frame.corners) + [None])
+        for points, frame in zip(decoded, frames)])
     for index, frame in enumerate(frames):
-        width, height = frame.size
-        points = decode_batch(probabilities[index], incidence, grid, width, height)
+        points = decoded[index]
         frame_rows = corner_rows(points, frame.corners)
         rows.extend(frame_rows)
         good = sum(1 for r in frame_rows if r["err"] <= CORNER_OK_PX)
         r4 += int(good >= R4_MIN)
         r6 += int(good >= R6_MIN)
         if not quick:
-            solver = M["FZ"].CurrentSolveCache(frame.K, frame.dims,
-                                               (height, width, 3), auto_swap_dims=True)
-            pose, _, _, _ = solver.solve(points + [None])
-            pnp += int(pose is not None)
-            if pose is not None:
-                value, _ = M["FZ"].fixed_observation_reprojection(
-                    pose, list(frame.corners) + [None], frame.K, frame.dims)
-                if value is not None:
-                    reproj.append(value)
+            success, value = solved[index]
+            pnp += int(success)
+            if value is not None:
+                reproj.append(value)
             for corner in range(8):
                 states = [frame.visibility[k] for k in incidence[corner]]
                 truth = frame.corners[corner]
@@ -1255,24 +1313,24 @@ def accumulate_chunk(accumulator: Accumulator, arm: str, probabilities: np.ndarr
     grid = arm_grid(arm)
     targets = np.stack([f.target5 if arm == "L5-CTRL" else f.target12 for f in frames])
     accumulator.add_maps(probabilities, targets)
+    decoded = [decode_batch(probabilities[index], incidence, grid, *frame.size)
+               for index, frame in enumerate(frames)]
+    solved = solve_many([
+        (points + [None], frame.K, frame.dims, (frame.size[1], frame.size[0], 3),
+         list(frame.corners) + [None])
+        for points, frame in zip(decoded, frames)])
     for index, frame in enumerate(frames):
-        width, height = frame.size
-        points = decode_batch(probabilities[index], incidence, grid, width, height)
+        points = decoded[index]
         rows = corner_rows(points, frame.corners)
         accumulator.rows.extend(rows)
         good = sum(1 for r in rows if r["err"] <= CORNER_OK_PX)
         accumulator.frames += 1
         accumulator.r4 += int(good >= R4_MIN)
         accumulator.r6 += int(good >= R6_MIN)
-        solver = M["FZ"].CurrentSolveCache(frame.K, frame.dims, (height, width, 3),
-                                           auto_swap_dims=True)
-        pose, _, _, _ = solver.solve(points + [None])
-        accumulator.pnp += int(pose is not None)
-        if pose is not None:
-            value, _ = M["FZ"].fixed_observation_reprojection(
-                pose, list(frame.corners) + [None], frame.K, frame.dims)
-            if value is not None:
-                accumulator.reproj.append(value)
+        success, value = solved[index]
+        accumulator.pnp += int(success)
+        if value is not None:
+            accumulator.reproj.append(value)
         for state in frame.visibility:
             accumulator.state_counts[state] = accumulator.state_counts.get(state, 0) + 1
         for corner in range(8):
@@ -1514,6 +1572,7 @@ def phase_train(state: State) -> dict[str, Any]:
 def phase_eval_synthetic(state: State, untouched_chunk: int = 400) -> dict[str, Any]:
     M = modules()
     topology = load_topology()
+    start_pool()
     encoder = FrozenEncoder().to(device)
     val_frames = load_split("val", topology, want5=True)
     runs = completed_runs()
@@ -1553,6 +1612,14 @@ def phase_eval_synthetic(state: State, untouched_chunk: int = 400) -> dict[str, 
                     for key in results}
     models = {key: load_selected(results[key]["arm"], results[key]["seed"], encoder)[0]
               for key in results}
+    # A Hungarian mapping that comes back as the identity means the predicted
+    # channels already sit on their physical edges.  Re-running the whole
+    # untouched pass through an identity permutation would repeat the same
+    # solves for the same answer, so it is copied instead of recomputed.
+    identity = {key: permutations[key] == list(range(arm_channels(results[key]["arm"])))
+                for key in results}
+    log(f"[synthetic] identity alignment: "
+        f"{sum(identity.values())}/{len(identity)} arms (their aligned pass is copied)")
     log(f"[synthetic] streaming untouched: {len(files)} frames, full coverage")
     for start in range(0, len(files), untouched_chunk):
         chunk_files = files[start:start + untouched_chunk]
@@ -1565,12 +1632,16 @@ def phase_eval_synthetic(state: State, untouched_chunk: int = 400) -> dict[str, 
             probabilities = predict(models[key], encoder, chunk)
             accumulate_chunk(accumulators[key]["fixed"], arm, probabilities, chunk,
                              fixed, topology)
-            accumulate_chunk(accumulators[key]["aligned"], arm,
-                             probabilities[:, permutations[key]], chunk, fixed, topology)
+            if not identity[key]:
+                accumulate_chunk(accumulators[key]["aligned"], arm,
+                                 probabilities[:, permutations[key]], chunk,
+                                 fixed, topology)
         log(f"[synthetic] untouched {min(start+untouched_chunk, len(files))}/{len(files)}")
     for key in results:
         results[key]["untouched"] = accumulators[key]["fixed"].summary()
-        results[key]["untouched_aligned"] = accumulators[key]["aligned"].summary()
+        results[key]["untouched_aligned"] = (
+            results[key]["untouched"] if identity[key]
+            else accumulators[key]["aligned"].summary())
 
     assets_train = {f.get("asset") for f in json.loads(
         (PPD_ROOT / "ppd_train_manifest.json").read_text("utf-8"))["frames"]}
@@ -1763,21 +1834,35 @@ def phase_ppd(state: State) -> dict[str, Any]:
 # ============================================================================
 # Phase H and J -- decision
 # ============================================================================
+def best_block(entry: dict[str, Any]) -> dict[str, Any]:
+    """The best seed's block, whichever way JSON left the key.
+
+    Seeds are integers in memory and strings after a JSON round-trip, while
+    ``best_seed`` stays an integer because it is a value rather than a key.
+    Reading the reloaded file with the in-memory key raised KeyError.
+    """
+    seeds = entry["seeds"]
+    key = entry["best_seed"]
+    if key in seeds:
+        return seeds[key]
+    return seeds[str(key)]
+
+
 def multiscale_verdict(synthetic: dict[str, Any], canonical: dict[str, Any]
                        ) -> dict[str, Any]:
     if "L12-F50" not in synthetic["arms"] or "L12-MS" not in synthetic["arms"]:
         return {"verdict": "NOT_COMPARABLE", "reason": "an arm is missing"}
     f50 = synthetic["arms"]["L12-F50"]
     ms = synthetic["arms"]["L12-MS"]
-    f50_best = f50["seeds"][f50["best_seed"]]
-    ms_best = ms["seeds"][ms["best_seed"]]
+    f50_best = best_block(f50)
+    ms_best = best_block(ms)
     untouched_gain = (ms_best["untouched"]["corner_le20"]
                       - f50_best["untouched"]["corner_le20"])
     canonical_gain = {}
     pnp_drop = False
     for label in ("eval56", "wood"):
-        a = canonical["arms"]["L12-F50"]["seeds"][canonical["arms"]["L12-F50"]["best_seed"]]
-        b = canonical["arms"]["L12-MS"]["seeds"][canonical["arms"]["L12-MS"]["best_seed"]]
+        a = best_block(canonical["arms"]["L12-F50"])
+        b = best_block(canonical["arms"]["L12-MS"])
         canonical_gain[label] = b[label]["corner_le20"] - a[label]["corner_le20"]
         pnp_drop = pnp_drop or (b[label]["pnp"] < a[label]["pnp"])
     directions = sum(
@@ -1815,8 +1900,8 @@ def phase_decide(state: State) -> dict[str, Any]:
         detail: dict[str, Any] = {"reason": "no twelve-edge arm completed"}
     else:
         passing = [arm for arm in twelve if synthetic["arms"][arm]["gate"]["passed"]]
-        primary = max(twelve, key=lambda a: synthetic["arms"][a]["seeds"][
-            synthetic["arms"][a]["best_seed"]]["untouched"]["corner_le20"])
+        primary = max(twelve, key=lambda a: best_block(
+            synthetic["arms"][a])["untouched"]["corner_le20"])
         detail = {}
         if not passing:
             taxonomy = set()
@@ -1830,8 +1915,8 @@ def phase_decide(state: State) -> dict[str, Any]:
                 decision = "DIRECT_12EDGE_HEAD_NOT_LEARNABLE"
             detail["taxonomy"] = sorted(taxonomy)
         else:
-            primary = max(passing, key=lambda a: synthetic["arms"][a]["seeds"][
-                synthetic["arms"][a]["best_seed"]]["untouched"]["corner_le20"])
+            primary = max(passing, key=lambda a: best_block(
+                synthetic["arms"][a])["untouched"]["corner_le20"])
             gate = canonical["arms"][primary]["gate"]
             fractions = gate["fraction"]
             le20 = [fractions[s]["le20_fraction"] or 0 for s in ("eval56", "wood")]

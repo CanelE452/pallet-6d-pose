@@ -456,3 +456,66 @@ def test_34_weights_are_not_staged_for_git():
     tracked = subprocess.run(["git", "ls-files", "weights"], cwd=ROOT,
                              capture_output=True, text=True).stdout.split()
     assert not [name for name in tracked if name.endswith(".pth")], tracked[:5]
+
+
+# ---------------------------------------------------------------------------
+# 35-37  parallel solve path
+# ---------------------------------------------------------------------------
+def test_35_solve_many_falls_back_to_sequential_without_a_pool(monkeypatch):
+    spec = importlib.util.spec_from_file_location("IEL6", RUNNER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    monkeypatch.setattr(module, "_POOL", None)
+    calls = []
+    monkeypatch.setattr(module, "_pnp_task", lambda task: calls.append(task) or (True, 1.0))
+    assert module.solve_many([]) == []
+    assert module.solve_many(["a", "b"]) == [(True, 1.0), (True, 1.0)]
+    assert calls == ["a", "b"]
+
+
+def test_36_solve_pool_uses_spawn_not_fork():
+    """Forking after torch has started its thread pools deadlocked here."""
+    tree = ast.parse(RUNNER.read_text("utf-8"))
+    starter = next(node for node in ast.walk(tree)
+                   if isinstance(node, ast.FunctionDef) and node.name == "start_pool")
+    body = [node for node in starter.body
+            if not (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant))]
+    text = "\n".join(ast.unparse(node) for node in body)   # docstring dropped
+    assert "'spawn'" in text or '"spawn"' in text
+    assert "fork" not in text
+
+
+def test_37_identity_alignment_is_copied_not_recomputed():
+    tree = ast.parse(RUNNER.read_text("utf-8"))
+    function = next(node for node in ast.walk(tree)
+                    if isinstance(node, ast.FunctionDef)
+                    and node.name == "phase_eval_synthetic")
+    text = ast.unparse(function)
+    assert "if not identity[key]" in text, (
+        "the untouched aligned pass must be skipped when the mapping is the identity")
+    assert "results[key]['untouched'] if identity[key]" in text.replace('"', "'")
+
+
+# ---------------------------------------------------------------------------
+# 38  JSON round-trip key types
+# ---------------------------------------------------------------------------
+def test_38_best_seed_lookup_survives_json_round_trip():
+    """Seeds are ints in memory and strings on disk; best_seed stays an int.
+
+    Reading the reloaded results with the in-memory key raised KeyError: 3 and
+    killed the decision phase after every evaluation had finished.
+    """
+    spec = importlib.util.spec_from_file_location("IEL7", RUNNER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    entry = {"seeds": {1: {"v": "a"}, 3: {"v": "b"}}, "best_seed": 3}
+    assert module.best_block(entry)["v"] == "b"
+    reloaded = json.loads(json.dumps(entry))
+    assert list(reloaded["seeds"]) == ["1", "3"] and reloaded["best_seed"] == 3
+    assert module.best_block(reloaded)["v"] == "b"
+    tree = ast.parse(RUNNER.read_text("utf-8"))
+    for name in ("phase_decide", "multiscale_verdict"):
+        function = next(node for node in ast.walk(tree)
+                        if isinstance(node, ast.FunctionDef) and node.name == name)
+        assert '["best_seed"]]' not in ast.unparse(function), (
+            f"{name} still indexes seeds with the raw best_seed")
