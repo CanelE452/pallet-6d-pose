@@ -625,11 +625,154 @@ def phase_hard_manifest(state) -> dict[str, Any]:
 # what makes the arm comparison a single-variable one.  This is a screen for
 # whether the spatial signal converts, not a deployment recipe.
 TRAIN_INPUT_MODE = "NO_AUG_SOURCE"
-TRAIN_PATH_STATUS = "HARD_BLOCKED_TRAIN_PATH_DRIFT"
+def train_path_status() -> str:
+    """OK only when every train-path check on disk says so.  Never hardcoded."""
+    for name, keys in (("train_dataset_intersection_summary.json", ("passed",)),
+                       ("train_path_parity.json", ("passed",)),
+                       ("paired_training_stream_parity.json", ("passed",))):
+        path = OUT / name
+        if not path.is_file():
+            return f"HARD_BLOCKED_MISSING_{name.split('.')[0].upper()}"
+        payload = json.loads(path.read_text("utf-8"))
+        if not all(payload.get(k) for k in keys):
+            return f"HARD_BLOCKED_{name.split('.')[0].upper()}"
+    return "OK"
 # The A1 loader's augmentation, target and mask path is not reused here, so this
 # is a drift from the training distribution A1 was fitted on.  It blocks the
 # launch rather than being carried as a caveat: an adapter fitted on unaugmented
 # frames is not the module the screen claims to test.
+
+
+def stable_sample_seed(experiment_seed: int, epoch: int, image_path: str) -> int:
+    digest = hashlib.sha256(
+        f"{experiment_seed}|{epoch}|{image_path}".encode()).hexdigest()
+    return int(digest[:8], 16)
+
+
+class _SeedScope:
+    """Pin the global RNGs for one sample and put them back afterwards.
+
+    The augmentation draws from the process RNGs, so without this the draw a
+    frame receives depends on worker scheduling and on how many samples came
+    before it -- which would make H1, H2 and H3 see different images and turn
+    the arm comparison into noise.
+    """
+
+    def __init__(self, seed: int) -> None:
+        self.seed = seed
+
+    def __enter__(self):
+        import random
+        self.states = (random.getstate(), np.random.get_state(),
+                       torch.random.get_rng_state())
+        random.seed(self.seed)
+        np.random.seed(self.seed % (2 ** 32))
+        torch.manual_seed(self.seed)
+        return self
+
+    def __exit__(self, *exc):
+        import random
+        random.setstate(self.states[0])
+        np.random.set_state(self.states[1])
+        torch.random.set_rng_state(self.states[2])
+        return False
+
+
+def build_a1_base():
+    """A1's own dataset, unmodified: same augmentation, targets and masks."""
+    screen = importlib.util.module_from_spec(importlib.util.spec_from_file_location(
+        "screen", STAGE0 / "paper_s2_corner_replacement_screen.py"))
+    importlib.util.spec_from_file_location(
+        "screen", STAGE0 / "paper_s2_corner_replacement_screen.py").loader.exec_module(screen)
+    import pdg_stage1_dataset as DS
+    dataset, loader, sampler, _ = DS.build("A1", screen.canonical_options(), taca_seed=1)
+    if getattr(dataset, "arm", None) != "A1" or dataset.truncation_aug_prob != 0.0:
+        raise RuntimeError("HARD_BLOCKED: the base dataset is not the A1 arm")
+    return dataset, loader, sampler
+
+
+def train_intersection(dataset) -> dict[str, Any]:
+    """Map frozen train manifest rows onto base dataset indices, one to one."""
+    rows = split_rows()
+    wanted = {}
+    for row in rows:
+        key = (str((TRAIN_DATA / row["root"] / f"{row['stem']}.png").resolve()),
+               str((TRAIN_DATA / row["root"] / f"{row['stem']}.json").resolve()))
+        wanted[key] = row["split"]
+    selected, by_split, seen = [], {"train": 0, "validation": 0, "untouched": 0}, set()
+    unmatched = 0
+    for index, entry in enumerate(dataset.imgs):
+        key = (str(pathlib.Path(str(entry[0])).resolve()),
+               str(pathlib.Path(str(entry[2])).resolve()))
+        split = wanted.get(key)
+        if split is None:
+            unmatched += 1
+            continue
+        by_split[split] += 1
+        if split != "train":
+            continue
+        if key in seen:
+            raise RuntimeError(f"HARD_BLOCKED_TRAIN_MANIFEST_MISMATCH: duplicate {key}")
+        seen.add(key)
+        selected.append({"base_index": index, "image": key[0], "json": key[1],
+                         "root": pathlib.Path(key[0]).parent.name,
+                         "stem": pathlib.Path(key[0]).stem})
+    expected = sum(1 for r in rows if r["split"] == "train")
+    summary = {
+        "base_dataset_len": len(dataset.imgs), "manifest_rows": len(rows),
+        "expected_train": expected, "selected_train": len(selected),
+        "unique_images": len({s["image"] for s in selected}),
+        "unique_jsons": len({s["json"] for s in selected}),
+        "matched_validation": by_split["validation"],
+        "matched_untouched": by_split["untouched"],
+        "selected_validation": 0, "selected_untouched": 0,
+        "unmatched_base_rows": unmatched,
+        "sampler_note": ("A1's BALANCE-N ratio sampler is replaced by a deterministic "
+                         "permutation over the frozen train subset, so the arms share "
+                         "one stream; the source-mix ratio A1 trained under is not "
+                         "reproduced and that is a recorded deviation"),
+    }
+    summary["one_to_one"] = (summary["selected_train"] == expected
+                             == summary["unique_images"] == summary["unique_jsons"])
+    summary["passed"] = bool(summary["one_to_one"] and unmatched == 0)
+    return {"summary": summary, "selected": selected}
+
+
+class ManifestA1TrainDataset(torch.utils.data.Dataset):
+    """A1 samples, restricted to the frozen train sources, nothing rewritten."""
+
+    def __init__(self, base, selected, hard_weights, experiment_seed: int) -> None:
+        self.base = base
+        self.selected = selected
+        self.hard_weights = hard_weights
+        self.experiment_seed = int(experiment_seed)
+        self.epoch = 0
+
+    def set_epoch(self, epoch: int) -> None:
+        self.epoch = int(epoch)
+
+    def __len__(self) -> int:
+        return len(self.selected)
+
+    def __getitem__(self, position: int):
+        entry = self.selected[position]
+        GUARD.check(entry["image"])
+        GUARD.check(entry["json"])
+        seed = stable_sample_seed(self.experiment_seed, self.epoch, entry["image"])
+        with _SeedScope(seed):
+            try:
+                sample = self.base[entry["base_index"]]
+            except Exception as error:
+                raise RuntimeError(
+                    f"HARD_BLOCKED_A1_TRAIN_SAMPLE_LOAD: {entry['image']}: {error}")
+        weight = np.ones(len(NEAR), np.float32)
+        for position_, channel in enumerate(NEAR):
+            weight[position_] = self.hard_weights.get(
+                ((entry["root"], entry["stem"]), channel), 1.0)
+        sample = dict(sample)
+        sample["hcrm_weight"] = torch.from_numpy(weight)
+        sample["hcrm_source"] = f"{entry['root']}/{entry['stem']}"
+        return sample
 
 
 class TrainSet(torch.utils.data.Dataset):
@@ -670,6 +813,14 @@ def hard_weight_table(arm: str) -> dict:
     return weights
 
 
+def _worker_init(worker_id: int) -> None:
+    import random
+    seed = torch.initial_seed() % (2 ** 32)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+
 def near_loss(composed: torch.Tensor, target: torch.Tensor, mask: torch.Tensor,
               weight: Optional[torch.Tensor] = None) -> torch.Tensor:
     """A1's masked belief loss restricted to the four near channels."""
@@ -706,8 +857,12 @@ def train_run(arm: str, seed: int, smoke: bool = False) -> dict[str, Any]:
     parameters = [p for p in adapter.parameters() if p.requires_grad]
     optimiser = torch.optim.AdamW(parameters, lr=LR, weight_decay=WD)
 
-    rows = split_rows("train")
-    dataset = TrainSet(rows, hard_weight_table(arm))
+    status = train_path_status()
+    if status != "OK":
+        raise RuntimeError(status)
+    base, base_loader, _ = build_a1_base()
+    selected = pd.read_csv(OUT / "train_dataset_intersection.csv").to_dict("records")
+    dataset = ManifestA1TrainDataset(base, selected, hard_weight_table(arm), seed)
     start_epoch, history = 0, []
     if not smoke and state_path.is_file() and (directory / "last.pth").is_file():
         try:
@@ -727,23 +882,25 @@ def train_run(arm: str, seed: int, smoke: bool = False) -> dict[str, Any]:
     epochs = 1 if smoke else EPOCHS
     gradient_trace = []
     for epoch in range(start_epoch, epochs):
+        dataset.set_epoch(epoch)
         generator = torch.Generator().manual_seed(seed * 1000 + epoch)
         loader = torch.utils.data.DataLoader(
             dataset, batch_size=BATCH, shuffle=True, num_workers=6,
-            generator=generator, drop_last=True, persistent_workers=False)
+            generator=generator, drop_last=True, persistent_workers=False,
+            worker_init_fn=_worker_init, pin_memory=base_loader.pin_memory)
         adapter.train()
         losses = []
         began = time.time()
         for step, batch in enumerate(loader):
             if smoke and step >= SMOKE_STEPS:
                 break
-            images = batch["image"].to(device)
-            feature, base, _ = a1(images)
+            images = batch["img"].to(device)
+            feature, base_belief, _ = a1(images)
             residual = adapter(feature)
-            composed = compose(base, residual)
-            loss = near_loss(composed, batch["belief"].to(device),
-                             batch["mask"].to(device),
-                             batch["weight"].to(device) if arm == "H3" else None)
+            composed = compose(base_belief, residual)
+            loss = near_loss(composed, batch["beliefs"][:, :4].to(device).float(),
+                             batch["belief_channel_mask"][:, :4].to(device).float(),
+                             batch["hcrm_weight"].to(device) if arm == "H3" else None)
             if not torch.isfinite(loss):
                 raise RuntimeError(f"BLOCKED: non-finite loss in {run_key(arm, seed)}")
             optimiser.zero_grad(set_to_none=True)
@@ -760,11 +917,12 @@ def train_run(arm: str, seed: int, smoke: bool = False) -> dict[str, Any]:
             losses.append(float(loss))
         if smoke:
             with torch.no_grad():
-                images = normalise(load_no_aug(rows[0]["root"], rows[0]["stem"]).image[None]).to(device)
-                feature, base, affinity = a1(images)
-                composed = compose(base, adapter(feature))
+                sample = dataset[0]
+                feature, base_belief, _ = a1(sample["img"][None].to(device))
+                composed = compose(base_belief, adapter(feature))
                 M = modules()
-                untouched = M["HCRM"].assert_untouched(composed, base)
+                untouched = M["HCRM"].assert_untouched(composed, base_belief)
+                base = base_belief
             return {"arm": arm, "seed": seed, "steps": len(losses),
                     "mean_loss": float(np.mean(losses)),
                     "finite": bool(np.isfinite(np.mean(losses))),
@@ -815,9 +973,10 @@ def phase_smoke(state) -> dict[str, Any]:
 
 
 def phase_train(state) -> dict[str, Any]:
-    if TRAIN_PATH_STATUS != "OK":
-        state.set("train", "HARD_BLOCKED", reason=TRAIN_PATH_STATUS)
-        raise RuntimeError(TRAIN_PATH_STATUS)
+    status = train_path_status()
+    if status != "OK":
+        state.set("train", "HARD_BLOCKED", reason=status)
+        raise RuntimeError(status)
     rows = []
     for arm in ARMS:
         for seed in SEEDS:

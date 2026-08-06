@@ -449,13 +449,98 @@ def test_44_no_silent_first_sample_fallback(tree):
     assert "HARD_BLOCKED" in body
 
 
-def test_45_training_path_drift_blocks_the_launch(runner, tree):
-    assert runner.TRAIN_PATH_STATUS == "HARD_BLOCKED_TRAIN_PATH_DRIFT"
-    body = code_of(tree, "phase_train")
-    assert "TRAIN_PATH_STATUS" in body and "HARD_BLOCKED" in body
+def test_45_training_path_status_is_computed_not_asserted(runner, tree):
+    body = code_of(tree, "train_path_status")
+    for name in ("train_dataset_intersection_summary", "train_path_parity",
+                 "paired_training_stream_parity"):
+        assert name in body, name
+    assert runner.train_path_status() == "OK"
+    assert "TRAIN_PATH_STATUS" not in code_only(RUNNER)
 
 
 def test_46_zero_residual_composition_is_bitwise(runner):
     base = torch.randn(2, 9, 50, 50)
     out = HCRM.compose(base, torch.zeros(2, 4, 50, 50))
     assert float((out - base).abs().max()) == 0.0
+
+
+
+# ---------------------------------------------------------------------------
+# 47-56  the restored A1 training path
+# ---------------------------------------------------------------------------
+def test_47_training_uses_the_a1_dataset(tree):
+    body = code_of(tree, "build_a1_base")
+    assert "DS.build" in body and "'A1'" in body.replace('"', "'")
+    assert "truncation_aug_prob" in body
+
+
+def test_48_training_never_calls_load_no_aug(tree):
+    for name in ("train_run", "ManifestA1TrainDataset"):
+        assert "load_no_aug" not in code_of(tree, name), name
+
+
+def test_49_intersection_is_one_to_one():
+    summary = json.loads(
+        (OUT / "train_dataset_intersection_summary.json").read_text("utf-8"))
+    assert summary["selected_train"] == summary["expected_train"] == 26249
+    assert summary["unique_images"] == summary["unique_jsons"] == 26249
+    assert summary["one_to_one"] is True and summary["passed"] is True
+
+
+def test_50_no_holdout_source_is_selected():
+    summary = json.loads(
+        (OUT / "train_dataset_intersection_summary.json").read_text("utf-8"))
+    assert summary["selected_validation"] == 0
+    assert summary["selected_untouched"] == 0
+    assert summary["unmatched_base_rows"] == 0
+    table = pd.read_csv(OUT / "train_dataset_intersection.csv")
+    manifest = pd.read_csv(OUT / "synthetic_split_manifest.csv")
+    holdout = set((manifest[manifest.split != "train"]["root"] + "/"
+                   + manifest[manifest.split != "train"]["stem"]))
+    assert not set(table["root"] + "/" + table["stem"]) & holdout
+
+
+def test_51_wrapper_leaves_the_base_sample_untouched():
+    payload = json.loads((OUT / "train_path_parity.json").read_text("utf-8"))
+    assert payload["passed"] is True and payload["mismatches"] == 0
+    assert set(payload["sources"]) == {
+        "mixed_v8_train", "v4_split_base", "aug_squash_v2", "aug_trunc_v2",
+        "aug_scale_v2", "paper_4pallet_mask_v1"}
+
+
+def test_52_sampler_substitution_is_recorded():
+    payload = json.loads((OUT / "train_path_parity.json").read_text("utf-8"))
+    assert "BALANCE-N" in payload["sampler_note"]
+    assert "deviation" in payload["sampler_note"]
+
+
+def test_53_arms_share_one_training_stream():
+    payload = json.loads(
+        (OUT / "paired_training_stream_parity.json").read_text("utf-8"))
+    assert payload["identical"] is True and payload["passed"] is True
+    assert len(set(payload["arms"].values())) == 1
+
+
+def test_54_per_sample_seed_is_deterministic(runner):
+    a = runner.stable_sample_seed(1, 0, "/x/y.png")
+    assert a == runner.stable_sample_seed(1, 0, "/x/y.png")
+    assert a != runner.stable_sample_seed(1, 1, "/x/y.png")
+    assert a != runner.stable_sample_seed(2, 0, "/x/y.png")
+    assert a != runner.stable_sample_seed(1, 0, "/x/z.png")
+
+
+def test_55_seed_scope_restores_the_global_rngs(runner):
+    import random
+    random.seed(99)
+    before = random.random()
+    random.seed(99)
+    with runner._SeedScope(1234):
+        random.random()
+    assert random.random() == before
+
+
+def test_56_wrapper_guards_every_source_path(tree):
+    body = code_of(tree, "ManifestA1TrainDataset")
+    assert body.count("GUARD.check") >= 2
+    assert "HARD_BLOCKED_A1_TRAIN_SAMPLE_LOAD" in body
+    assert "self.selected[0]" not in body
