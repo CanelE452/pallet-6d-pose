@@ -35,6 +35,7 @@ A1_SHA = "00a0dcd8730e21d14b8a86e2f2a398650b78026006e4e358eabc438148fb9657"
 SPLIT_SHA = "9a755438dcb55e0ff60415d5b2f861a29e60b23d921a2e0985a23eb2e214415f"
 
 GRID, IMAGE, FACTOR = 50, 400, 8
+DEV = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 SEALED = ("capturenight08", "capturenight09", "capturepallet07", "capturepallet09",
           "testset_full8_manifest", "handannot17")
 PHASES = ("eligibility", "mask-audit", "edge-role", "target-parity", "cigm-oracle",
@@ -394,22 +395,240 @@ def phase_subsets(st):
     log(f"[subsets] 512/{len(s2_ids)}/{len(c6_ids)} nested, holdout inclusion 0")
 
 
+# ---------------------------------------------------------------- training
+ARMS = ("E1", "E2")            # E3 is SKIPPED_OPTIONAL for this Round-1
+LR_PEQ, LR_HEAD, WD = 3e-4, 1e-3, 1e-4
+TARGET_SHARE = {"centre": 0.50, "orientation": 0.25, "length": 0.25,
+                "support": 0.10, "incidence": 0.50}
+
+
+def _a1():
+    spec = importlib.util.spec_from_file_location("SHS", STAGE0 / "spatial_hcrm_screen.py")
+    shs = importlib.util.module_from_spec(spec); sys.modules["SHS"] = shs
+    spec.loader.exec_module(shs)
+    return shs
+
+
+def _loader(manifest_name, batch=BATCH, shuffle=True, seed=1):
+    screen = mods()["screen"]
+    opt = screen.canonical_options(); opt.data = [str(ALLDIR.resolve())]
+    import pdg_stage1_dataset as DS
+    base, _, _, _ = DS.build("A1", opt, taca_seed=seed)
+    wanted = {r["index"] for r in csv.DictReader(open(OUT / manifest_name))}
+    keep = [i for i, e in enumerate(base.imgs)
+            if pathlib.Path(str(e[0])).stem in wanted]
+    if len(keep) != len(wanted):
+        raise RuntimeError(f"HARD_BLOCKED_SUBSET_JOIN {len(keep)} != {len(wanted)}")
+    subset = torch.utils.data.Subset(base, keep)
+    g = torch.Generator().manual_seed(seed)
+    return torch.utils.data.DataLoader(subset, batch_size=batch, shuffle=shuffle,
+                                       num_workers=4, generator=g, drop_last=True)
+
+
+def edge_targets(corners, edges):
+    """(B,8,2) grid corners -> per-role centre/direction/half-length/support."""
+    i = torch.tensor([e[0] for e in edges], device=corners.device)
+    j = torch.tensor([e[1] for e in edges], device=corners.device)
+    p0, p1 = corners[:, i], corners[:, j]
+    delta = p1 - p0
+    length = delta.norm(dim=-1, keepdim=True)
+    direction = delta / length.clamp_min(1e-6)
+    centre = 0.5 * (p0 + p1)
+    half = (0.5 * length).clamp_min(1e-3)
+    inside0 = ((p0 >= 0) & (p0 < GRID)).all(-1)
+    inside1 = ((p1 >= 0) & (p1 < GRID)).all(-1)
+    # a segment with either endpoint inside, or that straddles the grid, is supported
+    straddle = ((p0.min(-1).values < GRID) & (p1.max(-1).values >= 0)
+                & (p0.max(-1).values >= 0) & (p1.min(-1).values < GRID))
+    support = (inside0 | inside1 | straddle).float()
+    regression = support * (length.squeeze(-1) > 1e-4).float()
+    return {"centre": centre, "direction": direction, "half_length": half,
+            "support": support, "mask": regression}
+
+
+def edge_losses(pred, tgt):
+    m = tgt["mask"][..., None]
+    n = m.sum().clamp_min(1.0)
+    import physical_edge_query as PEQmod
+    centre = (torch.nn.functional.smooth_l1_loss(pred["centre"], tgt["centre"],
+                                                 reduction="none") * m).sum() / (2 * n)
+    orient = PEQmod.orientation_loss(pred["direction"], tgt["direction"], tgt["mask"])
+    length = (torch.nn.functional.smooth_l1_loss(
+        pred["half_length"].log(), tgt["half_length"].log(), reduction="none") * m).sum() / n
+    support = torch.nn.functional.binary_cross_entropy_with_logits(
+        pred["support_logit"].squeeze(-1), tgt["support"])
+    return {"centre": centre, "orientation": orient, "length": length, "support": support}
+
+
+def build_arm(arm, seed):
+    import physical_edge_query as PEQmod, edge_guided_corner_fusion as EG
+    import spatial_hcrm as HC
+    torch.manual_seed(seed)
+    mod = {"peq": PEQmod.PhysicalEdgeQueryHead().to(DEV),
+           "egcr": EG.EdgeGuidedCornerResidual().to(DEV)}
+    groups = [{"params": list(mod["peq"].parameters()), "lr": LR_PEQ},
+              {"params": list(mod["egcr"].parameters()), "lr": LR_HEAD}]
+    if arm == "E2":
+        mod["hcrm"] = HC.build("H2", seed).to(DEV)
+        groups.append({"params": list(mod["hcrm"].parameters()), "lr": LR_HEAD})
+    return mod, torch.optim.AdamW(groups, weight_decay=WD)
+
+
+def arm_forward(arm, mod, feature, base_belief, inc, edges,
+                permutation=None, zero=False, gt_corners=None):
+    import corner_incident_geometry as CG, edge_guided_corner_fusion as EG
+    pred = mod["peq"](feature)
+    centre, direction = pred["centre"], pred["direction"]
+    if permutation is not None:
+        centre, direction = centre[:, permutation], direction[:, permutation]
+    if gt_corners is not None:
+        t = edge_targets(gt_corners, edges)
+        centre, direction = t["centre"], t["direction"]
+    corners, residual, condition = CG.solve_corners(centre, direction, inc)
+    proposals = CG.render_proposals(corners, GRID, 2.0)
+    if zero:
+        proposals = torch.zeros_like(proposals)
+    edge_res = mod["egcr"](base_belief, proposals)
+    if zero:
+        edge_res = torch.zeros_like(edge_res)
+    near = mod["hcrm"](feature) if arm == "E2" else None
+    final = EG.compose(base_belief, edge_res, near)
+    return {"pred": pred, "corners": corners, "condition": condition,
+            "final": final, "edge_residual": edge_res, "proposals": proposals}
+
+
+def run_training(st, manifest, steps, epochs, seed, tag):
+    shs = _a1()
+    a1 = shs.FrozenA1().to(DEV)
+    before = a1.checksum()
+    IET = mods()["IET"]; topo = IET.build_topology()
+    edges = [tuple(e) for e in topo["edges"]]
+    import corner_incident_geometry as CG
+    inc = CG.incidence_table(topo)
+    loader = _loader(manifest, seed=seed)
+    arms = {a: build_arm(a, seed) for a in ARMS}
+    forwards = {"a1": 0}
+    lam = None
+    trace = {a: {"steps": 0, "losses": [], "grad_peq": 0.0, "grad_egcr": 0.0,
+                 "grad_hcrm": 0.0, "residual_max": 0.0} for a in ARMS}
+    step = 0
+    for epoch in range(epochs):
+        for batch in loader:
+            if steps and step >= steps:
+                break
+            img = batch["img"].to(DEV)
+            feature, base, _aff = a1(img)          # exactly one A1 forward per batch
+            forwards["a1"] += 1
+            feature, base = feature.detach(), base.detach()
+            kp = batch["refine_keypoints"][:, :8].to(DEV).float()
+            tgt = edge_targets(kp, edges)
+            gt_belief = batch["beliefs"][:, :8].to(DEV).float()
+            bmask = batch["belief_channel_mask"][:, :8].to(DEV).float()[:, :, None, None]
+            valid = (batch["refine_keypoints_valid"][:, :8].to(DEV) > 0)
+            inside = ((kp >= 0) & (kp < GRID)).all(-1) & valid
+            for a in ARMS:
+                mod, opt = arms[a]
+                out = arm_forward(a, mod, feature, base, inc, edges)
+                el = edge_losses(out["pred"], tgt)
+                inc_mask = inside[..., None].float()
+                el["incidence"] = (torch.nn.functional.smooth_l1_loss(
+                    out["corners"], kp, reduction="none") * inc_mask).sum() / inc_mask.sum().clamp_min(1.0) / 2
+                belief = (((out["final"][:, :8] - gt_belief) ** 2) * bmask).mean()
+                if lam is None and step < 16:
+                    trace[a]["losses"].append({k: float(v) for k, v in el.items()}
+                                              | {"belief": float(belief)})
+                    continue
+                loss = belief + sum(lam[k] * el[k] for k in el)
+                if not torch.isfinite(loss):
+                    raise RuntimeError(f"HARD_BLOCKED_NONFINITE_LOSS {a}")
+                opt.zero_grad(set_to_none=True); loss.backward(); opt.step()
+                trace[a]["steps"] += 1
+                trace[a]["grad_peq"] = float(sum(
+                    p.grad.abs().sum() for p in mod["peq"].parameters() if p.grad is not None))
+                trace[a]["grad_egcr"] = float(sum(
+                    p.grad.abs().sum() for p in mod["egcr"].parameters() if p.grad is not None))
+                if a == "E2":
+                    trace[a]["grad_hcrm"] = float(sum(
+                        p.grad.abs().sum() for p in mod["hcrm"].parameters() if p.grad is not None))
+                trace[a]["residual_max"] = max(trace[a]["residual_max"],
+                                               float(out["edge_residual"].abs().max()))
+            if lam is None and step >= 15:
+                med = {k: float(np.median([r[k] for r in trace[ARMS[0]]["losses"]]))
+                       for k in trace[ARMS[0]]["losses"][0]}
+                lam = {k: float(np.clip(TARGET_SHARE[k] * med["belief"] / max(med[k], 1e-9),
+                                        1e-3, 100.0)) for k in TARGET_SHARE}
+                atomic(OUT / f"{tag}_lambda.json", json.dumps(
+                    {"median": med, "lambda": lam, "frozen": True}, indent=1))
+                log(f"[{tag}] lambda {json.dumps({k: round(v,4) for k,v in lam.items()})}")
+            step += 1
+            if step % 20 == 0:
+                st.beat(tag, f"step {step}")
+        if steps and step >= steps:
+            break
+    if a1.checksum() != before:
+        raise RuntimeError("HARD_BLOCKED_A1_CHANGED")
+    return {"arms": arms, "trace": trace, "a1_forwards": forwards["a1"], "steps": step,
+            "a1_unchanged": True, "lambda": lam, "a1": a1, "inc": inc, "edges": edges}
+
+
 def phase_smoke(st):
     status = json.loads((OUT / "cigm_oracle.json").read_text())["CIGM_ORACLE_STATUS"]
     if status != "PASS":
         raise RuntimeError("CIGM_ORACLE_STATUS != PASS; refusing to instantiate modules")
-    log("[smoke] CIGM PASS -- modules may be instantiated (training wiring pending)")
-    atomic(OUT / "smoke.json", json.dumps({"status": "PENDING_TRAINING_WIRING"}, indent=1))
+    r = run_training(st, "smoke512_manifest.csv", steps=50 + 16, epochs=99, seed=1, tag="smoke")
+    checks = {}
+    for a in ARMS:
+        t = r["trace"][a]
+        checks[a] = {"steps>=50": t["steps"] >= 50, "grad_peq>0": t["grad_peq"] > 0,
+                     "grad_egcr>0": t["grad_egcr"] > 0,
+                     "grad_hcrm>0": (t["grad_hcrm"] > 0) if a == "E2" else True,
+                     "residual_grew": t["residual_max"] > 0}
+    # zero-init identity and passthrough on a fresh arm
+    import edge_guided_corner_fusion as EG
+    fresh, _ = build_arm("E1", 1)
+    base = torch.randn(2, 9, GRID, GRID, device=DEV)
+    out = arm_forward("E1", fresh, torch.randn(2, 128, GRID, GRID, device=DEV), base,
+                      r["inc"], r["edges"])
+    checks["zero_init"] = {"residual_exact_0": float(out["edge_residual"].abs().max()) == 0.0,
+                           "centroid_delta_0": EG.assert_passthrough(out["final"], base)["centroid_max_abs"] == 0.0}
+    ok = all(all(v is True or v for v in c.values()) for c in checks.values())
+    # checkpoint round-trip
+    d = WEIGHTS / "smoke"; d.mkdir(parents=True, exist_ok=True)
+    torch.save({k: m.state_dict() for k, m in r["arms"]["E1"][0].items()}, d / "E1.pth")
+    checks["checkpoint_saved"] = (d / "E1.pth").is_file()
+    atomic(OUT / "smoke.json", json.dumps(
+        {"steps": r["steps"], "a1_forwards_per_batch": 1, "a1_unchanged": r["a1_unchanged"],
+         "checks": checks, "trace": {a: {k: v for k, v in r["trace"][a].items() if k != "losses"}
+                                     for a in ARMS},
+         "lambda": r["lambda"], "passed": bool(ok)}, indent=1))
+    log(f"[smoke] {json.dumps(checks)}")
+    if not ok:
+        raise RuntimeError("HARD_BLOCKED_SMOKE")
 
 
 def phase_round1(st):
-    atomic(OUT / "round1_metrics.json", json.dumps({"status": "PENDING_TRAINING_WIRING"}, indent=1))
-    log("[round1] pending training wiring")
+    r = run_training(st, "search2k_manifest.csv", steps=0, epochs=1, seed=1, tag="round1")
+    atomic(OUT / "round1_metrics.json", json.dumps(
+        {"steps": r["steps"], "a1_forwards": r["a1_forwards"], "a1_unchanged": r["a1_unchanged"],
+         "lambda": r["lambda"],
+         "trace": {a: {k: v for k, v in r["trace"][a].items() if k != "losses"} for a in ARMS},
+         "validation": "PENDING"}, indent=1))
+    for a in ARMS:
+        d = WEIGHTS / a; d.mkdir(parents=True, exist_ok=True)
+        torch.save({k: m.state_dict() for k, m in r["arms"][a][0].items()}, d / "round1.pth")
+    log(f"[round1] {r['steps']} steps, A1 forwards {r['a1_forwards']}, checkpoints saved")
 
 
 def phase_decide(st):
+    m = json.loads((OUT / "round1_metrics.json").read_text())
+    trained = {a: m["trace"][a]["steps"] > 0 and m["trace"][a]["grad_peq"] > 0 for a in ARMS}
+    decision = "ROUND1_TRAINED" if any(trained.values()) else "EDGE_QUERY_LOCALIZATION_FAIL"
     atomic(OUT / "final_decision.json", json.dumps(
-        {"decision": "DATA_GATES_ONLY", "note": "training wiring not yet implemented"}, indent=1))
+        {"decision": decision, "arms_trained": trained,
+         "validation_and_ablations": "PENDING",
+         "note": "Round-1 gates need the validation pass; training wiring is complete"},
+        indent=1))
+    log(f"[decide] {decision}")
 
 
 DRIVERS = {"eligibility": phase_eligibility, "mask-audit": phase_mask_audit,

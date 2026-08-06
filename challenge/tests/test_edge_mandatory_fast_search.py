@@ -150,3 +150,51 @@ def test_20_weights_not_staged():
     st = subprocess.run(["git","diff","--cached","--name-only"],cwd=ROOT,
                         capture_output=True,text=True).stdout.split()
     assert not [n for n in st if n.endswith(".pth")]
+
+
+def test_21_no_stub_strings_remain():
+    src = RUNNER.read_text()
+    assert "PENDING_TRAINING_WIRING" not in src
+    assert "DATA_GATES_ONLY" not in src
+
+def test_22_smoke_and_round1_actually_step():
+    tree = ast.parse(RUNNER.read_text())
+    body = ast.unparse(next(n for n in ast.walk(tree)
+                            if isinstance(n, ast.FunctionDef) and n.name == "run_training"))
+    assert "opt.step()" in body and "loss.backward()" in body
+    for name in ("phase_smoke", "phase_round1"):
+        f = ast.unparse(next(n for n in ast.walk(tree)
+                             if isinstance(n, ast.FunctionDef) and n.name == name))
+        assert "run_training" in f, name
+
+def test_23_only_e1_e2_are_active():
+    src = RUNNER.read_text()
+    assert 'ARMS = ("E1", "E2")' in src
+    assert "E3" not in code_only(RUNNER), "E3 is SKIPPED_OPTIONAL for this Round-1"
+
+def test_24_single_a1_forward_and_detach():
+    tree = ast.parse(RUNNER.read_text())
+    body = ast.unparse(next(n for n in ast.walk(tree)
+                            if isinstance(n, ast.FunctionDef) and n.name == "run_training"))
+    assert body.count("a1(img)") == 1
+    assert "feature.detach()" in body and "base.detach()" in body
+
+def test_25_targets_come_from_refine_keypoints():
+    tree = ast.parse(RUNNER.read_text())
+    body = ast.unparse(next(n for n in ast.walk(tree)
+                            if isinstance(n, ast.FunctionDef) and n.name == "run_training"))
+    assert "refine_keypoints" in body
+    assert "visibility" not in body
+
+def test_26_smoke_result_passed():
+    s = json.loads((OUT/"smoke.json").read_text())
+    assert s["passed"] is True and s["a1_unchanged"] is True
+    for arm in ("E1", "E2"):
+        for k, v in s["checks"][arm].items(): assert v is True, (arm, k)
+    assert s["checks"]["zero_init"]["residual_exact_0"] is True
+    assert s["checks"]["zero_init"]["centroid_delta_0"] is True
+
+def test_27_lambda_frozen_and_recorded():
+    l = json.loads((OUT/"smoke_lambda.json").read_text())
+    assert l["frozen"] is True
+    assert set(l["lambda"]) == {"centre","orientation","length","support","incidence"}
