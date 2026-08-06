@@ -88,7 +88,7 @@ def call_string_args(tree, name):
 
 def code_of(tree, name):
     node = next(n for n in ast.walk(tree)
-                if isinstance(n, ast.FunctionDef) and n.name == name)
+                if isinstance(n, (ast.FunctionDef, ast.ClassDef)) and n.name == name)
     body = [n for n in node.body
             if not (isinstance(n, ast.Expr) and isinstance(n.value, ast.Constant))]
     return "\n".join(ast.unparse(n) for n in body)
@@ -406,3 +406,56 @@ def test_39_weights_are_not_staged():
     tracked = subprocess.run(["git", "ls-files", "weights"], cwd=ROOT,
                              capture_output=True, text=True).stdout.split()
     assert not [n for n in tracked if n.endswith(".pth")], tracked[:5]
+
+
+# ---------------------------------------------------------------------------
+# 40-46  parity semantics, guard integrity, no silent substitution
+# ---------------------------------------------------------------------------
+def test_40_parity_never_unlocks_the_guard(tree):
+    body = code_of(tree, "phase_parity") + code_of(tree, "same_instance_parity")
+    assert "GUARD.unlock" not in body, (
+        "the parity phase unlocking the guard defeated the whole guard")
+    assert "unlocked = False" not in body
+
+
+def test_41_parity_reads_no_canonical_frame(tree):
+    arguments = call_string_args(tree, "same_instance_parity")
+    assert "validation" in arguments
+    for banned in ("eval56", "wood", "untouched"):
+        assert banned not in arguments, banned
+
+
+def test_42_same_instance_zero_residual_is_the_gate():
+    payload = json.loads((OUT / "same_instance_parity.json").read_text("utf-8"))
+    assert payload["gate"] == "SAME_INSTANCE_ZERO_RESIDUAL_IDENTITY"
+    assert payload["passed"] is True
+    assert payload["canonical_opens_during_parity"] == 0
+    for name in ("belief_exact", "points_exact", "far_exact", "centroid_exact",
+                 "repeated_forward_exact", "a1_parameter_delta_zero"):
+        assert payload["checks"][name] is True, name
+
+
+def test_43_cross_instance_gate_is_retired_not_deleted():
+    payload = json.loads((OUT / "same_instance_parity.json").read_text("utf-8"))
+    retired = payload["retired_gate"]
+    assert retired["name"] == "INVALID_CROSS_INSTANCE_GATE"
+    assert "cuDNN" in retired["why_retired"] or "cudnn" in retired["why_retired"]
+    assert "counts exact" in retired["moved_to"]
+
+
+def test_44_no_silent_first_sample_fallback(tree):
+    body = code_of(tree, "TrainSet")
+    assert "self.rows[0]" not in body, "a failed load must not become another frame"
+    assert "HARD_BLOCKED" in body
+
+
+def test_45_training_path_drift_blocks_the_launch(runner, tree):
+    assert runner.TRAIN_PATH_STATUS == "HARD_BLOCKED_TRAIN_PATH_DRIFT"
+    body = code_of(tree, "phase_train")
+    assert "TRAIN_PATH_STATUS" in body and "HARD_BLOCKED" in body
+
+
+def test_46_zero_residual_composition_is_bitwise(runner):
+    base = torch.randn(2, 9, 50, 50)
+    out = HCRM.compose(base, torch.zeros(2, 4, 50, 50))
+    assert float((out - base).abs().max()) == 0.0
