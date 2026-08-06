@@ -1,0 +1,179 @@
+{
+ "decision": "HCRM_UNSTABLE",
+ "spatial_arm": "H2_seed1",
+ "pointwise_arm": "H1_seed1",
+ "gates": {
+  "SYNTHETIC_HCRM_SIGNAL": {
+   "1_id12+8pp": false,
+   "2_near_le20+5pp": false,
+   "3_near_gt50<=+5pp": true,
+   "4_far_gt50<=+5pp": true,
+   "5_two_of_three_seeds": false,
+   "6_H2ZERO_parity": true
+  },
+  "SPATIAL_MODULE_VALUE": {
+   "id12_or_le20_+3pp": false,
+   "better_than_shuffle": false
+  },
+  "CANONICAL_NEAR_GAIN": {
+   "eval56_id12+8pp": false,
+   "eval56_R4+2": false,
+   "wood_id12_no_drop": true,
+   "wood_R4_drop<=1": true
+  },
+  "POSE_SAFETY": {
+   "eval56_PnP_no_drop": true,
+   "wood_PnP_no_drop": true,
+   "reproj_degradation<=5%": true
+  },
+  "FAR_SAFETY": {
+   "far_gt50<=+10%": true,
+   "far_recall_drop<=5pp": true
+  },
+  "STABILITY": {
+   "two_of_three_seeds": false,
+   "id12_range<=10pp": true
+  }
+ },
+ "gates_passed": {
+  "SYNTHETIC_HCRM_SIGNAL": false,
+  "SPATIAL_MODULE_VALUE": false,
+  "CANONICAL_NEAR_GAIN": false,
+  "POSE_SAFETY": true,
+  "FAR_SAFETY": true,
+  "STABILITY": false
+ },
+ "module_status": {
+  "A1_BALCH": "KEEP",
+  "Spatial_HCRM": "STOP",
+  "dense_line": "STOP",
+  "twelve_edge": "VALID_BUT_DEFERRED",
+  "CIGM": "VALID_BUT_BLOCKED",
+  "fusion": "STOP",
+  "RCIM": "DEFERRED"
+ },
+ "holdout_caveat": "validation and untouched are KEYED_SOURCE_GROUP_HOLDOUT; 13,069 unkeyed frames are train-only, so they are not an unbiased sample of the synthetic distribution",
+ "train_input_mode": "NO_AUG_SOURCE",
+ "mechanism_correction": {
+  "automatic_label": "HCRM_UNSTABLE",
+  "primary": "SPATIAL_SIGNAL_NOT_CONVERTED",
+  "why": "STABILITY failed because the seed spread is exactly zero, not because the seeds disagree.  Every one of the twelve arms -- A1, H1/H2/H3 across three seeds, H2-ZERO and H2-SHUFFLE -- returns identical metrics to six decimals on untouched, eval56 and wood.  Calling that unstable inverts what happened.",
+  "evidence": {
+   "untouched_id12_near_le20_by_arm": {
+    "H0": [
+     0.907967,
+     0.906422
+    ],
+    "H1_seed1": [
+     0.907967,
+     0.906422
+    ],
+    "H1_seed2": [
+     0.907967,
+     0.906422
+    ],
+    "H1_seed3": [
+     0.907967,
+     0.906422
+    ],
+    "H2_seed1": [
+     0.907967,
+     0.906422
+    ],
+    "H2-ZERO": [
+     0.907967,
+     0.906422
+    ],
+    "H2-SHUFFLE": [
+     0.907967,
+     0.906422
+    ],
+    "H2_seed2": [
+     0.907967,
+     0.906422
+    ],
+    "H2_seed3": [
+     0.907967,
+     0.906422
+    ],
+    "H3_seed1": [
+     0.907967,
+     0.906422
+    ],
+    "H3_seed2": [
+     0.907967,
+     0.906422
+    ],
+    "H3_seed3": [
+     0.907967,
+     0.906422
+    ]
+   },
+   "eval56_all_arms": {
+    "H0": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H1_seed1": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H1_seed2": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H1_seed3": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H2_seed1": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H2-ZERO": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H2-SHUFFLE": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H2_seed2": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H2_seed3": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H3_seed1": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H3_seed2": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    },
+    "H3_seed3": {
+     "id12": 0.5089,
+     "R4": 50,
+     "PnP": 52
+    }
+   },
+   "residual_is_nonzero": "|max| 4.2e-2, moves 72 of 80 decoded near corners, yet no threshold crossing and no <=20px verdict changes",
+   "zero_and_shuffle_identical": "H2-ZERO and H2-SHUFFLE match the trained arm exactly, so SPATIAL_MODULE_VALUE cannot pass by construction"
+  },
+  "gate_design_note": "The screen targeted canonical ID1/ID2 recall of 64.9%/67.0%, but on synthetic the A1 baseline is already 90.8%.  A +8pp gate on top of 90.8% needs 98.8%.  The near failure lives where there is no training signal and the training signal lives where there is no near failure, which points at sim2real rather than near representation."
+ }
+}

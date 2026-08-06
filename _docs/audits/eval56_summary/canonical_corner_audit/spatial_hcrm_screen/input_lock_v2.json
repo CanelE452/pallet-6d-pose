@@ -1,0 +1,143 @@
+{
+ "created_utc": "2026-08-06T05:00:16Z",
+ "branch": "main",
+ "head": "1256e2f044b68f6d30490fd97d836377fd7d1ee0",
+ "origin_main": "1256e2f044b68f6d30490fd97d836377fd7d1ee0",
+ "git_status": "M _docs/history/.last-compact-resume.md\n?? Deep_Object_Pose/common/spatial_hcrm.py",
+ "python": "3.10.20",
+ "torch": "2.1.1+cu118",
+ "cuda": "11.8",
+ "opencv": "4.9.0",
+ "gpu": "NVIDIA GeForce RTX 3080",
+ "a1_checkpoint": "weights/paper_s2_pdg/A1/epoch_003.pth",
+ "a1_sha256": "00a0dcd8730e21d14b8a86e2f2a398650b78026006e4e358eabc438148fb9657",
+ "a1_run_state": true,
+ "a1_run_state_sha_matches": true,
+ "a1_parity": {
+  "eval56": {
+   "centroid": "55/56",
+   "R4": "50/56",
+   "PnP": "52/56",
+   "reproj_px": 10.1608
+  },
+  "wood": {
+   "centroid": "45/45",
+   "R4": "42/45",
+   "PnP": "44/45",
+   "reproj_px": 8.9569
+  },
+  "reproduced_exactly": true,
+  "decoder": "MD.decode_all(...)['D0'], threshold 0.30, no padding, EvalFrame.solve"
+ },
+ "near_channels": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "far_channels": [
+  4,
+  5,
+  6,
+  7
+ ],
+ "centroid_channel": 8,
+ "convention_source": "paper_s2_mechanism_diagnostic.NEAR_KP/FAR_KP = (0,1,2,3)/(4,5,6,7)",
+ "feature_source": {
+  "F50": "PDGStage1Model.net.vgg(x) = vgg[26], B x 128 x 50 x 50",
+  "injection": "final belief stage (beliefs[-1][:, :9]) before MD.decode_all"
+ },
+ "parameter_counts": {
+  "H1_pointwise": 12932,
+  "H2_spatial": 14852,
+  "ratio": 1.1485,
+  "within_gate": true
+ },
+ "zero_init_parity": {
+  "H1_residual_max_abs": 0.0,
+  "H2_residual_max_abs": 0.0
+ },
+ "receptive_field_conv_only": {
+  "H1": [
+   1,
+   1
+  ],
+  "H2": [
+   5,
+   5
+  ]
+ },
+ "groupnorm_caveat": "GroupNorm normalises over (C,H,W), so both arms are coupled to a global spatial statistic.  H1 is a control against a LOCAL neighbourhood, not against all spatial information.  Recorded before the run: if H2 beats H1 the claim is about local arrangement; if they tie, the shared global statistic is a live explanation.",
+ "final_test_open_count": 0,
+ "phases_completed": [
+  "A_input_lock",
+  "A_parity",
+  "B_source_trace",
+  "C_architecture"
+ ],
+ "phases_not_run": [
+  "D_eval_no_aug_mode",
+  "E_untouched_guard",
+  "F_hard_manifest",
+  "G_training",
+  "H_composition_runtime",
+  "I_loss_optimizer",
+  "J_selection",
+  "K_evaluation",
+  "L_gates",
+  "M_decision"
+ ],
+ "training_steps_at_supersede": 0,
+ "version": "v2",
+ "supersedes": "input_lock.json",
+ "normalization": "ChannelLayerNorm2d (LayerNorm over channels at each location)",
+ "groupnorm_removed": true,
+ "receptive_field": {
+  "H1": [
+   1,
+   1,
+   1
+  ],
+  "H2": [
+   5,
+   5,
+   25
+  ],
+  "measured": "single-cell perturbation; H1 moves exactly its own cell"
+ },
+ "zero_init_residual_max_abs": {
+  "H1": 0.0,
+  "H2": 0.0
+ },
+ "split": {
+  "frames": {
+   "train": 26249,
+   "validation": 1603,
+   "untouched": 1456
+  },
+  "groups": {
+   "train": 62,
+   "validation": 8,
+   "untouched": 7
+  },
+  "n_groups": 77,
+  "unkeyed_frames": 13069,
+  "holdout_group_overlap": 0,
+  "unkeyed_holdout_image_duplicates": 0,
+  "split_sha256": "49f6ef5123b89583a0846c82e8daa5e8b0acf97a9b48c1601de35847fb7b53fa",
+  "group_key": "camera_data.hdri_environment|background_asset|floor.floor_texture",
+  "aug_parent_rule": "filename {kind}_{parent}_v{n}; b*->v4_split_base, m_*->mixed_v8_train",
+  "unkeyed_policy": "mixed_v8_train and its aug derivatives have no scene metadata; they are TRAIN-only and never enter a holdout"
+ },
+ "phases_verified": [
+  "A_input_lock",
+  "A_parity",
+  "B_source_trace",
+  "B_normalization_fix",
+  "C_group_split",
+  "C_duplicate_check"
+ ],
+ "training_steps": 0,
+ "hcrm_checkpoints": 0,
+ "untouched_open_count_before_lock": 0
+}
