@@ -1,0 +1,47 @@
+{
+ "created_utc": "2026-08-06T13:01:55Z",
+ "source_commit": "a8f0f9e65c41cbb52cca84ad1b27a0dbd0f48f8c",
+ "dataset_working_root": "data/pallet/training_data/pallet6d_v2_10k",
+ "loader_view": "pallet6d_v2_10k/all/  ({i:06d}.png + {i:06d}.json)",
+ "sealed_archive": "data/pallet/training_data/paper_release/",
+ "sealed_archive_sha256": {
+  "pallet6d_v2_10k_run1.zip": "65dc1ebfcec5ab1f1f5599515752345178e1d63db64d08724ce6622d98fa36f3",
+  "pallet6d_v2_10k_run2.zip": "cdbb677d63d54d53e8e2f178375352e4b9a440aa1d50a648dba977561eaa66fe"
+ },
+ "index_csv_sha256": "314ed8ff3d4c215e4eaae42643cd142cbfd23f8e2fb708b76ae5011f730067fc",
+ "holdout_name": "APPEARANCE_COMBINATION_HOLDOUT",
+ "group_key": [
+  "background",
+  "preset",
+  "floor_texture",
+  "floor_mode",
+  "pallet_type"
+ ],
+ "group_id": "sha256(canonical_json(key)); sorted keys, UTF-8, no whitespace",
+ "canonical_null_policy": "floor_texture is JSON null when floor_mode is native.  null is a valid category, not a missing value: the full 20,000-frame audit reported zero missing group fields.  It is never rewritten to \"None\", \"null\" or \"missing\".",
+ "allocation": "deterministic greedy over groups sorted by descending size then group_id; lexicographic objective: lowest fill ratio against the frame-count target, then marginal deviation across pallet_type/preset/background/diagnostic_mode, then group_id.  No random retry.",
+ "counts": {
+  "frames": {
+   "train": 16011,
+   "validation": 1995,
+   "untouched": 1994
+  },
+  "groups": {
+   "train": 306,
+   "validation": 39,
+   "untouched": 39
+  },
+  "total_groups": 384
+ },
+ "split_sha256": "9a755438dcb55e0ff60415d5b2f861a29e60b23d921a2e0985a23eb2e214415f",
+ "validates": [
+  "generalization to an unseen exact appearance combination",
+  "robustness to background / floor / preset / pallet changes"
+ ],
+ "does_not_validate": [
+  "unseen asset class",
+  "unseen pallet type",
+  "temporal or camera-trajectory generalization",
+  "derived-frame leakage -- not applicable: every frame carries an independent render seed and the dataset contains no derived frames, camera sequences or appearance variants"
+ ]
+}

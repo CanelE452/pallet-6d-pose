@@ -1,0 +1,45 @@
+{
+ "holdout_name": "APPEARANCE_COMBINATION_HOLDOUT",
+ "frames": {
+  "train": 16011,
+  "validation": 1995,
+  "untouched": 1994
+ },
+ "groups": {
+  "train": 306,
+  "validation": 39,
+  "untouched": 39
+ },
+ "gates": {
+  "1_missing_field_0": true,
+  "2_unique_groups>=100": true,
+  "3_validation_groups>=10": true,
+  "4_untouched_groups>=10": true,
+  "5_validation_frames>=500": true,
+  "6_untouched_frames>=500": true,
+  "7_largest_group<=5%": true,
+  "8_no_group_in_two_splits": true,
+  "9_group_without_run_shard": true,
+  "10_duplicate_image_overlap_0": true
+ },
+ "all_pass": true,
+ "split_sha256": "9a755438dcb55e0ff60415d5b2f861a29e60b23d921a2e0985a23eb2e214415f",
+ "allocation": "deterministic greedy, lexicographic: lowest fill ratio vs target, then marginal deviation, then group_id",
+ "group_key": [
+  "background",
+  "preset",
+  "floor_texture",
+  "floor_mode",
+  "pallet_type"
+ ],
+ "validates": [
+  "unseen exact appearance combination",
+  "robustness to background/floor/preset/pallet change"
+ ],
+ "does_not_validate": [
+  "unseen asset class",
+  "unseen pallet type",
+  "temporal or camera-trajectory generalization",
+  "derived-frame leakage (not applicable: every frame has an independent render seed; no derived frames exist)"
+ ]
+}
