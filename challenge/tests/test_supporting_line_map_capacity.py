@@ -184,3 +184,31 @@ def test_reload_parity_when_run(cap):
             parity = entry.get(f"{stage}_reload_parity")
             if parity is not None:
                 assert parity["max_delta"] == 0.0, (name, stage)
+
+
+def test_the_budget_entry_point_does_not_change_the_original_gate():
+    """search2k keeps its overfit eligibility so 7c6602a's verdict stands;
+    search2k-budget asks the untouched budget question on the same setup."""
+    body = ast.get_source_segment(source(), next(
+        node for node in ast.walk(ast.parse(source()))
+        if isinstance(node, ast.FunctionDef) and node.name == "main"))
+    assert '"search2k-budget"' in body
+    assert 'get("overfit32", {}).get("OVERFIT_PASS")' in body      # still there
+    assert 'eligible = list(ARMS)' in body
+
+
+def test_the_budget_run_reuses_every_locked_constant(cap):
+    """Only the entry condition differs: no new gate, ladder or architecture."""
+    assert cap.EPOCH_LADDER == (1, 3, 5)
+    assert (cap.ANGLE_BUDGET_DEG, cap.OFFSET_BUDGET_CELL) == (1.0, 0.5)
+    assert cap.OVERFIT_GATE == {"angle_median": 0.10, "offset_median": 0.05,
+                                "angle_p90": 0.25, "offset_p90": 0.15}
+    assert set(cap.ARMS) == {"M0_F50_SLINE", "M1_F50_RGB_SLINE"}
+
+
+def test_train_map_loss_is_recorded_per_epoch():
+    body = ast.get_source_segment(source(), next(
+        node for node in ast.walk(ast.parse(source()))
+        if isinstance(node, ast.FunctionDef) and node.name == "main"))
+    assert 'entry[key]["train_map_loss"]' in body
+    assert "running[-per_pass:]" in body

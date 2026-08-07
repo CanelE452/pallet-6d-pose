@@ -289,7 +289,8 @@ def population_sha(indices, edges):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["verify", "oloss", "overfit",
-                                            "search2k", "confirm6k"])
+                                            "search2k", "search2k-budget",
+                                            "confirm6k"])
     arguments = parser.parse_args()
     import instance_edge_topology as IET
     edges = [tuple(e) for e in IET.build_topology()["edges"]]
@@ -357,11 +358,19 @@ def main():
             raise RuntimeError("SUPPORTING_LINE_MAP_OPTIMIZATION_FAIL: both arms")
         return
 
-    stage = arguments.command
+    # search2k keeps its original eligibility -- the overfit verdict in 7c6602a
+    # stands untouched.  search2k-budget is a different question: both arms
+    # already land inside the primary budget on the overfit frames, so whether
+    # they generalise to it was never asked.  Same architecture, target, loss,
+    # decoder, ladder and gates; only the entry condition differs.
+    stage = "search2k" if arguments.command == "search2k-budget" else arguments.command
     pool = train_ids if stage == "search2k" else V2.manifest("line_confirm6k")
     per_pass = V2.steps_per_pass(pool, BATCH)
-    eligible = [n for n in ARMS
-                if results.get(n, {}).get("overfit32", {}).get("OVERFIT_PASS")]
+    if arguments.command == "search2k-budget":
+        eligible = list(ARMS)          # gated by O_LOSS above, not by overfit32
+    else:
+        eligible = [n for n in ARMS
+                    if results.get(n, {}).get("overfit32", {}).get("OVERFIT_PASS")]
     if stage == "confirm6k":
         eligible = [n for n in eligible
                     if results[n].get("search2k_epoch5", {}).get("APPROACH")]
@@ -371,7 +380,7 @@ def main():
         head, stem, parameters = build_arm(name)
         optimiser = torch.optim.AdamW(parameters, lr=LR, weight_decay=WD)
         entry = results.setdefault(name, {})
-        done = 0
+        done, running = 0, []
         for chunk, visit in V2.step_schedule(pool, per_pass * max(EPOCH_LADDER), BATCH):
             head.train()
             pack = V2.load_pack(chunk)
@@ -380,11 +389,14 @@ def main():
             loss = map_loss(logit, target, torch.tensor(seg["hit"], device=DEV))
             optimiser.zero_grad(set_to_none=True)
             loss.backward(); optimiser.step()
+            running.append(float(loss.detach()))
             done += 1
             if done % per_pass == 0 and done // per_pass in EPOCH_LADDER:
                 epoch = done // per_pass
                 key = f"{stage}_epoch{epoch}"
                 entry[key] = evaluate(dev, head, stem, a1, edges, coarse, xx, yy)
+                # the training signal itself, per epoch; diagnostic only
+                entry[key]["train_map_loss"] = float(np.mean(running[-per_pass:]))
                 torch.save({"arm": name, "stage": key, "model": head.state_dict(),
                             "stem": None if stem is None else stem.state_dict(),
                             "optimizer": optimiser.state_dict(), **provenance()},
