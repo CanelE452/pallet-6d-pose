@@ -40,7 +40,13 @@ EXPECTED = {"K2_steps_per_pass": 250, "FULL_steps_per_pass": 1703,
 MARKS = (1250, 2500, 5000, 8515)
 CONDITIONS = {"A_K2_SHORT": ("K2", 1250), "C_K2_LONG": ("K2", 8515),
               "B_FULL_PREFIX_SHORT": ("FULL", 1250), "D_FULL_LONG": ("FULL", 8515)}
-REPRODUCTION = {"D0_SEEN512": (6.6040, 2.7023), "D2_LINE_DEV512": (6.8450, 2.7717)}
+# The reference is the recorded run itself, not a transcription of it.  A first
+# version hardcoded 6.6040 / 2.7023 read off my own report; the trajectory
+# reproduces the checkpoint to 0.000e+00 on all eight metrics, and comparing
+# against four-decimal literals at 1e-6 raised a false CONDITION_A_NOT_REPRODUCED
+# at 3.1e-05 -- the rounding, not the model.
+REPRODUCTION_SOURCE = "seen_unseen_diagnostic.json"
+REPRODUCTION_KEYS = ("angle_median", "offset_median", "angle_p90", "offset_p90")
 REPRODUCTION_TOLERANCE = 1e-6
 REDUCTION_THRESHOLD = 0.40
 LOSS_WINDOW = 250
@@ -128,6 +134,13 @@ def run_trajectory(name, pool, group, edges, coarse, xx, yy, a1):
     return history
 
 
+def reproduction_reference():
+    """M0 epoch-5 as recorded by 13ca73d, at full stored precision."""
+    recorded = json.loads((OUT / REPRODUCTION_SOURCE).read_text())["arms"][ARM]
+    return {label: {key: recorded[f"epoch5_{label}"][key] for key in REPRODUCTION_KEYS}
+            for label in ("D0_SEEN512", "D2_LINE_DEV512")}
+
+
 def reduction(base, later, key):
     return 1.0 - later[key] / max(base[key], 1e-12)
 
@@ -168,7 +181,7 @@ def decide(report):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["plan", "run"])
+    parser.add_argument("command", choices=["plan", "run", "decide"])
     arguments = parser.parse_args()
     import instance_edge_topology as IET
     edges = [tuple(e) for e in IET.build_topology()["edges"]]
@@ -178,12 +191,13 @@ def main():
     steps = check_steps(pool_map)
     group = {row["index"]: row["group_id"] for row in
              csv.DictReader(open(OUT / "line_internal_split.csv"))}
+    reference = reproduction_reference()
     plan = {"steps": steps, "marks": list(MARKS), "arm": ARM,
             "conditions": {k: {"pool": v[0], "step": v[1]}
                            for k, v in CONDITIONS.items()},
             "exposure": {k: exposure(pool_map[v[0]], v[1], group)
                          for k, v in CONDITIONS.items()},
-            "reproduction_target": REPRODUCTION,
+            "reproduction_target": reference,
             "reduction_threshold": REDUCTION_THRESHOLD, **CAP.provenance()}
 
     if arguments.command == "plan":
@@ -197,21 +211,26 @@ def main():
         return
 
     (OUT / "data_vs_step_plan.json").write_text(json.dumps(plan, indent=2))
-    coarse, (xx, yy) = H.CoarseRadon(), H.pixel_coordinates()
-    a1 = V2.load_a1()
-    report = {"plan": plan, "trajectories": {}, "conditions": {}}
-    for trajectory in ("K2", "FULL"):
-        log(f"[run] trajectory {trajectory}")
-        report["trajectories"][trajectory] = run_trajectory(
-            trajectory, pool_map[trajectory], group, edges, coarse, xx, yy, a1)
-        (OUT / "data_vs_step_result.json").write_text(json.dumps(report, indent=2,
-                                                                 default=float))
+    if arguments.command == "decide":
+        # trajectories already trained and saved; only the verdict is recomputed
+        report = json.loads((OUT / "data_vs_step_result.json").read_text())
+        report["plan"] = plan
+    else:
+        coarse, (xx, yy) = H.CoarseRadon(), H.pixel_coordinates()
+        a1 = V2.load_a1()
+        report = {"plan": plan, "trajectories": {}, "conditions": {}}
+        for trajectory in ("K2", "FULL"):
+            log(f"[run] trajectory {trajectory}")
+            report["trajectories"][trajectory] = run_trajectory(
+                trajectory, pool_map[trajectory], group, edges, coarse, xx, yy, a1)
+            (OUT / "data_vs_step_result.json").write_text(
+                json.dumps(report, indent=2, default=float))
     for name, (trajectory, step) in CONDITIONS.items():
         report["conditions"][name] = report["trajectories"][trajectory][str(step)]
     a = report["conditions"]["A_K2_SHORT"]
-    drift = max(max(abs(a[label]["angle_median"] - want[0]),
-                    abs(a[label]["offset_median"] - want[1]))
-                for label, want in REPRODUCTION.items())
+    reference = reproduction_reference()
+    drift = max(abs(a[label][key] - want[key])
+                for label, want in reference.items() for key in REPRODUCTION_KEYS)
     report["condition_A_drift"] = drift
     if drift > REPRODUCTION_TOLERANCE:
         report["CONDITION_A_NOT_REPRODUCED"] = True
