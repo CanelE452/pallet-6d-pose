@@ -71,9 +71,23 @@ def test_the_primary_data_contrast_is_c_against_d(scale):
 
 
 def test_condition_a_must_reproduce_the_existing_checkpoint(scale):
-    assert scale.REPRODUCTION == {"D0_SEEN512": (6.6040, 2.7023),
-                                  "D2_LINE_DEV512": (6.8450, 2.7717)}
+    """The reference is the recorded run at full precision, not a transcription.
+
+    A first version hardcoded four-decimal literals read off a report and
+    compared them at 1e-6, so the guard measured the rounding and fired on an
+    exact reproduction.
+    """
+    assert scale.REPRODUCTION_SOURCE == "seen_unseen_diagnostic.json"
     assert scale.REPRODUCTION_TOLERANCE == 1e-6
+    reference = scale.reproduction_reference()
+    assert set(reference) == {"D0_SEEN512", "D2_LINE_DEV512"}
+    for label, entry in reference.items():
+        assert set(entry) == set(scale.REPRODUCTION_KEYS)
+        # full stored precision, not a four-decimal literal
+        assert any(abs(v - round(v, 4)) > 0 for v in entry.values()), label
+    text = source()
+    for literal in ("6.6040", "2.7023", "6.8450", "2.7717"):
+        assert f"({literal}" not in text and f" {literal})" not in text, literal
     body = ast.get_source_segment(source(), next(
         node for node in ast.walk(ast.parse(source()))
         if isinstance(node, ast.FunctionDef) and node.name == "main"))
