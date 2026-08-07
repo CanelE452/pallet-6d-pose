@@ -197,4 +197,8 @@ def test_26_smoke_result_passed():
 def test_27_lambda_frozen_and_recorded():
     l = json.loads((OUT/"smoke_lambda.json").read_text())
     assert l["frozen"] is True
-    assert set(l["lambda"]) == {"centre","orientation","length","support","incidence"}
+    # calibrate_v2 records each component's lambda alongside its realized share,
+    # so the flat "lambda" map of v1 no longer exists.
+    assert set(l["components"]) == {"centre","orientation","length","support","incidence"}
+    for name, entry in l["components"].items():
+        assert entry["lambda"] > 0, name
