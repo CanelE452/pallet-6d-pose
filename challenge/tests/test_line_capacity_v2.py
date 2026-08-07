@@ -148,7 +148,8 @@ def test_off_frame_roles_are_excluded_from_the_scored_population(v2, edges):
     report = v2.coverage_full(dev[:64], "dev", (0,), edges)
     counts = report["counts"]
     assert counts["off_frame_full"] > 0
-    assert counts["pairs"] == counts["in_frame_full"] + counts["in_frame_partial"]
+    assert (counts["unique_supported_roles"]
+            == counts["in_frame_full"] + counts["in_frame_partial"])
 
 
 # --------------------------------------------------------------------------
@@ -191,7 +192,7 @@ def test_o1b_feature_is_the_same_image_evidence_as_o1a(v2):
                  if isinstance(node, ast.FunctionDef) and node.name == "build_feature")
     branch = next(node for node in ast.walk(build) if isinstance(node, ast.If))
     assert {c.value for c in ast.walk(branch.test) if isinstance(c, ast.Constant)} == {
-        "gradient", "gradient_segment"}
+        "gradient", "gradient_segment", "gradient_hard"}
     body = ast.get_source_segment(source(), branch.body[0])
     assert "scharr_evidence" in body and "gt" not in body.lower()
 
@@ -357,3 +358,99 @@ def test_the_configured_radius_is_the_smallest_that_clears_the_gate(v2):
             continue
         assert min(report[s]["radii"][f"{radius:g}"]["pair_coverage"]
                    for s in ("dev", "train")) < v2.COVERAGE_GATE
+
+
+# --------------------------------------------------------------------------
+# post-V2 data-versus-step diagnostic
+# --------------------------------------------------------------------------
+
+def test_step_counts_are_derived_from_the_real_chunking(v2):
+    train, _ = v2.split_indices()
+    two_k = v2.manifest("line_search2k")
+    assert v2.steps_per_pass(two_k) == sum(
+        1 for s in range(0, len(two_k), v2.BATCH)
+        if len(two_k[s:s + v2.BATCH]) >= 2)
+    plan = load_json("scaling_plan.json")
+    assert plan["S_SHORT"] == v2.steps_per_pass(two_k) * max(v2.EPOCH_LADDER)
+    assert plan["S_LONG"] == v2.steps_per_pass(train) * max(v2.EPOCH_LADDER)
+    text = source()
+    for literal in ("835", "5675", "5_675"):
+        assert literal not in text, literal
+
+
+def test_the_visit_schedule_reproduces_the_original_epoch_jitter(v2):
+    """Condition A is reused rather than retrained, so visit must equal epoch on
+    the 2k pool -- one pass per epoch, in the same order."""
+    two_k = v2.manifest("line_search2k")
+    short = v2.steps_per_pass(two_k) * max(v2.EPOCH_LADDER)
+    schedule = list(v2.step_schedule(two_k, short))
+    assert len(schedule) == short
+    original = [(chunk, epoch)
+                for epoch in range(1, max(v2.EPOCH_LADDER) + 1)
+                for chunk in v2.batches(two_k)]
+    assert schedule == original
+
+
+def test_cycling_a_small_pool_draws_fresh_jitter_each_visit(v2):
+    two_k = v2.manifest("line_search2k")
+    visits = {visit for _, visit in v2.step_schedule(two_k, 5 * v2.steps_per_pass(two_k) * 4)}
+    assert max(visits) > max(v2.EPOCH_LADDER)
+    frame, role = two_k[0], 3
+    draws = {v2.jitter_for(frame, role, visit, "train") for visit in visits}
+    assert len(draws) == len(visits)
+
+
+def test_o1c_zeroes_the_feature_outside_the_segment_and_o1b_does_not(v2):
+    tree = ast.parse(source())
+    step = ast.get_source_segment(source(), next(
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.FunctionDef) and node.name == "step_batch"))
+    assert 'if kind == "gradient_hard":' in step
+    assert 'strip = strip * support[:, :, None, None, :]' in step
+    # O1B still only multiplies the validity channel
+    assert 'inside = inside * support[:, :, None, :]' in step
+    assert v2.ARMS["O1C"] == ("gradient_hard", 3, 8.0)
+    assert v2.ARMS["O1C"][1:] == v2.ARMS["O1A"][1:]
+
+
+def test_o1c_reads_the_same_scharr_evidence_as_o1a(v2):
+    build = ast.get_source_segment(source(), next(
+        node for node in ast.walk(ast.parse(source()))
+        if isinstance(node, ast.FunctionDef) and node.name == "build_feature"))
+    assert '"gradient", "gradient_segment", "gradient_hard"' in build
+
+
+def test_scaling_arms_exclude_f100_and_o1a(v2):
+    assert v2.SCALE_ARMS == ["C0_F50", "C2_MULTI", "C3_RGB_STEM"]
+
+
+def test_scaling_thresholds_are_declared_not_derived_from_results(v2):
+    assert v2.SCALE_REDUCTION == 0.40
+    decision = ast.get_source_segment(source(), next(
+        node for node in ast.walk(ast.parse(source()))
+        if isinstance(node, ast.FunctionDef) and node.name == "scaling_decision"))
+    assert "SCALE_REDUCTION" in decision
+    assert "1.5" in decision and "0.75" in decision
+    # the pass gate itself is untouched
+    assert "ANGLE_BUDGET_DEG" not in decision and "PASS\"]" in decision
+
+
+def test_condition_a_is_reused_and_checked(v2):
+    body = ast.get_source_segment(source(), next(
+        node for node in ast.walk(ast.parse(source()))
+        if isinstance(node, ast.FunctionDef) and node.name == "main"))
+    assert "CONDITION_A_NOT_REPRODUCED" in body
+    assert "line_capacity_v2_arms.json" in body
+
+
+def test_role_exposures_are_not_called_pairs(v2):
+    report = load_json("coverage_fullsplit.json")
+    for split in ("dev", "train"):
+        counts = report[split]["counts"]
+        assert "pairs" not in counts
+        assert counts["unique_supported_roles"] > 0
+        assert counts["role_exposures"] >= counts["unique_supported_roles"]
+    train = report["train"]["counts"]
+    assert train["roles"] == 13618 * 12
+    assert train["unique_supported_roles"] == train["roles"] - train["off_frame_full"]
+    assert train["role_exposures"] == train["unique_supported_roles"] * max(v2.EPOCH_LADDER)

@@ -332,7 +332,8 @@ def coverage_full(indices, purpose, epochs, edges, radii=RADIUS_CANDIDATES):
     alpha = np.linspace(0.0, 1.0, LONGITUDINAL)[None, :, None]
     quorum_index = int(math.ceil(POINT_QUORUM * LONGITUDINAL)) - 1
     counts = dict(frames=0, roles=0, degenerate=0, off_frame_full=0,
-                  in_frame_partial=0, in_frame_full=0, pairs=0)
+                  in_frame_partial=0, in_frame_full=0,
+                  unique_supported_roles=0, role_exposures=0)
     required, fractions = [], {r: [] for r in radii}
     for index in indices:
         corners = load_geometry(index)
@@ -357,7 +358,10 @@ def coverage_full(indices, purpose, epochs, edges, radii=RADIUS_CANDIDATES):
         normal = np.stack([np.cos(theta_c), np.sin(theta_c)], -1)        # R,E,2
         distance = np.abs(np.einsum("rld,red->rel", points, normal)
                           - rho_c[..., None])                            # R,E,L
-        counts["pairs"] += distance.shape[0] * distance.shape[1]
+        counts["unique_supported_roles"] += distance.shape[0]
+        # one role seen under E epochs of jitter is E exposures of ONE role, not
+        # E pairs; the earlier wording made 788,790 read as a sample size.
+        counts["role_exposures"] += distance.shape[0] * distance.shape[1]
         ordered = np.sort(distance, axis=-1)
         required.append(ordered[..., quorum_index].ravel())
         for radius in radii:
@@ -436,13 +440,14 @@ def segment_support_mask(q0, q1, sample, scale):
 
 
 ARMS = {"O1A": ("gradient", 3, 8.0), "O1B": ("gradient_segment", 3, 8.0),
+        "O1C": ("gradient_hard", 3, 8.0),
         "C0_F50": ("f50", 128, 1.0), "C1_F100": ("f100", 256, 2.0),
         "C2_MULTI": ("multi", 384, 2.0), "C3_RGB_STEM": ("stem", 64, 2.0)}
 
 
 def build_feature(kind, batch, a1, stem):
     images, rgb = batch["images"], batch["rgb"]
-    if kind in ("gradient", "gradient_segment"):
+    if kind in ("gradient", "gradient_segment", "gradient_hard"):
         return scharr_evidence(rgb).to(DEV)
     if kind == "stem":
         return stem(images)
@@ -537,6 +542,36 @@ def save_checkpoint(name, epoch, refiner, stem, optimiser, provenance):
                 "seed": SEED, **provenance}, checkpoint_path(name, epoch))
 
 
+def batches(indices, batch=BATCH):
+    """The runner's real chunking, tail chunk of <2 dropped -- the step counts
+    are derived from this, never hardcoded."""
+    for start in range(0, len(indices), batch):
+        chunk = indices[start:start + batch]
+        if len(chunk) >= 2:
+            yield chunk
+
+
+def steps_per_pass(indices, batch=BATCH):
+    return sum(1 for _ in batches(indices, batch))
+
+
+def step_schedule(indices, total_steps, batch=BATCH):
+    """(chunk, visit) cycling the deterministic order until total_steps.
+
+    ``visit`` counts passes over the data and goes into the jitter key.  In the
+    original search2k run one pass was one epoch, so visit == epoch there and
+    condition A is reproduced bit-for-bit rather than retrained.
+    """
+    emitted = visit = 0
+    while emitted < total_steps:
+        visit += 1
+        for chunk in batches(indices, batch):
+            if emitted >= total_steps:
+                return
+            emitted += 1
+            yield chunk, visit
+
+
 def run_arm(name, indices, dev_indices, epochs, a1, edges, provenance,
             purpose="train"):
     kind, _, scale = ARMS[name]
@@ -565,6 +600,82 @@ def run_arm(name, indices, dev_indices, epochs, a1, edges, provenance,
                 f"{history[epoch]['offset_median']:.3f} cell  "
                 f"n={history[epoch]['n']}")
     return history, refiner, stem
+
+
+SCALE_ARMS = ["C0_F50", "C2_MULTI", "C3_RGB_STEM"]   # F100 lost to F50 at 2k
+SCALE_REDUCTION = 0.40      # declared before the run; diagnostic, not the gate
+
+
+def run_scaling(name, pools, dev_indices, marks, a1, edges, provenance):
+    """One trajectory per data pool, evaluated at every step mark.
+
+    Four separate trainings are not needed: the schedule, the seed and the
+    jitter are deterministic, so the state of the 2k trajectory at S_SHORT *is*
+    the fresh-init S_SHORT run.  That also buys a check -- 2k at S_SHORT must
+    reproduce the recorded search2k epoch-5 numbers, and if it does not, the
+    visit-count refactor broke compatibility with condition A.
+    """
+    kind, _, scale = ARMS[name]
+    results = {}
+    for pool_name, indices in pools.items():
+        refiner, stem, parameters = build_arm(name)
+        optimiser = torch.optim.AdamW(parameters, lr=LR, weight_decay=WD)
+        done = 0
+        for chunk, visit in step_schedule(indices, max(marks)):
+            refiner.train()
+            result = step_batch(load_pack(chunk), kind, scale, refiner, stem, a1,
+                                edges, visit, "train")
+            if result["loss"] is not None:
+                optimiser.zero_grad(set_to_none=True)
+                result["loss"].backward()
+                optimiser.step()
+            done += 1
+            if done in marks:
+                report = evaluate(dev_indices, kind, scale, refiner, stem, a1, edges)
+                report["visits_completed"] = visit
+                report["unique_frames"] = len(indices)
+                results[f"{pool_name}@{done}"] = report
+                save_checkpoint(f"{name}_{pool_name}", done, refiner, stem,
+                                optimiser, {**provenance, "steps": done,
+                                            "pool": pool_name})
+                log(f"  {name} {pool_name} step {done}: angle med "
+                    f"{report['angle_median']:.3f}  offset med "
+                    f"{report['offset_median']:.3f}  n={report['n']}")
+    return results
+
+
+def scaling_decision(entry, baseline):
+    """Cause attribution.  Every threshold here was fixed before the run."""
+    a, b = baseline, entry["full@short"]
+    c, d = entry["k2@long"], entry["full@long"]
+    passes = lambda r: bool(r["PASS"] and r["SAFETY"])
+    reduction = lambda r, k: 1.0 - r[k] / baseline[k]
+    verdict = {
+        "A_2K_SHORT": a, "B_FULL_SHORT": b, "C_2K_LONG": c, "D_FULL_LONG": d,
+        "D_PASS": passes(d),
+        "angle_reduction_D_vs_A": reduction(d, "angle_median"),
+        "offset_reduction_D_vs_A": reduction(d, "offset_median"),
+    }
+    verdict["SCALING_SIGNAL_PRESENT"] = bool(
+        verdict["angle_reduction_D_vs_A"] >= SCALE_REDUCTION
+        and verdict["offset_reduction_D_vs_A"] >= SCALE_REDUCTION)
+    verdict["APPROACHES_GATE"] = bool(d["angle_median"] <= 1.5
+                                      and d["offset_median"] <= 0.75)
+    causes = []
+    if b["angle_median"] < a["angle_median"] or d["angle_median"] < c["angle_median"]:
+        causes.append("DATA_DIVERSITY_HELPS")
+    if c["angle_median"] < a["angle_median"]:
+        causes.append("OPTIMIZATION_STEPS_HELP")
+    if not causes:
+        causes.append("DATA_SCALE_NOT_THE_BOTTLENECK")
+    verdict["causes"] = causes
+    if verdict["D_PASS"]:
+        verdict["decision"] = "DATA_SCALE_RESCUES_LINE_REFINEMENT"
+    elif verdict["SCALING_SIGNAL_PRESENT"]:
+        verdict["decision"] = "SCALING_SIGNAL_PRESENT_BUT_INSUFFICIENT"
+    else:
+        verdict["decision"] = "LOCAL_EDGE_REPRESENTATION_PRECISION_FAIL"
+    return verdict
 
 
 def reload_and_evaluate(name, epoch, dev_indices, a1, edges):
@@ -616,11 +727,16 @@ def step_batch(pack, kind, scale, refiner, stem, a1, edges, epoch, purpose):
     # though F100 reads a 100x100 map and F50 a 50x50 one.
     valid = line_rect_intersection(normal_c, rho_c, GRID, GRID)[2]
     support_fraction = None
-    if kind == "gradient_segment":
+    strip = sample["strip"]
+    if kind in ("gradient_segment", "gradient_hard"):
         support = segment_support_mask(seg["q0"], seg["q1"], sample, scale)
         support_fraction = float(support.mean().item())
         inside = inside * support[:, :, None, :]
-    out = refiner(sample["strip"], inside)
+        if kind == "gradient_hard":
+            # O1B told the refiner where the segment is; O1C removes everything
+            # else, so magnitude/gx/gy off the target edge really are zero.
+            strip = strip * support[:, :, None, None, :]
+    out = refiner(strip, inside)
     theta_p = theta_c + torch.deg2rad(out["delta_theta_deg"])
     rho_p = rho_c + out["delta_rho_cell"]
     losses = budget_losses(theta_p, rho_p,
@@ -718,7 +834,8 @@ def decide(results):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command",
-                        choices=["audit", "o0", "o1", "features", "decide", "all"])
+                        choices=["audit", "o0", "o1", "features", "decide",
+                                 "o1c", "scale", "scale-decide", "all"])
     arguments = parser.parse_args()          # SEED is locked at 1; no --seed knob
     import instance_edge_topology as IET
     edges = [tuple(e) for e in IET.build_topology()["edges"]]
@@ -754,7 +871,8 @@ def main():
         for name in ("dev", "train"):
             entry = report[name]
             log(f"[audit] {name}: frames {entry['counts']['frames']} "
-                f"pairs {entry['counts']['pairs']} "
+                f"roles {entry['counts']['unique_supported_roles']} "
+                f"exposures {entry['counts']['role_exposures']} "
                 f"off_frame {entry['counts']['off_frame_full']} "
                 f"partial {entry['counts']['in_frame_partial']}")
             for radius in RADIUS_CANDIDATES:
@@ -782,6 +900,7 @@ def main():
     if arguments.command in ("o1", "features", "all"):
         a1 = load_a1()
         names = (["O1A", "O1B"] if arguments.command in ("o1", "all") else [])
+        names += ["O1C"] if arguments.command == "o1c" else []
         names += (["C0_F50", "C1_F100", "C2_MULTI", "C3_RGB_STEM"]
                   if arguments.command in ("features", "all") else [])
         results = json.loads(arms_file.read_text()) if arms_file.exists() else {}
@@ -805,6 +924,67 @@ def main():
             results[name] = entry
             arms_file.write_text(json.dumps(results, indent=2, default=float))
         log("[arms] done")
+
+    if arguments.command in ("scale", "scale-decide"):
+        short = steps_per_pass(train_ids) * max(EPOCH_LADDER)
+        long = steps_per_pass(full_train) * max(EPOCH_LADDER)
+        marks = (short, long)
+        plan = {"S_SHORT": short, "S_LONG": long, "batch": BATCH,
+                "steps_per_pass_2k": steps_per_pass(train_ids),
+                "steps_per_pass_full": steps_per_pass(full_train),
+                "unique_frames_2k": len(train_ids),
+                "unique_frames_full": len(full_train),
+                "arms": SCALE_ARMS, "reduction_threshold": SCALE_REDUCTION,
+                **provenance}
+        (OUT / "scaling_plan.json").write_text(json.dumps(plan, indent=2))
+        log(f"[scale] S_SHORT {short}  S_LONG {long}")
+
+    if arguments.command == "scale":
+        a1 = load_a1()
+        pools = {"k2": train_ids, "full": full_train}
+        short, long = plan["S_SHORT"], plan["S_LONG"]
+        file = OUT / "scaling_arms.json"
+        results = json.loads(file.read_text()) if file.exists() else {}
+        for name in SCALE_ARMS:
+            log(f"[scale] {name}")
+            raw = run_scaling(name, pools, dev_ids, (short, long), a1, edges,
+                              provenance)
+            results[name] = {"k2@short": raw[f"k2@{short}"],
+                             "k2@long": raw[f"k2@{long}"],
+                             "full@short": raw[f"full@{short}"],
+                             "full@long": raw[f"full@{long}"]}
+            file.write_text(json.dumps(results, indent=2, default=float))
+        log("[scale] done")
+
+    if arguments.command == "scale-decide":
+        recorded = json.loads((OUT / "line_capacity_v2_arms.json").read_text())
+        scaled = json.loads((OUT / "scaling_arms.json").read_text())
+        summary = {"plan": plan, "arms": {}}
+        for name, entry in scaled.items():
+            baseline = recorded[name][str(EPOCH_LADDER[-1])]
+            drift = max(abs(entry["k2@short"][k] - baseline[k]) for k in
+                        ("angle_median", "angle_p90", "offset_median", "offset_p90"))
+            if drift > 1e-9:
+                raise RuntimeError(
+                    f"CONDITION_A_NOT_REPRODUCED: {name} drift {drift:.3e} -- the "
+                    "visit-count schedule no longer matches the recorded run")
+            summary["arms"][name] = scaling_decision(entry, baseline)
+        verdicts = {n: v["decision"] for n, v in summary["arms"].items()}
+        summary["overall"] = ("DATA_SCALE_RESCUES_LINE_REFINEMENT"
+                              if "DATA_SCALE_RESCUES_LINE_REFINEMENT" in verdicts.values()
+                              else "SCALING_SIGNAL_PRESENT_BUT_INSUFFICIENT"
+                              if "SCALING_SIGNAL_PRESENT_BUT_INSUFFICIENT" in verdicts.values()
+                              else "LOCAL_EDGE_REPRESENTATION_PRECISION_FAIL")
+        summary["SLQ"] = ("BUILD" if any(v["D_PASS"] or v["APPROACHES_GATE"]
+                                         for v in summary["arms"].values())
+                          else "NOT_BUILT")
+        (OUT / "scaling_decision.json").write_text(json.dumps(summary, indent=2,
+                                                              default=float))
+        log(f"[scale-decide] {summary['overall']}  SLQ={summary['SLQ']}")
+        for name, v in summary["arms"].items():
+            log(f"  {name}: {v['decision']}  causes={v['causes']}  "
+                f"D {v['D_FULL_LONG']['angle_median']:.3f} deg / "
+                f"{v['D_FULL_LONG']['offset_median']:.3f} cell")
 
     if arguments.command in ("decide", "all"):
         results = json.loads(arms_file.read_text())
