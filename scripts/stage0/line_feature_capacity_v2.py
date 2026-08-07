@@ -72,11 +72,15 @@ def line_rect_intersection(normal, rho, width, height):
     return t_enter, t_exit, valid, direction, base
 
 
-def sample_strip(feature, normal, rho, scale):
+def sample_strip(feature, normal, rho, scale, radius_cell=None):
     """Feature strip along the line's visible chord, plus a validity mask.
 
     ``scale`` maps canonical 50-grid units to this feature's resolution, so every
     arm reads the same physical footprint.
+
+    ``t`` is returned because the along-line coordinate of every longitudinal
+    sample is what the O1B oracle needs: without it the segment mask can only be
+    rebuilt from the same interval it is meant to test, which is a no-op.
     """
     batch, roles = normal.shape[0], normal.shape[1]
     height, width = feature.shape[-2:]
@@ -85,7 +89,7 @@ def sample_strip(feature, normal, rho, scale):
         normal, rho_f, width, height)
     alpha = torch.linspace(0.0, 1.0, LONGITUDINAL, device=feature.device)
     t = t_enter[..., None] + (t_exit - t_enter)[..., None] * alpha
-    radius = TRANSVERSE_RADIUS_CELL * scale
+    radius = (TRANSVERSE_RADIUS_CELL if radius_cell is None else radius_cell) * scale
     s = torch.linspace(-radius, radius, TRANSVERSE_SAMPLES, device=feature.device)
     points = (base[:, :, None, None, :]
               + direction[:, :, None, None, :] * t[:, :, None, :, None]
@@ -99,7 +103,8 @@ def sample_strip(feature, normal, rho, scale):
                             padding_mode="zeros", align_corners=True)
     sampled = sampled.reshape(batch, -1, roles, TRANSVERSE_SAMPLES,
                               LONGITUDINAL).permute(0, 2, 1, 3, 4)
-    return sampled, inside, valid
+    return {"strip": sampled, "inside": inside, "valid": valid, "t": t,
+            "base": base, "direction": direction}
 
 
 class Refiner(nn.Module):
@@ -133,16 +138,33 @@ def wrap_half_pi(angle):
     return (angle + math.pi / 2) % math.pi - math.pi / 2
 
 
-def budget_losses(theta_pred, rho_pred, theta_gt, rho_gt):
-    """Each term normalised by its own budget, so error 1 is the gate boundary."""
+def budget_losses(theta_pred, rho_pred, theta_gt, rho_gt, reduce=True):
+    """Each term normalised by its own budget, so error 1 is the gate boundary.
+
+    ``reduce=False`` returns the per-role terms so the caller can average over
+    exactly the supported roles.  Reducing here first would average over roles
+    whose edge never enters the image, which is a different population from the
+    one the metric reports.
+    """
     d_theta = wrap_half_pi(theta_pred - theta_gt)
     angle_deg = torch.rad2deg(d_theta).abs()
     offset = (rho_pred - rho_gt).abs()
     e_theta = torch.rad2deg(d_theta) / ANGLE_BUDGET_DEG
     e_rho = (rho_pred - rho_gt) / OFFSET_BUDGET_CELL
-    return {"angle_deg": angle_deg, "offset_cell": offset,
-            "L_theta": F.smooth_l1_loss(e_theta, torch.zeros_like(e_theta)),
-            "L_rho": F.smooth_l1_loss(e_rho, torch.zeros_like(e_rho))}
+    per_theta = F.smooth_l1_loss(e_theta, torch.zeros_like(e_theta), reduction="none")
+    per_rho = F.smooth_l1_loss(e_rho, torch.zeros_like(e_rho), reduction="none")
+    result = {"angle_deg": angle_deg, "offset_cell": offset,
+              "theta_per_role": per_theta, "rho_per_role": per_rho}
+    if reduce:
+        result["L_theta"] = per_theta.mean()
+        result["L_rho"] = per_rho.mean()
+    return result
+
+
+def masked_mean(per_role, mask):
+    """Average over supported roles only; train and eval share this population."""
+    weight = mask.to(per_role.dtype)
+    return (per_role * weight).sum() / weight.sum().clamp_min(1.0)
 
 
 def raster_lines(normal, rho, grid=GRID, sigma=1.0):
@@ -201,16 +223,77 @@ def jitter_for(frame_uid, role, epoch, purpose, seed=SEED):
     return (2 * a - 1) * JITTER_ANGLE_DEG, (2 * b - 1) * JITTER_OFFSET_CELL
 
 
+# The canonical rectangle the sampler can actually read.  ``grid_sample`` with
+# align_corners=True maps [-1, 1] onto pixel centres 0..GRID-1, so the readable
+# region is [0, 49], not a nominal [0, 50).  Using the readable rectangle is the
+# conservative choice: it can only classify more edge as off-frame, never less.
+RECT_LO, RECT_HI = 0.0, GRID - 1.0
+
+
+def load_geometry(index):
+    """Projected cuboid in canonical 50-grid units.  Reads JSON only.
+
+    The coverage audit runs over the whole split, so it must not decode 16,011
+    PNGs to learn a width and a height that the JSON already states.
+    """
+    payload = json.loads(guard(DATA / "all" / f"{index}.json").read_text("utf-8"))
+    camera = payload["camera_data"]
+    width, height = float(camera["width"]), float(camera["height"])
+    cuboid = np.asarray(payload["objects"][0]["projected_cuboid"], float)
+    return np.stack([cuboid[:, 0] * GRID / width, cuboid[:, 1] * GRID / height], 1)
+
+
 def load_frame(index):
     payload = json.loads(guard(DATA / "all" / f"{index}.json").read_text("utf-8"))
     camera = payload["camera_data"]
     image = cv2.imread(str(DATA / "all" / f"{index}.png"))
-    height, width = image.shape[:2]
+    height, width = float(camera["height"]), float(camera["width"])
+    if image.shape[:2] != (int(height), int(width)):
+        raise RuntimeError(f"{index}: JSON says {width}x{height}, image is "
+                           f"{image.shape[1]}x{image.shape[0]}")
     rgb = cv2.cvtColor(cv2.resize(image, (400, 400)), cv2.COLOR_BGR2RGB)
     normalised = (rgb.astype(np.float32) / 255.0 - MEAN) / STD
     cuboid = np.asarray(payload["objects"][0]["projected_cuboid"], float)
     grid = np.stack([cuboid[:, 0] * GRID / width, cuboid[:, 1] * GRID / height], 1)
     return normalised.transpose(2, 0, 1), rgb, grid
+
+
+def clip_segment(p0, p1, lo=RECT_LO, hi=RECT_HI):
+    """Liang-Barsky clip of segments (..., 2) to the square [lo, hi]^2.
+
+    Returns the parameter interval (t_lo, t_hi) along p0 -> p1 and whether any
+    part of the segment survives.  A role whose physical edge misses the image
+    entirely has no local image evidence by construction, so it is not part of
+    the population a local refiner is being asked about.
+    """
+    delta = p1 - p0
+    t_lo = np.zeros(p0.shape[:-1], float)
+    t_hi = np.ones(p0.shape[:-1], float)
+    hit = np.ones(p0.shape[:-1], bool)
+    for p, q in ((-delta[..., 0], p0[..., 0] - lo), (delta[..., 0], hi - p0[..., 0]),
+                 (-delta[..., 1], p0[..., 1] - lo), (delta[..., 1], hi - p0[..., 1])):
+        parallel = np.abs(p) < 1e-12
+        hit &= ~(parallel & (q < 0))
+        ratio = np.divide(q, np.where(parallel, 1.0, p))
+        moving = ~parallel
+        t_lo = np.where(moving & (p < 0), np.maximum(t_lo, ratio), t_lo)
+        t_hi = np.where(moving & (p > 0), np.minimum(t_hi, ratio), t_hi)
+    hit &= t_lo <= t_hi
+    return np.clip(t_lo, 0.0, 1.0), np.clip(t_hi, 0.0, 1.0), hit
+
+
+def visible_segments(p0, p1, length):
+    """Clipped endpoints plus the three-way frame classification per role."""
+    t_lo, t_hi, hit = clip_segment(p0, p1)
+    delta = p1 - p0
+    q0 = p0 + delta * t_lo[..., None]
+    q1 = p0 + delta * t_hi[..., None]
+    degenerate = length < 1e-4
+    hit = hit & ~degenerate
+    full = hit & (t_lo <= 1e-9) & (t_hi >= 1.0 - 1e-9)
+    return {"q0": q0, "q1": q1, "hit": hit, "degenerate": degenerate,
+            "in_frame_full": full, "in_frame_partial": hit & ~full,
+            "off_frame_full": ~hit & ~degenerate}
 
 
 def gt_lines(grid_corners, edges):
@@ -227,40 +310,73 @@ def gt_lines(grid_corners, edges):
     return theta, rho, p0, p1, length[..., 0]
 
 
-def coverage_audit(indices, purpose, epoch=0, edges=None):
-    """Does the strip actually contain the GT line it is asked to recover?
+RADIUS_CANDIDATES = (6.0, 8.0, 10.0, 12.0, 14.0)
+POINT_QUORUM = 0.90            # a pair is covered when this share of its
+                               # visible points lies inside the strip
+COVERAGE_GATE = 0.995
 
-    V1's strip was narrower than the offset jitter, so part of its training
-    signal demanded a correction whose evidence had never been sampled.  This
-    checks the whole split before any feature is judged, and it is geometry
-    only -- no model, no feature.
+
+def coverage_full(indices, purpose, epochs, edges, radii=RADIUS_CANDIDATES):
+    """Does the strip contain the visible GT edge it is asked to recover?
+
+    Whole split, every role, every epoch's jitter, geometry only -- no PNG is
+    decoded and no model is built.  The population is the *clipped* segment:
+    an edge that never enters the image cannot be refined from local evidence,
+    so it is counted and excluded rather than scored as a failure.
+
+    The required radius of a pair is the smallest strip half-width that puts
+    POINT_QUORUM of its visible points inside, which is exactly the
+    ceil(q*L)-th smallest point distance -- so the sweep is a comparison, not a
+    re-measurement.
     """
-    import instance_edge_topology as IET
-    edges = edges or [tuple(e) for e in IET.build_topology()["edges"]]
-    pair_ok = pair_total = 0
-    point_fractions = []
+    alpha = np.linspace(0.0, 1.0, LONGITUDINAL)[None, :, None]
+    quorum_index = int(math.ceil(POINT_QUORUM * LONGITUDINAL)) - 1
+    counts = dict(frames=0, roles=0, degenerate=0, off_frame_full=0,
+                  in_frame_partial=0, in_frame_full=0, pairs=0)
+    required, fractions = [], {r: [] for r in radii}
     for index in indices:
-        _, _, grid_corners = load_frame(index)
-        theta, rho, p0, p1, length = gt_lines(grid_corners[None], edges)
-        for role in range(len(edges)):
-            if length[0, role] < 1e-4:
-                continue
-            pair_total += 1
-            d_angle, d_offset = jitter_for(index, role, epoch, purpose)
-            theta_c = theta[0, role] + math.radians(d_angle)
-            rho_c = rho[0, role] + d_offset
-            normal_c = np.array([math.cos(theta_c), math.sin(theta_c)])
-            alpha = np.linspace(0.0, 1.0, LONGITUDINAL)[:, None]
-            points = p0[0, role] + (p1[0, role] - p0[0, role]) * alpha
-            distance = np.abs(points @ normal_c - rho_c)
-            fraction = float((distance <= TRANSVERSE_RADIUS_CELL).mean())
-            point_fractions.append(fraction)
-            pair_ok += fraction >= 0.90
-    fractions = np.array(point_fractions) if point_fractions else np.zeros(1)
-    return {"pairs": pair_total, "pair_coverage": pair_ok / max(pair_total, 1),
-            "point_coverage_mean": float(fractions.mean()),
-            "p1": float(np.percentile(fractions, 1)),
-            "p5": float(np.percentile(fractions, 5))}
+        corners = load_geometry(index)
+        theta, rho, p0, p1, length = gt_lines(corners[None], edges)
+        theta, rho, p0, p1, length = theta[0], rho[0], p0[0], p1[0], length[0]
+        seg = visible_segments(p0, p1, length)
+        counts["frames"] += 1
+        counts["roles"] += len(edges)
+        counts["degenerate"] += int(seg["degenerate"].sum())
+        counts["off_frame_full"] += int(seg["off_frame_full"].sum())
+        counts["in_frame_partial"] += int(seg["in_frame_partial"].sum())
+        counts["in_frame_full"] += int(seg["in_frame_full"].sum())
+        live = np.flatnonzero(seg["hit"])
+        if live.size == 0:
+            continue
+        points = (seg["q0"][live][:, None, :]
+                  + (seg["q1"] - seg["q0"])[live][:, None, :] * alpha)   # R,L,2
+        jitter = np.array([[jitter_for(index, int(role), epoch, purpose)
+                            for epoch in epochs] for role in live])      # R,E,2
+        theta_c = theta[live][:, None] + np.radians(jitter[..., 0])
+        rho_c = rho[live][:, None] + jitter[..., 1]
+        normal = np.stack([np.cos(theta_c), np.sin(theta_c)], -1)        # R,E,2
+        distance = np.abs(np.einsum("rld,red->rel", points, normal)
+                          - rho_c[..., None])                            # R,E,L
+        counts["pairs"] += distance.shape[0] * distance.shape[1]
+        ordered = np.sort(distance, axis=-1)
+        required.append(ordered[..., quorum_index].ravel())
+        for radius in radii:
+            fractions[radius].append((distance <= radius).mean(-1).ravel())
+    if not required:
+        raise RuntimeError("coverage population is empty")
+    required = np.concatenate(required)
+    report = {"purpose": purpose, "epochs": list(epochs), "counts": counts,
+              "required_radius": {f"p{p}": float(np.percentile(required, p))
+                                  for p in (50, 90, 95, 99, 100)},
+              "radii": {}}
+    for radius in radii:
+        fraction = np.concatenate(fractions[radius])
+        report["radii"][f"{radius:g}"] = {
+            "pair_coverage": float((required <= radius).mean()),
+            "point_coverage_mean": float(fraction.mean()),
+            **{f"p{p}": float(np.percentile(fraction, p))
+               for p in (1, 5, 50, 95, 99)}}
+    return report
 
 
 class RgbStem(nn.Module):
@@ -295,21 +411,28 @@ def scharr_evidence(rgb_batch):
     return torch.from_numpy(np.stack(out))
 
 
-def segment_support_mask(p0, p1, theta_c, rho_c, longitudinal=LONGITUDINAL):
+def segment_support_mask(q0, q1, sample, scale):
     """O1B only: which longitudinal samples lie over the physical edge.
 
-    The GT segment never contributes a feature value; it only says which part of
-    the chord is the target edge.  That separates 'orientation evidence exists'
-    from 'the along-line support can be located'.
+    ``sample`` is the dict from :func:`sample_strip`; its ``t`` is the along-line
+    coordinate of each longitudinal sample, and the clipped GT endpoints project
+    onto the same axis.  The comparison is therefore between two independent
+    quantities.  The previous version rebuilt the sample positions *from* the GT
+    interval and then tested membership in that same interval, which is true by
+    construction -- O1B was O1A.
+
+    The GT segment supplies no feature value.  It answers only "which part of
+    this chord is the target edge", which separates "orientation evidence
+    exists" from "the along-line support can be located".
     """
-    normal = np.stack([np.cos(theta_c), np.sin(theta_c)], -1)
-    direction = np.stack([-normal[..., 1], normal[..., 0]], -1)
-    base = normal * rho_c[..., None]
-    t0 = ((p0 - base) * direction).sum(-1)
-    t1 = ((p1 - base) * direction).sum(-1)
-    low = np.minimum(t0, t1)[..., None]
-    high = np.maximum(t0, t1)[..., None]
-    return low, high
+    base, direction, t = sample["base"], sample["direction"], sample["t"]
+    a = torch.as_tensor(q0, dtype=base.dtype, device=base.device) * scale
+    b = torch.as_tensor(q1, dtype=base.dtype, device=base.device) * scale
+    t0 = ((a - base) * direction).sum(-1)
+    t1 = ((b - base) * direction).sum(-1)
+    low = torch.minimum(t0, t1)[..., None]
+    high = torch.maximum(t0, t1)[..., None]
+    return ((t >= low - 1e-6) & (t <= high + 1e-6)).to(base.dtype)
 
 
 ARMS = {"O1A": ("gradient", 3, 8.0), "O1B": ("gradient_segment", 3, 8.0),
@@ -335,14 +458,89 @@ def build_feature(kind, batch, a1, stem):
     return torch.cat([upsampled, f100.detach()], 1)
 
 
-def run_arm(name, indices, dev_indices, epochs, a1, edges, purpose="train"):
-    kind, channels, scale = ARMS[name]
+def build_arm(name):
+    kind, channels, _ = ARMS[name]
     torch.manual_seed(SEED)
     refiner = Refiner(channels).to(DEV)
     stem = RgbStem().to(DEV) if kind == "stem" else None
     parameters = list(refiner.parameters())
     if stem is not None:
         parameters += list(stem.parameters())      # asserted by a test
+    return refiner, stem, parameters
+
+
+def run_overfit(name, indices, a1, edges, steps=OVERFIT_STEPS, frames=32):
+    """Can this arm fit 32 frames at all?  Optimisation sanity, not capacity.
+
+    The frames are loaded once and the jitter is fixed, so a failure here is the
+    arm's, not the data pipeline's.
+    """
+    kind, _, scale = ARMS[name]
+    refiner, stem, parameters = build_arm(name)
+    optimiser = torch.optim.AdamW(parameters, lr=LR, weight_decay=WD)
+    packs = [load_pack(indices[start:start + BATCH])
+             for start in range(0, min(frames, len(indices)), BATCH)]
+    packs = [p for p in packs if len(p["chunk"]) >= 2]
+    if kind != "stem":
+        with torch.no_grad():
+            for pack in packs:
+                pack["feature"] = build_feature(
+                    kind, {"images": pack["images"], "rgb": pack["rgb"]}, a1, None)
+    for _ in range(steps):
+        refiner.train()
+        for pack in packs:
+            result = step_batch(pack, kind, scale, refiner, stem, a1, edges,
+                                0, "overfit")
+            if result["loss"] is None:
+                continue
+            optimiser.zero_grad(set_to_none=True)
+            result["loss"].backward()
+            optimiser.step()
+    refiner.eval()
+    angles, offsets = [], []
+    with torch.no_grad():
+        for pack in packs:
+            result = step_batch(pack, kind, scale, refiner, stem, a1, edges,
+                                0, "overfit")
+            angles.append(result["angle"]); offsets.append(result["offset"])
+    return summarise(np.concatenate(angles), np.concatenate(offsets),
+                     {"steps": steps, "frames": sum(len(p["chunk"]) for p in packs)})
+
+
+def summarise(angles, offsets, extra=None):
+    if angles.size == 0:
+        angles = offsets = np.zeros(1)
+    report = {"angle_median": float(np.median(angles)),
+              "angle_p90": float(np.percentile(angles, 90)),
+              "offset_median": float(np.median(offsets)),
+              "offset_p90": float(np.percentile(offsets, 90)),
+              "n": int(angles.size)}
+    report["PASS"] = bool(report["angle_median"] <= ANGLE_BUDGET_DEG
+                          and report["offset_median"] <= OFFSET_BUDGET_CELL)
+    report["SAFETY"] = bool(report["angle_p90"] <= 2.0 * ANGLE_BUDGET_DEG
+                            and report["offset_p90"] <= 2.0 * OFFSET_BUDGET_CELL)
+    report.update(extra or {})
+    return report
+
+
+def checkpoint_path(name, epoch):
+    directory = OUT / "line_capacity_v2" / "checkpoints" / name
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory / f"epoch_{epoch:03d}.pth"
+
+
+def save_checkpoint(name, epoch, refiner, stem, optimiser, provenance):
+    torch.save({"arm": name, "epoch": epoch,
+                "model": refiner.state_dict(),
+                "stem": None if stem is None else stem.state_dict(),
+                "optimizer": optimiser.state_dict(),
+                "seed": SEED, **provenance}, checkpoint_path(name, epoch))
+
+
+def run_arm(name, indices, dev_indices, epochs, a1, edges, provenance,
+            purpose="train"):
+    kind, _, scale = ARMS[name]
+    refiner, stem, parameters = build_arm(name)
     optimiser = torch.optim.AdamW(parameters, lr=LR, weight_decay=WD)
     history = {}
     for epoch in range(1, max(epochs) + 1):
@@ -351,82 +549,131 @@ def run_arm(name, indices, dev_indices, epochs, a1, edges, purpose="train"):
             chunk = indices[start:start + BATCH]
             if len(chunk) < 2:
                 continue
-            loss = step_batch(chunk, kind, scale, refiner, stem, a1, edges,
-                              epoch, purpose, train=True)
-            if loss is None:
+            result = step_batch(load_pack(chunk), kind, scale, refiner, stem, a1,
+                                edges, epoch, purpose)
+            if result["loss"] is None:
                 continue
             optimiser.zero_grad(set_to_none=True)
-            loss.backward()
+            result["loss"].backward()
             optimiser.step()
         if epoch in epochs:
             history[epoch] = evaluate(dev_indices, kind, scale, refiner, stem,
                                       a1, edges)
+            save_checkpoint(name, epoch, refiner, stem, optimiser, provenance)
             log(f"  {name} epoch {epoch}: angle med "
                 f"{history[epoch]['angle_median']:.3f} deg  offset med "
-                f"{history[epoch]['offset_median']:.3f} cell")
+                f"{history[epoch]['offset_median']:.3f} cell  "
+                f"n={history[epoch]['n']}")
     return history, refiner, stem
 
 
-def step_batch(chunk, kind, scale, refiner, stem, a1, edges, epoch, purpose,
-               train=True):
+def reload_and_evaluate(name, epoch, dev_indices, a1, edges):
+    """Read the epoch-5 decision back off disk before it is acted on."""
+    kind, channels, scale = ARMS[name]
+    state = torch.load(checkpoint_path(name, epoch), map_location=DEV,
+                       weights_only=False)
+    refiner = Refiner(channels).to(DEV)
+    refiner.load_state_dict(state["model"])
+    stem = None
+    if state["stem"] is not None:
+        stem = RgbStem().to(DEV)
+        stem.load_state_dict(state["stem"])
+    return evaluate(dev_indices, kind, scale, refiner, stem, a1, edges)
+
+
+def load_pack(chunk):
     frames = [load_frame(i) for i in chunk]
-    images = torch.from_numpy(np.stack([f[0] for f in frames])).to(DEV)
-    rgb = [f[1] for f in frames]
-    grid_corners = np.stack([f[2] for f in frames])
+    return {"chunk": list(chunk),
+            "images": torch.from_numpy(np.stack([f[0] for f in frames])).to(DEV),
+            "rgb": [f[1] for f in frames],
+            "grid": np.stack([f[2] for f in frames])}
+
+
+def step_batch(pack, kind, scale, refiner, stem, a1, edges, epoch, purpose):
+    """One batch.  Train and eval share this path, hence the same role mask."""
+    chunk, images, rgb, grid_corners = (pack["chunk"], pack["images"],
+                                        pack["rgb"], pack["grid"])
     theta, rho, p0, p1, length = gt_lines(grid_corners, edges)
-    coarse = np.zeros_like(theta)
-    offset = np.zeros_like(rho)
+    seg = visible_segments(p0, p1, length)
+    coarse, offset = np.zeros_like(theta), np.zeros_like(rho)
     for bi, index in enumerate(chunk):
         for role in range(len(edges)):
             d_angle, d_offset = jitter_for(index, role, epoch, purpose)
             coarse[bi, role] = theta[bi, role] + math.radians(d_angle)
             offset[bi, role] = rho[bi, role] + d_offset
-    feature = build_feature(kind, {"images": images, "rgb": rgb}, a1, stem)
+    # Frozen features are deterministic, so the overfit stage may cache them.
+    # The stem is trainable and is therefore never cached.
+    feature = pack.get("feature")
+    if feature is None:
+        feature = build_feature(kind, {"images": images, "rgb": rgb}, a1, stem)
     theta_c = torch.tensor(coarse, dtype=torch.float32, device=DEV)
     rho_c = torch.tensor(offset, dtype=torch.float32, device=DEV)
     normal_c = torch.stack([theta_c.cos(), theta_c.sin()], -1)
-    strip, inside, valid = sample_strip(feature, normal_c, rho_c, scale)
+    sample = sample_strip(feature, normal_c, rho_c, scale)
+    inside = sample["inside"]
+    # Coarse validity is judged on the canonical grid, not on this arm's feature
+    # rectangle, so every arm scores the identical frame-role population even
+    # though F100 reads a 100x100 map and F50 a 50x50 one.
+    valid = line_rect_intersection(normal_c, rho_c, GRID, GRID)[2]
+    support_fraction = None
     if kind == "gradient_segment":
-        low, high = segment_support_mask(p0, p1, coarse, offset)
-        alpha = np.linspace(0.0, 1.0, LONGITUDINAL)[None, None, :]
-        span = low + (high - low) * alpha
-        support = torch.tensor((span >= low) & (span <= high), device=DEV).float()
+        support = segment_support_mask(seg["q0"], seg["q1"], sample, scale)
+        support_fraction = float(support.mean().item())
         inside = inside * support[:, :, None, :]
-    out = refiner(strip, inside)
+    out = refiner(sample["strip"], inside)
     theta_p = theta_c + torch.deg2rad(out["delta_theta_deg"])
     rho_p = rho_c + out["delta_rho_cell"]
     losses = budget_losses(theta_p, rho_p,
                            torch.tensor(theta, dtype=torch.float32, device=DEV),
-                           torch.tensor(rho, dtype=torch.float32, device=DEV))
-    mask = torch.tensor(length > 1e-4, device=DEV) & valid
-    if mask.sum() == 0:
-        return None if train else (np.zeros(0), np.zeros(0))
-    if train:
-        return losses["L_theta"] + losses["L_rho"]
-    return (losses["angle_deg"][mask].detach().cpu().numpy(),
-            losses["offset_cell"][mask].detach().cpu().numpy())
+                           torch.tensor(rho, dtype=torch.float32, device=DEV),
+                           reduce=False)
+    edge_supported = torch.tensor(seg["hit"], device=DEV)
+    finite = torch.isfinite(losses["angle_deg"]) & torch.isfinite(losses["offset_cell"])
+    mask = edge_supported & valid & finite
+    counts = {"roles": int(mask.numel()),
+              "degenerate": int(seg["degenerate"].sum()),
+              "off_frame_full": int(seg["off_frame_full"].sum()),
+              "coarse_invalid": int((edge_supported & ~valid).sum().item()),
+              "non_finite": int((edge_supported & valid & ~finite).sum().item()),
+              "used": int(mask.sum().item())}
+    loss = None
+    if counts["used"]:
+        loss = (masked_mean(losses["theta_per_role"], mask)
+                + masked_mean(losses["rho_per_role"], mask))
+    return {"loss": loss, "counts": counts, "support_fraction": support_fraction,
+            "angle": losses["angle_deg"][mask].detach().cpu().numpy(),
+            "offset": losses["offset_cell"][mask].detach().cpu().numpy(),
+            "frame_roles": [(i, int(r)) for i, row in zip(chunk, mask.cpu().numpy())
+                            for r in np.flatnonzero(row)]}
 
 
 @torch.no_grad()
 def evaluate(indices, kind, scale, refiner, stem, a1, edges):
+    """LINE_DEV512 with epoch-0 'dev' jitter -- identical for every arm."""
     refiner.eval()
-    angles, offsets = [], []
+    angles, offsets, population, supports = [], [], [], []
+    counts = dict(roles=0, degenerate=0, off_frame_full=0, coarse_invalid=0,
+                  non_finite=0, used=0)
     for start in range(0, len(indices), BATCH):
         chunk = indices[start:start + BATCH]
         if len(chunk) < 2:
             continue
-        result = step_batch(chunk, kind, scale, refiner, stem, a1, edges,
-                            epoch=0, purpose="dev", train=False)
-        if result is None:
-            continue
-        angles.append(result[0]); offsets.append(result[1])
-    a = np.concatenate(angles) if angles else np.zeros(1)
-    o = np.concatenate(offsets) if offsets else np.zeros(1)
-    return {"angle_median": float(np.median(a)), "angle_p90": float(np.percentile(a, 90)),
-            "offset_median": float(np.median(o)), "offset_p90": float(np.percentile(o, 90)),
-            "n": int(len(a)),
-            "PASS": bool(np.median(a) <= ANGLE_BUDGET_DEG
-                         and np.median(o) <= OFFSET_BUDGET_CELL)}
+        result = step_batch(load_pack(chunk), kind, scale, refiner, stem, a1,
+                            edges, 0, "dev")
+        angles.append(result["angle"]); offsets.append(result["offset"])
+        population.extend(result["frame_roles"])
+        if result["support_fraction"] is not None:
+            supports.append(result["support_fraction"])
+        for key in counts:
+            counts[key] += result["counts"][key]
+    report = summarise(np.concatenate(angles) if angles else np.zeros(0),
+                       np.concatenate(offsets) if offsets else np.zeros(0),
+                       {"counts": counts,
+                        "population_sha": hashlib.sha256(
+                            repr(population).encode()).hexdigest()[:16]})
+    if supports:
+        report["support_fraction"] = float(np.mean(supports))
+    return report
 
 
 def load_a1():
@@ -437,32 +684,95 @@ def load_a1():
     return shs.FrozenA1().to(DEV)
 
 
+def split_indices():
+    rows = list(csv.DictReader(open(OUT / "line_internal_split.csv")))
+    return ([r["index"] for r in rows if r["line_split"] == "LINE_TRAIN"],
+            [r["index"] for r in rows if r["line_split"] == "LINE_DEV"])
+
+
+ARM_ORDER = ["O1A", "O1B", "C0_F50", "C1_F100", "C2_MULTI", "C3_RGB_STEM"]
+DECISION_ORDER = ["C0_F50", "C1_F100", "C2_MULTI"]
+
+
+def decide(results):
+    """Epoch-5 only.  Choosing the best epoch after the fact would turn a three
+    point ladder into a three-way search over the dev set."""
+    def passed(name):
+        entry = results.get(name, {}).get(str(EPOCH_LADDER[-1])) \
+            or results.get(name, {}).get(EPOCH_LADDER[-1])
+        return bool(entry and entry["PASS"] and entry["SAFETY"])
+
+    a1_arms = [n for n in DECISION_ORDER if passed(n)]
+    stem_only = passed("C3_RGB_STEM") and not a1_arms
+    if a1_arms:
+        return "LINE_REFINEMENT_CAPACITY_VALID", a1_arms
+    if stem_only:
+        return "SHALLOW_EDGE_STEM_REQUIRED", ["C3_RGB_STEM"]
+    if passed("O1A"):
+        return "LEARNED_REPRESENTATION_FAIL", []
+    if passed("O1B"):
+        return "ALONG_LINE_SUPPORT_LOCALIZATION_REQUIRED", []
+    return "LOCAL_EDGE_EVIDENCE_PRECISION_FAIL", []
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["audit", "o0", "o1", "features", "all"])
-    parser.add_argument("--seed", type=int, default=SEED)
-    arguments = parser.parse_args()
+    parser.add_argument("command",
+                        choices=["audit", "o0", "o1", "features", "decide", "all"])
+    arguments = parser.parse_args()          # SEED is locked at 1; no --seed knob
     import instance_edge_topology as IET
     edges = [tuple(e) for e in IET.build_topology()["edges"]]
     split_sha = sha_file(OUT / "line_internal_split.csv")
     if not split_sha.startswith(LINE_SPLIT_SHA):
         raise RuntimeError("HARD_BLOCKED: LINE split changed")
+    full_train, full_dev = split_indices()
     train_ids, dev_ids = manifest("line_search2k"), manifest("line_dev512")
+    provenance = {"runner_sha": sha_file(pathlib.Path(__file__)),
+                  "split_sha": split_sha, "radius_cell": TRANSVERSE_RADIUS_CELL,
+                  "jitter": [JITTER_ANGLE_DEG, JITTER_OFFSET_CELL],
+                  "gate": [ANGLE_BUDGET_DEG, OFFSET_BUDGET_CELL]}
+    coverage_file = OUT / "coverage_fullsplit.json"
+    arms_file = OUT / "line_capacity_v2_arms.json"
 
     if arguments.command in ("audit", "all"):
-        report = {"dev": coverage_audit(dev_ids[:256], "dev", 0, edges),
-                  "train": coverage_audit(train_ids[:256], "train", 1, edges)}
-        report["gate_pair_coverage>=0.995"] = all(
-            v["pair_coverage"] >= 0.995 for v in report.values() if isinstance(v, dict))
-        atomic = OUT / "line_capacity_v2_coverage.json"
-        atomic.write_text(json.dumps(report, indent=2))
-        log(f"[audit] dev pair {report['dev']['pair_coverage']:.4f} "
-            f"train pair {report['train']['pair_coverage']:.4f}")
-        if not report["gate_pair_coverage>=0.995"]:
+        log(f"[audit] LINE_TRAIN {len(full_train)}  LINE_DEV {len(full_dev)}")
+        report = {"dev": coverage_full(full_dev, "dev", (0,), edges),
+                  "train": coverage_full(full_train, "train",
+                                         tuple(range(1, max(EPOCH_LADDER) + 1)), edges)}
+        chosen = None
+        for radius in RADIUS_CANDIDATES:
+            key = f"{radius:g}"
+            if all(report[s]["radii"][key]["pair_coverage"] >= COVERAGE_GATE
+                   for s in ("dev", "train")):
+                chosen = radius
+                break
+        report["chosen_radius"] = chosen
+        report["configured_radius"] = TRANSVERSE_RADIUS_CELL
+        report["gate"] = {"pair_coverage": COVERAGE_GATE, "quorum": POINT_QUORUM,
+                          "rect": [RECT_LO, RECT_HI]}
+        coverage_file.write_text(json.dumps(report, indent=2))
+        for name in ("dev", "train"):
+            entry = report[name]
+            log(f"[audit] {name}: frames {entry['counts']['frames']} "
+                f"pairs {entry['counts']['pairs']} "
+                f"off_frame {entry['counts']['off_frame_full']} "
+                f"partial {entry['counts']['in_frame_partial']}")
+            for radius in RADIUS_CANDIDATES:
+                key = f"{radius:g}"
+                log(f"           r={key:>2}  pair {entry['radii'][key]['pair_coverage']:.5f}"
+                    f"  point {entry['radii'][key]['point_coverage_mean']:.5f}"
+                    f"  p1 {entry['radii'][key]['p1']:.3f}")
+        if chosen is None:
             raise RuntimeError("HARD_BLOCKED_REFINER_EVIDENCE_OUTSIDE_STRIP")
+        log(f"[audit] smallest radius clearing the gate: {chosen}  "
+            f"(configured {TRANSVERSE_RADIUS_CELL})")
+        if chosen != TRANSVERSE_RADIUS_CELL:
+            raise RuntimeError(
+                f"SAMPLER_CHANGED: set TRANSVERSE_RADIUS_CELL={chosen} and rerun o0")
 
     if arguments.command in ("o0", "all"):
         result = run_o0(edges)
+        result.update(provenance)
         (OUT / "o0_reproduction.json").write_text(json.dumps(result, indent=2))
         log(f"[o0] repro angle {result['angle_median']:.4f} deg "
             f"offset {result['offset_median']:.4f} cell PASS={result['PASS']}")
@@ -474,14 +784,42 @@ def main():
         names = (["O1A", "O1B"] if arguments.command in ("o1", "all") else [])
         names += (["C0_F50", "C1_F100", "C2_MULTI", "C3_RGB_STEM"]
                   if arguments.command in ("features", "all") else [])
-        results = {}
+        results = json.loads(arms_file.read_text()) if arms_file.exists() else {}
         for name in names:
             log(f"[arm] {name}")
-            history, _, _ = run_arm(name, train_ids, dev_ids, EPOCH_LADDER, a1, edges)
-            results[name] = history
-            (OUT / "line_capacity_v2_arms.json").write_text(
-                json.dumps(results, indent=2, default=float))
+            entry = {"overfit32": run_overfit(name, train_ids, a1, edges)}
+            log(f"  {name} overfit32: angle med {entry['overfit32']['angle_median']:.3f}"
+                f"  offset med {entry['overfit32']['offset_median']:.3f}")
+            history, _, _ = run_arm(name, train_ids, dev_ids, EPOCH_LADDER, a1,
+                                    edges, provenance)
+            entry.update({str(k): v for k, v in history.items()})
+            last = str(EPOCH_LADDER[-1])
+            reloaded = reload_and_evaluate(name, EPOCH_LADDER[-1], dev_ids, a1, edges)
+            entry["reload_parity"] = {
+                "match": reloaded == entry[last],
+                "max_delta": max(abs(reloaded[k] - entry[last][k]) for k in
+                                 ("angle_median", "angle_p90", "offset_median",
+                                  "offset_p90"))}
+            if not entry["reload_parity"]["match"]:
+                raise RuntimeError(f"CHECKPOINT_RELOAD_PARITY_FAIL: {name}")
+            results[name] = entry
+            arms_file.write_text(json.dumps(results, indent=2, default=float))
         log("[arms] done")
+
+    if arguments.command in ("decide", "all"):
+        results = json.loads(arms_file.read_text())
+        shas = {n: results[n][str(EPOCH_LADDER[-1])]["population_sha"]
+                for n in ARM_ORDER if n in results}
+        if len(set(shas.values())) > 1:
+            raise RuntimeError(f"POPULATION_MISMATCH: {shas}")
+        verdict, arms = decide(results)
+        summary = {"decision": verdict, "passing_arms": arms,
+                   "population_sha": next(iter(shas.values()), None),
+                   "arms": {n: results[n][str(EPOCH_LADDER[-1])] for n in shas},
+                   **provenance}
+        (OUT / "line_capacity_v2_decision.json").write_text(
+            json.dumps(summary, indent=2, default=float))
+        log(f"[decide] {verdict}  arms={arms}")
 
 
 def run_o0(edges, frames=32, steps=OVERFIT_STEPS):
@@ -489,7 +827,8 @@ def run_o0(edges, frames=32, steps=OVERFIT_STEPS):
     ids = manifest("line_smoke512")[:frames]
     loaded = [load_frame(i) for i in ids]
     grid_corners = np.stack([f[2] for f in loaded])
-    theta, rho, _, _, length = gt_lines(grid_corners, edges)
+    theta, rho, p0, p1, length = gt_lines(grid_corners, edges)
+    seg = visible_segments(p0, p1, length)
     coarse = np.zeros_like(theta); offset = np.zeros_like(rho)
     for bi, index in enumerate(ids):
         for role in range(len(edges)):
@@ -502,7 +841,9 @@ def run_o0(edges, frames=32, steps=OVERFIT_STEPS):
     rc = torch.tensor(offset, dtype=torch.float32, device=DEV)
     normal_gt = torch.stack([t.cos(), t.sin()], -1)
     evidence = raster_lines(normal_gt, r)[:, :, None]
-    mask = torch.tensor(length > 1e-4, device=DEV)
+    # Same population rule as every arm: an edge that never enters the image is
+    # not something local evidence could refine, rasterised or not.
+    mask = torch.tensor(seg["hit"], device=DEV)
     torch.manual_seed(SEED)
     refiner = Refiner(1).to(DEV)
     optimiser = torch.optim.AdamW(refiner.parameters(), lr=LR, weight_decay=WD)
@@ -510,23 +851,27 @@ def run_o0(edges, frames=32, steps=OVERFIT_STEPS):
     for _ in range(steps):
         total = 0
         for role in range(len(edges)):
-            strip, inside, _ = sample_strip(evidence[:, role], normal_c[:, role:role + 1],
-                                            rc[:, role:role + 1], 1.0)
-            out = refiner(strip, inside)
+            sample = sample_strip(evidence[:, role], normal_c[:, role:role + 1],
+                                  rc[:, role:role + 1], 1.0)
+            out = refiner(sample["strip"], sample["inside"])
             losses = budget_losses(tc[:, role:role + 1] + torch.deg2rad(out["delta_theta_deg"]),
                                    rc[:, role:role + 1] + out["delta_rho_cell"],
-                                   t[:, role:role + 1], r[:, role:role + 1])
-            total = total + losses["L_theta"] + losses["L_rho"]
+                                   t[:, role:role + 1], r[:, role:role + 1],
+                                   reduce=False)
+            m = mask[:, role:role + 1]
+            total = total + masked_mean(losses["theta_per_role"], m) \
+                          + masked_mean(losses["rho_per_role"], m)
         optimiser.zero_grad(set_to_none=True); total.backward(); optimiser.step()
     angles, offsets = [], []
     with torch.no_grad():
         for role in range(len(edges)):
-            strip, inside, _ = sample_strip(evidence[:, role], normal_c[:, role:role + 1],
-                                            rc[:, role:role + 1], 1.0)
-            out = refiner(strip, inside)
+            sample = sample_strip(evidence[:, role], normal_c[:, role:role + 1],
+                                  rc[:, role:role + 1], 1.0)
+            out = refiner(sample["strip"], sample["inside"])
             losses = budget_losses(tc[:, role:role + 1] + torch.deg2rad(out["delta_theta_deg"]),
                                    rc[:, role:role + 1] + out["delta_rho_cell"],
-                                   t[:, role:role + 1], r[:, role:role + 1])
+                                   t[:, role:role + 1], r[:, role:role + 1],
+                                   reduce=False)
             m = mask[:, role:role + 1]
             angles += losses["angle_deg"][m].cpu().tolist()
             offsets += losses["offset_cell"][m].cpu().tolist()
