@@ -897,7 +897,7 @@ def main():
         if not result["PASS"]:
             raise RuntimeError("REFINER_ARCHITECTURE_IDENTIFIABILITY_FAIL")
 
-    if arguments.command in ("o1", "features", "all"):
+    if arguments.command in ("o1", "o1c", "features", "all"):
         a1 = load_a1()
         names = (["O1A", "O1B"] if arguments.command in ("o1", "all") else [])
         names += ["O1C"] if arguments.command == "o1c" else []

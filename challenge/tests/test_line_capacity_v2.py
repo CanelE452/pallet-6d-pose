@@ -454,3 +454,26 @@ def test_role_exposures_are_not_called_pairs(v2):
     assert train["roles"] == 13618 * 12
     assert train["unique_supported_roles"] == train["roles"] - train["off_frame_full"]
     assert train["role_exposures"] == train["unique_supported_roles"] * max(v2.EPOCH_LADDER)
+
+
+def test_every_subcommand_actually_dispatches(v2):
+    """`o1c` was accepted by argparse and then fell through every branch, so it
+    ran to completion having done nothing."""
+    tree = ast.parse(source())
+    main = next(node for node in ast.walk(tree)
+                if isinstance(node, ast.FunctionDef) and node.name == "main")
+    choices = next(
+        keyword.value for call in ast.walk(main) if isinstance(call, ast.Call)
+        and getattr(call.func, "attr", "") == "add_argument"
+        and any(isinstance(a, ast.Constant) and a.value == "command" for a in call.args)
+        for keyword in call.keywords if keyword.arg == "choices")
+    declared = {c.value for c in choices.elts}
+    guarded = set()
+    for node in ast.walk(main):
+        if isinstance(node, ast.Compare) and isinstance(node.ops[0], ast.In):
+            guarded |= {c.value for c in ast.walk(node.comparators[0])
+                        if isinstance(c, ast.Constant) and isinstance(c.value, str)}
+        if isinstance(node, ast.Compare) and isinstance(node.ops[0], ast.Eq):
+            guarded |= {c.value for c in node.comparators
+                        if isinstance(c, ast.Constant) and isinstance(c.value, str)}
+    assert declared <= guarded, declared - guarded
