@@ -251,10 +251,59 @@ def summarise(angle, offset, extra=None):
 
 
 # -------------------------------------------------------------- O_MAP oracle
-def run_omap(indices, edges):
+def perfect_weight_from_target(target):
+    """The TLS weight a perfect prediction would actually produce.
+
+    ``batch_terms`` supervises ``sigmoid(logit)`` against the raster target and
+    feeds ``softplus(logit)`` to the readout, so a network whose probability
+    equals the target hands the decoder ``softplus(logit(target))``, which is
+    ``-log1p(-target)`` in closed form.  Feeding the target itself -- what the
+    first O_MAP did -- decodes a map the locked forward never produces.
+
+    The clamp is the dtype's own representable bound, not a chosen cap: the
+    transform diverges as the target approaches 1 and the tube's ridge is
+    exactly 1.  target == 0 stays exactly 0.
+    """
+    eps = torch.finfo(target.dtype).eps
+    return -torch.log1p(-target.clamp(0.0, 1.0 - eps))
+
+
+def cross_tab(angle, offset, ratio, border, visible):
+    """Separate the border effect from the short-stub effect instead of
+    asserting that one of them is the cause."""
+    table = {}
+    for label, keep in (
+            ("A_border_ge_vis_ge", (border >= 1.5) & (visible >= 2.0)),
+            ("B_border_ge_vis_lt", (border >= 1.5) & (visible < 2.0)),
+            ("C_border_lt_vis_ge", (border < 1.5) & (visible >= 2.0)),
+            ("D_border_lt_vis_lt", (border < 1.5) & (visible < 2.0))):
+        if not keep.sum():
+            continue
+        table[label] = {
+            "n": int(keep.sum()),
+            "angle_median": float(np.median(angle[keep])),
+            "angle_p90": float(np.percentile(angle[keep], 90)),
+            "offset_median": float(np.median(offset[keep])),
+            "offset_p90": float(np.percentile(offset[keep], 90)),
+            "eigen_ratio_median": float(np.median(ratio[keep])),
+            "eigen_ratio_p10": float(np.percentile(ratio[keep], 10))}
+    return table
+
+
+UNITS = {"sigma": "1.5 MAP100 pixel = 0.75 canonical50 cell",
+         "border_threshold": "1.5 canonical50 cell = 3 MAP100 pixel = 2 sigma",
+         "visible_threshold": "2.0 canonical50 cell = 4 MAP100 pixel",
+         "angle": "degree", "offset": "canonical50 cell"}
+
+
+def run_omap(indices, edges, parity=False):
     """Decode the ground-truth target maps themselves.  If the readout cannot
     recover a line from a perfect map, nothing measured after it is about the
-    representation."""
+    representation.
+
+    ``parity=True`` converts the target to the weight the locked forward would
+    hand the readout, which is what "perfect prediction" means here.
+    """
     angle, offset, ratio, border, visible, full = [], [], [], [], [], []
     for start in range(0, len(indices), BATCH):
         chunk = indices[start:start + BATCH]
@@ -262,7 +311,7 @@ def run_omap(indices, edges):
         theta, rho, p0, p1, length = V2.gt_lines(grid_corners, edges)
         seg = V2.visible_segments(p0, p1, length)
         target = raster_targets(seg["q0"], seg["q1"], seg["hit"], DEV)
-        read = weighted_tls(target)
+        read = weighted_tls(perfect_weight_from_target(target) if parity else target)
         theta_t = torch.tensor(theta, dtype=torch.float32, device=DEV)
         rho_t = torch.tensor(rho, dtype=torch.float32, device=DEV)
         d_angle, d_offset = line_errors(read["normal"], read["rho"], theta_t, rho_t)
@@ -278,11 +327,14 @@ def run_omap(indices, edges):
     angle, offset = np.concatenate(angle), np.concatenate(offset)
     border, visible, full = (np.concatenate(border), np.concatenate(visible),
                              np.concatenate(full))
+    ratio = np.concatenate(ratio)
     report = summarise(angle, offset, {
-        "eigen_ratio_median": float(np.median(np.concatenate(ratio))),
-        "frames": len(indices)})
+        "eigen_ratio_median": float(np.median(ratio)), "frames": len(indices),
+        "oracle": "softplus_logit_parity" if parity else "target_as_weight",
+        "units": UNITS})
     report["gates"] = {k: bool(report[k] <= v) for k, v in OMAP_GATE.items()}
     report["OMAP_PASS"] = all(report["gates"].values())
+    report["cross_tab"] = cross_tab(angle, offset, ratio, border, visible)
     for label, keep in (("border_lt_1p5", border < 1.5), ("border_ge_1p5", border >= 1.5),
                         ("in_frame_full", full), ("in_frame_partial", ~full),
                         ("visible_lt_2cell", visible < 2.0)):
@@ -338,8 +390,8 @@ def train(head, stem, parameters, indices, steps, a1, edges, purpose):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["omap", "overfit", "search2k",
-                                            "confirm6k", "shuffle"])
+    parser.add_argument("command", choices=["omap", "omap-parity", "overfit",
+                                            "search2k", "confirm6k", "shuffle"])
     arguments = parser.parse_args()
     import instance_edge_topology as IET
     edges = [tuple(e) for e in IET.build_topology()["edges"]]
@@ -350,25 +402,30 @@ def main():
     train_ids = V2.manifest("line_search2k")
     arms_file = OUT / "structural_line_map_arms.json"
 
-    if arguments.command == "omap":
-        report = run_omap(full_dev, edges)
-        (OUT / "structural_line_map_omap.json").write_text(json.dumps(report, indent=2))
+    if arguments.command in ("omap", "omap-parity"):
+        parity = arguments.command == "omap-parity"
+        report = run_omap(full_dev, edges, parity=parity)
+        name = ("structural_line_map_omap_parity.json" if parity
+                else "structural_line_map_omap.json")
+        (OUT / name).write_text(json.dumps(report, indent=2))
         log(f"[O_MAP] angle med {report['angle_median']:.4f} p90 {report['angle_p90']:.4f}"
             f" | offset med {report['offset_median']:.4f} p90 {report['offset_p90']:.4f}"
             f"  n={report['n']}  PASS={report['OMAP_PASS']}")
-        for key in ("border_lt_1p5", "border_ge_1p5", "in_frame_partial"):
-            if key in report:
-                e = report[key]
-                log(f"          {key:<16} n={e['n']:5d} angle med {e['angle_median']:.4f}"
-                    f" p90 {e['angle_p90']:.4f}")
+        for key, entry in report["cross_tab"].items():
+            log(f"          {key:<20} n={entry['n']:6d} angle med {entry['angle_median']:.4f}"
+                f" p90 {entry['angle_p90']:8.4f}  offset p90 {entry['offset_p90']:8.4f}"
+                f"  eig p10 {entry['eigen_ratio_p10']:7.2f}")
         if not report["OMAP_PASS"]:
-            raise RuntimeError("MAP_TO_LINE_DECODER_FAIL")
+            raise RuntimeError("LOCKED_SOFTPLUS_TLS_FAIL" if parity
+                               else "MAP_TO_LINE_DECODER_FAIL")
         return
 
-    omap = OUT / "structural_line_map_omap.json"
+    # The parity oracle is the one that matches the locked forward; the first
+    # O_MAP decoded a map the network never produces, so it cannot gate training.
+    omap = OUT / "structural_line_map_omap_parity.json"
     if not omap.exists() or not json.loads(omap.read_text())["OMAP_PASS"]:
-        raise RuntimeError("MAP_TO_LINE_DECODER_FAIL: training is blocked until "
-                           "the decoder oracle passes")
+        raise RuntimeError("MAP_TO_LINE_DECODER_FAIL_CONFIRMED: training is blocked "
+                           "until the forward-parity decoder oracle passes")
     a1 = V2.load_a1()
     results = json.loads(arms_file.read_text()) if arms_file.exists() else {}
 

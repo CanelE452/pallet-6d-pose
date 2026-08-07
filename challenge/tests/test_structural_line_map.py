@@ -155,3 +155,70 @@ def test_results_report_full_and_partial_separately(slm):
         pytest.skip("O_MAP not run yet")
     report = json.loads(path.read_text())
     assert "in_frame_full" in report and "in_frame_partial" in report
+
+
+# --------------------------------------------------------------------------
+# forward-parity oracle
+# --------------------------------------------------------------------------
+
+def test_perfect_weight_equals_softplus_of_the_logit(slm):
+    """The identity that makes the parity oracle the right one: a network whose
+    sigmoid equals the target hands softplus(logit(target)) to the readout."""
+    torch.manual_seed(0)
+    p = torch.rand(200000, dtype=torch.float32) * (1 - 2e-6) + 1e-6
+    lhs = torch.nn.functional.softplus(torch.log(p) - torch.log1p(-p))
+    rhs = slm.perfect_weight_from_target(p)
+    assert float((lhs - rhs).abs().max()) <= 1e-6
+
+
+def test_perfect_weight_keeps_zero_exact_and_clamps_at_the_dtype_bound(slm):
+    target = torch.tensor([0.0, 0.5, 1.0], dtype=torch.float32)
+    weight = slm.perfect_weight_from_target(target)
+    assert float(weight[0]) == 0.0
+    assert float(weight[1]) == pytest.approx(math.log(2.0), abs=1e-6)
+    assert torch.isfinite(weight).all()
+    bound = -math.log1p(-(1 - torch.finfo(torch.float32).eps))
+    assert float(weight[2]) == pytest.approx(bound, rel=1e-6)
+
+
+def test_the_parity_oracle_is_the_one_that_gates_training(slm):
+    body = ast.get_source_segment(source(), next(
+        node for node in ast.walk(ast.parse(source()))
+        if isinstance(node, ast.FunctionDef) and node.name == "main"))
+    assert 'OUT / "structural_line_map_omap_parity.json"' in body
+    assert "MAP_TO_LINE_DECODER_FAIL_CONFIRMED" in body
+
+
+def test_the_locked_decoder_and_target_are_untouched(slm):
+    assert slm.SIGMA_CELLS == 1.5 and slm.MAP == 100 and slm.CANON == 50
+    assert slm.OMAP_GATE == {"angle_median": 0.05, "offset_median": 0.05,
+                             "angle_p90": 0.10, "offset_p90": 0.10}
+    run_omap = next(node for node in ast.walk(ast.parse(source()))
+                    if isinstance(node, ast.FunctionDef) and node.name == "run_omap")
+    # parity may steer the oracle's input and label it, and nothing else: one
+    # conditional expression, no statement-level branch on it.
+    conditionals = [n for n in ast.walk(run_omap) if isinstance(n, ast.IfExp)
+                    and getattr(n.test, "id", "") == "parity"]
+    assert len(conditionals) == 2                      # weight, and the label
+    assert any("perfect_weight_from_target" in ast.dump(n) for n in conditionals)
+    assert not [n for n in ast.walk(run_omap) if isinstance(n, ast.If)
+                and getattr(n.test, "id", "") == "parity"]
+
+
+def test_units_are_never_bare_cells(slm):
+    assert "MAP100" in slm.UNITS["sigma"] and "canonical50" in slm.UNITS["sigma"]
+    assert "canonical50" in slm.UNITS["border_threshold"]
+    assert "sigma" in slm.UNITS["border_threshold"]
+
+
+def test_the_cross_tab_separates_border_from_short_stub(slm):
+    angle = np.array([0.0, 1.0, 2.0, 3.0])
+    offset = np.array([0.0, 1.0, 2.0, 3.0])
+    ratio = np.array([9.0, 8.0, 7.0, 6.0])
+    border = np.array([5.0, 5.0, 0.5, 0.5])
+    visible = np.array([9.0, 0.5, 9.0, 0.5])
+    table = slm.cross_tab(angle, offset, ratio, border, visible)
+    assert set(table) == {"A_border_ge_vis_ge", "B_border_ge_vis_lt",
+                          "C_border_lt_vis_ge", "D_border_lt_vis_lt"}
+    assert all(entry["n"] == 1 for entry in table.values())
+    assert "eigen_ratio_p10" in table["A_border_ge_vis_ge"]
