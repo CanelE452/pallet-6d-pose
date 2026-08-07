@@ -69,3 +69,54 @@ Choosing among these is a research decision, not a defect to patch.
 Round-1 (`NO_EDGE_ARCHITECTURE_PASS`), R1C (`FUSION_CAPACITY_VALID`) and the
 noise budget are unchanged; this document narrows what they claim.  untouched,
 eval56, wood45 and final-test remain unopened.
+
+---
+
+# Resolved by problem setting (2026-08-07)
+
+The block above was correct for the setting I assumed, and that assumption was
+mine rather than the project's.  The paper problem setting is declared as:
+
+```
+PAPER_PROBLEM_SETTING          RGB + K + KNOWN_TARGET_DIMENSIONS
+DIRECT_PNP_STATUS              ALLOWED_UNDER_KNOWN_DIMENSIONS
+HARD_BLOCKED_DIMENSION_ORACLE  valid only under RGB_ONLY + UNKNOWN_METRIC_DIMENSIONS
+```
+
+Target dimensions are known object metadata at inference, so supplying them to
+`solve_pose` is an input, not a leak.  SLQ-DPnP phases 1 through 12 are unblocked.
+
+## What the census still says
+
+The 10,000 unique tuples stand.  They describe the *dataset* -- size is randomised
+per frame so a predictor cannot memorise one ratio -- not the deployment problem.
+That randomisation is the paper track's generalisation goal, and it is also why
+`pallet_type` cannot be used as a size lookup: at inference the dimensions come
+from the caller, not from a type classifier.
+
+Practical consequence for the model: it must work across width 0.61-1.66 m and
+depth 0.62-1.66 m, so nothing may assume a fixed aspect ratio internally.
+
+## What is still oracular
+
+Only the dimension precondition is lifted.  The other one is not:
+
+```
+R1C direct PnP        507/512, 0.033px    correspondences derived from GT edges
+edge noise budget     1.0 deg / 0.5 cell  perturbed GT lines
+```
+
+No problem setting supplies ground-truth 2D correspondences.  Those two results
+remain capacity oracles, and the budget remains a target for a predictor rather
+than a measured deployable accuracy.  `DIRECT_EDGE_TO_PNP_INTERFACE_VALID` now
+reads: valid, given known dimensions and given edge lines accurate to roughly
+1 degree and 0.5 cell -- and producing those lines is the open problem.
+
+## Note against CLAUDE.md
+
+`CLAUDE.md` currently reads that the paper track uses PnP only on
+known-dimension data and lists the config's KS T-11 sizes as a v8 leftover
+needing measurement.  Under this declaration the first clause is satisfied by the
+problem setting rather than by restricting the data, and the two statements
+should be reconciled there.  I have not edited `CLAUDE.md`; flagging it so the
+inconsistency is not discovered later as a contradiction.
