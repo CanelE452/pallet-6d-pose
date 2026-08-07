@@ -477,3 +477,29 @@ def test_every_subcommand_actually_dispatches(v2):
             guarded |= {c.value for c in node.comparators
                         if isinstance(c, ast.Constant) and isinstance(c.value, str)}
     assert declared <= guarded, declared - guarded
+
+
+def test_condition_a_reuse_is_refused_for_the_non_deterministic_arm(v2):
+    """The stem arm sends gradients back through grid_sample, whose input
+    gradient uses atomicAdd; frozen-feature arms never take that path, so only
+    they may reuse a past run as condition A."""
+    assert v2.build_arm("C0_F50")[1] is None
+    assert v2.build_arm("C2_MULTI")[1] is None
+    assert v2.build_arm("C3_RGB_STEM")[1] is not None
+    body = ast.get_source_segment(source(), next(
+        node for node in ast.walk(ast.parse(source()))
+        if isinstance(node, ast.FunctionDef) and node.name == "main"))
+    assert "reproducible = build_arm(name)[1] is None" in body
+    assert "if reproducible and drift > 1e-9:" in body
+    assert "NON_DETERMINISTIC_ARM" in body
+
+
+def test_the_recorded_decision_states_which_baseline_each_arm_used(v2):
+    summary = load_json("scaling_decision.json")
+    for name, entry in summary["arms"].items():
+        assert entry["condition_A_source"] in {"recorded_epoch5",
+                                               "remeasured_k2_at_S_SHORT"}
+        if entry["condition_A_source"] == "recorded_epoch5":
+            assert entry["condition_A_drift_vs_recorded"] == 0.0
+        else:
+            assert entry.get("NON_DETERMINISTIC_ARM") is True

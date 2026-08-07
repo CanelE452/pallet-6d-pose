@@ -961,14 +961,27 @@ def main():
         scaled = json.loads((OUT / "scaling_arms.json").read_text())
         summary = {"plan": plan, "arms": {}}
         for name, entry in scaled.items():
-            baseline = recorded[name][str(EPOCH_LADDER[-1])]
-            drift = max(abs(entry["k2@short"][k] - baseline[k]) for k in
+            recorded_a = recorded[name][str(EPOCH_LADDER[-1])]
+            drift = max(abs(entry["k2@short"][k] - recorded_a[k]) for k in
                         ("angle_median", "angle_p90", "offset_median", "offset_p90"))
-            if drift > 1e-9:
+            # A trainable stem sends gradients back through grid_sample, whose
+            # input-gradient uses atomicAdd and is not reproducible even under
+            # cudnn.deterministic; the frozen-feature arms never take that path.
+            # Measured: 20 identical steps already diverge for the stem arm and
+            # are bit-identical for F50.  So reusing a past run as condition A is
+            # invalid there, and its own k2@short is the baseline instead.
+            reproducible = build_arm(name)[1] is None
+            if reproducible and drift > 1e-9:
                 raise RuntimeError(
                     f"CONDITION_A_NOT_REPRODUCED: {name} drift {drift:.3e} -- the "
                     "visit-count schedule no longer matches the recorded run")
+            baseline = recorded_a if reproducible else entry["k2@short"]
             summary["arms"][name] = scaling_decision(entry, baseline)
+            summary["arms"][name]["condition_A_source"] = (
+                "recorded_epoch5" if reproducible else "remeasured_k2_at_S_SHORT")
+            summary["arms"][name]["condition_A_drift_vs_recorded"] = drift
+            if not reproducible:
+                summary["arms"][name]["NON_DETERMINISTIC_ARM"] = True
         verdicts = {n: v["decision"] for n, v in summary["arms"].items()}
         summary["overall"] = ("DATA_SCALE_RESCUES_LINE_REFINEMENT"
                               if "DATA_SCALE_RESCUES_LINE_REFINEMENT" in verdicts.values()
