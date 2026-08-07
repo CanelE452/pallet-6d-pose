@@ -22,12 +22,22 @@ OUT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
 torch = pytest.importorskip("torch")
 
 
+CPU = None          # set once the module is loaded
+
+
 @pytest.fixture(scope="module")
 def slm():
+    """The readout is pure geometry, so it is exercised on CPU.
+
+    A subprocess test elsewhere in the suite loads a full model; holding CUDA
+    allocations here made that subprocess OOM and fail for the wrong reason.
+    """
     spec = importlib.util.spec_from_file_location("SLM_UNDER_TEST", RUNNER)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module
+    yield module
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
 
 def source():
@@ -36,7 +46,7 @@ def source():
 
 def test_role_channels_are_fixed_and_never_matched(slm):
     assert slm.raster_targets(np.zeros((1, 12, 2)), np.ones((1, 12, 2)),
-                              np.ones((1, 12), bool), slm.DEV).shape[1] == 12
+                              np.ones((1, 12), bool), torch.device("cpu")).shape[1] == 12
     text = source()
     for forbidden in ("linear_sum_assignment", "hungarian", "Hungarian"):
         assert forbidden not in text, forbidden
@@ -54,22 +64,22 @@ def test_the_map_decides_the_line_with_no_coordinate_head(slm):
 
 def test_weighted_tls_recovers_a_clean_segment(slm):
     q0 = np.array([[[5.0, 10.0]]]); q1 = np.array([[[45.0, 40.0]]])
-    read = slm.weighted_tls(slm.raster_targets(q0, q1, np.ones((1, 1), bool), slm.DEV))
+    read = slm.weighted_tls(slm.raster_targets(q0, q1, np.ones((1, 1), bool), torch.device("cpu")))
     direction = (q1 - q0)[0, 0]
     normal = np.array([-direction[1], direction[0]]); normal /= np.linalg.norm(normal)
-    theta = torch.tensor([[math.atan2(normal[1], normal[0])]], device=slm.DEV)
-    rho = torch.tensor([[float(normal @ ((q0 + q1)[0, 0] / 2))]], device=slm.DEV)
+    theta = torch.tensor([[math.atan2(normal[1], normal[0])]], device=torch.device("cpu"))
+    rho = torch.tensor([[float(normal @ ((q0 + q1)[0, 0] / 2))]], device=torch.device("cpu"))
     angle, offset = slm.line_errors(read["normal"], read["rho"], theta, rho)
     assert abs(float(angle)) < 0.01 and abs(float(offset)) < 0.01
 
 
 def test_the_readout_is_sign_invariant(slm):
     q0 = np.array([[[5.0, 10.0]]]); q1 = np.array([[[45.0, 40.0]]])
-    read = slm.weighted_tls(slm.raster_targets(q0, q1, np.ones((1, 1), bool), slm.DEV))
+    read = slm.weighted_tls(slm.raster_targets(q0, q1, np.ones((1, 1), bool), torch.device("cpu")))
     direction = (q1 - q0)[0, 0]
     normal = np.array([-direction[1], direction[0]]); normal /= np.linalg.norm(normal)
-    theta = torch.tensor([[math.atan2(normal[1], normal[0])]], device=slm.DEV)
-    rho = torch.tensor([[float(normal @ ((q0 + q1)[0, 0] / 2))]], device=slm.DEV)
+    theta = torch.tensor([[math.atan2(normal[1], normal[0])]], device=torch.device("cpu"))
+    rho = torch.tensor([[float(normal @ ((q0 + q1)[0, 0] / 2))]], device=torch.device("cpu"))
     a1, o1 = slm.line_errors(read["normal"], read["rho"], theta, rho)
     a2, o2 = slm.line_errors(read["normal"], read["rho"], theta + math.pi, -rho)
     assert abs(float(a1.abs() - a2.abs())) < 1e-3
@@ -78,7 +88,7 @@ def test_the_readout_is_sign_invariant(slm):
 
 def test_targets_are_finite_and_zero_for_unsupported_roles(slm):
     q0 = np.array([[[5.0, 10.0], [0.0, 0.0]]]); q1 = np.array([[[45.0, 40.0], [0.0, 0.0]]])
-    target = slm.raster_targets(q0, q1, np.array([[True, False]]), slm.DEV)
+    target = slm.raster_targets(q0, q1, np.array([[True, False]]), torch.device("cpu"))
     assert torch.isfinite(target).all()
     assert float(target[0, 1].abs().max()) == 0.0
     assert float(target[0, 0].max()) == pytest.approx(1.0, abs=1e-3)
@@ -147,6 +157,9 @@ def test_the_rgb_arm_trains_its_stem_and_the_frozen_arm_has_none(slm):
     ids = {id(p) for p in parameters}
     assert all(id(p) in ids for p in stem.parameters())
     assert slm.build_arm("M0_F50_MAP")[1] is None
+    del head, stem, parameters
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
 
 def test_results_report_full_and_partial_separately(slm):
