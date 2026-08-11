@@ -277,7 +277,11 @@ def test_role_encoder_depth_is_not_implemented_here():
                if isinstance(n, (ast.ClassDef, ast.FunctionDef))}
     for forbidden in ("extra_attention", "ResidualCrossAttention", "depth_screen"):
         assert forbidden not in names and forbidden not in defined
-    assert not (ROOT / "scripts/stage0/role_encoder_depth_screen.py").exists()
+    # The companion assertion that scripts/stage0/role_encoder_depth_screen.py
+    # did not exist was scoped to the adapter commit, where the point was that
+    # feature adaptation and encoder depth must not move in the same run. That
+    # screen is now pre-registered separately, so the check that survives is the
+    # permanent one: this runner does not implement it.
 
 
 def test_forbidden_stages_are_absent():
