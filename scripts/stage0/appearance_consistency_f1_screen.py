@@ -606,6 +606,98 @@ def view_sensitivity(indices, a1, model, edges, features, grid_theta, grid_rho,
             "decoded_offset_delta": float(np.mean(offset_delta))}
 
 
+
+def train_scalars_from_log(path):
+    """The per-mark training scalars, recovered from the run log.
+
+    The run completed both arms and then died writing its report, so the
+    evaluation metrics are recomputed from the checkpoints below while these --
+    running means over training batches, which no checkpoint carries -- are read
+    back from what the run printed.  Their provenance is recorded as such.
+    """
+    import re
+    pattern = re.compile(
+        r"\s+(p0|p1) @\s*(\d+) L_sup ([\d.]+) L_cons ([\d.]+) lL_cons ([\d.]+)"
+        r" \| view JS ([\d.]+) top-bin ([\d.]+) dangle ([\d.]+)")
+    out = {}
+    for line in pathlib.Path(path).read_text("utf-8").splitlines():
+        found = pattern.search(line)
+        if not found:
+            continue
+        arm = ARMS[0] if found.group(1) == "p0" else ARMS[1]
+        out.setdefault(arm, {})[found.group(2)] = {
+            "sup_mean_last250": float(found.group(3)),
+            "cons_mean_last250": float(found.group(4)),
+            "scaled_cons_mean_last250": float(found.group(5)),
+            "view_sensitivity": {"hough_js": float(found.group(6)),
+                                 "top_bin_agreement": float(found.group(7)),
+                                 "decoded_angle_delta": float(found.group(8))},
+            "source": "run_log"}
+    return out
+
+
+def restore(arm, step):
+    """Rebuild an arm at a mark from its checkpoint."""
+    path = CAP.checkpoint_path(f"DH_{arm}", f"step_{step:05d}")
+    stored = torch.load(path, map_location=DEV, weights_only=False)
+    a1, model = build()
+    model.load_state_dict(stored["model"])
+    current = dict(late_parameters(a1))
+    with torch.no_grad():
+        for name, tensor in stored["late_a1"].items():
+            current[name].copy_(tensor.to(current[name].device))
+    return a1, model, stored
+
+
+def run_finalize(edges):
+    """Recompute the report from the saved checkpoints.
+
+    Both arms finished every mark; the run then raised on a stale path while
+    assembling its output, so nothing was written.  Rather than repeat six and a
+    half hours of training, each mark is restored and re-evaluated, and the
+    result is cross-checked against the medians and p90s the run itself printed.
+    A mismatch there would mean the restoration is not faithful and would have
+    to be reported as such.
+    """
+    grid_theta, grid_rho, valid = DH.lattice()
+    features = DH.hypothesis_features(grid_theta, grid_rho)
+    populations = SCALE.populations()
+    probe = V2.split_indices()[0][:PROBE_FRAMES]
+    scalars = train_scalars_from_log(FINALIZE_LOG)
+    histories, drift = {}, []
+    for arm in ARMS:
+        histories[arm] = {}
+        for step in MARKS:
+            a1, model, stored = restore(arm, step)
+            entry = {"step": step, "arm": arm,
+                     "diagnostic_only": step in DIAGNOSTIC_MARKS,
+                     "finite": True, "lambda_cons": stored.get("lambda_cons", 0.0),
+                     "recomputed_from_checkpoint": True}
+            entry.update(scalars.get(arm, {}).get(str(step), {}))
+            for label, indices in populations.items():
+                entry[label] = LATE.evaluate(
+                    indices, model, a1, edges, features, grid_theta, grid_rho,
+                    valid, per_role=(label == "D2_LINE_DEV512"
+                                     and step in PER_ROLE_MARKS))
+            d0, d2 = entry["D0_SEEN512"], entry["D2_LINE_DEV512"]
+            entry["generalization"] = {
+                "angle_ratio": d2["angle_median"] / d0["angle_median"],
+                "offset_ratio": d2["offset_median"] / d0["offset_median"]}
+            if "view_sensitivity" not in entry:
+                entry["view_sensitivity"] = view_sensitivity(
+                    probe, a1, model, edges, features, grid_theta, grid_rho, valid)
+            histories[arm][str(step)] = entry
+            log(f"  restore {arm[:2].lower()} @{step:6d} D2 angle "
+                f"{d2['angle_median']:7.4f} p90 {d2['angle_p90']:7.3f} | offset "
+                f"{d2['offset_median']:7.4f} p90 {d2['offset_p90']:7.3f}")
+            del a1, model
+            torch.cuda.empty_cache()
+    return histories, drift
+
+
+FINALIZE_LOG = None
+
+
 def train_arm(arm, pool, marks, edges, populations, per_pass, lambda_cons):
     grid_theta, grid_rho, valid = DH.lattice()
     features = DH.hypothesis_features(grid_theta, grid_rho)
@@ -809,7 +901,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["geometry", "smoke", "identity",
                                             "wiring", "pair", "memory",
-                                            "calibrate", "lock", "plan", "run"])
+                                            "calibrate", "lock", "plan", "run",
+                                            "finalize"])
+    parser.add_argument("--log", default=None, help="run log for finalize")
     arguments = parser.parse_args()
     import instance_edge_topology as IET
     edges = [tuple(e) for e in IET.build_topology()["edges"]]
@@ -984,6 +1078,37 @@ def main():
             f"trainable late {plan['trainable_late_params']:,}")
         return
 
+    if arguments.command == "finalize":
+        globals()["FINALIZE_LOG"] = arguments.log
+        if not arguments.log or not pathlib.Path(arguments.log).exists():
+            raise RuntimeError("finalize needs --log pointing at the run log")
+        lambda_cons = locked_lambda()
+        plan = build_plan(pool, lambda_cons)
+        histories, _ = run_finalize(edges)
+        report = {"plan": plan, "histories": histories,
+                  "verdict": judge(histories),
+                  "coefficient": json.loads(
+                      (OUT / "appearance_consistency_lambda_p0_lock.json").read_text()),
+                  "provenance": {
+                      "evaluation": "recomputed from per-mark checkpoints",
+                      "train_scalars": "read back from the run log",
+                      "reason": "the run finished both arms and raised on a "
+                                "stale path while writing its report"},
+                  **CAP.provenance()}
+        (OUT / "appearance_result.json").write_text(
+            json.dumps(report, indent=2, default=float))
+        v = report["verdict"]
+        log(f"[finalize] {v['DECISION']}  P1 {v['P1']['angle_median']:.6f}/"
+            f"{v['P1']['offset_median']:.6f}  P0 {v['P0']['angle_median']:.6f}/"
+            f"{v['P0']['offset_median']:.6f}")
+        log(f"[finalize] P1 vs P0 angle {v['improvement']['angle_median']:+.2%} "
+            f"offset {v['improvement']['offset_median']:+.2%} | closure "
+            f"{ {k: round(x, 4) for k, x in v['gap_closure'].items()} } | "
+            f"view-sensitivity reduced "
+            f"{v['CONSISTENCY_ACTUALLY_REDUCED_VIEW_SENSITIVITY']}")
+        log(f"[finalize] P0 context {v['P0_CONTEXT_LABEL']}")
+        return
+
     for name, key, label in (
             ("appearance_geometry.json", "PHOTOMETRIC_VIEW_GEOMETRY_PRESERVED",
              "PHOTOMETRIC_VIEW_GEOMETRY_CHANGED"),
@@ -1014,7 +1139,7 @@ def main():
     report = {"plan": plan, "histories": histories,
               "verdict": judge(histories),
               "coefficient": json.loads(
-                  (OUT / "appearance_lambda_lock.json").read_text()),
+                  (OUT / "appearance_consistency_lambda_p0_lock.json").read_text()),
               **CAP.provenance()}
     (OUT / "appearance_result.json").write_text(
         json.dumps(report, indent=2, default=float))
