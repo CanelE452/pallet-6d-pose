@@ -75,6 +75,7 @@ EXPECTED_TRAINABLE = 5014912
 SMOKE_FRAMES = 256
 PROBE_FRAMES = 128
 IDENTITY_TOLERANCE = 1e-7
+STEP0_TOLERANCE = 1e-6
 REPEAT_TOLERANCE = 1e-8
 EPS = 1e-12
 # Well above the float32 denormal range and far below any meaningful
@@ -358,6 +359,82 @@ def run_wiring(edges):
         and report["role_encoder_grad_norm"] > 0.0
         and report["head_grad_norm"] > 0.0)
     del a1, model
+    return report
+
+
+def run_pair(edges, lambda_cons):
+    """P0 and P1 must be the same run until the consistency term is added.
+
+    Both arms call the same seeded `build` and the same view generation, so they
+    are identical by construction -- which is exactly why it is measured rather
+    than assumed.  The checks that follow are the ones that would catch a
+    divergence introduced by accident: the pixels, the logits, the supervised
+    loss and the shared parameters, plus the consistency term reaching every
+    trainable group in P1 and reaching nothing outside the valid lattice.
+    """
+    a1_p0, model_p0 = build()
+    a1_p1, model_p1 = build()
+    grid_theta, grid_rho, valid = DH.lattice()
+    features = DH.hypothesis_features(grid_theta, grid_rho)
+    pack = V2.load_pack(V2.split_indices()[0][:CAP.BATCH])
+    views_p0 = two_views(pack, 0)
+    views_p1 = two_views(pack, 0)
+    pixels = [float((x - y).abs().max()) for x, y in zip(views_p0, views_p1)]
+    left = model_p0.state_dict()
+    right = model_p1.state_dict()
+    shared = max(float((left[k].float() - right[k].float()).abs().max())
+                 for k in left)
+    late = max(float((x[1] - y[1]).abs().max())
+               for x, y in zip(late_parameters(a1_p0), late_parameters(a1_p1)))
+    scores_p0, ce_p0, support, _ = forward_views(
+        pack, views_p0, a1_p0, model_p0, edges, features, grid_theta, grid_rho,
+        valid)
+    scores_p1, ce_p1, _, _ = forward_views(
+        pack, views_p1, a1_p1, model_p1, edges, features, grid_theta, grid_rho,
+        valid)
+    logits = [float((x - y).abs().max()) for x, y in zip(scores_p0, scores_p1)]
+    sup_p0 = 0.5 * ce_p0[0] + 0.5 * ce_p0[1]
+    sup_p1 = 0.5 * ce_p1[0] + 0.5 * ce_p1[1]
+    consistency = js_divergence(scores_p1[0], scores_p1[1], support, valid)
+    for parameter in list(model_p1.parameters()) + a1_p1.parameters_to_train():
+        parameter.grad = None
+    consistency.backward()
+    identity_scores = scores_p0[0].detach().requires_grad_(True)
+    identity = js_divergence(identity_scores, identity_scores, support, valid)
+    identity_value = float(identity.detach())
+    identity.backward()
+    report = {
+        "pixel_max_abs": {"view_a": pixels[0], "view_b": pixels[1]},
+        "logit_max_abs": {"view_a": logits[0], "view_b": logits[1]},
+        "L_sup_difference": abs(float(sup_p0.detach()) - float(sup_p1.detach())),
+        "shared_decoder_max_abs": shared, "shared_late_a1_max_abs": late,
+        "tolerance": STEP0_TOLERANCE,
+        "L_cons_distinct_views": float(consistency.detach()),
+        "lambda_cons": lambda_cons,
+        "late_a1_consistency_grad_norm": float(flat_gradient(a1_p1).norm()),
+        "role_encoder_consistency_grad_norm": float(
+            model_p1.encoder.attention.in_proj_weight.grad.norm()),
+        "head_consistency_grad_norm": float(
+            model_p1.head.project.weight.grad.norm()),
+        "identity_js": identity_value,
+        "identity_grad_finite": bool(torch.isfinite(identity_scores.grad).all()),
+        "identity_grad_max": float(identity_scores.grad.abs().max()),
+        "invalid_lattice_grad_max": float(
+            identity_scores.grad[..., ~valid].abs().max())}
+    report["APPEARANCE_PAIR_STEP0_PARITY"] = bool(
+        max(pixels) == 0.0 and max(logits) <= STEP0_TOLERANCE
+        and report["L_sup_difference"] <= STEP0_TOLERANCE
+        and shared == 0.0 and late == 0.0)
+    report["CONSISTENCY_WIRING_OK"] = bool(
+        report["L_cons_distinct_views"] > 0.0
+        and report["late_a1_consistency_grad_norm"] > 0.0
+        and report["role_encoder_consistency_grad_norm"] > 0.0
+        and report["head_consistency_grad_norm"] > 0.0
+        and identity_value <= 1e-12 and report["identity_grad_finite"]
+        and report["identity_grad_max"] <= 1e-7
+        and report["invalid_lattice_grad_max"] == 0.0)
+    del a1_p0, a1_p1, model_p0, model_p1
+    torch.cuda.empty_cache()
     return report
 
 
@@ -731,8 +808,8 @@ def build_plan(pool, lambda_cons):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["geometry", "smoke", "identity",
-                                            "wiring", "memory", "calibrate",
-                                            "lock", "plan", "run"])
+                                            "wiring", "pair", "memory",
+                                            "calibrate", "lock", "plan", "run"])
     arguments = parser.parse_args()
     import instance_edge_topology as IET
     edges = [tuple(e) for e in IET.build_topology()["edges"]]
@@ -788,6 +865,28 @@ def main():
             f"{report['role_encoder_grad_norm']:.3e} head "
             f"{report['head_grad_norm']:.3e}  OK="
             f"{report['CONSISTENCY_WIRING_OK']}")
+        if not report["CONSISTENCY_WIRING_OK"]:
+            raise RuntimeError("HOUGH_CONSISTENCY_FORMULATION_FAIL")
+        return
+
+    if arguments.command == "pair":
+        report = run_pair(edges, locked_lambda())
+        (OUT / "appearance_pair_step0.json").write_text(
+            json.dumps(report, indent=2, default=float))
+        log(f"[pair] pixels {report['pixel_max_abs']} logits "
+            f"{report['logit_max_abs']} L_sup diff "
+            f"{report['L_sup_difference']:.3e} shared {report['shared_decoder_max_abs']:.3e}"
+            f"/{report['shared_late_a1_max_abs']:.3e}  PARITY="
+            f"{report['APPEARANCE_PAIR_STEP0_PARITY']}")
+        log(f"[pair] L_cons {report['L_cons_distinct_views']:.6e} | grads late-A1 "
+            f"{report['late_a1_consistency_grad_norm']:.3e} encoder "
+            f"{report['role_encoder_consistency_grad_norm']:.3e} head "
+            f"{report['head_consistency_grad_norm']:.3e} | identity JS "
+            f"{report['identity_js']:.3e} grad max {report['identity_grad_max']:.3e}"
+            f" invalid grad {report['invalid_lattice_grad_max']:.3e}  WIRING="
+            f"{report['CONSISTENCY_WIRING_OK']}")
+        if not report["APPEARANCE_PAIR_STEP0_PARITY"]:
+            raise RuntimeError("APPEARANCE_PAIR_STEP0_MISMATCH")
         if not report["CONSISTENCY_WIRING_OK"]:
             raise RuntimeError("HOUGH_CONSISTENCY_FORMULATION_FAIL")
         return
@@ -893,6 +992,10 @@ def main():
             ("appearance_identity.json", "HOUGH_CONSISTENCY_FORMULATION_OK",
              "HOUGH_CONSISTENCY_FORMULATION_FAIL"),
             ("appearance_wiring.json", "CONSISTENCY_WIRING_OK",
+             "HOUGH_CONSISTENCY_FORMULATION_FAIL"),
+            ("appearance_pair_step0.json", "APPEARANCE_PAIR_STEP0_PARITY",
+             "APPEARANCE_PAIR_STEP0_MISMATCH"),
+            ("appearance_pair_step0.json", "CONSISTENCY_WIRING_OK",
              "HOUGH_CONSISTENCY_FORMULATION_FAIL"),
             ("appearance_memory.json",
              "PHOTOMETRIC_CONSISTENCY_BATCH8_MEMORY_OK",

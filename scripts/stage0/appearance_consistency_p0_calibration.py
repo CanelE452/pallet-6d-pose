@@ -162,6 +162,28 @@ def accumulate(a1, model, edges, pool):
     return norms, sums, cosine, seen
 
 
+def js_formulation_commit():
+    """The commit the divergence was frozen at, and whether it still matches.
+
+    The coefficient is only meaningful for the formulation it was measured with,
+    so the lock records which one that was and whether the file has moved since.
+    """
+    import subprocess
+    target = ROOT / "scripts/stage0/appearance_consistency_f1_screen.py"
+    try:
+        sha = subprocess.run(
+            ["git", "log", "-1", "--format=%H", "--", str(target)],
+            cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--", str(target)],
+            cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
+    except Exception as exc:                      # git absent or not a checkout
+        return {"commit": None, "error": type(exc).__name__}
+    return {"commit": sha, "uncommitted_changes": bool(dirty),
+            "file": "scripts/stage0/appearance_consistency_f1_screen.py",
+            "standing": "HOUGH_JS_NUMERICALLY_VALID"}
+
+
 def leakage_guard():
     source = pathlib.Path(__file__).read_text("utf-8")
     tree = ast.parse(source)
@@ -327,6 +349,9 @@ def main():
               "gradient_cosine": one["gradient_cosine"],
               "L_sup_fulltrain": one["L_sup_fulltrain"],
               "L_cons_fulltrain": one["L_cons_fulltrain"],
+              "lambda_L_cons_fulltrain": (one["lambda_cons"]
+                                          * one["L_cons_fulltrain"]),
+              "js_formulation_commit": js_formulation_commit(),
               "validity": one["validity"], "repeat": two["repeat"],
               "checkpoint": one["checkpoint"],
               "checkpoint_sha256": one["checkpoint_sha256"],
