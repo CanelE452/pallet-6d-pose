@@ -176,6 +176,23 @@ not established that the T0 offset shift is caused by the added supervision
 
 ## Standing
 
+The pre-registered decision label is `PARTIAL_EDGE_SUPERVISION_NOT_USEFUL`.  The
+observed A-pass / B-fail state means this label must not be interpreted as "no
+effect": the causal result is that supervising the partial edges improves the
+T1 medians by 24.88% on angle and 18.35% on offset, while the absolute line gate
+still fails and a T0 offset trade-off is present.
+
+```
+TRUNCATION_SIGNAL_PRESENT                       True
+PARTIAL_EDGE_SUPERVISION_CAUSALLY_IMPROVES_T1_MEDIANS   True
+ABSOLUTE_LINE_GATE_FAIL                         True
+T0_OFFSET_TRADEOFF_PRESENT                      True
+OCCLUSION_NOT_EVALUATED                         True
+ARCHITECTURE_NOT_LOCKED                         True
+CIGM_BLOCKED                                    True
+SEALED_UNCHANGED                                True
+```
+
 ```
 DECISION                          PARTIAL_EDGE_SUPERVISION_NOT_USEFUL (fallback branch)
 A_both_medians_15pct_better       True
