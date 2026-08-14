@@ -3,7 +3,8 @@
 set -e
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-PY="C:/Users/minjae/anaconda3/envs/pallet-pose/python.exe"
+# conda env 의 python 을 쓴다. 다른 인터프리터가 필요하면 PY 로 덮어쓸 것.
+PY="${PY:-python}"
 TEST_DIR="data/pallet/raw_data/capture0403middle"
 OUT="data/pallet/eval_results/loss_ablation_all_nn.txt"
 

@@ -8,7 +8,7 @@
 #   pretrain 끝=60 → stage1 +90 = 목표 150 → stage2 +30 = 목표 180.
 # env=pallet-pose. 사용법: bash scripts/ft_dope_cropaug.sh
 set -e
-source /home/minjae/anaconda3/etc/profile.d/conda.sh
+source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate pallet-pose
 cd /home/minjae/Documents/github/pallet-pose
 

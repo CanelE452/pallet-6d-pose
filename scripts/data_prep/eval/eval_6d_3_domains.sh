@@ -13,7 +13,7 @@ fi
 
 WEIGHTS="$1"
 TAG="$2"
-PALLET_PY="${PALLET_PY:-/c/Users/minjae/anaconda3/envs/pallet-pose/python.exe}"
+PALLET_PY="${PALLET_PY:-python}"
 
 OUT_DIR="data/pallet/eval_results/phase1_${TAG}_6d"
 mkdir -p "$OUT_DIR"

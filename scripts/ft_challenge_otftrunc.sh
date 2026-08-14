@@ -6,7 +6,7 @@
 # 누적 epoch: pretrain 60 → ft +90 = 목표 150.
 # env=pallet-pose. 사용법: bash scripts/ft_challenge_otftrunc.sh
 set -e
-source /home/minjae/anaconda3/etc/profile.d/conda.sh
+source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate pallet-pose
 cd /home/minjae/Documents/github/pallet-pose
 

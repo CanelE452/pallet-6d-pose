@@ -5,7 +5,7 @@
 # env=pallet-yolo26 (ultralytics 8.4.60). 출력: runs/pose/challenge/weights/<name>/
 
 set -e
-source /home/minjae/anaconda3/etc/profile.d/conda.sh
+source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate pallet-yolo26
 cd /home/minjae/Documents/github/pallet-pose
 

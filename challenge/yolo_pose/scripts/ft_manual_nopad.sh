@@ -15,7 +15,7 @@
 # env = pallet-yolo26 (yolo26 지원 ultralytics 신버전. 기존 pallet-pose 8.0.120 보존)
 
 set -e
-source /home/minjae/anaconda3/etc/profile.d/conda.sh
+source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate pallet-yolo26
 cd /home/minjae/Documents/github/pallet-pose
 

@@ -12,7 +12,8 @@
 set -e
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-PY="C:/Users/minjae/anaconda3/envs/pallet-pose/python.exe"
+# conda env 의 python 을 쓴다. 다른 인터프리터가 필요하면 PY 로 덮어쓸 것.
+PY="${PY:-python}"
 ANCHOR="../../weights/mixed_v8/final_net_epoch_0060.pth"
 DATA="../../data/pallet/training_data/mixed_v8_train"
 EPOCHS=65
