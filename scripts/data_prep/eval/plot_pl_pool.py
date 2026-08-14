@@ -46,8 +46,8 @@ def main():
     args = p.parse_args()
 
     sources = [
-        ("output/pl_outside_r0_loo", "outside R0 PL pool (167 통과)"),
-        ("output/pl_night_r0_loo",   "night R0 PL pool (105 통과)"),
+        ("data/pallet/results/_pl_experiments/pl_outside_r0_loo", "outside R0 PL pool (167 통과)"),
+        ("data/pallet/results/_pl_experiments/pl_night_r0_loo",   "night R0 PL pool (105 통과)"),
     ]
 
     n = args.n

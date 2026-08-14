@@ -29,9 +29,9 @@ def main():
     args = p.parse_args()
 
     sources = [
-        ("output/pl_outside_r0_loo/_accepted_log.json",      "outside R0 (Baseline)",        "#bdbdbd"),
-        ("output/pl_outside_R0_cf_loo/_accepted_log.json",   "outside R0 (Proposed)",        "#1f77b4"),
-        ("output/pl_night_r0_loo/_accepted_log.json",        "night R0 (Baseline)",          "#d9d9d9"),
+        ("data/pallet/results/_pl_experiments/pl_outside_r0_loo/_accepted_log.json",      "outside R0 (Baseline)",        "#bdbdbd"),
+        ("data/pallet/results/_pl_experiments/pl_outside_R0_cf_loo/_accepted_log.json",   "outside R0 (Proposed)",        "#1f77b4"),
+        ("data/pallet/results/_pl_experiments/pl_night_r0_loo/_accepted_log.json",        "night R0 (Baseline)",          "#d9d9d9"),
     ]
 
     fig, ax = plt.subplots(figsize=(13, 6))
