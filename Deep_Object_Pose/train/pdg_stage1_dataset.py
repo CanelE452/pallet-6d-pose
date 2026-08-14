@@ -176,7 +176,7 @@ def build(arm: str, options, taca_seed: int = 1):
     import importlib.util
     root = pathlib.Path(__file__).resolve().parents[2]
     spec = importlib.util.spec_from_file_location(
-        "screen", root / "scripts/stage0/paper_s2_corner_replacement_screen.py")
+        "screen", root / "scripts/stage0/paper_s2/paper_s2_corner_replacement_screen.py")
     screen = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(screen)
     class _Factory(PDGStage1Dataset):

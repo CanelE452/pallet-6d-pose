@@ -206,7 +206,7 @@ def make_optimizer(model):
 
 def build_arm_loader(arm: str):
     screen = load_module("screen",
-                         "scripts/stage0/paper_s2_corner_replacement_screen.py")
+                         "scripts/stage0/paper_s2/paper_s2_corner_replacement_screen.py")
     import pdg_stage1_dataset as DS
     options = screen.canonical_options()
     dataset, loader, _, _ = DS.build(arm, options, taca_seed=SEED)
@@ -229,7 +229,7 @@ def phase_parity(state):
     import pdg_stage1_dataset as DS
     import pdg_stage1_model as MODEL
     screen = load_module("screen",
-                         "scripts/stage0/paper_s2_corner_replacement_screen.py")
+                         "scripts/stage0/paper_s2/paper_s2_corner_replacement_screen.py")
     options = screen.canonical_options()
     parity_ds, _, _, _ = DS.build("PARITY", options)
     a1_ds, _, _, _ = DS.build("A1", options)

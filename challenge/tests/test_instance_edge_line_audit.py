@@ -27,7 +27,7 @@ for extra in (ROOT / "Deep_Object_Pose/common", ROOT / "Deep_Object_Pose/train",
 import instance_edge_hypotheses as IEH        # noqa: E402
 import instance_edge_topology as IET          # noqa: E402
 
-AUDIT = ROOT / "scripts/stage0/instance_edge_line_audit.py"
+AUDIT = ROOT / "scripts/stage0/line/instance_edge_line_audit.py"
 LEARN_ROOT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
               / "compatibility_calibration/canonical_corner_audit"
               / "instance_edge_learnability")

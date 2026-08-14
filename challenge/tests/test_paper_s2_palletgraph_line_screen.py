@@ -1136,7 +1136,7 @@ def test_loss_calibration_used_train_split_only() -> None:
 # ============================================================================
 def _long_run_module():
     spec = importlib.util.spec_from_file_location(
-        "paper_s2_ppd_long_run", ROOT / "scripts/stage0/paper_s2_ppd_long_run.py")
+        "paper_s2_ppd_long_run", ROOT / "scripts/stage0/paper_s2/paper_s2_ppd_long_run.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -1156,13 +1156,13 @@ def test_long_run_enforces_the_single_training_root() -> None:
 def test_long_run_budget_is_fixed_and_has_no_early_stop() -> None:
     LR = _long_run_module()
     assert LR.EPOCHS == 20 and LR.BATCH == 8 and LR.SEED == 1
-    source = (ROOT / "scripts/stage0/paper_s2_ppd_long_run.py").read_text("utf-8")
+    source = (ROOT / "scripts/stage0/paper_s2/paper_s2_ppd_long_run.py").read_text("utf-8")
     assert "early" not in source.lower().replace("early stop is not used", "")
     assert LR.ARMS == ("L0", "M0", "M1")
 
 
 def test_long_run_requires_purpose_file() -> None:
-    source = (ROOT / "scripts/stage0/paper_s2_ppd_long_run.py").read_text("utf-8")
+    source = (ROOT / "scripts/stage0/paper_s2/paper_s2_ppd_long_run.py").read_text("utf-8")
     assert "PURPOSE.md" in source
     assert (OUT / "PURPOSE.md").is_file()
     text = (OUT / "PURPOSE.md").read_text("utf-8")

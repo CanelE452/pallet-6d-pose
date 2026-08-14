@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "scripts" / "stage0" / "paper_s2_geometry_unit_audit.py"
+SCRIPT = ROOT / "scripts" / "stage0" / "paper_s2" / "paper_s2_geometry_unit_audit.py"
 SPEC = importlib.util.spec_from_file_location("paper_s2_geometry_unit_audit", SCRIPT)
 AUDIT = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None

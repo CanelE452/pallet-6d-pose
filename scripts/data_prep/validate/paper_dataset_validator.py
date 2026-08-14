@@ -7,9 +7,9 @@ consistent with the camera_dynamic_0123_v4 convention and that mask_rle is intac
 ★ Reuse (do NOT reinvent):
   - projection convention from scripts/data_prep/validate/audit_addon_v1.py
       FLIP = diag(1,-1,-1) (USD->OpenCV);  Xc = Rwc^T (Xw - C);  reproj p50~0.01px.
-  - V_geom / elevation / frsep / mask-area logic from scripts/stage0/stage16_trunc_addon_audit.py
+  - V_geom / elevation / frsep / mask-area logic from scripts/stage0/stage_screens/stage16_trunc_addon_audit.py
   - keypoint overlay (front 0-3 / rear 4-7 color, sentinel [-1,-1] + nan skip, no phantom
-      diagonals) from scripts/stage0/stage22_myannot_individual_overlays.py
+      diagonals) from scripts/stage0/stage_screens/stage22_myannot_individual_overlays.py
 
 Convention (camera_dynamic_0123_v4):
   0-3 = front face (near), 4-7 = rear face (far), 8 = centroid.

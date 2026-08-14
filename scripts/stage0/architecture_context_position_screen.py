@@ -39,7 +39,7 @@ def _load(name, relative):
     return module
 
 
-SCALE = _load("SCALE_ARCH", "scripts/stage0/supporting_line_data_vs_step.py")
+SCALE = _load("SCALE_ARCH", "scripts/stage0/line/supporting_line_data_vs_step.py")
 CAP, H, V2 = SCALE.CAP, SCALE.H, SCALE.V2
 OUT, DEV, MAP = CAP.OUT, CAP.DEV, CAP.MAP
 ARMS = {"A_G0P0": (False, False), "B_G1P0": (True, False),

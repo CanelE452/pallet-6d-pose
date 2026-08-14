@@ -10,7 +10,7 @@ for e in (ROOT/"Deep_Object_Pose/common", ROOT/"Deep_Object_Pose/train",
 import physical_edge_query as PEQ, corner_incident_geometry as CIGM
 import edge_guided_corner_fusion as EGCR, instance_edge_topology as IET
 
-RUNNER = ROOT/"scripts/stage0/edge_mandatory_fast_search.py"
+RUNNER = ROOT/"scripts/stage0/line/edge_mandatory_fast_search.py"
 OUT = (ROOT/"data/pallet/results/paper_s2_eval56/decoder_reconciliation"
        /"compatibility_calibration/canonical_corner_audit/edge_mandatory_fast_search")
 SPLIT_SHA = "9a755438dcb55e0ff60415d5b2f861a29e60b23d921a2e0985a23eb2e214415f"

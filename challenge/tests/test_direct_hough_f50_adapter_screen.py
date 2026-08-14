@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 for extra in (ROOT / "Deep_Object_Pose/common", ROOT / "scripts/stage0"):
     if str(extra) not in sys.path:
         sys.path.insert(0, str(extra))
-RUNNER = ROOT / "scripts/stage0/direct_hough_f50_adapter_screen.py"
+RUNNER = ROOT / "scripts/stage0/line/direct_hough_f50_adapter_screen.py"
 OUT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
        / "compatibility_calibration/canonical_corner_audit/edge_mandatory_fast_search")
 torch = pytest.importorskip("torch")
@@ -277,7 +277,7 @@ def test_role_encoder_depth_is_not_implemented_here():
                if isinstance(n, (ast.ClassDef, ast.FunctionDef))}
     for forbidden in ("extra_attention", "ResidualCrossAttention", "depth_screen"):
         assert forbidden not in names and forbidden not in defined
-    # The companion assertion that scripts/stage0/role_encoder_depth_screen.py
+    # The companion assertion that scripts/stage0/line/role_encoder_depth_screen.py
     # did not exist was scoped to the adapter commit, where the point was that
     # feature adaptation and encoder depth must not move in the same run. That
     # screen is now pre-registered separately, so the check that survives is the

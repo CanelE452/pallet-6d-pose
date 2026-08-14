@@ -32,7 +32,7 @@ def _load(name, relative):
     return module
 
 
-CAP = _load("CAP_DEG", "scripts/stage0/supporting_line_map_capacity.py")
+CAP = _load("CAP_DEG", "scripts/stage0/line/supporting_line_map_capacity.py")
 SEM, H, V2 = CAP.SEM, CAP.H, CAP.V2
 CANON, OUT, DEV = CAP.CANON, CAP.OUT, CAP.DEV
 SIGMA_CANONICAL = CAP.SIGMA_CELLS * CANON / CAP.MAP        # 0.75 canonical50 cell

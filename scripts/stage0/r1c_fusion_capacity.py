@@ -41,7 +41,7 @@ def sha(path):
 
 def modules():
     spec = importlib.util.spec_from_file_location(
-        "EFS", ROOT / "scripts/stage0/edge_mandatory_fast_search.py")
+        "EFS", ROOT / "scripts/stage0/line/edge_mandatory_fast_search.py")
     efs = importlib.util.module_from_spec(spec)
     sys.modules["EFS"] = efs
     spec.loader.exec_module(efs)

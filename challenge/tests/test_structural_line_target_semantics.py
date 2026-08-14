@@ -14,7 +14,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 for extra in (ROOT / "Deep_Object_Pose/common", ROOT / "scripts/stage0"):
     if str(extra) not in sys.path:
         sys.path.insert(0, str(extra))
-RUNNER = ROOT / "scripts/stage0/structural_line_target_semantics.py"
+RUNNER = ROOT / "scripts/stage0/line/structural_line_target_semantics.py"
 OUT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
        / "compatibility_calibration/canonical_corner_audit/edge_mandatory_fast_search")
 torch = pytest.importorskip("torch")

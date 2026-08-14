@@ -15,7 +15,7 @@ import torch
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "data/pallet/results/paper_s2_corner_replacement_screen"
 WEIGHTS = ROOT / "weights/paper_s2_corner_replacement_screen"
-SCRIPT = ROOT / "scripts/stage0/paper_s2_corner_replacement_screen.py"
+SCRIPT = ROOT / "scripts/stage0/paper_s2/paper_s2_corner_replacement_screen.py"
 MODULE = ROOT / "Deep_Object_Pose/common/corner_proposal_replacement.py"
 EP57 = ROOT / "weights/paper_s2_stageB/net_epoch_0057.pth"
 EP57_SHA = "c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896"

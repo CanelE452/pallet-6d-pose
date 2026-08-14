@@ -54,7 +54,7 @@ def _load(name, relative):
     return module
 
 
-LONG = _load("DH_LONG_D", "scripts/stage0/direct_hough_full_step_extension.py")
+LONG = _load("DH_LONG_D", "scripts/stage0/line/direct_hough_full_step_extension.py")
 DH, CAP, V2, SCALE = LONG.DH, LONG.CAP, LONG.V2, LONG.SCALE
 OUT, DEV = LONG.OUT, LONG.DEV
 

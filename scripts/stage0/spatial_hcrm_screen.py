@@ -681,9 +681,9 @@ class _SeedScope:
 def build_a1_base():
     """A1's own dataset, unmodified: same augmentation, targets and masks."""
     screen = importlib.util.module_from_spec(importlib.util.spec_from_file_location(
-        "screen", STAGE0 / "paper_s2_corner_replacement_screen.py"))
+        "screen", STAGE0 / "paper_s2" / "paper_s2_corner_replacement_screen.py"))
     importlib.util.spec_from_file_location(
-        "screen", STAGE0 / "paper_s2_corner_replacement_screen.py").loader.exec_module(screen)
+        "screen", STAGE0 / "paper_s2" / "paper_s2_corner_replacement_screen.py").loader.exec_module(screen)
     import pdg_stage1_dataset as DS
     dataset, loader, sampler, _ = DS.build("A1", screen.canonical_options(), taca_seed=1)
     if getattr(dataset, "arm", None) != "A1" or dataset.truncation_aug_prob != 0.0:

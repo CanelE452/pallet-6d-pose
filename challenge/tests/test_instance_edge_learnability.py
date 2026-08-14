@@ -29,7 +29,7 @@ for extra in (ROOT / "Deep_Object_Pose/common", ROOT / "Deep_Object_Pose/train",
 import instance_edge_topology as IET      # noqa: E402
 import instance_edge_head as IEH          # noqa: E402
 
-RUNNER = ROOT / "scripts/stage0/instance_edge_learnability.py"
+RUNNER = ROOT / "scripts/stage0/line/instance_edge_learnability.py"
 A1_CKPT = ROOT / "weights/paper_s2_pdg/A1/epoch_003.pth"
 A1_SHA = "00a0dcd8730e21d14b8a86e2f2a398650b78026006e4e358eabc438148fb9657"
 EP57 = ROOT / "weights/paper_s2_stageB/net_epoch_0057.pth"

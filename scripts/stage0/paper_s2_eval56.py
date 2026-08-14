@@ -63,7 +63,7 @@ def _load(name: str, path: pathlib.Path):
 
 
 MD = _load("MD", STAGE0 / "paper_s2_mechanism_diagnostic.py")
-SCREEN = _load("SCREEN", STAGE0 / "paper_s2_corner_replacement_screen.py")
+SCREEN = _load("SCREEN", STAGE0 / "paper_s2" / "paper_s2_corner_replacement_screen.py")
 FZ = MD.FZ
 APNP = MD.APNP
 
@@ -581,7 +581,7 @@ def forward_stagewise(manifest, checkpoint) -> dict[str, np.ndarray]:
 def forward_corner_replacement(manifest, checkpoint) -> dict[str, np.ndarray]:
     """#9/#10: ScreenModel carries a proposal branch; only its base belief is
     the deployable path, so that is what is decoded."""
-    SCREEN = _load("SCREEN", STAGE0 / "paper_s2_corner_replacement_screen.py")
+    SCREEN = _load("SCREEN", STAGE0 / "paper_s2" / "paper_s2_corner_replacement_screen.py")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = SCREEN.ScreenModel()
     sample = torch.zeros(1, 3, 400, 400)
@@ -612,7 +612,7 @@ def forward_corner_replacement(manifest, checkpoint) -> dict[str, np.ndarray]:
 
 def rerun_rawq_router(manifest, checkpoint) -> dict[str, Any]:
     """#10: raw-Q proposal decoders and the base/proposal complementarity."""
-    SCREEN = _load("SCREEN", STAGE0 / "paper_s2_corner_replacement_screen.py")
+    SCREEN = _load("SCREEN", STAGE0 / "paper_s2" / "paper_s2_corner_replacement_screen.py")
     import corner_branch_router as CBR
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
