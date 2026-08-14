@@ -63,7 +63,7 @@ echo "[OK] manual GT: $N_MANUAL frames"
 echo ""
 echo "### STAGE 1: 1차 finetune (manual 만) ###"
 STAGE1_TRAIN="challenge/data/03_derived/_train_stage1"
-python challenge/scripts/merge_dataset.py \
+python challenge/scripts/dataset/merge_dataset.py \
     --inputs "$MANUAL_GT" \
     --out "$STAGE1_TRAIN" \
     --val_fraction 0.2 \
@@ -93,7 +93,7 @@ echo ""
 echo "### STAGE 2: pseudo-label 생성 (1차 모델로) ###"
 SEQ_NAME=$(basename "$PSEUDO_SEQ")
 PSEUDO_OUT="${PSEUDO_OUT:-challenge/data/01_real/pseudo_gt/${SEQ_NAME}_pseudo_gt}"
-python challenge/scripts/make_pseudo_gt.py \
+python challenge/scripts/dataset/make_pseudo_gt.py \
     --seq "$PSEUDO_SEQ" \
     --weights "$STAGE1_LAST" \
     --out_dir "$PSEUDO_OUT" \
@@ -110,7 +110,7 @@ echo "### STAGE 3: 2차 finetune (manual + pseudo) ###"
 STAGE2_TRAIN="challenge/data/03_derived/_train_stage2"
 
 if [ "$N_PSEUDO" -gt 10 ]; then
-    python challenge/scripts/merge_dataset.py \
+    python challenge/scripts/dataset/merge_dataset.py \
         --inputs "$MANUAL_GT" "$PSEUDO_OUT" \
         --out "$STAGE2_TRAIN" \
         --val_fraction 0.15 \
@@ -146,5 +146,5 @@ echo ""
 echo "=========================================="
 echo " Pipeline DONE — $(date)"
 echo " Logs: $LOG_DIR"
-echo " 검증: python challenge/scripts/run_live.py --seq $PSEUDO_SEQ --weights challenge/weights/finetuned/<file>.pth"
+echo " 검증: python challenge/scripts/live/run_live.py --seq $PSEUDO_SEQ --weights challenge/weights/finetuned/<file>.pth"
 echo "=========================================="

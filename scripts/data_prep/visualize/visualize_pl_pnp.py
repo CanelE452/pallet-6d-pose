@@ -25,6 +25,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 from annotate_pnp import make_pallet_keypoints_3d  # noqa: E402
 
 VIZ_DIMS = (1.1, 1.3, 0.11)  # width, depth, height (m) — visualization-only

@@ -57,6 +57,8 @@ sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 
 
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 def _load(mod_name, path):
     spec = importlib.util.spec_from_file_location(mod_name, path)
     m = importlib.util.module_from_spec(spec)

@@ -27,6 +27,8 @@ ROOT = "/home/minjae/Documents/github/pallet-pose"
 sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 import paper_s2_filterval_9filters as F   # noqa: E402,F401
 import paper_s2_testset17_9filters as T   # noqa: E402
 import s2_fullpool_infer as INF           # noqa: E402

@@ -51,6 +51,8 @@ ROOT = Path("/home/minjae/Documents/github/pallet-pose")
 sys.path.insert(0, str(ROOT / "Deep_Object_Pose" / "common"))
 sys.path.insert(0, str(ROOT / "scripts" / "data_prep" / "eval"))
 sys.path.insert(0, str(ROOT / "challenge" / "scripts"))
+sys.path[:0] = [str(ROOT / "challenge" / "scripts" / _s)
+                for _s in ("annotate", "infer", "live")]
 sys.path.insert(0, str(ROOT / "scripts" / "stage0"))
 
 from models import DopeNetwork  # noqa: E402

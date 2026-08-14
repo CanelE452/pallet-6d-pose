@@ -21,6 +21,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, HERE); sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 from four_arm_pl_compare import collect_val_frames  # noqa
 from eval_pvnet_heads import load_pvnet_model, preprocess, belief_to_orig, collect_manual  # noqa
 from filter_pr_camfacing import extract_keypoints_from_belief  # noqa

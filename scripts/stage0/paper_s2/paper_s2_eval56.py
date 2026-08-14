@@ -3591,8 +3591,8 @@ def nrf_figures() -> int:
 # ============================================================================
 # The 13 blocking frames are truncated by the frame edge, and the project
 # already has an inference-time padding path for exactly that:
-#   challenge/scripts/dope_predict_mp4_pad.py:207  pad_frame
-#   challenge/scripts/dope_predict_mp4_pad.py:353  --pad default 100, reflect
+#   challenge/scripts/infer/dope_predict_mp4_pad.py:207  pad_frame
+#   challenge/scripts/infer/dope_predict_mp4_pad.py:353  --pad default 100, reflect
 # That constant is the one this audit uses.  The other candidate,
 # pad_truncation_crops.required_pad, derives the pad from GT keypoints, which
 # is inadmissible at inference, so it is recorded and not used.
@@ -3611,8 +3611,10 @@ def pad_apply(image: np.ndarray, arm: str) -> np.ndarray:
     """
     if arm == "A0_original":
         return image
-    sys.path.insert(0, str(ROOT / "challenge/scripts")) \
-        if str(ROOT / "challenge/scripts") not in sys.path else None
+    for _cs in [ROOT / "challenge/scripts"] + [ROOT / "challenge/scripts" / _s
+                                               for _s in ("annotate", "infer", "live")]:
+        if str(_cs) not in sys.path:
+            sys.path.insert(0, str(_cs))
     from dope_predict_mp4_pad import pad_frame
 
     if arm == "A1_reflect":
@@ -4052,7 +4054,7 @@ def pad_run() -> int:
     (PAD_OUT / "padding_gate.json").write_text(json.dumps({
         "gate": PAD_D13_GATE, "pad_pixels": PAD_PIXELS,
         "constant_value": list(PAD_CONSTANT_VALUE),
-        "source": "challenge/scripts/dope_predict_mp4_pad.py:207,353",
+        "source": "challenge/scripts/infer/dope_predict_mp4_pad.py:207,353",
         "rows": gate_rows}, indent=2), "utf-8")
     for entry in gate_rows:
         failed = [k for k, v in entry["conditions"].items() if not v]

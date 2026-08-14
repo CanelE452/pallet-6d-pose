@@ -109,7 +109,7 @@ def test_e44_is_a_true_set_difference_and_wood_is_disjoint(runner):
 
 # 10, 11
 def test_pad_ratio_comes_from_the_inference_source(runner):
-    source = (ROOT / "challenge/scripts/dope_predict_mp4_pad.py").read_text("utf-8")
+    source = (ROOT / "challenge/scripts/infer/dope_predict_mp4_pad.py").read_text("utf-8")
     assert '"--pad", type=int, default=100' in source
     assert runner.PAD_PIXELS == 100
     stored = json.loads((PAD / "padding_gate.json").read_text("utf-8"))

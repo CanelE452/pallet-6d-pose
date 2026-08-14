@@ -25,7 +25,7 @@ DEC = ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
 RUNNER = STAGE0 / "paper_s2" / "paper_s2_eval56.py"
 WRAPPER = STAGE0 / "decoder_paths.py"
 DETECTOR = ROOT / "Deep_Object_Pose/common/detector.py"
-RUN_LIVE = ROOT / "challenge/scripts/run_live.py"
+RUN_LIVE = ROOT / "challenge/scripts/live/run_live.py"
 SEALED = ("capturenight08", "capturenight09", "capturepallet07",
           "capturepallet09", "testset_full8_manifest", "handannot17")
 
@@ -287,7 +287,8 @@ def test_no_weights_tracked_or_staged():
 # the two findings, pinned
 def test_cuboid_model_is_the_yaw180_partner():
     sys.path.insert(0, str(ROOT / "Deep_Object_Pose/common"))
-    sys.path.insert(0, str(ROOT / "challenge/scripts"))
+    sys.path[:0] = [str(ROOT / "challenge/scripts" / _s)
+                    for _s in ("annotate", "infer", "live")] + [str(ROOT / "challenge/scripts")]
     from cuboid import Cuboid3d
     import annotate_pnp as APNP
     import decoder_paths as DP

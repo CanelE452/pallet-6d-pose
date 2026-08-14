@@ -42,6 +42,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "De
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "self_training"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "challenge", "scripts"))
 
+sys.path[:0] = [os.path.join(os.path.dirname(__file__), "..", "..", "..", "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 try:
     from models import DopeNetwork
 except ImportError:

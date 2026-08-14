@@ -35,6 +35,8 @@ sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 sys.path.insert(0, os.path.join(ROOT, "data", "pallet", "eval_results", "stage11_16k"))
 
 import cv2, torch

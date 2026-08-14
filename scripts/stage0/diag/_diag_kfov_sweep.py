@@ -25,6 +25,8 @@ ROOT = "/home/minjae/Documents/github/pallet-pose"
 sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 import paper_s2_testset17_9filters as T   # noqa: E402
 import internet_pallet_infer as IPI       # noqa: E402
 import annotate_pnp as APNP               # noqa: E402

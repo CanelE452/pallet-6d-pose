@@ -48,6 +48,8 @@ sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 import cv2  # noqa: E402
 import torch  # noqa: E402
 import stage25_paperbase_eval as S  # noqa: E402  (SETS, elev_of, summarize, per_corner_dists)

@@ -40,6 +40,17 @@ fix v9 (2026-05-26) — Far-pallet degenerate threshold scaling
         pallet08 회귀 없음 (click_bbox=3912 → threshold=1956, 기존 selected 4621 살아남음).
 """
 from __future__ import annotations
+import os as _os, sys as _sys
+
+# --- 계열 폴더 탐색.
+#     이 파일만 challenge/scripts 루트에 남는다: 해시가 고정된
+#     scripts/stage0/paper_s2_frozen_diagnostic.py 가 이 경로로 import 하는데
+#     그 파일은 한 글자만 바뀌어도 캐시가 무효가 되어 손댈 수 없다.
+_CS = _os.path.dirname(_os.path.abspath(__file__))
+_sys.path[:0] = [_CS] + [_os.path.join(_CS, _d) for _d in sorted(_os.listdir(_CS))
+                         if _os.path.isdir(_os.path.join(_CS, _d))
+                         and not _d.startswith((".", "_"))]
+
 import os
 import sys
 import numpy as np

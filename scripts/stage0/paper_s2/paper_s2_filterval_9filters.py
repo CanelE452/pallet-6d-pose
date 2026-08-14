@@ -33,6 +33,11 @@ _S0 = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _sys.path[:0] = [_S0] + [_os.path.join(_S0, _d) for _d in sorted(_os.listdir(_S0))
                          if _os.path.isdir(_os.path.join(_S0, _d)) and not _d.startswith(".")]
 
+# challenge/scripts 도 계열 폴더로 나뉘었다. 예전엔 먼저 로드된 다른 모듈이
+# 넣어 주는 데 기대고 있었는데(아래 import annotate_pnp), 그건 로드 순서 의존이다.
+_CS = _os.path.join(_os.path.dirname(_os.path.dirname(_S0)), "challenge", "scripts")
+_sys.path[:0] = [_CS] + [_os.path.join(_CS, _d) for _d in ("annotate", "infer", "live")]
+
 import os
 import sys
 

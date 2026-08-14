@@ -43,6 +43,8 @@ sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 from models import DopeNetwork  # noqa: E402
 from filter_pr_camfacing import extract_keypoints_from_belief  # noqa: E402
 from eval_pvnet_heads import split_metrics  # noqa: E402

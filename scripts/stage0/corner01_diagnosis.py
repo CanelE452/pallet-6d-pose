@@ -44,6 +44,8 @@ sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 
+sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
+                for _s in ("annotate", "infer", "live")]
 from tau_calibrate import collect_val_frames  # noqa: E402
 from eval_pvnet_heads import collect_manual, collect_syn, collect_v3  # noqa: E402
 

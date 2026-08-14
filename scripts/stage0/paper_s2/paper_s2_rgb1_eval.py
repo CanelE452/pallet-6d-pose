@@ -53,6 +53,8 @@ sys.path.insert(0, str(ROOT / "scripts" / "data_prep" / "eval"))
 sys.path.insert(0, str(ROOT / "scripts" / "stage0"))
 sys.path.insert(0, str(ROOT / "challenge" / "scripts"))
 
+sys.path[:0] = [str(ROOT / "challenge" / "scripts" / _s)
+                for _s in ("annotate", "infer", "live")]
 import models as dope_models  # noqa: E402
 from heatmap_refinement import (  # noqa: E402
     decode_refinement_outputs,

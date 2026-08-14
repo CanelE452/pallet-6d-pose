@@ -20,3 +20,13 @@ if _STAGE0.is_dir():
         _s = str(_d)
         if _s not in sys.path:
             sys.path.insert(0, _s)
+
+# challenge/scripts 도 2026-08-14 에 계열 폴더로 나뉘었다. annotate_pnp 처럼 이름으로
+# 부르는 모듈이 여러 테스트에 있어 같은 처리를 한다.
+_CS = pathlib.Path(__file__).resolve().parents[1] / "scripts"
+if _CS.is_dir():
+    for _d in [_CS] + sorted(p for p in _CS.iterdir()
+                             if p.is_dir() and not p.name.startswith((".", "_"))):
+        _s = str(_d)
+        if _s not in sys.path:
+            sys.path.insert(0, _s)
