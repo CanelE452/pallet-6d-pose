@@ -97,8 +97,8 @@ class AddNoise(object):
 # On-the-fly truncation augmentation
 # -----------------------------------------------------------------------------
 # Ports the verified offline pipeline
-#   challenge/scripts/gen_truncation_crops.py  (crop+resize 640x480, L/R side bias)
-#   challenge/scripts/pad_truncation_crops.py  (reflect-pad off-image kps back in)
+#   challenge/scripts/dataset/gen_truncation_crops.py  (crop+resize 640x480, L/R side bias)
+#   challenge/scripts/dataset/pad_truncation_crops.py  (reflect-pad off-image kps back in)
 # into a single in-memory transform applied to the *original* image + 9 keypoints
 # BEFORE the loader's albumentations pipeline. The result is a 640x480 frame whose
 # pallet is clipped at an edge but whose every corner sits inside the

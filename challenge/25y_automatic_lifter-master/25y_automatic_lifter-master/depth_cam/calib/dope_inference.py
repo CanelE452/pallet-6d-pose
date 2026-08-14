@@ -1,6 +1,6 @@
 # calib/dope_inference.py
 # -----------------------------------------------------------------------------
-# DOPE 6D pose inference adapter (challenge/scripts/run_live.py 와 동일 path).
+# DOPE 6D pose inference adapter (challenge/scripts/live/run_live.py 와 동일 path).
 #
 # 변경 이력 (2026-05-27):
 #   - 기존 _extract_peaks (채널별 단일 argmax) 제거.
@@ -77,7 +77,7 @@ def _sample_depth(depth_frame, x_orig: float, y_orig: float, radius: int = 3) ->
 def _enforce_camera_facing(result, pnp_solver):
     """0~3 이 카메라 가까운 면 (near face) 되도록 raw/projected_points swap.
 
-    challenge/scripts/run_live.py 의 enforce_camera_facing 와 동일.
+    challenge/scripts/live/run_live.py 의 enforce_camera_facing 와 동일.
     학습 데이터는 object-fixed (0~3 = SDG 의 z_max corner) 로 생성됐지만 추론 단에서
     camera-facing 으로 통일. 0~3 corner 의 z_cam 평균이 4~7 보다 멀면 Ry(180°)
     swap 적용 ([5,4,7,6,1,0,3,2,8]).
