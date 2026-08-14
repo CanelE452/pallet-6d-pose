@@ -19,7 +19,7 @@ import torch
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "scripts" / "stage0" / "paper_s2_micro_arch_screen.py"
+SCRIPT = ROOT / "scripts" / "stage0" / "paper_s2" / "paper_s2_micro_arch_screen.py"
 for _p in (
     ROOT / "Deep_Object_Pose" / "common",
     ROOT / "Deep_Object_Pose" / "train",

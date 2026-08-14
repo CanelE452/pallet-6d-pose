@@ -24,7 +24,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 STAGE0 = ROOT / "scripts/stage0"
 PAD = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
        / "compatibility_calibration/reflect_padding_audit")
-RUNNER = STAGE0 / "paper_s2_eval56.py"
+RUNNER = STAGE0 / "paper_s2" / "paper_s2_eval56.py"
 SEALED = ("capturenight08", "capturenight09", "capturepallet07",
           "capturepallet09", "testset_full8_manifest", "handannot17")
 

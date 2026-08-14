@@ -52,7 +52,7 @@ fi
 # ---------------- Stage A composite val-select ----------------
 cd "$ROOT"
 echo "=== [$(date '+%F %T')] Stage A val-select ==="
-python scripts/stage0/diffpnp3d_val_select.py \
+python scripts/stage0/diffpnp3d/diffpnp3d_val_select.py \
   --weights_dir "$STAGEA" --tag stageA --val full \
   > "$LOGDIR/stageA_valselect.log" 2>&1
 A_BEST=$(grep '^BEST_CKPT=' "$LOGDIR/stageA_valselect.log" | tail -1 | cut -d= -f2)
@@ -99,7 +99,7 @@ fi
 # ---------------- Stage B composite val-select ----------------
 cd "$ROOT"
 echo "=== [$(date '+%F %T')] Stage B val-select ==="
-python scripts/stage0/diffpnp3d_val_select.py \
+python scripts/stage0/diffpnp3d/diffpnp3d_val_select.py \
   --weights_dir "$STAGEB" --tag stageB --val full \
   > "$LOGDIR/stageB_valselect.log" 2>&1
 B_BEST=$(grep '^BEST_CKPT=' "$LOGDIR/stageB_valselect.log" | tail -1 | cut -d= -f2)

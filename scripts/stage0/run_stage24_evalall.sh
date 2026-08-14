@@ -23,22 +23,22 @@ CW=weights/stage24_vec_newdata/control/final_net_control_off.pth
 SW=weights/stage24_vec_newdata/sparse/final_net_sparse_sparse.pth
 
 # --- voting vs control: manifest(17), filter-val(outside), manual ---
-run scripts/stage0/eval_pvnet_heads.py --weights "$VW" "$CW" \
+run scripts/stage0/eval_harness/eval_pvnet_heads.py --weights "$VW" "$CW" \
   --vec_mode unit off --arm_tags VOTE CTRL --use_seg_mask --by_visibility \
   --evalset manifest --manifest "$MAN" --tag s24_manifest > "$L/eval_manifest.log" 2>&1
 echo "----- voting manifest rc=$? -----"
-run scripts/stage0/eval_pvnet_heads.py --weights "$VW" "$CW" \
+run scripts/stage0/eval_harness/eval_pvnet_heads.py --weights "$VW" "$CW" \
   --vec_mode unit off --arm_tags VOTE CTRL --use_seg_mask --by_visibility \
   --evalset filter-val --domains outside night --tag s24_filterval > "$L/eval_filterval.log" 2>&1
 echo "----- voting filter-val rc=$? -----"
-run scripts/stage0/eval_pvnet_heads.py --weights "$VW" "$CW" \
+run scripts/stage0/eval_harness/eval_pvnet_heads.py --weights "$VW" "$CW" \
   --vec_mode unit off --arm_tags VOTE CTRL --use_seg_mask --by_visibility \
   --evalset manual --tag s24_manual > "$L/eval_manual.log" 2>&1
 echo "----- voting manual rc=$? -----"
 
 # --- sparse: control vs sparse-refine (filter-val, manual) ---
 for ES in filter-val manual; do
-  run scripts/stage0/eval_edgevec_refine.py --control_weights "$CW" \
+  run scripts/stage0/eval_harness/eval_edgevec_refine.py --control_weights "$CW" \
     --sparse_weights "$SW" --evalset "$ES" --tag s24 > "$L/eval_sparse_$ES.log" 2>&1
   echo "----- sparse $ES rc=$? -----"
 done

@@ -10,6 +10,14 @@ for metrics alone.
     python scripts/stage0/paper_s2/paper_s2_predseed_diffpnp_screen.py --all
 """
 from __future__ import annotations
+import os as _os, sys as _sys
+
+# --- stage0 형제 탐색: 계열 폴더로 나뉘어 있어도 서로를 찾게 한다.
+#     형제를 import 하는 줄보다 반드시 먼저 실행돼야 하므로 최상단에 둔다.
+_S0 = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+_sys.path[:0] = [_S0] + [_os.path.join(_S0, _d) for _d in sorted(_os.listdir(_S0))
+                         if _os.path.isdir(_os.path.join(_S0, _d)) and not _d.startswith(".")]
+
 
 import argparse
 import hashlib

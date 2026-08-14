@@ -20,7 +20,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 STAGE0 = ROOT / "scripts/stage0"
 AUDIT = ROOT / "data/pallet/results/paper_s2_eval56/threshold_audit"
-RUNNER = STAGE0 / "paper_s2_eval56.py"
+RUNNER = STAGE0 / "paper_s2" / "paper_s2_eval56.py"
 FROZEN = STAGE0 / "paper_s2_frozen_diagnostic.py"
 SEALED = ("capturenight08", "capturenight09", "capturepallet07",
           "capturepallet09", "testset_full8_manifest", "handannot17")

@@ -11,7 +11,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEFAULT_CONFIG="$ROOT/config/paper_s2_rgb1_improve_v1.json"
-EVALUATOR="$ROOT/scripts/stage0/paper_s2_rgb1_eval.py"
+EVALUATOR="$ROOT/scripts/stage0/paper_s2/paper_s2_rgb1_eval.py"
 TRAIN="$ROOT/Deep_Object_Pose/train/train.py"
 
 usage() {

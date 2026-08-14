@@ -480,7 +480,7 @@ def phase_train(state, arm: str):
 
 # ---------------------------------------------------------------- evaluation
 def _dev_frames():
-    runner = load_module("eval56", "scripts/stage0/paper_s2_eval56.py")
+    runner = load_module("eval56", "scripts/stage0/paper_s2/paper_s2_eval56.py")
     members = json.loads((OUT.parent / "no_response_frames"
                           / "nrf_membership.json").read_text("utf-8"))
     meta = {f["frame_id"]: f for f in runner.cal_n87_frames()}

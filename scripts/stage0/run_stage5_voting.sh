@@ -36,7 +36,7 @@ if [ ! -f "$NEW" ]; then echo "NO_FINAL_CKPT"; echo "NO_FINAL_CKPT" > "$L/STATUS
 echo "===== EVAL voting (seg mask) vs control $(date +%H:%M:%S) ====="
 for es in manual filter-val synthetic; do
   extra=""; [ "$es" = synthetic ] && extra="--n_frames 200"
-  run scripts/stage0/eval_pvnet_heads.py --weights "$OFF" "$NEW" \
+  run scripts/stage0/eval_harness/eval_pvnet_heads.py --weights "$OFF" "$NEW" \
     --evalset "$es" --use_seg_mask $extra --tag stage5 > "$L/eval_$es.log" 2>&1
   echo "----- eval $es rc=$? -----"
 done

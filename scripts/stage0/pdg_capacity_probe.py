@@ -35,7 +35,7 @@ SEED = 1
 
 def load_runner():
     spec = importlib.util.spec_from_file_location(
-        "eval56", ROOT / "scripts/stage0/paper_s2_eval56.py")
+        "eval56", ROOT / "scripts/stage0/paper_s2/paper_s2_eval56.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

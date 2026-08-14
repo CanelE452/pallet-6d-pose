@@ -22,7 +22,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 STAGE0 = ROOT / "scripts/stage0"
 DEC = ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
-RUNNER = STAGE0 / "paper_s2_eval56.py"
+RUNNER = STAGE0 / "paper_s2" / "paper_s2_eval56.py"
 WRAPPER = STAGE0 / "decoder_paths.py"
 DETECTOR = ROOT / "Deep_Object_Pose/common/detector.py"
 RUN_LIVE = ROOT / "challenge/scripts/run_live.py"

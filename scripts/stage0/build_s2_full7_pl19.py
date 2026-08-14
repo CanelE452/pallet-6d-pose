@@ -614,7 +614,7 @@ def execute_build(
             "source_checkpoint": rel(CHECKPOINT),
             "source_checkpoint_sha256": checkpoint_hash,
             "inference": {
-                "helper": "scripts/stage0/paper_s2_rgb1_eval.py::infer",
+                "helper": "scripts/stage0/paper_s2/paper_s2_rgb1_eval.py::infer",
                 "preprocess": "squash_640x480_to_400x400",
                 "heatmap_threshold": INFERENCE_THRESHOLD,
                 "label_geometry": "raw_heatmap_peaks_no_pnp_reprojection",

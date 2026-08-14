@@ -8,6 +8,14 @@ historical FAIL verdicts and are reported as diagnostics — no threshold was
 lowered and no loss was changed to make them pass.
 """
 from __future__ import annotations
+import os as _os, sys as _sys
+
+# --- stage0 형제 탐색: 계열 폴더로 나뉘어 있어도 서로를 찾게 한다.
+#     형제를 import 하는 줄보다 반드시 먼저 실행돼야 하므로 최상단에 둔다.
+_S0 = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+_sys.path[:0] = [_S0] + [_os.path.join(_S0, _d) for _d in sorted(_os.listdir(_S0))
+                         if _os.path.isdir(_os.path.join(_S0, _d)) and not _d.startswith(".")]
+
 import argparse, json, math, os, pathlib, sys, time, hashlib
 import numpy as np, pandas as pd, cv2, torch, torch.nn as nn, torch.nn.functional as F
 
@@ -539,7 +547,7 @@ def real_frames():
     """Build the real mechanism-val N87 frame records (shared by eval and overlays)."""
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "LS", ROOT / "scripts/stage0/paper_s2_palletgraph_line_screen.py")
+        "LS", ROOT / "scripts/stage0/paper_s2/paper_s2_palletgraph_line_screen.py")
     LS = importlib.util.module_from_spec(spec); spec.loader.exec_module(LS)
     ev = LS.LineScreenEvaluator()
     raw = pd.read_parquet(D / "rotation_candidates_raw.parquet").set_index("frame_id")

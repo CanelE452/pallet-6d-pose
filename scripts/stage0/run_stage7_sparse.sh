@@ -32,7 +32,7 @@ if [ ! -f "$CW" ] || [ ! -f "$SW" ]; then echo "NO_CKPT" > "$L/STATUS"; exit 1; 
 
 echo "===== EVAL 3-arm (control/sparse-hm/sparse-refine) $(date +%H:%M:%S) ====="
 for ES in filter-val manual synthetic; do
-  run scripts/stage0/eval_edgevec_refine.py --control_weights "$CW" --sparse_weights "$SW" \
+  run scripts/stage0/eval_harness/eval_edgevec_refine.py --control_weights "$CW" --sparse_weights "$SW" \
     --evalset "$ES" --tag full > "$L/eval_$ES.log" 2>&1
   echo "----- eval $ES rc=$? -----"
 done

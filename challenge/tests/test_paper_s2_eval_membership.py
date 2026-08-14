@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import pytest
 
-from scripts.stage0 import paper_s2_rgb1_eval as evaluator
+from scripts.stage0.paper_s2 import paper_s2_rgb1_eval as evaluator
 
 
 def _frame(split: str, domain: str, fid: str) -> dict[str, str]:

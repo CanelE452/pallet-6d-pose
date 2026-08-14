@@ -34,7 +34,7 @@ W="weights/stage4_pvnet/off/final_net_pvnet_off.pth \
    weights/stage4_pvnet/unit/final_net_pvnet_unit.pth"
 for es in manual filter-val synthetic; do
   extra=""; [ "$es" = synthetic ] && extra="--n_frames 200"
-  conda run -n pallet-pose python scripts/stage0/eval_pvnet_heads.py \
+  conda run -n pallet-pose python scripts/stage0/eval_harness/eval_pvnet_heads.py \
     --weights $W --evalset "$es" $extra --tag full \
     > "$LOG/eval_$es.log" 2>&1
   echo "----- eval $es done rc=$? -----"

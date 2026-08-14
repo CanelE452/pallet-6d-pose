@@ -183,7 +183,7 @@ _M: dict[str, Any] = {}
 def modules() -> dict[str, Any]:
     if _M:
         return _M
-    spec = importlib.util.spec_from_file_location("E56", STAGE0 / "paper_s2_eval56.py")
+    spec = importlib.util.spec_from_file_location("E56", STAGE0 / "paper_s2" / "paper_s2_eval56.py")
     e56 = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(e56)
     import pdg_targets as TARGETS
