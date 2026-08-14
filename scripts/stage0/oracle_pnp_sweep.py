@@ -41,6 +41,8 @@ sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)
                 for _s in ("annotate", "infer", "live")]
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+                for _s in ("plots", "filters")]
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 
 import torch  # noqa: E402

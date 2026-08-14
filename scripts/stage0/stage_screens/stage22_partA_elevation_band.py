@@ -28,6 +28,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")
 sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+                for _s in ("plots", "filters")]
 from stage18_elevation_threshold import build_path_lut, gt_pose, elev_from_pose  # noqa
 from tau_calibrate import collect_val_frames  # noqa
 from eval_pvnet_heads import collect_manual, collect_syn  # noqa

@@ -34,6 +34,8 @@ import torch
 ROOT = "/home/minjae/Documents/github/pallet-pose"
 sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+                for _s in ("plots", "filters")]
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 
 from models import DopeNetwork  # noqa: E402

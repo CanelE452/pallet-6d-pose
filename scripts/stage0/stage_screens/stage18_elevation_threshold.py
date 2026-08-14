@@ -25,6 +25,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")
 sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+                for _s in ("plots", "filters")]
 from tau_calibrate import collect_val_frames  # noqa
 from eval_pvnet_heads import collect_manual, collect_syn, collect_v3  # noqa
 

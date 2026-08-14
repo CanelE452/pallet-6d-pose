@@ -1,5 +1,13 @@
 """Phase 1 cross-domain transfer heatmap + best-per-domain bar chart."""
 from __future__ import annotations
+import os as _os, sys as _sys
+
+# --- data_prep 형제 탐색: 계열 폴더로 나뉘어 있어도 서로를 찾게 한다.
+#     형제를 import 하는 줄보다 먼저 실행돼야 하므로 최상단에 둔다.
+_DP = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+_sys.path[:0] = [_DP] + [_os.path.join(_DP, _d) for _d in sorted(_os.listdir(_DP))
+                         if _os.path.isdir(_os.path.join(_DP, _d)) and not _d.startswith(".")]
+
 import argparse
 import os
 

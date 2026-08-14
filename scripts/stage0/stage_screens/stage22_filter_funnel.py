@@ -52,6 +52,10 @@ OUT_DIR = os.path.join(
     ROOT, "data/pallet/eval_results/stage22_myannot_eval/filter_funnel")
 
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
+
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+
+                for _s in ("plots", "filters")]
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 
 _spec = importlib.util.spec_from_file_location("ecad", ECAD_PATH)

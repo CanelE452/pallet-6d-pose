@@ -50,6 +50,8 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 ROOT = Path("/home/minjae/Documents/github/pallet-pose")
 sys.path.insert(0, str(ROOT / "Deep_Object_Pose" / "common"))
 sys.path.insert(0, str(ROOT / "scripts" / "data_prep" / "eval"))
+sys.path[:0] = [str(ROOT / "scripts" / "data_prep" / _s)
+                for _s in ("plots", "filters")]
 sys.path.insert(0, str(ROOT / "challenge" / "scripts"))
 sys.path[:0] = [str(ROOT / "challenge" / "scripts" / _s)
                 for _s in ("annotate", "infer", "live")]

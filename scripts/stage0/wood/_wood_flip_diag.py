@@ -37,6 +37,8 @@ import numpy as np
 ROOT = "/home/minjae/Documents/github/pallet-pose"
 sys.path.insert(0, os.path.join(ROOT, "scripts", "stage0"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+                for _s in ("plots", "filters")]
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(ROOT, "challenge", "scripts"))
 sys.path[:0] = [os.path.join(ROOT, "challenge", "scripts", _s)

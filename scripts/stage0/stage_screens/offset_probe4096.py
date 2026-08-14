@@ -31,6 +31,8 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
 
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+                for _s in ("plots", "filters")]
 import torch  # noqa
 from offset_overfit32 import (  # noqa
     OffsetHead, load_frozen_base, preprocess_fixed, build_targets,

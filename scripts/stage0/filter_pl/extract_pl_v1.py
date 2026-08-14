@@ -56,6 +56,8 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "data_prep", "eval"))
+sys.path[:0] = [os.path.join(ROOT, "scripts", "data_prep", _s)
+                for _s in ("plots", "filters")]
 sys.path.insert(0, os.path.join(ROOT, "Deep_Object_Pose", "common"))
 
 SOURCE_MODEL = "base_v2_sigma2_ep66"

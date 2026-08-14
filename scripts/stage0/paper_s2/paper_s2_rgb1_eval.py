@@ -50,6 +50,8 @@ from scipy.stats import spearmanr
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "Deep_Object_Pose" / "common"))
 sys.path.insert(0, str(ROOT / "scripts" / "data_prep" / "eval"))
+sys.path[:0] = [str(ROOT / "scripts" / "data_prep" / _s)
+                for _s in ("plots", "filters")]
 sys.path.insert(0, str(ROOT / "scripts" / "stage0"))
 sys.path.insert(0, str(ROOT / "challenge" / "scripts"))
 
