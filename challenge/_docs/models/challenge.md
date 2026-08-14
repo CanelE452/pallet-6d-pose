@@ -18,8 +18,8 @@ Seed:        5192
 
 ```
 data/pallet/training_data/mixed_v8_train     (Isaac Sim 합성)
-challenge/data/training/v1                   (camera-facing v1 convention)
-challenge/data/training/v2                   (camera-facing v2 convention)
+challenge/data/02_synthetic/training/v1                   (camera-facing v1 convention)
+challenge/data/02_synthetic/training/v2                   (camera-facing v2 convention)
 ```
 
 ## Loss 설정

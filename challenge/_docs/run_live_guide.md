@@ -63,7 +63,7 @@ PYTHONIOENCODING=utf-8 python challenge/scripts/run_live.py --seq ...
 ### 공통 (라이브/시퀀스 모두)
 ```
 q     종료
-s     현재 frame 저장 (challenge/data/_live_captures/live_NNNN.png)
+s     현재 frame 저장 (challenge/data/01_real/_live_captures/live_NNNN.png)
 b     belief map 그리드 토글
 r     belief 클릭 auto-tune 초기화
 ```
@@ -156,7 +156,7 @@ challenge/config/task_loose.yaml   LOOSE (baseline 재현)
 
 ## 6. 출력 경로
 ```
-challenge/data/_live_captures/live_NNNN.png   's' 키로 저장한 frame
+challenge/data/01_real/_live_captures/live_NNNN.png   's' 키로 저장한 frame
 ```
 
 ---

@@ -26,11 +26,11 @@ SAMPLES = [
      os.path.join(ROOT, "data/pallet/training_data/mixed_v8_train/000000.png"),
      os.path.join(ROOT, "data/pallet/training_data/mixed_v8_train/000000.json")),
     ("palletobj_v1_normal",
-     os.path.join(ROOT, "challenge/data/training/v1/part_000/train_palletobj_v1/000873.png"),
-     os.path.join(ROOT, "challenge/data/training/v1/part_000/train_palletobj_v1/000873.json")),
+     os.path.join(ROOT, "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000873.png"),
+     os.path.join(ROOT, "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000873.json")),
     ("palletobj_v1_truncation",
-     os.path.join(ROOT, "challenge/data/training/v1/part_000/train_palletobj_v1/000000.png"),
-     os.path.join(ROOT, "challenge/data/training/v1/part_000/train_palletobj_v1/000000.json")),
+     os.path.join(ROOT, "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000000.png"),
+     os.path.join(ROOT, "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000000.json")),
 ]
 
 

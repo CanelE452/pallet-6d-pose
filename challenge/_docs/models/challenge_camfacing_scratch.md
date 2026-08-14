@@ -18,8 +18,8 @@ Seed:        7769
 
 ```
 data/pallet/training_data/mixed_v8_train
-challenge/data/training/v1
-challenge/data/training/v2
+challenge/data/02_synthetic/training/v1
+challenge/data/02_synthetic/training/v2
 ```
 
 ## Loss 설정

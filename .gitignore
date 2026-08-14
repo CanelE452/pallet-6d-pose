@@ -2,7 +2,14 @@
 # Project-specific
 # ===========================
 _archive/
-data/
+# 데이터 본체는 올리지 않되, 데이터셋 카드(.md)는 올린다.
+# 폴더를 통째로 제외하면 하위 예외가 안 먹으므로 data/** 로 쓰고 디렉터리를 되살린다.
+# 주의: "data/" 는 모든 깊이의 data 폴더를 잡았지만 "data/**" 는 루트 기준만 잡는다.
+# 그래서 아래 깊은 data 폴더는 따로 막는다(_docs/experiments/data 는 문서라 제외 안 함).
+data/**
+!data/**/
+!data/**/*.md
+challenge/pallet_jetson_deploy/data/
 weights/
 debug/
 logs/
@@ -16,7 +23,9 @@ output/
 run_used.yml
 
 # Large data / recordings / model weights (no images in repo)
-challenge/data/
+challenge/data/**
+!challenge/data/**/
+!challenge/data/**/*.md
 challenge/weights/
 challenge/model/*
 !challenge/model/README.md
@@ -171,3 +180,4 @@ db.sqlite3-journal
 cosypose/experiments
 .scrapy
 docs/_build/
+runs/

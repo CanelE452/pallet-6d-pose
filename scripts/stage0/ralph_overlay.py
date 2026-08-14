@@ -31,10 +31,10 @@ BEST = f"{RS}/h4_s2_combined/round_02.pth"
 EDGES = [(0, 1), (1, 3), (3, 2), (2, 0), (4, 5), (5, 7), (7, 6), (6, 4),
          (0, 4), (1, 5), (2, 6), (3, 7)]
 DOMS = {
-    "night": ["challenge/data/_night_eval_manual_gt"]
-    + [f"challenge/data/capturenight0{i}_manual_gt" for i in range(5, 8)],
-    "outside": ["challenge/data/_outside_eval_manual_gt"]
-    + [f"challenge/data/capturepallet0{i}_manual_gt" for i in range(2, 10)],
+    "night": ["challenge/data/01_real/manual_gt/_night_eval_manual_gt"]
+    + [f"challenge/data/01_real/manual_gt/capturenight0{i}_manual_gt" for i in range(5, 8)],
+    "outside": ["challenge/data/01_real/eval_canonical/_outside_eval_manual_gt"]
+    + [f"challenge/data/01_real/manual_gt/capturepallet0{i}_manual_gt" for i in range(2, 10)],
 }
 N_PER = 3
 OUT = os.path.join(ROOT, RS, "overlay_R0_vs_best.png")

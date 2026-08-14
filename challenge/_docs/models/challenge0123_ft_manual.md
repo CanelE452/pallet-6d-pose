@@ -17,12 +17,12 @@ Seed:        4139
 ## 학습 데이터 (6 manual GT)
 
 ```
-challenge/data/capturepallet03_manual_gt
-challenge/data/capturepallet04_manual_gt
-challenge/data/capturepallet05_manual_gt
-challenge/data/capturepallet07_manual_gt
-challenge/data/capturepallet09_manual_gt
-challenge/data/capturepalletcad_manual_gt
+challenge/data/01_real/manual_gt/capturepallet03_manual_gt
+challenge/data/01_real/manual_gt/capturepallet04_manual_gt
+challenge/data/01_real/manual_gt/capturepallet05_manual_gt
+challenge/data/01_real/manual_gt/capturepallet07_manual_gt
+challenge/data/01_real/manual_gt/capturepallet09_manual_gt
+challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt
 ```
 
 ## Loss 설정

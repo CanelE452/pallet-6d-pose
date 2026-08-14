@@ -32,7 +32,7 @@ usage:
   python challenge/scripts/dope_predict_mp4_pad.py \
       --weights weights/challenge_ft_otftrunc/final_net_epoch_0150.pth \
       --mp4 data/outside/forklift_raw_20260528_163408.mp4 \
-      --out challenge/data/forklift_otftrunc_PAD_infer.mp4 --pad 100
+      --out challenge/data/04_results/forklift_otftrunc_PAD_infer.mp4 --pad 100
 """
 import argparse
 import os

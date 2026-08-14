@@ -14,6 +14,9 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(REPO, "challenge", "scripts"))
 # annotate.py 의 diagram convention generator 재사용
 from annotate import make_pallet_keypoints_3d_diagram as make_pallet_keypoints_3d
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
+from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 NEW_DIMS = (1.1, 1.3, 0.11)
 
@@ -72,7 +75,7 @@ def repnp_one(p):
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", default="challenge/data/capturepallet07_manual_gt")
+    ap.add_argument("--dir", default=_dp("manual.pallet07"))
     args = ap.parse_args()
     d = args.dir if os.path.isabs(args.dir) else os.path.join(REPO, args.dir)
     paths = sorted(glob.glob(os.path.join(d, "*.json")))

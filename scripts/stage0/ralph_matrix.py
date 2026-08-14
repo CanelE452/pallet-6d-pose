@@ -42,12 +42,12 @@ MODELS = [m for m in [
     ("combined PL\n(best)", f"{RS}/h4_s2_combined/{RND}.pth"),
 ] if os.path.isfile(os.path.join(ROOT, m[1]))]
 DOMAINS = {
-    "outside": ["challenge/data/_outside_eval_manual_gt"]
-    + [f"challenge/data/capturepallet0{i}_manual_gt" for i in range(2, 10)],
-    "night": ["challenge/data/_night_eval_manual_gt"]
-    + [f"challenge/data/capturenight0{i}_manual_gt" for i in range(5, 8)],
-    "noapril": ["challenge/data/capture0403noapril_manual_gt"],
-    "cad": ["challenge/data/capturepalletcad_manual_gt"],
+    "outside": ["challenge/data/01_real/eval_canonical/_outside_eval_manual_gt"]
+    + [f"challenge/data/01_real/manual_gt/capturepallet0{i}_manual_gt" for i in range(2, 10)],
+    "night": ["challenge/data/01_real/manual_gt/_night_eval_manual_gt"]
+    + [f"challenge/data/01_real/manual_gt/capturenight0{i}_manual_gt" for i in range(5, 8)],
+    "noapril": ["challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"],
+    "cad": ["challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"],
 }
 # self-domain 셀: (row_label, col) — 대각선 정렬 (행/열 순서 동일)
 SELF = {("outside PL", "outside"), ("night PL", "night"), ("noapril PL", "noapril")}

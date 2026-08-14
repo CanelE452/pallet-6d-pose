@@ -28,13 +28,13 @@ DOM = os.environ.get("RALPH_DOM", "night")
 # 도메인별 (R0, self-train 모델, GT 폴더)
 CFG = {
     "night": (f"{RS}/h3_s2_night/round_02.pth",
-              ["challenge/data/_night_eval_manual_gt"]
-              + [f"challenge/data/capturenight0{i}_manual_gt" for i in range(5, 8)]),
+              ["challenge/data/01_real/manual_gt/_night_eval_manual_gt"]
+              + [f"challenge/data/01_real/manual_gt/capturenight0{i}_manual_gt" for i in range(5, 8)]),
     "outside": (f"{RS}/h6_s2_outside/round_02.pth",
-                ["challenge/data/_outside_eval_manual_gt"]
-                + [f"challenge/data/capturepallet0{i}_manual_gt" for i in range(2, 10)]),
+                ["challenge/data/01_real/eval_canonical/_outside_eval_manual_gt"]
+                + [f"challenge/data/01_real/manual_gt/capturepallet0{i}_manual_gt" for i in range(2, 10)]),
     "noapril": (f"{RS}/h7_s2_noapril/round_02.pth",
-                ["challenge/data/capture0403noapril_manual_gt"]),
+                ["challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"]),
 }
 R0 = "weights/paper_s2_stageB/net_epoch_0057_noseg.pth"
 N_FRAMES = int(os.environ.get("RALPH_N", "4"))

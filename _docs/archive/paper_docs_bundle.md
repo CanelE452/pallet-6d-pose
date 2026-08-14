@@ -1321,9 +1321,9 @@ FILE: method/step1_synthetic_data.md
 
 ```
 합성 base    data/pallet/training_data/mixed_v8_train      9,000장  camera-facing v4
-truncation   challenge/data/truncation_crops_dope/pretrain 8,831장  crop+padding
+truncation   challenge/data/03_derived/truncation_crops_dope/pretrain 8,831장  crop+padding
 squash       [미생성] 비율 강건 증강
-제외         challenge/data/training/v1·v2 (내 파렛트)
+제외         challenge/data/02_synthetic/training/v1·v2 (내 파렛트)
 ```
 
 ## 1) 비율 강건성 — squash 증강 [TODO]
@@ -1576,7 +1576,7 @@ object-frame v8 은 폐기. memory `camera-facing-0123-convention` 참조.
             (Isaac+Blender, 인터넷 무료 팔레트 모델 렌더)
             ✅ camera-facing v4 변환 적용 확인됨 (.json = camera-facing,
                .json.orig = object-frame 원본 7,205 백업). json≠orig 검증 완료.
-+ truncation challenge/data/truncation_crops_dope/pretrain  8,831장
++ truncation challenge/data/03_derived/truncation_crops_dope/pretrain  8,831장
             (mixed_v8 기반 crop+padding, camera-facing) — 잘린 이미지 강건성
             메커니즘: 9 kp 다 보이는 이미지를 crop 해 코너가 화면 밖으로 나간
             truncation 합성 → DOPE 로더가 padding 영역 확보 후 **화면 밖 코너의
@@ -1585,7 +1585,7 @@ object-frame v8 은 폐기. memory `camera-facing-0123-convention` 참조.
             memory `dope-cropaug-truncation-success` / `yolo-padding-truncation-wins`)
 + squash    [미생성] 비율 강건성: 여러 aspect ratio 로 찌부(squash)/stretch 증강.
             ⚠️ 이미지 변형 시 JSON 꼭짓점(projected_cuboid)도 동기 변형 필수.
-제외        challenge/data/training/v1·v2 (내 실제 파렛트 palletobj) — 절대 미사용
+제외        challenge/data/02_synthetic/training/v1·v2 (내 실제 파렛트 palletobj) — 절대 미사용
 ```
 
 - 위 base+truncation = `dope_cropaug_pretrain` 이 학습한 데이터 (논문 트랙 부합, squash만 빠짐).

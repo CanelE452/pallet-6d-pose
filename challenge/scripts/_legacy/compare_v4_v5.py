@@ -75,8 +75,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--roots", nargs="+", default=[
         "data/pallet/training_data/mixed_v8_train",
-        "challenge/data/training/v1",
-        "challenge/data/training/v2",
+        "challenge/data/02_synthetic/training/v1",
+        "challenge/data/02_synthetic/training/v2",
     ])
     ap.add_argument("--n_diff_show", type=int, default=20,
                     help="how many differing-perm samples to print per root")

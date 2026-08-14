@@ -14,20 +14,20 @@ cd /home/minjae/Documents/github/pallet-pose
 
 # real manual GT 251장 (빈 폴더 night01/03·pallet01·forklift_20260528 제외)
 REAL_DIRS="\
-challenge/data/capturepallet02_manual_gt \
-challenge/data/capturepallet03_manual_gt \
-challenge/data/capturepallet04_manual_gt \
-challenge/data/capturepallet05_manual_gt \
-challenge/data/capturepallet07_manual_gt \
-challenge/data/capturepallet08_manual_gt \
-challenge/data/capturepallet09_manual_gt \
-challenge/data/capturepalletcad_manual_gt \
-challenge/data/capturenight04_manual_gt \
-challenge/data/capturenight05_manual_gt \
-challenge/data/capturenight06_manual_gt \
-challenge/data/capturenight07_manual_gt \
-challenge/data/capturenight08_manual_gt \
-challenge/data/capturenight09_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet02_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet03_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet04_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet05_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet07_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet08_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet09_manual_gt \
+challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt \
+challenge/data/01_real/manual_gt/capturenight04_manual_gt \
+challenge/data/01_real/manual_gt/capturenight05_manual_gt \
+challenge/data/01_real/manual_gt/capturenight06_manual_gt \
+challenge/data/01_real/manual_gt/capturenight07_manual_gt \
+challenge/data/01_real/manual_gt/capturenight08_manual_gt \
+challenge/data/01_real/manual_gt/capturenight09_manual_gt \
 data/outside/forklift_raw_20260528_163408/gt_manual"
 
 PRETRAIN_W="weights/dope_cropaug_pretrain/final_net_epoch_0060.pth"
@@ -44,7 +44,7 @@ echo "########## Stage 2: real 원본 + crop, 30ep ft (목표 누적 180) ######
 EPOCHS=180 bash scripts/train_dope.sh --finetune \
   --net_path "$S1_W" \
   --exp_name dope_cropaug_ft_s2 \
-  --train_dirs "$REAL_DIRS challenge/data/truncation_crops_dope/ft_real" \
+  --train_dirs "$REAL_DIRS challenge/data/03_derived/truncation_crops_dope/ft_real" \
   2>&1 | tee weights/dope_cropaug_ft_s2_train.log
 
 echo "########## 완료 — best = weights/dope_cropaug_ft_s2/final_net_epoch_0180.pth ##########"

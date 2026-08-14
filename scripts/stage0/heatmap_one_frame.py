@@ -63,9 +63,9 @@ def heat_panel(gray_bgr, chan, name, peak, detected):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--jp", default=os.path.join(
-        ROOT, "challenge/data/capture0403noapril_manual_gt/1775201432466607872.json"))
+        ROOT, "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt/1775201432466607872.json"))
     ap.add_argument("--ip", default=os.path.join(
-        ROOT, "challenge/data/capture0403noapril_manual_gt/1775201432466607872.png"))
+        ROOT, "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt/1775201432466607872.png"))
     args = ap.parse_args()
     fid = os.path.splitext(os.path.basename(args.ip))[0]
 

@@ -18,7 +18,7 @@
 
 사용:
   python challenge/scripts/compare_manual_vs_inference.py \\
-      --gt_dir challenge/data/capturepallet07_manual_gt \\
+      --gt_dir challenge/data/01_real/manual_gt/capturepallet07_manual_gt \\
       --weights weights/challenge/final_net_epoch_0060.pth
 """
 
@@ -123,7 +123,7 @@ def render_frame(img, pred_kps_grid, belief, pnp, manual_kps, proj_cuboid, centr
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gt_dir", required=True,
-                    help="manual_gt 폴더 (예: challenge/data/capturepallet07_manual_gt)")
+                    help="manual_gt 폴더 (예: challenge/data/01_real/manual_gt/capturepallet07_manual_gt)")
     ap.add_argument("--weights", required=True)
     ap.add_argument("--threshold", type=float, default=0.3)
     ap.add_argument("--fx", type=float, default=614.18)

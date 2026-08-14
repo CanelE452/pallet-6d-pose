@@ -37,17 +37,17 @@ for extra in (STAGE0, DOPE / "common", DOPE / "train"):
 EP57 = ROOT / "weights/paper_s2_stageB/net_epoch_0057.pth"
 EP57_SHA = "c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896"
 EVAL_FOLDERS = {
-    "outside": "challenge/data/_outside_eval_manual_gt",
-    "noapril": "challenge/data/capture0403noapril_manual_gt",
-    "cad": "challenge/data/capturepalletcad_manual_gt",
+    "outside": "challenge/data/01_real/eval_canonical/_outside_eval_manual_gt",
+    "noapril": "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt",
+    "cad": "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt",
 }
 # The wood pallet is a different object (0.8 x 0.59 x 0.14 m against 1.1-1.3 m)
 # shot at 1280x720, and its folders were made purely for evaluation, so they
 # carry no per-frame split.  They are taken whole and reported separately --
 # pixel metrics do not compare across the two resolutions.
 WOOD_FOLDERS = {
-    "wood_183705": "challenge/data/wood_pallet_20260618_183705_manual_gt",
-    "wood_184309": "challenge/data/wood_pallet_20260618_184309_manual_gt",
+    "wood_183705": "challenge/data/01_real/manual_gt/wood_pallet_20260618_183705_manual_gt",
+    "wood_184309": "challenge/data/01_real/manual_gt/wood_pallet_20260618_184309_manual_gt",
 }
 SEALED = ("capturenight08", "capturenight09", "capturepallet07", "capturepallet09",
           "testset_full8_manifest", "handannot17")

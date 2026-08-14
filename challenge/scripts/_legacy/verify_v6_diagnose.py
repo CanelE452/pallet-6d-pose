@@ -35,7 +35,7 @@ from annotate_pnp import make_pallet_keypoints_3d, project_3d, PALLET_DIMS
 
 _REPO = os.path.dirname(os.path.dirname(_HERE))
 SRC_JSON = os.path.join(
-    _REPO, "challenge/data/capturepallet03_manual_gt/1778651569891693056.json")
+    _REPO, "challenge/data/01_real/manual_gt/capturepallet03_manual_gt/1778651569891693056.json")
 
 
 def reproj_per_corner(R, t, K, kp3d, clicks):

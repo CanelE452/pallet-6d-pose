@@ -20,6 +20,9 @@ import random
 
 import cv2
 import numpy as np
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
+from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 W_OUT, H_OUT = 640, 480
 ASPECT = W_OUT / H_OUT  # 4:3
@@ -44,7 +47,11 @@ EDGE_PAIRS = [  # cuboid wireframe (near face 0-3, far face 4-7)
 ]
 
 DEFAULT_SRC_GLOBS = [
-    "challenge/data/capture*_manual_gt",
+    # 2026-08-14 재편: capture*_manual_gt 가 두 구획으로 갈렸다.
+    # noapril 은 정본 평가셋이라 eval_canonical/, 나머지는 manual_gt/.
+    # 한 glob 으로 두 곳을 못 잡으므로 둘 다 적는다.
+    "challenge/data/01_real/manual_gt/capture*_manual_gt",
+    "challenge/data/01_real/eval_canonical/capture*_manual_gt",
     "data/outside/forklift_raw_20260528_163408/gt_manual",
 ]
 
@@ -336,7 +343,7 @@ def clear_out_dir(out_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out_dir", default="challenge/data/truncation_crops")
+    ap.add_argument("--out_dir", default=_dp("derived.truncation_crops"))
     ap.add_argument("--src-glob", action="append", default=None,
                     help="source dir glob (repeatable). default=real capture set")
     ap.add_argument("--sample", type=int, default=0,

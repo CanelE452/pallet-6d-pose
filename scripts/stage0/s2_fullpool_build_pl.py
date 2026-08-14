@@ -36,9 +36,10 @@ SESS2DIR = {os.path.basename(seq): seq
 
 # ★ 누수 방지: 모든 GT 어노 프레임(평가셋)은 PL(학습)에서 제외 (split 무관, 전체 홀드아웃).
 EVAL_GT_GLOBS = [
-    "challenge/data/_outside_eval_manual_gt", "challenge/data/_night_eval_manual_gt",
-    "challenge/data/capture0403noapril_manual_gt", "challenge/data/capturepalletcad_manual_gt",
-    "challenge/data/capturepallet0*_manual_gt", "challenge/data/capturenight0*_manual_gt",
+    "challenge/data/01_real/eval_canonical/_outside_eval_manual_gt", "challenge/data/01_real/manual_gt/_night_eval_manual_gt",
+    "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt", "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt",
+    "challenge/data/01_real/manual_gt/capturepallet0*_manual_gt",
+    "challenge/data/01_real/manual_gt/capturenight0*_manual_gt",
 ]
 
 

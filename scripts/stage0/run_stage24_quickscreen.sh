@@ -14,12 +14,12 @@ WV=weights/stage24_vec_newdata/voting
 WS=weights/stage24_vec_newdata/sparse
 WC=weights/stage24_vec_newdata/control
 
-DATA="challenge/data/training/v3/batch_000 challenge/data/training/v3/batch_001 \
-challenge/data/training/v3/batch_002 challenge/data/training/v3/batch_003 \
-challenge/data/training/v3/batch_004 challenge/data/training/v3/batch_005 \
-challenge/data/training/v3/batch_006 challenge/data/training/v3/batch_007 \
-challenge/data/training/v3/batch_008 challenge/data/training/addon_v1_train \
-challenge/data/training/truncation_addon_v1"
+DATA="challenge/data/02_synthetic/training/v3/batch_000 challenge/data/02_synthetic/training/v3/batch_001 \
+challenge/data/02_synthetic/training/v3/batch_002 challenge/data/02_synthetic/training/v3/batch_003 \
+challenge/data/02_synthetic/training/v3/batch_004 challenge/data/02_synthetic/training/v3/batch_005 \
+challenge/data/02_synthetic/training/v3/batch_006 challenge/data/02_synthetic/training/v3/batch_007 \
+challenge/data/02_synthetic/training/v3/batch_008 challenge/data/02_synthetic/training/addon_v1_train \
+challenge/data/02_synthetic/training/truncation_addon_v1"
 
 SUB=3000; EP=4; BS=12
 run () { conda run -n pallet-pose python "$@"; }

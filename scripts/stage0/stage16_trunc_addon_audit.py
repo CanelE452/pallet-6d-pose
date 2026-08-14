@@ -11,7 +11,7 @@ elev 정의: STAGE18 elev_from_world 재사용. edge-on~0deg, top-down(부감)~9
 import os, sys, json, glob
 import numpy as np
 
-DATA = "/home/minjae/Documents/github/pallet-pose/challenge/data/training/truncation_addon_v1"
+DATA = "/home/minjae/Documents/github/pallet-pose/challenge/data/02_synthetic/training/truncation_addon_v1"
 OUT = "/home/minjae/Documents/github/pallet-pose/data/pallet/eval_results/stage16_audit"
 
 FRONT = [0, 1, 2, 3]

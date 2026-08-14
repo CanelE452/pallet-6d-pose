@@ -20,7 +20,7 @@ convention 을 그대로 재사용한다:
   /home/minjae/anaconda3/envs/pallet-yolo26/bin/python challenge/scripts/infer_video_yolo.py \
       --weights runs/pose/challenge/weights/yolo26n_pose_v1_ft_cropaug/weights/best.pt \
       --source data/outside/forklift_raw_20260528_163408.mp4 \
-      --pad 100 --out challenge/data/forklift_cropaug_infer.mp4
+      --pad 100 --out challenge/data/04_results/forklift_cropaug_infer.mp4
 """
 from __future__ import annotations
 import argparse
@@ -85,7 +85,7 @@ def main():
     ap.add_argument("--pad", type=int, default=100,
                     help="reflect pad 폭 (cropaug 모델=100, no-pad 모델=0)")
     ap.add_argument("--out", default=os.path.join(
-        _REPO, "challenge/data/forklift_cropaug_infer.mp4"))
+        _REPO, "challenge/data/04_results/forklift_cropaug_infer.mp4"))
     ap.add_argument("--frames_dir", default=None,
                     help="대표 frame png 디렉토리 (기본: <out>_frames)")
     ap.add_argument("--conf", type=float, default=0.1, help="detection conf")

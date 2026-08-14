@@ -3,7 +3,7 @@
 NVIDIA-pallet-style anchor = visible SIDE FACE CENTER (vertical 4 faces only:
 object-frame ±X / ±Y; top/bottom EXCLUDED). NOT the global centroid (STEP8).
 
-Data: challenge/data/training/v3/batch_000..009 + challenge/data/training/addon_v1.
+Data: challenge/data/02_synthetic/training/v3/batch_000..009 + challenge/data/02_synthetic/training/addon_v1.
 Convention: camera_dynamic_0123_v4. JSON has keypoints_3d_world (8 corners + centroid,
 world), camera_data.intrinsics (per-frame K), projected_cuboid (8, 2D).
 
@@ -50,8 +50,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = "/home/minjae/Documents/github/pallet-pose"
-V3 = os.path.join(ROOT, "challenge/data/training/v3")
-ADDON = os.path.join(ROOT, "challenge/data/training/addon_v1")
+V3 = os.path.join(ROOT, "challenge/data/02_synthetic/training/v3")
+ADDON = os.path.join(ROOT, "challenge/data/02_synthetic/training/addon_v1")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage15_face_center_offset")
 OVL = os.path.join(OUT, "face_center_overlay_samples")
 os.makedirs(OVL, exist_ok=True)

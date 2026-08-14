@@ -63,13 +63,13 @@ def main():
         "data/pallet/training_data/mixed_v8_train/000031.json",   # 비교 baseline
         "data/pallet/training_data/mixed_v8_train/000110.json",
         # v1
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000367.json",   # v4 perm vs v5 identity
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000486.json",
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000661.json",
+        "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000367.json",   # v4 perm vs v5 identity
+        "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000486.json",
+        "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000661.json",
         # v2
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000751.json",
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000904.json",
-        "challenge/data/training/v2/part_002/train_palletobj_v2/002401.json",
+        "challenge/data/02_synthetic/training/v2/part_000/train_palletobj_v2/000751.json",
+        "challenge/data/02_synthetic/training/v2/part_000/train_palletobj_v2/000904.json",
+        "challenge/data/02_synthetic/training/v2/part_002/train_palletobj_v2/002401.json",
     ])
     ap.add_argument("--upscale", type=float, default=1.8)
     ap.add_argument("--alpha", type=float, default=0.7)

@@ -20,8 +20,8 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 ROOT = "/home/minjae/Documents/github/pallet-pose"
-ADDON = os.path.join(ROOT, "challenge/data/training/addon_v1")
-V3 = os.path.join(ROOT, "challenge/data/training/v3")
+ADDON = os.path.join(ROOT, "challenge/data/02_synthetic/training/addon_v1")
+V3 = os.path.join(ROOT, "challenge/data/02_synthetic/training/v3")
 OUT = os.path.join(ROOT, "data/pallet/results/addon_v1_audit")
 os.makedirs(OUT, exist_ok=True)
 

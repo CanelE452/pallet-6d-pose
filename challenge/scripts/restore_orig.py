@@ -3,14 +3,17 @@ import argparse
 import glob
 import os
 import shutil
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
+from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--roots", nargs="+", default=[
         "data/pallet/training_data/mixed_v8_train",
-        "challenge/data/training/v1",
-        "challenge/data/training/v2",
+        _dp("synth.v1"),
+        _dp("synth.v2"),
     ])
     ap.add_argument("--dry_run", action="store_true")
     args = ap.parse_args()

@@ -107,7 +107,7 @@ DOPE keypoint→DA 파이프라인과 독립적으로, `challenge/`에서 YOLO26
 - 원본·가벼운 잘림에서는 A·B 동등 — 차이는 심한 truncation에서만.
 - **권장: 팔레트가 자주 잘리는 환경(forklift)엔 padding 학습.**
 - 단 절대 6D 정확도(ADD/5cm5°)는 양쪽 다 낮음 — flat 팔레트 광축 depth가 PnP로 약제약되는 task 특성(padding 무관, 별도 과제).
-- 상세: `_docs/history/2026-06-02.md`, 재현 `challenge/scripts/eval_ab_crop.py`, 결과 `challenge/data/ab_crop_eval/`.
+- 상세: `_docs/history/2026-06-02.md`, 재현 `challenge/scripts/eval_ab_crop.py`, 결과 `challenge/data/04_results/ab_crop_eval/`.
 
 ---
 

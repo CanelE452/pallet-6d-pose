@@ -29,10 +29,10 @@ def main():
         samples.append(f"data/pallet/training_data/mixed_v8_train/{i:06d}.json")
     # v1: 각 part 마다 다른 frame (~10K, 10 part)
     for part, idx in [(0, 200), (1, 500), (3, 800), (5, 100), (7, 600), (9, 300)]:
-        samples.append(f"challenge/data/training/v1/part_{part:03d}/train_palletobj_v1/{idx:06d}.json")
+        samples.append(f"challenge/data/02_synthetic/training/v1/part_{part:03d}/train_palletobj_v1/{idx:06d}.json")
     # v2: 같은 방식
     for part, idx in [(0, 150), (2, 400), (4, 700), (6, 250), (8, 550)]:
-        samples.append(f"challenge/data/training/v2/part_{part:03d}/train_palletobj_v2/{idx:06d}.json")
+        samples.append(f"challenge/data/02_synthetic/training/v2/part_{part:03d}/train_palletobj_v2/{idx:06d}.json")
 
     saved = []
     for rel in samples:

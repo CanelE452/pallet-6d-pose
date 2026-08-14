@@ -22,7 +22,7 @@ python challenge/scripts/annotate.py --seq data/outside/capturepallet09 --stride
 
 # 저장 경로 지정
 python challenge/scripts/annotate.py --seq data/outside/capturepallet07 \
-  --out_dir challenge/data/capturepallet07_manual_gt
+  --out_dir challenge/data/01_real/manual_gt/capturepallet07_manual_gt
 ```
 
 **기본 출력 경로**: `challenge/data/<시퀀스명>_manual_gt/`

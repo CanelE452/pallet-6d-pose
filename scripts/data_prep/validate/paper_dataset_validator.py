@@ -34,7 +34,7 @@ Run (validator itself; execution needs a real dataset):
   python scripts/data_prep/validate/paper_dataset_validator.py --root <dataset_root>
   # smoke on addon_v1 (same JSON schema; addon is NOT paper-safe, format-check only):
   python scripts/data_prep/validate/paper_dataset_validator.py \
-      --root challenge/data/training/addon_v1 --max_frames 300 --n_overlays 20
+      --root challenge/data/02_synthetic/training/addon_v1 --max_frames 300 --n_overlays 20
 """
 from __future__ import annotations
 import argparse

@@ -35,10 +35,10 @@ MODELS = [
     ("R1 rf\n(combined,\n232)", "weights/paper_s2_rf_hipl/r1_combined/net_epoch_0060.pth"),
 ]
 DOMAINS = {
-    "outside": ["challenge/data/_outside_eval_manual_gt"] + [f"challenge/data/capturepallet0{i}_manual_gt" for i in range(2, 10)],
-    "night": ["challenge/data/_night_eval_manual_gt"] + [f"challenge/data/capturenight0{i}_manual_gt" for i in range(5, 8)],
-    "noapril": ["challenge/data/capture0403noapril_manual_gt"],
-    "cad": ["challenge/data/capturepalletcad_manual_gt"],
+    "outside": ["challenge/data/01_real/eval_canonical/_outside_eval_manual_gt"] + [f"challenge/data/01_real/manual_gt/capturepallet0{i}_manual_gt" for i in range(2, 10)],
+    "night": ["challenge/data/01_real/manual_gt/_night_eval_manual_gt"] + [f"challenge/data/01_real/manual_gt/capturenight0{i}_manual_gt" for i in range(5, 8)],
+    "noapril": ["challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"],
+    "cad": ["challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"],
 }
 SELF_CELLS = [(1, 0), (2, 1), (3, 2)]   # R1_outside×outside, R1_night×night, R1_noapril×noapril
 OUT = os.path.join(ROOT, "data/pallet/results/paper_s2_fullpool_full7", "cross_domain_hipl.png")

@@ -46,9 +46,9 @@ PPD recipe source   scripts/stage0/paper_s2_ppd_long_run.py
                     -> 20 epochs ~21 min per arm; 7 arms ~2.5 h detached
 
 canonical sets      eval56 56 frames, objects[0].split == "eval" on all 56
-                      challenge/data/_outside_eval_manual_gt        22
-                      challenge/data/capture0403noapril_manual_gt   12
-                      challenge/data/capturepalletcad_manual_gt     22
+                      challenge/data/01_real/eval_canonical/_outside_eval_manual_gt        22
+                      challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt   12
+                      challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt     22
                     wood 45 frames, split is "<none>" -- a separate manual-GT set,
                       not covered by the split=="eval" rule
                     manifests: data/pallet/results/paper_s2_eval56/{eval56,wood}_manifest.json

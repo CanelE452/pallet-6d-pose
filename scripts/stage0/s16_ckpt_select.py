@@ -2,7 +2,7 @@
 
 과거 교훈: real 로 ckpt 고르면 과적합. synthetic val 로 고른 뒤 real 은 판정용.
   - Val-Old  = data/pallet/training_data/val (held-out, mixed_v8 conv)
-  - Val-v3   = challenge/data/training/v3/batch_009 (held-out, camera-facing v4)
+  - Val-v3   = challenge/data/02_synthetic/training/v3/batch_009 (held-out, camera-facing v4)
   - (Val-trunc = truncation_addon_v1 은 전량 학습에 사용됨 -> 진짜 holdout 없음.
      in-domain fit 참고용으로만 소량 평가, 선택 기준 아님.)
 
@@ -34,8 +34,8 @@ THRESHOLD, N_DET_MIN, GOOD_PX = 0.3, 6, 10.0
 OUT_DIR = os.path.join(ROOT, "data/pallet/eval_results/stage16_truncation_addon/stage16_eval")
 
 VAL_OLD = os.path.join(ROOT, "data/pallet/training_data/val")
-VAL_V3 = os.path.join(ROOT, "challenge/data/training/v3/batch_009")
-VAL_TRUNC = os.path.join(ROOT, "challenge/data/training/truncation_addon_v1")  # NOT heldout
+VAL_V3 = os.path.join(ROOT, "challenge/data/02_synthetic/training/v3/batch_009")
+VAL_TRUNC = os.path.join(ROOT, "challenge/data/02_synthetic/training/truncation_addon_v1")  # NOT heldout
 
 
 def collect(dirpath, n):

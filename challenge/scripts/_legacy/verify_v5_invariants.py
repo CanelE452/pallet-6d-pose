@@ -101,8 +101,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--roots", nargs="+", default=[
         "data/pallet/training_data/mixed_v8_train",
-        "challenge/data/training/v1",
-        "challenge/data/training/v2",
+        "challenge/data/02_synthetic/training/v1",
+        "challenge/data/02_synthetic/training/v2",
     ])
     ap.add_argument("--n_sample_per_root", type=int, default=500)
     ap.add_argument("--alpha", type=float, default=0.7)

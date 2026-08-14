@@ -90,9 +90,9 @@ def main():
         "data/pallet/training_data/mixed_v8_train/000000.json",
         "data/pallet/training_data/mixed_v8_train/000100.json",
         "data/pallet/training_data/mixed_v8_train/000500.json",
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000004.json",
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000050.json",
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000010.json",
+        "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000004.json",
+        "challenge/data/02_synthetic/training/v1/part_000/train_palletobj_v1/000050.json",
+        "challenge/data/02_synthetic/training/v2/part_000/train_palletobj_v2/000010.json",
     ])
     args = ap.parse_args()
 

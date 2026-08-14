@@ -22,6 +22,9 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from convert_to_camera_facing_v4 import compute_perm_v4, get_origin_3d, polyarea, apply_perm
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
+from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 
 # 9 keypoint 색깔 (BGR)
@@ -174,17 +177,17 @@ def main():
         "data/pallet/training_data/mixed_v8_train/000131.json",   # oblique
         "data/pallet/training_data/mixed_v8_train/000226.json",   # strong oblique (identity)
         # v1 (world-frame keypoints)
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000213.json",
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000200.json",   # identity
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000106.json",
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000181.json",
-        "challenge/data/training/v1/part_000/train_palletobj_v1/000114.json",   # strong
+        _dp("synth.v1") + "/part_000/train_palletobj_v1/000213.json",
+        _dp("synth.v1") + "/part_000/train_palletobj_v1/000200.json",   # identity
+        _dp("synth.v1") + "/part_000/train_palletobj_v1/000106.json",
+        _dp("synth.v1") + "/part_000/train_palletobj_v1/000181.json",
+        _dp("synth.v1") + "/part_000/train_palletobj_v1/000114.json",   # strong
         # v2
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000296.json",
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000072.json",   # identity
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000251.json",
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000110.json",
-        "challenge/data/training/v2/part_000/train_palletobj_v2/000194.json",   # strong
+        _dp("synth.v2") + "/part_000/train_palletobj_v2/000296.json",
+        _dp("synth.v2") + "/part_000/train_palletobj_v2/000072.json",   # identity
+        _dp("synth.v2") + "/part_000/train_palletobj_v2/000251.json",
+        _dp("synth.v2") + "/part_000/train_palletobj_v2/000110.json",
+        _dp("synth.v2") + "/part_000/train_palletobj_v2/000194.json",   # strong
     ])
     ap.add_argument("--upscale", type=float, default=1.8, help="image upscale for readability")
     args = ap.parse_args()

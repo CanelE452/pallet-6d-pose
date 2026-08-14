@@ -19,7 +19,7 @@ offset_overfit32.py 변형:
   (b) GT-mask 로 vote_unit_ransac decode 한 9 키포인트 corner err(GT 대비, output cell)
       median < 1.  (pred-mask voting 도 참고 출력.)
 
-데이터: challenge/data/training/v3/batch_000 앞 N장(occlusion 적은 것 우선), aug 없음.
+데이터: challenge/data/02_synthetic/training/v3/batch_000 앞 N장(occlusion 적은 것 우선), aug 없음.
 출력: data/pallet/eval_results/stage10_v3mask/overfit32/
 ★ 전체학습/2-4k quick screen 금지 — 32 overfit 게이트까지만.
 """

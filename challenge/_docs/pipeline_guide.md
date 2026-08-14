@@ -34,7 +34,7 @@ bash challenge/scripts/run_pipeline.sh
 
 내부 default 설정:
 ```
-MANUAL_GT       = challenge/data/capturepallet07_manual_gt
+MANUAL_GT       = challenge/data/01_real/manual_gt/capturepallet07_manual_gt
 PSEUDO_SEQ      = data/outside/capturepallet09         (pseudo-label 만들 시퀀스)
 BASELINE        = challenge/weights/baseline_v8_A.pth
 STAGE1_EP       = 15  (manual 만 짧게)
@@ -58,15 +58,15 @@ PSEUDO_SEQ=data/outside/capturepallet11 bash challenge/scripts/run_pipeline.sh
 ```bash
 # 데이터셋 준비
 python challenge/scripts/merge_dataset.py \
-    --inputs challenge/data/capturepallet07_manual_gt \
-    --out challenge/data/_train_stage1 \
+    --inputs challenge/data/01_real/manual_gt/capturepallet07_manual_gt \
+    --out challenge/data/03_derived/_train_stage1 \
     --val_fraction 0.2
 
 # 학습
 bash scripts/train_dope.sh --finetune \
     --net_path challenge/weights/baseline_v8_A.pth \
-    --train_dir challenge/data/_train_stage1/train \
-    --val_dir   challenge/data/_train_stage1/val \
+    --train_dir challenge/data/03_derived/_train_stage1/train \
+    --val_dir   challenge/data/03_derived/_train_stage1/val \
     --exp_name challenge_ft_stage1 \
     --struct_loss --struct_coord 0.003
 ```
@@ -77,7 +77,7 @@ bash scripts/train_dope.sh --finetune \
 python challenge/scripts/make_pseudo_gt.py \
     --seq data/outside/capturepallet09 \
     --weights weights/challenge_ft_stage1/final_net_epoch_NNNN.pth \
-    --out_dir challenge/data/capturepallet09_pseudo_gt \
+    --out_dir challenge/data/01_real/pseudo_gt/capturepallet09_pseudo_gt \
     --stride 3 --min_kp 6 --max_reproj 8
 ```
 
@@ -92,16 +92,16 @@ python challenge/scripts/make_pseudo_gt.py \
 
 ```bash
 python challenge/scripts/merge_dataset.py \
-    --inputs challenge/data/capturepallet07_manual_gt \
-             challenge/data/capturepallet09_pseudo_gt \
-    --out challenge/data/_train_stage2 \
+    --inputs challenge/data/01_real/manual_gt/capturepallet07_manual_gt \
+             challenge/data/01_real/pseudo_gt/capturepallet09_pseudo_gt \
+    --out challenge/data/03_derived/_train_stage2 \
     --val_fraction 0.15 \
     --manual_to_val_only          # manual 일부를 held-out val 로
 
 bash scripts/train_dope.sh --finetune \
     --net_path weights/challenge_ft_stage1/final_net_epoch_NNNN.pth \
-    --train_dir challenge/data/_train_stage2/train \
-    --val_dir   challenge/data/_train_stage2/val \
+    --train_dir challenge/data/03_derived/_train_stage2/train \
+    --val_dir   challenge/data/03_derived/_train_stage2/val \
     --exp_name challenge_ft_stage2 \
     --struct_loss --struct_coord 0.003
 ```
@@ -146,8 +146,8 @@ python challenge/scripts/seq_stats.py --all --thr 0.10 --min_kp 4 --stride 10 --
 ## 출력 / 로그 위치
 
 ```
-challenge/data/_train_stage1/{train,val}/   stage1 학습용 NDDS
-challenge/data/_train_stage2/{train,val}/   stage2 학습용 NDDS (manual+pseudo)
+challenge/data/03_derived/_train_stage1/{train,val}/   stage1 학습용 NDDS
+challenge/data/03_derived/_train_stage2/{train,val}/   stage2 학습용 NDDS (manual+pseudo)
 challenge/data/<seq>_pseudo_gt/             생성된 pseudo GT
 challenge/data/<seq>_pseudo_gt/_overlay/    pseudo 검증 overlay 이미지
 weights/challenge_ft_stage1/                stage1 학습 weight

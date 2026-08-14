@@ -12,9 +12,9 @@
 
 ```
 합성 base    data/pallet/training_data/mixed_v8_train      9,000장  camera-facing v4
-truncation   challenge/data/truncation_crops_dope/pretrain 8,831장  crop+padding
+truncation   challenge/data/03_derived/truncation_crops_dope/pretrain 8,831장  crop+padding
 squash       [미생성] 비율 강건 증강
-제외         challenge/data/training/v1·v2 (내 파렛트)
+제외         challenge/data/02_synthetic/training/v1·v2 (내 파렛트)
 ```
 
 ## 1) 비율 강건성 — squash 증강 [TODO]

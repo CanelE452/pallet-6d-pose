@@ -44,6 +44,9 @@ from run_live_io import (
 )
 from run_live_gates import evaluate_result
 from run_live_draw import draw_cuboid, build_live_panel, noop
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
+from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 
 def enforce_camera_facing(result, pnp_solver):
@@ -290,7 +293,7 @@ def main():
     ap.add_argument("--cam_id",    type=int, default=0)
     ap.add_argument("--width",     type=int, default=1280)
     ap.add_argument("--height",    type=int, default=720)
-    ap.add_argument("--out_dir",   default="challenge/data/_live_captures")
+    ap.add_argument("--out_dir",   default=_dp("real.live_captures_EMPTY"))
     ap.add_argument("--label",     default="", help="창 이름 접미사 (여러 인스턴스 비교용)")
     args = ap.parse_args()
 

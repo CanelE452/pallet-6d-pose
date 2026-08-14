@@ -56,6 +56,20 @@ def load_json(name):
     return json.loads(path.read_text("utf-8"))
 
 
+def require_dataset(v2):
+    """These pins read real frames, so they need the split that was screened.
+
+    `pallet6d_v2_10k` was deleted on 2026-08-14 when the v2 dataset was replaced
+    by `v2_prod40k_clean_merged`.  Re-pointing these tests at the replacement
+    would not reproduce this screen: it is a different population, and a screen
+    whose population moves is not a screen -- the very defect this file pins.
+    So they skip rather than silently score a different set.
+    """
+    if not v2.DATA.is_dir():
+        pytest.skip(f"screened split absent: {v2.DATA.relative_to(ROOT)} "
+                    "(deleted 2026-08-14, see _docs/history/2026-08-14.md)")
+
+
 # --------------------------------------------------------------------------
 # coverage population
 # --------------------------------------------------------------------------
@@ -82,6 +96,7 @@ def test_no_truncated_index_list_reaches_the_audit():
 
 
 def test_coverage_is_geometry_only_and_never_decodes_an_image(v2, monkeypatch, edges):
+    require_dataset(v2)
     import cv2
     monkeypatch.setattr(cv2, "imread", lambda *a, **k:
                         pytest.fail("coverage decoded a PNG"))
@@ -91,6 +106,7 @@ def test_coverage_is_geometry_only_and_never_decodes_an_image(v2, monkeypatch, e
 
 
 def test_every_role_of_every_frame_is_accounted_for(v2, edges):
+    require_dataset(v2)
     _, dev = v2.split_indices()
     report = v2.coverage_full(dev[:16], "dev", (0,), edges)
     counts = report["counts"]
@@ -144,6 +160,7 @@ def test_visible_segments_classifies_the_three_cases(v2):
 def test_off_frame_roles_are_excluded_from_the_scored_population(v2, edges):
     """An edge that never enters the image has no local evidence to read; it is
     counted, not scored, and the split really does contain such roles."""
+    require_dataset(v2)
     _, dev = v2.split_indices()
     report = v2.coverage_full(dev[:64], "dev", (0,), edges)
     counts = report["counts"]

@@ -8,10 +8,10 @@ conda activate pallet-pose
 export CUDA_MODULE_LOADING=LAZY PYTHONUNBUFFERED=1
 
 BASE=weights/challenge0123/final_net_epoch_0060.pth
-DATA="challenge/data/training/v3/batch_000 challenge/data/training/v3/batch_001 \
-      challenge/data/training/v3/batch_002 challenge/data/training/v3/batch_003 \
-      challenge/data/training/v3/batch_004 challenge/data/training/v3/batch_005 \
-      challenge/data/training/v3/batch_006 challenge/data/training/v3/batch_007"
+DATA="challenge/data/02_synthetic/training/v3/batch_000 challenge/data/02_synthetic/training/v3/batch_001 \
+      challenge/data/02_synthetic/training/v3/batch_002 challenge/data/02_synthetic/training/v3/batch_003 \
+      challenge/data/02_synthetic/training/v3/batch_004 challenge/data/02_synthetic/training/v3/batch_005 \
+      challenge/data/02_synthetic/training/v3/batch_006 challenge/data/02_synthetic/training/v3/batch_007"
 OUT=data/pallet/eval_results/stage10_v3mask
 SUB=3000; EP=3; BS=12; LRV=0.1
 

@@ -8,18 +8,43 @@ from __future__ import annotations
 
 import json
 import pathlib
+import sys
 
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from challenge import data_paths  # noqa: E402  (sys.path 조작 뒤여야 한다)
+
 DOC = ROOT / "_docs/EVAL_SET_CANONICAL.md"
-EVAL_FOLDERS = {
-    "challenge/data/_outside_eval_manual_gt": 22,
-    "challenge/data/capture0403noapril_manual_gt": 12,
-    "challenge/data/capturepalletcad_manual_gt": 22,
+
+# 폴더 경로는 data_paths 가 유일한 출처다. 여기서 다시 문자열로 쓰면 폴더를 옮길
+# 때 두 곳이 어긋난다(2026-08-14 재편에서 실제로 겪은 문제).
+# 프레임 수만 이 테스트가 따로 들고 있다 — 경로가 맞아도 내용이 바뀌면 잡아야 하므로.
+_EXPECTED_COUNTS = {
+    "eval_outside": 22,
+    "eval_noapril": 12,
+    "eval_cad": 22,
+    # 2026-08-07: metric_split_lock.md §1.6 의 outside final-test 세션.
+    # 봉인 해제하여 정본에 편입(1회성 — data_paths.FINAL_TEST 참조).
+    "eval_pallet07": 27,
+    "eval_pallet09": 36,
+    # 2026-08-08: lock §1.6 의 night final-test 세션. 봉인 해제하여 정본 편입.
+    "eval_night08": 17,
+    "eval_night09": 25,
 }
-EXPECTED_TOTAL = 56
-FORBIDDEN_EVAL_SOURCES = ("_eval_sets/outside_combined", "_eval_sets/night_combined")
+EVAL_FOLDERS = {data_paths.EVAL_CANONICAL[key]: count
+                for key, count in _EXPECTED_COUNTS.items()}
+EXPECTED_TOTAL = data_paths.EVAL_CANONICAL_TOTAL
+
+# lock §1.6 이 final-test 로 지정한 세션. PL 풀·threshold 캘리브에 들어가면 안 된다.
+FINAL_TEST_FOLDERS = tuple(data_paths.EVAL_CANONICAL[key]
+                           for key in data_paths.FINAL_TEST)
+# lock §1.6 이 filter-val 로 지정한 세션에서 온 eval 프레임(=threshold 캘리브에 쓰인 세션).
+# 정본에 남아 있으나 final-test 로 보고하면 안 된다.
+FILTER_VAL_SESSIONS = data_paths.FILTER_VAL_SESSIONS
+FORBIDDEN_EVAL_SOURCES = data_paths.FORBIDDEN_EVAL_SOURCES
 
 
 def _split_of(path: pathlib.Path) -> str:
@@ -102,6 +127,26 @@ def test_new_eval_manifests_must_not_be_built_from_the_superseded_combination() 
     assert not offenders, (
         "new manifests must use objects[0].split == 'eval', see "
         f"_docs/EVAL_SET_CANONICAL.md: {offenders}")
+
+
+def test_final_test_sessions_are_not_in_any_pseudo_label_pool() -> None:
+    """lock §1.6: final-test 세션 프레임은 PL 풀에 있으면 안 된다 (transductive 차단)."""
+    pools = sorted((ROOT / "data/pallet").glob("real_unlabeled_ralph*"))
+    if not pools:
+        pytest.skip("no pseudo-label pool present")
+    leaked = []
+    for folder in FINAL_TEST_FOLDERS:
+        directory = ROOT / folder
+        if not directory.is_dir():
+            continue
+        fids = {path.stem for path in directory.glob("*.json")}
+        for pool in pools:
+            for link in pool.glob("*.png"):
+                # 풀 파일명은 "{session}__{fid}.png"
+                fid = link.stem.split("__", 1)[-1]
+                if fid in fids:
+                    leaked.append(f"{pool.name}/{link.name}")
+    assert not leaked, f"final-test frames leaked into the pseudo-label pool: {leaked[:10]}"
 
 
 def test_train_marked_frames_are_never_counted_as_eval() -> None:

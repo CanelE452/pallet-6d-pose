@@ -9,7 +9,7 @@ usage:
   python challenge/scripts/compare_cropaug_truncation.py \
       --rgb_dir data/outside/forklift_raw_20260528_163408/rgb \
       --gt_dir  data/outside/forklift_raw_20260528_163408/gt_manual \
-      --out_dir challenge/data/cropaug_truncation_eval
+      --out_dir challenge/data/04_results/cropaug_truncation_eval
 """
 import argparse, glob, json, os, sys
 import cv2, numpy as np, torch

@@ -5,12 +5,12 @@ challenge/scripts/merge_dataset.py
 
 사용:
   python challenge/scripts/merge_dataset.py \
-      --inputs challenge/data/capturepallet07_manual_gt \
-               challenge/data/capturepallet09_pseudo_gt \
-      --out challenge/data/_train_v1 --val_fraction 0.15
+      --inputs challenge/data/01_real/manual_gt/capturepallet07_manual_gt \
+               challenge/data/01_real/pseudo_gt/capturepallet09_pseudo_gt \
+      --out challenge/data/03_derived/_train_v1 --val_fraction 0.15
 
 출력 구조:
-  challenge/data/_train_v1/
+  challenge/data/03_derived/_train_v1/
     train/000000.png + 000000.json + ...   # 순차 rename (CleanVisiiDopeLoader 호환)
     val/000000.png + 000000.json + ...
     _manifest.json                           # source 추적

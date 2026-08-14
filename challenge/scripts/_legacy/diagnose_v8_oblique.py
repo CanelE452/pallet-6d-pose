@@ -274,7 +274,7 @@ def main():
 
     # === Step 1: JSON exists? ===
     json_path = os.path.join(
-        REPO, "challenge/data/capturepallet08_manual_gt/1778653498432396288.json")
+        REPO, "challenge/data/01_real/manual_gt/capturepallet08_manual_gt/1778653498432396288.json")
     if os.path.exists(json_path):
         print(f"\n[Step1] Saved JSON found: {json_path}")
         with open(json_path) as f:

@@ -10,7 +10,7 @@
 # 사용:
 #   bash challenge/scripts/run_pipeline.sh                # default settings
 #   PSEUDO_SEQ=data/outside/capturepallet09 bash challenge/scripts/run_pipeline.sh
-#   MANUAL_GT=challenge/data/capturepallet07_manual_gt bash challenge/scripts/run_pipeline.sh
+#   MANUAL_GT=challenge/data/01_real/manual_gt/capturepallet07_manual_gt bash challenge/scripts/run_pipeline.sh
 #
 # 환경:
 #   conda env: pallet-pose 가 자동 활성화
@@ -21,7 +21,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO"
 
 # ─ 설정 ────────────────────────────────────────────────────────────────────
-MANUAL_GT="${MANUAL_GT:-challenge/data/capturepallet07_manual_gt}"
+MANUAL_GT="${MANUAL_GT:-challenge/data/01_real/manual_gt/capturepallet07_manual_gt}"
 PSEUDO_SEQ="${PSEUDO_SEQ:-data/outside/capturepallet09}"
 PSEUDO_OUT="${PSEUDO_OUT:-}"
 BASELINE="${BASELINE:-challenge/weights/baseline_v8_A.pth}"
@@ -62,7 +62,7 @@ echo "[OK] manual GT: $N_MANUAL frames"
 # ─ STAGE 1: manual 만으로 1차 ft ──────────────────────────────────────────
 echo ""
 echo "### STAGE 1: 1차 finetune (manual 만) ###"
-STAGE1_TRAIN="challenge/data/_train_stage1"
+STAGE1_TRAIN="challenge/data/03_derived/_train_stage1"
 python challenge/scripts/merge_dataset.py \
     --inputs "$MANUAL_GT" \
     --out "$STAGE1_TRAIN" \
@@ -92,7 +92,7 @@ echo "[Stage1 weight] $STAGE1_LAST"
 echo ""
 echo "### STAGE 2: pseudo-label 생성 (1차 모델로) ###"
 SEQ_NAME=$(basename "$PSEUDO_SEQ")
-PSEUDO_OUT="${PSEUDO_OUT:-challenge/data/${SEQ_NAME}_pseudo_gt}"
+PSEUDO_OUT="${PSEUDO_OUT:-challenge/data/01_real/pseudo_gt/${SEQ_NAME}_pseudo_gt}"
 python challenge/scripts/make_pseudo_gt.py \
     --seq "$PSEUDO_SEQ" \
     --weights "$STAGE1_LAST" \
@@ -107,7 +107,7 @@ echo "[Pseudo GT] $N_PSEUDO frames generated"
 # ─ STAGE 3: manual + pseudo 합쳐 2차 ft ───────────────────────────────────
 echo ""
 echo "### STAGE 3: 2차 finetune (manual + pseudo) ###"
-STAGE2_TRAIN="challenge/data/_train_stage2"
+STAGE2_TRAIN="challenge/data/03_derived/_train_stage2"
 
 if [ "$N_PSEUDO" -gt 10 ]; then
     python challenge/scripts/merge_dataset.py \

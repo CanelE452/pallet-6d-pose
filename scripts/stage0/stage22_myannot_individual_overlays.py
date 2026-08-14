@@ -41,8 +41,8 @@ _spec.loader.exec_module(E)
 
 WEIGHTS = os.path.join(ROOT, "weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth")
 DATASETS = {
-    "cad": os.path.join(ROOT, "challenge/data/capturepalletcad_manual_gt"),
-    "noapril": os.path.join(ROOT, "challenge/data/capture0403noapril_manual_gt"),
+    "cad": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"),
+    "noapril": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"),
 }
 PAD = 100
 THRESH = 0.3

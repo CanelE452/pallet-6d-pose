@@ -78,7 +78,7 @@ def main():
     run_case("night03_1779448848688752640", img_path, K, clicks, OUT)
 
     # === pallet08 (regression check, saved JSON) ===
-    p08 = os.path.join(REPO, "challenge/data/capturepallet08_manual_gt/1778653498432396288.json")
+    p08 = os.path.join(REPO, "challenge/data/01_real/manual_gt/capturepallet08_manual_gt/1778653498432396288.json")
     if os.path.exists(p08):
         with open(p08) as f: d = json.load(f)
         obj = d["objects"][0]
@@ -90,7 +90,7 @@ def main():
         run_case("pallet08_1778653498432396288_oblique", img2, K2, c2, OUT)
 
     # === pallet03 normal frame (regression check) ===
-    p03 = os.path.join(REPO, "challenge/data/capturepallet03_manual_gt/1778651569891693056.json")
+    p03 = os.path.join(REPO, "challenge/data/01_real/manual_gt/capturepallet03_manual_gt/1778651569891693056.json")
     if os.path.exists(p03):
         with open(p03) as f: d = json.load(f)
         obj = d["objects"][0]

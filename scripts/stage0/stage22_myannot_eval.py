@@ -34,8 +34,8 @@ _spec.loader.exec_module(E)
 GOOD_PX, GROSS_PX = 10.0, 20.0
 
 DATASETS = {
-    "cad": os.path.join(ROOT, "challenge/data/capturepalletcad_manual_gt"),
-    "noapril": os.path.join(ROOT, "challenge/data/capture0403noapril_manual_gt"),
+    "cad": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"),
+    "noapril": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"),
 }
 MODELS = {
     "B2":     "weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth",

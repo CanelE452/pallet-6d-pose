@@ -21,8 +21,8 @@ from diag4_geometry_matching import MATCH_VARS, CALIPER  # noqa
 WEIGHTS = os.path.join(ROOT, "weights/challenge0123/final_net_epoch_0060.pth")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage9_diag")
 TRAIN_DIRS = [os.path.join(ROOT, "data/pallet/training_data/mixed_v8_train"),
-              os.path.join(ROOT, "challenge/data/training/v1"),
-              os.path.join(ROOT, "challenge/data/training/v2")]
+              os.path.join(ROOT, "challenge/data/02_synthetic/training/v1"),
+              os.path.join(ROOT, "challenge/data/02_synthetic/training/v2")]
 VAL_DIR = os.path.join(ROOT, "data/pallet/training_data/val")
 DEPTH = [(0, 4), (1, 5), (2, 6), (3, 7)]; FRONT = [0, 1, 2, 3]; BACK = [4, 5, 6, 7]
 EDGES = [(0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7)]

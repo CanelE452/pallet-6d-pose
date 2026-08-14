@@ -12,20 +12,20 @@ cd /home/minjae/Documents/github/pallet-pose
 
 # real manual GT 251장 (빈 폴더 night01/03·pallet01·forklift_20260528 제외)
 REAL_DIRS="\
-challenge/data/capturepallet02_manual_gt \
-challenge/data/capturepallet03_manual_gt \
-challenge/data/capturepallet04_manual_gt \
-challenge/data/capturepallet05_manual_gt \
-challenge/data/capturepallet07_manual_gt \
-challenge/data/capturepallet08_manual_gt \
-challenge/data/capturepallet09_manual_gt \
-challenge/data/capturepalletcad_manual_gt \
-challenge/data/capturenight04_manual_gt \
-challenge/data/capturenight05_manual_gt \
-challenge/data/capturenight06_manual_gt \
-challenge/data/capturenight07_manual_gt \
-challenge/data/capturenight08_manual_gt \
-challenge/data/capturenight09_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet02_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet03_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet04_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet05_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet07_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet08_manual_gt \
+challenge/data/01_real/manual_gt/capturepallet09_manual_gt \
+challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt \
+challenge/data/01_real/manual_gt/capturenight04_manual_gt \
+challenge/data/01_real/manual_gt/capturenight05_manual_gt \
+challenge/data/01_real/manual_gt/capturenight06_manual_gt \
+challenge/data/01_real/manual_gt/capturenight07_manual_gt \
+challenge/data/01_real/manual_gt/capturenight08_manual_gt \
+challenge/data/01_real/manual_gt/capturenight09_manual_gt \
 data/outside/forklift_raw_20260528_163408/gt_manual"
 
 PRETRAIN_W="weights/challenge_pretrain_otftrunc/final_net_epoch_0060.pth"

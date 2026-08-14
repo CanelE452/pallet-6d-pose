@@ -11,7 +11,7 @@
 
 사용:
   python challenge/scripts/fix_manual_swap.py \\
-      --dir challenge/data/capturepallet07_manual_gt
+      --dir challenge/data/01_real/manual_gt/capturepallet07_manual_gt
 """
 import argparse
 import glob

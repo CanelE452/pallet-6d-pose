@@ -35,8 +35,8 @@ MODELS = {
     "R2 (self-train)": "weights/paper_s2_fullpool_selftrain/r2/net_epoch_0063.pth",
 }
 EVAL_GT_GLOBS = [
-    "challenge/data/_outside_eval_manual_gt", "challenge/data/_night_eval_manual_gt",
-    "challenge/data/capture0403noapril_manual_gt", "challenge/data/capturepalletcad_manual_gt",
+    "challenge/data/01_real/eval_canonical/_outside_eval_manual_gt", "challenge/data/01_real/manual_gt/_night_eval_manual_gt",
+    "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt", "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt",
 ]
 PL_DIRS = ["data/pallet/training_data/paper_s2_fullpool_r1",
            "data/pallet/training_data/paper_s2_fullpool_r2"]

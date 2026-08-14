@@ -35,9 +35,9 @@ from annotate_pnp import solve_pose, make_pallet_keypoints_3d  # noqa: E402
 
 _REPO = os.path.dirname(os.path.dirname(_HERE))
 SRC_JSON = os.path.join(
-    _REPO, "challenge/data/capturepallet03_manual_gt/1778651569891693056.json")
+    _REPO, "challenge/data/01_real/manual_gt/capturepallet03_manual_gt/1778651569891693056.json")
 SRC_IMG = os.path.join(
-    _REPO, "challenge/data/capturepallet03_manual_gt/1778651569891693056.png")
+    _REPO, "challenge/data/01_real/manual_gt/capturepallet03_manual_gt/1778651569891693056.png")
 OUT = os.path.join(_REPO, "data/pallet/results/annotate_v4_fix_v4")
 os.makedirs(OUT, exist_ok=True)
 

@@ -14,10 +14,10 @@ from annotate_pnp import solve_pose, V8_TILT_SOFT_THR, V8_TILT_HARD_THR
 
 REPO = r"C:\Users\minjae\Documents\github\FoundationPose"
 GT_DIRS = [
-    "challenge/data/capturepallet07_manual_gt",
-    "challenge/data/capturepallet08_manual_gt",
-    "challenge/data/capturepallet09_manual_gt",
-    "challenge/data/capturepalletcad_manual_gt",
+    "challenge/data/01_real/manual_gt/capturepallet07_manual_gt",
+    "challenge/data/01_real/manual_gt/capturepallet08_manual_gt",
+    "challenge/data/01_real/manual_gt/capturepallet09_manual_gt",
+    "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt",
 ]
 
 tilts = []

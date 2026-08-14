@@ -5,17 +5,28 @@ Python + PyTorch + Isaac Sim + DOPE.
 
 ## 🛑 평가셋 (새 세션 필독 — 다른 셋 쓰지 말 것)
 
-> **평가는 `objects[0].split == "eval"` 인 manual GT 56장만 사용한다.**
+> **평가는 `objects[0].split == "eval"` 인 manual GT 161장만 사용한다.**
+> 경로는 `challenge/data_paths.py` 의 `EVAL_CANONICAL` 이 유일한 출처다 —
+> 문자열로 다시 쓰지 말고 import 한다.
 > 상세·이력·금지사항: `_docs/EVAL_SET_CANONICAL.md` (테스트로 강제:
 > `challenge/tests/test_eval_set_canonical.py`)
 
 ```
-challenge/data/_outside_eval_manual_gt         22
-challenge/data/capture0403noapril_manual_gt    12
-challenge/data/capturepalletcad_manual_gt      22
-                                          합 56
+01_real/eval_canonical/_outside_eval_manual_gt         22   filter-val 세션
+01_real/eval_canonical/capture0403noapril_manual_gt    12
+01_real/eval_canonical/capturepalletcad_manual_gt      22
+01_real/manual_gt/capturepallet07_manual_gt            27   ★final-test
+01_real/manual_gt/capturepallet09_manual_gt            36   ★final-test
+01_real/manual_gt/capturenight08_manual_gt             17   ★final-test
+01_real/manual_gt/capturenight09_manual_gt             25   ★final-test
+                                        (challenge/data/ 아래)  합 161
 ```
 
+- ⚠️ **"56장" 은 폐기된 수치다.** 2026-08-07/08-08 에 `metric_split_lock.md` §1.6 의
+  final-test 세션 4개를 봉인 해제해 정본에 편입했다(63+42=105장 추가). 옛 문서·메모리에
+  56장이 보이면 그건 07-3x 기준이다. 실측·테스트 선언값 모두 161.
+- ★final-test 4개는 정본이지만 **threshold 튜닝·모델 선택 금지**(봉인 소진, 재봉인 불가).
+  보고 시 outside/night 를 한 덩어리로 합치지 말 것 — `data_paths.FINAL_TEST` 참조.
 - `split` 은 **최상위가 아니라 `objects[0].split`**. 최상위만 읽으면 전부 "없음" 으로 보인다.
 - `data/_eval_sets/outside_combined` / `night_combined` 는 **구본**(05-27, split 없음) — 평가 금지.
 - split 없는 JSON 을 eval 로 간주하지 않는다(구 규칙 폐기). `train` 표시 프레임 포함 금지.
@@ -90,7 +101,7 @@ challenge/data/capturepalletcad_manual_gt      22
 ## Compaction Rules
 
 - **compact 시 원문 디테일 보존** (요약 금지):
-  - 정본 평가셋 규칙 — `objects[0].split=="eval"` 56장 + wood45.
+  - 정본 평가셋 규칙 — `objects[0].split=="eval"` 161장(7폴더) + wood45.
     평가뿐 아니라 **development·진단·probe subset 도 정본에서** 뽑는다
     (`data/_eval_sets/*combined` 사용 금지 — 여기서 뽑아 판정 4건이 뒤집힌 이력)
   - 현재 architecture 판정과 그 근거 한 줄

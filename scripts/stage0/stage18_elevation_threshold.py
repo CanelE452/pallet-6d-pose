@@ -232,9 +232,9 @@ def main():
     # ---- (가) training elevation coverage: v3 train batches + addon + syn_val ----
     cov = {}
     train_specs = [
-        ("v3_train_b000-008", [os.path.join(ROOT, "challenge/data/training/v3", f"batch_{i:03d}")
+        ("v3_train_b000-008", [os.path.join(ROOT, "challenge/data/02_synthetic/training/v3", f"batch_{i:03d}")
                                for i in range(9)]),   # b009 = held-out (eval), exclude
-        ("addon_v1_train", [os.path.join(ROOT, "challenge/data/training/addon_v1_train")]),
+        ("addon_v1_train", [os.path.join(ROOT, "challenge/data/02_synthetic/training/addon_v1_train")]),
         ("syn_val", [os.path.join(ROOT, "data/pallet/training_data/val")]),
     ]
     # syn_val 은 obj 'location' 이 camera-frame 이라 world elevation 불가 + mixed_v8 pose 신뢰불가 -> 제외

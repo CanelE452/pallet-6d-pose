@@ -1,12 +1,12 @@
 """DOPE NDDS JSON → YOLOv8-pose 포맷 변환.
 
 입력 (둘 다 지원):
-  1. Synthetic: challenge/data/training/v1, v2 (재귀, part_NNN/train_palletobj_v*)
-  2. Manual GT: challenge/data/capture*_manual_gt/
+  1. Synthetic: challenge/data/02_synthetic/training/v1, v2 (재귀, part_NNN/train_palletobj_v*)
+  2. Manual GT: challenge/data/01_real/manual_gt/capture*_manual_gt/
   3. mixed_v8: data/pallet/training_data/mixed_v8_train/
 
 출력:
-  challenge/data/yolo_pose/
+  challenge/data/03_derived/yolo_pose/
     images/{train,val}/{stem}.png   (symlink 또는 copy)
     labels/{train,val}/{stem}.txt   (YOLO pose 포맷)
 
@@ -28,10 +28,10 @@ Keypoint 순서 (v4 convention):
 
 Usage:
   python convert_to_yolo_pose.py \
-      --src challenge/data/training/v1 challenge/data/training/v2 \
-      --src-glob "challenge/data/capture*_manual_gt" \
+      --src challenge/data/02_synthetic/training/v1 challenge/data/02_synthetic/training/v2 \
+      --src-glob "challenge/data/01_real/manual_gt/capture*_manual_gt" \
       --src data/pallet/training_data/mixed_v8_train \
-      --out challenge/data/yolo_pose \
+      --out challenge/data/03_derived/yolo_pose \
       --val-ratio 0.05 \
       --link            # symlink (default: copy 안 함, png 는 image 폴더 안에 symlink)
 """
@@ -173,8 +173,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", action="append", default=[], help="입력 루트 (반복 가능)")
     ap.add_argument("--src-glob", action="append", default=[],
-                    help="입력 루트 glob (예: 'challenge/data/capture*_manual_gt')")
-    ap.add_argument("--out", required=True, help="출력 루트 (challenge/data/yolo_pose)")
+                    help="입력 루트 glob (예: 'challenge/data/01_real/manual_gt/capture*_manual_gt')")
+    ap.add_argument("--out", required=True, help="출력 루트 (challenge/data/03_derived/yolo_pose)")
     ap.add_argument("--val-ratio", type=float, default=0.05)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--link", action="store_true", help="png 를 symlink (default: copy)")

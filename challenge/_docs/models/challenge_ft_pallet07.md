@@ -17,7 +17,7 @@ Seed:        5393
 ## 학습 데이터
 
 ```
-challenge/data/_train_capturepallet07/train     (pallet07 단일 capture)
+challenge/data/03_derived/_train_capturepallet07/train     (pallet07 단일 capture)
 ```
 
 ## Loss 설정

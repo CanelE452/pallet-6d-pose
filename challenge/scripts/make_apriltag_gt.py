@@ -27,9 +27,10 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(os.path.dirname(_HERE))
 sys.path.insert(0, os.path.join(_REPO, "scripts", "self_training"))   # pnp_solver
 sys.path.insert(0, os.path.join(_REPO, "scripts", "data_prep", "apriltag"))
+sys.path.insert(0, _REPO)
+from challenge.data_paths import get as _dp  # 경로 단일 출처
 
-from apriltag_gt import (
-    create_detector, detect_tag_pose, tag_pose_to_pallet_pose,
+from apriltag_gt import (    create_detector, detect_tag_pose, tag_pose_to_pallet_pose,
     project_cuboid, save_gt_annotation, draw_overlay,
 )
 
@@ -47,7 +48,7 @@ T_PALLET_FROM_TAG[2, 3] = PALLET_DIMS[1] / 2.0   # +0.65m
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seq",      default="data/outside/capturepallet11")
-    ap.add_argument("--out_dir",  default="challenge/data/pallet11_gt")
+    ap.add_argument("--out_dir",  default=_dp("manual.pallet11"))
     ap.add_argument("--vis_dir",  default=None, help="overlay 저장 경로 (기본: out_dir/_overlay)")
     ap.add_argument("--vis_every", type=int, default=50, help="N 프레임마다 overlay 저장")
     ap.add_argument("--min_margin", type=float, default=15.0,

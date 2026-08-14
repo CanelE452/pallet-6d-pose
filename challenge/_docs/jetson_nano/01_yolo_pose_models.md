@@ -53,7 +53,7 @@ aug:        mosaic=1.0 close_mosaic=10 scale=0.5 translate=0.1 fliplr=0.5 hsv er
 pad:        100px reflect (convert_to_yolo_pose --pad 100)
 env:        pallet-yolo26 (ultralytics 8.4.60), GPU RTX 3080
 스크립트:    challenge/yolo_pose/scripts/ft_cropaug_v2.sh
-데이터셋:    challenge/data/yolo_pose_cropaug_v2_padded/
+데이터셋:    challenge/data/03_derived/yolo_pose_cropaug_v2_padded/
 ```
 
 ## 평가 — truncation 강건성 (holdout 42, crop level 0/1/2, 모두 pad 추론)

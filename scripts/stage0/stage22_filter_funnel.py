@@ -61,10 +61,10 @@ FRONT, BACK = [0, 1, 2, 3], [4, 5, 6, 7]
 # per-dataset dims (width, depth, height) — GT known
 DATASETS = {
     "cad": {
-        "dir": os.path.join(ROOT, "challenge/data/capturepalletcad_manual_gt"),
+        "dir": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"),
         "dims": (1.1, 1.3, 0.11)},   # w, d, h
     "noapril": {
-        "dir": os.path.join(ROOT, "challenge/data/capture0403noapril_manual_gt"),
+        "dir": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"),
         "dims": (1.3, 1.1, 0.11)},
 }
 MODELS = {

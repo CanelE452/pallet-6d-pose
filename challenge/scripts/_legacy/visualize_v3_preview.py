@@ -25,9 +25,9 @@ def main():
     for i in [200, 1500, 3000, 4500, 6000, 8000]:
         samples.append(f"data/pallet/training_data/mixed_v8_train/{i:06d}.json")
     for part, idx in [(0, 200), (1, 500), (3, 800), (5, 100), (7, 600), (9, 300)]:
-        samples.append(f"challenge/data/training/v1/part_{part:03d}/train_palletobj_v1/{idx:06d}.json")
+        samples.append(f"challenge/data/02_synthetic/training/v1/part_{part:03d}/train_palletobj_v1/{idx:06d}.json")
     for part, idx in [(0, 150), (2, 400), (4, 700), (6, 250), (8, 550)]:
-        samples.append(f"challenge/data/training/v2/part_{part:03d}/train_palletobj_v2/{idx:06d}.json")
+        samples.append(f"challenge/data/02_synthetic/training/v2/part_{part:03d}/train_palletobj_v2/{idx:06d}.json")
 
     saved = []
     for rel in samples:

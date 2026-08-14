@@ -11,7 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = "/home/minjae/Documents/github/pallet-pose"
-ADDON = os.path.join(ROOT, "challenge/data/training/addon_v1")
+ADDON = os.path.join(ROOT, "challenge/data/02_synthetic/training/addon_v1")
 OUT = os.path.join(ROOT, "data/pallet/results/addon_v1_audit")
 os.makedirs(OUT, exist_ok=True)
 

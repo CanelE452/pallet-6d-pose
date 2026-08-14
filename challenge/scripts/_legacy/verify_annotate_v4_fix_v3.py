@@ -1,6 +1,6 @@
 """verify_annotate_v4_fix_v3.py — Method C (strict v4 invariant in PnP) 검증.
 
-저장된 frame: challenge/data/capturepallet03_manual_gt/1778651569891693056.json
+저장된 frame: challenge/data/01_real/manual_gt/capturepallet03_manual_gt/1778651569891693056.json
 사용자 클릭 manual_kps 8 점 (idx 0~5 = 실제 클릭, 6/7 = 이전 PnP 자동 fill).
 
 Outputs (data/pallet/results/annotate_v4_fix_v3/):
@@ -25,9 +25,9 @@ from annotate_pnp import solve_pose, make_pallet_keypoints_3d  # noqa: E402
 
 _REPO = os.path.dirname(os.path.dirname(_HERE))
 SRC_JSON = os.path.join(
-    _REPO, "challenge/data/capturepallet03_manual_gt/1778651569891693056.json")
+    _REPO, "challenge/data/01_real/manual_gt/capturepallet03_manual_gt/1778651569891693056.json")
 SRC_IMG = os.path.join(
-    _REPO, "challenge/data/capturepallet03_manual_gt/1778651569891693056.png")
+    _REPO, "challenge/data/01_real/manual_gt/capturepallet03_manual_gt/1778651569891693056.png")
 OUT = os.path.join(_REPO, "data/pallet/results/annotate_v4_fix_v3")
 os.makedirs(OUT, exist_ok=True)
 

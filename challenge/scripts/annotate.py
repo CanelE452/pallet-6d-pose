@@ -42,7 +42,7 @@ Keypoint 순서 (**camera-facing convention, 2026-05-22 결정**):
 
 사용:
   python challenge/scripts/annotate.py --seq data/outside/capturepallet07 --stride 15
-  python challenge/scripts/annotate.py --seq data/outside/capturepallet09 --out_dir challenge/data/pallet09_manual_gt
+  python challenge/scripts/annotate.py --seq data/outside/capturepallet09 --out_dir challenge/data/01_real/manual_gt/pallet09_manual_gt
 """
 from __future__ import annotations
 import argparse

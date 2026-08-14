@@ -11,8 +11,8 @@ pose_transform 은 augment 후 부정확하므로 저장 안 함 (학습은 beli
 
 사용:
   python challenge/scripts/augment_dataset.py \
-      --src challenge/data/capturepallet07_manual_gt \
-      --out challenge/data/capturepallet07_augmented \
+      --src challenge/data/01_real/manual_gt/capturepallet07_manual_gt \
+      --out challenge/data/01_real/augmented/capturepallet07_augmented \
       --include_original
 """
 import argparse
@@ -22,6 +22,9 @@ import os
 
 import cv2
 import numpy as np
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
+from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 
 def _transform_kps(kps, M):
@@ -110,8 +113,8 @@ def write_gt(stem_path, img, kps_2d, K, dims, gt_source):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--src", default="challenge/data/capturepallet07_manual_gt")
-    ap.add_argument("--out", default="challenge/data/capturepallet07_augmented")
+    ap.add_argument("--src", default=_dp("manual.pallet07"))
+    ap.add_argument("--out", default=_dp("real.pallet07_augmented"))
     ap.add_argument("--include_original", action="store_true",
                     help="원본도 결과에 포함")
     ap.add_argument("--crop_scale", type=float, default=0.85)

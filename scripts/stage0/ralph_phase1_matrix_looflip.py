@@ -35,9 +35,9 @@ MODELS = [
     ("R2\n(noapril PL)", f"{RS}/h8_s2_noapril_looflip/round_02.pth"),
 ]
 DOMAINS = {
-    "outside": ["challenge/data/_outside_eval_manual_gt"] + [f"challenge/data/capturepallet0{i}_manual_gt" for i in range(2, 10)],
-    "night": ["challenge/data/_night_eval_manual_gt"] + [f"challenge/data/capturenight0{i}_manual_gt" for i in range(5, 8)],
-    "noapril": ["challenge/data/capture0403noapril_manual_gt"],
+    "outside": ["challenge/data/01_real/eval_canonical/_outside_eval_manual_gt"] + [f"challenge/data/01_real/manual_gt/capturepallet0{i}_manual_gt" for i in range(2, 10)],
+    "night": ["challenge/data/01_real/manual_gt/_night_eval_manual_gt"] + [f"challenge/data/01_real/manual_gt/capturenight0{i}_manual_gt" for i in range(5, 8)],
+    "noapril": ["challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"],
 }
 # self-domain 셀 (row_label 접두, col)
 SELF = {("R1\n(outside PL)", "outside"), ("R1\n(night PL)", "night"), ("R1\n(noapril PL)", "noapril"),

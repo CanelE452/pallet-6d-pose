@@ -35,8 +35,8 @@ from four_arm_pl_compare import collect_val_frames  # noqa
 
 TRAIN_DIRS = [
     os.path.join(ROOT, "data/pallet/training_data/mixed_v8_train"),
-    os.path.join(ROOT, "challenge/data/training/v1"),
-    os.path.join(ROOT, "challenge/data/training/v2"),
+    os.path.join(ROOT, "challenge/data/02_synthetic/training/v1"),
+    os.path.join(ROOT, "challenge/data/02_synthetic/training/v2"),
 ]
 VAL_DIR = os.path.join(ROOT, "data/pallet/training_data/val")
 MANUAL = os.path.join(ROOT, "data/pallet/eval_results/stage0_gt_candidates/manual_gt")

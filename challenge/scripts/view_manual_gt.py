@@ -18,7 +18,7 @@
 
 사용:
   python challenge/scripts/view_manual_gt.py \\
-      --gt_dir challenge/data/capturepallet07_manual_gt
+      --gt_dir challenge/data/01_real/manual_gt/capturepallet07_manual_gt
 """
 
 import argparse

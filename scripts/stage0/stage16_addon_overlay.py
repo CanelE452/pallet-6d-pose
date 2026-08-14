@@ -6,7 +6,7 @@ import os, json, glob
 import numpy as np
 import cv2
 
-DATA = "/home/minjae/Documents/github/pallet-pose/challenge/data/training/truncation_addon_v1"
+DATA = "/home/minjae/Documents/github/pallet-pose/challenge/data/02_synthetic/training/truncation_addon_v1"
 OUT = "/home/minjae/Documents/github/pallet-pose/data/pallet/eval_results/stage16_audit/overlays"
 os.makedirs(OUT, exist_ok=True)
 
