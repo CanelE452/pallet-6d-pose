@@ -11,7 +11,7 @@ that can affect it:
 - selected checkpoint evidence:
   `data/pallet/results/paper_s2_scratch_diffpnp/stageB_val_select.md:7-18`
 - recorded training arguments: `weights/paper_s2_stageB/header.txt:1-2`
-- launch command: `scripts/stage0/diffpnp3d_full_run.sh:72-104`
+- launch command: `scripts/stage0/_run/diffpnp3d_full_run.sh:72-104`
 
 The checkpoint is the direct DiffPnP model. Later LOO/flip/self-training
 checkpoints are derivatives and are not evidence for the direct DiffPnP
@@ -78,7 +78,7 @@ The launch script fixes Stage B to the six data directories, a 60:40
 base-to-mask sampling balance, batch 12, sigma 2, input size 400, learning rate
 `5e-5`, seed 42, Stage-A epoch 42 initialization, mask auxiliary weight `0.01`,
 and DiffPnP weight `0.005` with a 1000-step ramp
-(`scripts/stage0/diffpnp3d_full_run.sh:78-91`). The persisted namespace agrees
+(`scripts/stage0/_run/diffpnp3d_full_run.sh:78-91`). The persisted namespace agrees
 (`weights/paper_s2_stageB/header.txt:1-2`).
 
 The following flags were off in the saved namespace:

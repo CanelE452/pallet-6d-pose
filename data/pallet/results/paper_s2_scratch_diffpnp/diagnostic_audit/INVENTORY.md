@@ -90,7 +90,7 @@ Key values:
   symmetric losses were all off.
 
 Historical launch and selection evidence is in
-`scripts/stage0/diffpnp3d_full_run.sh`,
+`scripts/stage0/_run/diffpnp3d_full_run.sh`,
 `full_run_logs/driver.log`, `full_run_logs/stageB_train.log`, and
 `stageB_val_select.md`.
 

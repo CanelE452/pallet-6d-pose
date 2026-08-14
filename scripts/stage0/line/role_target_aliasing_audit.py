@@ -35,7 +35,7 @@ def _load(name, relative):
     return module
 
 
-DEG = _load("DEG_ALIAS", "scripts/stage0/degeneracy_line_audit.py")
+DEG = _load("DEG_ALIAS", "scripts/stage0/line/degeneracy_line_audit.py")
 CAP, H, V2 = DEG.CAP, DEG.H, DEG.V2
 CANON, OUT, DEV = DEG.CANON, DEG.OUT, DEG.DEV
 ANGLE_THRESHOLD = CAP.ANGLE_BUDGET_DEG          # 1.0 degree, the task budget

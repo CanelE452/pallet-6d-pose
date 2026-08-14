@@ -55,6 +55,7 @@ def _load(mod_name, path):
 
 # import the canonical filter helpers (loads its own E; harmless)
 M = _load("s1filters", os.path.join(ROOT, "scripts", "stage0",
+                                    "selftrain",
                                     "s1_cad_9filters.py"))
 
 # ── USER-SPECIFIED dims (height 0.12) — affects f7 posdepth + honest8 ─────────
@@ -240,7 +241,7 @@ def main():
     L.append(f"- weights: `{os.path.relpath(WEIGHTS, ROOT)}`  (squash-parity decode, THRESH={THRESH})")
     L.append(f"- set: cad11 + noapril6 = 17 (hand-anno GT, HIGH-ANGLE; memory: NOT real-representative)")
     L.append(f"- dims (W,D,H) = {APNP.PALLET_DIMS} m  (f7 posdepth / honest8)")
-    L.append(f"- filters/helpers reused verbatim from `scripts/stage0/s1_cad_9filters.py` (M.apply_filter, M.TAU, ...)")
+    L.append(f"- filters/helpers reused verbatim from `scripts/stage0/selftrain/s1_cad_9filters.py` (M.apply_filter, M.TAU, ...)")
     L.append(f"- corner_med = order-free Hungarian median (dims-indep); honest8 = full-8 PnP reproj (dims {APNP.PALLET_DIMS})")
     L.append(f"- tau: " + ", ".join(f"{k}={v}" for k, v in TAU.items()) + "; f7 posdepth(bool); f8 size-env(GT envelope)")
     L.append(f"- f8 size envelope (GT p2.5-p97.5): size={env['size_lo']:.3f}-{env['size_hi']:.3f}, "

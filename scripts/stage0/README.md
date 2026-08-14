@@ -3,17 +3,22 @@
 실험 스크립트가 쌓이는 곳. 2026-08-14 에 196개까지 불어나 계열별로 나눴다.
 
 ```
-루트             68   해시에 묶인 것 + 계열이 애매한 것 + sh 래퍼
+루트             19   ★해시에 묶인 3개 + 계열이 정말 없는 것
 paper_s2/        34   PAPER_S2 스크린
-stage_screens/   19   stage15~25
-line/            17   구조선 — direct_hough · structural_line · instance_edge
-                      role_* · supporting_line · edge_mandatory
-diag/            13   diag1~8 진단
-ralph/            8   ralph 계열
-diffpnp3d/        5
-eval_harness/     4
-paper_s1/         2
+stage_screens/   28   stage5~25 · offset · padding · v3
 _archive/        26   저장소 어디에서도 참조되지 않는 것
+line/            21   구조선 — direct_hough · structural_line · instance_edge
+                      role_* · supporting_line · partial_edge · degeneracy · r1c
+diag/            13   diag1~8 진단
+_run/            11   셸 실행 래퍼
+selftrain/       10   s1_ · s2_ · s16_ (self-training / 체크포인트 선정)
+ralph/            8   ralph 계열
+filter_pl/        7   tau_calibrate · four_arm_pl_compare · pl_* · orthogonal_filters
+diffpnp3d/        5
+adaptation/       4   late_a1 · regularized_late_a1
+eval_harness/     4
+wood/             4
+paper_s1/         2
 ```
 
 ## 폴더가 나뉘어도 서로를 찾는 방법
@@ -77,3 +82,14 @@ ROOT 계산
 `ROOT` 를 평가). 재편 때 이 검산이 미보정 9건을 잡았다.
 
 마지막 관문은 `pytest challenge/tests/` 943 passed 다.
+
+셸 래퍼는 부트스트랩이 없으니 `cd "$(dirname "$0")/../../.."` 가 정말 저장소 루트를
+내는지 직접 확인한다. `bash -c 'cd "$(dirname "<경로>")/../../.." && pwd'`.
+
+## flaky 테스트
+
+`test_the_adapted_arm_carries_gradient` 와
+`test_h2_is_nearly_invariant_to_a_uniform_probability_floor` 는 전체 실행에서
+간헐적으로 떨어진다 (4회 돌려 2/1/1/0). 단독으로는 통과하고 동명 모듈 충돌도 없다.
+memory 의 "grid_sample input-grad 는 비결정" 과 같은 계열로 보인다 — 재편 때문이
+아니라 원래 그런 것으로 판단했으나 확증은 못 했다. 실패하면 한 번 더 돌려 볼 것.

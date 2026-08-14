@@ -53,7 +53,7 @@ def _load(name, relative):
     return module
 
 
-LATE = _load("LATE_A1_AC", "scripts/stage0/late_a1_adaptation_screen.py")
+LATE = _load("LATE_A1_AC", "scripts/stage0/adaptation/late_a1_adaptation_screen.py")
 LONG, DH = LATE.LONG, LATE.DH
 CAP, V2, SCALE = LATE.CAP, LATE.V2, LATE.SCALE
 OUT, DEV = LATE.OUT, LATE.DEV
