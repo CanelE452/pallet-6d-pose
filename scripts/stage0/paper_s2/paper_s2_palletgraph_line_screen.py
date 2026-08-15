@@ -62,7 +62,7 @@ import paper_s2_frozen_diagnostic as FZ  # noqa: E402
 import pallet_graph_geometry as PG  # noqa: E402
 import dimension_guided_graph_pose as DGP  # noqa: E402
 
-OUT_DIR = ROOT / "data/pallet/results/paper_s2_palletgraph_line_screen"
+OUT_DIR = ROOT / "data/pallet/results/paper_s2/paper_s2_palletgraph_line_screen"
 MECH_DIR = MD.OUT_DIR
 BELIEF = 50
 

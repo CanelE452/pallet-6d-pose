@@ -33,7 +33,7 @@ R1 gate satisfying the current protocol.
 ```text
 BLOCKED:
 필요한 항목: session-independent real-unlabeled pool and strict N=87 validation, plus nested quantity/equal-count quality manifests
-현재 확인한 위치: data/pallet/results/ralph_selftrain/*/{config.yaml,training_history.json}
+현재 확인한 위치: data/pallet/results/ralph/ralph_selftrain/*/{config.yaml,training_history.json}
 시도한 명령: paper_s2_selftrain_history_audit.py (metadata-only aggregation)
 실패 원인: existing pool/evaluation membership is contaminated; required sweeps do not exist
 대체로 수행한 진단: per-round PL total/accepted/rate/PnP-fail/filter-fail/loss/runtime aggregation

@@ -1,7 +1,7 @@
 # C3 — Method 비교표 구성 스펙 (Synthetic only / Naïve ST / Reproj+flip ST / Ours)
 
 > 작성 2026-08-07. 수치 원본은 복붙하지 말고 가리킬 것:
-> `data/pallet/results/ralph_meas_v3/measC_yaw/fourway_pose_metrics.json`
+> `data/pallet/results/ralph/ralph_meas_v3/measC_yaw/fourway_pose_metrics.json`
 > 관련 lock: 루트 `metric_split_lock.md`, `_docs/EVAL_SET_CANONICAL.md`
 
 ---
@@ -125,7 +125,7 @@ Accepted pseudo-labels at round 2 — Naïve 383/451/159 vs Ours 81/124/49.
 
 ## 6. ★정본 수치 (2026-08-07 재계산) — 이것이 표에 들어갈 값
 
-원본 `data/pallet/results/ralph_meas_v3/measC_yaw/fourway_canonical.{json,md}`
+원본 `data/pallet/results/ralph/ralph_meas_v3/measC_yaw/fourway_canonical.{json,md}`
 (정본 56장 전수 통과: outside 22 / noapril 12 / cad 22, GT reproj>5 탈락 0).
 
 ```

@@ -36,7 +36,7 @@ DOM = os.environ.get("RALPH_DOM", "outside")
 TAU = float(os.environ.get("RALPH_TAU", "20"))    # correct 기준 px
 N = int(os.environ.get("RALPH_N", "4"))
 R0 = "weights/paper_s2_stageB/net_epoch_0057_noseg.pth"
-RS = "data/pallet/results/ralph_selftrain"
+RS = "data/pallet/results/ralph/ralph_selftrain"
 
 
 def per_kp_err(pred8, gt8):

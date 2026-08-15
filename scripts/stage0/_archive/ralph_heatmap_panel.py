@@ -18,7 +18,7 @@ import cv2                                # noqa: E402
 import torch                              # noqa: E402
 import ralph_heatmap as RH                # noqa: E402
 
-RS = "data/pallet/results/ralph_selftrain"
+RS = "data/pallet/results/ralph/ralph_selftrain"
 R0 = "weights/paper_s2_stageB/net_epoch_0057_noseg.pth"
 DOMS = ["outside", "night", "noapril"]
 N_PER = 2

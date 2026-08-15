@@ -32,7 +32,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt           # noqa: E402
 
 NMIN = T.N_DET_MIN
-RS = "data/pallet/results/ralph_selftrain"
+RS = "data/pallet/results/ralph/ralph_selftrain"
 MODELS = [
     ("Baseline\n(R0)", "weights/paper_s2_stageB/net_epoch_0057_noseg.pth"),
     ("R1\n(outside PL)", f"{RS}/h6_s2_outside/round_01.pth"),

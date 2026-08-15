@@ -8,7 +8,7 @@ conda activate pallet-pose
 export CUDA_MODULE_LOADING=LAZY PYTHONUNBUFFERED=1
 BASE=weights/paper_s2_stageB/net_epoch_0057_noseg.pth
 SYN=data/pallet/training_data/aug_squash_v2
-RS=data/pallet/results/ralph_selftrain
+RS=data/pallet/results/ralph/ralph_selftrain
 
 run() {  # $1=name $2=real_dir
   local out=$RS/h9_s2_${1}_naive

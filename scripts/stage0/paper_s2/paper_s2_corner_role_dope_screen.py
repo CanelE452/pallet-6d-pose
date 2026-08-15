@@ -35,7 +35,7 @@ import pandas as pd
 import torch
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-OUT = ROOT / "data/pallet/results/paper_s2_corner_role_dope"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_corner_role_dope"
 WEIGHTS = ROOT / "weights/paper_s2_corner_role_dope"
 STAGE0 = ROOT / "scripts/stage0"
 DOPE = ROOT / "Deep_Object_Pose"

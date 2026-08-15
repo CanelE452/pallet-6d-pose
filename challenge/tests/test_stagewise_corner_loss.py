@@ -177,7 +177,7 @@ def test_no_forbidden_branch() -> None:
 # ============================================================================
 import json  # noqa: E402
 
-OUT = ROOT / "data/pallet/results/paper_s2_stagewise_bias_screen"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_stagewise_bias_screen"
 RUNNER = ROOT / "scripts/stage0/paper_s2/paper_s2_stagewise_bias_screen.py"
 
 

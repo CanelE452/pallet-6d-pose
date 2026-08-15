@@ -13,7 +13,7 @@ import pytest
 import torch
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-OUT = ROOT / "data/pallet/results/paper_s2_corner_replacement_screen"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_corner_replacement_screen"
 WEIGHTS = ROOT / "weights/paper_s2/paper_s2_corner_replacement_screen"
 SCRIPT = ROOT / "scripts/stage0/paper_s2/paper_s2_corner_replacement_screen.py"
 MODULE = ROOT / "Deep_Object_Pose/common/corner_proposal_replacement.py"

@@ -47,7 +47,7 @@ DOMAINS = {
     "noapril": ["challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"],
     "cad": ["challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"],
 }
-OUT = os.path.join(ROOT, "data/pallet/results/paper_s2_fullpool_full7", "gt_accuracy_hipl.png")
+OUT = os.path.join(ROOT, "data/pallet/results/paper_s2/paper_s2_fullpool_full7", "gt_accuracy_hipl.png")
 
 
 def load_eval():

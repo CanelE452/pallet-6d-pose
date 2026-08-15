@@ -55,7 +55,7 @@ RESULT_ROOT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliatio
 REPORT_ROOT = (ROOT / "_docs/audits/eval56_summary/canonical_corner_audit"
                / "instance_edge_learnability")
 WEIGHT_ROOT = ROOT / "weights/paper_s2/paper_s2_instance_edge"
-PPD_ROOT = ROOT / "data/pallet/results/paper_s2_palletgraph_line_screen"
+PPD_ROOT = ROOT / "data/pallet/results/paper_s2/paper_s2_palletgraph_line_screen"
 PPD_WEIGHTS = ROOT / "weights/paper_s2/paper_s2_ppd_t2_screen"
 SYNTH_ROOT = ROOT / "data/pallet/training_data/paper_4pallet_mask_v1"
 

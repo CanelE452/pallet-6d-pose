@@ -33,7 +33,7 @@ import pandas as pd
 import torch
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-OUT = ROOT / "data/pallet/results/paper_s2_pgbc_screen"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_pgbc_screen"
 STAGE0 = ROOT / "scripts/stage0"
 if str(STAGE0) not in sys.path:
     sys.path.insert(0, str(STAGE0))

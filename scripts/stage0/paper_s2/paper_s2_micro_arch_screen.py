@@ -78,7 +78,7 @@ from heatmap_refinement import channel_masked_mse  # noqa: E402
 from utils_dataset import CleanVisiiDopeLoader  # noqa: E402
 from diffpnp3d_loss import LocalSoftArgmax2D  # noqa: E402
 
-OUT_DIR = ROOT / "data/pallet/results/paper_s2_micro_arch_screen"
+OUT_DIR = ROOT / "data/pallet/results/paper_s2/paper_s2_micro_arch_screen"
 WEIGHT_DIR = ROOT / "weights/paper_s2/paper_s2_micro_arch_screen"
 MECH_DIR = MD.OUT_DIR
 TRAIN_ROOT = ROOT / "data/pallet/training_data"

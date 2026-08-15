@@ -32,7 +32,7 @@ import numpy as np
 import pandas as pd
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-OUT = ROOT / "data/pallet/results/paper_s2_vcr_dope_screen"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_vcr_dope_screen"
 STAGE0 = ROOT / "scripts/stage0"
 DOPE = ROOT / "Deep_Object_Pose"
 for extra in (STAGE0, DOPE / "common", DOPE / "train"):

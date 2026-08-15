@@ -37,7 +37,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt           # noqa: E402
 
 NMIN = T.N_DET_MIN
-RS = "data/pallet/results/ralph_selftrain"
+RS = "data/pallet/results/ralph/ralph_selftrain"
 # 라운드 선택: R2(round_02) 가 self-domain accuracy 최선 경향 → R2 사용
 RND = os.environ.get("RALPH_ROUND", "round_02")
 # ★ s2(paper 트랙). 보유 모델: R0, night-PL(self=night), combined(best). 행/열 순서 정렬.

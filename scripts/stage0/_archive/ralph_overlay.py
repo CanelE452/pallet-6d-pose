@@ -24,7 +24,7 @@ import cv2                                # noqa: E402
 import torch                              # noqa: E402
 
 NMIN = T.N_DET_MIN
-RS = "data/pallet/results/ralph_selftrain"
+RS = "data/pallet/results/ralph/ralph_selftrain"
 R0 = "weights/paper_s2_stageB/net_epoch_0057_noseg.pth"
 BEST = f"{RS}/h4_s2_combined/round_02.pth"
 # camera-facing 큐보이드 엣지 (0-3 앞면, 4-7 뒷면)

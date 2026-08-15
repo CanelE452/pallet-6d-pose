@@ -24,7 +24,7 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-OUT = ROOT / "data/pallet/results/paper_s2_corner_replacement_screen"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_corner_replacement_screen"
 FIG = OUT / "figures"
 MECH = ROOT / "data/pallet/results/paper_s2_mechanism_diagnostic"
 NEAR, FAR = (0, 1, 2, 3), (4, 5, 6, 7)

@@ -49,7 +49,7 @@ DOMAINS = {
     "cad": ["challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"],
 }
 SELF_CELLS = [(1, 0), (2, 1), (3, 2)]   # R1_outside×outside, R1_night×night, R1_noapril×noapril
-OUT = os.path.join(ROOT, "data/pallet/results/paper_s2_fullpool_full7", "cross_domain_hipl.png")
+OUT = os.path.join(ROOT, "data/pallet/results/paper_s2/paper_s2_fullpool_full7", "cross_domain_hipl.png")
 
 
 def load_eval():

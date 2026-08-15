@@ -494,7 +494,7 @@ BLOCKED:
 ```text
 BLOCKED:
 필요한 항목: session-independent PL pool plus nested quantity and equal-count quality manifests
-현재 확인한 위치: data/pallet/results/ralph_selftrain/* and SELFTRAIN_AUDIT.md
+현재 확인한 위치: data/pallet/results/ralph/ralph_selftrain/* and SELFTRAIN_AUDIT.md
 시도한 명령: metadata-only R1/R2 acceptance audit
 실패 원인: saved pools/evaluations are contaminated and required sweeps do not exist
 대체로 수행한 진단: accepted counts/rates and fresh-extraction history

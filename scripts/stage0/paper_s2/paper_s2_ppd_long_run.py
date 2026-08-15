@@ -28,7 +28,7 @@ import semantic_axis_initialization as SAI, dimension_guided_graph_pose as DGP
 import polarity_aware_line_head as PLH
 from models import DopeNetwork
 
-D = ROOT / "data/pallet/results/paper_s2_palletgraph_line_screen"
+D = ROOT / "data/pallet/results/paper_s2/paper_s2_palletgraph_line_screen"
 DATA = ROOT / "data/pallet/training_data/paper_4pallet_mask_v1"
 WROOT = ROOT / "weights/paper_s2/paper_s2_ppd_t2_screen"
 ALLOWED_ROOT = "paper_4pallet_mask_v1"

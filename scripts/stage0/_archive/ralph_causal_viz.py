@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = "/home/minjae/Documents/github/pallet-pose"
-RS = os.path.join(ROOT, "data/pallet/results/ralph_selftrain")
+RS = os.path.join(ROOT, "data/pallet/results/ralph/ralph_selftrain")
 JSON = os.environ.get("VIZ_JSON", "eval_causal.json")
 TAG = os.environ.get("VIZ_TAG", "challenge0123")
 R0K = os.environ.get("VIZ_R0", "R0")

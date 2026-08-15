@@ -31,7 +31,7 @@ if os.environ.get("RALPH_THRESH"):
 import cv2                                # noqa: E402
 import torch                              # noqa: E402
 
-RS = "data/pallet/results/ralph_selftrain"
+RS = "data/pallet/results/ralph/ralph_selftrain"
 DOM = os.environ.get("RALPH_DOM", "night")
 # 도메인별 (R0, self-train 모델, GT 폴더)
 CFG = {

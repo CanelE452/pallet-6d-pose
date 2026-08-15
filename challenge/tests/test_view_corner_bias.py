@@ -174,7 +174,7 @@ import hashlib  # noqa: E402
 import json  # noqa: E402
 import subprocess  # noqa: E402
 
-OUT = ROOT / "data/pallet/results/paper_s2_vcr_dope_screen"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_vcr_dope_screen"
 RUNNER = ROOT / "scripts/stage0/paper_s2/paper_s2_vcr_bias_atlas.py"
 EP57 = ROOT / "weights/paper_s2_stageB/net_epoch_0057.pth"
 EP57_SHA = "c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896"

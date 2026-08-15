@@ -1,9 +1,9 @@
 """s2_fullpool_full7_filter.py — full-pool 추론 jsonl 에 FULL7(f3 포함) 필터 적용.
 
-입력:  data/pallet/results/paper_s2_fullpool_infer/{domain}.jsonl  (s2_fullpool_infer.py 산출)
+입력:  data/pallet/results/paper_s2/paper_s2_fullpool_infer/{domain}.jsonl  (s2_fullpool_infer.py 산출)
 필터:  FULL7 = f1_peak & f2_peak_ratio & f3_flip & f4_tta_stab & f5_rear_conf & f6_frsep & f7_posdepth
        (M.apply_filter + T.TAU, allfilters_5domains 와 동일 임계)
-출력:  data/pallet/results/paper_s2_fullpool_full7/
+출력:  data/pallet/results/paper_s2/paper_s2_fullpool_full7/
          {domain}/pass/*.jpg   (pass 프레임 오버레이: pred8 cuboid + centroid)
          pass_manifest.tsv     (domain\tsession\tfid)
          summary.md            (도메인별 pass 수)
@@ -31,8 +31,8 @@ M, TAU, N_DET_MIN = T.M, T.TAU, T.N_DET_MIN
 FULL7 = ["f1_peak", "f2_peak_ratio", "f3_flip", "f4_tta_stab",
          "f5_rear_conf", "f6_frsep", "f7_posdepth"]
 ENV = {"size_lo": 0.0, "size_hi": 1.0, "asp_lo": 0.0, "asp_hi": 10.0}
-INFER_DIR = os.path.join(ROOT, "data/pallet/results/paper_s2_fullpool_infer")
-OUT_DIR = os.path.join(ROOT, "data/pallet/results/paper_s2_fullpool_full7")
+INFER_DIR = os.path.join(ROOT, "data/pallet/results/paper_s2/paper_s2_fullpool_infer")
+OUT_DIR = os.path.join(ROOT, "data/pallet/results/paper_s2/paper_s2_fullpool_full7")
 
 # session basename -> rgb dir (오버레이용 원본 이미지 경로)
 SESS2DIR = {}

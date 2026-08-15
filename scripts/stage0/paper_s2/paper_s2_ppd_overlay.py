@@ -26,7 +26,7 @@ import numpy as np
 import torch
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-OUT = ROOT / "data/pallet/results/paper_s2_palletgraph_line_screen/figures/overlays"
+OUT = ROOT / "data/pallet/results/paper_s2/paper_s2_palletgraph_line_screen/figures/overlays"
 
 _spec = importlib.util.spec_from_file_location(
     "LR", ROOT / "scripts/stage0/paper_s2/paper_s2_ppd_long_run.py")

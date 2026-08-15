@@ -3,7 +3,7 @@
 평가셋: split==eval 로 표시된 프레임(사용자 어노). 학습 PL(paper_s2_fullpool_r1/r2)에
         든 프레임은 누수라 제외 → R0/R1/R2 공정 비교.
 지표:   corner_med(order-free Hungarian), front(0-3), rear(4-7), det%(n_det>=6), good%(<10px).
-산출:   data/pallet/results/paper_s2_fullpool_full7/selftrain_eval/
+산출:   data/pallet/results/paper_s2/paper_s2_fullpool_full7/selftrain_eval/
           table.png (도메인별 R0/R1/R2 비교) + overlay_*.png (프레임별 R0/R1/R2 vs GT)
 
 Usage: conda activate pallet-pose; python -u scripts/stage0/s2_selftrain_eval_viz.py
@@ -44,7 +44,7 @@ PL_DIRS = ["data/pallet/training_data/paper_s2_fullpool_r1",
 DOM_OF = {"capturepalletcad": "cad", "capture0403noapril": "noapril",
           "_outside_eval": "outside", "capturepallet": "outside",
           "_night_eval": "night", "capturenight": "night"}
-OUT = os.path.join(ROOT, "data/pallet/results/paper_s2_fullpool_full7/selftrain_eval")
+OUT = os.path.join(ROOT, "data/pallet/results/paper_s2/paper_s2_fullpool_full7/selftrain_eval")
 
 
 def dom_of(folder):

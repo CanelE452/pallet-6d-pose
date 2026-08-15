@@ -7,7 +7,7 @@ conda activate pallet-pose
 export CUDA_MODULE_LOADING=LAZY PYTHONUNBUFFERED=1
 BASE=weights/paper_s2_stageB/net_epoch_0057_noseg.pth
 SYN=data/pallet/training_data/aug_squash_v2
-RS=data/pallet/results/ralph_selftrain
+RS=data/pallet/results/ralph/ralph_selftrain
 
 # noapril 진행중 PID 대기
 while pgrep -f "h8_s2_noapril_looflip" >/dev/null 2>&1; do sleep 30; done
