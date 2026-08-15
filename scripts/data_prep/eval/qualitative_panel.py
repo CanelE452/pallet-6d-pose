@@ -114,9 +114,9 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--output", required=True)
     p.add_argument("--r0_weights", default="weights/v8_ablation_A_coord/final_net_epoch_0065.pth")
-    p.add_argument("--r1_indoor", default="weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth")
-    p.add_argument("--r1_outside", default="weights/r1_outside_loo/final_net_epoch_0096.pth")
-    p.add_argument("--r1_night", default="weights/r1_outside_loo/final_net_epoch_0096.pth")
+    p.add_argument("--r1_indoor", default="weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth")
+    p.add_argument("--r1_outside", default="weights/selftrain/r1_outside_loo/final_net_epoch_0096.pth")
+    p.add_argument("--r1_night", default="weights/selftrain/r1_outside_loo/final_net_epoch_0096.pth")
     p.add_argument("--n_per_domain", type=int, default=2)
     args = p.parse_args()
 

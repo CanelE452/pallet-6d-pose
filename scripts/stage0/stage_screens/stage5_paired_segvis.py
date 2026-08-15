@@ -17,8 +17,8 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import eval_pvnet_heads as E  # noqa: E402
 
-OFF = "weights/stage4_pvnet/off/final_net_pvnet_off.pth"
-NEW = "weights/stage5_voting/unit_seg/final_net_pvnet_unit.pth"
+OFF = "weights/stage_screens/stage4_pvnet/off/final_net_pvnet_off.pth"
+NEW = "weights/stage_screens/stage5_voting/unit_seg/final_net_pvnet_unit.pth"
 OUT = "data/pallet/eval_results/stage5_voting"
 
 

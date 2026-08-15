@@ -26,9 +26,9 @@ from diag2_raw_decode_stages import per_frame, classify, TAU0  # noqa
 
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage11_16k")
 MODELS = {
-    "baseline": "weights/challenge0123/final_net_epoch_0060.pth",
-    "B0_v3": "weights/stage11_16k_B0_v3/final_net_epoch_0075.pth",
-    "B1_addon": "weights/stage11_16k_B1_v3addon/final_net_epoch_0075.pth",
+    "baseline": "weights/challenge_track/challenge0123/final_net_epoch_0060.pth",
+    "B0_v3": "weights/stage_screens/stage11_16k_B0_v3/final_net_epoch_0075.pth",
+    "B1_addon": "weights/stage_screens/stage11_16k_B1_v3addon/final_net_epoch_0075.pth",
 }
 VAL = os.path.join(ROOT, "data/pallet/training_data/val")
 

@@ -5,9 +5,9 @@ SAME sets + SAME metrics as B2 / challenge0123.
       정직한 출발점 숫자. B2(v3/addon replay) 대비 gap = "v3/addon 없이 치른 비용".
 
 모델 (heatmap only, pad100 추론):
-  - paper_base_v2  weights/paper_base_v2/final_net_epoch_0060.pth (무패딩 학습→pad100 필수)
-  - B2             weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth (internal best)
-  - challenge0123  weights/challenge0123/final_net_epoch_0060.pth (최초 v4 base)
+  - paper_base_v2  weights/paper_base/paper_base_v2/final_net_epoch_0060.pth (무패딩 학습→pad100 필수)
+  - B2             weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth (internal best)
+  - challenge0123  weights/challenge_track/challenge0123/final_net_epoch_0060.pth (최초 v4 base)
 
 평가셋:
   - handannot17 : testset_full8_manifest.txt (cad11 + noapril6, 8/8 완전). 고앙각 편향→정성.
@@ -56,9 +56,9 @@ GOOD_PX, GROSS_PX = 10.0, 20.0
 PAD, THRESH = 100, 0.3
 
 MODELS = {
-    "paper_base_v2": "weights/paper_base_v2/final_net_epoch_0060.pth",
-    "B2":            "weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth",
-    "challenge0123": "weights/challenge0123/final_net_epoch_0060.pth",
+    "paper_base_v2": "weights/paper_base/paper_base_v2/final_net_epoch_0060.pth",
+    "B2":            "weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth",
+    "challenge0123": "weights/challenge_track/challenge0123/final_net_epoch_0060.pth",
 }
 
 # ---- filter-val split lock (mirror tau_calibrate.collect_val_frames) ----

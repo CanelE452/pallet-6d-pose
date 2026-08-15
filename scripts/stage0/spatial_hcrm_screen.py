@@ -45,9 +45,9 @@ OUT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
        / "compatibility_calibration/canonical_corner_audit/spatial_hcrm_screen")
 REPORTS = (ROOT / "_docs/audits/eval56_summary/canonical_corner_audit"
            / "spatial_hcrm_screen")
-WEIGHTS = ROOT / "weights/paper_s2_spatial_hcrm"
+WEIGHTS = ROOT / "weights/paper_s2/paper_s2_spatial_hcrm"
 TRAIN_DATA = ROOT / "data/pallet/training_data"
-A1_CKPT = ROOT / "weights/paper_s2_pdg/A1/epoch_003.pth"
+A1_CKPT = ROOT / "weights/paper_s2/paper_s2_pdg/A1/epoch_003.pth"
 A1_SHA = "00a0dcd8730e21d14b8a86e2f2a398650b78026006e4e358eabc438148fb9657"
 
 SEALED = ("capturenight08", "capturenight09", "capturepallet07", "capturepallet09",

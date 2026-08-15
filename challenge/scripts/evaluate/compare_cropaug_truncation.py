@@ -148,8 +148,8 @@ def main():
 
     models={
         "baseline": os.path.join(_REPO,"challenge/weights/baseline_v8_A.pth"),
-        "ft_s1":    os.path.join(_REPO,"weights/dope_cropaug_ft_s1/final_net_epoch_0150.pth"),
-        "ft_s2":    os.path.join(_REPO,"weights/dope_cropaug_ft_s2/final_net_epoch_0180.pth"),
+        "ft_s1":    os.path.join(_REPO,"weights/dope/dope_cropaug_ft_s1/final_net_epoch_0150.pth"),
+        "ft_s2":    os.path.join(_REPO,"weights/dope/dope_cropaug_ft_s2/final_net_epoch_0180.pth"),
     }
     M={k:load_model(v,dev) for k,v in models.items()}
     order=["baseline","ft_s1","ft_s2"]

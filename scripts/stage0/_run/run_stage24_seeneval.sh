@@ -20,7 +20,7 @@ s=$(cat "$L/STATUS" 2>/dev/null || echo "")
 [ "$s" != "QUICKSCREEN_DONE" ] && { echo "not done: $s"; exit 1; }
 echo "===== quick-screen done, running SEEN eval $(date +%H:%M:%S) ====="
 
-VW=weights/stage24_vec_newdata/voting/final_net_voting_unit.pth
+VW=weights/stage_screens/stage24_vec_newdata/voting/final_net_voting_unit.pth
 # SEEN eval: v3 batch_000 (in training), real seg-head mask voting + gt mask
 run scripts/stage0/eval_harness/eval_pvnet_heads.py --weights "$VW" --vec_mode unit \
   --evalset v3 --batch_dir challenge/data/02_synthetic/training/v3/batch_000 \

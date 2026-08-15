@@ -31,7 +31,7 @@ from eval_pvnet_heads import (load_pvnet_model, preprocess, belief_to_orig,  # n
 from filter_pr_camfacing import extract_keypoints_from_belief  # noqa
 from four_arm_pl_compare import collect_val_frames  # noqa
 
-WEIGHTS = os.path.join(ROOT, "weights/challenge0123/final_net_epoch_0060.pth")
+WEIGHTS = os.path.join(ROOT, "weights/challenge_track/challenge0123/final_net_epoch_0060.pth")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage9_diag")
 DEPTH_PAIRS = [(0, 4), (1, 5), (2, 6), (3, 7)]
 

@@ -1,6 +1,6 @@
 # PAPER_STAGE_B — paper_base_v2 공식 논문 baseline (no-pad 확정)
 
-weights: weights/paper_base_v2/final_net_epoch_0060.pth (procedural 19,308, palletobj-free, scratch 60ep, 무패딩 학습)
+weights: weights/paper_base/paper_base_v2/final_net_epoch_0060.pth (procedural 19,308, palletobj-free, scratch 60ep, 무패딩 학습)
 source: data/pallet/eval_results/paper_stage_a/eval.json (재실행 없음, PAPER_STAGE_A 측정 재사용)
 ★ official quantitative protocol = A_nopad(aspect) | qualitative coverage demo = C_pad100
 

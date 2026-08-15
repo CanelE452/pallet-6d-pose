@@ -4,7 +4,7 @@ weights/ 하위 디렉토리의 eval_summary.json을 스캔하여 테이블로 �
 
 사용법:
     python scripts/compare_experiments.py
-    python scripts/compare_experiments.py --dirs weights/pallet_category weights/blender_v1
+    python scripts/compare_experiments.py --dirs weights/misc/pallet_category weights/blender_v1
     python scripts/compare_experiments.py --sort pck@3px
 """
 

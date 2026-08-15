@@ -3,7 +3,7 @@
 ## 학습 설정
 
 ```
-Weight:      weights/challenge_ft_pallet07/final_net_epoch_0091.pth
+Weight:      weights/challenge_track/challenge_ft_pallet07/final_net_epoch_0091.pth
 초기 weight: challenge/weights/baseline_v8_A.pth
 Epochs:      91
 Batch size:  4

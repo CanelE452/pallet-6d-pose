@@ -387,7 +387,7 @@ def test_36_corrupt_checkpoint_is_rejected(tree, tmp_path):
 
 
 def test_37_a1_checkpoint_unchanged():
-    assert sha256_file(ROOT / "weights/paper_s2_pdg/A1/epoch_003.pth") == A1_SHA
+    assert sha256_file(ROOT / "weights/paper_s2/paper_s2_pdg/A1/epoch_003.pth") == A1_SHA
 
 
 def test_38_source_dataset_is_never_written(tree):

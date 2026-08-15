@@ -54,14 +54,14 @@ RESULT_ROOT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliatio
                / "instance_edge_learnability")
 REPORT_ROOT = (ROOT / "_docs/audits/eval56_summary/canonical_corner_audit"
                / "instance_edge_learnability")
-WEIGHT_ROOT = ROOT / "weights/paper_s2_instance_edge"
+WEIGHT_ROOT = ROOT / "weights/paper_s2/paper_s2_instance_edge"
 PPD_ROOT = ROOT / "data/pallet/results/paper_s2_palletgraph_line_screen"
-PPD_WEIGHTS = ROOT / "weights/paper_s2_ppd_t2_screen"
+PPD_WEIGHTS = ROOT / "weights/paper_s2/paper_s2_ppd_t2_screen"
 SYNTH_ROOT = ROOT / "data/pallet/training_data/paper_4pallet_mask_v1"
 
 EP57 = ROOT / "weights/paper_s2_stageB/net_epoch_0057.pth"
 EP57_SHA = "c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896"
-A1_CKPT = ROOT / "weights/paper_s2_pdg/A1/epoch_003.pth"
+A1_CKPT = ROOT / "weights/paper_s2/paper_s2_pdg/A1/epoch_003.pth"
 
 # Sealed tokens.  Any path carrying one of these is refused before it is opened.
 SEALED = ("capturenight08", "capturenight09", "capturepallet07", "capturepallet09",

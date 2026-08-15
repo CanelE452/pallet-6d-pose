@@ -3,8 +3,8 @@
 ## 학습 설정
 
 ```
-Weight:      weights/challenge_camfacing_ft/final_net_epoch_0070.pth
-초기 weight: weights/challenge/final_net_epoch_0060.pth
+Weight:      weights/challenge_track/challenge_camfacing_ft/final_net_epoch_0070.pth
+초기 weight: weights/challenge_track/challenge/final_net_epoch_0060.pth
 Epochs:      70 (60 → 70, 10 ep refine)
 Batch size:  8
 LR:          1e-5            (challenge 의 1/10)

@@ -13,8 +13,8 @@ real, cut-paste works"; no change -> "geometry (not appearance) is the bottlenec
 (consistent with STAGE16/19)"; worse -> "cut-paste also unfit".
 
 Usage: conda run -n pallet-pose python scripts/stage0/stage_screens/stage20_cutpaste_eval.py \
-    --control  weights/stage20_cutpaste_pilot/control/final_net.pth \
-    --cutpaste weights/stage20_cutpaste_pilot/cutpaste/final_net.pth
+    --control  weights/stage_screens/stage20_cutpaste_pilot/control/final_net.pth \
+    --cutpaste weights/stage_screens/stage20_cutpaste_pilot/cutpaste/final_net.pth
 """
 from __future__ import annotations
 import os as _os, sys as _sys

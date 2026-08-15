@@ -70,10 +70,10 @@ fx,cx and fy,cy by the same factors, leaving the pose unchanged).
 ```
 HEAD                88d25c55be0a9ef9275781177b7eb248ba96f648
 ep57 SHA256         c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896
-S1 checkpoint       weights/paper_s2_stagewise_bias_screen/epoch_005.pth   (run_state 5/5)
-C1 checkpoint       weights/paper_s2_corner_replacement_screen/epoch_005.pth (run_state 5/5)
-N2 checkpoint       weights/paper_s2_pfdr/N2/epoch_003.pth                  (run_state 3/3)
-N3 checkpoint       weights/paper_s2_pfdr/N3/epoch_003.pth                  (run_state 3/3)
+S1 checkpoint       weights/paper_s2/paper_s2_stagewise_bias_screen/epoch_005.pth   (run_state 5/5)
+C1 checkpoint       weights/paper_s2/paper_s2_corner_replacement_screen/epoch_005.pth (run_state 5/5)
+N2 checkpoint       weights/paper_s2/paper_s2_pfdr/N2/epoch_003.pth                  (run_state 3/3)
+N3 checkpoint       weights/paper_s2/paper_s2_pfdr/N3/epoch_003.pth                  (run_state 3/3)
 deployment config   challenge/config/task.yaml inference.belief
                     threshold 0.30  thresh_map 0.30  thresh_points 0.30
                     thresh_angle 0.50  sigma 3

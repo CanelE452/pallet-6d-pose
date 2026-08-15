@@ -29,7 +29,7 @@ Preprocessing (2026-06-19):
 
 Usage (user, GPU):
   conda run -n pallet-pose python scripts/stage0/filter_pl/extract_pl_v1.py \
-      --weights weights/paper_base_v2_s2/net_epoch_0066.pth \
+      --weights weights/paper_base/paper_base_v2_s2/net_epoch_0066.pth \
       --output_dir data/pallet/pl/stage0_paper_base
 
 Smoke (CPU, no model):

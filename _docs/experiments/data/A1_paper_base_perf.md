@@ -28,7 +28,7 @@ paper_base   0.952   0.988   0.995    11.7px         85.5%   14.1px       1.60
 - keypoint 위치 매우 정확(PCK@5 0.988). same-index PCK 낮음(@3 0.28)=convention 순서차 → order-free로 봐야 (memory evaluate-on-val-convention-bug).
 - volume_ratio median 1.60 = PnP scale 과대(monocular, dims 1.1/1.3/0.11). keypoint는 양호하나 PnP depth 약제약.
 - 학습: scratch 60ep, mixed_v8(camfacing 9000)+aug_squash(2819)+aug_trunc(3929)+aug_scale(1592)=17,340. epoch당 ~18.6분(workers=0 병목, 다음 학습은 workers↑).
-- 산출: `weights/paper_base/final_net_epoch_0060.pth`, `eval_results/eval_summary.json`.
+- 산출: `weights/paper_base/paper_base/final_net_epoch_0060.pth`, `eval_results/eval_summary.json`.
 
 ## 결론
 keypoint 품질이 self-training 출발점으로 충분(PCK@5 0.99, corner 11.7px). 단 이는 **합성 val** 기준 — real 일반화는 D1/D2에서. self-training(C1)으로 real 개선 기대.

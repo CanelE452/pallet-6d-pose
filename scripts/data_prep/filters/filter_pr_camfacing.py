@@ -33,7 +33,7 @@ Corner index mapping (object-frame canonical, verified by 3d-expert audit
 
 Usage:
     python scripts/data_prep/filters/filter_pr_camfacing.py \
-        --weights weights/dope_cropaug_ft_s2/net_epoch_0180.pth --tag s2
+        --weights weights/dope/dope_cropaug_ft_s2/net_epoch_0180.pth --tag s2
 
 Output (data/pallet/eval_results/filter_pr_camfacing/):
     summary_{tag}.json / .csv   per-filter and per-dataset P/R/F1/n_pass

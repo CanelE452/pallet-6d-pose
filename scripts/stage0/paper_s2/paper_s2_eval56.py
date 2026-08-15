@@ -896,7 +896,7 @@ def paired_bootstrap(base: pd.DataFrame, cand: pd.DataFrame, column: str,
 # PFDR — far-decoupled refinement adapter
 # ============================================================================
 PFDR_OUT = OUT / "pfdr"
-PFDR_WEIGHTS = ROOT / "weights/paper_s2_pfdr"
+PFDR_WEIGHTS = ROOT / "weights/paper_s2/paper_s2_pfdr"
 
 
 class PFDRTrainer:
@@ -1642,10 +1642,10 @@ def threshold_overlay_figures() -> int:
 DEC_OUT = OUT / "decoder_reconciliation"
 DEC_ARMS = ("B0", "E2", "S1", "C1", "N2", "N3")
 DEC_CHECKPOINTS = {
-    "S1": ROOT / "weights/paper_s2_stagewise_bias_screen/epoch_005.pth",
-    "C1": ROOT / "weights/paper_s2_corner_replacement_screen/epoch_005.pth",
-    "N2": ROOT / "weights/paper_s2_pfdr/N2/epoch_003.pth",
-    "N3": ROOT / "weights/paper_s2_pfdr/N3/epoch_003.pth",
+    "S1": ROOT / "weights/paper_s2/paper_s2_stagewise_bias_screen/epoch_005.pth",
+    "C1": ROOT / "weights/paper_s2/paper_s2_corner_replacement_screen/epoch_005.pth",
+    "N2": ROOT / "weights/paper_s2/paper_s2_pfdr/N2/epoch_003.pth",
+    "N3": ROOT / "weights/paper_s2/paper_s2_pfdr/N3/epoch_003.pth",
 }
 # run_state.json in each weight directory: stagewise and corner-replacement are
 # epoch 5/5 completed, both PFDR arms 3/3 completed.  Prefixes recorded so a
@@ -2478,8 +2478,8 @@ CAL_SIGMA_GRID = {"S00": 0.0, "S05": 0.5, "S10": 1.0, "S15": 1.5,
 N87_MANIFEST = (ROOT / "data/pallet/results/paper_s2_mechanism_diagnostic"
                 / "mechanism_val_manifest.json")
 CHALLENGE_CONTROLS = {
-    "M1_challenge0123": ROOT / "weights/challenge0123/net_epoch_0060.pth",
-    "M2_challengenight": ROOT / "weights/challengenight/net_epoch_0120.pth",
+    "M1_challenge0123": ROOT / "weights/challenge_track/challenge0123/net_epoch_0060.pth",
+    "M2_challengenight": ROOT / "weights/challenge_track/challengenight/net_epoch_0120.pth",
 }
 
 

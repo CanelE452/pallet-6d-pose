@@ -18,9 +18,9 @@ done
 [ "$(cat "$L/STATUS2" 2>/dev/null)" != "SEEN_EVAL_DONE" ] && { echo "seen-eval not done"; exit 1; }
 echo "===== held-out paired evals $(date +%H:%M:%S) ====="
 
-VW=weights/stage24_vec_newdata/voting/final_net_voting_unit.pth
-CW=weights/stage24_vec_newdata/control/final_net_control_off.pth
-SW=weights/stage24_vec_newdata/sparse/final_net_sparse_sparse.pth
+VW=weights/stage_screens/stage24_vec_newdata/voting/final_net_voting_unit.pth
+CW=weights/stage_screens/stage24_vec_newdata/control/final_net_control_off.pth
+SW=weights/stage_screens/stage24_vec_newdata/sparse/final_net_sparse_sparse.pth
 
 # --- voting vs control: manifest(17), filter-val(outside), manual ---
 run scripts/stage0/eval_harness/eval_pvnet_heads.py --weights "$VW" "$CW" \

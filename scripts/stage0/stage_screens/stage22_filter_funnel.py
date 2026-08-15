@@ -80,8 +80,8 @@ DATASETS = {
         "dims": (1.3, 1.1, 0.11)},
 }
 MODELS = {
-    "B2":       "weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth",
-    "s19_mixup": "weights/stage19_mixup_pilot/mixup/final_net.pth",
+    "B2":       "weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth",
+    "s19_mixup": "weights/stage_screens/stage19_mixup_pilot/mixup/final_net.pth",
 }
 
 # threshold pairs (primary = task-specified; alt = deployed/code)

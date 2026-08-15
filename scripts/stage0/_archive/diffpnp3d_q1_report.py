@@ -151,8 +151,8 @@ def overlays(best_lam, lams):
     val = json.load(open(EV.VAL_LIST))
     # candidate frames: V8 & low elevation
     cand = [e for e in val]
-    w0 = os.path.join(ROOT, "weights/paper_s2_q1/lam0/final_net_epoch_0008.pth")
-    wb = os.path.join(ROOT, f"weights/paper_s2_q1/lam{best_lam}/final_net_epoch_0008.pth")
+    w0 = os.path.join(ROOT, "weights/paper_s2/paper_s2_q1/lam0/final_net_epoch_0008.pth")
+    wb = os.path.join(ROOT, f"weights/paper_s2/paper_s2_q1/lam{best_lam}/final_net_epoch_0008.pth")
     if not (os.path.exists(w0) and os.path.exists(wb)):
         return None
     m0, mb = EV.load_model(w0, dev), EV.load_model(wb, dev)

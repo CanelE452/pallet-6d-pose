@@ -56,3 +56,34 @@ grep -rl "weights/<이름>" --include="*.py" --include="*.sh" --include="*.yaml"
 
 계열을 나눌 때는 `<run>/header.txt` 의 `data=` 를 본다. 이름이 비슷해도 학습 입력이
 다르면 다른 실험이고, 그 반대도 있다.
+
+
+---
+
+## weights/ 전체 구조 (2026-08-15)
+
+루트가 81개로 흩어져 있어 10개 계열로 묶었다.
+
+```
+paper_s2/         20  45G   PAPER_S2 스크린
+stage_screens/    11  26G   stage11~24
+challenge_track/   9  18G   과제용 트랙
+selftrain/        11  13G   R1~R3 self-training 라운드
+misc/              6  12G   계열이 없는 것
+_archive/          9  11G   참조 0 (아래 참조)
+dope/              3 7.4G   dope_cropaug 계열
+paper_base/        4 6.3G
+paper_s1/          3 4.9G
+_logs/            13         학습 로그
+paper_s2_stageB/  10 1.5G   ★루트에 남는다 — 아래 이유
+```
+
+### ★paper_s2_stageB 만 루트에 남는 이유
+
+`scripts/stage0/paper_s2_frozen_diagnostic.py` 가 이 경로를 상수로 들고 있고,
+그 파일의 sha256 이 `cache_key` 에 들어간다. 경로를 한 글자만 고쳐도 파일 해시가
+바뀌어 **저장된 진단 캐시가 전부 무효**가 된다. 실제로 옮겼다가
+`test_cache_reuse_performs_zero_model_forwards` 가 잡아냈고 되돌렸다.
+
+옮길 수 없는 파일은 자기가 가리키는 것까지 붙잡아 둔다 — 코드에서 이미 겪은 것과
+같은 규칙이 가중치에도 적용된다.

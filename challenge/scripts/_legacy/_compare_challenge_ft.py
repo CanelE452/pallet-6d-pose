@@ -137,8 +137,8 @@ def main():
     K=np.array([[a.fx,0,a.cx],[0,a.fy,a.cy],[0,0,1.]])
 
     models={
-        "ft_s2_OLD": os.path.join(_REPO,"weights/dope_cropaug_ft_s2/final_net_epoch_0180.pth"),
-        "ft_otftrunc_NEW": os.path.join(_REPO,"weights/challenge_ft_otftrunc/final_net_epoch_0150.pth"),
+        "ft_s2_OLD": os.path.join(_REPO,"weights/dope/dope_cropaug_ft_s2/final_net_epoch_0180.pth"),
+        "ft_otftrunc_NEW": os.path.join(_REPO,"weights/challenge_track/challenge_ft_otftrunc/final_net_epoch_0150.pth"),
     }
     M={k:load_model(v,dev) for k,v in models.items()}
     order=["ft_s2_OLD","ft_otftrunc_NEW"]

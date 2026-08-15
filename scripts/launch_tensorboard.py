@@ -3,7 +3,7 @@
 
 Usage:
     python scripts/launch_tensorboard.py                          # 전체 실험 (weights/)
-    python scripts/launch_tensorboard.py --logdir weights/pallet_v11/runs/
+    python scripts/launch_tensorboard.py --logdir weights/misc/pallet_v11/runs/
     python scripts/launch_tensorboard.py --compare pretrain finetune_v11
     python scripts/launch_tensorboard.py --summary                # loss 요약만
 """

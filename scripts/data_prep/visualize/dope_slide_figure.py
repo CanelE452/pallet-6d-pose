@@ -7,7 +7,7 @@
 
 사용법:
     python scripts/data_prep/visualize/dope_slide_figure.py \
-        --weights weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
+        --weights weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
         --test_dir data/pallet/raw_data/capture0403middle \
         --out_dir _docs/figures \
         --topk 3

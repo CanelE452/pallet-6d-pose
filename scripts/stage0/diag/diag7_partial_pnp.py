@@ -28,7 +28,7 @@ from eval_pvnet_heads import load_pvnet_model, preprocess, belief_to_orig, colle
 from filter_pr_camfacing import extract_keypoints_from_belief  # noqa
 from annotate_pnp import solve_pose, make_pallet_keypoints_3d, project_3d  # noqa
 
-WEIGHTS = os.path.join(ROOT, "weights/challenge0123/final_net_epoch_0060.pth")
+WEIGHTS = os.path.join(ROOT, "weights/challenge_track/challenge0123/final_net_epoch_0060.pth")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage9_diag")
 
 

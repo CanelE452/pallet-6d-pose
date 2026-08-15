@@ -16,7 +16,7 @@ Excludes eval-set frame IDs and _exclude.txt (so PL never contaminates eval).
 
 Usage:
     python scripts/data_prep/inference/extract_pl_camfacing.py \
-        --weights weights/paper_base/final_net_epoch_0060.pth \
+        --weights weights/paper_base/paper_base/final_net_epoch_0060.pth \
         --domain outside
 """
 import argparse

@@ -295,7 +295,7 @@ TexPose CVPR23 / SMOC-Net CVPR23 / UDA-COPE CVPR22 / 3DUDA ICLR24 / RKHSPose ECC
 
 ### 구멍 (전부 protocol/comparison — 연구 리스크 아닌 규율로 닫힘)
 1. ~~paper_base 미학습 = 단일 실패점~~ → **해결(2026-06-15): paper_base·paper_r1 이미 학습됨**
-   (`weights/paper_base/final_net_epoch_0060`, `paper_r1_{outside,night}`). 진짜 리스크는 학습이 아니라
+   (`weights/paper_base/paper_base/final_net_epoch_0060`, `paper_r1_{outside,night}`). 진짜 리스크는 학습이 아니라
    **honest base가 약함**(held-out real good: outside 9 / night 1 / forklift 4) = **천장 문제**(레이블 clean,
    P3 무혐의 → 데이터 수리 아닌 **base 보강** 트랙). 합성 val corner median 11.7px도 같은 천장 신호.
 2. **B1 현재 결과는 ft_s2(누수)/pretrain(held-out) proxy.** 본문 수치는 paper_base 재실행만.

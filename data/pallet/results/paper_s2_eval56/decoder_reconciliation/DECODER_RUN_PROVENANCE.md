@@ -24,10 +24,10 @@ final-test sessions    not read
 ```
 B0  weights/paper_s2_stageB/net_epoch_0057.pth                    c0055fe7  (H6, A6)
 E2  same forward as B0, near H6 / far H5 / centroid H6            c0055fe7
-S1  weights/paper_s2_stagewise_bias_screen/epoch_005.pth          99584084  epoch 5/5
-C1  weights/paper_s2_corner_replacement_screen/epoch_005.pth      aad97f6b  epoch 5/5
-N2  weights/paper_s2_pfdr/N2/epoch_003.pth                        4b644fd8  epoch 3/3
-N3  weights/paper_s2_pfdr/N3/epoch_003.pth                        9db513f3  epoch 3/3
+S1  weights/paper_s2/paper_s2_stagewise_bias_screen/epoch_005.pth          99584084  epoch 5/5
+C1  weights/paper_s2/paper_s2_corner_replacement_screen/epoch_005.pth      aad97f6b  epoch 5/5
+N2  weights/paper_s2/paper_s2_pfdr/N2/epoch_003.pth                        4b644fd8  epoch 3/3
+N3  weights/paper_s2/paper_s2_pfdr/N3/epoch_003.pth                        9db513f3  epoch 3/3
 ```
 
 N1 is excluded, and that exclusion was recorded as a limitation of the original

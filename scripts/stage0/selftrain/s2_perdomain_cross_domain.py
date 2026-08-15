@@ -37,10 +37,10 @@ import matplotlib.pyplot as plt           # noqa: E402
 NMIN = T.N_DET_MIN
 MODELS = [
     ("R0\n(baseline)", "weights/paper_s2_stageB/net_epoch_0057.pth"),
-    ("R1 rf\n(outside PL,\n191)", "weights/paper_s2_rf_hipl/r1_outside/net_epoch_0060.pth"),
-    ("R1 rf\n(night PL,\n39)", "weights/paper_s2_rf_hipl/r1_night/net_epoch_0060.pth"),
-    ("R1 rf\n(noapril PL,\n2)", "weights/paper_s2_rf_hipl/r1_noapril/net_epoch_0060.pth"),
-    ("R1 rf\n(combined,\n232)", "weights/paper_s2_rf_hipl/r1_combined/net_epoch_0060.pth"),
+    ("R1 rf\n(outside PL,\n191)", "weights/paper_s2/paper_s2_rf_hipl/r1_outside/net_epoch_0060.pth"),
+    ("R1 rf\n(night PL,\n39)", "weights/paper_s2/paper_s2_rf_hipl/r1_night/net_epoch_0060.pth"),
+    ("R1 rf\n(noapril PL,\n2)", "weights/paper_s2/paper_s2_rf_hipl/r1_noapril/net_epoch_0060.pth"),
+    ("R1 rf\n(combined,\n232)", "weights/paper_s2/paper_s2_rf_hipl/r1_combined/net_epoch_0060.pth"),
 ]
 DOMAINS = {
     "outside": ["challenge/data/01_real/eval_canonical/_outside_eval_manual_gt"] + [f"challenge/data/01_real/manual_gt/capturepallet0{i}_manual_gt" for i in range(2, 10)],

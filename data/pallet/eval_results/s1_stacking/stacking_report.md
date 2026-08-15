@@ -1,6 +1,6 @@
 # Paper-S1 stacking of 9 PL-accept signals over dev real GT sets
 
-- weights: `weights/paper_s1_maskaux/net_epoch_0065.pth`
+- weights: `weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth`
 - inference: reflect-pad100 (near-field PL 후보 확보용; **NOT official eval**)
 - domains(dev): outside/night/cad/noapril | SEAL 제외(pallet07/09,night08/09)
 - total frames=120 | detected(>=6 corner)=82

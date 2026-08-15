@@ -4,7 +4,7 @@ NVIDIA식 표현(side face center anchor heatmap + 그 anchor 위치에서 각 �
 까지 2D offset 회귀)이 "구현/표현이 학습 가능한가"를 32장 순수 암기로 검증.
 전체 학습 아님 — 표현 capacity gate.
 
-base = B2 frozen (weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth).
+base = B2 frozen (weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth).
 strict=False 로드(mask aux head 24 unexpected 무시, belief/affinity/vgg backbone
 0 missing 확인). encoder+belief+affinity 전부 freeze, 새 2 head 만 학습.
 frozen feat(vgg out1, 128ch 50×50) 캐시. offset_overfit32 / v3_overfit32 패턴 재사용.

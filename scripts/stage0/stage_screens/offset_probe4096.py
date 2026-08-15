@@ -189,7 +189,7 @@ def evalset(base, head, device, frames, label, lines):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--weights", default=os.path.join(
-        ROOT, "weights/challenge0123/final_net_epoch_0060.pth"))
+        ROOT, "weights/challenge_track/challenge0123/final_net_epoch_0060.pth"))
     ap.add_argument("--n_train", type=int, default=4096)
     ap.add_argument("--iters", type=int, default=2500)
     ap.add_argument("--lr", type=float, default=3e-4)

@@ -10,7 +10,7 @@ Both models loaded strict=False -> Paper-S1's seg head is DROPPED at inference
 (belief-peak decode, NO mask hard-gate). Judgement only; no training.
 
 Usage:
-  python scripts/stage0/eval_harness/eval_paper_s1_paired.py --s1_weights weights/paper_s1_maskaux/<ckpt>.pth
+  python scripts/stage0/eval_harness/eval_paper_s1_paired.py --s1_weights weights/paper_s1/paper_s1_maskaux/<ckpt>.pth
 """
 from __future__ import annotations
 import os as _os, sys as _sys
@@ -34,7 +34,7 @@ import stage25_paperbase_eval as S  # noqa: E402
 from stage25_paperbase_eval import E, summarize, SETS, ELEV_BINS, elev_of  # noqa: E402
 
 OUT_DIR = os.path.join(ROOT, "data/pallet/eval_results/paper_s1")
-BASE_W = os.path.join(ROOT, "weights/paper_base_v2/final_net_epoch_0060.pth")
+BASE_W = os.path.join(ROOT, "weights/paper_base/paper_base_v2/final_net_epoch_0060.pth")
 THRESH = 0.3
 PAD = 0  # A_nopad (official)
 

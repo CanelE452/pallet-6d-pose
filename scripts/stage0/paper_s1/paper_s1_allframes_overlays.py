@@ -52,7 +52,7 @@ _spec = importlib.util.spec_from_file_location("ecad", ECAD_PATH)
 E = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(E)
 
-WEIGHTS = os.path.join(ROOT, "weights/paper_s1_maskaux/net_epoch_0065.pth")
+WEIGHTS = os.path.join(ROOT, "weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth")
 OUT_ROOT = os.path.join(ROOT, "data/pallet/eval_results/s1_allframes_overlays")
 PAD = 100
 THRESH = 0.3

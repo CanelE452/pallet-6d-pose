@@ -19,11 +19,11 @@ mkdir -p "$DST/weights" "$DST/challenge/weights" \
 
 echo "===== [1/4] weights (challenge 라인) ====="
 rsync -avP \
-  "$SRC/weights/challengenight" \
-  "$SRC/weights/challenge0123" \
-  "$SRC/weights/challenge0123_ft_manual" \
-  "$SRC/weights/r1_outside_loo" \
-  "$SRC/weights/f5_noapril_ransac_loo_realonly" \
+  "$SRC/weights/challenge_track/challengenight" \
+  "$SRC/weights/challenge_track/challenge0123" \
+  "$SRC/weights/challenge_track/challenge0123_ft_manual" \
+  "$SRC/weights/selftrain/r1_outside_loo" \
+  "$SRC/weights/misc/f5_noapril_ransac_loo_realonly" \
   "$DST/weights/"
 rsync -avP "$SRC/challenge/weights/baseline_v8_A.pth" "$DST/challenge/weights/"
 

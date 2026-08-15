@@ -14,7 +14,7 @@ ROOT=/home/minjae/Documents/github/pallet-pose
 DATA=$ROOT/data/pallet/training_data
 IDXDIR=$ROOT/data/pallet/results/paper_s2_scratch_diffpnp/pnp_valid_3d_index
 LOGDIR=$ROOT/data/pallet/results/paper_s2_scratch_diffpnp/full_run_logs
-STAGEA=$ROOT/weights/paper_s2_stageA
+STAGEA=$ROOT/weights/paper_s2/paper_s2_stageA
 STAGEB=$ROOT/weights/paper_s2_stageB
 mkdir -p "$LOGDIR" "$STAGEA" "$STAGEB"
 

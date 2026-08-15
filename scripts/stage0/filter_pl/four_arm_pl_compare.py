@@ -51,7 +51,7 @@ CPU smoke (no GPU, seal check):
 
 GPU (user / agent — only 87 GT, fast):
   conda run -n pallet-pose python scripts/stage0/filter_pl/four_arm_pl_compare.py \
-      --weights weights/paper_base_v2_s2/net_epoch_0066.pth
+      --weights weights/paper_base/paper_base_v2_s2/net_epoch_0066.pth
 """
 from __future__ import annotations
 import os as _os, sys as _sys

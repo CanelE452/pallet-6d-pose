@@ -27,8 +27,8 @@ N87 ∩ eval56 = 12 frames (all outside)      N87 ∩ wood = 0 frames
 ## Control checkpoints
 
 ```
-M1 weights/challenge0123/net_epoch_0060.pth
-M2 weights/challengenight/net_epoch_0120.pth
+M1 weights/challenge_track/challenge0123/net_epoch_0060.pth
+M2 weights/challenge_track/challengenight/net_epoch_0120.pth
 ```
 Used only to measure blob width and to show the wrapper decodes normally on a
 wide-target model.  Neither is an evaluation arm; v8-era weights remain barred

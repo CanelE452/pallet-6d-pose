@@ -68,9 +68,9 @@ STD = np.array([0.229, 0.224, 0.225], np.float32)
 # (name, weights, preprocess-mode)
 MODELS = [
     ("paper_s2_stageB", "weights/paper_s2_stageB/net_epoch_0057.pth", "squash"),
-    ("paper_s1",        "weights/paper_s1_maskaux/net_epoch_0065.pth", "aspect"),
-    ("paper_base_v2",   "weights/paper_base_v2/final_net_epoch_0060.pth", "aspect"),
-    ("paper_s2_stageA", "weights/paper_s2_stageA/net_epoch_0042.pth", "squash"),
+    ("paper_s1",        "weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth", "aspect"),
+    ("paper_base_v2",   "weights/paper_base/paper_base_v2/final_net_epoch_0060.pth", "aspect"),
+    ("paper_s2_stageA", "weights/paper_s2/paper_s2_stageA/net_epoch_0042.pth", "squash"),
 ]
 BASELINE = "paper_s1"   # Delta reference
 CHALLENGER = "paper_s2_stageB"

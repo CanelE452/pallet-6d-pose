@@ -6,7 +6,7 @@
 ## ★ Provenance 정정 2줄 (사용자 지정)
 
 1. "논문용 best = ft_s2" 는 **오귀속**. `dope_cropaug_ft_s2` 는 과제(challenge) 트랙 + 누수(leak) 모델이다.
-   논문용 base = **`weights/paper_base/`**. (메모리: v1v2-challenge-only, dope-cropaug-truncation-success 참고.)
+   논문용 base = **`weights/paper_base/paper_base/`**. (메모리: v1v2-challenge-only, dope-cropaug-truncation-success 참고.)
    → 아래 표에서 model 이 `dope_cropaug_ft_s2` / `*_s2` 인 결과(filter_pr_camfacing s2, filter_domain_analysis s2,
    filter_loo_sweep s2, filter_combo_9kp/perkp s2, pl_gt_diff s2)는 논문 base 숫자가 아님.
 

@@ -1,6 +1,6 @@
 # PAPER_STAGE_A PART 1 — paper_base_v2 preprocess ablation (A/B/C/D)
 
-weights: weights/paper_base_v2/final_net_epoch_0060.pth (무패딩 학습: aspect + truncation_aug_prob=0.0)
+weights: weights/paper_base/paper_base_v2/final_net_epoch_0060.pth (무패딩 학습: aspect + truncation_aug_prob=0.0)
 eval: order-free Hungarian corner + solve_pose(order-free W/D) + honest
 full-8 reproj(GT projected_cuboid) + per-frame K. good%<10px, gross%>20px.
 A_nopad=aspect(pad0) B_pad50 C_pad100(=STAGE25 재현) D_pad150(reflect).

@@ -27,7 +27,7 @@ Outputs (under data/pallet/results/paper_s2_scratch_diffpnp/):
 
 Usage:
   python scripts/stage0/diffpnp3d/diffpnp3d_val_select.py \
-      --weights_dir weights/paper_s2_stageA --tag stageA --val full
+      --weights_dir weights/paper_s2/paper_s2_stageA --tag stageA --val full
 """
 from __future__ import annotations
 import os as _os, sys as _sys

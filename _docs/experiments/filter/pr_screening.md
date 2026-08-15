@@ -115,7 +115,7 @@ self-training 에서 중요한 건 catastrophic PL 제거 → 이 목적엔 diag
 동일 → base rate 0.53·P/R 전부 낙관적. held-out 모델로 재평가하여 diag 선정의 일반성 검증.
 
 ### 설정 (held-out)
-- **평가모델 = `weights/dope_cropaug_pretrain/final_net_epoch_0060.pth`** (final, ep60).
+- **평가모델 = `weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth`** (final, ep60).
   학습데이터 = `mixed_v8_train`(합성) + `truncation_crops_dope/pretrain`(truncation). **manual GT 미포함 = held-out** (header.txt 확인).
 - **GT pool 확대 = 251**: outside_combined(129) + night_combined(90) + **forklift gt_manual 32 추가**.
   forklift도 object-frame canonical convention 확인됨(HEIGHT-edge shortest 32/32) → 포함.
@@ -440,7 +440,7 @@ diag+ransac_loo        3    8.8     8.5  100%    0  *low(3)
 
 > 목적: ransac_loo 순도(good%)는 s2에서 거의 완벽했으나 통과량(N)이 사망(1~3) → reproj threshold 완화로 양을 늘리며 순도 유지점(sweet spot)이 있는지 탐색.
 > 판단지표: 도메인별 [통과 N] + [good%(order-free 9kp reproj <10px)] + [9kp_med]. 양·순도 동시.
-> 모델: **weights/paper_base/final_net_epoch_0060.pth** (논문 트랙 base, GT셋 held-out — 누수 없음). 직전 pr_screening 표는 ft_s2(누수) 기준이라 직접 비교 불가.
+> 모델: **weights/paper_base/paper_base/final_net_epoch_0060.pth** (논문 트랙 base, GT셋 held-out — 누수 없음). 직전 pr_screening 표는 ft_s2(누수) 기준이라 직접 비교 불가.
 > 코드: `scripts/data_prep/eval/filter_loo_sweep.py` (캐시 `_full_paper_base.json` + per-frame GT json에서 K·dimensions_m 재독). dims=per-frame GT(W/D swap 자동 흡수). good = Hungarian 9kp(8코너+centroid) reproj <10px.
 > detectable(>=6코너): indoor 149 / outside 110 / night 57.
 

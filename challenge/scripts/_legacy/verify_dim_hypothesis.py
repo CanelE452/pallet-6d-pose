@@ -67,7 +67,7 @@ def kp_count(raw_points):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seq", default="data/outside/capturepallet09")
-    ap.add_argument("--weights", default="weights/challenge/final_net_epoch_0060.pth")
+    ap.add_argument("--weights", default="weights/challenge_track/challenge/final_net_epoch_0060.pth")
     ap.add_argument("--n_frames", type=int, default=10, help="균등 sample 할 frame 수")
     ap.add_argument("--threshold", type=float, default=0.30)
     args = ap.parse_args()

@@ -42,8 +42,8 @@ GOOD_PX = 10.0
 THRESHOLD = 0.3
 
 MODELS = {
-    "paper_base(squash)": "weights/paper_base/final_net_epoch_0060.pth",
-    "pretrain(no-squash)": "weights/dope_cropaug_pretrain/final_net_epoch_0060.pth",
+    "paper_base(squash)": "weights/paper_base/paper_base/final_net_epoch_0060.pth",
+    "pretrain(no-squash)": "weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth",
 }
 
 SETS = {

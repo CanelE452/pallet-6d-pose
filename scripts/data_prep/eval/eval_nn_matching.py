@@ -2,7 +2,7 @@
 
 사용법:
     python scripts/data_prep/eval/eval_nn_matching.py \
-        --weights weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
+        --weights weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
         --test_dir data/pallet/raw_data/capture0403middle \
         --gt_dir data/pallet/raw_data/capture0403middle/gt_final_isaac
 """

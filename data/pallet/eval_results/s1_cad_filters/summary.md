@@ -1,6 +1,6 @@
 # Paper-S1 on cad(22): 9 PL accept filters (each INDIVIDUAL)
 
-- weights: `weights/paper_s1_maskaux/net_epoch_0065.pth`
+- weights: `weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth`
 - data: cad manual GT, N=22 | detected(>=6 corner)=4 | GT-good(corner_med<10px)=0/22
 - inference: reflect-pad100 (near-field 검출 확보; NOT official eval)
 - precision = 통과 프레임 중 corner_med<10px 비율 (order-free Hungarian median)

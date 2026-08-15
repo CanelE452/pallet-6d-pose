@@ -8,11 +8,11 @@ mixed_v1 이전의 실험이며, 현재 active하게 사용하지 않음.
 ```
 모델               Weight 경로                                      Epochs   학습 데이터                       이미지 수   초기 weight                        비고
 ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-pallet_category    weights/pallet_category/final_net_epoch_0060.pth  60      Isaac Sim (train/)                ~2,000     scratch (VGG-19 pretrained)        최초 pretrain baseline
-pallet_v11         weights/pallet_v11/                               121     Isaac Sim (train/)                 4,000     pallet_category ep60 → ep115       v11 렌더링 개선 반영
-pallet_v11_far     weights/pallet_v11_far/                           121     Isaac Sim (train/ + far)           6,000     pallet_v11 ep105                   원거리 데이터 추가
+pallet_category    weights/misc/pallet_category/final_net_epoch_0060.pth  60      Isaac Sim (train/)                ~2,000     scratch (VGG-19 pretrained)        최초 pretrain baseline
+pallet_v11         weights/misc/pallet_v11/                               121     Isaac Sim (train/)                 4,000     pallet_category ep60 → ep115       v11 렌더링 개선 반영
+pallet_v11_far     weights/misc/pallet_v11_far/                           121     Isaac Sim (train/ + far)           6,000     pallet_v11 ep105                   원거리 데이터 추가
 blender_v1         weights/blender_v1/final_net_epoch_0060.pth       60      Blender (blender_v1_train/)        3,600     scratch                            Blender 단독
-combined_v1        weights/combined_v1/final_net_epoch_0060.pth      60      Isaac 6K + Blender 3.6K            9,600     scratch                            소스 비율 불균형 (1.67:1)
+combined_v1        weights/misc/combined_v1/final_net_epoch_0060.pth      60      Isaac 6K + Blender 3.6K            9,600     scratch                            소스 비율 불균형 (1.67:1)
 ```
 
 ## 평가 결과 (mixed_v1_val 800장, fair eval)

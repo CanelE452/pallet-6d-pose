@@ -66,7 +66,7 @@ bash scripts/train_dope.sh --finetune
 
 # 평가 (synthetic val)
 python scripts/data_prep/eval/evaluate_on_val.py \
-    --weights weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
+    --weights weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
     --val_dir data/pallet/training_data/val
 ```
 
@@ -256,7 +256,7 @@ python scripts/self_training/self_train.py \
 
 ```bash
 python scripts/data_prep/evaluate_on_val.py \
-    --weights weights/pallet_v11_far/final_net_epoch_0121.pth \
+    --weights weights/misc/pallet_v11_far/final_net_epoch_0121.pth \
     --val_dir data/pallet/training_data/val \
     --output_dir data/pallet/eval_results/latest
 ```
@@ -275,7 +275,7 @@ python scripts/data_prep/visualize_annotations.py \
 
 # 추론 결과 시각화 (belief map + keypoint + cuboid)
 python scripts/data_prep/visualize_inference.py \
-    --weights weights/pallet_v11_far/final_net_epoch_0121.pth \
+    --weights weights/misc/pallet_v11_far/final_net_epoch_0121.pth \
     --num_syn 10 --num_real 10
 ```
 
@@ -290,7 +290,7 @@ python scripts/data_prep/visualize_inference.py \
 | Reproj mean | 182px | 140px | **110px** |
 | Real kps 평균 | ~3.5/9 | 4.4/9 | **6.3/9** |
 
-**Best weight**: `weights/pallet_v11_far/final_net_epoch_0121.pth`
+**Best weight**: `weights/misc/pallet_v11_far/final_net_epoch_0121.pth`
 
 ## 실시간 추론 (RealSense D435i)
 
@@ -307,7 +307,7 @@ pip install pyrealsense2
 # 3. 카메라 USB 연결 후 실행
 python scripts/dope/run_dope_live.py \
     --realsense \
-    --weights weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth
+    --weights weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth
 ```
 
 키 조작: `q`=종료, `s`=프레임 저장, `b`=belief map 토글, belief 클릭 → keypoint 자동 threshold 튜닝

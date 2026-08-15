@@ -24,12 +24,12 @@ challenge0123_ft_v2.md               challenge0123 위 14 manual GT (낮+야간)
 모델                            Weight 경로                                                     Ep      LR       시작점                                      비고
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 baseline_v8_A                   challenge/weights/baseline_v8_A.pth                              68      1e-5     v9_ablation_A_coord/ep65                    struct_coord=0.003, depth_cam MODEL_PATH
-challenge                       weights/challenge/final_net_epoch_0060.pth                       60      1e-4     scratch                                     첫 camfacing 학습
-challenge_camfacing_scratch     weights/challenge_camfacing_scratch/final_net_epoch_0060.pth     60      1e-4     scratch                                     challenge 와 같은 설정, seed 만 다름
-challenge_camfacing_ft          weights/challenge_camfacing_ft/final_net_epoch_0070.pth          70      1e-5     challenge/ep60                              10 ep refine
-challenge_ft_pallet07           weights/challenge_ft_pallet07/final_net_epoch_0091.pth           91      5e-5     challenge/weights/baseline_v8_A             symmetric+struct, pallet07 단일 capture
-challenge0123                   weights/challenge0123/final_net_epoch_0060.pth                   60      1e-4     scratch                                     header outf=challenge_camfacing_v4 → rename
-challenge0123_ft_manual         weights/challenge0123_ft_manual/final_net_epoch_0080.pth         80      1e-4     challenge0123/ep60                          6 manual GT (pallet 03/04/05/07/09/cad)
+challenge                       weights/challenge_track/challenge/final_net_epoch_0060.pth                       60      1e-4     scratch                                     첫 camfacing 학습
+challenge_camfacing_scratch     weights/challenge_track/challenge_camfacing_scratch/final_net_epoch_0060.pth     60      1e-4     scratch                                     challenge 와 같은 설정, seed 만 다름
+challenge_camfacing_ft          weights/challenge_track/challenge_camfacing_ft/final_net_epoch_0070.pth          70      1e-5     challenge/ep60                              10 ep refine
+challenge_ft_pallet07           weights/challenge_track/challenge_ft_pallet07/final_net_epoch_0091.pth           91      5e-5     challenge/weights/baseline_v8_A             symmetric+struct, pallet07 단일 capture
+challenge0123                   weights/challenge_track/challenge0123/final_net_epoch_0060.pth                   60      1e-4     scratch                                     header outf=challenge_camfacing_v4 → rename
+challenge0123_ft_manual         weights/challenge_track/challenge0123_ft_manual/final_net_epoch_0080.pth         80      1e-4     challenge0123/ep60                          6 manual GT (pallet 03/04/05/07/09/cad)
 challenge0123_ft_v2             weights/challenge0123_ft_v2/net_epoch_0080.pth (..0120 학습 중)  120     1e-4     challenge0123/ep60                          14 manual GT (낮 8 + 야간 6)
 ```
 

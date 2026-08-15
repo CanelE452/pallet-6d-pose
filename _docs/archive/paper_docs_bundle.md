@@ -460,7 +460,7 @@ self-training 에서 중요한 건 catastrophic PL 제거 → 이 목적엔 diag
 동일 → base rate 0.53·P/R 전부 낙관적. held-out 모델로 재평가하여 diag 선정의 일반성 검증.
 
 ### 설정 (held-out)
-- **평가모델 = `weights/dope_cropaug_pretrain/final_net_epoch_0060.pth`** (final, ep60).
+- **평가모델 = `weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth`** (final, ep60).
   학습데이터 = `mixed_v8_train`(합성) + `truncation_crops_dope/pretrain`(truncation). **manual GT 미포함 = held-out** (header.txt 확인).
 - **GT pool 확대 = 251**: outside_combined(129) + night_combined(90) + **forklift gt_manual 32 추가**.
   forklift도 object-frame canonical convention 확인됨(HEIGHT-edge shortest 32/32) → 포함.
@@ -1594,7 +1594,7 @@ object-frame v8 은 폐기. memory `camera-facing-0123-convention` 참조.
 
 ## 중간 산출물 (참고)
 
-`weights/dope_cropaug_pretrain` (2026-06-02, scratch 60ep): mixed_v8(camera-facing)
+`weights/dope/dope_cropaug_pretrain` (2026-06-02, scratch 60ep): mixed_v8(camera-facing)
 + truncation crop 8,831 학습. **truncation padding 은 적용됐으나 squash 비율강건은 없음.**
 → paper_base 의 전신/중간 산출물. squash 추가 후 재학습한 것이 정식 paper_base.
 
@@ -1660,7 +1660,7 @@ mixed_v3           weights/mixed_v3/final_net_epoch_0091.pth         91      mix
 mixed_v4_aug       weights/mixed_v4_aug/final_net_epoch_0060.pth     60      mixed_v1_train 8K (강한 aug)              8,000      scratch           MSE only
 mixed_v6_full      weights/mixed_v6_full/final_net_epoch_0060.pth    60      mixed_v1 8K + dark 100 + view 1K          9,100      scratch           MSE only
 mixed_v7_sym       (학습 중)                                         91      mixed_v6_full_train 9.1K                  9,100      mixed_v6 ep60     symmetric
-selftrain_r1       weights/selftrain_r1/final_net_epoch_0070.pth     70      mixed_v1 8K + pseudo-label 751            8,751      mixed_v1 ep60     MSE only
+selftrain_r1       weights/selftrain/selftrain_r1/final_net_epoch_0070.pth     70      mixed_v1 8K + pseudo-label 751            8,751      mixed_v1 ep60     MSE only
 ```
 
 ## v8 Ablation 모델 (Structural / Reliability Loss)

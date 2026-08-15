@@ -31,8 +31,8 @@ from annotate_draw import CUBOID_EDGES    # noqa: E402
 NMIN = T.N_DET_MIN
 MODELS = {
     "R0 (s2 diffpnp)": "weights/paper_s2_stageB/net_epoch_0057.pth",
-    "R1 (self-train)": "weights/paper_s2_fullpool_selftrain/r1/net_epoch_0060.pth",
-    "R2 (self-train)": "weights/paper_s2_fullpool_selftrain/r2/net_epoch_0063.pth",
+    "R1 (self-train)": "weights/paper_s2/paper_s2_fullpool_selftrain/r1/net_epoch_0060.pth",
+    "R2 (self-train)": "weights/paper_s2/paper_s2_fullpool_selftrain/r2/net_epoch_0063.pth",
 }
 EVAL_GT_GLOBS = [
     "challenge/data/01_real/eval_canonical/_outside_eval_manual_gt", "challenge/data/01_real/manual_gt/_night_eval_manual_gt",

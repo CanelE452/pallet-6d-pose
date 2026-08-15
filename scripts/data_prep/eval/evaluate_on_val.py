@@ -21,7 +21,7 @@ ORDER-FREE 평가 (2026-06-03 수정):
 
 사용법:
     python scripts/data_prep/eval/evaluate_on_val.py \
-        --weights weights/pallet_category/final_net_epoch_0060.pth \
+        --weights weights/misc/pallet_category/final_net_epoch_0060.pth \
         --val_dir data/pallet/training_data/val \
         --output_dir data/pallet/eval_results
 """

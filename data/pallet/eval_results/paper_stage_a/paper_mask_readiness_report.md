@@ -84,7 +84,7 @@ confound**(memory pvnet-dense-vector-voting-negative: 박스마스크 과포함�
 ### mask 확보되면 즉시 쓸 S1 recipe (B2 기준, 대기)
 mask valid 확보 후에만 아래로 `Deep_Object_Pose/train/train.py` 실행 (config 는 그때 작성):
 ```
-net_path            = weights/paper_base_v2/final_net_epoch_0060.pth   (paper ckpt에서 이어받기)
+net_path            = weights/paper_base/paper_base_v2/final_net_epoch_0060.pth   (paper ckpt에서 이어받기)
 data                = paper 소스 5종(+ 새로 mask 붙은 재렌더분)만. v3/addon/B2 절대 금지
 mask_aux            = True
 mask_weight         = 0.01      (B2 값)

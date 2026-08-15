@@ -3,8 +3,8 @@
 ## 학습 설정
 
 ```
-Weight:      weights/challenge0123_ft_manual/final_net_epoch_0080.pth
-초기 weight: weights/challenge0123/final_net_epoch_0060.pth
+Weight:      weights/challenge_track/challenge0123_ft_manual/final_net_epoch_0080.pth
+초기 weight: weights/challenge_track/challenge0123/final_net_epoch_0060.pth
 Epochs:      80 (60 → 80, 20 ep ft)
 Batch size:  8
 LR:          1e-4

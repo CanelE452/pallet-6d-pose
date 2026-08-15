@@ -7,9 +7,9 @@ cd "$(dirname "$0")/../../.."
 export CUDA_MODULE_LOADING=LAZY PYTHONUNBUFFERED=1
 
 L=data/pallet/eval_results/stage5_voting/logs
-mkdir -p "$L" weights/stage5_voting
-OUT=weights/stage5_voting/unit_seg
-OFF=weights/stage4_pvnet/off/final_net_pvnet_off.pth   # STEP4 control 참조군
+mkdir -p "$L" weights/stage_screens/stage5_voting
+OUT=weights/stage_screens/stage5_voting/unit_seg
+OFF=weights/stage_screens/stage4_pvnet/off/final_net_pvnet_off.pth   # STEP4 control 참조군
 NEW=$OUT/final_net_pvnet_unit.pth
 
 run () { conda run -n pallet-pose python "$@"; }

@@ -20,10 +20,10 @@ final-test 세션 = `capturepallet09, capturepallet07, capturenight09, captureni
 ### 1) PL 추출 — `extract_pl_v1.py`  (GPU)
 ```
 conda run -n pallet-pose python scripts/stage0/extract_pl_v1.py \
-    --weights weights/paper_base/final_net_epoch_0060.pth \
+    --weights weights/paper_base/paper_base/final_net_epoch_0060.pth \
     --output_dir data/pallet/pl/stage0_paper_base
 ```
-- 입력: `weights/paper_base/final_net_epoch_0060.pth`,
+- 입력: `weights/paper_base/paper_base/final_net_epoch_0060.pth`,
         `data/pallet/eval_results/split_lock/pl_pool_frames.txt` (8031 frames).
 - 출력: `data/pallet/pl/stage0_paper_base/{frameid}.png` + `{frameid}.json`
         (NDDS, `source_model='paper_base_ep60'`, `filter_scores`={diag_pass,
@@ -66,7 +66,7 @@ python scripts/stage0/pl_pass_count.py \
 ### 4) τ 캘리브 — `tau_calibrate.py`  (GPU, filter-val ONLY)
 ```
 conda run -n pallet-pose python scripts/stage0/tau_calibrate.py \
-    --weights weights/paper_base/final_net_epoch_0060.pth
+    --weights weights/paper_base/paper_base/final_net_epoch_0060.pth
 ```
 - 입력: filter-val GT (outside p08,02,03,04,05 / night n06,07,05) = 87 GT frames.
 - 출력: `data/pallet/eval_results/stage0_tau_calibrate/tau_calibrate.json` —

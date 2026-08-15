@@ -14,11 +14,11 @@
 ## 1. KEEP — 가져갈 weights (challenge 라인만)
 
 ```
-weights/challengenight/                       최종 모델 (=doc challenge0123_ft_v2)
-weights/challenge0123/                        v4 convention 베이스
-weights/challenge0123_ft_manual/              정식 ft (6 day GT)
-weights/r1_outside_loo/                       eval/figure 스크립트 직접 참조
-weights/f5_noapril_ransac_loo_realonly/       eval/figure 스크립트 직접 참조
+weights/challenge_track/challengenight/                       최종 모델 (=doc challenge0123_ft_v2)
+weights/challenge_track/challenge0123/                        v4 convention 베이스
+weights/challenge_track/challenge0123_ft_manual/              정식 ft (6 day GT)
+weights/selftrain/r1_outside_loo/                       eval/figure 스크립트 직접 참조
+weights/misc/f5_noapril_ransac_loo_realonly/       eval/figure 스크립트 직접 참조
 challenge/weights/baseline_v8_A.pth           ft init (별도 위치 — 꼭 포함)
 ```
 
@@ -89,11 +89,11 @@ DST=~/FoundationPose
 
 # weights (challenge 라인)
 rsync -avP \
-  "$SRC/weights/challengenight" \
-  "$SRC/weights/challenge0123" \
-  "$SRC/weights/challenge0123_ft_manual" \
-  "$SRC/weights/r1_outside_loo" \
-  "$SRC/weights/f5_noapril_ransac_loo_realonly" \
+  "$SRC/weights/challenge_track/challengenight" \
+  "$SRC/weights/challenge_track/challenge0123" \
+  "$SRC/weights/challenge_track/challenge0123_ft_manual" \
+  "$SRC/weights/selftrain/r1_outside_loo" \
+  "$SRC/weights/misc/f5_noapril_ransac_loo_realonly" \
   "$DST/weights/"
 rsync -avP "$SRC/challenge/weights/baseline_v8_A.pth" "$DST/challenge/weights/"
 

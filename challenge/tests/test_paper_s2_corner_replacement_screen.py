@@ -14,7 +14,7 @@ import torch
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "data/pallet/results/paper_s2_corner_replacement_screen"
-WEIGHTS = ROOT / "weights/paper_s2_corner_replacement_screen"
+WEIGHTS = ROOT / "weights/paper_s2/paper_s2_corner_replacement_screen"
 SCRIPT = ROOT / "scripts/stage0/paper_s2/paper_s2_corner_replacement_screen.py"
 MODULE = ROOT / "Deep_Object_Pose/common/corner_proposal_replacement.py"
 EP57 = ROOT / "weights/paper_s2_stageB/net_epoch_0057.pth"
@@ -188,7 +188,7 @@ def test_mechanism_is_evaluated_only_at_epoch_zero_and_five() -> None:
 def test_reevaluate_refuses_an_intermediate_epoch() -> None:
     result = subprocess.run(
         [sys.executable, str(SCRIPT), "--reevaluate",
-         "weights/paper_s2_corner_replacement_screen/epoch_003.pth"],
+         "weights/paper_s2/paper_s2_corner_replacement_screen/epoch_003.pth"],
         cwd=ROOT, capture_output=True, text=True, timeout=900)
     assert result.returncode != 0
     assert "BLOCKED" in (result.stdout + result.stderr)

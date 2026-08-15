@@ -31,7 +31,7 @@ AUDIT = ROOT / "scripts/stage0/line/instance_edge_line_audit.py"
 LEARN_ROOT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
               / "compatibility_calibration/canonical_corner_audit"
               / "instance_edge_learnability")
-A1_CKPT = ROOT / "weights/paper_s2_pdg/A1/epoch_003.pth"
+A1_CKPT = ROOT / "weights/paper_s2/paper_s2_pdg/A1/epoch_003.pth"
 A1_SHA = "00a0dcd8730e21d14b8a86e2f2a398650b78026006e4e358eabc438148fb9657"
 
 

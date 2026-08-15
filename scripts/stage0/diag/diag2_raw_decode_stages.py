@@ -31,7 +31,7 @@ from eval_pvnet_heads import (load_pvnet_model, preprocess, belief_to_orig,  # n
                               collect_manual, load_gt8)
 from four_arm_pl_compare import collect_val_frames  # noqa
 
-WEIGHTS = os.path.join(ROOT, "weights/challenge0123/final_net_epoch_0060.pth")
+WEIGHTS = os.path.join(ROOT, "weights/challenge_track/challenge0123/final_net_epoch_0060.pth")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage9_diag")
 TAU0 = 0.3                 # 현재 confidence threshold
 N_DET_MIN = 6

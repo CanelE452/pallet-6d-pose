@@ -28,7 +28,7 @@ from four_arm_pl_compare import collect_val_frames  # noqa
 from diag2_raw_decode_stages import classify, gt_to_belief, disk_max, GT_DISK  # noqa
 from diag4_geometry_matching import features, MATCH_VARS, CALIPER  # noqa
 
-WEIGHTS = os.path.join(ROOT, "weights/challenge0123/final_net_epoch_0060.pth")
+WEIGHTS = os.path.join(ROOT, "weights/challenge_track/challenge0123/final_net_epoch_0060.pth")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage9_diag")
 BACK = [4, 5, 6, 7]
 EDGES = [(0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7)]

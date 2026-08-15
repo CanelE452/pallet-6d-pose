@@ -56,7 +56,7 @@ from tau_calibrate import collect_val_frames
 import annotate_pnp as APNP
 
 TAU = 0.3                       # belief threshold (extract_keypoints_from_belief)
-B3 = os.path.join(ROOT, "weights/stage11_16k_B3_replay/net_epoch_0074.pth")
+B3 = os.path.join(ROOT, "weights/stage_screens/stage11_16k_B3_replay/net_epoch_0074.pth")
 SYN_V3_VAL = os.path.join(ROOT, "challenge/data/02_synthetic/training/v3/batch_009")
 SYN_ADDON_VAL = os.path.join(ROOT, "challenge/data/02_synthetic/training/addon_v1_val")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage12_subsetpnp")

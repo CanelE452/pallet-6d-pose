@@ -70,7 +70,7 @@ selftrain_r{k}              legacy ST round 결과 재명명
 
 ## 최종 best model (2026-04-14)
 
-- **F5 (`weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth`)**
+- **F5 (`weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth`)**
 - 설계: ep65 anchor + RANSAC+LOO 필터로 선별한 2 PL + **real-only** fine-tune 96 ep
 - NN matching <20px = **60.5%** (seed=4165), 재현 53.9% → 발표 범위 **54~60%**
 - ep65 기준 baseline(21.6%) 대비 +38.7pp
@@ -117,9 +117,9 @@ YOLO crop-aug 방식을 DOPE에 이식 (2026-06-02). pretrain=synthetic-only cro
 
 | 모델 | base | epoch(누적) | 데이터 | weight |
 |------|------|------|--------|--------|
-| `dope_cropaug_pretrain` | scratch | 60 | mixed_v8 9000 + synth crop 8831 | `weights/dope_cropaug_pretrain/final_net_epoch_0060.pth` |
-| `dope_cropaug_ft_s1` | pretrain | 150(+90) | real GT 251 | `weights/dope_cropaug_ft_s1/final_net_epoch_0150.pth` |
-| **`dope_cropaug_ft_s2` ★** | ft_s1 | 180(+30) | real 251 + crop 485 | `weights/dope_cropaug_ft_s2/final_net_epoch_0180.pth` |
+| `dope_cropaug_pretrain` | scratch | 60 | mixed_v8 9000 + synth crop 8831 | `weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth` |
+| `dope_cropaug_ft_s1` | pretrain | 150(+90) | real GT 251 | `weights/dope/dope_cropaug_ft_s1/final_net_epoch_0150.pth` |
+| **`dope_cropaug_ft_s2` ★** | ft_s1 | 180(+30) | real 251 + crop 485 | `weights/dope/dope_cropaug_ft_s2/final_net_epoch_0180.pth` |
 
 ## 성능 (real truncation, order-free PnP)
 | model | det≥6 | PnP% | reproj med |

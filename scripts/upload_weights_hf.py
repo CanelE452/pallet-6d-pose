@@ -19,8 +19,8 @@ FILES = [
     ("weights/mixed_v8/header.txt", "mixed_v8/header.txt"),
     ("weights/v8_ablation_C_coord_edge/final_net_epoch_0065.pth", "v8_ablation_C_coord_edge/final_net_epoch_0065.pth"),
     ("weights/v8_ablation_C_coord_edge/header.txt", "v8_ablation_C_coord_edge/header.txt"),
-    ("weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth", "f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth"),
-    ("weights/f5_noapril_ransac_loo_realonly/header.txt", "f5_noapril_ransac_loo_realonly/header.txt"),
+    ("weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth", "f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth"),
+    ("weights/misc/f5_noapril_ransac_loo_realonly/header.txt", "f5_noapril_ransac_loo_realonly/header.txt"),
 ]
 
 api = HfApi(token=TOKEN)

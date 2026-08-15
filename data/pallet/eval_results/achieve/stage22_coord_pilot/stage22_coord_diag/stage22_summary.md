@@ -36,7 +36,7 @@ elev bin   n   band_med(px)  front_med  rear_med  rear_spk
 
 ## PART C — coord loss paired ablation (2-arm 파일럿, 학습 ~1h) [완료]
 질문: coord loss가 rear를 고치나? 슬라이드(CoordDOPE) 방어숫자.
-런처 `partC/run_partC_arm.sh`, eval `scripts/stage0/stage22_partC_eval.py`, weights `weights/stage22_coord_pilot/{control,coord}/`.
+런처 `partC/run_partC_arm.sh`, eval `scripts/stage0/stage22_partC_eval.py`, weights `weights/stage_screens/stage22_coord_pilot/{control,coord}/`.
 2-arm: control=B2 recipe(2:1:1, trunc제외) +8ep / coord=+vis_coord_loss(soft-argmax coord Huber/GT-2D-diag, vis-weighted, λ0.24 ramp800). λ 캘리 검증: vis/bel 0.072~0.079(~7.5%, loss-ratio proxy).
 ckpt=syn val로 둘 다 ep0085(val이 ckpt 거의 구분못함). real 145(pad100), 페어 N=97.
 

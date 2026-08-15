@@ -43,9 +43,9 @@ GOOD_PX = 10.0
 THRESHOLD = 0.3
 
 MODELS = {
-    "R0_base": "weights/paper_base/final_net_epoch_0060.pth",
-    "R1_outside": "weights/paper_r1_outside/final_net_epoch_0091.pth",
-    "R1_night": "weights/paper_r1_night/final_net_epoch_0091.pth",
+    "R0_base": "weights/paper_base/paper_base/final_net_epoch_0060.pth",
+    "R1_outside": "weights/paper_s1/paper_r1_outside/final_net_epoch_0091.pth",
+    "R1_night": "weights/paper_s1/paper_r1_night/final_net_epoch_0091.pth",
 }
 
 # (gt_dir, img_dir_or_None)

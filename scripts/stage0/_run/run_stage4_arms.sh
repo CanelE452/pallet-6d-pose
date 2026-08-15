@@ -6,7 +6,7 @@ cd "$(dirname "$0")/../../.."
 export CUDA_MODULE_LOADING=LAZY PYTHONUNBUFFERED=1
 
 LOG=data/pallet/eval_results/stage4_pvnet/logs
-mkdir -p "$LOG" weights/stage4_pvnet
+mkdir -p "$LOG" weights/stage_screens/stage4_pvnet
 
 BS=${BS:-16}
 SUB=${SUB:-6000}
@@ -19,7 +19,7 @@ run_arm () {
   local mode=$1
   echo "===== finetune $mode (bs=$BS sub=$SUB ep=$EP) $(date +%H:%M:%S) ====="
   conda run -n pallet-pose python scripts/stage0/finetune_pvnet.py \
-    --vec_mode "$mode" $COMMON --outf "weights/stage4_pvnet/$mode" \
+    --vec_mode "$mode" $COMMON --outf "weights/stage_screens/stage4_pvnet/$mode" \
     > "$LOG/train_$mode.log" 2>&1
   echo "----- $mode done rc=$? $(date +%H:%M:%S) -----"
 }
@@ -29,9 +29,9 @@ run_arm offset
 run_arm unit
 
 echo "===== eval (manual / filter-val / synthetic) $(date +%H:%M:%S) ====="
-W="weights/stage4_pvnet/off/final_net_pvnet_off.pth \
-   weights/stage4_pvnet/offset/final_net_pvnet_offset.pth \
-   weights/stage4_pvnet/unit/final_net_pvnet_unit.pth"
+W="weights/stage_screens/stage4_pvnet/off/final_net_pvnet_off.pth \
+   weights/stage_screens/stage4_pvnet/offset/final_net_pvnet_offset.pth \
+   weights/stage_screens/stage4_pvnet/unit/final_net_pvnet_unit.pth"
 for es in manual filter-val synthetic; do
   extra=""; [ "$es" = synthetic ] && extra="--n_frames 200"
   conda run -n pallet-pose python scripts/stage0/eval_harness/eval_pvnet_heads.py \

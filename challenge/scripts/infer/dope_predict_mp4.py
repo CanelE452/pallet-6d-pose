@@ -2,7 +2,7 @@
 
 usage:
     python challenge/scripts/infer/dope_predict_mp4.py \
-        --weights weights/challengenight/final_net_epoch_0120.pth \
+        --weights weights/challenge_track/challengenight/final_net_epoch_0120.pth \
         --mp4 data/outside/forklift_raw_20260528_163408.mp4 \
         --out runs/dope_forklift.mp4
 

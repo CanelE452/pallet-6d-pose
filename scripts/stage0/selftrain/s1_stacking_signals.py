@@ -381,7 +381,7 @@ def _write_report(recs, detected, consensus, sig_stats, combo, dom_stats, env):
     A = L.append
     A("# Paper-S1 stacking of 9 PL-accept signals over dev real GT sets")
     A("")
-    A(f"- weights: `weights/paper_s1_maskaux/net_epoch_0065.pth`")
+    A(f"- weights: `weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth`")
     A(f"- inference: reflect-pad100 (near-field PL 후보 확보용; **NOT official eval**)")
     A(f"- domains(dev): outside/night/cad/noapril | SEAL 제외(pallet07/09,night08/09)")
     A(f"- total frames={len(recs)} | detected(>=6 corner)={len(detected)}")

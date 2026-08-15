@@ -3,7 +3,7 @@ set -euo pipefail
 source ~/anaconda3/etc/profile.d/conda.sh; conda activate pallet-pose
 declare -A PLDIR=( [combined]=paper_s2_pl_reproj_flip [outside]=paper_s2_plrf_outside [night]=paper_s2_plrf_night [noapril]=paper_s2_plrf_noapril )
 for K in combined outside night noapril; do
-  PL=${PLDIR[$K]}; OUT="/home/minjae/Documents/github/pallet-pose/weights/paper_s2_reproj_flip/r1_$K"; mkdir -p "$OUT"
+  PL=${PLDIR[$K]}; OUT="/home/minjae/Documents/github/pallet-pose/weights/paper_s2/paper_s2_reproj_flip/r1_$K"; mkdir -p "$OUT"
   echo "=== TRAIN rf R1_$K (PL=$PL) ==="
   cd "/home/minjae/Documents/github/pallet-pose/Deep_Object_Pose/train"
   python -u train.py \

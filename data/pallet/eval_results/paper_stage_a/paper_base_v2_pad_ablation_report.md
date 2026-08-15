@@ -3,7 +3,7 @@
 **목적**: paper_base_v2(무패딩 학습: aspect resize + `truncation_aug_prob=0.0`)의
 논문 정량 **main protocol** 을 전처리 4-way ablation 으로 확정.
 
-- weights: `weights/paper_base_v2/final_net_epoch_0060.pth` (scratch 60ep, camera_dynamic_0123_v4)
+- weights: `weights/paper_base/paper_base_v2/final_net_epoch_0060.pth` (scratch 60ep, camera_dynamic_0123_v4)
 - eval infra: `eval_capturecad_b2.eval_frame` (order-free Hungarian corner, `solve_pose`
   order-free W/D, honest full-8 reproj vs GT `projected_cuboid`, per-frame K). 모든 variant 동일.
 - 실행: `scripts/stage0/paper_stage_a_pad_ablation.py` → `eval.json` / `pad_ablation_summary.md`

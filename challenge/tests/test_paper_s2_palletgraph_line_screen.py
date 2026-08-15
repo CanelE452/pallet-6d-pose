@@ -1110,7 +1110,8 @@ def test_checkpoints_live_only_in_the_approved_weights_root() -> None:
     staged = subprocess.run(["git", "diff", "--cached", "--name-only"],
                             cwd=str(ROOT), capture_output=True, text=True).stdout.split()
     assert not [f for f in staged if f.endswith((".pth", ".pt"))]
-    approved = ROOT / "weights" / "paper_s2_ppd_t2_screen"
+    # 2026-08-15: weights/ 를 계열 폴더로 묶으면서 한 단계 깊어졌다.
+    approved = ROOT / "weights" / "paper_s2" / "paper_s2_ppd_t2_screen"
     for path in (ROOT / "weights").rglob("*.pth"):
         if "ppd" in str(path):
             assert str(path).startswith(str(approved)), f"stray PPD checkpoint: {path}"
@@ -1196,7 +1197,7 @@ def test_long_run_provenance_records_the_split_source() -> None:
 
 
 def test_epoch_metrics_report_candidate_pair_separately() -> None:
-    path = ROOT / "weights/paper_s2_ppd_t2_screen/L0/metrics_by_epoch.json"
+    path = ROOT / "weights/paper_s2/paper_s2_ppd_t2_screen/L0/metrics_by_epoch.json"
     if not path.is_file():
         pytest.skip("L0 not trained yet")
     history = json.loads(path.read_text("utf-8"))

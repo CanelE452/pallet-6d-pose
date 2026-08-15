@@ -140,7 +140,7 @@ def run():
 
     rows = {BASELINE: {}, CHALLENGER: {}}
     for mname, wrel, mode in [
-        (BASELINE, "weights/paper_s1_maskaux/net_epoch_0065.pth", "aspect"),
+        (BASELINE, "weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth", "aspect"),
         (CHALLENGER, "weights/paper_s2_stageB/net_epoch_0057.pth", "squash"),
     ]:
         mdl = E.load_model(os.path.join(ROOT, wrel), device)

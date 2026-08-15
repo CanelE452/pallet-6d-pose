@@ -77,7 +77,7 @@ FILE: _docs/_current_status_for_llm.md
      → 풀려면 final-test 세션 정하고 그 세션 빼고 R1 재학습해야 함(아직 안 함).
 
 [P3] 토대 의심 — paper_base 가 폐기된 v8 데이터로 학습됐을 가능성 (★ 최우선 확인)
-     weights/paper_base/header.txt 의 학습 data = mixed_v8_train + aug_*.
+     weights/paper_base/paper_base/header.txt 의 학습 data = mixed_v8_train + aug_*.
      "v8"=폐기된 object-frame v8(잘못된 convention)이면 camera-facing 전제가 통째로 깨짐.
      이름만 남은 건지 실제 v8 데이터인지 아직 미확인.
 
@@ -152,7 +152,7 @@ forklift   32    26                 4             —                    —
 
 ### 2.4 누수 지형 + 기존 학습 상태 (★ critical)
 ```
-paper_base = 이미 학습 완료   weights/paper_base/final_net_epoch_0060.pth (06-06)
+paper_base = 이미 학습 완료   weights/paper_base/paper_base/final_net_epoch_0060.pth (06-06)
 paper_r1   = 이미 학습 완료   weights/paper_r1_{outside,night}/final_net_epoch_0091.pth (06-06)
   → master §0·§11 "paper_base 미학습 = 단일 실패점" 은 stale. 학습 대기는 사라짐.
 
@@ -934,7 +934,7 @@ paper_base   0.952   0.988   0.995    11.7px         85.5%   14.1px       1.60
 - keypoint 위치 매우 정확(PCK@5 0.988). same-index PCK 낮음(@3 0.28)=convention 순서차 → order-free로 봐야 (memory evaluate-on-val-convention-bug).
 - volume_ratio median 1.60 = PnP scale 과대(monocular, dims 1.1/1.3/0.11). keypoint는 양호하나 PnP depth 약제약.
 - 학습: scratch 60ep, mixed_v8(camfacing 9000)+aug_squash(2819)+aug_trunc(3929)+aug_scale(1592)=17,340. epoch당 ~18.6분(workers=0 병목, 다음 학습은 workers↑).
-- 산출: `weights/paper_base/final_net_epoch_0060.pth`, `eval_results/eval_summary.json`.
+- 산출: `weights/paper_base/paper_base/final_net_epoch_0060.pth`, `eval_results/eval_summary.json`.
 
 ## 결론
 keypoint 품질이 self-training 출발점으로 충분(PCK@5 0.99, corner 11.7px). 단 이는 **합성 val** 기준 — real 일반화는 D1/D2에서. self-training(C1)으로 real 개선 기대.
@@ -1335,7 +1335,7 @@ self-training 에서 중요한 건 catastrophic PL 제거 → 이 목적엔 diag
 동일 → base rate 0.53·P/R 전부 낙관적. held-out 모델로 재평가하여 diag 선정의 일반성 검증.
 
 ### 설정 (held-out)
-- **평가모델 = `weights/dope_cropaug_pretrain/final_net_epoch_0060.pth`** (final, ep60).
+- **평가모델 = `weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth`** (final, ep60).
   학습데이터 = `mixed_v8_train`(합성) + `truncation_crops_dope/pretrain`(truncation). **manual GT 미포함 = held-out** (header.txt 확인).
 - **GT pool 확대 = 251**: outside_combined(129) + night_combined(90) + **forklift gt_manual 32 추가**.
   forklift도 object-frame canonical convention 확인됨(HEIGHT-edge shortest 32/32) → 포함.
@@ -1660,7 +1660,7 @@ diag+ransac_loo        3    8.8     8.5  100%    0  *low(3)
 
 > 목적: ransac_loo 순도(good%)는 s2에서 거의 완벽했으나 통과량(N)이 사망(1~3) → reproj threshold 완화로 양을 늘리며 순도 유지점(sweet spot)이 있는지 탐색.
 > 판단지표: 도메인별 [통과 N] + [good%(order-free 9kp reproj <10px)] + [9kp_med]. 양·순도 동시.
-> 모델: **weights/paper_base/final_net_epoch_0060.pth** (논문 트랙 base, GT셋 held-out — 누수 없음). 직전 pr_screening 표는 ft_s2(누수) 기준이라 직접 비교 불가.
+> 모델: **weights/paper_base/paper_base/final_net_epoch_0060.pth** (논문 트랙 base, GT셋 held-out — 누수 없음). 직전 pr_screening 표는 ft_s2(누수) 기준이라 직접 비교 불가.
 > 코드: `scripts/data_prep/eval/filter_loo_sweep.py` (캐시 `_full_paper_base.json` + per-frame GT json에서 K·dimensions_m 재독). dims=per-frame GT(W/D swap 자동 흡수). good = Hungarian 9kp(8코너+centroid) reproj <10px.
 > detectable(>=6코너): indoor 149 / outside 110 / night 57.
 
@@ -2071,7 +2071,7 @@ in-domain·cross-domain 모두 reproj median +4~9px 증가, good(<10px)%는 outs
 
 - 해석: diag/diag∧ratio 필터가 "centroid 부근 대각선 일관성"은 만족하나 **전체 8 corner의 절대 위치가 부정확한 PL을 다량 통과**시킨 것으로 보인다 (memory `filter-goal-reliable-pl-full-keypoints`의 경고가 그대로 재현 — 단일/2D 기하 조건은 무게중심만 보정, corner 정확도는 보장 못 함). 모델은 "더 자주, 더 거칠게" 찍도록 학습됨 (det↑ / px정확도↓).
 - night det +17.8%는 다량(107) PL의 효과지만 정확도가 따라오지 않음 → 발표 교훈("다량 PL인데 성능↓")이 품질 필터로도 그대로 재현.
-- 교차검증: R0의 기존 synthetic val(`weights/paper_base/eval_results/eval_summary.json`)은 PCK@5px=98.8%지만 corner2d_median=11.7px / reproj_median=14px로 절대 px는 원래 두 자리 → 본 real 평가(R0 18px)와 일관, 평가 코드 신뢰 가능.
+- 교차검증: R0의 기존 synthetic val(`weights/paper_base/paper_base/eval_results/eval_summary.json`)은 PCK@5px=98.8%지만 corner2d_median=11.7px / reproj_median=14px로 절대 px는 원래 두 자리 → 본 real 평가(R0 18px)와 일관, 평가 코드 신뢰 가능.
 - 주의(provenance): paper_base 학습 데이터에 `mixed_v8_train` 포함(header.txt). CLAUDE.md "v8 폐기" 방침과 충돌 가능 — base 자체의 convention/라벨 점검 필요(별도 이슈).
 
 **다음**: (1) 필터를 전체 9kp 정확도 기준으로 강화(diag 단독 부적합), (2) PL을 corner reproj 임계로 hard-gate, (3) R2 진행 전 R1 회귀 원인을 PL 시각화로 확인.
@@ -2575,11 +2575,11 @@ FILE: _docs/migration_to_ubuntu.md
 ## 1. KEEP — 가져갈 weights (challenge 라인만)
 
 ```
-weights/challengenight/                       최종 모델 (=doc challenge0123_ft_v2)
-weights/challenge0123/                        v4 convention 베이스
-weights/challenge0123_ft_manual/              정식 ft (6 day GT)
-weights/r1_outside_loo/                       eval/figure 스크립트 직접 참조
-weights/f5_noapril_ransac_loo_realonly/       eval/figure 스크립트 직접 참조
+weights/challenge_track/challengenight/                       최종 모델 (=doc challenge0123_ft_v2)
+weights/challenge_track/challenge0123/                        v4 convention 베이스
+weights/challenge_track/challenge0123_ft_manual/              정식 ft (6 day GT)
+weights/selftrain/r1_outside_loo/                       eval/figure 스크립트 직접 참조
+weights/misc/f5_noapril_ransac_loo_realonly/       eval/figure 스크립트 직접 참조
 challenge/weights/baseline_v8_A.pth           ft init (별도 위치 — 꼭 포함)
 ```
 
@@ -2650,11 +2650,11 @@ DST=~/FoundationPose
 
 # weights (challenge 라인)
 rsync -avP \
-  "$SRC/weights/challengenight" \
-  "$SRC/weights/challenge0123" \
-  "$SRC/weights/challenge0123_ft_manual" \
-  "$SRC/weights/r1_outside_loo" \
-  "$SRC/weights/f5_noapril_ransac_loo_realonly" \
+  "$SRC/weights/challenge_track/challengenight" \
+  "$SRC/weights/challenge_track/challenge0123" \
+  "$SRC/weights/challenge_track/challenge0123_ft_manual" \
+  "$SRC/weights/selftrain/r1_outside_loo" \
+  "$SRC/weights/misc/f5_noapril_ransac_loo_realonly" \
   "$DST/weights/"
 rsync -avP "$SRC/challenge/weights/baseline_v8_A.pth" "$DST/challenge/weights/"
 
@@ -2841,7 +2841,7 @@ object-frame v8 은 폐기. memory `camera-facing-0123-convention` 참조.
 
 ## 중간 산출물 (참고)
 
-`weights/dope_cropaug_pretrain` (2026-06-02, scratch 60ep): mixed_v8(camera-facing)
+`weights/dope/dope_cropaug_pretrain` (2026-06-02, scratch 60ep): mixed_v8(camera-facing)
 + truncation crop 8,831 학습. **truncation padding 은 적용됐으나 squash 비율강건은 없음.**
 → paper_base 의 전신/중간 산출물. squash 추가 후 재학습한 것이 정식 paper_base.
 
@@ -2907,7 +2907,7 @@ mixed_v3           weights/mixed_v3/final_net_epoch_0091.pth         91      mix
 mixed_v4_aug       weights/mixed_v4_aug/final_net_epoch_0060.pth     60      mixed_v1_train 8K (강한 aug)              8,000      scratch           MSE only
 mixed_v6_full      weights/mixed_v6_full/final_net_epoch_0060.pth    60      mixed_v1 8K + dark 100 + view 1K          9,100      scratch           MSE only
 mixed_v7_sym       (학습 중)                                         91      mixed_v6_full_train 9.1K                  9,100      mixed_v6 ep60     symmetric
-selftrain_r1       weights/selftrain_r1/final_net_epoch_0070.pth     70      mixed_v1 8K + pseudo-label 751            8,751      mixed_v1 ep60     MSE only
+selftrain_r1       weights/selftrain/selftrain_r1/final_net_epoch_0070.pth     70      mixed_v1 8K + pseudo-label 751            8,751      mixed_v1 ep60     MSE only
 ```
 
 ## v8 Ablation 모델 (Structural / Reliability Loss)

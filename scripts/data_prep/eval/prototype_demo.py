@@ -123,7 +123,7 @@ def draw_panel(ax, img, kps, R, t, cam_matrix, kp3d, title):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--output", required=True)
-    p.add_argument("--weights", default="weights/r1_outside_loo/final_net_epoch_0096.pth")
+    p.add_argument("--weights", default="weights/selftrain/r1_outside_loo/final_net_epoch_0096.pth")
     p.add_argument("--n_frames", type=int, default=6)
     args = p.parse_args()
 

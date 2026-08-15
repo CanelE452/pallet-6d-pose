@@ -1,6 +1,6 @@
 # Paper-S1 all-frames overlays — 세션별 검출/신뢰도 요약
 
-weights: `/home/minjae/Documents/github/pallet-pose/weights/paper_s1_maskaux/net_epoch_0065.pth`  
+weights: `/home/minjae/Documents/github/pallet-pose/weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth`  
 전처리: reflect-pad100 (near-field, official 아님)  
 ★ PnP 없음 — belief-peak 키포인트만. GT 없음(raw)  
 ★ 정확도 표시 불가 → det(검출 코너수) / peak(belief peak) 프록시  

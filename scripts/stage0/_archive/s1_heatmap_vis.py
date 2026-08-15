@@ -42,7 +42,7 @@ _spec = importlib.util.spec_from_file_location("ecad", ECAD_PATH)
 E = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(E)
 
-WEIGHTS = os.path.join(ROOT, "weights/paper_s1_maskaux/net_epoch_0065.pth")
+WEIGHTS = os.path.join(ROOT, "weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth")
 DEF_FRAME = os.path.join(
     ROOT, "data/pallet/raw_data/outside/capturepalletcad/rgb/"
     "1778653008732328960.png")

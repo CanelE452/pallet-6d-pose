@@ -12,8 +12,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import eval_pvnet_heads as E  # noqa: E402
 
-CONTROL_W = "weights/stage4_pvnet/off/final_net_pvnet_off.pth"
-UNIT_W = "weights/stage4_pvnet/unit/final_net_pvnet_unit.pth"
+CONTROL_W = "weights/stage_screens/stage4_pvnet/off/final_net_pvnet_off.pth"
+UNIT_W = "weights/stage_screens/stage4_pvnet/unit/final_net_pvnet_unit.pth"
 
 
 def frame_errs(model, numVec, frames, device, threshold=0.3):

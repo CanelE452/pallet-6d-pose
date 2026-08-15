@@ -12,8 +12,8 @@ Verdict (B5): mixup improves REAR / honest reproj vs control -> "signal, full
 candidate"; else honest negative.  Small real GT -> paired + absolute counts.
 
 Usage: conda run -n pallet-pose python scripts/stage0/stage19_partB_eval.py \
-    --control weights/stage19_mixup_pilot/control/final_net.pth \
-    --mixup   weights/stage19_mixup_pilot/mixup/final_net.pth
+    --control weights/stage_screens/stage19_mixup_pilot/control/final_net.pth \
+    --mixup   weights/stage_screens/stage19_mixup_pilot/mixup/final_net.pth
 """
 from __future__ import annotations
 import os as _os, sys as _sys

@@ -50,7 +50,7 @@ object-frame v8 은 폐기. memory `camera-facing-0123-convention` 참조.
 
 ## 중간 산출물 (참고)
 
-`weights/dope_cropaug_pretrain` (2026-06-02, scratch 60ep): mixed_v8(camera-facing)
+`weights/dope/dope_cropaug_pretrain` (2026-06-02, scratch 60ep): mixed_v8(camera-facing)
 + truncation crop 8,831 학습. **truncation padding 은 적용됐으나 squash 비율강건은 없음.**
 → paper_base 의 전신/중간 산출물. squash 추가 후 재학습한 것이 정식 paper_base.
 

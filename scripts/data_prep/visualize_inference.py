@@ -5,7 +5,7 @@ cuboid wireframe을 그려서 저장.
 
 사용법:
     python scripts/data_prep/visualize_inference.py \
-        --weights weights/pallet_category/final_net_epoch_0060.pth \
+        --weights weights/misc/pallet_category/final_net_epoch_0060.pth \
         --val_dir data/pallet/training_data/val \
         --real_dir data/pallet/real_data \
         --output_dir data/pallet/eval_results/vis \

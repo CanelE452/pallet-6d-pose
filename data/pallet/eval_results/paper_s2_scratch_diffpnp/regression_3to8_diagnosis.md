@@ -64,7 +64,7 @@ shared pnp_ok frames in 3-8deg: 42
 ```
 [CORRECTION] An earlier draft labelled stageA as "lambda0 / NO DiffPnP" and used
 it to claim "DiffPnP is NEUTRAL on raw, the driver is SQUASH". THAT IS WRONG.
-Verified from weights/paper_s2_stageA/header.txt: stageA was diffpnp=True,
+Verified from weights/paper_s2/paper_s2_stageA/header.txt: stageA was diffpnp=True,
 diffpnp_lambda=0.005 (same DiffPnP as stageB). So stageA is NOT a lambda0 baseline
 and CANNOT isolate squash from DiffPnP.
 

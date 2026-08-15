@@ -52,7 +52,7 @@ python scripts/self_training/self_train.py \
     --lr 5e-5 \
     --pretrained weights/v8_ablation_A_coord/final_net_epoch_0065.pth \
     --real_dir data/pallet/raw_data/capture0403noapril/rgb \
-    --output_dir weights/f5_noapril_ransac_loo_realonly \
+    --output_dir weights/misc/f5_noapril_ransac_loo_realonly \
     --seed 4165
 ```
 
@@ -63,7 +63,7 @@ ST_8only PL pool: `data/pallet/eval_results/st8only_pl8_frames/` (8 장, canonic
 
 ```bash
 python scripts/data_prep/eval/eval_nn_matching.py \
-    --weights weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
+    --weights weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
     --test_dir data/pallet/raw_data/capture0403middle \
     --gt_dir data/pallet/raw_data/capture0403middle/gt_final_isaac
 ```

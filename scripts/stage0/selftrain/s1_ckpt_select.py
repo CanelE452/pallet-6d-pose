@@ -34,7 +34,7 @@ from s16_ckpt_select import collect, eval_frame, agg, VAL_OLD  # noqa: E402
 from eval_stage11 import load_model  # noqa: E402
 
 OUT_DIR = os.path.join(ROOT, "data/pallet/eval_results/paper_s1")
-CKPT_DIR = os.path.join(ROOT, "weights/paper_s1_maskaux")
+CKPT_DIR = os.path.join(ROOT, "weights/paper_s1/paper_s1_maskaux")
 N_VAL = 300
 
 

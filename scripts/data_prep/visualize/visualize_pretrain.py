@@ -180,7 +180,7 @@ def draw_figure(img_rgb, belief, kps, confs, pose, proj, gt_kps, gt_euler, title
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = DopeNetwork()
-    state = torch.load('weights/pallet_category/final_net_epoch_0060.pth', map_location=device)
+    state = torch.load('weights/misc/pallet_category/final_net_epoch_0060.pth', map_location=device)
     model.load_state_dict(state)
     model.to(device).eval()
     print('Model loaded')

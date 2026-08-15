@@ -35,8 +35,8 @@ MANIFEST = os.path.join(
     ROOT, "data/pallet/eval_results/stage22_myannot_eval/testset_full8_manifest.txt")
 OUT_DIR = os.path.join(ROOT, "data/pallet/eval_results/paper_s1/handannot17_overlays")
 MODELS = {
-    "base": "weights/paper_base_v2/final_net_epoch_0060.pth",
-    "s1":   "weights/paper_s1_maskaux/net_epoch_0065.pth",
+    "base": "weights/paper_base/paper_base_v2/final_net_epoch_0060.pth",
+    "s1":   "weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth",
 }
 PAD = 0            # no-pad / aspect-only (official protocol)
 THRESH = 0.3

@@ -62,7 +62,7 @@ in-domain·cross-domain 모두 reproj median +4~9px 증가, good(<10px)%는 outs
 
 - 해석: diag/diag∧ratio 필터가 "centroid 부근 대각선 일관성"은 만족하나 **전체 8 corner의 절대 위치가 부정확한 PL을 다량 통과**시킨 것으로 보인다 (memory `filter-goal-reliable-pl-full-keypoints`의 경고가 그대로 재현 — 단일/2D 기하 조건은 무게중심만 보정, corner 정확도는 보장 못 함). 모델은 "더 자주, 더 거칠게" 찍도록 학습됨 (det↑ / px정확도↓).
 - night det +17.8%는 다량(107) PL의 효과지만 정확도가 따라오지 않음 → 발표 교훈("다량 PL인데 성능↓")이 품질 필터로도 그대로 재현.
-- 교차검증: R0의 기존 synthetic val(`weights/paper_base/eval_results/eval_summary.json`)은 PCK@5px=98.8%지만 corner2d_median=11.7px / reproj_median=14px로 절대 px는 원래 두 자리 → 본 real 평가(R0 18px)와 일관, 평가 코드 신뢰 가능.
+- 교차검증: R0의 기존 synthetic val(`weights/paper_base/paper_base/eval_results/eval_summary.json`)은 PCK@5px=98.8%지만 corner2d_median=11.7px / reproj_median=14px로 절대 px는 원래 두 자리 → 본 real 평가(R0 18px)와 일관, 평가 코드 신뢰 가능.
 - 주의(provenance): paper_base 학습 데이터에 `mixed_v8_train` 포함(header.txt). CLAUDE.md "v8 폐기" 방침과 충돌 가능 — base 자체의 convention/라벨 점검 필요(별도 이슈).
 
 **다음**: (1) 필터를 전체 9kp 정확도 기준으로 강화(diag 단독 부적합), (2) PL을 corner reproj 임계로 hard-gate, (3) R2 진행 전 R1 회귀 원인을 PL 시각화로 확인.

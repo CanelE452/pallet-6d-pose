@@ -53,7 +53,7 @@ truncation_aug_prob=0.0   <- 런타임 truncation aug 미사용 (pre-generated a
 clip_belief_border : 미지정 -> False (CreateBeliefMap legacy all-zero 경로)
 mask_aux=True mask_weight=0.01
 diffpnp=True lambda=0.005 warmup=0 ramp=1000 temp=0.1  -> aspect_resize=True
-net_path=weights/paper_s2_stageA/net_epoch_0042.pth  epochs=57  seed=42  batch=12  lr=5e-05
+net_path=weights/paper_s2/paper_s2_stageA/net_epoch_0042.pth  epochs=57  seed=42  batch=12  lr=5e-05
 balance_groups=mixed_v8_train|v4_split_base|aug_squash_v2|aug_trunc_v2|aug_scale_v2:60,paper_4pallet_mask_v1:40
 ```
 

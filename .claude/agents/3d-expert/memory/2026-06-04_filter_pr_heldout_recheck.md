@@ -6,7 +6,7 @@
 base rate 0.53·필터 P/R 전부 낙관적. **모델 P/R 스크리닝 할 땐 평가셋이 그 모델 train set인지 header.txt로 먼저 확인할 것.**
 
 ## held-out 재평가
-- 평가모델 = `weights/dope_cropaug_pretrain/final_net_epoch_0060.pth` (학습=mixed_v8_train+truncation_crops_dope/pretrain, manual GT 미포함 = held-out. header.txt가 Namespace(data=[...]) 로 train data 박혀있음).
+- 평가모델 = `weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth` (학습=mixed_v8_train+truncation_crops_dope/pretrain, manual GT 미포함 = held-out. header.txt가 Namespace(data=[...]) 로 train data 박혀있음).
 - GT pool 251 = 219 + forklift gt_manual 32. forklift도 object-frame canonical(HEIGHT-edge shortest 32/32 검증). forklift 이미지는 `rgb/` 서브디렉(JSON은 `gt_manual/`) → 스크립트에 `--include_forklift` + (gt_dir, img_dir) 튜플 처리 추가.
 
 ## 핵심 발견 — 검출 빈약(도메인 갭)

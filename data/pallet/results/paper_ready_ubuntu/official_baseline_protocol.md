@@ -5,9 +5,9 @@ relates to the pad-100 qualitative demo and the B2 private-CAD reference. Number
 **cited from prior measurements — no re-run** (paper_stage_a/eval.json, stage25_paperbase_eval).
 Supersedes / consolidates `data/pallet/eval_results/paper_stage_a/PAPER_STAGE_B_official_baseline.md`.
 
-- weights: `weights/paper_base_v2/final_net_epoch_0060.pth`
+- weights: `weights/paper_base/paper_base_v2/final_net_epoch_0060.pth`
   (procedural 19,308 frames, palletobj-free, scratch 60ep, no-pad/aspect training,
-   truncation_aug_prob=0.0 — verified in `weights/paper_base_v2/header.txt`).
+   truncation_aug_prob=0.0 — verified in `weights/paper_base/paper_base_v2/header.txt`).
 - source: `data/pallet/eval_results/paper_stage_a/eval.json` (PAPER_STAGE_A) and
   `data/pallet/eval_results/stage25_paperbase_eval/` (STAGE25). No re-execution.
 

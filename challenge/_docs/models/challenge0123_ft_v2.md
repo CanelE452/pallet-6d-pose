@@ -4,7 +4,7 @@
 
 ```
 Weight:      weights/challenge0123_ft_v2/net_epoch_0080.pth (확인 시점; 학습 목표 120)
-초기 weight: weights/challenge0123/final_net_epoch_0060.pth
+초기 weight: weights/challenge_track/challenge0123/final_net_epoch_0060.pth
 Epochs:      120 (60 → 120, 60 ep ft)
 Batch size:  8
 LR:          1e-4

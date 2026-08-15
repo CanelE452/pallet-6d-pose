@@ -43,7 +43,7 @@ ELEV_LBL = P.ELEV_LBL        # ["<3","3-8","8-15","15+"]
 GOOD_PX, GROSS_PX = 10.0, 20.0
 
 MODELS = [
-    ("paper_s1",        "weights/paper_s1_maskaux/net_epoch_0065.pth", "aspect"),
+    ("paper_s1",        "weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth", "aspect"),
     ("paper_s2_stageB", "weights/paper_s2_stageB/net_epoch_0057.pth", "squash"),
 ]
 BASELINE, CHALLENGER = "paper_s1", "paper_s2_stageB"

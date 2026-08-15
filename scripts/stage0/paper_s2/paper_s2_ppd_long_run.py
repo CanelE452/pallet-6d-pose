@@ -30,7 +30,7 @@ from models import DopeNetwork
 
 D = ROOT / "data/pallet/results/paper_s2_palletgraph_line_screen"
 DATA = ROOT / "data/pallet/training_data/paper_4pallet_mask_v1"
-WROOT = ROOT / "weights/paper_s2_ppd_t2_screen"
+WROOT = ROOT / "weights/paper_s2/paper_s2_ppd_t2_screen"
 ALLOWED_ROOT = "paper_4pallet_mask_v1"
 BANNED_ROOTS = ("mixed_v8_train", "v4_split_base", "aug_squash_v2",
                 "aug_trunc_v2", "aug_scale_v2")

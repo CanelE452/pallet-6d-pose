@@ -29,32 +29,32 @@
   },
   "indoor": {
     "R0": {"nn20": 21.6, "pl": 0, "weight": "weights/v8_ablation_A_coord/final_net_epoch_0065.pth"},
-    "R1": {"nn20": 60.5, "pl": 2, "weight": "weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth", "note": "F5 재사용 (ransac_loo)"},
+    "R1": {"nn20": 60.5, "pl": 2, "weight": "weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth", "note": "F5 재사용 (ransac_loo)"},
     "R1_outside_transfer": {"nn20": 31.8, "note": "F5 (indoor-trained) on outside"},
     "R1_night_transfer": {"nn20": 32.2, "note": "F5 (indoor-trained) on night"},
-    "R2": {"nn20": 30.5, "pl": 31, "weight": "weights/r2_indoor_loo/final_net_epoch_0127.pth", "note": "R1 → R2 PL pool 2 → 31 (15.5x), F5 → capture0403noapril 188 frame. indoor 자기 도메인 R1(60.5) → 30.5 로 큰 폭 하락 (over-iteration)"},
+    "R2": {"nn20": 30.5, "pl": 31, "weight": "weights/selftrain/r2_indoor_loo/final_net_epoch_0127.pth", "note": "R1 → R2 PL pool 2 → 31 (15.5x), F5 → capture0403noapril 188 frame. indoor 자기 도메인 R1(60.5) → 30.5 로 큰 폭 하락 (over-iteration)"},
     "R2_outside_transfer": {"nn20": 11.6, "note": "R2 indoor-trained on outside"},
     "R2_night_transfer": {"nn20": 21.1, "note": "R2 indoor-trained on night"}
   },
   "outside": {
     "R0": {"nn20": 27.9, "pl": 1289, "weight": "weights/v8_ablation_A_coord/final_net_epoch_0065.pth", "pred_rate": "68/129"},
-    "R1_ransac_FAILED": {"nn20": 17.1, "pl": 1289, "weight": "weights/r1_outside_ransac/final_net_epoch_0096.pth", "note": "모든 도메인에서 R0 보다 떨어짐 (catastrophic forgetting + noisy PL)"},
-    "R1": {"nn20": 39.5, "pl": 167, "weight": "weights/r1_outside_loo/final_net_epoch_0096.pth", "note": "ransac_loo 167 PL real-only ft (BATCH=4, EPOCHS=96, LR=5e-5)"},
+    "R1_ransac_FAILED": {"nn20": 17.1, "pl": 1289, "weight": "weights/selftrain/r1_outside_ransac/final_net_epoch_0096.pth", "note": "모든 도메인에서 R0 보다 떨어짐 (catastrophic forgetting + noisy PL)"},
+    "R1": {"nn20": 39.5, "pl": 167, "weight": "weights/selftrain/r1_outside_loo/final_net_epoch_0096.pth", "note": "ransac_loo 167 PL real-only ft (BATCH=4, EPOCHS=96, LR=5e-5)"},
     "R1_indoor_transfer": {"nn20": 58.4, "note": "outside-trained model on indoor eval — generic improvement"},
     "R1_night_transfer": {"nn20": 33.3, "note": "outside-trained model on night eval"},
-    "R2": {"nn20": 24.8, "pl": 514, "weight": "weights/r2_outside_loo/final_net_epoch_0127.pth", "note": "R1 → R2 PL pool 167 → 514 (3.1x). 모든 ckpt 가 R1 (39.5%) 보다 낮음 (over-iteration)"},
+    "R2": {"nn20": 24.8, "pl": 514, "weight": "weights/selftrain/r2_outside_loo/final_net_epoch_0127.pth", "note": "R1 → R2 PL pool 167 → 514 (3.1x). 모든 ckpt 가 R1 (39.5%) 보다 낮음 (over-iteration)"},
     "R2_indoor_transfer": {"nn20": 15.9, "note": "R2 outside-trained on indoor — R1 (58.4) 보다 크게 떨어짐 (over-specialization)"},
     "R2_night_transfer": {"nn20": 11.1, "note": "R2 outside-trained on night — R1 (33.3) 보다 떨어짐"},
-    "R3": {"nn20": 21.7, "pl": 900, "weight": "weights/r3_outside_loo/final_net_epoch_0158.pth", "note": "R2 → R3 PL pool 514 → 900 (1.75x). R3 가 R2 보다도 떨어짐 (catastrophic decay 확정)"},
+    "R3": {"nn20": 21.7, "pl": 900, "weight": "weights/selftrain/r3_outside_loo/final_net_epoch_0158.pth", "note": "R2 → R3 PL pool 514 → 900 (1.75x). R3 가 R2 보다도 떨어짐 (catastrophic decay 확정)"},
     "R3_indoor_transfer": {"nn20": 4.8, "note": "R3 outside-trained on indoor"},
     "R3_night_transfer": {"nn20": 5.6, "note": "R3 outside-trained on night"}
   },
   "night": {
     "R0": {"nn20": 21.1, "pl": 799, "weight": "weights/v8_ablation_A_coord/final_net_epoch_0065.pth", "pred_rate": "26/90"},
-    "R1": {"nn20": 26.7, "pl": 105, "weight": "weights/r1_night_loo/final_net_epoch_0096.pth", "note": "ransac_loo 105 PL (PL pool 적음)"},
+    "R1": {"nn20": 26.7, "pl": 105, "weight": "weights/selftrain/r1_night_loo/final_net_epoch_0096.pth", "note": "ransac_loo 105 PL (PL pool 적음)"},
     "R1_indoor_transfer": {"nn20": 43.9, "note": "night-trained model on indoor"},
     "R1_outside_transfer": {"nn20": 22.5, "note": "night-trained model on outside (R0 보다 약간 떨어짐)"},
-    "R2": {"nn20": 26.7, "pl": 973, "weight": "weights/r2_night_loo/final_net_epoch_0127.pth", "note": "R1 → R2 PL pool 105 → 973 (9.3x). night 자기 도메인은 R1 (26.7) 와 동일, indoor/outside transfer 약화"},
+    "R2": {"nn20": 26.7, "pl": 973, "weight": "weights/selftrain/r2_night_loo/final_net_epoch_0127.pth", "note": "R1 → R2 PL pool 105 → 973 (9.3x). night 자기 도메인은 R1 (26.7) 와 동일, indoor/outside transfer 약화"},
     "R2_indoor_transfer": {"nn20": 33.4, "note": "R2 night-trained on indoor — R1 (43.9) 보다 낮음"},
     "R2_outside_transfer": {"nn20": 20.2, "note": "R2 night-trained on outside — R1 (22.5) 비슷"}
   }

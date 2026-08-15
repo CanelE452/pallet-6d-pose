@@ -3,7 +3,7 @@
 ## 학습 설정
 
 ```
-Weight:     weights/selftrain_r1/final_net_epoch_0070.pth
+Weight:     weights/selftrain/selftrain_r1/final_net_epoch_0070.pth
 초기 weight: mixed_v1 ep60
 Epochs:     61 → 70 (10 epoch 추가)
 Batch size: 4

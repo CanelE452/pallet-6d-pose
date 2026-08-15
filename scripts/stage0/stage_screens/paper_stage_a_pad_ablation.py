@@ -41,7 +41,7 @@ import stage25_paperbase_eval as S  # noqa: E402
 from stage25_paperbase_eval import E, summarize, SETS, ELEV_BINS, elev_of  # noqa: E402
 
 OUT_DIR = os.path.join(ROOT, "data/pallet/eval_results/paper_stage_a")
-WEIGHTS = os.path.join(ROOT, "weights/paper_base_v2/final_net_epoch_0060.pth")
+WEIGHTS = os.path.join(ROOT, "weights/paper_base/paper_base_v2/final_net_epoch_0060.pth")
 THRESH = 0.3
 PADS = {"A_nopad": 0, "B_pad50": 50, "C_pad100": 100, "D_pad150": 150}
 
@@ -140,7 +140,7 @@ def _row(label, s):
 def write_report(out):
     L = ["# PAPER_STAGE_A PART 1 — paper_base_v2 preprocess ablation (A/B/C/D)",
          "",
-         "weights: weights/paper_base_v2/final_net_epoch_0060.pth "
+         "weights: weights/paper_base/paper_base_v2/final_net_epoch_0060.pth "
          "(무패딩 학습: aspect + truncation_aug_prob=0.0)",
          "eval: order-free Hungarian corner + solve_pose(order-free W/D) + honest",
          "full-8 reproj(GT projected_cuboid) + per-frame K. good%<10px, gross%>20px.",

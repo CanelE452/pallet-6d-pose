@@ -2,7 +2,7 @@
 
 사용법:
     python scripts/data_prep/infer_test_data.py \
-        --weights weights/pallet_v11_far/final_net_epoch_0121.pth \
+        --weights weights/misc/pallet_v11_far/final_net_epoch_0121.pth \
         --test_dir data/pallet/test_data \
         --output_dir data/pallet/test_data_results \
         --num_per_capture 20

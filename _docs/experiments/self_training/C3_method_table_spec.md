@@ -52,7 +52,7 @@ lock §1.3 기준 이것은 **transductive(appendix) setting** 이며 main(induc
 |---|---|---|
 | Synthetic only | `weights/paper_s2_stageB/net_epoch_0057_noseg.pth` | 합성만으로 학습한 base (R0) |
 | Naïve ST | `ralph_selftrain/h9_s2_{dom}_naive/round_02.pth` | 무필터 PL (검출≥5kp 이면 전부) |
-| Reproj+flip ST | `weights/paper_s2_rf_hipl/r1_{dom}/net_epoch_0060.pth` | reproj gate ∧ flip 일관 |
+| Reproj+flip ST | `weights/paper_s2/paper_s2_rf_hipl/r1_{dom}/net_epoch_0060.pth` | reproj gate ∧ flip 일관 |
 | **Ours** | `ralph_selftrain/h8_s2_{dom}_looflip/round_02.pth` | ransac_loo ∧ flip 일관 (R2) |
 
 - **행 이름 정정**: 세 번째 행을 "Reproj-only ST" 로 쓰면 안 된다. 실제 가중치는 reproj∧flip 이다.

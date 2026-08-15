@@ -7,7 +7,7 @@ source ~/anaconda3/etc/profile.d/conda.sh 2>/dev/null || source ~/miniconda3/etc
 conda activate pallet-pose
 export CUDA_MODULE_LOADING=LAZY PYTHONUNBUFFERED=1
 
-BASE=weights/challenge0123/final_net_epoch_0060.pth
+BASE=weights/challenge_track/challenge0123/final_net_epoch_0060.pth
 DATA="challenge/data/02_synthetic/training/v3/batch_000 challenge/data/02_synthetic/training/v3/batch_001 \
       challenge/data/02_synthetic/training/v3/batch_002 challenge/data/02_synthetic/training/v3/batch_003 \
       challenge/data/02_synthetic/training/v3/batch_004 challenge/data/02_synthetic/training/v3/batch_005 \

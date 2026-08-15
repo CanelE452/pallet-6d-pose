@@ -21,7 +21,7 @@ Reuses (NO new geometry):
 
 Usage (user, GPU):
   conda run -n pallet-pose python scripts/stage0/filter_pl/tau_calibrate.py \
-      --weights weights/paper_base/final_net_epoch_0060.pth
+      --weights weights/paper_base/paper_base/final_net_epoch_0060.pth
 Smoke (CPU):
   python scripts/stage0/filter_pl/tau_calibrate.py --list_val_frames
 """

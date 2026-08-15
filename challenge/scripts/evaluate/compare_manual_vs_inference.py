@@ -19,7 +19,7 @@
 사용:
   python challenge/scripts/evaluate/compare_manual_vs_inference.py \\
       --gt_dir challenge/data/01_real/manual_gt/capturepallet07_manual_gt \\
-      --weights weights/challenge/final_net_epoch_0060.pth
+      --weights weights/challenge_track/challenge/final_net_epoch_0060.pth
 """
 import os as _os, sys as _sys
 

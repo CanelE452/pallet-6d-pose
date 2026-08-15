@@ -31,7 +31,7 @@ oracle reference    O12  eval56 <=20px 98.7%  median 4.68px  PnP 56/56
                     O5   eval56 <=20px  2.7%  median 148.66px  PnP 0
                          wood   <=20px  0.6%  median 292.53px  PnP 0
 
-A1 checkpoint       weights/paper_s2_pdg/A1/epoch_003.pth
+A1 checkpoint       weights/paper_s2/paper_s2_pdg/A1/epoch_003.pth
                     run_state completed=True, epoch 3/3, steps 7329
 A0 checkpoint       weights/paper_s2_stageB/net_epoch_0057.pth
                     sha256 c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896
@@ -41,7 +41,7 @@ feature taps        F100 = vgg[17] ReLU, 256 x 100 x 100   (runtime confirmed)
                     do not hardcode without re-asserting the shapes
 
 PPD recipe source   scripts/stage0/paper_s2_ppd_long_run.py
-                    run_state: weights/paper_s2_ppd_t2_screen/{L0,M0,M1}, epoch 20/20
+                    run_state: weights/paper_s2/paper_s2_ppd_t2_screen/{L0,M0,M1}, epoch 20/20
                     prior timing ~64 s/epoch on 3,039 synthetic frames
                     -> 20 epochs ~21 min per arm; 7 arms ~2.5 h detached
 

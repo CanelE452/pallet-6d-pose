@@ -30,8 +30,8 @@ GT_DIR = os.path.join(ROOT, "data", "pallet", "raw_data", "capture0403middle", "
 RGB_DIR = os.path.join(ROOT, "data", "pallet", "raw_data", "capture0403middle", "rgb")
 OUT_DIR = os.path.join(ROOT, "data", "pallet", "eval_results", "squash_vs_nosquash", "indoor_overlay")
 MODELS = {
-    "squash": "weights/paper_base/final_net_epoch_0060.pth",
-    "nosquash": "weights/dope_cropaug_pretrain/final_net_epoch_0060.pth",
+    "squash": "weights/paper_base/paper_base/final_net_epoch_0060.pth",
+    "nosquash": "weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth",
 }
 MEAN = np.array([0.485, 0.456, 0.406]); STD = np.array([0.229, 0.224, 0.225])
 N_SAVE = 16

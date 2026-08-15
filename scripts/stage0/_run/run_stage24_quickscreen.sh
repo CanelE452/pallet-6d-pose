@@ -7,12 +7,12 @@ set -uo pipefail
 cd "$(dirname "$0")/../../.."
 export CUDA_MODULE_LOADING=LAZY PYTHONUNBUFFERED=1
 
-BASE=weights/challenge0123/final_net_epoch_0060.pth
+BASE=weights/challenge_track/challenge0123/final_net_epoch_0060.pth
 ROOT=data/pallet/eval_results/stage24_vec_newdata
 L=$ROOT/logs; mkdir -p "$L"
-WV=weights/stage24_vec_newdata/voting
-WS=weights/stage24_vec_newdata/sparse
-WC=weights/stage24_vec_newdata/control
+WV=weights/stage_screens/stage24_vec_newdata/voting
+WS=weights/stage_screens/stage24_vec_newdata/sparse
+WC=weights/stage_screens/stage24_vec_newdata/control
 
 DATA="challenge/data/02_synthetic/training/v3/batch_000 challenge/data/02_synthetic/training/v3/batch_001 \
 challenge/data/02_synthetic/training/v3/batch_002 challenge/data/02_synthetic/training/v3/batch_003 \

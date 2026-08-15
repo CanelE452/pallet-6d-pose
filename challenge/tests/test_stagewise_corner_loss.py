@@ -237,7 +237,7 @@ def test_exactly_five_epochs_and_no_checkpoint_selection() -> None:
     source = RUNNER.read_text("utf-8")
     assert "EPOCHS, SEED, LR = 5, 1, 5e-5" in source
     assert "best_epoch" not in source and "early_stop" not in source
-    state = ROOT / "weights/paper_s2_stagewise_bias_screen/run_state.json"
+    state = ROOT / "weights/paper_s2/paper_s2_stagewise_bias_screen/run_state.json"
     if state.is_file():
         payload = json.loads(state.read_text("utf-8"))
         assert payload["epochs"] == 5 and payload["completed"] is True

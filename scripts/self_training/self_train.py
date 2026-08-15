@@ -13,7 +13,7 @@ DOPE 의 unsupervised domain adaptation (synthetic → real). Round 마다:
 사용:
     python scripts/self_training/self_train.py \\
         --config config/stage3_selftrain.yaml \\
-        --pretrained weights/pallet_category/net_pallet_best.pth \\
+        --pretrained weights/misc/pallet_category/net_pallet_best.pth \\
         --synthetic_dir data/pallet/training_data/train \\
         --real_dir data/pallet/real_unlabeled \\
         --output_dir output/stage3_selftrain

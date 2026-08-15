@@ -6,7 +6,7 @@
 set -e
 ROOT=/home/minjae/Documents/github/pallet-pose
 SPLIT=$ROOT/data/pallet/results/paper_s2_scratch_diffpnp/q1_split
-OUTBASE=$ROOT/weights/paper_s2_q1
+OUTBASE=$ROOT/weights/paper_s2/paper_s2_q1
 LOGDIR=$ROOT/data/pallet/results/paper_s2_scratch_diffpnp/q1_logs
 mkdir -p "$OUTBASE" "$LOGDIR"
 

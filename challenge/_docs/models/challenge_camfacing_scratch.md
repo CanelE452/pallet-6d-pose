@@ -3,7 +3,7 @@
 ## 학습 설정
 
 ```
-Weight:      weights/challenge_camfacing_scratch/final_net_epoch_0060.pth
+Weight:      weights/challenge_track/challenge_camfacing_scratch/final_net_epoch_0060.pth
 초기 weight: scratch (VGG-19 ImageNet pretrained)
 Epochs:      60
 Batch size:  8

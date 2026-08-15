@@ -30,7 +30,7 @@ ordering does not need to match the canonical corner ordering.
 
 usage:
   python challenge/scripts/infer/dope_predict_mp4_pad.py \
-      --weights weights/challenge_ft_otftrunc/final_net_epoch_0150.pth \
+      --weights weights/challenge_track/challenge_ft_otftrunc/final_net_epoch_0150.pth \
       --mp4 data/outside/forklift_raw_20260528_163408.mp4 \
       --out challenge/data/04_results/forklift_otftrunc_PAD_infer.mp4 --pad 100
 """

@@ -193,5 +193,5 @@ figure 경로: _docs/figures/phase1_qualitative.png
 - Figure 1 (round 곡선): `_docs/figures/phase1_round_curve.png`
 - Figure 2 (정성 panel): `_docs/figures/phase1_qualitative.png`
 - 평가 결과 텍스트: `data/pallet/eval_results/phase1_{R0,R1_*,R2_*}/*.txt`
-- 학습된 weights: `weights/r1_outside_loo/`, `weights/r1_night_loo/`, `weights/r2_outside_loo/`, `weights/r2_night_loo/`, `weights/r2_indoor_loo/`
-- 실패 라인 (참조용): `weights/r1_outside_ransac/` (ransac c≥6, 1289 PL → 학습 실패)
+- 학습된 weights: `weights/selftrain/r1_outside_loo/`, `weights/selftrain/r1_night_loo/`, `weights/selftrain/r2_outside_loo/`, `weights/selftrain/r2_night_loo/`, `weights/selftrain/r2_indoor_loo/`
+- 실패 라인 (참조용): `weights/selftrain/r1_outside_ransac/` (ransac c≥6, 1289 PL → 학습 실패)

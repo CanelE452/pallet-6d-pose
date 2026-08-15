@@ -25,7 +25,7 @@ loss; ckpt every --save_every steps + final.  Run via nohup DIRECT redirect (no 
 
 Usage (GPU):
   conda run -n pallet-pose python scripts/stage0/stage_screens/stage20_cutpaste_train.py \
-      --cutpaste --out weights/stage20_cutpaste_pilot/cutpaste --steps 600
+      --cutpaste --out weights/stage_screens/stage20_cutpaste_pilot/cutpaste --steps 600
   (control: drop --cutpaste, --out .../control)
   (examples: --dump_examples 5 --out data/pallet/eval_results/stage20_cutpaste)
 """

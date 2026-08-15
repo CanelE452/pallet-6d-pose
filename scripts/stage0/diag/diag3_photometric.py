@@ -30,7 +30,7 @@ from four_arm_pl_compare import collect_val_frames  # noqa
 from diag2_raw_decode_stages import (classify, gt_to_belief, disk_max,  # noqa
                                      GT_DISK, TAU0, N_DET_MIN)
 
-WEIGHTS = os.path.join(ROOT, "weights/challenge0123/final_net_epoch_0060.pth")
+WEIGHTS = os.path.join(ROOT, "weights/challenge_track/challenge0123/final_net_epoch_0060.pth")
 OUT = os.path.join(ROOT, "data/pallet/eval_results/stage9_diag")
 
 

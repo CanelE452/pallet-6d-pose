@@ -9,17 +9,17 @@
 
 ## 1. Checkpoint (frozen)
 
-- **B2 = `weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth`** `[확인]`
+- **B2 = `weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth`** `[확인]`
   - = `net_epoch_0084.pth` 와 동일 내용 (size 219,330,070 vs 219,328,798; `final_*` 는 동일 epoch save). 학습 추적 epoch = 0084.
   - SHA 미기록(필요시 별도 산출).
 - 계보: `challenge0123 baseline` → `B3_replay`(replay-mix anti-forgetting) → **B2_maskaux**(mask-aux finetune).
-  - B2 init = `weights/stage11_16k_B3_replay/net_epoch_0074.pth` `[확인 header.txt: net_path]`
+  - B2 init = `weights/stage_screens/stage11_16k_B3_replay/net_epoch_0074.pth` `[확인 header.txt: net_path]`
 
 ---
 
 ## 2. Training Recipe
 
-출처: `weights/stage11_16k_B2_maskaux/header.txt` (저장된 argparse Namespace) `[확인]` +
+출처: `weights/stage_screens/stage11_16k_B2_maskaux/header.txt` (저장된 argparse Namespace) `[확인]` +
 `data/pallet/eval_results/stage11_16k/run_train_B2.sh` `[확인]`.
 
 ```
@@ -34,7 +34,7 @@ optimizer / schedule
   workers          6
 
 init / finetune
-  net_path         weights/stage11_16k_B3_replay/net_epoch_0074.pth  (B3_final)
+  net_path         weights/stage_screens/stage11_16k_B3_replay/net_epoch_0074.pth  (B3_final)
   (train.py finetune = net_path epoch 이어받고 --epochs 누적목표 해석;
    memory dope-finetune-cumulative-epoch)
 

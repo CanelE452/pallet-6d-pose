@@ -11,7 +11,7 @@ from models import DopeNetwork
 
 D=ROOT/"data/pallet/results/paper_s2_palletgraph_line_screen"
 DATA=ROOT/"data/pallet/training_data/paper_4pallet_mask_v1"
-WOUT=ROOT/"weights/paper_s2_ppd_t2_screen"
+WOUT=ROOT/"weights/paper_s2/paper_s2_ppd_t2_screen"
 ALLOWED_ROOT="paper_4pallet_mask_v1"
 SEED=1; STEPS=800; BATCH=8; LR=1e-3; WD=1e-4; GRID=PLH.TARGET_GRID
 dev=torch.device("cuda" if torch.cuda.is_available() else "cpu")

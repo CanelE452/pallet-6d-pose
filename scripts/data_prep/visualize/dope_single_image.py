@@ -2,7 +2,7 @@
 
 사용법:
     python scripts/data_prep/visualize/dope_single_image.py \
-        --weights weights/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
+        --weights weights/misc/f5_noapril_ransac_loo_realonly/final_net_epoch_0096.pth \
         --image data/pallet/raw_data/real_data/color_20250908_165311_662.jpg \
         --out_dir _docs/figures
 """

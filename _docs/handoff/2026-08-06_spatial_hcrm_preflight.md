@@ -6,7 +6,7 @@ untouched.  Everything below is measured, not assumed.
 ## Verified and frozen
 
 ```
-A1 checkpoint     weights/paper_s2_pdg/A1/epoch_003.pth
+A1 checkpoint     weights/paper_s2/paper_s2_pdg/A1/epoch_003.pth
                   sha256 00a0dcd8730e21d14b8a86e2f2a398650b78026006e4e358eabc438148fb9657
                   run_state completed, its recorded sha matches the file
 

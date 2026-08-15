@@ -46,11 +46,11 @@ DATASETS = {
     "noapril": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"),
 }
 MODELS = {
-    "B2":     "weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth",
-    "s19_control": "weights/stage19_mixup_pilot/control/final_net.pth",
-    "s19_mixup":   "weights/stage19_mixup_pilot/mixup/final_net.pth",
-    "s20_control": "weights/stage20_cutpaste_pilot/control/final_net.pth",
-    "s20_cutpaste": "weights/stage20_cutpaste_pilot/cutpaste/final_net.pth",
+    "B2":     "weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth",
+    "s19_control": "weights/stage_screens/stage19_mixup_pilot/control/final_net.pth",
+    "s19_mixup":   "weights/stage_screens/stage19_mixup_pilot/mixup/final_net.pth",
+    "s20_control": "weights/stage_screens/stage20_cutpaste_pilot/control/final_net.pth",
+    "s20_cutpaste": "weights/stage_screens/stage20_cutpaste_pilot/cutpaste/final_net.pth",
 }
 PAIRS = [("s19_control", "s19_mixup"), ("s20_control", "s20_cutpaste")]
 

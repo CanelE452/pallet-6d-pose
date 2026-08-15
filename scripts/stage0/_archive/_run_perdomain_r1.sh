@@ -2,7 +2,7 @@
 set -euo pipefail
 source ~/anaconda3/etc/profile.d/conda.sh; conda activate pallet-pose
 for D in outside night noapril; do
-  OUT="/home/minjae/Documents/github/pallet-pose/weights/paper_s2_perdomain/r1_$D"; mkdir -p "$OUT"
+  OUT="/home/minjae/Documents/github/pallet-pose/weights/paper_s2/paper_s2_perdomain/r1_$D"; mkdir -p "$OUT"
   echo "=== TRAIN R1_$D (PL=paper_s2_pl_$D) ==="
   cd "/home/minjae/Documents/github/pallet-pose/Deep_Object_Pose/train"
   python -u train.py \

@@ -39,7 +39,7 @@ for extra in (STAGE0, DOPE / "common", DOPE / "train"):
         sys.path.insert(0, str(extra))
 
 EP57 = ROOT / "weights/paper_s2_stageB/net_epoch_0057.pth"
-EP5 = ROOT / "weights/paper_s2_corner_replacement_screen/epoch_005.pth"
+EP5 = ROOT / "weights/paper_s2/paper_s2_corner_replacement_screen/epoch_005.pth"
 EP57_SHA = "c0055fe7c4210f636705668c7c56dd98fb75414c403d5a5a3aa03359b08bc896"
 EP5_SHA = "aad97f6bead6067d58ae178e99e404c738f63708e38de622ca3a6f07087da4e5"
 SEED = 1

@@ -47,7 +47,7 @@ _spec = importlib.util.spec_from_file_location("ecad", ECAD_PATH)
 E = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(E)
 
-WEIGHTS = os.path.join(ROOT, "weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth")
+WEIGHTS = os.path.join(ROOT, "weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth")
 DATASETS = {
     "cad": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt"),
     "noapril": os.path.join(ROOT, "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt"),

@@ -3,8 +3,8 @@
 - protocol: A_nopad (official no-pad/aspect, train/infer parity). pad=0, thresh=0.3.
 - metric: order-free Hungarian corner + solve_pose(order-free W/D) + honest full-8 reproj + per-frame K.
 - good%<10px, gross%>20px. same-frame paired (identical frame list per model).
-- PaperBase-v2: /home/minjae/Documents/github/pallet-pose/weights/paper_base_v2/final_net_epoch_0060.pth
-- Paper-S1:     /home/minjae/Documents/github/pallet-pose/weights/paper_s1_maskaux/net_epoch_0065.pth
+- PaperBase-v2: /home/minjae/Documents/github/pallet-pose/weights/paper_base/paper_base_v2/final_net_epoch_0060.pth
+- Paper-S1:     /home/minjae/Documents/github/pallet-pose/weights/paper_s1/paper_s1_maskaux/net_epoch_0065.pth
 - ★ data = V=8 100%. rear/corner improvement claims are FULL-VIEW only; NO V<8/truncation claim.
 
 ## handannot17  (N=17)

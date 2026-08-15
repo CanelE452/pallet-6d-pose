@@ -28,7 +28,7 @@ loss; ckpt every --save_every steps + final.  Run via nohup DIRECT redirect (no 
 
 Usage (GPU):
   conda run -n pallet-pose python scripts/stage0/stage19_partB_mixup_train.py \
-      --mixup --out weights/stage19_mixup_pilot/mixup --steps 600
+      --mixup --out weights/stage_screens/stage19_mixup_pilot/mixup --steps 600
   (control: drop --mixup, --out .../control)
 """
 from __future__ import annotations

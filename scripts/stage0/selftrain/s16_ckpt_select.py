@@ -143,11 +143,11 @@ def main():
     for k, v in sets.items():
         print(f"[set] {k}: {len(v)} frames")
 
-    ckpts = {"B2_ep84": os.path.join(ROOT, "weights/stage11_16k_B2_maskaux/final_net_epoch_0084.pth")}
+    ckpts = {"B2_ep84": os.path.join(ROOT, "weights/stage_screens/stage11_16k_B2_maskaux/final_net_epoch_0084.pth")}
     for ep in range(85, 95):
-        p = os.path.join(ROOT, f"weights/stage16_trunc_replay/net_epoch_{ep:04d}.pth")
+        p = os.path.join(ROOT, f"weights/stage_screens/stage16_trunc_replay/net_epoch_{ep:04d}.pth")
         if ep == 94:
-            p = os.path.join(ROOT, "weights/stage16_trunc_replay/final_net_epoch_0094.pth")
+            p = os.path.join(ROOT, "weights/stage_screens/stage16_trunc_replay/final_net_epoch_0094.pth")
         if os.path.exists(p):
             ckpts[f"S16_ep{ep}"] = p
 

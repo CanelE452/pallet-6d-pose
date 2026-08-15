@@ -24,8 +24,8 @@ def load_scalars(logdir):
         out[tag] = ([e.step for e in ev], [e.value for e in ev])
     return out
 
-base = load_scalars("weights/challenge0123/runs")
-ft = load_scalars("weights/challenge0123_ft_manual/runs")
+base = load_scalars("weights/challenge_track/challenge0123/runs")
+ft = load_scalars("weights/challenge_track/challenge0123_ft_manual/runs")
 
 tags = ["loss/train_loss", "loss/train_bel", "loss/train_aff", "health/belief_peak_mean"]
 fig, axs = plt.subplots(2, 2, figsize=(14, 8))

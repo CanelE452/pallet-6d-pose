@@ -37,8 +37,8 @@ OUT = (ROOT / "data/pallet/results/paper_s2_eval56/decoder_reconciliation"
        / "compatibility_calibration/canonical_corner_audit/edge_mandatory_fast_search")
 DATA = ROOT / "data/pallet/training_data/pallet6d_v2_10k"
 ALLDIR = DATA / "all"
-WEIGHTS = ROOT / "weights/paper_s2_edge_fast"
-A1_CKPT = ROOT / "weights/paper_s2_pdg/A1/epoch_003.pth"
+WEIGHTS = ROOT / "weights/paper_s2/paper_s2_edge_fast"
+A1_CKPT = ROOT / "weights/paper_s2/paper_s2_pdg/A1/epoch_003.pth"
 A1_SHA = "00a0dcd8730e21d14b8a86e2f2a398650b78026006e4e358eabc438148fb9657"
 SPLIT_SHA = "9a755438dcb55e0ff60415d5b2f861a29e60b23d921a2e0985a23eb2e214415f"
 

@@ -261,8 +261,8 @@ def list_ckpts(arm_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--control_dir", default=os.path.join(ROOT, "weights/stage22_coord_pilot/control"))
-    ap.add_argument("--coord_dir", default=os.path.join(ROOT, "weights/stage22_coord_pilot/coord"))
+    ap.add_argument("--control_dir", default=os.path.join(ROOT, "weights/stage_screens/stage22_coord_pilot/control"))
+    ap.add_argument("--coord_dir", default=os.path.join(ROOT, "weights/stage_screens/stage22_coord_pilot/coord"))
     ap.add_argument("--n_syn", type=int, default=150)
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)

@@ -27,7 +27,7 @@
      → 풀려면 final-test 세션 정하고 그 세션 빼고 R1 재학습해야 함(아직 안 함).
 
 [P3] 토대 의심 — paper_base 가 폐기된 v8 데이터로 학습됐을 가능성 (★ 최우선 확인)
-     weights/paper_base/header.txt 의 학습 data = mixed_v8_train + aug_*.
+     weights/paper_base/paper_base/header.txt 의 학습 data = mixed_v8_train + aug_*.
      "v8"=폐기된 object-frame v8(잘못된 convention)이면 camera-facing 전제가 통째로 깨짐.
      이름만 남은 건지 실제 v8 데이터인지 아직 미확인.
 
@@ -102,7 +102,7 @@ forklift   32    26                 4             —                    —
 
 ### 2.4 누수 지형 + 기존 학습 상태 (★ critical)
 ```
-paper_base = 이미 학습 완료   weights/paper_base/final_net_epoch_0060.pth (06-06)
+paper_base = 이미 학습 완료   weights/paper_base/paper_base/final_net_epoch_0060.pth (06-06)
 paper_r1   = 이미 학습 완료   weights/paper_r1_{outside,night}/final_net_epoch_0091.pth (06-06)
   → master §0·§11 "paper_base 미학습 = 단일 실패점" 은 stale. 학습 대기는 사라짐.
 

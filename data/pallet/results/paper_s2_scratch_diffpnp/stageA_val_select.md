@@ -1,6 +1,6 @@
 # stageA synthetic-val composite selection
 
-val=full (n=1500, V8=1363)  weights_dir=/home/minjae/Documents/github/pallet-pose/weights/paper_s2_stageA
+val=full (n=1500, V8=1363)  weights_dir=/home/minjae/Documents/github/pallet-pose/weights/paper_s2/paper_s2_stageA
 guard tol: front+1.5px det-5.0 good-8.0 gross+5.0
 primary=rank(rear)+rank(honest8) among guard-pass, tie=corner
 
@@ -29,5 +29,5 @@ ep    rear  honest8 front corner  det   good  gross  guard  best
 60      9.0     9.3   8.7    8.7  87.9  61.3   11.2     Y
 ```
 
-**BEST = epoch 42** -> `/home/minjae/Documents/github/pallet-pose/weights/paper_s2_stageA/net_epoch_0042.pth`
+**BEST = epoch 42** -> `/home/minjae/Documents/github/pallet-pose/weights/paper_s2/paper_s2_stageA/net_epoch_0042.pth`
 rear=8.1 honest8=8.3 front=8.0 corner=7.8 det=87.7 good=66.6 gross=8.7

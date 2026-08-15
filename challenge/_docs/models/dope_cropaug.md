@@ -6,9 +6,9 @@ YOLO 트랙의 truncation crop 증강을 DOPE에 이식한 라인. pretrain은 s
 
 | 단계 | weight | base | epoch | 데이터 |
 |------|--------|------|-------|--------|
-| pretrain | `weights/dope_cropaug_pretrain/final_net_epoch_0060.pth` | scratch | 60 | mixed_v8 9000 + synth crop 8831 |
-| ft s1 | `weights/dope_cropaug_ft_s1/final_net_epoch_0150.pth` | pretrain | +90 (누적150) | real GT 251 |
-| **ft s2 ★** | `weights/dope_cropaug_ft_s2/final_net_epoch_0180.pth` | ft s1 | +30 (누적180) | real 251 + crop 485 |
+| pretrain | `weights/dope/dope_cropaug_pretrain/final_net_epoch_0060.pth` | scratch | 60 | mixed_v8 9000 + synth crop 8831 |
+| ft s1 | `weights/dope/dope_cropaug_ft_s1/final_net_epoch_0150.pth` | pretrain | +90 (누적150) | real GT 251 |
+| **ft s2 ★** | `weights/dope/dope_cropaug_ft_s2/final_net_epoch_0180.pth` | ft s1 | +30 (누적180) | real 251 + crop 485 |
 
 - 공통: input 448, sigma 4.0, batch 4, lr 5e-5(ft)/1e-4(pretrain), loss=belief+affinity only.
 - 재현: 데이터 `challenge/scripts/gen_truncation_crops.py` → `pad_truncation_crops.py`, 학습 `scripts/ft_dope_cropaug.sh`.

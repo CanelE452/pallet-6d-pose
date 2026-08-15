@@ -45,7 +45,7 @@ _spec = importlib.util.spec_from_file_location("ecad", ECAD_PATH)
 E = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(E)
 
-WEIGHTS = os.path.join(ROOT, "weights/challenge0123/final_net_epoch_0060.pth")
+WEIGHTS = os.path.join(ROOT, "weights/challenge_track/challenge0123/final_net_epoch_0060.pth")
 PAD = 0          # ★ squash 추론 (무패딩) — 모델 순수 상태
 THRESH = 0.3
 

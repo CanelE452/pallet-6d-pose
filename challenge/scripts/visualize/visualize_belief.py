@@ -191,7 +191,7 @@ def parse_frames(args, total):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seq", default="data/outside/capturepallet09")
-    ap.add_argument("--weights", default="weights/challenge/final_net_epoch_0060.pth")
+    ap.add_argument("--weights", default="weights/challenge_track/challenge/final_net_epoch_0060.pth")
     ap.add_argument("--out_dir", default="debug/belief_viz")
     ap.add_argument("--frames", default=None, help="콤마 구분: 0,3,6,150")
     ap.add_argument("--n_frames", type=int, default=10, help="균등 sample 수")
