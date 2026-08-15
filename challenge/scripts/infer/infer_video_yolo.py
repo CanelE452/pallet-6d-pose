@@ -39,7 +39,9 @@ import cv2
 import numpy as np
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_REPO = os.path.dirname(os.path.dirname(_HERE))
+# 2026-08-15 재편: 이 파일이 challenge/scripts/<계열>/ 로 한 단계 내려갔다.
+# dirname 을 하나 더 감싸야 저장소 루트다 (계열 -> scripts -> challenge -> repo).
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(_HERE)))
 sys.path.insert(0, _HERE)
 sys.path.insert(0, os.path.join(_REPO, "scripts", "self_training"))
 

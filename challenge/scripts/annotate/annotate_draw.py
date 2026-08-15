@@ -61,6 +61,14 @@ def annot_button_rect(panel_h):
     y0 = y1 - 42
     return (x0, y0, x1, y1)
 
+
+def session_button_rect(panel_h):
+    """ANNOT-ONLY 버튼 바로 위의 'SESSION' 클릭 버튼 (panel-local)."""
+    x0, x1 = 10, PANEL_W - 10
+    y1 = panel_h - 14 - 42 - 8
+    y0 = y1 - 34
+    return (x0, y0, x1, y1)
+
 # ─── Letterbox margin ─────────────────────────────────────────────────────────
 # 캡처 이미지(640x480) 밖으로 projection 되는 keypoint/cuboid 코너(특히 화면 하단의
 # far-bottom 6/7) 가 image 경계를 넘어가 안 보이는 문제 해결용 여백.
@@ -69,7 +77,10 @@ def annot_button_rect(panel_h):
 MARGIN_L = 200
 MARGIN_R = 200
 MARGIN_T = 200
-MARGIN_B = 320
+# 아래 여백은 320 이었는데 이미지 높이(480)의 67% 라 화면에서 검은 띠가 지나치게 길었다.
+# 위쪽과 같은 200 으로 맞춘다 (2026-08-15 사용자 요청). far-bottom 이 이보다 더 아래로
+# 벗어나는 프레임이 나오면 여기만 올리면 된다.
+MARGIN_B = 200
 MARGIN_BG = 40  # 여백 색 (어두운 회색)
 
 
@@ -152,21 +163,23 @@ def draw_overlay(img, kps_2d, active_idx, pose=None, extrap_mask=None):
         if p is None:
             continue
         c = (int(p[0] + MARGIN_L), int(p[1] + MARGIN_T))
-        r = 7 if i == active_idx else 5
+        # 마커가 코너 픽셀을 덮어 정밀 클릭을 방해해서 반지름을 절반으로 줄였다
+        # (2026-08-15 사용자 요청: 7/5 -> 4/3).
+        r = 4 if i == active_idx else 3
         is_extrap = (extrap_mask is not None and i < len(extrap_mask)
                      and extrap_mask[i])
         if is_extrap:
-            # 외삽 점: 속 빈 원 (두꺼운 외곽선 + 작은 중심 점)
-            cv2.circle(vis, c, r, KP_COLORS[i], 2)
+            # 외삽 점: 속 빈 원 (외곽선 + 작은 중심 점)
+            cv2.circle(vis, c, r, KP_COLORS[i], 1)
             cv2.circle(vis, c, 1, KP_COLORS[i], -1)
-            cv2.circle(vis, c, r + 2, (0, 0, 0), 1)
-            cv2.putText(vis, f"{i}*", (c[0] + 6, c[1] - 6),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, KP_COLORS[i], 2)
+            cv2.circle(vis, c, r + 1, (0, 0, 0), 1)
+            cv2.putText(vis, f"{i}*", (c[0] + 5, c[1] - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, KP_COLORS[i], 1)
         else:
             cv2.circle(vis, c, r, KP_COLORS[i], -1)
-            cv2.circle(vis, c, r + 2, (0, 0, 0), 1)
-            cv2.putText(vis, str(i), (c[0] + 6, c[1] - 6),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, KP_COLORS[i], 2)
+            cv2.circle(vis, c, r + 1, (0, 0, 0), 1)
+            cv2.putText(vis, str(i), (c[0] + 5, c[1] - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, KP_COLORS[i], 1)
     return vis
 
 
@@ -179,7 +192,7 @@ def _pose_dim_short(pose):
 
 def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
                 mode="click", trans_step=0.02, rot_step=5.0, split="eval",
-                annot_only=False):
+                annot_only=False, sess_name=None):
     """우측 키 안내 + 현재 상태 패널."""
     panel = np.full((h, PANEL_W, 3), 25, dtype=np.uint8)
 
@@ -210,6 +223,8 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
         put(y, ", / .    -10 / +10",   (200, 200, 200)); y += 16
         put(y, "G / :    goto frame # (Enter)", (0, 255, 255)); y += 16
         put(y, "slider   click/drag to jump", (0, 255, 255)); y += 16
+        put(y, "TAB      SESSION list (pick #)", (255, 160, 0), 0.45); y += 16
+        put(y, "[ / ]    prev / next SESSION", (255, 160, 0), 0.45); y += 16
         put(y, "c        centroid auto", (200, 200, 200)); y += 16
         put(y, "z        undo last",   (200, 200, 200)); y += 16
         put(y, "r        reset all",   (200, 200, 200)); y += 16
@@ -267,6 +282,15 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
                 cv2.FONT_HERSHEY_SIMPLEX, 0.48, (255, 255, 255), 2, cv2.LINE_AA)
     cv2.putText(panel, "click to toggle (n/p=annot only)", (bx0 + 10, by1 - 8),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.34, (200, 200, 200), 1, cv2.LINE_AA)
+
+    # ── SESSION 클릭 버튼 (그 위) ──
+    sx0, sy0, sx1, sy1 = session_button_rect(h)
+    cv2.rectangle(panel, (sx0, sy0), (sx1, sy1), (70, 45, 0), -1)
+    cv2.rectangle(panel, (sx0, sy0), (sx1, sy1), (255, 170, 0), 2)
+    cv2.putText(panel, f"SESSION: {(sess_name or '-')[:20]}", (sx0 + 8, sy0 + 16),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.42, (255, 200, 80), 1, cv2.LINE_AA)
+    cv2.putText(panel, "click = list   (slider 'session')", (sx0 + 8, sy1 - 7),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.34, (200, 200, 200), 1, cv2.LINE_AA)
     return panel
 
 
@@ -294,11 +318,44 @@ def render(state, frame_idx, total_frames, frame_name):
                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, col, 2)
     cv2.putText(vis, frame_name[:20], (w - 220, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.45, (180, 180, 180), 1)
+    # 현재 세션 (TAB/[ ] 로 갈아탈 수 있으므로 항상 보이게)
+    _sess = getattr(state, "sess_name", None)
+    if _sess:
+        _sealed = getattr(state, "sess_sealed", False)
+        cv2.putText(vis, f"[{_sess}]" + ("  SEALED" if _sealed else ""), (240, 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45,
+                    (80, 80, 255) if _sealed else (0, 200, 255), 1)
     # split 배지 (이미지 상단 중앙 — zoom 후에도 항상 보임)
     _split = getattr(state, "split", "eval")
     _sc = (0, 220, 0) if _split == "eval" else (150, 150, 150)
     cv2.putText(vis, _split.upper(), (w // 2 - 30, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, _sc, 2)
+    # 세션 선택 목록 (TAB) — 화면 위에 덮어 그린다
+    if getattr(state, "sess_mode", False):
+        rows = getattr(state, "sess_rows", []) or []
+        cur_i = getattr(state, "sess_cur", -1)
+        pad, lh = 14, 20
+        bw = min(w - 40, 640)
+        bh = min(h - 40, pad * 2 + lh * (len(rows) + 2))
+        x0, y0 = (w - bw) // 2, (h - bh) // 2
+        cv2.rectangle(vis, (x0, y0), (x0 + bw, y0 + bh), (0, 0, 0), -1)
+        cv2.rectangle(vis, (x0, y0), (x0 + bw, y0 + bh), (0, 200, 255), 2)
+        cv2.putText(vis, f"SESSION  (번호 + Enter, Esc 취소)   #{getattr(state,'sess_buf','')}_",
+                    (x0 + pad, y0 + pad + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 220, 255), 1)
+        vis_rows = rows[:max(1, (bh - pad * 2 - lh * 2) // lh)]
+        # 각 줄의 클릭 영역을 기록해 둔다 — 마우스 콜백이 이 좌표로 선택을 판정한다.
+        state.sess_hit = []
+        for j, (nm, nfr, done, sealed) in enumerate(vis_rows):
+            yy = y0 + pad + lh * (j + 2) + 8
+            col = (0, 255, 0) if j == cur_i else ((90, 90, 255) if sealed else (210, 210, 210))
+            mark = "*" if j == cur_i else (" S" if sealed else "  ")
+            cv2.putText(vis, f"{j+1:>2}{mark} {nm:<28} {nfr:>5}f  done {done:>3}",
+                        (x0 + pad, yy), cv2.FONT_HERSHEY_SIMPLEX, 0.45, col, 1)
+            state.sess_hit.append((x0, yy - lh + 4, x0 + bw, yy + 5, j))
+        if len(rows) > len(vis_rows):
+            cv2.putText(vis, f"... +{len(rows)-len(vis_rows)} more ([ ] 로도 이동)",
+                        (x0 + pad, y0 + bh - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 150, 150), 1)
+
     # goto 번호 입력 중이면 하단 바에 버퍼 표시
     if getattr(state, "goto_mode", False):
         cv2.rectangle(vis, (0, h - 30), (w, h), (0, 0, 0), -1)
@@ -334,5 +391,6 @@ def render(state, frame_idx, total_frames, frame_name):
                         mode=state.mode, trans_step=state.trans_step,
                         rot_step=state.rot_step_deg,
                         split=getattr(state, "split", "eval"),
-                        annot_only=getattr(state, "annot_only", False))
+                        annot_only=getattr(state, "annot_only", False),
+                        sess_name=getattr(state, "sess_name", None))
     return np.hstack([vis, panel])

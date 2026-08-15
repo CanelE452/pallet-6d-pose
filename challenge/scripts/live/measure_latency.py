@@ -32,7 +32,9 @@ import yaml
 from torch.autograd import Variable
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_REPO = os.path.dirname(os.path.dirname(_HERE))
+# 2026-08-15 재편: 이 파일이 challenge/scripts/<계열>/ 로 한 단계 내려갔다.
+# dirname 을 하나 더 감싸야 저장소 루트다 (계열 -> scripts -> challenge -> repo).
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(_HERE)))
 sys.path.append(os.path.join(_REPO, "Deep_Object_Pose", "common"))
 
 from detector import ModelData

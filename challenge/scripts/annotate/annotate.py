@@ -74,7 +74,10 @@ if os.name == "nt":
         pass
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_REPO = os.path.dirname(os.path.dirname(_HERE))
+# 이 파일이 challenge/scripts/annotate/ 로 옮겨지면서 상위 두 단계는 challenge/ 까지밖에
+# 못 올라갔다. 그 상태로 repo 상대경로를 붙이면 challenge/challenge/data/... 가 된다.
+# 세 단계 올라가야 repo 루트다: annotate -> scripts -> challenge -> <repo>.
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(_HERE)))
 sys.path.insert(0, _HERE)   # annotate_pnp / annotate_draw / annotate_io import
 
 from annotate_pnp import (
@@ -89,12 +92,109 @@ from annotate_io import (
 )
 
 
+# ─── Session pool ────────────────────────────────────────────────────────────
+
+def discover_sessions(pools, repo):
+    """pool 폴더들 아래에서 rgb/ 를 가진 촬영 세션을 모은다.
+
+    반환: [(name, seq_path), ...]  이름 순.
+    """
+    out = []
+    for pool in pools:
+        root = pool if os.path.isabs(pool) else os.path.join(repo, pool)
+        if not os.path.isdir(root):
+            continue
+        for name in sorted(os.listdir(root)):
+            seq = os.path.join(root, name)
+            if os.path.isdir(os.path.join(seq, "rgb")):
+                out.append((name, seq))
+    return out
+
+
+# 촬영 폴더 이름과 어노테이션 폴더 이름이 다른 경우. 이름이 어긋나면 기존 어노가 있는데도
+# 빈 폴더를 새로 만들어 "어노가 사라진" 것처럼 보인다(2026-08-15 실제로 겪음).
+_OUT_ALIAS = {
+    "forklift_raw_20260528": "forklift_20260528_manual_gt",
+    "forklift_raw_20260528_163408": "forklift_20260528_manual_gt",
+}
+
+
+def resolve_out_dir(seq_name, repo):
+    """세션 이름 -> 어노테이션 저장 폴더.
+
+    기존 폴더가 있으면 그대로 쓴다. manual_gt 와 eval_canonical 두 구획을 모두 뒤지는
+    이유는 cad/noapril/outside 세션이 eval_canonical 아래에 있기 때문이다.
+    둘 다 없으면 manual_gt 아래에 새로 만든다.
+
+    반환: (out_dir, is_sealed)  is_sealed 는 정본 평가셋(eval_canonical) 여부.
+    """
+    names = [f"{seq_name}_manual_gt"]
+    if seq_name in _OUT_ALIAS:
+        names.insert(0, _OUT_ALIAS[seq_name])
+    for nm in names:
+        for sub, sealed in (("01_real/manual_gt", False), ("01_real/eval_canonical", True)):
+            p = os.path.join(repo, "challenge", "data", sub, nm)
+            if os.path.isdir(p):
+                return p, sealed
+    return os.path.join(repo, "challenge", "data", "01_real", "manual_gt",
+                        names[0]), False
+
+
+def session_summary(sessions, repo):
+    """세션 목록에 프레임 수와 이미 어노된 JSON 수를 붙인다."""
+    rows = []
+    for name, seq in sessions:
+        n = len(glob.glob(os.path.join(seq, "rgb", "*.png")))
+        od, sealed = resolve_out_dir(name, repo)
+        done = len(glob.glob(os.path.join(od, "*.json")))
+        rows.append((name, n, done, sealed))
+    return rows
+
+
 # ─── Mouse callback ──────────────────────────────────────────────────────────
+
+WIN = "Annotate"
+
+
+def _display_to_canvas(x, y, s):
+    """마우스 좌표를 그대로 쓴다 — 스케일 보정을 하면 안 된다.
+
+    WINDOW_NORMAL 로 창을 리사이즈하면 마우스 콜백이 "화면에 표시된 픽셀" 좌표를 줄
+    것 같지만, 실제로는 OpenCV 가 이미 이미지(캔버스) 좌표로 변환해서 준다.
+    2026-08-15 실측:
+
+        raw=(863,890)  win=(1131x857)  canvas=(1320x1000)
+                 ^^^ 창 높이 857 을 넘는 값이 온다 = 이미 캔버스 좌표
+
+    여기에 canvas/win 비를 한 번 더 곱했다가 클릭이 오른쪽·아래로 밀렸다(1039 > 1000).
+    보정은 필요 없다. 이 함수는 그 사실을 남겨 두려고 남긴다.
+    """
+    if os.environ.get("ANNOT_DEBUG_XY"):
+        shp = getattr(s, "disp_shape", None)
+        try:
+            _, _, rw, rh = cv2.getWindowImageRect(WIN)
+        except cv2.error:
+            rw = rh = -1
+        print(f"[xy] ({x},{y})  win=({rw}x{rh}) canvas={shp}")
+    return x, y
+
 
 def on_mouse(event, x, y, flags, s: State):
     """L click = keypoint set + active advance.  R click = delete.
     TWO-LINE 모드 시 4 클릭으로 교점 계산해서 active kp 위치 결정."""
+    x, y = _display_to_canvas(x, y, s)
     s.last_mouse = (x, y)
+
+    # 세션 목록이 열려 있으면 그 클릭이 최우선 — 줄을 누르면 그 세션으로 간다.
+    if getattr(s, "sess_mode", False):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            for (hx0, hy0, hx1, hy1, j) in getattr(s, "sess_hit", []) or []:
+                if hx0 <= x <= hx1 and hy0 <= y <= hy1:
+                    s.sess_pick = j
+                    s.sess_mode = False
+                    return
+            s.sess_mode = False        # 목록 밖을 누르면 닫기
+        return
     # panel 영역 (확장 캔버스 우측) 클릭은 무시.
     # render() 가 [확장캔버스 | panel] 을 hstack — 확장캔버스 폭 = image_w + MARGIN_L + MARGIN_R.
     # zoom 후에도 확장캔버스는 원래 폭으로 resize 되므로 panel 경계는 항상 canvas_w.
@@ -418,6 +518,13 @@ def main():
                     help="기본: challenge/data/<seq_name>_manual_gt")
     ap.add_argument("--stride",  type=int, default=30, help="N frame 마다 1개 annotate")
     ap.add_argument("--start",   type=int, default=0, help="시작 frame idx")
+    ap.add_argument("--pool", nargs="+",
+                    default=["data/pallet/raw_data/outside", "data/pallet/raw_data/night"],
+                    help="세션을 찾을 폴더들. 툴 안에서 [ ] 키로 세션 전환, TAB 으로 목록 선택.")
+    ap.add_argument("--fixed-window", action="store_true",
+                    help="창 크기를 고정(예전 동작). 마우스 좌표가 어긋나면 이걸로 되돌린다.")
+    ap.add_argument("--win-w", type=int, default=1180, help="창 초기 가로 (조절 가능)")
+    ap.add_argument("--win-h", type=int, default=880, help="창 초기 세로 (조절 가능)")
     ap.add_argument("--default_split", choices=["eval", "train"], default="train",
                     help="새 frame 의 기본 split (v 키로 토글). 기본 train — eval 로 쓸 것만 v "
                          "로 표시. eval GT 대량 어노 시 --default_split eval.")
@@ -425,34 +532,67 @@ def main():
 
     seq = args.seq if os.path.isabs(args.seq) else os.path.join(_REPO, args.seq)
     seq_name = os.path.basename(seq.rstrip("/\\"))
-    out_dir = args.out_dir or os.path.join(_REPO, "challenge", "data", f"{seq_name}_manual_gt")
-    if not os.path.isabs(out_dir):
-        out_dir = os.path.join(_REPO, out_dir)
-    os.makedirs(out_dir, exist_ok=True)
 
-    K_path = os.path.join(seq, "cam_K.txt")
-    K = np.loadtxt(K_path).reshape(3, 3) if os.path.isfile(K_path) else \
-        np.array([[614.18, 0, 329.28], [0, 614.31, 234.53], [0, 0, 1]],
-                 dtype=np.float64)
+    # 세션 풀 — 툴 안에서 [ ] / TAB 으로 갈아탄다. --out_dir 을 직접 준 경우엔 그
+    # 세션만 다루도록 풀을 잠근다(지정한 출력 폴더가 다른 세션에 새어들지 않게).
+    sessions = discover_sessions(args.pool, _REPO)
+    if args.out_dir or not sessions:
+        sessions = [(seq_name, seq)]
+    elif all(p != seq for _, p in sessions):
+        sessions.insert(0, (seq_name, seq))
+    sess_i = next((i for i, (_, p) in enumerate(sessions) if p == seq), 0)
 
-    rgb_paths = sorted(glob.glob(os.path.join(seq, "rgb", "*.png")))
+    def load_session(i):
+        """세션 i 로 전환. (seq, name, out_dir, sealed, K, rgb_paths, selected) 반환."""
+        nm, sq = sessions[i]
+        if args.out_dir:
+            od = args.out_dir if os.path.isabs(args.out_dir) \
+                else os.path.join(_REPO, args.out_dir)
+            sealed = False
+        else:
+            od, sealed = resolve_out_dir(nm, _REPO)
+        os.makedirs(od, exist_ok=True)
+        kp = os.path.join(sq, "cam_K.txt")
+        k = np.loadtxt(kp).reshape(3, 3) if os.path.isfile(kp) else \
+            np.array([[614.18, 0, 329.28], [0, 614.31, 234.53], [0, 0, 1]], dtype=np.float64)
+        rp = sorted(glob.glob(os.path.join(sq, "rgb", "*.png")))
+        sel = list(range(args.start, len(rp), args.stride))
+        print(f"\n[Session {i+1}/{len(sessions)}] {nm}"
+              f"{'   ★SEALED eval set — 저장 주의' if sealed else ''}")
+        print(f"           {len(sel)} frames (stride={args.stride}) of {len(rp)}")
+        print(f"           Output: {od}")
+        print(f"           K = fx={k[0,0]:.1f} cx={k[0,2]:.1f} cy={k[1,2]:.1f}")
+        return sq, nm, od, sealed, k, rp, sel
+
+    seq, seq_name, out_dir, sealed, K, rgb_paths, selected = load_session(sess_i)
     if not rgb_paths:
         print(f"[ERROR] no rgb frames in {seq}")
         return
 
-    selected = list(range(args.start, len(rgb_paths), args.stride))
-    print(f"[Annotate] {seq}")
-    print(f"           {len(selected)} frames to annotate (stride={args.stride})")
-    print(f"           Output: {out_dir}")
-    print(f"           K = fx={K[0,0]:.1f} cx={K[0,2]:.1f} cy={K[1,2]:.1f}")
-
-    win = "Annotate"
-    cv2.namedWindow(win)
+    win = WIN
+    if args.fixed_window:
+        cv2.namedWindow(win)                       # 예전 동작: 크기 고정
+    else:
+        # 캔버스는 image(640x480) + 여백(200/200/200/320) + 패널(280) = 약 1320x1000 이라
+        # 1080p 화면을 거의 채운다. 창이 화면보다 커지면 OpenCV 가 pan 모드로 들어가
+        # 커서가 손 모양이 되고 클릭이 안 먹는다. 크기 조절 가능한 창으로 열고 초기값을
+        # 화면보다 작게 잡아 그 상태를 피한다. (2026-08-15 사용자 요청)
+        # WINDOW_GUI_NORMAL 이 핵심이다. 기본값인 WINDOW_GUI_EXPANDED 는 Qt 백엔드의 자체
+        # 확대/이동 기능을 켜는데, 그게 켜져 있으면 휠 확대 후 드래그가 우리 pan 이 아니라
+        # Qt 의 pan 으로 먹어서 (1) 커서가 손 모양이 되고 (2) 화면이 아니라 내용이 끌려가고
+        # (3) 클릭 좌표가 확대 전 기준으로 들어와 엉뚱한 곳에 점이 찍힌다.
+        # 확대는 툴 자체의 +/- 키(zoom/pan)로만 하도록 Qt 쪽을 꺼 둔다.
+        cv2.namedWindow(win, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
+        cv2.resizeWindow(win, args.win_w, args.win_h)
     s = State()
     cv2.setMouseCallback(win, on_mouse, s)
     # frame 점프 슬라이더 (클릭/드래그로 임의 frame 이동). 번호 입력은 G/: 키.
     if len(selected) > 1:
         cv2.createTrackbar("frame", win, 0, len(selected) - 1, lambda v: None)
+    # 세션 슬라이더 — 드래그하면 촬영 세션이 바뀐다. 키(TAB)가 창 포커스에 따라 안 먹는
+    # 경우가 있어서, 이미 동작이 검증된 트랙바/마우스 방식을 주 수단으로 둔다.
+    if len(sessions) > 1:
+        cv2.createTrackbar("session", win, sess_i, len(sessions) - 1, lambda v: None)
 
     def _has_annot(ci):
         st = os.path.splitext(os.path.basename(rgb_paths[selected[ci]]))[0]
@@ -492,11 +632,13 @@ def main():
             cv2.setTrackbarPos("frame", win, cur)   # 슬라이더를 현재 위치에 동기화
 
         # 메인 루프 (한 프레임)
+        s.sess_name, s.sess_sealed = seq_name, sealed   # 헤더 표시용
         next_action = None
         prev_ao = s.annot_only
         while next_action is None:
             update_pose(s, K)
             vis = render(s, cur, len(selected), stem)
+            s.disp_shape = vis.shape[:2]   # _display_to_canvas 가 쓰는 실제 렌더 크기
             cv2.imshow(win, vis)
             key = cv2.waitKey(20) & 0xFF
 
@@ -513,6 +655,17 @@ def main():
                         if nj != cur:
                             s.goto = nj
                             next_action = 'goto'
+                # 세션 슬라이더 (frame 보다 먼저 — 세션이 바뀌면 frame 은 무의미)
+                if next_action is None and len(sessions) > 1:
+                    tb_s = cv2.getTrackbarPos("session", win)
+                    if tb_s != sess_i:
+                        s.sess_pick = tb_s
+                        next_action = 'sess-pick'
+                        continue
+                # 목록에서 항목을 클릭했으면 그 세션으로
+                if next_action is None and getattr(s, "sess_pick", None) is not None:
+                    next_action = 'sess-pick'
+                    continue
                 # frame 슬라이더 드래그/클릭 점프
                 if next_action is None and len(selected) > 1:
                     tb = cv2.getTrackbarPos("frame", win)
@@ -540,6 +693,39 @@ def main():
             if key in (ord('G'), ord(':')):
                 s.goto_mode = True
                 s.goto_buf = ""
+                continue
+
+            # ── 세션 선택 목록 (TAB 으로 열고, 번호 + Enter) ──
+            if getattr(s, "sess_mode", False):
+                if ord('0') <= key <= ord('9'):
+                    s.sess_buf = getattr(s, "sess_buf", "") + chr(key)
+                elif key in (13, 10):
+                    buf = getattr(s, "sess_buf", "")
+                    if buf and 1 <= int(buf) <= len(sessions):
+                        s.sess_pick = int(buf) - 1
+                        s.sess_mode = False
+                        next_action = 'sess-pick'
+                        continue
+                    s.sess_mode = False
+                elif key == 27:
+                    s.sess_mode = False
+                elif key in (8, 127):
+                    s.sess_buf = getattr(s, "sess_buf", "")[:-1]
+                continue
+            if key == 9:                                   # TAB = 세션 목록
+                if len(sessions) > 1:
+                    s.sess_mode = True
+                    s.sess_buf = ""
+                    s.sess_rows = session_summary(sessions, _REPO)
+                    s.sess_cur = sess_i
+                continue
+            if key == ord('[') and len(sessions) > 1:      # 이전 세션
+                s.sess_pick = (sess_i - 1) % len(sessions)
+                next_action = 'sess-pick'
+                continue
+            if key == ord(']') and len(sessions) > 1:      # 다음 세션
+                s.sess_pick = (sess_i + 1) % len(sessions)
+                next_action = 'sess-pick'
                 continue
 
             # ── Mode toggle ──
@@ -580,6 +766,18 @@ def main():
             if s.goto is not None:
                 cur = max(0, min(len(selected) - 1, s.goto))
             s.goto = None
+        elif next_action == 'sess-pick':
+            # 세션 교체: 경로/K/프레임 목록을 갈아끼우고 첫 프레임으로. 창은 그대로 둔다.
+            sess_i = s.sess_pick
+            seq, seq_name, out_dir, sealed, K, rgb_paths, selected = load_session(sess_i)
+            s.sess_pick = None
+            if not rgb_paths:
+                print(f"[WARN] {seq_name}: rgb 프레임이 없어 건너뛴다")
+                continue
+            if len(selected) > 1:
+                cv2.setTrackbarPos("frame", win, 0)
+                cv2.setTrackbarMax("frame", win, len(selected) - 1)
+            cur = 0
 
     cv2.destroyAllWindows()
     saved = len(glob.glob(os.path.join(out_dir, "*.json")))

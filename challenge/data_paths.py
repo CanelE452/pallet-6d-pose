@@ -84,11 +84,15 @@ REAL_MANUAL_GT = {
     "wood_183705": f"{DATA}/01_real/manual_gt/wood_pallet_20260618_183705_manual_gt",
     "wood_184309": f"{DATA}/01_real/manual_gt/wood_pallet_20260618_184309_manual_gt",
     "pallet11": f"{DATA}/01_real/manual_gt/pallet11_gt",
-    # 아래 넷은 현재 비어 있다(0 files). 사용자 지시로 보존.
+    # ★리프터에 실제로 장착하고 찍은 유일한 세션 (2026-08-15 어노테이션 시작).
+    # 원본 영상 data/pallet/raw_data/outside/forklift_raw_20260528_163408.mp4 (911f, 640x480),
+    # 프레임은 같은 폴더의 forklift_raw_20260528/rgb/ 에 추출해 두었다.
+    # 카메라 높이·각도·포크가 화면에 들어오는 조건이 배포와 같아서 real finetune 의 핵심 소스다.
+    "forklift_20260528": f"{DATA}/01_real/manual_gt/forklift_20260528_manual_gt",
+    # 아래 셋은 현재 비어 있다(0 files). 사용자 지시로 보존.
     "night01_EMPTY": f"{DATA}/01_real/manual_gt/capturenight01_manual_gt",
     "night03_EMPTY": f"{DATA}/01_real/manual_gt/capturenight03_manual_gt",
     "pallet01_EMPTY": f"{DATA}/01_real/manual_gt/capturepallet01_manual_gt",
-    "forklift_20260528_EMPTY": f"{DATA}/01_real/manual_gt/forklift_20260528_manual_gt",
 }
 
 # ── 모델이 만든 라벨(pseudo) — 이미지는 촬영본 ────────────────────────────
