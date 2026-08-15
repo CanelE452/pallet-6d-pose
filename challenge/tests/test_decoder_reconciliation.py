@@ -140,9 +140,11 @@ def test_p1_and_p2_reuse_the_repository_functions(wrapper_source):
 
 # 14
 def test_deployment_entrypoints_all_reach_the_same_decoder():
-    entrypoints = [ROOT / "scripts/dope/run_dope_live.py", RUN_LIVE,
-                   ROOT / "challenge/25y_automatic_lifter-master"
-                   "/25y_automatic_lifter-master/depth_cam/calib/dope_inference.py"]
+    # 2026-08-15: 세 번째 진입점이던 25y_automatic_lifter 의 dope_inference.py 가 빠졌다.
+    # 그 프로젝트는 Korea-Railroad-project 로 돌아갔고, 거기서 계속 발전 중이라
+    # 이 저장소의 사본은 6월에 멈춘 스냅샷이었다. 저장소 밖 경로를 읽게 만들면
+    # 다른 머신에서 반드시 실패하므로, 검사 대상을 여기 있는 두 진입점으로 좁힌다.
+    entrypoints = [ROOT / "scripts/dope/run_dope_live.py", RUN_LIVE]
     for path in entrypoints:
         text = path.read_text("utf-8")
         assert "from detector import ModelData, ObjectDetector" in text, path
