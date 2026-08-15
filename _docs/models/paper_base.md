@@ -46,7 +46,7 @@ object-frame v8 은 폐기. memory `camera-facing-0123-convention` 참조.
 
 - 위 base+truncation = `dope_cropaug_pretrain` 이 학습한 데이터 (논문 트랙 부합, squash만 빠짐).
 - TODO: squash 증강 데이터 생성 스크립트 (변형+JSON 동기) → 3d-expert 검증.
-- camera-facing v4 변환 logic: `challenge/scripts/convert_to_camera_facing_v4.py` (`compute_perm_v4`).
+- camera-facing v4 변환 logic: `challenge/scripts/annotate/convert_to_camera_facing_v4.py` (`compute_perm_v4`).
 
 ## 중간 산출물 (참고)
 

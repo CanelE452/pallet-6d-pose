@@ -12,6 +12,36 @@
 
 ---
 
+## 2026-08-15 구조 재편 — 경로가 바뀌었다
+
+저장소가 평평하게 불어나 있어서 폴더를 계열별로 나눴다. **옛 경로를 그대로 쓰면 깨진다.**
+상세와 그 과정에서 겪은 함정은 `_docs/history/2026-08-15.md` 의 "세션 총괄" 절에 있다.
+
+```
+데이터   challenge/data/  71항목 → 01_real(찍은 것) · 02_synthetic(렌더)
+                                 · 03_derived(가공) · 04_results(모델 산출)
+         ★경로는 challenge/data_paths.py 가 단일 출처다. 문자열로 쓰지 말고 import 할 것
+             from challenge.data_paths import EVAL_CANONICAL, get
+             python challenge/data_paths.py --list / --check
+
+코드     scripts/stage0/       196 평면 → 루트 19 + line·paper_s2·diag·ralph·
+                               stage_screens·selftrain·filter_pl·wood·_run·_archive 등
+         challenge/scripts/     36 평면 → annotate·dataset·visualize·live·evaluate·infer
+         scripts/data_prep/     eval 44 → eval 22 + plots 12 + filters 10
+         각 폴더의 README.md 에 구획 기준과 이동 시 주의점이 있다
+
+가중치   weights/  97개 → 루트 81 + _archive 16 (참조 0인 것만, 삭제 아님)
+
+평가셋   ★정본은 **161장**(7폴더)이다. "56장" 은 폐기된 수치 —
+         2026-08-07/08-08 에 final-test 4세션을 봉인 해제해 편입했다.
+         `_docs/EVAL_SET_CANONICAL.md` 와 `challenge/data_paths.EVAL_CANONICAL` 참조
+
+데이터셋 이미지는 저장소에 올리지 않으므로 폴더마다 `DATASET.md`(96개)와
+         전체 요약 `_docs/DATASETS.md` 로 규모·해상도·split 분포를 기록해 두었다
+```
+
+---
+
 ## 문서 구조
 
 ### 전처리 (`preprocessing/`)

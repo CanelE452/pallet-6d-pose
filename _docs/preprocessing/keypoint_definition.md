@@ -29,7 +29,7 @@
 
 ## 변환
 
-- 학습 데이터: `challenge/scripts/convert_to_camera_facing_v4.py` (`compute_perm_v4`).
+- 학습 데이터: `challenge/scripts/annotate/convert_to_camera_facing_v4.py` (`compute_perm_v4`).
   origin frame 3D 좌표 기준 top/bot split → vertical pairing → image polygon area
   최대 face = FRONT → image x 로 LR. (cam-frame 부호 의존 X)
 - 적용 확인: `data/pallet/training_data/mixed_v8_train` 의 `.json`(변환) ≠ `.json.orig`(원본).
