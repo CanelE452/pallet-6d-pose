@@ -57,6 +57,7 @@ import argparse
 import glob
 import os
 import sys
+import time
 
 import cv2
 import numpy as np
@@ -74,10 +75,16 @@ if os.name == "nt":
         pass
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-# 이 파일이 challenge/scripts/annotate/ 로 옮겨지면서 상위 두 단계는 challenge/ 까지밖에
-# 못 올라갔다. 그 상태로 repo 상대경로를 붙이면 challenge/challenge/data/... 가 된다.
-# 세 단계 올라가야 repo 루트다: annotate -> scripts -> challenge -> <repo>.
-_REPO = os.path.dirname(os.path.dirname(os.path.dirname(_HERE)))
+# scripts/annotate/ 기준으로 두 단계 위가 repo 루트다: annotate -> scripts -> <repo>.
+# 2026-08-15 에 challenge/scripts/annotate/ 에서 옮겨오면서 세 단계 -> 두 단계가 됐다.
+# 깊이를 세지 말고 표식(.git)으로 찾으면 다음에 또 옮겨도 안 깨진다.
+_REPO = os.path.dirname(os.path.dirname(_HERE))
+_p = _HERE
+while _p != os.path.dirname(_p):
+    if os.path.isdir(os.path.join(_p, ".git")):
+        _REPO = _p
+        break
+    _p = os.path.dirname(_p)
 sys.path.insert(0, _HERE)   # annotate_pnp / annotate_draw / annotate_io import
 
 from annotate_pnp import (
@@ -85,7 +92,7 @@ from annotate_pnp import (
     parallelogram_extrapolate,
     PALLET_DIMS,
 )
-from annotate_draw import (render, annot_button_rect,
+from annotate_draw import (render, annot_button_rect, session_button_rect,
                            MARGIN_L, MARGIN_R, MARGIN_T, MARGIN_B)
 from annotate_io import (
     State, make_annotation, save_frame_json, load_existing_annotation,
@@ -97,18 +104,40 @@ from annotate_io import (
 def discover_sessions(pools, repo):
     """pool 폴더들 아래에서 rgb/ 를 가진 촬영 세션을 모은다.
 
+    - rgb 가 0장인 폴더는 뺀다. 목록에 뜨는데 열면 아무것도 없어 혼란만 준다.
+    - 같은 어노테이션 폴더로 해석되는 세션이 둘 이상이면 하나만 남긴다. 그대로 두면
+      한쪽에서 찍은 라벨을 다른 쪽에서 열어 덮어쓴다(같은 영상을 두 번 추출해 폴더가
+      둘이 된 실제 사례가 있다). 이미 어노가 있는 쪽을, 없으면 이름이 긴 쪽을 남긴다.
+
     반환: [(name, seq_path), ...]  이름 순.
     """
-    out = []
+    found = []
     for pool in pools:
         root = pool if os.path.isabs(pool) else os.path.join(repo, pool)
         if not os.path.isdir(root):
             continue
         for name in sorted(os.listdir(root)):
             seq = os.path.join(root, name)
-            if os.path.isdir(os.path.join(seq, "rgb")):
-                out.append((name, seq))
-    return out
+            if not os.path.isdir(os.path.join(seq, "rgb")):
+                continue
+            if not glob.glob(os.path.join(seq, "rgb", "*.png")):
+                continue
+            found.append((name, seq))
+
+    by_out = {}
+    for name, seq in found:
+        od, _ = resolve_out_dir(name, repo)
+        prev = by_out.get(od)
+        if prev is None:
+            by_out[od] = (name, seq)
+            continue
+        n_prev = len(glob.glob(os.path.join(prev[1], "rgb", "*.png")))
+        n_cur = len(glob.glob(os.path.join(seq, "rgb", "*.png")))
+        keep = prev if (n_prev, len(prev[0])) >= (n_cur, len(name)) else (name, seq)
+        drop = (name, seq) if keep is prev else prev
+        print(f"[세션] '{drop[0]}' 은 '{keep[0]}' 과 같은 저장 폴더를 쓴다 — 목록에서 제외")
+        by_out[od] = keep
+    return sorted(by_out.values(), key=lambda t: t[0])
 
 
 # 촬영 폴더 이름과 어노테이션 폴더 이름이 다른 경우. 이름이 어긋나면 기존 어노가 있는데도
@@ -116,6 +145,14 @@ def discover_sessions(pools, repo):
 _OUT_ALIAS = {
     "forklift_raw_20260528": "forklift_20260528_manual_gt",
     "forklift_raw_20260528_163408": "forklift_20260528_manual_gt",
+    "capturepallet11": "pallet11_gt",          # 243장이 이미 여기 있다
+}
+
+# 정본 평가셋의 final-test 4세션. 폴더가 eval_canonical 이 아니라 manual_gt 아래에
+# 있어서 폴더 위치만 보는 판정으로는 SEALED 가 안 뜬다. CLAUDE.md 의 "threshold 튜닝·
+# 모델 선택 금지(봉인 소진, 재봉인 불가)" 대상이라 경고가 반드시 떠야 한다.
+_SEALED_SESSIONS = {
+    "capturepallet07", "capturepallet09", "capturenight08", "capturenight09",
 }
 
 
@@ -128,6 +165,7 @@ def resolve_out_dir(seq_name, repo):
 
     반환: (out_dir, is_sealed)  is_sealed 는 정본 평가셋(eval_canonical) 여부.
     """
+    forced = seq_name in _SEALED_SESSIONS
     names = [f"{seq_name}_manual_gt"]
     if seq_name in _OUT_ALIAS:
         names.insert(0, _OUT_ALIAS[seq_name])
@@ -135,9 +173,9 @@ def resolve_out_dir(seq_name, repo):
         for sub, sealed in (("01_real/manual_gt", False), ("01_real/eval_canonical", True)):
             p = os.path.join(repo, "challenge", "data", sub, nm)
             if os.path.isdir(p):
-                return p, sealed
+                return p, (sealed or forced)
     return os.path.join(repo, "challenge", "data", "01_real", "manual_gt",
-                        names[0]), False
+                        names[0]), forced
 
 
 def session_summary(sessions, repo):
@@ -149,6 +187,52 @@ def session_summary(sessions, repo):
         done = len(glob.glob(os.path.join(od, "*.json")))
         rows.append((name, n, done, sealed))
     return rows
+
+
+def pick_session_dialog(rows, current):
+    """진짜 드롭다운으로 세션을 고른다. 선택 인덱스 또는 None(취소).
+
+    OpenCV 창에는 위젯을 붙이는 API 가 없어서 목록을 이미지에 그려야 했는데, tkinter 는
+    표준 라이브러리라 콤보박스를 그냥 띄울 수 있다. 별도 프로세스가 아니라 별도 Tk 루트로
+    잠깐 열었다 닫으므로 cv2 이벤트 루프와 섞이지 않는다.
+    """
+    try:
+        import tkinter as tk
+        from tkinter import ttk
+    except Exception as e:
+        print(f"[WARN] tkinter 사용 불가({e}) — 패널 목록으로 대체")
+        return None
+
+    labels = [f"{i+1:>2}. {nm}   ({nfr}f, done {done}){'  [SEALED]' if sealed else ''}"
+              for i, (nm, nfr, done, sealed) in enumerate(rows)]
+    picked = {"i": None}
+
+    root = tk.Tk()
+    root.title("세션 선택")
+    root.attributes("-topmost", True)
+    frm = ttk.Frame(root, padding=12)
+    frm.grid()
+    ttk.Label(frm, text="촬영 세션을 고르세요").grid(column=0, row=0, sticky="w", pady=(0, 6))
+    var = tk.StringVar(value=labels[current] if 0 <= current < len(labels) else labels[0])
+    box = ttk.Combobox(frm, textvariable=var, values=labels, state="readonly", width=52)
+    box.grid(column=0, row=1, pady=(0, 10))
+    box.focus()
+
+    def ok(*_):
+        try:
+            picked["i"] = labels.index(var.get())
+        except ValueError:
+            picked["i"] = None
+        root.destroy()
+
+    ttk.Button(frm, text="열기", command=ok).grid(column=0, row=2, sticky="e")
+    box.bind("<Return>", ok)
+    box.bind("<<ComboboxSelected>>", lambda e: None)
+    root.bind("<Escape>", lambda e: root.destroy())
+    root.update_idletasks()
+    root.geometry(f"+{root.winfo_screenwidth()//2 - 220}+{root.winfo_screenheight()//2 - 80}")
+    root.mainloop()
+    return picked["i"]
 
 
 # ─── Mouse callback ──────────────────────────────────────────────────────────
@@ -185,16 +269,6 @@ def on_mouse(event, x, y, flags, s: State):
     x, y = _display_to_canvas(x, y, s)
     s.last_mouse = (x, y)
 
-    # 세션 목록이 열려 있으면 그 클릭이 최우선 — 줄을 누르면 그 세션으로 간다.
-    if getattr(s, "sess_mode", False):
-        if event == cv2.EVENT_LBUTTONDOWN:
-            for (hx0, hy0, hx1, hy1, j) in getattr(s, "sess_hit", []) or []:
-                if hx0 <= x <= hx1 and hy0 <= y <= hy1:
-                    s.sess_pick = j
-                    s.sess_mode = False
-                    return
-            s.sess_mode = False        # 목록 밖을 누르면 닫기
-        return
     # panel 영역 (확장 캔버스 우측) 클릭은 무시.
     # render() 가 [확장캔버스 | panel] 을 hstack — 확장캔버스 폭 = image_w + MARGIN_L + MARGIN_R.
     # zoom 후에도 확장캔버스는 원래 폭으로 resize 되므로 panel 경계는 항상 canvas_w.
@@ -210,6 +284,10 @@ def on_mouse(event, x, y, flags, s: State):
                     s.annot_only = not s.annot_only
                     print(f"[Annot-only] {'ON' if s.annot_only else 'OFF'}"
                           f"  (n/p 로 어노된 frame 만 이동)")
+                    return
+                sx0, sy0, sx1, sy1 = session_button_rect(canvas_h)
+                if sx0 <= px <= sx1 and sy0 <= py <= sy1:
+                    s.sess_open = True      # 메인 루프가 목록을 채워 연다
             return
     # MANIPULATE 모드에서는 마우스 클릭으로 점 안 찍음
     if s.mode != "click":
@@ -266,15 +344,49 @@ def on_mouse(event, x, y, flags, s: State):
             s.dirty = True
 
 
-def update_pose(s: State, K):
-    """현재 mode 에 따라 pose 재계산. MANIPULATE 모드면 locked_pose 직접 사용."""
+def _pose_inputs_key(s: State, K):
+    """pose 를 결정하는 입력들의 지문. 바뀌지 않았으면 다시 풀 필요가 없다."""
+    kps = tuple(None if p is None else (float(p[0]), float(p[1])) for p in (s.kps_2d or ()))
+    ex = tuple(bool(b) for b in (s.extrap_mask or ()))
+    lp = s.locked_pose
+    lk = None if lp is None else (np.asarray(lp["R"]).tobytes(),
+                                  np.asarray(lp["t"]).tobytes(),
+                                  tuple(lp.get("dims") or ()))
+    return (kps, ex, s.mode, lk, s.img_shape, K.tobytes())
+
+
+def _empty_session_screen(seq_name, args):
+    """빈 세션일 때 띄우는 안내 화면. 검은 창만 보이면 멈춘 것처럼 보인다."""
+    img = np.zeros((240, 720, 3), dtype=np.uint8)
+    for i, line in enumerate([
+            f"'{seq_name[:40]}' : no frames",
+            f"stride={args.stride}  start={args.start}",
+            "session slider / [ ] / TAB = another session",
+            "q = quit"]):
+        cv2.putText(img, line, (20, 50 + i * 42), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6, (200, 200, 200), 1, cv2.LINE_AA)
+    return img
+
+
+def update_pose(s: State, K, force=False):
+    """현재 mode 에 따라 pose 재계산. MANIPULATE 모드면 locked_pose 직접 사용.
+
+    렌더 루프가 매 프레임(20ms 주기) 호출하는데 solve_pose 는 실측 87~186ms 라
+    UI 가 5 FPS 로 떨어졌다. 입력이 그대로면 결과도 그대로이므로 건너뛴다.
+    """
+    if not force:
+        key = _pose_inputs_key(s, K)
+        if key == getattr(s, "_pose_key", object()):
+            return
+        s._pose_key = key
     if s.mode == "manip" and s.locked_pose is not None:
         s.pose = pose_from_locked(s, K)
     else:
         # v7: t/x 외삽 점 weight 0.3 + degenerate cuboid reject (img_shape 기반)
         s.pose = solve_pose(s.kps_2d, K,
                             extrapolated_mask=s.extrap_mask,
-                            img_shape=s.img_shape)
+                            img_shape=s.img_shape,
+                            weight_extrapolated_in_refine=True)
 
 
 # ─── Key dispatchers ──────────────────────────────────────────────────────────
@@ -312,22 +424,93 @@ def _handle_manip_key(key, s, out_json, out_png, src_png, K):
             return None
         # locked_pose 의 projected_cuboid 를 그대로 manual_kps 로 덮어쓰기
         proj = s.pose["projected_all"]
-        s.kps_2d = [list(p) if (p[0] >= 0 or p[1] >= 0) else None for p in proj]
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
+        s.kps_2d = [None if (p[0] == -1 and p[1] == -1) else list(p) for p in proj]
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
+                              extrap_mask=s.extrap_mask)
         save_frame_json(out_json, out_png, src_png, ann)
         print(f"[Saved manip] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
         s.dirty = False
         s.mode = "click"
         s.locked_pose = None
         return 'save-next'
+    elif key == ord('s'):
+        # 소문자 's' 는 manip 에서 아무 일도 안 해서 "저장이 안 된다" 로 보였다.
+        print("[manip] 저장은 대문자 'S'. 어노를 없애려면 'm' 으로 CLICK 모드로 나간 뒤 "
+              "'r' 로 전부 지우고 's'.")
     elif key == ord('Q'):
         return 'quit'
     return None
 
 
+def _toast(s, screen_text, color=(60, 200, 60), log=None):
+    """화면 위에 잠깐 뜨는 알림. 터미널 print 만으로는 쓰는 사람이 못 본다.
+
+    이 툴의 안내가 전부 stdout 으로만 나가서, 실제로는 동작했는데도 "아무 일도
+    안 일어난다" 로 보였다(2026-08-16 삭제 기능에서 실제로 겪음).
+
+    ★ screen_text 는 **반드시 ASCII** 여야 한다. cv2.putText 의 Hershey 폰트에는
+      한글 glyph 가 없어서 한글을 넘기면 통째로 '?????' 로 그려진다(실제로 겪음).
+      화면은 영문, 터미널(log)은 한글 — 그래서 둘을 나눠 받는다.
+    """
+    s.toast = (screen_text, color, time.time() + 2.5)
+    print(log if log is not None else screen_text)
+
+
+def _delete_annotation(s, out_json, out_png):
+    """점을 다 지운 뒤 's' — 이 프레임의 저장된 어노를 없앤다.
+
+    JSON 은 완전히 지우지 않고 `.json.deleted` 로 옮긴다. `_has_annot`/done 집계는
+    `.json` 만 보므로 "없어진" 것으로 정확히 취급되고, 잘못 눌렀으면 확장자만 떼면
+    되돌아온다. 그 하나로 충분해서 확인 절차는 두지 않는다 — 처음엔 "한 번 더 s" 를
+    요구하게 만들었는데, 쓰는 사람 입장에선 그게 그냥 "안 지워진다" 였다.
+    PNG 사본은 지운다(원본이 촬영 폴더에 그대로 있어 언제든 다시 만들어진다).
+
+    SEALED 정본 세션도 막지 않는다. 봉인은 "threshold 튜닝·모델 선택 금지" 이지
+    라벨을 고치지 말라는 뜻이 아니고(정본에도 잘못 찍힌 프레임이 있다), `.deleted`
+    로 되돌릴 수 있어 파괴적이지도 않다. 대신 눈에 띄게 경고한다.
+    """
+    if not os.path.exists(out_json):
+        _toast(s, "[DELETE] no saved annotation on this frame", (180, 180, 180),
+               log="[삭제] 이 프레임엔 저장된 어노가 없다")
+        s.dirty = False
+        return None
+
+    sealed = bool(getattr(s, "sess_sealed", False))
+    bak = out_json + ".deleted"
+    try:
+        os.replace(out_json, bak)
+    except OSError as e:
+        _toast(s, f"[ERROR] delete failed: {e}", (60, 60, 220),
+               log=f"[ERROR] 삭제 실패: {e}")
+        return None
+    if os.path.exists(out_png):
+        try:
+            os.remove(out_png)
+        except OSError as e:
+            print(f"[WARN] PNG 사본은 못 지웠다: {e}")
+
+    name = os.path.basename(out_json)
+    if sealed:
+        _toast(s, f"[DELETED - SEALED SET!] {name}  (restore: drop .deleted)",
+               (60, 60, 220),
+               log=f"[삭제됨 ★SEALED 정본] {out_json}\n"
+                   f"          되돌리려면 .deleted 확장자를 떼면 된다.")
+    else:
+        _toast(s, f"[DELETED] {name}  (restore: drop .deleted)",
+               log=f"[삭제됨] {name}  (.deleted 로 복구 가능)")
+    s.dirty = False
+    return 'save-next'
+
+
 def _handle_click_key(key, s, out_json, out_png, src_png, K):
     """CLICK 모드 키 처리. Returns: 'next' | 'prev' | 'quit' | None."""
     if key == ord('q'):
+        # 저장 안 한 클릭이 있으면 한 번 막는다. 'n' 에만 이 보호가 있어서 q/p 로는
+        # 찍던 걸 그냥 잃었다(2026-08-15). 같은 규칙으로 통일 — 다시 누르면 진행.
+        if s.dirty:
+            print("[WARN] 미저장 변경 있음. 저장하려면 's', 버리려면 'q' 를 한 번 더.")
+            s.dirty = False
+            return None
         return 'quit'
 
     if key == ord('v'):
@@ -337,12 +520,19 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         return None
 
     if key == ord('s'):
+        # 점을 다 지운 뒤 's' = "이 프레임 어노를 없앤다". 예전엔 pose 가 None 이라
+        # 저장 가드에 막혀서, 잘못 찍은 프레임의 GT 를 툴 안에서 지울 방법이 없었다.
+        if not any(k is not None for k in s.kps_2d):
+            return _delete_annotation(s, out_json, out_png)
         if s.pose is None:
-            print("[WARN] PnP 실패 — 최소 4점 필요. 저장 안 됨.")
+            print(f"[WARN] PnP 실패 — 최소 4점 필요 (현재 "
+                  f"{sum(1 for k in s.kps_2d if k is not None)}점). 저장 안 됨. "
+                  f"어노를 없애려면 'r' 로 전부 지운 뒤 's'.")
             return None
         # manual_kps 는 사용자 클릭 그대로 저장 (위치 안 옮김).
         # swap 보정은 라벨링 후 fix_manual_swap.py 후처리.
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
+                              extrap_mask=s.extrap_mask)
         save_frame_json(out_json, out_png, src_png, ann)
         print(f"[Saved] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
         s.dirty = False
@@ -354,11 +544,15 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         if s.pose is None:
             print("[WARN] PnP 실패 — 0~3 4점 모두 필요")
             return None
-        proj = s.pose["projected_all"]
-        s.kps_2d = [list(p) if (p[0] >= 0 or p[1] >= 0) else None for p in proj]
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
+        # kps_2d 를 projection 으로 덮지 않는다. make_annotation 이 미클릭 idx 를
+        # 이미 projection 으로 채우므로 결과 projected_cuboid 는 똑같고, manual_kps 에는
+        # "사람이 찍은 점" 만 남아 자동채움과 구분된다(2026-08-15).
+        n_auto = sum(1 for k in s.kps_2d[:8] if k is None)
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
+                              extrap_mask=s.extrap_mask)
         save_frame_json(out_json, out_png, src_png, ann)
-        print(f"[Saved front-only] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
+        print(f"[Saved front-only] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px "
+              f"(click-only 기준 — 자동채움 {n_auto}점의 오차는 포함 안 됨)")
         s.dirty = False
         return 'save-next'
 
@@ -380,10 +574,16 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         proj = s.pose["projected_all"]
         n_auto = 0
         for i in range(9):
-            if s.kps_2d[i] is None and proj[i][0] >= 0:
+            if s.kps_2d[i] is None and not (proj[i][0] == -1 and proj[i][1] == -1):
                 s.kps_2d[i] = list(proj[i])
+                # 자동채움은 관측이 아니다. 표시하지 않으면 오차 0 인 "클릭" 으로 섞여
+                # 표시 reproj 를 끌어내리고(1.56 -> 0.87px) 재풀이 때 full weight 로
+                # 들어간다. extrap_mask 를 세우면 속 빈 원으로 그려지고 report 에서 빠진다.
+                if s.extrap_mask is not None:
+                    s.extrap_mask[i] = True
                 n_auto += 1
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split)
+        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
+                              extrap_mask=s.extrap_mask)
         save_frame_json(out_json, out_png, src_png, ann)
         print(f"[Saved auto-fill] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px "
               f"({n_clicked_07} manual + {n_auto} auto-fill) — 시각 확인 후 'n' 으로 다음 frame")
@@ -421,6 +621,10 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             return None
         return 'next'
     if key == ord('p'):
+        if s.dirty:
+            print("[WARN] 미저장 변경 있음. 다시 'p' 누르면 무시하고 이전.")
+            s.dirty = False
+            return None
         return 'prev'
     if key == ord(','):
         return 'jump-10'
@@ -433,8 +637,13 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         return None
 
     if key == ord('c'):
-        if s.pose is not None and s.pose["projected_all"][8][0] >= 0:
-            s.kps_2d[8] = list(s.pose["projected_all"][8])
+        p8 = None if s.pose is None else s.pose["projected_all"][8]
+        if p8 is not None and not (p8[0] == -1 and p8[1] == -1):
+            s.kps_2d[8] = list(p8)
+            # PnP 자신의 centroid 투영이다. 관측으로 취급하면 오차 0 인 점이 다음 solve 에
+            # 들어가 표시 reproj 를 낮추고 이후 코너 수정의 효과를 둔하게 만든다.
+            if s.extrap_mask is not None:
+                s.extrap_mask[8] = True
             s.dirty = True
             print(f"[Centroid] PnP projection: ({s.kps_2d[8][0]:.1f}, {s.kps_2d[8][1]:.1f})")
         else:
@@ -450,9 +659,16 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         if s.line_mode and s.line_pts:
             s.line_pts.pop()
         else:
-            if s.active > 0:
-                s.active -= 1
-            s.kps_2d[s.active] = None
+            # "active-1 을 지운다" 로는 숫자키로 idx 를 옮긴 뒤 엉뚱한 점이 지워진다
+            # (예: 0~5 찍고 '2' 로 이동 후 z -> kp1 이 사라짐). undo 는 "마지막으로 찍힌
+            # 점" 을 되돌리는 것이므로 채워진 것 중 가장 큰 idx 를 지운다.
+            last = max((i for i, k in enumerate(s.kps_2d) if k is not None), default=None)
+            if last is None:
+                return None                     # 지울 게 없으면 dirty 도 세우지 않는다
+            s.kps_2d[last] = None
+            if s.extrap_mask is not None:
+                s.extrap_mask[last] = False
+            s.active = last
             s.dirty = True
         return None
 
@@ -476,12 +692,16 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         return None
 
     if key == ord('r'):
+        # 이미 빈 프레임이면 바꾼 게 없다. 여기서 dirty 를 세우면 다음 이동이 한 번
+        # 막혀서 "n 이 안 먹는다" 로 보인다.
+        had = any(k is not None for k in s.kps_2d)
         s.kps_2d = [None] * 9
         s.extrap_mask = [False] * 9
         s.active = 0
         s.line_mode = False
         s.line_pts = []
-        s.dirty = True
+        if had:
+            s.dirty = True
         return None
 
     if key in (ord('+'), ord('=')):
@@ -551,10 +771,20 @@ def main():
             sealed = False
         else:
             od, sealed = resolve_out_dir(nm, _REPO)
-        os.makedirs(od, exist_ok=True)
+        # 여기서 makedirs 하면 세션 목록을 둘러보기만 해도 빈 GT 폴더가 생겨
+        # done 집계와 discover_sessions 의 중복 판정이 오염된다. 저장할 때 만든다.
+        _DEFAULT_K = np.array([[614.18, 0, 329.28], [0, 614.31, 234.53], [0, 0, 1]],
+                              dtype=np.float64)
         kp = os.path.join(sq, "cam_K.txt")
-        k = np.loadtxt(kp).reshape(3, 3) if os.path.isfile(kp) else \
-            np.array([[614.18, 0, 329.28], [0, 614.31, 234.53], [0, 0, 1]], dtype=np.float64)
+        k = _DEFAULT_K
+        if os.path.isfile(kp):
+            try:
+                k = np.loadtxt(kp).reshape(3, 3)
+            except Exception as e:
+                # 깨진 cam_K 하나에 창이 죽으면 다른 세션도 못 본다. 기본 K 로 계속하되
+                # 이 세션 라벨은 잘못된 intrinsic 으로 풀린다는 걸 크게 알린다.
+                print(f"[ERROR] cam_K.txt 를 읽지 못했다 ({e}) — 기본 K 로 진행. "
+                      f"이 세션의 pose 는 신뢰하지 말 것: {kp}")
         rp = sorted(glob.glob(os.path.join(sq, "rgb", "*.png")))
         sel = list(range(args.start, len(rp), args.stride))
         print(f"\n[Session {i+1}/{len(sessions)}] {nm}"
@@ -586,9 +816,24 @@ def main():
         cv2.resizeWindow(win, args.win_w, args.win_h)
     s = State()
     cv2.setMouseCallback(win, on_mouse, s)
-    # frame 점프 슬라이더 (클릭/드래그로 임의 frame 이동). 번호 입력은 G/: 키.
-    if len(selected) > 1:
-        cv2.createTrackbar("frame", win, 0, len(selected) - 1, lambda v: None)
+    # frame 점프 슬라이더 — 눈금을 프레임 수가 아니라 **퍼센트(0~100)** 로 둔다.
+    #
+    # cv2.setTrackbarMax 는 Qt 백엔드에서 표시를 갱신하지 않는다(2026-08-15 재현:
+    # max 60 -> 12 로 바꿔도 "(00/60)" 그대로). 그래서 세션마다 max 를 맞출 수가 없다.
+    # 전 세션 최대치로 고정하고 읽은 값을 클램프해 봤더니 더 나빴다 — 61장짜리 세션에서
+    # 슬라이더를 60 너머로 끌면 클램프된 값이 다시 setTrackbarPos 로 슬라이더를 되돌려,
+    # 슬라이더가 튕기고 화면이 60 에 멈춘 채로 있었다.
+    # 퍼센트면 세션 길이와 무관하게 항상 전 구간을 쓸 수 있고 max 를 바꿀 일도 없다.
+    # 실제 프레임 번호는 우측 STATUS 의 "frame N/M" 이 보여준다.
+    SLIDER_TICKS = 500          # 최대 세션(185장)도 전 프레임 도달 (100 이면 절반만 닿는다)
+
+    def _cur_to_tick(c, n):
+        return 0 if n <= 1 else int(round(c / (n - 1) * SLIDER_TICKS))
+
+    def _tick_to_cur(t, n):
+        return 0 if n <= 1 else int(round(t / SLIDER_TICKS * (n - 1)))
+
+    cv2.createTrackbar("frame%", win, 0, SLIDER_TICKS, lambda v: None)
     # 세션 슬라이더 — 드래그하면 촬영 세션이 바뀐다. 키(TAB)가 창 포커스에 따라 안 먹는
     # 경우가 있어서, 이미 동작이 검증된 트랙바/마우스 방식을 주 수단으로 둔다.
     if len(sessions) > 1:
@@ -608,7 +853,57 @@ def main():
         return ci
 
     cur = 0
-    while 0 <= cur < len(selected):
+    # 루프 조건을 "cur 이 범위 안" 으로 두면, 마지막 프레임에서 저장(s)해 cur 이 하나 넘는
+    # 순간 창이 조용히 닫힌다. 세션을 갈아탈 수 있게 된 뒤로는 그게 "이미지가 갑자기 안 보인다"
+    # 로 나타난다(2026-08-15). 이제는 범위를 벗어나면 끝 프레임에 머무르고 이유를 알린다.
+    # 종료는 q(quit) 로만 한다.
+    while True:
+        if cur >= len(selected):
+            # 마지막에서 더 가려 하면 다음 세션으로 넘어간다. 예전엔 창이 그냥 닫혔고,
+            # 그 다음엔 끝에 머물기만 해서 "n 이 안 먹는다" 로 보였다(2026-08-15).
+            # 세션을 순서대로 훑는 게 이 툴의 실제 사용 방식이라 자동으로 넘긴다.
+            if len(sessions) > 1:
+                nxt = (sess_i + 1) % len(sessions)
+                print(f"[끝] {seq_name} {len(selected)}장 끝 — 다음 세션 "
+                      f"'{sessions[nxt][0]}' 으로 이동합니다. (되돌리려면 session 슬라이더)")
+                sess_i = nxt
+                seq, seq_name, out_dir, sealed, K, rgb_paths, selected = load_session(sess_i)
+                cv2.setTrackbarPos("session", win, sess_i)
+                cur = 0
+            else:
+                print(f"[끝] {seq_name} 마지막 프레임입니다 (총 {len(selected)}장).")
+                cur = len(selected) - 1
+        elif cur < 0:
+            cur = 0
+        if not selected:
+            # 빈 세션에서 그냥 continue 하면 키를 하나도 안 읽어 q 도 안 먹는 영구 정지가
+            # 된다(단일 세션일 때 실제로 그랬다). 여기서도 종료·세션이동은 되게 한다.
+            print(f"[WARN] {seq_name}: stride={args.stride} start={args.start} 로 뽑히는 "
+                  f"프레임이 없다. session 슬라이더로 다른 세션을 고르거나 q 로 종료.")
+            while True:
+                cv2.imshow(win, _empty_session_screen(seq_name, args))
+                k = cv2.waitKey(50) & 0xFF
+                if k in (ord('q'), ord('Q'), 27):
+                    cv2.destroyAllWindows()
+                    return
+                if len(sessions) > 1:
+                    tb = cv2.getTrackbarPos("session", win)
+                    if tb != sess_i:
+                        sess_i = tb
+                    elif k == ord(']'):
+                        sess_i = (sess_i + 1) % len(sessions)
+                    elif k in (ord('['), 9):
+                        sess_i = (sess_i - 1) % len(sessions)
+                    else:
+                        continue
+                    (seq, seq_name, out_dir, sealed, K,
+                     rgb_paths, selected) = load_session(sess_i)
+                    cv2.setTrackbarPos("session", win, sess_i)
+                    cur = 0
+                    break
+                if cv2.getWindowProperty(win, cv2.WND_PROP_VISIBLE) < 1:
+                    return
+            continue
         frame_idx = selected[cur]
         path = rgb_paths[frame_idx]
         stem = os.path.splitext(os.path.basename(path))[0]
@@ -616,7 +911,13 @@ def main():
         out_png  = os.path.join(out_dir, f"{stem}.png")
 
         # 프레임 reset + 기존 라벨 로드
-        s.img = cv2.imread(path)
+        img = cv2.imread(path)
+        if img is None:
+            # 잘린 PNG·권한·삭제된 파일. 예전엔 여기서 AttributeError 로 창이 죽었다.
+            print(f"[WARN] 이미지를 읽지 못했다: {path} — 다음 프레임으로")
+            cur += 1
+            continue
+        s.img = img
         s.img_shape = s.img.shape
         s.kps_2d = [None] * 9
         s.extrap_mask = [False] * 9    # v7: 외삽 점 표시 (t/x 입력 시 True)
@@ -625,16 +926,43 @@ def main():
         s.zoom = 1.0
         s.pan = [0, 0]
         s.dirty = False
+        # ★ 모드/입력 중 상태도 반드시 초기화한다. 예전엔 mode/locked_pose 가 남아,
+        #   MANIPULATE 로 잠근 이전 프레임의 R,t 를 새 프레임에 그대로 투영해 manual GT 로
+        #   저장할 수 있었다. 새 프레임은 kps_2d 가 비어 있어 reproj 가 0.00px 로 찍히는
+        #   바람에 완벽한 라벨처럼 보였다. line/goto 상태도 남으면 클릭·키가 먹통이 된다.
+        s.mode = "click"
+        s.locked_pose = None
+        s.line_mode = False
+        s.line_pts = None
+        s.goto_mode = False
+        s.goto_buf = ""
+        s.goto = None
+        s._pose_key = None             # 새 프레임 — pose 캐시 무효화
+        s.toast = None                 # 알림이 다음 프레임으로 새지 않게
         s.split = args.default_split   # 기본 split; 기존 JSON 있으면 load 가 override
         if load_existing_annotation(s, out_json):
             update_pose(s, K)
         if len(selected) > 1:
-            cv2.setTrackbarPos("frame", win, cur)   # 슬라이더를 현재 위치에 동기화
+            cv2.setTrackbarPos("frame%", win, _cur_to_tick(cur, len(selected)))
 
         # 메인 루프 (한 프레임)
         s.sess_name, s.sess_sealed = seq_name, sealed   # 헤더 표시용
         next_action = None
         prev_ao = s.annot_only
+
+        def _guard_dirty(what):
+            """저장 안 한 클릭이 있으면 이번 한 번은 막는다. True 면 진행해도 된다.
+
+            반드시 이 안쪽 루프에서 호출해야 한다. 바깥 루프로 나가면 프레임 reset 이
+            돌아 지키려던 클릭이 지워진다. 프레임을 떠나는 모든 경로가 이걸 통과한다 —
+            예전엔 n/p/q 만 검사해서 슬라이더·goto·jump·세션전환으로는 그냥 사라졌다.
+            """
+            if s.dirty:
+                print(f"[WARN] 미저장 변경 있음. 저장은 's', 버리고 {what} 하려면 한 번 더.")
+                s.dirty = False
+                return False
+            return True
+
         while next_action is None:
             update_pose(s, K)
             vis = render(s, cur, len(selected), stem)
@@ -652,13 +980,25 @@ def main():
                         nj = _step_annot(cur, +1)
                         if nj == cur:
                             nj = _step_annot(cur, -1)
-                        if nj != cur:
+                        if nj != cur and _guard_dirty("프레임 이동"):
                             s.goto = nj
                             next_action = 'goto'
+                # SESSION 버튼 → 드롭다운 다이얼로그 (마우스 콜백은 플래그만 세움)
+                if getattr(s, "sess_open", False):
+                    s.sess_open = False
+                    if len(sessions) > 1:
+                        j = pick_session_dialog(session_summary(sessions, _REPO), sess_i)
+                        if j is not None and j != sess_i and _guard_dirty("세션 이동"):
+                            s.sess_pick = j
+                            next_action = 'sess-pick'
+                    continue
                 # 세션 슬라이더 (frame 보다 먼저 — 세션이 바뀌면 frame 은 무의미)
                 if next_action is None and len(sessions) > 1:
                     tb_s = cv2.getTrackbarPos("session", win)
                     if tb_s != sess_i:
+                        if not _guard_dirty("세션 이동"):
+                            cv2.setTrackbarPos("session", win, sess_i)   # 핸들 되돌리기
+                            continue
                         s.sess_pick = tb_s
                         next_action = 'sess-pick'
                         continue
@@ -666,11 +1006,18 @@ def main():
                 if next_action is None and getattr(s, "sess_pick", None) is not None:
                     next_action = 'sess-pick'
                     continue
-                # frame 슬라이더 드래그/클릭 점프
+                # frame 슬라이더 드래그/클릭 점프.
+                # 슬라이더 max 는 전 세션 최대라, 현재 세션 길이로 잘라 쓴다.
+                # 슬라이더는 퍼센트다. 현재 위치와 다른 프레임을 가리킬 때만 이동한다.
+                # 퍼센트 -> 프레임 변환이 반올림이라, 같은 프레임을 가리키는 눈금
+                # 범위에서는 아무 일도 일어나지 않아야 슬라이더가 튕기지 않는다.
                 if next_action is None and len(selected) > 1:
-                    tb = cv2.getTrackbarPos("frame", win)
-                    if tb != cur:
-                        s.goto = tb
+                    want = _tick_to_cur(cv2.getTrackbarPos("frame%", win), len(selected))
+                    if want != cur:
+                        if not _guard_dirty("프레임 이동"):
+                            cv2.setTrackbarPos("frame%", win, _cur_to_tick(cur, len(selected)))
+                            continue
+                        s.goto = want
                         next_action = 'goto'
                 continue
 
@@ -679,6 +1026,9 @@ def main():
                 if ord('0') <= key <= ord('9'):
                     s.goto_buf += chr(key)
                 elif key in (13, 10):                       # Enter = 점프
+                    if s.goto_buf and not _guard_dirty("프레임 이동"):
+                        s.goto_mode = False
+                        continue
                     if s.goto_buf:
                         s.goto = max(0, min(len(selected) - 1, int(s.goto_buf) - 1))
                         s.goto_mode = False
@@ -695,37 +1045,22 @@ def main():
                 s.goto_buf = ""
                 continue
 
-            # ── 세션 선택 목록 (TAB 으로 열고, 번호 + Enter) ──
-            if getattr(s, "sess_mode", False):
-                if ord('0') <= key <= ord('9'):
-                    s.sess_buf = getattr(s, "sess_buf", "") + chr(key)
-                elif key in (13, 10):
-                    buf = getattr(s, "sess_buf", "")
-                    if buf and 1 <= int(buf) <= len(sessions):
-                        s.sess_pick = int(buf) - 1
-                        s.sess_mode = False
-                        next_action = 'sess-pick'
-                        continue
-                    s.sess_mode = False
-                elif key == 27:
-                    s.sess_mode = False
-                elif key in (8, 127):
-                    s.sess_buf = getattr(s, "sess_buf", "")[:-1]
-                continue
-            if key == 9:                                   # TAB = 세션 목록
-                if len(sessions) > 1:
-                    s.sess_mode = True
-                    s.sess_buf = ""
-                    s.sess_rows = session_summary(sessions, _REPO)
-                    s.sess_cur = sess_i
+            # TAB = 세션 드롭다운. 'S' 는 MANIPULATE 의 save+next 라 쓰지 않는다.
+            if key == 9 and len(sessions) > 1:
+                j = pick_session_dialog(session_summary(sessions, _REPO), sess_i)
+                if j is not None and j != sess_i and _guard_dirty("세션 이동"):
+                    s.sess_pick = j
+                    next_action = 'sess-pick'
                 continue
             if key == ord('[') and len(sessions) > 1:      # 이전 세션
-                s.sess_pick = (sess_i - 1) % len(sessions)
-                next_action = 'sess-pick'
+                if _guard_dirty("세션 이동"):
+                    s.sess_pick = (sess_i - 1) % len(sessions)
+                    next_action = 'sess-pick'
                 continue
             if key == ord(']') and len(sessions) > 1:      # 다음 세션
-                s.sess_pick = (sess_i + 1) % len(sessions)
-                next_action = 'sess-pick'
+                if _guard_dirty("세션 이동"):
+                    s.sess_pick = (sess_i + 1) % len(sessions)
+                    next_action = 'sess-pick'
                 continue
 
             # ── Mode toggle ──
@@ -735,7 +1070,8 @@ def main():
                         print("[WARN] PnP 가 아직 안 풀려서 manipulate 진입 불가. 4점 이상 필요.")
                         continue
                     s.mode = "manip"
-                    s.locked_pose = {"R": s.pose["R"].copy(), "t": s.pose["t"].copy()}
+                    s.locked_pose = {"R": s.pose["R"].copy(), "t": s.pose["t"].copy(),
+                                     "dims": tuple(s.pose.get("dims") or PALLET_DIMS)}
                     print("[Mode] CLICK → MANIPULATE")
                 else:
                     s.mode = "click"
@@ -768,20 +1104,24 @@ def main():
             s.goto = None
         elif next_action == 'sess-pick':
             # 세션 교체: 경로/K/프레임 목록을 갈아끼우고 첫 프레임으로. 창은 그대로 둔다.
+            # 미저장 가드는 여기가 아니라 키/폴링 쪽(_guard_dirty)에 있다. 여기서 막으면
+            # continue 가 바깥 루프로 가 프레임 reset 이 돌면서, 지키려던 클릭이 오히려
+            # 지워진다(2026-08-15).
             sess_i = s.sess_pick
             seq, seq_name, out_dir, sealed, K, rgb_paths, selected = load_session(sess_i)
             s.sess_pick = None
+            if len(sessions) > 1:
+                cv2.setTrackbarPos("session", win, sess_i)
             if not rgb_paths:
                 print(f"[WARN] {seq_name}: rgb 프레임이 없어 건너뛴다")
                 continue
             if len(selected) > 1:
-                cv2.setTrackbarPos("frame", win, 0)
-                cv2.setTrackbarMax("frame", win, len(selected) - 1)
+                cv2.setTrackbarPos("frame%", win, 0)
             cur = 0
 
     cv2.destroyAllWindows()
     saved = len(glob.glob(os.path.join(out_dir, "*.json")))
-    print(f"\n[Done] saved={saved} JSON files in {out_dir}")
+    print(f"\n[Done] quit. saved={saved} JSON files in {out_dir}")
 
 
 if __name__ == "__main__":

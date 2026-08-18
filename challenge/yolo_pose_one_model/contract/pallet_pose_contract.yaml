@@ -1,0 +1,108 @@
+# Single source of truth for the task YOLO26n-pose model.
+# Every value below was verified against the repository; see reports/02_contract_conflicts.md
+# for the evidence and for the conflicts that are still open.
+#
+# Scope note (2026-08-14, user): this round trains on SYNTHETIC ONLY (G + T).
+# Real data is deferred to a later finetune stage.
+
+class_name: pallet
+
+camera:
+  # The deployment camera. Synthetic G is rendered at several resolutions on purpose
+  # (aspect robustness) - see input.source_resolutions.
+  width: 640
+  height: 480
+  coordinate_system: opencv_x_right_y_down_z_forward
+
+model:
+  architecture: yolo26n-pose
+  imgsz: 640
+  batch: 32
+  nbs: 64
+  num_keypoints: 9
+  keypoint_dims: 3
+
+padding:
+  enabled: true
+  mode: reflect
+  pixels: 100
+  # 840x680 holds for a 640x480 input only. G renders at four resolutions and each is
+  # padded by the same 100 px, so its padded size differs per frame (user decision
+  # 2026-08-14). YOLO labels are normalised per image, so training is unaffected.
+  padded_width: 840
+  padded_height: 680
+  applies_to_all_domains: true
+  subtract_before_pnp: true
+
+input:
+  original_width: 640
+  original_height: 480
+  reflect_pad_px: 100
+  source_resolutions:
+    generic_synth: [[640, 480], [960, 540], [720, 480], [560, 560]]
+    target_synth: [[640, 480]]
+    real: [[640, 480]]        # wood sessions are 1280x720 but are a different pallet
+
+# Verified identical across G / T / R by deployment-PnP reprojection
+# (as-is 0.00-3.75 px vs near/far-swapped 8-31 px). See report 02 section 1.
+keypoints:
+  0: near_top_left
+  1: near_top_right
+  2: near_bottom_right
+  3: near_bottom_left
+  4: far_top_left
+  5: far_top_right
+  6: far_bottom_right
+  7: far_bottom_left
+  8: centroid
+
+# Recorded as the data contract. NOT used this round: fliplr is 0.0 everywhere.
+flip_idx: [1, 0, 3, 2, 5, 4, 7, 6, 8]
+
+coordinates:
+  front_definition: >-
+    Indices 0-3 are the face nearer the camera (the fork-pocket face the lifter drives
+    into). Proven by reprojection, not assumed. Left/right are IMAGE left/right, not
+    object-fixed.
+  top_bottom_definition: "{0,1,4,5} = top (gravity-up), {2,3,6,7} = bottom"
+  yaw_zero_definition: >-
+    UNRESOLVED for this round. Deployment derives yaw in
+    depth_cam/calib/pose6d_adapter.pose6d_to_align_vars (psi = angle between forklift
+    axis and pallet entry face; psi=0 means forklift.yaw == pallet.yaw). Not exercised
+    here because no PnP/yaw evaluation runs on synthetic-only training.
+  yaw_positive_direction: UNRESOLVED  # same reason
+
+pallet_dimensions_m:
+  # The physical pallet is 1.10 x 1.30 x height. Because the convention is camera-facing,
+  # "width" is the horizontal extent of whichever face is currently near, so width and
+  # depth swap between views. A single fixed pair is therefore wrong for ~half the frames
+  # (report 02 section 3). Values below describe the TARGET SYNTHETIC set used this round.
+  width: 1.30
+  depth: 1.10
+  height: 0.12
+  view_dependent_width_depth: true
+  alternate_view: {width: 1.10, depth: 1.30}
+  height_conflict:
+    synthetic_and_deployment: 0.12
+    real_manual_gt: 0.11
+    status: UNRESOLVED_NEEDS_PHYSICAL_MEASUREMENT
+  source:
+    target_synth: "objects[0].cuboid_dimensions_m = [depth, width, height]  (proven, 0.00 px median)"
+    deployment: "depth_cam/calib/config.py:153-155  W=1.10 D=1.30 H=0.12"
+    generic_synth: "objects[0].dimensions_m, per-frame random (many assets)"
+
+inference:
+  subtract_pad_before_pnp: true
+  pnp_coordinate_system: original_640x480
+  pnp_method: UNRESOLVED    # prompt says SQPnP; deployment uses EPnP+LM for >=6 pts
+  min_keypoints_for_pnp: 6
+
+training_scope_this_round:
+  domains: [generic_synth, target_synth]
+  real: deferred_to_finetune
+  stage_b: deferred_to_finetune
+  model_selection_metric: synthetic_val_only
+  caveat: >-
+    With no real validation in this round, checkpoint selection can only use synthetic
+    metrics. Real task metrics (PnP valid rate, yaw error) are not measured and must not
+    be claimed.

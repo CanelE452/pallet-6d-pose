@@ -31,7 +31,7 @@ fix v9 (2026-05-26) — Far-pallet degenerate threshold scaling
   인 케이스를 고려 안 함. click 자체가 threshold 보다 작은데 candidate 만 더 크라고
   강제 → 정답 reject.
 
-  v9 fix: degenerate threshold = max(click_bbox_area × 0.5, image_area × 0.5%).
+  v9 fix: degenerate threshold = image_area x 0.5%  (dynamic click-bbox 안은 채택 안 함).
   - 멀리 (small) click: click bbox 의 절반 정도까지만 허용 → 정답 candidate 살아남음.
   - 가까이 (large) click: 여전히 image area 의 0.5% (1536px²) bottom-floor →
     extreme collapse (한 점 몰림 ≤ 30×30px) 는 막힘.
@@ -444,7 +444,8 @@ def _correspondence_weights(valid_idx, extrapolated_mask=None,
 
 
 def _solve_pose_single(kps_2d, K, dims, extrapolated_mask=None, img_shape=None,
-                       keypoint_weights=None, keypoint_uncertainties=None):
+                       keypoint_weights=None, keypoint_uncertainties=None,
+                       weight_extrapolated_in_refine=False):
     """단일 dim PnP — fix v7 weighted scoring + degenerate reject.
 
     Init candidates:
@@ -485,9 +486,17 @@ def _solve_pose_single(kps_2d, K, dims, extrapolated_mask=None, img_shape=None,
     )
     # Backward compatibility: extrapolated_mask historically affected only
     # candidate scoring.  Actual weighted LM is enabled exclusively by one of
-    # the new learned reliability inputs.
+    # the new learned reliability inputs -- or by an explicit opt-in.
+    #
+    # 2026-08-15: 모듈 헤더는 "extrapolated_mask weight 0.3" 이라고 적혀 있었지만
+    # LM refine 에는 전혀 안 들어가 외삽점이 full weight 로 pose 를 끌어당겼다
+    # (kp6 을 40px 틀리게 외삽 -> 나머지 7 코너가 4~16px 끌려감). 그런데 보고되는
+    # reproj 는 외삽점을 빼고 계산하니 사용자에겐 "정상" 으로 보였다.
+    # 기존 소비처(평가 스크립트 등)의 수치를 바꾸지 않으려고 기본값은 그대로 두고,
+    # GUI(annotate.py)만 opt-in 한다.
     refine_weights = weights if (
         keypoint_weights is not None or keypoint_uncertainties is not None
+        or (weight_extrapolated_in_refine and extrapolated_mask is not None)
     ) else None
 
     # v9 (2026-05-26): degenerate cuboid reject threshold —
@@ -813,7 +822,8 @@ def _finalize_pose_candidate(pose, kps_2d, K, extrapolated_mask):
 
 def solve_pose_candidates(kps_2d, K, dims=None, extrapolated_mask=None,
                           img_shape=None, keypoint_weights=None,
-                          keypoint_uncertainties=None, auto_swap_dims=True):
+                          keypoint_uncertainties=None, auto_swap_dims=True,
+                          weight_extrapolated_in_refine=False):
     """Return the complete as-given and W/D-swapped PnP candidates.
 
     Unlike historical ``solve_pose``, an explicit ``dims=(W,D,H)`` is now
@@ -839,6 +849,7 @@ def solve_pose_candidates(kps_2d, K, dims=None, extrapolated_mask=None,
             img_shape=img_shape,
             keypoint_weights=keypoint_weights,
             keypoint_uncertainties=keypoint_uncertainties,
+            weight_extrapolated_in_refine=weight_extrapolated_in_refine,
         )
         if pose is None:
             continue
@@ -957,7 +968,8 @@ def _select_pose_candidate(candidates, wd_ambiguity_abs_px=0.5,
 
 def solve_pose(kps_2d, K, dims=None, extrapolated_mask=None, img_shape=None,
                keypoint_weights=None, keypoint_uncertainties=None,
-               auto_swap_dims=True, wd_ambiguity_abs_px=0.5,
+               auto_swap_dims=True, weight_extrapolated_in_refine=False,
+               wd_ambiguity_abs_px=0.5,
                wd_ambiguity_rel=0.05, wd_as_given_prob=None,
                wd_prior_min_confidence=0.65):
     """Backward-compatible PnP with explicit W/D and uncertainty diagnostics.
@@ -973,6 +985,7 @@ def solve_pose(kps_2d, K, dims=None, extrapolated_mask=None, img_shape=None,
         keypoint_weights=keypoint_weights,
         keypoint_uncertainties=keypoint_uncertainties,
         auto_swap_dims=auto_swap_dims,
+        weight_extrapolated_in_refine=weight_extrapolated_in_refine,
     )
     return _select_pose_candidate(
         candidates,
@@ -1162,11 +1175,20 @@ def apply_manip(state, dx=0, dy=0, dz=0, dyaw=0, dpitch=0, droll=0):
     state.dirty = True
 
 
-def pose_from_locked(state, K, dims=PALLET_DIMS):
+def pose_from_locked(state, K, dims=None):
     """locked_pose 로부터 pose dict 재구성 (projected_all + reproj_error 포함).
-    fix v6 strict invariants 진단 동시 계산 — 위반시 GUI 경고."""
+    fix v6 strict invariants 진단 동시 계산 — 위반시 GUI 경고.
+
+    dims 를 def 시점의 PALLET_DIMS 로 기본 바인딩하면 두 가지가 깨진다(2026-08-15):
+      1) CLICK 모드 PnP 가 고른 swapped dims(1.3,1.1,0.11) 가 manip 진입 순간 버려져
+         큐보이드가 통째로 틀어지고, 그대로 'S' 하면 틀린 dims 로 저장된다.
+      2) wood 처럼 모듈 PALLET_DIMS 를 런타임에 바꾸는 경우 default 인자는 이미
+         평가된 뒤라 반영되지 않는다.
+    호출 시점에 locked_pose 가 기억한 dims → 현재 모듈 PALLET_DIMS 순으로 고른다."""
     if state.locked_pose is None:
         return None
+    if dims is None:
+        dims = state.locked_pose.get("dims") or PALLET_DIMS
     R = state.locked_pose["R"]
     t = state.locked_pose["t"]
     kp3d = make_pallet_keypoints_3d(*dims)
@@ -1303,7 +1325,14 @@ def line_intersection(p1, p2, p3, p4):
     x1, y1 = p1; x2, y2 = p2
     x3, y3 = p3; x4, y4 = p4
     denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-    if abs(denom) < 1e-6:
+    # 절대 임계(1e-6)는 사실상 절대 안 걸린다. denom 은 두 선분 길이의 곱 스케일이라
+    # 길이로 정규화해야 "거의 평행" 을 잡는다. 정규화 전에는 거의 평행한 두 선이
+    # (2.0e8, 6.7e5) 같은 좌표를 내놓고 그게 그대로 keypoint 로 들어갔다(2026-08-15).
+    len1 = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+    len2 = ((x3 - x4) ** 2 + (y3 - y4) ** 2) ** 0.5
+    if len1 < 1e-6 or len2 < 1e-6:
+        return None                          # 두 점이 같은 자리 = 선이 아님
+    if abs(denom) / (len1 * len2) < 1e-3:    # sin(교각) < 0.001 = 0.057도
         return None
     t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
     ix = x1 + t * (x2 - x1)

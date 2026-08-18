@@ -17,7 +17,23 @@ _sys.path[:0] = [_CS] + [_os.path.join(_CS, _d) for _d in sorted(_os.listdir(_CS
                          if _os.path.isdir(_os.path.join(_CS, _d)) and not _d.startswith(".")]
 
 import numpy as np
+import time as _time
+
 import cv2
+
+
+def _ascii_only(text):
+    """cv2.putText 로 그릴 수 있는 문자만 남긴다.
+
+    Hershey 폰트에는 한글 glyph 가 없어서, 한글을 그대로 넘기면 화면에 통째로
+    '[??????] SEALED ??????' 처럼 물음표로 나온다(2026-08-16 실제로 겪음).
+    호출부가 실수로 한글을 넘겨도 최소한 읽을 수 있는 게 남게 한다.
+    """
+    t = str(text)
+    if t.isascii():
+        return t
+    kept = "".join(c for c in t if c.isascii())
+    return kept.strip() or "(see terminal)"
 
 from annotate_pnp import PALLET_DIMS
 
@@ -223,7 +239,7 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
         put(y, ", / .    -10 / +10",   (200, 200, 200)); y += 16
         put(y, "G / :    goto frame # (Enter)", (0, 255, 255)); y += 16
         put(y, "slider   click/drag to jump", (0, 255, 255)); y += 16
-        put(y, "TAB      SESSION list (pick #)", (255, 160, 0), 0.45); y += 16
+        put(y, "TAB      SESSION dropdown", (255, 160, 0), 0.45); y += 16
         put(y, "[ / ]    prev / next SESSION", (255, 160, 0), 0.45); y += 16
         put(y, "c        centroid auto", (200, 200, 200)); y += 16
         put(y, "z        undo last",   (200, 200, 200)); y += 16
@@ -260,7 +276,13 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
     y += 8
 
     put(y, "STATUS", (255, 255, 0), 0.5, 1); y += 22
-    put(y, f"frame {frame_idx+1}/{total}", (200, 200, 200)); y += 16
+    # 마지막 프레임임을 화면에 알린다. 콘솔에만 찍으면 어노 중에는 보이지 않아
+    # "n 이 안 먹는다" 로 느껴진다(2026-08-15).
+    _last = (total > 0 and frame_idx >= total - 1)
+    put(y, f"frame {frame_idx+1}/{total}" + ("  <- LAST" if _last else ""),
+        (0, 200, 255) if _last else (200, 200, 200)); y += 16
+    if _last:
+        put(y, "n = 다음 세션으로", (0, 200, 255), 0.38); y += 14
     put(y, f"zoom x{zoom:.1f}", (200, 200, 200)); y += 16
     if dirty:
         put(y, "*UNSAVED*", (0, 0, 255), 0.5, 2); y += 18
@@ -301,11 +323,14 @@ def render(state, frame_idx, total_frames, frame_name):
     if state.mode == "click" and state.line_mode:
         draw_line_input(vis, state.line_pts or [], state.last_mouse, state.zoom, state.pan)
     h, w = vis.shape[:2]
+    # 클램프는 zoom 과 무관하게 항상 건다. zoom=1 에서만 클램프를 건너뛰면 화면은
+    # 하나도 안 움직이는데 클릭 좌표에는 pan 이 더해져 점이 엉뚱한 곳에 찍힌다
+    # (h/j/k/l 은 zoom 을 안 보고 pan 을 바꾼다). zoom=1 이면 crop=전체라 0 으로 클램프된다.
+    crop_w = max(1, int(w / state.zoom))
+    crop_h = max(1, int(h / state.zoom))
+    state.pan[0] = max(0, min(w - crop_w, state.pan[0]))
+    state.pan[1] = max(0, min(h - crop_h, state.pan[1]))
     if state.zoom > 1.001:
-        crop_w = int(w / state.zoom)
-        crop_h = int(h / state.zoom)
-        state.pan[0] = max(0, min(w - crop_w, state.pan[0]))
-        state.pan[1] = max(0, min(h - crop_h, state.pan[1]))
         crop = vis[state.pan[1]:state.pan[1] + crop_h,
                    state.pan[0]:state.pan[0] + crop_w]
         vis = cv2.resize(crop, (w, h), interpolation=cv2.INTER_LINEAR)
@@ -314,6 +339,12 @@ def render(state, frame_idx, total_frames, frame_name):
     overlay = vis.copy()
     cv2.rectangle(overlay, (0, 0), (w, 28), (0, 0, 0), -1)
     vis = cv2.addWeighted(vis, 0.3, overlay, 0.7, 0)
+    toast = getattr(state, "toast", None)
+    if toast and toast[2] > _time.time():
+        cv2.rectangle(vis, (0, 28), (w, 60), (28, 28, 28), -1)
+        cv2.rectangle(vis, (0, 28), (6, 60), toast[1], -1)
+        cv2.putText(vis, _ascii_only(toast[0])[:62], (14, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.52, toast[1], 1, cv2.LINE_AA)
     cv2.putText(vis, f"Click #{state.active}: {name}", (10, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, col, 2)
     cv2.putText(vis, frame_name[:20], (w - 220, 20),
@@ -330,31 +361,9 @@ def render(state, frame_idx, total_frames, frame_name):
     _sc = (0, 220, 0) if _split == "eval" else (150, 150, 150)
     cv2.putText(vis, _split.upper(), (w // 2 - 30, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, _sc, 2)
-    # 세션 선택 목록 (TAB) — 화면 위에 덮어 그린다
-    if getattr(state, "sess_mode", False):
-        rows = getattr(state, "sess_rows", []) or []
-        cur_i = getattr(state, "sess_cur", -1)
-        pad, lh = 14, 20
-        bw = min(w - 40, 640)
-        bh = min(h - 40, pad * 2 + lh * (len(rows) + 2))
-        x0, y0 = (w - bw) // 2, (h - bh) // 2
-        cv2.rectangle(vis, (x0, y0), (x0 + bw, y0 + bh), (0, 0, 0), -1)
-        cv2.rectangle(vis, (x0, y0), (x0 + bw, y0 + bh), (0, 200, 255), 2)
-        cv2.putText(vis, f"SESSION  (번호 + Enter, Esc 취소)   #{getattr(state,'sess_buf','')}_",
-                    (x0 + pad, y0 + pad + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 220, 255), 1)
-        vis_rows = rows[:max(1, (bh - pad * 2 - lh * 2) // lh)]
-        # 각 줄의 클릭 영역을 기록해 둔다 — 마우스 콜백이 이 좌표로 선택을 판정한다.
-        state.sess_hit = []
-        for j, (nm, nfr, done, sealed) in enumerate(vis_rows):
-            yy = y0 + pad + lh * (j + 2) + 8
-            col = (0, 255, 0) if j == cur_i else ((90, 90, 255) if sealed else (210, 210, 210))
-            mark = "*" if j == cur_i else (" S" if sealed else "  ")
-            cv2.putText(vis, f"{j+1:>2}{mark} {nm:<28} {nfr:>5}f  done {done:>3}",
-                        (x0 + pad, yy), cv2.FONT_HERSHEY_SIMPLEX, 0.45, col, 1)
-            state.sess_hit.append((x0, yy - lh + 4, x0 + bw, yy + 5, j))
-        if len(rows) > len(vis_rows):
-            cv2.putText(vis, f"... +{len(rows)-len(vis_rows)} more ([ ] 로도 이동)",
-                        (x0 + pad, y0 + bh - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 150, 150), 1)
+    # 세션 선택은 tkinter 드롭다운(annotate.pick_session_dialog)이 담당한다.
+    # 예전엔 목록을 여기에 그렸는데, 진짜 위젯이 아니라 클릭 판정을 직접 해야 했고
+    # 사용자가 "왜 화면에 그리냐"고 지적해 교체했다 (2026-08-15).
 
     # goto 번호 입력 중이면 하단 바에 버퍼 표시
     if getattr(state, "goto_mode", False):

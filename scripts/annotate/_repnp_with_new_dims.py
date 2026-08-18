@@ -27,7 +27,7 @@ sys.path[:0] = [os.path.join(REPO, "challenge", "scripts", _s)
 # annotate.py 의 diagram convention generator 재사용
 from annotate import make_pallet_keypoints_3d_diagram as make_pallet_keypoints_3d
 import sys as _sys, pathlib as _pl
-_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[3]))
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
 from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 NEW_DIMS = (1.1, 1.3, 0.11)

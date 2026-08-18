@@ -12,7 +12,7 @@ import glob
 import os
 import shutil
 import sys as _sys, pathlib as _pl
-_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[3]))
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[2]))
 from challenge.data_paths import get as _dp  # 경로 단일 출처
 
 

@@ -201,10 +201,120 @@ def draw_keypoints(img, kps, conf, kp_conf_thr):
                     0.45, col, 1, cv2.LINE_AA)
 
 
-def draw_axes(img, R, t, K, length=0.5):
-    """centroid 기준 XYZ 축 (X=red, Y=green, Z=blue, OpenCV convention)."""
+def yaw_from_R(R):
+    """ψ_pallet (deg) — deployment pose6d_adapter.pose6d_to_align_vars 와 동일 값.
+
+    adapter 는 +Y=up/front=+Z 모델이라 atan2 에 +180° 를 더하지만, 이 파일의
+    모델은 +Y=down/near=-Z 라 그 180° 가 상쇄된다 (real 24 프레임 대조, 오차 0.000°).
+
+    ψ 는 far 축(+Z) = 지게차가 향해야 할 heading 의 방위각이다.
+    ψ=0  → 정대면(정렬 완료).
+    ψ>0  → 지게차가 우회전해야 정렬 (align.py 의 ROT_RIGHT 분기와 일치).
+           이때 팔레트 정면 법선은 카메라 좌측을 향한다 — 우측이 아니다.
+    """
+    return float(np.degrees(np.arctan2(R[0, 2], R[2, 2])))
+
+
+def roll_pitch_yaw_from_R(R):
+    """R(pallet→camera) → (roll, pitch, yaw) [deg]. 내재 Y-X-Z 분해.
+
+    R = Ry(yaw) @ Rx(pitch) @ Rz(roll) 에서 R[:,2] = (sy*cp, -sp, cy*cp) 이므로
+    atan2(R02, R22) == yaw 가 cos(pitch)>0 인 한 항등이다. Tait-Bryan 6 종 중
+    기존 yaw_from_R 과 값·부호가 같은 유일한 순서 (uniform SO(3) 200k 샘플 대조 0.000e+00).
+
+    부호 (오른손 법칙, 카메라 OpenCV X=right/Y=down/Z=forward):
+      yaw   > 0 : 지게차가 우회전해야 정렬 (align.py ROT_RIGHT). 정면 법선은 카메라 좌측.
+      pitch > 0 : far 쪽(4~7 면)이 위로 들림. 카메라 하향 마운트와 구분 불가.
+      roll  > 0 : 폭축(+X_local)이 아래로 = 화면상 시계방향 기울기.
+    pitch/roll 은 카메라 상대값이라 마운트 틸트가 섞여 들어온다 (yaw 는 무관).
+    """
+    R = np.asarray(R, dtype=np.float64).reshape(3, 3)
+    cp = float(np.hypot(R[0, 2], R[2, 2]))          # = |cos(pitch)|
+    pitch = float(np.arctan2(-R[1, 2], cp))
+    if cp > 1e-8:
+        yaw = float(np.arctan2(R[0, 2], R[2, 2]))   # == yaw_from_R
+        roll = float(np.arctan2(R[1, 0], R[1, 1]))
+    else:                                            # gimbal lock (|pitch|=90°)
+        roll = 0.0
+        yaw = float(np.arctan2(R[0, 1], R[0, 0]) if R[1, 2] < 0
+                    else np.arctan2(-R[0, 1], R[0, 0]))
+    return (float(np.degrees(roll)), float(np.degrees(pitch)),
+            float(np.degrees(yaw)))
+
+
+ARROW_Z_MIN = 0.05  # m. centroid/끝점이 이보다 앞이어야 투영 유효
+
+
+def draw_yaw_arrow(img, R, t, K, length=2.0, color=(0, 0, 255), thick=3,
+                   min_px=6.0):
+    """centroid → 팔레트 정면(entry face 0~3) 방향 화살표 1개.
+
+    방향 = local -Z. make_pallet_keypoints_3d 에서 0~3(near/fork-pocket face)이
+    z=-d/2 이므로 -Z 가 '팔레트가 바라보는 쪽'이고, 화면에서는 소실점 반대로 뻗는다.
+    (local +Z 를 그리면 항상 화면 안쪽 = "뒤로 향하는" 것처럼 보인다.)
+
+    length 는 실측으로 정했다. 0.6m 였을 때 forklift raw 553 프레임 중 65.8% 가
+    14px 미만이었는데, ⊙ 프레임의 |yaw|(14.3°)·앙각(2.6°)·거리(3.72m)가 전체와
+    같아 "정대면이라 붕괴" 가 아니라 그냥 거리(median 3.72m) 대비 짧았던 것이다.
+    1.2m 로 올리면 median 25.8px 로 사실상 전 프레임이 선으로 그려진다.
+
+    min_px 미만이면 ⊙ = 정면이 카메라를 정확히 향해 화면상 방향이 정의되지 않는
+    경우(원리적 한계). 이때 방향은 노이즈이므로 억지로 늘려 그리지 않는다.
+    """
+    o3 = np.asarray(t, dtype=np.float64).reshape(3)
+    if o3[2] <= ARROW_Z_MIN:
+        return False
+    Rm = np.asarray(R, dtype=np.float64).reshape(3, 3)
+    e3 = o3 + Rm @ np.array([0.0, 0.0, -length])
+    if e3[2] <= ARROW_Z_MIN:
+        s = (ARROW_Z_MIN - o3[2]) / (e3[2] - o3[2])
+        e3 = o3 + (e3 - o3) * s * 0.98
+
+    def _proj(P):
+        return (K[0, 0] * P[0] / P[2] + K[0, 2],
+                K[1, 1] * P[1] / P[2] + K[1, 2])
+
+    ou, ov = _proj(o3)
+    eu, ev = _proj(e3)
+    h, w = img.shape[:2]
+    lim = 4.0 * max(h, w)
+    if not (-lim < ou < w + lim and -lim < ov < h + lim):
+        return False
+
+    du, dv = eu - ou, ev - ov
+    n = float(np.hypot(du, dv))
+    if n < min_px:
+        r = max(6, int(min_px * 0.6))
+        cv2.circle(img, (int(ou), int(ov)), r, (0, 0, 0), thick + 2, cv2.LINE_AA)
+        cv2.circle(img, (int(ou), int(ov)), r, color, thick, cv2.LINE_AA)
+        cv2.circle(img, (int(ou), int(ov)), 2, color, -1, cv2.LINE_AA)
+        return True
+    if n > lim:
+        du, dv = du * lim / n, dv * lim / n
+        n = lim
+    p0 = (int(round(ou)), int(round(ov)))
+    p1 = (int(round(ou + du)), int(round(ov + dv)))
+    tip = min(0.40, max(0.10, 18.0 / n))
+    cv2.arrowedLine(img, p0, p1, (0, 0, 0), thick + 2, cv2.LINE_AA, tipLength=tip)
+    cv2.arrowedLine(img, p0, p1, color, thick, cv2.LINE_AA, tipLength=tip)
+    return True
+
+
+def draw_axes(img, R, t, K, length=0.5, viewer_axes=False, labels=False):
+    """centroid 기준 XYZ 축 (X=red, Y=green, Z=blue, OpenCV convention).
+
+    viewer_axes=True 면 사람이 보기 편한 표시축으로 그린다 — X=right(그대로),
+    Y=up(local -Y. OpenCV 는 +Y=down 이라 그대로 그리면 화면 아래로 길게 빠진다),
+    Z=front(local -Z, 팔레트 정면·카메라 쪽. +Z 는 far 라 늘 소실점 방향으로 뻗는다).
+    회전값 자체가 아니라 표시 방향만 바꾸는 것이다.
+    labels=True 면 축 끝에 X/Y/Z 표기.
+    """
     origin = make_pallet_keypoints_3d(*PALLET_DIMS)[8]  # local centroid (=0,0,0)
-    ends = origin + np.eye(3) * length
+    dirs = np.eye(3)
+    if viewer_axes:
+        dirs[1] = -dirs[1]
+        dirs[2] = -dirs[2]
+    ends = origin + dirs * length
     pts3d = np.vstack([origin, ends])
     Pc = (R @ pts3d.T).T + t
     if (Pc[:, 2] <= 0).any():
@@ -213,9 +323,144 @@ def draw_axes(img, R, t, K, length=0.5):
                    K[1, 1] * Pc[:, 1] / Pc[:, 2] + K[1, 2]], 1)
     o = (int(uv[0, 0]), int(uv[0, 1]))
     cols = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]  # X red, Y green, Z blue
+    names = ("X", "Y", "Z")
     for k in range(3):
         e = (int(uv[k + 1, 0]), int(uv[k + 1, 1]))
+        cv2.arrowedLine(img, o, e, (0, 0, 0), 4, cv2.LINE_AA, tipLength=0.15)
         cv2.arrowedLine(img, o, e, cols[k], 2, cv2.LINE_AA, tipLength=0.15)
+        if labels:
+            _otext(img, names[k], (e[0] + 4, e[1] - 4), cols[k], 0.5)
+
+
+def _blend_disc(img, cx, cy, r, color=(28, 28, 28), alpha=0.55):
+    x0, y0 = max(0, cx - r), max(0, cy - r)
+    x1, y1 = min(img.shape[1], cx + r + 1), min(img.shape[0], cy + r + 1)
+    if x1 <= x0 or y1 <= y0:
+        return
+    roi = img[y0:y1, x0:x1]
+    ov = roi.copy()
+    cv2.circle(ov, (cx - x0, cy - y0), r, color, -1, cv2.LINE_AA)
+    cv2.addWeighted(ov, alpha, roi, 1.0 - alpha, 0.0, roi)
+
+
+def _otext(img, txt, org, color, scale=0.45, thick=1):
+    cv2.putText(img, txt, org, cv2.FONT_HERSHEY_SIMPLEX, scale,
+                (0, 0, 0), thick + 2, cv2.LINE_AA)
+    cv2.putText(img, txt, org, cv2.FONT_HERSHEY_SIMPLEX, scale,
+                color, thick, cv2.LINE_AA)
+
+
+def draw_yaw_compass(img, yaw_deg, center, radius=54, dims=PALLET_DIMS,
+                     deadband_deg=3.0):
+    """Top-down yaw 나침반. 화면좌표계 위젯이라 원근과 무관하게 크기가 고정된다.
+
+    위젯 위 = 카메라 +Z(전방/현재 heading), 오른쪽 = 카메라 +X.
+      노란 사각형 = 팔레트를 위에서 본 모습 (밝은 변 = 0~3 진입면)
+      빨간 바늘   = 삽입축(near→far) = 지게차가 향해야 할 heading
+      yaw=0 → 바늘 수직 위 / yaw>0 → 바늘 우측 = 우회전 (align.py ROT_RIGHT 와 일치)
+    """
+    cx, cy, r = int(center[0]), int(center[1]), int(radius)
+    _blend_disc(img, cx, cy, r + 6)
+    cv2.circle(img, (cx, cy), r + 6, (210, 210, 210), 1, cv2.LINE_AA)
+
+    for a_deg in (-90, -60, -30, 0, 30, 60, 90):
+        a = np.radians(a_deg)
+        ux, uy = np.sin(a), -np.cos(a)
+        big = (a_deg == 0)
+        cv2.line(img, (int(cx + ux * (r + 1)), int(cy + uy * (r + 1))),
+                 (int(cx + ux * (r + 6)), int(cy + uy * (r + 6))),
+                 (120, 255, 120) if big else (170, 170, 170),
+                 2 if big else 1, cv2.LINE_AA)
+
+    for y in range(4, r, 9):
+        cv2.line(img, (cx, cy - y), (cx, cy - min(y + 4, r)),
+                 (120, 220, 120), 1, cv2.LINE_AA)
+    cv2.drawMarker(img, (cx, cy + r - 2), (120, 220, 120),
+                   cv2.MARKER_TRIANGLE_UP, 9, 1, cv2.LINE_AA)
+
+    w, d = float(dims[0]), float(dims[1])
+    s = (r * 0.74) / (0.5 * float(np.hypot(w, d)))
+    ca, sa = np.cos(np.radians(yaw_deg)), np.sin(np.radians(yaw_deg))
+
+    def _tp(x, z):
+        return (int(round(cx + (x * ca + z * sa) * s)),
+                int(round(cy - (-x * sa + z * ca) * s)))
+
+    hw, hd = w / 2.0, d / 2.0
+    n_l, n_r = _tp(-hw, -hd), _tp(+hw, -hd)
+    f_l, f_r = _tp(-hw, +hd), _tp(+hw, +hd)
+    cv2.polylines(img, [np.array([n_l, n_r, f_r, f_l], np.int32)], True,
+                  (0, 170, 220), 2, cv2.LINE_AA)
+    cv2.line(img, n_l, n_r, (0, 255, 255), 3, cv2.LINE_AA)
+
+    cv2.ellipse(img, (cx, cy), (int(r * 0.42), int(r * 0.42)), -90,
+                0.0, float(yaw_deg), (255, 255, 255), 1, cv2.LINE_AA)
+
+    nl = r * 0.90
+    tip = (int(round(cx + sa * nl)), int(round(cy - ca * nl)))
+    cv2.arrowedLine(img, (cx, cy), tip, (0, 0, 0), 5, cv2.LINE_AA, tipLength=0.28)
+    cv2.arrowedLine(img, (cx, cy), tip, (0, 0, 255), 2, cv2.LINE_AA, tipLength=0.28)
+    cv2.circle(img, (cx, cy), 3, (255, 255, 255), -1, cv2.LINE_AA)
+
+    if abs(yaw_deg) <= deadband_deg:
+        lab, col = "ALIGNED", (0, 255, 0)
+    else:
+        lab = "TURN RIGHT" if yaw_deg > 0 else "TURN LEFT"
+        col = (0, 190, 255)
+    (tw, _), _ = cv2.getTextSize(lab, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
+    _otext(img, lab, (cx - tw // 2, cy + r + 20), col)
+
+
+def draw_attitude_gauge(img, roll_deg, pitch_deg, center, radius=34,
+                        pitch_full_deg=30.0):
+    """roll/pitch 고정크기 자세계. 선 = 팔레트를 edge-on 으로 본 폭축.
+
+    선 기울기 = roll (+ = 화면 시계방향) / 선 상하이동 = pitch (+ = far 쪽이 위로).
+    """
+    cx, cy, r = int(center[0]), int(center[1]), int(radius)
+    _blend_disc(img, cx, cy, r + 4)
+    cv2.circle(img, (cx, cy), r + 4, (210, 210, 210), 1, cv2.LINE_AA)
+    cv2.line(img, (cx - r, cy), (cx - int(r * 0.35), cy),
+             (150, 150, 150), 1, cv2.LINE_AA)
+    cv2.line(img, (cx + int(r * 0.35), cy), (cx + r, cy),
+             (150, 150, 150), 1, cv2.LINE_AA)
+
+    a = np.radians(float(roll_deg))
+    ux, uy = np.cos(a), np.sin(a)
+    p = float(np.clip(pitch_deg / pitch_full_deg, -1.0, 1.0)) * (r * 0.62)
+    ox, oy = np.sin(a) * p, -np.cos(a) * p
+    L = r * 0.82
+    q0 = (int(round(cx + ox - ux * L)), int(round(cy + oy - uy * L)))
+    q1 = (int(round(cx + ox + ux * L)), int(round(cy + oy + uy * L)))
+    cv2.line(img, q0, q1, (0, 0, 0), 5, cv2.LINE_AA)
+    cv2.line(img, q0, q1, (0, 255, 255), 2, cv2.LINE_AA)
+    cv2.circle(img, (cx, cy), 3, (255, 255, 255), -1, cv2.LINE_AA)
+
+
+def draw_rpy_panel(img, R, dims=PALLET_DIMS, radius=54, margin=10,
+                   deadband_deg=3.0):
+    """우하단 고정 패널: yaw 나침반 + roll/pitch 자세계 + 숫자 3 개.
+
+    R=None(PnP 실패) 이면 빈 패널 + NO POSE (레이아웃 유지). 반환 (roll,pitch,yaw) or None.
+    """
+    h, w = img.shape[:2]
+    r = int(max(28, min(radius, 0.20 * min(h, w))))
+    ar = int(r * 0.62)
+    cy = h - margin - 40 - r
+    cx = w - margin - r - 6
+    acx = cx - r - ar - 16
+
+    if R is None:
+        _blend_disc(img, cx, cy, r + 6)
+        cv2.circle(img, (cx, cy), r + 6, (120, 120, 120), 1, cv2.LINE_AA)
+        _otext(img, "NO POSE", (cx - 34, cy + 4), (0, 0, 255))
+        return None
+
+    roll, pitch, yaw = roll_pitch_yaw_from_R(R)
+    draw_yaw_compass(img, yaw, (cx, cy), r, dims, deadband_deg)
+    draw_attitude_gauge(img, roll, pitch, (acx, cy), ar)
+    _otext(img, "roll/pitch", (acx - ar, cy + ar + 18), (170, 170, 170), 0.38)
+    return (roll, pitch, yaw)
 
 
 def draw_hud(img, lines):
@@ -312,6 +557,9 @@ def main():
     ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--show", action="store_true",
                     help="cv2 창 실시간 표시 (없으면 headless, FPS만 측정)")
+    ap.add_argument("--yaw-only", dest="yaw_only", action="store_true",
+                    help="cuboid + yaw 화살표 + yaw 각도만 표시 "
+                         "(keypoint/XYZ축/나머지 HUD 생략)")
     ap.add_argument("--save", default=None, help="결과 mp4 저장 경로 (옵션)")
     ap.add_argument("--max-frames", dest="max_frames", type=int, default=0,
                     help="0=전체")
@@ -325,7 +573,9 @@ def main():
 
     from ultralytics import YOLO
     print(f"[load] model = {args.model}")
-    model = YOLO(args.model)
+    # task="pose" 필수. .engine/.onnx 는 메타에 task 가 없어 ultralytics 가 detect 로
+    # 추정하고, 그러면 r.keypoints 가 None 이라 검출률이 0% 로 떨어진다 (.pt 는 무관).
+    model = YOLO(args.model, task="pose")
     dev = device_name()
     print(f"[device] {dev}")
     print(f"[cam_K]\n{K}")
@@ -376,7 +626,19 @@ def main():
         # ── draw ──
         t_draw0 = time.perf_counter()
         if args.show or args.save:
-            if kps is None:
+            if args.yaw_only:
+                if ok_pnp:
+                    proj = reproj_from_pose(R, t, dims, K)
+                    draw_cuboid(vis, proj, CUBOID_YELLOW, thick=2)
+                    draw_axes(vis, R, t, K, length=0.9, viewer_axes=True,
+                              labels=True)
+                    rl, pt, yw = roll_pitch_yaw_from_R(R)
+                    draw_rpy_panel(vis, R, dims)
+                    draw_hud(vis, [(f"roll={rl:+.1f}  pitch={pt:+.1f}  "
+                                    f"yaw={yw:+.1f} deg", (0, 255, 255))])
+                else:
+                    draw_rpy_panel(vis, None, dims)
+            elif kps is None:
                 draw_hud(vis, [(f"frame {fi}", (255, 255, 255)),
                                ("NO DETECTION", (0, 0, 255))])
             else:
@@ -388,7 +650,8 @@ def main():
                     proj = reproj_from_pose(R, t, dims, K)
                     draw_cuboid(vis, proj, CUBOID_YELLOW, thick=2)
                     draw_axes(vis, R, t, K)
-                    hud.append((f"PnP OK pts={n_pts} z={float(t[2]):.2f}m",
+                    hud.append((f"PnP OK pts={n_pts} z={float(t[2]):.2f}m "
+                                f"yaw={yaw_from_R(R):+.1f}deg",
                                 (0, 255, 255)))
                 else:
                     hud.append((f"PnP FAIL pts={n_pts}", (0, 0, 255)))

@@ -1,6 +1,6 @@
 # annotate.py — Manual Keypoint Annotation 가이드
 
-`challenge/scripts/annotate.py`는 시퀀스 frame에 9 keypoint를 클릭으로 표시하고,
+`scripts/annotate/annotate.py`는 시퀀스 frame에 9 keypoint를 클릭으로 표시하고,
 PnP를 자동으로 풀어 NDDS JSON GT를 저장한다. AprilTag가 없는 시퀀스에서 학습용
 GT 를 직접 만들 때 쓴다.
 
@@ -12,16 +12,16 @@ GT 를 직접 만들 때 쓴다.
 conda activate pallet-pose
 
 # 기본: capturepallet02 를 stride 30 으로 (≈10 frame 라벨링)
-python challenge/scripts/annotate.py --seq data/outside/capturepallet02
+python scripts/annotate/annotate.py --seq data/outside/capturepallet02
 
 # 다른 시퀀스, 더 촘촘하게
-python challenge/scripts/annotate.py --seq data/outside/capturepallet07 --stride 20
+python scripts/annotate/annotate.py --seq data/outside/capturepallet07 --stride 20
 
 # 중간부터 시작
-python challenge/scripts/annotate.py --seq data/outside/capturepallet09 --stride 60 --start 300
+python scripts/annotate/annotate.py --seq data/outside/capturepallet09 --stride 60 --start 300
 
 # 저장 경로 지정
-python challenge/scripts/annotate.py --seq data/outside/capturepallet07 \
+python scripts/annotate/annotate.py --seq data/outside/capturepallet07 \
   --out_dir challenge/data/01_real/manual_gt/capturepallet07_manual_gt
 ```
 
