@@ -54,7 +54,9 @@ SOURCE_RUN = PA.SOURCE_RUN
 SOURCE_STEP = PA.SOURCE_STEP
 STEPS = PA.STEPS
 MARKS = PA.MARKS
-ARMS = ("C0", "C1", "C1_VCTRL")
+ARMS = ("C0", "C1", "C1_VCTRL", "C1_RESCUE", "N0", "N1")
+NEG_PER_BATCH = 2          # B_neg, separate from the positive batch
+NEG_STREAM_SEED = 20260901
 
 # Locked before training.  7 BROAD + 1 LA per corner batch of 8 = 12.5%, close
 # to the natural 5/(40+5) = 11.1% of simply adding the set.
@@ -182,6 +184,26 @@ class Stream:
         return out
 
 
+def negative_stream(seed):
+    """A stream of no-pallet frames that never replaces a positive slot."""
+    import mh_negative as NG
+    return Stream(NG.negative_pool("train", NEG_STREAM_SEED + seed))
+
+
+def rescue_items(seed):
+    """C0's exact 24,000 corner slots with 1,500 NON_LA slots swapped for
+    canonical NEW Y30 frames.  Hard cells (LA_FRONTAL / LA_HARD) and LA_EASY are
+    preserved slot for slot; the dose matches what old C1 actually consumed."""
+    schedule = json.loads((OUT / "C1_RESCUE_SCHEDULE.json").read_text())
+    block = schedule["seeds"][f"seed{seed}"]
+    broad = Stream(broad_pool(CORNER_STREAM_SEED + seed))
+    items = list(broad.take(STEPS * MS.BATCH))
+    for index, frame in block["substitutions"].items():
+        bucket, stem = frame.split("/")
+        items[int(index)] = (LA_ROOT / bucket, stem)
+    return items
+
+
 def corner_stream(arm, seed, weights=None):
     """C0 draws BROAD only; C1 interleaves LA at a fixed slot in every batch."""
     broad = Stream(broad_pool(CORNER_STREAM_SEED + seed))
@@ -296,12 +318,21 @@ def run_train(arguments):
     trainable = [p for p in model.parameters() if p.requires_grad]
     optimiser = torch.optim.AdamW(trainable, lr=CAP.LR, weight_decay=CAP.WD)
     line = Stream(broad_pool(LINE_STREAM_SEED + seed))
-    broad, la = corner_stream("C0" if arm == "C0" else "C1", seed, weights)
+    rescue = rescue_items(seed) if arm == "C1_RESCUE" else None
+    negatives = negative_stream(seed) if arm == "N1" else None
+    lambda_neg = float(arguments.lambda_neg) if arm == "N1" else 0.0
+    positive_arm = "C1" if arm == "C1" else "C0"
+    broad, la = corner_stream(positive_arm, seed, weights)
 
     history = {"arm": arm, "seed": seed, "source_checkpoint": source,
                "source_step": SOURCE_STEP, "steps": STEPS,
                "marks": list(MARKS), "CONTINUATION_OPTIMIZER": "FRESH",
-               "la_per_batch": 0 if arm == "C0" else LA_PER_BATCH,
+               "la_per_batch": (0 if arm in ("C0", "N0", "N1")
+                                else ("schedule" if arm == "C1_RESCUE"
+                                      else LA_PER_BATCH)),
+               "lambda_neg": lambda_neg,
+               "neg_per_batch": NEG_PER_BATCH if arm == "N1" else 0,
+               "SINGLE_BACKWARD_SINGLE_STEP": True,
                "batch": MS.BATCH, "lambda_corner": lambdas["corner"],
                "yaw_convention": "45 - facing_margin (dataset definition)"}
     path = OUT / f"branch_curriculum_{arm}_seed{seed}.json"
@@ -336,12 +367,27 @@ def run_train(arguments):
             valid).reshape(*theta_c.shape, -1)
         loss = DH.cross_entropy(scores, target, support, valid)
 
-        pack_corner = load_pack_items(
-            build_batches("C0" if arm == "C0" else "C1", broad, la, MS.BATCH))
+        if rescue is not None:
+            start = (step - 1) * MS.BATCH
+            corner_items = rescue[start:start + MS.BATCH]
+        else:
+            # positive_arm, not `arm` -- N0/N1 stream BROAD only and have no
+            # LA stream, so passing their own name here reached into `None`.
+            corner_items = build_batches(
+                positive_arm, broad, la, MS.BATCH)
+        pack_corner = load_pack_items(corner_items)
         beliefs = corner_forward(model, pack_corner["images"])
         loss = loss + lambdas["corner"] * MH.corner_loss(
             beliefs, pack_corner["belief"], pack_corner["belief_valid"])
 
+        if negatives is not None:
+            import mh_negative as NG
+            pack_neg = NG.load_negative_pack(negatives.take(NEG_PER_BATCH))
+            beliefs_neg = corner_forward(model, pack_neg["images"])
+            loss = loss + lambda_neg * NG.negative_belief_loss(beliefs_neg)
+
+        # one backward, one step -- N0 and N1 take an identical number of
+        # optimizer steps on an identical scheduler trajectory
         optimiser.zero_grad(set_to_none=True)
         loss.backward()
         optimiser.step()
@@ -355,6 +401,7 @@ def main():
     parser.add_argument("command", choices=["parity", "train"])
     parser.add_argument("--arm", default="C1", choices=list(ARMS))
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--lambda-neg", type=float, default=0.0)
     arguments = parser.parse_args()
     {"parity": run_parity, "train": run_train}[arguments.command](arguments)
 

@@ -1,5 +1,14 @@
 # 평가셋 정본 (canonical eval set) — 반드시 이것만 사용
 
+> ## ⚠ 2026-08-20 역할 변경 — ★final-test 105장은 더 이상 final test 가 아니다
+> `capturepallet07 27 / capturepallet09 36 / capturenight08 17 / capturenight09 25`
+> = **105장**은 4-모델 비교에서 열렸고 **재봉인 불가**하다.
+> 새 이름 **`REAL_CHALLENGE_DEV_105`** — 역할은 development
+> (seed 비교 · failure 진단 · 모델 비교).
+> **final test 라고 다시 부르지 않는다.** 최종 주장은 앞으로 새로 촬영할
+> REAL_TEST 에서 한다.
+> 나머지 56장(outside 22 / noapril 12 / cad 22)은 `REAL_DEV_POS_V1`.
+
 > **2026-08-04 사용자 확정.**  평가는 사용자가 어노테이션 툴에서 직접 `v` 키로
 > `eval` 표시한 프레임만 사용한다.  다른 셋을 쓰면 결과의 적용범위가 틀린다.
 

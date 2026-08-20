@@ -272,7 +272,7 @@ def run_cache(arguments):
     MS.deterministic()
     grid_theta, grid_rho, valid, features = MS.lattice()
     run = arguments.run
-    split_late = run in ("e3confirm25k", "E3_SPLIT_LATE")
+    split_late = run in ("e3confirm25k", "E3_SPLIT_LATE", "FINAL40K")
     capacity = run == "E4_CAPACITY_MATCHED_CORNER"
     tag = run
     for seed in SEEDS:
@@ -1325,7 +1325,8 @@ def main():
     parser.add_argument("--frames", type=int, default=128)
     parser.add_argument("--run", default="A1_long25k",
                         choices=["A1_long25k", "e3confirm25k",
-                                 "E3_SPLIT_LATE", "E4_CAPACITY_MATCHED_CORNER"],
+                                 "E3_SPLIT_LATE", "E4_CAPACITY_MATCHED_CORNER",
+                                 "FINAL40K"],
                         help="which trained run to cache or audit")
     # Default is the historical pair, so every existing invocation is unchanged.
     # PHASE 2 added D3_MH_CONF512 and needs its cache without editing the loop.

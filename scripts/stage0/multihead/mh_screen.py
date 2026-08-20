@@ -477,6 +477,14 @@ def run_screen(arguments):
     deterministic()
     weights = lambdas()
     train, populations = MD.pools()
+    if arguments.final_pool:
+        # FINAL_SYNTH_TRAIN_V1: the whole 40,000, MH_DEV folded back in.  This
+        # is only legitimate because the final claim moved to REAL IN-HOUSE
+        # DEV/TEST, so there is no synthetic holdout left to protect.  Any
+        # evaluation on MH_DEV from such a checkpoint is in-train, and
+        # `--no-eval` is expected alongside this flag for that reason.
+        train = [r["stem"] for r in MD.load_split()]
+        populations = {}
     pool = train[:arguments.pool] if arguments.pool else train
     if arguments.seed != CAP.SEED:
         # A second seed varies the initialisation and the data order together.
@@ -488,6 +496,9 @@ def run_screen(arguments):
         _random.Random(arguments.seed).shuffle(pool)
     marks = tuple(int(m) for m in arguments.marks.split(","))
     results = {"lambdas": weights, "pool": len(pool), "marks": list(marks),
+               "pool_source": ("FINAL_SYNTH_TRAIN_V1 (BROAD 40,000)"
+                               if arguments.final_pool else "MH_TRAIN"),
+               "evaluated_every_mark": not arguments.no_eval,
                "batch": BATCH, "lr": CAP.LR, "weight_decay": CAP.WD,
                "seed": arguments.seed, "ramp_steps": arguments.ramp,
                "split_sha256": json.loads(
@@ -500,6 +511,7 @@ def run_screen(arguments):
         path = OUT / f"mh_screen_{arm}{suffix}.json"
         history, _ = train_arm(arm, pool, marks, weights, populations,
                                f"screen_{arm}{suffix}", ramp_steps=arguments.ramp,
+                               evaluate_every_mark=not arguments.no_eval,
                                flush_to=path, seed=arguments.seed,
                                split_late=arguments.split_late)
         # The per-frame rows live in the per-arm file; meta stays small enough to
@@ -514,7 +526,7 @@ def run_screen(arguments):
     if arguments.label:
         suffix = f"_{arguments.label}_seed{arguments.seed}"
     write_json(OUT / f"mh_screen_meta{suffix}.json", results)
-    log(f"-> {OUT / 'mh_screen_meta.json'}")
+    log(f"-> {OUT / f'mh_screen_meta{suffix}.json'}")
 
 
 def run_evaluate(arguments):
@@ -571,6 +583,14 @@ def main():
     parser.add_argument("--seed", type=int, default=CAP.SEED)
     parser.add_argument("--split-late", action="store_true",
                         help="two late blocks, one per branch (E3 architecture)")
+    parser.add_argument("--final-pool", action="store_true",
+                        help="train on all 40,000 BROAD frames "
+                             "(FINAL_SYNTH_TRAIN_V1). Off by default so every "
+                             "historical run reproduces unchanged.")
+    parser.add_argument("--no-eval", action="store_true",
+                        help="skip the per-mark population evaluation. "
+                             "Required with --final-pool: those populations "
+                             "are inside the training pool.")
     parser.add_argument("--label", default="",
                         help="suffix for outputs, so a longer schedule cannot "
                              "overwrite the 6,000-step screen it is testing")

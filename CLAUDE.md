@@ -115,6 +115,19 @@ Python + PyTorch + Isaac Sim + DOPE.
 - 긴 실험 착수 전 `_docs/handoff/{날짜}_{실험명}.md`에 확정 사실을 남겨
   compact 후에도 미지수 0에서 재개할 수 있게 한다
 
+## 실험 드라이버
+
+전역 규칙 `~/.claude/CLAUDE.md` 의 **"장시간 작업은 결과까지 자동으로"** 를 따른다
+(train → eval → verdict → notify 를 한 스크립트에서, 알림은 판정을 담는다).
+여기 복사해두지 않는다 — 두 벌이 갈라진다.
+
+이 프로젝트에 한정된 구체값만 적는다.
+
+- 완료 판정 = 결과 JSON 의 **최종 step 마크**(보통 `"3000"`) 존재 여부.
+- 사전등록 gate 를 verdict 스크립트에 하드코딩한다 — 결과를 보고 threshold 를 고치지 않는다.
+- 학습 스크립트는 `data/pallet/results/{실험}/` 에서 실행한다(`PURPOSE.md` 가 거기 있어야
+  `purpose_gate` 를 통과한다).
+
 ## Gotchas
 
 - Isaac Sim DLL 충돌: `CUDA_MODULE_LOADING=LAZY` + `PYTHONUNBUFFERED=1` 설정 필요

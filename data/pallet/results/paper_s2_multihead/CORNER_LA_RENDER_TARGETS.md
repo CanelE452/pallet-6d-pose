@@ -1,3 +1,8 @@
+> ⚠ **SUPERSEDED (2026-08-18)** — 이 문서의 cell 경계는 폐기된 yaw 규약으로
+> 그은 것이다(데이터셋 정의와 bin 일치율 51%). canonical yaw
+> `45 - facing_margin` 기준 재계산은 `RECHECK_CANONICAL_YAW_RESULT.md` 와
+> `corner_la_render_targets_canonical.json` 에 있다. 아래 장수는 사용하지 말 것.
+
 # CORNER-LA RENDER TARGETS — PHASE 8-10
 
 ```

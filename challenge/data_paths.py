@@ -55,6 +55,11 @@ EVAL_CANONICAL = {
 EVAL_CANONICAL_TOTAL = 161
 
 # lock §1.6 final-test — 위 정본의 부분집합. PL 풀에 넣으면 안 된다.
+# 2026-08-20 역할 변경: 이 4 세션 105장은 더 이상 final test 가 아니다.
+# 4-모델 비교(mc_geom / mc_hough)에서 열었고 재봉인 불가.
+# 새 이름은 REAL_CHALLENGE_DEV_105 — seed 비교·failure 진단에 쓴다.
+# 상수 이름 FINAL_TEST 는 기존 코드가 참조하므로 그대로 둔다.
+REAL_CHALLENGE_DEV_105_ROLE = "development (was FINAL_TEST until 2026-08-20)"
 FINAL_TEST = ("eval_pallet07", "eval_pallet09", "eval_night08", "eval_night09")
 
 # lock §1.6 filter-val 세션(threshold 캘리브에 쓰임). 정본에 남지만
