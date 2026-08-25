@@ -1,0 +1,97 @@
+{
+  "experiment": "ROOTCAUSE_FAST_SCREEN",
+  "frozen_at": "2026-08-24 07:32:34",
+  "arms": [
+    "B10",
+    "M10",
+    "T10"
+  ],
+  "epochs": 30,
+  "seed": 42,
+  "batch": 32,
+  "imgsz": 640,
+  "patience": 0,
+  "save_period": 10,
+  "init": "clean yolo26n-pose.pt",
+  "optimizer": {
+    "SGD": true,
+    "lr0": 0.01,
+    "lrf": 0.01,
+    "cos_lr": true,
+    "warmup_epochs": 3.0
+  },
+  "aug": {
+    "mosaic": 0.3,
+    "close_mosaic": 10,
+    "scale": 0.25,
+    "hsv": [
+      0.015,
+      0.5,
+      0.35
+    ],
+    "fliplr": 0.0,
+    "flipud": 0.0,
+    "erasing": 0.4
+  },
+  "loss": "STANDARD PoseLoss26 only",
+  "model_selection": "30ep LAST checkpoint (best.pt 금지 — arm 별 선택 epoch 차이 방지)",
+  "common_val": "V2 EARLY10K exact val (training health 전용, model selection 미사용)",
+  "primary_real": {
+    "membership": "SAME REAL n=128 (FT leak 12 제외 exact freeze)",
+    "recipe": "PAD100 BORDER_REFLECT_101, conf=0.001, top1 by box conf, IoU>=0.5"
+  },
+  "primary_metrics": {
+    "ALL": [
+      "top1_cbox",
+      "median",
+      "p90",
+      "gross20"
+    ],
+    "NIGHT": [
+      "any_cbox",
+      "top1_cbox",
+      "cand_per_frame",
+      "wrong_presence",
+      "margin",
+      "p90"
+    ]
+  },
+  "M10_matching_features": [
+    "r3d",
+    "elevation",
+    "bbox_size",
+    "visibility"
+  ],
+  "M10_forbidden_features": [
+    "RGB similarity",
+    "target texture",
+    "target asset id",
+    "target filename",
+    "appearance embedding"
+  ],
+  "T10_role": "target-specific DIAGNOSTIC only — paper proposed training 에 사용 금지",
+  "hash_namespaces": {
+    "T10": "ROOTCAUSE_T10_FAST_SEED42"
+  },
+  "decision_cases": [
+    "RENDER_SUPPORT",
+    "TARGET_RESIDUAL",
+    "BOTH",
+    "NO_TARGET_EFFECT"
+  ],
+  "render_actions": [
+    "KEEP_STOPPED",
+    "TARGETED_GENERIC_SUPPORT_ADDON",
+    "NO_RENDER_MOVE_TO_ADAPTATION"
+  ],
+  "forbidden": [
+    "RESUME_BROAD_V2_40K 자동 선택",
+    "4번째 arm",
+    "FT 2x2",
+    "self-training",
+    "KDM/NRL/PEVL",
+    "결과 보고 threshold 변경",
+    "matching feature 추가"
+  ],
+  "time_guard": "M10 matching 15분 초과 시 현재 best 근사로 freeze 후 학습 시작"
+}

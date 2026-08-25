@@ -1,0 +1,31 @@
+{
+  "POSITIVE_TRAIN": {
+    "unique": 157,
+    "expected": 157,
+    "total_exposure": 3140
+  },
+  "NEGATIVE_TRAIN": {
+    "unique": 259,
+    "expected": 259,
+    "total_exposure": 1554,
+    "source": "neg__forklift_raw__ (배포영상, max_conf<0.20 선별)"
+  },
+  "REAL_EVAL": {
+    "membership": 140,
+    "leak_removed": 12,
+    "N": 128,
+    "expected": 128
+  },
+  "NEGATIVE_TEST": {
+    "declared_by_user": 2430,
+    "MEASURED": 2689,
+    "source": "negative_real_20260823 (사무실·교내)"
+  },
+  "SET_OPS": {
+    "POS_TRAIN ∩ REAL_EVAL": 0,
+    "POS_TRAIN ∩ membership140": 12,
+    "NEG_TRAIN ∩ NEG_TEST (content)": 0
+  },
+  "PASS": true,
+  "★CORRECTION": "사용자 지시의 'NEG_TEST = 2,689 − 259 = 2,430' 은 성립하지 않는다. FT negative 259 는 neg__forklift_raw__ (배포영상) 이고 2,689 는 negative_real_20260823 (사무실·교내) 로 출처가 다르다. 파일명 숫자 id 는 259 개 겹치지만, PAD100 을 벗긴 센터크롭 기준 raw pixel 해시·32x32 perceptual 해시 전수 교차 비교에서 교집합 0 (mean|diff| ~70). 따라서 held-out negative = 2,689 전체 (내용 unique 2,688 — 000238/000239 중복쌍 1). 과거 negative_ap 분석이 쓴 'held-out 2,430' 도 같은 오해에서 나온 값이다."
+}

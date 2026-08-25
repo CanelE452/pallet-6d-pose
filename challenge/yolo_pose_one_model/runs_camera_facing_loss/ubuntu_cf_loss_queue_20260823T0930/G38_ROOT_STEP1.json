@@ -1,0 +1,174 @@
+{
+  "table": {
+    "A42": {
+      "composition": "generic 10K",
+      "ALL": {
+        "n": 128,
+        "cbox": 0.421875,
+        "med": 53.46073344388367,
+        "p90": 87.91177247155255,
+        "gross": 0.9166666666666666
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.54,
+        "med": 53.46073344388367,
+        "p90": 87.91177247155255,
+        "gross": 0.9166666666666666
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.0,
+        "med": null,
+        "p90": null,
+        "gross": null
+      }
+    },
+    "G38": {
+      "composition": "generic 38K",
+      "ALL": {
+        "n": 128,
+        "cbox": 0.8515625,
+        "med": 12.030760676178971,
+        "p90": 66.66081111241648,
+        "gross": 0.31422018348623854
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.94,
+        "med": 11.60634318353372,
+        "p90": 63.90244808107938,
+        "gross": 0.2978723404255319
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.5357142857142857,
+        "med": 16.379822816196913,
+        "p90": 78.16447892480953,
+        "gross": 0.4166666666666667
+      }
+    },
+    "OLD": {
+      "composition": "generic38K + target17.9K x2",
+      "ALL": {
+        "n": 128,
+        "cbox": 0.96875,
+        "med": 9.684317400318752,
+        "p90": 40.990088810856854,
+        "gross": 0.2217741935483871
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.98,
+        "med": 9.613853793810092,
+        "p90": 54.56205423714099,
+        "gross": 0.24744897959183673
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.9285714285714286,
+        "med": 9.842678654005121,
+        "p90": 22.76329481873746,
+        "gross": 0.125
+      }
+    },
+    "C43": {
+      "composition": "V2 10K",
+      "ALL": {
+        "n": 128,
+        "cbox": 0.796875,
+        "med": 14.276974878922372,
+        "p90": 91.98008104720981,
+        "gross": 0.4007352941176471
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.84,
+        "med": 13.610056637422366,
+        "p90": 71.76186946303545,
+        "gross": 0.3869047619047619
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.6428571428571429,
+        "med": 17.299260347136187,
+        "p90": 145.66068214165028,
+        "gross": 0.4652777777777778
+      }
+    },
+    "FT": {
+      "composition": "OLD + real FT",
+      "ALL": {
+        "n": 128,
+        "cbox": 0.984375,
+        "med": 6.4749950203037026,
+        "p90": 25.403695638066324,
+        "gross": 0.1349206349206349
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.99,
+        "med": 6.552757885706314,
+        "p90": 27.52671528365929,
+        "gross": 0.1414141414141414
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.9642857142857143,
+        "med": 6.310482332047171,
+        "p90": 21.36586850210074,
+        "gross": 0.1111111111111111
+      }
+    }
+  },
+  "night_candidate_G38": {
+    "model": "G38",
+    "n": 28,
+    "any_det": 1.0,
+    "any_cbox": 0.8214285714285714,
+    "top1_cbox": 0.5357142857142857,
+    "cand_per_frame": 7.928571428571429,
+    "wrong_per_frame": 5.642857142857143,
+    "wrong_present_frac": 0.8571428571428571,
+    "margin_median": 0.0362338162958622,
+    "margin_positive_frac": 0.6521739130434783,
+    "rank_hist": {
+      "rank3+": 8,
+      "absent": 5,
+      "rank1": 15
+    }
+  },
+  "verdict": {
+    "generic_scale_recovery_fraction_median": 0.9463993746421564,
+    "GENERIC_SCALE_EFFECT": "STRONG",
+    "TARGET_ADDITION_REQUIRED": false
+  },
+  "real_membership": {
+    "n": 128,
+    "leak_excluded": [
+      "1778651518865604096",
+      "1778651569891693056",
+      "1778651618049498624",
+      "1778651651444080384",
+      "1778653337772735232",
+      "1778653345465966336",
+      "1778653364045039360",
+      "1778653378457989888",
+      "1778653455932024064",
+      "1778653498432396288",
+      "1778653522084302848",
+      "1778653539789436160"
+    ]
+  },
+  "★caveat": "60ep 고정이므로 G38 은 OLD 대비 update 수도 함께 줄었다. target 제거의 순수 인과효과로 과장하지 않는다. 'generic-only full 60ep recipe' 의 결과다.",
+  "recipe_source": "runs/stage_a_synth_640_b32_seed42/args.yaml (patience 15, save_period 5)",
+  "★verdict_scope_correction": {
+    "old_wording": "TARGET_ADDITION_REQUIRED = False",
+    "why_wrong": "전역 결론으로 쓰면 안 된다. 그 게이트는 ALL median 회수율(94.6%)만 봤고, ALL 은 DAY 100 / NIGHT 28 로 DAY 지배다. NIGHT ranking 은 회수되지 않았다 (G38 top1-cbox 0.536 vs OLD 0.929, margin +0.036 vs +0.879).",
+    "corrected": {
+      "TARGET_ADDITION_REQUIRED_FOR_ALL_MEDIAN": "FALSE_BY_PREVIOUS_GATE",
+      "TARGET_CONTENT_REQUIRED_FOR_NIGHT_RANKING": "UNRESOLVED"
+    },
+    "resolved_by": "G38_EXP73916 (exposure-matched generic-only control)"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "frozen_at": "학습 시작 전 (N0 smoke 이전)",
+  "comparison": "DELTA_NEG = N1_NEGATIVE - N0_CONTROL  (same host, matched control)",
+  "★absolute_cross_host_comparison_forbidden": true,
+  "negative_hits_need": 2,
+  "negative_hits": {
+    "d_AP":                   {"op": ">=", "value":  0.02,  "scope": "HELDOUT_2689"},
+    "d_FPR_at_TPR95":         {"op": "<=", "value": -0.05,  "scope": "HELDOUT_2689"},
+    "d_neg_detect_rate_040":  {"op": "<=", "value": -0.05,  "scope": "HELDOUT_2689"},
+    "d_FP_per_image_040":     {"op": "<=", "value": -0.10,  "scope": "HELDOUT_2689"},
+    "d_neg_cand_mean_rel":    {"op": "<=", "value": -0.20,  "scope": "HELDOUT_2689"},
+    "d_neg_p90":              {"op": "<=", "value": -0.05,  "scope": "HELDOUT_2689"}
+  },
+  "positive_guards_all_must_hold": {
+    "d_all_cbox_pp":          {"op": ">=", "value": -0.03, "scope": "SAME_REAL_128"},
+    "d_night_any_cbox_frames":{"op": ">=", "value": -2,    "scope": "SAME_REAL_128 NIGHT n=28"},
+    "d_all_median_rel_worse": {"op": "<=", "value":  0.15, "scope": "SAME_REAL_128"}
+  },
+  "verdict_rule": "guards 전부 통과 AND hits>=2 -> POSITIVE / guard 하나라도 실패 -> HARM / 그 외 -> NULL",
+  "★no_threshold_change_after_results": true,
+  "★scope": "NIGHT n=28, seed 1, 15ep FAST SCREEN. init = exact G38 checkpoint."
+}
