@@ -73,6 +73,47 @@ def main():
     ok &= check("T14 완전분리 AP = 1",
                 RM.average_precision([0.9, 0.8, 0.2, 0.1], [1, 1, 0, 0]), 1.0)
 
+    # ADD / ADD-S AUC  (임계 선택 없는 pose 지표)
+    #   diameter 1.0, limit = 0.1  ->  accuracy(tau) 의 [0,0.1] 평균
+    ok &= check("T15 전부 0 오차면 AUC = 1",
+                RM.pose_auc([0.0, 0.0, 0.0], 1.0), 1.0)
+    ok &= check("T16 전부 limit 초과면 AUC = 0",
+                RM.pose_auc([0.5, 0.5], 1.0), 0.0)
+    #   절반은 0, 절반은 limit 초과  ->  accuracy 가 전 구간 0.5
+    ok &= check("T17 절반만 완벽하면 AUC = 0.5",
+                RM.pose_auc([0.0, 0.5], 1.0), 0.5)
+    #   단일 오차 e 는 tau >= e 에서만 1  ->  면적 = (limit - e)/limit
+    #   e = 0.04, limit = 0.1  ->  0.6  (격자 이산화 오차만큼 허용)
+    #   이산 격자라 잔차 O(1/n_steps) 가 남는다 — 해석해에 그만큼 tol 을 준다
+    ok &= check("T18 단일 오차 0.04 -> AUC = 0.6",
+                RM.pose_auc([0.04], 1.0, n_steps=100001), 0.6, tol=1e-4)
+    #   diameter 가 커지면 같은 오차가 더 관대하게 채점된다
+    ok &= (RM.pose_auc([0.04], 2.0) > RM.pose_auc([0.04], 1.0))
+    print(f"{'OK ' if RM.pose_auc([0.04], 2.0) > RM.pose_auc([0.04], 1.0) else 'FAIL'}"
+          " T19 diameter 가 크면 같은 오차의 AUC 가 크다")
+    ok &= check("T20 model_diameter = 최대 두 점 거리",
+                RM.model_diameter([[0, 0, 0], [3, 4, 0]]), 5.0)
+    #   최대는 원점에서가 아니라 (3,4,0)-(0,0,1) = sqrt(26) 이다
+    ok &= check("T21 model_diameter 는 원점 기준이 아니다",
+                RM.model_diameter([[0, 0, 0], [3, 4, 0], [0, 0, 1]]),
+                float(np.sqrt(26)))
+
+    # yaw — 팔레트 up 축(local Y) 둘레 상대회전
+    def rot_y(deg):
+        a = np.radians(deg)
+        return np.array([[np.cos(a), 0, np.sin(a)], [0, 1.0, 0],
+                         [-np.sin(a), 0, np.cos(a)]])
+    ok &= check("T22 동일 자세면 yaw = 0", RM.yaw_error(I, I), 0.0)
+    ok &= check("T23 up 축 30도 회전 -> yaw 30",
+                RM.yaw_error(rot_y(30), I), 30.0)
+    ok &= check("T24 180도 face flip -> yaw 180",
+                RM.yaw_error(rot_y(180), I), 180.0)
+    #   부호 무관 — 절대값으로 낸다
+    ok &= check("T25 -30도도 30 으로 낸다", RM.yaw_error(rot_y(-30), I), 30.0)
+    #   up 축이 아닌 축(roll, local Z) 회전은 yaw 에 들어오지 않는다
+    ok &= check("T26 local Z 회전은 yaw 에 안 샌다",
+                RM.yaw_error(rot_z(40), I), 0.0)
+
     print(f"\nALL_PASS = {bool(ok)}")
     if not ok:
         raise SystemExit(1)

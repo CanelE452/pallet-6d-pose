@@ -118,6 +118,17 @@ catastrophic rate  = 9kp err > 40px
 ```
 
 ### 2.3 Pose layer **[LOCKED] (dims known 전제)**
+
+> **[개정 2026-08-26]** 보고 지표에서 `5cm5° / 10cm10°` 를 내리고 `ADD / ADD-S AUC`
+> 와 `AP` 를 올린다. 사유 두 가지 —
+> ① `audit_20260821T1716` 판정: evaluator 가 GT 라벨의 `dimensions_m` 에서 **프레임별
+>    W/D 축 배정**을 받아 90° yaw 구분을 대신 풀어준다. 배포 가능 정보만 쓰면
+>    161장 기준 30.4% → 19.3%. 임계형 지표라 이 누수가 그대로 통과한다.
+> ② 임계(5cm/5°)를 결과를 본 뒤에 고를 수 있다. AUC 는 임계 선택이 없어 그 여지가 없다.
+> 구현 = `scripts/stage0/real_eval/re_metrics.py::pose_auc` (해석해 테스트 T15~T21 통과).
+> `success_5cm5deg()` 함수는 **지우지 않는다** — 42개 모듈이 호출하고 과거 결과 파일의
+> 재현성이 걸려 있다. deprecated 주석만 달았고, **표에는 싣지 않는다.**
+
 ```
 translation error |t_pred - t_gt|  (cm)
 lateral error     sqrt(x²+y²) 또는 fork-entry lateral 성분  (cm)
@@ -125,7 +136,10 @@ depth error       |z|  (cm)   ← monocular 약점 드러나는 축, 별도 보�
 rotation error    geodesic angle  (deg)
 yaw error         pallet/fork alignment yaw 성분  (deg)
 ADD / ADD-S       domain-correct dims 사용 (§3.2)
-5cm5° / 10cm10°
+ADD AUC / ADD-S AUC   ★headline. 0 ~ 0.1×diameter 구간 accuracy 곡선 면적 (YCB-Video 표준)
+3D IoU            exact oriented-box (half-space 12개 + Chebyshev LP + ConvexHull. 근사 아님)
+AP                precision-recall 곡선 면적 (rank interpolation)
+5cm5° / 10cm10°   ⛔ 개정 2026-08-26 — 보고 금지. 함수는 호환 목적으로만 존속
 ```
 > known-dims가 ADD뿐 아니라 monocular cm-translation 주장의 전제 — PnP가 scale을 고정해 depth를
 > 제약. 서론에 가정으로 명시(창고 파렛트=규격품).

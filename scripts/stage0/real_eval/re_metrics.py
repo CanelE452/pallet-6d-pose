@@ -1,4 +1,5 @@
-"""Evaluators for REAL IN-HOUSE evaluation: ADD / ADD-S, exact 3D IoU, AP.
+"""Evaluators for REAL IN-HOUSE evaluation: ADD / ADD-S (+ AUC), R and t
+error, exact 3D IoU, AP.
 
 `mh_fusion.run_eval` records that oriented-box 3D IoU was NOT_COMPUTED because
 "an approximation would be a wrong number under a right name".  This module
@@ -51,8 +52,62 @@ def pose_error(R_pred, t_pred, R_gt, t_gt):
 
 
 def success_5cm5deg(R_pred, t_pred, R_gt, t_gt):
+    """DEPRECATED for reporting (2026-08-26).  Kept because 42 modules call it
+    and past result files must stay reproducible.  Do not put it in a table:
+    the evaluator receives the per-frame W/D axis assignment from the GT label,
+    so this number has the 90-degree yaw decision solved for it
+    (audit_20260821T1716).  Report ADD / ADD-S AUC instead.
+    """
     degrees, metres = pose_error(R_pred, t_pred, R_gt, t_gt)
     return bool(degrees <= 5.0 and metres <= 0.05)
+
+
+
+def model_diameter(model_points):
+    """Largest pairwise distance in the model, the AUC threshold unit."""
+    p = np.asarray(model_points, float)
+    d = np.linalg.norm(p[:, None, :] - p[None, :, :], axis=2)
+    return float(d.max())
+
+
+def pose_auc(errors, diameter, max_fraction=0.1, n_steps=100):
+    """Area under the accuracy-threshold curve for ADD or ADD-S (YCB-Video).
+
+    `errors` are ADD (or ADD-S) values in the same unit as `diameter`.  The
+    curve is accuracy(tau) for tau in [0, max_fraction * diameter], and the
+    area is normalised by that span so the result is in [0, 1].
+
+    This replaces 5cm5deg as the headline pose number: it needs no threshold
+    choice, so it cannot be tuned after seeing the results.
+    """
+    e = np.asarray(errors, float)
+    if e.size == 0:
+        return 0.0
+    limit = float(max_fraction) * float(diameter)
+    if limit <= 0:
+        return 0.0
+    taus = np.linspace(0.0, limit, int(n_steps))
+    acc = np.array([float((e <= tau).mean()) for tau in taus])
+    area = float(np.sum(0.5 * (acc[:-1] + acc[1:]) * np.diff(taus)))
+    return area / limit
+
+
+
+def yaw_error(R_pred, R_gt):
+    """Rotation about the pallet's own up axis, in degrees.
+
+    `metric_split_lock.md` 2.4 puts fork-pocket alignment on lateral + yaw, so
+    the yaw wanted here is the component the fork actually cares about: how far
+    the front face is turned away from the GT one, about the pallet's vertical.
+
+    The cuboid local frame is X=right, Y=down, Z=forward
+    (`annotate_pnp.make_pallet_keypoints_3d_diagram`), so that vertical is the
+    local Y and the relative rotation R_gt.T @ R_pred is decomposed about it.
+    A 180-degree face flip -- the failure this task actually produces -- shows
+    up here as ~180, not as a small number.
+    """
+    rel = np.asarray(R_gt, float).T @ np.asarray(R_pred, float)
+    return float(abs(np.degrees(np.arctan2(rel[0, 2], rel[2, 2]))))
 
 
 # --------------------------------------------------------------------------

@@ -1,0 +1,29 @@
+{
+ "calibration_batch": {
+  "positive": 30,
+  "hard_negative": 2,
+  "source": "synthetic only — real 사용 금지(spec 13)",
+  "device": "cpu fp32 — 아래 note 참조"
+ },
+ "positive_stock_cls_grad_norm": 31.11645429140803,
+ "mixed_positive_term_grad_norm": 65.77165532769052,
+ "negative_focal_term_grad_norm(lambda=1)": 7.546489899944969e-06,
+ "ratio_r": 2.42524094463704e-07,
+ "target_ratio": 0.1,
+ "lambda_neg": 412330.1654671921,
+ "note": "lambda_neg = 0.10 / r.  10ep 결과 보고 수정 금지.  CPU fp32 에서 쟀다 — 학습은 AMP 라 fp32 batch32 가 10GB 에 안 들어간다. 배치 구성(30+2)은 spec 13 대로 유지했다.",
+ "REGIME_AT_INIT": {
+  "ratio_r": 2.42524094463704e-07,
+  "lambda_neg": 412330.1654671921
+ },
+ "REGIME_AT_Y0": {
+  "regime": "Y0 checkpoint — 학습이 실제로 도달하는 상태",
+  "positive_stock_cls_grad_norm": 4.536516363865351,
+  "negative_focal_term_grad_norm_lambda1": 0.0017746713692396805,
+  "ratio_r": 0.0003911969508972667,
+  "lambda_neg": 255.62571428697376
+ },
+ "FIXED_LAMBDA_NEG": 255.62571428697376,
+ "fixed_regime": "Y0",
+ "decision": "보정 시점에 따라 lambda 가 1,600배 갈렸다(init 412,330 vs Y0 255.6). init 은 모델이 negative 에 거의 반응하지 않는 상태라 10% 를 맞추려면 lambda 가 폭주하고, 학습이 진행되면 발산한다. 모델이 실제로 도달하는 Y0 regime 을 기준으로 잡았다. 사용자 결정. 학습 전 고정이며 이후 수정 금지."
+}

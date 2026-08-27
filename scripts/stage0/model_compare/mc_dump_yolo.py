@@ -31,6 +31,10 @@ MODELS = {
                   "pallet-pose-yolo26n-ft/pallet_yolo26n_pose_ft.pt",
     "yolo26m_ft": "challenge/yolo_pose_one_model/release/"
                   "pallet-pose-yolo26m-ft/pallet_yolo26m_pose_ft.pt",
+    # 2026-08-26 반입 (Windows 학습, G38 negative 대조쌍).  같은 레시피로 덤프해야
+    # 기존 4종과 한 표에 놓을 수 있다 — 카드의 자체 수치는 다른 셋·다른 자다.
+    "Y0E": "challenge/yolo_pose_one_model/runs_neg_g38/Y0E/weights/best.pt",
+    "YN": "challenge/yolo_pose_one_model/runs_neg_g38/YN/weights/best.pt",
 }
 
 
