@@ -1,5 +1,27 @@
 # 논문 문서 — 정본
 
+> **2026-08-27 real-evaluation contract update:** the paper pipeline is YOLO-based.
+> DOPE is comparison/legacy code, not the adopted pipeline. For real GT, population,
+> pose gating, and comparison tables, the current sources of truth are
+> `real_gt_v2/`, `evaluation_tables/`, and `current_real_dataset/`. Older 161-frame
+> and historical "final-test" statements later in this file are retained only as
+> development history and are superseded: the current reviewed data is DEV 140,
+> common comparison DEV 128, real-negative DEV 2,689, and untouched FINAL
+> membership is not yet available.
+
+> **2026-08-27 yaw-symmetry decision:** the benchmark treats canonical yaw 0°
+> and 180° as one pose class. The contract is frozen as restricted ADD-S in
+> `real_gt_v2/SYMMETRY_SPEC.md`; this is an evaluation assumption, not a claim
+> that every physical instance was independently inspected. Canonical migration
+> now passes as 140 equivalence classes. Pose columns remain blocked by the
+> unrun W/D-parity selector diagnostic and unavailable untouched FINAL data.
+
+> **2026-08-27 GT annotation QA:** 23 confirmed-invalid JSON labels were moved
+> to a recoverable quarantine while all source images were retained. Of these,
+> 21 were removed from the raw legacy eval scan (161 → clean 140), and two
+> were stale duplicates whose good canonical copies remain. The exact paths,
+> SHA-256 values, and clickable image index are in `real_gt_v2/GT_QA_STATUS.md`.
+
 이 폴더가 **논문에 들어갈 내용의 정본**이다. 2026-08-17 개설.
 
 > ⚠️ `_docs/` 의 다른 폴더(`method/`, `models/`, `experiments/`, `filter/`)는
@@ -23,12 +45,15 @@
 
 ```
 architecture.md    2-head 아키텍처와 그 선택의 근거 (E0~E4, 25k×2seed)   ★확정
+current_real_dataset/       현재 real DEV 데이터 계약
+real_gt_v2/                 canonical frame·GT v2·pose gate 정본
+evaluation_tables/          비교 protocol·빈 paper table
 ```
 
 아직 안 쓴 절(쓸 때 이 폴더에 만든다):
 
 ```
-evaluation.md      평가 프로토콜 — 정본 161장, metric 정의, split 봉인
+evaluation.md      평가 프로토콜 — GT v2 population·gate·metric 정의
 data.md            합성 데이터(v2_prod40k_clean_merged)와 real capture 의 분포 차이
 selftraining.md    필터·PL — 현 시점 판정은 "2D 기하 dims-free 필터는 원리적 불가"
 results.md         최종 수치표
@@ -38,28 +63,26 @@ results.md         최종 수치표
 
 ## 지금 유효한 사실 (옛 문서와 충돌하면 이쪽이 맞다)
 
-### 평가셋
+### 현재 real evaluation population contract (2026-08-27)
 
-`objects[0].split == "eval"` 인 manual GT **161장**(7폴더). 경로는
-`challenge/data_paths.py` 의 `EVAL_CANONICAL` 을 import 한다 — 문자열로 다시 쓰지 않는다.
+현재 계약은 `challenge/real_gt_v2/manifests/`의 명시적 membership만 사용한다.
 
-```
-01_real/eval_canonical/_outside_eval_manual_gt         22
-01_real/eval_canonical/capture0403noapril_manual_gt    12
-01_real/eval_canonical/capturepalletcad_manual_gt      22
-01_real/manual_gt/capturepallet07_manual_gt            27   ★final-test
-01_real/manual_gt/capturepallet09_manual_gt            36   ★final-test
-01_real/manual_gt/capturenight08_manual_gt             17   ★final-test
-01_real/manual_gt/capturenight09_manual_gt             25   ★final-test
-                                                      합 161
+```text
+DEV_POS140          140  development/diagnostic only
+COMMON_DEV_POS128   128  fair DEV model comparison positive
+DEV_NEG2689        2689  fair DEV model comparison negative
+FINAL_POS             0  UNAVAILABLE / not frozen
+FINAL_NEG             0  UNAVAILABLE / not frozen
 ```
 
-- 옛 문서의 **"56장" 은 폐기된 수치**다(07-3x 기준). 08-07/08-08 에 final-test 4세션을
-  봉인 해제해 정본에 편입했다.
-- ★final-test 4개는 **threshold 튜닝·모델 선택 금지**(봉인 소진, 재봉인 불가).
-- `data/_eval_sets/*combined` 는 구본이라 **평가·진단·probe 모두 금지**.
-  여기서 subset 을 뽑아 판정 4건이 뒤집힌 이력이 있다.
-- 상세: `_docs/EVAL_SET_CANONICAL.md`, 테스트 `challenge/tests/test_eval_set_canonical.py`.
+DEV paper-comparison pair는 `COMMON_DEV_POS128 + DEV_NEG2689`뿐이다. DEV로
+selector·symmetry·threshold를 고른 뒤 FINAL 성능처럼 보고하면 안 된다. FINAL
+membership이 아직 없으므로 untouched final-test 수치도 아직 없다. 상세 계약은
+`real_gt_v2/`와 `evaluation_tables/`를 따른다.
+
+**HISTORICAL / SUPERSEDED:** 이전 README가 정본이라고 부르던 161장 구성과 네
+세션의 `★final-test` 표기는 폐기된 계약이다. 그 수치와 `challenge/data_paths.py`의
+legacy aggregate를 현재 population 또는 FINAL membership으로 사용하지 않는다.
 
 ### Keypoint convention
 

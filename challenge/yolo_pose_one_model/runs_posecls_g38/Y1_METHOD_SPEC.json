@@ -1,0 +1,27 @@
+{
+  "name": "Y1_POSEAWARE_CLS",
+  "run": "Y26_G38_Y1_POSEAWARE_CLS_30EP_SEED42",
+  "module": "pallet_yolo_loss/posecls.py::PoseAwareClsLoss26",
+  "changes": {
+    "architecture": 0, "assigner": 0, "bbox_loss": 0, "dfl": 0,
+    "keypoint_coord_loss": 0, "rle_sigma_loss": 0, "augmentation": 0,
+    "classification_objective": 1
+  },
+  "q_pose": {
+    "formula": "q_pose = sum(valid_j * exp(-e_j)) / max(sum(valid_j), 1)",
+    "e_source": "stock KeypointLoss: e = d / ((2*sigmas)^2 * (area+1e-9) * 2)",
+    "sigmas": "stock self.keypoint_loss.sigmas — 새 sigma table 없음",
+    "range": "[0, 1]",
+    "detached": true,
+    "uses": ["2D keypoint GT"],
+    "never_uses": ["PnP", "6D pose GT", "pose_transform", "pallet dimensions", "real data"]
+  },
+  "target": "t_pose = detach(t_det) * detach(q_pose)",
+  "loss": "L_align = |t_pose - sigmoid(logit)|^gamma * BCEWithLogits(logit, t_pose), fg only, /target_scores_sum",
+  "gamma": 2.0,
+  "lambda_posealign": 0.25,
+  "assembly": "loss[3] += hyp.cls * 0.25 * L_align   (표준 cls 와 동일 scale, 이중 weight 없음)",
+  "branches": "one2many / one2one 각각 독립 인스턴스 — assignment 공유 없음",
+  "frozen_before_results": true,
+  "lambda_change_after_results": "FORBIDDEN"
+}

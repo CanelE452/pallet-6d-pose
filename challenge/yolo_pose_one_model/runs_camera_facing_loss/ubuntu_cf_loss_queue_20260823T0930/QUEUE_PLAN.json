@@ -1,0 +1,36 @@
+{
+  "queue": [
+    "U0_DATA",
+    "U1_CF_A0",
+    "U1E_A0_EVAL",
+    "U2_CF_NRL",
+    "U2E_NRL_EVAL",
+    "U2S_NRL_SEED43",
+    "U3_CF_PEVL",
+    "U3E_PEVL_EVAL",
+    "U3S_PEVL_SEED43",
+    "U4_AUDIT"
+  ],
+  "conditions": {
+    "U2S": "CF_NRL_SIGNAL in {REAL_POSITIVE, REAL_POSITIVE_UNCERTAIN}",
+    "U3": "CF_NRL_SIGNAL in {FAIL, SYNTHETIC_ONLY_POSITIVE}",
+    "U3S": "CF_PEVL_SIGNAL in {REAL_POSITIVE, REAL_POSITIVE_UNCERTAIN}"
+  },
+  "fatal_only": [
+    "source SHA 변조",
+    "membership 불일치",
+    "반복 OOM",
+    "Standard baseline 에서 NaN",
+    "Standard baseline 실패(parity 불가)"
+  ],
+  "forbidden": [
+    "fixed-object 신규 run",
+    "fixed 결과를 CF 표에 재사용",
+    "TAKL/A2/ASC 재실행",
+    "새 RGB 렌더",
+    "result 기반 lambda/beta 조정",
+    "candidate 별 다른 real membership",
+    "GT-dependent W/D selector"
+  ],
+  "completion": "results.csv 60행 + last.pt + VERDICT.json 로만 판정"
+}

@@ -8,7 +8,7 @@ real 157장은 합성 73,916장의 0.2% 다. 그대로 이어붙이면 매 epoch
 (build_stage_dataset.py 와 같은 방식).
 
 val 은 합성 val 에서만 뽑는다. real 을 val 로 쓰면 그게 model selection 에 들어가는데,
-정본 161장은 평가 전용이고 final-test 4세션은 model selection 자체가 금지다.
+GT-QA clean 정본 140장은 평가 전용이고 관련 4세션은 model selection 자체가 금지다.
 최종 판정은 학습 후 runs_ft/PURPOSE.md 의 지표 3종으로 따로 한다.
 
 사용:

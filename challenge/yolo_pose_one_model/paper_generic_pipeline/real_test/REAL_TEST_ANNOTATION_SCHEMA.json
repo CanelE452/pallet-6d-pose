@@ -1,0 +1,58 @@
+{
+ "schema": "REAL_TEST_ANNOTATION_V1",
+ "convention": {
+  "keypoint": "camera-facing 0123 — 0~3 앞면, {0,1,4,5} 위, {2,3,6,7} 아래, 8 centroid",
+  "camera": "OpenCV pinhole",
+  "units": "m / px / deg"
+ },
+ "per_frame": {
+  "frame_id": "str",
+  "session_id": "str",
+  "image": "str",
+  "intrinsics": {
+   "fx": null,
+   "fy": null,
+   "cx": null,
+   "cy": null,
+   "source": "calibration|exif|null — 추정치 금지"
+  },
+  "corners_2d": [
+   {
+    "index": "0..7",
+    "u": null,
+    "v": null,
+    "visible": "bool",
+    "absent_reason": "occluded|truncated|null"
+   }
+  ],
+  "n_clicked": "int — 4 미만이면 폐기",
+  "dimensions_m": {
+   "width": null,
+   "height": null,
+   "depth": null,
+   "source": "measured|spec"
+  },
+  "pose": {
+   "R_gt": "3x3",
+   "t_gt": "[x,y,z]",
+   "solver": "IPPE|EPnP_RANSAC",
+   "refined": "bool",
+   "reprojection_rmse_px": null
+  },
+  "overlay_review": {
+   "reviewer": "",
+   "approved": null
+  },
+  "double_annotation": {
+   "is_double": false,
+   "annotator": "",
+   "partner_ref": null
+  }
+ },
+ "forbidden": [
+  "안 보이는 코너를 추정해서 클릭",
+  "intrinsics 를 모르면서 채우기",
+  "부분적으로 보이는 팔레트를 negative 로 넣기",
+  "overlay 검수 없이 승인"
+ ]
+}

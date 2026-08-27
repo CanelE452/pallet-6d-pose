@@ -64,9 +64,89 @@ if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 from convert_to_camera_facing_v4 import compute_perm_v4 as _compute_perm_v4_z_height
 
+try:
+    from pallet_geometry import (
+        AxisAssignment,
+        PhysicalDimensionsXYZ,
+        camera_facing_dimensions,
+        canonical_dimensions,
+    )
+except ImportError:  # Keep legacy standalone tools usable during staged rollout.
+    AxisAssignment = None
+    PhysicalDimensionsXYZ = None
+    camera_facing_dimensions = None
+    canonical_dimensions = None
+
 
 # (width, depth, height) — 실측 사용자 plastic 팔레트 110 × 130 × 11 cm
 PALLET_DIMS = (1.1, 1.3, 0.11)
+
+
+def _axis_name(value):
+    return str(getattr(value, "value", value))
+
+
+def _physical_xyz_dict(value):
+    if value is None:
+        return None
+    if hasattr(value, "x_m"):
+        return {"x": float(value.x_m), "y": float(value.y_m), "z": float(value.z_m)}
+    if isinstance(value, dict):
+        return {"x": float(value["x"]), "y": float(value["y"]), "z": float(value["z"])}
+    values = np.asarray(value, dtype=np.float64).reshape(-1)
+    if len(values) != 3:
+        raise ValueError("physical_dimensions must be PhysicalDimensionsXYZ or (x, y, z)")
+    return {"x": float(values[0]), "y": float(values[1]), "z": float(values[2])}
+
+
+def default_physical_dimensions():
+    """Fixed physical pallet dimensions used by the v2 annotation path.
+
+    ``PALLET_DIMS`` remains as a compatibility shim for historical wood-pallet
+    callers, but new paper GT code passes this named physical object explicitly.
+    """
+    if canonical_dimensions is not None:
+        return canonical_dimensions()
+    if PhysicalDimensionsXYZ is not None:
+        return PhysicalDimensionsXYZ(x_m=1.1, y_m=0.11, z_m=1.3)
+    return (1.1, 0.11, 1.3)
+
+
+def _physical_wd_hypotheses(physical_dimensions):
+    """Return both camera-facing parity hypotheses from one fixed object."""
+    physical = _physical_xyz_dict(physical_dimensions)
+    if physical is None:
+        raise ValueError("physical_dimensions is required")
+    expected = {"x": 1.1, "y": 0.11, "z": 1.3}
+    if canonical_dimensions is not None:
+        expected = _physical_xyz_dict(canonical_dimensions())
+    if any(not np.isclose(physical[axis], expected[axis], rtol=0.0, atol=1e-12)
+           for axis in ("x", "y", "z")):
+        raise ValueError(
+            "paper GT physical_dimensions are immutable canonical X/Y/Z "
+            f"{expected}; use legacy dims=(W,D,H) only for non-paper tools")
+    if AxisAssignment is not None and camera_facing_dimensions is not None:
+        axes = (AxisAssignment.YAW_0, AxisAssignment.YAW_90)
+        camera_dims = [camera_facing_dimensions(axis) for axis in axes]
+        dims = [(float(item.width_m), float(item.depth_m), float(item.height_m))
+                for item in camera_dims]
+    else:
+        axes = ("YAW_0", "YAW_90")
+        dims = [(physical["x"], physical["z"], physical["y"]),
+                (physical["z"], physical["x"], physical["y"])]
+    signed = (("YAW_0", "YAW_180"), ("YAW_90", "YAW_270"))
+    labels = ("short_face_front", "long_face_front")
+    return [
+        {
+            "legacy_hypothesis": "as_given" if index == 0 else "swapped",
+            "camera_facing_hypothesis": labels[index],
+            "axis_assignment": _axis_name(axis),
+            "axis_assignment_candidates": list(signed[index]),
+            "dims": dims[index],
+            "physical_dimensions_m": dict(physical),
+        }
+        for index, axis in enumerate(axes)
+    ]
 
 
 def make_pallet_keypoints_3d_diagram(width=1.1, depth=1.3, height=0.11):
@@ -823,7 +903,8 @@ def _finalize_pose_candidate(pose, kps_2d, K, extrapolated_mask):
 def solve_pose_candidates(kps_2d, K, dims=None, extrapolated_mask=None,
                           img_shape=None, keypoint_weights=None,
                           keypoint_uncertainties=None, auto_swap_dims=True,
-                          weight_extrapolated_in_refine=False):
+                          weight_extrapolated_in_refine=False,
+                          physical_dimensions=None):
     """Return the complete as-given and W/D-swapped PnP candidates.
 
     Unlike historical ``solve_pose``, an explicit ``dims=(W,D,H)`` is now
@@ -835,14 +916,45 @@ def solve_pose_candidates(kps_2d, K, dims=None, extrapolated_mask=None,
     ``keypoint_uncertainties`` (sigma, smaller is better) are mutually
     exclusive and affect both LM refinement and candidate scoring.
     """
-    base_dims = _validated_dims(PALLET_DIMS if dims is None else dims)
-    hypotheses = [("as_given", base_dims)]
-    swapped_dims = (base_dims[1], base_dims[0], base_dims[2])
-    if auto_swap_dims and not np.allclose(base_dims, swapped_dims):
-        hypotheses.append(("swapped", swapped_dims))
+    if physical_dimensions is not None and dims is not None:
+        raise ValueError(
+            "pass either named physical_dimensions or legacy dims=(W,D,H), not both")
+    if physical_dimensions is not None:
+        hypotheses = _physical_wd_hypotheses(physical_dimensions)
+        if not auto_swap_dims:
+            hypotheses = hypotheses[:1]
+    else:
+        # Compatibility-only path.  New paper GT callers pass the immutable,
+        # named physical object above and never obtain dimensions from this
+        # mutable module global.
+        base_dims = _validated_dims(PALLET_DIMS if dims is None else dims)
+        physical = {
+            "x": float(base_dims[0]),
+            "y": float(base_dims[2]),
+            "z": float(base_dims[1]),
+        }
+        hypotheses = [{
+            "legacy_hypothesis": "as_given",
+            "camera_facing_hypothesis": "short_face_front",
+            "axis_assignment": "YAW_0",
+            "axis_assignment_candidates": ["YAW_0", "YAW_180"],
+            "dims": base_dims,
+            "physical_dimensions_m": physical,
+        }]
+        swapped_dims = (base_dims[1], base_dims[0], base_dims[2])
+        if auto_swap_dims and not np.allclose(base_dims, swapped_dims):
+            hypotheses.append({
+                "legacy_hypothesis": "swapped",
+                "camera_facing_hypothesis": "long_face_front",
+                "axis_assignment": "YAW_90",
+                "axis_assignment_candidates": ["YAW_90", "YAW_270"],
+                "dims": swapped_dims,
+                "physical_dimensions_m": physical,
+            })
 
     candidates = []
-    for hypothesis, candidate_dims in hypotheses:
+    for hypothesis in hypotheses:
+        candidate_dims = _validated_dims(hypothesis["dims"])
         pose = _solve_pose_single(
             kps_2d, K, candidate_dims,
             extrapolated_mask=extrapolated_mask,
@@ -853,7 +965,16 @@ def solve_pose_candidates(kps_2d, K, dims=None, extrapolated_mask=None,
         )
         if pose is None:
             continue
-        pose["_wd_hypothesis"] = hypothesis
+        pose["_wd_hypothesis"] = hypothesis["legacy_hypothesis"]
+        pose["_camera_facing_hypothesis"] = hypothesis["camera_facing_hypothesis"]
+        # This is the parity representative used by PnP, not a signed
+        # canonical-pose decision.  The UI must confirm one of the two
+        # explicitly retained signed candidates.
+        pose["_axis_assignment"] = hypothesis["axis_assignment"]
+        pose["_axis_assignment_candidates"] = list(
+            hypothesis["axis_assignment_candidates"])
+        pose["_physical_dimensions_m"] = dict(
+            hypothesis["physical_dimensions_m"])
         candidates.append(_finalize_pose_candidate(
             pose, kps_2d, K, extrapolated_mask))
     return candidates
@@ -872,6 +993,12 @@ def _pose_rank_key(pose):
 def _pose_candidate_summary(pose):
     return {
         "hypothesis": pose.get("_wd_hypothesis", "as_given"),
+        "camera_facing_hypothesis": pose.get("_camera_facing_hypothesis"),
+        "axis_assignment": pose.get("_axis_assignment"),
+        "axis_assignment_candidates": list(
+            pose.get("_axis_assignment_candidates", [])),
+        "physical_dimensions_m": dict(
+            pose.get("_physical_dimensions_m", {})),
         "dims": tuple(float(v) for v in pose["dims"]),
         "selection_reproj_error_px": float(
             pose.get("_selection_reproj_error_px", pose["reproj_error_px"])),
@@ -963,7 +1090,61 @@ def _select_pose_candidate(candidates, wd_ambiguity_abs_px=0.5,
     best["_wd_prior_used"] = prior_used
     best["_wd_prior_resolved_ambiguity"] = bool(ambiguous and prior_used)
     best["_wd_legacy_hypothesis"] = legacy_best.get("_wd_hypothesis")
+    if len(candidates) == 1:
+        best["_wd_selection_reason"] = "only_valid_hypothesis"
+    elif prior_used:
+        best["_wd_selection_reason"] = "geometry_tie_prior"
+    elif ambiguous:
+        best["_wd_selection_reason"] = "geometry_rank_ambiguous"
+    else:
+        best["_wd_selection_reason"] = "geometry_rank_clear"
     return best
+
+
+def _apply_camera_facing_hypothesis_override(candidates, selected, override):
+    """Apply an explicit human annotation-time W/D parity correction.
+
+    This override is deliberately separate from the GT-free paper selector.
+    It exists only so the annotation UI can correct which physical face is in
+    front before the annotator chooses a signed candidate within that parity.
+    """
+    if override is None or selected is None:
+        return selected
+    allowed = {"short_face_front", "long_face_front"}
+    if override not in allowed:
+        raise ValueError(
+            "camera_facing_hypothesis_override must be short_face_front or "
+            "long_face_front")
+    matches = [
+        pose for pose in candidates
+        if pose.get("_camera_facing_hypothesis") == override
+    ]
+    if not matches:
+        # The requested parity may have failed PnP.  Fail visibly without
+        # replacing the valid automatic pose by None.
+        result = dict(selected)
+        result["_wd_manual_override_requested"] = override
+        result["_wd_manual_override_available"] = False
+        return result
+
+    automatic = selected
+    result = dict(matches[0])
+    aggregate_keys = (
+        "_wd_ambiguous", "_wd_competing_quality_tier", "_wd_score_gap_px",
+        "_wd_error_ratio", "_wd_ambiguity_threshold_px", "_wd_candidates",
+        "_wd_n_candidates", "_wd_as_given_prob", "_wd_prior_confidence",
+        "_wd_prior_min_confidence", "_wd_prior_used",
+        "_wd_prior_resolved_ambiguity", "_wd_legacy_hypothesis",
+    )
+    for key in aggregate_keys:
+        if key in automatic:
+            result[key] = automatic[key]
+    result["_wd_automatic_camera_facing_hypothesis"] = automatic.get(
+        "_camera_facing_hypothesis")
+    result["_wd_manual_override_requested"] = override
+    result["_wd_manual_override_available"] = True
+    result["_wd_selection_reason"] = "manual_camera_facing_override"
+    return result
 
 
 def solve_pose(kps_2d, K, dims=None, extrapolated_mask=None, img_shape=None,
@@ -971,7 +1152,9 @@ def solve_pose(kps_2d, K, dims=None, extrapolated_mask=None, img_shape=None,
                auto_swap_dims=True, weight_extrapolated_in_refine=False,
                wd_ambiguity_abs_px=0.5,
                wd_ambiguity_rel=0.05, wd_as_given_prob=None,
-               wd_prior_min_confidence=0.65):
+               wd_prior_min_confidence=0.65,
+               physical_dimensions=None,
+               camera_facing_hypothesis_override=None):
     """Backward-compatible PnP with explicit W/D and uncertainty diagnostics.
 
     Existing callers still receive the selected pose dictionary (or ``None``)
@@ -986,14 +1169,17 @@ def solve_pose(kps_2d, K, dims=None, extrapolated_mask=None, img_shape=None,
         keypoint_uncertainties=keypoint_uncertainties,
         auto_swap_dims=auto_swap_dims,
         weight_extrapolated_in_refine=weight_extrapolated_in_refine,
+        physical_dimensions=physical_dimensions,
     )
-    return _select_pose_candidate(
+    selected = _select_pose_candidate(
         candidates,
         wd_ambiguity_abs_px=wd_ambiguity_abs_px,
         wd_ambiguity_rel=wd_ambiguity_rel,
         wd_as_given_prob=wd_as_given_prob,
         wd_prior_min_confidence=wd_prior_min_confidence,
     )
+    return _apply_camera_facing_hypothesis_override(
+        candidates, selected, camera_facing_hypothesis_override)
 
 
 def _finite_convex_hull_area(points):
@@ -1065,7 +1251,8 @@ def solve_pose_safe(kps_2d, K, dims=None, extrapolated_mask=None,
                     wd_prior_min_confidence=0.65,
                     wd_prior_resolves_ambiguity=True,
                     max_reproj_error_px=None,
-                    projection_contraction_threshold=0.75):
+                    projection_contraction_threshold=0.75,
+                    physical_dimensions=None):
     """Fail-closed single-image PnP wrapper with structured reason codes.
 
     The return value is always a dictionary.  Consumers **must** check
@@ -1103,6 +1290,7 @@ def solve_pose_safe(kps_2d, K, dims=None, extrapolated_mask=None,
         keypoint_weights=keypoint_weights,
         keypoint_uncertainties=keypoint_uncertainties,
         auto_swap_dims=auto_swap_dims,
+        physical_dimensions=physical_dimensions,
     )
     pose = _select_pose_candidate(
         candidates,
@@ -1230,7 +1418,7 @@ def pose_from_locked(state, K, dims=None):
         du = proj_all[i][0] - state.kps_2d[i][0]
         dv = proj_all[i][1] - state.kps_2d[i][1]
         errs.append(float(np.hypot(du, dv)))
-    return {
+    result = {
         "R": R, "t": t, "rvec": rvec, "tvec": t.reshape(3, 1),
         "reproj_error_px": float(np.mean(errs)) if errs else 0.0,
         "projected_all": proj_all,
@@ -1246,6 +1434,15 @@ def pose_from_locked(state, K, dims=None):
         "_v6_strict_passed": (viol_sum == 0 and click_lr_viol == 0 and click_tb_viol == 0),
         "_v8_tilt": tilt,
     }
+    for key in (
+        "_wd_hypothesis", "_camera_facing_hypothesis",
+        "_axis_assignment", "_axis_assignment_candidates",
+        "_physical_dimensions_m", "_wd_selection_reason",
+        "_wd_candidates", "_wd_ambiguous",
+    ):
+        if key in state.locked_pose:
+            result[key] = state.locked_pose[key]
+    return result
 
 
 # ─── TWO-LINE 모드 ────────────────────────────────────────────────────────────

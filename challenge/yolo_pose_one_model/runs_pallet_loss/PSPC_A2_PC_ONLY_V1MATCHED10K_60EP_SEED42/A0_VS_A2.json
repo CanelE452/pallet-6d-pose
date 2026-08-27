@@ -1,0 +1,57 @@
+{
+ "arm": "A2_PC_ONLY",
+ "lambda_pc": 0.009131108745491919,
+ "nan_inf": 0,
+ "epochs": 60,
+ "gate": {
+  "corner_p90_rel_improve>=10% OR projective_p90_rel>=20%": true,
+  "pose_mAP50_95_regression<=2pp": true
+ },
+ "observed": {
+  "corner_error_relative": 1.2053542559078958,
+  "pose_mAP50_95_delta": -0.6359532095915609
+ },
+ "PC_SIGNAL": false,
+ "METHOD_SUPPORTED": "Pending real (reviewed GT 미도착)",
+ "★note": "corner p90 / projective p90 는 PC_DIAGNOSTIC 에서 별도 산출.",
+ "comparison": {
+  "A0": {
+   "n_val": 471.0,
+   "box_mAP50": 0.9844836709169076,
+   "box_mAP50_95": 0.7544531213561794,
+   "pose_mAP50": 0.839037066351759,
+   "pose_mAP50_95": 0.7197391683881135,
+   "native_fixed_corner_error": 0.14509798469900978,
+   "oracle_perm_corner_error": 0.13542862792876523,
+   "collapsed_channels": 0.0,
+   "identity_best_fraction": 0.9172,
+   "yaw180_best_fraction": 0.0616,
+   "yaw90_best_fraction": 0.0085,
+   "yaw270_best_fraction": 0.0127
+  },
+  "A2": {
+   "n_val": 486.0,
+   "box_mAP50": 0.9821392721854609,
+   "box_mAP50_95": 0.7934092711376945,
+   "pose_mAP50": 0.28693086906381904,
+   "pose_mAP50_95": 0.08378595879655255,
+   "native_fixed_corner_error": 0.31999245807961996,
+   "oracle_perm_corner_error": 0.18193252802065907,
+   "collapsed_channels": 0.0,
+   "identity_best_fraction": 0.4527,
+   "yaw180_best_fraction": 0.4794,
+   "yaw90_best_fraction": 0.0412,
+   "yaw270_best_fraction": 0.0267
+  }
+ },
+ "ATTRIBUTION": "NOT_POSSIBLE_AT_N1",
+ "★why": "ep20 까지 A0 와 A2 가 사실상 동일하고, ep20->30 에서 A0 만 yaw180 트랩을 탈출했다. 이 탈출은 run 마다 시점이 크게 다른 knife-edge 사건이라 (seed42 full40K 미탈출 / seed43 ep10 / V1_10K ep20~30), n=1 로는 'PC 가 미탈출을 유발' 과 '궤적 재추첨' 을 가를 수 없다.",
+ "trap_controlled_subset": {
+  "n": 64,
+  "corner_p90_rel": 2.784,
+  "proj_p90_rel": 7.418,
+  "note": "둘 다 identity-best 인 프레임만. 그래도 A2 가 전역적으로 무너져 통제 미성립."
+ },
+ "design_weakness": "dist(GT_centroid, line(i,j)) 는 직선이 centroid 를 지나면 0 이라 endpoint 를 직선 따라 미끄러뜨리는 퇴화 방향이 있다. centroid shortcut 은 막았지만(T7) 이건 남는다.",
+ "checkpoint_portability": "last.pt 가 PSPCPoseModel 을 pickle — 로드에 프로젝트 패키지 필요"
+}

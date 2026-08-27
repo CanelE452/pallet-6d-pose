@@ -1,0 +1,31 @@
+{
+  "source": "ultralytics 8.4.60 (설치본 실측)",
+  "assigner": {
+    "class": "TaskAlignedAssigner",
+    "file": "utils/tal.py:14",
+    "one2one": {
+      "topk": 7,
+      "topk2": 1,
+      "alpha": 0.5,
+      "beta": 6.0,
+      "positives_per_gt": 1
+    },
+    "one2many": {
+      "topk": 10,
+      "topk2": 10,
+      "alpha": 0.5,
+      "beta": 6.0
+    }
+  },
+  "align_metric": "bbox_scores^0.5 * CIoU^6.0   (bbox_scores = sigmoid(class logit))",
+  "iou": "bbox_iou(xywh=False, CIoU=True).clamp_(0)",
+  "positive_mask": "mask_topk(align_metric) * mask_in_gts * mask_gt, then topk2 filter",
+  "target_scores": "one_hot * fg_mask * norm_align_metric",
+  "norm_align_metric": "(align_metric * pos_overlaps / (pos_align_metrics + eps)).amax(-2)",
+  "non_assigned_target": 0.0,
+  "keypoint_quality_in_cls_target": false,
+  "box_iou_in_cls_target": true,
+  "cls_loss": "BCEWithLogits(pred_scores, target_scores).sum() / max(target_scores.sum(),1) * hyp.cls",
+  "per_level_normalization": false,
+  "level_anchor_order": "P3 -> P4 -> P5 concat (Detect.forward_head)"
+}

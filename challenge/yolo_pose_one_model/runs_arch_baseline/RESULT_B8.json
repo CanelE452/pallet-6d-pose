@@ -1,0 +1,93 @@
+{
+  "label": "YOLOv8n-Pose",
+  "weights": "challenge/yolo_pose_one_model/runs_arch_baseline/AB_G38_B8_YOLOV8N_30EP_SEED42/weights/last.pt",
+  "checkpoint_sha256": "be9be2fb6c452f7ff9f4fef27ff96246c753333a8e33d00bf7c217a2b764b9a3",
+  "pretrained": {
+    "label": "YOLOv8n-Pose",
+    "path": "challenge/weights/pretrained_yolo/yolov8n-pose.pt",
+    "sha256": "c6fa93dd1ee4a2c18c900a45c1d864a1c6f7aba75d84f91648a30b7fb641d212",
+    "bytes": 6832633,
+    "params": 3295470,
+    "GFLOPs": 9.2959952
+  },
+  "synth_map": {
+    "weights": "challenge/yolo_pose_one_model/runs_arch_baseline/AB_G38_B8_YOLOV8N_30EP_SEED42/weights/last.pt",
+    "box_map50": 0.9946644427774977,
+    "box_map": 0.9346697861815063,
+    "pose_map50": 0.9440032758108565,
+    "pose_map": 0.9057769720230713,
+    "note": "ultralytics val 정의 그대로 (Y0 와 동일)"
+  },
+  "synth_9kp": {
+    "tag": "AB_B8",
+    "weights": "challenge/yolo_pose_one_model/runs_arch_baseline/AB_G38_B8_YOLOV8N_30EP_SEED42/weights/last.pt",
+    "n_frames": 1998,
+    "n_correct_box": 1993,
+    "cbox": 0.9974974974974975,
+    "kp_median": 2.8784975704767857,
+    "kp_p90": 10.004048499141192,
+    "gross20": 0.04425522379698616,
+    "definition": "real evaluator 와 동일: top-1 by box conf, correct_box IoU>=0.5, keypoint L2 px. synthetic val 은 이미 PAD100 캔버스라 추가 pad 없음.",
+    "n_kpt_used": 17851
+  },
+  "real128": {
+    "ALL": {
+      "n": 128,
+      "cbox": 0.7734375,
+      "median": 12.130203363517193,
+      "p90": 76.99747787469119,
+      "gross20": 0.3055555555555556
+    },
+    "DAY": {
+      "n": 100,
+      "cbox": 0.89,
+      "median": 11.409214240646854,
+      "p90": 76.5500849489806,
+      "gross20": 0.2794943820224719
+    },
+    "NIGHT": {
+      "n": 28,
+      "cbox": 0.35714285714285715,
+      "median": 25.464698935980458,
+      "p90": 89.57645585578973,
+      "gross20": 0.5375
+    },
+    "night_candidate": {
+      "model": "AB_B8",
+      "n": 28,
+      "any_det": 1.0,
+      "any_cbox": 0.5714285714285714,
+      "top1_cbox": 0.35714285714285715,
+      "cand_per_frame": 4.0,
+      "wrong_per_frame": 2.857142857142857,
+      "wrong_present_frac": 0.9642857142857143,
+      "margin_median": 0.03507864661514759,
+      "margin_positive_frac": 0.625,
+      "rank_hist": {
+        "rank3+": 1,
+        "absent": 12,
+        "rank2": 5,
+        "rank1": 10
+      }
+    }
+  },
+  "negative": {
+    "n_neg": 2689,
+    "AP_AUPRC": 0.8672567979846453,
+    "AUROC": 0.9619020779100037,
+    "FPR@TPR95": 0.11640014875418371,
+    "FP_per_image_040": 0.004090740052063964,
+    "neg_detect_rate_040": 0.004090740052063964,
+    "neg_p90": 0.044603257626295106
+  },
+  "efficiency": {
+    "n_warmup": 30,
+    "n_run": 200,
+    "latency_ms_median": 5.176536971703172,
+    "latency_ms_p90": 6.0772976372390985,
+    "FPS_from_median": 193.17934083468595,
+    "note": "end-to-end predict() 왕복 (전처리+추론+postprocess). v8/11 은 NMS 포함, 26 은 end2end — 이 차이가 latency 에 들어있다.",
+    "params": 3142182,
+    "GFLOPs": 8.668616
+  }
+}

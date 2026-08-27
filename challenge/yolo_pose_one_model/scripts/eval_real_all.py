@@ -1,6 +1,6 @@
 """real manual GT 전수 평가 — 폴더별 검출률 + keypoint 오차.
 
-eval_ft_fp.py 는 정본 161장(회귀 감시)만 본다. 이건 손으로 어노한 real 을 전부
+eval_ft_fp.py 는 GT-QA clean 정본 140장(회귀 감시)만 본다. 이건 손으로 어노한 real 을 전부
 돌려 도메인별로 어디가 약한지 보려는 참고용 진단이다.
 
 ★ 누수: 합성만으로 학습한 base(stage_a)는 real 을 하나도 안 봤으므로 아래 전부가
@@ -22,6 +22,7 @@ import argparse
 import glob
 import json
 import os
+import sys
 from pathlib import Path
 
 import cv2
@@ -29,6 +30,9 @@ import numpy as np
 from ultralytics import YOLO
 
 REPO = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO))
+from challenge import data_paths  # noqa: E402
+
 OUT_ROOT = REPO / "challenge/yolo_pose_one_model"
 PAD = 100
 
@@ -81,10 +85,13 @@ def gt_kps(ann):
     return g, o.get("split")
 
 
-def collect(root):
+def collect(root, forbidden):
     """(png, gt(9,2), split) 리스트를 폴더별로."""
     items = []
     for a in sorted(glob.glob(os.path.join(root, "*.json"))):
+        annotation_path = os.path.relpath(a, REPO).replace(os.sep, "/")
+        if annotation_path in forbidden:
+            raise RuntimeError(f"QUARANTINED_GT_REINTRODUCED: {annotation_path}")
         g, sp = gt_kps(a)
         p = os.path.splitext(a)[0] + ".png"
         if g is not None and os.path.exists(p):
@@ -133,9 +140,10 @@ def main():
 
     groups = {"main": [], "wood": [], "dup": []}
     rows = {}
+    forbidden = data_paths.invalid_gt_source_paths()
     for d in roots:
         name = os.path.basename(d)
-        items = collect(d)
+        items = collect(d, forbidden)
         if not items:
             continue
         n, det, med, p90, errs = evaluate(model, items, args.conf)

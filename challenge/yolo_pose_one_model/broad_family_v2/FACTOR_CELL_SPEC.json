@@ -1,0 +1,58 @@
+{
+ "design": "2x2 factor. geometry 와 appearance 는 배타적 pool 이 아니다.",
+ "cells": {
+  "G0A0": {
+   "geometry": "기존 BROAD mesh 4",
+   "appearance": "기존 분포",
+   "source": "기존 BROAD 40K 재사용 — 새로 렌더하지 않는다"
+  },
+  "G1A0": {
+   "geometry": "신규 generic mesh",
+   "appearance": "기존 분포",
+   "render": "필요",
+   "purpose": "geometry effect 단독"
+  },
+  "G0A1": {
+   "geometry": "기존 BROAD mesh 4",
+   "appearance": "신규 broad strata",
+   "render": "필요",
+   "purpose": "appearance effect 단독"
+  },
+  "G1A1": {
+   "geometry": "신규 generic mesh",
+   "appearance": "신규 broad strata",
+   "render": "필요",
+   "purpose": "interaction / combined robustness"
+  }
+ },
+ "contrasts": {
+  "geometry_effect": "G1A0 vs G0A0",
+  "appearance_effect": "G0A1 vs G0A0",
+  "interaction": "G1A1 vs (G1A0, G0A1)"
+ },
+ "target_object": "네 cell 어디에도 들어가지 않는다",
+ "confound_control": "viewpoint / distance / screen size / truncation 분포를 네 cell 에서 동일하게 유지한다. G1 이 더 멀리 생성되거나 A1 이 더 잘리면 geometry/appearance 효과가 아니라 그 축을 재게 된다.",
+ "LOW_ANGLE_ROLE_DISAMBIGUATION_COVERAGE": {
+  "added": "2026-08-21",
+  "source": "analysis_pre_v2/KEYPOINT_PERMUTATION_AUDIT.json (D3, 재계산 안 함)",
+  "evidence": {
+   "n_gross_R_gt10": 24,
+   "near_far_swap_best": 11,
+   "near_far_swap_recovery_fraction": 0.4583,
+   "role_confusion_rate": 0.5417
+  },
+  "requirement": [
+   "저앙각(<8deg) 프레임 비율이 real DEV 분포를 덮을 것",
+   "near/far face 를 구분 가능하게 하는 비대칭 단서가 mesh 에 존재할 것",
+   "near/far face 의 화면 겹침(2D bbox IoU) 분포를 cell 간 동일하게 통제할 것"
+  ],
+  "applies_to": [
+   "G0A0",
+   "G1A0",
+   "G0A1",
+   "G1A1"
+  ],
+  "confound_control": "이 축이 cell 간 불균형하면 geometry effect 대신 viewpoint effect 를 재게 된다.",
+  "constraint": "near/far swap oracle 을 main inference 에 사용하지 않는다. 진단 결과이지 추론 경로가 아니다."
+ }
+}

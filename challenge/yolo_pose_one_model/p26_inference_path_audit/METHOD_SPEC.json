@@ -1,0 +1,56 @@
+{
+  "experiment": "P26_INFERENCE_PATH_ABLATION (training-0)",
+  "question": "YOLO26 의 약한 real-negative rejection 이 backbone/representation 때문인가, Pose26 의 one2one/end-to-end candidate-selection 경로 때문인가",
+  "modes": {
+    "M0_P26_E2E": "one2one -> _inference -> postprocess (정본과 동일, NMS 없음)",
+    "M1_P26_O2M_RAW": "one2many -> _inference -> postprocess (같은 top-k rule, NMS 없음)",
+    "M2_P26_O2M_NMS": "one2many -> _inference -> xyxy2xywh -> stock non_max_suppression"
+  },
+  "fixed_recipe": {
+    "conf": 0.001,
+    "iou": 0.7,
+    "max_det": 300,
+    "imgsz": 640,
+    "source": "cf_real_eval.py:49 (conf) / cfg/default.yaml:54-55 (iou,max_det)",
+    "frozen_before_results": true
+  },
+  "patch_scope": [
+    "Detect/Pose/Pose26.fuse -> no-op (one2many head 보존)",
+    "Pose26.forward -> stock 메서드 재조합 (forward_head/_inference/postprocess)",
+    "O2M_NMS 에서만 non_max_suppression 의 end2end 인자를 False 로 강제"
+  ],
+  "not_patched": [
+    "conf/iou/max_det",
+    "evaluator 정의",
+    "전처리",
+    "가중치"
+  ],
+  "gate": {
+    "safety_all": {
+      "ALL_cbox_drop_pp_max": 0.02,
+      "NIGHT_any_cbox_drop_pp_max": 0.02,
+      "ALL_median_degrade_rel_max": 0.05
+    },
+    "need": 2,
+    "benefits": {
+      "A_NIGHT_top1_gain_pp": 0.07,
+      "B_neg_AP_gain": 0.1,
+      "C_FPR95_rel_drop": 0.2,
+      "D_neg_detect040_rel_drop": 0.2
+    },
+    "verdicts": [
+      "INFERENCE_PATH_IS_MAJOR_FACTOR",
+      "INFERENCE_PATH_PARTIAL_FACTOR",
+      "INFERENCE_PATH_NOT_FACTOR",
+      "NMS_HARMS_LOCALIZATION"
+    ],
+    "frozen_before_results": true
+  },
+  "forbidden": [
+    "새 학습",
+    "fine-tuning",
+    "loss 변경",
+    "threshold 사후 변경",
+    "기존 artifact overwrite"
+  ]
+}

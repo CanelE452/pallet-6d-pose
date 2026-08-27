@@ -27,6 +27,9 @@ Keypoint 순서 (**camera-facing convention, 2026-05-22 결정**):
   r             전체 reset
   s             저장 + 다음 frame
   v             이 frame eval/train 토글 (평가용 표시, JSON split 필드에 저장)
+  b             active keypoint visibility/reason 순환 (unknown/visible/occluded/truncated)
+  w             W/D parity 전환 (short-face-front ↔ long-face-front)
+  y             현재 W/D parity 안에서 signed canonical axis 확인/순환
   G 또는 :      frame 번호 입력 점프 (숫자 후 Enter, Esc 취소) — 상단 슬라이더 클릭/드래그도 가능
   ANNOT-ONLY 버튼 (우측 패널 하단 클릭) = ON 이면 n/p 가 어노된 frame 만 이동 (어노된 것만 보기)
   f             near-only 자동 저장 (0~3 만 클릭, 4~7 자동 PnP projection 채움)
@@ -41,8 +44,11 @@ Keypoint 순서 (**camera-facing convention, 2026-05-22 결정**):
   q / Q         종료
 
 사용:
-  python challenge/scripts/annotate/annotate.py --seq data/outside/capturepallet07 --stride 15
-  python challenge/scripts/annotate/annotate.py --seq data/outside/capturepallet09 --out_dir challenge/data/01_real/manual_gt/pallet09_manual_gt
+  python scripts/annotate/annotate.py --seq data/outside/capturepallet07 \
+      --stride 15 --population-role DEV
+  python scripts/annotate/annotate.py --seq data/outside/capturepallet09 \
+      --population-role DEV \
+      --out_dir challenge/data/01_real/gt_v2_canonical/manual_gt/pallet09_manual_gt
 """
 from __future__ import annotations
 import os as _os, sys as _sys
@@ -90,7 +96,7 @@ sys.path.insert(0, _HERE)   # annotate_pnp / annotate_draw / annotate_io import
 from annotate_pnp import (
     solve_pose, pose_from_locked, apply_manip, line_intersection,
     parallelogram_extrapolate,
-    PALLET_DIMS,
+    PALLET_DIMS, default_physical_dimensions,
 )
 from annotate_draw import (render, annot_button_rect, session_button_rect,
                            MARGIN_L, MARGIN_R, MARGIN_T, MARGIN_B)
@@ -148,44 +154,79 @@ _OUT_ALIAS = {
     "capturepallet11": "pallet11_gt",          # 243장이 이미 여기 있다
 }
 
-# 정본 평가셋의 final-test 4세션. 폴더가 eval_canonical 이 아니라 manual_gt 아래에
-# 있어서 폴더 위치만 보는 판정으로는 SEALED 가 안 뜬다. CLAUDE.md 의 "threshold 튜닝·
-# 모델 선택 금지(봉인 소진, 재봉인 불가)" 대상이라 경고가 반드시 떠야 한다.
-_SEALED_SESSIONS = {
-    "capturepallet07", "capturepallet09", "capturenight08", "capturenight09",
-}
+# Import compatibility for the historical audit harness.  Deliberately empty:
+# session names never define DEV/FINAL membership.
+_SEALED_SESSIONS = frozenset()
 
-
-def resolve_out_dir(seq_name, repo):
-    """세션 이름 -> 어노테이션 저장 폴더.
-
-    기존 폴더가 있으면 그대로 쓴다. manual_gt 와 eval_canonical 두 구획을 모두 뒤지는
-    이유는 cad/noapril/outside 세션이 eval_canonical 아래에 있기 때문이다.
-    둘 다 없으면 manual_gt 아래에 새로 만든다.
-
-    반환: (out_dir, is_sealed)  is_sealed 는 정본 평가셋(eval_canonical) 여부.
-    """
-    forced = seq_name in _SEALED_SESSIONS
+def _resolve_legacy_read_dir(seq_name, repo):
+    """Locate an old annotation directory for read-only compatibility."""
     names = [f"{seq_name}_manual_gt"]
     if seq_name in _OUT_ALIAS:
         names.insert(0, _OUT_ALIAS[seq_name])
     for nm in names:
-        for sub, sealed in (("01_real/manual_gt", False), ("01_real/eval_canonical", True)):
-            p = os.path.join(repo, "challenge", "data", sub, nm)
-            if os.path.isdir(p):
-                return p, (sealed or forced)
-    return os.path.join(repo, "challenge", "data", "01_real", "manual_gt",
-                        names[0]), forced
+        for sub, eval_layout in (
+                ("01_real/manual_gt", False),
+                ("01_real/eval_canonical", True)):
+            path = os.path.join(repo, "challenge", "data", sub, nm)
+            if os.path.isdir(path):
+                return path, eval_layout
+    return None, False
 
 
-def session_summary(sessions, repo):
+def resolve_out_dir(seq_name, repo):
+    """세션 이름 -> 비파괴 GT-v2 어노테이션 저장 폴더.
+
+    legacy ``manual_gt`` / ``eval_canonical`` 은 이름과 배치만 조회한다. 반환 경로는
+    언제나 ``01_real/gt_v2_canonical`` 아래다. 따라서 기존 라벨을 열어 새 스키마로
+    저장해도 원본 JSON을 같은 위치에서 덮어쓸 수 없다.
+
+    반환의 두 번째 값은 legacy ``eval_canonical`` 디렉터리 배치 여부뿐이다.
+    DEV/FINAL 역할을 뜻하지 않는다. population 역할은 CLI로만 명시한다.
+    """
+    names = [f"{seq_name}_manual_gt"]
+    if seq_name in _OUT_ALIAS:
+        names.insert(0, _OUT_ALIAS[seq_name])
+    legacy_dir, eval_layout = _resolve_legacy_read_dir(seq_name, repo)
+    if legacy_dir is not None:
+        layout = "eval_canonical" if eval_layout else "manual_gt"
+        return os.path.join(
+            repo, "challenge", "data", "01_real", "gt_v2_canonical",
+            layout, os.path.basename(legacy_dir)), eval_layout
+    return os.path.join(
+        repo, "challenge", "data", "01_real", "gt_v2_canonical",
+        "manual_gt", names[0]), False
+
+
+def _path_is_within(path, root):
+    """True for ``root`` itself or a descendant, resolving symlinks first."""
+    try:
+        return os.path.commonpath(
+            [os.path.realpath(path), os.path.realpath(root)]) == os.path.realpath(root)
+    except ValueError:  # Different Windows drives.
+        return False
+
+
+def _require_nonlegacy_output_dir(path, repo):
+    """Fail closed if an output could mutate either legacy real-GT tree."""
+    legacy_roots = (
+        os.path.join(repo, "challenge", "data", "01_real", "manual_gt"),
+        os.path.join(repo, "challenge", "data", "01_real", "eval_canonical"),
+    )
+    if any(_path_is_within(path, root) for root in legacy_roots):
+        raise ValueError(
+            "legacy real GT is read-only; choose a GT-v2 output outside "
+            "challenge/data/01_real/{manual_gt,eval_canonical}")
+    return os.path.abspath(path)
+
+
+def session_summary(sessions, repo, population_role="DEV"):
     """세션 목록에 프레임 수와 이미 어노된 JSON 수를 붙인다."""
     rows = []
     for name, seq in sessions:
         n = len(glob.glob(os.path.join(seq, "rgb", "*.png")))
-        od, sealed = resolve_out_dir(name, repo)
+        od, _legacy_eval_layout = resolve_out_dir(name, repo)
         done = len(glob.glob(os.path.join(od, "*.json")))
-        rows.append((name, n, done, sealed))
+        rows.append((name, n, done, str(population_role).upper() == "FINAL"))
     return rows
 
 
@@ -203,7 +244,7 @@ def pick_session_dialog(rows, current):
         print(f"[WARN] tkinter 사용 불가({e}) — 패널 목록으로 대체")
         return None
 
-    labels = [f"{i+1:>2}. {nm}   ({nfr}f, done {done}){'  [SEALED]' if sealed else ''}"
+    labels = [f"{i+1:>2}. {nm}   ({nfr}f, done {done}){'  [FINAL ROLE]' if sealed else ''}"
               for i, (nm, nfr, done, sealed) in enumerate(rows)]
     picked = {"i": None}
 
@@ -238,6 +279,217 @@ def pick_session_dialog(rows, current):
 # ─── Mouse callback ──────────────────────────────────────────────────────────
 
 WIN = "Annotate"
+
+_VISIBILITY_REASON_CYCLE = (
+    (0, "unknown"),
+    (2, "visible"),
+    (1, "occluded"),
+    (1, "truncated"),
+)
+
+
+def _point_in_image(s: State, point):
+    if point is None or s.img_shape is None:
+        return False
+    h, w = s.img_shape[:2]
+    return bool(0.0 <= float(point[0]) < float(w)
+                and 0.0 <= float(point[1]) < float(h))
+
+
+def _ensure_keypoint_annotations(s: State):
+    """Keep nine explicit states; never infer visibility from old coordinates."""
+    old = s.keypoint_annotations if isinstance(s.keypoint_annotations, list) else []
+    entries = []
+    for i in range(9):
+        point = s.kps_2d[i] if s.kps_2d is not None and i < len(s.kps_2d) else None
+        base = dict(old[i]) if i < len(old) and isinstance(old[i], dict) else {}
+        base["xy"] = list(point) if point is not None else base.get("xy")
+        base.setdefault("visibility", 0)
+        base.setdefault("source", "unknown")
+        base.setdefault("reason", "unknown")
+        base["in_frame"] = _point_in_image(s, base.get("xy"))
+        entries.append(base)
+    s.keypoint_annotations = entries
+    return entries
+
+
+def _set_keypoint_state(s: State, index, point, *, source, visibility, reason):
+    entries = _ensure_keypoint_annotations(s)
+    xy = None if point is None else [float(point[0]), float(point[1])]
+    entries[index] = {
+        "xy": xy,
+        "visibility": int(visibility),
+        "in_frame": _point_in_image(s, xy),
+        "source": source,
+        "reason": reason,
+    }
+
+
+def _clear_keypoint_state(s: State, index):
+    _set_keypoint_state(
+        s, index, None, source="unknown", visibility=0, reason="unknown")
+
+
+def _cycle_visibility_reason(s: State, index):
+    entries = _ensure_keypoint_annotations(s)
+    if entries[index].get("xy") is None:
+        print(f"[Visibility] kp{index}: 좌표가 없어 visibility를 확정할 수 없습니다.")
+        return
+    current = (int(entries[index].get("visibility", 0)),
+               str(entries[index].get("reason", "unknown")))
+    if current == (1, "unknown"):
+        next_state = (1, "occluded")
+    else:
+        try:
+            position = _VISIBILITY_REASON_CYCLE.index(current)
+        except ValueError:
+            position = 0
+        next_state = _VISIBILITY_REASON_CYCLE[
+            (position + 1) % len(_VISIBILITY_REASON_CYCLE)]
+    entries[index]["visibility"], entries[index]["reason"] = next_state
+    entries[index]["in_frame"] = _point_in_image(s, entries[index].get("xy"))
+    s.dirty = True
+    print(f"[Visibility] kp{index}: visibility={next_state[0]} "
+          f"reason={next_state[1]} source={entries[index].get('source', 'unknown')}")
+
+
+def _mark_projected_fallbacks(s: State):
+    """Record auto-filled provenance without replacing legacy manual_kps."""
+    if s.pose is None:
+        return
+    entries = _ensure_keypoint_annotations(s)
+    changed = False
+    for i, point in enumerate(s.pose.get("projected_all", [])[:9]):
+        if s.kps_2d[i] is not None or (point[0] == -1 and point[1] == -1):
+            continue
+        source = "centroid_auto" if i == 8 else "pnp_projected"
+        entries[i] = {
+            "xy": [float(point[0]), float(point[1])],
+            "visibility": 1,
+            "in_frame": _point_in_image(s, point),
+            "source": source,
+            "reason": "unknown",
+        }
+        changed = True
+    if changed:
+        s.dirty = True
+
+
+def _sync_axis_hypothesis(s: State):
+    if s.pose is None:
+        return
+    candidates = list(s.pose.get("_axis_assignment_candidates") or [])
+    if not candidates:
+        return
+    old = list(s.axis_assignment_candidates or [])
+    if old != candidates:
+        s.axis_assignment_candidates = candidates
+        s.axis_assignment = candidates[0]
+        s.axis_assignment_confirmed = False
+    elif s.axis_assignment not in candidates:
+        s.axis_assignment = candidates[0]
+        s.axis_assignment_confirmed = False
+
+
+def _cycle_axis_assignment(s: State):
+    candidates = list(s.axis_assignment_candidates or [])
+    if not candidates:
+        print("[Axis] PnP W/D hypothesis가 아직 없습니다.")
+        return
+    if not s.axis_assignment_confirmed:
+        s.axis_assignment = (s.axis_assignment if s.axis_assignment in candidates
+                             else candidates[0])
+        s.axis_assignment_confirmed = True
+    else:
+        current = (candidates.index(s.axis_assignment)
+                   if s.axis_assignment in candidates else -1)
+        s.axis_assignment = candidates[(current + 1) % len(candidates)]
+    s.dirty = True
+    print(f"[Axis] confirmed {s.axis_assignment}; candidates={candidates}")
+
+
+def _cycle_wd_parity(s: State):
+    """Switch the human-reviewed camera-facing W/D parity hypothesis."""
+    if s.pose is None:
+        print("[W/D] PnP 후보가 아직 없습니다.")
+        return
+    available = []
+    for item in s.pose.get("_wd_candidates", []) or []:
+        value = item.get("camera_facing_hypothesis")
+        if value and value not in available:
+            available.append(value)
+    if len(available) < 2:
+        print(f"[W/D] 전환 가능한 두 parity가 없습니다: {available or 'none'}")
+        return
+    current = s.pose.get("_camera_facing_hypothesis")
+    index = available.index(current) if current in available else -1
+    target = available[(index + 1) % len(available)]
+    s.camera_facing_hypothesis_override = target
+    # A W/D switch changes the allowed signed pair.  Confirmation from the old
+    # parity must never carry across it.
+    s.axis_assignment = None
+    s.axis_assignment_candidates = []
+    s.axis_assignment_confirmed = False
+    s._pose_key = None
+    s.dirty = True
+    print(f"[W/D] manual parity correction: {current} -> {target}; "
+          "signed axis reset (press y after checking the projection)")
+
+
+def _save_contract_error(s: State):
+    entries = _ensure_keypoint_annotations(s)
+    if str(s.population_role).upper() == "FINAL":
+        if not any(point is not None for point in (s.kps_2d or [])):
+            return "FINAL save blocked: deleting all points cannot bypass review gates"
+        unknown = [i for i in range(8)
+                   if int(entries[i].get("visibility", 0)) == 0]
+        if unknown:
+            return ("FINAL save blocked: kp0~7 visibility unknown at "
+                    + ",".join(map(str, unknown)))
+        if not s.axis_assignment_confirmed:
+            return "FINAL save blocked: signed axis assignment is not confirmed (press y)"
+    return None
+
+
+def _make_state_annotation(s: State, K):
+    error = _save_contract_error(s)
+    if error:
+        _toast(s, "[SAVE BLOCKED] check visibility/axis", (40, 40, 230), log=error)
+        return None
+    return make_annotation(
+        s.kps_2d, s.pose, s.img_shape, K,
+        dims=tuple(s.pose.get("dims") or PALLET_DIMS),
+        split=s.split,
+        extrap_mask=s.extrap_mask,
+        keypoint_annotations=s.keypoint_annotations,
+        axis_assignment=s.axis_assignment,
+        axis_assignment_candidates=s.axis_assignment_candidates,
+        axis_assignment_confirmed=s.axis_assignment_confirmed,
+        legacy_object=s.legacy_object,
+        legacy_document=s.legacy_document,
+        population_role=s.population_role,
+        metadata=s.capture_metadata,
+        occlusion_level=s.occlusion_level,
+    )
+
+
+def _save_state_annotation(s: State, K, out_json, out_png, src_png):
+    try:
+        _require_nonlegacy_output_dir(os.path.dirname(out_json), _REPO)
+    except ValueError as exc:
+        _toast(s, "[SAVE BLOCKED] legacy GT is read-only", (40, 40, 230),
+               log=f"GT v2 save path rejected: {exc}: {out_json}")
+        return False
+    ann = _make_state_annotation(s, K)
+    if ann is None:
+        return False
+    try:
+        save_frame_json(out_json, out_png, src_png, ann)
+    except (TypeError, ValueError) as exc:
+        _toast(s, "[SAVE BLOCKED] v2 schema error", (40, 40, 230),
+               log=f"GT v2 schema validation failed: {exc}")
+        return False
+    return True
 
 
 def _display_to_canvas(x, y, s):
@@ -310,9 +562,13 @@ def on_mouse(event, x, y, flags, s: State):
                 pt = line_intersection(s.line_pts[0], s.line_pts[1],
                                        s.line_pts[2], s.line_pts[3])
                 if pt is not None:
-                    s.kps_2d[s.active] = pt
+                    target = s.active
+                    s.kps_2d[target] = pt
                     if s.extrap_mask is not None:
-                        s.extrap_mask[s.active] = True   # v7: t 외삽 표시
+                        s.extrap_mask[target] = True   # v7: t 외삽 표시
+                    _set_keypoint_state(
+                        s, target, pt, source="extrapolated",
+                        visibility=1, reason="unknown")
                     s.dirty = True
                     if s.active < 8:
                         s.active += 1
@@ -329,9 +585,13 @@ def on_mouse(event, x, y, flags, s: State):
 
     # 일반 CLICK 모드
     if event == cv2.EVENT_LBUTTONDOWN:
-        s.kps_2d[s.active] = [float(u), float(v)]
+        target = s.active
+        s.kps_2d[target] = [float(u), float(v)]
         if s.extrap_mask is not None:
-            s.extrap_mask[s.active] = False    # v7: 직접 클릭 = 외삽 아님
+            s.extrap_mask[target] = False    # v7: 직접 클릭 = 외삽 아님
+        _set_keypoint_state(
+            s, target, s.kps_2d[target], source="manual_click",
+            visibility=2, reason="visible")
         s.dirty = True
         if s.active < 8:
             s.active += 1
@@ -340,6 +600,7 @@ def on_mouse(event, x, y, flags, s: State):
             s.kps_2d[s.active] = None
             if s.extrap_mask is not None:
                 s.extrap_mask[s.active] = False
+            _clear_keypoint_state(s, s.active)
             s.pose = None
             s.dirty = True
 
@@ -352,7 +613,8 @@ def _pose_inputs_key(s: State, K):
     lk = None if lp is None else (np.asarray(lp["R"]).tobytes(),
                                   np.asarray(lp["t"]).tobytes(),
                                   tuple(lp.get("dims") or ()))
-    return (kps, ex, s.mode, lk, s.img_shape, K.tobytes())
+    return (kps, ex, s.mode, lk, s.img_shape, K.tobytes(),
+            getattr(s, "camera_facing_hypothesis_override", None))
 
 
 def _empty_session_screen(seq_name, args):
@@ -386,7 +648,11 @@ def update_pose(s: State, K, force=False):
         s.pose = solve_pose(s.kps_2d, K,
                             extrapolated_mask=s.extrap_mask,
                             img_shape=s.img_shape,
-                            weight_extrapolated_in_refine=True)
+                            weight_extrapolated_in_refine=True,
+                            physical_dimensions=default_physical_dimensions(),
+                            camera_facing_hypothesis_override=getattr(
+                                s, "camera_facing_hypothesis_override", None))
+    _sync_axis_hypothesis(s)
 
 
 # ─── Key dispatchers ──────────────────────────────────────────────────────────
@@ -395,7 +661,11 @@ def _handle_manip_key(key, s, out_json, out_png, src_png, K):
     """MANIPULATE 모드 키 처리. Returns: 'next' | 'quit' | None."""
     ts = s.trans_step
     rs = s.rot_step_deg
-    if   key == ord('a'): apply_manip(s, dx=-ts)
+    if key == ord('b'):
+        _cycle_visibility_reason(s, s.active)
+    elif key == ord('y'):
+        _cycle_axis_assignment(s)
+    elif key == ord('a'): apply_manip(s, dx=-ts)
     elif key == ord('d'): apply_manip(s, dx=+ts)
     elif key == ord('w'): apply_manip(s, dy=-ts)
     elif key == ord('x'): apply_manip(s, dy=+ts)
@@ -425,9 +695,17 @@ def _handle_manip_key(key, s, out_json, out_png, src_png, K):
         # locked_pose 의 projected_cuboid 를 그대로 manual_kps 로 덮어쓰기
         proj = s.pose["projected_all"]
         s.kps_2d = [None if (p[0] == -1 and p[1] == -1) else list(p) for p in proj]
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
-                              extrap_mask=s.extrap_mask)
-        save_frame_json(out_json, out_png, src_png, ann)
+        for i, point in enumerate(s.kps_2d):
+            if point is None:
+                _clear_keypoint_state(s, i)
+            else:
+                _set_keypoint_state(
+                    s, i, point,
+                    source="centroid_auto" if i == 8 else "pnp_projected",
+                    visibility=1, reason="unknown")
+        s.dirty = True
+        if not _save_state_annotation(s, K, out_json, out_png, src_png):
+            return None
         print(f"[Saved manip] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
         s.dirty = False
         s.mode = "click"
@@ -465,17 +743,27 @@ def _delete_annotation(s, out_json, out_png):
     요구하게 만들었는데, 쓰는 사람 입장에선 그게 그냥 "안 지워진다" 였다.
     PNG 사본은 지운다(원본이 촬영 폴더에 그대로 있어 언제든 다시 만들어진다).
 
-    SEALED 정본 세션도 막지 않는다. 봉인은 "threshold 튜닝·모델 선택 금지" 이지
-    라벨을 고치지 말라는 뜻이 아니고(정본에도 잘못 찍힌 프레임이 있다), `.deleted`
-    로 되돌릴 수 있어 파괴적이지도 않다. 대신 눈에 띄게 경고한다.
+    FINAL population은 삭제를 허용하지 않는다. 점을 전부 지운 뒤 저장하는 경로가
+    visibility/signed-axis 검토 gate를 우회해서는 안 된다.
     """
+    is_final = str(getattr(s, "population_role", "DEV")).upper() == "FINAL"
+    if is_final:
+        _toast(s, "[DELETE BLOCKED] FINAL population", (40, 40, 230),
+               log="FINAL 삭제 차단: visibility/axis gate를 통과한 라벨은 "
+                   "annotation UI에서 제거할 수 없습니다.")
+        return None
+    try:
+        _require_nonlegacy_output_dir(os.path.dirname(out_json), _REPO)
+    except ValueError as exc:
+        _toast(s, "[DELETE BLOCKED] legacy GT is read-only", (40, 40, 230),
+               log=f"legacy GT 삭제 차단: {exc}: {out_json}")
+        return None
     if not os.path.exists(out_json):
         _toast(s, "[DELETE] no saved annotation on this frame", (180, 180, 180),
                log="[삭제] 이 프레임엔 저장된 어노가 없다")
         s.dirty = False
         return None
 
-    sealed = bool(getattr(s, "sess_sealed", False))
     bak = out_json + ".deleted"
     try:
         os.replace(out_json, bak)
@@ -490,14 +778,8 @@ def _delete_annotation(s, out_json, out_png):
             print(f"[WARN] PNG 사본은 못 지웠다: {e}")
 
     name = os.path.basename(out_json)
-    if sealed:
-        _toast(s, f"[DELETED - SEALED SET!] {name}  (restore: drop .deleted)",
-               (60, 60, 220),
-               log=f"[삭제됨 ★SEALED 정본] {out_json}\n"
-                   f"          되돌리려면 .deleted 확장자를 떼면 된다.")
-    else:
-        _toast(s, f"[DELETED] {name}  (restore: drop .deleted)",
-               log=f"[삭제됨] {name}  (.deleted 로 복구 가능)")
+    _toast(s, f"[DELETED] {name}  (restore: drop .deleted)",
+           log=f"[삭제됨] {name}  (.deleted 로 복구 가능)")
     s.dirty = False
     return 'save-next'
 
@@ -519,6 +801,18 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         print(f"[Split] this frame -> {s.split.upper()}  (저장 시 JSON 에 반영)")
         return None
 
+    if key == ord('b'):
+        _cycle_visibility_reason(s, s.active)
+        return None
+
+    if key == ord('w'):
+        _cycle_wd_parity(s)
+        return None
+
+    if key == ord('y'):
+        _cycle_axis_assignment(s)
+        return None
+
     if key == ord('s'):
         # 점을 다 지운 뒤 's' = "이 프레임 어노를 없앤다". 예전엔 pose 가 None 이라
         # 저장 가드에 막혀서, 잘못 찍은 프레임의 GT 를 툴 안에서 지울 방법이 없었다.
@@ -531,9 +825,8 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             return None
         # manual_kps 는 사용자 클릭 그대로 저장 (위치 안 옮김).
         # swap 보정은 라벨링 후 fix_manual_swap.py 후처리.
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
-                              extrap_mask=s.extrap_mask)
-        save_frame_json(out_json, out_png, src_png, ann)
+        if not _save_state_annotation(s, K, out_json, out_png, src_png):
+            return None
         print(f"[Saved] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
         s.dirty = False
         return 'save-next'
@@ -548,9 +841,9 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         # 이미 projection 으로 채우므로 결과 projected_cuboid 는 똑같고, manual_kps 에는
         # "사람이 찍은 점" 만 남아 자동채움과 구분된다(2026-08-15).
         n_auto = sum(1 for k in s.kps_2d[:8] if k is None)
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
-                              extrap_mask=s.extrap_mask)
-        save_frame_json(out_json, out_png, src_png, ann)
+        _mark_projected_fallbacks(s)
+        if not _save_state_annotation(s, K, out_json, out_png, src_png):
+            return None
         print(f"[Saved front-only] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px "
               f"(click-only 기준 — 자동채움 {n_auto}점의 오차는 포함 안 됨)")
         s.dirty = False
@@ -581,10 +874,15 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
                 # 들어간다. extrap_mask 를 세우면 속 빈 원으로 그려지고 report 에서 빠진다.
                 if s.extrap_mask is not None:
                     s.extrap_mask[i] = True
+                _set_keypoint_state(
+                    s, i, s.kps_2d[i],
+                    source="centroid_auto" if i == 8 else "pnp_projected",
+                    visibility=1, reason="unknown")
                 n_auto += 1
-        ann = make_annotation(s.kps_2d, s.pose, s.img_shape, K, split=s.split,
-                              extrap_mask=s.extrap_mask)
-        save_frame_json(out_json, out_png, src_png, ann)
+        if n_auto:
+            s.dirty = True
+        if not _save_state_annotation(s, K, out_json, out_png, src_png):
+            return None
         print(f"[Saved auto-fill] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px "
               f"({n_clicked_07} manual + {n_auto} auto-fill) — 시각 확인 후 'n' 으로 다음 frame")
         s.dirty = False
@@ -607,6 +905,9 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         s.kps_2d[s.active] = pt
         if s.extrap_mask is not None:
             s.extrap_mask[s.active] = True   # v7: x parallelogram 외삽 표시
+        _set_keypoint_state(
+            s, s.active, pt, source="extrapolated",
+            visibility=1, reason="unknown")
         s.dirty = True
         print(f"[Parallelogram] kp{s.active} ← face={fname} {finds} → "
               f"({pt[0]:.1f}, {pt[1]:.1f})")
@@ -644,6 +945,9 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             # 들어가 표시 reproj 를 낮추고 이후 코너 수정의 효과를 둔하게 만든다.
             if s.extrap_mask is not None:
                 s.extrap_mask[8] = True
+            _set_keypoint_state(
+                s, 8, s.kps_2d[8], source="centroid_auto",
+                visibility=1, reason="unknown")
             s.dirty = True
             print(f"[Centroid] PnP projection: ({s.kps_2d[8][0]:.1f}, {s.kps_2d[8][1]:.1f})")
         else:
@@ -651,6 +955,9 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             if len(pts) >= 4:
                 s.kps_2d[8] = [float(np.mean([p[0] for p in pts])),
                                float(np.mean([p[1] for p in pts]))]
+                _set_keypoint_state(
+                    s, 8, s.kps_2d[8], source="centroid_auto",
+                    visibility=1, reason="unknown")
                 s.dirty = True
                 print("[Centroid] fallback (image corner mean) — PnP 풀린 후 c 권장")
         return None
@@ -668,6 +975,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             s.kps_2d[last] = None
             if s.extrap_mask is not None:
                 s.extrap_mask[last] = False
+            _clear_keypoint_state(s, last)
             s.active = last
             s.dirty = True
         return None
@@ -675,6 +983,9 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
     if key == ord('d'):
         if s.kps_2d[s.active] is not None:
             s.kps_2d[s.active] = None
+            if s.extrap_mask is not None:
+                s.extrap_mask[s.active] = False
+            _clear_keypoint_state(s, s.active)
             s.pose = None
             s.dirty = True
             print(f"[Delete] kp{s.active} 삭제")
@@ -697,6 +1008,8 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         had = any(k is not None for k in s.kps_2d)
         s.kps_2d = [None] * 9
         s.extrap_mask = [False] * 9
+        s.keypoint_annotations = None
+        _ensure_keypoint_annotations(s)
         s.active = 0
         s.line_mode = False
         s.line_pts = []
@@ -735,7 +1048,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seq",     default="data/outside/capturepallet02")
     ap.add_argument("--out_dir", default=None,
-                    help="기본: challenge/data/<seq_name>_manual_gt")
+                    help="기본: challenge/data/01_real/gt_v2_canonical/... . "
+                         "legacy manual_gt/eval_canonical 경로는 명시해도 거부됨")
     ap.add_argument("--stride",  type=int, default=30, help="N frame 마다 1개 annotate")
     ap.add_argument("--start",   type=int, default=0, help="시작 frame idx")
     ap.add_argument("--pool", nargs="+",
@@ -748,7 +1062,22 @@ def main():
     ap.add_argument("--default_split", choices=["eval", "train"], default="train",
                     help="새 frame 의 기본 split (v 키로 토글). 기본 train — eval 로 쓸 것만 v "
                          "로 표시. eval GT 대량 어노 시 --default_split eval.")
+    ap.add_argument("--population-role", "--population_role", required=True,
+                    choices=["DEV", "FINAL"],
+                    help="명시적 GT population 역할. FINAL은 kp0~7 unknown 저장을 차단.")
+    ap.add_argument("--capture-session-id", "--capture_session_id", default=None)
+    ap.add_argument("--camera-serial", "--camera_serial", default=None)
+    ap.add_argument("--capture-timestamp", "--capture_timestamp", default=None)
+    ap.add_argument("--lighting-condition", "--lighting_condition", default=None)
     args = ap.parse_args()
+
+    if args.out_dir:
+        requested_out = (args.out_dir if os.path.isabs(args.out_dir)
+                         else os.path.join(_REPO, args.out_dir))
+        try:
+            _require_nonlegacy_output_dir(requested_out, _REPO)
+        except ValueError as exc:
+            ap.error(str(exc))
 
     seq = args.seq if os.path.isabs(args.seq) else os.path.join(_REPO, args.seq)
     seq_name = os.path.basename(seq.rstrip("/\\"))
@@ -763,14 +1092,15 @@ def main():
     sess_i = next((i for i, (_, p) in enumerate(sessions) if p == seq), 0)
 
     def load_session(i):
-        """세션 i 로 전환. (seq, name, out_dir, sealed, K, rgb_paths, selected) 반환."""
+        """세션 i 로 전환. FINAL 표시는 명시적 population role만 따른다."""
         nm, sq = sessions[i]
         if args.out_dir:
             od = args.out_dir if os.path.isabs(args.out_dir) \
                 else os.path.join(_REPO, args.out_dir)
-            sealed = False
         else:
-            od, sealed = resolve_out_dir(nm, _REPO)
+            od, _legacy_eval_layout = resolve_out_dir(nm, _REPO)
+        od = _require_nonlegacy_output_dir(od, _REPO)
+        sealed = args.population_role == "FINAL"
         # 여기서 makedirs 하면 세션 목록을 둘러보기만 해도 빈 GT 폴더가 생겨
         # done 집계와 discover_sessions 의 중복 판정이 오염된다. 저장할 때 만든다.
         _DEFAULT_K = np.array([[614.18, 0, 329.28], [0, 614.31, 234.53], [0, 0, 1]],
@@ -788,7 +1118,7 @@ def main():
         rp = sorted(glob.glob(os.path.join(sq, "rgb", "*.png")))
         sel = list(range(args.start, len(rp), args.stride))
         print(f"\n[Session {i+1}/{len(sessions)}] {nm}"
-              f"{'   ★SEALED eval set — 저장 주의' if sealed else ''}")
+              f"{'   ★FINAL population role — save gates active' if sealed else ''}")
         print(f"           {len(sel)} frames (stride={args.stride}) of {len(rp)}")
         print(f"           Output: {od}")
         print(f"           K = fx={k[0,0]:.1f} cx={k[0,2]:.1f} cy={k[1,2]:.1f}")
@@ -921,6 +1251,22 @@ def main():
         s.img_shape = s.img.shape
         s.kps_2d = [None] * 9
         s.extrap_mask = [False] * 9    # v7: 외삽 점 표시 (t/x 입력 시 True)
+        s.keypoint_annotations = None
+        _ensure_keypoint_annotations(s)
+        s.axis_assignment = None
+        s.axis_assignment_candidates = []
+        s.axis_assignment_confirmed = False
+        s.population_role = args.population_role
+        s.capture_metadata = {
+            "capture_session_id": args.capture_session_id or seq_name,
+            "camera_serial": args.camera_serial,
+            "capture_timestamp": args.capture_timestamp,
+            "lighting_condition": args.lighting_condition,
+        }
+        s.legacy_document = None
+        s.legacy_object = None
+        s.camera_facing_hypothesis_override = None
+        s.occlusion_level = "unknown"
         s.active = 0
         s.pose = None
         s.zoom = 1.0
@@ -940,7 +1286,31 @@ def main():
         s._pose_key = None             # 새 프레임 — pose 캐시 무효화
         s.toast = None                 # 알림이 다음 프레임으로 새지 않게
         s.split = args.default_split   # 기본 split; 기존 JSON 있으면 load 가 override
-        if load_existing_annotation(s, out_json):
+        load_json = out_json
+        load_is_read_only_legacy = False
+        if not os.path.exists(load_json):
+            legacy_read_dir, _ = _resolve_legacy_read_dir(seq_name, _REPO)
+            legacy_json = (os.path.join(legacy_read_dir, f"{stem}.json")
+                           if legacy_read_dir else None)
+            if legacy_json and os.path.exists(legacy_json):
+                load_json = legacy_json
+                load_is_read_only_legacy = True
+                print(f"[Read-only legacy source] {legacy_json}\n"
+                      f"                          save target: {out_json}")
+        if load_existing_annotation(
+                s, load_json, read_only=load_is_read_only_legacy):
+            loaded_metadata = dict(s.capture_metadata or {})
+            loaded_metadata.update({
+                key: value for key, value in {
+                    "capture_session_id": args.capture_session_id or seq_name,
+                    "camera_serial": args.camera_serial,
+                    "capture_timestamp": args.capture_timestamp,
+                    "lighting_condition": args.lighting_condition,
+                }.items() if value is not None
+            })
+            s.capture_metadata = loaded_metadata
+            s.population_role = args.population_role
+            _ensure_keypoint_annotations(s)
             update_pose(s, K)
         if len(selected) > 1:
             cv2.setTrackbarPos("frame%", win, _cur_to_tick(cur, len(selected)))
@@ -987,7 +1357,8 @@ def main():
                 if getattr(s, "sess_open", False):
                     s.sess_open = False
                     if len(sessions) > 1:
-                        j = pick_session_dialog(session_summary(sessions, _REPO), sess_i)
+                        j = pick_session_dialog(
+                            session_summary(sessions, _REPO, args.population_role), sess_i)
                         if j is not None and j != sess_i and _guard_dirty("세션 이동"):
                             s.sess_pick = j
                             next_action = 'sess-pick'
@@ -1047,7 +1418,8 @@ def main():
 
             # TAB = 세션 드롭다운. 'S' 는 MANIPULATE 의 save+next 라 쓰지 않는다.
             if key == 9 and len(sessions) > 1:
-                j = pick_session_dialog(session_summary(sessions, _REPO), sess_i)
+                j = pick_session_dialog(
+                    session_summary(sessions, _REPO, args.population_role), sess_i)
                 if j is not None and j != sess_i and _guard_dirty("세션 이동"):
                     s.sess_pick = j
                     next_action = 'sess-pick'
@@ -1070,8 +1442,19 @@ def main():
                         print("[WARN] PnP 가 아직 안 풀려서 manipulate 진입 불가. 4점 이상 필요.")
                         continue
                     s.mode = "manip"
-                    s.locked_pose = {"R": s.pose["R"].copy(), "t": s.pose["t"].copy(),
-                                     "dims": tuple(s.pose.get("dims") or PALLET_DIMS)}
+                    s.locked_pose = {
+                        "R": s.pose["R"].copy(),
+                        "t": s.pose["t"].copy(),
+                        "dims": tuple(s.pose.get("dims") or PALLET_DIMS),
+                    }
+                    for pose_key in (
+                        "_wd_hypothesis", "_camera_facing_hypothesis",
+                        "_axis_assignment", "_axis_assignment_candidates",
+                        "_physical_dimensions_m", "_wd_selection_reason",
+                        "_wd_candidates", "_wd_ambiguous",
+                    ):
+                        if pose_key in s.pose:
+                            s.locked_pose[pose_key] = s.pose[pose_key]
                     print("[Mode] CLICK → MANIPULATE")
                 else:
                     s.mode = "click"

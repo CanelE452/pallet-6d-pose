@@ -2,16 +2,33 @@
 
 아래 표는 **값을 비워둔 논문용 템플릿**이다. final test가 동결되고 평가가 완료되기 전에는 숫자를 채우지 않는다.
 
+채워지는 모든 행에는 **모집단 ID**(`COMMON_DEV_POS128` / `DEV_NEG2689` /
+`FINAL_POS` / `FINAL_NEG`)와 설정 disclosure 를 함께 적는다. 값을 못 내는 칸은
+0 이 아니라 **빈칸 / 구조적 null** 로 남긴다.
+
+> **POSE 열은 CANONICAL_POSE + SELECTOR + SYMMETRY + FINAL TEST 가 모두 통과할
+> 때까지 비워둔다.**
+
 ## Table 1. Main comparison on the frozen in-house final test
 
-| Method | Training data | Target-specific training? | CAD at inference? | Real supervision? | Box AP50:95 ↑ | ADD(-S) AUC ↑ | Rotation med. (°) ↓ | Translation med. (cm) ↓ | Yaw med. (°) ↓ |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| SingleShotPose |  |  |  |  |  |  |  |  |  |
-| DOPE |  |  |  |  |  |  |  |  |  |
-| PVNet |  |  |  |  |  |  |  |  |  |
-| YOLO26n-Pose (G38) | G38 generic synthetic | No | No | No |  |  |  |  |  |
-| Proposed method |  |  |  |  |  |  |  |  |  |
-| Real-FT upper bound |  | Yes | No | Yes |  |  |  |  |  |
+| Method | Population ID | Comparison setting | Training membership | Target-specific training? | CAD at inference? | BBox input? | Real supervision? | Box AP50:95 ↑ | ADD(-S) AUC ↑ | Rotation med. (°) ↓ | Translation med. (cm) ↓ | Yaw med. (°) ↓ |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| SingleShotPose |  | controlled |  |  |  |  |  |  |  |  |  |  |
+| DOPE |  | controlled |  |  |  |  |  |  |  |  |  |  |
+| PVNet |  | controlled |  |  |  |  |  |  |  |  |  |  |
+| YOLO26n-Pose (G38) |  | controlled | G38 generic synthetic | No | No | No | No |  |  |  |  |  |
+| Proposed method |  | controlled |  |  |  |  |  |  |  |  |  |  |
+| Real-FT upper bound |  | controlled |  | Yes | No | No | Yes |  |  |  |  |  |
+
+### Table 1b. Native-setting reference (controlled 행과 섞지 않는다)
+
+각 method 의 원래 조건(CAD at inference, bbox 입력 요구, target-specific synthetic,
+real label, 외부 pretraining)를 그대로 둔 참고값이다. 승자를 주장하는 데 쓰지
+않고, Table 1 과 한 덩어리로 묶지 않는다.
+
+| Method | Population ID | Comparison setting | Training membership | Target-specific training? | CAD at inference? | BBox input? | Real supervision? | Box AP50:95 ↑ | ADD(-S) AUC ↑ | Rotation med. (°) ↓ | Translation med. (cm) ↓ | Yaw med. (°) ↓ |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+|  |  | native |  |  |  |  |  |  |  |  |  |  |
 
 > MegaPose-RGB를 넣을 경우 CAD-at-inference / bbox-input 계약이 다르므로 별도 reference block으로 분리한다.
 
@@ -93,3 +110,8 @@
 | HF hard-mined + focal | Model-mined hard negative | 1,900 | Focal-negative |  |  |  |
 
 이 표는 main result가 아니라 negative-data 축이 왜 최종 방법에서 제외됐는지를 설명하는 appendix용이다.
+
+---
+
+컨트롤드 비교 / native-setting reference / architecture-only 의 정의와
+보고 가드레일은 `COMPARISON_PROTOCOL.md` 에 있다.

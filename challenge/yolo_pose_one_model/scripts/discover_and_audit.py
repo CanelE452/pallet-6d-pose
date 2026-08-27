@@ -28,7 +28,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO))
-from challenge.data_paths import get as dp  # noqa: E402
+from challenge.data_paths import get as dp, invalid_gt_source_paths  # noqa: E402
 
 OUT_DIR = REPO / "challenge/yolo_pose_one_model"
 G_ROOT = "data/pallet/training_data/paper_release/v2_prod40k_clean_merged"
@@ -114,17 +114,21 @@ def collect_target():
 
 def collect_real():
     rows = []
+    forbidden = invalid_gt_source_paths()
     for g in R_GLOBS:
         for folder in sorted((REPO).glob(g)):
             if not folder.is_dir():
                 continue
             for js in sorted(folder.glob("*.json")):
+                annotation_path = rel(js)
+                if annotation_path in forbidden:
+                    continue
                 img = js.with_suffix(".png")
                 if not img.exists():
                     alt = js.with_suffix(".jpg")
                     img = alt if alt.exists() else img
                 rows.append({"sample_id": f"R/{folder.name}/{js.stem}", "domain": "real",
-                             "image_path": rel(img), "annotation_path": rel(js),
+                             "image_path": rel(img), "annotation_path": annotation_path,
                              "session_id": folder.name, "scene_id": folder.name,
                              "asset_id": "", "frame_index": js.stem})
     return rows

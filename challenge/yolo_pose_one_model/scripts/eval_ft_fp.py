@@ -27,19 +27,14 @@ import numpy as np
 from ultralytics import YOLO
 
 REPO = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO))
+from challenge import data_paths  # noqa: E402
+
 OUT_ROOT = REPO / "challenge/yolo_pose_one_model"
 NEG_SEQ = REPO / "data/pallet/raw_data/outside/forklift_raw_20260528_163408/rgb"
 PAD = 100
 
-EVAL_DIRS = [
-    "challenge/data/01_real/eval_canonical/_outside_eval_manual_gt",
-    "challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt",
-    "challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt",
-    "challenge/data/01_real/manual_gt/capturepallet07_manual_gt",
-    "challenge/data/01_real/manual_gt/capturepallet09_manual_gt",
-    "challenge/data/01_real/manual_gt/capturenight08_manual_gt",
-    "challenge/data/01_real/manual_gt/capturenight09_manual_gt",
-]
+EVAL_DIRS = list(data_paths.EVAL_CANONICAL.values())
 
 
 def predict_batch(model, paths, conf, bs=32):
@@ -100,12 +95,21 @@ def main():
     rest_paths = [NEG_SEQ / f"{f:06d}.png" for f in all_frames if f not in neg_frames]
 
     ev = []
+    forbidden = data_paths.invalid_gt_source_paths()
     for d in EVAL_DIRS:
         for a in sorted(glob.glob(str(REPO / d / "*.json"))):
+            annotation_path = os.path.relpath(a, REPO).replace(os.sep, "/")
+            if annotation_path in forbidden:
+                raise RuntimeError(f"QUARANTINED_GT_REINTRODUCED: {annotation_path}")
             g = gt_kps(a)
             p = os.path.splitext(a)[0] + ".png"
             if g is not None and os.path.exists(p):
                 ev.append((p, g, os.path.basename(os.path.dirname(a))))
+    if len(ev) != data_paths.EVAL_CANONICAL_TOTAL:
+        raise RuntimeError(
+            f"EVAL_CANONICAL_COUNT_MISMATCH: expected "
+            f"{data_paths.EVAL_CANONICAL_TOTAL}, got {len(ev)}"
+        )
 
     print(f"negative(팔레트 없음, 육안검수) {len(neg_paths)} | 나머지 forklift "
           f"{len(rest_paths)} | eval 정본 {len(ev)}\n")
@@ -150,7 +154,10 @@ def main():
 
     print("\nFP율 = 팔레트 없는 프레임에서 검출이 난 비율(낮을수록 좋음, in-sample 주의)")
     print("나머지검출 = 학습에 안 쓴 652 프레임 검출률(팔레트 있는 구간이 대부분 -> 유지돼야 정상)")
-    print("eval검출/kp = 학습에서 제외한 정본 161장 (회귀 감시)")
+    print(
+        f"eval검출/kp = GT-QA clean 정본 "
+        f"{data_paths.EVAL_CANONICAL_TOTAL}장 (회귀 감시)"
+    )
     json.dump(results, open(OUT_ROOT / "runs_ft/_eval_ft.json", "w", encoding="utf-8"),
               indent=2, default=float)
 

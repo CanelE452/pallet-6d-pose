@@ -1,13 +1,18 @@
 # 평가셋 정본 (canonical eval set) — 반드시 이것만 사용
 
-> ## ⚠ 2026-08-20 역할 변경 — ★final-test 105장은 더 이상 final test 가 아니다
-> `capturepallet07 27 / capturepallet09 36 / capturenight08 17 / capturenight09 25`
-> = **105장**은 4-모델 비교에서 열렸고 **재봉인 불가**하다.
+> ## ⚠ 2026-08-27 GT QA — 실행 정본은 140장
+> raw 161장 중 확정 오류 21장을 격리했다. 새 평가에서 161을 분모로
+> 쓰지 말고 `challenge/real_gt_v2/INVALID_GT_QUARANTINE.json`을 따른다.
+> 161장 결과는 과거 실험 기록으로만 유지한다.
+>
+> ## ⚠ 2026-08-20 역할 변경 — ★final-test는 더 이상 final test가 아니다
+> `capturepallet07 27 / capturepallet09 33 / capturenight08 12 / capturenight09 16`
+> = GT-QA clean **88장**(QA 전 raw 105장)은 4-모델 비교에서 열렸고 **재봉인 불가**하다.
 > 새 이름 **`REAL_CHALLENGE_DEV_105`** — 역할은 development
 > (seed 비교 · failure 진단 · 모델 비교).
 > **final test 라고 다시 부르지 않는다.** 최종 주장은 앞으로 새로 촬영할
 > REAL_TEST 에서 한다.
-> 나머지 56장(outside 22 / noapril 12 / cad 22)은 `REAL_DEV_POS_V1`.
+> 나머지 clean 52장(outside 22 / noapril 12 / cad 18)은 development다.
 
 > **2026-08-04 사용자 확정.**  평가는 사용자가 어노테이션 툴에서 직접 `v` 키로
 > `eval` 표시한 프레임만 사용한다.  다른 셋을 쓰면 결과의 적용범위가 틀린다.
@@ -25,14 +30,17 @@
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 challenge/data/01_real/eval_canonical/_outside_eval_manual_gt      22   22      22  manual     filter-val 세션
 challenge/data/01_real/eval_canonical/capture0403noapril_manual_gt 12   12      12  manual     (lock 미지정)
-challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt   22   22      22  manual     (lock 미지정)
+challenge/data/01_real/eval_canonical/capturepalletcad_manual_gt   18   22      18  manual     (lock 미지정)
 challenge/data/01_real/manual_gt/capturepallet07_manual_gt         27   27      27  manual     ★final-test
-challenge/data/01_real/manual_gt/capturepallet09_manual_gt         36   36      36  manual     ★final-test
-challenge/data/01_real/manual_gt/capturenight08_manual_gt          17   17      17  manual     ★final-test
-challenge/data/01_real/manual_gt/capturenight09_manual_gt          25   25      25  manual     ★final-test
+challenge/data/01_real/manual_gt/capturepallet09_manual_gt         33   36      33  manual     ★final-test
+challenge/data/01_real/manual_gt/capturenight08_manual_gt          12   17      12  manual     ★final-test
+challenge/data/01_real/manual_gt/capturenight09_manual_gt          16   25      16  manual     ★final-test
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-합계                                                              161
+합계                                                              140
 ```
+
+`png`는 원본 이미지 수이다. 오류 annotation JSON만 격리했기 때문에
+`eval`과 `cuboid`가 작은 세션에서도 이미지는 의도적으로 남아 있다.
 
 2026-08-14 재편 전 경로(`challenge/data/_outside_eval_manual_gt` 등)는 더 이상
 존재하지 않는다. 호환용 symlink 를 잠시 뒀다가 참조를 모두 전환한 뒤 제거했다.
@@ -79,7 +87,9 @@ night PL 풀(n05 176 / n06 160 / n07 164)에 들어가 있다 = transductive.
 `split` 은 **최상위가 아니라 `objects[0].split`** 에 있다.  최상위 `split` 을 읽으면
 전부 "없음" 으로 보인다 (2026-08-04 실제 발생한 오류).
 
-## night 이 0 장인 이유 (의도된 제외)
+## 폐기된 2026-08-04 설명: night이 0장이었던 이유
+
+> 아래는 2026-08-08 night08/09 편입 전 이력이다. 현재 정본 정의가 아니다.
 
 사용자 확인(2026-08-04): **night 시퀀스는 가림(occlusion)이 심해 추론 자체가 성립하지
 않는 프레임이 많아** eval 로 표시하지 않았다.  `_night_eval_manual_gt` 43 장은
@@ -154,10 +164,12 @@ VCR, PCR) 전부가 이 셋 위에서 판정됐다.  대부분 큰 폭의 실패
 
 ## 새 평가를 만들 때
 
-1. 위 3개 폴더에서 `objects[0].split == "eval"` 인 것만 모은다 (56장).
-2. manifest 에 `split_source: "objects[0].split"`, `eval_frame_count: 56`,
+1. `challenge/data_paths.py:EVAL_CANONICAL` 7개 폴더에서
+   `objects[0].split == "eval"`인 것만 모은다(140장).
+2. `INVALID_GT_QUARANTINE.json`의 경로·SHA·official frame ID와 교집이 0임을 강제한다.
+3. manifest에 `split_source: "objects[0].split"`, `eval_frame_count: 140`,
    폴더별 내역, membership hash 를 기록한다.
-3. final-test 토큰 가드를 그대로 유지한다.
-4. `data/_eval_sets/*` 를 참조하지 않는다.
+4. final-test 토큰 가드를 그대로 유지한다.
+5. `data/_eval_sets/*` 를 참조하지 않는다.
 
 검증: `challenge/tests/test_eval_set_canonical.py`

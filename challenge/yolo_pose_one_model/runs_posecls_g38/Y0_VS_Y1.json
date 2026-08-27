@@ -1,0 +1,238 @@
+{
+  "gate": {
+    "frozen_at": "30ep 학습 시작 전",
+    "comparison": "Y1 - Y0, same G38 / same init / same recipe / loss 하나만 다름",
+    "safety_all_must_hold": {
+      "ALL_cbox_drop_pp_max": 0.02,
+      "NIGHT_any_cbox_drop_pp_max": 0.02,
+      "ALL_median_degrade_rel_max": 0.05,
+      "heldout_neg_FP_per_image_040_increase_rel_max": 0.1
+    },
+    "conditions_need": 2,
+    "conditions": {
+      "A_NIGHT_top1_cbox_gain_pp": 0.1,
+      "B_ALL_p90_rel_gain": 0.1,
+      "C_NIGHT_p90_rel_gain": 0.15
+    },
+    "verdict": "safety 전부 통과 AND 조건 2개 이상 -> Y1_POSEAWARE_LOSS_PROMOTE / 1개 이하 -> Y1_POSEAWARE_LOSS_NO_SIGNAL",
+    "no_threshold_change_after_results": true,
+    "scope": "NIGHT n=28, seed 1, 30ep. real 은 training/loss 에 쓰이지 않는다."
+  },
+  "delta": {
+    "NIGHT_top1_cbox_pp": -0.2142857142857143,
+    "ALL_p90_rel_gain": -0.01920763603347626,
+    "NIGHT_p90_rel_gain": 0.745281832843612,
+    "ALL_cbox_pp": 0.0,
+    "NIGHT_any_cbox_pp": -0.1071428571428572,
+    "ALL_median_degrade_rel": 0.028942124663567985,
+    "FP_img_040_rel_increase": 0.11067193675889325
+  },
+  "safety": {
+    "ALL_cbox": true,
+    "NIGHT_any_cbox": false,
+    "ALL_median": true,
+    "FP_img_040": false
+  },
+  "conditions": {
+    "A_NIGHT_top1": false,
+    "B_ALL_p90": false,
+    "C_NIGHT_p90": true
+  },
+  "n_conditions": 1,
+  "VERDICT": "Y1_POSEAWARE_LOSS_NO_SIGNAL",
+  "Y0": {
+    "synth": {
+      "weights": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/weights/last.pt",
+      "data": "challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+      "results_dict": {
+        "metrics/precision(B)": 0.9818640218104635,
+        "metrics/recall(B)": 0.9754777752951199,
+        "metrics/mAP50(B)": 0.9937828374126727,
+        "metrics/mAP50-95(B)": 0.9279053904223338,
+        "metrics/precision(P)": 0.948645809086616,
+        "metrics/recall(P)": 0.9430460666207404,
+        "metrics/mAP50(P)": 0.9399716173037829,
+        "metrics/mAP50-95(P)": 0.9058686901559868,
+        "fitness": 1.8337740805783205
+      },
+      "box_map50": 0.9937828374126727,
+      "box_map": 0.9279053904223338,
+      "pose_map50": 0.9399716173037829,
+      "pose_map": 0.9058686901559868,
+      "note": "기존 ultralytics evaluator 의 metric 정의 그대로. 새 정의 없음."
+    },
+    "real": {
+      "ALL": {
+        "n": 128,
+        "cbox": 0.828125,
+        "median": 12.522881266975382,
+        "p90": 69.71039881309939,
+        "gross20": 0.33372641509433965
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.92,
+        "median": 11.86148919756348,
+        "p90": 59.70118022688335,
+        "gross20": 0.30027173913043476
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.5,
+        "median": 23.6737304200985,
+        "p90": 151.2133132461602,
+        "gross20": 0.5535714285714286
+      },
+      "night_candidate": {
+        "model": "PC_Y0",
+        "n": 28,
+        "any_det": 1.0,
+        "any_cbox": 0.7142857142857143,
+        "top1_cbox": 0.5,
+        "cand_per_frame": 7.892857142857143,
+        "wrong_per_frame": 6.142857142857143,
+        "wrong_present_frac": 0.9285714285714286,
+        "margin_median": 0.3149525374174118,
+        "margin_positive_frac": 0.7,
+        "rank_hist": {
+          "rank3+": 5,
+          "rank1": 14,
+          "absent": 8,
+          "rank2": 1
+        }
+      }
+    },
+    "neg": {
+      "n_pos": 128,
+      "n_neg": 2689,
+      "AP_AUPRC": 0.6459854490036163,
+      "AUROC": 0.9374447982521383,
+      "FPR@TPR95": 0.3019709929341763,
+      "neg_p90": 0.36342411041259803,
+      "neg_p95": 0.5542215824127197,
+      "neg_p99": 0.8177645063400265,
+      "FP_per_image": {
+        "0.05": 0.44254369654146525,
+        "0.1": 0.2986240238006694,
+        "0.25": 0.15544812197843064,
+        "0.4": 0.09408702119747119
+      }
+    },
+    "runtime": {
+      "criterion": "PoseLoss26",
+      "criterion_one2one": "PoseLoss26",
+      "POSEALIGN_CALLS": 0,
+      "n_train_batches": 1188,
+      "actual_epochs": 30
+    }
+  },
+  "Y1": {
+    "synth": {
+      "weights": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y1_POSEAWARE_CLS_30EP_SEED42/weights/last.pt",
+      "data": "challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+      "results_dict": {
+        "metrics/precision(B)": 0.9819565560893143,
+        "metrics/recall(B)": 0.9805728711874554,
+        "metrics/mAP50(B)": 0.9939646453765043,
+        "metrics/mAP50-95(B)": 0.9292206992525147,
+        "metrics/precision(P)": 0.9463377711723716,
+        "metrics/recall(P)": 0.9444212849550203,
+        "metrics/mAP50(P)": 0.9415055332010858,
+        "metrics/mAP50-95(P)": 0.9136966717671511,
+        "fitness": 1.8429173710196658
+      },
+      "box_map50": 0.9939646453765043,
+      "box_map": 0.9292206992525147,
+      "pose_map50": 0.9415055332010858,
+      "pose_map": 0.9136966717671511,
+      "note": "기존 ultralytics evaluator 의 metric 정의 그대로. 새 정의 없음."
+    },
+    "real": {
+      "ALL": {
+        "n": 128,
+        "cbox": 0.828125,
+        "median": 12.885320057751244,
+        "p90": 71.04937078124988,
+        "gross20": 0.3443396226415094
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.98,
+        "median": 12.503367675880991,
+        "p90": 77.63819938555356,
+        "gross20": 0.3392857142857143
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.2857142857142857,
+        "median": 16.851623905923578,
+        "p90": 38.51677799970669,
+        "gross20": 0.40625
+      },
+      "night_candidate": {
+        "model": "PC_Y1",
+        "n": 28,
+        "any_det": 0.9642857142857143,
+        "any_cbox": 0.6071428571428571,
+        "top1_cbox": 0.2857142857142857,
+        "cand_per_frame": 5.714285714285714,
+        "wrong_per_frame": 4.357142857142857,
+        "wrong_present_frac": 0.9285714285714286,
+        "margin_median": -0.013733860105276108,
+        "margin_positive_frac": 0.47058823529411764,
+        "rank_hist": {
+          "rank3+": 7,
+          "rank1": 8,
+          "absent": 11,
+          "rank2": 2
+        }
+      }
+    },
+    "neg": {
+      "n_pos": 128,
+      "n_neg": 2689,
+      "AP_AUPRC": 0.5954147254926337,
+      "AUROC": 0.881813057828189,
+      "FPR@TPR95": 0.58162885831164,
+      "neg_p90": 0.3965018749237066,
+      "neg_p95": 0.5983458518981933,
+      "neg_p99": 0.7616796874999998,
+      "FP_per_image": {
+        "0.05": 0.47080699144663446,
+        "0.1": 0.30978058757902566,
+        "0.25": 0.16102640386760878,
+        "0.4": 0.10449981405727037
+      }
+    },
+    "runtime": {
+      "criterion": "PoseAwareClsLoss26",
+      "criterion_one2one": "PoseAwareClsLoss26",
+      "POSEALIGN_CALLS": 73200,
+      "lambda_posealign": 0.25,
+      "n_train_batches": 1188,
+      "actual_epochs": 30
+    }
+  },
+  "★scope": "NIGHT n=28, seed 1, 30ep. real 은 loss/training 에 쓰이지 않았다. held-out negative membership 은 실측으로 재검산했다(아래 note). Windows Y2 와 비교 전에는 60ep 을 자동 시작하지 않는다.",
+  "★C_CONDITION_IS_A_POPULATION_ARTIFACT": {
+    "claim": "조건 C(NIGHT p90 -74.5%)를 Y1 의 성능 개선으로 읽으면 안 된다.",
+    "evidence": {
+      "Y0_night_top1_correct_frames": 14,
+      "Y1_night_top1_correct_frames": 8,
+      "Y0_night_any_correct_frames": 20,
+      "Y1_night_any_correct_frames": 17,
+      "note": "NIGHT median/p90 은 correct-box 프레임에서만 계산된다. Y1 은 그 모집단이 14 -> 8 로 줄었고, 남은 8 장이 더 쉬운 프레임이라 p90 이 내려간 것이다."
+    },
+    "consequence": "1/3 조건 통과도 실질은 0/3 에 가깝다. gate 는 이미 NO_SIGNAL 이므로 판정은 불변."
+  },
+  "★HYPOTHESIS_OUTCOME": {
+    "paper_question": "pose quality 를 classification objective 에 반영하면 NIGHT ranking 이 개선되는가",
+    "answer": "NO — 30ep, lambda 0.25 에서 오히려 악화. NIGHT top1 14/28 -> 8/28 (-21.4pp).",
+    "premise_still_holds": "'confidence 가 keypoint 품질에 정렬 안 됨' 이라는 전제 자체는 과거 측정(box_conf AUC 0.72)으로 유효하다. 반증된 것은 '그래서 cls target 에 q_pose 를 곱하면 고쳐진다' 는 해법이다.",
+    "side_effects": {
+      "negative_separation": "AP 0.646->0.595, AUROC 0.937->0.882, FPR@TPR95 0.302->0.582",
+      "synthetic": "거의 동일 (pose_map +0.0078) — synthetic 목적함수는 내려가는데 real 전이 실패",
+      "DAY_cbox": "+6.0pp 개선(0.920->0.980)이나 DAY p90 은 59.7->77.6 악화"
+    }
+  }
+}

@@ -143,8 +143,17 @@ def summarise(rows, denominator=None):
 
 
 def main(models=("yolo26n_synth", "yolo26n_ft", "yolo26m_ft", "FINAL40K_seed1")):
+    frame_rows = MF.frames()
+    if len(frame_rows) != 161:
+        raise RuntimeError(
+            "HISTORICAL_DEV161_EVALUATOR_DISABLED_AFTER_GT_QA: "
+            f"mc_geom.py requires its frozen 161-frame population, but mc_frames "
+            f"now exposes the clean {len(frame_rows)}-frame population. Use "
+            "challenge/evaluation_v2/paper_real_eval.py for current paper evaluation; "
+            "otherwise this script would write misleading OPEN_56/DEV_105/ALL_161 keys."
+        )
     truths = {}
-    for key, sealed, jp, ip, label in MF.frames():
+    for key, sealed, jp, ip, label in frame_rows:
         truths[os.path.splitext(os.path.basename(jp))[0]] = (key, sealed,
                                                              gt_of(label))
     per_model, presence = {}, {}

@@ -13,7 +13,8 @@
 
 사용:
   conda activate pallet-pose
-  python challenge/scripts/annotate/annotate_wood.py --video pallet_20260618_183705 --stride 5
+  python challenge/scripts/annotate/annotate_wood.py --video pallet_20260618_183705 \
+      --stride 5 --population-role DEV
   # 실제 K 있으면:  --K path/to/cam_K.txt   (3x3, 프레임 해상도 기준)
   # 또는:           --hfov 63   (수평 화각 deg 로 fx 추정)
 
@@ -112,6 +113,9 @@ def main():
                     help="주면 이 수평 화각(deg)로 K 추정. 안 주면 이전 어노와 동일 K(PREV_K)")
     ap.add_argument("--out_dir", default=None,
                     help="기본: challenge/data/wood_<video>_manual_gt")
+    ap.add_argument("--population-role", "--population_role", required=True,
+                    choices=["DEV", "FINAL"],
+                    help="annotate.py와 동일한 명시적 population 역할; 자동 추론 없음")
     args = ap.parse_args()
 
     src = os.path.join(WOOD_ROOT, args.video)
@@ -149,7 +153,8 @@ def main():
     import annotate                                # 이제 annotate 의 copy 도 wood
 
     sys.argv = ["annotate_wood", "--seq", seq, "--stride", str(args.stride),
-                "--start", str(args.start), "--out_dir", out_dir]
+                "--start", str(args.start), "--out_dir", out_dir,
+                "--population-role", args.population_role]
     annotate.main()
 
 

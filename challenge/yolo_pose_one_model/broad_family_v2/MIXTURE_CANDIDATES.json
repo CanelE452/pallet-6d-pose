@@ -1,0 +1,46 @@
+{
+ "constraint": "총 40,000 unique exposure 고정. 기존 V1 도 40K 이므로 총량 증가 confound 를 막는다.",
+ "note": "결과를 보고 비율을 고르지 않는다. 아래는 EDA 후 사전 제안이다.",
+ "candidates": {
+  "M0_CONSERVATIVE": {
+   "G0A0": 0.7,
+   "G1A0": 0.12,
+   "G0A1": 0.12,
+   "G1A1": 0.06,
+   "rationale": "generic 0.624 보호 최우선. old 가 절대다수",
+   "risk": "G1A1 interaction cell 이 2,400 프레임뿐 — 효과 검출력 부족"
+  },
+  "M1_BALANCED": {
+   "G0A0": 0.5,
+   "G1A0": 0.17,
+   "G0A1": 0.17,
+   "G1A1": 0.16,
+   "rationale": "old 가 여전히 최대 cell 이면서 세 신규 cell 이 각각 6,400~6,800 프레임을 확보. 네 cell 모두 비어 있지 않다",
+   "risk": "generic 하락 가능 — 그래서 safety lock 이 선행"
+  },
+  "M2_AGGRESSIVE": {
+   "G0A0": 0.34,
+   "G1A0": 0.22,
+   "G0A1": 0.22,
+   "G1A1": 0.22,
+   "rationale": "factor 효과 검출력 최대",
+   "risk": "old broad 가 1/3 로 줄어 generic 붕괴 위험"
+  }
+ },
+ "recommended": "M1_BALANCED",
+ "recommendation_basis": [
+  "old broad 가 여전히 최대 cell (0.50)",
+  "G1 topology 가 반복 없이 노출되려면 mesh 당 충분한 frame 이 필요 — 0.17+0.16=0.33 이면 mesh 20 개 기준 mesh 당 660 프레임",
+  "A1 6 strata 각각 최소 support 확보 (0.17+0.16=0.33 -> stratum 당 2,200)",
+  "G1A1 interaction cell 6,400 프레임으로 비어 있지 않음",
+  "단일 asset dominance 없음"
+ ],
+ "frame_math_at_M1": {
+  "total": 40000,
+  "G0A0": 20000,
+  "G1A0": 6800,
+  "G0A1": 6800,
+  "G1A1": 6400,
+  "new_render_needed": 20000
+ }
+}

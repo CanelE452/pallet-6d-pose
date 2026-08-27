@@ -1,0 +1,18 @@
+{
+  "run": "PSPC_ASC_USD_ONLY_V1MATCHED10K_60EP_SEED42",
+  "run_class": "EXPLORATORY_METHOD_SCREEN",
+  "source_sha256_16": {
+    "symmetry.py": "c24c93245c846d85",
+    "loss.py": "467f4b0d521e47dc",
+    "model.py": "b29695c4e1063efb",
+    "trainer.py": "0b10819db8430d0a"
+  },
+  "config": "ASC_LOSS_CONFIG.json",
+  "schedule_lock": "ASC_SCHEDULE_LOCK.json",
+  "tests": "ASC_TEST_RESULTS.json (15/15 PASS)",
+  "init": "challenge/weights/pretrained_yolo/yolo26n-pose.pt (clean, resume=False)",
+  "baseline_A0": "runs_fixed/V1_FIXED_MATCHED10K_60EP_SEED42_UBUNTU",
+  "baseline_A1": "runs_pallet_loss/PSPC_A1_USD_ONLY_V1MATCHED10K_60EP_SEED42",
+  "★parity_note": "beta=0 에서 A0 와 그래프가 동일해야 하므로 base 는 부모의 단일 reduction(self.keypoint_loss)을 쓰고 대칭 항만 보정으로 더한다. beta=0 이면 d_180/soft 를 아예 계산하지 않는다 — 계산만 해도 GPU workspace 가 바뀌어 cuDNN algo 선택이 흔들렸다(측정 grad 1.5e-4 -> 3.2e-5).",
+  "★A1_deviation": "A1_USD_ONLY 는 pos.mean() 2단계 reduction 을 썼다. 그 자체로 A0 대비 grad 5.6e-3 차이가 있었다(잡음 1.9e-4). ASC 는 이 결함이 없다. A1 의 초기 가속 해석에 이 차이가 기여했을 가능성을 배제하지 못한다."
+}

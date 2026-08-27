@@ -1,0 +1,82 @@
+{
+  "input": [
+    1,
+    3,
+    680,
+    840
+  ],
+  "imgsz": 640,
+  "levels": {
+    "P3": {
+      "level_index": 0,
+      "stride": 8.0,
+      "spatial": [
+        68,
+        80
+      ],
+      "modules": {
+        "neck_in": "model.model[-1].one2one_cv3[0][0]  (입력)",
+        "cls1": "model.model[-1].one2one_cv3[0][0]",
+        "cls_pen": "model.model[-1].one2one_cv3[0][1]",
+        "logit": "model.model[-1].one2one_cv3[0][2]",
+        "pose_pen": "model.model[-1].one2one_cv4[0]"
+      },
+      "channels": {
+        "cls1": 64,
+        "cls_pen": 64,
+        "logit": 1,
+        "pose_pen": 45
+      },
+      "neck_in_channels": 64,
+      "branch": "one2one"
+    },
+    "P4": {
+      "level_index": 1,
+      "stride": 16.0,
+      "spatial": [
+        34,
+        40
+      ],
+      "modules": {
+        "neck_in": "model.model[-1].one2one_cv3[1][0]  (입력)",
+        "cls1": "model.model[-1].one2one_cv3[1][0]",
+        "cls_pen": "model.model[-1].one2one_cv3[1][1]",
+        "logit": "model.model[-1].one2one_cv3[1][2]",
+        "pose_pen": "model.model[-1].one2one_cv4[1]"
+      },
+      "channels": {
+        "cls1": 64,
+        "cls_pen": 64,
+        "logit": 1,
+        "pose_pen": 45
+      },
+      "neck_in_channels": 128,
+      "branch": "one2one"
+    },
+    "P5": {
+      "level_index": 2,
+      "stride": 32.0,
+      "spatial": [
+        17,
+        20
+      ],
+      "modules": {
+        "neck_in": "model.model[-1].one2one_cv3[2][0]  (입력)",
+        "cls1": "model.model[-1].one2one_cv3[2][0]",
+        "cls_pen": "model.model[-1].one2one_cv3[2][1]",
+        "logit": "model.model[-1].one2one_cv3[2][2]",
+        "pose_pen": "model.model[-1].one2one_cv4[2]"
+      },
+      "channels": {
+        "cls1": 64,
+        "cls_pen": 64,
+        "logit": 1,
+        "pose_pen": 45
+      },
+      "neck_in_channels": 256,
+      "branch": "one2one"
+    }
+  },
+  "flat_index_order": "level 0(P3) -> 1(P4) -> 2(P5), 각 H*W 를 이어붙임 (Detect.forward_head)",
+  "primary_path": "one2one classification path (실제 추론에 쓰이는 경로)"
+}

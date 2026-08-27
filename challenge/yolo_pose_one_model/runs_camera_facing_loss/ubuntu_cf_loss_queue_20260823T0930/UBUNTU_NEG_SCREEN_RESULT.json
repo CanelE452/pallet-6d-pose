@@ -1,0 +1,355 @@
+{
+  "gate": {
+    "frozen_at": "학습 시작 전 (N0 smoke 이전)",
+    "comparison": "DELTA_NEG = N1_NEGATIVE - N0_CONTROL  (same host, matched control)",
+    "★absolute_cross_host_comparison_forbidden": true,
+    "negative_hits_need": 2,
+    "negative_hits": {
+      "d_AP": {
+        "op": ">=",
+        "value": 0.02,
+        "scope": "HELDOUT_2689"
+      },
+      "d_FPR_at_TPR95": {
+        "op": "<=",
+        "value": -0.05,
+        "scope": "HELDOUT_2689"
+      },
+      "d_neg_detect_rate_040": {
+        "op": "<=",
+        "value": -0.05,
+        "scope": "HELDOUT_2689"
+      },
+      "d_FP_per_image_040": {
+        "op": "<=",
+        "value": -0.1,
+        "scope": "HELDOUT_2689"
+      },
+      "d_neg_cand_mean_rel": {
+        "op": "<=",
+        "value": -0.2,
+        "scope": "HELDOUT_2689"
+      },
+      "d_neg_p90": {
+        "op": "<=",
+        "value": -0.05,
+        "scope": "HELDOUT_2689"
+      }
+    },
+    "positive_guards_all_must_hold": {
+      "d_all_cbox_pp": {
+        "op": ">=",
+        "value": -0.03,
+        "scope": "SAME_REAL_128"
+      },
+      "d_night_any_cbox_frames": {
+        "op": ">=",
+        "value": -2,
+        "scope": "SAME_REAL_128 NIGHT n=28"
+      },
+      "d_all_median_rel_worse": {
+        "op": "<=",
+        "value": 0.15,
+        "scope": "SAME_REAL_128"
+      }
+    },
+    "verdict_rule": "guards 전부 통과 AND hits>=2 -> POSITIVE / guard 하나라도 실패 -> HARM / 그 외 -> NULL",
+    "★no_threshold_change_after_results": true,
+    "★scope": "NIGHT n=28, seed 1, 15ep FAST SCREEN. init = exact G38 checkpoint."
+  },
+  "DELTA_NEG": {
+    "d_AP": 0.03718268249665735,
+    "d_FPR_at_TPR95": -0.06619561175158051,
+    "d_neg_detect_rate_040": -0.03272592041651171,
+    "d_FP_per_image_040": -0.033097805875790254,
+    "d_neg_cand_mean_rel": -0.7752908587257619,
+    "d_neg_p90": -0.15154599733650692
+  },
+  "positive_guard_values": {
+    "d_all_cbox_pp": -0.046875,
+    "d_night_any_cbox_frames": -9.0,
+    "d_all_median_rel_worse": -0.03250365307806213
+  },
+  "hits": {
+    "d_AP": true,
+    "d_FPR_at_TPR95": true,
+    "d_neg_detect_rate_040": false,
+    "d_FP_per_image_040": false,
+    "d_neg_cand_mean_rel": true,
+    "d_neg_p90": true
+  },
+  "n_hits": 4,
+  "guards": {
+    "d_all_cbox_pp": false,
+    "d_night_any_cbox_frames": false,
+    "d_all_median_rel_worse": true
+  },
+  "NEG_SIGNAL": "HARM",
+  "neg_metrics": {
+    "N0": {
+      "n_pos": 128,
+      "n_neg": 2689,
+      "AP": 0.6934135355802936,
+      "AUROC": 0.9498826236519152,
+      "FPR@TPR95": 0.26738564522127184,
+      "pos_p10": 0.07336101680994034,
+      "pos_median": 0.8795145452022552,
+      "neg_median": 0.00594748742878437,
+      "neg_p90": 0.17348742485046398,
+      "neg_p95": 0.3968623101711272,
+      "neg_p99": 0.8391622900962826,
+      "separation_margin": -0.10012640804052364,
+      "neg_cand_mean": 3.3562662699888435,
+      "det": {
+        "0.05": {
+          "neg_detect_rate": 0.20639642989959092,
+          "FP_per_image": 0.27259204165117146,
+          "recall_TPR": 0.921875
+        },
+        "0.25": {
+          "neg_detect_rate": 0.07735217552993678,
+          "FP_per_image": 0.0810710301227222,
+          "recall_TPR": 0.796875
+        },
+        "0.4": {
+          "neg_detect_rate": 0.049832651543324655,
+          "FP_per_image": 0.05057642246188174,
+          "recall_TPR": 0.765625
+        }
+      }
+    },
+    "N1": {
+      "n_pos": 128,
+      "n_neg": 2689,
+      "AP": 0.730596218076951,
+      "AUROC": 0.9446064986984011,
+      "FPR@TPR95": 0.20119003346969133,
+      "pos_p10": 0.013711683172732593,
+      "pos_median": 0.8677088022232056,
+      "neg_median": 0.0,
+      "neg_p90": 0.021941427513957057,
+      "neg_p95": 0.07878373116254805,
+      "neg_p99": 0.6574783492088292,
+      "separation_margin": -0.008229744341224464,
+      "neg_cand_mean": 0.7541837114168836,
+      "det": {
+        "0.05": {
+          "neg_detect_rate": 0.06396429899590926,
+          "FP_per_image": 0.07251766455931573,
+          "recall_TPR": 0.7890625
+        },
+        "0.25": {
+          "neg_detect_rate": 0.024544440312383786,
+          "FP_per_image": 0.02528821123094087,
+          "recall_TPR": 0.6875
+        },
+        "0.4": {
+          "neg_detect_rate": 0.017106731126812942,
+          "FP_per_image": 0.017478616586091483,
+          "recall_TPR": 0.640625
+        }
+      }
+    }
+  },
+  "real_table": {
+    "N0": {
+      "ALL": {
+        "n": 128,
+        "cbox": 0.8359375,
+        "med": 12.338552975847406,
+        "p90": 103.41937684201774,
+        "gross": 0.3247663551401869
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.92,
+        "med": 11.092059075265853,
+        "p90": 88.11691414641217,
+        "gross": 0.28532608695652173
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.5357142857142857,
+        "med": 24.894077839200794,
+        "p90": 132.70831454128307,
+        "gross": 0.5666666666666667
+      }
+    },
+    "N1": {
+      "ALL": {
+        "n": 128,
+        "cbox": 0.7890625,
+        "med": 11.937504930435171,
+        "p90": 61.46308208712154,
+        "gross": 0.2871287128712871
+      },
+      "DAY": {
+        "n": 100,
+        "cbox": 0.92,
+        "med": 11.439163690034245,
+        "p90": 60.91980439566204,
+        "gross": 0.27445652173913043
+      },
+      "NIGHT": {
+        "n": 28,
+        "cbox": 0.32142857142857145,
+        "med": 16.10046524710506,
+        "p90": 114.82785464122381,
+        "gross": 0.4166666666666667
+      }
+    }
+  },
+  "night_candidate": {
+    "N0": {
+      "model": "ADAPT_N0",
+      "n": 28,
+      "any_det": 1.0,
+      "any_cbox": 0.6785714285714286,
+      "top1_cbox": 0.5357142857142857,
+      "cand_per_frame": 5.035714285714286,
+      "wrong_per_frame": 3.7857142857142856,
+      "wrong_present_frac": 0.8571428571428571,
+      "margin_median": 0.42646893858909607,
+      "margin_positive_frac": 0.7894736842105263,
+      "rank_hist": {
+        "rank3+": 4,
+        "rank1": 15,
+        "absent": 9
+      }
+    },
+    "N1": {
+      "model": "ADAPT_N1",
+      "n": 28,
+      "any_det": 0.9285714285714286,
+      "any_cbox": 0.35714285714285715,
+      "top1_cbox": 0.32142857142857145,
+      "cand_per_frame": 2.5714285714285716,
+      "wrong_per_frame": 1.9642857142857142,
+      "wrong_present_frac": 0.7142857142857143,
+      "margin_median": 0.5463607609272003,
+      "margin_positive_frac": 0.9,
+      "rank_hist": {
+        "absent": 18,
+        "rank1": 9,
+        "rank2": 1
+      }
+    }
+  },
+  "runtime_audit": {
+    "N0": {
+      "n_train_batches": 424,
+      "actual_epochs": 15,
+      "PC_CALL_COUNT": 0,
+      "ROLE_CALLS": 0,
+      "criterion": "PoseLoss26",
+      "data": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/datasets/adapt_n0_control/data.yaml",
+      "init": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt"
+    },
+    "N1": {
+      "n_train_batches": 424,
+      "actual_epochs": 15,
+      "PC_CALL_COUNT": 0,
+      "ROLE_CALLS": 0,
+      "criterion": "PoseLoss26",
+      "data": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/datasets/adapt_n1_negative/data.yaml",
+      "init": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt"
+    }
+  },
+  "init_lock": {
+    "G38_INIT_PATH": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+    "G38_INIT_SHA256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+    "source_of_truth": "REAL_G38.json['weights'] — SAME REAL 평가가 실제 사용한 경로",
+    "checkpoint_kind": "last.pt",
+    "chosen_by": "artifact (기억으로 best/last 고르지 않음)",
+    "bytes": 6552807,
+    "binds": [
+      "N0_CONTROL",
+      "N1_NEGATIVE",
+      "P0_CONTROL",
+      "P1_POSITIVE",
+      "M11_MIXED(future)"
+    ],
+    "G38_REAL_BASELINE": {
+      "n": 128,
+      "cbox": 0.852,
+      "median": 12.03,
+      "p90": 66.66,
+      "night_any_cbox": 0.821,
+      "night_top1_cbox": 0.536
+    }
+  },
+  "contract": {
+    "TOTAL_EXPOSURE": 13554,
+    "arms": {
+      "M00_CONTROL": {
+        "synthetic": 13554,
+        "positive": 0,
+        "negative": 0
+      },
+      "N0_CONTROL": {
+        "synthetic": 13554,
+        "positive": 0,
+        "negative": 0
+      },
+      "N1_NEGATIVE": {
+        "synthetic": 12000,
+        "positive": 0,
+        "negative": 1554
+      },
+      "P0_CONTROL": {
+        "synthetic": 13554,
+        "positive": 0,
+        "negative": 0
+      },
+      "P1_POSITIVE": {
+        "synthetic": 10414,
+        "positive": 3140,
+        "negative": 0
+      },
+      "M11_MIXED": {
+        "synthetic": 8860,
+        "positive": 3140,
+        "negative": 1554
+      }
+    },
+    "unique_x_repeat": {
+      "positive": "157 x 20 = 3140",
+      "negative": "259 x 6 = 1554"
+    },
+    "★frozen_before_training": true,
+    "★no_ratio_change_after_results": true,
+    "note": "N0 와 P0 는 같은 계약이지만 host 가 달라 각자 학습한다 (matched control)."
+  },
+  "split_lock": {
+    "POSITIVE_TRAIN": {
+      "unique": 157,
+      "expected": 157,
+      "total_exposure": 3140
+    },
+    "NEGATIVE_TRAIN": {
+      "unique": 259,
+      "expected": 259,
+      "total_exposure": 1554,
+      "source": "neg__forklift_raw__ (배포영상, max_conf<0.20 선별)"
+    },
+    "REAL_EVAL": {
+      "membership": 140,
+      "leak_removed": 12,
+      "N": 128,
+      "expected": 128
+    },
+    "NEGATIVE_TEST": {
+      "declared_by_user": 2430,
+      "MEASURED": 2689,
+      "source": "negative_real_20260823 (사무실·교내)"
+    },
+    "SET_OPS": {
+      "POS_TRAIN ∩ REAL_EVAL": 0,
+      "POS_TRAIN ∩ membership140": 12,
+      "NEG_TRAIN ∩ NEG_TEST (content)": 0
+    },
+    "PASS": true,
+    "★CORRECTION": "사용자 지시의 'NEG_TEST = 2,689 − 259 = 2,430' 은 성립하지 않는다. FT negative 259 는 neg__forklift_raw__ (배포영상) 이고 2,689 는 negative_real_20260823 (사무실·교내) 로 출처가 다르다. 파일명 숫자 id 는 259 개 겹치지만, PAD100 을 벗긴 센터크롭 기준 raw pixel 해시·32x32 perceptual 해시 전수 교차 비교에서 교집합 0 (mean|diff| ~70). 따라서 held-out negative = 2,689 전체 (내용 unique 2,688 — 000238/000239 중복쌍 1). 과거 negative_ap 분석이 쓴 'held-out 2,430' 도 같은 오해에서 나온 값이다."
+  },
+  "★scope": "host-internal DELTA 만 유효. Windows P0/P1 과 absolute 비교 금지. NEG heldout = 2,689 전체 (FT negative 259 와 내용 교집합 0 실측). NIGHT n=28, seed 1, 15ep."
+}

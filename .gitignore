@@ -31,6 +31,9 @@ run_used.yml
 challenge/data/**
 !challenge/data/**/
 !challenge/data/**/*.md
+# The canonical GT-v2 dataset path is a tracked relative symlink.  Its target
+# remains the single authoritative tree under challenge/real_gt_v2/migrated_gt.
+!challenge/data/01_real/gt_v2_canonical
 challenge/weights/
 challenge/model/*
 !challenge/model/README.md
@@ -192,3 +195,10 @@ challenge/yolo_pose_one_model/datasets/
 
 # TensorRT engine 은 빌드한 그 보드에서만 동작 — 커밋 무의미
 *.engine
+
+# 대용량 파생 metadata 덤프 — 스크립트로 재생성 가능하므로 추적하지 않는다.
+# (판정 JSON/MD 는 계속 추적 — 여기서 막는 건 원본 per-sample 덤프뿐)
+challenge/yolo_pose_one_model/runs_camera_facing_loss/**/old_support/*METADATA.csv
+challenge/yolo_pose_one_model/p26_representation_audit/FEATURE_VECTORS.npz
+challenge/yolo_pose_one_model/analysis_pre_v2/_cc_raw_dump.json
+challenge/yolo_pose_one_model/analysis_pre_v2/_d1d2_raw.json

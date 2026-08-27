@@ -28,36 +28,44 @@
 from __future__ import annotations
 
 import argparse
+import json
 import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DATA = "challenge/data"
+INVALID_GT_QUARANTINE_PATH = ROOT / "challenge/real_gt_v2/INVALID_GT_QUARANTINE.json"
+INVALID_GT_QUARANTINE_SCHEMA = "real_pallet_invalid_gt_quarantine_v1"
 
 # ── 정본 평가셋 ───────────────────────────────────────────────────────────
 # objects[0].split == "eval" 인 manual GT. 다른 셋으로 대체 금지.
 # 상세: _docs/EVAL_SET_CANONICAL.md / 강제: challenge/tests/test_eval_set_canonical.py
 #
-# ⚠ 프레임 수는 161 이지 56 이 아니다. CLAUDE.md 와 memory 의 "56장" 은 07-3x 기준
-# 이라 한 세대 뒤처졌다 — 2026-08-07/08-08 에 metric_split_lock.md §1.6 의
-# final-test 세션 4개를 봉인 해제해 정본에 편입했기 때문. 근거는 테스트의
-# EVAL_FOLDERS/EXPECTED_TOTAL 이고, 이 모듈은 그쪽을 따른다.
+# 2026-08-27 GT QA: raw 161장 중 확정 오류 21장을 quarantine하여
+# 현재 실행 가능한 정본은 140장이다. 정확한 제외 계약은
+# challenge/real_gt_v2/INVALID_GT_QUARANTINE.json 이다. 161장 결과는 과거 실험
+# 기록으로만 남겨야 하며 새 평가의 분모로 쓰면 안 된다.
 EVAL_CANONICAL = {
     "eval_outside": f"{DATA}/01_real/eval_canonical/_outside_eval_manual_gt",       # 22
     "eval_noapril": f"{DATA}/01_real/eval_canonical/capture0403noapril_manual_gt",  # 12
-    "eval_cad": f"{DATA}/01_real/eval_canonical/capturepalletcad_manual_gt",        # 22
+    "eval_cad": f"{DATA}/01_real/eval_canonical/capturepalletcad_manual_gt",        # 18
     # 아래 넷은 lock §1.6 의 final-test 세션. 정본에 편입됐지만 PL 풀·threshold
     # 캘리브에 들어가면 안 된다(transductive 차단). FINAL_TEST 로도 노출한다.
     "eval_pallet07": f"{DATA}/01_real/manual_gt/capturepallet07_manual_gt",         # 27
-    "eval_pallet09": f"{DATA}/01_real/manual_gt/capturepallet09_manual_gt",         # 36
-    "eval_night08": f"{DATA}/01_real/manual_gt/capturenight08_manual_gt",           # 17
-    "eval_night09": f"{DATA}/01_real/manual_gt/capturenight09_manual_gt",           # 25
+    "eval_pallet09": f"{DATA}/01_real/manual_gt/capturepallet09_manual_gt",         # 33
+    "eval_night08": f"{DATA}/01_real/manual_gt/capturenight08_manual_gt",           # 12
+    "eval_night09": f"{DATA}/01_real/manual_gt/capturenight09_manual_gt",           # 16
 }
-EVAL_CANONICAL_TOTAL = 161
+EVAL_CANONICAL_TOTAL = 140
+EVAL_CANONICAL_RAW_TOTAL_BEFORE_GT_QA = 161
+EVAL_CANONICAL_GT_QA_EXCLUDED = 21
+REAL_DEV_OPEN_CLEAN_COUNT = 52
+REAL_CHALLENGE_DEV_CLEAN_COUNT = 88
 
 # lock §1.6 final-test — 위 정본의 부분집합. PL 풀에 넣으면 안 된다.
 # 2026-08-20 역할 변경: 이 4 세션 105장은 더 이상 final test 가 아니다.
 # 4-모델 비교(mc_geom / mc_hough)에서 열었고 재봉인 불가.
-# 새 이름은 REAL_CHALLENGE_DEV_105 — seed 비교·failure 진단에 쓴다.
+# 역사적 그룹 ID `REAL_CHALLENGE_DEV_105`는 기존 결과 호환용으로만 남는다.
+# GT-QA clean 실행 membership은 그 중 88장이다.
 # 상수 이름 FINAL_TEST 는 기존 코드가 참조하므로 그대로 둔다.
 REAL_CHALLENGE_DEV_105_ROLE = "development (was FINAL_TEST until 2026-08-20)"
 FINAL_TEST = ("eval_pallet07", "eval_pallet09", "eval_night08", "eval_night09")
@@ -209,6 +217,30 @@ def get(name: str, absolute: bool = False) -> str:
         raise KeyError(f"unknown dataset name: {name!r}. --list 로 확인.")
     rel = ALL[name]
     return str(ROOT / rel) if absolute else rel
+
+
+def invalid_gt_source_paths() -> frozenset[str]:
+    """Exact annotation paths that runnable data/eval scans must reject."""
+    try:
+        payload = json.loads(INVALID_GT_QUARANTINE_PATH.read_text("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"INVALID_GT_QUARANTINE_UNREADABLE: {exc}") from exc
+    if payload.get("schema_version") != INVALID_GT_QUARANTINE_SCHEMA:
+        raise RuntimeError("INVALID_GT_QUARANTINE_SCHEMA")
+    if payload.get("status") != "QUARANTINED":
+        raise RuntimeError("INVALID_GT_QUARANTINE_STATUS")
+    entries = payload.get("entries")
+    if not isinstance(entries, list) or payload.get("entry_count") != len(entries):
+        raise RuntimeError("INVALID_GT_QUARANTINE_COUNT")
+    paths = [entry.get("source_path") for entry in entries if isinstance(entry, dict)]
+    if (
+        len(paths) != len(entries)
+        or not all(isinstance(path, str) and path.startswith("challenge/data/01_real/")
+                   for path in paths)
+        or len(set(paths)) != len(paths)
+    ):
+        raise RuntimeError("INVALID_GT_QUARANTINE_PATHS")
+    return frozenset(paths)
 
 
 def missing() -> list[tuple[str, str]]:

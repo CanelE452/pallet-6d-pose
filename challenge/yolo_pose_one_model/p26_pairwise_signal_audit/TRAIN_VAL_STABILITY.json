@@ -1,0 +1,23 @@
+{
+  "gates_val1998": {
+    "G1": false,
+    "G2": true,
+    "G3": true
+  },
+  "gates_train5k": {
+    "G1": false,
+    "G2": false,
+    "G3": false
+  },
+  "same_direction": false,
+  "VERDICT": "SOURCE_SIGNAL_UNSTABLE",
+  "thresholds": {
+    "G1": "val frac(g_rank>=0.10) >= 0.10",
+    "G2": "val frac(delta<=1.0) >= 0.05  OR  frac(delta<0) >= 0.02",
+    "G3": "delta<=2 hard subset 에서 NEAR+FAR >= 0.10"
+  },
+  "PRIMARY_VERDICT": "PAIRWISE_SIGNAL_TOO_WEAK_OR_MISMATCHED",
+  "also_flagged": "SOURCE_SIGNAL_UNSTABLE (G2·G3 가 train5k 와 val1998 에서 반대)",
+  "reading": "G1 이 두 split 모두에서 실패한다(train 0.0682 / val 0.0706 < 0.10). 따라서 안정성과 무관하게 gate 결론은 STOP 이다. G2/G3 의 불일치는 그 이유를 설명하는 부가 증거다.",
+  "ACTION": "pairwise loss 30ep STOP"
+}

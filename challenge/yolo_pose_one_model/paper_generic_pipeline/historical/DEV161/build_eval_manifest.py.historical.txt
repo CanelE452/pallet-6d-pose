@@ -1,0 +1,87 @@
+"""PHASE 2 — DEV 161장 평가 manifest 를 만들고 SHA 로 잠근다.
+
+모델 출력이 도착하기 전에 GT 쪽을 전부 굳혀 둔다.  그래야 결과를 본 뒤에
+평가 대상이 바뀌는 일이 생기지 않는다.
+
+두 셋 모두 **development** 다.  이미 여러 분석에 썼으므로 final test 가 아니다.
+"""
+from __future__ import annotations
+
+import hashlib, json, os, sys
+import numpy as np
+
+ROOT = "/home/minjae/Documents/github/pallet-pose"
+for sub in ("scripts/stage0/model_compare", "scripts/annotate", "challenge",
+            "scripts/stage0/real_eval"):
+    sys.path.insert(0, os.path.join(ROOT, sub))
+import cv2                    # noqa: E402
+import mc_frames as MF        # noqa: E402
+import mc_geom as MG          # noqa: E402
+
+OUT = os.path.join(ROOT, "challenge/yolo_pose_one_model/paper_generic_pipeline")
+
+
+def main():
+    items, problems = [], []
+    seen = set()
+    for key, sealed, jp, ip, label in MF.frames():
+        fid = os.path.splitext(os.path.basename(jp))[0]
+        if fid in seen:
+            problems.append(f"duplicate frame_id {fid}")
+        seen.add(fid)
+        image = cv2.imread(ip)
+        if image is None:
+            problems.append(f"missing RGB {ip}")
+            continue
+        obj = label["objects"][0]
+        if obj.get("pose_transform") is None:
+            problems.append(f"missing GT pose {fid}")
+            continue
+        t = MG.gt_of(label)
+        items.append({
+            "frame_id": fid,
+            "population": "REAL_CHALLENGE_DEV_105" if sealed
+                          else "REAL_DEV_OPEN_56",
+            "set": key,
+            "image": os.path.relpath(ip, ROOT),
+            "label": os.path.relpath(jp, ROOT),
+            "width": image.shape[1], "height": image.shape[0],
+            "K": t["K"].tolist(),
+            "dimensions_m": obj["dimensions_m"],
+            "R_gt": t["R"].tolist(), "t_gt": t["t"].tolist(),
+            "gt_corners_2d": t["gt8"].tolist(),
+            "gt_centroid_2d": obj.get("projected_cuboid_centroid"),
+            "object_points": t["model"].tolist(),
+        })
+    counts = {}
+    for i in items:
+        counts[i["population"]] = counts.get(i["population"], 0) + 1
+    payload = {
+        "manifest": "PAPER_YOLO_EVAL_DEV_161",
+        "role": "DEVELOPMENT — final test 아님. 이미 여러 분석에 사용됨",
+        "keypoint_convention": "camera-facing 0123 (0-3 near face, "
+                               "{0,1,4,5} top, {2,3,6,7} bottom, 8 centroid)",
+        "object_points_source": "annotate_pnp.make_pallet_keypoints_3d_diagram"
+                                "(per-frame dimensions_m)",
+        "n_total": len(items), "counts": counts,
+        "checks": {"expected_total": 161, "duplicates": 0,
+                   "missing_rgb": 0, "missing_gt": 0,
+                   "problems": problems},
+        "items": items,
+    }
+    ok = (len(items) == 161 and not problems
+          and counts.get("REAL_DEV_OPEN_56") == 56
+          and counts.get("REAL_CHALLENGE_DEV_105") == 105)
+    payload["MANIFEST_VALID"] = ok
+    text = json.dumps(payload, indent=1)
+    open(os.path.join(OUT, "eval_manifest.json"), "w").write(text)
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    open(os.path.join(OUT, "eval_manifest.sha256"), "w").write(
+        f"{digest}  eval_manifest.json\n")
+    print(f"  n={len(items)}  {counts}")
+    print(f"  problems={problems if problems else '없음'}")
+    print(f"  MANIFEST_VALID={ok}  sha256 {digest[:16]}")
+
+
+if __name__ == "__main__":
+    main()

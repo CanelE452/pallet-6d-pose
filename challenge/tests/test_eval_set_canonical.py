@@ -6,6 +6,7 @@ toggle -- instead of the frames actually marked eval in the annotation tool.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import pathlib
 import sys
@@ -25,14 +26,14 @@ DOC = ROOT / "_docs/EVAL_SET_CANONICAL.md"
 _EXPECTED_COUNTS = {
     "eval_outside": 22,
     "eval_noapril": 12,
-    "eval_cad": 22,
+    "eval_cad": 18,
     # 2026-08-07: metric_split_lock.md §1.6 의 outside final-test 세션.
     # 봉인 해제하여 정본에 편입(1회성 — data_paths.FINAL_TEST 참조).
     "eval_pallet07": 27,
-    "eval_pallet09": 36,
+    "eval_pallet09": 33,
     # 2026-08-08: lock §1.6 의 night final-test 세션. 봉인 해제하여 정본 편입.
-    "eval_night08": 17,
-    "eval_night09": 25,
+    "eval_night08": 12,
+    "eval_night09": 16,
 }
 EVAL_FOLDERS = {data_paths.EVAL_CANONICAL[key]: count
                 for key, count in _EXPECTED_COUNTS.items()}
@@ -45,6 +46,7 @@ FINAL_TEST_FOLDERS = tuple(data_paths.EVAL_CANONICAL[key]
 # 정본에 남아 있으나 final-test 로 보고하면 안 된다.
 FILTER_VAL_SESSIONS = data_paths.FILTER_VAL_SESSIONS
 FORBIDDEN_EVAL_SOURCES = data_paths.FORBIDDEN_EVAL_SOURCES
+INVALID_GT_REGISTRY = ROOT / "challenge/real_gt_v2/INVALID_GT_QUARANTINE.json"
 
 
 def _split_of(path: pathlib.Path) -> str:
@@ -84,6 +86,28 @@ def test_eval_frame_count_matches_the_canonical_document() -> None:
     for folder, expected in EVAL_FOLDERS.items():
         assert len(found[folder]) == expected, (folder, len(found[folder]), expected)
     assert sum(len(v) for v in found.values()) == EXPECTED_TOTAL
+
+
+def test_confirmed_invalid_gt_is_quarantined_and_images_are_retained() -> None:
+    if not (ROOT / "challenge/data/01_real").is_dir():
+        pytest.skip("real annotation tree not present")
+    registry = json.loads(INVALID_GT_REGISTRY.read_text("utf-8"))
+    entries = registry["entries"]
+    assert registry["entry_count"] == len(entries) == 23
+    assert registry["images_retained_in_place"] is True
+    assert data_paths.invalid_gt_source_paths() == frozenset(
+        entry["source_path"] for entry in entries
+    )
+    archive_root = ROOT / registry["archive_root"]
+    for entry in entries:
+        source = ROOT / entry["source_path"]
+        archived = archive_root / entry["source_path"]
+        assert not source.exists(), f"quarantined GT returned to active data: {source}"
+        assert archived.is_file(), f"recoverable quarantine copy missing: {archived}"
+        assert hashlib.sha256(archived.read_bytes()).hexdigest() == entry["source_sha256"]
+        assert any(source.with_suffix(ext).is_file() for ext in (".png", ".jpg", ".jpeg")), (
+            f"source image must remain in place: {source}"
+        )
 
 
 def test_every_eval_frame_has_an_image_and_a_cuboid() -> None:

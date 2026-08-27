@@ -1,0 +1,53 @@
+{
+  "checkpoint": {
+    "path": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/weights/last.pt",
+    "sha256": "37f904b975db3e95297af5acb51f6e99360f4b59245cef04d0511af3f5a189b1",
+    "mtime_str": "2026-08-25 16:07:28.570120660 +0900",
+    "expected_sha": "37f904b975db3e95297af5acb51f6e99360f4b59245cef04d0511af3f5a189b1",
+    "sha_matches": true
+  },
+  "commit": {
+    "actual": "96ddf1967ecee2759e5d36578a84f2e4eb021efe",
+    "expected": "96ddf1967ecee2759e5d36578a84f2e4eb021efe",
+    "matches": true
+  },
+  "env": {
+    "python": "3.10.20",
+    "torch": "2.1.1+cu118",
+    "cuda": "11.8",
+    "gpu": "NVIDIA GeForce RTX 3080",
+    "ultralytics": "8.4.60"
+  },
+  "data": {
+    "train5k": {
+      "n": 5000,
+      "rule": "sha256(stem) 오름차순 앞 5,000 (G38 train 38,002)",
+      "sha16": "eb8e73c090b92fb4"
+    },
+    "val1998": 1998,
+    "realdev128": {
+      "n": 128,
+      "role": "SECONDARY diagnostic only"
+    }
+  },
+  "fixed_before_run": {
+    "DUPLICATE": "IoU>=0.5",
+    "NEAR_DISTRACTOR": "0.1<=IoU<0.5",
+    "FAR_DISTRACTOR": "IoU<0.1",
+    "gates": {
+      "G1": "val frac(g_rank>=0.10) >= 0.10",
+      "G2": "val frac(delta<=1.0) >= 0.05  OR  frac(delta<0) >= 0.02",
+      "G3": "delta<=2 hard subset 에서 NEAR+FAR >= 0.10"
+    }
+  },
+  "guards": {
+    "training_runs": 0,
+    "optimizer_steps": 0,
+    "backward_calls": 0,
+    "model_train_called": false,
+    "fuse_called": false,
+    "autograd_used": false,
+    "gradient": "해석식 g_rank=sigmoid(-delta), g_bce=sigmoid(s)-target 만 사용"
+  },
+  "real_used_for_selection": false
+}

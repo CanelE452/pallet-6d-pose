@@ -1,0 +1,47 @@
+{
+ "note": "렌더 금지. 사용자 승인 전 manifest 생성만 가능. 비율은 자동 확정하지 않는다.",
+ "principle": "첫 main candidate 는 총 unique frame 을 BROAD 40K 와 **동일한 40,000** 으로 유지한다. 그래야 '수가 늘어 좋아짐' 과 'family/appearance 다양성이 좋아짐' 이 섞이지 않는다.",
+ "constraint": "기존 generic 성능 0.624 를 보호해야 한다. 허용 하락폭은 결과 전에 사용자 승인으로 freeze 한다 (지금 정하지 않음).",
+ "candidates": {
+  "MIX_CONSERVATIVE": {
+   "old_broad_share": 0.75,
+   "new_geometry_share": 0.15,
+   "new_appearance_share": 0.1,
+   "rationale": "generic 0.624 보호를 최우선. old 를 3/4 유지",
+   "expected": "generic 거의 불변, target/night 소폭 개선",
+   "risk": "개선폭이 작아 WEAK_PASS 를 못 벗어날 수 있다"
+  },
+  "MIX_BALANCED": {
+   "old_broad_share": 0.55,
+   "new_geometry_share": 0.25,
+   "new_appearance_share": 0.2,
+   "rationale": "실패 귀속이 NO_BOX 37% + KP_BAD 25% 로 둘 다 크므로 양쪽을 함께 채운다",
+   "expected": "target/night 개선, generic 소폭 하락 가능",
+   "risk": "generic 하락폭이 허용치를 넘을 수 있다 — 그래서 하락폭 freeze 가 선행"
+  },
+  "MIX_AGGRESSIVE": {
+   "old_broad_share": 0.4,
+   "new_geometry_share": 0.35,
+   "new_appearance_share": 0.25,
+   "rationale": "unique mesh 4 -> 24 로 늘리는 효과를 최대화",
+   "expected": "target/night 최대 개선",
+   "risk": "old broad 분포가 절반 아래로 내려가 generic 붕괴 위험. asset entropy 는 오르지만 그게 성능이라는 보장 없음"
+  }
+ },
+ "must_report_per_candidate": [
+  "old BROAD exposure share",
+  "new geometry share",
+  "new appearance share",
+  "asset entropy / effective mesh count",
+  "viewpoint distribution",
+  "luma distribution",
+  "source dominance (한 asset 이 50% 넘는지)"
+ ],
+ "current_baseline": {
+  "unique_mesh": 4,
+  "effective_asset_count": 3.999,
+  "single_asset_max_share": 0.2545,
+  "frames": 40000,
+  "generic_5cm5": 0.624
+ }
+}

@@ -1,4 +1,4 @@
-"""Manual annotation 자동 교정 — swap + dim 조합 brute-force.
+"""DEPRECATED_FOR_PAPER_GT — legacy swap + dim brute-force diagnostic.
 
 원인: 라벨러가 diagram convention 으로 클릭했어도 좌우 / 앞뒤 mapping 이
 어긋난 frame 이 많아서 reproj 가 큼 (capturepallet07: 24/25 가 >10px).
@@ -12,6 +12,9 @@
 사용:
   python challenge/scripts/annotate/fix_manual_swap.py \\
       --dir challenge/data/01_real/manual_gt/capturepallet07_manual_gt
+
+기본은 항상 dry-run이다. legacy JSON을 실제로 바꾸려면 위험성을 이해한 뒤
+``--allow-legacy-mutation``을 명시해야 한다. GT v2 문서는 이 스크립트로 수정하지 않는다.
 """
 import os as _os, sys as _sys
 
@@ -32,14 +35,13 @@ import cv2
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# 2026-08-15 재편: 이 파일이 challenge/scripts/<계열>/ 로 한 단계 내려갔다.
-# dirname 을 하나 더 감싸야 저장소 루트다 (계열 -> scripts -> challenge -> repo).
-REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+# scripts/annotate -> scripts -> repo.
+REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(REPO, "challenge", "scripts"))
 
 sys.path[:0] = [os.path.join(REPO, "challenge", "scripts", _s)
                 for _s in ("annotate", "infer", "live")]
-from annotate import make_pallet_keypoints_3d_diagram
+from annotate_pnp import make_pallet_keypoints_3d_diagram
 
 # task.yaml 의 camera intrinsics (RealSense D435i)
 K_DEFAULT = np.array([[614.18, 0,    329.28],
@@ -109,9 +111,11 @@ def best_combo(manual_kps, K):
     return best
 
 
-def fix_one(json_path, K, dry_run=False):
+def fix_one(json_path, K, dry_run=True, allow_legacy_mutation=False):
     with open(json_path, "r", encoding="utf-8") as f:
         d = json.load(f)
+    if d.get("schema_version") == "real_pallet_gt_v2":
+        return None, "paper_gt_v2_forbidden"
     obj = d["objects"][0]
     manual = obj.get("manual_kps") or []
     if not manual:
@@ -122,7 +126,8 @@ def fix_one(json_path, K, dry_run=False):
     if res is None:
         return None, "all_failed"
 
-    if not dry_run:
+    mutate = bool(allow_legacy_mutation and not dry_run)
+    if mutate:
         # backup once
         bak = json_path + ".bak"
         if not os.path.exists(bak):
@@ -148,14 +153,20 @@ def fix_one(json_path, K, dry_run=False):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", required=True)
-    ap.add_argument("--dry_run", action="store_true",
-                    help="실제 파일 수정 X, 통계만 출력")
+    ap.add_argument("--dry-run", "--dry_run", action="store_true",
+                    help="호환 옵션; 기본 동작이 이미 dry-run")
+    ap.add_argument("--allow-legacy-mutation", action="store_true",
+                    help="위험: legacy JSON만 실제 수정. paper GT v2에는 사용 금지")
     args = ap.parse_args()
+
+    effective_dry_run = bool(args.dry_run or not args.allow_legacy_mutation)
+    print("[DEPRECATED_FOR_PAPER_GT] reprojection minimum은 canonical axis 근거가 "
+          "아닙니다. GT v2에는 migrate_real_gt_v2 경로를 사용하세요.")
 
     folder = args.dir if os.path.isabs(args.dir) else os.path.join(REPO, args.dir)
     paths = sorted(glob.glob(os.path.join(folder, "*.json")))
     paths = [p for p in paths if not p.endswith(".bak")]
-    print(f"[Fix] {len(paths)} JSON in {folder}  dry_run={args.dry_run}")
+    print(f"[Fix] {len(paths)} JSON in {folder}  dry_run={effective_dry_run}")
     print(f"      Try {len(SWAPS)} swaps x {len(DIMS_CANDIDATES)} dims = {len(SWAPS)*len(DIMS_CANDIDATES)} combos / frame\n")
 
     rows = []
@@ -163,7 +174,9 @@ def main():
     dim_count = {d: 0 for d in DIMS_CANDIDATES}
 
     for p in paths:
-        result, err = fix_one(p, K_DEFAULT, dry_run=args.dry_run)
+        result, err = fix_one(
+            p, K_DEFAULT, dry_run=effective_dry_run,
+            allow_legacy_mutation=args.allow_legacy_mutation)
         name = os.path.basename(p)
         if err:
             print(f"  {name}: SKIP ({err})")
@@ -190,7 +203,7 @@ def main():
         print(f"  dims chosen:")
         for k, v in dim_count.items():
             print(f"    {k}: {v}")
-    print(f"\n  (백업: 각 JSON 옆에 .bak 으로 저장됨, dry_run={args.dry_run})")
+    print(f"\n  (dry_run={effective_dry_run}; 실제 mutation 시에만 .bak 생성)")
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ def _ascii_only(text):
     """cv2.putText 로 그릴 수 있는 문자만 남긴다.
 
     Hershey 폰트에는 한글 glyph 가 없어서, 한글을 그대로 넘기면 화면에 통째로
-    '[??????] SEALED ??????' 처럼 물음표로 나온다(2026-08-16 실제로 겪음).
+    '[??????] FINAL ??????' 처럼 물음표로 나온다(2026-08-16 실제로 겪음).
     호출부가 실수로 한글을 넘겨도 최소한 읽을 수 있는 게 남게 한다.
     """
     t = str(text)
@@ -151,7 +151,55 @@ def draw_line_input(img, line_pts, mouse_xy, zoom, pan):
                  col, 1, cv2.LINE_AA)
 
 
-def draw_overlay(img, kps_2d, active_idx, pose=None, extrap_mask=None):
+def _annotation_reason(keypoint_annotations, index):
+    if (isinstance(keypoint_annotations, list)
+            and index < len(keypoint_annotations)
+            and isinstance(keypoint_annotations[index], dict)):
+        return keypoint_annotations[index].get("reason", "unknown")
+    return "unknown"
+
+
+def _draw_styled_line(image, start, end, color, thickness, style):
+    """OpenCV has no dotted/dashed primitive; sample one deterministically."""
+    if style == "solid":
+        cv2.line(image, start, end, color, thickness, cv2.LINE_AA)
+        return
+    p0 = np.asarray(start, dtype=np.float64)
+    p1 = np.asarray(end, dtype=np.float64)
+    length = float(np.linalg.norm(p1 - p0))
+    if length < 1.0:
+        return
+    if style == "dotted":
+        for distance in np.arange(0.0, length + 1.0, 7.0):
+            point = p0 + (p1 - p0) * (distance / length)
+            cv2.circle(image, tuple(np.round(point).astype(int)),
+                       max(1, thickness), color, -1, cv2.LINE_AA)
+        return
+    dash, gap = (8.0, 5.0) if style == "dashed" else (14.0, 9.0)
+    distance = 0.0
+    while distance < length:
+        finish = min(length, distance + dash)
+        a = p0 + (p1 - p0) * (distance / length)
+        b = p0 + (p1 - p0) * (finish / length)
+        cv2.line(image, tuple(np.round(a).astype(int)),
+                 tuple(np.round(b).astype(int)), color, thickness, cv2.LINE_AA)
+        distance = finish + gap
+
+
+def _edge_style(keypoint_annotations, a, b):
+    reasons = {_annotation_reason(keypoint_annotations, a),
+               _annotation_reason(keypoint_annotations, b)}
+    if "unknown" in reasons:
+        return "long_dashed"
+    if "truncated" in reasons:
+        return "dashed"
+    if "occluded" in reasons:
+        return "dotted"
+    return "solid"
+
+
+def draw_overlay(img, kps_2d, active_idx, pose=None, extrap_mask=None,
+                 keypoint_annotations=None):
     """이미지에 cuboid wireframe + 사용자 클릭 점 그리기.
 
     v6 컨벤션 경고: pose.v4_warning=True 시 화면 상단에 빨간 경고 표시.
@@ -174,7 +222,9 @@ def draw_overlay(img, kps_2d, active_idx, pose=None, extrap_mask=None):
             if pts[a] and pts[b]:
                 col = (0, 220, 0) if k < 4 else (0, 160, 0)
                 thick = 3 if k < 4 else 1
-                cv2.line(vis, pts[a], pts[b], col, thick, cv2.LINE_AA)
+                _draw_styled_line(
+                    vis, pts[a], pts[b], col, thick,
+                    _edge_style(keypoint_annotations, a, b))
     for i, p in enumerate(kps_2d):
         if p is None:
             continue
@@ -184,18 +234,25 @@ def draw_overlay(img, kps_2d, active_idx, pose=None, extrap_mask=None):
         r = 4 if i == active_idx else 3
         is_extrap = (extrap_mask is not None and i < len(extrap_mask)
                      and extrap_mask[i])
-        if is_extrap:
-            # 외삽 점: 속 빈 원 (외곽선 + 작은 중심 점)
+        reason = _annotation_reason(keypoint_annotations, i)
+        if reason == "visible":
+            cv2.circle(vis, c, r, KP_COLORS[i], -1)
+            cv2.circle(vis, c, r + 1, (0, 0, 0), 1)
+        elif reason == "occluded":
             cv2.circle(vis, c, r, KP_COLORS[i], 1)
             cv2.circle(vis, c, 1, KP_COLORS[i], -1)
             cv2.circle(vis, c, r + 1, (0, 0, 0), 1)
-            cv2.putText(vis, f"{i}*", (c[0] + 5, c[1] - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, KP_COLORS[i], 1)
+        elif reason == "truncated":
+            cv2.rectangle(vis, (c[0] - r, c[1] - r),
+                          (c[0] + r, c[1] + r), KP_COLORS[i], 1)
+            cv2.line(vis, (c[0] - r, c[1]), (c[0] + r, c[1]),
+                     KP_COLORS[i], 1, cv2.LINE_AA)
         else:
-            cv2.circle(vis, c, r, KP_COLORS[i], -1)
-            cv2.circle(vis, c, r + 1, (0, 0, 0), 1)
-            cv2.putText(vis, str(i), (c[0] + 5, c[1] - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, KP_COLORS[i], 1)
+            cv2.drawMarker(vis, c, KP_COLORS[i], cv2.MARKER_TILTED_CROSS,
+                           max(7, r * 2 + 1), 1, cv2.LINE_AA)
+        suffix = "*" if is_extrap else ""
+        cv2.putText(vis, f"{i}{suffix}", (c[0] + 5, c[1] - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.42, KP_COLORS[i], 1)
     return vis
 
 
@@ -206,9 +263,21 @@ def _pose_dim_short(pose):
     return f"front={d[0]*100:.0f}cm"
 
 
+def _keypoint_status(entry):
+    if not isinstance(entry, dict):
+        return "?0"
+    visibility = int(entry.get("visibility", 0))
+    reason = entry.get("reason", "unknown")
+    symbol = {"visible": "V", "occluded": "O", "truncated": "T"}.get(
+        reason, "?")
+    return f"{symbol}{visibility}"
+
+
 def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
                 mode="click", trans_step=0.02, rot_step=5.0, split="eval",
-                annot_only=False, sess_name=None):
+                annot_only=False, sess_name=None, keypoint_annotations=None,
+                axis_assignment=None, axis_candidates=None,
+                axis_confirmed=False, population_role="DEV"):
     """우측 키 안내 + 현재 상태 패널."""
     panel = np.full((h, PANEL_W, 3), 25, dtype=np.uint8)
 
@@ -224,46 +293,21 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
 
     if mode == "click":
         put(y, "KEYBOARD - CLICK", (255, 255, 0), 0.5, 1); y += 22
-        put(y, "L click  set point", (200, 200, 200)); y += 16
-        put(y, "R click  delete", (200, 200, 200));    y += 16
-        put(y, "0-8      select idx", (200, 200, 200)); y += 16
-        put(y, "d        delete kp[active]", (200, 200, 200)); y += 16
-        put(y, "t        TWO-LINE input *", (0, 255, 255)); y += 16
-        put(y, "x        parallelogram extrap *", (0, 255, 255)); y += 16
-        put(y, "  (* = extrap, PnP weight 0.3)", (140, 200, 255), 0.36); y += 14
-        put(y, "s        save+next", (0, 255, 0));      y += 16
-        put(y, "f        near-only save+next", (0, 255, 0)); y += 16
-        put(y, "g        auto-fill save (4+pts)", (0, 255, 0)); y += 16
-        put(y, "v        eval/train toggle", (0, 255, 0)); y += 16
-        put(y, "n / p    next / prev", (200, 200, 200)); y += 16
-        put(y, ", / .    -10 / +10",   (200, 200, 200)); y += 16
-        put(y, "G / :    goto frame # (Enter)", (0, 255, 255)); y += 16
-        put(y, "slider   click/drag to jump", (0, 255, 255)); y += 16
-        put(y, "TAB      SESSION dropdown", (255, 160, 0), 0.45); y += 16
-        put(y, "[ / ]    prev / next SESSION", (255, 160, 0), 0.45); y += 16
-        put(y, "c        centroid auto", (200, 200, 200)); y += 16
-        put(y, "z        undo last",   (200, 200, 200)); y += 16
-        put(y, "r        reset all",   (200, 200, 200)); y += 16
-        put(y, "+ / -    zoom in/out", (200, 200, 200)); y += 16
-        put(y, "h j k l  pan (vim)",   (200, 200, 200)); y += 16
-        put(y, "q        quit",        (180, 180, 180)); y += 22
+        put(y, "L=set  R/d=delete  0-8=select", (200, 200, 200)); y += 16
+        put(y, "b=vis  w=W/D parity  y=sign", (120, 220, 255), 0.36); y += 16
+        put(y, "s=save  f=near-only  g=auto", (0, 255, 0)); y += 16
+        put(y, "t=line*  x=extrap*  c=centroid", (0, 255, 255)); y += 16
+        put(y, "z=undo  r=reset  v=split", (200, 200, 200)); y += 16
+        put(y, "n/p=step  ,/.=10  G/:=goto", (200, 200, 200)); y += 16
+        put(y, "TAB,[,]=session  m=mode  q=quit", (255, 160, 0), 0.38); y += 20
     else:
         put(y, "KEYBOARD - MANIPULATE", (255, 255, 0), 0.5, 1); y += 22
-        put(y, "translate (camera frame)", (160, 200, 255), 0.42); y += 16
-        put(y, "  w/x   up/down  (Y)",   (200, 200, 200)); y += 16
-        put(y, "  a/d   left/right (X)", (200, 200, 200)); y += 16
-        put(y, "  q/e   near/far  (Z)",  (200, 200, 200)); y += 16
-        put(y, "rotate (pallet local)",  (160, 200, 255), 0.42); y += 16
-        put(y, "  j/l   yaw -/+",   (200, 200, 200)); y += 16
-        put(y, "  i/k   pitch -/+", (200, 200, 200)); y += 16
-        put(y, "  u/o   roll -/+",  (200, 200, 200)); y += 16
-        put(y, "step", (160, 200, 255), 0.42); y += 16
+        put(y, "w/x Y  a/d X  q/e Z", (200, 200, 200)); y += 16
+        put(y, "j/l yaw  i/k pitch  u/o roll", (200, 200, 200), 0.38); y += 16
         put(y, f"  1/2  trans x/2 x2 ({trans_step*100:.1f}cm)", (200, 200, 200)); y += 16
         put(y, f"  3/4  rot x/2 x2  ({rot_step:.1f}\xb0)", (200, 200, 200)); y += 16
-        put(y, "save / quit", (160, 200, 255), 0.42); y += 16
-        put(y, "  S    save+next", (0, 255, 0)); y += 16
-        put(y, "  m    back to CLICK", (200, 200, 200)); y += 16
-        put(y, "  Q    quit", (180, 180, 180)); y += 22
+        put(y, "  b/y  vis / signed axis", (120, 220, 255)); y += 16
+        put(y, "S=save+next  m=CLICK  Q=quit", (0, 255, 0)); y += 20
 
     put(y, "KEYPOINTS", (255, 255, 0), 0.5, 1); y += 22
     n_set = sum(1 for k in kps_2d if k is not None)
@@ -272,7 +316,13 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
         col = KP_COLORS[i]
         mark = ">" if i == active_idx else " "
         done = "[x]" if kps_2d[i] is not None else "[ ]"
-        put(y, f"{mark} {i} {done} {KP_NAMES[i][:14]}", col, 0.4); y += 15
+        entry = (keypoint_annotations[i]
+                 if isinstance(keypoint_annotations, list)
+                 and i < len(keypoint_annotations) else None)
+        put(y, f"{mark}{i} {done} {_keypoint_status(entry):>2} {KP_NAMES[i][:12]}",
+            col, 0.38); y += 15
+    put(y, "LEGEND V=fill O=ring T=box ?=cross", (170, 170, 170), 0.32); y += 13
+    put(y, "       solid/dot/dash/long-dash", (170, 170, 170), 0.32); y += 13
     y += 8
 
     put(y, "STATUS", (255, 255, 0), 0.5, 1); y += 22
@@ -284,6 +334,19 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
     if _last:
         put(y, "n = 다음 세션으로", (0, 200, 255), 0.38); y += 14
     put(y, f"zoom x{zoom:.1f}", (200, 200, 200)); y += 16
+    role_color = (0, 180, 255) if str(population_role).upper() == "FINAL" else (180, 180, 180)
+    put(y, f"population: {str(population_role).upper()}", role_color, 0.42); y += 16
+    if pose is not None:
+        parity = pose.get("_camera_facing_hypothesis") or "-"
+        override = bool(pose.get("_wd_manual_override_available", False))
+        put(y, f"W/D: {parity}{' MANUAL' if override else ''}",
+            (120, 220, 255) if override else (180, 180, 180), 0.34); y += 14
+    axis_text = str(axis_assignment or "-")
+    put(y, f"axis: {axis_text} {'CONFIRMED' if axis_confirmed else 'UNCONFIRMED'}",
+        (0, 220, 0) if axis_confirmed else (0, 180, 255), 0.38); y += 15
+    if axis_candidates:
+        put(y, "candidates: " + "/".join(map(str, axis_candidates)),
+            (170, 200, 255), 0.34); y += 14
     if dirty:
         put(y, "*UNSAVED*", (0, 0, 255), 0.5, 2); y += 18
     if pose is not None:
@@ -319,7 +382,9 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
 def render(state, frame_idx, total_frames, frame_name):
     """State → 화면 합성 (image + zoom + overlay + 우측 패널)."""
     vis = draw_overlay(state.img, state.kps_2d, state.active, state.pose,
-                       extrap_mask=getattr(state, "extrap_mask", None))
+                       extrap_mask=getattr(state, "extrap_mask", None),
+                       keypoint_annotations=getattr(
+                           state, "keypoint_annotations", None))
     if state.mode == "click" and state.line_mode:
         draw_line_input(vis, state.line_pts or [], state.last_mouse, state.zoom, state.pan)
     h, w = vis.shape[:2]
@@ -352,10 +417,10 @@ def render(state, frame_idx, total_frames, frame_name):
     # 현재 세션 (TAB/[ ] 로 갈아탈 수 있으므로 항상 보이게)
     _sess = getattr(state, "sess_name", None)
     if _sess:
-        _sealed = getattr(state, "sess_sealed", False)
-        cv2.putText(vis, f"[{_sess}]" + ("  SEALED" if _sealed else ""), (240, 20),
+        _is_final = str(getattr(state, "population_role", "DEV")).upper() == "FINAL"
+        cv2.putText(vis, f"[{_sess}]" + ("  FINAL ROLE" if _is_final else ""), (240, 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45,
-                    (80, 80, 255) if _sealed else (0, 200, 255), 1)
+                    (80, 80, 255) if _is_final else (0, 200, 255), 1)
     # split 배지 (이미지 상단 중앙 — zoom 후에도 항상 보임)
     _split = getattr(state, "split", "eval")
     _sc = (0, 220, 0) if _split == "eval" else (150, 150, 150)
@@ -401,5 +466,13 @@ def render(state, frame_idx, total_frames, frame_name):
                         rot_step=state.rot_step_deg,
                         split=getattr(state, "split", "eval"),
                         annot_only=getattr(state, "annot_only", False),
-                        sess_name=getattr(state, "sess_name", None))
+                        sess_name=getattr(state, "sess_name", None),
+                        keypoint_annotations=getattr(
+                            state, "keypoint_annotations", None),
+                        axis_assignment=getattr(state, "axis_assignment", None),
+                        axis_candidates=getattr(
+                            state, "axis_assignment_candidates", None),
+                        axis_confirmed=getattr(
+                            state, "axis_assignment_confirmed", False),
+                        population_role=getattr(state, "population_role", "DEV"))
     return np.hstack([vis, panel])

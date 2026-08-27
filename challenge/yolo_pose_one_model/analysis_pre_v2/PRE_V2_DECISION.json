@@ -1,0 +1,60 @@
+{
+ "D1_NO_BOX": {
+  "verdict": "CONFIDENCE_CALIBRATION_ISSUE",
+  "evidence": "NO_BOX 45 중 30 (66.7%) 이 conf 0.001 에서 IoU>=0.5 후보를 낸다",
+  "big_effect": true,
+  "potential_availability_gain_pp": 18.6
+ },
+ "D2_RESOLUTION": {
+  "verdict": "NOT_A_BOTTLENECK",
+  "evidence": "960 availability +4.7pp 이나 IoU>=0.5 는 -1.9pp, 1280 은 붕괴",
+  "big_effect": false
+ },
+ "D3_SEMANTICS": {
+  "verdict": "ROLE_CONFUSION_PRESENT",
+  "evidence": "gross(R>10deg) 24 장 중 identity 가 최선인 것은 11 (45.8%). near_far_swap 이 최선인 것이 11 (45.8%)",
+  "big_effect": true,
+  "caveat": "oracle permutation 은 진단 전용. main metric 으로 쓰지 않는다"
+ },
+ "D4_SUBSET": {
+  "verdict": "NO_SINGLE_BAD_KEYPOINT",
+  "evidence": "top7 이 전체와 사실상 동일(open 2.19 vs 2.25, chal 5.55 vs 5.63), top5 이하부터 급격히 악화. 한 점을 빼서 회복되지 않는다",
+  "big_effect": false
+ },
+ "D5_SOLVER": {
+  "verdict": "SOLVER_IS_FINE",
+  "evidence": "GT 점에서 네 solver 모두 0.00~0.04deg. 예측 점에서만 3.3~3.5deg",
+  "big_effect": false
+ },
+ "D6_GT_CALIBRATION": {
+  "verdict": "EVALUATION_NOISE_FLOOR_ACCEPTABLE",
+  "evidence": "GT 재투영 median 0.42~2.46px (night09 p90 6.83px 가 최대). GT 2D -> pose 재계산 시 R 불일치 0.000deg",
+  "big_effect": false,
+  "note": "night/target 세션만 residual 이 큰 패턴은 없다 -> 모델 실패를 calibration 탓으로 돌릴 수 없다"
+ },
+ "D6D_DIMENSION": {
+  "verdict": "TRANSLATION_FLOOR_FROM_DIMENSIONS",
+  "evidence": "치수 +1% 면 t 오차 0.0217m, +2% 면 0.0435m. R 은 0.0000deg",
+  "big_effect": false,
+  "note": "5cm5deg 의 t 기준이 0.05m 인데 치수 2% 오차만으로 0.043m 가 생긴다. 치수 정확도가 곧 t 성능의 바닥이다"
+ },
+ "D7_CONFIDENCE": {
+  "verdict": "SELECTIVE_PREDICTION_WORKS_MODERATELY",
+  "evidence": "box_conf Spearman -0.433 (가장 강함). pnp_reproj 로 coverage 70%% 까지 줄이면 challenge R 5.63->3.87, 5cm5 0.24->0.33",
+  "big_effect": false,
+  "caveat": "real negative 없이 threshold 확정 금지"
+ },
+ "D8_NEGATIVE": {
+  "verdict": "CANDIDATE_AVAILABLE_NOT_MEASURED",
+  "evidence": "배포영상 911 장 중 FT 가 negative 로 쓴 259 장. paper generic 은 real 을 한 장도 안 봤으므로 미사용 = REAL_NEG_DEV_CANDIDATE",
+  "big_effect": false
+ },
+ "STOP_RULE_TRIGGERED": true,
+ "triggered_by": [
+  "D1 availability 잠재 +18.6pp (기준 +10pp 초과)",
+  "D3 gross frame 의 54.2%%가 semantic 문제로 설명됨 (기준 30%% 초과)"
+ ],
+ "VERDICT": "INFERENCE_PIPELINE_ISSUE_FOUND + LABEL_SEMANTIC_ISSUE_FOUND",
+ "meaning": "DATA_GAP 이 유일한 원인이라는 가설은 약해졌다. 두 가지가 데이터와 무관하게 존재한다 — confidence calibration 과 near/far role 혼동.",
+ "action": "STOP RULE 대로 BROAD_FAMILY_V2 spec 을 자동 변경하지 않고 사용자에게 보고한다."
+}
