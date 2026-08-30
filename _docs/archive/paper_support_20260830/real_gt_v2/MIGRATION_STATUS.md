@@ -1,6 +1,12 @@
-# Real GT v2 migration status
+# Plastic-standard Real GT v2 migration status
 
 Status: **PASS — YAW-180 CANONICAL POSE EQUIVALENCE CLASS**
+
+Scope: **`plastic_standard_110x130x11`, 140 frames**. This PASS does not apply
+to wood. Wood's 45 non-destructively materialized v2 labels pass the mechanical
+checks, but their signed canonical-axis gate remains `BLOCKED`; see
+[`../current_real_dataset/CURRENT_REAL_DATASET_CONTRACT.md`](../current_real_dataset/CURRENT_REAL_DATASET_CONTRACT.md)
+and `challenge/real_gt_v2/wood_audit/migration/MIGRATION_GATE.json`.
 
 GT-QA note (2026-08-27): 23 confirmed-invalid legacy JSON files are in the
 recoverable quarantine; 21 were members of the raw 161 eval scan and two were

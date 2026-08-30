@@ -1,6 +1,11 @@
-# Real pallet GT v2 frame convention
+# Plastic-standard Real GT v2 frame convention
 
 Status: **CONTRACT DEFINED; LEGACY SIGN REPRESENTED AS A FROZEN EQUIVALENCE CLASS**
+
+Scope: **`plastic_standard_110x130x11` only**. These numeric dimensions and the
+frozen yaw-180 equivalence class are not global defaults for wood. Wood geometry
+is selected through `OBJECT_GEOMETRY_REGISTRY.json`, and its signed-axis and
+symmetry status remains separately gated.
 
 This is the paper-facing geometry contract. Legacy `dimensions_m` and
 `pose_transform` are compatibility data, not physical-pose ground truth.
@@ -52,12 +57,14 @@ t_can   = t_cf
 The unchanged translation is valid because both frames use the same centroid
 origin.
 
-| assignment | canonical-to-CF rotation `A` | CF `(width,height,depth)` | `perm[cf]=canonical` |
-|---|---|---|---|
-| `YAW_0` | `[[1,0,0],[0,1,0],[0,0,1]]` | `(1.10,.11,1.30)` | `[0,1,2,3,4,5,6,7,8]` |
-| `YAW_90` | `[[0,0,1],[0,1,0],[-1,0,0]]` | `(1.30,.11,1.10)` | `[1,5,6,2,0,4,7,3,8]` |
-| `YAW_180` | `[[-1,0,0],[0,1,0],[0,0,-1]]` | `(1.10,.11,1.30)` | `[5,4,7,6,1,0,3,2,8]` |
-| `YAW_270` | `[[0,0,-1],[0,1,0],[1,0,0]]` | `(1.30,.11,1.10)` | `[4,0,3,7,5,1,2,6,8]` |
+```
+assignment   canonical-to-CF rotation A    CF (width,height,depth)   perm[cf]=canonical
+───────────────────────────────────────────────────────────────────────────────────────
+YAW_0        [[1,0,0],[0,1,0],[0,0,1]]     (1.10,.11,1.30)           [0,1,2,3,4,5,6,7,8]
+YAW_90       [[0,0,1],[0,1,0],[-1,0,0]]    (1.30,.11,1.10)           [1,5,6,2,0,4,7,3,8]
+YAW_180      [[-1,0,0],[0,1,0],[0,0,-1]]   (1.10,.11,1.30)           [5,4,7,6,1,0,3,2,8]
+YAW_270      [[0,0,-1],[0,1,0],[1,0,0]]    (1.30,.11,1.10)           [4,0,3,7,5,1,2,6,8]
+```
 
 The implementation derives every permutation by coordinate-set matching; the
 table is explanatory, not a second source of truth. Every accepted transform must

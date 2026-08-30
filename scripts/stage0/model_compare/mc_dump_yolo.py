@@ -35,6 +35,13 @@ MODELS = {
     # 기존 4종과 한 표에 놓을 수 있다 — 카드의 자체 수치는 다른 셋·다른 자다.
     "Y0E": "challenge/yolo_pose_one_model/runs_neg_g38/Y0E/weights/best.pt",
     "YN": "challenge/yolo_pose_one_model/runs_neg_g38/YN/weights/best.pt",
+    # 2026-08-30 3자 대조 — 전부 60ep / batch32 / seed42 / 같은 pretrained init.
+    # 데이터 구성만 다르므로 차이를 데이터 탓으로 읽을 수 있다.
+    "JOINT_G38_LEGACY_TEX": "challenge/yolo_pose_one_model/spatial_concat_scratch/"
+                            "runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/"
+                            "weights/best.pt",
+    "G38_ONLY_60EP": "challenge/yolo_pose_one_model/runs_camera_facing_loss/"
+                     "OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/best.pt",
 }
 
 

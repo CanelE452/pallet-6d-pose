@@ -1,13 +1,17 @@
-# Pallet symmetry specification
+# Plastic-standard pallet symmetry specification
 
 Status: **FROZEN**
+
+Scope: **`plastic_standard_110x130x11` only**. Wood does not inherit this
+contract; its current status and review boundary are defined separately in
+[`WOOD_SYMMETRY_SPEC.md`](WOOD_SYMMETRY_SPEC.md).
 
 Machine-readable contract:
 `challenge/real_gt_v2/SYMMETRY_CONTRACT.json`
 
 ## Decision and evidence boundary
 
-For this paper evaluation, pallet poses that differ only by a 180-degree
+For the registered plastic-standard object, poses that differ only by a 180-degree
 rotation about canonical `+Y` are defined as equivalent. This is a benchmark
 assumption fixed by the evaluation-contract owner on 2026-08-27. It is not a
 claim that every physical pallet instance was independently inspected for
@@ -15,7 +19,7 @@ visual or operational symmetry, and the contract explicitly records
 `physical_inspection_claimed=false`.
 
 The rule was fixed without using real GT v2 DEV or FINAL pose results. Existing
-blocked dry runs contain no ADD(-S), rotation, translation, or yaw values.
+blocked dry runs contain no Restricted ADD-S, rotation, translation, or yaw values.
 
 ## Accepted proper rotations
 

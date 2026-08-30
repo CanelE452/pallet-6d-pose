@@ -8,14 +8,17 @@ Status: **PASS — confirmed-invalid labels quarantined**
 
 ## 영향
 
-| source | 격리 | clean eval |
-|---|---:|---:|
-| `capturepalletcad_manual_gt` | 4 | 18 |
-| `capturepallet09_manual_gt` | 3 | 33 |
-| `capturenight08_manual_gt` | 5 | 12 |
-| `capturenight09_manual_gt` | 9 | 16 |
-| `capturepallet08_manual_gt` stale duplicate | 2 | eval 변화 없음 |
-| **합계** | **23** | **raw 161 → clean 140** |
+```
+source                                      격리   clean eval
+─────────────────────────────────────────────────────────────
+capturepalletcad_manual_gt                     4   18
+capturepallet09_manual_gt                      3   33
+capturenight08_manual_gt                       5   12
+capturenight09_manual_gt                       9   16
+capturepallet08_manual_gt stale duplicate      2   eval 변화 없음
+─────────────────────────────────────────────────────────────────
+합계                                          23   raw 161 → clean 140
+```
 
 평가에서 제외된 것은 21개다. 나머지 2개는 같은 frame ID/이미지의
 오래된 잘못된 `capturepallet08` 복제본이다. 두 frame의 정상 canonical label은

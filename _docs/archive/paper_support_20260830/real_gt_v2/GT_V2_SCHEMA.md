@@ -2,6 +2,12 @@
 
 Status: **DEFINED**
 
+Scope note: the schema is object-aware, but the worked values below document
+the historical **`plastic_standard_110x130x11`** migration. Wood v2 labels must
+declare `wood_small_80x59x14` and use registry dimensions
+`(x,y,z)=(0.80,0.14,0.59)`; they must not copy the example's plastic dimensions
+or symmetry state.
+
 `real_pallet_gt_v2` extends the existing label rather than rewriting its legacy
 contract. A migrated JSON is a new file. The source JSON is never edited.
 
@@ -106,8 +112,10 @@ permits only restricted ADD-S and modulo-180 rotation/yaw calculations.
 The original top-level object fields `dimensions_m`, `pose_transform`,
 `manual_kps`, projected points, and other legacy values remain unchanged in the
 new copy. Their originals are also captured under `legacy` so consumers cannot
-mistake them for canonical physical fields. Paper evaluators must use only v2
-physical/canonical fields.
+mistake them for canonical physical fields. The paper evaluator selects an
+object type from the manifest, resolves dimensions from the geometry registry,
+and only then checks that the v2 label agrees. Neither legacy nor v2 label
+dimensions may choose the evaluator geometry.
 
 ## Annotation workflow
 
