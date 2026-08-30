@@ -26,13 +26,13 @@ import cv2                       # noqa: E402
 import mc_dump_yolo as MDY       # noqa: E402
 
 SRC = os.path.join(ROOT, "data/pallet/raw_data/vdoframes")
-OUT = os.path.join(ROOT, "data/pallet/results/model_compare/overlay_vdo_target_vs_challenger")
+OUT = os.path.join(ROOT, "data/pallet/results/model_compare/overlay_vdo_picked")
 PAD, IMGSZ, CONF = 100, 640, 0.25
-TARGET = ("yolo26n_synth", "TARGET  n-SYN74K  (saw target pallet 35,914)")
-CHALLENGER = ("yolo26n_paper_generic_v1", "CHALLENGER  n-GEN40K  (saw target 0)")
-EXTRA = {"yolo26n_paper_generic_v1":
-         "challenge/yolo_pose_one_model/runs_paper/"
-         "yolo26n_paper_generic_v1_seed42/weights/best.pt"}
+TARGET = ("yolo26n_synth", "REF   generic + target 2 geometries (35,914)")
+CHALLENGER = ("JOINT_G38_LEGACY_TEX", "PAPER  generic + legacy v1v2 + tex (17,978)")
+EXTRA = {}   # 두 모델 모두 mc_dump_yolo.MODELS 에 이미 등록돼 있다
+# 사용자가 지정한 프레임.  비우면 전수를 훑어 층으로 뽑는다(기존 동작).
+PICK = ["000037", "000076", "000483", "001678"]
 EDGES = [(0, 1), (1, 2), (2, 3), (3, 0), (4, 5), (5, 6), (6, 7), (7, 4),
          (0, 4), (1, 5), (2, 6), (3, 7)]
 YELLOW, BLUE, WHITE = (0, 255, 255), (255, 80, 0), (255, 255, 255)
@@ -98,10 +98,10 @@ def sheet(items, cols=2, panel_w=760):
         rows.append(np.hstack(row))
     out = np.vstack(rows)
     cap = np.zeros((30, out.shape[1], 3), np.uint8)
-    cv2.putText(cap, "LEFT of each tile = TARGET n-SYN74K | RIGHT = CHALLENGER "
-                     "n-GEN40K | yellow=pred cuboid  blue=pred kp | NO GT in this "
-                     "set: detection/shape only",
-                (8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 1, cv2.LINE_AA)
+    cv2.putText(cap, f"LEFT = {TARGET[1]}  |  RIGHT = {CHALLENGER[1]}  |  "
+                     "yellow=pred cuboid  blue=pred kp  |  NO GT in this set: "
+                     "detection/shape only",
+                (8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.42, WHITE, 1, cv2.LINE_AA)
     return np.vstack([cap, out])
 
 
@@ -113,8 +113,14 @@ def main(step=8):
     net_t = YOLO(os.path.join(ROOT, models[TARGET[0]]), task="pose")
     net_c = YOLO(os.path.join(ROOT, models[CHALLENGER[0]]), task="pose")
 
-    rows = frames(step)
-    print(f"프레임 {len(rows)}장 (전체 2,362 중 {step} 간격)", flush=True)
+    if PICK:
+        rows = [(f"{n}.png", os.path.join(SRC, f"{n}.png")) for n in PICK]
+        missing = [n for n, p in rows if not os.path.exists(p)]
+        assert not missing, f"없는 프레임: {missing}"
+        print(f"지정 프레임 {len(rows)}장 — {', '.join(PICK)}", flush=True)
+    else:
+        rows = frames(step)
+        print(f"프레임 {len(rows)}장 (전체 2,362 중 {step} 간격)", flush=True)
     scan = []
     for name, path in rows:
         k_t, c_t, image = predict(net_t, path)
@@ -145,7 +151,21 @@ def main(step=8):
             return None
         return (max if take_max else min)(pool, key=key)
 
-    strata = [
+    if PICK:
+        strata = []
+        for s_ in scan:
+            if s_["t_det"] and s_["c_det"]:
+                why = ("BOTH DETECT, same object" if (s_["centre_gap"] or 0) < 30
+                       else "BOTH DETECT but DIFFERENT object")
+            elif s_["t_det"]:
+                why = "TARGET detects, PAPER misses"
+            elif s_["c_det"]:
+                why = "PAPER detects, TARGET misses"
+            else:
+                why = "NEITHER detects"
+            strata.append((s_["name"].replace(".png", ""), why, s_))
+    else:
+      strata = [
         ("A_agree", "BOTH DETECT, same object (centre gap smallest)",
          pick(both, lambda s: -(s["centre_gap"] or 1e9))),
         ("B_disagree", "BOTH DETECT but different object (centre gap largest)",
@@ -154,7 +174,7 @@ def main(step=8):
          only_t[len(only_t) // 2] if only_t else None),
         ("D_only_challenger", "CHALLENGER detects, TARGET misses",
          only_c[len(only_c) // 2] if only_c else None),
-    ]
+      ]
 
     items, index = [], []
     for tag, why, s in strata:
@@ -180,6 +200,27 @@ def main(step=8):
     if items:
         cv2.imwrite(os.path.join(OUT, "CONTACT_SHEET.png"), sheet(items))
         print("  contact sheet -> CONTACT_SHEET.png", flush=True)
+
+    # 모델별 4패널 시트 — 프레임 4장을 2x2 로, 모델마다 한 장씩.
+    for tag, label, kkey, ckey in (("TARGET", TARGET[1], "k_t", "t_conf"),
+                                   ("PAPER", CHALLENGER[1], "k_c", "c_conf")):
+        tiles = []
+        for s_ in scan:
+            img = panel(s_["image"], s_[kkey], s_[ckey], label,
+                        s_["name"].replace(".png", ""))
+            tiles.append((img, f"{s_['name']}  |  conf {s_[ckey]:.2f}"))
+        if tiles:
+            grid = sheet(tiles, cols=2, panel_w=760)
+            # 시트 상단 캡션을 이 모델 것으로 덮어쓴다
+            grid = grid[30:]
+            cap = np.zeros((30, grid.shape[1], 3), np.uint8)
+            cv2.putText(cap, f"{tag} = {label}  |  yellow=pred cuboid  "
+                             "blue=pred kp  |  NO GT: detection/shape only",
+                        (8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.42, WHITE, 1,
+                        cv2.LINE_AA)
+            out = os.path.join(OUT, f"SHEET_{tag}.png")
+            cv2.imwrite(out, np.vstack([cap, grid]))
+            print(f"  {tag} 4-panel -> SHEET_{tag}.png", flush=True)
     json.dump({"set": "vdoframes (indoor lifter, NO GT)", "step": step,
                "n_scanned": n,
                "detect": {"target": sum(s["t_det"] for s in scan),
