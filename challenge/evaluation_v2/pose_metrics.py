@@ -9,17 +9,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
-from typing import Any, Iterable, Literal, Sequence
+from typing import Any, Iterable, Literal, Mapping, Sequence
 
 import numpy as np
 
 from .pnp_selector import (
-    EXPECTED_DEV140_COUNT,
-    EXPECTED_DEV140_NIGHT_COUNT,
-    EXPECTED_DEV140_SESSION_COUNTS,
     NIGHT_AXIS_ACCURACY_MIN,
     OVERALL_AXIS_ACCURACY_MIN,
     SESSION_AXIS_ACCURACY_MIN,
+    SELECTOR_DIAGNOSTIC_POPULATION_BY_OBJECT,
     SelectorGateReport,
     SelectorGateState,
 )
@@ -68,6 +66,7 @@ class PoseErrorRecord:
     rotation_error_deg: float
     translation_error_m: float
     yaw_error_deg: float
+    object_type: str | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -86,6 +85,10 @@ class PoseErrorRecord:
             object.__setattr__(self, name, value)
         if not math.isfinite(self.object_diameter_m) or self.object_diameter_m <= 0.0:
             raise ValueError("object_diameter_m must be positive and finite")
+        if self.object_type is not None and (
+            not isinstance(self.object_type, str) or not self.object_type.strip()
+        ):
+            raise ValueError("object_type must be null or a non-empty string")
 
 
 def build_pose_metric_gate(
@@ -102,15 +105,52 @@ def build_pose_metric_gate(
     reasons: list[str] = []
     if canonical_migration_status != "PASS":
         reasons.append("CANONICAL_MIGRATION_NOT_PASS")
-    selector_passed = bool(
-        selector_report.status is SelectorGateState.PASS
-        and selector_report.sample_count == EXPECTED_DEV140_COUNT
-        and selector_report.night_count == EXPECTED_DEV140_NIGHT_COUNT
-        and selector_report.session_count == len(EXPECTED_DEV140_SESSION_COUNTS)
-        and selector_report.overall_accuracy is not None
-        and selector_report.overall_accuracy >= OVERALL_AXIS_ACCURACY_MIN
+    expected_sessions = dict(selector_report.expected_session_counts)
+    expected_population_is_well_formed = bool(
+        isinstance(selector_report.object_type, str)
+        and selector_report.object_type.strip()
+        and isinstance(selector_report.population_id, str)
+        and selector_report.population_id.strip()
+        and isinstance(selector_report.population_role, str)
+        and selector_report.population_role.strip()
+        and SELECTOR_DIAGNOSTIC_POPULATION_BY_OBJECT.get(
+            selector_report.object_type
+        )
+        == selector_report.population_id
+        and type(selector_report.expected_sample_count) is int
+        and selector_report.expected_sample_count > 0
+        and type(selector_report.expected_night_count) is int
+        and 0 <= selector_report.expected_night_count
+        <= selector_report.expected_sample_count
+        and expected_sessions
+        and all(
+            isinstance(session, str)
+            and session
+            and type(count) is int
+            and count > 0
+            for session, count in expected_sessions.items()
+        )
+        and sum(expected_sessions.values()) == selector_report.expected_sample_count
+    )
+    night_passed = bool(
+        selector_report.expected_night_count == 0
+        and selector_report.night_count == 0
+        and selector_report.night_accuracy is None
+    ) or bool(
+        selector_report.expected_night_count > 0
+        and selector_report.night_count == selector_report.expected_night_count
         and selector_report.night_accuracy is not None
         and selector_report.night_accuracy >= NIGHT_AXIS_ACCURACY_MIN
+    )
+    selector_passed = bool(
+        selector_report.status is SelectorGateState.PASS
+        and selector_report.population_validated is True
+        and expected_population_is_well_formed
+        and selector_report.sample_count == selector_report.expected_sample_count
+        and selector_report.session_count == len(expected_sessions)
+        and selector_report.overall_accuracy is not None
+        and selector_report.overall_accuracy >= OVERALL_AXIS_ACCURACY_MIN
+        and night_passed
         and selector_report.minimum_session_accuracy is not None
         and selector_report.minimum_session_accuracy >= SESSION_AXIS_ACCURACY_MIN
         and selector_report.tail_dominance_assessed is True
@@ -266,7 +306,10 @@ def pose_auc(normalized_errors: Iterable[float], *, max_fraction: float = 0.1) -
         raise ValueError("max_fraction must be positive and finite")
     thresholds = np.linspace(0.0, max_fraction, 1001, dtype=np.float64)
     accuracy = np.array([(errors <= threshold).mean() for threshold in thresholds])
-    area = float(np.trapz(accuracy, thresholds) / max_fraction)
+    area = float(
+        np.sum((accuracy[:-1] + accuracy[1:]) * np.diff(thresholds) * 0.5)
+        / max_fraction
+    )
     return area
 
 
@@ -341,6 +384,131 @@ def summarize_pose_errors(
     }
 
 
+def summarize_multishape_pose_errors(
+    records_by_object: Mapping[str, Iterable[PoseErrorRecord]],
+    gates_by_object: Mapping[str, PoseMetricGate],
+    metric_variants_by_object: Mapping[str, Literal["ADD", "ADD-S"]],
+) -> dict[str, Any]:
+    """Summarize object-specific pose rows and a fail-closed ``ALL`` row.
+
+    A passed object subgroup may be reported even when another subgroup is
+    blocked.  The ``ALL`` iterator is never constructed unless every required
+    object gate passes.  This prevents a partial-population number from being
+    mislabeled as an all-object paper result.
+    """
+
+    object_types = tuple(records_by_object)
+    if not object_types:
+        raise ValueError("records_by_object must contain at least one object type")
+    if set(object_types) != set(gates_by_object) or set(object_types) != set(
+        metric_variants_by_object
+    ):
+        raise ValueError("records, gates and metric variants must use identical object keys")
+    if any(not isinstance(value, PoseMetricGate) for value in gates_by_object.values()):
+        raise TypeError("gates_by_object must contain PoseMetricGate values")
+    for object_type, variant in metric_variants_by_object.items():
+        if variant not in {"ADD", "ADD-S"}:
+            raise ValueError(f"{object_type}: metric variant must be ADD or ADD-S")
+
+    materialized: dict[str, list[PoseErrorRecord]] = {}
+    object_results: dict[str, dict[str, Any]] = {}
+    for object_type in object_types:
+        gate = gates_by_object[object_type]
+        variant = metric_variants_by_object[object_type]
+        if gate.passed:
+            rows = list(records_by_object[object_type])
+            materialized[object_type] = rows
+            object_results[object_type] = summarize_pose_errors(
+                rows, gate, metric_variant=variant
+            )
+        else:
+            # ``summarize_pose_errors`` returns before touching the iterable.
+            object_results[object_type] = summarize_pose_errors(
+                records_by_object[object_type], gate, metric_variant=variant
+            )
+
+    blocked_objects = [
+        object_type for object_type in object_types if not gates_by_object[object_type].passed
+    ]
+    if blocked_objects:
+        reasons = [
+            f"{object_type}:{reason}"
+            for object_type in blocked_objects
+            for reason in gates_by_object[object_type].blocked_reasons
+        ]
+        all_result: dict[str, Any] = {
+            "status": "BLOCKED",
+            "metric_variant": "OBJECT_SPECIFIC",
+            "blocked_reason": ";".join(reasons),
+            "blocked_reasons": reasons,
+            "required_object_types": list(object_types),
+        }
+        all_result.update({field: None for field in POSE_METRIC_FIELDS})
+    else:
+        rows_with_variants = [
+            (row, metric_variants_by_object[object_type])
+            for object_type in object_types
+            for row in materialized[object_type]
+        ]
+        if not rows_with_variants:
+            all_result = {
+                "status": "NOT_RUN",
+                "metric_variant": "OBJECT_SPECIFIC",
+                "blocked_reason": "POSE_PREDICTIONS_NOT_PROVIDED",
+                "blocked_reasons": ["POSE_PREDICTIONS_NOT_PROVIDED"],
+                "required_object_types": list(object_types),
+            }
+            all_result.update({field: None for field in POSE_METRIC_FIELDS})
+        else:
+            normalized = [
+                (
+                    row.add_error_m if variant == "ADD" else row.adds_error_m
+                )
+                / row.object_diameter_m
+                for row, variant in rows_with_variants
+            ]
+            rotation = [
+                row.rotation_error_deg
+                for row, _ in rows_with_variants
+                if math.isfinite(row.rotation_error_deg)
+            ]
+            translation = [
+                row.translation_error_m
+                for row, _ in rows_with_variants
+                if math.isfinite(row.translation_error_m)
+            ]
+            yaw = [
+                row.yaw_error_deg
+                for row, _ in rows_with_variants
+                if math.isfinite(row.yaw_error_deg)
+            ]
+            successful = sum(
+                math.isfinite(row.add_error_m if variant == "ADD" else row.adds_error_m)
+                and math.isfinite(row.rotation_error_deg)
+                and math.isfinite(row.translation_error_m)
+                and math.isfinite(row.yaw_error_deg)
+                for row, variant in rows_with_variants
+            )
+            all_result = {
+                "status": "READY",
+                "metric_variant": "OBJECT_SPECIFIC",
+                "blocked_reason": None,
+                "blocked_reasons": [],
+                "required_object_types": list(object_types),
+                "add_or_adds_auc": pose_auc(normalized),
+                "rotation_median_deg": float(np.median(rotation)) if rotation else None,
+                "translation_median_m": (
+                    float(np.median(translation)) if translation else None
+                ),
+                "yaw_median_deg": float(np.median(yaw)) if yaw else None,
+                "pose_population_count": len(rows_with_variants),
+                "pose_success_count": successful,
+                "pose_failure_count": len(rows_with_variants) - successful,
+            }
+
+    return {"ALL": all_result, "objects": object_results}
+
+
 __all__ = [
     "POSE_METRIC_FIELDS",
     "PoseErrorRecord",
@@ -353,6 +521,7 @@ __all__ = [
     "pose_auc",
     "rotation_error_degrees",
     "summarize_pose_errors",
+    "summarize_multishape_pose_errors",
     "transformed_model_points",
     "translation_error_m",
     "yaw_error_degrees",

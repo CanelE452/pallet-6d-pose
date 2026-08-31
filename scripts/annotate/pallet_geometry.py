@@ -36,7 +36,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
-from typing import Iterable
+from typing import Iterable, Mapping
 
 import numpy as np
 
@@ -147,6 +147,34 @@ def canonical_dimensions() -> PhysicalDimensionsXYZ:
         x_m=CANONICAL_X_M, y_m=CANONICAL_Y_M, z_m=CANONICAL_Z_M)
 
 
+def physical_dimensions_xyz(
+        value: PhysicalDimensionsXYZ | Mapping[str, float] | None = None,
+) -> PhysicalDimensionsXYZ:
+    """Normalize named object dimensions without accepting positional W/D/H.
+
+    ``None`` intentionally retains the historical plastic default.  A mapping
+    must use canonical ``x/y/z`` names so adding another object cannot revive
+    the legacy tuple-order ambiguity.
+    """
+
+    if value is None:
+        return canonical_dimensions()
+    if isinstance(value, PhysicalDimensionsXYZ):
+        return value
+    if isinstance(value, Mapping):
+        if set(value) != {"x", "y", "z"}:
+            raise ValueError("physical dimensions must contain exactly x, y, z")
+        return PhysicalDimensionsXYZ(
+            x_m=float(value["x"]),
+            y_m=float(value["y"]),
+            z_m=float(value["z"]),
+        )
+    raise TypeError(
+        "physical dimensions must be PhysicalDimensionsXYZ or a named x/y/z mapping; "
+        "positional W/D/H tuples are forbidden"
+    )
+
+
 def _diagram_points(width: float, height: float, depth: float) -> np.ndarray:
     """Camera-facing index diagram for named W/H/D extents."""
 
@@ -164,10 +192,12 @@ def _diagram_points(width: float, height: float, depth: float) -> np.ndarray:
     return np.vstack([corners, np.zeros((1, 3), dtype=np.float64)])
 
 
-def canonical_keypoints_3d() -> np.ndarray:
-    """Return 8 fixed physical corners and centroid in canonical index order."""
+def canonical_keypoints_3d(
+        physical_dimensions: PhysicalDimensionsXYZ | Mapping[str, float] | None = None,
+) -> np.ndarray:
+    """Return object-specific physical corners and centroid in canonical order."""
 
-    dims = canonical_dimensions()
+    dims = physical_dimensions_xyz(physical_dimensions)
     return _diagram_points(dims.x_m, dims.y_m, dims.z_m)
 
 
@@ -190,11 +220,13 @@ def canonical_to_camera_facing_transform(
 
 
 def camera_facing_dimensions(
-        axis_assignment: AxisAssignment | str) -> CameraFacingDimensionsWHD:
+        axis_assignment: AxisAssignment | str,
+        physical_dimensions: PhysicalDimensionsXYZ | Mapping[str, float] | None = None,
+) -> CameraFacingDimensionsWHD:
     """Return named W/H/D extents for one fully signed yaw assignment."""
 
     assignment = _require_signed_assignment(axis_assignment)
-    dims = canonical_dimensions()
+    dims = physical_dimensions_xyz(physical_dimensions)
     if assignment in (AxisAssignment.YAW_0, AxisAssignment.YAW_180):
         width, depth = dims.x_m, dims.z_m
     else:
@@ -204,21 +236,28 @@ def camera_facing_dimensions(
 
 
 def camera_facing_keypoints_3d(
-        axis_assignment: AxisAssignment | str) -> np.ndarray:
+        axis_assignment: AxisAssignment | str,
+        physical_dimensions: PhysicalDimensionsXYZ | Mapping[str, float] | None = None,
+) -> np.ndarray:
     """Return camera-facing model points for one signed physical assignment."""
 
-    dims = camera_facing_dimensions(axis_assignment)
+    dims = camera_facing_dimensions(axis_assignment, physical_dimensions)
     return _diagram_points(dims.width_m, dims.height_m, dims.depth_m)
 
 
-@lru_cache(maxsize=4)
-def _generated_permutation(assignment: AxisAssignment) -> tuple[int, ...]:
+@lru_cache(maxsize=16)
+def _generated_permutation(
+        assignment: AxisAssignment,
+        dimensions_xyz: tuple[float, float, float],
+) -> tuple[int, ...]:
     """Generate ``perm[cf_index] = canonical_index`` by 3-D exact matching."""
 
-    canonical = canonical_keypoints_3d()
+    physical = PhysicalDimensionsXYZ(
+        x_m=dimensions_xyz[0], y_m=dimensions_xyz[1], z_m=dimensions_xyz[2])
+    canonical = canonical_keypoints_3d(physical)
     rotation = canonical_to_camera_facing_transform(assignment)
     rotated = (rotation @ canonical.T).T
-    target = camera_facing_keypoints_3d(assignment)
+    target = camera_facing_keypoints_3d(assignment, physical)
 
     permutation: list[int] = []
     used: set[int] = set()
@@ -248,16 +287,21 @@ def _generated_permutation(assignment: AxisAssignment) -> tuple[int, ...]:
 
 
 def canonical_to_camera_facing_keypoint_permutation(
-        axis_assignment: AxisAssignment | str) -> tuple[int, ...]:
+        axis_assignment: AxisAssignment | str,
+        physical_dimensions: PhysicalDimensionsXYZ | Mapping[str, float] | None = None,
+) -> tuple[int, ...]:
     """Return the automatically matched ``perm[cf] = canonical`` bijection."""
 
     assignment = _require_signed_assignment(axis_assignment)
-    return _generated_permutation(assignment)
+    physical = physical_dimensions_xyz(physical_dimensions)
+    return _generated_permutation(
+        assignment, (physical.x_m, physical.y_m, physical.z_m))
 
 
 def axis_assignment_candidates_from_camera_facing_dimensions(
         dimensions: CameraFacingDimensionsWHD,
         *,
+        physical_dimensions: PhysicalDimensionsXYZ | Mapping[str, float] | None = None,
         atol: float = 1e-9,
 ) -> tuple[AxisAssignment, AxisAssignment]:
     """Return the two signed yaw candidates allowed by a W/D parity choice.
@@ -269,7 +313,7 @@ def axis_assignment_candidates_from_camera_facing_dimensions(
 
     if not isinstance(dimensions, CameraFacingDimensionsWHD):
         raise TypeError("dimensions must be CameraFacingDimensionsWHD")
-    physical = canonical_dimensions()
+    physical = physical_dimensions_xyz(physical_dimensions)
     if not np.isclose(dimensions.height_m, physical.y_m, rtol=0.0, atol=atol):
         raise ValueError("camera-facing height does not match canonical Y")
     short_width = (
@@ -285,7 +329,31 @@ def axis_assignment_candidates_from_camera_facing_dimensions(
     if long_width:
         return (AxisAssignment.YAW_90, AxisAssignment.YAW_270)
     raise ValueError(
-        "camera-facing W/H/D is not one of the two canonical axis parities")
+        "camera-facing W/H/D is not one of the two object-specific axis parities")
+
+
+def camera_facing_hypothesis_name(
+        axis_assignment: AxisAssignment | str,
+        physical_dimensions: PhysicalDimensionsXYZ | Mapping[str, float] | None = None,
+) -> str:
+    """Name a parity by its visible face width for the selected object.
+
+    Plastic has ``x < z`` while the registered wood pallet has ``x > z``.
+    Deriving the name from the actual width avoids silently reversing the wood
+    truth labels while preserving the historical plastic names.
+    """
+
+    dimensions = camera_facing_dimensions(axis_assignment, physical_dimensions)
+    physical = physical_dimensions_xyz(physical_dimensions)
+    short = min(physical.x_m, physical.z_m)
+    long = max(physical.x_m, physical.z_m)
+    if np.isclose(short, long, rtol=0.0, atol=1e-12):
+        raise ValueError("short/long face naming requires unequal X and Z dimensions")
+    if np.isclose(dimensions.width_m, short, rtol=0.0, atol=1e-12):
+        return "short-face-front"
+    if np.isclose(dimensions.width_m, long, rtol=0.0, atol=1e-12):
+        return "long-face-front"
+    raise RuntimeError("camera-facing width does not match the physical footprint axes")
 
 
 def validate_proper_rotation(
@@ -346,6 +414,7 @@ __all__ = [
     "CameraFacingDimensionsWHD",
     "PhysicalDimensionsXYZ",
     "axis_assignment_candidates_from_camera_facing_dimensions",
+    "camera_facing_hypothesis_name",
     "camera_facing_dimensions",
     "camera_facing_keypoints_3d",
     "camera_facing_to_canonical_pose",
@@ -354,5 +423,6 @@ __all__ = [
     "canonical_to_camera_facing_keypoint_permutation",
     "canonical_to_camera_facing_transform",
     "make_pose_transform",
+    "physical_dimensions_xyz",
     "validate_proper_rotation",
 ]

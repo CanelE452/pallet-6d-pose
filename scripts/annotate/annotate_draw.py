@@ -9,6 +9,7 @@
 """
 from __future__ import annotations
 import os as _os, sys as _sys
+import json as _json
 
 # --- challenge/scripts 형제 탐색: 계열 폴더로 나뉘어 있어도 서로를 찾게 한다.
 #     형제를 import 하는 줄보다 반드시 먼저 실행돼야 하므로 최상단에 둔다.
@@ -20,6 +21,9 @@ import numpy as np
 import time as _time
 
 import cv2
+
+
+GT_V2_SCHEMA_VERSION = "real_pallet_gt_v2"
 
 
 def _ascii_only(text):
@@ -254,6 +258,201 @@ def draw_overlay(img, kps_2d, active_idx, pose=None, extrap_mask=None,
         cv2.putText(vis, f"{i}{suffix}", (c[0] + 5, c[1] - 5),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.42, KP_COLORS[i], 1)
     return vis
+
+
+def annotation_overlay_path(annotation_path):
+    """Return the review-cache path for one active annotation JSON.
+
+    The cache deliberately lives below ``_overlays``.  In particular, it is
+    never the sibling ``<stem>.png`` created by :func:`save_frame_json`, which
+    may be a hardlink to the capture image in old workspaces.
+    """
+    annotation_path = _os.fspath(annotation_path)
+    stem = _os.path.splitext(_os.path.basename(annotation_path))[0]
+    return _os.path.join(_os.path.dirname(annotation_path), "_overlays",
+                         f"{stem}.png")
+
+
+def _saved_overlay_points(annotation):
+    """Extract drawing inputs without solving pose or rewriting the label."""
+    if not isinstance(annotation, dict):
+        raise ValueError("annotation JSON root must be an object")
+    objects = annotation.get("objects")
+    if not isinstance(objects, list) or not objects or not isinstance(objects[0], dict):
+        raise ValueError("annotation must contain objects[0]")
+    obj = objects[0]
+    schema_version = annotation.get("schema_version")
+    if schema_version not in (None, "", GT_V2_SCHEMA_VERSION):
+        raise ValueError(f"unsupported annotation schema_version: {schema_version!r}")
+    is_v2 = schema_version == GT_V2_SCHEMA_VERSION
+
+    def point(value, field, *, required=False):
+        if value is None:
+            if required:
+                raise ValueError(f"{field} is required")
+            return None
+        if not isinstance(value, (list, tuple)) or len(value) < 2:
+            raise ValueError(f"{field} must be an [x, y] coordinate")
+        try:
+            xy = [float(value[0]), float(value[1])]
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{field} must contain numeric coordinates") from exc
+        if not np.isfinite(xy).all():
+            raise ValueError(f"{field} must contain finite coordinates")
+        # project_3d's exact pair is the behind-camera sentinel.  Other
+        # negative coordinates are valid, visible in the review margin.
+        return None if xy == [-1.0, -1.0] else xy
+
+    projected_raw = obj.get("projected_cuboid")
+    if is_v2 and (not isinstance(projected_raw, list)
+                  or len(projected_raw) != 8):
+        raise ValueError("GT-v2 projected_cuboid must contain exactly 8 points")
+    if not isinstance(projected_raw, list):
+        projected_raw = []
+    projected = []
+    for index in range(8):
+        raw = projected_raw[index] if index < len(projected_raw) else None
+        projected.append(point(
+            raw, f"projected_cuboid[{index}]", required=is_v2))
+    projected.append(point(
+        obj.get("projected_cuboid_centroid"),
+        "projected_cuboid_centroid", required=is_v2))
+
+    manual = obj.get("manual_kps")
+    if not isinstance(manual, list):
+        manual = []
+    keypoint_annotations = obj.get("keypoint_annotations")
+    if is_v2 and (
+            not isinstance(keypoint_annotations, list)
+            or len(keypoint_annotations) != 9
+            or not all(isinstance(entry, dict)
+                       for entry in keypoint_annotations)):
+        raise ValueError(
+            "GT-v2 keypoint_annotations must contain exactly 9 objects")
+
+    points = []
+    sources = []
+    for index in range(9):
+        entry = (keypoint_annotations[index]
+                 if isinstance(keypoint_annotations, list)
+                 and index < len(keypoint_annotations)
+                 and isinstance(keypoint_annotations[index], dict)
+                 else None)
+        # Dispatch by schema, never by keypoint_annotations truthiness.  A
+        # malformed/empty GT-v2 label must not silently look like legacy GT.
+        if is_v2:
+            saved_point = point(
+                entry.get("xy"), f"keypoint_annotations[{index}].xy")
+        else:
+            # Legacy keypoint_annotations can be partial migration metadata;
+            # coordinates remain manual_kps-first for non-v2 documents.
+            raw = manual[index] if index < len(manual) else None
+            saved_point = point(raw, f"manual_kps[{index}]")
+            if saved_point is None:
+                saved_point = projected[index]
+        points.append(saved_point)
+        sources.append(entry.get("source", "unknown") if entry else "unknown")
+    if is_v2 and not any(saved_point is not None for saved_point in points):
+        raise ValueError("GT-v2 keypoint_annotations contain no valid xy")
+
+    if not is_v2:
+        # A legacy document can omit projected fields even though its manual
+        # points are sufficient for the existing cuboid primitive.
+        projected = [
+            projected[index] if projected[index] is not None else points[index]
+            for index in range(9)
+        ]
+    # GT-v2 intentionally shows both saved representations when they differ:
+    # wireframe = projected_cuboid, markers = keypoint_annotations[*].xy.
+    projected = [saved_point if saved_point is not None else [-1.0, -1.0]
+                 for saved_point in projected]
+
+    extrapolated_mask = obj.get("extrapolated_mask")
+    if is_v2:
+        extrapolated_mask = [source in {
+            "extrapolated", "pnp_projected", "centroid_auto",
+        } for source in sources]
+    elif not isinstance(extrapolated_mask, list):
+        extrapolated_mask = [False] * 9
+    else:
+        extrapolated_mask = [
+            bool(extrapolated_mask[i]) if i < len(extrapolated_mask) else False
+            for i in range(9)
+        ]
+
+    return obj, points, projected, extrapolated_mask, (
+        keypoint_annotations if isinstance(keypoint_annotations, list) else None)
+
+
+def validate_saved_annotation_overlay(annotation_path):
+    """Parse and validate the saved fields needed by the review renderer."""
+    annotation_path = _os.fspath(annotation_path)
+    with open(annotation_path, "r", encoding="utf-8") as stream:
+        annotation = _json.load(stream)
+    _saved_overlay_points(annotation)
+    return annotation
+
+
+def render_saved_annotation_overlay(source_image_path, annotation_path,
+                                    overlay_path=None):
+    """Render and atomically write the review PNG for a saved annotation.
+
+    The annotation JSON is read back from disk, so the PNG always represents
+    the successfully committed JSON rather than transient editor state.  This
+    function only reads ``source_image_path`` and never writes beside it.
+    """
+    source_image_path = _os.fspath(source_image_path)
+    annotation_path = _os.fspath(annotation_path)
+    canonical_overlay = _os.path.abspath(
+        annotation_overlay_path(annotation_path))
+    if overlay_path is not None:
+        requested_overlay = _os.path.abspath(_os.fspath(overlay_path))
+        if (_os.path.normcase(_os.path.normpath(requested_overlay))
+                != _os.path.normcase(_os.path.normpath(canonical_overlay))):
+            raise ValueError(
+                "overlay_path must be the canonical annotation cache path: "
+                f"{canonical_overlay}")
+    overlay_path = canonical_overlay
+    if (_os.path.normcase(_os.path.realpath(overlay_path))
+            == _os.path.normcase(_os.path.realpath(source_image_path))):
+        raise ValueError("overlay cache resolves to the source image path")
+
+    image = cv2.imread(source_image_path, cv2.IMREAD_COLOR)
+    if image is None:
+        raise OSError(f"cannot read overlay source image: {source_image_path}")
+    annotation = validate_saved_annotation_overlay(annotation_path)
+    _, points, projected, extrapolated_mask, keypoint_annotations = \
+        _saved_overlay_points(annotation)
+
+    pose = {"projected_all": projected}
+    overlay = draw_overlay(
+        image,
+        points,
+        active_idx=-1,
+        pose=pose,
+        extrap_mask=extrapolated_mask,
+        keypoint_annotations=keypoint_annotations,
+    )
+
+    parent = _os.path.dirname(overlay_path) or "."
+    _os.makedirs(parent, exist_ok=True)
+    stem, suffix = _os.path.splitext(_os.path.basename(overlay_path))
+    if not suffix:
+        suffix = ".png"
+        overlay_path = overlay_path + suffix
+    tmp_path = _os.path.join(parent, f"{stem}.tmp{suffix}")
+    try:
+        if not cv2.imwrite(tmp_path, overlay):
+            raise OSError(f"cv2.imwrite returned false: {tmp_path}")
+        _os.replace(tmp_path, overlay_path)
+    except Exception:
+        try:
+            if _os.path.exists(tmp_path):
+                _os.remove(tmp_path)
+        except OSError:
+            pass
+        raise
+    return overlay_path
 
 
 def _pose_dim_short(pose):

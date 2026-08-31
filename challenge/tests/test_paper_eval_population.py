@@ -324,6 +324,17 @@ def test_final_zero_is_unavailable_not_a_valid_empty_evaluation() -> None:
     assert pair.blocked_reason == "FINAL_MEMBERSHIP_UNAVAILABLE"
 
 
+def test_positive_and_negative_frame_ids_must_be_disjoint() -> None:
+    positive = load_repo_population(PopulationId.COMMON_DEV_POS128)
+    negative = load_repo_population(PopulationId.DEV_NEG2689)
+    collided_item = replace(
+        negative.items[0], frame_id=positive.items[0].frame_id
+    )
+    collided_negative = replace(negative, items=(collided_item,))
+    with pytest.raises(ContractError, match="POSITIVE_NEGATIVE_FRAME_ID_OVERLAP"):
+        validate_evaluation_pair(positive, collided_negative, PopulationRole.DEV)
+
+
 def test_required_cli_arguments_are_all_required() -> None:
     parser = paper_real_eval.build_parser()
     actions = {action.dest: action for action in parser._actions}
@@ -428,6 +439,23 @@ def test_dry_run_refuses_to_overwrite_existing_output(tmp_path: Path) -> None:
     assert target.read_bytes() == before
 
 
+def test_evaluator_rejects_colliding_primary_and_sidecar_paths(tmp_path: Path) -> None:
+    target = tmp_path / "collision.json"
+    report = tmp_path / "report.md"
+    with pytest.raises(ContractError, match="OUTPUT_PATHS_MUST_BE_DISTINCT"):
+        paper_real_eval.main(
+            _dry_run_args(target)
+            + [
+                "--per-frame-out",
+                str(target),
+                "--report-out",
+                str(report),
+            ]
+        )
+    assert not target.exists()
+    assert not report.exists()
+
+
 def test_evaluator_rejects_dev140_even_in_dry_run(tmp_path: Path) -> None:
     with pytest.raises(ContractError, match="DEV_COMPARISON_REQUIRES_COMMON"):
         paper_real_eval.main(
@@ -456,6 +484,60 @@ def test_final_placeholders_can_emit_a_dry_run_blocked_report(tmp_path: Path) ->
     assert report["population_contract"]["ready"] is False
     assert report["population_contract"]["blocked_reason"] == "FINAL_MEMBERSHIP_UNAVAILABLE"
     assert all(report["metrics"]["pose"][field] is None for field in POSE_METRIC_FIELDS)
+
+
+@pytest.mark.parametrize(
+    ("population_id", "expected_subset", "expected_counts"),
+    (
+        (
+            PopulationId.FINAL_WOOD_POS,
+            "WOOD",
+            {"wood_small_80x59x14": 0},
+        ),
+        (
+            PopulationId.FINAL_ALL_POS,
+            "ALL",
+            {
+                "plastic_standard_110x130x11": 0,
+                "wood_small_80x59x14": 0,
+            },
+        ),
+    ),
+)
+def test_empty_final_scope_comes_from_manifest_object_types(
+    tmp_path: Path,
+    population_id: PopulationId,
+    expected_subset: str,
+    expected_counts: dict[str, int],
+) -> None:
+    target = tmp_path / f"{population_id.value}.json"
+    paper_real_eval.main(
+        [
+            "--positive-manifest",
+            str(manifest_path(population_id)),
+            "--negative-manifest",
+            str(manifest_path(PopulationId.FINAL_NEG)),
+            "--population-role",
+            "FINAL",
+            "--weights",
+            "not-loaded.pt",
+            "--out",
+            str(target),
+            "--dry-run",
+        ]
+    )
+    report = json.loads(target.read_text("utf-8"))
+    assert report["population_contract"]["positive"]["object_types"] == list(
+        expected_counts
+    )
+    assert report["metrics_metadata"]["object_subset"] == expected_subset
+    assert report["metrics_metadata"]["object_type_counts"] == expected_counts
+    if population_id is PopulationId.FINAL_ALL_POS:
+        assert set(report["metrics"]["pose"]["subgroups"]) == {
+            "ALL",
+            "PLASTIC",
+            "WOOD",
+        }
 
 
 def test_blocked_pose_gate_does_not_even_iterate_metric_records() -> None:

@@ -38,12 +38,17 @@ try:  # Package import (tests and library callers).
         axis_assignment_candidates_from_camera_facing_dimensions,
         camera_facing_keypoints_3d,
         camera_facing_to_canonical_pose,
-        canonical_dimensions,
         canonical_keypoints_3d,
         canonical_to_camera_facing_keypoint_permutation,
         canonical_to_camera_facing_transform,
         make_pose_transform,
         validate_proper_rotation,
+    )
+    from .object_geometry_registry import (
+        DEFAULT_REGISTRY_PATH,
+        PLASTIC_OBJECT_TYPE,
+        ObjectGeometrySpec,
+        load_object_geometry_registry,
     )
     from .real_gt_v2_schema import (
         KEYPOINT_COUNT,
@@ -63,12 +68,17 @@ except ImportError:  # Direct ``python scripts/annotate/...`` execution.
         axis_assignment_candidates_from_camera_facing_dimensions,
         camera_facing_keypoints_3d,
         camera_facing_to_canonical_pose,
-        canonical_dimensions,
         canonical_keypoints_3d,
         canonical_to_camera_facing_keypoint_permutation,
         canonical_to_camera_facing_transform,
         make_pose_transform,
         validate_proper_rotation,
+    )
+    from object_geometry_registry import (  # type: ignore[no-redef]
+        DEFAULT_REGISTRY_PATH,
+        PLASTIC_OBJECT_TYPE,
+        ObjectGeometrySpec,
+        load_object_geometry_registry,
     )
     from real_gt_v2_schema import (
         KEYPOINT_COUNT,
@@ -193,7 +203,7 @@ def _atomic_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> No
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + ".tmp")
     with temporary.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
         stream.flush()
@@ -325,15 +335,19 @@ def _candidate_record(
         R_cf: np.ndarray,
         t_cf: np.ndarray,
         K: np.ndarray,
+        physical_dimensions: Any,
 ) -> tuple[dict[str, Any], float, float, float, int]:
     axis_rotation = canonical_to_camera_facing_transform(assignment)
-    permutation = canonical_to_camera_facing_keypoint_permutation(assignment)
+    permutation = canonical_to_camera_facing_keypoint_permutation(
+        assignment, physical_dimensions)
     R_canonical, t_canonical = camera_facing_to_canonical_pose(
         R_cf, t_cf, assignment)
     transform = make_pose_transform(R_canonical, t_canonical)
 
-    legacy_points = camera_facing_keypoints_3d(assignment)
-    canonical_ordered = canonical_keypoints_3d()[list(permutation)]
+    legacy_points = camera_facing_keypoints_3d(
+        assignment, physical_dimensions)
+    canonical_ordered = canonical_keypoints_3d(
+        physical_dimensions)[list(permutation)]
     legacy_pixels = _project(legacy_points, R_cf, t_cf, K)
     canonical_pixels = _project(
         canonical_ordered, R_canonical, t_canonical, K)
@@ -472,11 +486,19 @@ def migrate_legacy_document(
         *,
         source_label: str,
         source_state: FileState,
+        geometry_spec: ObjectGeometrySpec | None = None,
+        population_role: str = "DEV",
+        intrinsics_quality: str = "UNKNOWN",
+        intrinsics_source: str | None = None,
 ) -> tuple[dict[str, Any], MigrationDiagnostics]:
     """Build and validate one GT-v2 document without touching its source."""
 
     if legacy_document.get("schema_version") == SCHEMA_VERSION:
         raise MigrationError("source already claims real_pallet_gt_v2")
+    geometry_spec = geometry_spec or load_object_geometry_registry().resolve(
+        PLASTIC_OBJECT_TYPE)
+    if population_role not in {"DEV", "FINAL"}:
+        raise MigrationError("population_role must be DEV or FINAL")
     try:
         legacy_obj = legacy_document["objects"][0]
     except (KeyError, IndexError, TypeError) as exc:
@@ -492,7 +514,9 @@ def migrate_legacy_document(
     cf_dimensions = _camera_facing_dimensions(original_obj.get("dimensions_m"))
     try:
         assignments = axis_assignment_candidates_from_camera_facing_dimensions(
-            cf_dimensions)
+            cf_dimensions,
+            physical_dimensions=geometry_spec.physical_dimensions,
+        )
     except (TypeError, ValueError) as exc:
         raise MigrationError(str(exc)) from exc
     K = _camera_matrix(legacy_document)
@@ -506,7 +530,13 @@ def migrate_legacy_document(
     for assignment in assignments:
         try:
             record, parity, orthogonality, det_error, reflections = (
-                _candidate_record(assignment, R_cf, t_cf, K))
+                _candidate_record(
+                    assignment,
+                    R_cf,
+                    t_cf,
+                    K,
+                    geometry_spec.physical_dimensions,
+                ))
         except ValueError as exc:
             raise MigrationError(
                 f"canonical candidate {assignment.value} is invalid: {exc}"
@@ -522,6 +552,11 @@ def migrate_legacy_document(
     projected = _effective_projected_keypoints(original_obj)
 
     migrated["schema_version"] = SCHEMA_VERSION
+    if geometry_spec.object_type != PLASTIC_OBJECT_TYPE:
+        migrated["object_type"] = geometry_spec.object_type
+        migrated["population_role"] = population_role
+        migrated["intrinsics_quality"] = intrinsics_quality
+        migrated["intrinsics_source"] = intrinsics_source
     migrated["real_gt_v2_migration"] = {
         "source_label": source_label,
         "source_sha256": source_state.sha256,
@@ -531,7 +566,10 @@ def migrate_legacy_document(
         "blocked_reason": BLOCKED_REASON,
     }
     migrated_obj["keypoint_frame"] = KEYPOINT_FRAME
-    migrated_obj["physical_dimensions_m"] = canonical_dimensions().as_dict()
+    if geometry_spec.object_type != PLASTIC_OBJECT_TYPE:
+        migrated_obj["object_type"] = geometry_spec.object_type
+    migrated_obj["physical_dimensions_m"] = (
+        geometry_spec.physical_dimensions.as_dict())
     migrated_obj["camera_facing_pnp"] = {
         "axis_assignment": None,
         "axis_assignment_candidates": [value.value for value in assignments],
@@ -555,11 +593,15 @@ def migrate_legacy_document(
             projected[:8], width, height),
     }
     migrated_obj["migration_status"] = MIGRATION_STATUS
-    migrated_obj["manual_review_reasons"] = [
-        BLOCKED_REASON,
-        "LEGACY_KEYPOINT_PROVENANCE_UNKNOWN",
-        "LEGACY_VISIBILITY_UNKNOWN",
-    ]
+    migrated_obj["manual_review_reasons"] = (
+        (["WOOD_SYMMETRY_UNREVIEWED"]
+         if geometry_spec.symmetry_status == "UNREVIEWED" else [])
+        + [
+            BLOCKED_REASON,
+            "LEGACY_KEYPOINT_PROVENANCE_UNKNOWN",
+            "LEGACY_VISIBILITY_UNKNOWN",
+        ]
+    )
 
     manual_preserved = migrated_obj.get("manual_kps") == original_obj.get("manual_kps")
     legacy_preserved = all(
@@ -672,6 +714,11 @@ def migrate_from_audit(
         dry_run: bool = False,
         existing_output_policy: str = DEFAULT_EXISTING_OUTPUT_POLICY,
         symmetry_contract: Path | str | None = None,
+        object_type: str = PLASTIC_OBJECT_TYPE,
+        geometry_registry: Path | str = DEFAULT_REGISTRY_PATH,
+        population_role: str = "DEV",
+        intrinsics_quality: str = "UNKNOWN",
+        intrinsics_source: str | None = None,
 ) -> dict[str, Any]:
     """Migrate the audited membership and return the aggregate gate document.
 
@@ -689,6 +736,22 @@ def migrate_from_audit(
     output_root = Path(output_root).resolve()
     report_root = Path(report_root).resolve()
     repo_root = Path(repo_root).resolve()
+    try:
+        registry = load_object_geometry_registry(geometry_registry)
+        geometry_spec = registry.resolve(object_type)
+    except (OSError, ValueError) as exc:
+        raise MigrationError(f"invalid object geometry registry/type: {exc}") from exc
+    if population_role not in {"DEV", "FINAL"}:
+        raise MigrationError("population_role must be DEV or FINAL")
+    geometry_evidence = {
+        "object_type": geometry_spec.object_type,
+        "population_role": population_role,
+        "physical_dimensions_m": geometry_spec.physical_dimensions.as_dict(),
+        "geometry_registry_path": _portable_path(registry.source_path, repo_root),
+        "geometry_registry_sha256": registry.sha256,
+        "intrinsics_quality": intrinsics_quality,
+        "intrinsics_source": intrinsics_source,
+    }
     if existing_output_policy not in EXISTING_OUTPUT_POLICIES:
         raise MigrationError(
             "existing_output_policy must be one of "
@@ -786,6 +849,10 @@ def migrate_from_audit(
                         legacy,
                         source_label=row["label_path"],
                         source_state=before,
+                        geometry_spec=geometry_spec,
+                        population_role=population_role,
+                        intrinsics_quality=intrinsics_quality,
+                        intrinsics_source=intrinsics_source,
                     )
                     with output.open("r", encoding="utf-8") as stream:
                         existing = json.load(stream)
@@ -835,6 +902,7 @@ def migrate_from_audit(
             "blocked_reason": preflight_blocked_reason,
             "dry_run": bool(dry_run),
             "source_audit_csv": _portable_path(audit_csv, repo_root),
+            **geometry_evidence,
             "pose_resolution_mode": resolution_mode,
             "symmetry_contract_path": symmetry_contract_path,
             "symmetry_contract_sha256": symmetry_contract_sha256,
@@ -874,6 +942,10 @@ def migrate_from_audit(
                 legacy,
                 source_label=row["label_path"],
                 source_state=before,
+                geometry_spec=geometry_spec,
+                population_role=population_role,
+                intrinsics_quality=intrinsics_quality,
+                intrinsics_source=intrinsics_source,
             )
             if not dry_run and output not in identical_outputs:
                 _atomic_json(output, migrated)
@@ -1049,6 +1121,7 @@ def migrate_from_audit(
         "blocked_reason": blocked_reason,
         "dry_run": bool(dry_run),
         "source_audit_csv": _portable_path(audit_csv, repo_root),
+        **geometry_evidence,
         "pose_resolution_mode": resolution_mode,
         "symmetry_contract_path": symmetry_contract_path,
         "symmetry_contract_sha256": symmetry_contract_sha256,
@@ -1106,12 +1179,22 @@ def main() -> int:
     parser.add_argument(
         "--symmetry-contract",
         type=_path_argument,
-        default=DEFAULT_SYMMETRY_CONTRACT,
+        default=None,
         help=(
-            "frozen yaw-180 benchmark contract; the library API defaults to "
-            "None, while the paper CLI validates the repository contract"
+            "object-specific frozen symmetry contract. Omit for UNREVIEWED; "
+            "the plastic default is selected only for the plastic object type"
         ),
     )
+    parser.add_argument("--object-type", default=PLASTIC_OBJECT_TYPE)
+    parser.add_argument(
+        "--geometry-registry", type=_path_argument, default=DEFAULT_REGISTRY_PATH)
+    parser.add_argument("--population-role", choices=["DEV", "FINAL"], default="DEV")
+    parser.add_argument(
+        "--intrinsics-quality",
+        choices=["CALIBRATED", "SENSOR_PROFILE_SCALED", "ESTIMATED_HFOV", "UNKNOWN"],
+        default="UNKNOWN",
+    )
+    parser.add_argument("--intrinsics-source", default=None)
     parser.add_argument(
         "--existing-output-policy",
         choices=sorted(EXISTING_OUTPUT_POLICIES),
@@ -1122,6 +1205,11 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
+    registry = load_object_geometry_registry(args.geometry_registry)
+    selected_object = registry.resolve(args.object_type)
+    selected_symmetry = args.symmetry_contract
+    if selected_symmetry is None and selected_object.object_type == PLASTIC_OBJECT_TYPE:
+        selected_symmetry = DEFAULT_SYMMETRY_CONTRACT
     gate = migrate_from_audit(
         audit_csv=args.audit_csv,
         output_root=args.output_root,
@@ -1130,7 +1218,12 @@ def main() -> int:
         expected_count=args.expected_count,
         dry_run=args.dry_run,
         existing_output_policy=args.existing_output_policy,
-        symmetry_contract=args.symmetry_contract,
+        symmetry_contract=selected_symmetry,
+        object_type=selected_object.object_type,
+        geometry_registry=args.geometry_registry,
+        population_role=args.population_role,
+        intrinsics_quality=args.intrinsics_quality,
+        intrinsics_source=args.intrinsics_source,
     )
     print(json.dumps(gate, indent=2, ensure_ascii=False))
     # An unresolved sign or a dry-run promotion is an expected blocked outcome.

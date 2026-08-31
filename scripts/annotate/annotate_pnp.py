@@ -68,14 +68,18 @@ try:
     from pallet_geometry import (
         AxisAssignment,
         PhysicalDimensionsXYZ,
+        camera_facing_hypothesis_name,
         camera_facing_dimensions,
         canonical_dimensions,
+        physical_dimensions_xyz,
     )
 except ImportError:  # Keep legacy standalone tools usable during staged rollout.
     AxisAssignment = None
     PhysicalDimensionsXYZ = None
     camera_facing_dimensions = None
     canonical_dimensions = None
+    camera_facing_hypothesis_name = None
+    physical_dimensions_xyz = None
 
 
 # (width, depth, height) — 실측 사용자 plastic 팔레트 110 × 130 × 11 cm
@@ -102,8 +106,8 @@ def _physical_xyz_dict(value):
 def default_physical_dimensions():
     """Fixed physical pallet dimensions used by the v2 annotation path.
 
-    ``PALLET_DIMS`` remains as a compatibility shim for historical wood-pallet
-    callers, but new paper GT code passes this named physical object explicitly.
+    ``PALLET_DIMS`` remains as a compatibility shim for historical external
+    callers, but registry-aware annotation passes a named physical object.
     """
     if canonical_dimensions is not None:
         return canonical_dimensions()
@@ -117,25 +121,33 @@ def _physical_wd_hypotheses(physical_dimensions):
     physical = _physical_xyz_dict(physical_dimensions)
     if physical is None:
         raise ValueError("physical_dimensions is required")
-    expected = {"x": 1.1, "y": 0.11, "z": 1.3}
-    if canonical_dimensions is not None:
-        expected = _physical_xyz_dict(canonical_dimensions())
-    if any(not np.isclose(physical[axis], expected[axis], rtol=0.0, atol=1e-12)
-           for axis in ("x", "y", "z")):
-        raise ValueError(
-            "paper GT physical_dimensions are immutable canonical X/Y/Z "
-            f"{expected}; use legacy dims=(W,D,H) only for non-paper tools")
     if AxisAssignment is not None and camera_facing_dimensions is not None:
+        physical_object = (
+            physical_dimensions_xyz(physical)
+            if physical_dimensions_xyz is not None
+            else PhysicalDimensionsXYZ(
+                x_m=physical["x"], y_m=physical["y"], z_m=physical["z"])
+        )
         axes = (AxisAssignment.YAW_0, AxisAssignment.YAW_90)
-        camera_dims = [camera_facing_dimensions(axis) for axis in axes]
+        camera_dims = [
+            camera_facing_dimensions(axis, physical_object) for axis in axes
+        ]
         dims = [(float(item.width_m), float(item.depth_m), float(item.height_m))
                 for item in camera_dims]
+        labels = [
+            camera_facing_hypothesis_name(axis, physical_object).replace("-", "_")
+            for axis in axes
+        ]
     else:
         axes = ("YAW_0", "YAW_90")
         dims = [(physical["x"], physical["z"], physical["y"]),
                 (physical["z"], physical["x"], physical["y"])]
+        short = min(physical["x"], physical["z"])
+        labels = [
+            "short_face_front" if np.isclose(value[0], short) else "long_face_front"
+            for value in dims
+        ]
     signed = (("YAW_0", "YAW_180"), ("YAW_90", "YAW_270"))
-    labels = ("short_face_front", "long_face_front")
     return [
         {
             "legacy_hypothesis": "as_given" if index == 0 else "swapped",
@@ -909,8 +921,8 @@ def solve_pose_candidates(kps_2d, K, dims=None, extrapolated_mask=None,
 
     Unlike historical ``solve_pose``, an explicit ``dims=(W,D,H)`` is now
     honored.  Omitting it still reads the module-level ``PALLET_DIMS`` at call
-    time, preserving ``annotate_wood.py`` and GUI behavior that intentionally
-    override that global.
+    time for external legacy callers.  The shared plastic/wood annotation GUI
+    always supplies ``physical_dimensions`` and never reads or mutates it.
 
     ``keypoint_weights`` (larger is better) and
     ``keypoint_uncertainties`` (sigma, smaller is better) are mutually

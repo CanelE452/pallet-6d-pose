@@ -12,6 +12,7 @@ candidates (0/180 or 90/270 degrees).  The API intentionally has no singular
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 import math
@@ -37,6 +38,13 @@ EXPECTED_DEV140_SESSION_COUNTS: Mapping[str, int] = {
 }
 EXPECTED_DEV140_COUNT = sum(EXPECTED_DEV140_SESSION_COUNTS.values())
 EXPECTED_DEV140_NIGHT_COUNT = 28
+
+PLASTIC_OBJECT_TYPE = "plastic_standard_110x130x11"
+WOOD_OBJECT_TYPE = "wood_small_80x59x14"
+SELECTOR_DIAGNOSTIC_POPULATION_BY_OBJECT: Mapping[str, str] = {
+    PLASTIC_OBJECT_TYPE: "DEV_POS140",
+    WOOD_OBJECT_TYPE: "DEV_WOOD_POS45",
+}
 
 LR_PAIRS = ((0, 1), (3, 2), (4, 5), (7, 6))
 TB_PAIRS = ((0, 3), (1, 2), (4, 7), (5, 6))
@@ -184,9 +192,29 @@ class SelectorGateReport:
     tail_dominance_passed: bool | None
     tail_dominance_notes: str | None
     blocked_reason: str | None
+    object_type: str = PLASTIC_OBJECT_TYPE
+    population_id: str = "DEV_POS140"
+    population_role: str = "DEV"
+    population_membership_sha256: str | None = None
+    expected_sample_count: int = EXPECTED_DEV140_COUNT
+    expected_night_count: int = EXPECTED_DEV140_NIGHT_COUNT
+    expected_session_counts: tuple[tuple[str, int], ...] = tuple(
+        EXPECTED_DEV140_SESSION_COUNTS.items()
+    )
+    population_validated: bool = True
 
     @classmethod
-    def not_run(cls) -> "SelectorGateReport":
+    def not_run(
+        cls,
+        *,
+        object_type: str = PLASTIC_OBJECT_TYPE,
+        population_id: str = "DEV_POS140",
+        population_role: str = "DEV",
+        population_membership_sha256: str | None = None,
+        expected_sample_count: int = EXPECTED_DEV140_COUNT,
+        expected_night_count: int = EXPECTED_DEV140_NIGHT_COUNT,
+        expected_session_counts: Mapping[str, int] = EXPECTED_DEV140_SESSION_COUNTS,
+    ) -> "SelectorGateReport":
         return cls(
             status=SelectorGateState.NOT_RUN,
             overall_accuracy=None,
@@ -199,6 +227,14 @@ class SelectorGateReport:
             tail_dominance_passed=None,
             tail_dominance_notes=None,
             blocked_reason="SELECTOR_DIAGNOSTIC_NOT_RUN",
+            object_type=object_type,
+            population_id=population_id,
+            population_role=population_role,
+            population_membership_sha256=population_membership_sha256,
+            expected_sample_count=expected_sample_count,
+            expected_night_count=expected_night_count,
+            expected_session_counts=tuple(expected_session_counts.items()),
+            population_validated=False,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -211,16 +247,25 @@ class SelectorGateReport:
             "night_count": self.night_count,
             "session_count": self.session_count,
             "expected_population": {
-                "total": EXPECTED_DEV140_COUNT,
-                "night": EXPECTED_DEV140_NIGHT_COUNT,
-                "session_counts": dict(EXPECTED_DEV140_SESSION_COUNTS),
+                "object_type": self.object_type,
+                "population_id": self.population_id,
+                "population_role": self.population_role,
+                "membership_sha256": self.population_membership_sha256,
+                "total": self.expected_sample_count,
+                "night": self.expected_night_count,
+                "session_counts": dict(self.expected_session_counts),
             },
+            "population_validated": self.population_validated,
             "tail_dominance_assessed": self.tail_dominance_assessed,
             "tail_dominance_passed": self.tail_dominance_passed,
             "tail_dominance_notes": self.tail_dominance_notes,
             "thresholds": {
                 "overall_min": OVERALL_AXIS_ACCURACY_MIN,
-                "night_min": NIGHT_AXIS_ACCURACY_MIN,
+                "night_min": (
+                    NIGHT_AXIS_ACCURACY_MIN
+                    if self.expected_night_count > 0
+                    else None
+                ),
                 "minimum_session_min": SESSION_AXIS_ACCURACY_MIN,
             },
             "blocked_reason": self.blocked_reason,
@@ -245,14 +290,6 @@ def _physical_dimensions(
             "positional W/D/H tuples are forbidden"
         )
 
-    fixed = geometry.canonical_dimensions()
-    actual = np.array([dimensions.x_m, dimensions.y_m, dimensions.z_m], dtype=np.float64)
-    required = np.array([fixed.x_m, fixed.y_m, fixed.z_m], dtype=np.float64)
-    if not np.allclose(actual, required, rtol=0.0, atol=1e-12):
-        raise ValueError(
-            "physical_dimensions must equal the fixed canonical dimensions "
-            f"{fixed.as_dict()}; per-frame dimensions are forbidden"
-        )
     return dimensions
 
 
@@ -285,8 +322,11 @@ def _canonical_candidates(
     rotation_cf: np.ndarray,
     translation_cf: np.ndarray,
     dimensions_cf: geometry.CameraFacingDimensionsWHD,
+    physical_dimensions: geometry.PhysicalDimensionsXYZ,
 ) -> tuple[CanonicalPoseCandidate, CanonicalPoseCandidate]:
-    assignments = geometry.axis_assignment_candidates_from_camera_facing_dimensions(dimensions_cf)
+    assignments = geometry.axis_assignment_candidates_from_camera_facing_dimensions(
+        dimensions_cf, physical_dimensions=physical_dimensions
+    )
     out: list[CanonicalPoseCandidate] = []
     for assignment in assignments:
         rotation, translation = geometry.camera_facing_to_canonical_pose(
@@ -299,7 +339,9 @@ def _canonical_candidates(
                 translation=translation,
                 pose_transform=geometry.make_pose_transform(rotation, translation),
                 keypoint_permutation=(
-                    geometry.canonical_to_camera_facing_keypoint_permutation(assignment)
+                    geometry.canonical_to_camera_facing_keypoint_permutation(
+                        assignment, physical_dimensions
+                    )
                 ),
             )
         )
@@ -340,17 +382,24 @@ def _solve_hypothesis(
     points: np.ndarray,
     camera: np.ndarray,
     config: SelectorConfig,
+    physical_dimensions: geometry.PhysicalDimensionsXYZ,
 ) -> HypothesisResult:
     # OpenCV is intentionally lazy: contract/dry-run tests do not require the
     # inference environment, while actual PnP uses the pallet-pose environment.
     try:
         import cv2  # type: ignore
     except ImportError as exc:  # pragma: no cover - exercised only outside the PnP env
-        dimensions = geometry.camera_facing_dimensions(representative_assignment)
+        dimensions = geometry.camera_facing_dimensions(
+            representative_assignment, physical_dimensions
+        )
         return _failed_hypothesis(name, dimensions, f"OPENCV_UNAVAILABLE: {exc}", 0.0)
 
-    object_points = geometry.camera_facing_keypoints_3d(representative_assignment)
-    dimensions = geometry.camera_facing_dimensions(representative_assignment)
+    object_points = geometry.camera_facing_keypoints_3d(
+        representative_assignment, physical_dimensions
+    )
+    dimensions = geometry.camera_facing_dimensions(
+        representative_assignment, physical_dimensions
+    )
     spread_ratio = _spread_ratio(points)
     try:
         ok, rotation_vector, translation_vector = cv2.solvePnP(
@@ -436,7 +485,9 @@ def _solve_hypothesis(
         rotation_camera_facing=rotation,
         translation_camera_facing=translation,
         projected_keypoints=projected,
-        canonical_candidates=_canonical_candidates(rotation, translation, dimensions),
+        canonical_candidates=_canonical_candidates(
+            rotation, translation, dimensions, physical_dimensions
+        ),
         failure_reason=None,
     )
 
@@ -455,18 +506,32 @@ def select_pnp_hypotheses(
     """
 
     points, camera = _inputs(predicted_keypoints, camera_intrinsics)
-    _physical_dimensions(physical_dimensions)
+    physical = _physical_dimensions(physical_dimensions)
     config = config or SelectorConfig()
     if not isinstance(config, SelectorConfig):
         raise TypeError("config must be SelectorConfig")
 
-    short_face_front = _solve_hypothesis(
-        "short-face-front", geometry.AxisAssignment.YAW_0, points, camera, config
+    yaw0 = _solve_hypothesis(
+        geometry.camera_facing_hypothesis_name(
+            geometry.AxisAssignment.YAW_0, physical
+        ),
+        geometry.AxisAssignment.YAW_0,
+        points,
+        camera,
+        config,
+        physical,
     )
-    long_face_front = _solve_hypothesis(
-        "long-face-front", geometry.AxisAssignment.YAW_90, points, camera, config
+    yaw90 = _solve_hypothesis(
+        geometry.camera_facing_hypothesis_name(
+            geometry.AxisAssignment.YAW_90, physical
+        ),
+        geometry.AxisAssignment.YAW_90,
+        points,
+        camera,
+        config,
+        physical,
     )
-    hypotheses = (short_face_front, long_face_front)
+    hypotheses = (yaw0, yaw90)
     valid = [hypothesis for hypothesis in hypotheses if hypothesis.success]
     if not valid:
         return PnPSelectionResult(
@@ -513,17 +578,74 @@ def assess_selector_diagnostics(
     tail_dominance_assessed: bool = False,
     tail_dominance_passed: bool | None = None,
     tail_dominance_notes: str | None = None,
+    object_type: str = PLASTIC_OBJECT_TYPE,
+    population_id: str | None = None,
 ) -> SelectorGateReport:
-    """Apply the pre-registered DEV140 selector gate to completed diagnostics.
+    """Apply an object-bound, pre-registered selector diagnostic gate.
 
     Each record must contain ``frame_id``, ``correct`` (bool), ``domain`` and
-    ``session``.  The frame IDs and strata must match the frozen DEV_POS140
-    membership exactly.  These values are used only for post-hoc gate reporting
+    ``session``.  Frame IDs and strata must match the object's frozen diagnostic
+    population exactly.  These values are used only for post-hoc gate reporting
     and are not accepted by :func:`select_pnp_hypotheses`.
     """
 
+    if not isinstance(object_type, str) or not object_type.strip():
+        raise ValueError("object_type must be a non-empty string")
+    expected_population_id = SELECTOR_DIAGNOSTIC_POPULATION_BY_OBJECT.get(object_type)
+    if expected_population_id is None:
+        raise ValueError(f"no preregistered selector population for {object_type!r}")
+    declared_population_id = (
+        getattr(population_id, "value", population_id)
+        if population_id is not None
+        else expected_population_id
+    )
+    if declared_population_id != expected_population_id:
+        raise ValueError(
+            f"{object_type}: selector population must be {expected_population_id}, "
+            f"got {declared_population_id!r}"
+        )
+
+    # Import only in the post-hoc diagnostic path.  The public inference
+    # selector remains independent of manifests and ground truth.
+    from .real_dataset_contract import load_repo_population
+
+    manifest = load_repo_population(declared_population_id, validate_files=True)
+    manifest_types = {
+        item.object_type or PLASTIC_OBJECT_TYPE for item in manifest.items
+    }
+    if manifest_types != {object_type}:
+        raise ValueError(
+            f"{declared_population_id}: manifest object type does not match {object_type}"
+        )
+    expected_strata = {
+        item.frame_id: (item.domain, item.session_id or item.source_set)
+        for item in manifest.items
+    }
+    expected_session_counts = Counter(
+        session for _, session in expected_strata.values()
+    )
+    expected_night_count = sum(
+        domain == "NIGHT" for domain, _ in expected_strata.values()
+    )
+    binding = {
+        "object_type": object_type,
+        "population_id": manifest.population_id.value,
+        "population_role": manifest.role.value,
+        "population_membership_sha256": manifest.membership_sha256,
+        "expected_sample_count": manifest.count,
+        "expected_night_count": expected_night_count,
+        "expected_session_counts": tuple(sorted(expected_session_counts.items())),
+    }
     if not records:
-        return SelectorGateReport.not_run()
+        return SelectorGateReport.not_run(
+            object_type=object_type,
+            population_id=manifest.population_id.value,
+            population_role=manifest.role.value,
+            population_membership_sha256=manifest.membership_sha256,
+            expected_sample_count=manifest.count,
+            expected_night_count=expected_night_count,
+            expected_session_counts=dict(sorted(expected_session_counts.items())),
+        )
     if not isinstance(tail_dominance_assessed, bool):
         raise TypeError("tail_dominance_assessed must be bool")
     if tail_dominance_passed is not None and not isinstance(tail_dominance_passed, bool):
@@ -534,7 +656,7 @@ def assess_selector_diagnostics(
         raise ValueError("tail_dominance_passed must be None when assessment was not run")
     if tail_dominance_notes is not None and not isinstance(tail_dominance_notes, str):
         raise TypeError("tail_dominance_notes must be str or None")
-    normalized: list[tuple[str, bool, str, str]] = []
+    normalized: list[tuple[str, bool, str | None, str]] = []
     for index, record in enumerate(records):
         frame_id = record.get("frame_id")
         correct = record.get("correct")
@@ -544,8 +666,8 @@ def assess_selector_diagnostics(
             raise ValueError(f"records[{index}].frame_id must be a non-empty string")
         if not isinstance(correct, bool):
             raise ValueError(f"records[{index}].correct must be bool")
-        if domain not in {"DAY", "NIGHT"}:
-            raise ValueError(f"records[{index}].domain must be DAY or NIGHT")
+        if domain not in {"DAY", "NIGHT", None}:
+            raise ValueError(f"records[{index}].domain must be DAY, NIGHT or null")
         if not isinstance(session, str) or not session:
             raise ValueError(f"records[{index}].session must be a non-empty string")
         normalized.append((frame_id, correct, domain, session))
@@ -573,19 +695,6 @@ def assess_selector_diagnostics(
         session: sum(row_session == session for _, _, _, row_session in normalized)
         for session in sessions
     }
-    domain_matches_session = all(
-        domain
-        == ("NIGHT" if session in {"eval_night08", "eval_night09"} else "DAY")
-        for _, _, domain, session in normalized
-    )
-    # Import only in the post-hoc diagnostic path.  The public inference
-    # selector remains independent of manifests and ground truth.
-    from .real_dataset_contract import PopulationId, load_repo_population
-
-    dev140 = load_repo_population(PopulationId.DEV_POS140, validate_files=True)
-    expected_strata = {
-        item.frame_id: (item.domain, item.source_set) for item in dev140.items
-    }
     actual_ids = [frame_id for frame_id, _, _, _ in normalized]
     exact_frame_membership = (
         len(set(actual_ids)) == len(actual_ids)
@@ -596,10 +705,9 @@ def assess_selector_diagnostics(
         )
     )
     population_matches = (
-        len(normalized) == EXPECTED_DEV140_COUNT
-        and len(night_rows) == EXPECTED_DEV140_NIGHT_COUNT
-        and actual_session_counts == dict(EXPECTED_DEV140_SESSION_COUNTS)
-        and domain_matches_session
+        len(normalized) == manifest.count
+        and len(night_rows) == expected_night_count
+        and actual_session_counts == dict(expected_session_counts)
         and exact_frame_membership
     )
     if not population_matches:
@@ -615,6 +723,8 @@ def assess_selector_diagnostics(
             tail_dominance_passed=tail_dominance_passed,
             tail_dominance_notes=tail_dominance_notes,
             blocked_reason="SELECTOR_DIAGNOSTIC_POPULATION_MISMATCH",
+            **binding,
+            population_validated=False,
         )
     if not tail_dominance_assessed:
         return SelectorGateReport(
@@ -629,11 +739,19 @@ def assess_selector_diagnostics(
             tail_dominance_passed=None,
             tail_dominance_notes=tail_dominance_notes,
             blocked_reason="SELECTOR_TAIL_DOMINANCE_NOT_ASSESSED",
+            **binding,
+            population_validated=True,
         )
+    night_passed = bool(
+        expected_night_count == 0
+        or (
+            night_accuracy is not None
+            and night_accuracy >= NIGHT_AXIS_ACCURACY_MIN
+        )
+    )
     passed = (
         overall >= OVERALL_AXIS_ACCURACY_MIN
-        and night_accuracy is not None
-        and night_accuracy >= NIGHT_AXIS_ACCURACY_MIN
+        and night_passed
         and minimum_session is not None
         and minimum_session >= SESSION_AXIS_ACCURACY_MIN
         and tail_dominance_passed is True
@@ -658,6 +776,8 @@ def assess_selector_diagnostics(
                 else "SELECTOR_ACCURACY_GATE_FAILED"
             )
         ),
+        **binding,
+        population_validated=True,
     )
 
 
@@ -669,12 +789,15 @@ __all__ = [
     "EXPECTED_DEV140_SESSION_COUNTS",
     "NIGHT_AXIS_ACCURACY_MIN",
     "OVERALL_AXIS_ACCURACY_MIN",
+    "PLASTIC_OBJECT_TYPE",
     "PnPSelectionResult",
     "SESSION_AXIS_ACCURACY_MIN",
+    "SELECTOR_DIAGNOSTIC_POPULATION_BY_OBJECT",
     "SelectorConfig",
     "SelectorGateReport",
     "SelectorGateState",
     "SelectorStatus",
+    "WOOD_OBJECT_TYPE",
     "assess_selector_diagnostics",
     "select_pnp_hypotheses",
 ]

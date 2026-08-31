@@ -17,20 +17,32 @@ try:  # Package import (tests/evaluation code).
         AxisAssignment,
         CameraFacingDimensionsWHD,
         axis_assignment_candidates_from_camera_facing_dimensions,
-        canonical_dimensions,
         canonical_to_camera_facing_keypoint_permutation,
         canonical_to_camera_facing_transform,
+        physical_dimensions_xyz,
         validate_proper_rotation,
+    )
+    from .object_geometry_registry import (
+        PLASTIC_OBJECT_TYPE,
+        WOOD_OBJECT_TYPE,
+        ObjectGeometrySpec,
+        load_object_geometry_registry,
     )
 except ImportError:  # Direct ``python scripts/annotate/...`` execution.
     from pallet_geometry import (
         AxisAssignment,
         CameraFacingDimensionsWHD,
         axis_assignment_candidates_from_camera_facing_dimensions,
-        canonical_dimensions,
         canonical_to_camera_facing_keypoint_permutation,
         canonical_to_camera_facing_transform,
+        physical_dimensions_xyz,
         validate_proper_rotation,
+    )
+    from object_geometry_registry import (  # type: ignore[no-redef]
+        PLASTIC_OBJECT_TYPE,
+        WOOD_OBJECT_TYPE,
+        ObjectGeometrySpec,
+        load_object_geometry_registry,
     )
 
 
@@ -53,6 +65,12 @@ KEYPOINT_REASONS = frozenset({
     "unknown",
 })
 OCCLUSION_LEVELS = frozenset({"none", "partial", "heavy", "unknown"})
+INTRINSICS_QUALITY_VALUES = frozenset({
+    "CALIBRATED",
+    "SENSOR_PROFILE_SCALED",
+    "ESTIMATED_HFOV",
+    "UNKNOWN",
+})
 
 
 class SchemaValidationError(ValueError):
@@ -200,9 +218,13 @@ def keypoint_annotations_to_ultralytics(
     return result
 
 
-def _validate_physical_dimensions(value: Any, path: str) -> None:
+def _validate_physical_dimensions(
+        value: Any,
+        path: str,
+        expected_dimensions: Any,
+) -> None:
     item = _mapping(value, path)
-    expected = canonical_dimensions().as_dict()
+    expected = physical_dimensions_xyz(expected_dimensions).as_dict()
     if set(item) != {"x", "y", "z"}:
         _fail(path, "must contain exactly x, y, z")
     for axis, expected_value in expected.items():
@@ -242,8 +264,9 @@ def _validate_rotation(value: Any, path: str) -> None:
 def _validate_pose_record(
         value: Any,
         path: str,
-        *,
-        camera_facing_transform: np.ndarray,
+    *,
+    camera_facing_transform: np.ndarray,
+    physical_dimensions: Any,
 ) -> AxisAssignment:
     item = _mapping(value, path)
     for field in (
@@ -275,7 +298,8 @@ def _validate_pose_record(
             "does not match the signed axis assignment",
         )
     expected_permutation = (
-        canonical_to_camera_facing_keypoint_permutation(assignment))
+        canonical_to_camera_facing_keypoint_permutation(
+            assignment, physical_dimensions))
     if permutation != expected_permutation:
         _fail(
             f"{path}.canonical_to_camera_facing_keypoint_permutation",
@@ -294,6 +318,38 @@ def _validate_pose_record(
     return assignment
 
 
+def _object_geometry(data: Mapping[str, Any], obj: Mapping[str, Any]) -> ObjectGeometrySpec:
+    """Resolve an explicit object type, retaining old plastic-v2 compatibility."""
+
+    root_type = data.get("object_type")
+    object_type = obj.get("object_type")
+    if root_type is None and object_type is None:
+        # Existing plastic GT v2 predates the multi-object field.  This is the
+        # only compatibility default; manifests still declare plastic before
+        # paper evaluation opens the label.
+        canonical_type = PLASTIC_OBJECT_TYPE
+    else:
+        if not isinstance(root_type, str) or not isinstance(object_type, str):
+            _fail("object_type", "must be present at root and objects[0]")
+        if root_type != object_type:
+            _fail("object_type", "root and objects[0] values must match")
+        canonical_type = root_type
+    try:
+        spec = load_object_geometry_registry().resolve(canonical_type)
+    except ValueError as exc:
+        _fail("object_type", str(exc))
+    if spec.object_type == WOOD_OBJECT_TYPE:
+        if data.get("population_role") not in {"DEV", "FINAL"}:
+            _fail("population_role", "wood GT must have role DEV or FINAL")
+        quality = data.get("intrinsics_quality")
+        if quality not in INTRINSICS_QUALITY_VALUES:
+            _fail(
+                "intrinsics_quality",
+                f"must be one of {sorted(INTRINSICS_QUALITY_VALUES)}",
+            )
+    return spec
+
+
 def validate_gt_v2(document: Any) -> None:
     """Validate the additive fields required on a GT v2 document."""
 
@@ -305,6 +361,8 @@ def validate_gt_v2(document: Any) -> None:
             or len(objects) != 1):
         _fail("objects", "must contain exactly one object")
     obj = _mapping(objects[0], "objects[0]")
+    geometry_spec = _object_geometry(data, obj)
+    physical_dimensions = geometry_spec.physical_dimensions
 
     required = (
         "keypoint_frame",
@@ -324,7 +382,10 @@ def validate_gt_v2(document: Any) -> None:
     if obj["keypoint_frame"] != KEYPOINT_FRAME:
         _fail("objects[0].keypoint_frame", f"must equal {KEYPOINT_FRAME!r}")
     _validate_physical_dimensions(
-        obj["physical_dimensions_m"], "objects[0].physical_dimensions_m")
+        obj["physical_dimensions_m"],
+        "objects[0].physical_dimensions_m",
+        physical_dimensions,
+    )
 
     cf = _mapping(obj["camera_facing_pnp"], "objects[0].camera_facing_pnp")
     for field in (
@@ -361,7 +422,9 @@ def validate_gt_v2(document: Any) -> None:
     try:
         expected_candidates = (
             axis_assignment_candidates_from_camera_facing_dimensions(
-                cf_dimensions))
+                cf_dimensions,
+                physical_dimensions=physical_dimensions,
+            ))
     except (TypeError, ValueError) as exc:
         _fail("objects[0].camera_facing_pnp.dimensions_m", str(exc))
     if candidate_assignments != expected_candidates:
@@ -379,6 +442,7 @@ def validate_gt_v2(document: Any) -> None:
             canonical_pose,
             "objects[0].canonical_pose",
             camera_facing_transform=cf_transform,
+            physical_dimensions=physical_dimensions,
         )
 
     pose_candidates = obj["canonical_pose_candidates"]
@@ -389,7 +453,11 @@ def validate_gt_v2(document: Any) -> None:
     for index, record in enumerate(pose_candidates):
         path = f"objects[0].canonical_pose_candidates[{index}]"
         assignment = _validate_pose_record(
-            record, path, camera_facing_transform=cf_transform)
+            record,
+            path,
+            camera_facing_transform=cf_transform,
+            physical_dimensions=physical_dimensions,
+        )
         if assignment in seen:
             _fail(path, "duplicates an axis assignment")
         seen.add(assignment)

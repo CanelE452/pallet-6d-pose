@@ -46,5 +46,5 @@ On 2026-08-27, 21 invalid eval labels and two stale duplicate labels were moved
 to the recoverable local archive `_archive/real_gt_invalid_20260827/`; source
 images were retained. The two stale duplicates share frame IDs with good
 canonical labels, so they are denied by exact path/SHA rather than frame ID.
-See `_docs/paper/real_gt_v2/GT_QA_STATUS.md` for the clean 140 population and
-clickable image index.
+See `_docs/archive/paper_support_20260830/real_gt_v2/GT_QA_STATUS.md` for the
+clean 140 population and clickable image index.

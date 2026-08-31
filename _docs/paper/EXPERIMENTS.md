@@ -49,15 +49,30 @@ FPR95       ↓    false-positive rate at 95% TPR
 ## 결과표
 
 ```text
-Method                   Subset   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCopen↑  AUCseal↑  AUCall↑    AP↑  AUROC↑  FPR95↓
+Method                   Population      N   Subset   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCopen↑  AUCseal↑  AUCall↑    AP↑  AUROC↑  FPR95↓
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-SingleShotPose           ALL         —        —       —         —       —       —         —         —        —      —       —       —
-DOPE                     ALL         —        —       —         —       —       —         —         —        —      —       —       —
-PVNet                    ALL         —        —       —         —       —       —         —         —        —      —       —       —
-YOLO26n-Pose baseline    ALL         —        —       —         —       —       —         —         —        —      —       —       —
-Proposed                 ALL         —        —       —         —       —       —         —         —        —      —       —       —
-Real-FT upper bound      ALL         —        —       —         —       —       —         —         —        —      —       —       —
+SingleShotPose           DEV          2862   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+DOPE                     DEV          2862   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+PVNet                    DEV          2862   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+YOLO26n-Pose baseline    DEV          2862   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+Proposed                 DEV          2862   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+Real-FT upper bound      DEV          2862   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+
+SingleShotPose           FINAL           0   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+DOPE                     FINAL           0   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+PVNet                    FINAL           0   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+YOLO26n-Pose baseline    FINAL           0   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+Proposed                 FINAL           0   ALL         —        —       —         —       —       —         —         —        —      —       —       —
+Real-FT upper bound      FINAL           0   ALL         —        —       —         —       —       —         —         —        —      —       —       —
 ```
+
+`N`은 population manifest의 현재 row 수이다.
+`DEV`는 positive 173장과 negative 2,689장으로 구성되며,
+pose metric은 해당 metric에 적격인 positive subset만 denominator로 사용한다.
+현재 `FINAL`은 N=0이므로 모든 metric을 `—`로 유지한다.
+
+`ALL_AVAILABLE`는 DEV가 model selection에 사용되었다는 제약을 명시한
+appendix/secondary evaluation에서만 사용하며, held-out final로 부르지 않는다.
 
 ### Subgroup 결과
 
@@ -457,18 +472,32 @@ upper bound이다.
 ## 결과표
 
 ```text
-Condition        N   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCall↑
+Population   Condition        N   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCall↑
 ──────────────────────────────────────────────────────────────────────────────
-Plastic          —      —        —       —         —       —       —        —
-Wood             —      —        —       —         —       —       —        —
-DAY              —      —        —       —         —       —       —        —
-NIGHT            —      —        —       —         —       —       —        —
-Occlusion        —      —        —       —         —       —       —        —
-Truncation       —      —        —       —         —       —       —        —
-Far / small      —      —        —       —         —       —       —        —
+DEV          Plastic        AUTO      —        —       —         —       —       —        —
+DEV          Wood           AUTO      —        — BLOCKED   BLOCKED BLOCKED BLOCKED  BLOCKED
+DEV          DAY            AUTO      —        —       —         —       —       —        —
+DEV          NIGHT          AUTO      —        —       —         —       —       —        —
+DEV          Occlusion      AUTO      —        —       —         —       —       —        —
+DEV          Truncation     AUTO      —        —       —         —       —       —        —
+DEV          Far / small    AUTO      —        —       —         —       —       —        —
+
+FINAL        Plastic        AUTO      —        —       —         —       —       —        —
+FINAL        Wood           AUTO      —        —       —         —       —       —        —
+FINAL        DAY            AUTO      —        —       —         —       —       —        —
+FINAL        NIGHT          AUTO      —        —       —         —       —       —        —
+FINAL        Occlusion      AUTO      —        —       —         —       —       —        —
+FINAL        Truncation     AUTO      —        —       —         —       —       —        —
+FINAL        Far / small    AUTO      —        —       —         —       —       —        —
 ```
 
 조건은 서로 중복될 수 있다.
+
+`DEV / Wood`는 dataset에서 제외하지 않는다.
+다만 symmetry와 selector/evaluator pose contract가 해결되기 전까지
+`R med`, `yaw med`, `t med`, `IoU3D`, `AUCall`은 `BLOCKED`로 유지한다.
+Plastic pose 결과와 Wood의 unresolved pose 결과를 합쳐 DEV 173장의
+`AUCall`을 만들지 않는다.
 
 ---
 
@@ -482,27 +511,51 @@ Far / small      —      —        —       —         —       —       �
 ## 결과표
 
 ```text
-Split / Object       Frames   Sessions   DAY   NIGHT   Dimensions   Occlusion   Truncation   Notes
+Population   Object              Frames   Sessions   DAY   NIGHT   Dimensions   Occlusion   Truncation   Notes
 ───────────────────────────────────────────────────────────────────────────────────────────────────
-Plastic                   —          —     —       —            —           —            —       —
-Wood                      —          —     —       —            —           —            —       —
-Combined positive         —          —     —       —            —           —            —       —
-Negative                  —          —     —       —            —           —            —       —
+DEV          Plastic               AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   controlled 128; audited 140
+DEV          Wood                  AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   pose contract BLOCKED
+DEV          Combined positive     AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   controlled positive only
+DEV          Negative              AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   DEV_NEG2689
+
+FINAL        Plastic               AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   QA eligible only
+FINAL        Wood                  AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   QA eligible only
+FINAL        Combined positive     AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   target 300; DEV excluded
+FINAL        Negative              AUTO       AUTO  AUTO    AUTO         AUTO        AUTO         AUTO   target 1500; DEV excluded
 ```
 
 필요하면 condition별 별도 행:
 
 ```text
-Condition        Frames
+Population   Condition        Frames
 ────────────────────────
-Clean                 —
-Occlusion             —
-Truncation            —
-Far / small           —
-Low angle             —
-Mid angle             —
-High angle            —
+DEV          Clean              AUTO
+DEV          Occlusion          AUTO
+DEV          Truncation         AUTO
+DEV          Far / small        AUTO
+DEV          Low angle          AUTO
+DEV          Mid angle          AUTO
+DEV          High angle         AUTO
+
+FINAL        Clean              AUTO
+FINAL        Occlusion          AUTO
+FINAL        Truncation         AUTO
+FINAL        Far / small        AUTO
+FINAL        Low angle          AUTO
+FINAL        Mid angle          AUTO
+FINAL        High angle         AUTO
 ```
+
+보조 dataset summary에서는 다음 `ALL_AVAILABLE` block을 사용할 수 있다.
+
+```text
+Population       Object      Frames   Sessions   Notes
+───────────────────────────────────────────────────────────
+ALL_AVAILABLE   Positive      AUTO       AUTO   DEV_EVAL ∪ FINAL_EVAL; SHA256 deduplicated
+ALL_AVAILABLE   Negative      AUTO       AUTO   DEV_EVAL ∪ FINAL_EVAL; SHA256 deduplicated
+```
+
+`ALL_AVAILABLE`는 annotation 목표가 아니며 held-out final로 해석하지 않는다.
 
 Experiment 6/7의 dataset membership과 condition count는 다음 artifact에서
 자동 생성한다.

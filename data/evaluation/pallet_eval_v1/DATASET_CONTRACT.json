@@ -1,0 +1,126 @@
+{
+  "schema_version": "pallet_eval_workspace_v1",
+  "dataset_id": "pallet_eval_v1",
+  "identity": {
+    "primary": "sha256(image bytes)",
+    "frame_id": "globally unique session-qualified identifier",
+    "filename_only_deduplication": false
+  },
+  "roles": {
+    "DEV": "previously used audited development data",
+    "DEV_UNVERIFIED": "preserved legacy annotation, not paper eligible",
+    "FINAL": "untouched final evaluation population"
+  },
+  "invariants": {
+    "dev_is_never_counted_toward_final_targets": true,
+    "source_data_is_read_only": true,
+    "workspace_copies_are_not_hardlinks_or_symlinks": true,
+    "conditions_are_tags_and_may_overlap": true,
+    "unknown_metadata_is_not_inferred": true,
+    "final_rgb_is_rehashed_on_every_refresh": true,
+    "active_image_sha_is_globally_unique": true,
+    "sole_active_sha_exception": {
+      "population": "DEV_NEG2689",
+      "frame_ids": [
+        "dev_negative__000238",
+        "dev_negative__000239"
+      ],
+      "sha256": "7e6359c1fc3dbaf6c0adfb7a9f935d53bc668c63cd1c3aab290c680ee26bb6e0",
+      "reason": "frozen source membership is preserved, not deduplicated"
+    }
+  },
+  "path_contract": {
+    "workspace_paths": "relative to dataset root when storage_mode is workspace_native or independent_copy",
+    "source_reference_image_path": "repository-root-relative when storage_mode is source_reference_read_only; source_image_path contains the same read-only identity",
+    "source_paths": "relative to repository root when possible"
+  },
+  "allowed_values": {
+    "population_role": [
+      "DEV",
+      "DEV_UNVERIFIED",
+      "FINAL"
+    ],
+    "object_type": [
+      "none",
+      "plastic",
+      "unknown",
+      "wood"
+    ],
+    "lighting": [
+      "day",
+      "night",
+      "unknown"
+    ],
+    "occlusion": [
+      "heavy",
+      "medium",
+      "mild",
+      "none",
+      "unknown"
+    ],
+    "truncation": [
+      "heavy",
+      "medium",
+      "mild",
+      "none",
+      "unknown"
+    ],
+    "distance_bin": [
+      "far",
+      "mid",
+      "near",
+      "unknown"
+    ],
+    "size_bin": [
+      "large",
+      "medium",
+      "small",
+      "unknown"
+    ],
+    "elevation_bin": [
+      "high",
+      "low",
+      "mid",
+      "unknown"
+    ]
+  },
+  "condition_queries": {
+    "plastic": "object_type == plastic",
+    "wood": "object_type == wood",
+    "day": "lighting == day",
+    "night": "lighting == night",
+    "occlusion": "occlusion in {mild, medium, heavy}",
+    "truncation": "truncation in {mild, medium, heavy}",
+    "far_small": "distance_bin == far OR size_bin == small",
+    "clean": "occlusion == none AND truncation == none",
+    "low": "elevation_bin == low",
+    "mid": "elevation_bin == mid",
+    "high": "elevation_bin == high"
+  },
+  "source_of_truth": {
+    "frames": "manifests/frames.csv",
+    "targets": "DATASET_TARGETS.json",
+    "plastic_dev": "challenge/real_gt_v2/manifests/DEV_POS140.json",
+    "plastic_controlled": "challenge/real_gt_v2/manifests/COMMON_DEV_POS128.json",
+    "wood_dev": "challenge/real_gt_v2/manifests/DEV_WOOD_POS45.json",
+    "negative_dev": "challenge/real_gt_v2/manifests/DEV_NEG2689.json"
+  },
+  "evaluation_populations": {
+    "DEV_EVAL": {
+      "positive": "COMMON_DEV_PLASTIC_POS128 + DEV_WOOD_POS45",
+      "negative": "DEV_NEG2689 frozen membership",
+      "held_out_final": false
+    },
+    "FINAL_EVAL": {
+      "positive": "population_role == FINAL AND is_positive == true AND is_annotated == true AND controlled_eval_eligible == true",
+      "negative": "population_role == FINAL AND is_positive == false",
+      "held_out_final": true
+    },
+    "ALL_AVAILABLE": {
+      "positive": "SHA256-deduplicated union(DEV_EVAL_POSITIVE, FINAL_EVAL_POSITIVE)",
+      "negative": "SHA256-deduplicated union(DEV_EVAL_NEGATIVE, FINAL_EVAL_NEGATIVE)",
+      "held_out_final": false,
+      "note": "DEV may have been used for model selection"
+    }
+  }
+}

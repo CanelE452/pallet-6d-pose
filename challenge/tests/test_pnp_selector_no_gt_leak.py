@@ -126,14 +126,17 @@ def test_both_hypotheses_expose_prediction_only_score_components() -> None:
         assert len(hypothesis.canonical_candidates) == 2
 
 
-def test_per_frame_or_positional_dimensions_are_rejected() -> None:
+def test_positional_dimensions_are_rejected_but_named_object_geometry_is_allowed() -> None:
     points = _project(geometry.AxisAssignment.YAW_0)
     with pytest.raises(TypeError, match="positional W/D/H tuples are forbidden"):
         selector.select_pnp_hypotheses(points, _camera(), (1.1, 1.3, 0.11))
-    with pytest.raises(ValueError, match="fixed canonical dimensions"):
-        selector.select_pnp_hypotheses(
-            points, _camera(), {"x": 1.3, "y": 0.11, "z": 1.1}
-        )
+    # A prediction-only selector is generic over an already registry-resolved
+    # named geometry.  It does not decide the object type from a frame or GT;
+    # the paper evaluator performs and validates that manifest dispatch.
+    result = selector.select_pnp_hypotheses(
+        points, _camera(), {"x": 1.3, "y": 0.11, "z": 1.1}
+    )
+    assert isinstance(result, selector.PnPSelectionResult)
 
 
 def test_invalid_prediction_or_camera_fails_before_pnp() -> None:

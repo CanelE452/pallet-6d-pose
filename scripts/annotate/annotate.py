@@ -81,27 +81,47 @@ if os.name == "nt":
         pass
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-# scripts/annotate/ 기준으로 두 단계 위가 repo 루트다: annotate -> scripts -> <repo>.
-# 2026-08-15 에 challenge/scripts/annotate/ 에서 옮겨오면서 세 단계 -> 두 단계가 됐다.
-# 깊이를 세지 말고 표식(.git)으로 찾으면 다음에 또 옮겨도 안 깨진다.
-_REPO = os.path.dirname(os.path.dirname(_HERE))
-_p = _HERE
-while _p != os.path.dirname(_p):
-    if os.path.isdir(os.path.join(_p, ".git")):
-        _REPO = _p
-        break
-    _p = os.path.dirname(_p)
+
+
+def find_repo_root(start):
+    """Find the repository by its .git marker, including worktree .git files."""
+    current = os.path.abspath(start)
+    while True:
+        if os.path.exists(os.path.join(current, ".git")):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            raise RuntimeError(f"cannot find repository .git marker above {start}")
+        current = parent
+
+
+_REPO = find_repo_root(_HERE)
 sys.path.insert(0, _HERE)   # annotate_pnp / annotate_draw / annotate_io import
 
 from annotate_pnp import (
     solve_pose, pose_from_locked, apply_manip, line_intersection,
     parallelogram_extrapolate,
-    PALLET_DIMS, default_physical_dimensions,
+    default_physical_dimensions,
 )
-from annotate_draw import (render, annot_button_rect, session_button_rect,
-                           MARGIN_L, MARGIN_R, MARGIN_T, MARGIN_B)
+from annotate_draw import (
+    MARGIN_B,
+    MARGIN_L,
+    MARGIN_R,
+    MARGIN_T,
+    annotation_overlay_path,
+    annot_button_rect,
+    render,
+    render_saved_annotation_overlay,
+    session_button_rect,
+)
 from annotate_io import (
     State, make_annotation, save_frame_json, load_existing_annotation,
+)
+from object_geometry_registry import (
+    DEFAULT_REGISTRY_PATH,
+    PLASTIC_OBJECT_TYPE,
+    WOOD_OBJECT_TYPE,
+    load_object_geometry_registry,
 )
 
 
@@ -207,16 +227,118 @@ def _path_is_within(path, root):
 
 
 def _require_nonlegacy_output_dir(path, repo):
-    """Fail closed if an output could mutate either legacy real-GT tree."""
+    """Fail closed if an annotation output could mutate source/audited data."""
+    protected_roots = (
+        ("legacy real GT", os.path.join(
+            repo, "challenge", "data", "01_real", "manual_gt")),
+        ("legacy real GT", os.path.join(
+            repo, "challenge", "data", "01_real", "eval_canonical")),
+        ("audited real GT-v2", os.path.join(
+            repo, "challenge", "real_gt_v2")),
+        ("raw pallet data", os.path.join(repo, "data", "pallet", "raw_data")),
+        ("real capture source", os.path.join(
+            repo, "challenge", "data", "01_real", "_live_captures")),
+        ("augmented real source", os.path.join(
+            repo, "challenge", "data", "01_real", "augmented")),
+        ("pseudo GT source", os.path.join(
+            repo, "challenge", "data", "01_real", "pseudo_gt")),
+    )
+    for label, root in protected_roots:
+        if _path_is_within(path, root):
+            raise ValueError(
+                f"{label} is read-only; choose a dedicated annotation output: {path}")
+    return os.path.abspath(path)
+
+
+def _direct_child_name(path, parent):
+    """Return a direct child's basename, resolving symlinks, else ``None``."""
+    path = os.path.realpath(path)
+    parent = os.path.realpath(parent)
+    try:
+        relative = os.path.relpath(path, parent)
+    except ValueError:  # Different Windows drives.
+        return None
+    parts = [part for part in relative.replace("\\", "/").split("/")
+             if part not in {"", "."}]
+    if len(parts) != 1 or parts[0] == "..":
+        return None
+    return parts[0]
+
+
+def _validate_evaluation_paths(eval_root, seq, out_dir, population_role):
+    """Enforce role-compatible session/annotation namespaces.
+
+    The editor reads exactly one ``sessions/<session>/rgb`` tree and writes to
+    the matching ``annotations/<session>`` tree.  This prevents an accidental
+    ``--out_dir .../rgb`` from making delete remove a workspace source image.
+    """
+    role = str(population_role).upper()
+    layouts = {
+        "DEV": (
+            ("dev_existing/sessions", "dev_existing/annotations"),
+            ("legacy_unverified/sessions", "legacy_unverified/annotations"),
+        ),
+        "FINAL": (
+            ("final/positive/sessions", "final/positive/annotations"),
+        ),
+    }
+    for sessions_relative, annotations_relative in layouts.get(role, ()):
+        sessions_root = os.path.join(eval_root, *sessions_relative.split("/"))
+        annotations_root = os.path.join(
+            eval_root, *annotations_relative.split("/"))
+        session_name = _direct_child_name(seq, sessions_root)
+        if session_name is None:
+            continue
+        if not os.path.isdir(os.path.join(seq, "rgb")):
+            raise ValueError(
+                f"evaluation session must contain rgb/: {seq}")
+        output_session = _direct_child_name(out_dir, annotations_root)
+        if output_session != session_name:
+            raise ValueError(
+                "evaluation --out_dir must be the matching canonical namespace: "
+                f"{os.path.join(annotations_root, session_name)}")
+        return os.path.abspath(seq), os.path.abspath(out_dir)
+    allowed = ", ".join(item[0] for item in layouts.get(role, ())) or "none"
+    raise ValueError(
+        f"{role} --seq must be one direct session under --eval-root/{allowed}: {seq}")
+
+
+def _require_legacy_read_dir(path, repo):
+    """Allow an explicit compatibility source only inside a legacy GT tree."""
     legacy_roots = (
         os.path.join(repo, "challenge", "data", "01_real", "manual_gt"),
         os.path.join(repo, "challenge", "data", "01_real", "eval_canonical"),
     )
-    if any(_path_is_within(path, root) for root in legacy_roots):
+    candidate = path if os.path.isabs(path) else os.path.join(repo, path)
+    if not any(_path_is_within(candidate, root) for root in legacy_roots):
         raise ValueError(
-            "legacy real GT is read-only; choose a GT-v2 output outside "
-            "challenge/data/01_real/{manual_gt,eval_canonical}")
-    return os.path.abspath(path)
+            "--legacy-read-dir must be inside challenge/data/01_real/"
+            "{manual_gt,eval_canonical}")
+    if not os.path.isdir(candidate):
+        raise ValueError(f"--legacy-read-dir does not exist: {candidate}")
+    return os.path.abspath(candidate)
+
+
+def _state_geometry_spec(s):
+    """Return the immutable selected object, with plastic as API fallback."""
+    spec = getattr(s, "geometry_spec", None)
+    if spec is not None:
+        return spec
+    return None
+
+
+def _state_physical_dimensions(s):
+    spec = _state_geometry_spec(s)
+    return (spec.physical_dimensions if spec is not None
+            else default_physical_dimensions())
+
+
+def _state_default_wdh(s):
+    spec = _state_geometry_spec(s)
+    if spec is not None:
+        return tuple(float(value) for value in spec.legacy_wdh_tuple)
+    physical = default_physical_dimensions()
+    return (float(physical.x_m), float(physical.z_m), float(physical.y_m))
 
 
 def session_summary(sessions, repo, population_role="DEV"):
@@ -458,7 +580,7 @@ def _make_state_annotation(s: State, K):
         return None
     return make_annotation(
         s.kps_2d, s.pose, s.img_shape, K,
-        dims=tuple(s.pose.get("dims") or PALLET_DIMS),
+        dims=tuple(s.pose.get("dims") or _state_default_wdh(s)),
         split=s.split,
         extrap_mask=s.extrap_mask,
         keypoint_annotations=s.keypoint_annotations,
@@ -470,6 +592,9 @@ def _make_state_annotation(s: State, K):
         population_role=s.population_role,
         metadata=s.capture_metadata,
         occlusion_level=s.occlusion_level,
+        geometry_spec=_state_geometry_spec(s),
+        intrinsics_quality=getattr(s, "intrinsics_quality", None),
+        intrinsics_source=getattr(s, "intrinsics_source", None),
     )
 
 
@@ -489,7 +614,53 @@ def _save_state_annotation(s: State, K, out_json, out_png, src_png):
         _toast(s, "[SAVE BLOCKED] v2 schema error", (40, 40, 230),
                log=f"GT v2 schema validation failed: {exc}")
         return False
+    # Read the committed JSON back for the review cache.  Overlay/report
+    # failures are intentionally non-fatal: a valid GT save must never be
+    # rolled back because a derived artifact could not be refreshed.
+    try:
+        overlay_path = render_saved_annotation_overlay(src_png, out_json)
+        print(f"[Overlay] {overlay_path}")
+    except Exception as exc:
+        print(f"[WARN] overlay failed for {out_json}: {exc}")
+    _refresh_evaluation_workspace(
+        s, out_json, image_path=src_png, deleted=False)
     return True
+
+
+def _refresh_evaluation_workspace(s, annotation_path, *, image_path=None,
+                                  deleted=False):
+    """Refresh one manifest row and lightweight progress when configured.
+
+    ``scripts/evaluation/eval_dataset_status.py`` owns dataset semantics.  The
+    editor only calls its small public hook; it never invokes the import or a
+    full audit after every keypress.
+    """
+    eval_root = getattr(s, "eval_root", None)
+    if not eval_root:
+        return
+    if not _path_is_within(annotation_path, eval_root):
+        print("[WARN] evaluation refresh skipped: annotation is outside "
+              f"--eval-root: {annotation_path}")
+        return
+    try:
+        from evaluation.eval_dataset_status import refresh_after_annotation
+    except (ImportError, AttributeError) as exc:
+        print("[WARN] evaluation refresh unavailable; expected "
+              "evaluation.eval_dataset_status.refresh_after_annotation: "
+              f"{exc}")
+        return
+    try:
+        summary = refresh_after_annotation(
+            root=eval_root,
+            annotation_path=annotation_path,
+            image_path=image_path,
+            deleted=bool(deleted),
+        )
+    except Exception as exc:
+        print(f"[WARN] evaluation manifest/progress refresh failed: {exc}")
+        return
+    if summary:
+        print(str(summary))
 
 
 def _display_to_canvas(x, y, s):
@@ -613,7 +784,10 @@ def _pose_inputs_key(s: State, K):
     lk = None if lp is None else (np.asarray(lp["R"]).tobytes(),
                                   np.asarray(lp["t"]).tobytes(),
                                   tuple(lp.get("dims") or ()))
-    return (kps, ex, s.mode, lk, s.img_shape, K.tobytes(),
+    physical = _state_physical_dimensions(s)
+    physical_key = (
+        float(physical.x_m), float(physical.y_m), float(physical.z_m))
+    return (kps, ex, s.mode, lk, s.img_shape, K.tobytes(), physical_key,
             getattr(s, "camera_facing_hypothesis_override", None))
 
 
@@ -649,7 +823,7 @@ def update_pose(s: State, K, force=False):
                             extrapolated_mask=s.extrap_mask,
                             img_shape=s.img_shape,
                             weight_extrapolated_in_refine=True,
-                            physical_dimensions=default_physical_dimensions(),
+                            physical_dimensions=_state_physical_dimensions(s),
                             camera_facing_hypothesis_override=getattr(
                                 s, "camera_facing_hypothesis_override", None))
     _sync_axis_hypothesis(s)
@@ -743,14 +917,23 @@ def _delete_annotation(s, out_json, out_png):
     요구하게 만들었는데, 쓰는 사람 입장에선 그게 그냥 "안 지워진다" 였다.
     PNG 사본은 지운다(원본이 촬영 폴더에 그대로 있어 언제든 다시 만들어진다).
 
-    FINAL population은 삭제를 허용하지 않는다. 점을 전부 지운 뒤 저장하는 경로가
-    visibility/signed-axis 검토 gate를 우회해서는 안 된다.
+    일반 FINAL population은 삭제를 허용하지 않는다. 단, ``--eval-root``로 지정한
+    workspace의 ``final/positive/annotations`` 아래 label은 progress를
+    되돌릴 수 있도록 복구 가능한 ``.deleted`` 이동을 허용한다.
     """
     is_final = str(getattr(s, "population_role", "DEV")).upper() == "FINAL"
-    if is_final:
+    eval_root = getattr(s, "eval_root", None)
+    workspace_final_root = (
+        os.path.join(eval_root, "final", "positive", "annotations")
+        if eval_root else None)
+    is_workspace_final = bool(
+        is_final and workspace_final_root
+        and _path_is_within(out_json, workspace_final_root))
+    if is_final and not is_workspace_final:
         _toast(s, "[DELETE BLOCKED] FINAL population", (40, 40, 230),
                log="FINAL 삭제 차단: visibility/axis gate를 통과한 라벨은 "
-                   "annotation UI에서 제거할 수 없습니다.")
+                   "--eval-root의 final/positive workspace 밖에서는 "
+                   "annotation UI로 제거할 수 없습니다.")
         return None
     try:
         _require_nonlegacy_output_dir(os.path.dirname(out_json), _REPO)
@@ -776,6 +959,15 @@ def _delete_annotation(s, out_json, out_png):
             os.remove(out_png)
         except OSError as e:
             print(f"[WARN] PNG 사본은 못 지웠다: {e}")
+    overlay_path = annotation_overlay_path(out_json)
+    if os.path.exists(overlay_path):
+        try:
+            os.remove(overlay_path)
+        except OSError as e:
+            print(f"[WARN] overlay delete failed for {overlay_path}: {e}")
+
+    _refresh_evaluation_workspace(
+        s, out_json, image_path=None, deleted=True)
 
     name = os.path.basename(out_json)
     _toast(s, f"[DELETED] {name}  (restore: drop .deleted)",
@@ -1044,7 +1236,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
 
 # ─── Main loop ────────────────────────────────────────────────────────────────
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--seq",     default="data/outside/capturepallet02")
     ap.add_argument("--out_dir", default=None,
@@ -1065,12 +1257,53 @@ def main():
     ap.add_argument("--population-role", "--population_role", required=True,
                     choices=["DEV", "FINAL"],
                     help="명시적 GT population 역할. FINAL은 kp0~7 unknown 저장을 차단.")
+    ap.add_argument("--object-type", default=PLASTIC_OBJECT_TYPE,
+                    help="OBJECT_GEOMETRY_REGISTRY의 canonical type 또는 alias")
+    ap.add_argument("--geometry-registry", default=str(DEFAULT_REGISTRY_PATH),
+                    help="object geometry registry JSON (기본: repository contract)")
+    ap.add_argument("--legacy-read-dir", default=None,
+                    help="기존 JSON을 읽기만 할 legacy manual_gt/eval_canonical 폴더")
+    ap.add_argument(
+        "--intrinsics-quality", default=None,
+        choices=["CALIBRATED", "SENSOR_PROFILE_SCALED", "ESTIMATED_HFOV", "UNKNOWN"],
+        help="wood에는 필수; plastic 기존 출력은 생략 가능")
+    ap.add_argument("--intrinsics-source", default=None)
     ap.add_argument("--capture-session-id", "--capture_session_id", default=None)
     ap.add_argument("--camera-serial", "--camera_serial", default=None)
     ap.add_argument("--capture-timestamp", "--capture_timestamp", default=None)
     ap.add_argument("--lighting-condition", "--lighting_condition", default=None)
-    args = ap.parse_args()
+    ap.add_argument(
+        "--eval-root", default=None,
+        help="evaluation workspace root; enables per-save manifest/progress refresh")
+    args = ap.parse_args(argv)
 
+    registry_path = (args.geometry_registry
+                     if os.path.isabs(args.geometry_registry)
+                     else os.path.join(_REPO, args.geometry_registry))
+    try:
+        geometry_registry = load_object_geometry_registry(registry_path)
+        geometry_spec = geometry_registry.resolve(args.object_type)
+    except (OSError, TypeError, ValueError) as exc:
+        ap.error(f"invalid object geometry registry/selection: {exc}")
+    if (geometry_spec.object_type == WOOD_OBJECT_TYPE
+            and args.intrinsics_quality is None):
+        ap.error("wood annotation requires --intrinsics-quality")
+    legacy_read_dir = None
+    if args.legacy_read_dir:
+        try:
+            legacy_read_dir = _require_legacy_read_dir(
+                args.legacy_read_dir, _REPO)
+        except ValueError as exc:
+            ap.error(str(exc))
+    eval_root = None
+    if args.eval_root:
+        eval_root = (args.eval_root if os.path.isabs(args.eval_root)
+                     else os.path.join(_REPO, args.eval_root))
+        eval_root = os.path.abspath(eval_root)
+        if not os.path.isdir(eval_root):
+            ap.error(f"--eval-root does not exist or is not a directory: {eval_root}")
+
+    requested_out = None
     if args.out_dir:
         requested_out = (args.out_dir if os.path.isabs(args.out_dir)
                          else os.path.join(_REPO, args.out_dir))
@@ -1080,6 +1313,15 @@ def main():
             ap.error(str(exc))
 
     seq = args.seq if os.path.isabs(args.seq) else os.path.join(_REPO, args.seq)
+    seq = os.path.abspath(seq)
+    if eval_root:
+        if requested_out is None:
+            ap.error("--eval-root requires an explicit canonical --out_dir")
+        try:
+            seq, requested_out = _validate_evaluation_paths(
+                eval_root, seq, requested_out, args.population_role)
+        except ValueError as exc:
+            ap.error(str(exc))
     seq_name = os.path.basename(seq.rstrip("/\\"))
 
     # 세션 풀 — 툴 안에서 [ ] / TAB 으로 갈아탄다. --out_dir 을 직접 준 경우엔 그
@@ -1121,6 +1363,8 @@ def main():
               f"{'   ★FINAL population role — save gates active' if sealed else ''}")
         print(f"           {len(sel)} frames (stride={args.stride}) of {len(rp)}")
         print(f"           Output: {od}")
+        print(f"           Object: {geometry_spec.object_type} "
+              f"XYZ={geometry_spec.physical_dimensions_m}")
         print(f"           K = fx={k[0,0]:.1f} cx={k[0,2]:.1f} cy={k[1,2]:.1f}")
         return sq, nm, od, sealed, k, rp, sel
 
@@ -1145,6 +1389,12 @@ def main():
         cv2.namedWindow(win, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
         cv2.resizeWindow(win, args.win_w, args.win_h)
     s = State()
+    s.geometry_registry = geometry_registry
+    s.geometry_spec = geometry_spec
+    s.object_type = geometry_spec.object_type
+    s.intrinsics_quality = args.intrinsics_quality
+    s.intrinsics_source = args.intrinsics_source
+    s.eval_root = eval_root
     cv2.setMouseCallback(win, on_mouse, s)
     # frame 점프 슬라이더 — 눈금을 프레임 수가 아니라 **퍼센트(0~100)** 로 둔다.
     #
@@ -1257,6 +1507,12 @@ def main():
         s.axis_assignment_candidates = []
         s.axis_assignment_confirmed = False
         s.population_role = args.population_role
+        s.geometry_registry = geometry_registry
+        s.geometry_spec = geometry_spec
+        s.object_type = geometry_spec.object_type
+        s.loaded_object_type = None
+        s.intrinsics_quality = args.intrinsics_quality
+        s.intrinsics_source = args.intrinsics_source
         s.capture_metadata = {
             "capture_session_id": args.capture_session_id or seq_name,
             "camera_serial": args.camera_serial,
@@ -1289,9 +1545,10 @@ def main():
         load_json = out_json
         load_is_read_only_legacy = False
         if not os.path.exists(load_json):
-            legacy_read_dir, _ = _resolve_legacy_read_dir(seq_name, _REPO)
-            legacy_json = (os.path.join(legacy_read_dir, f"{stem}.json")
-                           if legacy_read_dir else None)
+            automatic_legacy_dir, _ = _resolve_legacy_read_dir(seq_name, _REPO)
+            source_dir = legacy_read_dir or automatic_legacy_dir
+            legacy_json = (os.path.join(source_dir, f"{stem}.json")
+                           if source_dir else None)
             if legacy_json and os.path.exists(legacy_json):
                 load_json = legacy_json
                 load_is_read_only_legacy = True
@@ -1445,7 +1702,8 @@ def main():
                     s.locked_pose = {
                         "R": s.pose["R"].copy(),
                         "t": s.pose["t"].copy(),
-                        "dims": tuple(s.pose.get("dims") or PALLET_DIMS),
+                        "dims": tuple(
+                            s.pose.get("dims") or _state_default_wdh(s)),
                     }
                     for pose_key in (
                         "_wd_hypothesis", "_camera_facing_hypothesis",

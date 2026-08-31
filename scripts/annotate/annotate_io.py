@@ -21,22 +21,32 @@ import shutil
 
 import numpy as np
 
-from annotate_pnp import PALLET_DIMS
-
 try:
     from pallet_geometry import (
         AxisAssignment,
+        CameraFacingDimensionsWHD,
+        axis_assignment_candidates_from_camera_facing_dimensions,
         camera_facing_to_canonical_pose,
         canonical_dimensions,
         canonical_to_camera_facing_keypoint_permutation,
         canonical_to_camera_facing_transform,
+        physical_dimensions_xyz,
     )
 except ImportError:  # geometry module is optional for legacy standalone use.
     AxisAssignment = None
+    CameraFacingDimensionsWHD = None
+    axis_assignment_candidates_from_camera_facing_dimensions = None
     camera_facing_to_canonical_pose = None
     canonical_dimensions = None
     canonical_to_camera_facing_keypoint_permutation = None
     canonical_to_camera_facing_transform = None
+    physical_dimensions_xyz = None
+
+try:
+    from object_geometry_registry import PLASTIC_OBJECT_TYPE, WOOD_OBJECT_TYPE
+except ImportError:  # Legacy standalone imports may not ship the registry.
+    PLASTIC_OBJECT_TYPE = "plastic_standard_110x130x11"
+    WOOD_OBJECT_TYPE = "wood_small_80x59x14"
 
 try:
     from real_gt_v2_schema import validate_gt_v2
@@ -52,6 +62,10 @@ KEYPOINT_SOURCES = {
 KEYPOINT_REASONS = {"visible", "occluded", "truncated", "unknown"}
 
 
+class AnnotationGeometryMismatch(ValueError):
+    """An existing label cannot be opened under the requested object type."""
+
+
 class State:
     """한 프레임 라벨링 상태 — main loop 가 read/write."""
     img = None
@@ -64,6 +78,14 @@ class State:
     axis_assignment_confirmed = False
     population_role = "DEV"
     capture_metadata = None
+    # ``annotate.py`` resolves this from OBJECT_GEOMETRY_REGISTRY.json before
+    # opening any frame.  It is never inferred from a frame name or its GT.
+    geometry_spec = None
+    geometry_registry = None
+    object_type = PLASTIC_OBJECT_TYPE
+    loaded_object_type = None
+    intrinsics_quality = None
+    intrinsics_source = None
     # Full snapshots of the document/object loaded from disk.  They are kept
     # separate from the editable v2 state so an old label can be saved into a
     # new v2 namespace without rewriting or dropping any compatibility field.
@@ -94,6 +116,84 @@ class State:
     toast = None        # (텍스트, BGR, 만료시각) — 화면 위 짧은 알림
 
 
+def _canonical_loaded_object_type(state, value):
+    registry = getattr(state, "geometry_registry", None)
+    if registry is not None:
+        try:
+            return registry.resolve(value).object_type
+        except ValueError as exc:
+            raise AnnotationGeometryMismatch(
+                f"existing label declares unknown object_type {value!r}") from exc
+    spec = getattr(state, "geometry_spec", None)
+    if spec is not None and (
+            value == spec.object_type or value in getattr(spec, "aliases", ())):
+        return spec.object_type
+    return value
+
+
+def _validate_loaded_annotation_geometry(state, data, obj, *, is_v2):
+    """Check an existing label against the CLI-selected registry object.
+
+    Geometry selection is never made from this label.  Legacy dimensions are
+    used only as a guard that rejects an accidental plastic/wood source mix.
+    """
+    spec = getattr(state, "geometry_spec", None)
+    if spec is None:
+        return
+    root_type = data.get("object_type")
+    object_type = obj.get("object_type")
+    if (root_type is None) != (object_type is None) and is_v2:
+        raise AnnotationGeometryMismatch(
+            "existing GT-v2 object_type must be present at root and objects[0]")
+    if root_type is not None and object_type is not None:
+        if root_type != object_type:
+            raise AnnotationGeometryMismatch(
+                "existing label has different root and objects[0] object_type values")
+        actual = _canonical_loaded_object_type(state, root_type)
+        if actual != spec.object_type:
+            raise AnnotationGeometryMismatch(
+                f"existing label object_type {actual!r} does not match requested "
+                f"{spec.object_type!r}")
+        state.loaded_object_type = actual
+        return
+    if is_v2:
+        # The schema's only missing-object_type compatibility default is the
+        # historical plastic population.
+        if spec.object_type != PLASTIC_OBJECT_TYPE:
+            raise AnnotationGeometryMismatch(
+                "existing GT-v2 label has implicit plastic geometry but the "
+                f"requested object_type is {spec.object_type!r}")
+        state.loaded_object_type = PLASTIC_OBJECT_TYPE
+        return
+
+    dimensions = obj.get("dimensions_m")
+    if not isinstance(dimensions, dict):
+        if spec.object_type != PLASTIC_OBJECT_TYPE:
+            raise AnnotationGeometryMismatch(
+                "legacy non-plastic label has no dimensions_m guard")
+        state.loaded_object_type = PLASTIC_OBJECT_TYPE
+        return
+    try:
+        dims = (
+            float(dimensions["width"]), float(dimensions["depth"]),
+            float(dimensions["height"]),
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise AnnotationGeometryMismatch(
+            "legacy label dimensions_m is malformed") from exc
+    physical = spec.physical_dimensions
+    allowed = (
+        (float(physical.x_m), float(physical.z_m), float(physical.y_m)),
+        (float(physical.z_m), float(physical.x_m), float(physical.y_m)),
+    )
+    if not any(np.allclose(dims, candidate, rtol=0.0, atol=1e-12)
+               for candidate in allowed):
+        raise AnnotationGeometryMismatch(
+            f"legacy dimensions_m {dims!r} does not match requested object_type "
+            f"{spec.object_type!r}")
+    state.loaded_object_type = spec.object_type
+
+
 def _axis_name(value):
     if value is None:
         return None
@@ -109,10 +209,16 @@ def _axis_object(value):
     return AxisAssignment(name)
 
 
-def _canonical_xyz_dict():
-    if canonical_dimensions is None:
+def _canonical_xyz_dict(physical_dimensions=None):
+    if physical_dimensions_xyz is not None:
+        dims = physical_dimensions_xyz(physical_dimensions)
+    elif canonical_dimensions is not None and physical_dimensions is None:
+        dims = canonical_dimensions()
+    elif all(hasattr(physical_dimensions, name)
+             for name in ("x_m", "y_m", "z_m")):
+        dims = physical_dimensions
+    else:
         return {"x": 1.1, "y": 0.11, "z": 1.3}
-    dims = canonical_dimensions()
     return {
         "x": float(dims.x_m),
         "y": float(dims.y_m),
@@ -129,7 +235,8 @@ def _fallback_axis_transform(name):
     return np.array([[c, 0.0, s], [0.0, 1.0, 0.0], [-s, 0.0, c]], dtype=np.float64)
 
 
-def _canonical_pose_record(R_cf, t_cf, axis_assignment):
+def _canonical_pose_record(
+        R_cf, t_cf, axis_assignment, physical_dimensions=None):
     name = _axis_name(axis_assignment)
     if name is None:
         raise ValueError("a signed axis assignment is required")
@@ -138,7 +245,8 @@ def _canonical_pose_record(R_cf, t_cf, axis_assignment):
     if camera_facing_to_canonical_pose is not None:
         R_can, t_can = camera_facing_to_canonical_pose(R_cf, t_cf, axis)
         A = canonical_to_camera_facing_transform(axis)
-        perm = canonical_to_camera_facing_keypoint_permutation(axis)
+        perm = canonical_to_camera_facing_keypoint_permutation(
+            axis, physical_dimensions)
     else:
         A = _fallback_axis_transform(name)
         R_can, t_can = np.asarray(R_cf) @ A, np.asarray(t_cf)
@@ -154,13 +262,17 @@ def _canonical_pose_record(R_cf, t_cf, axis_assignment):
     }
 
 
-def _canonical_pose_payload(R_cf, t_cf, axis_assignment, confirmed, candidates):
+def _canonical_pose_payload(
+        R_cf, t_cf, axis_assignment, confirmed, candidates,
+        physical_dimensions=None):
     if not confirmed or axis_assignment is None:
         return None
-    return _canonical_pose_record(R_cf, t_cf, axis_assignment)
+    return _canonical_pose_record(
+        R_cf, t_cf, axis_assignment, physical_dimensions)
 
 
-def _normalise_axis_candidates(values, dims):
+def _normalise_axis_candidates(
+        values, dims, physical_dimensions=None, *, strict_geometry=False):
     names = []
     for value in values or []:
         name = _axis_name(value)
@@ -168,13 +280,83 @@ def _normalise_axis_candidates(values, dims):
                 and name not in names:
             names.append(name)
     if not names:
-        # Backward-compatible callers do not know about signed axes.  Preserve
-        # both signs for the selected W/D parity; never fabricate one sign.
-        if len(dims) >= 2 and float(dims[0]) > float(dims[1]):
-            names = ["YAW_90", "YAW_270"]
-        else:
-            names = ["YAW_0", "YAW_180"]
+        # Width magnitude cannot identify canonical parity: plastic has X<Z,
+        # while registered wood has X>Z.  Match the selected camera-facing
+        # W/H/D tuple against the already-selected physical object instead.
+        if (CameraFacingDimensionsWHD is not None
+                and axis_assignment_candidates_from_camera_facing_dimensions
+                is not None and physical_dimensions is not None):
+            try:
+                camera_dims = CameraFacingDimensionsWHD(
+                    width_m=float(dims[0]), height_m=float(dims[2]),
+                    depth_m=float(dims[1]))
+                names = [
+                    _axis_name(value) for value in
+                    axis_assignment_candidates_from_camera_facing_dimensions(
+                        camera_dims, physical_dimensions=physical_dimensions)
+                ]
+            except (TypeError, ValueError):
+                if strict_geometry:
+                    raise ValueError(
+                        "pose dimensions do not match either W/D parity of the "
+                        "selected object geometry")
+        if not names:
+            # Standalone compatibility path for installations that do not ship
+            # pallet_geometry.  New registry-aware annotation never reaches it.
+            if len(dims) >= 2 and float(dims[0]) > float(dims[1]):
+                names = ["YAW_90", "YAW_270"]
+            else:
+                names = ["YAW_0", "YAW_180"]
     return names
+
+
+def _geometry_physical_dimensions(geometry_spec):
+    if geometry_spec is not None:
+        physical = getattr(geometry_spec, "physical_dimensions", None)
+        if physical is None:
+            raise TypeError("geometry_spec must provide physical_dimensions")
+        return physical
+    if canonical_dimensions is not None:
+        return canonical_dimensions()
+    return None
+
+
+def _default_camera_facing_wdh(physical_dimensions):
+    if physical_dimensions is not None:
+        return (
+            float(physical_dimensions.x_m),
+            float(physical_dimensions.z_m),
+            float(physical_dimensions.y_m),
+        )
+    return (1.1, 1.3, 0.11)
+
+
+def _validate_pose_geometry(pose, dims, geometry_spec):
+    """Fail closed when a pose came from a different object's PnP model."""
+    if geometry_spec is None:
+        return
+    physical = _geometry_physical_dimensions(geometry_spec)
+    expected = _canonical_xyz_dict(physical)
+    pose_physical = pose.get("_physical_dimensions_m") if pose else None
+    if pose_physical:
+        try:
+            actual = {axis: float(pose_physical[axis]) for axis in ("x", "y", "z")}
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("pose has malformed _physical_dimensions_m") from exc
+        if any(not np.isclose(actual[axis], expected[axis], rtol=0.0, atol=1e-12)
+               for axis in ("x", "y", "z")):
+            raise ValueError(
+                "pose physical dimensions do not match selected object_type "
+                f"{geometry_spec.object_type!r}")
+    allowed = (
+        (float(physical.x_m), float(physical.z_m), float(physical.y_m)),
+        (float(physical.z_m), float(physical.x_m), float(physical.y_m)),
+    )
+    if not any(np.allclose(dims, candidate, rtol=0.0, atol=1e-12)
+               for candidate in allowed):
+        raise ValueError(
+            "camera-facing pose dimensions do not match selected object_type "
+            f"{geometry_spec.object_type!r}")
 
 
 def _point_in_frame(point, width, height):
@@ -261,7 +443,8 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
                     axis_assignment=None, axis_assignment_candidates=None,
                     axis_assignment_confirmed=False, legacy_object=None,
                     legacy_document=None, population_role="DEV", metadata=None,
-                    occlusion_level="unknown"):
+                    occlusion_level="unknown", geometry_spec=None,
+                    intrinsics_quality=None, intrinsics_source=None):
     """NDDS 호환 JSON dict 생성.
 
     GT = 사용자가 클릭한 manual_kps 그대로. 안 찍은 점은 PnP projection 으로 fallback,
@@ -271,9 +454,18 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
     population_role = str(population_role).upper()
     if population_role not in {"DEV", "FINAL"}:
         raise ValueError("population_role must be DEV or FINAL")
+    physical_dimensions = _geometry_physical_dimensions(geometry_spec)
     if dims is None:
-        dims = pose.get("dims", PALLET_DIMS) if pose else PALLET_DIMS
+        dims = (pose.get("dims") if pose else None) or \
+            _default_camera_facing_wdh(physical_dimensions)
     dims = tuple(float(v) for v in dims)
+    _validate_pose_geometry(pose, dims, geometry_spec)
+    object_type = (
+        getattr(geometry_spec, "object_type", PLASTIC_OBJECT_TYPE)
+        if geometry_spec is not None else PLASTIC_OBJECT_TYPE)
+    if object_type == WOOD_OBJECT_TYPE and intrinsics_quality is None:
+        raise ValueError(
+            "wood annotation requires an explicit intrinsics_quality")
     h, w = image_shape[:2]
     T = np.eye(4, dtype=np.float64)
     T[:3, :3] = pose["R"]
@@ -309,7 +501,9 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
                     float(np.mean([c[1] for c in valid]))] if valid else [-1.0, -1.0]
     candidates = _normalise_axis_candidates(
         axis_assignment_candidates or
-        pose.get("_axis_assignment_candidates", []) or [], dims)
+        pose.get("_axis_assignment_candidates", []) or [], dims,
+        physical_dimensions,
+        strict_geometry=geometry_spec is not None)
     if axis_assignment is None and axis_assignment_confirmed:
         axis_assignment = pose.get("_axis_assignment")
     axis_name = _axis_name(axis_assignment) if axis_assignment_confirmed else None
@@ -360,7 +554,7 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
                               if extrap_mask is not None else None),
         "reproj_error_px": float(pose["reproj_error_px"]),
         "keypoint_frame": KEYPOINT_FRAME,
-        "physical_dimensions_m": _canonical_xyz_dict(),
+        "physical_dimensions_m": _canonical_xyz_dict(physical_dimensions),
         "camera_facing_pnp": {
             "axis_assignment": axis_name,
             "axis_assignment_candidates": [_axis_name(v) for v in candidates],
@@ -375,9 +569,11 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
         },
         "canonical_pose": _canonical_pose_payload(
             pose["R"], pose["t"], axis_assignment,
-            bool(axis_assignment_confirmed), candidates),
+            bool(axis_assignment_confirmed), candidates,
+            physical_dimensions),
         "canonical_pose_candidates": [
-            _canonical_pose_record(pose["R"], pose["t"], value)
+            _canonical_pose_record(
+                pose["R"], pose["t"], value, physical_dimensions)
             for value in candidates
         ],
         "pose_status": ("CANONICAL_POSE_CONFIRMED" if axis_assignment_confirmed
@@ -398,10 +594,16 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
         "physical_dimensions_m", "camera_facing_pnp", "canonical_pose",
         "canonical_pose_candidates", "pose_status", "migration_status",
         "legacy", "keypoint_annotations", "occlusion_level", "truncation",
+        "object_type",
     }
     for key, value in original_object.items():
         if key not in generated_v2_fields:
             obj[key] = copy.deepcopy(value)
+    # Existing plastic GT-v2 predates object_type and remains byte-compatible.
+    # Every non-default object must be explicit at both levels so it can never
+    # be evaluated with the plastic compatibility default.
+    if object_type != PLASTIC_OBJECT_TYPE:
+        obj["object_type"] = object_type
 
     generated_camera_data = {
         "width": w, "height": h,
@@ -420,6 +622,17 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
     result["camera_data"] = copy.deepcopy(
         result.get("camera_data", generated_camera_data))
     result["objects"] = [obj]
+    if object_type != PLASTIC_OBJECT_TYPE:
+        result["object_type"] = object_type
+    elif result.get("object_type") is not None:
+        # Preserve an already-explicit canonical plastic v2 label, but never a
+        # stale cross-object type inherited through legacy_document.
+        result["object_type"] = object_type
+        obj["object_type"] = object_type
+    if intrinsics_quality is not None:
+        result["intrinsics_quality"] = str(intrinsics_quality)
+    if intrinsics_source is not None:
+        result["intrinsics_source"] = str(intrinsics_source)
     for key, value in (metadata or {}).items():
         if key in {"capture_session_id", "camera_serial", "capture_timestamp",
                    "lighting_condition"} and value is not None:
@@ -428,11 +641,15 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
 
 
 def save_frame_json(out_json, out_png, src_png_path, ann):
-    """JSON 저장 + PNG hardlink/copy.
+    """JSON 저장 + best-effort PNG hardlink/copy.
 
     JSON 은 임시 파일에 쓴 뒤 os.replace 로 바꿔치기한다. 대상 파일을 열어 놓고 쓰다가
     중간에 죽으면(Ctrl+C, 디스크 부족) 반쯤 쓰인 JSON 이 남아 그 프레임의 라벨을 잃는다.
     replace 는 같은 파일시스템에서 원자적이라 실패해도 옛 내용이 그대로 남는다.
+
+    JSON commit 뒤의 sibling PNG는 호환용 derived copy다. link와 copy가 모두 실패해도
+    commit된 GT를 실패로 되돌릴 수 없으며, caller가 review overlay/progress를 계속
+    갱신할 수 있도록 경고만 남긴다.
     """
     if ann.get("schema_version") == GT_V2_SCHEMA_VERSION and validate_gt_v2 is not None:
         validate_gt_v2(ann)
@@ -447,7 +664,10 @@ def save_frame_json(out_json, out_png, src_png_path, ann):
         try:
             os.link(src_png_path, out_png)
         except (OSError, NotImplementedError):
-            shutil.copy2(src_png_path, out_png)
+            try:
+                shutil.copy2(src_png_path, out_png)
+            except (OSError, NotImplementedError, shutil.Error) as exc:
+                print(f"[WARN] PNG compatibility copy failed for {out_png}: {exc}")
 
 
 def load_existing_annotation(state, out_json, *, read_only=False):
@@ -470,6 +690,8 @@ def load_existing_annotation(state, out_json, *, read_only=False):
         manual = obj.get("manual_kps")
         kp_ann = obj.get("keypoint_annotations")
         is_v2 = data.get("schema_version") == GT_V2_SCHEMA_VERSION
+        _validate_loaded_annotation_geometry(
+            state, data, obj, is_v2=is_v2)
         if (isinstance(kp_ann, list) and len(kp_ann) == 9
                 and all(isinstance(entry, dict) for entry in kp_ann)):
             state.keypoint_annotations = copy.deepcopy(kp_ann)
@@ -528,6 +750,11 @@ def load_existing_annotation(state, out_json, *, read_only=False):
             state.occlusion_level = obj.get("occlusion_level", "unknown")
             state.active = next((i for i, k in enumerate(state.kps_2d) if k is None), 8)
             return True
+    except AnnotationGeometryMismatch:
+        # Returning False would make the UI look like a blank frame and allow
+        # an accidental save over the canonical target.  Geometry mismatch is
+        # a hard dispatch error and must terminate the attempted session.
+        raise
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
         # 진짜로 깨진 파일만 치운다. 예전엔 KeyError/TypeError(스키마가 다를 뿐인 멀쩡한
         # JSON)도 "깨짐" 으로 보고 원본을 옮겨 버려, 그 프레임이 "어노 없음" 으로 보이고
