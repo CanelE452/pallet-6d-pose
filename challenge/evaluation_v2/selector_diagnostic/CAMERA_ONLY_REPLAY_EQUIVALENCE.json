@@ -1,0 +1,41 @@
+{
+  "schema_version": "selector_camera_only_replay_equivalence_v1",
+  "status": "PASS",
+  "date_asia_seoul": "2026-08-28",
+  "purpose": "Verify that mechanically separating camera intrinsics from GT pose/parity reproduces the preserved selector diagnostic exactly.",
+  "original_artifact": {
+    "path": "challenge/evaluation_v2/selector_diagnostic/SELECTOR_DIAGNOSTIC.json",
+    "sha256": "5e62ffb0167be2b2e2eaa5664a08fa0ab2a5dfb78af6bb2c37a7c86a23fa93d3",
+    "preserved_without_overwrite": true
+  },
+  "camera_only_manifest": {
+    "path": "challenge/real_gt_v2/manifests/DEV_POS140_INTRINSICS.json",
+    "sha256": "7bae0e50e3efbab25ce6ce45751aa83f5d2b554a07fa5f49df45a6dedbaaff91",
+    "count": 140,
+    "contains_gt_pose": false,
+    "contains_gt_dimensions": false,
+    "contains_gt_axis_assignment": false,
+    "contains_gt_keypoints_or_error": false,
+    "contains_session_prior": false
+  },
+  "checkpoint_sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+  "comparison": {
+    "records_exact": true,
+    "gate_exact": true,
+    "tail_dominance_exact": true,
+    "session_summary_exact": true
+  },
+  "observed_gate_unchanged": {
+    "overall_correct": 83,
+    "overall_total": 140,
+    "night_correct": 13,
+    "night_total": 28,
+    "minimum_session_correct": 4,
+    "minimum_session_total": 12,
+    "tail_selector_failures": 13,
+    "tail_n": 14,
+    "status": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR"
+  },
+  "replay_output_policy": "Temporary new output directory; no existing result or GT was overwritten. Only this equivalence record is retained.",
+  "interpretation": "The original diagnostic contains no observed selector leakage, and the same decisions/results are reproduced when the selection process can access only the camera-only projection before the post-selection GT comparison phase."
+}

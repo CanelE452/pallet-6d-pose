@@ -269,6 +269,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="repeatable object-specific frozen symmetry contract",
     )
     parser.add_argument("--device", default="0", help="Ultralytics inference device (non-dry-run only)")
+    parser.add_argument(
+        "--predictions",
+        help=(
+            "미리 덤프한 예측 JSON.  주면 모델을 올리지 않고 이걸 채점한다 — "
+            "Ultralytics 가 아닌 baseline 을 같은 metric 으로 넣기 위한 경로다."
+        ),
+    )
     return parser
 
 
@@ -1764,6 +1771,41 @@ class _UltralyticsPredictor:
         ]
 
 
+class _CachedPredictor:
+    """미리 덤프한 예측을 읽는다.  Ultralytics 가 아닌 모델을 **같은 evaluator·같은
+    population·같은 metric** 으로 채점하기 위한 경로다.
+
+    별도 wrapper 로 숫자를 따로 만들면 M1 의 행들이 서로 다른 자로 잰 값이 된다.
+    그래서 모델만 갈아끼우고 채점 코드는 하나로 유지한다.
+
+    덤프 형식은 image path -> [{score, box_xyxy, keypoints_xy}] 다.  keypoints 는
+    9x2 이거나 null 이다.
+    """
+
+    def __init__(self, predictions_path: Path):
+        payload = _load_json(predictions_path, "CACHED_PREDICTIONS")
+        if payload.get("schema_version") != "paper_cached_predictions_v1":
+            raise ContractError("CACHED_PREDICTIONS_SCHEMA_MISMATCH")
+        self.recipe = payload.get("recipe", {})
+        self.model_name = payload.get("model", "unknown")
+        self.source_sha256 = payload.get("weights_sha256")
+        self.frames: dict[str, list[dict[str, Any]]] = payload["frames"]
+
+    def predict(self, image_path: Path) -> list[tuple[float, np.ndarray, np.ndarray | None]]:
+        key = _display_path(image_path)
+        if key not in self.frames:
+            raise ContractError(f"CACHED_PREDICTION_MISSING_FRAME: {key}")
+        out: list[tuple[float, np.ndarray, np.ndarray | None]] = []
+        for entry in self.frames[key]:
+            keypoints = entry.get("keypoints_xy")
+            out.append((
+                float(entry["score"]),
+                np.asarray(entry["box_xyxy"], dtype=np.float64),
+                np.asarray(keypoints, dtype=np.float64) if keypoints else None,
+            ))
+        return out
+
+
 def _average_precision_at_iou(
     candidates: Sequence[DetectionCandidate],
     positive_count: int,
@@ -2593,11 +2635,24 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     if not pair.ready:
         raise ContractError(pair.blocked_reason or "POPULATION_PAIR_NOT_READY")
-    weights = Path(args.weights).expanduser().resolve()
-    if not weights.is_file():
-        raise ContractError(f"WEIGHTS_NOT_FOUND: {weights}")
-    weights_evidence = _weights_evidence(args.weights, loaded=True)
-    predictor = _UltralyticsPredictor(weights, args.device)
+    if getattr(args, "predictions", None):
+        # 미리 덤프한 예측을 채점한다.  모델은 올리지 않지만 weights 는 provenance
+        # 로 계속 기록한다 — 어떤 checkpoint 의 예측인지 표에서 추적 가능해야 한다.
+        predictions_path = Path(args.predictions).expanduser().resolve()
+        if not predictions_path.is_file():
+            raise ContractError(f"PREDICTIONS_NOT_FOUND: {predictions_path}")
+        weights_evidence = _weights_evidence(args.weights, loaded=False)
+        predictor = _CachedPredictor(predictions_path)
+        weights_evidence["cached_predictions"] = _display_path(predictions_path)
+        weights_evidence["cached_predictions_model"] = predictor.model_name
+        weights_evidence["cached_predictions_recipe"] = predictor.recipe
+        weights_evidence["selection_policy"] = "OFFLINE_CACHED_PREDICTIONS"
+    else:
+        weights = Path(args.weights).expanduser().resolve()
+        if not weights.is_file():
+            raise ContractError(f"WEIGHTS_NOT_FOUND: {weights}")
+        weights_evidence = _weights_evidence(args.weights, loaded=True)
+        predictor = _UltralyticsPredictor(weights, args.device)
     targets, candidates, top_by_frame = _collect_predictions(
         pair, predictor, validated_targets=validated_targets
     )

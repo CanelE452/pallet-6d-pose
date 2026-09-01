@@ -8,13 +8,40 @@
 ```text
 YOLO26n-Pose (synthetic-only)   R0        평가 완료
 Proposed                        R5        평가 완료
-DOPE (same-data control)        —         NEEDS_BRIDGE (아래)
+DOPE (same-data control)        DOPE      평가 완료 (2026-09-02, offline prediction 경로)
 SingleShotPose                  —         INCOMPATIBLE (구현 없음)
 PVNet                           —         NEEDS_TRAIN, 단 사전 negative 결과 있음
 Real-FT upper bound             —         NEEDS_LEAKAGE_AUDIT
 ```
 
-## DOPE — NEEDS_BRIDGE
+## DOPE — 완료 (2026-09-02)
+
+evaluator 에 `--predictions` 경로를 열어 해결했다.  모델을 직접 올리는 대신 미리
+덤프한 예측을 읽으므로, Ultralytics 가 아닌 baseline 도 **같은 evaluator·같은
+population·같은 metric** 으로 채점된다.
+
+```text
+challenge/evaluation_v2/paper_real_eval.py   _CachedPredictor + --predictions
+scripts/self_training_yolo/dump_dope_predictions.py
+data/pallet/results/paper_eval_v1/baselines/DOPE_R0_PREDICTIONS.json
+```
+
+결과 (PAPER_EVAL 319 / 2689, 같은 채점 코드):
+
+```text
+              corner↓   det↑   AP50-95↑   AUROC↑   FPR95↓
+──────────────────────────────────────────────────────────
+DOPE           10.083  0.737     0.3412   0.9903   0.0409
+YOLO26n R0      4.420  0.975     0.7688   0.9921   0.0417
+Proposed        4.180  0.984     0.7585   0.9953   0.0283
+```
+
+**비대칭을 숨기지 않는다.**  DOPE 에는 box head 가 없어 box 를 검출된 cuboid 코너의
+bounding box 로 유도했다.  따라서 `AP50-95` 는 같은 양이 아니고, score 도 DOPE 는
+belief peak · YOLO 는 box confidence 라 `AUROC`/`FPR95` 척도가 다르다.
+직접 비교가 성립하는 열은 **corner 와 det** 이다.
+
+추론은 reflect-padding 을 썼다 (plain squash 는 truncation·근접에서 체계적 과소검출).
 
 checkpoint 는 있다.
 
@@ -23,7 +50,7 @@ weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth
 sha256 0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f
 ```
 
-막는 것은 **evaluator 가 Ultralytics 전용**이라는 점이다.
+막았던 것은 **evaluator 가 Ultralytics 전용**이라는 점이었다.
 `paper_real_eval.py` 는 `YOLO(weights, task="pose")` 로만 모델을 올린다.
 
 ```text
@@ -34,7 +61,7 @@ challenge/evaluation_v2/paper_real_eval.py:1724   self.model = YOLO(str(weights)
 형식으로 덤프하지만, 161 장 canonical 셋(`mc_frames`)과 다른 checkpoint 에 묶여 있어
 PAPER_EVAL 319 장에 그대로 쓸 수 없다.
 
-필요한 작업은 evaluator 에 **offline prediction 경로**를 여는 것이다.  모델을 직접
+(해결됨) 필요한 작업은 evaluator 에 **offline prediction 경로**를 여는 것이었다.  모델을 직접
 올리는 대신 미리 덤프한 keypoint/box 를 읽게 하면 DOPE 뿐 아니라 PVNet 같은
 외부 baseline 도 **같은 evaluator·같은 population·같은 metric** 으로 채점된다.
 그게 M1 의 공정성에 맞는 방향이라 wrapper 를 따로 만들지 않았다.
@@ -93,10 +120,12 @@ BOUND` 표기는 유지한다 — 같은 supervision 조건이 아니기 때문�
 ## 우선순위
 
 ```text
-1. evaluator 에 offline prediction 경로  →  DOPE 를 M1 에 채움 (최소 요건 충족)
-2. Real-FT leakage 감사                  →  upper bound 를 Appendix 에 채움
-3. PVNet                                 →  과거 negative 기록 검토 후에만
-4. SingleShotPose                        →  구현 도입이 정당화될 때만
+1. evaluator offline prediction 경로   DONE (2026-09-02) — DOPE 가 M1 에 들어감
+2. Real-FT leakage 감사                다음 — upper bound 를 Appendix 에 채움
+3. PVNet                               과거 negative 기록 검토 후에만
+4. SingleShotPose                      구현 도입이 정당화될 때만
 ```
+
+M1 의 최소 외부 비교 요건(DOPE · YOLO26 · Proposed)은 충족됐다.
 
 core Proposed 결과는 이미 나와 있으므로, 위 넷 중 어느 것도 MAIN 표를 막지 않는다.

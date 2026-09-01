@@ -43,7 +43,15 @@ RUNS = REPO_ROOT / "challenge/yolo_pose_one_model/paper_selftrain_v1"
 
 GROSS_PX = 20.0  # metric_split_lock.md §2.2 [LOCKED]
 
+# 값은 checkpoint 경로이거나 (checkpoint, cached-predictions) 쌍이다.
+# Ultralytics 가 아닌 baseline 은 미리 덤프한 예측으로 **같은 evaluator** 를 태운다.
+BASELINE_DIR = REPO_ROOT / "data/pallet/results/paper_eval_v1/baselines"
+
 MODELS = {
+    "DOPE": (
+        REPO_ROOT / "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+        BASELINE_DIR / "DOPE_R0_PREDICTIONS.json",
+    ),
     "R0": REPO_ROOT / (
         "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/"
         "YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt"
@@ -100,7 +108,8 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def run_evaluator(name: str, weights: Path) -> tuple[Path, Path]:
+def run_evaluator(name: str, weights: Path,
+                  predictions: Path | None = None) -> tuple[Path, Path]:
     report = OUT_DIR / f"{name}.json"
     per_frame = OUT_DIR / f"{name}_per_frame.csv"
     if report.exists() and per_frame.exists():
@@ -122,6 +131,8 @@ def run_evaluator(name: str, weights: Path) -> tuple[Path, Path]:
         "--report-out", str(OUT_DIR / f"{name}_report.md"),
         "--device", "0",
     ]
+    if predictions is not None:
+        command += ["--predictions", str(predictions)]
     result = subprocess.run(command, capture_output=True, text=True, cwd=REPO_ROOT)
     if not report.exists() or not per_frame.exists():
         print(result.stdout[-2000:])
@@ -223,17 +234,25 @@ def main() -> int:
     metadata = workspace_metadata()
     results: dict[str, dict] = {}
     for name in args.models:
-        weights = MODELS[name]
+        entry = MODELS[name]
+        weights, predictions = entry if isinstance(entry, tuple) else (entry, None)
         if not weights.exists():
             print(f"  {name}: checkpoint 없음 — 건너뜀 ({weights})", flush=True)
             continue
+        if predictions is not None and not predictions.exists():
+            print(f"  {name}: predictions 없음 — 건너뜀 ({predictions})", flush=True)
+            continue
         print(f"evaluating {name}", flush=True)
-        report, per_frame = run_evaluator(name, weights)
+        report, per_frame = run_evaluator(name, weights, predictions)
         payload = json.loads(report.read_text())
         metrics = payload["metrics"]["box_and_keypoint_2d"]
         results[name] = {
             "checkpoint": str(weights.relative_to(REPO_ROOT)),
             "checkpoint_sha256": sha256_file(weights),
+            "scored_from": (
+                "OFFLINE_CACHED_PREDICTIONS" if predictions is not None
+                else "LIVE_ULTRALYTICS"
+            ),
             "box_ap50_95": metrics["box_ap50_95"],
             "box_ap50": metrics["box_ap50"],
             "object_subgroup_ap": {

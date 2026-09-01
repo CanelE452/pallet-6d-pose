@@ -1,0 +1,196 @@
+{
+  "schema_version": "paper_real_eval_v2",
+  "evaluation_mode": "INFERENCE",
+  "population_contract": {
+    "role": "DEV",
+    "ready": true,
+    "blocked_reason": null,
+    "pair_sha256": "56dbd34b0ffbf0cfe24b3af1d20a2d419643e16c44d266169f3246019e01716a",
+    "positive": {
+      "population_id": "COMMON_DEV_POS128",
+      "kind": "POSITIVE",
+      "role": "DEV",
+      "membership_status": "AVAILABLE",
+      "frozen": true,
+      "count": 128,
+      "membership_sha256": "daaf3fb56f984e968554961ceda9cca968ea7a056c93a55db5cb46da6645bbbf",
+      "unavailable_reason": null,
+      "manifest": "challenge/real_gt_v2/manifests/COMMON_DEV_POS128.json"
+    },
+    "negative": {
+      "population_id": "DEV_NEG2689",
+      "kind": "NEGATIVE",
+      "role": "DEV",
+      "membership_status": "AVAILABLE",
+      "frozen": true,
+      "count": 2689,
+      "membership_sha256": "af4aa4c57ec7fd9705df96455b0a78b677df36799a0efa845aa089c2962ca151",
+      "unavailable_reason": null,
+      "manifest": "challenge/real_gt_v2/manifests/DEV_NEG2689.json"
+    }
+  },
+  "weights": {
+    "argument": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+    "resolved_path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+    "loaded": true,
+    "exists": true,
+    "sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+    "size_bytes": 6552807,
+    "selection_policy": "pre-existing REAL_G38 source of truth: epoch-60 last.pt; not selected from DEV results"
+  },
+  "inference": {
+    "status": "COMPLETE",
+    "recipe": {
+      "pad": 100,
+      "border": "BORDER_REFLECT_101",
+      "imgsz": 640,
+      "confidence_floor": 0.001
+    }
+  },
+  "metrics": {
+    "box_and_keypoint_2d": {
+      "status": "COMPLETE",
+      "blocked_reason": null,
+      "box_ap50_95": 0.5741891342216359,
+      "box_ap50": 0.7196850046668395,
+      "box_ap_by_iou": {
+        "0.50": 0.7196850046668395,
+        "0.55": 0.7107389688849594,
+        "0.60": 0.7104352958358453,
+        "0.65": 0.7097389111389986,
+        "0.70": 0.6865570124587819,
+        "0.75": 0.6387574401574195,
+        "0.80": 0.5937070140254664,
+        "0.85": 0.48372956841116294,
+        "0.90": 0.3592405348335772,
+        "0.95": 0.12930159180330716
+      },
+      "positive_count": 128,
+      "negative_count": 2689,
+      "candidate_count": 7656,
+      "keypoint_matched_frame_count_iou50": 109,
+      "keypoint_location_median_px": null,
+      "keypoint_location_p90_px": null,
+      "keypoint_all_labeled": {
+        "count": 0,
+        "median_px": null,
+        "p90_px": null
+      },
+      "keypoint_visibility_1": {
+        "count": 0,
+        "median_px": null,
+        "p90_px": null
+      },
+      "keypoint_visibility_2": {
+        "count": 0,
+        "median_px": null,
+        "p90_px": null
+      },
+      "keypoint_supervision_count": 0,
+      "keypoint_nme": null,
+      "keypoint_diagnostic_status": "UNAVAILABLE_VISIBILITY_NOT_REVIEWED",
+      "note": "2-D diagnostics are separate from the blocked canonical pose columns."
+    },
+    "pose": {
+      "status": "BLOCKED",
+      "metric_variant": null,
+      "blocked_reason": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;FINAL_MANIFEST_NOT_FROZEN",
+      "blocked_reasons": [
+        "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+        "FINAL_MANIFEST_NOT_FROZEN"
+      ],
+      "add_or_adds_auc": null,
+      "rotation_median_deg": null,
+      "translation_median_m": null,
+      "yaw_median_deg": null
+    }
+  },
+  "metrics_metadata": {
+    "population_ids": {
+      "positive": "COMMON_DEV_POS128",
+      "negative": "DEV_NEG2689"
+    },
+    "N": 2817,
+    "positive_N": 128,
+    "negative_N": 2689,
+    "pose_valid_N": null,
+    "pose_total_N": null,
+    "checkpoint_sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+    "DAY_N": 100,
+    "NIGHT_N": 28,
+    "positive_session_counts": {
+      "eval_cad": 18,
+      "eval_night08": 12,
+      "eval_night09": 16,
+      "eval_noapril": 12,
+      "eval_outside": 10,
+      "eval_pallet07": 27,
+      "eval_pallet09": 33
+    },
+    "session_cluster_bootstrap_95ci": {
+      "status": "UNAVAILABLE_FOR_CURRENT_DEV_NEGATIVE_CAPTURE",
+      "low": null,
+      "high": null,
+      "unit": "capture_session_id",
+      "blocked_reason": "DEV_NEG2689 has no capture_session_id; a valid joint positive/negative session-cluster bootstrap cannot be fabricated"
+    }
+  },
+  "pose_contract": {
+    "canonical_migration": "PASS",
+    "selector": "FAIL",
+    "symmetry": "FROZEN",
+    "final_manifest": "NOT_FROZEN",
+    "passed": false,
+    "blocked_reason": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;FINAL_MANIFEST_NOT_FROZEN",
+    "blocked_reasons": [
+      "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+      "FINAL_MANIFEST_NOT_FROZEN"
+    ]
+  },
+  "gate_evidence": {
+    "migration_gate_supplied": true,
+    "migration_gate_schema_validated": true,
+    "migration_pose_resolution_mode": "YAW_180_EQUIVALENCE_CLASS",
+    "selector_diagnostic_supplied": true,
+    "selector_gate_report": {
+      "status": "FAIL",
+      "overall_accuracy": 0.5928571428571429,
+      "night_accuracy": 0.4642857142857143,
+      "minimum_session_accuracy": 0.3333333333333333,
+      "sample_count": 140,
+      "night_count": 28,
+      "session_count": 7,
+      "expected_population": {
+        "total": 140,
+        "night": 28,
+        "session_counts": {
+          "eval_cad": 18,
+          "eval_night08": 12,
+          "eval_night09": 16,
+          "eval_noapril": 12,
+          "eval_outside": 22,
+          "eval_pallet07": 27,
+          "eval_pallet09": 33
+        }
+      },
+      "tail_dominance_assessed": true,
+      "tail_dominance_passed": false,
+      "tail_dominance_notes": "Frozen worst-decile attribution rule failed: selector failures dominate at least one metric tail.",
+      "thresholds": {
+        "overall_min": 0.95,
+        "night_min": 0.9,
+        "minimum_session_min": 0.85
+      },
+      "blocked_reason": "SELECTOR_TAIL_DOMINANCE_GATE_FAILED"
+    },
+    "symmetry_contract_supplied": true,
+    "symmetry_contract_evidence_validated": true,
+    "symmetry_contract_sha256": "969b47741c48e662f55559141c83c30220c8c6c399cf5cd306c0e7bc1ba9c05b",
+    "accepted_symmetry_rotation_count": 2
+  },
+  "artifact_contract": {
+    "json": "challenge/evaluation_v2/dev_results/YOLO26_G38_DEV.json",
+    "per_frame_csv": "challenge/evaluation_v2/dev_results/YOLO26_G38_PER_FRAME.csv",
+    "markdown_report": "challenge/evaluation_v2/dev_results/DEV_EVALUATION_REPORT.md"
+  }
+}

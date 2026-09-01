@@ -1,0 +1,548 @@
+{
+  "schema_version": "paper_real_eval_v2",
+  "evaluation_mode": "INFERENCE",
+  "population_contract": {
+    "role": "DEV",
+    "ready": true,
+    "blocked_reason": null,
+    "pair_sha256": "a5cd5a7f677011c5c90ef2ce2fc8e35fa420c17df61e86a9c61e006e15687274",
+    "positive": {
+      "population_id": "PAPER_EVAL_ALL_POS",
+      "kind": "POSITIVE",
+      "role": "DEV",
+      "membership_status": "AVAILABLE",
+      "frozen": true,
+      "count": 319,
+      "membership_sha256": "8f5c28feb0c341cd3e57e13be5951c07de2ec8ca852653c16190b77127fd5b0d",
+      "object_types": [
+        "plastic_standard_110x130x11",
+        "wood_small_80x59x14"
+      ],
+      "unavailable_reason": null,
+      "manifest": "challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json"
+    },
+    "negative": {
+      "population_id": "DEV_NEG2689",
+      "kind": "NEGATIVE",
+      "role": "DEV",
+      "membership_status": "AVAILABLE",
+      "frozen": true,
+      "count": 2689,
+      "membership_sha256": "af4aa4c57ec7fd9705df96455b0a78b677df36799a0efa845aa089c2962ca151",
+      "object_types": [],
+      "unavailable_reason": null,
+      "manifest": "challenge/real_gt_v2/manifests/DEV_NEG2689.json"
+    }
+  },
+  "weights": {
+    "argument": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+    "resolved_path": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+    "loaded": false,
+    "exists": true,
+    "sha256": "0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f",
+    "size_bytes": 201133774,
+    "selection_policy": "OFFLINE_CACHED_PREDICTIONS",
+    "cached_predictions": "data/pallet/results/paper_eval_v1/baselines/DOPE_R0_PREDICTIONS.json",
+    "cached_predictions_model": "DOPE backbone_dope_final_v1 epoch60",
+    "cached_predictions_recipe": {
+      "pad": 100,
+      "border": "BORDER_REFLECT_101 (E.pad_frame)",
+      "preprocess": "the model's training preprocess (448, sigma 4.0 contract)",
+      "belief_threshold": 0.3,
+      "source": "scripts/stage0/selftrain/s1_cad_9filters.py infer_belief/belief_to_pred; paper_s2_real_eval.E.load_model/belief_to_orig_pad",
+      "box_source": "BOUNDING_BOX_OF_DETECTED_CUBOID_CORNERS — DOPE has no box head. YOLO's box is a learned prediction; this one is derived from keypoints.  They are not the same quantity.",
+      "score_source": "max belief peak over the 8 cuboid corners.  YOLO uses box confidence.  Both are the model's own presence score but they are not on the same scale.",
+      "reflect_padding_note": "plain squash inference systematically under-detects truncated and close-range pallets and would make DOPE look worse than it is"
+    }
+  },
+  "inference": {
+    "status": "COMPLETE",
+    "recipe": {
+      "pad": 100,
+      "border": "BORDER_REFLECT_101",
+      "imgsz": 640,
+      "confidence_floor": 0.001
+    }
+  },
+  "metrics": {
+    "box_and_keypoint_2d": {
+      "status": "COMPLETE",
+      "blocked_reason": null,
+      "box_ap50_95": 0.3411843753616004,
+      "box_ap50": 0.6395307316512313,
+      "box_ap_by_iou": {
+        "0.50": 0.6395307316512313,
+        "0.55": 0.5911131620766245,
+        "0.60": 0.524464586407816,
+        "0.65": 0.4708927407140217,
+        "0.70": 0.4192157423488039,
+        "0.75": 0.3470700425346077,
+        "0.80": 0.22232832434818237,
+        "0.85": 0.147803592222403,
+        "0.90": 0.045442001637262246,
+        "0.95": 0.003982829675051555
+      },
+      "positive_count": 319,
+      "negative_count": 2689,
+      "candidate_count": 407,
+      "keypoint_matched_frame_count_iou50": 192,
+      "keypoint_location_median_px": 10.083028733477885,
+      "keypoint_location_p90_px": 27.854808060372157,
+      "keypoint_all_annotated_unknown_visibility_median_px": 10.916499314290556,
+      "keypoint_all_annotated_unknown_visibility_p90_px": 51.774920832959424,
+      "keypoint_all_labeled": {
+        "count": 927,
+        "median_px": 10.083028733477885,
+        "p90_px": 27.854808060372157
+      },
+      "keypoint_all_annotated_unknown_visibility": {
+        "count": 1728,
+        "median_px": 10.916499314290556,
+        "p90_px": 51.774920832959424
+      },
+      "keypoint_visibility_1": {
+        "count": 462,
+        "median_px": 10.744242874320282,
+        "p90_px": 30.488621091088454
+      },
+      "keypoint_visibility_2": {
+        "count": 465,
+        "median_px": 9.748653749667104,
+        "p90_px": 20.804896178568438
+      },
+      "keypoint_supervision_count": 1314,
+      "keypoint_nme": null,
+      "keypoint_diagnostic_status": "AVAILABLE",
+      "note": "Visibility-aware 2-D metrics use reviewed supervision only. The additive all-annotated diagnostic may include unknown-visibility legacy points and is separate from blocked canonical pose columns.",
+      "object_subset": "ALL",
+      "subgroups": {
+        "ALL": {
+          "status": "COMPLETE",
+          "blocked_reason": null,
+          "box_ap50_95": 0.3411843753616004,
+          "box_ap50": 0.6395307316512313,
+          "box_ap_by_iou": {
+            "0.50": 0.6395307316512313,
+            "0.55": 0.5911131620766245,
+            "0.60": 0.524464586407816,
+            "0.65": 0.4708927407140217,
+            "0.70": 0.4192157423488039,
+            "0.75": 0.3470700425346077,
+            "0.80": 0.22232832434818237,
+            "0.85": 0.147803592222403,
+            "0.90": 0.045442001637262246,
+            "0.95": 0.003982829675051555
+          },
+          "positive_count": 319,
+          "negative_count": 2689,
+          "candidate_count": 407,
+          "keypoint_matched_frame_count_iou50": 192,
+          "keypoint_location_median_px": 10.083028733477885,
+          "keypoint_location_p90_px": 27.854808060372157,
+          "keypoint_all_annotated_unknown_visibility_median_px": 10.916499314290556,
+          "keypoint_all_annotated_unknown_visibility_p90_px": 51.774920832959424,
+          "keypoint_all_labeled": {
+            "count": 927,
+            "median_px": 10.083028733477885,
+            "p90_px": 27.854808060372157
+          },
+          "keypoint_all_annotated_unknown_visibility": {
+            "count": 1728,
+            "median_px": 10.916499314290556,
+            "p90_px": 51.774920832959424
+          },
+          "keypoint_visibility_1": {
+            "count": 462,
+            "median_px": 10.744242874320282,
+            "p90_px": 30.488621091088454
+          },
+          "keypoint_visibility_2": {
+            "count": 465,
+            "median_px": 9.748653749667104,
+            "p90_px": 20.804896178568438
+          },
+          "keypoint_supervision_count": 1314,
+          "keypoint_nme": null,
+          "keypoint_diagnostic_status": "AVAILABLE",
+          "note": "Visibility-aware 2-D metrics use reviewed supervision only. The additive all-annotated diagnostic may include unknown-visibility legacy points and is separate from blocked canonical pose columns.",
+          "object_subset": "ALL"
+        },
+        "PLASTIC": {
+          "status": "COMPLETE",
+          "blocked_reason": null,
+          "box_ap50_95": 0.2934377505827715,
+          "box_ap50": 0.6004045929873036,
+          "box_ap_by_iou": {
+            "0.50": 0.6004045929873036,
+            "0.55": 0.5308864224644366,
+            "0.60": 0.4614592756702491,
+            "0.65": 0.4128763089936371,
+            "0.70": 0.36191717015279734,
+            "0.75": 0.27170028057499607,
+            "0.80": 0.1640190770132511,
+            "0.85": 0.10123082594694771,
+            "0.90": 0.027576525204909143,
+            "0.95": 0.0023070268191867733
+          },
+          "positive_count": 194,
+          "negative_count": 2689,
+          "candidate_count": 285,
+          "keypoint_matched_frame_count_iou50": 109,
+          "keypoint_location_median_px": 10.090754942368864,
+          "keypoint_location_p90_px": 23.944791497640146,
+          "keypoint_all_annotated_unknown_visibility_median_px": 11.042783936213304,
+          "keypoint_all_annotated_unknown_visibility_p90_px": 56.980456616125856,
+          "keypoint_all_labeled": {
+            "count": 432,
+            "median_px": 10.090754942368864,
+            "p90_px": 23.944791497640146
+          },
+          "keypoint_all_annotated_unknown_visibility": {
+            "count": 981,
+            "median_px": 11.042783936213304,
+            "p90_px": 56.980456616125856
+          },
+          "keypoint_visibility_1": {
+            "count": 197,
+            "median_px": 11.579650888883318,
+            "p90_px": 27.419569072563952
+          },
+          "keypoint_visibility_2": {
+            "count": 235,
+            "median_px": 9.14570069265354,
+            "p90_px": 17.14154563353586
+          },
+          "keypoint_supervision_count": 594,
+          "keypoint_nme": null,
+          "keypoint_diagnostic_status": "AVAILABLE",
+          "note": "Visibility-aware 2-D metrics use reviewed supervision only. The additive all-annotated diagnostic may include unknown-visibility legacy points and is separate from blocked canonical pose columns.",
+          "object_subset": "PLASTIC"
+        },
+        "WOOD": {
+          "status": "COMPLETE",
+          "blocked_reason": null,
+          "box_ap50_95": 0.39545256527110684,
+          "box_ap50": 0.6430810271944664,
+          "box_ap_by_iou": {
+            "0.50": 0.6430810271944664,
+            "0.55": 0.6249864920860994,
+            "0.60": 0.5723538184745115,
+            "0.65": 0.5296660922841663,
+            "0.70": 0.47190003273911535,
+            "0.75": 0.4443264314272218,
+            "0.80": 0.32685879858697836,
+            "0.85": 0.24531473796397307,
+            "0.90": 0.08181426898830718,
+            "0.95": 0.014223952966229449
+          },
+          "positive_count": 125,
+          "negative_count": 2689,
+          "candidate_count": 232,
+          "keypoint_matched_frame_count_iou50": 83,
+          "keypoint_location_median_px": 10.078458048730829,
+          "keypoint_location_p90_px": 30.646351474346485,
+          "keypoint_all_annotated_unknown_visibility_median_px": 10.874728174563671,
+          "keypoint_all_annotated_unknown_visibility_p90_px": 39.73440021441175,
+          "keypoint_all_labeled": {
+            "count": 495,
+            "median_px": 10.078458048730829,
+            "p90_px": 30.646351474346485
+          },
+          "keypoint_all_annotated_unknown_visibility": {
+            "count": 747,
+            "median_px": 10.874728174563671,
+            "p90_px": 39.73440021441175
+          },
+          "keypoint_visibility_1": {
+            "count": 265,
+            "median_px": 9.089949815404813,
+            "p90_px": 31.922907153903246
+          },
+          "keypoint_visibility_2": {
+            "count": 230,
+            "median_px": 10.82425167387638,
+            "p90_px": 27.324724044198753
+          },
+          "keypoint_supervision_count": 720,
+          "keypoint_nme": null,
+          "keypoint_diagnostic_status": "AVAILABLE",
+          "note": "Visibility-aware 2-D metrics use reviewed supervision only. The additive all-annotated diagnostic may include unknown-visibility legacy points and is separate from blocked canonical pose columns.",
+          "object_subset": "WOOD"
+        }
+      }
+    },
+    "pose": {
+      "status": "BLOCKED",
+      "metric_variant": "OBJECT_SPECIFIC",
+      "blocked_reason": "plastic_standard_110x130x11:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;plastic_standard_110x130x11:FINAL_MANIFEST_NOT_FROZEN;wood_small_80x59x14:CANONICAL_MIGRATION_NOT_PASS;wood_small_80x59x14:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;wood_small_80x59x14:SYMMETRY_NOT_FROZEN;wood_small_80x59x14:FINAL_MANIFEST_NOT_FROZEN",
+      "blocked_reasons": [
+        "plastic_standard_110x130x11:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+        "plastic_standard_110x130x11:FINAL_MANIFEST_NOT_FROZEN",
+        "wood_small_80x59x14:CANONICAL_MIGRATION_NOT_PASS",
+        "wood_small_80x59x14:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+        "wood_small_80x59x14:SYMMETRY_NOT_FROZEN",
+        "wood_small_80x59x14:FINAL_MANIFEST_NOT_FROZEN"
+      ],
+      "required_object_types": [
+        "plastic_standard_110x130x11",
+        "wood_small_80x59x14"
+      ],
+      "add_or_adds_auc": null,
+      "rotation_median_deg": null,
+      "translation_median_m": null,
+      "yaw_median_deg": null,
+      "subgroups": {
+        "ALL": {
+          "status": "BLOCKED",
+          "metric_variant": "OBJECT_SPECIFIC",
+          "blocked_reason": "plastic_standard_110x130x11:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;plastic_standard_110x130x11:FINAL_MANIFEST_NOT_FROZEN;wood_small_80x59x14:CANONICAL_MIGRATION_NOT_PASS;wood_small_80x59x14:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;wood_small_80x59x14:SYMMETRY_NOT_FROZEN;wood_small_80x59x14:FINAL_MANIFEST_NOT_FROZEN",
+          "blocked_reasons": [
+            "plastic_standard_110x130x11:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+            "plastic_standard_110x130x11:FINAL_MANIFEST_NOT_FROZEN",
+            "wood_small_80x59x14:CANONICAL_MIGRATION_NOT_PASS",
+            "wood_small_80x59x14:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+            "wood_small_80x59x14:SYMMETRY_NOT_FROZEN",
+            "wood_small_80x59x14:FINAL_MANIFEST_NOT_FROZEN"
+          ],
+          "required_object_types": [
+            "plastic_standard_110x130x11",
+            "wood_small_80x59x14"
+          ],
+          "add_or_adds_auc": null,
+          "rotation_median_deg": null,
+          "translation_median_m": null,
+          "yaw_median_deg": null
+        },
+        "PLASTIC": {
+          "status": "BLOCKED",
+          "metric_variant": null,
+          "blocked_reason": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;FINAL_MANIFEST_NOT_FROZEN",
+          "blocked_reasons": [
+            "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+            "FINAL_MANIFEST_NOT_FROZEN"
+          ],
+          "add_or_adds_auc": null,
+          "rotation_median_deg": null,
+          "translation_median_m": null,
+          "yaw_median_deg": null
+        },
+        "WOOD": {
+          "status": "BLOCKED",
+          "metric_variant": null,
+          "blocked_reason": "CANONICAL_MIGRATION_NOT_PASS;POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;SYMMETRY_NOT_FROZEN;FINAL_MANIFEST_NOT_FROZEN",
+          "blocked_reasons": [
+            "CANONICAL_MIGRATION_NOT_PASS",
+            "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+            "SYMMETRY_NOT_FROZEN",
+            "FINAL_MANIFEST_NOT_FROZEN"
+          ],
+          "add_or_adds_auc": null,
+          "rotation_median_deg": null,
+          "translation_median_m": null,
+          "yaw_median_deg": null
+        }
+      }
+    }
+  },
+  "metrics_metadata": {
+    "population_ids": {
+      "positive": "PAPER_EVAL_ALL_POS",
+      "negative": "DEV_NEG2689"
+    },
+    "N": 3008,
+    "positive_N": 319,
+    "negative_N": 2689,
+    "pose_valid_N": null,
+    "pose_total_N": null,
+    "checkpoint_sha256": "0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f",
+    "object_subset": "ALL",
+    "object_type_counts": {
+      "plastic_standard_110x130x11": 194,
+      "wood_small_80x59x14": 125
+    },
+    "geometry_registry_sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+    "symmetry_contract_sha256_by_object": {
+      "plastic_standard_110x130x11": "969b47741c48e662f55559141c83c30220c8c6c399cf5cd306c0e7bc1ba9c05b",
+      "wood_small_80x59x14": null
+    },
+    "DAY_N": 168,
+    "NIGHT_N": 106,
+    "positive_session_counts": {
+      "eval_cad": 18,
+      "eval_night08": 12,
+      "eval_night09": 16,
+      "eval_noapril": 12,
+      "eval_outside": 10,
+      "eval_pallet07": 27,
+      "eval_pallet09": 33,
+      "plastic_day_01": 44,
+      "plastic_night_01": 22,
+      "wood_183705": 25,
+      "wood_184309": 20,
+      "wood_day_01": 24,
+      "wood_night_01": 56
+    },
+    "session_cluster_bootstrap_95ci": {
+      "status": "UNAVAILABLE_FOR_CURRENT_DEV_NEGATIVE_CAPTURE",
+      "low": null,
+      "high": null,
+      "unit": "capture_session_id",
+      "blocked_reason": "DEV_NEG2689 has no capture_session_id; a valid joint positive/negative session-cluster bootstrap cannot be fabricated"
+    }
+  },
+  "pose_contract": {
+    "canonical_migration": "OBJECT_SPECIFIC",
+    "selector": "OBJECT_SPECIFIC",
+    "symmetry": "OBJECT_SPECIFIC",
+    "final_manifest": "NOT_FROZEN",
+    "passed": false,
+    "blocked_reason": "plastic_standard_110x130x11:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;plastic_standard_110x130x11:FINAL_MANIFEST_NOT_FROZEN;wood_small_80x59x14:CANONICAL_MIGRATION_NOT_PASS;wood_small_80x59x14:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;wood_small_80x59x14:SYMMETRY_NOT_FROZEN;wood_small_80x59x14:FINAL_MANIFEST_NOT_FROZEN",
+    "blocked_reasons": [
+      "plastic_standard_110x130x11:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+      "plastic_standard_110x130x11:FINAL_MANIFEST_NOT_FROZEN",
+      "wood_small_80x59x14:CANONICAL_MIGRATION_NOT_PASS",
+      "wood_small_80x59x14:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+      "wood_small_80x59x14:SYMMETRY_NOT_FROZEN",
+      "wood_small_80x59x14:FINAL_MANIFEST_NOT_FROZEN"
+    ]
+  },
+  "gate_evidence": {
+    "geometry_registry_sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+    "object_pose_contracts": {
+      "plastic_standard_110x130x11": {
+        "gate": {
+          "canonical_migration": "PASS",
+          "selector": "NOT_RUN",
+          "symmetry": "FROZEN",
+          "final_manifest": "NOT_FROZEN",
+          "passed": false,
+          "blocked_reason": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;FINAL_MANIFEST_NOT_FROZEN",
+          "blocked_reasons": [
+            "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+            "FINAL_MANIFEST_NOT_FROZEN"
+          ]
+        },
+        "migration_gate_supplied": true,
+        "migration_gate_schema_validated": true,
+        "migration_pose_resolution_mode": "YAW_180_EQUIVALENCE_CLASS",
+        "selector_diagnostic_supplied": false,
+        "selector_gate_report": {
+          "status": "NOT_RUN",
+          "overall_accuracy": null,
+          "night_accuracy": null,
+          "minimum_session_accuracy": null,
+          "sample_count": 0,
+          "night_count": 0,
+          "session_count": 0,
+          "expected_population": {
+            "object_type": "plastic_standard_110x130x11",
+            "population_id": "DEV_POS140",
+            "population_role": "DEV",
+            "membership_sha256": "b0be817305a5f34914d4a4f7f0da231375f98e5d6e07070ba8840d3209f1e971",
+            "total": 140,
+            "night": 28,
+            "session_counts": {
+              "eval_cad": 18,
+              "eval_night08": 12,
+              "eval_night09": 16,
+              "eval_noapril": 12,
+              "eval_outside": 22,
+              "eval_pallet07": 27,
+              "eval_pallet09": 33
+            }
+          },
+          "population_validated": false,
+          "tail_dominance_assessed": false,
+          "tail_dominance_passed": null,
+          "tail_dominance_notes": null,
+          "thresholds": {
+            "overall_min": 0.95,
+            "night_min": 0.9,
+            "minimum_session_min": 0.85
+          },
+          "blocked_reason": "SELECTOR_DIAGNOSTIC_NOT_RUN"
+        },
+        "symmetry_contract_supplied": true,
+        "symmetry_contract_evidence_validated": true,
+        "symmetry_contract_sha256": "969b47741c48e662f55559141c83c30220c8c6c399cf5cd306c0e7bc1ba9c05b",
+        "accepted_symmetry_rotation_count": 2,
+        "object_type": "plastic_standard_110x130x11",
+        "physical_dimensions_m": {
+          "x": 1.1,
+          "y": 0.11,
+          "z": 1.3
+        },
+        "geometry_registry_sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+        "registry_symmetry_status": "FROZEN"
+      },
+      "wood_small_80x59x14": {
+        "gate": {
+          "canonical_migration": "BLOCKED",
+          "selector": "NOT_RUN",
+          "symmetry": "NOT_FROZEN",
+          "final_manifest": "NOT_FROZEN",
+          "passed": false,
+          "blocked_reason": "CANONICAL_MIGRATION_NOT_PASS;POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;SYMMETRY_NOT_FROZEN;FINAL_MANIFEST_NOT_FROZEN",
+          "blocked_reasons": [
+            "CANONICAL_MIGRATION_NOT_PASS",
+            "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+            "SYMMETRY_NOT_FROZEN",
+            "FINAL_MANIFEST_NOT_FROZEN"
+          ]
+        },
+        "migration_gate_supplied": true,
+        "migration_gate_schema_validated": true,
+        "migration_pose_resolution_mode": null,
+        "selector_diagnostic_supplied": false,
+        "selector_gate_report": {
+          "status": "NOT_RUN",
+          "overall_accuracy": null,
+          "night_accuracy": null,
+          "minimum_session_accuracy": null,
+          "sample_count": 0,
+          "night_count": 0,
+          "session_count": 0,
+          "expected_population": {
+            "object_type": "wood_small_80x59x14",
+            "population_id": "DEV_WOOD_POS45",
+            "population_role": "CROSS_SHAPE_DEV",
+            "membership_sha256": "38679335a4dc3e81a62ad0ec569ed4c2ee868cf66e79361bc0cee3a43324a3c4",
+            "total": 45,
+            "night": 0,
+            "session_counts": {
+              "wood_183705": 25,
+              "wood_184309": 20
+            }
+          },
+          "population_validated": false,
+          "tail_dominance_assessed": false,
+          "tail_dominance_passed": null,
+          "tail_dominance_notes": null,
+          "thresholds": {
+            "overall_min": 0.95,
+            "night_min": null,
+            "minimum_session_min": 0.85
+          },
+          "blocked_reason": "SELECTOR_DIAGNOSTIC_NOT_RUN"
+        },
+        "symmetry_contract_supplied": false,
+        "symmetry_contract_evidence_validated": false,
+        "symmetry_contract_sha256": null,
+        "accepted_symmetry_rotation_count": 0,
+        "object_type": "wood_small_80x59x14",
+        "physical_dimensions_m": {
+          "x": 0.8,
+          "y": 0.14,
+          "z": 0.59
+        },
+        "geometry_registry_sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+        "registry_symmetry_status": "UNREVIEWED"
+      }
+    }
+  },
+  "artifact_contract": {
+    "json": "data/pallet/results/paper_eval_v1/baselines/DOPE_R0.json",
+    "per_frame_csv": "data/pallet/results/paper_eval_v1/baselines/DOPE_R0_per_frame.csv",
+    "markdown_report": "data/pallet/results/paper_eval_v1/baselines/DOPE_R0_report.md"
+  }
+}
