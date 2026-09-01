@@ -1,0 +1,125 @@
+{
+  "schema_version": "paper_selftrain_exposure_lock_v1",
+  "purpose": "Freeze self-training strength before any arm is trained, so the only difference between MAIN arms is the pseudo-label selection rule.",
+  "paper_eval_gt_used_for_selection": false,
+  "main_pseudo_fraction": 0.5,
+  "main_synthetic_fraction": 0.5,
+  "lambda_pseudo": 1.0,
+  "lambda_note": "Loss weight is fixed at 1.0 and is never searched.  Sampling fraction is the single self-training strength knob; fraction and loss weight are never varied together.",
+  "teacher_refresh": false,
+  "teacher_rounds": 1,
+  "teacher_note": "MAIN is a one-round static teacher.  Every student is initialised from the same R0 checkpoint and consumes the same frozen R0 prediction cache, so teacher drift never enters the filter comparison.  Iterative rounds are Appendix A3 only.",
+  "batch_size": 32,
+  "learning_rate": 0.002,
+  "total_optimizer_updates": 900,
+  "epochs": 10,
+  "updates_per_epoch": 90,
+  "pseudo_exposures_per_epoch": 1440,
+  "synthetic_exposures_per_epoch": 1440,
+  "total_pseudo_exposures": 14400,
+  "total_synthetic_exposures": 14400,
+  "small_pool_policy": "sampling with replacement to fill the fixed pseudo slots",
+  "budget_justification": {
+    "reference_run": "challenge/yolo_pose_one_model/runs_camera_facing_loss/ADAPT_N0_15EP_SEED42",
+    "reference_updates": 6353,
+    "reference_lr0": 0.002,
+    "reference_finding": "synthetic-replay-only control (negative 0, pseudo 0) still lost night detection versus its own base: any-cbox 23 -> 19 frames (_docs/history/2026-08-25.md)",
+    "chosen_fraction_of_reference": 0.1417,
+    "lr_rationale": "0.002 is the repo's established adaptation learning rate (runs_ft/ft_a, ft_b, ADAPT_N0/N1, legacy_v1v2_ft).  Changing LR and update budget together would confound the cause, so only the budget is reduced.",
+    "falsifiable_by": "R0-CONT",
+    "paper_eval_not_consulted": true
+  },
+  "source_only_control": true,
+  "control_arm": {
+    "name": "R0-CONT",
+    "pseudo_exposures": 0,
+    "substitution": "pseudo slots are filled with synthetic replay",
+    "everything_else": "same init, LR, augmentation, batch, total updates, seed",
+    "question": "how much of any change is caused by additional optimisation alone, rather than by real pseudo-label adaptation"
+  },
+  "initialisation": {
+    "checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "identical_for_every_arm": true
+  },
+  "checkpoint_selection": {
+    "rule": "fixed final checkpoint (last.pt)",
+    "note": "PAPER_EVAL results never select the epoch or the checkpoint."
+  },
+  "augmentation": {
+    "source": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/args.yaml",
+    "fliplr": 0.0,
+    "fliplr_note": "Horizontal flip augmentation stays off.  If it were enabled, horizontal-flip keypoint consistency would become an identity the training objective enforces, and the filter would stop being an independent signal.",
+    "seed": 42
+  },
+  "synthetic_replay": {
+    "source_dataset": "challenge/yolo_pose_one_model/datasets/g38_legacy_v1v2_p0_tex20k",
+    "source_pool_size": 55980,
+    "subset_size": 1440,
+    "selection": "sha256(filename) ascending — deterministic, render-order free",
+    "membership_sha256": "9dbd9c927733fb20e1b869c568e064a32a9e1a07392c534c4d39bc6f5958da82",
+    "identical_for_every_arm": true
+  },
+  "arms": [
+    {
+      "name": "R0",
+      "trains": false,
+      "note": "existing synthetic-only baseline"
+    },
+    {
+      "name": "R0-CONT",
+      "trains": true,
+      "pseudo_filter": null
+    },
+    {
+      "name": "R1",
+      "trains": true,
+      "pseudo_filter": "F0 naive"
+    },
+    {
+      "name": "R2",
+      "trains": true,
+      "pseudo_filter": "F1 confidence"
+    },
+    {
+      "name": "R3",
+      "trains": true,
+      "pseudo_filter": "F2 confidence + reprojection"
+    },
+    {
+      "name": "R4",
+      "trains": true,
+      "pseudo_filter": "F3 confidence + keypoint-removal"
+    },
+    {
+      "name": "R5",
+      "trains": true,
+      "pseudo_filter": "F4 proposed"
+    }
+  ],
+  "matching_semantics": {
+    "MAIN": "EXPOSURE-MATCHED — identical updates, pseudo exposures, synthetic exposures",
+    "appendix_A2": "UNIQUE-QUANTITY-MATCHED — identical number of unique pseudo-labels",
+    "never_conflate": true
+  },
+  "sensitivity": {
+    "appendix": "A12",
+    "pseudo_fractions": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "manifest": "the Proposed (F4) pseudo-label manifest, unchanged",
+    "held_constant": [
+      "total updates",
+      "learning rate",
+      "init",
+      "pseudo manifest",
+      "augmentation",
+      "seed"
+    ],
+    "main_row_is_fixed_at": 0.5,
+    "rule": "0.25 or 0.75 scoring better does not replace the MAIN row.  This answers whether the effect depends on one particular mixing ratio, it is not a hyperparameter search.",
+    "conditional_extension": "Naive at 0.25/0.75 is run only if Proposed shows a large sensitivity spread, to check a filter x strength interaction."
+  }
+}
