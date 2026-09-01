@@ -1,0 +1,161 @@
+{
+  "schema_version": "paper_eval_v1_evaluator_contract_v1",
+  "created": "2026-09-01",
+  "git_head": "dfb8cd71dafd440c4a66c1a550c23fc31de6e12f",
+  "purpose": "PAPER_EVAL evaluator closure for the YOLO26 geometry-filtered self-training track. PAPER_EVAL is the paper-facing source of truth; FINAL_EVAL is a frozen 173-row DEV alias and must not appear in paper tables.",
+  "population_source": {
+    "derivation": "scripts/evaluation/eval_workspace.py::evaluation_population_views",
+    "definition": "SHA256-deduplicated union(DEV_EVAL, NEW_EVAL)",
+    "builder": "scripts/evaluation/build_paper_eval_manifests.py",
+    "workspace": "data/evaluation/pallet_eval_v1",
+    "held_out_final": false
+  },
+  "gt_schema_audit": {
+    "required_schema_version": "real_pallet_gt_v2",
+    "validator": "scripts/annotate/real_gt_v2_schema.py::validate_gt_v2",
+    "results": {
+      "final_positive_new_146": "PASS 146/146",
+      "workspace_dev_existing_185": "PASS 185/185",
+      "challenge_migrated_gt_140": "PASS 140/140",
+      "challenge_migrated_gt_wood_45": "PASS 45/45"
+    },
+    "legacy_copy_equivalence": "workspace dev_existing copies match challenge/real_gt_v2/migrated_gt* on pose_transform, projected_cuboid, manual_kps, keypoint_annotations, physical_dimensions_m for 173/173 frames"
+  },
+  "geometry_dispatch": {
+    "source": "challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json",
+    "sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+    "rule": "item.object_type -> OBJECT_GEOMETRY_REGISTRY -> named X/Y/Z dimensions. Never from frame name, session, legacy dimensions_m, or GT pose."
+  },
+  "inference_recipe": {
+    "pad": 100,
+    "border": "BORDER_REFLECT_101",
+    "imgsz": 640,
+    "confidence_floor": 0.001
+  },
+  "populations": {
+    "ALL": {
+      "positive_population": "PAPER_EVAL_ALL_POS",
+      "positive_N": 319,
+      "positive_membership_sha256": "8f5c28feb0c341cd3e57e13be5951c07de2ec8ca852653c16190b77127fd5b0d",
+      "negative_population": "DEV_NEG2689",
+      "negative_N": 2689,
+      "pair_sha256": "a5cd5a7f677011c5c90ef2ce2fc8e35fa420c17df61e86a9c61e006e15687274",
+      "role": "DEV",
+      "pair_ready": true,
+      "object_type_counts": {
+        "plastic_standard_110x130x11": 194,
+        "wood_small_80x59x14": 125
+      },
+      "DAY_N": 168,
+      "NIGHT_N": 106,
+      "session_counts": {
+        "eval_cad": 18,
+        "eval_night08": 12,
+        "eval_night09": 16,
+        "eval_noapril": 12,
+        "eval_outside": 10,
+        "eval_pallet07": 27,
+        "eval_pallet09": 33,
+        "plastic_day_01": 44,
+        "plastic_night_01": 22,
+        "wood_183705": 25,
+        "wood_184309": 20,
+        "wood_day_01": 24,
+        "wood_night_01": 56
+      },
+      "metrics_2d_status": "COMPUTABLE_PENDING_INFERENCE",
+      "ranking_status": "COMPUTABLE_PENDING_INFERENCE",
+      "pose_status": "BLOCKED",
+      "pose_blocked_reasons": [
+        "plastic_standard_110x130x11:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+        "plastic_standard_110x130x11:FINAL_MANIFEST_NOT_FROZEN",
+        "wood_small_80x59x14:CANONICAL_MIGRATION_NOT_PASS",
+        "wood_small_80x59x14:POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+        "wood_small_80x59x14:SYMMETRY_NOT_FROZEN",
+        "wood_small_80x59x14:FINAL_MANIFEST_NOT_FROZEN"
+      ],
+      "dry_run_artifact": "data/pallet/results/paper_eval_v1/DRYRUN_PAPER_EVAL_ALL.json"
+    },
+    "PLASTIC": {
+      "positive_population": "PAPER_EVAL_PLASTIC_POS",
+      "positive_N": 194,
+      "positive_membership_sha256": "871f851a049814faa7eaf17a79caf296b69447b1dd6180192e1c17bc520fb159",
+      "negative_population": "DEV_NEG2689",
+      "negative_N": 2689,
+      "pair_sha256": "b132ffc6bdf3221ddeff7bf03966c6a9a7d78a730719182af6ba836f2d0589b8",
+      "role": "DEV",
+      "pair_ready": true,
+      "object_type_counts": {
+        "plastic_standard_110x130x11": 194
+      },
+      "DAY_N": 144,
+      "NIGHT_N": 50,
+      "session_counts": {
+        "eval_cad": 18,
+        "eval_night08": 12,
+        "eval_night09": 16,
+        "eval_noapril": 12,
+        "eval_outside": 10,
+        "eval_pallet07": 27,
+        "eval_pallet09": 33,
+        "plastic_day_01": 44,
+        "plastic_night_01": 22
+      },
+      "metrics_2d_status": "COMPUTABLE_PENDING_INFERENCE",
+      "ranking_status": "COMPUTABLE_PENDING_INFERENCE",
+      "pose_status": "BLOCKED",
+      "pose_blocked_reasons": [
+        "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+        "FINAL_MANIFEST_NOT_FROZEN"
+      ],
+      "dry_run_artifact": "data/pallet/results/paper_eval_v1/DRYRUN_PAPER_EVAL_PLASTIC.json"
+    },
+    "WOOD": {
+      "positive_population": "PAPER_EVAL_WOOD_POS",
+      "positive_N": 125,
+      "positive_membership_sha256": "1bdf78ac10a26c99aacfb8913b0cb53cf5d326a3f594a60e9c25dea8545aab7b",
+      "negative_population": "DEV_NEG2689",
+      "negative_N": 2689,
+      "pair_sha256": "67a8ce15be93b89b59401a961523082fd459daac820b8e6933ef89814c640883",
+      "role": "CROSS_SHAPE_DEV",
+      "pair_ready": true,
+      "object_type_counts": {
+        "wood_small_80x59x14": 125
+      },
+      "DAY_N": 24,
+      "NIGHT_N": 56,
+      "session_counts": {
+        "wood_183705": 25,
+        "wood_184309": 20,
+        "wood_day_01": 24,
+        "wood_night_01": 56
+      },
+      "metrics_2d_status": "COMPUTABLE_PENDING_INFERENCE",
+      "ranking_status": "COMPUTABLE_PENDING_INFERENCE",
+      "pose_status": "BLOCKED",
+      "pose_blocked_reasons": [
+        "CANONICAL_MIGRATION_NOT_PASS",
+        "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR",
+        "SYMMETRY_NOT_FROZEN",
+        "FINAL_MANIFEST_NOT_FROZEN"
+      ],
+      "dry_run_artifact": "data/pallet/results/paper_eval_v1/DRYRUN_PAPER_EVAL_WOOD.json"
+    }
+  },
+  "POSE_METRICS_STATUS": "BLOCKED",
+  "pose_blockers_separated": {
+    "plastic_axis_selector": "BLOCKED — prediction-only W/D hypothesis selector FAIL (83/140, NIGHT 13/28)",
+    "wood_symmetry": "BLOCKED — registry symmetry_status UNREVIEWED; selector NOT_RUN",
+    "wood_canonical_migration": "BLOCKED — CANONICAL_MIGRATION_NOT_PASS",
+    "new_146_signed_axis": "BLOCKED — pose_status UNCONFIRMED_SIGNED_AXIS 146/146, axis_assignment_confirmed False",
+    "final_manifest": "NOT_FROZEN — PAPER_EVAL is DEV role, not a held-out FINAL",
+    "intrinsics": "OK — camera_data.intrinsics present on every frame"
+  },
+  "pose_policy": "R med / Yaw / t / IoU3D / AUC must stay null in M1/M2/M3/M5 while BLOCKED. 2D improvement may not be reported as '6D pose improvement'. Self-training itself is 2D pseudo-keypoint based and is not gated on this.",
+  "manifest_sha256": {
+    "PAPER_EVAL_ALL_POS": "f87a2d1f4bfc7883bbd0a5562f43ad13711e5ae9aa6586c9a894ec64106437c8",
+    "PAPER_EVAL_PLASTIC_POS": "1cde879b02cc13632ae1a734e87b523a27e6d26d77fca64ba3e7009a477a42fe",
+    "PAPER_EVAL_WOOD_POS": "fc1be6215cb4097027dbad070d8180ec99b7d8921a7172b07ee72c93ca59aba6",
+    "DEV_NEG2689": "37ac706dd3fef77f110537e1033ae82fb152413ffc166dd6b03388143635f822"
+  }
+}

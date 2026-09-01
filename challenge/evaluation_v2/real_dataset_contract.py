@@ -49,6 +49,14 @@ class PopulationId(str, Enum):
     FINAL_PLASTIC_POS = "FINAL_PLASTIC_POS"
     FINAL_WOOD_POS = "FINAL_WOOD_POS"
     FINAL_ALL_POS = "FINAL_ALL_POS"
+    # Paper-facing evaluation population (2026-09-01).  PAPER_EVAL is the
+    # SHA256-deduplicated union(DEV_EVAL, NEW_EVAL) computed by
+    # scripts/evaluation/eval_workspace.py.  The COMMON_DEV_* ids above stay
+    # registered verbatim; they are a frozen 173-row alias and must not be
+    # used for paper tables, because newly annotated frames never enter them.
+    PAPER_EVAL_PLASTIC_POS = "PAPER_EVAL_PLASTIC_POS"
+    PAPER_EVAL_WOOD_POS = "PAPER_EVAL_WOOD_POS"
+    PAPER_EVAL_ALL_POS = "PAPER_EVAL_ALL_POS"
 
 
 class PopulationKind(str, Enum):
@@ -101,6 +109,15 @@ EXPECTED_POPULATIONS: Mapping[PopulationId, PopulationExpectation] = {
     PopulationId.FINAL_ALL_POS: PopulationExpectation(
         0, PopulationKind.POSITIVE, PopulationRole.FINAL
     ),
+    PopulationId.PAPER_EVAL_PLASTIC_POS: PopulationExpectation(
+        194, PopulationKind.POSITIVE, PopulationRole.DEV
+    ),
+    PopulationId.PAPER_EVAL_WOOD_POS: PopulationExpectation(
+        125, PopulationKind.POSITIVE, PopulationRole.CROSS_SHAPE_DEV
+    ),
+    PopulationId.PAPER_EVAL_ALL_POS: PopulationExpectation(
+        319, PopulationKind.POSITIVE, PopulationRole.DEV
+    ),
 }
 
 
@@ -121,6 +138,9 @@ POPULATION_OBJECT_TYPES: Mapping[PopulationId, tuple[str, ...]] = {
     PopulationId.FINAL_PLASTIC_POS: (PLASTIC_OBJECT_TYPE,),
     PopulationId.FINAL_WOOD_POS: (WOOD_OBJECT_TYPE,),
     PopulationId.FINAL_ALL_POS: (PLASTIC_OBJECT_TYPE, WOOD_OBJECT_TYPE),
+    PopulationId.PAPER_EVAL_PLASTIC_POS: (PLASTIC_OBJECT_TYPE,),
+    PopulationId.PAPER_EVAL_WOOD_POS: (WOOD_OBJECT_TYPE,),
+    PopulationId.PAPER_EVAL_ALL_POS: (PLASTIC_OBJECT_TYPE, WOOD_OBJECT_TYPE),
 }
 
 _OBJECT_AWARE_AVAILABLE_POPULATIONS = frozenset(
@@ -129,6 +149,9 @@ _OBJECT_AWARE_AVAILABLE_POPULATIONS = frozenset(
         PopulationId.COMMON_DEV_PLASTIC_POS128,
         PopulationId.DEV_WOOD_POS45,
         PopulationId.COMMON_DEV_MULTISHAPE_POS,
+        PopulationId.PAPER_EVAL_PLASTIC_POS,
+        PopulationId.PAPER_EVAL_WOOD_POS,
+        PopulationId.PAPER_EVAL_ALL_POS,
     }
 )
 
@@ -146,12 +169,24 @@ _OBJECT_AWARE_SOURCE_TYPES: Mapping[PopulationId, Mapping[str, str]] = {
         PopulationId.COMMON_DEV_PLASTIC_POS128.value: PLASTIC_OBJECT_TYPE,
         PopulationId.DEV_WOOD_POS45.value: WOOD_OBJECT_TYPE,
     },
+    PopulationId.PAPER_EVAL_PLASTIC_POS: {
+        PopulationId.PAPER_EVAL_PLASTIC_POS.value: PLASTIC_OBJECT_TYPE,
+    },
+    PopulationId.PAPER_EVAL_WOOD_POS: {
+        PopulationId.PAPER_EVAL_WOOD_POS.value: WOOD_OBJECT_TYPE,
+    },
+    PopulationId.PAPER_EVAL_ALL_POS: {
+        PopulationId.PAPER_EVAL_PLASTIC_POS.value: PLASTIC_OBJECT_TYPE,
+        PopulationId.PAPER_EVAL_WOOD_POS.value: WOOD_OBJECT_TYPE,
+    },
 }
 
 _OBJECT_AWARE_SOURCE_ROLES: Mapping[str, PopulationRole] = {
     PopulationId.DEV_PLASTIC_POS140.value: PopulationRole.DEV,
     PopulationId.COMMON_DEV_PLASTIC_POS128.value: PopulationRole.DEV,
     PopulationId.DEV_WOOD_POS45.value: PopulationRole.CROSS_SHAPE_DEV,
+    PopulationId.PAPER_EVAL_PLASTIC_POS.value: PopulationRole.DEV,
+    PopulationId.PAPER_EVAL_WOOD_POS.value: PopulationRole.CROSS_SHAPE_DEV,
 }
 
 
@@ -1028,6 +1063,8 @@ def validate_evaluation_pair(
             PopulationId.COMMON_DEV_POS128,
             PopulationId.COMMON_DEV_PLASTIC_POS128,
             PopulationId.COMMON_DEV_MULTISHAPE_POS,
+            PopulationId.PAPER_EVAL_PLASTIC_POS,
+            PopulationId.PAPER_EVAL_ALL_POS,
         }
         if (
             positive.population_id not in allowed_positive
@@ -1049,12 +1086,16 @@ def validate_evaluation_pair(
         )
 
     if role is PopulationRole.CROSS_SHAPE_DEV:
+        allowed_cross_shape_positive = {
+            PopulationId.DEV_WOOD_POS45,
+            PopulationId.PAPER_EVAL_WOOD_POS,
+        }
         if (
-            positive.population_id is not PopulationId.DEV_WOOD_POS45
+            positive.population_id not in allowed_cross_shape_positive
             or negative.population_id is not PopulationId.DEV_NEG2689
         ):
             raise ContractError(
-                "CROSS_SHAPE_DEV_COMPARISON_REQUIRES_DEV_WOOD_POS45_AND_DEV_NEG2689; "
+                "CROSS_SHAPE_DEV_COMPARISON_REQUIRES_WOOD_POS_AND_DEV_NEG2689; "
                 f"got {positive.population_id.value}+{negative.population_id.value}"
             )
         if not positive.available or not negative.available:
