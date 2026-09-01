@@ -1,36 +1,22 @@
 # Dataset composition
 
-DEV는 controlled 173장, FINAL positive는 annotation과 QA eligibility를 모두
-충족한 frame만 포함한다. ALL_AVAILABLE은 각 DEV/FINAL union을 image SHA256으로
-deduplicate한 보조 population이며 held-out FINAL이 아니다. 조건은 서로 중복될 수
-있고 metric은 evaluation 전까지 `—`다.
+`FINAL_EVAL`은 registered controlled DEV pair를 그대로 재사용한 frozen 실행
+alias다. physical FINAL은 이 population에 자동으로 합치지 않는다. 이 alias는
+held-out FINAL이 아니며 조건은 서로 중복될 수 있다. metric은 evaluation 전까지
+`—`다.
 
 ## Experiment 6 condition table
 
 ```text
 Population      Condition         N   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCall↑
 ──────────────────────────────────────────────────────────────────────────────────────────────
-DEV             Plastic         128      —        —       —         —       —       —        —
-DEV             Wood             45      —        —       —         —       —       —        —
-DEV             DAY             100      —        —       —         —       —       —        —
-DEV             NIGHT            28      —        —       —         —       —       —        —
-DEV             Occlusion         0      —        —       —         —       —       —        —
-DEV             Truncation       28      —        —       —         —       —       —        —
-DEV             Far / small       0      —        —       —         —       —       —        —
-FINAL           Plastic           0      —        —       —         —       —       —        —
-FINAL           Wood              0      —        —       —         —       —       —        —
-FINAL           DAY               0      —        —       —         —       —       —        —
-FINAL           NIGHT             0      —        —       —         —       —       —        —
-FINAL           Occlusion         0      —        —       —         —       —       —        —
-FINAL           Truncation        0      —        —       —         —       —       —        —
-FINAL           Far / small       0      —        —       —         —       —       —        —
-ALL_AVAILABLE   Plastic         128      —        —       —         —       —       —        —
-ALL_AVAILABLE   Wood             45      —        —       —         —       —       —        —
-ALL_AVAILABLE   DAY             100      —        —       —         —       —       —        —
-ALL_AVAILABLE   NIGHT            28      —        —       —         —       —       —        —
-ALL_AVAILABLE   Occlusion         0      —        —       —         —       —       —        —
-ALL_AVAILABLE   Truncation       28      —        —       —         —       —       —        —
-ALL_AVAILABLE   Far / small       0      —        —       —         —       —       —        —
+FINAL_EVAL      Plastic         128      —        —       —         —       —       —        —
+FINAL_EVAL      Wood             45      —        —       —         —       —       —        —
+FINAL_EVAL      DAY             100      —        —       —         —       —       —        —
+FINAL_EVAL      NIGHT            28      —        —       —         —       —       —        —
+FINAL_EVAL      Occlusion        93      —        —       —         —       —       —        —
+FINAL_EVAL      Truncation       28      —        —       —         —       —       —        —
+FINAL_EVAL      Far               7      —        —       —         —       —       —        —
 ```
 
 ## Experiment 7 split composition
@@ -38,45 +24,36 @@ ALL_AVAILABLE   Far / small       0      —        —       —         —   
 ```text
 Population      Object                Frames   Sessions    DAY   NIGHT    Dimensions    Occlusion   Truncation
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
-DEV             Plastic                  128          7    100      28  1.1×0.11×1.3 m            0           19
-DEV             Wood                      45          2      0       0  0.8×0.14×0.59 m            0            9
-DEV             Combined positive        173          9    100      28             —            0           28
-DEV             Negative                2689          1      0       0             —            0            0
-FINAL           Plastic                    0          0      0       0  1.1×0.11×1.3 m            0            0
-FINAL           Wood                       0          0      0       0  0.8×0.14×0.59 m            0            0
-FINAL           Combined positive          0          0      0       0             —            0            0
-FINAL           Negative                   0          0      0       0             —            0            0
-ALL_AVAILABLE   Plastic                  128          7    100      28  1.1×0.11×1.3 m            0           19
-ALL_AVAILABLE   Wood                      45          2      0       0  0.8×0.14×0.59 m            0            9
-ALL_AVAILABLE   Combined positive        173          9    100      28             —            0           28
-ALL_AVAILABLE   Negative                2688          1      0       0             —            0            0
+FINAL_EVAL      Plastic                  128          7    100      28  1.1×0.11×1.3 m           93           19
+FINAL_EVAL      Wood                      45          2      —       —  0.8×0.14×0.59 m            0            9
+FINAL_EVAL      Combined positive        173          9    100      28             —           93           28
+FINAL_EVAL      Negative                2689          1      —       —             —            —            —
 ```
 
 ```text
 Population      Condition       Frames
 ──────────────────────────────────────
-DEV             Clean                0
-DEV             Occlusion            0
-DEV             Truncation          28
-DEV             Far / small          0
-DEV             Low angle            0
-DEV             Mid angle            0
-DEV             High angle           0
-FINAL           Clean                0
-FINAL           Occlusion            0
-FINAL           Truncation           0
-FINAL           Far / small          0
-FINAL           Low angle            0
-FINAL           Mid angle            0
-FINAL           High angle           0
-ALL_AVAILABLE   Clean                0
-ALL_AVAILABLE   Occlusion            0
-ALL_AVAILABLE   Truncation          28
-ALL_AVAILABLE   Far / small          0
-ALL_AVAILABLE   Low angle            0
-ALL_AVAILABLE   Mid angle            0
-ALL_AVAILABLE   High angle           0
+FINAL_EVAL      Clean               67
+FINAL_EVAL      Occlusion           93
+FINAL_EVAL      Truncation          28
+FINAL_EVAL      Far                  7
+FINAL_EVAL      Low angle           97
+FINAL_EVAL      Mid angle           59
+FINAL_EVAL      High angle          17
 ```
 
-DEV negative의 frozen membership은 2689행을 유지한다. ALL_AVAILABLE negative는
-known duplicate image membership을 SHA256으로 합쳐 현재 2688 unique image다.
+0과 `—`를 구분한다. `—`는 해당 조건이 없다는 뜻이 아니라 metadata가 부족해
+판정할 수 없다는 뜻이다.
+
+```text
+Lighting tagged       128 / 173
+Occlusion tagged      173 / 173
+Truncation tagged     173 / 173
+Distance tagged       173 / 173
+Elevation tagged      173 / 173
+```
+
+FINAL_EVAL negative는 registered frozen membership 2689행을 유지하며 unique image는
+2688장이다. `ALL_AVAILABLE_NEGATIVE.csv`만 known duplicate를 SHA256으로 합친
+convenience view다. Alias provenance는 `REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV`이고 held-out이
+아니다.

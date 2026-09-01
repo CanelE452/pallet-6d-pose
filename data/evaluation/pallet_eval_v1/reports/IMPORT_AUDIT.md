@@ -21,7 +21,8 @@ Legacy `409`는 2026-08-30 현재 감사값일 뿐 frozen membership target이 �
 source image changed        0
 source annotation changed   0
 source size/mtime/count changed  0
-DEV -> FINAL promotions     0
+physical DEV -> FINAL copies  0
+FINAL_EVAL execution alias  173 positive / 2689 negative rows (2688 unique)
 duplicate active frame SHA groups  1
 ```
 

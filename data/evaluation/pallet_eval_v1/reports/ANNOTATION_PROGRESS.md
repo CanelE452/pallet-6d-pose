@@ -12,58 +12,86 @@ Review overlays       173 / 173
 
 Metadata availability
 Lighting tagged       128 / 173
-Occlusion tagged        0 / 173
+Occlusion tagged      173 / 173
 Truncation tagged     173 / 173
-Distance tagged         0 / 173
-Size tagged             0 / 173
-Elevation tagged        0 / 173
+Distance tagged       173 / 173
+Elevation tagged      173 / 173
 View tagged             0 / 173
 ```
 
-# FINAL annotation progress
+# FINAL_EVAL alias status
 
 ```text
-Positive total          0 / 300
+Status               READY — REUSED DEV_EVAL, NOT HELD OUT
+Positive              173
+Negative rows        2689
+Negative unique SHA  2688
+Alias provenance     REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV
 
-Object
-Plastic                 0 / 180
-Wood                    0 / 120
-
-Lighting
-DAY                     0 / 220
-NIGHT                   0 / 80
-
-Condition coverage
-Clean                   0 / 100
-Occlusion               0 / 60
-Truncation              0 / 50
-Far / small             0 / 60
-
-Elevation
-Low                     0 / 90
-Mid                     0 / 120
-High                    0 / 90
-
-Negative
-Negative                0 / 1500
-
-UNKNOWN_METADATA        0
+Physical FINAL inventory
+Positive                0
+Negative                0
 ```
 
-DEV frame은 위 FINAL target에 포함하지 않는다.
+이 evaluation은 registered controlled DEV pair를 row-for-row manifest view로
+재사용한다. 새 image나 annotation을 복사하지 않았고 active frame의
+`population_role=DEV`도 바꾸지 않았다. physical FINAL은 이 실행 alias에 섞지
+않는다. 따라서 `FINAL_EVAL` 이름은 held-out FINAL을 뜻하지 않는다.
+
+# Combined evaluation target progress
+
+아래 목표는 `ALL_AVAILABLE`, 즉 controlled DEV_EVAL과 이후 추가되는 physical
+FINAL을 합친 SHA256-deduplicated evaluation 전체로 계산한다. DEV와 FINAL을 별도
+목표로 나누지 않는다.
+
+```text
+Positive total        173 / 300
+
+Object
+Plastic               128 / 180
+Wood                   45 / 120
+
+Lighting
+DAY                   100 / 220
+NIGHT                  28 / 80
+
+Condition coverage
+Clean                  67 / 100
+Occlusion              93 / 60
+Truncation             28 / 50
+Far                     7 / 60
+
+Elevation
+Low                    97 / 90
+Mid                    59 / 120
+High                   17 / 90
+
+Negative
+Negative             2688 / 1500
+
+UNKNOWN_METADATA      173
+```
+
+`UNKNOWN_METADATA`는 combined positive 중 object/lighting/condition metadata가 하나라도
+`unknown`인 frame 수다.
 
 # All available evaluation
 
 ```text
 DEV positive          173
-FINAL positive          0
+FINAL_EVAL positive   173  frozen reused DEV execution alias
+Physical FINAL pos      0
 ALL positive          173
 
 DEV negative         2689  frozen membership
 DEV negative SHA     2688  unique images
-FINAL negative          0
+FINAL_EVAL negative  2689  frozen rows
+FINAL_EVAL neg SHA   2688  unique images
+Physical FINAL neg      0
 ALL negative         2688  SHA-deduplicated union
 ```
 
-`ALL_AVAILABLE`은 편의/보조 evaluation population이다. DEV는 model selection에
-사용되었을 수 있으므로 held-out FINAL로 부르지 않는다.
+`FINAL_EVAL`은 registered DEV evaluator pair에 고정된 실행 alias다.
+`ALL_AVAILABLE`만 physical FINAL을 포함할 수 있는 SHA-deduplicated convenience
+view다. DEV는 model selection에 사용되었을 수 있으므로 어느 쪽도 held-out FINAL로
+부르지 않는다.

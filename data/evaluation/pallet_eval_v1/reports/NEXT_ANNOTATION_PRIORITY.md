@@ -1,27 +1,29 @@
-# Next annotation priority
-
-현재 FINAL annotation deficit 비율의 합으로 계산한다. UNKNOWN tag는 점수에
-임의로 포함하지 않는다.
-
-## NEXT PRIORITY
+# Combined evaluation target progress
 
 ```text
-1. Plastic + DAY  (score=2.000)
-2. Wood + DAY  (score=2.000)
-3. Plastic + NIGHT  (score=2.000)
-4. Wood + NIGHT  (score=2.000)
-5. Plastic + Clean  (score=2.000)
+Positive                   173 / 300
+Negative                  2688 / 1500
+UNKNOWN_METADATA           173
+Counting population       ALL_AVAILABLE
+Counting policy           DEV_EVAL + physical FINAL; SHA256-deduplicated
+New annotation required   NO
 ```
 
-## Tagged unannotated candidates
+목표 진행률은 DEV와 FINAL을 따로 세지 않는다. 현재 controlled DEV_EVAL과 이후
+추가되는 physical FINAL을 합친 `ALL_AVAILABLE` view 하나만 사용한다. 같은 image는
+SHA256으로 한 번만 센다. 이 목표 미달은 새 annotation을 의무화하지 않는다.
+
+## Registered evaluator population
 
 ```text
-score   session                  frame                                    image  [matched]
-(matching unannotated FINAL candidate 없음)
+Status                    READY
+FINAL_EVAL positive        173
+FINAL_EVAL negative rows  2689
+Negative unique images    2688
+FINAL_EVAL held-out       NO
+Alias provenance          REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV
 ```
 
-## NEEDS_METADATA (0)
-
-```text
-(없음)
-```
+등록된 2D/pose evaluator pair binding은 준비되어 있다. AP/AUROC/FPR95 score
+pipeline과 workspace condition-tag subgroup evaluator의 통합 binding은 아직
+보고되지 않았으므로 해당 metric cell은 `—`를 유지한다.

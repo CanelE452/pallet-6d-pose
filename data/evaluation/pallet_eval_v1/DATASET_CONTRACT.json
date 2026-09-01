@@ -11,12 +11,21 @@
     "DEV_UNVERIFIED": "preserved legacy annotation, not paper eligible",
     "FINAL": "untouched final evaluation population"
   },
+  "incoming_unreviewed": {
+    "path": "incoming/sessions",
+    "active_evaluation_member": false,
+    "purpose": "raw continuous captures awaiting human positive/negative and object review",
+    "activation": "independently copy reviewed frames into final/positive or final/negative sessions",
+    "forbidden": "raw import must not assign FINAL membership or count toward combined evaluation collection targets before review"
+  },
   "invariants": {
-    "dev_is_never_counted_toward_final_targets": true,
+    "evaluation_target_progress_uses_all_available": true,
+    "evaluation_target_progress_sha256_deduplicated": true,
     "source_data_is_read_only": true,
     "workspace_copies_are_not_hardlinks_or_symlinks": true,
     "conditions_are_tags_and_may_overlap": true,
     "unknown_metadata_is_not_inferred": true,
+    "size_bin_is_legacy_compatibility_only": true,
     "final_rgb_is_rehashed_on_every_refresh": true,
     "active_image_sha_is_globally_unique": true,
     "sole_active_sha_exception": {
@@ -28,6 +37,15 @@
       "sha256": "7e6359c1fc3dbaf6c0adfb7a9f935d53bc668c63cd1c3aab290c680ee26bb6e0",
       "reason": "frozen source membership is preserved, not deduplicated"
     }
+  },
+  "final_eval_alias_policy": {
+    "source_population": "DEV_EVAL",
+    "physical_copy": false,
+    "changes_active_frame_role": false,
+    "row_provenance_note": "REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV",
+    "held_out_final": false,
+    "mandatory_new_annotation": false,
+    "target_policy": "DATASET_TARGETS.json is a rough collection goal; progress uses ALL_AVAILABLE (DEV_EVAL + physical FINAL)"
   },
   "path_contract": {
     "workspace_paths": "relative to dataset root when storage_mode is workspace_native or independent_copy",
@@ -91,7 +109,7 @@
     "night": "lighting == night",
     "occlusion": "occlusion in {mild, medium, heavy}",
     "truncation": "truncation in {mild, medium, heavy}",
-    "far_small": "distance_bin == far OR size_bin == small",
+    "far": "distance_bin == far",
     "clean": "occlusion == none AND truncation == none",
     "low": "elevation_bin == low",
     "mid": "elevation_bin == mid",
@@ -105,6 +123,15 @@
     "wood_dev": "challenge/real_gt_v2/manifests/DEV_WOOD_POS45.json",
     "negative_dev": "challenge/real_gt_v2/manifests/DEV_NEG2689.json"
   },
+  "paper_evaluator_binding": {
+    "population_role": "DEV",
+    "positive_manifest": "challenge/real_gt_v2/manifests/COMMON_DEV_MULTISHAPE_POS.json",
+    "negative_manifest": "challenge/real_gt_v2/manifests/DEV_NEG2689.json",
+    "positive_rows": 173,
+    "negative_rows": 2689,
+    "negative_unique_images": 2688,
+    "pair_sha256": "2cfa7011d8ba3677b11019c103e2ccbaeeac53521c9291ed632f94c8d2c5c887"
+  },
   "evaluation_populations": {
     "DEV_EVAL": {
       "positive": "COMMON_DEV_PLASTIC_POS128 + DEV_WOOD_POS45",
@@ -112,13 +139,17 @@
       "held_out_final": false
     },
     "FINAL_EVAL": {
-      "positive": "population_role == FINAL AND is_positive == true AND is_annotated == true AND controlled_eval_eligible == true",
-      "negative": "population_role == FINAL AND is_positive == false",
-      "held_out_final": true
+      "positive": "frozen row-for-row alias of DEV_EVAL_POSITIVE",
+      "negative": "frozen row-for-row alias of DEV_EVAL_NEGATIVE; preserves the registered 2689-row membership and its one known duplicate image",
+      "held_out_final": false,
+      "reuses_dev_eval": true,
+      "includes_physical_final": false,
+      "alias_row_note": "REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV",
+      "note": "executable registered DEV pair alias; physical FINAL stays separate; never describe as held-out FINAL"
     },
     "ALL_AVAILABLE": {
-      "positive": "SHA256-deduplicated union(DEV_EVAL_POSITIVE, FINAL_EVAL_POSITIVE)",
-      "negative": "SHA256-deduplicated union(DEV_EVAL_NEGATIVE, FINAL_EVAL_NEGATIVE)",
+      "positive": "SHA256-deduplicated union(DEV_EVAL_POSITIVE, annotated QA-eligible physical FINAL positives)",
+      "negative": "SHA256-deduplicated union(DEV_EVAL_NEGATIVE, physical FINAL negatives)",
       "held_out_final": false,
       "note": "DEV may have been used for model selection"
     }
