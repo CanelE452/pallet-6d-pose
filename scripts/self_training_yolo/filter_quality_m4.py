@@ -50,12 +50,14 @@ N_CORNERS = 8
 GROSS_PX = 20.0          # metric_split_lock.md §2.2 [LOCKED]
 CATASTROPHIC_PX = 40.0   # metric_split_lock.md §2.2 [LOCKED]
 
-ARMS = ("F0_NAIVE", "F1_CONF", "F2_CONF_REPROJ", "F3_CONF_REMOVE", "F4_PROPOSED")
+ARMS = ("F0_NAIVE", "F1_CONF", "F2_CONF_REPROJ", "F3_CONF_REMOVE",
+        "F5_CONF_FLIP", "F4_PROPOSED")
 READER = {
     "F0_NAIVE": "No filter",
     "F1_CONF": "Confidence",
     "F2_CONF_REPROJ": "Confidence + Reprojection",
     "F3_CONF_REMOVE": "Confidence + Keypoint-removal consistency",
+    "F5_CONF_FLIP": "Confidence + Horizontal-flip consistency",
     "F4_PROPOSED": "Proposed",
 }
 CONF_BINS = ((0.0, 0.70), (0.70, 0.80), (0.80, 0.90), (0.90, 1.01))
@@ -187,12 +189,15 @@ def passes(record: dict, arm: str, lock: dict) -> bool:
     if arm == "F2_CONF_REPROJ":
         return (record["s_reproj"] is not None
                 and record["s_reproj"] <= float(thresholds["tau_reproj"]))
+    flip = (record["s_flip"] is not None
+            and record["s_flip"] <= float(thresholds["tau_flip"]))
+    if arm == "F5_CONF_FLIP":
+        return flip
     removal = (record["s_remove"] is not None
                and record["s_remove"] <= float(thresholds["tau_remove"]))
     if arm == "F3_CONF_REMOVE":
         return removal
-    return removal and (record["s_flip"] is not None
-                        and record["s_flip"] <= float(thresholds["tau_flip"]))
+    return removal and flip
 
 
 def show(value, spec: str = ".3f") -> str:

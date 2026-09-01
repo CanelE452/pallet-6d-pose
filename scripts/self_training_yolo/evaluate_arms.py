@@ -78,6 +78,12 @@ for _seed in (1, 2, 3):
     )
 # A12 — self-training strength sensitivity.  Proposed manifest 그대로, pseudo:synthetic
 # 비율만 바꾼다.  총 optimizer update 는 동일하다.
+# 두 제안 필터의 2x2 ablation.  각 칸을 replicate 3 회로 채운다.
+#   neither = R2_CONF · removal only = R4 · flip only = R6 · both = R5
+MODELS["R6_CONF_FLIP"] = RUNS / "R6_CONF_FLIP__FULL/weights/last.pt"
+for _seed in (43, 44):
+    for _arm in ("R2_CONF", "R4_CONF_REMOVE", "R6_CONF_FLIP"):
+        MODELS[f"{_arm}_P{_seed}"] = RUNS / f"{_arm}_P{_seed}__FULL/weights/last.pt"
 MODELS["A12_PSEUDO25"] = RUNS / "R5_PROPOSED_W25__FULL/weights/last.pt"
 MODELS["A12_PSEUDO75"] = RUNS / "R5_PROPOSED_S75__FULL/weights/last.pt"
 # Real-FT supervised upper bound.  controlled comparison 이 아니다 — 다른 base 에서

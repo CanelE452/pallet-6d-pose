@@ -17,9 +17,7 @@ Lighting_night     106       4.735       4.613   -0.123
 ```text
 Arm              filter              unique PL  pseudo/unique  pseudo exp  synth exp
 ────────────────────────────────────────────────────────────────────────────────────
-A2_NAIVE_MATCHED_S1 A2_NAIVE_MATCHED_S1        258           5.58       14400      14400
-A2_NAIVE_MATCHED_S2 A2_NAIVE_MATCHED_S2        259           5.56       14400      14400
-A2_NAIVE_MATCHED_S3 A2_NAIVE_MATCHED_S3        259           5.56       14400      14400
+R6_CONF_FLIP     F5_CONF_FLIP              263           5.48       14400      14400
 ```
 
 모든 arm 이 같은 900 optimizer update 를 쓴다.

@@ -11,6 +11,7 @@ No filter                                      194  1.000     4.28        —   
 Confidence                                     150  0.773     4.24     4.70    0.47   0.099  0.333  0.926  0.490
 Confidence + Reprojection                      143  0.737     4.24     4.70    0.47   0.099  0.350  0.926  0.508
 Confidence + Keypoint-removal consistency      149  0.768     4.26     4.53    0.27   0.099  0.336  0.926  0.493
+Confidence + Horizontal-flip consistency       143  0.737     4.08     6.10    2.02   0.073  0.343  0.907  0.497
 Proposed                                       142  0.732     4.10     5.88    1.78   0.072  0.345  0.907  0.500
 ```
 
@@ -36,6 +37,7 @@ candidate_min_valid_corners      926
 confidence                       272
 confidence_reprojection          251
 confidence_keypoint_removal      267
+confidence_flip                  263
 proposed                         259
 ```
 

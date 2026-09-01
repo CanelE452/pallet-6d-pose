@@ -47,12 +47,17 @@ OUT_DIR = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/pseudo_manifests"
 POOL_OBJECT_TYPE = "plastic_standard_110x130x11"
 N_CORNERS = 8
 
-ARMS = ("F0_NAIVE", "F1_CONF", "F2_CONF_REPROJ", "F3_CONF_REMOVE", "F4_PROPOSED")
+# F5 는 flip **단독** arm 이다.  F4(Proposed)는 removal 과 flip 을 함께 걸므로
+# 누적 표만으로는 flip 고유 기여를 못 뽑는다 — F3(removal 단독)과 F5(flip 단독)를
+# 나란히 둬야 두 필터를 각각 평가할 수 있다.
+ARMS = ("F0_NAIVE", "F1_CONF", "F2_CONF_REPROJ", "F3_CONF_REMOVE",
+        "F5_CONF_FLIP", "F4_PROPOSED")
 READER_FACING = {
     "F0_NAIVE": "No filter",
     "F1_CONF": "Confidence",
     "F2_CONF_REPROJ": "Confidence + Reprojection",
     "F3_CONF_REMOVE": "Confidence + Keypoint-removal consistency",
+    "F5_CONF_FLIP": "Confidence + Horizontal-flip consistency",
     "F4_PROPOSED": "Proposed",
 }
 
@@ -159,11 +164,14 @@ def main() -> int:
             return True
         if arm == "F2_CONF_REPROJ":
             return record["s_reproj"] is not None and record["s_reproj"] <= tau_reproj
+        flip_ok = record["s_flip"] is not None and record["s_flip"] <= tau_flip
+        if arm == "F5_CONF_FLIP":
+            return flip_ok
         removal_ok = record["s_remove"] is not None and record["s_remove"] <= tau_remove
         if arm == "F3_CONF_REMOVE":
             return removal_ok
         if arm == "F4_PROPOSED":
-            return removal_ok and record["s_flip"] is not None and record["s_flip"] <= tau_flip
+            return removal_ok and flip_ok
         raise SystemExit(f"UNKNOWN_ARM: {arm}")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -218,6 +226,7 @@ def main() -> int:
         "confidence": summary["F1_CONF"]["accepted"],
         "confidence_reprojection": summary["F2_CONF_REPROJ"]["accepted"],
         "confidence_keypoint_removal": summary["F3_CONF_REMOVE"]["accepted"],
+        "confidence_flip": summary["F5_CONF_FLIP"]["accepted"],
         "proposed": summary["F4_PROPOSED"]["accepted"],
     }
     print("\nfunnel:", " -> ".join(f"{k} {v}" for k, v in funnel.items()))

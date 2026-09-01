@@ -43,6 +43,8 @@ ARM_TO_FILTER = {
     "R3_CONF_REPROJ": "F2_CONF_REPROJ",
     "R4_CONF_REMOVE": "F3_CONF_REMOVE",
     "R5_PROPOSED": "F4_PROPOSED",
+    # flip 단독.  R4(removal 단독)와 짝을 이뤄 두 제안 필터의 2x2 ablation 을 완성한다.
+    "R6_CONF_FLIP": "F5_CONF_FLIP",
     # A2 — UNIQUE-QUANTITY-MATCHED control.  Proposed 와 **unique PL 개수**를 맞춘
     # Naive 무작위 표본이다.  MAIN 의 EXPOSURE-MATCHED 와 다른 실험이므로 섞지 않는다.
     "A2_NAIVE_MATCHED_S1": "A2_NAIVE_MATCHED_S1",

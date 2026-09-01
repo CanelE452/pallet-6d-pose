@@ -296,6 +296,82 @@ def build_m3(results: dict) -> str:
         "`R0 -> R1` 을 곧바로 self-training 효과라고 부르지 않는다.",
         "그 차이에는 추가 최적화 자체의 몫이 섞여 있고, 그 몫이 `R0 -> R0-CONT` 다.",
     ]
+
+    # ── 두 제안 필터의 2x2 단독/조합 ablation ────────────────────────────
+    cells = [
+        ("neither (Confidence only)", ["R2_CONF", "R2_CONF_P43", "R2_CONF_P44"]),
+        ("+ Keypoint-removal only",
+         ["R4_CONF_REMOVE", "R4_CONF_REMOVE_P43", "R4_CONF_REMOVE_P44"]),
+        ("+ Horizontal-flip only",
+         ["R6_CONF_FLIP", "R6_CONF_FLIP_P43", "R6_CONF_FLIP_P44"]),
+        ("+ both (Proposed)", ["R5_PROPOSED", "R5_PROPOSED_P43", "R5_PROPOSED_P44"]),
+    ]
+    if all(key in results for _, keys in cells for key in keys):
+        import statistics
+        lines += [
+            "",
+            "## 두 제안 필터의 단독 기여 — 2x2",
+            "",
+            "위 누적 표만으로는 flip 의 **단독** 기여를 못 뽑는다.  `R4 -> R5` 는",
+            "keypoint-removal 이 이미 걸린 상태에서 flip 을 더한 값이기 때문이다.",
+            "그래서 네 칸을 각각 학습했다.  네 칸 모두 같은 confidence 전처리 위에서,",
+            "같은 exposure·update·init 으로 돌았고 replicate 3 회씩이다.",
+            "",
+            "```text",
+            f"{'Configuration':28} {'unique PL':>10} {'corner↓ mean':>13} {'std':>7} "
+            f"{'AUROC↑ mean':>12} {'FPR95↓ mean':>12}",
+            "─" * 88,
+        ]
+        stats_by_cell = {}
+        for label, keys in cells:
+            corner = [metric_block(results[k], "ALL")["corner_median_px"] for k in keys]
+            auroc = [metric_block(results[k], "ALL")["auroc"] for k in keys]
+            fpr = [metric_block(results[k], "ALL")["fpr95"] for k in keys]
+            # unique PL 은 manifest summary 에서 읽는다.  PSEUDO_DATASET_REPORT 는
+            # 마지막 빌드의 arm 만 담고 있어 여기 쓰면 대부분 비어 보인다.
+            unique = "—"
+            if FUNNEL.exists():
+                accepted = {
+                    v["reader_facing_name"]: v["accepted"]
+                    for v in json.loads(FUNNEL.read_text())["arms"].values()
+                }
+                for name, value in accepted.items():
+                    if label.startswith("neither") and name == "Confidence":
+                        unique = str(value)
+                    elif "Keypoint-removal only" in label and "Keypoint-removal" in name:
+                        unique = str(value)
+                    elif "flip only" in label and "Horizontal-flip" in name:
+                        unique = str(value)
+                    elif "both" in label and name == "Proposed":
+                        unique = str(value)
+            stats_by_cell[label] = (corner, auroc, fpr)
+            lines.append(
+                f"{label:28} {unique:>10} "
+                f"{statistics.mean(corner):>13.3f} {statistics.pstdev(corner):>7.3f} "
+                f"{statistics.mean(auroc):>12.4f} {statistics.mean(fpr):>12.4f}"
+            )
+        lines += ["```", "", "### 단독 기여와 상호작용", "", "```text"]
+        base_corner = statistics.mean(stats_by_cell["neither (Confidence only)"][0])
+        removal_only = statistics.mean(stats_by_cell["+ Keypoint-removal only"][0])
+        flip_only = statistics.mean(stats_by_cell["+ Horizontal-flip only"][0])
+        both = statistics.mean(stats_by_cell["+ both (Proposed)"][0])
+        lines += [
+            f"keypoint-removal 단독   {base_corner:.3f} -> {removal_only:.3f}   "
+            f"Δ {removal_only - base_corner:+.3f}",
+            f"horizontal-flip 단독    {base_corner:.3f} -> {flip_only:.3f}   "
+            f"Δ {flip_only - base_corner:+.3f}",
+            f"둘 다 (Proposed)        {base_corner:.3f} -> {both:.3f}   "
+            f"Δ {both - base_corner:+.3f}",
+            "",
+            f"단독 합                 Δ {(removal_only - base_corner) + (flip_only - base_corner):+.3f}",
+            f"실제 조합               Δ {both - base_corner:+.3f}",
+            f"상호작용                Δ {(both - base_corner) - ((removal_only - base_corner) + (flip_only - base_corner)):+.3f}",
+            "```",
+            "",
+            "상호작용 항이 음수면 두 필터가 서로를 보완하고, 양수면 겹치는 일을 한다.",
+            "replicate 3 회의 std 를 함께 보고 산포보다 큰 차이만 주장한다.",
+        ]
+
     return "\n".join(lines) + "\n"
 
 
