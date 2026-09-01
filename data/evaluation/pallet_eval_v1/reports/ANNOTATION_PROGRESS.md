@@ -29,7 +29,7 @@ Negative unique SHA  2688
 Alias provenance     REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV
 
 Physical FINAL inventory
-Positive               56
+Positive               61
 Negative                0
 ```
 
@@ -114,7 +114,7 @@ DATASET_READY 는 위 네 조건을 모두 만족해야 참이다.
 ```text
 DEV positive          173
 FINAL_EVAL positive   173  frozen reused DEV execution alias
-Physical FINAL pos     56
+Physical FINAL pos     61
 ALL positive          229
 
 DEV negative         2689  frozen membership

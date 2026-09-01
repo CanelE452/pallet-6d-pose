@@ -28,9 +28,15 @@ Keypoint 순서 (**camera-facing convention, 2026-05-22 결정**):
   s             저장 + 다음 frame
   v             이 frame eval/train 토글 (평가용 표시, JSON split 필드에 저장)
   b             active keypoint visibility/reason 순환 (unknown/visible/occluded/truncated)
+  /             CONDITIONS 모드 진입 (/ 또는 Esc 로 CLICK 복귀)
+    1/2         frame occlusion / truncation 평가 tag ON/OFF
+    3/4/5       elevation LOW / MID / HIGH 직접 선택
+    6           distance FAR 직접 선택
+    n/m         distance NEAR / MID 직접 선택
+    u           distance를 UNKNOWN으로 되돌림
+    a, a        현재 변경 tag를 세션의 annotated frame에 일괄 적용
   w             W/D parity 전환 (short-face-front ↔ long-face-front)
-  y             현재 W/D parity 안에서 signed canonical axis 확인/순환
-  G 또는 :      frame 번호 입력 점프 (숫자 후 Enter, Esc 취소) — 상단 슬라이더 클릭/드래그도 가능
+  ;             frame 번호 입력 점프 (숫자 후 Enter, Esc 취소) — 상단 슬라이더 클릭/드래그도 가능
   ANNOT-ONLY 버튼 (우측 패널 하단 클릭) = ON 이면 n/p 가 어노된 frame 만 이동 (어노된 것만 보기)
   f             near-only 자동 저장 (0~3 만 클릭, 4~7 자동 PnP projection 채움)
   g             auto-fill 저장 (4+ 점 클릭, 미클릭 idx 자동 PnP projection 채움) ★ truncation/occlusion
@@ -41,7 +47,7 @@ Keypoint 순서 (**camera-facing convention, 2026-05-22 결정**):
   , / .         -10 / +10 frame jump
   + / -         zoom in/out
   h j k l       pan (vim)
-  q / Q         종료
+  q             종료 (MANIPULATE에서는 m으로 CLICK 복귀 후 q)
 
 사용:
   python scripts/annotate/annotate.py --seq data/outside/capturepallet07 \
@@ -60,10 +66,14 @@ _sys.path[:0] = [_CS] + [_os.path.join(_CS, _d) for _d in sorted(_os.listdir(_CS
                          if _os.path.isdir(_os.path.join(_CS, _d)) and not _d.startswith(".")]
 
 import argparse
+import copy
+import csv
 import glob
+import json
 import os
 import sys
 import time
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -116,6 +126,7 @@ from annotate_draw import (
 )
 from annotate_io import (
     State, make_annotation, save_frame_json, load_existing_annotation,
+    _truncation_payload,
 )
 from object_geometry_registry import (
     DEFAULT_REGISTRY_PATH,
@@ -123,9 +134,37 @@ from object_geometry_registry import (
     WOOD_OBJECT_TYPE,
     load_object_geometry_registry,
 )
+from evaluation.eval_workspace import (
+    FRAME_TAG_FIELDS,
+    WorkspaceError,
+    canonical_frame_tag_identity,
+    load_frame_tag_overrides,
+    load_session_metadata,
+    resolve_effective_frame_tags,
+    update_frame_tags_csv,
+    update_frame_tags_csv_many,
+)
 
 
 # ─── Session pool ────────────────────────────────────────────────────────────
+
+_ANNOTATION_IMAGE_SUFFIXES = frozenset({".png", ".jpg", ".jpeg"})
+_LEGACY_DEFAULT_K = np.array(
+    [[614.18, 0.0, 329.28], [0.0, 614.31, 234.53], [0.0, 0.0, 1.0]],
+    dtype=np.float64,
+)
+
+
+def _session_image_paths(seq):
+    """Return supported RGB frames without guessing anything from names."""
+    rgb_dir = os.path.join(seq, "rgb")
+    if not os.path.isdir(rgb_dir):
+        return []
+    return sorted(
+        path for path in glob.glob(os.path.join(rgb_dir, "*"))
+        if os.path.isfile(path)
+        and os.path.splitext(path)[1].lower() in _ANNOTATION_IMAGE_SUFFIXES
+    )
 
 def discover_sessions(pools, repo):
     """pool 폴더들 아래에서 rgb/ 를 가진 촬영 세션을 모은다.
@@ -146,7 +185,7 @@ def discover_sessions(pools, repo):
             seq = os.path.join(root, name)
             if not os.path.isdir(os.path.join(seq, "rgb")):
                 continue
-            if not glob.glob(os.path.join(seq, "rgb", "*.png")):
+            if not _session_image_paths(seq):
                 continue
             found.append((name, seq))
 
@@ -157,13 +196,276 @@ def discover_sessions(pools, repo):
         if prev is None:
             by_out[od] = (name, seq)
             continue
-        n_prev = len(glob.glob(os.path.join(prev[1], "rgb", "*.png")))
-        n_cur = len(glob.glob(os.path.join(seq, "rgb", "*.png")))
+        n_prev = len(_session_image_paths(prev[1]))
+        n_cur = len(_session_image_paths(seq))
         keep = prev if (n_prev, len(prev[0])) >= (n_cur, len(name)) else (name, seq)
         drop = (name, seq) if keep is prev else prev
         print(f"[세션] '{drop[0]}' 은 '{keep[0]}' 과 같은 저장 폴더를 쓴다 — 목록에서 제외")
         by_out[od] = keep
     return sorted(by_out.values(), key=lambda t: t[0])
+
+
+def _session_entry_parts(entry):
+    """Return ``(label, source_session_dir, context_key)`` for a chooser row.
+
+    Historical callers use ``(name, path)`` rows whose context key is the
+    real session path.  Object-specific incoming views share one immutable RGB
+    directory, so they add a third, unique key without changing the old API.
+    """
+    if len(entry) == 2:
+        name, source_session_dir = entry
+        return name, source_session_dir, os.path.realpath(source_session_dir)
+    if len(entry) == 3:
+        name, source_session_dir, context_key = entry
+        return name, source_session_dir, context_key
+    raise ValueError(f"invalid session chooser row: {entry!r}")
+
+
+_SESSION_RUNTIME_ARG_FIELDS = (
+    "object_type",
+    "population_role",
+    "lighting_condition",
+    "intrinsics_quality",
+    "intrinsics_source",
+    "capture_session_id",
+)
+
+_INCOMING_FRAME_REVIEW_FIELDS = (
+    "frame",
+    "source_ordinal",
+    "review_label",
+    "exclude_reason",
+)
+_INCOMING_FRAME_REVIEW_LABELS = frozenset({"plastic", "wood", "exclude"})
+
+
+def _incoming_reviewed_frame_partitions(
+        metadata, session_dir, frame_paths, geometry_registry):
+    """Load one exhaustive pixel-review manifest and return accepted views.
+
+    ``frame_review_manifest`` in ``session.json`` is a path relative to the
+    immutable incoming session.  The CSV must account for every raw RGB
+    filename exactly once.  Its 1-based source ordinal is also checked against
+    the sorted raw sequence, so a stale or accidentally reordered review can
+    never silently select a different frame.  ``exclude`` rows remain recorded
+    in the review ledger but are hidden from both PnP annotation views.
+    """
+    manifest_value = metadata.get("frame_review_manifest")
+    if not isinstance(manifest_value, str) or not manifest_value.strip():
+        raise ValueError(
+            "incoming frame_review_manifest is required before PnP annotation")
+    if manifest_value != manifest_value.strip():
+        raise ValueError("incoming frame_review_manifest must not contain whitespace")
+
+    session_root = Path(session_dir).resolve()
+    manifest_path = (session_root / manifest_value).resolve()
+    try:
+        manifest_path.relative_to(session_root)
+    except ValueError as exc:
+        raise ValueError(
+            "incoming frame_review_manifest must stay inside the session directory"
+        ) from exc
+    if not manifest_path.is_file():
+        raise ValueError(
+            f"incoming frame_review_manifest does not exist: {manifest_value}")
+
+    frame_count = len(frame_paths)
+    declared_count = metadata.get("image_count")
+    if (isinstance(declared_count, bool)
+            or not isinstance(declared_count, int)):
+        raise ValueError("incoming image_count must be an integer")
+    if declared_count != frame_count:
+        raise ValueError(
+            "incoming image_count does not match rgb/: "
+            f"declared={declared_count}, actual={frame_count}")
+
+    raw_by_name = {}
+    expected_ordinal_by_name = {}
+    for source_ordinal, frame_path in enumerate(frame_paths, start=1):
+        frame_name = Path(frame_path).name
+        if frame_name in raw_by_name:
+            raise ValueError(f"duplicate raw RGB filename: {frame_name}")
+        raw_by_name[frame_name] = frame_path
+        expected_ordinal_by_name[frame_name] = source_ordinal
+
+    records_by_name = {}
+    reason_counts = {}
+    with manifest_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if tuple(reader.fieldnames or ()) != _INCOMING_FRAME_REVIEW_FIELDS:
+            raise ValueError(
+                "incoming frame review manifest header must be exactly: "
+                + ",".join(_INCOMING_FRAME_REVIEW_FIELDS))
+        for line_number, row in enumerate(reader, start=2):
+            if None in row or any(row[field] is None for field in reader.fieldnames):
+                raise ValueError(
+                    "review manifest row has the wrong number of columns at "
+                    f"line {line_number}")
+            frame_name = row["frame"]
+            if not frame_name or frame_name != Path(frame_name).name:
+                raise ValueError(
+                    f"invalid frame filename at review manifest line {line_number}")
+            if frame_name in records_by_name:
+                raise ValueError(
+                    f"duplicate frame in review manifest: {frame_name}")
+            if frame_name not in raw_by_name:
+                raise ValueError(
+                    f"review manifest frame is not in raw rgb/: {frame_name}")
+
+            ordinal_text = row["source_ordinal"]
+            try:
+                source_ordinal = int(ordinal_text)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "review manifest source_ordinal must be an integer at "
+                    f"line {line_number}") from exc
+            if ordinal_text != str(source_ordinal):
+                raise ValueError(
+                    "review manifest source_ordinal must use canonical integer "
+                    f"text at line {line_number}")
+            expected_ordinal = expected_ordinal_by_name[frame_name]
+            if source_ordinal != expected_ordinal:
+                raise ValueError(
+                    "review manifest source_ordinal does not match sorted rgb/: "
+                    f"frame={frame_name}, declared={source_ordinal}, "
+                    f"expected={expected_ordinal}")
+
+            review_label = row["review_label"]
+            if review_label not in _INCOMING_FRAME_REVIEW_LABELS:
+                raise ValueError(
+                    f"invalid review_label at line {line_number}: {review_label!r}")
+            exclude_reason = row["exclude_reason"]
+            if review_label == "exclude":
+                if not exclude_reason.strip():
+                    raise ValueError(
+                        "exclude row requires exclude_reason at review manifest "
+                        f"line {line_number}")
+                reason_counts[exclude_reason] = reason_counts.get(exclude_reason, 0) + 1
+            elif exclude_reason:
+                raise ValueError(
+                    "accepted review row must have an empty exclude_reason at "
+                    f"line {line_number}")
+
+            records_by_name[frame_name] = {
+                "frame": frame_name,
+                "source_ordinal": source_ordinal,
+                "review_label": review_label,
+                "exclude_reason": exclude_reason,
+            }
+
+    missing = [name for name in raw_by_name if name not in records_by_name]
+    if missing:
+        preview = ",".join(missing[:5])
+        raise ValueError(
+            "incoming frame review manifest does not cover every raw RGB "
+            f"filename; missing={preview}")
+
+    canonical_types = {
+        "plastic": geometry_registry.resolve(PLASTIC_OBJECT_TYPE).object_type,
+        "wood": geometry_registry.resolve(WOOD_OBJECT_TYPE).object_type,
+    }
+    partitions = {object_type: [] for object_type in canonical_types.values()}
+    label_counts = {label: 0 for label in sorted(_INCOMING_FRAME_REVIEW_LABELS)}
+    # Always preserve the raw sequence order, independent of CSV row order.
+    for frame_path in frame_paths:
+        record = records_by_name[Path(frame_path).name]
+        label = record["review_label"]
+        label_counts[label] += 1
+        if label != "exclude":
+            partitions[canonical_types[label]].append(frame_path)
+
+    if any(not paths for paths in partitions.values()):
+        raise ValueError(
+            "incoming frame review manifest must contain accepted plastic and wood")
+    review_info = {
+        "manifest_path": str(manifest_path),
+        "manifest_relative_path": manifest_value,
+        "label_counts": label_counts,
+        "exclude_reason_counts": reason_counts,
+    }
+    return partitions, review_info
+
+
+def _validate_incoming_staging_membership(output_dir, frame_paths):
+    """Reject labels/tags whose source frame is outside this object view."""
+    output = Path(output_dir)
+    if not output.exists():
+        return
+    allowed_stems = {Path(path).stem for path in frame_paths}
+    wrong_json = sorted(
+        path.name for path in output.glob("*.json")
+        if path.is_file() and path.stem not in allowed_stems)
+    tag_rows = load_frame_tag_overrides(output)
+    wrong_tags = sorted(set(tag_rows) - allowed_stems)
+    if wrong_json or wrong_tags:
+        details = []
+        if wrong_json:
+            details.append("JSON=" + ",".join(wrong_json[:5]))
+        if wrong_tags:
+            details.append("frame_tags=" + ",".join(wrong_tags[:5]))
+        raise ValueError(
+            "incoming staging output contains frames outside its object "
+            "review view: " + "; ".join(details))
+
+
+def _annotation_intrinsics_consensus(annotation_dir):
+    """Return one K shared by canonical JSON files, or fail on disagreement."""
+    matrices = []
+    for path in sorted(glob.glob(os.path.join(annotation_dir, "*.json"))):
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                document = json.load(handle)
+            intrinsics = document["camera_data"]["intrinsics"]
+            matrix = np.array([
+                [float(intrinsics["fx"]), 0.0, float(intrinsics["cx"])],
+                [0.0, float(intrinsics["fy"]), float(intrinsics["cy"])],
+                [0.0, 0.0, 1.0],
+            ], dtype=np.float64)
+        except (KeyError, TypeError, ValueError, OSError, json.JSONDecodeError):
+            continue
+        if not np.isfinite(matrix).all():
+            continue
+        matrices.append((path, matrix))
+    if not matrices:
+        return None
+    reference_path, reference = matrices[0]
+    for path, matrix in matrices[1:]:
+        if not np.allclose(reference, matrix, rtol=0.0, atol=1e-6):
+            raise ValueError(
+                "evaluation annotation intrinsics disagree within session\n"
+                f"first = {reference_path}\nother = {path}")
+    return reference
+
+
+def _resolve_session_intrinsics(session_dir, annotation_dir, evaluation=False):
+    """Resolve K per session; evaluation never silently guesses a camera."""
+    camera_path = os.path.join(session_dir, "cam_K.txt")
+    camera_matrix = None
+    if os.path.isfile(camera_path):
+        try:
+            camera_matrix = np.loadtxt(camera_path).reshape(3, 3)
+        except Exception as exc:
+            raise ValueError(f"invalid cam_K.txt: {camera_path}: {exc}") from exc
+        if not np.isfinite(camera_matrix).all():
+            raise ValueError(f"non-finite cam_K.txt: {camera_path}")
+
+    annotation_matrix = (
+        _annotation_intrinsics_consensus(annotation_dir) if evaluation else None)
+    if camera_matrix is not None and annotation_matrix is not None:
+        if not np.allclose(camera_matrix, annotation_matrix, rtol=0.0, atol=1e-6):
+            raise ValueError(
+                "cam_K.txt conflicts with canonical annotation intrinsics\n"
+                f"session = {session_dir}\nannotations = {annotation_dir}")
+        return camera_matrix, "cam_K.txt + annotation consensus"
+    if camera_matrix is not None:
+        return camera_matrix, "cam_K.txt"
+    if annotation_matrix is not None:
+        return annotation_matrix, "canonical annotation consensus"
+    if evaluation:
+        raise ValueError(
+            "evaluation session has no trustworthy intrinsics; add cam_K.txt "
+            f"before annotation: {session_dir}")
+    return _LEGACY_DEFAULT_K.copy(), "legacy default"
 
 
 # 촬영 폴더 이름과 어노테이션 폴더 이름이 다른 경우. 이름이 어긋나면 기존 어노가 있는데도
@@ -341,14 +643,449 @@ def _state_default_wdh(s):
     return (float(physical.x_m), float(physical.z_m), float(physical.y_m))
 
 
-def session_summary(sessions, repo, population_role="DEV"):
-    """세션 목록에 프레임 수와 이미 어노된 JSON 수를 붙인다."""
+def _metadata_value(value):
+    """Treat blank/unknown session values as absent, never as inferred data."""
+    if value is None:
+        return None
+    text = str(value).strip()
+    return None if not text or text.lower() == "unknown" else text
+
+
+def _explicit_text(value):
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _configuration_mismatch(label, cli_value, session_value):
+    raise ValueError(
+        f"{label} mismatch\nCLI       = {cli_value}\nsession   = {session_value}")
+
+
+def _resolve_annotation_configuration(args, seq, geometry_registry, eval_root):
+    """Resolve CLI/session metadata without silently choosing on conflicts.
+
+    Evaluation sessions are explicit metadata containers.  No value here is
+    derived from an image, filename, pose, or directory name.
+    """
+    metadata = {}
+    if eval_root:
+        metadata = load_session_metadata(Path(seq))
+        session_id = _metadata_value(metadata.get("session_id"))
+        directory_id = os.path.basename(os.path.normpath(seq))
+        if session_id and session_id != directory_id:
+            raise ValueError(
+                "session id mismatch\n"
+                f"directory = {directory_id}\n"
+                f"session   = {session_id}")
+
+    cli_object = _metadata_value(args.object_type)
+    session_object = _metadata_value(metadata.get("object_type"))
+    if cli_object and session_object:
+        try:
+            cli_spec = geometry_registry.resolve(cli_object)
+            session_spec = geometry_registry.resolve(session_object)
+        except ValueError as exc:
+            raise ValueError(f"invalid object type in CLI/session metadata: {exc}") from exc
+        if cli_spec.object_type != session_spec.object_type:
+            _configuration_mismatch(
+                "object type", cli_spec.object_type, session_spec.object_type)
+    selected_object = cli_object or session_object or PLASTIC_OBJECT_TYPE
+    geometry_spec = geometry_registry.resolve(selected_object)
+
+    cli_role_raw = _metadata_value(args.population_role)
+    cli_role = cli_role_raw.upper() if cli_role_raw else None
+    session_role = _metadata_value(metadata.get("population_role"))
+    if session_role:
+        session_role = session_role.upper()
+    if cli_role and session_role and cli_role != session_role:
+        _configuration_mismatch("population role", cli_role, session_role.upper())
+    selected_role = cli_role or session_role
+    if selected_role not in {"DEV", "FINAL"}:
+        raise ValueError(
+            "population role must be DEV or FINAL; provide --population-role "
+            "outside an evaluation session")
+
+    cli_lighting = _metadata_value(args.lighting_condition)
+    session_lighting = _metadata_value(metadata.get("lighting"))
+    if (cli_lighting and session_lighting
+            and cli_lighting.lower() != session_lighting.lower()):
+        _configuration_mismatch(
+            "lighting", cli_lighting.lower(), session_lighting.lower())
+
+    cli_quality = _explicit_text(args.intrinsics_quality)
+    session_quality = _explicit_text(metadata.get("intrinsics_quality"))
+    if (cli_quality and session_quality
+            and cli_quality.upper() != session_quality.upper()):
+        _configuration_mismatch(
+            "intrinsics quality", cli_quality.upper(), session_quality.upper())
+
+    cli_source = _explicit_text(args.intrinsics_source)
+    session_source = _explicit_text(metadata.get("intrinsics_source"))
+    if cli_source and session_source and cli_source != session_source:
+        _configuration_mismatch("intrinsics source", cli_source, session_source)
+
+    args.object_type = geometry_spec.object_type
+    args.population_role = selected_role
+    args.lighting_condition = cli_lighting or session_lighting
+    args.intrinsics_quality = (
+        (cli_quality or session_quality).upper()
+        if (cli_quality or session_quality) else None)
+    args.intrinsics_source = cli_source or session_source
+    if not args.capture_session_id:
+        args.capture_session_id = _metadata_value(metadata.get("session_id"))
+    return metadata, geometry_spec
+
+
+def _discover_evaluation_session_pool(
+        eval_root, initial_seq, initial_out_dir, cli_args, geometry_registry,
+        repo, required_role, required_object_type):
+    """Build per-session contexts for the evaluation editor.
+
+    Writable positive sessions keep the initial population role but may use
+    different registered object geometries.  Geometry, intrinsics and output
+    paths are resolved independently for every row, so switching plastic ->
+    wood can never reuse plastic dimensions or the previous output directory.
+
+    ``incoming/sessions`` is intentionally different.  One continuous capture
+    can contain plastic and wood, so an exhaustive pixel-review manifest assigns
+    each raw frame to PLASTIC, WOOD or EXCLUDE before the capture is exposed as
+    two zero-copy annotation views.  The views share RGB bytes and K but have
+    independent geometry, JSON, overlay and frame-tag outputs.  They are
+    FINAL-intent *staging* annotations only: saving never makes the raw capture
+    an active evaluation member.
+    """
+    initial_seq = os.path.abspath(initial_seq)
+    initial_out_dir = os.path.abspath(initial_out_dir)
+    selected = []
+    contexts = {}
+    required_role = str(required_role).upper()
+
+    role_layouts = {
+        "DEV": ("dev_existing/sessions", "dev_existing/annotations"),
+        "FINAL": ("final/positive/sessions", "final/positive/annotations"),
+    }
+    if required_role not in role_layouts:
+        raise ValueError(
+            f"evaluation session selector does not support role {required_role!r}")
+
+    # 세션 전환은 **한 namespace 안에서만** 가능했다.  DEV 로 열면 FINAL 세션이,
+    # FINAL 로 열면 DEV 세션이 목록에서 통째로 빠져 "세션이 4개뿐" 으로 보였다.
+    # 이제 두 layout 을 모두 훑고, 후보마다 **자기 role/namespace** 로 검증한다.
+    # 초기 세션의 role 을 다른 세션에 강요하지 않는다.
+    candidate_layouts: list[tuple[str, str, str, str]] = []
+    for layout_role, (sess_rel, ann_rel) in role_layouts.items():
+        sess_root = os.path.join(eval_root, *sess_rel.split("/"))
+        ann_root = os.path.join(eval_root, *ann_rel.split("/"))
+        for cand_name, cand_path in discover_sessions([sess_root], repo):
+            candidate_layouts.append((cand_name, cand_path, layout_role, ann_root))
+
+    if all(os.path.realpath(path) != os.path.realpath(initial_seq)
+           for _n, path, _r, _a in candidate_layouts):
+        initial_ann = os.path.join(
+            eval_root, *role_layouts[required_role][1].split("/"))
+        candidate_layouts.insert(
+            0, (os.path.basename(initial_seq), initial_seq, required_role,
+                initial_ann))
+
+    for name, session_path, layout_role, annotations_root in candidate_layouts:
+        candidate_args = copy.copy(cli_args)
+        # Explicit CLI assertions apply to the session used to open the
+        # process.  Every other chooser row is governed by its own session.json
+        # and must not inherit the initial object's geometry or capture ID.
+        if os.path.realpath(session_path) != os.path.realpath(initial_seq):
+            for field in _SESSION_RUNTIME_ARG_FIELDS:
+                setattr(candidate_args, field, None)
+        try:
+            metadata, geometry_spec = _resolve_annotation_configuration(
+                candidate_args, session_path, geometry_registry, eval_root)
+            # 후보의 role 은 그 세션이 사는 namespace 가 정한다.  초기 세션만
+            # CLI 가 준 role 을 그대로 쓴다 (명시 assertion 이므로).
+            if os.path.realpath(session_path) == os.path.realpath(initial_seq):
+                if str(candidate_args.population_role).upper() != required_role:
+                    continue
+            elif str(candidate_args.population_role).upper() != layout_role:
+                continue
+            if geometry_spec.object_type not in {
+                    PLASTIC_OBJECT_TYPE, WOOD_OBJECT_TYPE}:
+                continue
+            if (geometry_spec.object_type == WOOD_OBJECT_TYPE
+                    and candidate_args.intrinsics_quality is None):
+                continue
+            output_path = os.path.join(annotations_root, name)
+            session_path, output_path = _validate_evaluation_paths(
+                eval_root, session_path, output_path,
+                candidate_args.population_role)
+            camera_matrix, camera_source = _resolve_session_intrinsics(
+                session_path, output_path, evaluation=True)
+        except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+            # A broken sibling must not prevent the explicitly requested,
+            # already-validated session from opening.  It is excluded rather
+            # than guessed into the pool.
+            print(f"[세션 제외] {name}: {exc}")
+            continue
+        key = os.path.realpath(session_path)
+        selected.append((name, session_path))
+        contexts[key] = {
+            "args": candidate_args,
+            "metadata": metadata,
+            "geometry_spec": geometry_spec,
+            "out_dir": output_path,
+            "K": camera_matrix,
+            "K_source": camera_source,
+            "writable": True,
+            "workspace_scope": required_role,
+            "display_role": required_role,
+            "frame_count": len(_session_image_paths(session_path)),
+        }
+
+    # Raw incoming captures remain immutable/inactive.  Validate that contract,
+    # then expose two object-specific zero-copy staging rows.  A unique context
+    # key is required because both chooser rows deliberately share ``seq``.
+    incoming_sessions_root = os.path.join(eval_root, "incoming", "sessions")
+    incoming_annotations_root = os.path.join(
+        eval_root, "incoming", "annotations")
+    for name, session_path in discover_sessions([incoming_sessions_root], repo):
+        try:
+            metadata = load_session_metadata(Path(session_path))
+            session_id = _explicit_text(metadata.get("session_id"))
+            if session_id != name:
+                raise ValueError(
+                    f"session id mismatch: directory={name}, session={session_id}")
+            if metadata.get("workspace_scope") != "INCOMING_UNREVIEWED":
+                raise ValueError("workspace_scope must be INCOMING_UNREVIEWED")
+            if ("population_role" not in metadata
+                    or metadata.get("population_role") is not None):
+                raise ValueError("incoming population_role must be null")
+            if metadata.get("active_evaluation_member") is not False:
+                raise ValueError("incoming active_evaluation_member must be false")
+            if str(metadata.get("object_type", "")).strip().lower() != "unknown":
+                raise ValueError("mixed incoming object_type must be unknown")
+            output_path = os.path.join(incoming_annotations_root, name)
+            camera_matrix, camera_source = _resolve_session_intrinsics(
+                session_path, output_path, evaluation=True)
+            camera_metadata = metadata.get("camera")
+            if not isinstance(camera_metadata, dict):
+                raise ValueError("incoming camera metadata must be an object")
+            declared_k = camera_metadata.get("K")
+            if declared_k is not None:
+                try:
+                    declared_matrix = np.asarray(
+                        declared_k, dtype=np.float64).reshape(3, 3)
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("incoming camera.K must be a numeric 3x3") from exc
+                if (not np.isfinite(declared_matrix).all()
+                        or not np.allclose(
+                            declared_matrix, camera_matrix,
+                            rtol=0.0, atol=1e-6)):
+                    raise ValueError("incoming camera.K conflicts with cam_K.txt")
+            candidate_args = copy.copy(cli_args)
+            for field in _SESSION_RUNTIME_ARG_FIELDS:
+                setattr(candidate_args, field, None)
+        except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+            print(f"[세션 제외] {name}: {exc}")
+            continue
+        frame_paths = _session_image_paths(session_path)
+        source_ordinal_by_path = {
+            path: ordinal for ordinal, path in enumerate(frame_paths, start=1)
+        }
+        try:
+            object_frame_paths, frame_review = (
+                _incoming_reviewed_frame_partitions(
+                    metadata, session_path, frame_paths, geometry_registry))
+        except (TypeError, ValueError) as exc:
+            print(f"[세션 제외] {name}: {exc}")
+            continue
+        source_quality = (_explicit_text(
+            camera_metadata.get("intrinsics_quality")) or "UNKNOWN")
+        source_intrinsics = (_explicit_text(
+            camera_metadata.get("intrinsics_source")) or camera_source)
+        # PROVIDED_UNVERIFIED is valid capture provenance but not a GT-v2
+        # intrinsics-quality enum.  Staging wood labels therefore fail closed
+        # as UNKNOWN while keeping the original statement in the source text.
+        gt_quality = (
+            source_quality
+            if source_quality in {
+                "CALIBRATED", "SENSOR_PROFILE_SCALED",
+                "ESTIMATED_HFOV", "UNKNOWN"}
+            else "UNKNOWN")
+        gt_source = (
+            f"{source_intrinsics}; capture quality={source_quality}; "
+            f"raw session={name}")
+
+        for object_slug, object_type in (
+                ("plastic", PLASTIC_OBJECT_TYPE),
+                ("wood", WOOD_OBJECT_TYPE)):
+            view_id = f"{name}__{object_slug}"
+            context_key = f"incoming-annotation:{view_id}"
+            geometry_spec = geometry_registry.resolve(object_type)
+            view_frame_paths = object_frame_paths[geometry_spec.object_type]
+            view_source_ordinals = [
+                source_ordinal_by_path[path] for path in view_frame_paths
+            ]
+            view_metadata = copy.deepcopy(metadata)
+            # Never propagate a stale ordinal contract into an object view if
+            # an older session file temporarily contains both representations.
+            view_metadata.pop("object_frame_partition", None)
+            view_metadata.update({
+                "schema_version": "pallet_eval_incoming_annotation_view_v1",
+                "session_id": view_id,
+                "source_session_id": name,
+                "workspace_scope": "INCOMING_ANNOTATION",
+                "population_role": "FINAL",
+                "active_evaluation_member": False,
+                "review_status": "OBJECT_SPECIFIC_ANNOTATION_STAGING",
+                "object_type": geometry_spec.object_type,
+                "intrinsics_quality": gt_quality,
+                "intrinsics_source": gt_source,
+            })
+            view_args = copy.copy(candidate_args)
+            view_args.object_type = geometry_spec.object_type
+            view_args.population_role = "FINAL"
+            view_args.lighting_condition = _metadata_value(
+                metadata.get("lighting"))
+            view_args.intrinsics_quality = gt_quality
+            view_args.intrinsics_source = gt_source
+            view_args.capture_session_id = view_id
+            output_path = os.path.join(incoming_annotations_root, view_id)
+            try:
+                _validate_incoming_staging_membership(
+                    output_path, view_frame_paths)
+                view_camera_matrix, view_camera_source = (
+                    _resolve_session_intrinsics(
+                        session_path, output_path, evaluation=True))
+            except (OSError, TypeError, ValueError) as exc:
+                print(f"[세션 제외] {view_id}: {exc}")
+                continue
+
+            selected.append((
+                f"{name} · {object_slug.upper()}",
+                session_path,
+                context_key,
+            ))
+            contexts[context_key] = {
+                "args": view_args,
+                "metadata": view_metadata,
+                "geometry_spec": geometry_spec,
+                "out_dir": output_path,
+                "tag_session_dir": output_path,
+                "source_session_dir": session_path,
+                "frame_paths": view_frame_paths,
+                "source_ordinals": view_source_ordinals,
+                "source_frame_count": len(frame_paths),
+                "frame_review_manifest_path": frame_review["manifest_path"],
+                "frame_review_label": object_slug,
+                "frame_review_label_counts": dict(frame_review["label_counts"]),
+                "frame_review_exclude_reason_counts": dict(
+                    frame_review["exclude_reason_counts"]),
+                "K": view_camera_matrix,
+                "K_source": view_camera_source,
+                "writable": True,
+                "workspace_scope": "INCOMING_ANNOTATION",
+                "display_role": "STAGING",
+                "frame_count": len(view_frame_paths),
+                "intrinsics_quality": gt_quality,
+                "intrinsics_source": gt_source,
+                "active_evaluation_member": False,
+                "refresh_evaluation": False,
+                "force_explicit_object_type": True,
+            }
+
+    initial_key = os.path.realpath(initial_seq)
+    if initial_key not in contexts:
+        raise ValueError(
+            "initial evaluation session was excluded from its own safe pool: "
+            f"{initial_seq}")
+    initial_context = contexts[initial_key]
+    if os.path.realpath(initial_context["out_dir"]) != os.path.realpath(initial_out_dir):
+        raise ValueError(
+            "initial evaluation output changed during session discovery: "
+            f"requested={initial_out_dir}, resolved={initial_context['out_dir']}")
+    expected_initial_object = geometry_registry.resolve(
+        required_object_type).object_type
+    if initial_context["geometry_spec"].object_type != expected_initial_object:
+        raise ValueError(
+            "initial evaluation geometry changed during session discovery: "
+            f"requested={expected_initial_object}, "
+            f"resolved={initial_context['geometry_spec'].object_type}")
+    return selected, contexts
+
+
+def _mark_annotation_dirty(s):
+    s.dirty = True
+    s.annotation_dirty = True
+    s.discard_armed = None
+
+
+def _has_unsaved_changes(s):
+    return bool(
+        getattr(s, "dirty", False)
+        or getattr(s, "annotation_dirty", False)
+        or getattr(s, "frame_tags_dirty", False))
+
+
+def _confirm_discard(s, action, message):
+    """Require the same navigation action twice without losing retry state."""
+    if not _has_unsaved_changes(s):
+        s.discard_armed = None
+        return True
+    if getattr(s, "discard_armed", None) == action:
+        s.dirty = False
+        s.annotation_dirty = False
+        s.frame_tags_dirty = False
+        s.discard_armed = None
+        return True
+    s.discard_armed = action
+    print(message)
+    return False
+
+
+def session_summary(sessions, repo, population_role="DEV", output_dirs=None,
+                    contexts=None):
+    """세션 목록에 frame/GT 수와 세션별 역할·object·상태를 붙인다.
+
+    ``contexts``를 생략한 호출에는 과거 4-tuple API를 유지한다.  Evaluation
+    chooser는 context-aware dictionaries를 받아 mixed geometry와 REVIEW ONLY를
+    각 행에 정확히 표시한다.
+    """
     rows = []
-    for name, seq in sessions:
-        n = len(glob.glob(os.path.join(seq, "rgb", "*.png")))
-        od, _legacy_eval_layout = resolve_out_dir(name, repo)
-        done = len(glob.glob(os.path.join(od, "*.json")))
-        rows.append((name, n, done, str(population_role).upper() == "FINAL"))
+    output_dirs = output_dirs or {}
+    for entry in sessions:
+        name, seq, context_key = _session_entry_parts(entry)
+        context = (contexts or {}).get(context_key)
+        n = (int(context["frame_count"])
+             if context is not None and context.get("frame_count") is not None
+             else len(_session_image_paths(seq)))
+        od = output_dirs.get(context_key)
+        if context is not None:
+            od = context.get("out_dir")
+        if od is None:
+            od, _legacy_eval_layout = resolve_out_dir(name, repo)
+        writable = bool(context.get("writable", True)) if context else True
+        done = (len(glob.glob(os.path.join(od, "*.json")))
+                if writable else None)
+        if context is None:
+            rows.append(
+                (name, n, done, str(population_role).upper() == "FINAL"))
+            continue
+        spec = context.get("geometry_spec")
+        metadata = context.get("metadata") or {}
+        active_evaluation_member = bool(
+            context.get("active_evaluation_member", True))
+        rows.append({
+            "name": name,
+            "frames": n,
+            "done": done,
+            "role": context.get("display_role") or "-",
+            "object": (spec.object_type if spec is not None else "MIXED"),
+            "lighting": str(metadata.get("lighting") or "unknown").upper(),
+            "writable": writable,
+            "status": (
+                "STAGING EDIT"
+                if writable and not active_evaluation_member
+                else "EDIT" if writable else "REVIEW ONLY"),
+        })
     return rows
 
 
@@ -366,8 +1103,21 @@ def pick_session_dialog(rows, current):
         print(f"[WARN] tkinter 사용 불가({e}) — 패널 목록으로 대체")
         return None
 
-    labels = [f"{i+1:>2}. {nm}   ({nfr}f, done {done}){'  [FINAL ROLE]' if sealed else ''}"
-              for i, (nm, nfr, done, sealed) in enumerate(rows)]
+    labels = []
+    for i, row in enumerate(rows):
+        if isinstance(row, dict):
+            done = row.get("done")
+            done_text = "-" if done is None else str(done)
+            labels.append(
+                f"{i+1:>2}. {row['name']}   ({row['frames']}f, GT {done_text})  "
+                f"[{row['role']} · {row['object']} · {row['lighting']} · "
+                f"{row['status']}]"
+            )
+        else:
+            nm, nfr, done, sealed = row
+            labels.append(
+                f"{i+1:>2}. {nm}   ({nfr}f, done {done})"
+                f"{'  [FINAL ROLE]' if sealed else ''}")
     picked = {"i": None}
 
     root = tk.Tk()
@@ -377,7 +1127,7 @@ def pick_session_dialog(rows, current):
     frm.grid()
     ttk.Label(frm, text="촬영 세션을 고르세요").grid(column=0, row=0, sticky="w", pady=(0, 6))
     var = tk.StringVar(value=labels[current] if 0 <= current < len(labels) else labels[0])
-    box = ttk.Combobox(frm, textvariable=var, values=labels, state="readonly", width=52)
+    box = ttk.Combobox(frm, textvariable=var, values=labels, state="readonly", width=96)
     box.grid(column=0, row=1, pady=(0, 10))
     box.focus()
 
@@ -408,6 +1158,521 @@ _VISIBILITY_REASON_CYCLE = (
     (1, "occluded"),
     (1, "truncated"),
 )
+
+_CONDITION_TAG_ON_VALUES = {
+    # Evaluation membership only distinguishes none from any positive severity.
+    # Keep the existing canonical generic-positive values in storage while the
+    # per-frame UI exposes the simpler ON/OFF decision.
+    "occlusion": "medium",
+    "truncation": "mild",
+}
+_CONDITION_TAG_POSITIVE_VALUES = frozenset({"mild", "medium", "heavy"})
+_CONDITION_MODE_TAG_KEYS = {
+    ord("1"): "occlusion",
+    ord("2"): "truncation",
+}
+_CONDITION_MODE_ELEVATION_KEYS = {
+    ord("3"): "low",
+    ord("4"): "mid",
+    ord("5"): "high",
+}
+_CONDITION_MODE_DISTANCE_KEYS = {
+    ord("n"): "near",
+    ord("m"): "mid",
+    ord("6"): "far",
+}
+_ACTIVE_EVALUATION_TAG_FIELDS = (
+    "occlusion",
+    "truncation",
+    "elevation_bin",
+    "distance_bin",
+)
+# ``/`` is deliberately unused by CLICK, MANIPULATE, goto, line input, and
+# session navigation.  A punctuation key also avoids the old C/c ambiguity
+# where Shift+C entered CONDITIONS but lowercase c ran centroid auto-fill.
+_CONDITION_MODE_KEY = ord("/")
+
+# Qt/OpenCV cannot reliably change a trackbar maximum after creation, so the
+# frame slider uses one fixed-resolution position range for every session.
+_FRAME_SLIDER_TICKS = 500
+
+
+def _frame_cur_to_tick(current, total):
+    return (0 if total <= 1 else
+            int(round(current / (total - 1) * _FRAME_SLIDER_TICKS)))
+
+
+def _frame_tick_to_cur(tick, total):
+    return (0 if total <= 1 else
+            int(round(tick / _FRAME_SLIDER_TICKS * (total - 1))))
+
+
+def _frame_trackbar_target(current, total, tick):
+    """Return a user-requested frame, never a lossy programmatic round-trip.
+
+    Large incoming sessions contain far more frames than the fixed 500 slider
+    ticks, so adjacent frames often map to the same tick. Converting that
+    unchanged tick back to a frame would roll sequential navigation back to a
+    representative frame. Only a raw tick change can be a slider request.
+    """
+    if total <= 1 or int(tick) == _frame_cur_to_tick(current, total):
+        return None
+    target = _frame_tick_to_cur(int(tick), total)
+    return None if target == current else target
+# Qt5 HighGUI folds Shift+letter back to lowercase in this environment.  Use
+# one unmodified punctuation key for goto so trying the documented command can
+# never fall through to lowercase ``g`` (auto-fill save).
+_GOTO_MODE_KEY = ord(";")
+
+
+def _state_annotation_tag_evidence(s):
+    """Build only explicit annotation evidence for the shared tag resolver."""
+    document = (
+        copy.deepcopy(s.legacy_document)
+        if isinstance(getattr(s, "legacy_document", None), dict)
+        else {"objects": [{}]})
+    objects = document.get("objects")
+    if not isinstance(objects, list) or not objects or not isinstance(objects[0], dict):
+        document["objects"] = [{}]
+    obj = document["objects"][0]
+    obj["keypoint_annotations"] = copy.deepcopy(
+        _ensure_keypoint_annotations(s))
+    obj["occlusion_level"] = str(
+        getattr(s, "occlusion_level", "unknown") or "unknown")
+    reasons = {
+        str(entry.get("reason", "unknown")).strip().lower()
+        for entry in obj["keypoint_annotations"] if isinstance(entry, dict)
+    }
+    pose = getattr(s, "pose", None)
+    projected = pose.get("projected_all") if isinstance(pose, dict) else None
+    if (projected is not None and len(projected) > 0
+            and getattr(s, "img_shape", None) is not None):
+        height, width = s.img_shape[:2]
+        obj["truncation"] = _truncation_payload(
+            list(projected)[:8], width, height)
+    elif "truncated" in reasons:
+        obj["truncation"] = {"is_truncated": True}
+    return document
+
+
+def _refresh_effective_frame_tags(s, *, use_state_evidence=False):
+    metadata = (
+        s.session_metadata if isinstance(getattr(s, "session_metadata", None), dict)
+        else {})
+    overrides = (
+        s.frame_tag_overrides
+        if isinstance(getattr(s, "frame_tag_overrides", None), dict) else {})
+    kwargs = {}
+    if use_state_evidence:
+        kwargs["annotation_document"] = _state_annotation_tag_evidence(s)
+    else:
+        annotation_path = getattr(s, "current_annotation_path", None)
+        if annotation_path:
+            kwargs["annotation_path"] = Path(annotation_path)
+    tags, sources = resolve_effective_frame_tags(metadata, overrides, **kwargs)
+    s.frame_tags = tags
+    s.frame_tag_sources = sources
+    return tags, sources
+
+
+def _load_frame_tag_state(s, frame_identity, annotation_path):
+    """Load one frame's explicit overrides and resolve effective UI values."""
+    s.current_frame_identity = os.path.basename(str(frame_identity))
+    s.current_annotation_path = os.path.abspath(str(annotation_path))
+    s.frame_tag_pending_updates = {}
+    s.condition_batch_armed = None
+    s.frame_tag_overrides = {}
+    session_dir = getattr(s, "eval_session_dir", None)
+    if session_dir:
+        all_overrides = load_frame_tag_overrides(Path(session_dir))
+        canonical = canonical_frame_tag_identity(
+            s.current_frame_identity, session_id=Path(session_dir).name)
+        row = all_overrides.get(canonical, {})
+        s.frame_tag_overrides = {
+            field: str(row.get(field, "")).strip()
+            for field in FRAME_TAG_FIELDS
+            if str(row.get(field, "")).strip().lower() not in {"", "unknown"}
+        }
+    _refresh_effective_frame_tags(s)
+    # Retain the last explicit value for diagnostics/backward-compatible State
+    # snapshots.  Toggle decisions themselves use the live effective value.
+    s.frame_tag_cycle_values = {
+        field: s.frame_tag_overrides.get(field, "unknown")
+        for field in FRAME_TAG_FIELDS
+    }
+    s.frame_tags_dirty = False
+
+
+def _set_frame_tag_override(s, field, value, *, use_state_evidence=False):
+    """Set one explicit FRAME override and refresh the panel immediately."""
+    if field not in FRAME_TAG_FIELDS:
+        raise ValueError(f"condition mode does not edit {field!r}")
+    value = str(value).strip().lower()
+    cursors = (
+        s.frame_tag_cycle_values
+        if isinstance(getattr(s, "frame_tag_cycle_values", None), dict) else {})
+    cursors[field] = value
+    s.frame_tag_cycle_values = cursors
+    pending = (
+        s.frame_tag_pending_updates
+        if isinstance(getattr(s, "frame_tag_pending_updates", None), dict) else {})
+    pending[field] = value
+    s.frame_tag_pending_updates = pending
+    overrides = (
+        s.frame_tag_overrides
+        if isinstance(getattr(s, "frame_tag_overrides", None), dict) else {})
+    overrides[field] = value
+    s.frame_tag_overrides = overrides
+    s.frame_tags_dirty = True
+    s.dirty = True
+    s.discard_armed = None
+    s.condition_batch_armed = None
+    _refresh_effective_frame_tags(
+        s, use_state_evidence=use_state_evidence)
+    effective = s.frame_tags[field]
+    source = s.frame_tag_sources[field]
+    if field in _CONDITION_TAG_ON_VALUES:
+        display = (
+            "ON" if effective in _CONDITION_TAG_POSITIVE_VALUES
+            else "OFF" if effective == "none" else "UNKNOWN"
+        )
+    else:
+        display = str(effective or "unknown").upper()
+    print(f"[Frame tag] {field} -> {display} [{source}]")
+    return value
+
+
+def _toggle_frame_condition(s, field):
+    """Toggle one binary condition and always create an explicit FRAME value."""
+    if field not in _CONDITION_TAG_ON_VALUES:
+        raise ValueError(f"condition mode does not edit {field!r}")
+
+    tags = s.frame_tags if isinstance(getattr(s, "frame_tags", None), dict) else {}
+    current = str(tags.get(field, "unknown")).strip().lower()
+    value = (
+        "none"
+        if current in _CONDITION_TAG_POSITIVE_VALUES
+        else _CONDITION_TAG_ON_VALUES[field]
+    )
+    return _set_frame_tag_override(
+        s, field, value, use_state_evidence=True)
+
+
+def _set_frame_elevation(s, value):
+    """Select exactly one paper elevation bin without a nested chooser."""
+    if value not in {"low", "mid", "high"}:
+        raise ValueError(f"invalid elevation_bin: {value!r}")
+    return _set_frame_tag_override(s, "elevation_bin", value)
+
+
+def _set_frame_distance(s, value):
+    """Select one distance bin used by frame or session batch annotation."""
+    if value not in {"near", "mid", "far"}:
+        raise ValueError(f"invalid distance_bin: {value!r}")
+    return _set_frame_tag_override(s, "distance_bin", value)
+
+
+def _clear_frame_distance_tag(s):
+    """Clear the manual distance label back to UNKNOWN/default.
+
+    ``unknown`` retains the dataset contract's existing meaning: remove the
+    explicit FRAME override and fall through to an explicit session default
+    when one exists.  The active evaluation sessions have no distance default,
+    so their effective value becomes UNKNOWN immediately.
+    """
+    _set_frame_tag_override(s, "distance_bin", "unknown")
+
+
+def _annotated_session_frames(s, out_json):
+    """Return RGB filenames whose matching canonical annotation exists."""
+    tag_session_dir = getattr(s, "eval_session_dir", None)
+    source_session_dir = (
+        getattr(s, "source_session_dir", None) or tag_session_dir)
+    eval_root = getattr(s, "eval_root", None)
+    if not tag_session_dir or not source_session_dir or not eval_root:
+        raise WorkspaceError(
+            "session batch tags require an evaluation session (--eval-root)")
+    annotation_dir = os.path.abspath(os.path.dirname(out_json))
+    if getattr(s, "refresh_evaluation_workspace", True):
+        try:
+            _validate_evaluation_paths(
+                eval_root,
+                source_session_dir,
+                annotation_dir,
+                getattr(s, "population_role", ""),
+            )
+        except ValueError as exc:
+            raise WorkspaceError(str(exc)) from exc
+    else:
+        expected_dir = os.path.abspath(
+            getattr(s, "annotation_output_dir", "") or "__missing__")
+        staging_root = os.path.join(eval_root, "incoming", "annotations")
+        if (os.path.realpath(annotation_dir) != os.path.realpath(expected_dir)
+                or not _path_is_within(annotation_dir, staging_root)
+                or os.path.realpath(tag_session_dir)
+                != os.path.realpath(annotation_dir)):
+            raise WorkspaceError(
+                "incoming staging annotation/tag path mismatch: "
+                f"source={source_session_dir}, target={annotation_dir}")
+
+    eligible_paths = (
+        getattr(s, "session_frame_paths", None)
+        or _session_image_paths(source_session_dir))
+    source_by_stem = {
+        Path(path).stem: Path(path).name
+        for path in eligible_paths
+    }
+    annotated = []
+    for annotation_path in sorted(Path(annotation_dir).glob("*.json")):
+        if not annotation_path.is_file():
+            continue
+        frame_name = source_by_stem.get(annotation_path.stem)
+        if frame_name is not None:
+            annotated.append(frame_name)
+    return annotated
+
+
+def _apply_pending_tags_to_annotated_session(s, out_json, src_png):
+    """Double-confirm and atomically apply current edits to annotated frames."""
+    if not getattr(s, "session_writable", True):
+        s.condition_batch_armed = None
+        _toast(
+            s,
+            "REVIEW ONLY: batch disabled",
+            (40, 40, 230),
+            log="[REVIEW ONLY] incoming 세션에서는 조건 일괄 적용을 저장하지 않습니다.",
+        )
+        return False
+    if getattr(s, "annotation_dirty", False):
+        s.condition_batch_armed = None
+        _toast(
+            s,
+            "BATCH BLOCKED: save keypoints first",
+            (40, 40, 230),
+            log="[BATCH BLOCKED] unsaved annotation/keypoint edits exist",
+        )
+        return False
+    updates = dict(getattr(s, "frame_tag_pending_updates", None) or {})
+    if not updates:
+        s.condition_batch_armed = None
+        _toast(
+            s,
+            "BATCH: change a condition first",
+            (0, 180, 255),
+            log="[Batch tags] no current frame condition edits to apply",
+        )
+        return False
+    try:
+        frames = _annotated_session_frames(s, out_json)
+    except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+        s.condition_batch_armed = None
+        _toast(s, "BATCH BLOCKED", (40, 40, 230), log=f"[Batch tags] {exc}")
+        return False
+    if not frames:
+        s.condition_batch_armed = None
+        _toast(
+            s,
+            "BATCH: no annotated frames",
+            (0, 180, 255),
+            log="[Batch tags] no matching annotation JSON files in this session",
+        )
+        return False
+
+    signature = (
+        os.path.realpath(getattr(s, "eval_session_dir", "")),
+        tuple(sorted(updates.items())),
+        tuple(frames),
+    )
+    if getattr(s, "condition_batch_armed", None) != signature:
+        s.condition_batch_armed = signature
+        fields = ",".join(sorted(updates))
+        _toast(
+            s,
+            f"PRESS a AGAIN: {len(frames)} annotated",
+            (0, 180, 255),
+            log=f"[Batch tags] confirm: {fields} -> {len(frames)} annotated frames",
+            seconds=3.0,
+        )
+        return False
+
+    session_dir = Path(s.eval_session_dir)
+    try:
+        update_frame_tags_csv_many(
+            session_dir,
+            {frame_name: updates for frame_name in frames},
+        )
+    except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+        s.condition_batch_armed = None
+        _toast(
+            s,
+            "BATCH FAILED: CSV unchanged",
+            (40, 40, 230),
+            log=f"[Batch tags] atomic update failed: {exc}",
+        )
+        return False
+
+    _load_frame_tag_state(s, s.current_frame_identity, out_json)
+    s.dirty = False
+    s.annotation_dirty = False
+    s.frame_tags_dirty = False
+    s.discard_armed = None
+    _refresh_evaluation_workspace(
+        s, out_json, image_path=src_png, deleted=False)
+    fields = ",".join(sorted(updates))
+    _toast(
+        s,
+        f"BATCH SAVED: {len(frames)} annotated",
+        (0, 220, 0),
+        log=f"[Batch tags] saved {fields} to {len(frames)} annotated frames",
+        seconds=2.5,
+    )
+    return True
+
+
+def _set_condition_mode(s, enabled):
+    """Enter/leave the key-isolated evaluation-condition editor."""
+
+    enabled = bool(enabled)
+    if enabled and not getattr(s, "session_writable", True):
+        s.condition_mode = False
+        _toast(
+            s,
+            "REVIEW ONLY: conditions disabled",
+            (40, 40, 230),
+            log="[REVIEW ONLY] incoming 세션은 조건 tag를 저장하지 않습니다.",
+        )
+        return
+    s.condition_mode = enabled
+    if enabled:
+        # Do not leave a half-entered line intersection consuming mouse
+        # clicks while the keyboard-only condition editor is on screen.
+        s.line_mode = False
+        s.line_pts = []
+        _toast(
+            s,
+            "CONDITIONS: n/m/6=DIST u=UNKNOWN a,a=BATCH",
+            (0, 220, 255),
+            seconds=2.0,
+        )
+        print("[Mode] CLICK -> CONDITIONS  "
+              "(1/2=ON/OFF, 3/4/5=elevation, n/m/6=distance, "
+              "u=distance unknown, "
+              "a,a=batch, s=save, /=back)")
+    else:
+        s.condition_batch_armed = None
+        _toast(s, "CONDITION MODE -> CLICK", (0, 220, 255), seconds=1.2)
+        print("[Mode] CONDITIONS -> CLICK")
+
+
+def _handle_condition_key(key, s, out_json, out_png, src_png, K):
+    """Handle condition editing without colliding with keypoint shortcuts."""
+
+    if not getattr(s, "session_writable", True):
+        s.condition_mode = False
+        _toast(
+            s,
+            "REVIEW ONLY: conditions disabled",
+            (40, 40, 230),
+            log="[REVIEW ONLY] incoming 세션은 조건 tag를 저장하지 않습니다.",
+        )
+        return None
+    if key in (_CONDITION_MODE_KEY, 27):
+        _set_condition_mode(s, False)
+        return None
+    field = _CONDITION_MODE_TAG_KEYS.get(key)
+    if field is not None:
+        value = _toggle_frame_condition(s, field)
+        number = key - ord("0")
+        display = "ON" if value in _CONDITION_TAG_POSITIVE_VALUES else "OFF"
+        _toast(s, f"{number} {field}: {display}", (0, 220, 255), seconds=1.2)
+        return None
+    elevation = _CONDITION_MODE_ELEVATION_KEYS.get(key)
+    if elevation is not None:
+        _set_frame_elevation(s, elevation)
+        _toast(
+            s,
+            f"ELEVATION: {elevation.upper()}",
+            (0, 220, 255),
+            seconds=1.2,
+        )
+        return None
+    distance = _CONDITION_MODE_DISTANCE_KEYS.get(key)
+    if distance is not None:
+        _set_frame_distance(s, distance)
+        _toast(
+            s,
+            f"DISTANCE: {distance.upper()}",
+            (0, 220, 255),
+            seconds=1.2,
+        )
+        return None
+    if key == ord("u"):
+        _clear_frame_distance_tag(s)
+        _toast(
+            s,
+            "DISTANCE: UNKNOWN",
+            (0, 220, 255),
+            log="[Frame tag] distance_bin -> UNKNOWN",
+            seconds=1.8,
+        )
+        return None
+    if key == ord("a"):
+        _apply_pending_tags_to_annotated_session(s, out_json, src_png)
+        return None
+    if key == ord("s"):
+        # CLICK-mode ``s`` intentionally deletes an annotation when every
+        # point is empty.  That destructive shortcut must not leak into the
+        # metadata editor: a user entering CONDITIONS on a blank frame expects
+        # to edit tags, never to delete GT.
+        if not any(point is not None for point in (s.kps_2d or [])):
+            _toast(
+                s,
+                "SAVE BLOCKED: annotate keypoints first",
+                (40, 40, 230),
+                log="[SAVE BLOCKED] CONDITIONS mode cannot delete annotation; "
+                    "return to CLICK and annotate keypoints first.",
+            )
+            return None
+        return _handle_click_key(key, s, out_json, out_png, src_png, K)
+    # CONDITIONS is fully modal: every non-owned key, including 0/8/9 and all
+    # CLICK/MANIPULATE/navigation shortcuts, is a true no-op.
+    return None
+
+
+def _write_state_frame_tags(s):
+    if not getattr(s, "session_writable", True):
+        raise WorkspaceError(
+            "REVIEW ONLY incoming session cannot write frame tags")
+    if not getattr(s, "frame_tags_dirty", False):
+        return
+    session_dir = getattr(s, "eval_session_dir", None)
+    if not session_dir:
+        raise WorkspaceError(
+            "frame tag edits require an evaluation session (--eval-root)")
+    updates = dict(getattr(s, "frame_tag_pending_updates", None) or {})
+    update_frame_tags_csv(
+        Path(session_dir), s.current_frame_identity, updates)
+    # Reload the committed row instead of assuming the merge result.
+    all_overrides = load_frame_tag_overrides(Path(session_dir))
+    canonical = canonical_frame_tag_identity(
+        s.current_frame_identity, session_id=Path(session_dir).name)
+    row = all_overrides.get(canonical, {})
+    s.frame_tag_overrides = {
+        field: str(row.get(field, "")).strip()
+        for field in FRAME_TAG_FIELDS
+        if str(row.get(field, "")).strip().lower() not in {"", "unknown"}
+    }
+    s.frame_tag_pending_updates = {}
+    s.frame_tags_dirty = False
+    _refresh_effective_frame_tags(s)
+
+
+def _missing_evaluation_tags(s):
+    tags = getattr(s, "frame_tags", None) or {}
+    return [
+        field for field in _ACTIVE_EVALUATION_TAG_FIELDS
+        if str(tags.get(field, "unknown")).strip().lower() == "unknown"
+    ]
 
 
 def _point_in_image(s: State, point):
@@ -470,7 +1735,8 @@ def _cycle_visibility_reason(s: State, index):
             (position + 1) % len(_VISIBILITY_REASON_CYCLE)]
     entries[index]["visibility"], entries[index]["reason"] = next_state
     entries[index]["in_frame"] = _point_in_image(s, entries[index].get("xy"))
-    s.dirty = True
+    _mark_annotation_dirty(s)
+    _refresh_effective_frame_tags(s, use_state_evidence=True)
     print(f"[Visibility] kp{index}: visibility={next_state[0]} "
           f"reason={next_state[1]} source={entries[index].get('source', 'unknown')}")
 
@@ -494,40 +1760,27 @@ def _mark_projected_fallbacks(s: State):
         }
         changed = True
     if changed:
-        s.dirty = True
+        _mark_annotation_dirty(s)
 
 
-def _sync_axis_hypothesis(s: State):
+def _sync_axis_candidates(s: State):
+    """Keep the unobservable signed pair without promoting either candidate.
+
+    Camera-facing PnP can determine W/D parity, but a pallet image cannot
+    distinguish the two signs inside that parity (0/180 or 90/270).  Normal
+    annotation therefore always preserves the pair as unresolved GT.
+    """
     if s.pose is None:
         return
     candidates = list(s.pose.get("_axis_assignment_candidates") or [])
     if not candidates:
-        return
-    old = list(s.axis_assignment_candidates or [])
-    if old != candidates:
-        s.axis_assignment_candidates = candidates
-        s.axis_assignment = candidates[0]
+        s.axis_assignment_candidates = []
+        s.axis_assignment = None
         s.axis_assignment_confirmed = False
-    elif s.axis_assignment not in candidates:
-        s.axis_assignment = candidates[0]
-        s.axis_assignment_confirmed = False
-
-
-def _cycle_axis_assignment(s: State):
-    candidates = list(s.axis_assignment_candidates or [])
-    if not candidates:
-        print("[Axis] PnP W/D hypothesis가 아직 없습니다.")
         return
-    if not s.axis_assignment_confirmed:
-        s.axis_assignment = (s.axis_assignment if s.axis_assignment in candidates
-                             else candidates[0])
-        s.axis_assignment_confirmed = True
-    else:
-        current = (candidates.index(s.axis_assignment)
-                   if s.axis_assignment in candidates else -1)
-        s.axis_assignment = candidates[(current + 1) % len(candidates)]
-    s.dirty = True
-    print(f"[Axis] confirmed {s.axis_assignment}; candidates={candidates}")
+    s.axis_assignment_candidates = candidates
+    s.axis_assignment = None
+    s.axis_assignment_confirmed = False
 
 
 def _cycle_wd_parity(s: State):
@@ -547,15 +1800,14 @@ def _cycle_wd_parity(s: State):
     index = available.index(current) if current in available else -1
     target = available[(index + 1) % len(available)]
     s.camera_facing_hypothesis_override = target
-    # A W/D switch changes the allowed signed pair.  Confirmation from the old
-    # parity must never carry across it.
+    # A W/D switch changes the unresolved signed pair.
     s.axis_assignment = None
     s.axis_assignment_candidates = []
     s.axis_assignment_confirmed = False
     s._pose_key = None
-    s.dirty = True
+    _mark_annotation_dirty(s)
     print(f"[W/D] manual parity correction: {current} -> {target}; "
-          "signed axis reset (press y after checking the projection)")
+          "signed pair stays unresolved")
 
 
 def _save_contract_error(s: State):
@@ -568,15 +1820,24 @@ def _save_contract_error(s: State):
         if unknown:
             return ("FINAL save blocked: kp0~7 visibility unknown at "
                     + ",".join(map(str, unknown)))
-        if not s.axis_assignment_confirmed:
-            return "FINAL save blocked: signed axis assignment is not confirmed (press y)"
     return None
+
+
+def _save_contract_screen_text(error):
+    """Return a short, actionable ASCII toast for a FINAL save failure."""
+    marker = "visibility unknown at "
+    if marker in error:
+        indices = error.split(marker, 1)[1]
+        return f"SAVE BLOCKED: set visibility kp{indices} with b"
+    if "deleting all points" in error:
+        return "SAVE BLOCKED: FINAL cannot delete all keypoints"
+    return "SAVE BLOCKED: FINAL review incomplete"
 
 
 def _make_state_annotation(s: State, K):
     error = _save_contract_error(s)
     if error:
-        _toast(s, "[SAVE BLOCKED] check visibility/axis", (40, 40, 230), log=error)
+        _toast(s, _save_contract_screen_text(error), (40, 40, 230), log=error)
         return None
     return make_annotation(
         s.kps_2d, s.pose, s.img_shape, K,
@@ -584,9 +1845,9 @@ def _make_state_annotation(s: State, K):
         split=s.split,
         extrap_mask=s.extrap_mask,
         keypoint_annotations=s.keypoint_annotations,
-        axis_assignment=s.axis_assignment,
+        axis_assignment=None,
         axis_assignment_candidates=s.axis_assignment_candidates,
-        axis_assignment_confirmed=s.axis_assignment_confirmed,
+        axis_assignment_confirmed=False,
         legacy_object=s.legacy_object,
         legacy_document=s.legacy_document,
         population_role=s.population_role,
@@ -595,25 +1856,70 @@ def _make_state_annotation(s: State, K):
         geometry_spec=_state_geometry_spec(s),
         intrinsics_quality=getattr(s, "intrinsics_quality", None),
         intrinsics_source=getattr(s, "intrinsics_source", None),
+        force_explicit_object_type=getattr(
+            s, "force_explicit_object_type", False),
     )
 
 
 def _save_state_annotation(s: State, K, out_json, out_png, src_png):
+    if not getattr(s, "session_writable", True):
+        _toast(
+            s,
+            "REVIEW ONLY: save disabled",
+            (40, 40, 230),
+            log="[REVIEW ONLY] incoming 세션은 GT를 저장하거나 평가에 편입하지 않습니다.",
+        )
+        return False
     try:
         _require_nonlegacy_output_dir(os.path.dirname(out_json), _REPO)
     except ValueError as exc:
         _toast(s, "[SAVE BLOCKED] legacy GT is read-only", (40, 40, 230),
                log=f"GT v2 save path rejected: {exc}: {out_json}")
         return False
-    ann = _make_state_annotation(s, K)
-    if ann is None:
-        return False
+    metadata_only = bool(
+        os.path.isfile(out_json)
+        and getattr(s, "frame_tags_dirty", False)
+        and not getattr(s, "annotation_dirty", False)
+        and os.path.abspath(out_json) == os.path.abspath(
+            getattr(s, "loaded_annotation_path", "") or "__not_loaded__"))
+    if metadata_only:
+        # The canonical JSON was already parsed into this state.  Keeping its
+        # bytes untouched is the strongest guarantee that a tag-only edit
+        # cannot perturb keypoints, PnP pose, or any compatibility payload.
+        error = _save_contract_error(s)
+        if error:
+            _toast(s, _save_contract_screen_text(error), (40, 40, 230),
+                   log=error)
+            return False
+        print(f"[Metadata-only] GT unchanged: {out_json}")
+    else:
+        ann = _make_state_annotation(s, K)
+        if ann is None:
+            return False
+        try:
+            save_frame_json(out_json, out_png, src_png, ann)
+        except (TypeError, ValueError) as exc:
+            _toast(s, "[SAVE BLOCKED] v2 schema error", (40, 40, 230),
+                   log=f"GT v2 schema validation failed: {exc}")
+            return False
+
+    # A CSV failure happens after a valid GT commit (or validation of an
+    # existing canonical GT).  Do not roll back GT and do not auto-advance.
+    s.annotation_dirty = False
+    s.loaded_annotation_path = os.path.abspath(out_json)
+    s.current_annotation_path = os.path.abspath(out_json)
     try:
-        save_frame_json(out_json, out_png, src_png, ann)
-    except (TypeError, ValueError) as exc:
-        _toast(s, "[SAVE BLOCKED] v2 schema error", (40, 40, 230),
-               log=f"GT v2 schema validation failed: {exc}")
+        _write_state_frame_tags(s)
+    except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+        s.dirty = True
+        s.frame_tags_dirty = True
+        _toast(
+            s, "[SAVE PARTIAL] FRAME TAGS NOT SAVED", (40, 40, 230),
+            log="[SAVE PARTIAL]\nGT saved\nFRAME TAGS NOT SAVED\n"
+                f"reason: {exc}")
         return False
+    if getattr(s, "eval_session_dir", None):
+        _refresh_effective_frame_tags(s)
     # Read the committed JSON back for the review cache.  Overlay/report
     # failures are intentionally non-fatal: a valid GT save must never be
     # rolled back because a derived artifact could not be refreshed.
@@ -624,6 +1930,15 @@ def _save_state_annotation(s: State, K, out_json, out_png, src_png):
         print(f"[WARN] overlay failed for {out_json}: {exc}")
     _refresh_evaluation_workspace(
         s, out_json, image_path=src_png, deleted=False)
+    if (getattr(s, "eval_session_dir", None)
+            and getattr(s, "active_evaluation_member", True)):
+        missing = _missing_evaluation_tags(s)
+        if missing:
+            print("[WARN] evaluation metadata incomplete: " + ",".join(missing))
+    s.dirty = False
+    s.annotation_dirty = False
+    s.frame_tags_dirty = False
+    s.discard_armed = None
     return True
 
 
@@ -637,6 +1952,10 @@ def _refresh_evaluation_workspace(s, annotation_path, *, image_path=None,
     """
     eval_root = getattr(s, "eval_root", None)
     if not eval_root:
+        return
+    if not getattr(s, "refresh_evaluation_workspace", True):
+        return
+    if not getattr(s, "session_writable", True):
         return
     if not _path_is_within(annotation_path, eval_root):
         print("[WARN] evaluation refresh skipped: annotation is outside "
@@ -692,6 +2011,12 @@ def on_mouse(event, x, y, flags, s: State):
     x, y = _display_to_canvas(x, y, s)
     s.last_mouse = (x, y)
 
+    # CONDITIONS is a fully keyboard-modal editor.  Stop before both the image
+    # canvas and panel hit-tests so neither keypoints nor navigation widgets can
+    # change while the condition/tag editor is active.
+    if getattr(s, "condition_mode", False):
+        return
+
     # panel 영역 (확장 캔버스 우측) 클릭은 무시.
     # render() 가 [확장캔버스 | panel] 을 hstack — 확장캔버스 폭 = image_w + MARGIN_L + MARGIN_R.
     # zoom 후에도 확장캔버스는 원래 폭으로 resize 되므로 panel 경계는 항상 canvas_w.
@@ -704,6 +2029,15 @@ def on_mouse(event, x, y, flags, s: State):
                 px, py = x - canvas_w, y
                 bx0, by0, bx1, by1 = annot_button_rect(canvas_h)
                 if bx0 <= px <= bx1 and by0 <= py <= by1:
+                    if not getattr(s, "session_writable", True):
+                        _toast(
+                            s,
+                            "REVIEW ONLY: no annotations",
+                            (40, 40, 230),
+                            log="[REVIEW ONLY] incoming 세션에는 ANNOT-ONLY 대상 GT가 없습니다.",
+                            seconds=1.2,
+                        )
+                        return
                     s.annot_only = not s.annot_only
                     print(f"[Annot-only] {'ON' if s.annot_only else 'OFF'}"
                           f"  (n/p 로 어노된 frame 만 이동)")
@@ -712,7 +2046,17 @@ def on_mouse(event, x, y, flags, s: State):
                 if sx0 <= px <= sx1 and sy0 <= py <= sy1:
                     s.sess_open = True      # 메인 루프가 목록을 채워 연다
             return
-    # MANIPULATE 모드에서는 마우스 클릭으로 점 안 찍음
+    if not getattr(s, "session_writable", True):
+        if event in (cv2.EVENT_LBUTTONDOWN, cv2.EVENT_RBUTTONDOWN):
+            _toast(
+                s,
+                "REVIEW ONLY: raw browse",
+                (40, 40, 230),
+                log="[REVIEW ONLY] incoming mixed frame에는 keypoint를 기록하지 않습니다.",
+                seconds=1.2,
+            )
+        return
+    # MANIPULATE 모드에서는 마우스 클릭으로 점 안 찍음.
     if s.mode != "click":
         return
 
@@ -740,7 +2084,7 @@ def on_mouse(event, x, y, flags, s: State):
                     _set_keypoint_state(
                         s, target, pt, source="extrapolated",
                         visibility=1, reason="unknown")
-                    s.dirty = True
+                    _mark_annotation_dirty(s)
                     if s.active < 8:
                         s.active += 1
                     print(f"[Line] intersection → kp{s.active-1 if s.active>0 else 0}: "
@@ -763,7 +2107,7 @@ def on_mouse(event, x, y, flags, s: State):
         _set_keypoint_state(
             s, target, s.kps_2d[target], source="manual_click",
             visibility=2, reason="visible")
-        s.dirty = True
+        _mark_annotation_dirty(s)
         if s.active < 8:
             s.active += 1
     elif event == cv2.EVENT_RBUTTONDOWN:
@@ -773,7 +2117,7 @@ def on_mouse(event, x, y, flags, s: State):
                 s.extrap_mask[s.active] = False
             _clear_keypoint_state(s, s.active)
             s.pose = None
-            s.dirty = True
+            _mark_annotation_dirty(s)
 
 
 def _pose_inputs_key(s: State, K):
@@ -810,6 +2154,11 @@ def update_pose(s: State, K, force=False):
     렌더 루프가 매 프레임(20ms 주기) 호출하는데 solve_pose 는 실측 87~186ms 라
     UI 가 5 FPS 로 떨어졌다. 입력이 그대로면 결과도 그대로이므로 건너뛴다.
     """
+    if not getattr(s, "session_writable", True):
+        s.pose = None
+        s.locked_pose = None
+        s._pose_key = None
+        return
     if not force:
         key = _pose_inputs_key(s, K)
         if key == getattr(s, "_pose_key", object()):
@@ -826,19 +2175,29 @@ def update_pose(s: State, K, force=False):
                             physical_dimensions=_state_physical_dimensions(s),
                             camera_facing_hypothesis_override=getattr(
                                 s, "camera_facing_hypothesis_override", None))
-    _sync_axis_hypothesis(s)
+    _sync_axis_candidates(s)
+    if getattr(s, "eval_session_dir", None):
+        _refresh_effective_frame_tags(s, use_state_evidence=True)
 
 
 # ─── Key dispatchers ──────────────────────────────────────────────────────────
 
 def _handle_manip_key(key, s, out_json, out_png, src_png, K):
     """MANIPULATE 모드 키 처리. Returns: 'next' | 'quit' | None."""
+    if not getattr(s, "session_writable", True):
+        s.mode = "click"
+        s.locked_pose = None
+        _toast(
+            s,
+            "REVIEW ONLY: manipulate disabled",
+            (40, 40, 230),
+            log="[REVIEW ONLY] incoming mixed frame에서는 pose를 편집하지 않습니다.",
+        )
+        return None
     ts = s.trans_step
     rs = s.rot_step_deg
     if key == ord('b'):
         _cycle_visibility_reason(s, s.active)
-    elif key == ord('y'):
-        _cycle_axis_assignment(s)
     elif key == ord('a'): apply_manip(s, dx=-ts)
     elif key == ord('d'): apply_manip(s, dx=+ts)
     elif key == ord('w'): apply_manip(s, dy=-ts)
@@ -863,7 +2222,7 @@ def _handle_manip_key(key, s, out_json, out_png, src_png, K):
     elif key == ord('4'):
         s.rot_step_deg = min(45, s.rot_step_deg * 2.0)
         print(f"[step] rot={s.rot_step_deg:.2f}\xb0")
-    elif key == ord('S'):
+    elif key == ord('s'):
         if s.pose is None:
             return None
         # locked_pose 의 projected_cuboid 를 그대로 manual_kps 로 덮어쓰기
@@ -877,7 +2236,7 @@ def _handle_manip_key(key, s, out_json, out_png, src_png, K):
                     s, i, point,
                     source="centroid_auto" if i == 8 else "pnp_projected",
                     visibility=1, reason="unknown")
-        s.dirty = True
+        _mark_annotation_dirty(s)
         if not _save_state_annotation(s, K, out_json, out_png, src_png):
             return None
         print(f"[Saved manip] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px")
@@ -885,16 +2244,10 @@ def _handle_manip_key(key, s, out_json, out_png, src_png, K):
         s.mode = "click"
         s.locked_pose = None
         return 'save-next'
-    elif key == ord('s'):
-        # 소문자 's' 는 manip 에서 아무 일도 안 해서 "저장이 안 된다" 로 보였다.
-        print("[manip] 저장은 대문자 'S'. 어노를 없애려면 'm' 으로 CLICK 모드로 나간 뒤 "
-              "'r' 로 전부 지우고 's'.")
-    elif key == ord('Q'):
-        return 'quit'
     return None
 
 
-def _toast(s, screen_text, color=(60, 200, 60), log=None):
+def _toast(s, screen_text, color=(60, 200, 60), log=None, seconds=2.5):
     """화면 위에 잠깐 뜨는 알림. 터미널 print 만으로는 쓰는 사람이 못 본다.
 
     이 툴의 안내가 전부 stdout 으로만 나가서, 실제로는 동작했는데도 "아무 일도
@@ -904,7 +2257,7 @@ def _toast(s, screen_text, color=(60, 200, 60), log=None):
       한글 glyph 가 없어서 한글을 넘기면 통째로 '?????' 로 그려진다(실제로 겪음).
       화면은 영문, 터미널(log)은 한글 — 그래서 둘을 나눠 받는다.
     """
-    s.toast = (screen_text, color, time.time() + 2.5)
+    s.toast = (screen_text, color, time.time() + float(seconds))
     print(log if log is not None else screen_text)
 
 
@@ -921,6 +2274,14 @@ def _delete_annotation(s, out_json, out_png):
     workspace의 ``final/positive/annotations`` 아래 label은 progress를
     되돌릴 수 있도록 복구 가능한 ``.deleted`` 이동을 허용한다.
     """
+    if not getattr(s, "session_writable", True):
+        _toast(
+            s,
+            "REVIEW ONLY: delete disabled",
+            (40, 40, 230),
+            log="[REVIEW ONLY] incoming 세션에는 삭제할 canonical GT가 없습니다.",
+        )
+        return None
     is_final = str(getattr(s, "population_role", "DEV")).upper() == "FINAL"
     eval_root = getattr(s, "eval_root", None)
     workspace_final_root = (
@@ -931,7 +2292,7 @@ def _delete_annotation(s, out_json, out_png):
         and _path_is_within(out_json, workspace_final_root))
     if is_final and not is_workspace_final:
         _toast(s, "[DELETE BLOCKED] FINAL population", (40, 40, 230),
-               log="FINAL 삭제 차단: visibility/axis gate를 통과한 라벨은 "
+               log="FINAL 삭제 차단: visibility 검토를 통과한 라벨은 "
                    "--eval-root의 final/positive workspace 밖에서는 "
                    "annotation UI로 제거할 수 없습니다.")
         return None
@@ -945,6 +2306,8 @@ def _delete_annotation(s, out_json, out_png):
         _toast(s, "[DELETE] no saved annotation on this frame", (180, 180, 180),
                log="[삭제] 이 프레임엔 저장된 어노가 없다")
         s.dirty = False
+        s.annotation_dirty = False
+        s.frame_tags_dirty = False
         return None
 
     bak = out_json + ".deleted"
@@ -973,6 +2336,8 @@ def _delete_annotation(s, out_json, out_png):
     _toast(s, f"[DELETED] {name}  (restore: drop .deleted)",
            log=f"[삭제됨] {name}  (.deleted 로 복구 가능)")
     s.dirty = False
+    s.annotation_dirty = False
+    s.frame_tags_dirty = False
     return 'save-next'
 
 
@@ -981,15 +2346,60 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
     if key == ord('q'):
         # 저장 안 한 클릭이 있으면 한 번 막는다. 'n' 에만 이 보호가 있어서 q/p 로는
         # 찍던 걸 그냥 잃었다(2026-08-15). 같은 규칙으로 통일 — 다시 누르면 진행.
-        if s.dirty:
-            print("[WARN] 미저장 변경 있음. 저장하려면 's', 버리려면 'q' 를 한 번 더.")
-            s.dirty = False
+        if not _confirm_discard(
+                s, "quit",
+                "[WARN] 미저장 변경 있음. 저장하려면 's', 버리려면 'q' 를 한 번 더."):
             return None
         return 'quit'
 
+    if not getattr(s, "session_writable", True):
+        # REVIEW ONLY keeps the raw-browser controls, while every mutation is
+        # a visible no-op.  Goto and session switching are handled by the outer
+        # loop before this dispatcher.
+        if key == ord('n'):
+            return 'next'
+        if key == ord('p'):
+            return 'prev'
+        if key == ord(','):
+            return 'jump-10'
+        if key == ord('.'):
+            return 'jump+10'
+        if key in (ord('+'), ord('=')):
+            s.zoom = min(4.0, s.zoom * 1.5)
+            return None
+        if key in (ord('-'), ord('_')):
+            s.zoom = max(1.0, s.zoom / 1.5)
+            if s.zoom <= 1.001:
+                s.pan = [0, 0]
+            return None
+        if key == ord('h'):
+            s.pan[0] -= 20
+            return None
+        if key == ord('l'):
+            s.pan[0] += 20
+            return None
+        if key == ord('k'):
+            s.pan[1] -= 20
+            return None
+        if key == ord('j'):
+            s.pan[1] += 20
+            return None
+        _toast(
+            s,
+            "REVIEW ONLY: navigation only",
+            (40, 40, 230),
+            log="[REVIEW ONLY] incoming 세션에서는 탐색 키만 사용할 수 있습니다.",
+            seconds=1.2,
+        )
+        return None
+
+    if key == _CONDITION_MODE_KEY:
+        _set_condition_mode(s, True)
+        return None
+
     if key == ord('v'):
         s.split = "train" if s.split == "eval" else "eval"
-        s.dirty = True
+        _mark_annotation_dirty(s)
         print(f"[Split] this frame -> {s.split.upper()}  (저장 시 JSON 에 반영)")
         return None
 
@@ -999,10 +2409,6 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
 
     if key == ord('w'):
         _cycle_wd_parity(s)
-        return None
-
-    if key == ord('y'):
-        _cycle_axis_assignment(s)
         return None
 
     if key == ord('s'):
@@ -1072,7 +2478,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
                     visibility=1, reason="unknown")
                 n_auto += 1
         if n_auto:
-            s.dirty = True
+            _mark_annotation_dirty(s)
         if not _save_state_annotation(s, K, out_json, out_png, src_png):
             return None
         print(f"[Saved auto-fill] {out_json}  reproj={s.pose['reproj_error_px']:.2f}px "
@@ -1100,7 +2506,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         _set_keypoint_state(
             s, s.active, pt, source="extrapolated",
             visibility=1, reason="unknown")
-        s.dirty = True
+        _mark_annotation_dirty(s)
         print(f"[Parallelogram] kp{s.active} ← face={fname} {finds} → "
               f"({pt[0]:.1f}, {pt[1]:.1f})")
         if s.active < 8:
@@ -1108,15 +2514,15 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         return None
 
     if key == ord('n'):
-        if s.dirty:
-            print("[WARN] 미저장 변경 있음. 다시 'n' 누르면 무시하고 다음.")
-            s.dirty = False
+        if not _confirm_discard(
+                s, "next",
+                "[WARN] 미저장 변경 있음. 다시 'n' 누르면 무시하고 다음."):
             return None
         return 'next'
     if key == ord('p'):
-        if s.dirty:
-            print("[WARN] 미저장 변경 있음. 다시 'p' 누르면 무시하고 이전.")
-            s.dirty = False
+        if not _confirm_discard(
+                s, "prev",
+                "[WARN] 미저장 변경 있음. 다시 'p' 누르면 무시하고 이전."):
             return None
         return 'prev'
     if key == ord(','):
@@ -1140,7 +2546,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
             _set_keypoint_state(
                 s, 8, s.kps_2d[8], source="centroid_auto",
                 visibility=1, reason="unknown")
-            s.dirty = True
+            _mark_annotation_dirty(s)
             print(f"[Centroid] PnP projection: ({s.kps_2d[8][0]:.1f}, {s.kps_2d[8][1]:.1f})")
         else:
             pts = [k for k in s.kps_2d[:8] if k is not None]
@@ -1150,7 +2556,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
                 _set_keypoint_state(
                     s, 8, s.kps_2d[8], source="centroid_auto",
                     visibility=1, reason="unknown")
-                s.dirty = True
+                _mark_annotation_dirty(s)
                 print("[Centroid] fallback (image corner mean) — PnP 풀린 후 c 권장")
         return None
 
@@ -1169,7 +2575,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
                 s.extrap_mask[last] = False
             _clear_keypoint_state(s, last)
             s.active = last
-            s.dirty = True
+            _mark_annotation_dirty(s)
         return None
 
     if key == ord('d'):
@@ -1179,7 +2585,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
                 s.extrap_mask[s.active] = False
             _clear_keypoint_state(s, s.active)
             s.pose = None
-            s.dirty = True
+            _mark_annotation_dirty(s)
             print(f"[Delete] kp{s.active} 삭제")
         return None
 
@@ -1206,7 +2612,7 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
         s.line_mode = False
         s.line_pts = []
         if had:
-            s.dirty = True
+            _mark_annotation_dirty(s)
         return None
 
     if key in (ord('+'), ord('=')):
@@ -1254,11 +2660,12 @@ def main(argv=None):
     ap.add_argument("--default_split", choices=["eval", "train"], default="train",
                     help="새 frame 의 기본 split (v 키로 토글). 기본 train — eval 로 쓸 것만 v "
                          "로 표시. eval GT 대량 어노 시 --default_split eval.")
-    ap.add_argument("--population-role", "--population_role", required=True,
+    ap.add_argument("--population-role", "--population_role", default=None,
                     choices=["DEV", "FINAL"],
-                    help="명시적 GT population 역할. FINAL은 kp0~7 unknown 저장을 차단.")
-    ap.add_argument("--object-type", default=PLASTIC_OBJECT_TYPE,
-                    help="OBJECT_GEOMETRY_REGISTRY의 canonical type 또는 alias")
+                    help="GT population 역할. eval은 session.json에서 자동, 일반 실행은 필수.")
+    ap.add_argument("--object-type", default=None,
+                    help="OBJECT_GEOMETRY_REGISTRY type/alias. eval은 session.json, "
+                         "일반 실행은 미지정 시 plastic")
     ap.add_argument("--geometry-registry", default=str(DEFAULT_REGISTRY_PATH),
                     help="object geometry registry JSON (기본: repository contract)")
     ap.add_argument("--legacy-read-dir", default=None,
@@ -1276,18 +2683,18 @@ def main(argv=None):
         "--eval-root", default=None,
         help="evaluation workspace root; enables per-save manifest/progress refresh")
     args = ap.parse_args(argv)
+    # Session metadata is filled into ``args`` below.  Preserve the actual CLI
+    # values so a sibling session is resolved from its own metadata instead of
+    # inheriting lighting/session id from whichever session opened first.
+    cli_session_args = copy.copy(args)
 
     registry_path = (args.geometry_registry
                      if os.path.isabs(args.geometry_registry)
                      else os.path.join(_REPO, args.geometry_registry))
     try:
         geometry_registry = load_object_geometry_registry(registry_path)
-        geometry_spec = geometry_registry.resolve(args.object_type)
     except (OSError, TypeError, ValueError) as exc:
-        ap.error(f"invalid object geometry registry/selection: {exc}")
-    if (geometry_spec.object_type == WOOD_OBJECT_TYPE
-            and args.intrinsics_quality is None):
-        ap.error("wood annotation requires --intrinsics-quality")
+        ap.error(f"invalid object geometry registry: {exc}")
     legacy_read_dir = None
     if args.legacy_read_dir:
         try:
@@ -1314,6 +2721,14 @@ def main(argv=None):
 
     seq = args.seq if os.path.isabs(args.seq) else os.path.join(_REPO, args.seq)
     seq = os.path.abspath(seq)
+    try:
+        session_metadata, geometry_spec = _resolve_annotation_configuration(
+            args, seq, geometry_registry, eval_root)
+    except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+        ap.error(str(exc))
+    if (geometry_spec.object_type == WOOD_OBJECT_TYPE
+            and args.intrinsics_quality is None):
+        ap.error("wood annotation requires --intrinsics-quality in CLI or session.json")
     if eval_root:
         if requested_out is None:
             ap.error("--eval-root requires an explicit canonical --out_dir")
@@ -1324,48 +2739,96 @@ def main(argv=None):
             ap.error(str(exc))
     seq_name = os.path.basename(seq.rstrip("/\\"))
 
-    # 세션 풀 — 툴 안에서 [ ] / TAB 으로 갈아탄다. --out_dir 을 직접 준 경우엔 그
-    # 세션만 다루도록 풀을 잠근다(지정한 출력 폴더가 다른 세션에 새어들지 않게).
-    sessions = discover_sessions(args.pool, _REPO)
-    if args.out_dir or not sessions:
-        sessions = [(seq_name, seq)]
-    elif all(p != seq for _, p in sessions):
-        sessions.insert(0, (seq_name, seq))
-    sess_i = next((i for i, (_, p) in enumerate(sessions) if p == seq), 0)
+    # 세션 풀 — 일반 --out_dir은 여전히 단일 세션으로 잠근다. Evaluation
+    # workspace는 각 세션의 role/object/K/output을 독립 검증하므로 같은 role의
+    # plastic/wood를 함께 편집할 수 있다. INCOMING_UNREVIEWED는 원본을 유지한
+    # 채 객체별 zero-copy STAGING context 두 개로 연다.
+    evaluation_contexts = {}
+    session_output_dirs = {}
+    if eval_root:
+        try:
+            sessions, evaluation_contexts = _discover_evaluation_session_pool(
+                eval_root, seq, requested_out, cli_session_args,
+                geometry_registry, _REPO, args.population_role,
+                geometry_spec.object_type)
+        except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+            ap.error(str(exc))
+        session_output_dirs = {
+            key: context["out_dir"]
+            for key, context in evaluation_contexts.items()
+        }
+    else:
+        sessions = discover_sessions(args.pool, _REPO)
+        if args.out_dir or not sessions:
+            sessions = [(seq_name, seq)]
+        elif all(_session_entry_parts(entry)[1] != seq for entry in sessions):
+            sessions.insert(0, (seq_name, seq))
+    sess_i = next((
+        i for i, entry in enumerate(sessions)
+        if _session_entry_parts(entry)[1] == seq
+        and len(entry) == 2
+    ), 0)
+    active_context = None
 
     def load_session(i):
         """세션 i 로 전환. FINAL 표시는 명시적 population role만 따른다."""
-        nm, sq = sessions[i]
-        if args.out_dir:
+        nonlocal session_metadata, geometry_spec, active_context
+        nm, sq, context_key = _session_entry_parts(sessions[i])
+        if eval_root:
+            context = evaluation_contexts[context_key]
+            active_context = context
+            session_args = context["args"]
+            for field in _SESSION_RUNTIME_ARG_FIELDS:
+                setattr(args, field, getattr(session_args, field))
+            session_metadata = dict(context["metadata"])
+            geometry_spec = context["geometry_spec"]
+            od = context["out_dir"]
+        elif args.out_dir:
+            active_context = {
+                "writable": True,
+                "workspace_scope": None,
+                "display_role": args.population_role,
+            }
             od = args.out_dir if os.path.isabs(args.out_dir) \
                 else os.path.join(_REPO, args.out_dir)
         else:
+            active_context = {
+                "writable": True,
+                "workspace_scope": None,
+                "display_role": args.population_role,
+            }
             od, _legacy_eval_layout = resolve_out_dir(nm, _REPO)
         od = _require_nonlegacy_output_dir(od, _REPO)
         sealed = args.population_role == "FINAL"
         # 여기서 makedirs 하면 세션 목록을 둘러보기만 해도 빈 GT 폴더가 생겨
         # done 집계와 discover_sessions 의 중복 판정이 오염된다. 저장할 때 만든다.
-        _DEFAULT_K = np.array([[614.18, 0, 329.28], [0, 614.31, 234.53], [0, 0, 1]],
-                              dtype=np.float64)
-        kp = os.path.join(sq, "cam_K.txt")
-        k = _DEFAULT_K
-        if os.path.isfile(kp):
-            try:
-                k = np.loadtxt(kp).reshape(3, 3)
-            except Exception as e:
-                # 깨진 cam_K 하나에 창이 죽으면 다른 세션도 못 본다. 기본 K 로 계속하되
-                # 이 세션 라벨은 잘못된 intrinsic 으로 풀린다는 걸 크게 알린다.
-                print(f"[ERROR] cam_K.txt 를 읽지 못했다 ({e}) — 기본 K 로 진행. "
-                      f"이 세션의 pose 는 신뢰하지 말 것: {kp}")
-        rp = sorted(glob.glob(os.path.join(sq, "rgb", "*.png")))
+        if eval_root:
+            k = np.asarray(context["K"], dtype=np.float64).copy()
+            k_source = context["K_source"]
+        else:
+            k, k_source = _resolve_session_intrinsics(
+                sq, od, evaluation=False)
+        rp = list(active_context.get("frame_paths") or _session_image_paths(sq))
         sel = list(range(args.start, len(rp), args.stride))
+        writable = bool(active_context.get("writable", True))
+        staging = bool(
+            writable and not active_context.get("active_evaluation_member", True))
         print(f"\n[Session {i+1}/{len(sessions)}] {nm}"
-              f"{'   ★FINAL population role — save gates active' if sealed else ''}")
+              f"{'   ★FINAL population role — save gates active' if sealed else ''}"
+              f"{'   [REVIEW ONLY · mixed raw capture]' if not writable else ''}"
+              f"{'   [STAGING · evaluation 미편입]' if staging else ''}")
         print(f"           {len(sel)} frames (stride={args.stride}) of {len(rp)}")
-        print(f"           Output: {od}")
-        print(f"           Object: {geometry_spec.object_type} "
-              f"XYZ={geometry_spec.physical_dimensions_m}")
-        print(f"           K = fx={k[0,0]:.1f} cx={k[0,2]:.1f} cy={k[1,2]:.1f}")
+        print(f"           Output: {od if writable else 'NONE (review only)'}")
+        if staging:
+            print("           Save scope: object-specific staging only; "
+                  "evaluation manifest/progress unchanged")
+        if geometry_spec is None:
+            print("           Object: MIXED / UNKNOWN (PnP disabled)")
+        else:
+            print(f"           Object: {geometry_spec.object_type} "
+                  f"XYZ={geometry_spec.physical_dimensions_m}")
+        print(f"           K = fx={k[0,0]:.1f} cx={k[0,2]:.1f} cy={k[1,2]:.1f}"
+              f"  [{k_source}]")
         return sq, nm, od, sealed, k, rp, sel
 
     seq, seq_name, out_dir, sealed, K, rgb_paths, selected = load_session(sess_i)
@@ -1391,10 +2854,31 @@ def main(argv=None):
     s = State()
     s.geometry_registry = geometry_registry
     s.geometry_spec = geometry_spec
-    s.object_type = geometry_spec.object_type
+    s.object_type = (
+        geometry_spec.object_type if geometry_spec is not None else "unknown")
     s.intrinsics_quality = args.intrinsics_quality
     s.intrinsics_source = args.intrinsics_source
     s.eval_root = eval_root
+    s.eval_session_dir = (
+        active_context.get("tag_session_dir", seq) if eval_root else None)
+    s.source_session_dir = (
+        active_context.get("source_session_dir", seq) if eval_root else seq)
+    s.session_frame_paths = list(active_context.get("frame_paths") or rgb_paths)
+    s.annotation_output_dir = out_dir
+    s.active_evaluation_member = bool(
+        active_context.get("active_evaluation_member", True))
+    s.refresh_evaluation_workspace = bool(
+        active_context.get("refresh_evaluation", True))
+    s.force_explicit_object_type = bool(
+        active_context.get("force_explicit_object_type", False))
+    s.session_metadata = dict(session_metadata)
+    s.session_writable = bool(active_context.get("writable", True))
+    s.workspace_scope = active_context.get("workspace_scope")
+    s.object_type_source = (
+        "SESSION" if _metadata_value(session_metadata.get("object_type")) else "UNSET")
+    s.lighting = args.lighting_condition or "unknown"
+    s.lighting_source = (
+        "SESSION" if _metadata_value(session_metadata.get("lighting")) else "UNSET")
     cv2.setMouseCallback(win, on_mouse, s)
     # frame 점프 슬라이더 — 눈금을 프레임 수가 아니라 **퍼센트(0~100)** 로 둔다.
     #
@@ -1405,15 +2889,8 @@ def main(argv=None):
     # 슬라이더가 튕기고 화면이 60 에 멈춘 채로 있었다.
     # 퍼센트면 세션 길이와 무관하게 항상 전 구간을 쓸 수 있고 max 를 바꿀 일도 없다.
     # 실제 프레임 번호는 우측 STATUS 의 "frame N/M" 이 보여준다.
-    SLIDER_TICKS = 500          # 최대 세션(185장)도 전 프레임 도달 (100 이면 절반만 닿는다)
-
-    def _cur_to_tick(c, n):
-        return 0 if n <= 1 else int(round(c / (n - 1) * SLIDER_TICKS))
-
-    def _tick_to_cur(t, n):
-        return 0 if n <= 1 else int(round(t / SLIDER_TICKS * (n - 1)))
-
-    cv2.createTrackbar("frame%", win, 0, SLIDER_TICKS, lambda v: None)
+    cv2.createTrackbar(
+        "frame%", win, 0, _FRAME_SLIDER_TICKS, lambda v: None)
     # 세션 슬라이더 — 드래그하면 촬영 세션이 바뀐다. 키(TAB)가 창 포커스에 따라 안 먹는
     # 경우가 있어서, 이미 동작이 검증된 트랙바/마우스 방식을 주 수단으로 둔다.
     if len(sessions) > 1:
@@ -1463,7 +2940,7 @@ def main(argv=None):
             while True:
                 cv2.imshow(win, _empty_session_screen(seq_name, args))
                 k = cv2.waitKey(50) & 0xFF
-                if k in (ord('q'), ord('Q'), 27):
+                if k in (ord('q'), 27):
                     cv2.destroyAllWindows()
                     return
                 if len(sessions) > 1:
@@ -1506,13 +2983,54 @@ def main(argv=None):
         s.axis_assignment = None
         s.axis_assignment_candidates = []
         s.axis_assignment_confirmed = False
-        s.population_role = args.population_role
+        s.session_writable = bool(active_context.get("writable", True))
+        s.workspace_scope = active_context.get("workspace_scope")
+        s.population_role = (
+            args.population_role
+            or active_context.get("display_role")
+            or "UNSET")
         s.geometry_registry = geometry_registry
         s.geometry_spec = geometry_spec
-        s.object_type = geometry_spec.object_type
+        s.object_type = (
+            geometry_spec.object_type if geometry_spec is not None else "unknown")
+        s.object_type_source = (
+            "SESSION"
+            if "object_type" in session_metadata else "UNSET")
+        s.lighting = args.lighting_condition or "unknown"
+        s.lighting_source = (
+            "SESSION"
+            if _metadata_value(session_metadata.get("lighting")) else "UNSET")
         s.loaded_object_type = None
-        s.intrinsics_quality = args.intrinsics_quality
-        s.intrinsics_source = args.intrinsics_source
+        s.loaded_annotation_path = None
+        s.current_annotation_path = os.path.abspath(out_json)
+        s.current_frame_identity = os.path.basename(path)
+        s.intrinsics_quality = (
+            args.intrinsics_quality
+            or active_context.get("intrinsics_quality"))
+        s.intrinsics_source = (
+            args.intrinsics_source
+            or active_context.get("intrinsics_source"))
+        s.eval_session_dir = (
+            active_context.get("tag_session_dir", seq) if eval_root else None)
+        s.source_session_dir = (
+            active_context.get("source_session_dir", seq) if eval_root else seq)
+        s.session_frame_paths = list(
+            active_context.get("frame_paths") or rgb_paths)
+        source_ordinals = active_context.get("source_ordinals")
+        s.source_frame_ordinal = (
+            int(source_ordinals[frame_idx])
+            if source_ordinals is not None else None)
+        s.source_frame_count = (
+            int(active_context["source_frame_count"])
+            if active_context.get("source_frame_count") is not None else None)
+        s.annotation_output_dir = out_dir
+        s.active_evaluation_member = bool(
+            active_context.get("active_evaluation_member", True))
+        s.refresh_evaluation_workspace = bool(
+            active_context.get("refresh_evaluation", True))
+        s.force_explicit_object_type = bool(
+            active_context.get("force_explicit_object_type", False))
+        s.session_metadata = dict(session_metadata)
         s.capture_metadata = {
             "capture_session_id": args.capture_session_id or seq_name,
             "camera_serial": args.camera_serial,
@@ -1528,11 +3046,20 @@ def main(argv=None):
         s.zoom = 1.0
         s.pan = [0, 0]
         s.dirty = False
+        s.annotation_dirty = False
+        s.frame_tags_dirty = False
+        s.frame_tags = {}
+        s.frame_tag_sources = {}
+        s.frame_tag_overrides = {}
+        s.frame_tag_pending_updates = {}
+        s.frame_tag_cycle_values = {}
+        s.discard_armed = None
         # ★ 모드/입력 중 상태도 반드시 초기화한다. 예전엔 mode/locked_pose 가 남아,
         #   MANIPULATE 로 잠근 이전 프레임의 R,t 를 새 프레임에 그대로 투영해 manual GT 로
         #   저장할 수 있었다. 새 프레임은 kps_2d 가 비어 있어 reproj 가 0.00px 로 찍히는
         #   바람에 완벽한 라벨처럼 보였다. line/goto 상태도 남으면 클릭·키가 먹통이 된다.
         s.mode = "click"
+        s.condition_mode = False
         s.locked_pose = None
         s.line_mode = False
         s.line_pts = None
@@ -1542,9 +3069,11 @@ def main(argv=None):
         s._pose_key = None             # 새 프레임 — pose 캐시 무효화
         s.toast = None                 # 알림이 다음 프레임으로 새지 않게
         s.split = args.default_split   # 기본 split; 기존 JSON 있으면 load 가 override
+        if not s.session_writable:
+            s.annot_only = False
         load_json = out_json
         load_is_read_only_legacy = False
-        if not os.path.exists(load_json):
+        if s.session_writable and not os.path.exists(load_json):
             automatic_legacy_dir, _ = _resolve_legacy_read_dir(seq_name, _REPO)
             source_dir = legacy_read_dir or automatic_legacy_dir
             legacy_json = (os.path.join(source_dir, f"{stem}.json")
@@ -1554,8 +3083,15 @@ def main(argv=None):
                 load_is_read_only_legacy = True
                 print(f"[Read-only legacy source] {legacy_json}\n"
                       f"                          save target: {out_json}")
-        if load_existing_annotation(
-                s, load_json, read_only=load_is_read_only_legacy):
+        if (s.session_writable and load_existing_annotation(
+                s, load_json, read_only=load_is_read_only_legacy)):
+            loaded_role = str(s.population_role).strip().upper()
+            if loaded_role != args.population_role:
+                raise RuntimeError(
+                    "annotation population role mismatch\n"
+                    f"annotation = {loaded_role}\n"
+                    f"session    = {args.population_role}\n"
+                    f"path       = {load_json}")
             loaded_metadata = dict(s.capture_metadata or {})
             loaded_metadata.update({
                 key: value for key, value in {
@@ -1569,8 +3105,18 @@ def main(argv=None):
             s.population_role = args.population_role
             _ensure_keypoint_annotations(s)
             update_pose(s, K)
+        try:
+            _load_frame_tag_state(s, path, out_json)
+        except (OSError, TypeError, ValueError, WorkspaceError) as exc:
+            raise RuntimeError(
+                f"frame tag metadata load failed for {path}: {exc}") from exc
+        # Loading/re-solving an existing label is not an editor modification.
+        s.dirty = False
+        s.annotation_dirty = False
+        s.discard_armed = None
         if len(selected) > 1:
-            cv2.setTrackbarPos("frame%", win, _cur_to_tick(cur, len(selected)))
+            cv2.setTrackbarPos(
+                "frame%", win, _frame_cur_to_tick(cur, len(selected)))
 
         # 메인 루프 (한 프레임)
         s.sess_name, s.sess_sealed = seq_name, sealed   # 헤더 표시용
@@ -1584,11 +3130,9 @@ def main(argv=None):
             돌아 지키려던 클릭이 지워진다. 프레임을 떠나는 모든 경로가 이걸 통과한다 —
             예전엔 n/p/q 만 검사해서 슬라이더·goto·jump·세션전환으로는 그냥 사라졌다.
             """
-            if s.dirty:
-                print(f"[WARN] 미저장 변경 있음. 저장은 's', 버리고 {what} 하려면 한 번 더.")
-                s.dirty = False
-                return False
-            return True
+            return _confirm_discard(
+                s, f"guard:{what}",
+                f"[WARN] 미저장 변경 있음. 저장은 's', 버리고 {what} 하려면 한 번 더.")
 
         while next_action is None:
             update_pose(s, K)
@@ -1615,7 +3159,11 @@ def main(argv=None):
                     s.sess_open = False
                     if len(sessions) > 1:
                         j = pick_session_dialog(
-                            session_summary(sessions, _REPO, args.population_role), sess_i)
+                            session_summary(
+                                sessions, _REPO, args.population_role,
+                                session_output_dirs,
+                                evaluation_contexts if eval_root else None),
+                            sess_i)
                         if j is not None and j != sess_i and _guard_dirty("세션 이동"):
                             s.sess_pick = j
                             next_action = 'sess-pick'
@@ -1640,16 +3188,27 @@ def main(argv=None):
                 # 퍼센트 -> 프레임 변환이 반올림이라, 같은 프레임을 가리키는 눈금
                 # 범위에서는 아무 일도 일어나지 않아야 슬라이더가 튕기지 않는다.
                 if next_action is None and len(selected) > 1:
-                    want = _tick_to_cur(cv2.getTrackbarPos("frame%", win), len(selected))
-                    if want != cur:
+                    want = _frame_trackbar_target(
+                        cur, len(selected),
+                        cv2.getTrackbarPos("frame%", win))
+                    if want is not None:
                         if not _guard_dirty("프레임 이동"):
-                            cv2.setTrackbarPos("frame%", win, _cur_to_tick(cur, len(selected)))
+                            cv2.setTrackbarPos(
+                                "frame%", win,
+                                _frame_cur_to_tick(cur, len(selected)))
                             continue
                         s.goto = want
                         next_action = 'goto'
                 continue
 
-            # ── Goto 번호 입력 모드 (G/: 로 진입, 숫자 타이핑 후 Enter) ──
+            # / opens a keyboard-isolated condition editor.  In this sub-mode
+            # The modal owns condition selectors plus double-confirmed session
+            # batch apply; every other editor key is a no-op.
+            if getattr(s, "condition_mode", False):
+                next_action = _handle_condition_key(
+                    key, s, out_json, out_png, path, K)
+                continue
+            # ── Goto 번호 입력 모드 (; 로 진입, 숫자 타이핑 후 Enter) ──
             if s.goto_mode:
                 if ord('0') <= key <= ord('9'):
                     s.goto_buf += chr(key)
@@ -1668,15 +3227,19 @@ def main(argv=None):
                 elif key in (8, 127):                       # Backspace
                     s.goto_buf = s.goto_buf[:-1]
                 continue
-            if key in (ord('G'), ord(':')):
+            if key == _GOTO_MODE_KEY:
                 s.goto_mode = True
                 s.goto_buf = ""
                 continue
 
-            # TAB = 세션 드롭다운. 'S' 는 MANIPULATE 의 save+next 라 쓰지 않는다.
+            # TAB = 세션 드롭다운.
             if key == 9 and len(sessions) > 1:
                 j = pick_session_dialog(
-                    session_summary(sessions, _REPO, args.population_role), sess_i)
+                    session_summary(
+                        sessions, _REPO, args.population_role,
+                        session_output_dirs,
+                        evaluation_contexts if eval_root else None),
+                    sess_i)
                 if j is not None and j != sess_i and _guard_dirty("세션 이동"):
                     s.sess_pick = j
                     next_action = 'sess-pick'
@@ -1694,6 +3257,14 @@ def main(argv=None):
 
             # ── Mode toggle ──
             if key == ord('m'):
+                if not s.session_writable:
+                    _toast(
+                        s,
+                        "REVIEW ONLY: manipulate disabled",
+                        (40, 40, 230),
+                        log="[REVIEW ONLY] incoming mixed frame에서는 pose를 편집하지 않습니다.",
+                    )
+                    continue
                 if s.mode == "click":
                     if s.pose is None:
                         print("[WARN] PnP 가 아직 안 풀려서 manipulate 진입 불가. 4점 이상 필요.")
