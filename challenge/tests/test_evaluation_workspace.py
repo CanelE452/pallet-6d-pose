@@ -765,7 +765,7 @@ def test_progress_report_orders_dev_alias_physical_final_and_all_available(
     assert report.index("# DEV evaluation population") < report.index(
         "# FINAL_EVAL alias status"
     ) < report.index(
-        "# Combined evaluation target progress"
+        "# Paper evaluation readiness"
     ) < report.index("# All available evaluation")
     assert "Combined positive       1 / 173" in report
     assert "Annotated positive      1 / 173" in report
@@ -775,10 +775,9 @@ def test_progress_report_orders_dev_alias_physical_final_and_all_available(
     assert "Elevation tagged        1 / 173" in report
     assert "Status               READY — REUSED DEV_EVAL, NOT HELD OUT" in report
     assert "FINAL_EVAL positive     1" in report
-    # 2026-09-01 부터 minimum/preferred 를 함께 보인다 (한 줄 300 만 보고
-    # domain experiment 진척으로 오해하지 않도록).
-    assert re.search(r"Current positive\s+1 / 400 preferred", report)
-    assert re.search(r"\s+1 / 300 minimum", report)
+    # 2026-09-01: 300 은 frame count 가 아니라 복합 게이트의 한 조건이다.
+    assert re.search(r"Positive total\s+1 / 300 minimum", report)
+    assert "DATASET_READY" in report
     assert "ALL positive            1" in report
 
 
@@ -912,9 +911,10 @@ def test_repository_workspace_contract_declares_explicit_eval_populations() -> N
     contract = json.loads((root / "DATASET_CONTRACT.json").read_text("utf-8"))
     targets = load_targets(root)
 
-    assert targets["progress_population"] == "ALL_AVAILABLE"
-    # 2026-09-01 domain 재설계로 condition target 상향 (DATASET_TARGETS.json)
-    assert targets["minimum_condition_coverage"]["far"] == 80
+    # PAPER_EVAL = ALL_AVAILABLE 의 paper-facing 이름 (2026-09-01)
+    assert targets["progress_population"] == "PAPER_EVAL"
+    # 2026-09-01 acquisition-domain 재설계 (DATASET_TARGETS.json)
+    assert targets["minimum_condition_coverage"]["far"] == 50
     assert "far_small" not in targets["minimum_condition_coverage"]
     assert contract["condition_queries"]["far"] == "distance_bin == far"
     assert "far_small" not in contract["condition_queries"]
@@ -928,7 +928,11 @@ def test_repository_workspace_contract_declares_explicit_eval_populations() -> N
     assert "dev_is_never_counted_toward_final_targets" not in contract["invariants"]
 
     populations = contract["evaluation_populations"]
-    assert set(populations) == {"DEV_EVAL", "FINAL_EVAL", "ALL_AVAILABLE"}
+    # PAPER_EVAL 이 paper-facing 정식 이름 (2026-09-01). FINAL_EVAL 은 legacy
+    # alias 로만 남기고 논문 문서/표/report 에 노출하지 않는다.
+    assert set(populations) == {"DEV_EVAL", "FINAL_EVAL", "ALL_AVAILABLE",
+                                "PAPER_EVAL"}
+    assert populations["PAPER_EVAL"]["held_out_final"] is False
     assert populations["DEV_EVAL"]["held_out_final"] is False
     assert populations["FINAL_EVAL"]["held_out_final"] is False
     assert populations["FINAL_EVAL"]["reuses_dev_eval"] is True
@@ -989,11 +993,11 @@ def test_load_targets_migrates_legacy_far_small_and_rejects_conflict(
     path.write_text(json.dumps(payload), encoding="utf-8")
 
     migrated = load_targets(root)
-    # scaffold 기본값 (2026-09-01 domain 재설계로 60 -> 80)
-    assert migrated["minimum_condition_coverage"]["far"] == 80
+    # scaffold 기본값 (2026-09-01 acquisition-domain 재설계)
+    assert migrated["minimum_condition_coverage"]["far"] == 50
     assert "far_small" not in migrated["minimum_condition_coverage"]
 
-    payload["minimum_condition_coverage"]["far"] = 81
+    payload["minimum_condition_coverage"]["far"] = 51
     path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(WorkspaceError, match="conflicting far"):
         load_targets(root)

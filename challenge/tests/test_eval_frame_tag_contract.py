@@ -102,8 +102,8 @@ def test_document_inference_and_effective_precedence_without_bin_guessing() -> N
     assert effective == {
         "object_type": "wood",
         "lighting": "night",
-        # environment 는 2026-09-01 에 추가된 도메인 축이다. 근거가 없으므로 unknown.
-        "environment": "unknown",
+        # acquisition_domain 은 capture provenance 다. 세션 매핑이 없으면 unknown.
+        "acquisition_domain": "unknown",
         "occlusion": "heavy",
         "truncation": "mild",
         "distance_bin": "unknown",
@@ -114,8 +114,8 @@ def test_document_inference_and_effective_precedence_without_bin_guessing() -> N
     assert sources == {
         "object_type": "JSON",
         "lighting": "SESSION",
-        # environment 는 근거가 없어 어느 층에서도 값이 오지 않는다.
-        "environment": "UNSET",
+        # acquisition_domain 은 근거가 없어 어느 층에서도 값이 오지 않는다.
+        "acquisition_domain": "UNSET",
         "occlusion": "FRAME",
         "truncation": "JSON",
         "distance_bin": "UNSET",

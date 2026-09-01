@@ -33,8 +33,7 @@ FRAME_COLUMNS = (
     "session_id",
     "object_type",
     "lighting",
-    "environment",
-    "appearance_domain",
+    "acquisition_domain",
     "usage_role",
     "occlusion",
     "truncation",
@@ -95,12 +94,11 @@ ALLOWED_VALUES: dict[str, frozenset[str]] = {
     "population_role": frozenset({"DEV", "DEV_UNVERIFIED", "FINAL"}),
     "object_type": frozenset({"plastic", "wood", "none", "unknown"}),
     "lighting": frozenset({"day", "night", "unknown"}),
-    "environment": frozenset({"indoor", "outdoor", "unknown"}),
-    # appearance_domain 은 사람이 넣는 값이 아니라 environment + lighting 에서
-    # 결정적으로 계산된다 (derive_appearance_domain).  그래도 파일에 적힌 값이
-    # 규약을 벗어나면 걸리도록 허용값을 등록해 둔다.
-    "appearance_domain": frozenset({
-        "indoor_day", "indoor_night", "outdoor_day", "outdoor_night", "unknown"}),
+    # acquisition_domain 은 환경 factor 가 아니라 **capture provenance category** 다.
+    # indoor/outdoor x day/night 2x2 factorial 은 폐기했다 — 두 축을 독립으로
+    # 가를 provenance 가 데이터에 없다.
+    "acquisition_domain": frozenset({
+        "outside", "night", "noapril", "cad", "forklift", "other", "unknown"}),
     "usage_role": frozenset({
         "EVAL_LABELED", "ADAPT_UNLABELED", "DEV_SUPPORT", "NEGATIVE_EVAL",
         "unknown"}),
@@ -113,7 +111,7 @@ ALLOWED_VALUES: dict[str, frozenset[str]] = {
 
 # 2026-09-01 에 추가된 도메인 축.  옛 manifest 에는 컬럼이 없으므로 빈 값을
 # unknown 으로 받아들인다 (그 외 필드는 종전대로 빈 값을 거부한다).
-NEW_DOMAIN_FIELDS = frozenset({"environment", "appearance_domain", "usage_role"})
+NEW_DOMAIN_FIELDS = frozenset({"acquisition_domain", "usage_role"})
 
 PAPER_SUBSETS = frozenset({
     "COMMON_DEV_PLASTIC_POS128",
@@ -150,7 +148,7 @@ FRAME_TAG_COLUMNS = ("frame", *FRAME_TAG_FIELDS)
 EFFECTIVE_FRAME_TAG_FIELDS = (
     "object_type",
     "lighting",
-    "environment",
+    "acquisition_domain",
     "occlusion",
     "truncation",
     "distance_bin",
@@ -180,32 +178,37 @@ REUSED_DEV_EVAL_ALIAS_NOTE = "REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV"
 
 # DATASET_TARGETS.json 이 없을 때의 폴백.  그 파일과 값이 같아야 한다.
 # 2026-09-01 domain 재설계: 300 은 논문 최소 완료선으로 남기고 400 을 권장으로 둔다.
+# DATASET_TARGETS.json 이 없을 때의 폴백.  그 파일과 값이 같아야 한다.
+# 2026-09-01: indoor/outdoor x day/night 2x2 폐기 -> acquisition_domain 기반.
 DEFAULT_TARGETS: dict[str, Any] = {
-    "progress_population": "ALL_AVAILABLE",
+    "progress_population": "PAPER_EVAL",
+    "positive_minimum": 300,
     "positive_total": 300,
-    "minimum_publishable_positive": 300,
-    "preferred_positive": 400,
-    "object_type": {"plastic": 200, "wood": 200},
-    "environment": {"indoor": 200, "outdoor": 200},
-    "lighting": {"day": 200, "night": 200},
-    "domain_cells": {
-        cell: {"preferred_frames": 50, "minimum_frames": 40, "minimum_sessions": 2}
-        for cell in (
-            f"{env}_{lig}_{obj}"
-            for env in ("indoor", "outdoor")
-            for lig in ("day", "night")
-            for obj in ("plastic", "wood")
-        )
+    "object_type": {"plastic": 180, "wood": 120},
+    "main_acquisition_domains": {
+        "outside": {"object_type": "plastic", "minimum_frames": 50,
+                    "preferred_frames": 60, "minimum_sessions": 2,
+                    "required": True},
+        "night": {"object_type": "plastic", "minimum_frames": 50,
+                  "preferred_frames": 60, "minimum_sessions": 2,
+                  "required": True},
     },
+    "conditional_domains": {
+        "noapril": {"object_type": "plastic", "supporting_target": 30,
+                    "main_minimum_frames": 40, "main_preferred_frames": 50,
+                    "main_minimum_sessions": 2},
+    },
+    "appendix_only_domains": {"cad": True},
     "minimum_condition_coverage": {
-        "clean": 120,
-        "occlusion": 100,
-        "truncation": 80,
-        "far": 80,
+        "clean": 80,
+        "occlusion": 80,
+        "truncation": 50,
+        "far": 50,
     },
-    "elevation": {"low": 120, "mid": 160, "high": 120},
+    "elevation_minimum": {"low": 60, "mid": 60, "high": 40},
+    "elevation": {"low": 60, "mid": 60, "high": 40},
+    "negative_unique_minimum": 1500,
     "negative_total": 1500,
-    "adaptation_unlabeled_per_domain": {"minimum": 500, "preferred": 1000},
 }
 
 DATASET_CONTRACT: dict[str, Any] = {
@@ -1164,10 +1167,13 @@ def load_targets(root: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
         raise WorkspaceError(f"targets must be a JSON object: {path}")
-    if value.get("progress_population") != "ALL_AVAILABLE":
+    # PAPER_EVAL 은 ALL_AVAILABLE 과 같은 집합의 paper-facing 이름이다
+    # (SHA-deduplicated union(DEV_EVAL, NEW_EVAL), held_out_final=false).
+    # 옛 이름도 계속 받는다.
+    if value.get("progress_population") not in {"ALL_AVAILABLE", "PAPER_EVAL"}:
         raise WorkspaceError(
-            "targets.progress_population must be ALL_AVAILABLE so DEV_EVAL and "
-            "physical FINAL are counted together"
+            "targets.progress_population must be PAPER_EVAL (or legacy "
+            "ALL_AVAILABLE) so DEV_EVAL and physical FINAL are counted together"
         )
     coverage = value.get("minimum_condition_coverage")
     if not isinstance(coverage, dict):
@@ -1831,8 +1837,16 @@ execution membership retains its one known duplicate image; convenience
         "DEV_PLASTIC_AUDITED140": audited_plastic,
         "DEV_EVAL_POSITIVE": dev_positive_members,
         "DEV_EVAL_NEGATIVE": dev_negative,
+        # FINAL_EVAL 은 legacy 이름이다.  "held-out FINAL" 로 읽히지만 실제로는
+        # DEV_EVAL 재사용이라 paper-facing 문서에서 혼동을 준다.  정식 이름은
+        # PAPER_EVAL 이고, 아래 두 키는 manifest 파일명 하위호환으로만 남긴다.
         "FINAL_EVAL_POSITIVE": final_eval_positive,
         "FINAL_EVAL_NEGATIVE": final_eval_negative,
+        # PAPER_EVAL = SHA-deduplicated union(DEV_EVAL, NEW_EVAL).
+        # held_out_final = false.  진짜 untouched test 를 나중에 만들면
+        # HELDOUT_EVAL 이라는 별도 이름을 쓴다.
+        "PAPER_EVAL_POSITIVE": all_positive,
+        "PAPER_EVAL_NEGATIVE": all_negative,
         "ALL_AVAILABLE_POSITIVE": all_positive,
         "ALL_AVAILABLE_NEGATIVE": all_negative,
     }
@@ -1958,35 +1972,36 @@ def write_manifest_views(
     atomic_write_csv(manifests / "sessions.csv", _session_rows(root, frames), SESSION_COLUMNS)
 
 
-DOMAIN_CELLS = tuple(
-    f"{env}_{lig}_{obj}"
-    for env in ("indoor", "outdoor")
-    for lig in ("day", "night")
-    for obj in ("plastic", "wood")
-)
+MAIN_DOMAINS = ("outside", "night")
+CONDITIONAL_DOMAINS = ("noapril",)
+APPENDIX_ONLY_DOMAINS = ("cad",)
+ACQUISITION_DOMAINS = ("outside", "night", "noapril", "cad", "forklift",
+                       "other", "unknown")
 
 
-def derive_appearance_domain(environment: str, lighting: str) -> str:
-    """environment + lighting -> appearance_domain.  사람이 입력하는 값이 아니다.
+def load_acquisition_domain_map(root: Path) -> dict[str, Any]:
+    """세션 -> acquisition_domain.  근거가 있는 것만 담긴다.
 
-    한쪽이라도 unknown 이면 unknown 이다 — 추론하지 않는다
-    (DATASET_CONTRACT invariant `unknown_metadata_is_not_inferred`).
+    파일이 없으면 빈 매핑이다 — 그 경우 모든 세션이 unknown 이 된다.
+    파일명으로 추론하지 않는다.
     """
-    env = str(environment or "unknown").strip().lower()
-    lig = str(lighting or "unknown").strip().lower()
-    if env in {"indoor", "outdoor"} and lig in {"day", "night"}:
-        return f"{env}_{lig}"
-    return "unknown"
-
-
-def domain_cell(row: Mapping[str, str]) -> str:
-    """8-cell 중 어디인가.  축 하나라도 미상이면 'unknown'."""
-    dom = derive_appearance_domain(row.get("environment", "unknown"),
-                                   row.get("lighting", "unknown"))
-    obj = str(row.get("object_type", "unknown")).strip().lower()
-    if dom == "unknown" or obj not in {"plastic", "wood"}:
-        return "unknown"
-    return f"{dom}_{obj}"
+    path = root / "ACQUISITION_DOMAIN_MAP.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    sessions = payload.get("sessions", {})
+    if not isinstance(sessions, dict):
+        raise WorkspaceError("ACQUISITION_DOMAIN_MAP.json: sessions must be an object")
+    out: dict[str, Any] = {}
+    for session, spec in sessions.items():
+        domain = str((spec or {}).get("domain", "unknown")).strip().lower()
+        if domain not in ALLOWED_VALUES["acquisition_domain"]:
+            raise WorkspaceError(
+                f"ACQUISITION_DOMAIN_MAP.json: {session} has invalid domain "
+                f"{domain!r}; allowed={sorted(ALLOWED_VALUES['acquisition_domain'])}"
+            )
+        out[session] = domain
+    return out
 
 
 def condition_membership(row: Mapping[str, str]) -> set[str]:
@@ -1995,8 +2010,9 @@ def condition_membership(row: Mapping[str, str]) -> set[str]:
         matched.add(str(row["object_type"]))
     if row.get("lighting") in {"day", "night"}:
         matched.add(str(row["lighting"]))
-    if row.get("environment") in {"indoor", "outdoor"}:
-        matched.add(str(row["environment"]))
+    domain = str(row.get("acquisition_domain", "unknown")).strip().lower()
+    if domain in ACQUISITION_DOMAINS and domain != "unknown":
+        matched.add(f"domain:{domain}")
     if row.get("occlusion") in {"mild", "medium", "heavy"}:
         matched.add("occlusion")
     if row.get("truncation") in {"mild", "medium", "heavy"}:
@@ -2012,7 +2028,7 @@ def condition_membership(row: Mapping[str, str]) -> set[str]:
 
 # UNKNOWN 을 한 덩어리로 세면 view_bin 하나 때문에 전 행이 UNKNOWN 이 되어
 # domain readiness 를 읽을 수 없다.  축별로 나눈다.
-CORE_DOMAIN_METADATA_FIELDS = ("object_type", "environment", "lighting")
+CORE_DOMAIN_METADATA_FIELDS = ("object_type", "acquisition_domain")
 ROBUSTNESS_METADATA_FIELDS = ("occlusion", "truncation", "distance_bin",
                               "elevation_bin")
 AUX_METADATA_FIELDS = ("view_bin",)
@@ -2167,17 +2183,33 @@ def render_progress_report(
 ) -> str:
     value = compute_progress(frames)
     counts, _populations = _evaluation_counts(root, frames)
-    _pos = evaluation_population_views(frames)["ALL_AVAILABLE_POSITIVE"]
+    _pos = evaluation_population_views(frames)["PAPER_EVAL_POSITIVE"]
     unknown_core = sum(1 for r in _pos if core_domain_metadata_unknown(r))
     unknown_rob = sum(1 for r in _pos if robustness_metadata_unknown(r))
     unknown_aux = sum(1 for r in _pos if aux_metadata_unknown(r))
     _cells = domain_coverage_rows(frames, targets)
     cell_table = "\n".join(
-        [f"{'Domain/Object':24}{'N':>5}{'Sessions':>10}{'Min':>6}{'Pref':>6}   Status",
-         "-" * 68]
-        + [f"{_CELL_LABEL[c['cell']]:24}{c['frames']:>5}{c['sessions']:>10}"
-           f"{c['minimum']:>6}{c['preferred']:>6}   {c['status']}" for c in _cells]
+        [f"{'Domain':12}{'Obj':9}{'Role':22}{'N':>5}{'Sess':>6}"
+         f"{'Min':>5}{'Pref':>6}   Status",
+         "-" * 82]
+        + [f"{c['domain']:12}{c['object_type']:9}{c['role']:22}"
+           f"{c['frames']:>5}{c['sessions']:>6}{c['minimum']:>5}"
+           f"{c['preferred']:>6}   {c['status']}" for c in _cells]
     )
+    _main_ready = main_domains_ready(_cells)
+    _cov = _condition_counts(_pos)
+    _elev = targets.get("elevation_minimum", targets.get("elevation", {}))
+    _cond = targets["minimum_condition_coverage"]
+    _morph_ok = (_cov["plastic"] >= targets["object_type"]["plastic"]
+                 and _cov["wood"] >= targets["object_type"]["wood"])
+    _rob_ok = all(_cov[k] >= v for k, v in _cond.items()) and all(
+        _cov[k] >= v for k, v in _elev.items())
+    _total_ok = len(_pos) >= targets.get("positive_minimum",
+                                         targets["positive_total"])
+    _dataset_ready = _total_ok and _main_ready and _morph_ok and _rob_ok
+    _neg_min = targets.get("negative_unique_minimum", targets["negative_total"])
+    _neg_status = ("SATISFIED"
+                   if counts["all_negative"] >= _neg_min else "DEFICIT")
     if counts["final_positive"] or counts["final_negative"]:
         alias_status = "READY — REUSED DEV_EVAL, NOT HELD OUT"
         alias_explanation = (
@@ -2230,24 +2262,29 @@ Negative             {counts['physical_final_negative']:4d}
 
 {alias_explanation}
 
-# Combined evaluation target progress
+# Paper evaluation readiness
 
-아래 목표는 `ALL_AVAILABLE`, 즉 controlled DEV_EVAL과 이후 추가되는 physical
-FINAL을 합친 SHA256-deduplicated evaluation 전체로 계산한다. DEV와 FINAL을 별도
-목표로 나누지 않는다.
+목표는 `PAPER_EVAL` 기준이다 — SHA256-deduplicated union(DEV_EVAL, NEW_EVAL).
+`held_out_final = false` 다. 진짜 untouched test 를 나중에 만들면 `HELDOUT_EVAL`
+이라는 별도 이름을 쓴다.
 
 ```text
-Evaluation target
-Current positive     {value.positive_total:4d} / {targets.get('preferred_positive', targets['positive_total'])} preferred
-                     {value.positive_total:4d} / {targets.get('minimum_publishable_positive', targets['positive_total'])} minimum
+Positive total       {value.positive_total:4d} / {targets.get('positive_minimum', targets['positive_total'])} minimum
+DATASET_READY        {str(_dataset_ready).upper()}
+
+DATASET_READY 는 네 조건을 **동시에** 만족해야 참이다
+  total >= minimum                  {str(_total_ok).lower()}
+  MAIN domain coverage              {str(_main_ready).lower()}
+  morphology coverage               {str(_morph_ok).lower()}
+  robustness minimum coverage       {str(_rob_ok).lower()}
 
 Object
 Plastic              {value.plastic:4d} / {targets['object_type']['plastic']}
 Wood                 {value.wood:4d} / {targets['object_type']['wood']}
 
-Lighting
-DAY                  {value.day:4d} / {targets['lighting']['day']}
-NIGHT                {value.night:4d} / {targets['lighting']['night']}
+Lighting (descriptive — quota 없음)
+DAY                  {value.day:4d}
+NIGHT                {value.night:4d}
 
 Condition coverage
 Clean                {value.clean:4d} / {targets['minimum_condition_coverage']['clean']}
@@ -2256,12 +2293,12 @@ Truncation           {value.truncation:4d} / {targets['minimum_condition_coverag
 Far                  {value.far:4d} / {targets['minimum_condition_coverage']['far']}
 
 Elevation
-Low                  {value.low:4d} / {targets['elevation']['low']}
-Mid                  {value.mid:4d} / {targets['elevation']['mid']}
-High                 {value.high:4d} / {targets['elevation']['high']}
+Low                  {value.low:4d} / {_elev['low']}
+Mid                  {value.mid:4d} / {_elev['mid']}
+High                 {value.high:4d} / {_elev['high']}
 
 Negative
-Negative             {value.negative:4d} / {targets['negative_total']}
+Negative unique      {counts['all_negative']:4d} / {_neg_min}   {_neg_status}
 
 UNKNOWN_METADATA     {value.unknown_metadata:4d}
 ```
@@ -2275,22 +2312,22 @@ UNKNOWN_METADATA     {value.unknown_metadata:4d}
 읽을 수 없다. 축을 나눈다.
 
 ```text
-CORE_DOMAIN_METADATA_UNKNOWN       {unknown_core:4d}   object_type · environment · lighting
+CORE_DOMAIN_METADATA_UNKNOWN       {unknown_core:4d}   object_type · acquisition_domain
 ROBUSTNESS_METADATA_UNKNOWN        {unknown_rob:4d}   occlusion · truncation · distance · elevation
 AUX_METADATA_UNKNOWN               {unknown_aux:4d}   view
 ```
 
 domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
 
-## Domain cells (8)
+## Acquisition domains
 
 ```text
 {cell_table}
 ```
 
 상세와 결핍 목록은 `reports/DOMAIN_COVERAGE.md` 를 본다.
-`173 / 300` 한 줄만 보고 domain experiment 진척으로 읽지 말 것 — 셀 배정은
-위 표가 말한다.
+`173 / 300` 한 줄만 보고 domain experiment 진척으로 읽지 말 것 —
+DATASET_READY 는 위 네 조건을 모두 만족해야 참이다.
 
 # All available evaluation
 
@@ -2661,157 +2698,158 @@ def write_duplicate_audit(root: Path, frames: Sequence[Mapping[str, str]]) -> in
 def domain_coverage_rows(
     frames: Sequence[Mapping[str, str]], targets: Mapping[str, Any]
 ) -> list[dict[str, Any]]:
-    """8-cell 별 frame 수 · 독립 세션 수 · 상태.
+    """acquisition domain 별 frame 수 · 독립 세션 수 · 상태.
 
-    frame 수만 채우고 READY 로 넘기지 않는다 — 한 세션에서 몰아 찍은 50장은
-    도메인을 대표하지 못한다.  그래서 세션 수를 함께 게이트한다.
+    frame 수만 채우고 READY 로 넘기지 않는다 — 같은 영상에서 인접 50장을 뽑아도
+    독립 표본 50개가 아니다.  그래서 세션 수를 따로 게이트한다.
+
+    MAIN domain adaptation 은 morphology confound 를 없애려고 **plastic 만** 센다.
     """
-    populations = evaluation_population_views(frames)
-    positive = populations["ALL_AVAILABLE_POSITIVE"]
-    cells = targets.get("domain_cells", {})
+    positive = evaluation_population_views(frames)["PAPER_EVAL_POSITIVE"]
+    main = targets.get("main_acquisition_domains", {})
+    conditional = targets.get("conditional_domains", {})
 
-    buckets: dict[str, list[Mapping[str, str]]] = {c: [] for c in DOMAIN_CELLS}
-    unknown_rows: list[Mapping[str, str]] = []
-    for row in positive:
-        cell = domain_cell(row)
-        if cell in buckets:
-            buckets[cell].append(row)
-        else:
-            unknown_rows.append(row)
+    def tally(domain: str, object_type: str | None) -> tuple[int, set[str]]:
+        rows = [
+            r for r in positive
+            if str(r.get("acquisition_domain", "unknown")).strip().lower() == domain
+            and (object_type is None or r.get("object_type") == object_type)
+        ]
+        return len(rows), {str(r.get("session_id", "")) for r in rows if r.get("session_id")}
 
     out: list[dict[str, Any]] = []
-    for cell in DOMAIN_CELLS:
-        rows = buckets[cell]
-        spec = cells.get(cell, {})
-        minimum = int(spec.get("minimum_frames", 40))
-        preferred = int(spec.get("preferred_frames", 50))
-        min_sessions = int(spec.get("minimum_sessions", 2))
-        sessions = {str(r.get("session_id", "")) for r in rows if r.get("session_id")}
-        n, ns = len(rows), len(sessions)
+    for domain, spec in list(main.items()) + list(conditional.items()):
+        is_main = domain in main
+        obj = spec.get("object_type")
+        minimum = int(spec.get("minimum_frames", spec.get("main_minimum_frames", 40)))
+        preferred = int(spec.get("preferred_frames", spec.get("main_preferred_frames", 50)))
+        min_sessions = int(spec.get("minimum_sessions", spec.get("main_minimum_sessions", 2)))
+        n, sessions = tally(domain, obj)
+        ns = len(sessions)
 
-        if n == 0:
-            status = "METADATA_UNKNOWN" if unknown_rows else "DEFICIT"
-        elif n < minimum:
+        frame_ready = n >= minimum
+        session_ready = ns >= min_sessions
+        if not frame_ready and not session_ready:
             status = "DEFICIT"
-        elif ns < min_sessions:
-            status = "SESSION_DEFICIT" if n >= minimum else "COUNT_ONLY"
+        elif not frame_ready:
+            status = "FRAME_DEFICIT"
+        elif not session_ready:
+            status = "SESSION_DEFICIT"
         elif n >= preferred:
             status = "PREFERRED_READY"
         else:
             status = "MINIMUM_READY"
 
         out.append({
-            "cell": cell, "frames": n, "sessions": ns,
+            "domain": domain, "object_type": obj or "any",
+            "role": "MAIN_REQUIRED" if is_main else "CONDITIONAL",
+            "frames": n, "sessions": ns, "session_ids": sorted(sessions),
             "minimum": minimum, "preferred": preferred,
-            "minimum_sessions": min_sessions, "status": status,
+            "minimum_sessions": min_sessions,
+            "frame_ready": frame_ready, "session_ready": session_ready,
+            "status": status,
             "deficit_to_minimum": max(0, minimum - n),
             "deficit_to_preferred": max(0, preferred - n),
-            "session_ids": sorted(sessions),
+        })
+
+    for domain in targets.get("appendix_only_domains", {}):
+        n, sessions = tally(domain, None)
+        out.append({
+            "domain": domain, "object_type": "any", "role": "APPENDIX_STRESS_ONLY",
+            "frames": n, "sessions": len(sessions), "session_ids": sorted(sessions),
+            "minimum": 0, "preferred": 0, "minimum_sessions": 0,
+            "frame_ready": True, "session_ready": True,
+            "status": "APPENDIX_ONLY",
+            "deficit_to_minimum": 0, "deficit_to_preferred": 0,
         })
     return out
 
 
-_CELL_LABEL = {
-    "indoor_day_plastic": "Indoor-Day Plastic",
-    "indoor_day_wood": "Indoor-Day Wood",
-    "indoor_night_plastic": "Indoor-Night Plastic",
-    "indoor_night_wood": "Indoor-Night Wood",
-    "outdoor_day_plastic": "Outdoor-Day Plastic",
-    "outdoor_day_wood": "Outdoor-Day Wood",
-    "outdoor_night_plastic": "Outdoor-Night Plastic",
-    "outdoor_night_wood": "Outdoor-Night Wood",
-}
+def main_domains_ready(rows: Sequence[Mapping[str, Any]]) -> bool:
+    """MAIN_REQUIRED 도메인이 전부 frame+session 게이트를 통과했나."""
+    main = [r for r in rows if r["role"] == "MAIN_REQUIRED"]
+    return bool(main) and all(r["frame_ready"] and r["session_ready"] for r in main)
 
 
 def render_domain_coverage(
     frames: Sequence[Mapping[str, str]], targets: Mapping[str, Any]
 ) -> str:
     rows = domain_coverage_rows(frames, targets)
-    positive = evaluation_population_views(frames)["ALL_AVAILABLE_POSITIVE"]
-    n_pos = len(positive)
-    assigned = sum(r["frames"] for r in rows)
-    core_unknown = sum(1 for r in positive if core_domain_metadata_unknown(r))
-    env_unknown = sum(
-        1 for r in positive
-        if str(r.get("environment", "unknown")).strip().lower() in {"", "unknown"}
+    positive = evaluation_population_views(frames)["PAPER_EVAL_POSITIVE"]
+    counts = Counter(
+        str(r.get("acquisition_domain", "unknown")).strip().lower() for r in positive
     )
 
-    lines = ["# Domain coverage (8 cells)", ""]
+    lines = ["# Acquisition domain coverage", ""]
+    lines.append(
+        "`acquisition_domain` 은 환경 factor 가 아니라 **capture provenance** 다.\n"
+        "indoor/outdoor x day/night 2x2 factorial 설계는 폐기했다 — 두 축을\n"
+        "독립으로 가를 provenance 가 데이터에 없다.\n"
+    )
+    lines.append("")
     lines.append("```text")
     lines.append(
-        f"{'Domain/Object':26}{'Frames':>7}{'Sessions':>10}"
-        f"{'Minimum':>9}{'Preferred':>11}   Status"
+        f"{'Domain':12}{'Obj':9}{'Role':22}{'N':>5}{'Sess':>6}"
+        f"{'Min':>5}{'Pref':>6}{'MinSess':>9}   Status"
     )
-    lines.append("-" * 78)
+    lines.append("-" * 92)
     for r in rows:
         lines.append(
-            f"{_CELL_LABEL[r['cell']]:26}{r['frames']:>7}{r['sessions']:>10}"
-            f"{r['minimum']:>9}{r['preferred']:>11}   {r['status']}"
+            f"{r['domain']:12}{r['object_type']:9}{r['role']:22}"
+            f"{r['frames']:>5}{r['sessions']:>6}{r['minimum']:>5}"
+            f"{r['preferred']:>6}{r['minimum_sessions']:>9}   {r['status']}"
         )
-    lines.append("-" * 78)
-    lines.append(
-        f"{'Assigned to a cell':26}{assigned:>7}"
-        f"{'':>10}{'':>9}{'':>11}   of {n_pos} positives"
-    )
     lines.append("```")
     lines.append("")
 
+    lines.append("## Frames per acquisition domain (전체 PAPER_EVAL positive)")
+    lines.append("")
     lines.append("```text")
-    lines.append("Why cells are empty")
-    lines.append(f"  positive total                     {n_pos}")
-    lines.append(f"  core domain metadata unknown       {core_unknown}")
-    lines.append(f"  environment unknown                {env_unknown}")
+    for domain in ACQUISITION_DOMAINS:
+        if counts.get(domain):
+            lines.append(f"{domain:12}{counts[domain]:>6}")
+    lines.append(f"{'TOTAL':12}{len(positive):>6}")
     lines.append("```")
     lines.append("")
-    lines.append(
-        "`environment` 는 근거가 있을 때만 채운다. 세션명이나 폴더명에 `outside` 가\n"
-        "들어간다는 이유로 outdoor 로 확정하지 않는다\n"
-        "(`DATASET_CONTRACT.json` 의 `unknown_metadata_is_not_inferred`).\n"
-    )
-    lines.append("")
+
     lines.append("## Status")
     lines.append("")
     lines.append("```text")
     lines.append("PREFERRED_READY    frames >= preferred AND sessions >= minimum_sessions")
     lines.append("MINIMUM_READY      frames >= minimum   AND sessions >= minimum_sessions")
-    lines.append("SESSION_DEFICIT    frames 충족 · 독립 세션 부족")
-    lines.append("COUNT_ONLY         frames 만 충족")
-    lines.append("METADATA_UNKNOWN   축 미상이라 셀 배정 자체가 안 됨")
-    lines.append("DEFICIT            frames 부족")
+    lines.append("SESSION_DEFICIT    frames 충족 · 독립 세션 부족  <- 인접 프레임 몰아찍기 방지")
+    lines.append("FRAME_DEFICIT      세션 충족 · frames 부족")
+    lines.append("DEFICIT            둘 다 부족")
+    lines.append("APPENDIX_ONLY      MAIN readiness 계산에 넣지 않는다")
     lines.append("```")
     lines.append("")
 
-    short = [r for r in rows if r["deficit_to_preferred"] > 0]
+    short = [r for r in rows
+             if r["role"] != "APPENDIX_STRESS_ONLY" and r["deficit_to_preferred"] > 0]
     if short:
-        lines.append("## Deficit to preferred (400)")
+        lines.append("## Deficit")
         lines.append("")
         lines.append("```text")
-        lines.append(f"{'Domain/Object':26}{'have':>6}{'to min':>8}{'to preferred':>14}")
-        lines.append("-" * 54)
+        lines.append(f"{'Domain':12}{'Obj':9}{'have':>6}{'to min':>8}{'to preferred':>14}")
+        lines.append("-" * 49)
         for r in sorted(short, key=lambda x: -x["deficit_to_preferred"]):
             lines.append(
-                f"{_CELL_LABEL[r['cell']]:26}{r['frames']:>6}"
+                f"{r['domain']:12}{r['object_type']:9}{r['frames']:>6}"
                 f"{r['deficit_to_minimum']:>8}{r['deficit_to_preferred']:>14}"
             )
-        lines.append("-" * 54)
-        lines.append(
-            f"{'TOTAL':26}{sum(r['frames'] for r in rows):>6}"
-            f"{sum(r['deficit_to_minimum'] for r in rows):>8}"
-            f"{sum(r['deficit_to_preferred'] for r in rows):>14}"
-        )
         lines.append("```")
         lines.append("")
 
     lines.append("## M2 dataset gate")
     lines.append("")
-    ok_min = all(r["status"] in {"MINIMUM_READY", "PREFERRED_READY"} for r in rows)
-    ok_pref = all(r["status"] == "PREFERRED_READY" for r in rows)
     lines.append("```text")
-    lines.append(f"M2_DATASET_MINIMUM_READY     {str(ok_min).lower()}")
-    lines.append(f"M2_DATASET_PREFERRED_READY   {str(ok_pref).lower()}")
+    lines.append(f"MAIN_DOMAINS_READY   {str(main_domains_ready(rows)).lower()}")
     lines.append("```")
     lines.append("")
-    lines.append("이 게이트가 참이 아니면 `_docs/paper/EXPERIMENTS.md` 의 M2 는 성립하지 않는다.")
+    lines.append(
+        "이 게이트가 참이 아니면 `_docs/paper/EXPERIMENTS.md` 의 M2 는 성립하지 않는다.\n"
+        "도메인 배정 근거는 `ACQUISITION_DOMAIN_MAP.json` 에 세션별로 적혀 있다.\n"
+    )
     lines.append("")
     return "\n".join(lines)
 

@@ -37,8 +37,7 @@
       "sha256": "7e6359c1fc3dbaf6c0adfb7a9f935d53bc668c63cd1c3aab290c680ee26bb6e0",
       "reason": "frozen source membership is preserved, not deduplicated"
     },
-    "appearance_domain_is_derived_not_annotated": true,
-    "domain_cell_requires_all_three_axes_known": true
+    "acquisition_domain_requires_explicit_session_provenance": true
   },
   "final_eval_alias_policy": {
     "source_population": "DEV_EVAL",
@@ -71,16 +70,13 @@
       "night",
       "unknown"
     ],
-    "environment": [
-      "indoor",
-      "outdoor",
-      "unknown"
-    ],
-    "appearance_domain": [
-      "indoor_day",
-      "indoor_night",
-      "outdoor_day",
-      "outdoor_night",
+    "acquisition_domain": [
+      "cad",
+      "forklift",
+      "night",
+      "noapril",
+      "other",
+      "outside",
       "unknown"
     ],
     "usage_role": [
@@ -135,8 +131,12 @@
     "low": "elevation_bin == low",
     "mid": "elevation_bin == mid",
     "high": "elevation_bin == high",
-    "indoor": "environment == indoor",
-    "outdoor": "environment == outdoor"
+    "domain:outside": "acquisition_domain == outside",
+    "domain:night": "acquisition_domain == night",
+    "domain:noapril": "acquisition_domain == noapril",
+    "domain:cad": "acquisition_domain == cad",
+    "domain:forklift": "acquisition_domain == forklift",
+    "domain:other": "acquisition_domain == other"
   },
   "source_of_truth": {
     "frames": "manifests/frames.csv",
@@ -175,25 +175,12 @@
       "negative": "SHA256-deduplicated union(DEV_EVAL_NEGATIVE, physical FINAL negatives)",
       "held_out_final": false,
       "note": "DEV may have been used for model selection"
-    }
-  },
-  "domain_cells": {
-    "definition": "environment(2) x lighting(2) x object_type(2) = 8",
-    "cells": [
-      "indoor_day_plastic",
-      "indoor_day_wood",
-      "indoor_night_plastic",
-      "indoor_night_wood",
-      "outdoor_day_plastic",
-      "outdoor_day_wood",
-      "outdoor_night_plastic",
-      "outdoor_night_wood"
-    ],
-    "derivation": "appearance_domain = environment + lighting; cell = appearance_domain + object_type",
-    "unknown_policy": "축 하나라도 unknown 이면 cell 은 unknown — 추론하지 않는다",
-    "readiness": {
-      "minimum": "frames >= 40 AND independent sessions >= 2",
-      "preferred": "frames >= 50 AND independent sessions >= 2"
+    },
+    "PAPER_EVAL": {
+      "positive": "SHA256-deduplicated union(DEV_EVAL_POSITIVE, NEW_EVAL positives)",
+      "negative": "SHA256-deduplicated union(DEV_EVAL_NEGATIVE, NEW_EVAL negatives)",
+      "held_out_final": false,
+      "note": "paper-facing 정식 이름. FINAL_EVAL 은 legacy alias 로만 남기고 논문 문서/표/report 에 노출하지 않는다. 진짜 untouched test 를 나중에 만들면 HELDOUT_EVAL 이라는 별도 이름을 쓴다."
     }
   },
   "usage_roles": {
@@ -210,5 +197,30 @@
       "capture_session_id overlap == 0"
     ],
     "on_violation": "보고만 한다 — 자동으로 데이터를 지우지 않는다"
+  },
+  "acquisition_domains": {
+    "definition": "capture provenance category — 환경 factor 가 아니다",
+    "deprecated": "indoor/outdoor x day/night 2x2 factorial (2026-09-01 폐기: provenance 부재)",
+    "allowed": [
+      "outside",
+      "night",
+      "noapril",
+      "cad",
+      "forklift",
+      "other",
+      "unknown"
+    ],
+    "map": "ACQUISITION_DOMAIN_MAP.json",
+    "roles": {
+      "outside": "MAIN_REQUIRED",
+      "night": "MAIN_REQUIRED",
+      "noapril": "CONDITIONAL",
+      "cad": "APPENDIX_STRESS_ONLY"
+    },
+    "readiness": {
+      "frame_ready": "frames >= minimum",
+      "session_ready": "independent eval sessions >= minimum_sessions",
+      "main_ready": "모든 MAIN_REQUIRED 도메인이 둘 다 충족"
+    }
   }
 }

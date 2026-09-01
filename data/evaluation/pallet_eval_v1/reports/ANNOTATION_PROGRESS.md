@@ -38,38 +38,43 @@ Negative                0
 `population_role=DEV`도 바꾸지 않았다. physical FINAL은 이 실행 alias에 섞지
 않는다. 따라서 `FINAL_EVAL` 이름은 held-out FINAL을 뜻하지 않는다.
 
-# Combined evaluation target progress
+# Paper evaluation readiness
 
-아래 목표는 `ALL_AVAILABLE`, 즉 controlled DEV_EVAL과 이후 추가되는 physical
-FINAL을 합친 SHA256-deduplicated evaluation 전체로 계산한다. DEV와 FINAL을 별도
-목표로 나누지 않는다.
+목표는 `PAPER_EVAL` 기준이다 — SHA256-deduplicated union(DEV_EVAL, NEW_EVAL).
+`held_out_final = false` 다. 진짜 untouched test 를 나중에 만들면 `HELDOUT_EVAL`
+이라는 별도 이름을 쓴다.
 
 ```text
-Evaluation target
-Current positive      173 / 400 preferred
-                      173 / 300 minimum
+Positive total        173 / 300 minimum
+DATASET_READY        FALSE
+
+DATASET_READY 는 네 조건을 **동시에** 만족해야 참이다
+  total >= minimum                  false
+  MAIN domain coverage              false
+  morphology coverage               false
+  robustness minimum coverage       false
 
 Object
-Plastic               128 / 200
-Wood                   45 / 200
+Plastic               128 / 180
+Wood                   45 / 120
 
-Lighting
-DAY                   100 / 200
-NIGHT                  28 / 200
+Lighting (descriptive — quota 없음)
+DAY                   100
+NIGHT                  28
 
 Condition coverage
-Clean                  67 / 120
-Occlusion              93 / 100
-Truncation             28 / 80
-Far                     7 / 80
+Clean                  67 / 80
+Occlusion              93 / 80
+Truncation             28 / 50
+Far                     7 / 50
 
 Elevation
-Low                    97 / 120
-Mid                    59 / 160
-High                   17 / 120
+Low                    97 / 60
+Mid                    59 / 60
+High                   17 / 40
 
 Negative
-Negative             2688 / 1500
+Negative unique      2688 / 1500   SATISFIED
 
 UNKNOWN_METADATA      173
 ```
@@ -83,31 +88,27 @@ UNKNOWN_METADATA      173
 읽을 수 없다. 축을 나눈다.
 
 ```text
-CORE_DOMAIN_METADATA_UNKNOWN        173   object_type · environment · lighting
+CORE_DOMAIN_METADATA_UNKNOWN         45   object_type · acquisition_domain
 ROBUSTNESS_METADATA_UNKNOWN           0   occlusion · truncation · distance · elevation
 AUX_METADATA_UNKNOWN                173   view
 ```
 
 domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
 
-## Domain cells (8)
+## Acquisition domains
 
 ```text
-Domain/Object               N  Sessions   Min  Pref   Status
---------------------------------------------------------------------
-Indoor-Day Plastic          0         0    40    50   METADATA_UNKNOWN
-Indoor-Day Wood             0         0    40    50   METADATA_UNKNOWN
-Indoor-Night Plastic        0         0    40    50   METADATA_UNKNOWN
-Indoor-Night Wood           0         0    40    50   METADATA_UNKNOWN
-Outdoor-Day Plastic         0         0    40    50   METADATA_UNKNOWN
-Outdoor-Day Wood            0         0    40    50   METADATA_UNKNOWN
-Outdoor-Night Plastic       0         0    40    50   METADATA_UNKNOWN
-Outdoor-Night Wood          0         0    40    50   METADATA_UNKNOWN
+Domain      Obj      Role                      N  Sess  Min  Pref   Status
+----------------------------------------------------------------------------------
+outside     plastic  MAIN_REQUIRED            70     3   50    60   PREFERRED_READY
+night       plastic  MAIN_REQUIRED            28     2   50    60   FRAME_DEFICIT
+noapril     plastic  CONDITIONAL              12     1   40    50   DEFICIT
+cad         any      APPENDIX_STRESS_ONLY     18     1    0     0   APPENDIX_ONLY
 ```
 
 상세와 결핍 목록은 `reports/DOMAIN_COVERAGE.md` 를 본다.
-`173 / 300` 한 줄만 보고 domain experiment 진척으로 읽지 말 것 — 셀 배정은
-위 표가 말한다.
+`173 / 300` 한 줄만 보고 domain experiment 진척으로 읽지 말 것 —
+DATASET_READY 는 위 네 조건을 모두 만족해야 참이다.
 
 # All available evaluation
 

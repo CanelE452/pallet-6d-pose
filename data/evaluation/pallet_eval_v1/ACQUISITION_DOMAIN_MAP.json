@@ -1,0 +1,82 @@
+{
+  "schema_version": "acquisition_domain_map_v1",
+  "purpose": "acquisition_domain 은 환경 factor 가 아니라 capture provenance category 다. indoor/outdoor x day/night 2x2 factorial 은 폐기했다 — 두 축을 독립으로 가를 provenance 가 데이터에 없다.",
+  "rules": {
+    "precedence": [
+      "explicit session mapping (이 파일)",
+      "session.json acquisition_domain",
+      "unknown"
+    ],
+    "no_filename_inference": "파일명·폴더명에 outside 가 들어간다는 이유로 확정하지 않는다. 다만 frozen split/document 가 그 세션을 명시적으로 정의하면 그 artifact 를 provenance 로 쓴다.",
+    "unknown_is_allowed": "근거가 없으면 unknown 으로 둔다. 추측하지 않는다."
+  },
+  "sessions": {
+    "eval_pallet07": {
+      "domain": "outside",
+      "role_in_split": "final-test",
+      "evidence": "metric_split_lock.md §1.6 [LOCKED 2026-06-15] — 세션 split 표: OUTSIDE final-test = p09,p07"
+    },
+    "eval_pallet09": {
+      "domain": "outside",
+      "role_in_split": "final-test",
+      "evidence": "metric_split_lock.md §1.6 [LOCKED 2026-06-15] — 세션 split 표: OUTSIDE final-test = p09,p07"
+    },
+    "eval_outside": {
+      "domain": "outside",
+      "role_in_split": "filter-val",
+      "captures": [
+        "capturepallet02",
+        "capturepallet03",
+        "capturepallet05",
+        "capturepallet08"
+      ],
+      "evidence": "metric_split_lock.md §1.6 [LOCKED 2026-06-15] — 세션 split 표: OUTSIDE filter-val = p08,p02,p03,p04,p05. 구성 캡처를 source_image_path 로 실측 대조함. _docs/EVAL_SET_CANONICAL.md:31 도 'filter-val 세션' 으로 표기."
+    },
+    "eval_night08": {
+      "domain": "night",
+      "role_in_split": "final-test",
+      "evidence": "metric_split_lock.md §1.6 [LOCKED 2026-06-15] — 세션 split 표: NIGHT final-test = n09,n08"
+    },
+    "eval_night09": {
+      "domain": "night",
+      "role_in_split": "final-test",
+      "evidence": "metric_split_lock.md §1.6 [LOCKED 2026-06-15] — 세션 split 표: NIGHT final-test = n09,n08"
+    },
+    "eval_noapril": {
+      "domain": "noapril",
+      "role_in_split": null,
+      "evidence": "source_image_path 가 capture0403noapril_manual_gt 로 단일 capture 계보다. split lock 의 OUTSIDE/NIGHT 어느 목록에도 없어 별도 acquisition 계보로 둔다."
+    },
+    "eval_cad": {
+      "domain": "cad",
+      "role_in_split": "dropped_from_outside",
+      "evidence": "metric_split_lock.md §1.6 [LOCKED 2026-06-15] — 세션 split 표: 'outside 129* ... *22=capturepalletcad(드롭) -> 유효 107' — split lock 이 outside 에서 명시적으로 뺐다."
+    },
+    "wood_183705": {
+      "domain": "unknown",
+      "evidence": "wood/selected/pallet_20260618 계보. split lock 은 plastic capture 만 다루며 이 세션의 촬영 조건을 정의하지 않는다. 추측 금지."
+    },
+    "wood_184309": {
+      "domain": "unknown",
+      "evidence": "wood/selected/pallet_20260618 계보. 위와 동일 — 근거 없음."
+    }
+  },
+  "allowed_domains": [
+    "outside",
+    "night",
+    "noapril",
+    "cad",
+    "forklift",
+    "other",
+    "unknown"
+  ],
+  "paper_role": {
+    "outside": "MAIN_REQUIRED",
+    "night": "MAIN_REQUIRED",
+    "noapril": "CONDITIONAL — 독립 ADAPT/EVAL 세션 확보 시 MAIN_3RD, 아니면 SUPPORTING",
+    "cad": "APPENDIX_STRESS_ONLY — close-up/calibration 특성 + 과거 detection collapse",
+    "forklift": "SUPPORTING",
+    "other": "SUPPORTING",
+    "unknown": "미배정"
+  }
+}
