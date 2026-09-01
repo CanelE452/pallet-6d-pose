@@ -4,31 +4,31 @@
 통합 집계만 표시한다.
 
 ```text
-Positive total        305 / 300
+Positive total        319 / 300
 
 Object
-Plastic               180 / 180
+Plastic               194 / 180
 Wood                  125 / 120
 
 Lighting
 DAY                   168
-NIGHT                  92
+NIGHT                 106
 
 Condition coverage
-Clean                 149 / 80
-Occlusion             127 / 80
-Truncation             50 / 50
-Far                    58 / 50
+Clean                 155 / 80
+Occlusion             135 / 80
+Truncation             51 / 50
+Far                    59 / 50
 
 Elevation
-Low                   119 / 60
-Mid                   136 / 60
-High                   48 / 40
+Low                   122 / 60
+Mid                   138 / 60
+High                   57 / 40
 
 Negative
 Negative unique      2688 / 1500   SATISFIED
 
-UNKNOWN_METADATA      305
+UNKNOWN_METADATA      319
 ```
 
 `UNKNOWN_METADATA`는 통합 positive 중 object/lighting/condition metadata가 하나라도
@@ -37,11 +37,11 @@ UNKNOWN_METADATA      305
 ## Dataset readiness
 
 ```text
-DATASET_READY        FALSE
+DATASET_READY        TRUE
 
 DATASET_READY 는 네 조건을 동시에 만족해야 참이다
   total >= minimum                  true
-  MAIN domain coverage              false
+  MAIN domain coverage              true
   morphology coverage               true
   robustness minimum coverage       true
 ```
@@ -54,7 +54,7 @@ DATASET_READY 는 네 조건을 동시에 만족해야 참이다
 ```text
 CORE_DOMAIN_METADATA_UNKNOWN        113   object_type · acquisition_domain
 ROBUSTNESS_METADATA_UNKNOWN           2   occlusion · truncation · distance · elevation
-AUX_METADATA_UNKNOWN                305   view
+AUX_METADATA_UNKNOWN                319   view
 ```
 
 domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
@@ -65,7 +65,7 @@ domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
 Condition     Object      Frames  Minimum  Preferred  Sessions  MinSess   Status
 ----------------------------------------------------------------------------------------
 Daytime       Plastic         70       50         60         3        2   PREFERRED_READY
-Nighttime     Plastic         36       50         60         3        2   FRAME_DEFICIT
+Nighttime     Plastic         50       50         60         3        2   READY
 ```
 
 내부 provenance 대응은 `reports/PAPER_DOMAIN_COVERAGE.md` 를 본다.

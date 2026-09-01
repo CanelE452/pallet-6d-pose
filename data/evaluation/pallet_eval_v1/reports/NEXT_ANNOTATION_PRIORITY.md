@@ -2,9 +2,9 @@
 
 ```text
 Status                    READY
-Positive                   305 / 300
+Positive                   319 / 300
 Negative                  2688 / 1500
-UNKNOWN_METADATA           305
+UNKNOWN_METADATA           319
 Counting population       ALL_AVAILABLE
 Counting policy           One combined collection; SHA256-deduplicated
 New annotation required   NO

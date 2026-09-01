@@ -8,15 +8,7 @@
 Condition     Object      Frames  Minimum  Preferred  Sessions  MinSess   Status
 ----------------------------------------------------------------------------------------
 Daytime       Plastic         70       50         60         3        2   PREFERRED_READY
-Nighttime     Plastic         36       50         60         3        2   FRAME_DEFICIT
-```
-
-## Annotation priority
-
-```text
-Condition     Object      to minimum  to preferred
---------------------------------------------------
-Nighttime     Plastic             14            24
+Nighttime     Plastic         50       50         60         3        2   READY
 ```
 
 ## Internal provenance
@@ -39,5 +31,5 @@ Nighttime     <- acquisition_domain=night + lighting=night + object_type=plastic
 ## M2 dataset gate
 
 ```text
-MAIN_DOMAINS_READY   false
+MAIN_DOMAINS_READY   true
 ```
