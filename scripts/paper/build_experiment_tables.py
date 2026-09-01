@@ -448,6 +448,55 @@ def build_appendix(results: dict) -> str:
             "",
         ]
 
+    # ── A2 unique-quantity-matched control ──────────────────────────────
+    a2 = ["A2_MATCHED_S1", "A2_MATCHED_S2", "A2_MATCHED_S3"]
+    proposed = ["R5_PROPOSED", "R5_PROPOSED_P43", "R5_PROPOSED_P44"]
+    if all(k in results for k in a2 + proposed):
+        import statistics
+        lines += [
+            "## A2 — unique-quantity-matched control",
+            "",
+            "성능 향상이 **선별 품질** 때문인지 **pseudo-label 개수** 때문인지 가른다.",
+            "Naive pool 에서 Proposed 와 같은 unique 개수(259)를 무작위로 뽑아,",
+            "나머지는 전부 같게 두고 3 회 반복했다.  MAIN 의 EXPOSURE-MATCHED 와는",
+            "다른 실험이다 — 여기서 맞추는 것은 노출량이 아니라 unique 개수다.",
+            "",
+            "```text",
+            f"{'Arm':28} {'metric':10} {'rep1':>8} {'rep2':>8} {'rep3':>8} "
+            f"{'mean':>8} {'std':>8}",
+            "─" * 86,
+        ]
+        for label, keys in (("Naive, quantity-matched", a2), ("Proposed", proposed)):
+            for metric, spec, path in (("corner↓", ".3f", "corner_median_px"),
+                                       ("AUROC↑", ".4f", "auroc"),
+                                       ("FPR95↓", ".4f", "fpr95")):
+                values = [metric_block(results[k], "ALL").get(path) for k in keys]
+                if any(v is None for v in values):
+                    continue
+                lines.append(
+                    f"{label:28} {metric:10} "
+                    + " ".join(f"{number(v, spec):>8}" for v in values)
+                    + f" {number(statistics.mean(values), spec):>8}"
+                    + f" {number(statistics.pstdev(values), spec):>8}"
+                )
+        lines += ["```", ""]
+        verdicts = []
+        for metric, path, lower in (("corner", "corner_median_px", True),
+                                    ("AUROC", "auroc", False),
+                                    ("FPR95", "fpr95", True)):
+            control = [metric_block(results[k], "ALL")[path] for k in a2]
+            ours = [metric_block(results[k], "ALL")[path] for k in proposed]
+            sep = (max(ours) < min(control)) if lower else (min(ours) > max(control))
+            verdicts.append(f"{metric}: {'구간 분리' if sep else '구간 겹침'}")
+        lines += [
+            "판정: " + " · ".join(verdicts),
+            "",
+            "구간이 겹치는 지표에서는 **개수를 맞춘 무작위 선별로도 비슷한 값에",
+            "도달한다**는 뜻이다.  그 지표에 대해서는 geometry filter 의 기여를",
+            "주장하지 않는다.  개수 효과와 선별 품질 효과를 합쳐 말하지 않는다.",
+            "",
+        ]
+
     lines += ["## External keypoint baselines", "", "```text",
               "SingleShotPose   NOT_EVALUATED   repository audit 미실시",
               "PVNet            NOT_EVALUATED   repository audit 미실시",

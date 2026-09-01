@@ -62,6 +62,12 @@ MODELS = {
 for _seed in (43, 44):
     for _arm in ("R1_NAIVE", "R5_PROPOSED"):
         MODELS[f"{_arm}_P{_seed}"] = RUNS / f"{_arm}_P{_seed}__FULL/weights/last.pt"
+# A2 — UNIQUE-QUANTITY-MATCHED control (§30).  Proposed 와 unique PL 개수를 맞춘
+# Naive 무작위 표본.  MAIN 의 EXPOSURE-MATCHED 와 다른 실험이므로 섞지 않는다.
+for _seed in (1, 2, 3):
+    MODELS[f"A2_MATCHED_S{_seed}"] = (
+        RUNS / f"A2_NAIVE_MATCHED_S{_seed}__FULL/weights/last.pt"
+    )
 
 SUBGROUPS = {
     "ALL": lambda row: True,
