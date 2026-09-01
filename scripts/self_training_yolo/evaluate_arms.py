@@ -76,6 +76,18 @@ for _seed in (1, 2, 3):
     MODELS[f"A2_MATCHED_S{_seed}"] = (
         RUNS / f"A2_NAIVE_MATCHED_S{_seed}__FULL/weights/last.pt"
     )
+# A12 — self-training strength sensitivity.  Proposed manifest 그대로, pseudo:synthetic
+# 비율만 바꾼다.  총 optimizer update 는 동일하다.
+MODELS["A12_PSEUDO25"] = RUNS / "R5_PROPOSED_W25__FULL/weights/last.pt"
+MODELS["A12_PSEUDO75"] = RUNS / "R5_PROPOSED_S75__FULL/weights/last.pt"
+# Real-FT supervised upper bound.  controlled comparison 이 아니다 — 다른 base 에서
+# real GT 로 학습했다.  PAPER_EVAL 과의 중복은 SHA·파일명 stem 둘 다 0 으로 확인.
+_YOLO_ROOT = REPO_ROOT / "challenge/yolo_pose_one_model"
+MODELS["REALFT_A"] = _YOLO_ROOT / "runs_ft/ft_a_real157_neg259_synth12k/weights/best.pt"
+MODELS["REALFT_B"] = _YOLO_ROOT / "runs_ft/ft_b_patience0_ep40/weights/best.pt"
+MODELS["REALFT_LV1V2"] = (
+    _YOLO_ROOT / "legacy_v1v2_ft/runs/LV1V2_FT_15EP_SEED42/weights/best.pt"
+)
 
 SUBGROUPS = {
     "ALL": lambda row: True,

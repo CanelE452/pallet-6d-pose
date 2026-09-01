@@ -508,6 +508,87 @@ def build_appendix(results: dict) -> str:
             "",
         ]
 
+    # ── A12 self-training strength sensitivity ──────────────────────────
+    sensitivity = [("0.25", "A12_PSEUDO25"), ("0.50 (MAIN)", "R5_PROPOSED"),
+                   ("0.75", "A12_PSEUDO75")]
+    if all(key in results for _, key in sensitivity):
+        lines += [
+            "## A12 — self-training strength sensitivity",
+            "",
+            "Proposed(F4) pseudo-label manifest 를 그대로 쓰고 pseudo:synthetic 비율만",
+            "바꿨다.  총 optimizer update · LR · init · augmentation · seed 는 모두 같다.",
+            "",
+            "묻는 것은 \"Proposed 의 효과가 특정 mixing ratio 에만 의존하는가\" 다.",
+            "**hyperparameter search 가 아니다** — MAIN row 는 결과와 무관하게 0.50 이다.",
+            "",
+            "```text",
+            f"{'Pseudo fraction':16} {'corner↓':>8} {'det↑':>7} {'AUROC↑':>8} "
+            f"{'FPR95↓':>8} {'Day↓*':>8} {'Night↓*':>9}",
+            "─" * 70,
+        ]
+        for label, key in sensitivity:
+            allg = metric_block(results[key], "ALL")
+            day = metric_block(results[key], "Daytime")
+            night = metric_block(results[key], "Nighttime")
+            lines.append(
+                f"{label:16} {number(allg.get('corner_median_px')):>8} "
+                f"{number(allg.get('detection_rate_iou50')):>7} "
+                f"{number(allg.get('auroc'), '.4f'):>8} "
+                f"{number(allg.get('fpr95'), '.4f'):>8} "
+                f"{number(day.get('corner_median_px_all_annotated')):>8} "
+                f"{number(night.get('corner_median_px_all_annotated')):>9}"
+            )
+        values = [metric_block(results[k], "ALL")["corner_median_px"]
+                  for _, k in sensitivity]
+        spread = max(values) - min(values)
+        lines += [
+            "```",
+            "",
+            f"corner spread across ratios: {spread:.3f} px "
+            f"(min {min(values):.3f} / max {max(values):.3f})",
+            "",
+            "* Day/Night 는 all-annotated 진단값이다.",
+            "",
+            "0.25 나 0.75 가 더 좋아도 MAIN row 를 교체하지 않는다.",
+            "",
+        ]
+
+    # ── Real-FT supervised upper bound ──────────────────────────────────
+    realft = [("ft_a (real157+neg259+synth12k)", "REALFT_A"),
+              ("ft_b (patience0 ep40)", "REALFT_B"),
+              ("legacy v1v2 FT", "REALFT_LV1V2")]
+    if any(key in results for _, key in realft):
+        lines += [
+            "## Supervised upper bound (Real-FT)",
+            "",
+            "**controlled comparison 이 아니다.**  이 checkpoint 들은 real GT 로 직접",
+            "학습했고, base 도 R0 가 아니라 다른 synthetic run 이다.  M1 의 controlled",
+            "row 로 읽으면 안 된다 — 도달 가능한 상한을 가늠하는 용도다.",
+            "",
+            "leakage 감사: PAPER_EVAL 319 와의 중복이 **이미지 SHA 0 건, 파일명 stem",
+            "0 건** 이다.  따라서 `LEAKED_SUPERVISED_UPPER_BOUND` 가 아니라 그냥",
+            "`SUPERVISED UPPER BOUND` 로 표기한다.",
+            "",
+            "```text",
+            f"{'Checkpoint':34} {'corner↓':>8} {'det↑':>7} {'AP50-95↑':>9} "
+            f"{'AUROC↑':>8} {'FPR95↓':>8}",
+            "─" * 80,
+        ]
+        for label, key in realft + [("Proposed (label-free)", "R5_PROPOSED")]:
+            if key not in results:
+                continue
+            allg = metric_block(results[key], "ALL")
+            lines.append(
+                f"{label:34} {number(allg.get('corner_median_px')):>8} "
+                f"{number(allg.get('detection_rate_iou50')):>7} "
+                f"{number(results[key].get('box_ap50_95'), '.4f'):>9} "
+                f"{number(allg.get('auroc'), '.4f'):>8} "
+                f"{number(allg.get('fpr95'), '.4f'):>8}"
+            )
+        lines += ["```", "",
+                  "Proposed 는 real label 을 한 장도 쓰지 않았다.  같은 표에 두는 이유는",
+                  "상한과의 거리를 보이기 위해서지 같은 조건의 비교라서가 아니다.", ""]
+
     lines += ["## External keypoint baselines", "", "```text",
               "SingleShotPose   NOT_EVALUATED   repository audit 미실시",
               "PVNet            NOT_EVALUATED   repository audit 미실시",
