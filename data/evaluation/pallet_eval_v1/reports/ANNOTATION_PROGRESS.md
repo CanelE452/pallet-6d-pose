@@ -45,26 +45,28 @@ FINAL을 합친 SHA256-deduplicated evaluation 전체로 계산한다. DEV와 FI
 목표로 나누지 않는다.
 
 ```text
-Positive total        173 / 300
+Evaluation target
+Current positive      173 / 400 preferred
+                      173 / 300 minimum
 
 Object
-Plastic               128 / 180
-Wood                   45 / 120
+Plastic               128 / 200
+Wood                   45 / 200
 
 Lighting
-DAY                   100 / 220
-NIGHT                  28 / 80
+DAY                   100 / 200
+NIGHT                  28 / 200
 
 Condition coverage
-Clean                  67 / 100
-Occlusion              93 / 60
-Truncation             28 / 50
-Far                     7 / 60
+Clean                  67 / 120
+Occlusion              93 / 100
+Truncation             28 / 80
+Far                     7 / 80
 
 Elevation
-Low                    97 / 90
-Mid                    59 / 120
-High                   17 / 90
+Low                    97 / 120
+Mid                    59 / 160
+High                   17 / 120
 
 Negative
 Negative             2688 / 1500
@@ -74,6 +76,38 @@ UNKNOWN_METADATA      173
 
 `UNKNOWN_METADATA`는 combined positive 중 object/lighting/condition metadata가 하나라도
 `unknown`인 frame 수다.
+
+## Metadata unknown — 축별
+
+한 덩어리로 세면 `view` 하나 때문에 전 행이 unknown 이 되어 domain readiness 를
+읽을 수 없다. 축을 나눈다.
+
+```text
+CORE_DOMAIN_METADATA_UNKNOWN        173   object_type · environment · lighting
+ROBUSTNESS_METADATA_UNKNOWN           0   occlusion · truncation · distance · elevation
+AUX_METADATA_UNKNOWN                173   view
+```
+
+domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
+
+## Domain cells (8)
+
+```text
+Domain/Object               N  Sessions   Min  Pref   Status
+--------------------------------------------------------------------
+Indoor-Day Plastic          0         0    40    50   METADATA_UNKNOWN
+Indoor-Day Wood             0         0    40    50   METADATA_UNKNOWN
+Indoor-Night Plastic        0         0    40    50   METADATA_UNKNOWN
+Indoor-Night Wood           0         0    40    50   METADATA_UNKNOWN
+Outdoor-Day Plastic         0         0    40    50   METADATA_UNKNOWN
+Outdoor-Day Wood            0         0    40    50   METADATA_UNKNOWN
+Outdoor-Night Plastic       0         0    40    50   METADATA_UNKNOWN
+Outdoor-Night Wood          0         0    40    50   METADATA_UNKNOWN
+```
+
+상세와 결핍 목록은 `reports/DOMAIN_COVERAGE.md` 를 본다.
+`173 / 300` 한 줄만 보고 domain experiment 진척으로 읽지 말 것 — 셀 배정은
+위 표가 말한다.
 
 # All available evaluation
 

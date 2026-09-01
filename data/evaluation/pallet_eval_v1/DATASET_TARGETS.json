@@ -1,24 +1,82 @@
 {
   "progress_population": "ALL_AVAILABLE",
   "positive_total": 300,
+  "minimum_publishable_positive": 300,
+  "preferred_positive": 400,
   "object_type": {
-    "plastic": 180,
-    "wood": 120
+    "plastic": 200,
+    "wood": 200
+  },
+  "environment": {
+    "indoor": 200,
+    "outdoor": 200
   },
   "lighting": {
-    "day": 220,
-    "night": 80
+    "day": 200,
+    "night": 200
+  },
+  "domain_cells": {
+    "indoor_day_plastic": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    },
+    "indoor_day_wood": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    },
+    "indoor_night_plastic": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    },
+    "indoor_night_wood": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    },
+    "outdoor_day_plastic": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    },
+    "outdoor_day_wood": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    },
+    "outdoor_night_plastic": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    },
+    "outdoor_night_wood": {
+      "preferred_frames": 50,
+      "minimum_frames": 40,
+      "minimum_sessions": 2
+    }
   },
   "minimum_condition_coverage": {
-    "clean": 100,
-    "occlusion": 60,
-    "truncation": 50,
-    "far": 60
+    "clean": 120,
+    "occlusion": 100,
+    "truncation": 80,
+    "far": 80
   },
   "elevation": {
-    "low": 90,
-    "mid": 120,
-    "high": 90
+    "low": 120,
+    "mid": 160,
+    "high": 120
   },
-  "negative_total": 1500
+  "negative_total": 1500,
+  "adaptation_unlabeled_per_domain": {
+    "minimum": 500,
+    "preferred": 1000
+  },
+  "notes": {
+    "positive_total": "= minimum_publishable_positive. 기존 키를 깨지 않으려 유지한다.",
+    "domain_cells": "8 = environment(2) x lighting(2) x object(2). 각 셀 50 x 8 = 400.",
+    "condition_overlap": "condition/elevation 은 서로 중복 가능하며 400 에 더하지 않는다.",
+    "adaptation_unlabeled": "self-training 용 unlabeled — 400 labeled target 에 더하지 않는다."
+  }
 }

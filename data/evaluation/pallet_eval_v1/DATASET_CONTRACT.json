@@ -36,7 +36,9 @@
       ],
       "sha256": "7e6359c1fc3dbaf6c0adfb7a9f935d53bc668c63cd1c3aab290c680ee26bb6e0",
       "reason": "frozen source membership is preserved, not deduplicated"
-    }
+    },
+    "appearance_domain_is_derived_not_annotated": true,
+    "domain_cell_requires_all_three_axes_known": true
   },
   "final_eval_alias_policy": {
     "source_population": "DEV_EVAL",
@@ -67,6 +69,25 @@
     "lighting": [
       "day",
       "night",
+      "unknown"
+    ],
+    "environment": [
+      "indoor",
+      "outdoor",
+      "unknown"
+    ],
+    "appearance_domain": [
+      "indoor_day",
+      "indoor_night",
+      "outdoor_day",
+      "outdoor_night",
+      "unknown"
+    ],
+    "usage_role": [
+      "ADAPT_UNLABELED",
+      "DEV_SUPPORT",
+      "EVAL_LABELED",
+      "NEGATIVE_EVAL",
       "unknown"
     ],
     "occlusion": [
@@ -113,7 +134,9 @@
     "clean": "occlusion == none AND truncation == none",
     "low": "elevation_bin == low",
     "mid": "elevation_bin == mid",
-    "high": "elevation_bin == high"
+    "high": "elevation_bin == high",
+    "indoor": "environment == indoor",
+    "outdoor": "environment == outdoor"
   },
   "source_of_truth": {
     "frames": "manifests/frames.csv",
@@ -153,5 +176,39 @@
       "held_out_final": false,
       "note": "DEV may have been used for model selection"
     }
+  },
+  "domain_cells": {
+    "definition": "environment(2) x lighting(2) x object_type(2) = 8",
+    "cells": [
+      "indoor_day_plastic",
+      "indoor_day_wood",
+      "indoor_night_plastic",
+      "indoor_night_wood",
+      "outdoor_day_plastic",
+      "outdoor_day_wood",
+      "outdoor_night_plastic",
+      "outdoor_night_wood"
+    ],
+    "derivation": "appearance_domain = environment + lighting; cell = appearance_domain + object_type",
+    "unknown_policy": "축 하나라도 unknown 이면 cell 은 unknown — 추론하지 않는다",
+    "readiness": {
+      "minimum": "frames >= 40 AND independent sessions >= 2",
+      "preferred": "frames >= 50 AND independent sessions >= 2"
+    }
+  },
+  "usage_roles": {
+    "EVAL_LABELED": "paper evaluation positive",
+    "NEGATIVE_EVAL": "paper evaluation negative",
+    "ADAPT_UNLABELED": "self-training adaptation pool — evaluation 과 별개 population",
+    "DEV_SUPPORT": "annotated 이지만 paper evaluation 대상이 아님",
+    "unknown": "미배정"
+  },
+  "adaptation_evaluation_separation": {
+    "rule": "같은 appearance domain 이라도 ADAPT session != EVAL session",
+    "gates": [
+      "image sha256 overlap == 0",
+      "capture_session_id overlap == 0"
+    ],
+    "on_violation": "보고만 한다 — 자동으로 데이터를 지우지 않는다"
   }
 }

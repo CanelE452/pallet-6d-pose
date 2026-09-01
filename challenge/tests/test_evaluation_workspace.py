@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import re
 import hashlib
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -11,15 +13,21 @@ from scripts.evaluation.eval_workspace import (
     FRAME_COLUMNS,
     KNOWN_DEV_NEG_DUPLICATE_PATHS,
     KNOWN_DEV_NEG_DUPLICATE_SHA256,
+    KNOWN_DEV_NEG_DUPLICATE_WORKSPACE_PATHS,
+    REUSED_DEV_EVAL_ALIAS_NOTE,
     WorkspaceError,
+    _workspace_readme,
     atomic_write_csv,
+    condition_membership,
     compute_progress,
     copy2_verified,
     evaluation_population_views,
     infer_annotation_tags,
     load_frames,
     load_targets,
+    metadata_unknown,
     read_csv,
+    render_overlay_audit,
     render_progress_report,
     render_priority_report,
     resolve_frame_image_path,
@@ -354,7 +362,7 @@ def test_final_progress_overlap_unknown_and_deletion_refresh(tmp_path: Path) -> 
     image, annotation = _write_final_fixture(root)
 
     line = refresh_after_annotation(root, annotation, image)
-    assert "FINAL 1/300" in line
+    assert "combined target 1/300 positive" in line
     frames = load_frames(root)
     progress = compute_progress(frames)
     assert progress.positive_total == 1
@@ -362,18 +370,25 @@ def test_final_progress_overlap_unknown_and_deletion_refresh(tmp_path: Path) -> 
     assert progress.night == 1
     assert progress.occlusion == 1
     assert progress.truncation == 1
-    assert progress.far_small == 1
+    assert progress.far == 1
     assert progress.high == 1
     assert progress.low == 0 and progress.mid == 0
     assert progress.unknown_metadata == 1
-    assert "UNKNOWN_METADATA" in (root / "reports/ANNOTATION_PROGRESS.md").read_text()
-    assert "NEEDS_METADATA (1)" in (root / "reports/NEXT_ANNOTATION_PRIORITY.md").read_text()
+    progress_report = (root / "reports/ANNOTATION_PROGRESS.md").read_text()
+    assert "UNKNOWN_METADATA" in progress_report
+    assert (
+        "Status               EMPTY — NO REGISTERED FINAL_EVAL ALIAS"
+        in progress_report
+    )
+    priority_report = (root / "reports/NEXT_ANNOTATION_PRIORITY.md").read_text()
+    assert "New annotation required   NO" in priority_report
+    assert "NEEDS_METADATA" not in priority_report
 
     # A physical frame remains indexed after its workspace annotation is
     # deleted, but it no longer contributes to completed FINAL progress.
     annotation.rename(annotation.with_suffix(".json.deleted"))
     line = refresh_after_annotation(root, annotation, image, deleted=True)
-    assert "FINAL 0/300" in line
+    assert "combined target 0/300 positive" in line
     progress = compute_progress(load_frames(root))
     assert progress.positive_total == 0
     final_rows = read_csv(root / "manifests/FINAL_POSITIVE.csv")
@@ -381,7 +396,43 @@ def test_final_progress_overlap_unknown_and_deletion_refresh(tmp_path: Path) -> 
     assert final_rows[0]["is_annotated"] == "false"
 
 
-def test_dev_is_not_counted_as_final_and_unverified_not_all_available(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("distance", "legacy_size", "expected"),
+    [
+        ("far", "unknown", True),
+        ("far", "large", True),
+        ("near", "small", False),
+        ("unknown", "small", False),
+    ],
+)
+def test_far_membership_ignores_legacy_size(
+    distance: str,
+    legacy_size: str,
+    expected: bool,
+) -> None:
+    matched = condition_membership({
+        "distance_bin": distance,
+        "size_bin": legacy_size,
+    })
+    assert ("far" in matched) is expected
+    assert "far_small" not in matched
+
+
+def test_legacy_size_unknown_does_not_make_active_metadata_unknown() -> None:
+    row = {
+        "object_type": "plastic",
+        "lighting": "day",
+        "occlusion": "none",
+        "truncation": "none",
+        "distance_bin": "near",
+        "size_bin": "unknown",
+        "elevation_bin": "mid",
+        "view_bin": "front",
+    }
+    assert metadata_unknown(row) is False
+
+
+def test_noncontrolled_dev_and_unverified_are_not_all_available(tmp_path: Path) -> None:
     root = tmp_path / "pallet_eval_v1"
     scaffold_workspace(root)
     rows = []
@@ -401,7 +452,7 @@ def test_dev_is_not_counted_as_final_and_unverified_not_all_available(tmp_path: 
     marker.parent.mkdir(parents=True)
     marker.write_text("{}", encoding="utf-8")
     line = refresh_after_annotation(root, marker)
-    assert "FINAL 0/300" in line
+    assert "combined target 0/300 positive" in line
     # The audited-but-FT-overlap DEV row is retained for review but does not
     # enter a controlled evaluation union.
     all_available = read_csv(root / "manifests/ALL_AVAILABLE.csv")
@@ -478,6 +529,14 @@ def test_global_sha_guard_allows_only_exact_frozen_negative_pair() -> None:
         rows.append(row)
     validate_active_image_sha_uniqueness(rows)
 
+    materialized = [dict(row) for row in rows]
+    for row in materialized:
+        frame_id = row["frame_id"]
+        row["storage_mode"] = "independent_copy"
+        row["image_path"] = KNOWN_DEV_NEG_DUPLICATE_WORKSPACE_PATHS[frame_id]
+        row["source_image_path"] = KNOWN_DEV_NEG_DUPLICATE_PATHS[frame_id]
+    validate_active_image_sha_uniqueness(materialized)
+
     impostor = [dict(row) for row in rows]
     impostor[1]["paper_subset"] = "FINAL_NEGATIVE"
     impostor[1]["population_role"] = "FINAL"
@@ -530,7 +589,7 @@ def test_routine_refresh_rehashes_changed_final_rgb(tmp_path: Path) -> None:
     assert after != before
 
 
-def test_explicit_eval_views_apply_qa_gate_and_sha_deduplicate_union(
+def test_explicit_eval_views_freeze_dev_alias_and_deduplicate_all_available(
     tmp_path: Path,
 ) -> None:
     root = tmp_path / "pallet_eval_v1"
@@ -620,14 +679,27 @@ def test_explicit_eval_views_apply_qa_gate_and_sha_deduplicate_union(
     assert len(read_csv(root / "manifests/DEV_EVAL_POSITIVE.csv")) == 1
     assert len(read_csv(root / "manifests/DEV_EVAL_NEGATIVE.csv")) == 2
     assert len(read_csv(root / "manifests/FINAL_POSITIVE.csv")) == 3
-    assert [
-        row["frame_id"]
-        for row in read_csv(root / "manifests/FINAL_EVAL_POSITIVE.csv")
-    ] == ["final__eligible"]
-    assert len(read_csv(root / "manifests/FINAL_EVAL_NEGATIVE.csv")) == 1
+    final_eval_positive = read_csv(root / "manifests/FINAL_EVAL_POSITIVE.csv")
+    assert [row["frame_id"] for row in final_eval_positive] == ["dev__controlled"]
+    dev_alias = final_eval_positive[0]
+    assert dev_alias["population_role"] == "DEV"
+    assert dev_alias["notes"] == REUSED_DEV_EVAL_ALIAS_NOTE
+
+    final_eval_negative = read_csv(root / "manifests/FINAL_EVAL_NEGATIVE.csv")
+    assert len(final_eval_negative) == 2
+    negative_aliases = [
+        row for row in final_eval_negative if row["population_role"] == "DEV"
+    ]
+    assert len(negative_aliases) == 2
+    assert all(
+        row["notes"] == REUSED_DEV_EVAL_ALIAS_NOTE for row in negative_aliases
+    )
     assert len(read_csv(root / "manifests/ALL_AVAILABLE_POSITIVE.csv")) == 2
     assert len(read_csv(root / "manifests/ALL_AVAILABLE_NEGATIVE.csv")) == 2
     assert len(read_csv(root / "manifests/ALL_AVAILABLE.csv")) == 4
+    progress = compute_progress(rows)
+    assert progress.positive_total == 2
+    assert progress.negative == 2
 
 
 def test_eval_population_fails_closed_on_duplicate_dev_positive_sha() -> None:
@@ -664,7 +736,7 @@ def test_eval_population_fails_closed_on_positive_negative_sha_overlap() -> None
         evaluation_population_views([positive, negative])
 
 
-def test_progress_report_orders_dev_final_all_and_never_adds_dev_to_final(
+def test_progress_report_orders_dev_alias_physical_final_and_all_available(
     tmp_path: Path,
 ) -> None:
     root = tmp_path / "pallet_eval_v1"
@@ -691,7 +763,9 @@ def test_progress_report_orders_dev_final_all_and_never_adds_dev_to_final(
 
     report = render_progress_report(root, [dev], load_targets(root))
     assert report.index("# DEV evaluation population") < report.index(
-        "# FINAL annotation progress"
+        "# FINAL_EVAL alias status"
+    ) < report.index(
+        "# Combined evaluation target progress"
     ) < report.index("# All available evaluation")
     assert "Combined positive       1 / 173" in report
     assert "Annotated positive      1 / 173" in report
@@ -699,8 +773,56 @@ def test_progress_report_orders_dev_final_all_and_never_adds_dev_to_final(
     assert "Lighting tagged         1 / 173" in report
     assert "Occlusion tagged        0 / 173" in report
     assert "Elevation tagged        1 / 173" in report
-    assert "Positive total          0 / 300" in report
+    assert "Status               READY — REUSED DEV_EVAL, NOT HELD OUT" in report
+    assert "FINAL_EVAL positive     1" in report
+    # 2026-09-01 부터 minimum/preferred 를 함께 보인다 (한 줄 300 만 보고
+    # domain experiment 진척으로 오해하지 않도록).
+    assert re.search(r"Current positive\s+1 / 400 preferred", report)
+    assert re.search(r"\s+1 / 300 minimum", report)
     assert "ALL positive            1" in report
+
+
+def test_overlay_audit_names_reused_alias_and_physical_final_separately(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "pallet_eval_v1"
+    scaffold_workspace(root)
+    dev = _valid_frame_row(
+        "dev__controlled",
+        hashlib.sha256(b"dev-overlay").hexdigest(),
+        paper_subset="COMMON_DEV_PLASTIC_POS128",
+    )
+    dev.update(
+        {
+            "controlled_eval_eligible": "true",
+            "is_annotated": "true",
+            "annotation_sha256": hashlib.sha256(b"annotation").hexdigest(),
+        }
+    )
+    overlay = root / dev["overlay_path"]
+    overlay.parent.mkdir(parents=True)
+    overlay.write_bytes(b"overlay")
+
+    physical_final = _valid_frame_row(
+        "final__controlled",
+        hashlib.sha256(b"physical-final-overlay").hexdigest(),
+        role="FINAL",
+    )
+    physical_final.update(
+        {
+            "controlled_eval_eligible": "true",
+            "is_annotated": "true",
+            "annotation_sha256": hashlib.sha256(b"final-annotation").hexdigest(),
+        }
+    )
+    final_overlay = root / physical_final["overlay_path"]
+    final_overlay.parent.mkdir(parents=True, exist_ok=True)
+    final_overlay.write_bytes(b"final-overlay")
+
+    report = render_overlay_audit(root, [dev, physical_final])
+    assert "FINAL_EVAL_ALIAS                  1          1         0" in report
+    assert "PHYSICAL_FINAL                    1          1         0" in report
+    assert "\nFINAL " not in report
 
 
 def test_imported_workspace_frozen_dev_views_match_population_contract() -> None:
@@ -713,18 +835,135 @@ def test_imported_workspace_frozen_dev_views_match_population_contract() -> None
     assert len({row["image_sha256"] for row in views["DEV_EVAL_POSITIVE"]}) == 173
     assert len(views["DEV_EVAL_NEGATIVE"]) == 2689
     assert len({row["image_sha256"] for row in views["DEV_EVAL_NEGATIVE"]}) == 2688
+    assert len(views["FINAL_EVAL_POSITIVE"]) == 173
+    assert len(views["FINAL_EVAL_NEGATIVE"]) == 2689
+    assert len({row["image_sha256"] for row in views["FINAL_EVAL_NEGATIVE"]}) == 2688
+    for population in ("FINAL_EVAL_POSITIVE", "FINAL_EVAL_NEGATIVE"):
+        assert all(row["population_role"] == "DEV" for row in views[population])
+        assert all(row["notes"] == REUSED_DEV_EVAL_ALIAS_NOTE for row in views[population])
     assert len(views["ALL_AVAILABLE_NEGATIVE"]) == 2688
+
+
+def test_repository_combined_target_progress_matches_all_available_views() -> None:
+    root = REPO_ROOT / "data/evaluation/pallet_eval_v1"
+    frames = load_frames(root)
+    views = evaluation_population_views(frames)
+    progress = compute_progress(frames)
+    assert progress.positive_total == len(views["ALL_AVAILABLE_POSITIVE"])
+    assert progress.negative == len(views["ALL_AVAILABLE_NEGATIVE"])
+    assert progress.plastic + progress.wood == progress.positive_total
+    # Frame condition tags are intentionally edited in this repository, so do
+    # not freeze their live counters to a historical snapshot.
+    for count in (
+        progress.clean,
+        progress.occlusion,
+        progress.truncation,
+        progress.far,
+        progress.low,
+        progress.mid,
+        progress.high,
+        progress.unknown_metadata,
+    ):
+        assert 0 <= count <= progress.positive_total
+
+
+def test_workspace_execution_alias_matches_registered_evaluator_pair() -> None:
+    root = REPO_ROOT / "data/evaluation/pallet_eval_v1"
+    manifest_root = REPO_ROOT / "challenge/real_gt_v2/manifests"
+    positive_rows = read_csv(root / "manifests/FINAL_EVAL_POSITIVE.csv")
+    negative_rows = read_csv(root / "manifests/FINAL_EVAL_NEGATIVE.csv")
+    positive_items = json.loads(
+        (manifest_root / "COMMON_DEV_MULTISHAPE_POS.json").read_text("utf-8")
+    )["items"]
+    negative_items = json.loads(
+        (manifest_root / "DEV_NEG2689.json").read_text("utf-8")
+    )["items"]
+
+    assert len(positive_rows) == len(positive_items) == 173
+    assert len(negative_rows) == len(negative_items) == 2689
+    assert Counter(row["source_annotation_path"] for row in positive_rows) == Counter(
+        item.get("gt_v2_path") or item["label"] for item in positive_items
+    )
+    # The workspace annotation is intentionally editable.  Its current hash
+    # may diverge from the immutable imported source after a reviewed manual
+    # correction; both hashes must instead verify their own declared paths.
+    for row in positive_rows:
+        assert sha256_file(root / row["annotation_path"]) == row["annotation_sha256"]
+        assert (
+            sha256_file(REPO_ROOT / row["source_annotation_path"])
+            == row["source_annotation_sha256"]
+        )
+    assert Counter(row["image_sha256"] for row in positive_rows) == Counter(
+        sha256_file(REPO_ROOT / (item.get("image_path") or item["image"]))
+        for item in positive_items
+    )
+    assert Counter(row["source_image_path"] for row in negative_rows) == Counter(
+        item.get("image_path") or item["image"] for item in negative_items
+    )
+    assert all(
+        row["source_image_sha256"] == row["image_sha256"]
+        for row in negative_rows
+    )
+    assert len({row["image_sha256"] for row in negative_rows}) == 2688
 
 
 def test_repository_workspace_contract_declares_explicit_eval_populations() -> None:
     root = REPO_ROOT / "data/evaluation/pallet_eval_v1"
     contract = json.loads((root / "DATASET_CONTRACT.json").read_text("utf-8"))
+    targets = load_targets(root)
+
+    assert targets["progress_population"] == "ALL_AVAILABLE"
+    # 2026-09-01 domain 재설계로 condition target 상향 (DATASET_TARGETS.json)
+    assert targets["minimum_condition_coverage"]["far"] == 80
+    assert "far_small" not in targets["minimum_condition_coverage"]
+    assert contract["condition_queries"]["far"] == "distance_bin == far"
+    assert "far_small" not in contract["condition_queries"]
+    assert contract["invariants"]["size_bin_is_legacy_compatibility_only"] is True
+    assert "small" in contract["allowed_values"]["size_bin"]
+    assert contract["invariants"]["evaluation_target_progress_uses_all_available"] is True
+    assert (
+        contract["invariants"]["evaluation_target_progress_sha256_deduplicated"]
+        is True
+    )
+    assert "dev_is_never_counted_toward_final_targets" not in contract["invariants"]
 
     populations = contract["evaluation_populations"]
     assert set(populations) == {"DEV_EVAL", "FINAL_EVAL", "ALL_AVAILABLE"}
     assert populations["DEV_EVAL"]["held_out_final"] is False
-    assert populations["FINAL_EVAL"]["held_out_final"] is True
+    assert populations["FINAL_EVAL"]["held_out_final"] is False
+    assert populations["FINAL_EVAL"]["reuses_dev_eval"] is True
+    assert populations["FINAL_EVAL"]["includes_physical_final"] is False
+    assert populations["FINAL_EVAL"]["alias_row_note"] == REUSED_DEV_EVAL_ALIAS_NOTE
     assert populations["ALL_AVAILABLE"]["held_out_final"] is False
+    alias_policy = contract["final_eval_alias_policy"]
+    assert alias_policy["physical_copy"] is False
+    assert alias_policy["changes_active_frame_role"] is False
+    assert alias_policy["mandatory_new_annotation"] is False
+    assert alias_policy["row_provenance_note"] == REUSED_DEV_EVAL_ALIAS_NOTE
+    binding = contract["paper_evaluator_binding"]
+    assert binding == {
+        "population_role": "DEV",
+        "positive_manifest": (
+            "challenge/real_gt_v2/manifests/COMMON_DEV_MULTISHAPE_POS.json"
+        ),
+        "negative_manifest": "challenge/real_gt_v2/manifests/DEV_NEG2689.json",
+        "positive_rows": 173,
+        "negative_rows": 2689,
+        "negative_unique_images": 2688,
+        "pair_sha256": (
+            "2cfa7011d8ba3677b11019c103e2ccbaeeac53521c9291ed632f94c8d2c5c887"
+        ),
+    }
+    from challenge.evaluation_v2.paper_real_eval import validate_evaluation_request
+
+    pair = validate_evaluation_request(
+        positive_manifest=REPO_ROOT / binding["positive_manifest"],
+        negative_manifest=REPO_ROOT / binding["negative_manifest"],
+        population_role=binding["population_role"],
+        allow_unavailable_final=False,
+    )
+    assert pair.ready is True
+    assert pair.pair_sha256 == binding["pair_sha256"]
 
     for name in (
         "DEV_EVAL_POSITIVE.csv",
@@ -736,6 +975,33 @@ def test_repository_workspace_contract_declares_explicit_eval_populations() -> N
         "DEV_PLASTIC_AUDITED140.csv",
     ):
         assert (root / "manifests" / name).is_file()
+
+
+def test_load_targets_migrates_legacy_far_small_and_rejects_conflict(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "pallet_eval_v1"
+    scaffold_workspace(root)
+    path = root / "DATASET_TARGETS.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    coverage = payload["minimum_condition_coverage"]
+    coverage["far_small"] = coverage.pop("far")
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    migrated = load_targets(root)
+    # scaffold 기본값 (2026-09-01 domain 재설계로 60 -> 80)
+    assert migrated["minimum_condition_coverage"]["far"] == 80
+    assert "far_small" not in migrated["minimum_condition_coverage"]
+
+    payload["minimum_condition_coverage"]["far"] = 81
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(WorkspaceError, match="conflicting far"):
+        load_targets(root)
+
+
+def test_repository_workspace_readme_matches_generator() -> None:
+    root = REPO_ROOT / "data/evaluation/pallet_eval_v1"
+    assert (root / "README.md").read_text("utf-8") == _workspace_readme()
 
 
 def test_bbox_outside_fraction_marks_explicit_truncation(tmp_path: Path) -> None:
@@ -851,16 +1117,16 @@ def test_manifest_hash_and_unique_membership_are_fail_closed(tmp_path: Path) -> 
         _read_manifest(tmp_path, "DEV_NEG2689", 2)
 
 
-def test_all_zero_priority_tie_starts_with_actionable_capture_pairs(tmp_path: Path) -> None:
+def test_empty_workspace_priority_report_does_not_require_new_annotation(
+    tmp_path: Path,
+) -> None:
     root = tmp_path / "pallet_eval_v1"
     scaffold_workspace(root)
     report = render_priority_report([], load_targets(root))
-    expected = (
-        "1. Plastic + DAY",
-        "2. Wood + DAY",
-        "3. Plastic + NIGHT",
-        "4. Wood + NIGHT",
-        "5. Plastic + Clean",
-    )
-    positions = [report.index(line) for line in expected]
-    assert positions == sorted(positions)
+    assert "Status                    EMPTY" in report
+    assert "New annotation required   NO" in report
+    assert "Positive                     0 / 300" in report
+    assert "Negative                     0 / 1500" in report
+    assert "Counting population       ALL_AVAILABLE" in report
+    assert "NEXT PRIORITY" not in report
+    assert "score=" not in report
