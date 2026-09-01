@@ -39,6 +39,28 @@ MODELS = [
                      "ft_a_real157_neg259_synth12k/weights/best.pt"),
 ]
 
+# --pair 로 고를 수 있는 조합.  기본은 08-18 원본(base vs ft) 그대로라서, 인자 없이
+# 돌리면 그때와 같은 그림이 나온다.
+PAIRS = {
+    "base_ft": (MODELS, "internet_pallet_yolo_ab"),
+    "base_paper": ([
+        MODELS[0],
+        ("paper_yolo26n_joint",
+         "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/"
+         "YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt"),
+    ], "internet_pallet_base_vs_paper"),
+    # 좌측은 DOPE — env 가 갈려 여기서 추론하지 못한다.  먼저
+    # `internet_pallet_dope_dump.py` 를 pallet-pose 로 돌려 json 을 만들어 둘 것.
+    "dope_paper": ([
+        ("paper_s2_stageB", "@json"),
+        ("paper_yolo26n_joint",
+         "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/"
+         "YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt"),
+    ], "internet_pallet_dope_vs_paper"),
+}
+DOPE_JSON = os.path.join(
+    ROOT, "data/pallet/eval_results/internet_pallet_dope/pred_dope.json")
+
 
 def parse_dims_m(name):
     """파일명 -> ((W,D,H) m, h_default). 무게(kg, 2자리)는 범위로 자동 제외."""
@@ -144,12 +166,27 @@ def draw(img, pred8, pred_c, pose, dims, hfov, tag, conf, dims_txt):
 
 
 def main():
+    import argparse
     from ultralytics import YOLO
-    os.makedirs(OUT, exist_ok=True)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pair", choices=sorted(PAIRS), default="base_ft")
+    a = ap.parse_args()
+    model_list, out_name = PAIRS[a.pair]
+    out_dir = os.path.join(ROOT, "data/pallet/eval_results", out_name)
+
+    os.makedirs(out_dir, exist_ok=True)
     files = sorted(f for f in glob.glob(os.path.join(SRC, "*"))
                    if os.path.splitext(f)[1].lower() in
                    (".jpg", ".jpeg", ".png", ".webp"))
-    models = [(t, YOLO(os.path.join(ROOT, w), task="pose")) for t, w in MODELS]
+    dope = None
+    if any(w == "@json" for _, w in model_list):
+        import json as _json
+        if not os.path.exists(DOPE_JSON):
+            sys.exit(f"DOPE json 없음 — 먼저 internet_pallet_dope_dump.py 를 "
+                     f"pallet-pose 로 돌릴 것: {DOPE_JSON}")
+        dope = _json.load(open(DOPE_JSON, encoding="utf-8"))["pred"]
+    models = [(t, None if w == "@json" else YOLO(os.path.join(ROOT, w), task="pose"))
+              for t, w in model_list]
     print(f"{'file':<46}{'model':<14}{'det':>5}{'conf':>7}{'hfov':>7}{'reproj':>9}")
     print("-" * 90)
     for fp in files:
@@ -167,7 +204,16 @@ def main():
                     + "   |  blue=keypoint  red=PnP cuboid  (K 추정, 절대깊이 미지)")
         tiles = []
         for tag, m in models:
-            p8, pc, conf = predict(m, img)
+            if m is None:                       # DOPE — 덤프 json 에서 읽는다
+                r = (dope or {}).get(name)
+                if r is None:
+                    p8, pc, conf = np.full((8, 2), np.nan), None, 0.0
+                else:
+                    p8 = np.array([[np.nan, np.nan] if p is None else p
+                                   for p in r["pred8"]], float)
+                    pc, conf = r["pred_c"], r["conf"]
+            else:
+                p8, pc, conf = predict(m, img)
             if p8 is None:
                 p8, pc = np.full((8, 2), np.nan), None
             pose, hfov, rep = solve_with_fsearch(p8, pc, dims, img.shape)
@@ -181,9 +227,9 @@ def main():
                                     cv2.BORDER_CONSTANT, value=(0, 0, 0))
                  for t in tiles]
         stem = re.sub(r"[^\w가-힣]+", "_", os.path.splitext(name)[0])[:60]
-        cv2.imwrite(os.path.join(OUT, f"{stem}.jpg"), np.hstack(tiles),
+        cv2.imwrite(os.path.join(out_dir, f"{stem}.jpg"), np.hstack(tiles),
                     [cv2.IMWRITE_JPEG_QUALITY, 92])
-    print(f"\n[out] {OUT}")
+    print(f"\n[out] {out_dir}")
 
 
 if __name__ == "__main__":
