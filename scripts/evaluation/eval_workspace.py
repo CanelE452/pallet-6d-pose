@@ -885,11 +885,11 @@ metadata가 없으면 `unknown`으로 남는다.
 
 ## Annotation SESSION selector
 
-annotation UI의 `SESSION` 목록에는 수정 가능한 DEV 9개(플라스틱 7개 + 목재 2개)와
-신규 촬영본의 zero-copy `STAGING EDIT` 4개가 함께 표시된다. DAY와 NIGHT capture가
+annotation UI의 `SESSION` 목록에는 현재 기존 평가 session 12개와 신규 촬영본의
+zero-copy `STAGING EDIT` 4개, 총 16개가 함께 표시된다. 신규 DAY와 NIGHT capture는
 각각 `PLASTIC`, `WOOD` 두 행으로 보인다. 각 행은 같은 raw capture를 복사하지 않고
-참조하되 서로 겹치지 않는 실제 frame subset만 표시하며, object별 registry
-geometry로 PnP를 푼다. raw session은 수정·이동하지 않는다.
+참조하되 서로 겹치지 않는 실제 frame subset만 표시하며, object별 registry geometry로
+PnP를 푼다. raw session은 수정·이동하지 않는다.
 
 분류 정본은 각 raw frame을 정확히 한 번 기록한
 `incoming/sessions/<capture>/manifests/frame_review.csv`다. 실제 픽셀을 프레임
@@ -910,9 +910,11 @@ PnP GT JSON, 호환 PNG, `frame_tags.csv`, `_overlays/<stem>.png`는 각각
 intrinsics는 검증되지 않았으므로 GT의 `intrinsics_quality`는 `UNKNOWN`이고, 원래
 `PROVIDED_UNVERIFIED` 품질과 `camera_info.json` 출처는 `intrinsics_source`에 보존한다.
 
-staging save는 top-level `manifests/frames.csv`, DEV/FINAL 평가 manifest,
-progress/report MD를 자동 갱신하거나 evaluation member를 만들지 않는다. 맞는 object
-frame을 검수한 뒤 DEV/FINAL로 promotion하는 작업은 별도 절차다.
+staging에서 `s`로 저장한 검수 완료 frame은 대응하는 active evaluation session으로
+즉시 독립 복사된다. 방금 저장한 frame의 image, JSON, overlay, condition tag만 동기화한
+뒤 top-level manifest와 progress/report MD를 바로 갱신한다. raw capture는 그대로 두며,
+다른 incoming annotation을 함께 훑거나 일괄 편입하지 않는다. 동일 SHA image는 통합
+진행률에서 한 번만 센다.
 
 ## Evaluation populations
 
@@ -1001,9 +1003,9 @@ python scripts/annotate/annotate.py \\
 
 G. 선택적으로 physical FINAL을 확장할 때 매 save마다 JSON,
 `_overlays/<stem>.png`, `manifests/frames.csv`, report가 갱신된다.
-`reports/NEXT_ANNOTATION_PRIORITY.md`는 새 annotation을 요구하지 않고 현재
-DEV_EVAL과 physical FINAL을 합친 `ALL_AVAILABLE` 목표 진행률을 보여준다.
-`0/300` 같은 수치는 DEV/FINAL로 나누지 않고 이 combined population에서 계산한다.
+`reports/NEXT_ANNOTATION_PRIORITY.md`는 새 annotation을 요구하지 않고 통합 평가
+collection의 목표 진행률을 보여준다. `0/300` 같은 수치는 role별로 나누지 않고 같은
+image를 SHA256으로 한 번만 세는 단일 combined population에서 계산한다.
 
 선택적으로 새 FINAL 촬영을 추가할 때만 `final/positive/sessions/<session>/rgb/` 또는
 `final/negative/sessions/<session>/rgb/`에 둔다. 각 session에 `session.json`을
@@ -1024,8 +1026,9 @@ positive/negative 또는 plastic/wood가 섞인 연속 촬영본은 곧바로 FI
 `scripts/evaluation/import_incoming_capture.py`로 `incoming/sessions/`에 먼저
 비파괴 import한다. raw capture는 `INCOMING_UNREVIEWED`로 유지하면서 SESSION의
 object별 zero-copy `STAGING EDIT` 행에서 annotation한다. staging output은
-`incoming/annotations/`에만 쓰며 DEV/FINAL 평가와 combined 목표 수치에 자동으로
-포함되지 않는다. 검수한 frame의 promotion과 평가 활성화는 별도로 수행한다.
+`incoming/annotations/`에 쓰고, `s`로 저장한 해당 frame만 대응 active evaluation
+session에 독립 복사한다. 복사 직후 통합 목표 수치와 report를 갱신하므로 별도 promotion
+명령은 필요 없다. 다른 staging frame은 저장·편입하지 않는다.
 
 `far`, `elevation`, `view`는 임의 threshold로 추정하지 않는다. 명시하지
 않은 값은 `unknown`으로 남는다. 이 값은 DEV alias의 provenance를 그대로 설명할
@@ -2162,15 +2165,14 @@ def compute_progress(frames: Sequence[Mapping[str, str]]) -> Progress:
 def progress_line(progress: Progress, targets: Mapping[str, Any]) -> str:
     status = (
         "READY"
-        if progress.evaluation_positive or progress.evaluation_negative
+        if progress.positive_total or progress.negative
         else "EMPTY"
     )
     return (
-        f"[{status}] FINAL_EVAL alias {progress.evaluation_positive} positive / "
-        f"{progress.evaluation_negative} negative rows | combined target "
+        f"[{status}] combined target "
         f"{progress.positive_total}/{targets['positive_total']} positive, "
         f"{progress.negative}/{targets['negative_total']} negative "
-        "(DEV_EVAL + physical FINAL, SHA256-deduplicated)"
+        "(SHA256-deduplicated)"
     )
 
 
@@ -2178,73 +2180,13 @@ def _is_tagged(row: Mapping[str, str], field: str) -> bool:
     return str(row.get(field, "")).strip().lower() not in {"", "unknown"}
 
 
-def _evaluation_counts(
-    root: Path,
-    frames: Sequence[Mapping[str, str]],
-) -> tuple[dict[str, int], dict[str, list[Mapping[str, str]]]]:
-    populations = evaluation_population_views(frames)
-    audited = populations["DEV_PLASTIC_AUDITED140"]
-    dev_positive = populations["DEV_EVAL_POSITIVE"]
-    dev_negative = populations["DEV_EVAL_NEGATIVE"]
-    final_positive = populations["FINAL_EVAL_POSITIVE"]
-    final_negative = populations["FINAL_EVAL_NEGATIVE"]
-    all_positive = populations["ALL_AVAILABLE_POSITIVE"]
-    all_negative = populations["ALL_AVAILABLE_NEGATIVE"]
-
-    overlays = 0
-    for row in dev_positive:
-        path = resolve_workspace_path(root, row.get("overlay_path", ""))
-        overlays += bool(path and path.is_file())
-
-    counts = {
-        "plastic_audited": len(audited),
-        "plastic_controlled": sum(
-            row.get("paper_subset") == "COMMON_DEV_PLASTIC_POS128"
-            for row in dev_positive
-        ),
-        "wood": sum(
-            row.get("paper_subset") == "DEV_WOOD_POS45" for row in dev_positive
-        ),
-        "dev_positive": len(dev_positive),
-        "dev_negative": len(dev_negative),
-        "dev_negative_unique_sha": len({row["image_sha256"] for row in dev_negative}),
-        "dev_annotated": sum(is_true(row.get("is_annotated")) for row in dev_positive),
-        "dev_overlays": overlays,
-        "final_positive": len(final_positive),
-        "final_negative": len(final_negative),
-        "final_negative_unique_sha": len(
-            {row["image_sha256"] for row in final_negative}
-        ),
-        "physical_final_positive": sum(
-            row.get("population_role") == "FINAL" and is_true(row.get("is_positive"))
-            for row in frames
-        ),
-        "physical_final_negative": sum(
-            row.get("population_role") == "FINAL" and not is_true(row.get("is_positive"))
-            for row in frames
-        ),
-        "all_positive": len(all_positive),
-        "all_negative": len(all_negative),
-    }
-    for field in (
-        "lighting",
-        "occlusion",
-        "truncation",
-        "distance_bin",
-        "elevation_bin",
-        "view_bin",
-    ):
-        counts[f"dev_{field}_tagged"] = sum(_is_tagged(row, field) for row in dev_positive)
-    return counts, populations
-
-
 def render_progress_report(
     root: Path,
     frames: Sequence[Mapping[str, str]],
     targets: Mapping[str, Any],
 ) -> str:
+    del root  # API compatibility: the combined report no longer reads per-role overlays.
     value = compute_progress(frames)
-    counts, _populations = _evaluation_counts(root, frames)
     _pos = evaluation_population_views(frames)["PAPER_EVAL_POSITIVE"]
     unknown_core = sum(1 for r in _pos if core_domain_metadata_unknown(r))
     unknown_rob = sum(1 for r in _pos if robustness_metadata_unknown(r))
@@ -2271,80 +2213,20 @@ def render_progress_report(
     _dataset_ready = _total_ok and _main_ready and _morph_ok and _rob_ok
     _neg_min = targets.get("negative_unique_minimum", targets["negative_total"])
     _neg_status = ("SATISFIED"
-                   if counts["all_negative"] >= _neg_min else "DEFICIT")
-    if counts["final_positive"] or counts["final_negative"]:
-        alias_status = "READY — REUSED DEV_EVAL, NOT HELD OUT"
-        alias_explanation = (
-            "이 evaluation은 registered controlled DEV pair를 row-for-row manifest view로\n"
-            "재사용한다. 새 image나 annotation을 복사하지 않았고 active frame의\n"
-            "`population_role=DEV`도 바꾸지 않았다. physical FINAL은 이 실행 alias에 섞지\n"
-            "않는다. 따라서 `FINAL_EVAL` 이름은 held-out FINAL을 뜻하지 않는다."
-        )
-    else:
-        alias_status = "EMPTY — NO REGISTERED FINAL_EVAL ALIAS"
-        alias_explanation = (
-            "현재 registered `FINAL_EVAL` alias는 비어 있다. physical FINAL inventory는\n"
-            "combined evaluation target에는 포함되지만 이 evaluator alias에 자동으로 섞지\n"
-            "않는다."
-        )
-    return f"""# DEV evaluation population
+                   if value.negative >= _neg_min else "DEFICIT")
+    return f"""# 통합 평가 데이터 어노테이션 진행률
+
+평가 데이터 전체에서 같은 image를 SHA256으로 한 번만 세어 아래
+통합 집계만 표시한다.
 
 ```text
-Plastic audited      {counts['plastic_audited']:4d} / 140
-Plastic controlled   {counts['plastic_controlled']:4d} / 128
-Wood                 {counts['wood']:4d} / 45
-Combined positive    {counts['dev_positive']:4d} / 173
-Negative             {counts['dev_negative']:4d} / 2689
-
-Annotated positive   {counts['dev_annotated']:4d} / 173
-Review overlays      {counts['dev_overlays']:4d} / 173
-
-Metadata availability
-Lighting tagged      {counts['dev_lighting_tagged']:4d} / 173
-Occlusion tagged     {counts['dev_occlusion_tagged']:4d} / 173
-Truncation tagged    {counts['dev_truncation_tagged']:4d} / 173
-Distance tagged      {counts['dev_distance_bin_tagged']:4d} / 173
-Elevation tagged     {counts['dev_elevation_bin_tagged']:4d} / 173
-View tagged          {counts['dev_view_bin_tagged']:4d} / 173
-```
-
-# FINAL_EVAL alias status
-
-```text
-Status               {alias_status}
-Positive             {counts['final_positive']:4d}
-Negative rows        {counts['final_negative']:4d}
-Negative unique SHA  {counts['final_negative_unique_sha']:4d}
-Alias provenance     {REUSED_DEV_EVAL_ALIAS_NOTE}
-
-Physical FINAL inventory
-Positive             {counts['physical_final_positive']:4d}
-Negative             {counts['physical_final_negative']:4d}
-```
-
-{alias_explanation}
-
-# Paper evaluation readiness
-
-목표는 `PAPER_EVAL` 기준이다 — SHA256-deduplicated union(DEV_EVAL, NEW_EVAL).
-`held_out_final = false` 다. 진짜 untouched test 를 나중에 만들면 `HELDOUT_EVAL`
-이라는 별도 이름을 쓴다.
-
-```text
-Positive total       {value.positive_total:4d} / {targets.get('positive_minimum', targets['positive_total'])} minimum
-DATASET_READY        {str(_dataset_ready).upper()}
-
-DATASET_READY 는 네 조건을 **동시에** 만족해야 참이다
-  total >= minimum                  {str(_total_ok).lower()}
-  MAIN domain coverage              {str(_main_ready).lower()}
-  morphology coverage               {str(_morph_ok).lower()}
-  robustness minimum coverage       {str(_rob_ok).lower()}
+Positive total       {value.positive_total:4d} / {targets.get('positive_minimum', targets['positive_total'])}
 
 Object
 Plastic              {value.plastic:4d} / {targets['object_type']['plastic']}
 Wood                 {value.wood:4d} / {targets['object_type']['wood']}
 
-Lighting (descriptive — quota 없음)
+Lighting
 DAY                  {value.day:4d}
 NIGHT                {value.night:4d}
 
@@ -2360,13 +2242,25 @@ Mid                  {value.mid:4d} / {_elev['mid']}
 High                 {value.high:4d} / {_elev['high']}
 
 Negative
-Negative unique      {counts['all_negative']:4d} / {_neg_min}   {_neg_status}
+Negative unique      {value.negative:4d} / {_neg_min}   {_neg_status}
 
 UNKNOWN_METADATA     {value.unknown_metadata:4d}
 ```
 
-`UNKNOWN_METADATA`는 combined positive 중 object/lighting/condition metadata가 하나라도
+`UNKNOWN_METADATA`는 통합 positive 중 object/lighting/condition metadata가 하나라도
 `unknown`인 frame 수다.
+
+## Dataset readiness
+
+```text
+DATASET_READY        {str(_dataset_ready).upper()}
+
+DATASET_READY 는 네 조건을 동시에 만족해야 참이다
+  total >= minimum                  {str(_total_ok).lower()}
+  MAIN domain coverage              {str(_main_ready).lower()}
+  morphology coverage               {str(_morph_ok).lower()}
+  robustness minimum coverage       {str(_rob_ok).lower()}
+```
 
 ## Metadata unknown — 축별
 
@@ -2388,29 +2282,8 @@ domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
 ```
 
 내부 provenance 대응은 `reports/PAPER_DOMAIN_COVERAGE.md` 를 본다.\n내부 capture id 별 집계는 `reports/DOMAIN_COVERAGE.md`(engineering audit).
-`173 / 300` 한 줄만 보고 domain experiment 진척으로 읽지 말 것 —
+`Positive total`만 보고 domain experiment 진척으로 읽지 말 것 —
 DATASET_READY 는 위 네 조건을 모두 만족해야 참이다.
-
-# All available evaluation
-
-```text
-DEV positive         {counts['dev_positive']:4d}
-FINAL_EVAL positive  {counts['final_positive']:4d}  frozen reused DEV execution alias
-Physical FINAL pos   {counts['physical_final_positive']:4d}
-ALL positive         {counts['all_positive']:4d}
-
-DEV negative         {counts['dev_negative']:4d}  frozen membership
-DEV negative SHA     {counts['dev_negative_unique_sha']:4d}  unique images
-FINAL_EVAL negative  {counts['final_negative']:4d}  frozen rows
-FINAL_EVAL neg SHA   {counts['final_negative_unique_sha']:4d}  unique images
-Physical FINAL neg   {counts['physical_final_negative']:4d}
-ALL negative         {counts['all_negative']:4d}  SHA-deduplicated union
-```
-
-`FINAL_EVAL`은 registered DEV evaluator pair에 고정된 실행 alias다.
-`ALL_AVAILABLE`만 physical FINAL을 포함할 수 있는 SHA-deduplicated convenience
-view다. DEV는 model selection에 사용되었을 수 있으므로 어느 쪽도 held-out FINAL로
-부르지 않는다.
 """
 
 
@@ -2439,11 +2312,21 @@ def _registry_dimensions(root: Path) -> dict[str, str]:
 
 def render_composition_report(root: Path, frames: Sequence[Mapping[str, str]]) -> str:
     populations = evaluation_population_views(frames)
+    # ★PAPER_EVAL 을 읽는다.  FINAL_EVAL 은 frozen DEV alias(173행 고정)라
+    #   여기 쓰면 새로 어노테이션한 프레임이 영원히 안 보인다 — 실제로 그랬다.
+    #   paper-facing 리포트는 현재 evaluation population 을 보여야 한다.
+    # ★어노테이션이 끝난 행만 센다.  staging 중인 미어노테이션 이미지가 분모에
+    #   섞이면 tagged_count 가 전체를 못 채워 조건 수치가 전부 "—" 로 죽는다
+    #   (실제로 어노 319 중 미태깅 2장인데 미어노 83장 때문에 전부 — 였다).
+    paper_positive = [
+        row for row in populations["PAPER_EVAL_POSITIVE"]
+        if str(row.get("is_annotated", "")).strip().lower() == "true"
+    ]
     positive_groups: dict[str, Sequence[Mapping[str, str]]] = {
-        "FINAL_EVAL": populations["FINAL_EVAL_POSITIVE"],
+        "PAPER_EVAL": paper_positive,
     }
     negative_groups: dict[str, Sequence[Mapping[str, str]]] = {
-        "FINAL_EVAL": populations["FINAL_EVAL_NEGATIVE"],
+        "PAPER_EVAL": populations["PAPER_EVAL_NEGATIVE"],
     }
     dimensions = _registry_dimensions(root)
 
@@ -2455,11 +2338,19 @@ def render_composition_report(root: Path, frames: Sequence[Mapping[str, str]]) -
         condition: str,
         required_fields: Sequence[str],
     ) -> str:
-        if required_fields and not all(
-            tagged_count(rows, field) == len(rows) for field in required_fields
-        ):
-            return "—"
-        return str(_condition_counts(rows)[condition])
+        # 전수 태깅을 요구하면 한 장만 미태깅이어도 수치가 통째로 죽는다.
+        # ANNOTATION_PROGRESS 는 같은 조건을 세어 값을 내므로 두 리포트가 갈렸다.
+        # 관측된 수를 내되, 미태깅이 있으면 그 수를 함께 적어 "완전한 수"가
+        # 아님을 보이게 한다 — 0 과 "판정 불가" 를 구분하라는 원칙은 유지된다.
+        counts = _condition_counts(rows)
+        if not required_fields:
+            return str(counts[condition])
+        untagged = max(
+            len(rows) - tagged_count(rows, field) for field in required_fields
+        )
+        if untagged:
+            return f"{counts[condition]}+{untagged}?"
+        return str(counts[condition])
 
     def known_count(
         rows: Sequence[Mapping[str, str]], condition: str, field: str
@@ -2552,7 +2443,7 @@ def render_composition_report(root: Path, frames: Sequence[Mapping[str, str]]) -
             count = observed_or_unavailable(positives, key, required_fields)
             coverage_lines.append(f"{population:<16}{label:<16}{count:>6}")
 
-    positives = populations["FINAL_EVAL_POSITIVE"]
+    positives = paper_positive
     metadata_lines = [
         f"Lighting tagged      {tagged_count(positives, 'lighting'):4d} / {len(positives)}",
         f"Occlusion tagged     {tagged_count(positives, 'occlusion'):4d} / {len(positives)}",
@@ -2561,12 +2452,30 @@ def render_composition_report(root: Path, frames: Sequence[Mapping[str, str]]) -
         f"Elevation tagged     {tagged_count(positives, 'elevation_bin'):4d} / {len(positives)}",
     ]
 
+    paper_lines = []
+    for row in paper_domain_rows(frames, load_targets(root)):
+        paper_lines.append(
+            f"{'PAPER_EVAL':<16}{row['label']:<16}{row['object_type'].capitalize():<10}"
+            f"{row['frames']:>7}{row['sessions']:>10}   {row['status']}")
+
     return f"""# Dataset composition
 
-`FINAL_EVAL`은 registered controlled DEV pair를 그대로 재사용한 frozen 실행
-alias다. physical FINAL은 이 population에 자동으로 합치지 않는다. 이 alias는
-held-out FINAL이 아니며 조건은 서로 중복될 수 있다. metric은 evaluation 전까지
-`—`다.
+`PAPER_EVAL` = SHA256-deduplicated union(DEV_EVAL, NEW_EVAL). `held_out_final`은
+false다. 조건은 서로 중복될 수 있고 metric은 evaluation 전까지 `—`다.
+
+이 표는 **현재** evaluation population을 센다. frozen DEV alias(`FINAL_EVAL`,
+173행 고정)를 쓰지 않는다 — 그걸 쓰면 새로 어노테이션한 프레임이 영원히 보이지
+않는다.
+
+## Main paper conditions
+
+```text
+Population      Condition       Object     Frames  Sessions   Status
+─────────────────────────────────────────────────────────────────────
+{os.linesep.join(paper_lines)}
+```
+
+내부 capture id는 여기 나오지 않는다 — `reports/DOMAIN_COVERAGE.md`를 본다.
 
 ## Experiment 6 condition table
 
@@ -2597,10 +2506,9 @@ Population      Condition       Frames
 {os.linesep.join(metadata_lines)}
 ```
 
-FINAL_EVAL negative는 registered frozen membership 2689행을 유지하며 unique image는
-2688장이다. `ALL_AVAILABLE_NEGATIVE.csv`만 known duplicate를 SHA256으로 합친
-convenience view다. Alias provenance는 `{REUSED_DEV_EVAL_ALIAS_NOTE}`이고 held-out이
-아니다.
+`PAPER_EVAL` negative는 known duplicate를 SHA256으로 합친 뒤의 unique image를 센다.
+frozen DEV membership 2689행 자체는 `FINAL_EVAL_NEGATIVE.csv`에 그대로 보존되며,
+그 alias provenance는 `{REUSED_DEV_EVAL_ALIAS_NOTE}`이고 held-out이 아니다.
 """
 
 
@@ -2625,39 +2533,22 @@ def render_priority_report(
     targets: Mapping[str, Any],
 ) -> str:
     progress = compute_progress(frames)
-    populations = evaluation_population_views(frames)
-    eval_positive = populations["FINAL_EVAL_POSITIVE"]
-    eval_negative = populations["FINAL_EVAL_NEGATIVE"]
-    status = "READY" if eval_positive or eval_negative else "EMPTY"
+    status = "READY" if progress.positive_total or progress.negative else "EMPTY"
     return f"""# Combined evaluation target progress
 
 ```text
+Status                    {status}
 Positive                  {progress.positive_total:4d} / {targets['positive_total']}
 Negative                  {progress.negative:4d} / {targets['negative_total']}
 UNKNOWN_METADATA          {progress.unknown_metadata:4d}
 Counting population       ALL_AVAILABLE
-Counting policy           DEV_EVAL + physical FINAL; SHA256-deduplicated
+Counting policy           One combined collection; SHA256-deduplicated
 New annotation required   NO
 ```
 
-목표 진행률은 DEV와 FINAL을 따로 세지 않는다. 현재 controlled DEV_EVAL과 이후
-추가되는 physical FINAL을 합친 `ALL_AVAILABLE` view 하나만 사용한다. 같은 image는
-SHA256으로 한 번만 센다. 이 목표 미달은 새 annotation을 의무화하지 않는다.
-
-## Registered evaluator population
-
-```text
-Status                    {status}
-FINAL_EVAL positive       {len(eval_positive):4d}
-FINAL_EVAL negative rows  {len(eval_negative):4d}
-Negative unique images    {len({row['image_sha256'] for row in eval_negative}):4d}
-FINAL_EVAL held-out       NO
-Alias provenance          {REUSED_DEV_EVAL_ALIAS_NOTE}
-```
-
-등록된 2D/pose evaluator pair binding은 준비되어 있다. AP/AUROC/FPR95 score
-pipeline과 workspace condition-tag subgroup evaluator의 통합 binding은 아직
-보고되지 않았으므로 해당 metric cell은 `—`를 유지한다.
+목표 진행률은 역할별 counter를 만들지 않고 `ALL_AVAILABLE` 통합 view 하나만 사용한다.
+같은 image는 SHA256으로 한 번만 센다. 이 목표 미달은 새 annotation을 의무화하지
+않는다.
 """
 
 
