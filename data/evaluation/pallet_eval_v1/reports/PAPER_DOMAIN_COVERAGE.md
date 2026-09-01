@@ -8,7 +8,7 @@
 Condition     Object      Frames  Minimum  Preferred  Sessions  MinSess   Status
 ----------------------------------------------------------------------------------------
 Daytime       Plastic         70       50         60         3        2   PREFERRED_READY
-Nighttime     Plastic         28       50         60         2        2   FRAME_DEFICIT
+Nighttime     Plastic         36       50         60         3        2   FRAME_DEFICIT
 ```
 
 ## Annotation priority
@@ -16,7 +16,7 @@ Nighttime     Plastic         28       50         60         2        2   FRAME_
 ```text
 Condition     Object      to minimum  to preferred
 --------------------------------------------------
-Nighttime     Plastic             22            32
+Nighttime     Plastic             14            24
 ```
 
 ## Internal provenance
@@ -29,7 +29,7 @@ Nighttime     Plastic             22            32
 Daytime       <- acquisition_domain=outside + lighting=day + object_type=plastic
                  sessions: eval_outside, eval_pallet07, eval_pallet09
 Nighttime     <- acquisition_domain=night + lighting=night + object_type=plastic
-                 sessions: eval_night08, eval_night09
+                 sessions: eval_night08, eval_night09, plastic_night_01
 ```
 
 `noapril` 과 `cad` 는 어떤 규칙에도 맞지 않아 `paper_domain=none` 이다 —
