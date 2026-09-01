@@ -168,12 +168,19 @@ def test_score_is_invariant_to_object_distance() -> None:
     near = plf.geometry_scores(near_points, all_valid(), K, PLASTIC_XYZ)
     far = plf.geometry_scores(far_points, all_valid(), K, PLASTIC_XYZ)
     # 픽셀 스케일은 거리에 따라 2 배 가까이 달라진다.
-    assert near["projected_diagonal_px"] > 1.9 * far["projected_diagonal_px"]
-    # 무차원 score 는 그 2 배 변동을 흡수해야 한다.  완전히 같을 수는 없다 —
+    pixel_ratio = near["projected_diagonal_px"] / far["projected_diagonal_px"]
+    assert pixel_ratio > 1.9
+
+    # 무차원 score 는 그 변동을 대부분 흡수한다.  완전히 같을 수는 없다 —
     # 가까울수록 원근 왜곡이 커서 같은 비율의 오차가 조금 다르게 퍼진다.
-    # 요구 조건은 "0.05 게이트의 판정이 거리 때문에 뒤집히지 않는다" 이다.
-    assert near["s_reproj"] == pytest.approx(far["s_reproj"], rel=0.25)
-    assert near["s_remove"] == pytest.approx(far["s_remove"], rel=0.25)
+    # 실제로 지켜야 하는 것은 "0.05 게이트의 판정이 거리 때문에 뒤집히지 않는다".
+    for key in ("s_reproj", "s_remove"):
+        score_ratio = max(near[key], far[key]) / min(near[key], far[key])
+        assert score_ratio < 1.5, f"{key} ratio {score_ratio:.2f}"
+        assert score_ratio < pixel_ratio, (
+            f"{key} 가 픽셀 스케일만큼 흔들렸다 — 무차원이 아니다"
+        )
+        assert near[key] < 0.05 and far[key] < 0.05
 
 
 # ── 7. GT 를 인자로 받지 않는다 ─────────────────────────────────────────
@@ -270,3 +277,66 @@ def test_no_absolute_pixel_threshold_is_hardcoded_in_the_filters() -> None:
         if 6 <= value <= 100:
             suspicious.append((value, getattr(node, "lineno", None)))
     assert not suspicious, f"절대 px 상수로 보이는 값: {suspicious}"
+
+
+# ── 9. 3D 규약 회귀 방지 ────────────────────────────────────────────────
+#
+# 한 번 틀린 적이 있다.  `pnp_solver.make_pallet_keypoints_3d_isaac` 은 near face 를
+# +d/2 에 두는 폐기된 v1~v5 정의인데 그걸 쓰는 바람에, 완벽한 GT 2D 로도 s_reproj 가
+# 0.11 이 나와 필터가 1000 장 중 1 장만 통과시켰다.  정본은 annotate_pnp v6 다.
+
+def test_cuboid_matches_the_annotation_tool_that_produced_the_ground_truth() -> None:
+    sys.path.insert(0, str(REPO_ROOT / "scripts" / "annotate"))
+    import annotate_pnp
+
+    ours = plf.cuboid_keypoints_3d(width=1.1, depth=1.3, height=0.11)
+    theirs = annotate_pnp.make_pallet_keypoints_3d(1.1, 1.3, 0.11)
+    np.testing.assert_allclose(ours, theirs, atol=1e-12)
+
+
+def test_near_face_is_at_negative_z() -> None:
+    """0~3 이 카메라에 가까운 면이다.  부호가 뒤집히면 PnP 가 조용히 틀린다."""
+
+    points = plf.cuboid_keypoints_3d(width=1.1, depth=1.3, height=0.11)
+    assert (points[0:4, 2] < 0).all(), "near face(0~3) 는 Z_local 이 작아야 한다"
+    assert (points[4:8, 2] > 0).all(), "far face(4~7) 는 Z_local 이 커야 한다"
+    assert (points[[0, 1, 4, 5], 1] < 0).all(), "{0,1,4,5} 가 위 (OpenCV +y = 아래)"
+    assert (points[[2, 3, 6, 7], 1] > 0).all(), "{2,3,6,7} 가 아래"
+
+
+def test_ground_truth_annotations_score_near_zero() -> None:
+    """GT 2D 는 정의상 정확하다.  여기서 큰 값이 나오면 3D 대응이 틀린 것이다."""
+
+    import glob
+    import json
+
+    files = sorted(glob.glob(str(
+        REPO_ROOT / "data/evaluation/pallet_eval_v1/final/positive/annotations"
+        / "plastic_*" / "*.json"
+    )))[:25]
+    if not files:
+        pytest.skip("PAPER_EVAL plastic annotations unavailable")
+
+    scores = []
+    for path in files:
+        payload = json.load(open(path))
+        obj = payload["objects"][0]
+        intrinsics = payload["camera_data"]["intrinsics"]
+        K = camera_matrix(intrinsics["fx"], intrinsics["fy"],
+                          intrinsics["cx"], intrinsics["cy"])
+        annotations = obj["keypoint_annotations"]
+        points = np.array([a["xy"] for a in annotations], dtype=float)
+        visible = np.array([
+            bool(a.get("visibility", 0)) and a.get("in_frame", True)
+            for a in annotations
+        ])
+        if visible[:N_CORNERS].sum() < 6:
+            continue
+        scores.append(plf.geometry_scores(points, visible, K, PLASTIC_XYZ))
+
+    assert len(scores) >= 10
+    reprojection = np.median([item["s_reproj"] for item in scores])
+    removal = np.median([item["s_remove"] for item in scores])
+    # 0.05 게이트가 GT 를 통과시키지 못하면 게이트가 아니라 규약이 틀린 것이다.
+    assert reprojection < 0.02, f"GT s_reproj median {reprojection:.4f}"
+    assert removal < 0.02, f"GT s_remove median {removal:.4f}"

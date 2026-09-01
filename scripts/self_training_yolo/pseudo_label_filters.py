@@ -32,9 +32,16 @@ import cv2
 import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO_ROOT / "scripts" / "self_training"))
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "annotate"))
 
-from pnp_solver import make_pallet_keypoints_3d_isaac  # noqa: E402
+# GT 를 만든 바로 그 3D 모델과 W/D hypothesis 생성기를 그대로 쓴다.  여기서 다시
+# 정의하면 규약이 조용히 갈라진다 — 실제로 한 번 갈렸다.  `pnp_solver` 의
+# `make_pallet_keypoints_3d_isaac` 은 near face 를 +d/2 에 두는 폐기된 v1~v5 정의라
+# 쓰면 안 된다 (annotate_pnp v6 주석 참조).
+from annotate_pnp import (  # noqa: E402
+    _physical_wd_hypotheses,
+    make_pallet_keypoints_3d,
+)
 
 N_CORNERS = 8
 MIN_PNP_POINTS = 4
@@ -53,9 +60,12 @@ def projected_diagonal(points_2d: np.ndarray) -> float:
 
 
 def cuboid_keypoints_3d(width: float, depth: float, height: float) -> np.ndarray:
-    """camera-facing 0123 규약의 9 점.  프로젝트 정본 함수를 그대로 쓴다."""
+    """camera-facing 규약의 9 점.  GT 를 만든 정본 함수를 그대로 호출한다.
 
-    return make_pallet_keypoints_3d_isaac(width=width, depth=depth, height=height)
+    near face(0~3) 가 Z_local 작은 쪽이다 (annotate_pnp v6, 2026-05-24).
+    """
+
+    return make_pallet_keypoints_3d(width, depth, height)
 
 
 def registry_hypotheses(dimensions_xyz: dict) -> tuple[tuple[str, np.ndarray], ...]:
@@ -66,13 +76,21 @@ def registry_hypotheses(dimensions_xyz: dict) -> tuple[tuple[str, np.ndarray], .
     GT 를 보고 고르지 않는다 — 호출부가 score 최소값만 쓴다.
     """
 
-    x = float(dimensions_xyz["x"])
-    y = float(dimensions_xyz["y"])
-    z = float(dimensions_xyz["z"])
-    hypotheses = [("XZ", cuboid_keypoints_3d(width=x, depth=z, height=y))]
-    if not np.isclose(x, z):
-        hypotheses.append(("ZX", cuboid_keypoints_3d(width=z, depth=x, height=y)))
-    return tuple(hypotheses)
+    physical = {key: float(dimensions_xyz[key]) for key in ("x", "y", "z")}
+    if np.isclose(physical["x"], physical["z"]):
+        # 정사각 footprint 는 W/D 배정이 애초에 모호하지 않다.  upstream 의
+        # short/long face 명명은 X != Z 를 요구하므로 여기서 먼저 처리한다.
+        return (
+            ("square_footprint",
+             cuboid_keypoints_3d(physical["x"], physical["z"], physical["y"])),
+        )
+    seen: dict[tuple[float, float, float], str] = {}
+    for hypothesis in _physical_wd_hypotheses(physical):
+        dims = tuple(float(value) for value in hypothesis["dims"])
+        seen.setdefault(dims, hypothesis["camera_facing_hypothesis"])
+    return tuple(
+        (name, cuboid_keypoints_3d(*dims)) for dims, name in seen.items()
+    )
 
 
 def _solve(points_3d: np.ndarray, points_2d: np.ndarray, camera_matrix: np.ndarray):
