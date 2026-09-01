@@ -14,7 +14,8 @@ Q1   기존 6D pose baseline 보다 좋은가?
 Q2   왜 synthetic-only 로 끝내지 않고 target-domain self-training 이 필요한가?
 Q3   성능 향상에서 self-training / LOO / flip 이 각각 기여하는가?
 Q4   geometry filter 가 실제로 더 좋은 pseudo-label 을 골라내는가?
-Q5   효과가 indoor/outdoor · day/night · plastic/wood · 어려운 관측에서도 유지되는가?
+Q5   효과가 daytime/nighttime acquisition condition, plastic/wood pallet
+     morphology, 그리고 어려운 관측 조건에서도 유지되는가?
 ```
 
 ## 0.1 문제 정의
@@ -25,8 +26,9 @@ Q5   효과가 indoor/outdoor · day/night · plastic/wood · 어려운 관측�
 3  그러나 synthetic-only 모델에는 deployment-domain gap 이 남는다
 4  실제 deployment 환경의 unlabeled RGB 는 쉽게 모을 수 있다
 5  따라서 synthetic pretraining + geometry-filtered self-training 으로 적응한다
-6  이 효과를 indoor/outdoor x day/night 에서 검증한다
-7  pallet category 안에서 plastic/wood morphology 에 대해서도 평가한다
+6  이 효과를 daytime 및 nighttime/low-light 실제 촬영 조건에서 검증한다
+7  pallet category 안에서 plastic/wood morphology 에 대해 별도로
+   일반화를 평가한다
 ```
 
 ## 0.2 실험 상태표
@@ -50,6 +52,7 @@ A7 Full subgroup metrics           APPENDIX    —
 A8 Cross-domain transfer           APPENDIX    —
 A9 Backbone control                APPENDIX    —
 A10 Architecture diagnostics       APPENDIX    —
+A11 Other acquisition conditions   APPENDIX    —
 ```
 
 `Status` 의 `—` 는 아직 측정하지 않았다는 뜻이지 0 이 아니다.
@@ -58,7 +61,7 @@ A10 Architecture diagnostics       APPENDIX    —
 
 ```text
 Table 1   Main method comparison            <- M1
-Table 2   Target-domain adaptation (4 도메인) <- M2
+Table 2   Target-domain adaptation (Daytime vs Nighttime) <- M2
 Table 3   Core component ablation           <- M3
 Table 4   Filter quality validation         <- M4
 Table 5   Robustness / morphology           <- M5
@@ -163,90 +166,83 @@ Occlusion / truncation / far는
 
 ---
 
-# M2. Target-domain adaptation across acquisition domains
+# M2. Target-domain adaptation under daytime and nighttime conditions
 
 ## 목적
 
-논문의 문제 정의(§0.1 의 3~5)를 **직접** 검증한다. synthetic supervision 만으로
-남는 target-domain gap 을, 그 도메인의 unlabeled 이미지가 실제로 줄이는가.
+질문 하나에만 답한다.
 
-## 도메인 정의 — 2x2 factorial 이 아니다
+> Does unlabeled target-domain self-training reduce the synthetic-to-real gap
+> under daytime and nighttime real-image conditions?
 
-indoor/outdoor x day/night 를 독립 축으로 쓰지 않는다. 두 축을 신뢰성 있게
-가를 provenance 가 데이터에 없다. 대신 **capture provenance category** 를 쓴다.
+## 조건은 둘뿐이다
 
 ```text
-Domain     Role                     근거
-────────────────────────────────────────────────────────────────────────
-outside    MAIN_REQUIRED            metric_split_lock.md §1.6 [LOCKED]
-night      MAIN_REQUIRED            metric_split_lock.md §1.6 [LOCKED]
-noapril    CONDITIONAL              독립 ADAPT/EVAL 세션 확보 시 MAIN 3rd,
-                                    아니면 SUPPORTING (Appendix)
-cad        APPENDIX_STRESS_ONLY     close-up/calibration 특성 + 과거 detection
-                                    collapse. MAIN readiness 계산 제외
+Daytime                실제 주간 촬영
+Nighttime / Low-light  실제 야간·저조도 촬영
 ```
 
-세션별 배정 근거는 `data/evaluation/pallet_eval_v1/ACQUISITION_DOMAIN_MAP.json`
-에 evidence 문자열과 함께 적혀 있다. 근거 없는 세션은 `unknown` 이다 — 폴더명에
-`outside` 가 들어간다는 이유로 확정하지 않는다.
+실내/실외를 조명 조건과 교차한 factorial 은 주장하지 않는다 — 두 축을
+신뢰성 있게 가를 provenance 가 데이터에 없다. 내부 capture id 는 결과표에 쓰지 않는다.
 
-## MAIN 은 plastic 만 센다
+## Object 는 Plastic 고정
 
-morphology confound 를 없애기 위해서다. plastic 과 wood 를 섞어 하나의 domain
-효과로 해석하지 않는다. wood 는 M5 의 cross-morphology 축에서 다룬다.
+plastic/wood morphology 차이를 lighting/domain adaptation 효과와 섞지 않기
+위해서다. Wood 는 M5 에서 따로 평가한다.
 
 ## Dataset readiness — source of truth
 
 ```text
 data/evaluation/pallet_eval_v1/DATASET_TARGETS.json
-data/evaluation/pallet_eval_v1/ACQUISITION_DOMAIN_MAP.json
-data/evaluation/pallet_eval_v1/reports/DOMAIN_COVERAGE.md
+data/evaluation/pallet_eval_v1/reports/PAPER_DOMAIN_COVERAGE.md
 ```
 
 ```text
-MAIN domain gate (도메인마다 둘 다 만족해야 한다)
-  FRAME_READY     frames   >= minimum   (outside/night = 50, preferred 60)
-  SESSION_READY   sessions >= 2 independent eval sessions
+조건마다 둘 다 만족해야 한다
+  FRAME_READY     frames   >= 50   (preferred 60)
+  SESSION_READY   independent eval sessions >= 2
 ```
 
 frame 수만 채우고 READY 로 넘기지 않는다. 같은 영상에서 인접 50장을 뽑아도
-독립 표본 50개가 아니다. 현재 상태는 `DOMAIN_COVERAGE.md` 가 계산한다 —
+독립 표본 50개가 아니다. 현재 상태는 `PAPER_DOMAIN_COVERAGE.md` 가 계산한다 —
 여기 옮겨 적지 않는다.
 
 ## 비교 대상
 
 ```text
-Synthetic-only        적응 없음 — 이 실험의 기준선
-Naive ST              필터 없는 self-training
-Reproj-only ST        reprojection error 만으로 거른 self-training
-Ours (LOO + flip)     제안 필터
+Synthetic-only         적응 없음 — 이 실험의 기준선
+Naive ST               필터 없는 self-training
+Reprojection-based ST  reprojection error 기반 필터
+Ours (LOO + flip)      제안 필터
 ```
+
+세 번째 arm 의 실제 체크포인트가 reproj-only 가 아니라 reproj+flip 이면 그
+구현에 맞는 이름으로 고친다. 없는 방법명을 만들지 않는다.
 
 ## 결과표 — 본문 Table 2
 
 셀 값은 현재 고정된 primary pose metric 하나다.
 
 ```text
-Method             outside   night   noapril*   Mean   Worst
-─────────────────────────────────────────────────────────────
-Synthetic-only         —       —         —        —      —
-Naive ST               —       —         —        —      —
-Reproj-only ST         —       —         —        —      —
-Ours                   —       —         —        —      —
+Method                    Daytime   Nighttime   Mean   Worst
+────────────────────────────────────────────────────────────
+Synthetic-only                —          —        —       —
+Naive ST                      —          —        —       —
+Reprojection-based ST         —          —        —       —
+Ours (LOO + flip)             —          —        —       —
 ```
 
-`*` noapril 은 MAIN gate 를 통과했을 때만 본문에 넣는다. 아니면 Appendix.
-`Worst` 는 도메인 중 최악값이다 — 평균만 보고 한 도메인이 무너진 것을 가리지 않는다.
+`Worst` 는 두 조건 중 최악값이다 — 평균만 보고 한 조건이 무너진 것을 가리지 않는다.
 
 ## 본문 보조표 — corner / yaw
 
 ```text
-Method             outside corner↓  night corner↓   outside yaw↓  night yaw↓
-──────────────────────────────────────────────────────────────────────────────
-Synthetic-only            —               —              —             —
-Naive ST                  —               —              —             —
-Reproj-only ST            —               —              —             —
-Ours                      —               —              —             —
+Method                  Day corner↓   Night corner↓   Day yaw↓   Night yaw↓
+────────────────────────────────────────────────────────────────────────────
+Synthetic-only                —              —            —           —
+Naive ST                      —              —            —           —
+Reprojection-based ST         —              —            —           —
+Ours (LOO + flip)             —              —            —           —
 ```
 
 12 열 전체는 A7 에 둔다.
@@ -254,44 +250,50 @@ Ours                      —               —              —             —
 ## 적응 데이터 — 평가셋과 다른 population 이다
 
 ```text
-Domain     unlabeled 최소   권장    실제
-──────────────────────────────────────────
-outside          500       1000      —
-night            500       1000      —
-noapril          500       1000      —
+Paper condition     Internal adaptation source
+────────────────────────────────────────────────────────────────
+Daytime             registered daytime unlabeled sessions
+Nighttime           registered night / low-light unlabeled sessions
+```
+
+```text
+Condition     unlabeled 최소   권장    실제
+──────────────────────────────────────────────
+Daytime             500       1000      —
+Nighttime           500       1000      —
 ```
 
 이 수는 300 labeled evaluation minimum 에 **더하지 않는다**. 별개 집합이다.
-
-`metric_split_lock.md` §1.6 이 이미 도메인별 `pl_pool` 세션을 evaluation 세션과
-disjoint 하게 고정해 두었다 (OUTSIDE p01/p10/p11, NIGHT n01~n04/n10). 그 분리를
-새로 만들지 말고 그대로 쓴다.
+논문 Methods 에서도 "Daytime adaptation pool" / "Nighttime adaptation pool"
+이라고 쓰고, 내부 폴더명을 본문에 노출하지 않는다.
 
 ## 핵심 대조
 
 ```text
-각 도메인 D 에 대해
-    Synthetic-only 를 D 에서 평가     vs     U_D 로 적응한 Ours 를 D 에서 평가
+각 조건 C 에 대해
+    Synthetic-only 를 C 에서 평가     vs     U_C 로 적응한 Ours 를 C 에서 평가
 ```
 
-같은 model initialization 과 같은 도메인 평가 프레임을 쓴다. 하나라도 다르면
+같은 model initialization 과 같은 조건 평가 프레임을 쓴다. 하나라도 다르면
 그 행은 이 대조가 아니다.
 
 ## 누수 게이트 (결과 보고 전에 통과해야 한다)
 
 ```text
-ADAPT 와 EVAL 의 이미지 SHA 교집합            0 이어야 함
-ADAPT 와 EVAL 의 capture_session_id 교집합    0 이어야 함
+Daytime     adaptation sessions ∩ evaluation sessions = 0
+Nighttime   adaptation sessions ∩ evaluation sessions = 0
+공통        이미지 SHA256 교집합                      = 0
 ```
 
-near-duplicate 감사도 보고하되, 자동으로 데이터를 지우지 않는다.
+세션 분리는 이미 고정된 historical split 을 내부 provenance 로 쓴다. 새로
+만들지 않는다. near-duplicate 감사도 보고하되 자동으로 데이터를 지우지 않는다.
 
 ## 금지
 
-- 도메인 평균만 보고하고 최악 도메인을 감추지 않는다.
-- cad 를 MAIN domain adaptation 대상으로 쓰지 않는다.
-- plastic 과 wood 를 섞어 하나의 domain 효과로 해석하지 않는다.
-- unlabeled pool 이 최소치에 못 미치는 도메인의 행을 다른 도메인과 같은 자격으로
+- 내부 capture id 를 결과표 헤더로 쓰지 않는다.
+- 평균만 보고하고 최악 조건을 감추지 않는다.
+- plastic 과 wood 를 섞어 하나의 조건 효과로 해석하지 않는다.
+- unlabeled pool 이 최소치에 못 미치는 조건의 행을 다른 조건과 같은 자격으로
   비교하지 않는다 — pool 크기를 함께 적는다.
 - M3 와 같은 수치를 복사해 두 번 주장하지 않는다.
 
@@ -466,6 +468,24 @@ Plastic pose 결과와 Wood의 unresolved pose 결과를 합쳐 controlled DEV 1
 `AUCall`을 만들지 않는다.
 
 ---
+
+---
+
+# Wording — 논문 본문·초록에서 쓸 표현
+
+```text
+사용 금지
+  "indoor/outdoor and day/night domains"
+  "outside / noapril / cad domains"
+  내부 capture id 를 결과표 헤더나 초록에 노출하는 모든 표현
+
+권장
+  "daytime and nighttime real acquisition conditions"
+  결과가 충분하면 "across daytime and nighttime conditions"
+```
+
+내부 provenance 이름은 repository 와 Appendix 의 provenance 절에서만 쓴다.
+그때도 결과표 label 로 쓰지 말고 `Internal dataset id: ...` 형태로 적는다.
 
 ---
 
@@ -947,10 +967,8 @@ Subgroup        N   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑ 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 Plastic         —      —        —       —         —       —       —         —         —        —      —       —       —
 Wood            —      —        —       —         —       —       —         —         —        —      —       —       —
-outside         —      —        —       —         —       —       —         —         —        —      —       —       —
-night           —      —        —       —         —       —       —         —         —        —      —       —       —
-noapril         —      —        —       —         —       —       —         —         —        —      —       —       —
-cad             —      —        —       —         —       —       —         —         —        —      —       —       —
+Daytime         —      —        —       —         —       —       —         —         —        —      —       —       —
+Nighttime       —      —        —       —         —       —       —         —         —        —      —       —       —
 DAY             —      —        —       —         —       —       —         —         —        —      —       —       —
 NIGHT           —      —        —       —         —       —       —         —         —        —      —       —       —
 Occlusion       —      —        —       —         —       —       —         —         —        —      —       —       —
@@ -979,13 +997,12 @@ M2 는 "그 도메인 데이터로 적응하면 그 도메인에서 좋아지는
 행 = 적응에 쓴 unlabeled 도메인, 열 = 평가 도메인.
 
 ```text
-Adaptation data    outside    night   noapril
+Adaptation       Test Daytime   Test Nighttime
 ──────────────────────────────────────────────
-None                    —        —         —
-outside                 —        —         —
-night                   —        —         —
-noapril                 —        —         —
-All domains             —        —         —
+None                   —              —
+Daytime                —              —
+Nighttime              —              —
+Day + Night            —              —
 ```
 
 ## 해석 규칙 (결과 보기 전에 고정)
@@ -1083,6 +1100,42 @@ cross-attention                    —                         —
 
 ---
 
+# A11. Other acquisition conditions / stress tests
+
+## 목적
+
+MAIN 두 조건(Daytime / Nighttime)에 들어가지 않는 촬영 계보를 **버리지 않고**
+여기 보관한다. 음성·진단 결과도 기록으로서 가치가 있다.
+
+## 보관 대상
+
+```text
+Descriptive label                Internal dataset id    상태
+──────────────────────────────────────────────────────────────────────
+Auxiliary daytime capture        noapril                SUPPORTING
+Close-range stress capture       cad                    DIAGNOSTIC
+Transductive historical results  (여러 run)              DIAGNOSTIC
+```
+
+## 규칙
+
+- 내부 id 를 결과표 label 로 쓰지 않는다. 표를 만들려면 descriptive label 을
+  먼저 정의한다.
+- 의미가 명확하지 않으면 표를 만들지 말고 repository provenance 로만 남긴다.
+- MAIN readiness 계산에 넣지 않는다 — `paper_domain=none` 이라 구조적으로 못 들어간다.
+- 기존 파일 · annotation · checkpoint · result 를 삭제하지 않는다.
+
+## 결과표 (필요할 때만)
+
+```text
+Capture                          N    pnp↑  corner↓  AUCall↑
+─────────────────────────────────────────────────────────────
+Auxiliary daytime capture        —       —        —        —
+Close-range stress capture       —       —        —        —
+```
+
+---
+
 # Completion checklist
 
 ## MAIN
@@ -1098,10 +1151,9 @@ cross-attention                    —                         —
 - [ ] 동일 evaluation population
 
 ### M2 Target-domain adaptation
-- [ ] outside plastic >= 50 frames AND >= 2 sessions
-- [ ] night   plastic >= 50 frames AND >= 2 sessions
-- [ ] noapril 판정 (MAIN 3rd 인가 SUPPORTING 인가)
-- [ ] cad 는 MAIN readiness 에서 제외됐는가
+- [ ] Daytime   plastic >= 50 frames AND >= 2 sessions
+- [ ] Nighttime plastic >= 50 frames AND >= 2 sessions
+- [ ] 내부 capture id 가 MAIN 표 헤더에 없는가
 - [ ] adaptation pool >= 500 / domain (split lock pl_pool 재사용)
 - [ ] ADAPT/EVAL SHA 교집합 0
 - [ ] ADAPT/EVAL capture_session_id 교집합 0
@@ -1123,10 +1175,10 @@ cross-attention                    —                         —
 
 ### M5 Robustness / morphology
 - [ ] Plastic / Wood
-- [ ] outside / night / noapril / cad
+- [ ] Daytime / Nighttime
 - [ ] DAY / NIGHT
 - [ ] Occlusion / Truncation / Far
-- [ ] acquisition-domain compact table
+- [ ] Daytime/Nighttime compact table
 
 ## APPENDIX
 
@@ -1141,6 +1193,7 @@ cross-attention                    —                         —
 - [ ] A8  cross-domain transfer matrix
 - [ ] A9  same-data backbone control
 - [ ] A10 diagnostic / not-adopted architecture
+- [ ] A11 other acquisition conditions / stress tests
 
 ---
 

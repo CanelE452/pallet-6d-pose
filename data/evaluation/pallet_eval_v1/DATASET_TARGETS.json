@@ -6,34 +6,6 @@
     "plastic": 180,
     "wood": 120
   },
-  "main_acquisition_domains": {
-    "outside": {
-      "object_type": "plastic",
-      "minimum_frames": 50,
-      "preferred_frames": 60,
-      "minimum_sessions": 2,
-      "required": true
-    },
-    "night": {
-      "object_type": "plastic",
-      "minimum_frames": 50,
-      "preferred_frames": 60,
-      "minimum_sessions": 2,
-      "required": true
-    }
-  },
-  "conditional_domains": {
-    "noapril": {
-      "object_type": "plastic",
-      "supporting_target": 30,
-      "main_minimum_frames": 40,
-      "main_preferred_frames": 50,
-      "main_minimum_sessions": 2
-    }
-  },
-  "appendix_only_domains": {
-    "cad": true
-  },
   "minimum_condition_coverage": {
     "clean": 80,
     "occlusion": 80,
@@ -55,8 +27,29 @@
   "notes": {
     "no_lighting_quota": "DAY/NIGHT quota 는 제거했다. NIGHT 는 이제 acquisition_domain 자체이고 day/night 와 indoor/outdoor 를 orthogonal factor 로 쓰지 않는다. lighting 필드는 descriptive metadata 로만 남긴다.",
     "positive_minimum": "300 은 단순 frame count 가 아니다. DATASET_READY 는 total>=300 AND MAIN domain coverage AND morphology coverage AND robustness minimum 을 동시에 만족해야 참이다.",
-    "main_domains_plastic_only": "MAIN domain adaptation 은 morphology confound 를 없애려고 plastic 만 센다.",
     "cad": "close-up/calibration 특성 + 과거 detection collapse — MAIN 계산 제외.",
-    "conditions_overlap": "condition/elevation 은 중복 가능하며 300 에 더하지 않는다."
+    "conditions_overlap": "condition/elevation 은 중복 가능하며 300 에 더하지 않는다.",
+    "paper_domains": "MAIN 논문 표의 조건은 Daytime / Nighttime 두 개뿐이다. 내부 capture id(outside/noapril/cad)는 결과표 헤더로 쓰지 않는다. paper_domain 은 이미 provenance 가 확인된 subset 의 표시용 alias 이지 새 GT 가 아니다.",
+    "main_is_plastic_only": "morphology 차이를 lighting/domain adaptation 효과와 섞지 않기 위해 MAIN 은 plastic 만 센다. wood 는 M5 에서 따로 평가한다."
+  },
+  "main_paper_domains": {
+    "daytime": {
+      "object_type": "plastic",
+      "minimum_frames": 50,
+      "preferred_frames": 60,
+      "minimum_sessions": 2,
+      "internal": "acquisition_domain=outside + lighting=day"
+    },
+    "nighttime": {
+      "object_type": "plastic",
+      "minimum_frames": 50,
+      "preferred_frames": 60,
+      "minimum_sessions": 2,
+      "internal": "acquisition_domain=night + lighting=night"
+    }
+  },
+  "appendix_only_internal_ids": {
+    "noapril": true,
+    "cad": true
   }
 }

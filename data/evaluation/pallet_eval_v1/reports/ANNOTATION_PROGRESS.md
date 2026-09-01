@@ -95,18 +95,17 @@ AUX_METADATA_UNKNOWN                173   view
 
 domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
 
-## Acquisition domains
+## Main domain evaluation readiness
 
 ```text
-Domain      Obj      Role                      N  Sess  Min  Pref   Status
-----------------------------------------------------------------------------------
-outside     plastic  MAIN_REQUIRED            70     3   50    60   PREFERRED_READY
-night       plastic  MAIN_REQUIRED            28     2   50    60   FRAME_DEFICIT
-noapril     plastic  CONDITIONAL              12     1   40    50   DEFICIT
-cad         any      APPENDIX_STRESS_ONLY     18     1    0     0   APPENDIX_ONLY
+Condition     Object      Frames  Minimum  Preferred  Sessions  MinSess   Status
+----------------------------------------------------------------------------------------
+Daytime       Plastic         70       50         60         3        2   PREFERRED_READY
+Nighttime     Plastic         28       50         60         2        2   FRAME_DEFICIT
 ```
 
-상세와 결핍 목록은 `reports/DOMAIN_COVERAGE.md` 를 본다.
+내부 provenance 대응은 `reports/PAPER_DOMAIN_COVERAGE.md` 를 본다.
+내부 capture id 별 집계는 `reports/DOMAIN_COVERAGE.md`(engineering audit).
 `173 / 300` 한 줄만 보고 domain experiment 진척으로 읽지 말 것 —
 DATASET_READY 는 위 네 조건을 모두 만족해야 참이다.
 
