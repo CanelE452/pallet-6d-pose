@@ -98,6 +98,27 @@ FPR95       ↓    false-positive rate at 95% TPR
 
 ---
 
+## 생성된 표 (숫자의 정본)
+
+이 문서의 표는 **틀과 계약**이고, 실제 숫자는 result artifact 에서 generator 가
+채운 아래 파일이 정본이다.  여기 숫자를 손으로 복붙하지 않는다.
+
+```text
+_docs/paper/generated/TABLE_M1.md          main method comparison
+_docs/paper/generated/TABLE_M2.md          daytime / nighttime adaptation
+_docs/paper/generated/TABLE_M3.md          component ablation (R0-CONT 포함)
+_docs/paper/generated/TABLE_M4.md          filter quality
+_docs/paper/generated/TABLE_M5.md          robustness / morphology
+_docs/paper/generated/APPENDIX_TABLES.md   elevation · exposure · external baseline 상태
+_docs/paper/ABSTRACT_RESULT_SLOTS.md       초록에 넣을 수 있는 값과 없는 값
+```
+
+생성: `python scripts/paper/build_experiment_tables.py`
+(§33 불변식 — Daytime/Nighttime/Plastic/Wood/ALL 의 N 이 manifest 및
+`reports/PAPER_DOMAIN_COVERAGE.md` 와 다르면 표를 만들지 않고 실패한다.)
+
+---
+
 # PART I — MAIN PAPER (required)
 
 이 다섯 개가 본문이다. 여기에 새 architecture / loss / conditioning 실험을 넣지 않는다.

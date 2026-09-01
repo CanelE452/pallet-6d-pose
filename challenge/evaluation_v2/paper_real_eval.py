@@ -2324,6 +2324,17 @@ PER_FRAME_FIELDS = (
     "top_iou50_match",
     "top_keypoints_shape_valid",
     "supervised_keypoint_count",
+    # Subgroup tables (Daytime/Nighttime, Clean/Occlusion/Truncation/Far, ...)
+    # are aggregated offline.  The headline keypoint statistic pools *every*
+    # supervised keypoint error across frames, so a per-frame median would be a
+    # different statistic.  Emit the raw supervised errors and let the offline
+    # aggregator reproduce the exact same definition.
+    "top_keypoint_supervised_errors_px",
+    "top_keypoint_supervised_error_median_px",
+    # 추가 진단.  legacy 프레임은 visibility 가 unknown 이라 supervision mask 가
+    # 비어 있고, 그런 세션만으로 이루어진 subgroup 은 감독 통계가 아예 없다.
+    # all-annotated 는 그 경우에도 값을 주지만 **visible/occluded 주장이 아니다**.
+    "top_keypoint_all_annotated_errors_px",
 )
 
 
@@ -2349,6 +2360,21 @@ def _per_frame_rows(
                 and np.isfinite(prediction.keypoints_xy).all()
             )
             target_iou = prediction.target_iou if prediction is not None else None
+            supervised_errors: list[float] = []
+            annotated_errors: list[float] = []
+            if is_positive and keypoints_valid and target_iou is not None and target_iou >= 0.5:
+                target = targets[item.frame_id]
+                distances = np.linalg.norm(
+                    prediction.keypoints_xy - target.keypoints_xy, axis=1
+                )
+                supervised_errors = [
+                    float(value)
+                    for value in distances[target.keypoint_supervision_mask].tolist()
+                ]
+                annotated_errors = [
+                    float(value)
+                    for value in distances[target.keypoint_xy_present].tolist()
+                ]
             rows.append(
                 {
                     "population_id": manifest.population_id.value,
@@ -2380,6 +2406,19 @@ def _per_frame_rows(
                     "supervised_keypoint_count": (
                         int(np.count_nonzero(targets[item.frame_id].keypoint_supervision_mask))
                         if is_positive
+                        else None
+                    ),
+                    "top_keypoint_supervised_errors_px": (
+                        ";".join(f"{value:.6f}" for value in supervised_errors)
+                        if supervised_errors
+                        else None
+                    ),
+                    "top_keypoint_supervised_error_median_px": (
+                        float(np.median(supervised_errors)) if supervised_errors else None
+                    ),
+                    "top_keypoint_all_annotated_errors_px": (
+                        ";".join(f"{value:.6f}" for value in annotated_errors)
+                        if annotated_errors
                         else None
                     ),
                 }
