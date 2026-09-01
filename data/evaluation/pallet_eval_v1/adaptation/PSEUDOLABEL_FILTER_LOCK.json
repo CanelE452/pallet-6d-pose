@@ -1,0 +1,132 @@
+{
+  "schema_version": "paper_pseudolabel_filter_lock_v1",
+  "purpose": "GT-free confidence threshold and frozen geometry-consistency thresholds for the MAIN self-training track.",
+  "GT_USED_FOR_SELECTION": false,
+  "gt_free_statement": "TAU_BOX was selected using the unlabeled adaptation pool only. No PAPER_EVAL ground truth was read at selection time.",
+  "teacher_checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+  "teacher_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+  "pool_manifest": "data/evaluation/pallet_eval_v1/adaptation/MAIN_UNLABELED_BALANCED.csv",
+  "pool_manifest_sha256": "afb581a0850c702b00e2ee47939c302772a7c4f531a623443f0a4c0b9b4d303b",
+  "teacher_cache": "data/pallet/results/paper_selftrain_v1/teacher_cache/R0_TEACHER_CACHE.json",
+  "teacher_cache_sha256": "2b985344ef43553c43935722e10b609179a06b2c72fce15c8a249f7b2ca93001",
+  "score": {
+    "field": "result.boxes.conf",
+    "paper_name": "YOLO detection confidence",
+    "forbidden_names": [
+      "calibrated probability",
+      "pallet probability"
+    ],
+    "composite_scores_forbidden": true
+  },
+  "keypoint_validity": {
+    "kp_conf_threshold": 0.5,
+    "min_valid_corners": 6,
+    "corner_count": 8,
+    "centroid_excluded_from_denominator": true,
+    "source": "existing repo convention: challenge/scripts/infer/infer_video_yolo.py, challenge/scripts/evaluate/eval_ab_crop.py and challenge/pallet_jetson_deploy/infer_fps.py all default --kp_conf 0.5"
+  },
+  "selection_rule": {
+    "candidates": [
+      0.7,
+      0.75,
+      0.8,
+      0.85
+    ],
+    "denominator": "top1 detection exists AND valid corners >= 6 of 8",
+    "rule": "highest candidate tau where BOTH daytime and nighttime keep accepted >= max(100, 20% of that condition's candidate pool)",
+    "absolute_minimum": 100,
+    "retention_fraction": 0.2,
+    "minimum_required": {
+      "daytime": 100,
+      "nighttime": 100
+    }
+  },
+  "pool_counts": {
+    "total": {
+      "daytime": 500,
+      "nighttime": 500
+    },
+    "detected": {
+      "daytime": 473,
+      "nighttime": 481
+    },
+    "candidate": {
+      "daytime": 472,
+      "nighttime": 454
+    }
+  },
+  "sweep": [
+    {
+      "tau": 0.7,
+      "accepted": {
+        "daytime": 197,
+        "nighttime": 218
+      },
+      "meets_minimum": {
+        "daytime": true,
+        "nighttime": true
+      },
+      "passes": true
+    },
+    {
+      "tau": 0.75,
+      "accepted": {
+        "daytime": 178,
+        "nighttime": 203
+      },
+      "meets_minimum": {
+        "daytime": true,
+        "nighttime": true
+      },
+      "passes": true
+    },
+    {
+      "tau": 0.8,
+      "accepted": {
+        "daytime": 156,
+        "nighttime": 179
+      },
+      "meets_minimum": {
+        "daytime": true,
+        "nighttime": true
+      },
+      "passes": true
+    },
+    {
+      "tau": 0.85,
+      "accepted": {
+        "daytime": 123,
+        "nighttime": 149
+      },
+      "meets_minimum": {
+        "daytime": true,
+        "nighttime": true
+      },
+      "passes": true
+    }
+  ],
+  "TAU_BOX": 0.85,
+  "CONF_RETENTION_FAIL": false,
+  "geometry_thresholds": {
+    "tau_reproj": 0.05,
+    "tau_remove": 0.05,
+    "tau_flip": 0.05,
+    "normalization": "projected cuboid diagonal (dimensionless)",
+    "source": "scripts/data_prep/canonical_filters.py canonical defaults (filter_A tau_A, filter_C tau_C).  No new absolute pixel threshold is introduced for YOLO 640."
+  },
+  "confidence_bin_diagnostic": {
+    "daytime": {
+      "[0.00,0.70)": 275,
+      "[0.70,0.80)": 41,
+      "[0.80,0.90)": 74,
+      "[0.90,1.01)": 82
+    },
+    "nighttime": {
+      "[0.00,0.70)": 236,
+      "[0.70,0.80)": 39,
+      "[0.80,0.90)": 67,
+      "[0.90,1.01)": 112
+    }
+  },
+  "frozen_before_results": true
+}

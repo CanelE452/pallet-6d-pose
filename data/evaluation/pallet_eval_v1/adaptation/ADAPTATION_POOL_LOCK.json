@@ -1,0 +1,61 @@
+{
+  "schema_version": "paper_adaptation_pool_lock_v1",
+  "purpose": "Leakage-free unlabeled adaptation pool for the MAIN one-model self-training track.  Frozen before any pseudo-label is produced.",
+  "source_of_truth": {
+    "session_split": "metric_split_lock.md §1.6 pl_pool",
+    "split_assignment": "data/pallet/eval_results/split_lock/split_assignment.json",
+    "frame_count_invariant": {
+      "daytime": 2227,
+      "nighttime": 5804
+    },
+    "note": "pl_pool already satisfies pool∩filter-val=0 and pool∩final-test=0. This lock re-verifies against the *current* PAPER_EVAL membership, which grew after that split was frozen."
+  },
+  "leakage_gate": {
+    "adapt_session_intersect_eval_session": [],
+    "adapt_sha_intersect_eval_sha": 0,
+    "passed": true
+  },
+  "sampling": {
+    "rule": "sha256 ascending, first N_COMMON",
+    "deterministic": true,
+    "balanced": true
+  },
+  "N_COMMON": 500,
+  "preferred_target": 500,
+  "POOL_BELOW_PREFERRED": false,
+  "M2_MAIN_POOL_READY": true,
+  "condition_audit": {
+    "daytime": {
+      "sessions": [
+        "capturepallet01",
+        "capturepallet10",
+        "capturepallet11"
+      ],
+      "images_found": 2227,
+      "duplicate_sha_dropped": 0,
+      "eval_sha_overlap": 0,
+      "eval_session_overlap": [],
+      "eligible_unique": 2227
+    },
+    "nighttime": {
+      "sessions": [
+        "capturenight01",
+        "capturenight02",
+        "capturenight03",
+        "capturenight04",
+        "capturenight10"
+      ],
+      "images_found": 5804,
+      "duplicate_sha_dropped": 0,
+      "eval_sha_overlap": 0,
+      "eval_session_overlap": [],
+      "eligible_unique": 5804
+    }
+  },
+  "manifest_sha256": {
+    "DAYTIME_UNLABELED.csv": "13880f51d601cad2839a52164c1bdec8aed80aff13ab7b277ca0808bfdef662f",
+    "NIGHTTIME_UNLABELED.csv": "e1bcc6090dd4183daace3e2a0738a0a6d1251f9f3933e9423f344d5da44daedf",
+    "MAIN_UNLABELED_BALANCED.csv": "afb581a0850c702b00e2ee47939c302772a7c4f531a623443f0a4c0b9b4d303b"
+  },
+  "U_MAIN": 1000
+}
