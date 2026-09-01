@@ -398,6 +398,56 @@ def build_appendix(results: dict) -> str:
                   f"모든 arm 이 같은 {exposure['total_optimizer_updates']} optimizer update 를 쓴다.",
                   "MAIN 은 EXPOSURE-MATCHED 이고, unique PL 개수를 맞추는 실험은 A2 다.", ""]
 
+    # ── A3 repeatability ────────────────────────────────────────────────
+    replicates = {
+        "Naive self-training": ["R1_NAIVE", "R1_NAIVE_P43", "R1_NAIVE_P44"],
+        "Proposed": ["R5_PROPOSED", "R5_PROPOSED_P43", "R5_PROPOSED_P44"],
+    }
+    if all(k in results for keys in replicates.values() for k in keys):
+        import statistics
+        lines += [
+            "## A3 — repeatability across pseudo-sampling replicates",
+            "",
+            "Ultralytics 의 `seed` 는 dataloader 에 도달하지 않는다.  seed 42/43/44 로",
+            "학습한 가중치는 **비트 동일**했다 (max|Δw| = 0, 텐서 비교로 확인) — 따라서",
+            "seed override 는 독립 반복이 아니다.  여기서 쓰는 replicate 는 우리가",
+            "통제하는 **pseudo 샘플링**을 바꾼 것이고, 노출 총량은 그대로다.",
+            "",
+            "```text",
+            f"{'Method':24} {'metric':10} {'rep1':>8} {'rep2':>8} {'rep3':>8} "
+            f"{'mean':>8} {'std':>8}",
+            "─" * 82,
+        ]
+        for label, keys in replicates.items():
+            for metric, spec, path in (("corner↓", ".3f", "corner_median_px"),
+                                       ("det↑", ".3f", "detection_rate_iou50"),
+                                       ("AUROC↑", ".4f", "auroc"),
+                                       ("FPR95↓", ".4f", "fpr95")):
+                values = [metric_block(results[k], "ALL").get(path) for k in keys]
+                if any(v is None for v in values):
+                    continue
+                lines.append(
+                    f"{label:24} {metric:10} "
+                    + " ".join(f"{number(v, spec):>8}" for v in values)
+                    + f" {number(statistics.mean(values), spec):>8}"
+                    + f" {number(statistics.pstdev(values), spec):>8}"
+                )
+        lines += ["```", ""]
+        gaps = []
+        for metric, path, lower_is_better in (("corner", "corner_median_px", True),
+                                              ("AUROC", "auroc", False),
+                                              ("FPR95", "fpr95", True)):
+            naive = [metric_block(results[k], "ALL")[path] for k in replicates["Naive self-training"]]
+            proposed = [metric_block(results[k], "ALL")[path] for k in replicates["Proposed"]]
+            separated = (max(proposed) < min(naive)) if lower_is_better else (min(proposed) > max(naive))
+            gaps.append(f"{metric}: {'구간 분리' if separated else '구간 겹침'}")
+        lines += [
+            "세 replicate 에서 Proposed 와 Naive 의 구간이 겹치는지: " + " · ".join(gaps),
+            "",
+            "구간이 겹치면 그 지표에서는 효과가 산포 안이라는 뜻이므로 주장하지 않는다.",
+            "",
+        ]
+
     lines += ["## External keypoint baselines", "", "```text",
               "SingleShotPose   NOT_EVALUATED   repository audit 미실시",
               "PVNet            NOT_EVALUATED   repository audit 미실시",

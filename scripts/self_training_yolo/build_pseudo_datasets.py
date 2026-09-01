@@ -95,6 +95,12 @@ def pseudo_label_line(entry: dict, kp_conf_threshold: float) -> str | None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--arms", nargs="*", default=list(ARM_TO_FILTER))
+    # Ultralytics 의 `seed` 는 dataloader 에 도달하지 않아 학습이 비트 동일해진다
+    # (seed 42/43/44 가중치 max|Δw| = 0 으로 확인).  진짜 replicate 를 만들려면
+    # 우리가 통제하는 pseudo 샘플링을 바꿔야 한다 — 어떤 pseudo-label 이 몇 번
+    # 노출되는지가 달라지고, 노출 **총량**은 그대로다.
+    parser.add_argument("--sampling-seed", type=int, default=None)
+    parser.add_argument("--suffix", default="")
     args = parser.parse_args()
 
     lock = json.loads(LOCK.read_text())
@@ -102,7 +108,8 @@ def main() -> int:
     kp_conf = float(filter_lock["keypoint_validity"]["kp_conf_threshold"])
     pseudo_slots = int(lock["pseudo_exposures_per_epoch"])
     synthetic_slots = int(lock["synthetic_exposures_per_epoch"])
-    seed = int(lock["augmentation"]["seed"])
+    seed = args.sampling_seed if args.sampling_seed is not None \
+        else int(lock["augmentation"]["seed"])
 
     cache = json.loads(CACHE.read_text())
     by_sha = {entry["image_sha256"]: entry for entry in cache["entries"]}
@@ -116,7 +123,7 @@ def main() -> int:
     report: dict[str, dict] = {}
     for arm in args.arms:
         filter_name = ARM_TO_FILTER[arm]
-        dataset = OUT_ROOT / arm
+        dataset = OUT_ROOT / f"{arm}{args.suffix}"
         images = dataset / "images" / "train"
         labels = dataset / "labels" / "train"
         images.mkdir(parents=True, exist_ok=True)
@@ -183,7 +190,8 @@ def main() -> int:
             f"names:\n  0: pallet\n"
         )
 
-        report[arm] = {
+        report[f"{arm}{args.suffix}"] = {
+            "sampling_seed": seed,
             "filter": filter_name,
             "unique_pseudo_labels": unique_pseudo,
             "pseudo_exposures_per_epoch": pseudo_slots if filter_name else 0,
@@ -195,9 +203,10 @@ def main() -> int:
             "dataset": str(dataset.relative_to(REPO_ROOT)),
             "train_list_sha256": sha256_file(listing),
         }
-        print(f"{arm:16} filter={str(filter_name):16} unique_PL={unique_pseudo:<5} "
-              f"epoch_entries={len(entries)}  "
-              f"pseudo/unique={report[arm]['pseudo_exposures_per_unique']}")
+        key = f"{arm}{args.suffix}"
+        print(f"{key:20} filter={str(filter_name):16} unique_PL={unique_pseudo:<5} "
+              f"epoch_entries={len(entries)}  seed={seed}  "
+              f"pseudo/unique={report[key]['pseudo_exposures_per_unique']}")
 
     expected = pseudo_slots + synthetic_slots
     for arm, stats in report.items():
@@ -205,7 +214,8 @@ def main() -> int:
             raise SystemExit(
                 f"EXPOSURE_MISMATCH: {arm} {stats['entries_per_epoch']} != {expected}"
             )
-    (RESULTS / "PSEUDO_DATASET_REPORT.json").write_text(
+    report_name = f"PSEUDO_DATASET_REPORT{args.suffix or ''}.json"
+    (RESULTS / report_name).write_text(
         json.dumps({
             "epoch_entries": expected,
             "total_optimizer_updates": lock["total_optimizer_updates"],

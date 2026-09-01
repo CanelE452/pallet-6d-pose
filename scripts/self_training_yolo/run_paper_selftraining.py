@@ -125,12 +125,13 @@ def save_state(state: dict) -> None:
     STATE.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n")
 
 
-def train_arm(arm: str, epochs: int, tag: str, init: Path) -> dict:
+def train_arm(arm: str, epochs: int, tag: str, init: Path,
+              seed: int | None = None) -> dict:
     """한 arm 을 동기로 학습한다.  완료는 checkpoint 산출물로만 판정한다."""
 
     from ultralytics import YOLO
 
-    name = f"{arm}__{tag}"
+    name = f"{arm}__{tag}" if seed is None else f"{arm}__{tag}_S{seed}"
     run_dir = RUNS / name
     weights = run_dir / "weights" / "last.pt"
     results = run_dir / "results.csv"
@@ -150,6 +151,9 @@ def train_arm(arm: str, epochs: int, tag: str, init: Path) -> dict:
     print(f"\n{'=' * 70}\n{name}  epochs={epochs}  pid={os.getpid()}\n"
           f"GPU: {gpu_snapshot()}\n{'=' * 70}", flush=True)
 
+    train_args = dict(TRAIN_ARGS)
+    if seed is not None:
+        train_args["seed"] = seed
     model = YOLO(str(init), task="pose")
     model.train(
         data=str(DATASETS / arm / "data.yaml"),
@@ -157,7 +161,7 @@ def train_arm(arm: str, epochs: int, tag: str, init: Path) -> dict:
         project=str(RUNS),
         name=name,
         exist_ok=True,
-        **TRAIN_ARGS,
+        **train_args,
     )
 
     # 선언이 아니라 산출물로 판정한다.  epoch 수까지 본다.
@@ -186,6 +190,10 @@ def main() -> int:
     parser.add_argument("--stage", choices=("smoke", "full", "all"), default="all")
     parser.add_argument("--arms", nargs="*", default=list(ARMS))
     parser.add_argument("--notify", action="store_true")
+    parser.add_argument(
+        "--seed", type=int, default=None,
+        help="repeatability seed override; run 이름에 _S<seed> 가 붙는다",
+    )
     args = parser.parse_args()
 
     preflight()
@@ -208,11 +216,12 @@ def main() -> int:
     for stage in stages:
         epochs = 1 if stage == "smoke" else full_epochs
         for arm in args.arms:
-            key = f"{stage}:{arm}"
+            key = (f"{stage}:{arm}" if args.seed is None
+                   else f"{stage}:{arm}:S{args.seed}")
             if state["stages"].get(key, {}).get("status") in ("OK", "ALREADY_DONE"):
                 print(f"skip {key} (done)", flush=True)
                 continue
-            result = train_arm(arm, epochs, stage.upper(), init)
+            result = train_arm(arm, epochs, stage.upper(), init, args.seed)
             state["stages"][key] = result
             save_state(state)
             print(f"{key}: {result['status']}", flush=True)

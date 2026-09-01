@@ -55,6 +55,13 @@ MODELS = {
     "R4_CONF_REMOVE": RUNS / "R4_CONF_REMOVE__FULL/weights/last.pt",
     "R5_PROPOSED": RUNS / "R5_PROPOSED__FULL/weights/last.pt",
 }
+# Repeatability (§29).  ultralytics `seed` 는 dataloader 에 도달하지 않아
+# seed 42/43/44 의 가중치가 **비트 동일**했다 (max|Δw| = 0, 텐서 비교로 확인).
+# 그래서 seed override run 은 독립 반복이 아니고 여기서 평가하지 않는다.
+# 진짜 replicate 는 pseudo 샘플링을 바꾼 것이다 — 노출 총량은 그대로다.
+for _seed in (43, 44):
+    for _arm in ("R1_NAIVE", "R5_PROPOSED"):
+        MODELS[f"{_arm}_P{_seed}"] = RUNS / f"{_arm}_P{_seed}__FULL/weights/last.pt"
 
 SUBGROUPS = {
     "ALL": lambda row: True,

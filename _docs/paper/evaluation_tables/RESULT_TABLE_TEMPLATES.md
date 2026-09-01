@@ -8,19 +8,25 @@
 pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCopen↑  AUCseal↑  AUCall↑  AP↑  AUROC↑  FPR95↓
 ```
 
-## Table 1. Main model comparison — frozen FINAL
+## Table 1. Main model comparison — current controlled real evaluation
 
-FINAL population이 동결된 뒤 같은 evaluator로 채운다.
+현재 표는 재사용한 controlled DEV positive 173행과 frozen DEV negative 2,689행
+(2,688 unique image)으로 같은 evaluator를 실행해 채운다. 이 population은 held-out
+FINAL이 아니다. Pose 열은 PLASTIC 128장을 denominator로 사용하고 ranking 열은
+positive 173행 / negative 2,689행을 사용한다. 앞으로 촬영할 untouched physical
+FINAL 결과는 이 표를 덮어쓰지 않고 별도 표로 보고한다.
+현재 registered command는 2D/pose 결과만 생성한다. AP/AUROC/FPR95 score pipeline이
+같은 pair SHA에 묶인 artifact를 만들기 전에는 ranking 열을 `—`로 유지한다.
 
 ```text
-Method / subset                  pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCopen↑  AUCseal↑  AUCall↑  AP↑  AUROC↑  FPR95↓
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-SingleShotPose / PLASTIC           —       —        —          —        —        —         —          —         —     —       —        —
-DOPE / PLASTIC                     —       —        —          —        —        —         —          —         —     —       —        —
-PVNet / PLASTIC                    —       —        —          —        —        —         —          —         —     —       —        —
-YOLO26n-Pose G38 / PLASTIC         —       —        —          —        —        —         —          —         —     —       —        —
-Proposed S1 / PLASTIC              —       —        —          —        —        —         —          —         —     —       —        —
-Real-FT upper bound / PLASTIC      —       —        —          —        —        —         —          —         —     —       —        —
+Method                  Pose subset   N_pose   Rank N_pos/N_neg   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCopen↑  AUCseal↑  AUCall↑  AP↑  AUROC↑  FPR95↓
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+SingleShotPose          PLASTIC           128       173 / 2689      —       —        —          —        —        —         —          —         —     —       —        —
+DOPE                    PLASTIC           128       173 / 2689      —       —        —          —        —        —         —          —         —     —       —        —
+PVNet                   PLASTIC           128       173 / 2689      —       —        —          —        —        —         —          —         —     —       —        —
+YOLO26n-Pose G38        PLASTIC           128       173 / 2689      —       —        —          —        —        —         —          —         —     —       —        —
+Proposed S1             PLASTIC           128       173 / 2689      —       —        —          —        —        —         —          —         —     —       —        —
+Real-FT upper bound     PLASTIC           128       173 / 2689      —       —        —          —        —        —         —          —         —     —       —        —
 ```
 
 ## Table 2. Data ablation — PLASTIC DEV140
@@ -158,4 +164,3 @@ Arm  Internal run name (spatial_concat_scratch/architecture_extension/runs/)
 `irrevocably_exploratory = true`, `paper_final_claim_allowed = false`,
 `independent_test_opened = false`, real 평가 0으로 선언돼 있다.
 따라서 **이 표의 metric으로 채우려면 각 arm을 full model로 다시 학습해야 한다.**
-
