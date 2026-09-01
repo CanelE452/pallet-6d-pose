@@ -12,7 +12,8 @@
 ```text
 Q1   기존 6D pose baseline 보다 좋은가?
 Q2   왜 synthetic-only 로 끝내지 않고 target-domain self-training 이 필요한가?
-Q3   성능 향상에서 self-training / LOO / flip 이 각각 기여하는가?
+Q3   성능 향상에서 self-training / keypoint-removal consistency / flip consistency 가
+     각각 기여하는가?
 Q4   geometry filter 가 실제로 더 좋은 pseudo-label 을 골라내는가?
 Q5   효과가 daytime/nighttime acquisition condition, plastic/wood pallet
      morphology, 그리고 어려운 관측 조건에서도 유지되는가?
@@ -124,21 +125,31 @@ FPR95       ↓    false-positive rate at 95% TPR
 ## 결과표
 
 ```text
-Method                   Population   Pose subset   N_pose   Rank N_pos/N_neg   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCopen↑  AUCseal↑  AUCall↑    AP↑  AUROC↑  FPR95↓
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-SingleShotPose           FINAL_EVAL   PLASTIC           128       173 / 2689      —        —       —         —       —       —         —         —        —      —       —       —
-DOPE                     FINAL_EVAL   PLASTIC           128       173 / 2689      —        —       —         —       —       —         —         —        —      —       —       —
-PVNet                    FINAL_EVAL   PLASTIC           128       173 / 2689      —        —       —         —       —       —         —         —        —      —       —       —
-YOLO26n-Pose baseline    FINAL_EVAL   PLASTIC           128       173 / 2689      —        —       —         —       —       —         —         —        —      —       —       —
-Proposed                 FINAL_EVAL   PLASTIC           128       173 / 2689      —        —       —         —       —       —         —         —        —      —       —       —
-Real-FT upper bound      FINAL_EVAL   PLASTIC           128       173 / 2689      —        —       —         —       —       —         —         —        —      —       —       —
+Method                   Population   Pose subset   N_pose   Rank N_pos/N_neg   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCall↑    AP↑  AUROC↑  FPR95↓
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+SingleShotPose           PAPER_EVAL   PLASTIC             —                —        —        —       —         —       —       —        —      —       —       —
+DOPE                     PAPER_EVAL   PLASTIC             —                —        —        —       —         —       —       —        —      —       —       —
+PVNet                    PAPER_EVAL   PLASTIC             —                —        —        —       —         —       —       —        —      —       —       —
+YOLO26n-Pose baseline    PAPER_EVAL   PLASTIC             —                —        —        —       —         —       —       —        —      —       —       —
+Proposed                 PAPER_EVAL   PLASTIC             —                —        —        —       —         —       —       —        —      —       —       —
+Real-FT upper bound      PAPER_EVAL   PLASTIC             —                —        —        —       —         —       —       —        —      —       —       —
 ```
 
-`FINAL_EVAL`은 registered controlled DEV pair를 row-for-row 재사용한 실행 alias다.
-positive 173행과 negative 2,689행(2,688 unique image)으로 구성되며 held-out FINAL이
-아니다. Plastic pose metric denominator는 128이고, ranking metric은 positive 173행과
-negative 2,689행을 사용한다. Wood pose는 symmetry/selector contract가 해결되기
-전까지 이 주 표에 합치지 않는다.
+paper-facing evaluation population 은 `PAPER_EVAL` 하나다. 옛 `FINAL_EVAL` 은 frozen
+DEV alias(173행 고정)라 새로 어노테이션한 프레임이 영원히 보이지 않는다 — 논문 표에
+쓰지 않는다.
+
+**N 을 이 문서에 상수로 적지 않는다.** population 수치는 manifest 에서 table
+generator 가 산출한다. 근거 파일은 다음 셋이다.
+
+```text
+challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json      (plastic + wood)
+challenge/real_gt_v2/manifests/PAPER_EVAL_PLASTIC_POS.json
+challenge/real_gt_v2/manifests/PAPER_EVAL_WOOD_POS.json
+challenge/real_gt_v2/manifests/DEV_NEG2689.json             (negative, 재사용)
+```
+
+Wood pose 는 symmetry/selector contract 가 해결되기 전까지 이 주 표에 합치지 않는다.
 
 현재 `paper_real_eval.py` binding은 2D/pose 열을 담당한다. AP/AUROC/FPR95 score
 pipeline은 같은 registered pair SHA에 묶인 실행 artifact가 아직 없으므로 해당
@@ -210,26 +221,38 @@ frame 수만 채우고 READY 로 넘기지 않는다. 같은 영상에서 인접
 ## 비교 대상
 
 ```text
-Synthetic-only         적응 없음 — 이 실험의 기준선
-Naive ST               필터 없는 self-training
-Reprojection-based ST  reprojection error 기반 필터
-Ours (LOO + flip)      제안 필터
+Row label                        Arm   Pseudo-label selection rule
+────────────────────────────────────────────────────────────────────────────────
+Synthetic-only                    R0   적응 없음 — 이 실험의 기준선
+Naive self-training               R1   필터 없음 (top1 검출 + valid corner 최소치만)
+Confidence-based self-training    R2   + YOLO detection confidence >= TAU_BOX
+Reprojection-based self-training  R3   + reprojection consistency
+Proposed                          R5   + keypoint-removal 과 flip consistency
 ```
 
-세 번째 arm 의 실제 체크포인트가 reproj-only 가 아니라 reproj+flip 이면 그
-구현에 맞는 이름으로 고친다. 없는 방법명을 만들지 않는다.
+row label 은 실제 학습된 arm 에 그대로 대응한다. 없는 방법명을 만들지 않는다.
+
+모든 ST arm 은 **EXPOSURE-MATCHED** 다 — 같은 init, 같은 TOTAL_UPDATES, 같은 pseudo-real
+exposure 수, 같은 synthetic exposure 수, 같은 LR·batch·seed·augmentation 을 쓴다.
+arm 사이에 다른 것은 pseudo-label selection rule 하나뿐이다. 계약은
+`data/pallet/results/paper_selftrain_v1/SELFTRAIN_EXPOSURE_LOCK.json` 에 동결돼 있다.
+Appendix A2 의 UNIQUE-QUANTITY-MATCHED 와 혼동하지 않는다 — 그쪽은 unique PL **개수**를
+맞추는 다른 실험이다.
+`Proposed` 는 framework 이름이 확정되기 전까지 쓰는 표기다 — 결과 artifact 에
+가칭을 하드코딩하지 않는다.
 
 ## 결과표 — 본문 Table 2
 
 셀 값은 현재 고정된 primary pose metric 하나다.
 
 ```text
-Method                    Daytime   Nighttime   Mean   Worst
-────────────────────────────────────────────────────────────
-Synthetic-only                —          —        —       —
-Naive ST                      —          —        —       —
-Reprojection-based ST         —          —        —       —
-Ours (LOO + flip)             —          —        —       —
+Method                            Daytime   Nighttime   Mean   Worst
+────────────────────────────────────────────────────────────────────
+Synthetic-only                        —          —        —       —
+Naive self-training                   —          —        —       —
+Confidence-based self-training        —          —        —       —
+Reprojection-based self-training      —          —        —       —
+Proposed                              —          —        —       —
 ```
 
 `Worst` 는 두 조건 중 최악값이다 — 평균만 보고 한 조건이 무너진 것을 가리지 않는다.
@@ -237,12 +260,15 @@ Ours (LOO + flip)             —          —        —       —
 ## 본문 보조표 — corner / yaw
 
 ```text
-Method                  Day corner↓   Night corner↓   Day yaw↓   Night yaw↓
-────────────────────────────────────────────────────────────────────────────
-Synthetic-only                —              —            —           —
-Naive ST                      —              —            —           —
-Reprojection-based ST         —              —            —           —
-Ours (LOO + flip)             —              —            —           —
+Method                            Day corner↓   Night corner↓   Day yaw↓   Night yaw↓
+──────────────────────────────────────────────────────────────────────────────────────
+Synthetic-only                          —              —            —           —
+Naive self-training                     —              —            —           —
+Confidence-based self-training          —              —            —           —
+Reprojection-based self-training        —              —            —           —
+Proposed                                —              —            —           —
+
+yaw 열은 POSE_METRICS_STATUS 가 READY 일 때만 채운다. BLOCKED 이면 `—` 로 남긴다.
 ```
 
 12 열 전체는 A7 에 둔다.
@@ -303,41 +329,55 @@ Nighttime   adaptation sessions ∩ evaluation sessions = 0
 
 ## 목적
 
-성능 향상이 단순 self-training 때문인지,
-LOO와 flip filter 때문인지,
-DiffPnP까지 추가했을 때 어떤 변화가 있는지 단계적으로 분해한다.
+성능 향상이 단순 self-training 때문인지, confidence 선별 때문인지,
+제안한 두 기하 일관성 필터 때문인지 단계적으로 분해한다.
+
+용어는 reader-facing 이름을 쓴다. confidence 는 conventional pre-filter 이고,
+methodological contribution 은 **single-keypoint-removal reprojection consistency**
+와 **horizontal-flip keypoint consistency** 둘이다.
 
 ## 구성
 
-1. Base
-2. A0 + self-train (filter 없음)
-3. A0 + self-train (LOO만)
-4. A0 + self-train (LOO + flip)
-5. A3 + DiffPnP
+1. Base                                              R0
+2. Source-only continuation control                  R0-CONT
+3. + self-training (필터 없음)                        R1
+4. + Confidence filtering                            R2
+5. + Keypoint-removal reprojection consistency       R4
+6. + Horizontal-flip keypoint consistency            R5
+
+`R0-CONT` 는 pseudo-real exposure 가 0 이고 그 자리를 synthetic replay 로 채운 arm 이다.
+init·LR·augmentation·batch·TOTAL_UPDATES 가 나머지와 같다. **추가 최적화 자체의 효과**와
+**real pseudo-label adaptation 효과**를 분리하기 위한 필수 control 이다 — 이게 없으면
+R1~R5 의 변화 중 얼마가 그냥 더 돌린 탓인지 알 수 없다.
 
 ## 결과표
 
 ```text
-Configuration                   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCopen↑  AUCseal↑  AUCall↑
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Base                               —        —       —         —       —       —         —         —        —
-A0 + self-train (filter 없음)      —        —       —         —       —       —         —         —        —
-A0 + self-train (LOO만)            —        —       —         —       —       —         —         —        —
-A0 + self-train (LOO + flip)       —        —       —         —       —       —         —         —        —
-A3 + DiffPnP                       —        —       —         —       —       —         —         —        —
+Configuration                                    detect↑  corner↓  AUROC↑  FPR95↓  R med↓  yaw med↓  IoU3D↑
+────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Base                                                   —        —       —       —       —         —       —
+Source-only continuation (R0-CONT)                     —        —       —       —       —         —       —
++ self-training (필터 없음)                             —        —       —       —       —         —       —
++ Confidence filtering                                 —        —       —       —       —         —       —
++ Keypoint-removal reprojection consistency            —        —       —       —       —         —       —
++ Horizontal-flip keypoint consistency                 —        —       —       —       —         —       —
 ```
 
 ## 반드시 비교할 차이
 
 ```text
-Base          -> no-filter ST     self-training 자체 효과
-no-filter ST  -> LOO              LOO contribution
-LOO           -> LOO+flip         flip contribution
-LOO+flip      -> DiffPnP          DiffPnP contribution
+R0      -> R0-CONT   추가 최적화 자체의 효과 (real pseudo-label 없음)
+R0-CONT -> R1        real pseudo-label 로 학습한다는 것 자체의 효과
+R1      -> R2        confidence filtering (conventional pre-filter)
+R2      -> R4        keypoint-removal reprojection consistency contribution
+R4      -> R5        horizontal-flip keypoint consistency contribution
+
+`R0 -> R1` 을 곧바로 "self-training 효과" 라고 부르지 않는다. 그 차이에는 추가 최적화
+자체의 몫이 섞여 있고, 그 몫이 `R0 -> R0-CONT` 다.
 ```
 
-DiffPnP가 최종 방법으로 채택되지 않더라도
-실행 결과가 존재하면 마지막 diagnostic row로 유지한다.
+DiffPnP 계열은 이 트랙의 MAIN 구성이 아니다. 실행 결과가 존재하면 Appendix 에
+diagnostic row 로만 남긴다.
 
 ---
 
@@ -387,12 +427,13 @@ CRITERION_LOCKED_AT  (커밋 SHA)                       —
 ## 결과표 — 필터 채점
 
 ```text
-Filter            N_gt   Pass   TP   FP   FN   Precision↑  Recall↑   F1↑
-─────────────────────────────────────────────────────────────────────────
-No filter            —      —    —    —    —           —        —      —
-Reproj-only          —      —    —    —    —           —        —      —
-LOO                  —      —    —    —    —           —        —      —
-LOO + flip           —      —    —    —    —           —        —      —
+Filter                                  N_gt   Pass   TP   FP   FN   Precision↑  Recall↑   F1↑
+───────────────────────────────────────────────────────────────────────────────────────────────
+No filter                                  —      —    —    —    —           —        —      —
+Confidence                                 —      —    —    —    —           —        —      —
+Confidence + Reprojection                  —      —    —    —    —           —        —      —
+Confidence + Keypoint-removal consistency  —      —    —    —    —           —        —      —
+Proposed                                   —      —    —    —    —           —        —      —
 ```
 
 ## 결과표 — 통과분 대 기각분
@@ -401,11 +442,13 @@ LOO + flip           —      —    —    —    —           —        — 
 통과분과 기각분의 오차가 같으면, 그 필터는 개수만 줄인 것이다.
 
 ```text
-Filter          Pass corner↓   Reject corner↓   Separation↑   Pass pose err↓   Reject pose err↓
-────────────────────────────────────────────────────────────────────────────────────────────────
-Reproj-only               —                —             —                —                 —
-LOO                       —                —             —                —                 —
-LOO + flip                —                —             —                —                 —
+Filter                                     Pass corner↓   Reject corner↓   Separation↑   Gross pass rate↓
+──────────────────────────────────────────────────────────────────────────────────────────────────────────
+No filter                                             —                —             —                  —
+Confidence                                            —                —             —                  —
+Confidence + Reprojection                             —                —             —                  —
+Confidence + Keypoint-removal consistency             —                —             —                  —
+Proposed                                              —                —             —                  —
 ```
 
 ```text
@@ -416,7 +459,8 @@ Separation = Reject corner median - Pass corner median
 
 1. 통과분의 정확도가 pool 전체보다 실제로 높은가?
 2. 통과 수 감소분이 전부 오답 제거인가, 정답도 함께 버렸는가?
-3. LOO가 reproj-only보다 precision을 올리는가, recall만 깎는가?
+3. keypoint-removal consistency 가 reprojection-only 보다 precision 을 올리는가,
+   recall 만 깎는가?
 
 ## 금지
 
@@ -437,31 +481,28 @@ Separation = Reject corner median - Pass corner median
 최종 방법이 특정 파렛트나 특정 촬영 조건에만
 맞는 것이 아닌지 확인한다.
 
-현재 controlled `FINAL_EVAL` 실행 alias에 실제 해당 조건이 존재하고
-표본 수가 충분한 경우에만 채운다.
+`PAPER_EVAL` 에 실제 해당 조건이 존재하고 표본 수가 충분한 경우에만 채운다.
 
 ## 결과표
 
 ```text
-Population   Condition        N   pnp↑  corner↓  R med↓  yaw med↓  t med↓  IoU3D↑  AUCall↑
-──────────────────────────────────────────────────────────────────────────────
-FINAL_EVAL   Plastic         128      —        —       —         —       —       —        —
-FINAL_EVAL   Wood             45      —        — BLOCKED   BLOCKED BLOCKED BLOCKED  BLOCKED
-FINAL_EVAL   DAY             100      —        —       —         —       —       —        —
-FINAL_EVAL   NIGHT            28      —        —       —         —       —       —        —
-FINAL_EVAL   Occlusion         —      —        —       —         —       —       —        —
-FINAL_EVAL   Truncation       28      —        —       —         —       —       —        —
-FINAL_EVAL   Far               —      —        —       —         —       —       —        —
+Population   Condition        N   detect↑  corner↓  AUROC↑  FPR95↓  R med↓  yaw med↓  IoU3D↑
+────────────────────────────────────────────────────────────────────────────────────────────
+PAPER_EVAL   Plastic          —        —        —       —       —       —         —       —
+PAPER_EVAL   Wood             —        —        —       —       —  BLOCKED   BLOCKED BLOCKED
+PAPER_EVAL   Daytime          —        —        —       —       —       —         —       —
+PAPER_EVAL   Nighttime        —        —        —       —       —       —         —       —
+PAPER_EVAL   Clean            —        —        —       —       —       —         —       —
+PAPER_EVAL   Occlusion        —        —        —       —       —       —         —       —
+PAPER_EVAL   Truncation       —        —        —       —       —       —         —       —
+PAPER_EVAL   Far              —        —        —       —       —       —         —       —
 ```
 
-조건은 서로 중복될 수 있다.
-Lighting은 128/173장만 tag되어 있고 Wood 45장은 unknown이다. Occlusion은 0/173,
-distance도 0/173장만 tag되어 있으므로 위 `—`는 0건이 아니라
-`UNAVAILABLE_METADATA`다. Truncation은 173/173장이 tag되어 28건을 보고할 수 있다.
-조건별 metric은 workspace tag를 읽는 subgroup evaluator binding이 추가되기 전까지
-표본 수만 보고하고 metric은 `—`로 유지한다.
+조건은 서로 중복될 수 있고 N 은 generator 가 manifest 에서 채운다.
+`—`는 0 건이 아니라 아직 측정하지 않았다는 뜻이다. metadata 가 없어 판정 불가한
+칸은 generator 가 `UNAVAILABLE_METADATA` 로 구분해 적는다.
 
-`FINAL_EVAL / Wood`는 dataset에서 제외하지 않는다.
+`PAPER_EVAL / Wood`는 dataset에서 제외하지 않는다.
 다만 symmetry와 selector/evaluator pose contract가 해결되기 전까지
 `R med`, `yaw med`, `t med`, `IoU3D`, `AUCall`은 `BLOCKED`로 유지한다.
 Plastic pose 결과와 Wood의 unresolved pose 결과를 합쳐 controlled DEV 173장의
@@ -495,14 +536,14 @@ Plastic pose 결과와 Wood의 unresolved pose 결과를 합쳐 controlled DEV 1
 주장하지 않는다.
 
 ```text
-M3   component ablation            Base / no-filter / LOO / LOO+flip
+M3   component ablation            R0 / R1 / R2 / R4 / R5 를 누적 단계로
      "향상의 어느 부분이 어느 요소에서 오는가"       전체 population 에서
 
-M2   domain adaptation comparison  Synthetic-only / Naive ST / Reproj-only / Ours
+M2   domain adaptation comparison  R0 / R1 / R2 / R3 / R5 를 방법 비교로
      "target 도메인 gap 이 unlabeled 로 줄어드는가"  도메인별로 쪼개서
 ```
 
-M2 의 `Ours` 와 M3 의 `LOO+flip` 이 같은 체크포인트일 수 있다. 그때도 두 표는
+M2 의 `Proposed` 와 M3 의 마지막 단계는 같은 체크포인트(R5)다. 그때도 두 표는
 **다른 집계**(도메인별 vs 전체)를 보여야 하며, 같은 숫자를 그대로 옮기지 않는다.
 
 ---
@@ -523,8 +564,8 @@ Appendix 로 옮겼다고 해서 checkpoint / dataset / population / seed / metr
 
 ## 목적
 
-LOO와 LOO+flip이 실제 unlabeled pool에서
-pseudo-label을 얼마나 통과시키고 제거하는지 확인한다.
+keypoint-removal consistency 와 Proposed 가 실제 unlabeled pool 에서
+pseudo-label 을 얼마나 통과시키고 제거하는지 확인한다.
 
 이 표는 모델 정확도 표가 아니다.
 필터가 실제로 어떤 양의 pseudo-label을 남기는지 보여주는 mechanism 표이다.
@@ -532,28 +573,28 @@ pseudo-label을 얼마나 통과시키고 제거하는지 확인한다.
 ## 결과표
 
 ```text
-Domain      Pool   LOO pass R1   LOO pass R2   LOO+flip pass R1   LOO+flip pass R2
-──────────────────────────────────────────────────────────────────────────────────
-outside        —             —             —                  —                  —
-night          —             —             —                  —                  —
-combined       —             —             —                  —                  —
+Domain      Pool   Removal pass R1   Removal pass R2   Proposed pass R1   Proposed pass R2
+──────────────────────────────────────────────────────────────────────────────────────────
+Daytime        —                 —                 —                  —                  —
+Nighttime      —                 —                 —                  —                  —
+combined       —                 —                 —                  —                  —
 ```
 
 ## 추가 통계
 
 ```text
-Domain      LOO retention R1   LOO retention R2   LOO+flip retention R1   LOO+flip retention R2
-────────────────────────────────────────────────────────────────────────────────────────────────
-outside                    —                  —                       —                       —
-night                      —                  —                       —                       —
-combined                   —                  —                       —                       —
+Domain      Removal retention R1   Removal retention R2   Proposed retention R1   Proposed retention R2
+────────────────────────────────────────────────────────────────────────────────────────────────────────
+Daytime                        —                      —                       —                       —
+Nighttime                      —                      —                       —                       —
+combined                       —                      —                       —                       —
 ```
 
 retention:
 
 ```text
-LOO retention       = LOO pass / pool
-LOO+flip retention  = LOO+flip pass / pool
+Removal retention   = keypoint-removal pass / pool
+Proposed retention  = Proposed pass / pool
 ```
 
 통과 수가 적다는 사실만으로
@@ -850,7 +891,7 @@ Check   Definition                                Frames flagged   Action
 ──────────────────────────────────────────────────────────────────────────
 T1      schema 위반                                            —       —
 T2      저장된 pose 와 keypoint 불일치                          —       —
-T3      재계산 PnP / LOO 불안정                                 —       —
+T3      재계산 PnP / keypoint-removal 불안정                                 —       —
 T4      기하 제약 위반                                          —       —
 T5      robust-z 이상치                                        —       —
 ```
@@ -907,10 +948,10 @@ E5 (c) vs (a)                            —                  —            —
 ```text
 Population   Object              Rows   Unique   Sessions   DAY   NIGHT   Light unknown   Dimensions          Occlusion   Truncation   Notes
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-FINAL_EVAL   Plastic              128      128          7   100      28               0   1.1×0.11×1.3 m              —           19   occlusion unknown 128
-FINAL_EVAL   Wood                  45       45          2     —       —              45  0.8×0.14×0.59 m              —            9   pose BLOCKED; occlusion unknown 45
-FINAL_EVAL   Combined positive    173      173          9   100      28              45                —              —           28   reused DEV; not held out
-FINAL_EVAL   Negative            2689     2688          1     —       —               —                —              —            —   frozen registered rows
+PAPER_EVAL   Plastic                —        —          —     —       —               —   1.1×0.11×1.3 m              —            —   generator fills from manifest
+PAPER_EVAL   Wood                   —        —          —     —       —               —  0.8×0.14×0.59 m              —            —   pose BLOCKED
+PAPER_EVAL   Combined positive      —        —          —     —       —               —                —              —            —   DEV role; not held out
+PAPER_EVAL   Negative               —        —          —     —       —               —                —              —            —   DEV_NEG2689 재사용
 ```
 
 필요하면 condition별 별도 행:
@@ -918,36 +959,37 @@ FINAL_EVAL   Negative            2689     2688          1     —       —     
 ```text
 Population   Condition        Frames   Status
 ──────────────────────────────────────────────────────────────
-FINAL_EVAL   Clean                 —   UNAVAILABLE: occlusion unknown 173
-FINAL_EVAL   Occlusion             —   UNAVAILABLE: 0/173 tagged
-FINAL_EVAL   Truncation           28   AVAILABLE: 173/173 tagged
-FINAL_EVAL   Far                   —   UNAVAILABLE: distance 0/173 tagged
-FINAL_EVAL   Low angle             —   UNAVAILABLE: elevation 0/173 tagged
-FINAL_EVAL   Mid angle             —   UNAVAILABLE: elevation 0/173 tagged
-FINAL_EVAL   High angle            —   UNAVAILABLE: elevation 0/173 tagged
+PAPER_EVAL   Clean                 —   generator fills from reports/DATASET_COMPOSITION.md
+PAPER_EVAL   Occlusion             —
+PAPER_EVAL   Truncation            —
+PAPER_EVAL   Far                   —
+PAPER_EVAL   Low angle             —
+PAPER_EVAL   Mid angle             —
+PAPER_EVAL   High angle            —
 ```
 
-`ALL_AVAILABLE`는 DEV_EVAL과 physical FINAL을 합쳐 `current/target` 형식의 collection target
-progress를 계산하는 view다. 현재는 positive 173장, negative 2,688 unique image다.
-다만 독립 평가 population이나 held-out FINAL은 아니다.
+`PAPER_EVAL` 은 `ALL_AVAILABLE` 과 같은 집합의 paper-facing 이름이고,
+SHA256-deduplicated union(DEV_EVAL, NEW_EVAL) 이다. 독립 평가 population 이나
+held-out FINAL 은 아니다 (`held_out_final=false`). 수치는 여기 적지 않고
+`reports/DATASET_COMPOSITION.md` 와 manifest 에서 읽는다.
 
 Experiment 6/7의 dataset membership과 condition count는 다음 artifact에서
 자동 생성한다.
 
 ```text
 data/evaluation/pallet_eval_v1/manifests/frames.csv
-data/evaluation/pallet_eval_v1/manifests/FINAL_EVAL_POSITIVE.csv
-data/evaluation/pallet_eval_v1/manifests/FINAL_EVAL_NEGATIVE.csv
 data/evaluation/pallet_eval_v1/reports/DATASET_COMPOSITION.md
-challenge/real_gt_v2/manifests/COMMON_DEV_MULTISHAPE_POS.json
+challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json
+challenge/real_gt_v2/manifests/PAPER_EVAL_PLASTIC_POS.json
+challenge/real_gt_v2/manifests/PAPER_EVAL_WOOD_POS.json
 challenge/real_gt_v2/manifests/DEV_NEG2689.json
 ```
 
-active frame의 `DEV`와 physical `FINAL` role 및 파일은 섞지 않는다. 다만 현재
-`FINAL_EVAL` manifest는 요청대로 registered controlled DEV pair를 물리 복사 없이
-row-for-row 재사용한 실행용 alias다. physical FINAL은 자동 union하지 않는다. 실제
-paper evaluator에는 위 JSON manifest pair를 넣고 `--population-role DEV`로 실행한다.
-Collection target progress만 `FINAL_EVAL`이 아니라 combined `ALL_AVAILABLE`로 계산한다.
+active frame의 `DEV`와 physical `FINAL` role 및 파일은 섞지 않는다. physical FINAL은
+자동 union하지 않는다. 실제 paper evaluator 에는 위 `PAPER_EVAL_*` manifest 와
+`DEV_NEG2689` 를 pair 로 넣고 `--population-role DEV` (wood 는 `CROSS_SHAPE_DEV`) 로
+실행한다. 옛 `FINAL_EVAL_*.csv` 는 frozen alias 로 보존만 하고 논문 표에 쓰지 않는다.
+Collection target progress 는 `PAPER_EVAL`(= `ALL_AVAILABLE`) 로 계산한다.
 
 ---
 
@@ -1157,15 +1199,15 @@ Close-range stress capture       —       —        —        —
 - [ ] adaptation pool >= 500 / domain (split lock pl_pool 재사용)
 - [ ] ADAPT/EVAL SHA 교집합 0
 - [ ] ADAPT/EVAL capture_session_id 교집합 0
-- [ ] Synthetic-only / Naive ST / Reproj-only / Ours 4 arm
+- [ ] Synthetic-only / Naive / Confidence / Reprojection / Proposed 5 arm
 - [ ] 4 도메인 전부 + Mean + Worst
 
 ### M3 Component ablation
-- [ ] Base
-- [ ] no-filter ST
-- [ ] LOO
-- [ ] LOO+flip
-- [ ] (DiffPnP 는 최종 method 로 채택될 때만 MAIN)
+- [ ] Base (R0)
+- [ ] + self-training, 필터 없음 (R1)
+- [ ] + Confidence filtering (R2)
+- [ ] + Keypoint-removal reprojection consistency (R4)
+- [ ] + Horizontal-flip keypoint consistency (R5)
 
 ### M4 Filter quality
 - [ ] 정답 기준 사전 고정 (CRITERION_LOCKED_AT)
@@ -1220,3 +1262,46 @@ Close-range stress capture       —       —        —        —
 - 실험마다 상태를 `MAIN` / `SUPPORTING` / `DIAGNOSTIC_NOT_ADOPTED` 중 하나로 둔다.
 - dataset readiness 는 `DATASET_TARGETS.json` 과 `DOMAIN_COVERAGE.md` 가
   source of truth 다. 이 문서에 현재 수치를 옮겨 적지 않는다.
+
+
+---
+
+# A12. Self-training strength sensitivity
+
+## 목적
+
+Proposed 의 효과가 특정 pseudo-real mixing ratio 에서만 나타나는지 확인한다.
+**MAIN 결과를 바꾸기 위한 hyperparameter search 가 아니다.**
+
+## 구성
+
+Proposed(F4) pseudo-label manifest 를 그대로 쓰고 mixing ratio 만 바꾼다.
+
+```text
+Setting   Synthetic   Pseudo-real
+──────────────────────────────────
+WEAK           75%           25%
+MAIN           50%           50%
+STRONG         25%           75%
+```
+
+세 조건 모두 같은 TOTAL_UPDATES, 같은 LR, 같은 init, 같은 pseudo manifest,
+같은 augmentation, 같은 seed 를 유지한다.
+
+## 결과표
+
+```text
+Pseudo fraction   Daytime   Nighttime   Mean   Worst
+─────────────────────────────────────────────────────
+0.25                  —          —        —       —
+0.50 (MAIN)           —          —        —       —
+0.75                  —          —        —       —
+```
+
+## 규칙
+
+MAIN row 는 결과와 무관하게 0.50 으로 고정한다.
+0.25 나 0.75 가 더 좋아도 main result 로 교체하지 않는다.
+
+Proposed 의 sensitivity spread 가 매우 클 때만 Naive 를 0.25 / 0.75 로 추가해
+filter x strength interaction 을 본다. 그 전에는 실행하지 않는다.
