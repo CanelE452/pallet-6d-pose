@@ -29,7 +29,7 @@ Negative unique SHA  2688
 Alias provenance     REUSED_DEV_EVAL_NOT_HELD_OUT; ORIGINAL_ROLE_DEV
 
 Physical FINAL inventory
-Positive                0
+Positive               56
 Negative                0
 ```
 
@@ -45,7 +45,7 @@ Negative                0
 이라는 별도 이름을 쓴다.
 
 ```text
-Positive total        173 / 300 minimum
+Positive total        229 / 300 minimum
 DATASET_READY        FALSE
 
 DATASET_READY 는 네 조건을 **동시에** 만족해야 참이다
@@ -56,16 +56,16 @@ DATASET_READY 는 네 조건을 **동시에** 만족해야 참이다
 
 Object
 Plastic               128 / 180
-Wood                   45 / 120
+Wood                  101 / 120
 
 Lighting (descriptive — quota 없음)
 DAY                   100
-NIGHT                  28
+NIGHT                  84
 
 Condition coverage
-Clean                  67 / 80
+Clean                 120 / 80
 Occlusion              93 / 80
-Truncation             28 / 50
+Truncation             31 / 50
 Far                     7 / 50
 
 Elevation
@@ -76,7 +76,7 @@ High                   17 / 40
 Negative
 Negative unique      2688 / 1500   SATISFIED
 
-UNKNOWN_METADATA      173
+UNKNOWN_METADATA      229
 ```
 
 `UNKNOWN_METADATA`는 combined positive 중 object/lighting/condition metadata가 하나라도
@@ -89,8 +89,8 @@ UNKNOWN_METADATA      173
 
 ```text
 CORE_DOMAIN_METADATA_UNKNOWN         45   object_type · acquisition_domain
-ROBUSTNESS_METADATA_UNKNOWN           0   occlusion · truncation · distance · elevation
-AUX_METADATA_UNKNOWN                173   view
+ROBUSTNESS_METADATA_UNKNOWN          56   occlusion · truncation · distance · elevation
+AUX_METADATA_UNKNOWN                229   view
 ```
 
 domain experiment(M2 / M5) readiness 는 AUX 때문에 FAIL 시키지 않는다.
@@ -114,8 +114,8 @@ DATASET_READY 는 위 네 조건을 모두 만족해야 참이다.
 ```text
 DEV positive          173
 FINAL_EVAL positive   173  frozen reused DEV execution alias
-Physical FINAL pos      0
-ALL positive          173
+Physical FINAL pos     56
+ALL positive          229
 
 DEV negative         2689  frozen membership
 DEV negative SHA     2688  unique images

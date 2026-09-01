@@ -1,9 +1,9 @@
 # Combined evaluation target progress
 
 ```text
-Positive                   173 / 300
+Positive                   229 / 300
 Negative                  2688 / 1500
-UNKNOWN_METADATA           173
+UNKNOWN_METADATA           229
 Counting population       ALL_AVAILABLE
 Counting policy           DEV_EVAL + physical FINAL; SHA256-deduplicated
 New annotation required   NO

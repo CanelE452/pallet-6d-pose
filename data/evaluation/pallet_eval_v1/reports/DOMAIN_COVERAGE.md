@@ -13,12 +13,12 @@ NOT A PAPER-FACING DOMAIN TABLE
 internal id        N  Sessions   paper_domain 분포
 ----------------------------------------------------------------------
 outside           70         3   daytime=70
-night             28         2   nighttime=28
+night             84         3   nighttime=28, none=56
 noapril           12         1   none=12
 cad               18         1   none=18
 unknown           45         2   none=45
 ----------------------------------------------------------------------
-TOTAL            173
+TOTAL            229
 ```
 
 `paper_domain=none` 은 MAIN 표에 들어가지 않는다는 뜻이지 데이터가

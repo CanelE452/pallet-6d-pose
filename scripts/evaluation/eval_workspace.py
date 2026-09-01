@@ -1521,6 +1521,39 @@ def reconcile_annotation_state(root: Path, row: Mapping[str, str]) -> dict[str, 
     return result
 
 
+def assign_domain_fields(
+    root: Path, rows: Sequence[dict[str, str]]
+) -> None:
+    """acquisition_domain / paper_domain / usage_role 을 결정론적으로 채운다.
+
+    manifest 를 다시 만들 때마다 호출된다.  근거는 세 곳뿐이다.
+
+        acquisition_domain   ACQUISITION_DOMAIN_MAP.json 의 세션 매핑
+                             + FINAL 세션은 session.json 의 object/lighting 에서
+                               유도할 수 없으므로 매핑에 없으면 unknown
+        paper_domain         derive_paper_domain (규칙 3개 전부 만족할 때만)
+        usage_role           기존 컬럼(paper_subset / is_positive)에서 유도
+
+    없는 근거를 지어내지 않는다 — 매핑에 없으면 unknown 이다.
+    """
+    mapping = load_acquisition_domain_map(root)
+    eval_subsets = {"COMMON_DEV_PLASTIC_POS128", "DEV_WOOD_POS45",
+                    "FINAL_POSITIVE"}
+    for row in rows:
+        session = str(row.get("session_id", ""))
+        row["acquisition_domain"] = mapping.get(session, "unknown")
+        row["paper_domain"] = derive_paper_domain(row)
+        subset = str(row.get("paper_subset", ""))
+        if subset in eval_subsets:
+            row["usage_role"] = "EVAL_LABELED"
+        elif subset in {"DEV_NEG2689", "FINAL_NEGATIVE"}:
+            row["usage_role"] = "NEGATIVE_EVAL"
+        elif str(row.get("is_positive", "")).lower() == "true":
+            row["usage_role"] = "DEV_SUPPORT"
+        else:
+            row["usage_role"] = "unknown"
+
+
 def refresh_frame_index(root: Path, *, rehash_final: bool = False) -> list[dict[str, str]]:
     del rehash_final  # Compatibility only; FINAL RGB is always rehashed.
     existing = load_frames(root)
@@ -1536,6 +1569,10 @@ def refresh_frame_index(root: Path, *, rehash_final: bool = False) -> list[dict[
         repeated = sorted(key for key, count in Counter(ids).items() if count > 1)
         raise WorkspaceError(f"global duplicate frame_id(s): {repeated[:10]}")
     validate_active_image_sha_uniqueness(rows)
+    # ★도메인 축을 매 refresh 마다 다시 배정한다.  이걸 빼면 discover_final_rows /
+    #   reconcile 이 만든 행에 컬럼이 비어 있어, 저장할 때마다 acquisition_domain 이
+    #   unknown 으로 되돌아간다 (실제로 그렇게 날아간 적이 있다).
+    assign_domain_fields(root, rows)
     # Imported workspaces carry provenance rows.  Once the frozen DEV import
     # has happened, every routine refresh continues to enforce its exact
     # audited membership; empty test/capture-only workspaces remain usable.

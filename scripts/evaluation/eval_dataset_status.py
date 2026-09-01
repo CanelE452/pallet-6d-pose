@@ -63,9 +63,24 @@ def refresh_after_annotation(
         raise WorkspaceError(f"evaluation workspace does not exist: {dataset_root}")
     _assert_workspace_path(dataset_root, annotation_path, "annotation_path")
     _assert_workspace_path(dataset_root, image_path, "image_path")
+
+    # incoming 에 어노테이션이 생기면 대응 FINAL 세션으로 자동 편입한다.
+    # 어노테이션 행위 자체가 contract 가 요구하는 human review 이고, 목적지는
+    # 폴더 이름(<session>__<material>) + 세션 lighting 으로 결정된다.
+    # 근거가 없으면 조용히 건너뛴다 — 목적지를 지어내지 않는다.
+    promoted = 0
+    try:
+        from promote_incoming_to_final import promote_annotated_incoming
+        promoted = promote_annotated_incoming(dataset_root)["promoted"]
+    except Exception as exc:                       # 편입 실패가 저장을 막지 않는다
+        print(f"[WARN] incoming auto-promotion skipped: {exc}")
+
     frames = refresh_frame_index(dataset_root, rehash_final=True)
     progress = write_reports(dataset_root, frames)
-    return progress_line(progress, load_targets(dataset_root))
+    line = progress_line(progress, load_targets(dataset_root))
+    if promoted:
+        line = f"{line}  (+{promoted} promoted from incoming)"
+    return line
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
