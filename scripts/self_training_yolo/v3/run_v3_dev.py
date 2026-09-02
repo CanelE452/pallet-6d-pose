@@ -162,7 +162,16 @@ def evaluate(name: str, weights: Path) -> tuple[Path, Path]:
         "--report-out", str(EVAL_OUT / f"{name}_report.md"),
         "--device", "0",
     ]
-    result = subprocess.run(command, capture_output=True, text=True, cwd=REPO_ROOT)
+    # checkpoint 는 `TrueIgnorePoseModel` 클래스를 pickle 한다.  forward 는 stock 과
+    # 동일하지만 unpickle 하려면 모듈이 import 가능해야 한다.  평가 subprocess 에
+    # V3 경로를 넘긴다 — 추론 경로를 바꾸는 게 아니다.
+    environment = dict(os.environ)
+    v3_dir = str(Path(__file__).resolve().parent)
+    environment["PYTHONPATH"] = (
+        v3_dir + os.pathsep + environment["PYTHONPATH"]
+        if environment.get("PYTHONPATH") else v3_dir)
+    result = subprocess.run(command, capture_output=True, text=True, cwd=REPO_ROOT,
+                            env=environment)
     if not report.exists() or not per_frame.exists():
         print(result.stdout[-2000:])
         print(result.stderr[-2000:])
@@ -222,11 +231,16 @@ def main() -> int:
     state["finished"] = datetime.now(timezone.utc).isoformat()
     state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n")
 
+    environment = dict(os.environ)
+    v3_dir = str(Path(__file__).resolve().parent)
+    environment["PYTHONPATH"] = (
+        v3_dir + os.pathsep + environment["PYTHONPATH"]
+        if environment.get("PYTHONPATH") else v3_dir)
     metrics = subprocess.run(
         [sys.executable,
          str(REPO_ROOT / "scripts/self_training_yolo/v3/v3_dev_metrics.py"),
          "--tag", tag],
-        cwd=REPO_ROOT, text=True, capture_output=True)
+        cwd=REPO_ROOT, text=True, capture_output=True, env=environment)
     print(metrics.stdout[-8000:], flush=True)
     if metrics.returncode != 0:
         print(metrics.stderr[-3000:], flush=True)

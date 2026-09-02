@@ -26,6 +26,8 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "evaluation"))
+# checkpoint 가 TrueIgnorePoseModel 을 pickle 하므로 unpickle 경로가 필요하다.
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "self_training_yolo" / "v3"))
 
 from eval_workspace import load_frames, evaluation_population_views  # noqa: E402
 
@@ -475,7 +477,7 @@ def render(report: dict, verdict: dict) -> None:
     for key, value in verdict["gates"].items():
         lines.append(f"{'PASS' if value['pass'] else 'FAIL'}  {key}: {value['detail']}")
     lines += ["```", "", f"**{verdict['status']}** — "
-              f"`V2_METHOD_STATUS = {verdict['V2_METHOD_STATUS']}`", "",
+              f"`V3_METHOD_STATUS = {verdict['V3_METHOD_STATUS']}`", "",
               verdict["note"], ""]
     OUT_MD.parent.mkdir(parents=True, exist_ok=True)
     OUT_MD.write_text("\n".join(lines) + "\n")
