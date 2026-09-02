@@ -705,6 +705,237 @@ def build_appendix(results: dict) -> str:
                   "Proposed 는 real label 을 한 장도 쓰지 않았다.  같은 표에 두는 이유는",
                   "상한과의 거리를 보이기 위해서지 같은 조건의 비교라서가 아니다.", ""]
 
+    # ── A2b self-training baseline comparison (aggregate) ───────────────
+    a2b = [("Synthetic only", "R0"), ("Naive ST", "R1_NAIVE"),
+           ("Reproj-only ST", "R3_CONF_REPROJ"), ("Ours", "R5_PROPOSED")]
+    if all(k in results for _, k in a2b):
+        lines += [
+            "## A2b — self-training baseline comparison (aggregate)",
+            "",
+            "제안 방법의 효과가 단순 self-training 이나 reprojection filtering 만으로",
+            "얻어지는지 확인한다.  전체 population 집계다 (도메인별은 M2).",
+            "",
+            "```text",
+            f"{'Method':18} {'corner↓':>8} {'det↑':>7} {'@5px↑':>7} {'@10px↑':>7} "
+            f"{'@20px↑':>7} {'AP↑':>7} {'AUROC↑':>8} {'FPR95↓':>8} {'R med↓':>8} {'yaw↓':>7}",
+            "─" * 104,
+        ]
+        for label, key in a2b:
+            a = metric_block(results[key], "ALL")
+            lines.append(
+                f"{label:18} {number(a.get('corner_median_px')):>8} "
+                f"{number(a.get('detection_rate_iou50')):>7} "
+                f"{number(a.get('proj_at_5px')):>7} {number(a.get('proj_at_10px')):>7} "
+                f"{number(a.get('proj_at_20px')):>7} "
+                f"{number(results[key].get('box_ap50_95'), '.4f'):>7} "
+                f"{number(a.get('auroc'), '.4f'):>8} {number(a.get('fpr95'), '.4f'):>8} "
+                f"{'—':>8} {'—':>7}"
+            )
+        lines += ["```", "", "반드시 답해야 하는 질문:", "", "```text"]
+        base = metric_block(results["R0"], "ALL")["corner_median_px"]
+        naive = metric_block(results["R1_NAIVE"], "ALL")["corner_median_px"]
+        reproj = metric_block(results["R3_CONF_REPROJ"], "ALL")["corner_median_px"]
+        ours = metric_block(results["R5_PROPOSED"], "ALL")["corner_median_px"]
+        lines += [
+            f"1. synthetic only 보다 self-training 이 좋은가   {base:.3f} -> {naive:.3f}"
+            f"   {'예' if naive < base else '아니오'}",
+            f"2. naive 보다 filtering 이 좋은가                {naive:.3f} -> {ours:.3f}"
+            f"   {'예' if ours < naive else '아니오'}",
+            f"3. reproj-only 보다 제안 filter 가 좋은가        {reproj:.3f} -> {ours:.3f}"
+            f"   {'예' if ours < reproj else '아니오'}",
+            "```",
+            "",
+            "1·3 은 replicate 산포와 함께 읽어야 한다 — A3 · 2x2 표 참조.",
+            "",
+        ]
+
+    # ── A7 full robustness metric battery ───────────────────────────────
+    battery = ["Plastic", "Wood", "Daytime", "Nighttime", "Lighting_day",
+               "Lighting_night", "Clean", "Occlusion", "Truncation", "Far",
+               "Low", "Mid", "High"]
+    if "R5_PROPOSED" in results:
+        lines += [
+            "## A7 — full robustness metric battery (Proposed)",
+            "",
+            "M5 는 지면 때문에 지표를 줄여 싣는다.  여기서는 같은 subgroup 을 전체 열로 본다.",
+            "subgroup 은 서로 중복될 수 있어 합계가 전체 N 이 되지 않는다.",
+            "",
+            "```text",
+            f"{'Subgroup':16} {'N':>5} {'src':>7} {'corner↓':>8} {'p90↓':>8} "
+            f"{'@5px↑':>7} {'@10px↑':>7} {'@20px↑':>7} {'gross↓':>7} "
+            f"{'det↑':>7} {'AUROC↑':>8} {'FPR95↓':>8} {'R med↓':>7} {'yaw↓':>6}",
+            "─" * 122,
+        ]
+        for group in battery:
+            g = metric_block(results["R5_PROPOSED"], group)
+            if not g.get("N"):
+                continue
+            strict = g.get("n_keypoints", 0) > 0
+            suffix = "" if strict else "_all_annotated"
+            lines.append(
+                f"{group:16} {g['N']:>5} {('strict' if strict else 'diag'):>7} "
+                f"{number(g.get('corner_median_px' + suffix)):>8} "
+                f"{number(g.get('corner_p90_px' + suffix), '.2f'):>8} "
+                f"{number(g.get('proj_at_5px' + suffix)):>7} "
+                f"{number(g.get('proj_at_10px' + suffix)):>7} "
+                f"{number(g.get('proj_at_20px' + suffix)):>7} "
+                f"{number(g.get('gross_rate' + suffix)):>7} "
+                f"{number(g.get('detection_rate_iou50')):>7} "
+                f"{number(g.get('auroc'), '.4f'):>8} {number(g.get('fpr95'), '.4f'):>8} "
+                f"{'—':>7} {'—':>6}"
+            )
+        lines += ["```", "",
+                  "`src` 가 diag 인 행은 all-annotated 진단값이다 — strict 행과 절대값을",
+                  "직접 비교하지 않는다.  pose 열은 BLOCKED.", ""]
+
+    # ── A9 same-data backbone control ───────────────────────────────────
+    if "DOPE" in results and "R0" in results:
+        lines += [
+            "## A9 — same-data backbone control",
+            "",
+            "\"왜 YOLO26 인가\" 에 답한다.  두 모델은 같은 55,980 synthetic frame 으로",
+            "60 epoch 학습했고 real 감독은 0 이다.  다른 것은 백본뿐이다.",
+            "",
+            "```text",
+            f"{'Model':16} {'Train frames':>13} {'Epochs':>7} {'det↑':>7} "
+            f"{'corner med↓':>12} {'corner p90↓':>12} {'@5px↑':>7} {'@10px↑':>7} {'@20px↑':>7}",
+            "─" * 94,
+        ]
+        for label, key in (("DOPE", "DOPE"), ("YOLO26n-Pose", "R0")):
+            a = metric_block(results[key], "ALL")
+            lines.append(
+                f"{label:16} {'55,980':>13} {'60':>7} "
+                f"{number(a.get('detection_rate_iou50')):>7} "
+                f"{number(a.get('corner_median_px')):>12} "
+                f"{number(a.get('corner_p90_px'), '.2f'):>12} "
+                f"{number(a.get('proj_at_5px')):>7} {number(a.get('proj_at_10px')):>7} "
+                f"{number(a.get('proj_at_20px')):>7}"
+            )
+        lines += ["```", "",
+                  "`det 8/8` 와 `det>=6` 은 넣지 않았다.  DOPE 의 코너 검출은 belief",
+                  "threshold, YOLO 는 keypoint confidence 라 같은 양이 아니다 — 한 열에",
+                  "놓으면 비교처럼 보이지만 비교가 아니다.  대신 GT 와의 거리로만 정의되는",
+                  "corner 와 Proj@N 을 쓴다.", ""]
+
+    # ── A1 도메인별 pass / retention ────────────────────────────────────
+    if FUNNEL.exists():
+        summary = json.loads(FUNNEL.read_text())
+        funnel = summary["funnel"]
+        pool = {"Daytime": 500, "Nighttime": 500}
+        order = ["F0_NAIVE", "F1_CONF", "F2_CONF_REPROJ", "F3_CONF_REMOVE",
+                 "F5_CONF_FLIP", "F4_PROPOSED"]
+        present = [a for a in order if a in summary["arms"]]
+        lines += [
+            "## A1 — pseudo-label pass / retention by domain",
+            "",
+            "필터가 unlabeled pool 에서 pseudo-label 을 얼마나 남기는지 본다.",
+            "**모델 정확도 표가 아니다** — 통과 수가 적다는 사실만으로 품질을 주장하지 않는다.",
+            "",
+            "```text",
+            f"{'Filter':44} {'Day pass':>9} {'Day ret':>8} "
+            f"{'Night pass':>11} {'Night ret':>10} {'Total':>7}",
+            "─" * 94,
+        ]
+        for arm in present:
+            v = summary["arms"][arm]
+            day, night = v["daytime_accepted"], v["nighttime_accepted"]
+            lines.append(
+                f"{v['reader_facing_name']:44} {day:>9} "
+                f"{day / pool['Daytime']:>8.3f} {night:>11} "
+                f"{night / pool['Nighttime']:>10.3f} {v['accepted']:>7}"
+            )
+        lines += ["```", "", "funnel (unlabeled 1000 장):", "", "```text"]
+        for key, value in funnel.items():
+            lines.append(f"{key:34} {value}")
+        lines += ["```", "",
+                  "retention = 통과 수 / 그 도메인 pool 500.", ""]
+
+    # ── A6 evaluation dataset composition ───────────────────────────────
+    lines += [
+        "## A6 — evaluation dataset composition",
+        "",
+        "논문이 쓴 평가셋이 무엇인지 재현 가능하게 남긴다.  수치는 manifest 에서 읽는다.",
+        "",
+        "```text",
+        f"{'Population':26} {'N':>6}   근거",
+        "─" * 78,
+        f"{'PAPER_EVAL_ALL_POS':26} {manifest_count('PAPER_EVAL_ALL_POS'):>6}   "
+        "plastic + wood, SHA-dedup union(DEV_EVAL, NEW_EVAL)",
+        f"{'PAPER_EVAL_PLASTIC_POS':26} {manifest_count('PAPER_EVAL_PLASTIC_POS'):>6}   "
+        "DEV role",
+        f"{'PAPER_EVAL_WOOD_POS':26} {manifest_count('PAPER_EVAL_WOOD_POS'):>6}   "
+        "CROSS_SHAPE_DEV role",
+        f"{'DEV_NEG2689':26} {manifest_count('DEV_NEG2689'):>6}   "
+        "negative, 2,688 unique image",
+        "```",
+        "",
+        "```text",
+        f"{'Condition':16} {'N':>6}",
+        "─" * 24,
+    ]
+    if "R5_PROPOSED" in results:
+        for group in ("Daytime", "Nighttime", "Clean", "Occlusion",
+                      "Truncation", "Far", "Low", "Mid", "High"):
+            block = metric_block(results["R5_PROPOSED"], group)
+            if block.get("N"):
+                lines.append(f"{group:16} {block['N']:>6}")
+    lines += ["```", "",
+              "조건은 서로 중복될 수 있고 합계가 전체 N 이 되지 않는다.",
+              "held_out_final 은 false 다 — PAPER_EVAL 은 DEV role 이다.",
+              "",
+              "adaptation pool 은 평가셋과 분리돼 있다.",
+              "",
+              "```text",
+              "adapt session ∩ eval session   0",
+              "adapt image SHA ∩ eval SHA     0",
+              "U_MAIN                         1000  (Daytime 500 + Nighttime 500)",
+              "```",
+              ""]
+
+    # ── A8 cross-domain transfer matrix ─────────────────────────────────
+    a8 = [("None", "R0"), ("Daytime", "A8_DAY_ONLY"),
+          ("Nighttime", "A8_NIGHT_ONLY"), ("Day + Night", "R5_PROPOSED")]
+    if all(k in results for _, k in a8):
+        lines += [
+            "## A8 — cross-domain transfer matrix",
+            "",
+            "M2 는 \"그 도메인 데이터로 적응하면 그 도메인이 좋아지는가\" 를 묻는다.",
+            "여기서는 **다른 도메인으로 적응해도 좋아지는가** 를 묻는다.",
+            "",
+            "행 = 적응에 쓴 unlabeled 도메인, 열 = 평가 도메인.  값은 detection rate(↑)와",
+            "괄호 안 corner(↓, all-annotated 진단).  모두 Proposed 필터를 쓴 pseudo-label 이다.",
+            "",
+            "```text",
+            f"{'Adaptation':16} {'unique PL':>10} {'Test Daytime':>22} {'Test Nighttime':>22}",
+            "─" * 74,
+        ]
+        pl_counts = {}
+        if FUNNEL.exists():
+            arms = json.loads(FUNNEL.read_text())["arms"]
+            proposed = arms.get("F4_PROPOSED", {})
+            pl_counts = {
+                "Daytime": proposed.get("daytime_accepted"),
+                "Nighttime": proposed.get("nighttime_accepted"),
+                "Day + Night": proposed.get("accepted"),
+                "None": 0,
+            }
+        for label, key in a8:
+            day = metric_block(results[key], "Daytime")
+            night = metric_block(results[key], "Nighttime")
+            lines.append(
+                f"{label:16} {str(pl_counts.get(label, '—')):>10} "
+                f"{number(day.get('detection_rate_iou50')) + ' (' + number(day.get('corner_median_px_all_annotated'), '.2f') + ')':>22} "
+                f"{number(night.get('detection_rate_iou50')) + ' (' + number(night.get('corner_median_px_all_annotated'), '.2f') + ')':>22}"
+            )
+        lines += ["```", "", "### 해석 (규칙은 결과 보기 전에 고정됐다)", "", "```text",
+                  "대각선만 개선     target-specific adaptation — 도메인마다 데이터가 필요",
+                  "비대각선도 개선   cross-domain transfer — 한 도메인이 다른 도메인도 돕는다",
+                  "Day+Night 최선    도메인을 나눌 필요가 없다",
+                  "Day+Night 열위    도메인 혼합이 해롭다 (negative transfer)",
+                  "```", "",
+                  "행마다 unlabeled pool 크기가 다르다 (Day 120 · Night 139 · 합 259).",
+                  "그 차이가 결과를 설명할 수 있으므로 unique PL 을 같이 싣는다.", ""]
+
     lines += ["## External keypoint baselines", "", "```text",
               "SingleShotPose   NOT_EVALUATED   repository audit 미실시",
               "PVNet            NOT_EVALUATED   repository audit 미실시",

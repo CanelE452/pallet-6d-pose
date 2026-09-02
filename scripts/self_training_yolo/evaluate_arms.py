@@ -42,6 +42,9 @@ OUT_DIR = REPO_ROOT / "data/pallet/results/paper_eval_v1/arms"
 RUNS = REPO_ROOT / "challenge/yolo_pose_one_model/paper_selftrain_v1"
 
 GROSS_PX = 20.0  # metric_split_lock.md §2.2 [LOCKED]
+# metric_split_lock.md §2.2 [LOCKED] — Proj@5px / @10px / @20px.
+# 여기서 새 threshold 를 만들지 않고 동결된 값을 그대로 쓴다.
+PROJ_PX = (5.0, 10.0, 20.0)
 
 # 값은 checkpoint 경로이거나 (checkpoint, cached-predictions) 쌍이다.
 # Ultralytics 가 아닌 baseline 은 미리 덤프한 예측으로 **같은 evaluator** 를 태운다.
@@ -84,6 +87,9 @@ MODELS["R6_CONF_FLIP"] = RUNS / "R6_CONF_FLIP__FULL/weights/last.pt"
 for _seed in (43, 44):
     for _arm in ("R2_CONF", "R3_CONF_REPROJ", "R4_CONF_REMOVE", "R6_CONF_FLIP"):
         MODELS[f"{_arm}_P{_seed}"] = RUNS / f"{_arm}_P{_seed}__FULL/weights/last.pt"
+# A8 cross-domain transfer.  한 도메인 pool 로만 적응한 모델.
+MODELS["A8_DAY_ONLY"] = RUNS / "A8_DAY_ONLY__FULL/weights/last.pt"
+MODELS["A8_NIGHT_ONLY"] = RUNS / "A8_NIGHT_ONLY__FULL/weights/last.pt"
 MODELS["A12_PSEUDO25"] = RUNS / "R5_PROPOSED_W25__FULL/weights/last.pt"
 MODELS["A12_PSEUDO75"] = RUNS / "R5_PROPOSED_S75__FULL/weights/last.pt"
 # Real-FT supervised upper bound.  controlled comparison 이 아니다 — 다른 base 에서
@@ -225,6 +231,12 @@ def subgroup_table(per_frame: Path, metadata: dict[str, dict]) -> dict:
             "corner_median_px": float(np.median(errors)) if errors else None,
             "corner_p90_px": float(np.percentile(errors, 90)) if errors else None,
             "gross_rate": float(np.mean(np.array(errors) > GROSS_PX)) if errors else None,
+            **{
+                f"proj_at_{int(t)}px": (
+                    float(np.mean(np.array(errors) <= t)) if errors else None
+                )
+                for t in PROJ_PX
+            },
             # legacy 프레임만으로 이루어진 subgroup(예: MAIN Daytime)은 supervision
             # mask 가 비어 있어 위 값이 전부 None 이 된다.  아래는 그때도 값을 주는
             # 진단이며 visible/occluded 주장이 아니다 — 표에서 구분해 적는다.
@@ -238,6 +250,12 @@ def subgroup_table(per_frame: Path, metadata: dict[str, dict]) -> dict:
             "gross_rate_all_annotated": (
                 float(np.mean(np.array(annotated) > GROSS_PX)) if annotated else None
             ),
+            **{
+                f"proj_at_{int(t)}px_all_annotated": (
+                    float(np.mean(np.array(annotated) <= t)) if annotated else None
+                )
+                for t in PROJ_PX
+            },
             "auroc": stats["auroc"],
             "fpr95": stats["fpr95"],
         }

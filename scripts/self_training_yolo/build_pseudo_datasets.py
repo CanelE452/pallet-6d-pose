@@ -45,6 +45,10 @@ ARM_TO_FILTER = {
     "R5_PROPOSED": "F4_PROPOSED",
     # flip 단독.  R4(removal 단독)와 짝을 이뤄 두 제안 필터의 2x2 ablation 을 완성한다.
     "R6_CONF_FLIP": "F5_CONF_FLIP",
+    # A8 cross-domain transfer.  Proposed 필터를 한 도메인 pool 에만 적용한다.
+    # 노출 슬롯(1440)은 그대로라 optimizer update 는 다른 arm 과 같다.
+    "A8_DAY_ONLY": "F4_DAY_ONLY",
+    "A8_NIGHT_ONLY": "F4_NIGHT_ONLY",
     # A2 — UNIQUE-QUANTITY-MATCHED control.  Proposed 와 **unique PL 개수**를 맞춘
     # Naive 무작위 표본이다.  MAIN 의 EXPOSURE-MATCHED 와 다른 실험이므로 섞지 않는다.
     "A2_NAIVE_MATCHED_S1": "A2_NAIVE_MATCHED_S1",
