@@ -2767,6 +2767,22 @@ def main(argv=None):
             sessions = [(seq_name, seq)]
         elif all(_session_entry_parts(entry)[1] != seq for entry in sessions):
             sessions.insert(0, (seq_name, seq))
+        # 세션 목록(TAB)의 GT 개수는 이 map 을 본다. 비워 두면 resolve_out_dir 이
+        # 정본 경로를 돌려줘 실제로 저장한 라벨이 done 0 으로 보인다.
+        if args.out_root:
+            _root = (args.out_root if os.path.isabs(args.out_root)
+                     else os.path.join(_REPO, args.out_root))
+            session_output_dirs = {
+                _session_entry_parts(entry)[2]:
+                    os.path.join(_root, f"{_session_entry_parts(entry)[0]}_manual_gt")
+                for entry in sessions
+            }
+        elif args.out_dir:
+            _od = (args.out_dir if os.path.isabs(args.out_dir)
+                   else os.path.join(_REPO, args.out_dir))
+            session_output_dirs = {
+                _session_entry_parts(entry)[2]: _od for entry in sessions
+            }
     sess_i = next((
         i for i, entry in enumerate(sessions)
         if _session_entry_parts(entry)[1] == seq
