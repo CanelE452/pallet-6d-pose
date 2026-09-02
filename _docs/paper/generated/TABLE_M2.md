@@ -11,7 +11,7 @@ ranking 을 primary 로 둔다.
 
 ```text
 Method                              Day det↑  Night det↑    Mean↑   Worst↑   AUROC↑   FPR95↓
-────────────────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────────────────────────
 Synthetic-only                         1.000       0.840    0.920    0.840   0.9921   0.0417
 Source-only continuation               1.000       0.800    0.900    0.800   0.9872   0.0573
 Naive self-training                    0.971       0.960    0.966    0.960   0.9913   0.0558
@@ -40,7 +40,7 @@ Reprojection-based self-training         11.461          8.642     11.541       
 Proposed                                 11.576         10.072     11.592       10.072        7.210
 ```
 
-Daytime strict keypoint 수 = 351 (사용 가능).
+Daytime strict keypoint 수 = 609 / 630 annotated (사용 가능, 참조 모델 R0).  n_keypoints 는 검출된 프레임에서만 모이므로 모델마다 다르다 — 데이터셋 속성이 아니다.
 
 POSE_METRIC_BLOCKED: primary 로 쓸 6D pose metric 이 아직 없다.
 

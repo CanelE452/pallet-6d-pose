@@ -1,14 +1,14 @@
 # Table M3 — Core self-training component ablation
 
 ```text
-Configuration                                   corner↓    det↑   AUROC↑   FPR95↓   R med↓    yaw↓
+Configuration                                   corner↓[px]    det↑   AUROC↑   FPR95↓   R med↓    yaw↓
 ────────────────────────────────────────────────────────────────────────────────────────────────
-Base                                              6.616   0.975   0.9921   0.0417        —       —
-Source-only continuation                          6.911   0.966   0.9872   0.0573        —       —
-+ self-training (no filter)                       7.120   0.981   0.9913   0.0558        —       —
-+ Confidence filtering                            7.037   0.987   0.9923   0.0469        —       —
-+ Keypoint-removal reprojection consistency       6.999   0.987   0.9911   0.0502        —       —
-+ Horizontal-flip keypoint consistency            7.210   0.984   0.9953   0.0283        —       —
+Base                                                  6.616   0.975   0.9921   0.0417        —       —
+Source-only continuation                              6.911   0.966   0.9872   0.0573        —       —
++ self-training (no filter)                           7.120   0.981   0.9913   0.0558        —       —
++ Confidence filtering                                7.037   0.987   0.9923   0.0469        —       —
++ Keypoint-removal reprojection consistency           6.999   0.987   0.9911   0.0502        —       —
++ Horizontal-flip keypoint consistency                7.210   0.984   0.9953   0.0283        —       —
 ```
 
 ## 단계별 차이
@@ -32,7 +32,7 @@ keypoint-removal 이 이미 걸린 상태에서 flip 을 더한 값이기 때문
 같은 exposure·update·init 으로 돌았고 replicate 3 회씩이다.
 
 ```text
-Configuration                 unique PL  corner↓ mean     std  AUROC↑ mean  FPR95↓ mean
+Configuration                 unique PL  corner↓[px] mean     std  AUROC↑ mean  FPR95↓ mean
 ────────────────────────────────────────────────────────────────────────────────────────
 neither (Confidence only)           272         7.144   0.089       0.9917       0.0450
 + Reprojection only                 251         7.134   0.092       0.9920       0.0490

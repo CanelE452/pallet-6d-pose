@@ -3,13 +3,13 @@
 ## A7 — elevation and broad lighting subgroups
 
 ```text
-Condition            N  R0 corner↓  R5 corner↓        Δ
-────────────────────────────────────────────────────────
-Low                122       9.226      10.592   +1.366
-Mid                138       5.286       5.182   -0.104
-High                57       5.665       6.160   +0.495
-Lighting_day       168       6.602       6.722   +0.119
-Lighting_night     106       5.440       6.039   +0.599
+Condition            N  R0 corner↓[px]  R5 corner↓[px]        Δ
+────────────────────────────────────────────────────────────────
+Low                122           9.226          10.592   +1.366
+Mid                138           5.286           5.182   -0.104
+High                57           5.665           6.160   +0.495
+Lighting_day       168           6.602           6.722   +0.119
+Lighting_night     106           5.440           6.039   +0.599
 ```
 
 ## A1 — pseudo-label counts and exposure contract
@@ -35,16 +35,16 @@ seed override 는 독립 반복이 아니다.  여기서 쓰는 replicate 는 �
 통제하는 **pseudo 샘플링**을 바꾼 것이고, 노출 총량은 그대로다.
 
 ```text
-Method                   metric         rep1     rep2     rep3     mean      std
+Method                   metric            rep1     rep2     rep3     mean      std
 ──────────────────────────────────────────────────────────────────────────────────
-Naive self-training      corner↓       7.120    6.994    7.091    7.068    0.054
-Naive self-training      det↑          0.981    0.991    0.984    0.985    0.004
-Naive self-training      AUROC↑       0.9913   0.9894   0.9861   0.9889   0.0021
-Naive self-training      FPR95↓       0.0558   0.0651   0.0948   0.0719   0.0167
-Proposed                 corner↓       7.210    7.399    7.305    7.305    0.077
-Proposed                 det↑          0.984    0.987    0.987    0.986    0.001
-Proposed                 AUROC↑       0.9953   0.9933   0.9929   0.9938   0.0011
-Proposed                 FPR95↓       0.0283   0.0364   0.0409   0.0352   0.0052
+Naive self-training      corner↓[px]      7.120    6.994    7.091    7.068    0.054
+Naive self-training      det↑             0.981    0.991    0.984    0.985    0.004
+Naive self-training      AUROC↑          0.9913   0.9894   0.9861   0.9889   0.0021
+Naive self-training      FPR95↓          0.0558   0.0651   0.0948   0.0719   0.0167
+Proposed                 corner↓[px]      7.210    7.399    7.305    7.305    0.077
+Proposed                 det↑             0.984    0.987    0.987    0.986    0.001
+Proposed                 AUROC↑          0.9953   0.9933   0.9929   0.9938   0.0011
+Proposed                 FPR95↓          0.0283   0.0364   0.0409   0.0352   0.0052
 ```
 
 세 replicate 에서 Proposed 와 Naive 의 구간이 겹치는지: corner: 구간 겹침 · AUROC: 구간 분리 · FPR95: 구간 분리
@@ -61,12 +61,12 @@ Naive pool 에서 Proposed 와 같은 unique 개수(259)를 무작위로 뽑아,
 ```text
 Arm                          metric         rep1     rep2     rep3     mean      std
 ──────────────────────────────────────────────────────────────────────────────────────
-Naive, quantity-matched      corner↓       7.348    6.986    6.838    7.058    0.214
-Naive, quantity-matched      AUROC↑       0.9841   0.9893   0.9924   0.9886   0.0034
-Naive, quantity-matched      FPR95↓       0.0997   0.0747   0.0398   0.0714   0.0246
-Proposed                     corner↓       7.210    7.399    7.305    7.305    0.077
-Proposed                     AUROC↑       0.9953   0.9933   0.9929   0.9938   0.0011
-Proposed                     FPR95↓       0.0283   0.0364   0.0409   0.0352   0.0052
+Naive, quantity-matched      corner↓[px]      7.348    6.986    6.838    7.058    0.214
+Naive, quantity-matched      AUROC↑          0.9841   0.9893   0.9924   0.9886   0.0034
+Naive, quantity-matched      FPR95↓          0.0997   0.0747   0.0398   0.0714   0.0246
+Proposed                     corner↓[px]      7.210    7.399    7.305    7.305    0.077
+Proposed                     AUROC↑          0.9953   0.9933   0.9929   0.9938   0.0011
+Proposed                     FPR95↓          0.0283   0.0364   0.0409   0.0352   0.0052
 ```
 
 판정: corner: 구간 겹침 · AUROC: 구간 분리 · FPR95: 구간 겹침
@@ -84,11 +84,11 @@ Proposed(F4) pseudo-label manifest 를 그대로 쓰고 pseudo:synthetic 비율�
 **hyperparameter search 가 아니다** — MAIN row 는 결과와 무관하게 0.50 이다.
 
 ```text
-Pseudo fraction   corner↓    det↑   AUROC↑   FPR95↓    Day↓*   Night↓*
+Pseudo fraction   corner↓[px]    det↑   AUROC↑   FPR95↓    Day↓*   Night↓*
 ──────────────────────────────────────────────────────────────────────
-0.25                6.967   0.984   0.9930   0.0390   10.612     9.641
-0.50 (MAIN)         7.210   0.984   0.9953   0.0283   11.592    10.072
-0.75                7.312   0.984   0.9916   0.0602   11.824     9.789
+0.25                    6.967   0.984   0.9930   0.0390   10.612     9.641
+0.50 (MAIN)             7.210   0.984   0.9953   0.0283   11.592    10.072
+0.75                    7.312   0.984   0.9916   0.0602   11.824     9.789
 ```
 
 corner spread across ratios: 0.346 px (min 6.967 / max 7.312)
@@ -108,12 +108,12 @@ leakage 감사: PAPER_EVAL 319 와의 중복이 **이미지 SHA 0 건, 파일명
 `SUPERVISED UPPER BOUND` 로 표기한다.
 
 ```text
-Checkpoint                          corner↓    det↑  AP50-95↑   AUROC↑   FPR95↓
+Checkpoint                          corner↓[px]    det↑  AP50-95↑   AUROC↑   FPR95↓
 ────────────────────────────────────────────────────────────────────────────────
-ft_a (real157+neg259+synth12k)        5.990   0.994    0.8399   0.9991   0.0041
-ft_b (patience0 ep40)                 5.628   0.994    0.8293   0.9992   0.0000
-legacy v1v2 FT                        9.324   0.984    0.7172   0.9896   0.0513
-Proposed (label-free)                 7.210   0.984    0.7585   0.9953   0.0283
+ft_a (real157+neg259+synth12k)            5.990   0.994    0.8399   0.9991   0.0041
+ft_b (patience0 ep40)                     5.628   0.994    0.8293   0.9992   0.0000
+legacy v1v2 FT                            9.324   0.984    0.7172   0.9896   0.0513
+Proposed (label-free)                     7.210   0.984    0.7585   0.9953   0.0283
 ```
 
 Proposed 는 real label 을 한 장도 쓰지 않았다.  같은 표에 두는 이유는
@@ -125,12 +125,12 @@ Proposed 는 real label 을 한 장도 쓰지 않았다.  같은 표에 두는 �
 얻어지는지 확인한다.  전체 population 집계다 (도메인별은 M2).
 
 ```text
-Method              corner↓    det↑   @5px↑  @10px↑  @20px↑     AP↑   AUROC↑   FPR95↓   R med↓    yaw↓
+Method              corner↓[px]    det↑   @5px↑  @10px↑  @20px↑     AP↑   AUROC↑   FPR95↓   R med↓    yaw↓
 ────────────────────────────────────────────────────────────────────────────────────────────────────────
-Synthetic only        6.616   0.975   0.380   0.652   0.828  0.7688   0.9921   0.0417        —       —
-Naive ST              7.120   0.981   0.360   0.622   0.820  0.7622   0.9913   0.0558        —       —
-Reproj-only ST        7.044   0.987   0.373   0.620   0.806  0.7643   0.9920   0.0487        —       —
-Ours                  7.210   0.984   0.375   0.608   0.803  0.7585   0.9953   0.0283        —       —
+Synthetic only            6.616   0.975   0.380   0.652   0.828  0.7688   0.9921   0.0417        —       —
+Naive ST                  7.120   0.981   0.360   0.622   0.820  0.7622   0.9913   0.0558        —       —
+Reproj-only ST            7.044   0.987   0.373   0.620   0.806  0.7643   0.9920   0.0487        —       —
+Ours                      7.210   0.984   0.375   0.608   0.803  0.7585   0.9953   0.0283        —       —
 ```
 
 반드시 답해야 하는 질문:
@@ -149,21 +149,21 @@ M5 는 지면 때문에 지표를 줄여 싣는다.  여기서는 같은 subgrou
 subgroup 은 서로 중복될 수 있어 합계가 전체 N 이 되지 않는다.
 
 ```text
-Subgroup             N     src  corner↓     p90↓   @5px↑  @10px↑  @20px↑  gross↓    det↑   AUROC↑   FPR95↓  R med↓   yaw↓
+Subgroup             N     src  corner↓[px]     p90↓[px]   @5px↑  @10px↑  @20px↑  gross↓    det↑   AUROC↑   FPR95↓  R med↓   yaw↓
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Plastic            194  strict    8.077    42.44   0.348   0.577   0.786   0.214   0.979   0.9948   0.0324       —      —
-Wood               125  strict    6.224    38.12   0.415   0.655   0.828   0.172   0.992   0.9962   0.0231       —      —
-Daytime             70  strict   11.576    57.34   0.175   0.433   0.672   0.328   0.986   0.9940   0.0294       —      —
-Nighttime           50  strict   10.072    39.57   0.266   0.495   0.757   0.243   0.960   0.9920   0.0588       —      —
-Lighting_day       168  strict    6.722    43.28   0.402   0.631   0.808   0.192   0.982   0.9954   0.0294       —      —
-Lighting_night     106  strict    6.039    26.16   0.426   0.664   0.850   0.150   0.981   0.9939   0.0152       —      —
-Clean              184  strict    5.667    26.34   0.455   0.683   0.864   0.136   0.989   0.9968   0.0216       —      —
-Occlusion          135  strict    9.928    54.68   0.263   0.503   0.718   0.282   0.978   0.9933   0.0294       —      —
-Truncation          51  strict   11.374   118.20   0.245   0.447   0.705   0.295   0.922   0.9922   0.0402       —      —
-Far                 59  strict    3.551    16.56   0.691   0.846   0.910   0.090   1.000   0.9959   0.0257       —      —
-Low                122  strict   10.592    46.32   0.221   0.464   0.715   0.285   0.967   0.9920   0.0361       —      —
-Mid                138  strict    5.182    23.36   0.485   0.708   0.873   0.127   0.993   0.9973   0.0152       —      —
-High                57  strict    6.160    77.18   0.423   0.654   0.807   0.193   1.000   0.9975   0.0231       —      —
+Plastic            194  strict        8.077        42.44   0.348   0.577   0.786   0.214   0.979   0.9948   0.0324       —      —
+Wood               125  strict        6.224        38.12   0.415   0.655   0.828   0.172   0.992   0.9962   0.0231       —      —
+Daytime             70  strict       11.576        57.34   0.175   0.433   0.672   0.328   0.986   0.9940   0.0294       —      —
+Nighttime           50  strict       10.072        39.57   0.266   0.495   0.757   0.243   0.960   0.9920   0.0588       —      —
+Lighting_day       168  strict        6.722        43.28   0.402   0.631   0.808   0.192   0.982   0.9954   0.0294       —      —
+Lighting_night     106  strict        6.039        26.16   0.426   0.664   0.850   0.150   0.981   0.9939   0.0152       —      —
+Clean              184  strict        5.667        26.34   0.455   0.683   0.864   0.136   0.989   0.9968   0.0216       —      —
+Occlusion          135  strict        9.928        54.68   0.263   0.503   0.718   0.282   0.978   0.9933   0.0294       —      —
+Truncation          51  strict       11.374       118.20   0.245   0.447   0.705   0.295   0.922   0.9922   0.0402       —      —
+Far                 59  strict        3.551        16.56   0.691   0.846   0.910   0.090   1.000   0.9959   0.0257       —      —
+Low                122  strict       10.592        46.32   0.221   0.464   0.715   0.285   0.967   0.9920   0.0361       —      —
+Mid                138  strict        5.182        23.36   0.485   0.708   0.873   0.127   0.993   0.9973   0.0152       —      —
+High                57  strict        6.160        77.18   0.423   0.654   0.807   0.193   1.000   0.9975   0.0231       —      —
 ```
 
 `src` 가 diag 인 행은 all-annotated 진단값이다 — strict 행과 절대값을
@@ -175,10 +175,10 @@ High                57  strict    6.160    77.18   0.423   0.654   0.807   0.193
 60 epoch 학습했고 real 감독은 0 이다.  다른 것은 백본뿐이다.
 
 ```text
-Model             Train frames  Epochs    det↑  corner med↓  corner p90↓   @5px↑  @10px↑  @20px↑
+Model             Train frames  Epochs    det↑  corner med↓[px]  corner p90↓[px]   @5px↑  @10px↑  @20px↑
 ──────────────────────────────────────────────────────────────────────────────────────────────
-DOPE                    55,980      60   0.737       10.916        51.77   0.131   0.447   0.781
-YOLO26n-Pose            55,980      60   0.975        6.616        38.67   0.380   0.652   0.828
+DOPE                    55,980      60   0.737           10.916            51.77   0.131   0.447   0.781
+YOLO26n-Pose            55,980      60   0.975            6.616            38.67   0.380   0.652   0.828
 ```
 
 `det 8/8` 와 `det>=6` 은 넣지 않았다.  DOPE 의 코너 검출은 belief
@@ -291,7 +291,7 @@ Proposed 와 같은 unique 수(259)를 뽑는다.  즉 geometry 가 추가로 �
 고유 기여만 분리한다.  A2 와 다른 실험이므로 섞지 않는다.
 
 ```text
-Selection from confidence pool    unique   corner↓    AUROC↑    FPR95↓
+Selection from confidence pool    unique  corner↓[px]    AUROC↑    FPR95↓
 ────────────────────────────────────────────────────────────────────────
 random matched (n=3)                 259     7.140    0.9941    0.0345
 confidence-ranking top-N             259     7.105    0.9944    0.0342

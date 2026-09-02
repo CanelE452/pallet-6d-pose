@@ -30,6 +30,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ARMS = REPO_ROOT / "data/pallet/results/paper_eval_v1/arms/ARM_RESULTS.json"
 BASELINES = REPO_ROOT / "data/pallet/results/paper_eval_v1/baselines"
+
+# M2 서술과 M5 표가 같은 모델을 기준으로 keypoint 수를 적게 한다.
+M2_REFERENCE_MODEL = "R0"
 M4 = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/M4_FILTER_QUALITY.json"
 FUNNEL = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/pseudo_manifests/PSEUDO_MANIFEST_SUMMARY.json"
 EXPOSURE = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/SELFTRAIN_EXPOSURE_LOCK.json"
@@ -121,7 +124,7 @@ def build_m1(results: dict, expected: dict) -> str:
         "만들면 행끼리 비교가 성립하지 않는다.",
         "",
         "```text",
-        f"{'Method':36} {'N_pos':>6} {'N_neg':>6} {'corner↓':>8} {'det↑':>6} "
+        f"{'Method':36} {'N_pos':>6} {'N_neg':>6} {'corner↓[px]':>12} {'det↑':>6} "
         f"{'AP50-95↑':>9} {'AUROC↑':>8} {'FPR95↓':>8} {'R med↓':>8} {'yaw↓':>7}",
         "─" * 112,
     ]
@@ -134,7 +137,7 @@ def build_m1(results: dict, expected: dict) -> str:
         allg = metric_block(model, "ALL")
         lines.append(
             f"{label:36} {expected['ALL']:>6} {2689:>6} "
-            f"{number(allg.get('corner_median_px'), '.3f'):>8} "
+            f"{number(allg.get('corner_median_px'), '.3f'):>12} "
             f"{number(allg.get('detection_rate_iou50'), '.3f'):>6} "
             f"{number(model.get('box_ap50_95'), '.4f'):>9} "
             f"{number(allg.get('auroc'), '.4f'):>8} "
@@ -175,7 +178,12 @@ def build_m1(results: dict, expected: dict) -> str:
 
 
 def build_m2(results: dict, expected: dict) -> str:
-    day_reference = metric_block(next(iter(results.values())), "Daytime")
+    # 참조 모델을 R0 로 고정한다.  `next(iter(...))` 는 딕셔너리 첫 항목(DOPE)을 집어
+    # DOPE 의 **검출된** keypoint 수(351, det 0.671)를 데이터셋 속성인 양 적었다.
+    # n_keypoints 는 검출에 의존하므로 모델을 명시하지 않으면 뜻이 없다.
+    # M5 도 R0 를 기준으로 쓰므로 같은 모델을 쓴다 (테스트가 두 표의 일치를 강제한다).
+    day_reference = metric_block(results.get(M2_REFERENCE_MODEL, {"subgroups": {}}),
+                                 "Daytime")
     strict_available = day_reference.get("n_keypoints", 0) > 0
 
     lines = [
@@ -194,7 +202,7 @@ def build_m2(results: dict, expected: dict) -> str:
         "```text",
         f"{'Method':34} {'Day det↑':>9} {'Night det↑':>11} {'Mean↑':>8} {'Worst↑':>8} "
         f"{'AUROC↑':>8} {'FPR95↓':>8}",
-        "─" * 92,
+        "─" * 100,
     ]
     for key, label in M2_ROWS:
         if key not in results:
@@ -244,8 +252,11 @@ def build_m2(results: dict, expected: dict) -> str:
     lines += [
         "```",
         "",
-        f"Daytime strict keypoint 수 = {day_reference.get('n_keypoints', 0)} "
-        f"({'사용 가능' if strict_available else 'UNAVAILABLE_METADATA'}).",
+        f"Daytime strict keypoint 수 = {day_reference.get('n_keypoints', 0)} / "
+        f"{day_reference.get('n_keypoints_annotated', 0)} annotated "
+        f"({'사용 가능' if strict_available else 'UNAVAILABLE_METADATA'}, "
+        f"참조 모델 {M2_REFERENCE_MODEL}).  n_keypoints 는 검출된 프레임에서만 "
+        f"모이므로 모델마다 다르다 — 데이터셋 속성이 아니다.",
         "",
         "POSE_METRIC_BLOCKED: primary 로 쓸 6D pose metric 이 아직 없다.",
         "",
@@ -260,7 +271,7 @@ def build_m3(results: dict) -> str:
         "# Table M3 — Core self-training component ablation",
         "",
         "```text",
-        f"{'Configuration':46} {'corner↓':>8} {'det↑':>7} {'AUROC↑':>8} "
+        f"{'Configuration':46} {'corner↓[px]':>12} {'det↑':>7} {'AUROC↑':>8} "
         f"{'FPR95↓':>8} {'R med↓':>8} {'yaw↓':>7}",
         "─" * 96,
     ]
@@ -269,7 +280,7 @@ def build_m3(results: dict) -> str:
             continue
         allg = metric_block(results[key], "ALL")
         lines.append(
-            f"{label:46} {number(allg.get('corner_median_px')):>8} "
+            f"{label:46} {number(allg.get('corner_median_px')):>12} "
             f"{number(allg.get('detection_rate_iou50')):>7} "
             f"{number(allg.get('auroc'), '.4f'):>8} "
             f"{number(allg.get('fpr95'), '.4f'):>8} {'—':>8} {'—':>7}"
@@ -320,7 +331,7 @@ def build_m3(results: dict) -> str:
             "같은 exposure·update·init 으로 돌았고 replicate 3 회씩이다.",
             "",
             "```text",
-            f"{'Configuration':28} {'unique PL':>10} {'corner↓ mean':>13} {'std':>7} "
+            f"{'Configuration':28} {'unique PL':>10} {'corner↓[px] mean':>17} {'std':>7} "
             f"{'AUROC↑ mean':>12} {'FPR95↓ mean':>12}",
             "─" * 88,
         ]
@@ -419,13 +430,13 @@ def build_m4() -> str:
               "**두 출처의 절대값을 직접 비교하지 않는다.**",
               "",
               "```text",
-              f"{'box_conf bin':16} {'N':>5} {'src':>7} {'n_kp':>6} {'corner~px':>10} "
+              f"{'box_conf bin':16} {'N':>5} {'src':>7} {'n_kp':>6} {'corner~[px]':>11} "
               f"{'p90':>9} {'gross':>8}",
               "─" * 66]
     for name, stats in report["confidence_bins"].items():
         lines.append(f"{name:16} {stats['n_frames']:>5} "
                      f"{stats.get('source', 'strict'):>7} {stats['n_keypoints']:>6} "
-                     f"{number(stats['median_px'], '.2f'):>10} "
+                     f"{number(stats['median_px'], '.2f'):>11} "
                      f"{number(stats['p90_px'], '.2f'):>9} "
                      f"{number(stats['gross_rate']):>8}")
     lines += ["```", "",
@@ -456,9 +467,9 @@ def build_m5(results: dict, expected: dict) -> str:
         "```",
         "",
         "```text",
-        f"{'Condition':14} {'N':>5} {'src':>6} {'n_kp':>6} {'R0 corner↓':>11} "
-        f"{'R5 corner↓':>11} {'Δ':>8} {'R0 det↑':>8} {'R5 det↑':>8}",
-        "─" * 92,
+        f"{'Condition':14} {'N':>5} {'src':>6} {'n_kp':>6} {'R0 corner↓[px]':>15} "
+        f"{'R5 corner↓[px]':>15} {'Δ':>8} {'R0 det↑':>8} {'R5 det↑':>8}",
+        "─" * 100,
     ]
     for group in M5_GROUPS:
         base = metric_block(results.get("R0", {"subgroups": {}}), group)
@@ -476,7 +487,7 @@ def build_m5(results: dict, expected: dict) -> str:
         delta = after - before if before is not None and after is not None else None
         lines.append(
             f"{group:14} {base.get('N', 0):>5} {source:>6} {count:>6} "
-            f"{number(before):>11} {number(after):>11} {number(delta, '+.3f'):>8} "
+            f"{number(before):>15} {number(after):>15} {number(delta, '+.3f'):>8} "
             f"{number(base.get('detection_rate_iou50')):>8} "
             f"{number(proposed.get('detection_rate_iou50')):>8}"
         )
@@ -496,15 +507,15 @@ def build_m5(results: dict, expected: dict) -> str:
 def build_appendix(results: dict) -> str:
     lines = ["# Appendix tables", "", "## A7 — elevation and broad lighting subgroups", "",
              "```text",
-             f"{'Condition':16} {'N':>5} {'R0 corner↓':>11} {'R5 corner↓':>11} {'Δ':>8}",
-             "─" * 56]
+             f"{'Condition':16} {'N':>5} {'R0 corner↓[px]':>15} {'R5 corner↓[px]':>15} {'Δ':>8}",
+             "─" * 64]
     for group in APPENDIX_GROUPS:
         base = metric_block(results.get("R0", {"subgroups": {}}), group)
         proposed = metric_block(results.get("R5_PROPOSED", {"subgroups": {}}), group)
         before, after = base.get("corner_median_px"), proposed.get("corner_median_px")
         delta = after - before if before is not None and after is not None else None
-        lines.append(f"{group:16} {base.get('N', 0):>5} {number(before):>11} "
-                     f"{number(after):>11} {number(delta, '+.3f'):>8}")
+        lines.append(f"{group:16} {base.get('N', 0):>5} {number(before):>15} "
+                     f"{number(after):>15} {number(delta, '+.3f'):>8}")
     lines += ["```", ""]
 
     if DATASET_REPORT.exists() and EXPOSURE.exists():
@@ -541,12 +552,12 @@ def build_appendix(results: dict) -> str:
             "통제하는 **pseudo 샘플링**을 바꾼 것이고, 노출 총량은 그대로다.",
             "",
             "```text",
-            f"{'Method':24} {'metric':10} {'rep1':>8} {'rep2':>8} {'rep3':>8} "
+            f"{'Method':24} {'metric':13} {'rep1':>8} {'rep2':>8} {'rep3':>8} "
             f"{'mean':>8} {'std':>8}",
             "─" * 82,
         ]
         for label, keys in replicates.items():
-            for metric, spec, path in (("corner↓", ".3f", "corner_median_px"),
+            for metric, spec, path in (("corner↓[px]", ".3f", "corner_median_px"),
                                        ("det↑", ".3f", "detection_rate_iou50"),
                                        ("AUROC↑", ".4f", "auroc"),
                                        ("FPR95↓", ".4f", "fpr95")):
@@ -554,7 +565,7 @@ def build_appendix(results: dict) -> str:
                 if any(v is None for v in values):
                     continue
                 lines.append(
-                    f"{label:24} {metric:10} "
+                    f"{label:24} {metric:13} "
                     + " ".join(f"{number(v, spec):>8}" for v in values)
                     + f" {number(statistics.mean(values), spec):>8}"
                     + f" {number(statistics.pstdev(values), spec):>8}"
@@ -594,14 +605,14 @@ def build_appendix(results: dict) -> str:
             "─" * 86,
         ]
         for label, keys in (("Naive, quantity-matched", a2), ("Proposed", proposed)):
-            for metric, spec, path in (("corner↓", ".3f", "corner_median_px"),
+            for metric, spec, path in (("corner↓[px]", ".3f", "corner_median_px"),
                                        ("AUROC↑", ".4f", "auroc"),
                                        ("FPR95↓", ".4f", "fpr95")):
                 values = [metric_block(results[k], "ALL").get(path) for k in keys]
                 if any(v is None for v in values):
                     continue
                 lines.append(
-                    f"{label:28} {metric:10} "
+                    f"{label:28} {metric:13} "
                     + " ".join(f"{number(v, spec):>8}" for v in values)
                     + f" {number(statistics.mean(values), spec):>8}"
                     + f" {number(statistics.pstdev(values), spec):>8}"
@@ -638,7 +649,7 @@ def build_appendix(results: dict) -> str:
             "**hyperparameter search 가 아니다** — MAIN row 는 결과와 무관하게 0.50 이다.",
             "",
             "```text",
-            f"{'Pseudo fraction':16} {'corner↓':>8} {'det↑':>7} {'AUROC↑':>8} "
+            f"{'Pseudo fraction':16} {'corner↓[px]':>12} {'det↑':>7} {'AUROC↑':>8} "
             f"{'FPR95↓':>8} {'Day↓*':>8} {'Night↓*':>9}",
             "─" * 70,
         ]
@@ -647,7 +658,7 @@ def build_appendix(results: dict) -> str:
             day = metric_block(results[key], "Daytime")
             night = metric_block(results[key], "Nighttime")
             lines.append(
-                f"{label:16} {number(allg.get('corner_median_px')):>8} "
+                f"{label:16} {number(allg.get('corner_median_px')):>12} "
                 f"{number(allg.get('detection_rate_iou50')):>7} "
                 f"{number(allg.get('auroc'), '.4f'):>8} "
                 f"{number(allg.get('fpr95'), '.4f'):>8} "
@@ -686,7 +697,7 @@ def build_appendix(results: dict) -> str:
             "`SUPERVISED UPPER BOUND` 로 표기한다.",
             "",
             "```text",
-            f"{'Checkpoint':34} {'corner↓':>8} {'det↑':>7} {'AP50-95↑':>9} "
+            f"{'Checkpoint':34} {'corner↓[px]':>12} {'det↑':>7} {'AP50-95↑':>9} "
             f"{'AUROC↑':>8} {'FPR95↓':>8}",
             "─" * 80,
         ]
@@ -695,7 +706,7 @@ def build_appendix(results: dict) -> str:
                 continue
             allg = metric_block(results[key], "ALL")
             lines.append(
-                f"{label:34} {number(allg.get('corner_median_px')):>8} "
+                f"{label:34} {number(allg.get('corner_median_px')):>12} "
                 f"{number(allg.get('detection_rate_iou50')):>7} "
                 f"{number(results[key].get('box_ap50_95'), '.4f'):>9} "
                 f"{number(allg.get('auroc'), '.4f'):>8} "
@@ -716,14 +727,14 @@ def build_appendix(results: dict) -> str:
             "얻어지는지 확인한다.  전체 population 집계다 (도메인별은 M2).",
             "",
             "```text",
-            f"{'Method':18} {'corner↓':>8} {'det↑':>7} {'@5px↑':>7} {'@10px↑':>7} "
+            f"{'Method':18} {'corner↓[px]':>12} {'det↑':>7} {'@5px↑':>7} {'@10px↑':>7} "
             f"{'@20px↑':>7} {'AP↑':>7} {'AUROC↑':>8} {'FPR95↓':>8} {'R med↓':>8} {'yaw↓':>7}",
             "─" * 104,
         ]
         for label, key in a2b:
             a = metric_block(results[key], "ALL")
             lines.append(
-                f"{label:18} {number(a.get('corner_median_px')):>8} "
+                f"{label:18} {number(a.get('corner_median_px')):>12} "
                 f"{number(a.get('detection_rate_iou50')):>7} "
                 f"{number(a.get('proj_at_5px')):>7} {number(a.get('proj_at_10px')):>7} "
                 f"{number(a.get('proj_at_20px')):>7} "
@@ -761,7 +772,7 @@ def build_appendix(results: dict) -> str:
             "subgroup 은 서로 중복될 수 있어 합계가 전체 N 이 되지 않는다.",
             "",
             "```text",
-            f"{'Subgroup':16} {'N':>5} {'src':>7} {'corner↓':>8} {'p90↓':>8} "
+            f"{'Subgroup':16} {'N':>5} {'src':>7} {'corner↓[px]':>12} {'p90↓[px]':>12} "
             f"{'@5px↑':>7} {'@10px↑':>7} {'@20px↑':>7} {'gross↓':>7} "
             f"{'det↑':>7} {'AUROC↑':>8} {'FPR95↓':>8} {'R med↓':>7} {'yaw↓':>6}",
             "─" * 122,
@@ -774,8 +785,8 @@ def build_appendix(results: dict) -> str:
             suffix = "" if strict else "_all_annotated"
             lines.append(
                 f"{group:16} {g['N']:>5} {('strict' if strict else 'diag'):>7} "
-                f"{number(g.get('corner_median_px' + suffix)):>8} "
-                f"{number(g.get('corner_p90_px' + suffix), '.2f'):>8} "
+                f"{number(g.get('corner_median_px' + suffix)):>12} "
+                f"{number(g.get('corner_p90_px' + suffix), '.2f'):>12} "
                 f"{number(g.get('proj_at_5px' + suffix)):>7} "
                 f"{number(g.get('proj_at_10px' + suffix)):>7} "
                 f"{number(g.get('proj_at_20px' + suffix)):>7} "
@@ -798,7 +809,7 @@ def build_appendix(results: dict) -> str:
             "",
             "```text",
             f"{'Model':16} {'Train frames':>13} {'Epochs':>7} {'det↑':>7} "
-            f"{'corner med↓':>12} {'corner p90↓':>12} {'@5px↑':>7} {'@10px↑':>7} {'@20px↑':>7}",
+            f"{'corner med↓[px]':>16} {'corner p90↓[px]':>16} {'@5px↑':>7} {'@10px↑':>7} {'@20px↑':>7}",
             "─" * 94,
         ]
         for label, key in (("DOPE", "DOPE"), ("YOLO26n-Pose", "R0")):
@@ -806,8 +817,8 @@ def build_appendix(results: dict) -> str:
             lines.append(
                 f"{label:16} {'55,980':>13} {'60':>7} "
                 f"{number(a.get('detection_rate_iou50')):>7} "
-                f"{number(a.get('corner_median_px')):>12} "
-                f"{number(a.get('corner_p90_px'), '.2f'):>12} "
+                f"{number(a.get('corner_median_px')):>16} "
+                f"{number(a.get('corner_p90_px'), '.2f'):>16} "
                 f"{number(a.get('proj_at_5px')):>7} {number(a.get('proj_at_10px')):>7} "
                 f"{number(a.get('proj_at_20px')):>7}"
             )
@@ -951,7 +962,7 @@ def build_appendix(results: dict) -> str:
             "고유 기여만 분리한다.  A2 와 다른 실험이므로 섞지 않는다.",
             "",
             "```text",
-            f"{'Selection from confidence pool':32} {'unique':>7} {'corner↓':>9} "
+            f"{'Selection from confidence pool':32} {'unique':>7} {'corner↓[px]':>12} "
             f"{'AUROC↑':>9} {'FPR95↓':>9}",
             "─" * 72,
         ]

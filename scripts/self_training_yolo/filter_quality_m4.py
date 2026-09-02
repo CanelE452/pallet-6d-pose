@@ -43,6 +43,7 @@ TEACHER = (
     / "YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt"
 )
 OUT = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/M4_FILTER_QUALITY.json"
+RECORDS = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/M4_FRAME_RECORDS.json"
 
 PAD, IMGSZ, CONF_FLOOR = 100, 640, 0.001
 FLIP_IDX = [1, 0, 3, 2, 5, 4, 7, 6, 8]
@@ -178,6 +179,11 @@ def collect(model, lock) -> list[dict]:
                 record["s_reproj"] = scores["s_reproj"]
                 record["s_remove"] = scores["s_remove"]
                 record["s_flip"] = scores["s_flip"]
+            record["keypoints_xy"] = keypoints.tolist()
+            record["keypoint_valid"] = valid.tolist()
+            record["image_path"] = item["image_path"]
+            record["gt_xy"] = gt_xy.tolist()
+            record["gt_supervised"] = supervised.tolist()
         rows.append(record)
         if (index + 1) % 50 == 0:
             print(f"  {index + 1}/{len(manifest['items'])}", flush=True)
@@ -332,6 +338,22 @@ def main() -> int:
     }
     OUT.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
     print(f"\nwrote {OUT.relative_to(REPO_ROOT)}")
+
+    # 프레임 단위 기록을 남긴다.  visual audit 이 같은 추론·같은 판정을 다시
+    # 구현하면 두 벌이 갈라진다.
+    RECORDS.write_text(json.dumps({
+        "schema_version": "m4_frame_records_v1",
+        "population": report["population"],
+        "teacher_sha256": report["teacher_sha256"],
+        "filter_lock_sha256": report["filter_lock_sha256"],
+        "gross_px": GROSS_PX,
+        "arms": list(ARMS),
+        "frames": [
+            {**row, "verdict": {arm: passes(row, arm, lock) for arm in ARMS}}
+            for row in rows
+        ],
+    }, indent=2, ensure_ascii=False) + "\n")
+    print(f"wrote {RECORDS.relative_to(REPO_ROOT)}")
     return 0
 
 
