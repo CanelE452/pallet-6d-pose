@@ -11,7 +11,8 @@
 ```text
 Task                          Frames   Human action           Blocks what              판정
 ──────────────────────────────────────────────────────────────────────────────────────────────
-Daytime visibility               70    119 kp 확인만           M2 strict keypoint      REQUIRED
+Daytime visibility               70    119 kp 확인만           M2 strict keypoint      DONE 2026-09-02
+Coverage-gap visibility         103    59 kp 확인만            319 장 전체 strict      DONE 2026-09-02
 Pose signed-axis                146    axis 확인               6D pose metrics         NOT_NEEDED_NOW
 Wood symmetry                     —    geometry convention     Wood 6D pose            OPTIONAL
 Annotation reliability           TBD   blind reannotation      noise-floor claim       RECOMMENDED
@@ -20,9 +21,21 @@ New image collection               0   none                    아무것도 막�
 
 ---
 
-## 1. Daytime visibility — REQUIRED
+## 1. Daytime visibility — DONE (2026-09-02)
 
-가장 값이 큰 작업이고 범위가 좁다.
+가장 값이 큰 작업이고 범위가 좁았다.  사용자가 119 / 119 keypoint 를 확정했고
+(가림 77 · 안가림 42 · 보류 0), 반영 후 MAIN Daytime 70 장의 strict metric 이
+열렸다.
+
+이어서 같은 결함이 daytime 밖에도 있다는 것이 드러났다 — PAPER_EVAL positive
+319 장 중 **103 장이 감독 keypoint 0** 이라 모든 strict metric 에서 빠지고 있었다.
+리뷰 큐가 `paper_domain` 으로 프레임을 골랐는데 그 라벨이 신규 세션에 없었던 탓이다.
+사전 고정된 기하 규칙이 927 keypoint 중 868 을 자동 확정했고, 남은 59 개
+(external occlusion 후보, 30 프레임) 도 사용자가 확정했다 (가림 50 · 안가림 9).
+
+**지금은 319 / 319 장 전부 strict 로 채점된다** (감독 keypoint 2,756 / 2,799).
+
+아래는 당시의 산정 근거로 남긴다.
 
 ```text
 frames                       70
@@ -129,7 +142,7 @@ ALL pose 는 열리지 않으므로 우선순위가 낮다.
 ## 4. Annotation reliability — RECOMMENDED
 
 noise floor 를 모르면 R0 대 Proposed 의 corner 차이가 의미 있는지 말할 수 없다.
-visibility 확정 후 값은 **6.501 -> 7.057 (악화)** 이고 paired bootstrap 은 CI 가
+visibility 확정 후 값은 **6.616 -> 7.210 (악화)** 이고 paired bootstrap 은 CI 가
 0 을 배제한다.  방향은 정해졌지만 크기가 어노테이션 노이즈 대비 얼마인지는 여전히
 모른다.
 

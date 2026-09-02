@@ -225,6 +225,8 @@ def main() -> int:
                         help="자동 분류 큐 (기본: daytime)")
     parser.add_argument("--amendments", default=None,
                         help="판정을 쌓을 amendment 파일 (기본: daytime)")
+    parser.add_argument("--index-queue", default=None,
+                        help="이미지·어노 경로가 있는 리뷰 큐 (기본: daytime)")
     args = parser.parse_args()
 
     global QUEUE, AMENDMENTS
@@ -246,11 +248,17 @@ def main() -> int:
         print("사람이 볼 프레임이 없다.")
         return 0
 
+    index_path = (Path(args.index_queue).resolve() if args.index_queue
+                  else WORKSPACE / "review" / "DAYTIME_VISIBILITY_REVIEW_QUEUE.csv")
     index_rows = {
         row["frame_id"]: row
-        for row in csv.DictReader(
-            (WORKSPACE / "review" / "DAYTIME_VISIBILITY_REVIEW_QUEUE.csv").open())
+        for row in csv.DictReader(index_path.open(encoding="utf-8"))
     }
+    missing = [f for f in review_frames if f not in index_rows]
+    if missing:
+        raise SystemExit(
+            f"INDEX_QUEUE_MISSING_FRAMES: {len(missing)} 프레임이 "
+            f"{index_path.name} 에 없다 (예: {missing[0]}).  --index-queue 를 확인하라.")
     amendments = load_amendments()
     total_targets = sum(
         1 for row in rows

@@ -31,9 +31,9 @@ data/pallet/results/paper_eval_v1/baselines/DOPE_R0_PREDICTIONS.json
 ```text
               corner↓   det↑   AP50-95↑   AUROC↑   FPR95↓
 ──────────────────────────────────────────────────────────
-DOPE           10.875  0.737     0.3412   0.9903   0.0409
-YOLO26n R0      6.501  0.975     0.7688   0.9921   0.0417
-Proposed        7.057  0.984     0.7585   0.9953   0.0283
+DOPE           10.916  0.737     0.3412   0.9903   0.0409
+YOLO26n R0      6.616  0.975     0.7688   0.9921   0.0417
+Proposed        7.210  0.984     0.7585   0.9953   0.0283
 ```
 
 **비대칭을 숨기지 않는다.**  DOPE 에는 box head 가 없어 box 를 검출된 cuboid 코너의

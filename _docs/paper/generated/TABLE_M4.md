@@ -1,18 +1,18 @@
 # Table M4 — Pseudo-label filter quality
 
-population `PAPER_EVAL_PLASTIC_POS`  N=194  detected=194  CORRECT_2D=105
+population `PAPER_EVAL_PLASTIC_POS`  N=194  detected=194  CORRECT_2D=102
 
 CORRECT_2D = detected AND no supervised keypoint error > 20 px  (gross 20.0 px, metric_split_lock.md §2.2 [LOCKED])
 
 ```text
 Filter                                        Pass   Ret.  Pass~px   Rej~px    Sep↑  Gross↓  Prec↑   Rec↑    F1↑
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-No filter                                      194  1.000     7.32        —       —   0.198  0.541  1.000  0.702
-Confidence                                     150  0.773     6.56    12.79    6.23   0.139  0.593  0.848  0.698
-Confidence + Reprojection                      143  0.737     6.31    12.82    6.51   0.127  0.622  0.848  0.718
-Confidence + Keypoint-removal consistency      149  0.768     6.58    11.95    5.37   0.139  0.597  0.848  0.701
-Confidence + Horizontal-flip consistency       143  0.737     6.46    11.47    5.01   0.132  0.594  0.810  0.685
-Proposed                                       142  0.732     6.49    11.44    4.95   0.132  0.599  0.810  0.688
+No filter                                      194  1.000     7.69        —       —   0.209  0.526  1.000  0.689
+Confidence                                     150  0.773     6.61    13.78    7.17   0.141  0.587  0.863  0.698
+Confidence + Reprojection                      143  0.737     6.39    14.08    7.69   0.128  0.615  0.863  0.718
+Confidence + Keypoint-removal consistency      149  0.768     6.63    13.06    6.43   0.141  0.591  0.863  0.701
+Confidence + Horizontal-flip consistency       143  0.737     6.52    12.88    6.36   0.134  0.587  0.824  0.686
+Proposed                                       142  0.732     6.55    12.81    6.26   0.135  0.592  0.824  0.689
 ```
 
 ## Confidence bin 진단
@@ -27,10 +27,10 @@ Proposed                                       142  0.732     6.49    11.44    4
 ```text
 box_conf bin         N     src   n_kp  corner~px       p90    gross
 ──────────────────────────────────────────────────────────────────
-[0.00,0.70)         33  strict    255      18.82    129.68    0.482
-[0.70,0.80)          7  strict     54       5.77    203.15    0.222
-[0.80,0.90)         18  strict    145       6.84     41.97    0.241
-[0.90,1.01)        136  strict   1174       6.50     23.61    0.130
+[0.00,0.70)         33  strict    293      18.82    137.62    0.485
+[0.70,0.80)          7  strict     59       6.04    278.21    0.271
+[0.80,0.90)         18  strict    152       8.13     44.64    0.243
+[0.90,1.01)        136  strict   1183       6.56     24.20    0.134
 ```
 
 confidence 가 TAU_BOX 아래인 검출은 눈에 띄게 나쁘다 — corner 가 한 자릿수에서

@@ -32,12 +32,12 @@ visible/occluded 주장이 아니다** — 두 열은 서로 다른 모집단이
 ```text
 Method                              Day strict↓  Night strict↓  Day diag↓  Night diag↓  ALL strict↓
 ──────────────────────────────────────────────────────────────────────────────────────────────────
-Synthetic-only                           10.556          7.045     10.928        7.686        6.501
-Source-only continuation                 10.555          7.562     10.588        7.964        6.763
-Naive self-training                      11.852          7.680     12.023        8.440        7.027
-Confidence-based self-training           12.380          8.554     12.447        9.601        6.899
-Reprojection-based self-training         11.461          7.757     11.541        8.687        6.890
-Proposed                                 11.576          8.897     11.592       10.072        7.057
+Synthetic-only                           10.556          7.686     10.928        7.686        6.616
+Source-only continuation                 10.555          7.964     10.588        7.964        6.911
+Naive self-training                      11.852          8.309     12.023        8.440        7.120
+Confidence-based self-training           12.380          9.465     12.447        9.601        7.037
+Reprojection-based self-training         11.461          8.642     11.541        8.687        7.044
+Proposed                                 11.576         10.072     11.592       10.072        7.210
 ```
 
 Daytime strict keypoint 수 = 351 (사용 가능).

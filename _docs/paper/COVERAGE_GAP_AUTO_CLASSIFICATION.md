@@ -50,3 +50,18 @@ occluded 로 확정하지 않고 사람이 확인한다 — depth 노이즈와 �
 ```text
 queue   data/evaluation/pallet_eval_v1/review/COVERAGE_GAP_OCCLUSION_QUEUE.csv
 ```
+
+## 사람 판정 결과 (2026-09-02, 완료)
+
+남은 59 개를 사용자가 전부 확정했다 — 30 프레임, 보류 0.
+
+```text
+가림 (occluded)      50
+안 가림 (visible)     9
+```
+
+세션 분포는 eval_night08 30 · eval_night09 26 · eval_cad 3 이다.  야간이라 depth 가
+애매했던 후보들이고, 그중 85% 가 실제 가림이었다 — depth threshold 가 과탐 쪽으로
+크게 치우쳐 있지는 않다는 뜻이다.
+
+반영 후 PAPER_EVAL 319 장이 전부 strict metric 에 들어온다.

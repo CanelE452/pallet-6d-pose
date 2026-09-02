@@ -11,14 +11,14 @@ R0 와 Proposed 는 같은 프레임을 본다.  그래서 프레임마다 짝�
 ```text
 comparison                         metric                   n         Δ           95% CI frame           95% CI session
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Synthetic-only -> Proposed         pooled_corner_median   308    0.4355 [  0.1117,  0.7694] [   -0.1694,    1.3080]
-Synthetic-only -> Proposed         corner                 308    2.3938 [  0.0191,  5.0499] [   -0.4774,    6.3682]
+Synthetic-only -> Proposed         pooled_corner_median   308    0.4588 [  0.1069,  0.7958] [   -0.1576,    1.3793]
+Synthetic-only -> Proposed         corner                 308    2.3153 [ -0.0513,  4.9520] [   -0.5345,    6.2348]
 Synthetic-only -> Proposed         detection              319    0.0094 [ -0.0094,  0.0282] [   -0.0141,    0.0488]
-Confidence -> Proposed             pooled_corner_median   313    0.1418 [ -0.1183,  0.4039] [   -0.1209,    0.3932]
-Confidence -> Proposed             corner                 313   -3.2687 [ -7.7999,  0.2179] [   -7.4175,    0.0548]
+Confidence -> Proposed             pooled_corner_median   313    0.1638 [ -0.1169,  0.4283] [   -0.1227,    0.3948]
+Confidence -> Proposed             corner                 313   -3.2497 [ -7.7800,  0.2376] [   -7.4044,    0.0833]
 Confidence -> Proposed             detection              319   -0.0031 [ -0.0157,  0.0063] [   -0.0140,    0.0071]
-Reprojection -> Proposed           pooled_corner_median   313    0.1375 [ -0.1693,  0.4020] [   -0.2367,    0.6357]
-Reprojection -> Proposed           corner                 313   -0.7428 [ -4.3344,  2.3229] [   -4.5360,    3.1779]
+Reprojection -> Proposed           pooled_corner_median   313    0.1553 [ -0.1802,  0.4251] [   -0.2342,    0.6868]
+Reprojection -> Proposed           corner                 313   -0.7395 [ -4.3197,  2.3200] [   -4.5136,    3.1290]
 Reprojection -> Proposed           detection              319   -0.0031 [ -0.0125,  0.0063] [   -0.0136,    0.0074]
 ```
 

@@ -5,9 +5,9 @@
 ```text
 Strongest baseline        Synthetic-only YOLO26n-Pose (R0)
 Primary metric            supervised keypoint location median px (PAPER_EVAL)
-Baseline value            6.501 px
-Proposed value            7.057 px
-Improvement X             -8.6 %
+Baseline value            6.616 px
+Proposed value            7.210 px
+Improvement X             -9.0 %
 Worst-condition before    10.556 px
 Worst-condition after     11.576 px
 YAW_RESULT_SLOT           BLOCKED
