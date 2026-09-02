@@ -104,6 +104,12 @@ def collect(model, lock) -> list[dict]:
             bool(a.get("visibility", 0)) and a.get("in_frame", True)
             for a in annotations
         ])
+        # legacy 프레임은 visibility 가 unknown 이라 supervision mask 가 통째로 빈다.
+        # 그 경우에도 값을 낼 수 있게 all-annotated 를 함께 모은다 (진단이지
+        # visible/occluded 주장이 아니다).
+        present = np.array([
+            a.get("xy") is not None and a.get("in_frame", True) for a in annotations
+        ])
 
         record = {
             "frame_id": item["frame_id"],
@@ -132,7 +138,11 @@ def collect(model, lock) -> list[dict]:
             record["box_conf"] = float(result.boxes.conf.cpu().numpy()[best])
             record["valid_corners"] = int(np.count_nonzero(valid[:N_CORNERS]))
 
-            errors = np.linalg.norm(keypoints - gt_xy, axis=1)[supervised]
+            distances = np.linalg.norm(keypoints - gt_xy, axis=1)
+            annotated = distances[present]
+            if annotated.size:
+                record["errors_annotated_px"] = annotated.tolist()
+            errors = distances[supervised]
             if errors.size:
                 record["corner_median_px"] = float(np.median(errors))
                 record["corner_max_px"] = float(errors.max())
@@ -206,10 +216,10 @@ def show(value, spec: str = ".3f") -> str:
     return "—" if value is None else format(value, spec)
 
 
-def pooled(records: list[dict]) -> dict:
+def pooled(records: list[dict], key: str = "errors_px") -> dict:
     errors: list[float] = []
     for record in records:
-        errors += record.get("errors_px", [])
+        errors += record.get(key, [])
     if not errors:
         return {"n_frames": len(records), "n_keypoints": 0,
                 "median_px": None, "p90_px": None, "gross_rate": None}
@@ -282,16 +292,22 @@ def main() -> int:
               f"{show(precision):>6} {show(recall):>6} {show(f1):>6}")
 
     bins = {}
-    print(f"\n{'box_conf bin':16} {'N':>5} {'n_kp':>6} {'corner~px':>10} "
+    print(f"\n{'box_conf bin':16} {'N':>5} {'src':>6} {'n_kp':>6} {'corner~px':>10} "
           f"{'p90':>8} {'gross':>7}")
-    print("─" * 58)
+    print("─" * 66)
     for low, high in CONF_BINS:
         subset = [r for r in rows
                   if r["detected"] and low <= (r["box_conf"] or 0.0) < high]
         stats = pooled(subset)
+        # supervision mask 가 빈 bin(전부 legacy)은 all-annotated 로 채우고 출처를 남긴다.
+        stats["source"] = "strict"
+        if stats["n_keypoints"] == 0:
+            stats = pooled(subset, "errors_annotated_px")
+            stats["source"] = "diag"
         bins[f"[{low:.2f},{high:.2f})"] = stats
         print(f"{f'[{low:.2f},{high:.2f})':16} {stats['n_frames']:>5} "
-              f"{stats['n_keypoints']:>6} {show(stats['median_px'], '.2f'):>10} "
+              f"{stats['source']:>6} {stats['n_keypoints']:>6} "
+              f"{show(stats['median_px'], '.2f'):>10} "
               f"{show(stats['p90_px'], '.2f'):>8} {show(stats['gross_rate']):>7}")
 
     report = {

@@ -19,14 +19,23 @@ Proposed                                       142  0.732     4.10     5.88    1
 
 "0.7~0.8 을 넘으면 실제로 더 맞는가" 에 답한다.
 
+`src` 는 keypoint 통계 출처다.  `strict` 는 evaluator 의 supervision mask,
+`diag` 는 all-annotated (visibility 가 unknown 인 legacy 점 포함).
+저신뢰 bin 은 전부 legacy 프레임이라 strict 가 비어 diag 로 채웠다.
+**두 출처의 절대값을 직접 비교하지 않는다.**
+
 ```text
-box_conf bin         N  corner~px      p90    gross
-────────────────────────────────────────────────────
-[0.00,0.70)         33          —        —        —
-[0.70,0.80)          7       4.59     7.93    0.000
-[0.80,0.90)         18       3.99   139.19    0.120
-[0.90,1.01)        136       4.30    25.62    0.106
+box_conf bin         N     src   n_kp  corner~px       p90    gross
+──────────────────────────────────────────────────────────────────
+[0.00,0.70)         33    diag    293      18.82    137.62    0.485
+[0.70,0.80)          7  strict     25       4.59      7.93    0.000
+[0.80,0.90)         18  strict     50       3.99    139.19    0.120
+[0.90,1.01)        136  strict    499       4.30     25.62    0.106
 ```
+
+confidence 가 TAU_BOX 아래인 검출은 눈에 띄게 나쁘다 — corner 가 한 자릿수에서
+두 자릿수로 뛰고 gross rate 도 몇 배가 된다.  confidence pre-filter 가 하는
+일이 여기서 보인다.  다만 그 위 구간(0.70~1.00) 안에서는 단조 개선이 아니다.
 
 ## Pseudo-label funnel (unlabeled pool)
 

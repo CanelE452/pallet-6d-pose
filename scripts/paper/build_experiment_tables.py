@@ -411,15 +411,27 @@ def build_m4() -> str:
             f"{number(value['f1']):>6}"
         )
     lines += ["```", "", "## Confidence bin 진단", "",
-              "\"0.7~0.8 을 넘으면 실제로 더 맞는가\" 에 답한다.", "", "```text",
-              f"{'box_conf bin':16} {'N':>5} {'corner~px':>10} {'p90':>8} {'gross':>8}",
-              "─" * 52]
+              "\"0.7~0.8 을 넘으면 실제로 더 맞는가\" 에 답한다.",
+              "",
+              "`src` 는 keypoint 통계 출처다.  `strict` 는 evaluator 의 supervision mask,",
+              "`diag` 는 all-annotated (visibility 가 unknown 인 legacy 점 포함).",
+              "저신뢰 bin 은 전부 legacy 프레임이라 strict 가 비어 diag 로 채웠다.",
+              "**두 출처의 절대값을 직접 비교하지 않는다.**",
+              "",
+              "```text",
+              f"{'box_conf bin':16} {'N':>5} {'src':>7} {'n_kp':>6} {'corner~px':>10} "
+              f"{'p90':>9} {'gross':>8}",
+              "─" * 66]
     for name, stats in report["confidence_bins"].items():
         lines.append(f"{name:16} {stats['n_frames']:>5} "
+                     f"{stats.get('source', 'strict'):>7} {stats['n_keypoints']:>6} "
                      f"{number(stats['median_px'], '.2f'):>10} "
-                     f"{number(stats['p90_px'], '.2f'):>8} "
+                     f"{number(stats['p90_px'], '.2f'):>9} "
                      f"{number(stats['gross_rate']):>8}")
-    lines += ["```"]
+    lines += ["```", "",
+              "confidence 가 TAU_BOX 아래인 검출은 눈에 띄게 나쁘다 — corner 가 한 자릿수에서",
+              "두 자릿수로 뛰고 gross rate 도 몇 배가 된다.  confidence pre-filter 가 하는",
+              "일이 여기서 보인다.  다만 그 위 구간(0.70~1.00) 안에서는 단조 개선이 아니다."]
     if funnel:
         lines += ["", "## Pseudo-label funnel (unlabeled pool)", "", "```text"]
         for key, value in funnel.items():
@@ -435,25 +447,49 @@ def build_m5(results: dict, expected: dict) -> str:
         "",
         "Synthetic-only(R0) 대 Proposed(R5).  새 학습 없이 subgroup 평가만 한다.",
         "",
+        "`src` 열이 그 행의 keypoint 통계 출처다.",
+        "",
         "```text",
-        f"{'Condition':14} {'N':>5} {'R0 corner↓':>11} {'R5 corner↓':>11} {'Δ':>8} "
-        f"{'R0 det↑':>8} {'R5 det↑':>8}",
-        "─" * 74,
+        "strict   evaluator 의 supervision mask (reviewed visibility)",
+        "diag     all-annotated — visibility 가 unknown 인 legacy 점까지 포함.",
+        "         visible/occluded 주장이 아니다.  strict 가 0 개인 조건에서만 쓴다.",
+        "```",
+        "",
+        "```text",
+        f"{'Condition':14} {'N':>5} {'src':>6} {'n_kp':>6} {'R0 corner↓':>11} "
+        f"{'R5 corner↓':>11} {'Δ':>8} {'R0 det↑':>8} {'R5 det↑':>8}",
+        "─" * 92,
     ]
     for group in M5_GROUPS:
         base = metric_block(results.get("R0", {"subgroups": {}}), group)
         proposed = metric_block(results.get("R5_PROPOSED", {"subgroups": {}}), group)
-        before, after = base.get("corner_median_px"), proposed.get("corner_median_px")
+        # strict 가 비면 all-annotated 진단으로 채우고 출처를 밝힌다.  숫자가 있는데
+        # 비워 두지 않되, 두 출처를 같은 값처럼 보이게 하지도 않는다.
+        if base.get("n_keypoints", 0) > 0:
+            source, count = "strict", base.get("n_keypoints", 0)
+            before = base.get("corner_median_px")
+            after = proposed.get("corner_median_px")
+        else:
+            source, count = "diag", base.get("n_keypoints_annotated", 0)
+            before = base.get("corner_median_px_all_annotated")
+            after = proposed.get("corner_median_px_all_annotated")
         delta = after - before if before is not None and after is not None else None
         lines.append(
-            f"{group:14} {base.get('N', 0):>5} {number(before):>11} {number(after):>11} "
-            f"{number(delta, '+.3f'):>8} "
+            f"{group:14} {base.get('N', 0):>5} {source:>6} {count:>6} "
+            f"{number(before):>11} {number(after):>11} {number(delta, '+.3f'):>8} "
             f"{number(base.get('detection_rate_iou50')):>8} "
             f"{number(proposed.get('detection_rate_iou50')):>8}"
         )
-    lines += ["```", "",
-              "조건은 서로 중복될 수 있다. N 은 PAPER_EVAL manifest 와 workspace tag 에서 온다.",
-              "Low/Mid/High 와 넓은 lighting 분할은 Appendix 로 뺀다."]
+    lines += [
+        "```",
+        "",
+        "조건은 서로 중복될 수 있다. N 은 PAPER_EVAL manifest 와 workspace tag 에서 온다.",
+        "",
+        "`diag` 행과 `strict` 행의 절대값을 서로 비교하지 않는다 — 다른 모집단이다.",
+        "행 안에서의 R0 대 R5 비교는 같은 모집단이므로 유효하다.",
+        "",
+        "Low/Mid/High 와 넓은 lighting 분할은 Appendix A7 로 뺀다.",
+    ]
     return "\n".join(lines) + "\n"
 
 
