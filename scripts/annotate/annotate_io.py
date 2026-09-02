@@ -640,7 +640,7 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
     return result
 
 
-def save_frame_json(out_json, out_png, src_png_path, ann):
+def save_frame_json(out_json, out_png, src_png_path, ann, *, registry_path=None):
     """JSON 저장 + best-effort PNG hardlink/copy.
 
     JSON 은 임시 파일에 쓴 뒤 os.replace 로 바꿔치기한다. 대상 파일을 열어 놓고 쓰다가
@@ -652,7 +652,7 @@ def save_frame_json(out_json, out_png, src_png_path, ann):
     갱신할 수 있도록 경고만 남긴다.
     """
     if ann.get("schema_version") == GT_V2_SCHEMA_VERSION and validate_gt_v2 is not None:
-        validate_gt_v2(ann)
+        validate_gt_v2(ann, registry_path=registry_path)
     os.makedirs(os.path.dirname(out_json) or ".", exist_ok=True)
     tmp = out_json + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:

@@ -22,6 +22,8 @@ except ImportError:  # Direct script execution.
 SCHEMA_VERSION = "pallet_pose_object_geometry_registry_v1"
 PLASTIC_OBJECT_TYPE = "plastic_standard_110x130x11"
 WOOD_OBJECT_TYPE = "wood_small_80x59x14"
+# 과제용: 포크리프트 현장 팔레트(실측 110 x 110 x 15 cm). 논문 계약과 무관.
+PLASTIC_SQUARE_OBJECT_TYPE = "plastic_standard_110x110x15"
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REGISTRY_PATH = (
     REPO_ROOT / "challenge" / "real_gt_v2" / "OBJECT_GEOMETRY_REGISTRY.json"
@@ -221,9 +223,12 @@ def load_object_geometry_registry(
     default_object_type = _nonempty(payload.get("default_object_type"), "default_object_type")
     if default_object_type not in objects:
         raise ObjectGeometryRegistryError("default_object_type is not registered")
-    if set(objects) != {PLASTIC_OBJECT_TYPE, WOOD_OBJECT_TYPE}:
+    # 논문용 두 타입은 반드시 있어야 하고 치수도 잠겨 있다. 그 위에 과제(challenge)
+    # 전용 물체를 더하는 것은 막지 않는다 — 논문 평가는 object_type 을 명시적으로
+    # resolve 하므로, 레지스트리에 다른 물체가 있어도 논문 수치에 섞이지 않는다.
+    if not {PLASTIC_OBJECT_TYPE, WOOD_OBJECT_TYPE} <= set(objects):
         raise ObjectGeometryRegistryError(
-            "paper registry must contain exactly the locked plastic and wood object types"
+            "paper registry must contain the locked plastic and wood object types"
         )
     return ObjectGeometryRegistry(
         source_path=source,

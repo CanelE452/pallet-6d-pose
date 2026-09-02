@@ -348,7 +348,9 @@ def camera_facing_hypothesis_name(
     short = min(physical.x_m, physical.z_m)
     long = max(physical.x_m, physical.z_m)
     if np.isclose(short, long, rtol=0.0, atol=1e-12):
-        raise ValueError("short/long face naming requires unequal X and Z dimensions")
+        # 정사각 footprint(예: KS T-11 1100x1100) 는 두 면이 물리적으로 같아
+        # short/long 으로 가를 수 없다. 이름을 지어내지 말고 같음을 그대로 알린다.
+        return "square-face-front"
     if np.isclose(dimensions.width_m, short, rtol=0.0, atol=1e-12):
         return "short-face-front"
     if np.isclose(dimensions.width_m, long, rtol=0.0, atol=1e-12):

@@ -128,7 +128,12 @@ def _physical_wd_hypotheses(physical_dimensions):
             else PhysicalDimensionsXYZ(
                 x_m=physical["x"], y_m=physical["y"], z_m=physical["z"])
         )
+        # 정사각 footprint 는 YAW_90 이 YAW_0 과 완전히 같은 dims 를 낳는다.
+        # legacy 경로(아래 base_dims/swapped_dims)와 같은 규칙으로 가설을 하나만 둔다.
         axes = (AxisAssignment.YAW_0, AxisAssignment.YAW_90)
+        if np.isclose(float(physical_object.x_m), float(physical_object.z_m),
+                      rtol=0.0, atol=1e-12):
+            axes = (AxisAssignment.YAW_0,)
         camera_dims = [
             camera_facing_dimensions(axis, physical_object) for axis in axes
         ]
@@ -147,7 +152,7 @@ def _physical_wd_hypotheses(physical_dimensions):
             "short_face_front" if np.isclose(value[0], short) else "long_face_front"
             for value in dims
         ]
-    signed = (("YAW_0", "YAW_180"), ("YAW_90", "YAW_270"))
+    signed = (("YAW_0", "YAW_180"), ("YAW_90", "YAW_270"))[:len(axes)]
     return [
         {
             "legacy_hypothesis": "as_given" if index == 0 else "swapped",

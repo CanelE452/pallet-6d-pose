@@ -1897,7 +1897,8 @@ def _save_state_annotation(s: State, K, out_json, out_png, src_png):
         if ann is None:
             return False
         try:
-            save_frame_json(out_json, out_png, src_png, ann)
+            save_frame_json(out_json, out_png, src_png, ann,
+                            registry_path=getattr(s, "geometry_registry_path", None))
         except (TypeError, ValueError) as exc:
             _toast(s, "[SAVE BLOCKED] v2 schema error", (40, 40, 230),
                    log=f"GT v2 schema validation failed: {exc}")
@@ -2648,6 +2649,9 @@ def main(argv=None):
     ap.add_argument("--out_dir", default=None,
                     help="기본: challenge/data/01_real/gt_v2_canonical/... . "
                          "legacy manual_gt/eval_canonical 경로는 명시해도 거부됨")
+    ap.add_argument("--out-root", "--out_root", default=None,
+                    help="세션마다 <root>/<세션명>_manual_gt 로 저장할 상위 폴더. "
+                         "--out_dir 과 달리 세션 목록을 한 개로 좁히지 않는다.")
     ap.add_argument("--stride",  type=int, default=30, help="N frame 마다 1개 annotate")
     ap.add_argument("--start",   type=int, default=0, help="시작 frame idx")
     ap.add_argument("--pool", nargs="+",
@@ -2791,6 +2795,15 @@ def main(argv=None):
             }
             od = args.out_dir if os.path.isabs(args.out_dir) \
                 else os.path.join(_REPO, args.out_dir)
+        elif args.out_root:
+            active_context = {
+                "writable": True,
+                "workspace_scope": None,
+                "display_role": args.population_role,
+            }
+            root = (args.out_root if os.path.isabs(args.out_root)
+                    else os.path.join(_REPO, args.out_root))
+            od = os.path.join(root, f"{nm}_manual_gt")
         else:
             active_context = {
                 "writable": True,
@@ -2858,6 +2871,9 @@ def main(argv=None):
         geometry_spec.object_type if geometry_spec is not None else "unknown")
     s.intrinsics_quality = args.intrinsics_quality
     s.intrinsics_source = args.intrinsics_source
+    # 저장 시 GT v2 스키마가 object_type 을 조회할 레지스트리. 지정하지 않으면
+    # argparse 기본값이라 논문 정본이 그대로 쓰인다.
+    s.geometry_registry_path = args.geometry_registry
     s.eval_root = eval_root
     s.eval_session_dir = (
         active_context.get("tag_session_dir", seq) if eval_root else None)

@@ -318,7 +318,8 @@ def _validate_pose_record(
     return assignment
 
 
-def _object_geometry(data: Mapping[str, Any], obj: Mapping[str, Any]) -> ObjectGeometrySpec:
+def _object_geometry(data: Mapping[str, Any], obj: Mapping[str, Any],
+                    registry_path: Any = None) -> ObjectGeometrySpec:
     """Resolve an explicit object type, retaining old plastic-v2 compatibility."""
 
     root_type = data.get("object_type")
@@ -335,7 +336,9 @@ def _object_geometry(data: Mapping[str, Any], obj: Mapping[str, Any]) -> ObjectG
             _fail("object_type", "root and objects[0] values must match")
         canonical_type = root_type
     try:
-        spec = load_object_geometry_registry().resolve(canonical_type)
+        registry = (load_object_geometry_registry() if registry_path is None
+                    else load_object_geometry_registry(registry_path))
+        spec = registry.resolve(canonical_type)
     except ValueError as exc:
         _fail("object_type", str(exc))
     if spec.object_type == WOOD_OBJECT_TYPE:
@@ -350,8 +353,13 @@ def _object_geometry(data: Mapping[str, Any], obj: Mapping[str, Any]) -> ObjectG
     return spec
 
 
-def validate_gt_v2(document: Any) -> None:
-    """Validate the additive fields required on a GT v2 document."""
+def validate_gt_v2(document: Any, *, registry_path: Any = None) -> None:
+    """Validate the additive fields required on a GT v2 document.
+
+    ``registry_path`` picks the object registry the declared ``object_type`` is
+    resolved against.  Omitting it keeps the paper registry, so every existing
+    caller is unaffected; challenge-only objects pass their own registry.
+    """
 
     data = _mapping(document, "document")
     if data.get("schema_version") != SCHEMA_VERSION:
@@ -361,7 +369,7 @@ def validate_gt_v2(document: Any) -> None:
             or len(objects) != 1):
         _fail("objects", "must contain exactly one object")
     obj = _mapping(objects[0], "objects[0]")
-    geometry_spec = _object_geometry(data, obj)
+    geometry_spec = _object_geometry(data, obj, registry_path)
     physical_dimensions = geometry_spec.physical_dimensions
 
     required = (
