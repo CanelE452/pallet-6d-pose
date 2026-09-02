@@ -1,0 +1,90 @@
+{
+  "schema_version": "selftrain_v3_method_lock_v1",
+  "purpose": "Freeze the V3 supervision contract before any V3 arm is trained. V1 and V2 are preserved untouched.",
+
+  "method_version": "V3",
+  "dev_informed": true,
+  "development_population": "PAPER_EVAL_319",
+  "final_confirmation_opened": false,
+
+  "what_changed_from_v2": "Only the training loss supervision mask. Unreliable pseudo keypoints now receive no gradient at all, instead of being labelled invisible and thereby supervised toward low keypoint objectness.",
+
+  "architecture_changed": false,
+  "inference_path": "identical to deployment: RGB -> YOLO26n-Pose -> 9 keypoints -> PnP",
+
+  "teacher": "same R0",
+  "teacher_refresh": false,
+  "teacher_checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+  "pool_manifest": "data/evaluation/pallet_eval_v1/adaptation/MAIN_UNLABELED_BALANCED.csv",
+
+  "thresholds_reused_from_v2_without_research": {
+    "box_conf_threshold": 0.85,
+    "kp_conf_threshold": 0.5,
+    "remove_threshold": 0.05,
+    "flip_threshold": 0.05,
+    "ambiguity_threshold": 0.75,
+    "note": "These are the V2 DEV-informed values. V3 does not re-search any of them."
+  },
+
+  "pseudo_fraction": 0.25,
+  "synthetic_fraction": 0.75,
+  "balanced_synthetic_replay": false,
+  "balanced_replay_note": "Removed. In V2 it moved axis permutation from 0.044 (V2-C) back to 0.053 (V2-D) without improving the ambiguous subset. Not re-enabled on the basis of V3 results.",
+
+  "total_optimizer_updates": 900,
+  "batch_size": 32,
+  "learning_rate": 0.002,
+  "epochs": 10,
+  "updates_per_epoch": 90,
+  "entries_per_epoch": 2880,
+  "pseudo_slots_per_epoch": 720,
+  "synthetic_slots_per_epoch": 2160,
+
+  "visibility_encoding": {
+    "2": "supervised - location, RLE and keypoint objectness",
+    "1": "TRUE IGNORE - no gradient in any keypoint term",
+    "0": "invisible - stock Ultralytics semantics, used by synthetic labels only",
+    "why_the_visibility_channel": "An auxiliary per-instance tensor would desynchronise under mosaic and RandomPerspective, which recombine and drop instances without transforming auxiliary tensors. The visibility channel is part of the keypoints tensor and follows every augmentation exactly.",
+    "sentinel_is_free": "Both the synthetic replay labels and the V2 pseudo labels use only 0 and 2, verified by counting. Value 1 never occurs, so a batch without pseudo samples is numerically identical to stock.",
+    "augmentation_caveat": "RandomPerspective sets visibility to 0 for keypoints that leave the image, which demotes a sentinel to stock-invisible. That is semantically correct - the point really is not visible - and its frequency is recorded in the dataset report."
+  },
+
+  "supervision_contract": {
+    "box": "top-1 detection exists AND box_conf >= 0.85. Keypoint state never gates box supervision.",
+    "keypoint_corner": "reliable_i = kp_conf_i >= 0.5 AND r_remove_i <= 0.05 AND r_flip_i <= 0.05 -> visibility 2, otherwise visibility 1 (true ignore).",
+    "keypoint_centroid": "index 8 is not a removal-PnP corner. Reliable if kp_conf_8 >= 0.5 AND flip residual <= 0.05.",
+    "ambiguous_frame": "V3-B only. q >= 0.75 -> corners 0..7 all set to visibility 1. Box and centroid supervision are kept. The frame stays in the dataset.",
+    "zero_mask_instance": "A pseudo frame with every keypoint ignored is NOT removed. It still contributes box and class supervision."
+  },
+
+  "arms": {
+    "V3A_TRUE_IGNORE": "per-keypoint reliability -> true ignore. No ambiguity handling.",
+    "V3B_TRUE_IGNORE_AMBIG": "V3-A plus q >= 0.75 corner ignore. THIS IS V3 PROPOSED."
+  },
+  "proposed_arm": "V3B_TRUE_IGNORE_AMBIG",
+  "proposed_fixed_before_results": true,
+
+  "loss_contract_receipt": "data/pallet/results/paper_selftrain_v3/TRUE_IGNORE_LOSS_CONTRACT.json",
+  "loss_contract_status": "PASS",
+  "loss_contract_evidence": {
+    "box_gradient_ratio_ignored_over_supervised": 1.0,
+    "all_ignored_keypoint_branch_gradient": 0.0,
+    "stock_all_masked_keypoint_branch_gradient": 4037.24,
+    "synthetic_parity": "total loss, all six loss items, box gradient and keypoint gradient all identical to stock"
+  },
+
+  "dev_gate": {
+    "G1": "V3-B Night detection > R0 Night detection",
+    "G2": "V3-B Day detection >= R0 Day detection - 0.02",
+    "G3": "V3-B paired common-frame NME delta vs R0 < 0",
+    "G4": "V3-B Night paired NME delta vs R0 <= 0",
+    "G5": "V3-A paired NME < V2B paired NME",
+    "G6": "V3-B q>=0.75 axis permutation < V3-A",
+    "G7": "V3-B axis permutation all <= R0",
+    "G8": "G1/G2 passing does not rescue a clear G3/G4 failure",
+    "note": "Point estimates gate. Confidence intervals are reported separately and do not change the gate after results are seen."
+  },
+
+  "frozen_before_results": true,
+  "no_sweep_after_results": "A development failure is recorded as V3_METHOD_STATUS = FAILED. No threshold, q, learning rate, epoch or pseudo fraction is searched afterwards, and Proposed is not swapped to V3-A."
+}
