@@ -20,6 +20,40 @@ runner     challenge/evaluation_v2/paper_real_eval.py
 
 전 모델(R0 · R0-CONT · R1~R5 · replicate)의 `metrics.pose.status` 가 `BLOCKED` 다.
 
+## ★2026-09-02 재측정 — selector 는 checkpoint 문제가 아니다
+
+저장된 selector 진단이 옛 checkpoint(OLD_ROOT_G38) 기준이라, self-training 이
+keypoint 를 개선했으면 selector 도 나아졌을 수 있어 **현재 모델로 다시 쟀다**.
+
+```text
+population DEV_POS140 (사전등록)   gate  overall >= 0.95  night >= 0.90
+
+                        overall     day     night
+OLD_ROOT_G38 (기록)      0.5929   0.6250   0.4643
+R0                       0.6500   0.6429   0.6786
+R5_PROPOSED              0.5929   0.5357   0.8214
+```
+
+최고가 0.65 다.  게이트와 격차가 크고 checkpoint 를 바꿔도 넘지 못한다.
+**이건 프레임 라벨 문제가 아니라 알고리즘 문제다.**
+
+따라서 146 장 signed-axis 사람 확인을 지금 요청하지 않는다 — 해도 pose 가 열리지
+않는다.  `DEFER_MANUAL_REVIEW = true` (`_docs/paper/MANUAL_REVIEW_REQUIREMENTS.md`).
+
+부수 관찰: R5 는 night selector 를 0.679 -> 0.821 로 올리고 day 를 0.643 -> 0.536 으로
+내린다.  self-training 이 야간 쪽에 치우쳐 있다는 다른 지표와 방향이 같다.
+
+산출물:
+
+```text
+challenge/evaluation_v2/selector_diagnostic/PLASTIC_SELECTOR_DIAGNOSTIC__R0.json
+challenge/evaluation_v2/selector_diagnostic/PLASTIC_SELECTOR_DIAGNOSTIC__R5_PROPOSED.json
+scripts/self_training_yolo/measure_plastic_selector.py
+```
+
+측정 검증: R5 의 overall 이 기존 기록과 0.5929 로 정확히 일치한다 — 재현 경로가
+맞다는 근거다 (day/night 분포는 checkpoint 가 다르므로 다르다).
+
 ## blocker 를 축별로 분리
 
 하나로 뭉뚱그리면 무엇을 고쳐야 하는지 알 수 없으므로 나눠 적는다.

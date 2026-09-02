@@ -744,7 +744,7 @@ def build_import_plan(
             annotation_sha256="",
             active_frame_id=frame_id,
             destination_stem=destination_stem,
-            storage_mode="source_reference_read_only",
+            storage_mode="independent_copy",
             notes="Frozen DEV negative membership; duplicate SHA membership is preserved.",
         )
         records.append(record)
@@ -761,7 +761,7 @@ def build_import_plan(
                 source_dataset=record.source_dataset,
                 image=image,
                 annotation=None,
-                disposition="ACTIVE_SOURCE_REFERENCE",
+                disposition="ACTIVE_INDEPENDENT_COPY",
                 notes=record.notes,
             )
         )
@@ -969,34 +969,44 @@ def _build_workspace(stage_root: Path, plan: ImportPlan) -> list[dict[str, str]]
     for record in plan.records:
         source_image_rel = _repo_relative(plan.repo_root, record.source_image)
         source_annotation_rel = _repo_relative(plan.repo_root, record.source_annotation)
-        if record.population_role == "DEV" and record.paper_subset == "DEV_NEG2689":
-            image_path_value = source_image_rel
-            annotation_path_value = ""
-            overlay_path_value = ""
-        else:
-            scope = "dev_existing" if record.population_role == "DEV" else "legacy_unverified"
-            session_root = stage_root / scope / "sessions" / record.session_id
-            destination_image = session_root / "rgb" / f"{record.destination_stem}{record.source_image.suffix.lower()}"
-            destination_annotation = stage_root / scope / "annotations" / record.session_id / f"{record.destination_stem}.json"
-            destination_overlay = destination_annotation.parent / "_overlays" / f"{record.destination_stem}.png"
-            copy2_verified(record.source_image, destination_image)
-            if record.source_annotation is None:
-                raise WorkspaceError(f"positive import record missing annotation: {record.active_frame_id}")
+        scope = "dev_existing" if record.population_role == "DEV" else "legacy_unverified"
+        session_root = stage_root / scope / "sessions" / record.session_id
+        destination_image = (
+            session_root
+            / "rgb"
+            / f"{record.destination_stem}{record.source_image.suffix.lower()}"
+        )
+        copy2_verified(record.source_image, destination_image)
+        image_path_value = workspace_relative(destination_image, stage_root)
+        annotation_path_value = ""
+        overlay_path_value = ""
+        if record.source_annotation is not None:
+            destination_annotation = (
+                stage_root
+                / scope
+                / "annotations"
+                / record.session_id
+                / f"{record.destination_stem}.json"
+            )
+            destination_overlay = (
+                destination_annotation.parent
+                / "_overlays"
+                / f"{record.destination_stem}.png"
+            )
             copy2_verified(record.source_annotation, destination_annotation)
-            image_path_value = workspace_relative(destination_image, stage_root)
             annotation_path_value = workspace_relative(destination_annotation, stage_root)
             overlay_path_value = workspace_relative(destination_overlay, stage_root)
-            records_by_session[(scope, record.session_id)].append(record)
+        records_by_session[(scope, record.session_id)].append(record)
 
-            key = (
-                record.source_dataset,
-                str(record.source_image.resolve()),
-                str(record.source_annotation.resolve()),
-            )
-            provenance = provenance_by_identity.get(key)
-            if provenance is not None:
-                provenance["destination_image_path"] = image_path_value
-                provenance["destination_annotation_path"] = annotation_path_value
+        key = (
+            record.source_dataset,
+            str(record.source_image.resolve()),
+            str(record.source_annotation.resolve()) if record.source_annotation else "",
+        )
+        provenance = provenance_by_identity.get(key)
+        if provenance is not None:
+            provenance["destination_image_path"] = image_path_value
+            provenance["destination_annotation_path"] = annotation_path_value
 
         frame_rows.append(
             {
@@ -1088,7 +1098,8 @@ Legacy `409`는 2026-08-30 현재 감사값일 뿐 frozen membership target이 �
 source image changed        {len(image_changes)}
 source annotation changed   {len(annotation_changes)}
 source size/mtime/count changed  {len(metadata_changes)}
-DEV -> FINAL promotions     0
+physical DEV -> FINAL copies  0
+FINAL_EVAL execution alias  173 positive / 2689 negative rows (2688 unique)
 duplicate active frame SHA groups  {plan.duplicate_positive_sha_groups + plan.duplicate_negative_sha_groups}
 ```
 

@@ -16,6 +16,7 @@ try:  # Package import from editor/tests.
         scaffold_workspace,
         write_reports,
     )
+    from .incoming_promotion import promote_incoming_annotation
 except ImportError:  # Direct ``python scripts/evaluation/...`` execution.
     from eval_workspace import (  # type: ignore[no-redef]
         WorkspaceError,
@@ -24,6 +25,9 @@ except ImportError:  # Direct ``python scripts/evaluation/...`` execution.
         refresh_frame_index,
         scaffold_workspace,
         write_reports,
+    )
+    from incoming_promotion import (  # type: ignore[no-redef]
+        promote_incoming_annotation,
     )
 
 
@@ -49,37 +53,49 @@ def refresh_after_annotation(
     annotation_path: str | Path,
     image_path: str | Path | None = None,
     deleted: bool = False,
+    synchronize_session: bool = False,
 ) -> str:
     """Lightweight editor hook: refresh membership/reports and return one line.
 
-    ``deleted`` is explicit for the caller's audit trail; active state is always
-    derived from the filesystem so a stale flag cannot resurrect an annotation.
-    The function never reads or writes legacy source paths.
+    For an incoming annotation, synchronize only this frame's independent
+    image/JSON/overlay/tag copy before rebuilding the combined report.  Direct
+    evaluation annotations need no copy.  The function never reads or writes
+    legacy source paths.
     """
 
-    del deleted
     dataset_root = Path(root).resolve()
     if not dataset_root.is_dir():
         raise WorkspaceError(f"evaluation workspace does not exist: {dataset_root}")
     _assert_workspace_path(dataset_root, annotation_path, "annotation_path")
     _assert_workspace_path(dataset_root, image_path, "image_path")
 
-    # incoming 에 어노테이션이 생기면 대응 FINAL 세션으로 자동 편입한다.
-    # 어노테이션 행위 자체가 contract 가 요구하는 human review 이고, 목적지는
-    # 폴더 이름(<session>__<material>) + 세션 lighting 으로 결정된다.
-    # 근거가 없으면 조용히 건너뛴다 — 목적지를 지어내지 않는다.
-    promoted = 0
+    synchronized: dict = {}
     try:
-        from promote_incoming_to_final import promote_annotated_incoming
-        promoted = promote_annotated_incoming(dataset_root)["promoted"]
-    except Exception as exc:                       # 편입 실패가 저장을 막지 않는다
-        print(f"[WARN] incoming auto-promotion skipped: {exc}")
+        synchronized = promote_incoming_annotation(
+            dataset_root,
+            Path(annotation_path),
+            deleted=bool(deleted),
+            all_complete=bool(synchronize_session),
+        )
+    except Exception as exc:  # A derived-copy failure must not roll back valid GT.
+        print(f"[WARN] incoming frame synchronization skipped: {exc}")
 
     frames = refresh_frame_index(dataset_root, rehash_final=True)
     progress = write_reports(dataset_root, frames)
     line = progress_line(progress, load_targets(dataset_root))
-    if promoted:
-        line = f"{line}  (+{promoted} promoted from incoming)"
+    changes = []
+    for key, label in (
+        ("promoted", "new"),
+        ("updated", "updated"),
+        ("removed", "removed"),
+        ("metadata_synced", "tag rows synced"),
+        ("session_metadata_synced", "session metadata synced"),
+    ):
+        count = int(synchronized.get(key, 0))
+        if count:
+            changes.append(f"{count} {label}")
+    if changes:
+        line = f"{line}  (incoming: {', '.join(changes)})"
     return line
 
 
