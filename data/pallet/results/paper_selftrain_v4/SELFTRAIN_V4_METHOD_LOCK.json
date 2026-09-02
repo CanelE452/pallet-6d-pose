@@ -1,0 +1,130 @@
+{
+  "schema_version": "selftrain_v4_method_lock_v1",
+  "purpose": "Freeze the V4 geometry-repair method before any ground truth is used to score it. V1, V2 and V3 are preserved untouched.",
+
+  "method_version": "V4",
+  "reader_facing_name": "Geometry-refined selective self-training",
+  "dev_informed": true,
+  "development_population": "PAPER_EVAL_319",
+  "final_confirmation_opened": false,
+  "last_single_frame_redesign_on_this_population": true,
+
+  "hypothesis": "The remaining localisation damage comes not from low-confidence pseudo keypoints but from moderately confident ones whose coordinates are wrong. Rejecting or ignoring them removes noise but produces no better target. Reconstructing their 2D position from reliable high-confidence corners and the registered object geometry can produce a target more accurate than the teacher's own.",
+
+  "new_threshold_this_track": {
+    "KP_HIGH_CONF": 0.95,
+    "honest_status": "DEV-INFORMED, NOT PREREGISTERED",
+    "justification": "0.95 was selected during method development because the remaining nighttime degradation was concentrated in teacher keypoints with confidence between 0.80 and 0.95 (delta NME +0.02170 there against +0.00212 at >=0.95).",
+    "no_sweep": "0.90 / 0.92 / 0.94 / 0.96 / 0.98 are not tried."
+  },
+
+  "thresholds_reused_unchanged": {
+    "box_conf": 0.85,
+    "kp_conf_floor": 0.5,
+    "tau_remove": 0.05,
+    "tau_flip": 0.05,
+    "tau_reproj": 0.05,
+    "ambiguity_q": 0.75,
+    "min_anchors": 6,
+    "min_anchors_note": "Reuses the existing min_valid_corners = 6. Not a new tuning parameter."
+  },
+
+  "keypoint_tiers": {
+    "HIGH_CONFIDENCE": "c_i >= 0.95",
+    "REPAIR_CANDIDATE": "0.5 <= c_i < 0.95",
+    "UNRELIABLE": "c_i < 0.5",
+    "naming": "c_i is the teacher keypoint confidence. It is never called a calibrated probability."
+  },
+
+  "supervision_contract": {
+    "box": "top-1 detection exists AND box_conf >= 0.85. Keypoint state never gates box supervision.",
+    "high_confidence_corner": "Used as a raw target only if it ALSO passes the existing per-keypoint removal and flip consistency. Otherwise true-ignore.",
+    "repair_candidate": "V4-C only. Reconstructed from anchors; true-ignore if reconstruction fails.",
+    "unreliable_corner": "true-ignore",
+    "ambiguous_frame": "q >= 0.75 -> corners 0..7 true-ignore, no repair attempted. Box supervision kept; centroid may still be used.",
+    "centroid": "raw teacher centroid used only if kp_conf_8 >= 0.95 AND flip consistency <= 0.05. Never repaired by PnP - it is not a cuboid corner.",
+    "zero_mask_instance": "A frame with every keypoint ignored is not removed; it still contributes box and class supervision."
+  },
+
+  "repair_algorithm": {
+    "anchors": "corners j != i with c_j >= 0.95 AND removal consistency PASS AND flip consistency PASS. The candidate never contributes to its own fit.",
+    "minimum_anchors": 6,
+    "hypotheses": "All deployment-valid W/D hypotheses from OBJECT_GEOMETRY_REGISTRY. Ground-truth pose, ground-truth axis assignment and ground-truth width/depth selection are never used.",
+    "hypothesis_validity": "median anchor reprojection error / projected cuboid diagonal <= 0.05",
+    "consensus_rule": {
+      "zero_valid": "true-ignore",
+      "one_valid": "that projection becomes the repaired target",
+      "many_valid_and_agreeing": "max pairwise distance between candidate projections / projected diagonal <= 0.05 -> mean of the projections",
+      "many_valid_and_disagreeing": "true-ignore"
+    },
+    "consensus_principle": "The method never picks which 6D hypothesis is correct. It only uses the cases where every deployment-valid hypothesis agrees on the 2D location.",
+    "out_of_image": "A repaired target outside the image is discarded, not clipped. Clipping would hide bad geometry."
+  },
+
+  "never_stored": [
+    "pseudo 6D pose",
+    "winning W/D hypothesis",
+    "ground-truth-selected axis",
+    "pseudo rotation or translation"
+  ],
+  "pnp_role": "latent operator for refining a 2D pseudo target only",
+
+  "arms": {
+    "V4A_BOX_ONLY": "All 273 accepted frames give box and class supervision; every keypoint true-ignored.",
+    "V4B_HIGHCONF_ONLY": "V4-A plus raw targets for high-confidence geometry-reliable corners and the centroid rule.",
+    "V4C_GEOMETRY_REPAIR": "V4-B plus geometry repair of repair-candidates. THIS IS V4 PROPOSED."
+  },
+  "proposed_arm": "V4C_GEOMETRY_REPAIR",
+  "proposed_fixed_before_results": true,
+
+  "training_contract": {
+    "teacher": "R0 static, no refresh",
+    "pseudo_fraction": 0.25,
+    "synthetic_fraction": 0.75,
+    "balanced_synthetic_replay": false,
+    "total_optimizer_updates": 900,
+    "batch_size": 32,
+    "learning_rate": 0.002,
+    "epochs": 10,
+    "init": "R0",
+    "seed": 42,
+    "checkpoint": "fixed last.pt; PAPER_EVAL is never used to select an epoch"
+  },
+
+  "proxy_gate_before_training": {
+    "P1": "Night repaired median NME < raw teacher median NME",
+    "P2": "Night gross rate repaired <= raw",
+    "P3": "Report the actual N of repaired candidates. Do not invent a minimum N threshold; mark LOW_POWER when the count cannot support the comparison.",
+    "on_failure": "GEOMETRY_REPAIR_MECHANISM_FAIL. Stop without training. Do not adjust thresholds to make it pass."
+  },
+
+  "dev_gate": {
+    "G1": "V4-C Night detection > R0",
+    "G2": "V4-C Day detection >= R0 - 0.02",
+    "G3": "V4-C paired common-frame NME delta vs R0 < 0",
+    "G4": "V4-C Night paired NME delta vs R0 <= 0",
+    "G5": "V4-C paired NME < V4-B paired NME",
+    "G6": "V4-C Night NME < V4-B Night NME",
+    "G7": "V4-C axis permutation all <= R0",
+    "G8": "V4-C q>=0.75 axis permutation <= R0",
+    "G9": "G1/G2 passing does not rescue a G3/G4 failure"
+  },
+
+  "pool_audit_before_lock": {
+    "gt_used": false,
+    "note": "The pool audit is ground-truth free and was run before this lock, as the protocol directs. Its numbers are recorded here because they bound what the training arms can possibly show.",
+    "box_accepted_frames": 273,
+    "corners_total": 2184,
+    "tier_HIGH_CONFIDENCE": 2114,
+    "tier_REPAIR_CANDIDATE": 48,
+    "tier_UNRELIABLE": 22,
+    "repair_succeeded": 1,
+    "repair_failed_no_anchors": 19,
+    "repair_failed_hypothesis_disagree": 21,
+    "repair_skipped_ambiguous_view": 7,
+    "implication": "V4-C and V4-B differ by exactly one supervised keypoint out of 2184 in the training set. Gates G5 and G6, which ask whether repair beats V4-B, therefore have essentially no statistical power regardless of how well repair works. This is recorded before any result is seen."
+  },
+
+  "frozen_before_results": true,
+  "no_sweep_after_results": "A development failure is recorded as V4_METHOD_STATUS = FAILED, with SINGLE_FRAME_SELFTRAINING_DEV_BUDGET_EXHAUSTED = true. No V5 is designed against PAPER_EVAL 319."
+}
