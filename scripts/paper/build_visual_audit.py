@@ -177,7 +177,20 @@ def main() -> int:
     reject_gross = [f for f, r in m4_by_frame.items()
                     if not r["verdict"].get("F4_PROPOSED") and m4_gross(f) > 0]
 
+    axis_path = RESULTS / "paper_eval_v1" / "AXIS_FAILURES.json"
+    axis_frames: list[str] = []
+    if axis_path.exists():
+        axis = json.loads(axis_path.read_text())["models"]
+        base_axis = axis.get("R0", {})
+        for frame_id, entry in axis.get("R5_PROPOSED", {}).items():
+            if entry.get("verdict") == "AXIS_PERMUTED":
+                axis_frames.append(frame_id)
+        axis_frames.sort(
+            key=lambda f: base_axis.get(f, {}).get("verdict") != "OK")
+
     sets = [
+        ("G_AXIS_PERMUTED", axis_frames,
+         "R5 AXIS_PERMUTED - cuboid in place, labels rotated (R0-OK first)"),
         ("A_WORSE_TOP20", worse, "BOTH_DETECTED - top 20 where R5 is worse than R0"),
         ("B_BETTER_TOP20", better, "BOTH_DETECTED - top 20 where R5 is better"),
         ("C_NIGHT_R5_ONLY", night_only, "Night - every frame only R5 detected"),

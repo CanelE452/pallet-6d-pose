@@ -7,6 +7,7 @@
 ```text
 sheet                                   frames  scoring          title
 ────────────────────────────────────────────────────────────────────────────────────────────────
+G_AXIS_PERMUTED                             16  GT_SCORED        R5 AXIS_PERMUTED - cuboid in place, labels rotated (R0-OK first)
 A_WORSE_TOP20                               20  GT_SCORED        BOTH_DETECTED - top 20 where R5 is worse than R0
 B_BETTER_TOP20                              20  GT_SCORED        BOTH_DETECTED - top 20 where R5 is better
 C_NIGHT_R5_ONLY                              6  GT_SCORED        Night - every frame only R5 detected
