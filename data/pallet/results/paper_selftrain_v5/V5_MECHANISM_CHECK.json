@@ -1,0 +1,53 @@
+{
+  "schema_version": "v5_mechanism_check_v1",
+  "population": "PAPER_EVAL positive, daytime+nighttime, box_conf >= 0.85",
+  "n_frames": 79,
+  "frame_gross_rate": 0.5189873417721519,
+  "auc_R_total": 0.7625160462130937,
+  "auc_single": {
+    "box_conf": 0.6527599486521181,
+    "s_reproj": 0.745186136071887,
+    "s_remove": 0.6938382541720154,
+    "s_flip": 0.582798459563543
+  },
+  "expected_quality": {
+    "uniform_v3b": {
+      "frame_gross": 0.5189873417721519,
+      "corner_gross": 0.20780590717299574,
+      "median_error_px": 20.04787911005198,
+      "p90_error_px": 31.42058450807165
+    },
+    "reliability_weighted_v5": {
+      "frame_gross": 0.46153846153846156,
+      "corner_gross": 0.18229166666666666,
+      "median_error_px": 18.24905769624525,
+      "p90_error_px": 28.703558460220805
+    }
+  },
+  "exposure_on_eval": {
+    "histogram": {
+      "1": 2,
+      "2": 34,
+      "3": 34,
+      "4": 9
+    },
+    "note": "pool 의 노출을 옮길 수 없으므로 V5 **규칙**을 PAPER_EVAL 에 적용했다.  프레임당 평균 노출은 pool 과 같게 맞췄다."
+  },
+  "caveat": "pool 프레임에는 GT 가 없다.  여기 수치는 같은 teacher·같은 규칙을 GT 가 있는 PAPER_EVAL 에 적용한 대리 측정이다.",
+  "gates": {
+    "M1_score_discriminates": {
+      "pass": true,
+      "detail": "AUC(R_total) = 0.763"
+    },
+    "M2_corner_gross_improves": {
+      "pass": true,
+      "detail": "uniform 0.2078 -> weighted 0.1823"
+    },
+    "M3_frame_gross_improves": {
+      "pass": true,
+      "detail": "uniform 0.5190 -> weighted 0.4615"
+    }
+  },
+  "status": "PASS",
+  "V5_MECHANISM": "OK"
+}
