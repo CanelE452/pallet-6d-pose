@@ -24,17 +24,18 @@ R4_CONF_REMOVE   -> R5_PROPOSED         4.313 -> 4.180    Δ   -0.132   horizont
 `R0 -> R1` 을 곧바로 self-training 효과라고 부르지 않는다.
 그 차이에는 추가 최적화 자체의 몫이 섞여 있고, 그 몫이 `R0 -> R0-CONT` 다.
 
-## 두 제안 필터의 단독 기여 — 2x2
+## 각 기하 필터의 단독 기여
 
 위 누적 표만으로는 flip 의 **단독** 기여를 못 뽑는다.  `R4 -> R5` 는
 keypoint-removal 이 이미 걸린 상태에서 flip 을 더한 값이기 때문이다.
-그래서 네 칸을 각각 학습했다.  네 칸 모두 같은 confidence 전처리 위에서,
+그래서 각 필터를 단독으로 학습했다.  모두 같은 confidence 전처리 위에서,
 같은 exposure·update·init 으로 돌았고 replicate 3 회씩이다.
 
 ```text
 Configuration                 unique PL  corner↓ mean     std  AUROC↑ mean  FPR95↓ mean
 ────────────────────────────────────────────────────────────────────────────────────────
 neither (Confidence only)           272         4.292   0.039       0.9917       0.0450
++ Reprojection only                 251         4.243   0.039       0.9920       0.0490
 + Keypoint-removal only             267         4.299   0.045       0.9912       0.0538
 + Horizontal-flip only              263         4.231   0.076       0.9936       0.0341
 + both (Proposed)                   259         4.169   0.014       0.9938       0.0352

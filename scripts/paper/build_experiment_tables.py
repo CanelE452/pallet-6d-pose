@@ -300,6 +300,8 @@ def build_m3(results: dict) -> str:
     # ── 두 제안 필터의 2x2 단독/조합 ablation ────────────────────────────
     cells = [
         ("neither (Confidence only)", ["R2_CONF", "R2_CONF_P43", "R2_CONF_P44"]),
+        ("+ Reprojection only",
+         ["R3_CONF_REPROJ", "R3_CONF_REPROJ_P43", "R3_CONF_REPROJ_P44"]),
         ("+ Keypoint-removal only",
          ["R4_CONF_REMOVE", "R4_CONF_REMOVE_P43", "R4_CONF_REMOVE_P44"]),
         ("+ Horizontal-flip only",
@@ -310,11 +312,11 @@ def build_m3(results: dict) -> str:
         import statistics
         lines += [
             "",
-            "## 두 제안 필터의 단독 기여 — 2x2",
+            "## 각 기하 필터의 단독 기여",
             "",
             "위 누적 표만으로는 flip 의 **단독** 기여를 못 뽑는다.  `R4 -> R5` 는",
             "keypoint-removal 이 이미 걸린 상태에서 flip 을 더한 값이기 때문이다.",
-            "그래서 네 칸을 각각 학습했다.  네 칸 모두 같은 confidence 전처리 위에서,",
+            "그래서 각 필터를 단독으로 학습했다.  모두 같은 confidence 전처리 위에서,",
             "같은 exposure·update·init 으로 돌았고 replicate 3 회씩이다.",
             "",
             "```text",
@@ -337,6 +339,8 @@ def build_m3(results: dict) -> str:
                 }
                 for name, value in accepted.items():
                     if label.startswith("neither") and name == "Confidence":
+                        unique = str(value)
+                    elif "Reprojection only" in label and name.endswith("Reprojection"):
                         unique = str(value)
                     elif "Keypoint-removal only" in label and "Keypoint-removal" in name:
                         unique = str(value)
