@@ -936,6 +936,63 @@ def build_appendix(results: dict) -> str:
                   "행마다 unlabeled pool 크기가 다르다 (Day 120 · Night 139 · 합 259).",
                   "그 차이가 결과를 설명할 수 있으므로 unique PL 을 같이 싣는다.", ""]
 
+    # ── §18-B geometry incremental control ──────────────────────────────
+    b_random = ["B_CONF_RANDOM_S1", "B_CONF_RANDOM_S2", "B_CONF_RANDOM_S3"]
+    b_others = [("confidence-ranking top-N", "B_CONF_TOPN"),
+                ("confidence-decile matched", "B_CONF_DECILE")]
+    proposed_keys = ["R5_PROPOSED", "R5_PROPOSED_P43", "R5_PROPOSED_P44"]
+    if all(k in results for k in b_random + proposed_keys):
+        import statistics
+        lines += [
+            "## A2c — geometry incremental control (confidence pool)",
+            "",
+            "A2 는 Naive pool 에서 뽑았다.  이건 **confidence 를 이미 통과한** pool(272)에서",
+            "Proposed 와 같은 unique 수(259)를 뽑는다.  즉 geometry 가 추가로 걷어낸 13 장의",
+            "고유 기여만 분리한다.  A2 와 다른 실험이므로 섞지 않는다.",
+            "",
+            "```text",
+            f"{'Selection from confidence pool':32} {'unique':>7} {'corner↓':>9} "
+            f"{'AUROC↑':>9} {'FPR95↓':>9}",
+            "─" * 72,
+        ]
+        def row(label, keys):
+            corner = [metric_block(results[k], "ALL")["corner_median_px"] for k in keys]
+            auroc = [metric_block(results[k], "ALL")["auroc"] for k in keys]
+            fpr = [metric_block(results[k], "ALL")["fpr95"] for k in keys]
+            suffix = f" (n={len(keys)})" if len(keys) > 1 else ""
+            lines.append(
+                f"{label + suffix:32} {'259':>7} "
+                f"{statistics.mean(corner):>9.3f} {statistics.mean(auroc):>9.4f} "
+                f"{statistics.mean(fpr):>9.4f}")
+            return corner, auroc, fpr
+        random_stats = row("random matched", b_random)
+        for label, key in b_others:
+            if key in results:
+                row(label, [key])
+        proposed_stats = row("Proposed (geometry)", proposed_keys)
+        lines += [f"{'Confidence only, all 272':32} {'272':>7} "
+                  f"{metric_block(results['R2_CONF'], 'ALL')['corner_median_px']:>9.3f} "
+                  f"{metric_block(results['R2_CONF'], 'ALL')['auroc']:>9.4f} "
+                  f"{metric_block(results['R2_CONF'], 'ALL')['fpr95']:>9.4f}"]
+        lines += ["```", "", "### 판정", "", "```text"]
+        for name, index, lower in (("corner", 0, True), ("AUROC", 1, False),
+                                   ("FPR95", 2, True)):
+            control = random_stats[index]
+            ours = proposed_stats[index]
+            separated = (max(ours) < min(control)) if lower else (min(ours) > max(control))
+            lines.append(
+                f"{name:8} random {statistics.mean(control):.4f}  "
+                f"Proposed {statistics.mean(ours):.4f}   "
+                f"{'구간 분리' if separated else '구간 겹침'}")
+        lines += ["```", "",
+                  "**confidence 를 통과한 pool 안에서는 무작위로 같은 수를 뽑아도 geometry",
+                  "선별과 구분되지 않는다.**  A2 에서 유일하게 분리됐던 AUROC 도 여기서는",
+                  "겹친다 — 그 이득은 geometry 가 아니라 confidence 단계에서 온 것이다.",
+                  "",
+                  "geometry 필터의 **추가** 기여는 이 데이터로 입증되지 않는다.  M4 가 보여준",
+                  "선별 능력(통과분 gross 0.072 대 기각분 0.299)은 실재하지만, 그것이",
+                  "downstream 성능 이득으로 전이된다는 증거는 없다.", ""]
+
     lines += ["## External keypoint baselines", "", "```text",
               "SingleShotPose   NOT_EVALUATED   repository audit 미실시",
               "PVNet            NOT_EVALUATED   repository audit 미실시",

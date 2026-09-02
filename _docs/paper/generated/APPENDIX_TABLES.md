@@ -17,8 +17,11 @@ Lighting_night     106       4.735       4.613   -0.123
 ```text
 Arm              filter              unique PL  pseudo/unique  pseudo exp  synth exp
 ────────────────────────────────────────────────────────────────────────────────────
-A8_DAY_ONLY      F4_DAY_ONLY               120           12.0       14400      14400
-A8_NIGHT_ONLY    F4_NIGHT_ONLY             139          10.36       14400      14400
+B_CONF_RANDOM_S1 B_CONF_RANDOM_S1          259           5.56       14400      14400
+B_CONF_RANDOM_S2 B_CONF_RANDOM_S2          259           5.56       14400      14400
+B_CONF_RANDOM_S3 B_CONF_RANDOM_S3          259           5.56       14400      14400
+B_CONF_TOPN      B_CONF_TOPN               259           5.56       14400      14400
+B_CONF_DECILE    B_CONF_DECILE             259           5.56       14400      14400
 ```
 
 모든 arm 이 같은 900 optimizer update 를 쓴다.
@@ -280,6 +283,38 @@ Day+Night 열위    도메인 혼합이 해롭다 (negative transfer)
 
 행마다 unlabeled pool 크기가 다르다 (Day 120 · Night 139 · 합 259).
 그 차이가 결과를 설명할 수 있으므로 unique PL 을 같이 싣는다.
+
+## A2c — geometry incremental control (confidence pool)
+
+A2 는 Naive pool 에서 뽑았다.  이건 **confidence 를 이미 통과한** pool(272)에서
+Proposed 와 같은 unique 수(259)를 뽑는다.  즉 geometry 가 추가로 걷어낸 13 장의
+고유 기여만 분리한다.  A2 와 다른 실험이므로 섞지 않는다.
+
+```text
+Selection from confidence pool    unique   corner↓    AUROC↑    FPR95↓
+────────────────────────────────────────────────────────────────────────
+random matched (n=3)                 259     4.244    0.9941    0.0345
+confidence-ranking top-N             259     4.315    0.9944    0.0342
+confidence-decile matched            259     4.201    0.9947    0.0286
+Proposed (geometry) (n=3)            259     4.169    0.9938    0.0352
+Confidence only, all 272             272     4.242    0.9923    0.0469
+```
+
+### 판정
+
+```text
+corner   random 4.2436  Proposed 4.1685   구간 겹침
+AUROC    random 0.9941  Proposed 0.9938   구간 겹침
+FPR95    random 0.0345  Proposed 0.0352   구간 겹침
+```
+
+**confidence 를 통과한 pool 안에서는 무작위로 같은 수를 뽑아도 geometry
+선별과 구분되지 않는다.**  A2 에서 유일하게 분리됐던 AUROC 도 여기서는
+겹친다 — 그 이득은 geometry 가 아니라 confidence 단계에서 온 것이다.
+
+geometry 필터의 **추가** 기여는 이 데이터로 입증되지 않는다.  M4 가 보여준
+선별 능력(통과분 gross 0.072 대 기각분 0.299)은 실재하지만, 그것이
+downstream 성능 이득으로 전이된다는 증거는 없다.
 
 ## External keypoint baselines
 

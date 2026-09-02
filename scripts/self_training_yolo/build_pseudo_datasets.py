@@ -47,6 +47,14 @@ ARM_TO_FILTER = {
     "R6_CONF_FLIP": "F5_CONF_FLIP",
     # A8 cross-domain transfer.  Proposed 필터를 한 도메인 pool 에만 적용한다.
     # 노출 슬롯(1440)은 그대로라 optimizer update 는 다른 arm 과 같다.
+    # §18-B geometry incremental control.  A2 와 다른 실험이다 — A2 는 Naive pool 에서
+    # 뽑고, 이건 confidence 를 **이미 통과한** pool 에서 뽑아 geometry 가 추가로
+    # 걷어낸 13 장의 고유 기여만 분리한다.
+    "B_CONF_RANDOM_S1": "B_CONF_RANDOM_S1",
+    "B_CONF_RANDOM_S2": "B_CONF_RANDOM_S2",
+    "B_CONF_RANDOM_S3": "B_CONF_RANDOM_S3",
+    "B_CONF_TOPN": "B_CONF_TOPN",
+    "B_CONF_DECILE": "B_CONF_DECILE",
     "A8_DAY_ONLY": "F4_DAY_ONLY",
     "A8_NIGHT_ONLY": "F4_NIGHT_ONLY",
     # A2 — UNIQUE-QUANTITY-MATCHED control.  Proposed 와 **unique PL 개수**를 맞춘

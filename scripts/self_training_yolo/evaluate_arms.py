@@ -88,6 +88,12 @@ for _seed in (43, 44):
     for _arm in ("R2_CONF", "R3_CONF_REPROJ", "R4_CONF_REMOVE", "R6_CONF_FLIP"):
         MODELS[f"{_arm}_P{_seed}"] = RUNS / f"{_arm}_P{_seed}__FULL/weights/last.pt"
 # A8 cross-domain transfer.  한 도메인 pool 로만 적응한 모델.
+# §18-B geometry incremental control.  confidence 를 이미 통과한 pool 에서 뽑는다.
+for _seed in (1, 2, 3):
+    MODELS[f"B_CONF_RANDOM_S{_seed}"] = (
+        RUNS / f"B_CONF_RANDOM_S{_seed}__FULL/weights/last.pt")
+MODELS["B_CONF_TOPN"] = RUNS / "B_CONF_TOPN__FULL/weights/last.pt"
+MODELS["B_CONF_DECILE"] = RUNS / "B_CONF_DECILE__FULL/weights/last.pt"
 MODELS["A8_DAY_ONLY"] = RUNS / "A8_DAY_ONLY__FULL/weights/last.pt"
 MODELS["A8_NIGHT_ONLY"] = RUNS / "A8_NIGHT_ONLY__FULL/weights/last.pt"
 MODELS["A12_PSEUDO25"] = RUNS / "R5_PROPOSED_W25__FULL/weights/last.pt"
