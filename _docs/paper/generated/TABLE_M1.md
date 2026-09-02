@@ -7,9 +7,9 @@ evaluator·같은 319/2689·같은 metric 정의**로 채점했다 — 별도 �
 ```text
 Method                                N_pos  N_neg  corner↓   det↑  AP50-95↑   AUROC↑   FPR95↓   R med↓    yaw↓
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-DOPE (same-data backbone control)       319   2689   10.083  0.737    0.3412   0.9903   0.0409        —       —
-YOLO26n-Pose (synthetic-only)           319   2689    4.420  0.975    0.7688   0.9921   0.0417        —       —
-Proposed                                319   2689    4.180  0.984    0.7585   0.9953   0.0283        —       —
+DOPE (same-data backbone control)       319   2689   10.875  0.737    0.3412   0.9903   0.0409        —       —
+YOLO26n-Pose (synthetic-only)           319   2689    6.501  0.975    0.7688   0.9921   0.0417        —       —
+Proposed                                319   2689    7.057  0.984    0.7585   0.9953   0.0283        —       —
 ```
 
 `R med` 와 `yaw` 는 `POSE_METRICS_STATUS = BLOCKED` 이라 비워 둔다.

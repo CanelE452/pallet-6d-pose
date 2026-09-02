@@ -137,9 +137,19 @@ def observed_depth(depth_image, x: float, y: float) -> float | None:
 
 
 def main() -> int:
+    import argparse
     import cv2
 
-    frames = list(csv.DictReader(QUEUE_IN.open(encoding="utf-8")))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--queue-in", default=str(QUEUE_IN))
+    parser.add_argument("--queue-out", default=str(QUEUE_OUT))
+    parser.add_argument("--report", default=None)
+    args = parser.parse_args()
+    queue_in = Path(args.queue_in).resolve()
+    queue_out = Path(args.queue_out).resolve()
+    report_path = Path(args.report).resolve() if args.report else REPORT
+
+    frames = list(csv.DictReader(queue_in.open(encoding="utf-8")))
     source = {
         row["frame_id"]: (row.get("source_image_path") or "")
         for row in csv.DictReader((WORKSPACE / "manifests" / "frames.csv").open())
@@ -263,8 +273,8 @@ def main() -> int:
             tally[record["final_auto_status"]] += 1
             rows.append(record)
 
-    QUEUE_OUT.parent.mkdir(parents=True, exist_ok=True)
-    with QUEUE_OUT.open("w", encoding="utf-8", newline="") as handle:
+    queue_out.parent.mkdir(parents=True, exist_ok=True)
+    with queue_out.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
@@ -277,7 +287,7 @@ def main() -> int:
     print(f"\nrequires_human             {human}  ({human / total:.1%})")
     print(f"truncation 선언 불일치      {truncation_mismatch}")
 
-    REPORT.write_text("\n".join([
+    report_path.write_text("\n".join([
         "# Daytime occlusion — automatic classification",
         "",
         "630 개 keypoint 를 전부 사람이 보게 하지 않는다.  기하로 결정되는 것은 기하로 정했다.",
@@ -324,11 +334,11 @@ def main() -> int:
         "점이라 직접 보이는 일이 없기 때문이다.  그 규약을 그대로 적용했다.",
         "",
         "```text",
-        f"queue   {QUEUE_OUT.relative_to(REPO_ROOT)}",
+        f"queue   {queue_out.relative_to(REPO_ROOT)}",
         "```",
     ]) + "\n")
-    print(f"\nwrote {QUEUE_OUT.relative_to(REPO_ROOT)}")
-    print(f"wrote {REPORT.relative_to(REPO_ROOT)}")
+    print(f"\nwrote {queue_out.relative_to(REPO_ROOT)}")
+    print(f"wrote {report_path.relative_to(REPO_ROOT)}")
     return 0
 
 

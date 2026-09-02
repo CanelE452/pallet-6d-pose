@@ -31,15 +31,20 @@ data/pallet/results/paper_eval_v1/baselines/DOPE_R0_PREDICTIONS.json
 ```text
               corner↓   det↑   AP50-95↑   AUROC↑   FPR95↓
 ──────────────────────────────────────────────────────────
-DOPE           10.083  0.737     0.3412   0.9903   0.0409
-YOLO26n R0      4.420  0.975     0.7688   0.9921   0.0417
-Proposed        4.180  0.984     0.7585   0.9953   0.0283
+DOPE           10.875  0.737     0.3412   0.9903   0.0409
+YOLO26n R0      6.501  0.975     0.7688   0.9921   0.0417
+Proposed        7.057  0.984     0.7585   0.9953   0.0283
 ```
 
 **비대칭을 숨기지 않는다.**  DOPE 에는 box head 가 없어 box 를 검출된 cuboid 코너의
 bounding box 로 유도했다.  따라서 `AP50-95` 는 같은 양이 아니고, score 도 DOPE 는
 belief peak · YOLO 는 box confidence 라 `AUROC`/`FPR95` 척도가 다르다.
 직접 비교가 성립하는 열은 **corner 와 det** 이다.
+
+corner 는 2026-09-02 의 visibility 확정 이후 값이다.  그 전에는 319 장 중 216 장만
+supervision mask 를 갖고 있어 (DOPE 10.083 / R0 4.420 / Proposed 4.180) 편향된
+모집단 위에서 계산됐다.  정정 후 **Proposed 가 R0 보다 corner 가 나쁘다** — det 와
+ranking 은 여전히 Proposed 가 낫다.
 
 추론은 reflect-padding 을 썼다 (plain squash 는 truncation·근접에서 체계적 과소검출).
 

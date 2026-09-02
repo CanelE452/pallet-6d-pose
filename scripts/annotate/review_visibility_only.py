@@ -139,7 +139,7 @@ ZOOM_TOP = 24 + 23 * 19   # 텍스트 패널 아래.  높이 계산과 배치가
 
 
 def draw(image, points, frame_row, targets, cursor, amendment, frame_index,
-         frame_total, box=ZOOM_BOX):
+         frame_total, box=ZOOM_BOX, overall=None, notice=""):
     panel_height = max(image.shape[0], ZOOM_TOP + ZOOM_VIEW + 14)
     canvas = np.zeros((panel_height, image.shape[1] + PANEL_WIDTH, 3), dtype=np.uint8)
     canvas[: image.shape[0], : image.shape[1]] = image
@@ -176,17 +176,23 @@ def draw(image, points, frame_row, targets, cursor, amendment, frame_index,
     line(0, "VISIBILITY REVIEW", (255, 255, 255), 0.55)
     line(1, f"Frame {frame_index + 1} / {frame_total}")
     line(2, frame_row["frame_id"][:30], (170, 170, 170))
-    line(3, f"candidates {done} / {len(targets)}",
+    line(3, f"this frame  {done} / {len(targets)} candidates",
          (80, 220, 80) if done == len(targets) else (60, 170, 240))
-    line(4, "READY" if done == len(targets) else "INCOMPLETE",
+    if overall is not None:
+        seen, total = overall
+        line(4, f"overall     {seen} / {total} keypoints", (200, 200, 200))
+    line(5, "FRAME READY" if done == len(targets) else "INCOMPLETE",
          (80, 220, 80) if done == len(targets) else (60, 60, 230))
-    line(6, "keypoints", (255, 255, 255), 0.5)
+    line(6, "keypoints  (* = to confirm)", (255, 255, 255), 0.5)
     for offset, index in enumerate(range(len(points))):
         state = amendment.get(str(index))
-        label = STATE_NAME[STATES[state]] if state in STATES else "-"
+        if index in targets:
+            label = STATE_NAME[STATES[state]] if state in STATES else "-"
+        else:
+            label = "auto"          # 기하로 이미 확정된 점.  편집 대상이 아니다.
         mark = ">" if index == cursor else (" " if index not in targets else "*")
         colour = (255, 255, 255) if index == cursor else (
-            (200, 200, 200) if index in targets else (110, 110, 110))
+            (200, 200, 200) if index in targets else (90, 90, 90))
         line(7 + offset, f"{mark} KP{index}  {label}", colour)
     line(17, "v visible   o occluded", (170, 170, 170))
     line(18, "t truncated u unknown", (170, 170, 170))
@@ -196,6 +202,10 @@ def draw(image, points, frame_row, targets, cursor, amendment, frame_index,
     flag = amendment.get("coordinate_review_flag")
     if flag:
         line(22, "COORDINATE REVIEW FLAGGED", (60, 200, 255))
+    if notice:
+        # 저장·이동은 눈에 보여야 한다.  안 보이면 "안 됐다" 로 읽힌다 — 실제로 그랬다.
+        cv2.putText(canvas, notice, (14, 30), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.7, (80, 255, 120), 2, cv2.LINE_AA)
 
     zoom = magnifier(image, points, cursor, targets, amendment, box)
     if (ZOOM_TOP + ZOOM_VIEW <= canvas.shape[0]
@@ -211,7 +221,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--all-keypoints", action="store_true",
                         help="자동 확정된 점까지 전부 편집 대상으로 연다")
+    parser.add_argument("--queue", default=None,
+                        help="자동 분류 큐 (기본: daytime)")
+    parser.add_argument("--amendments", default=None,
+                        help="판정을 쌓을 amendment 파일 (기본: daytime)")
     args = parser.parse_args()
+
+    global QUEUE, AMENDMENTS
+    if args.queue:
+        QUEUE = Path(args.queue).resolve()
+    if args.amendments:
+        AMENDMENTS = Path(args.amendments).resolve()
 
     rows = list(csv.DictReader(QUEUE.open(encoding="utf-8")))
     queue_by_frame: dict[str, list[dict]] = {}
@@ -239,9 +259,15 @@ def main() -> int:
     print(f"frames {len(review_frames)}   keypoints to confirm {total_targets}")
     print("모델 예측은 표시하지 않는다.  좌표는 편집할 수 없다.")
 
+    # WINDOW_NORMAL 은 기본 400x300 으로 좌상단에 뜬다.  캔버스가 970x775 라
+    # 그대로 두면 축소된 채 다른 창 뒤에 숨어 "창이 안 뜬다" 로 보인다 — 실제로 그랬다.
+    # 그래서 캔버스 크기로 맞추고 보이는 자리로 옮긴 뒤 앞으로 올린다.
     cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL)
+    window_sized = False
     frame_index = 0
     box = ZOOM_BOX
+    notice = ""
+    notice_frames = 0
     while True:
         frame_id = review_frames[frame_index]
         meta = index_rows[frame_id]
@@ -257,12 +283,34 @@ def main() -> int:
             if args.all_keypoints or row["requires_human"] == "true"
         ]
         amendment = amendments["frames"].setdefault(frame_id, {})
-        cursor = targets[0]
+        # 아직 안 정한 첫 후보에서 시작한다.  다시 열었을 때 처음부터 훑지 않게.
+        pending = [t for t in targets if str(t) not in amendment]
+        cursor = pending[0] if pending else targets[0]
+        advance = False
 
         while True:
+            confirmed = sum(
+                1 for frame in amendments["frames"].values()
+                for key_name in frame if key_name.isdigit()
+            )
             canvas = draw(image, points, meta, targets, cursor, amendment,
-                          frame_index, len(review_frames), box)
+                          frame_index, len(review_frames), box,
+                          (confirmed, total_targets), notice)
+            if not window_sized:
+                cv2.resizeWindow(WINDOW, canvas.shape[1], canvas.shape[0])
+                cv2.moveWindow(WINDOW, 120, 60)
+                try:
+                    cv2.setWindowProperty(WINDOW, cv2.WND_PROP_TOPMOST, 1)
+                except Exception:  # 백엔드가 지원 안 하면 그냥 넘어간다
+                    pass
+                window_sized = True
+                print(f"창 크기 {canvas.shape[1]}x{canvas.shape[0]} 로 열었다. "
+                      "다른 창 뒤에 있으면 앞으로 가져오라.", flush=True)
             cv2.imshow(WINDOW, canvas)
+            if notice:
+                notice_frames += 1
+                if notice_frames > 60:      # 약 1.2 초
+                    notice, notice_frames = "", 0
             key = cv2.waitKey(20) & 0xFF
             if key == 255:
                 continue
@@ -270,9 +318,19 @@ def main() -> int:
 
             if char in STATES:
                 amendment[str(cursor)] = char
-                position = targets.index(cursor) if cursor in targets else -1
-                if 0 <= position < len(targets) - 1:
-                    cursor = targets[position + 1]
+                remaining = [t for t in targets if str(t) not in amendment]
+                if remaining:
+                    cursor = remaining[0]
+                else:
+                    # 이 프레임 끝.  저장하고 다음 프레임으로 자동 이동한다.
+                    # 수동으로 ] 를 눌러야 했더니 "안 넘어간다" 로 보였다.
+                    save_amendments(amendments)
+                    if frame_index + 1 < len(review_frames):
+                        frame_index += 1
+                        notice = "SAVED - next frame"
+                        advance = True
+                        break
+                    notice = "SAVED - last frame"
             elif char == "n":
                 position = targets.index(cursor) if cursor in targets else -1
                 cursor = targets[(position + 1) % len(targets)]
@@ -288,12 +346,17 @@ def main() -> int:
                     "coordinate_review_flag", False)
             elif char == "s":
                 save_amendments(amendments)
-                print(f"saved -> {AMENDMENTS.relative_to(REPO_ROOT)}")
+                notice = "SAVED"
+                print(f"saved -> {AMENDMENTS.relative_to(REPO_ROOT)}", flush=True)
             elif char == "]":
+                save_amendments(amendments)
                 frame_index = (frame_index + 1) % len(review_frames)
+                notice = ""
                 break
             elif char == "[":
+                save_amendments(amendments)
                 frame_index = (frame_index - 1) % len(review_frames)
+                notice = ""
                 break
             elif char == "q":
                 save_amendments(amendments)

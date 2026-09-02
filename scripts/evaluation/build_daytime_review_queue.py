@@ -71,12 +71,39 @@ def classify(annotation: dict) -> tuple[str, list[dict]]:
 
 
 def main() -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--scope", choices=("daytime_plastic", "all_unsupervised"),
+        default="daytime_plastic",
+        help="all_unsupervised = strict supervision 이 하나도 없는 positive 전부")
+    parser.add_argument("--queue-name", default=None)
+    parser.add_argument("--audit", default=None, help="감사 리포트 경로")
+    parser.add_argument("--lock", default=None, help="사전 lock 경로")
+    args = parser.parse_args()
+    audit_path = Path(args.audit).resolve() if args.audit else AUDIT
+    lock_path = Path(args.lock).resolve() if args.lock else LOCK
+
     frames = load_frames(WORKSPACE)
     positive = evaluation_population_views(frames)["PAPER_EVAL_POSITIVE"]
-    daytime = [
-        row for row in positive
-        if row.get("paper_domain") == "daytime" and row["object_type"] == "plastic"
-    ]
+    if args.scope == "daytime_plastic":
+        daytime = [
+            row for row in positive
+            if row.get("paper_domain") == "daytime" and row["object_type"] == "plastic"
+        ]
+    else:
+        # `paper_domain` 은 신규 세션에 안 붙어 있어 daytime 필터가 6 세션 103 장을
+        # 통째로 놓쳤다.  감독 공백은 domain 과 무관하므로 domain 으로 고르지 않는다.
+        daytime = []
+        for row in positive:
+            path = WORKSPACE / row["annotation_path"]
+            if not path.exists():
+                continue
+            points = (json.loads(path.read_text())["objects"][0]
+                      .get("keypoint_annotations") or [])
+            if not any(point.get("visibility") in (1, 2) for point in points):
+                daytime.append(row)
     if not daytime:
         raise SystemExit("NO_DAYTIME_FRAMES")
 
@@ -121,7 +148,7 @@ def main() -> int:
         })
 
     fields = list(rows[0])
-    queue = REVIEW_DIR / "DAYTIME_VISIBILITY_REVIEW_QUEUE.csv"
+    queue = REVIEW_DIR / (args.queue_name or "DAYTIME_VISIBILITY_REVIEW_QUEUE.csv")
     with queue.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
@@ -136,7 +163,7 @@ def main() -> int:
 
     # ── 감사 리포트 ────────────────────────────────────────────────────
     sessions = collections.Counter(r["session_id"] for r in rows)
-    AUDIT.write_text("\n".join([
+    audit_path.write_text("\n".join([
         "# Daytime visibility audit",
         "",
         f"생성 {datetime.date.today().isoformat()}.  "
@@ -240,10 +267,10 @@ def main() -> int:
             "the pre-review state is fully recoverable from annotation_sha256"
         ),
     }
-    LOCK.write_text(json.dumps(lock, indent=2, ensure_ascii=False) + "\n")
+    lock_path.write_text(json.dumps(lock, indent=2, ensure_ascii=False) + "\n")
     print(f"\nwrote {queue.relative_to(REPO_ROOT)}")
-    print(f"wrote {AUDIT.relative_to(REPO_ROOT)}")
-    print(f"wrote {LOCK.relative_to(REPO_ROOT)}")
+    print(f"wrote {audit_path.relative_to(REPO_ROOT)}")
+    print(f"wrote {lock_path.relative_to(REPO_ROOT)}")
     return 0
 
 

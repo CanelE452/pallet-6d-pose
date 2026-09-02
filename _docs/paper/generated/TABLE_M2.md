@@ -4,9 +4,9 @@ Daytime N=70, Nighttime N=50 (plastic only — morphology 를 lighting 효과와
 
 ## primary — detection and ranking
 
-MAIN Daytime 의 70 프레임은 전부 legacy 세션이고 keypoint visibility 가
-unknown 이라 **supervision mask 가 비어 있다**. strict keypoint 오차를
-그 조건에서 낼 수 없으므로, 두 조건 모두에서 계산 가능한 detection 과
+2026-09-02 의 visibility 확정 전에는 MAIN Daytime 70 장의 supervision mask 가
+비어 strict keypoint 오차를 낼 수 없었다. 지금은 319 장 전부 strict 를 내지만,
+arm 을 가르는 축은 여전히 detection 과 ranking 이다. 그래서 detection 과
 ranking 을 primary 로 둔다.
 
 ```text
@@ -26,21 +26,21 @@ AUROC / FPR95 는 전체 population 대 negative 2,689 로 계산한 frame-level
 ## secondary — keypoint localisation
 
 `strict` 는 evaluator 의 supervision mask 를 쓴 값이고, `diagnostic` 은
-visibility 가 unknown 인 legacy 점까지 포함한다. **diagnostic 은
+visibility 와 무관하게 좌표가 있는 점을 전부 센다. **diagnostic 은
 visible/occluded 주장이 아니다** — 두 열은 서로 다른 모집단이라 직접 비교하지 않는다.
 
 ```text
 Method                              Day strict↓  Night strict↓  Day diag↓  Night diag↓  ALL strict↓
 ──────────────────────────────────────────────────────────────────────────────────────────────────
-Synthetic-only                                —          5.478     10.928        7.686        4.420
-Source-only continuation                      —          5.525     10.588        7.964        4.352
-Naive self-training                           —          5.715     12.023        8.440        4.335
-Confidence-based self-training                —          5.341     12.447        9.601        4.242
-Reprojection-based self-training              —          5.403     11.541        8.687        4.274
-Proposed                                      —          5.271     11.592       10.072        4.180
+Synthetic-only                           10.556          7.045     10.928        7.686        6.501
+Source-only continuation                 10.555          7.562     10.588        7.964        6.763
+Naive self-training                      11.852          7.680     12.023        8.440        7.027
+Confidence-based self-training           12.380          8.554     12.447        9.601        6.899
+Reprojection-based self-training         11.461          7.757     11.541        8.687        6.890
+Proposed                                 11.576          8.897     11.592       10.072        7.057
 ```
 
-Daytime strict keypoint 수 = 0 (UNAVAILABLE_METADATA).
+Daytime strict keypoint 수 = 351 (사용 가능).
 
 POSE_METRIC_BLOCKED: primary 로 쓸 6D pose metric 이 아직 없다.
 

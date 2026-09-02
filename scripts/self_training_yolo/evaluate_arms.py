@@ -243,9 +243,10 @@ def subgroup_table(per_frame: Path, metadata: dict[str, dict]) -> dict:
                 )
                 for t in PROJ_PX
             },
-            # legacy 프레임만으로 이루어진 subgroup(예: MAIN Daytime)은 supervision
-            # mask 가 비어 있어 위 값이 전부 None 이 된다.  아래는 그때도 값을 주는
-            # 진단이며 visible/occluded 주장이 아니다 — 표에서 구분해 적는다.
+            # 2026-09-02 이전에는 legacy 프레임의 visibility 가 전부 unknown 이라
+            # supervision mask 가 비고 위 값이 None 이 됐다.  visibility 확정 이후
+            # 319 장 전부 strict 를 낸다.  아래 all-annotated 는 visibility 를 무시한
+            # 진단값으로 남긴다 — visible/occluded 주장이 아니다.
             "n_keypoints_annotated": len(annotated),
             "corner_median_px_all_annotated": (
                 float(np.median(annotated)) if annotated else None
@@ -332,12 +333,11 @@ def main() -> int:
         print(f"{name:16} {show(value['box_ap50_95'], '.4f'):>8} "
               f"{show(allg.get('corner_median_px')):>8} "
               f"{show(allg.get('detection_rate_iou50')):>6} "
-              f"{show(day.get('corner_median_px_all_annotated')):>8} "
-              f"{show(night.get('corner_median_px_all_annotated')):>8} "
+              f"{show(day.get('corner_median_px')):>8} "
+              f"{show(night.get('corner_median_px')):>8} "
               f"{show(allg.get('auroc'), '.4f'):>7} "
               f"{show(allg.get('fpr95'), '.4f'):>7}")
-    print("* Day/Night 는 all-annotated 진단값이다 — MAIN Daytime 은 supervision "
-          "mask 가 비어 strict metric 을 낼 수 없다.")
+    print("* Day/Night 는 MAIN paper_domain (plastic 70 / 50) strict 값이다.")
     return 0
 
 

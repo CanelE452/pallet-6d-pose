@@ -11,15 +11,15 @@ R0 와 Proposed 는 같은 프레임을 본다.  그래서 프레임마다 짝�
 ```text
 comparison                         metric                   n         Δ           95% CI frame           95% CI session
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Synthetic-only -> Proposed         pooled_corner_median   144   -0.1964 [ -0.4032,  0.0020] [   -0.3790,   -0.0646]
-Synthetic-only -> Proposed         corner                 308    2.2087 [ -0.1595,  4.7942] [   -0.6752,    5.9884]
-Synthetic-only -> Proposed         detection              319    0.0094 [ -0.0094,  0.0282] [   -0.0138,    0.0492]
-Confidence -> Proposed             pooled_corner_median   144   -0.0584 [ -0.2095,  0.1124] [   -0.2288,    0.0303]
-Confidence -> Proposed             corner                 313   -3.0440 [ -7.2758,  0.2184] [   -6.9874,    0.0060]
-Confidence -> Proposed             detection              319   -0.0031 [ -0.0157,  0.0063] [   -0.0143,    0.0071]
-Reprojection -> Proposed           pooled_corner_median   144   -0.0691 [ -0.2775,  0.0918] [   -0.3529,   -0.0092]
-Reprojection -> Proposed           corner                 313   -0.9082 [ -4.6316,  2.1701] [   -4.7768,    2.8849]
-Reprojection -> Proposed           detection              319   -0.0031 [ -0.0157,  0.0063] [   -0.0134,    0.0073]
+Synthetic-only -> Proposed         pooled_corner_median   308    0.4355 [  0.1117,  0.7694] [   -0.1694,    1.3080]
+Synthetic-only -> Proposed         corner                 308    2.3938 [  0.0191,  5.0499] [   -0.4774,    6.3682]
+Synthetic-only -> Proposed         detection              319    0.0094 [ -0.0094,  0.0282] [   -0.0141,    0.0488]
+Confidence -> Proposed             pooled_corner_median   313    0.1418 [ -0.1183,  0.4039] [   -0.1209,    0.3932]
+Confidence -> Proposed             corner                 313   -3.2687 [ -7.7999,  0.2179] [   -7.4175,    0.0548]
+Confidence -> Proposed             detection              319   -0.0031 [ -0.0157,  0.0063] [   -0.0140,    0.0071]
+Reprojection -> Proposed           pooled_corner_median   313    0.1375 [ -0.1693,  0.4020] [   -0.2367,    0.6357]
+Reprojection -> Proposed           corner                 313   -0.7428 [ -4.3344,  2.3229] [   -4.5360,    3.1779]
+Reprojection -> Proposed           detection              319   -0.0031 [ -0.0125,  0.0063] [   -0.0136,    0.0074]
 ```
 
 `pooled_corner_median` 이 primary 다 — evaluator 의 헤드라인 정의(감독

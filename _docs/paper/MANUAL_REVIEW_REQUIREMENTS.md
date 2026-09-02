@@ -128,8 +128,10 @@ ALL pose 는 열리지 않으므로 우선순위가 낮다.
 
 ## 4. Annotation reliability — RECOMMENDED
 
-noise floor 를 모르면 "corner 4.420 -> 4.180" 이 의미 있는 차이인지 말할 수 없다.
-현재 Proposed 대 baseline 의 corner 차이가 0.24 px 수준이라 더욱 그렇다.
+noise floor 를 모르면 R0 대 Proposed 의 corner 차이가 의미 있는지 말할 수 없다.
+visibility 확정 후 값은 **6.501 -> 7.057 (악화)** 이고 paired bootstrap 은 CI 가
+0 을 배제한다.  방향은 정해졌지만 크기가 어노테이션 노이즈 대비 얼마인지는 여전히
+모른다.
 
 primary GT 를 덮어쓰지 않고 별도 blind 사본으로 받는다.
 
