@@ -10,7 +10,7 @@
 
 - Box AP50:95: `0.770010`
 - Box AP50: `0.9569605923744595`
-- 2D keypoint diagnostic: median `4.315182576805722` px; p90 `28.618275272886567` px; supervised N `1314`.
+- 2D keypoint diagnostic: median `7.1054524151960035` px; p90 `41.69777962721475` px; supervised N `2818`.
 - DAY/NIGHT positive N: `168/106`
 - session-cluster bootstrap 95% CI: `UNAVAILABLE` because DEV_NEG2689 lacks capture_session_id metadata.
 
