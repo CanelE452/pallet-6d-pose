@@ -1,0 +1,113 @@
+{
+  "schema_version": "reliability_score_lock_v1",
+  "track": "V5_EXPLORATORY_RELIABILITY",
+  "purpose": "Freeze the GT-free reliability score and its exposure allocation before any evaluation.",
+  "gt_used_anywhere_in_score": false,
+  "development_population": "PAPER_EVAL_319",
+  "population_status": "already consumed by V1-V4 and FILTER_SEPARABILITY; this track can only reach DEV_PASS_REQUIRES_UNTOUCHED_CONFIRMATION",
+  "formula": {
+    "rank_normalisation": "u = (r - 0.5) / N with average ranks for ties, computed inside each lighting condition; good-high signals use u, good-low use 1 - u",
+    "missing_values": "pushed to the worst end; never treated as good",
+    "corner": "R_corner_i = geometric_mean(q_kp_i, q_remove_i, q_flip_i); a corner with fewer than two usable signals is dropped from the frame aggregate",
+    "keypoint_block": "R_kp_frame = geometric_mean over usable corners 0..7 (centroid excluded)",
+    "frame_block": "R_frame_geom = geometric_mean(q_box_conf, q_s_reproj, q_s_remove, q_s_flip)",
+    "total": "R_total = sqrt(R_frame_geom * R_kp_frame)",
+    "weighting": "all signals equal; the 0.5/0.5 block split is a structural definition, not a value optimised on PAPER_EVAL",
+    "naming": "pseudo-label reliability score; never called a probability"
+  },
+  "condition_specific_ecdf": true,
+  "centroid_excluded_from_frame_reliability": true,
+  "exposure_rule": {
+    "minimum_per_frame": 1,
+    "remaining": "allocated proportional to R_total by deterministic largest-remainder; ties broken by index",
+    "slots_preserved": "per-condition pseudo slot counts copied from V3-B exactly",
+    "no_random_search": true
+  },
+  "pseudo_label_source": "V3B_TRUE_IGNORE_AMBIG",
+  "pseudo_label_set_sha256": "c9f303e5b0903b4f9dc98b1905da94fb5b383cd0e129c3199bca207eb5f43a77",
+  "n_pseudo_labels": 273,
+  "synthetic_replay_membership_sha256": "cf96eb6c10364f637200468555c2086de145cf00b113b3fe40bb513bc5bdc63b",
+  "teacher_cache_sha256": "2b985344ef43553c43935722e10b609179a06b2c72fce15c8a249f7b2ca93001",
+  "score_module_sha256": "3ffe0327e94dcb879be0ecbeda4e4a35373defb2960380514a1493960108fa24",
+  "builder_sha256": "d08419c89f25cdf21d4551f9cf02ad4a54da91971d479bfeb560040f6a4b2e61",
+  "exposure": {
+    "entries_per_epoch": 2880,
+    "pseudo_slots": 720,
+    "synthetic_slots": 2160,
+    "by_condition": {
+      "daytime": {
+        "unique_frames": 123,
+        "v3_slots": 327,
+        "v5_slots": 327,
+        "v3_exposure_range": [
+          2,
+          3
+        ],
+        "v5_exposure_range": [
+          1,
+          4
+        ]
+      },
+      "nighttime": {
+        "unique_frames": 150,
+        "v3_slots": 393,
+        "v5_slots": 393,
+        "v3_exposure_range": [
+          2,
+          3
+        ],
+        "v5_exposure_range": [
+          1,
+          4
+        ]
+      }
+    },
+    "exposure_histogram": {
+      "1": 14,
+      "2": 96,
+      "3": 138,
+      "4": 25
+    }
+  },
+  "training_recipe": {
+    "init": "R0",
+    "teacher": "R0 static",
+    "pseudo_fraction": 0.25,
+    "synthetic_fraction": 0.75,
+    "total_optimizer_updates": 900,
+    "batch_size": 32,
+    "learning_rate": 0.002,
+    "epochs": 10,
+    "seed": 42,
+    "balanced_replay": false,
+    "loss": "V3 true-ignore, unchanged",
+    "architecture_changed": false,
+    "checkpoint": "fixed last.pt; PAPER_EVAL never used to select an epoch"
+  },
+  "only_difference_from_v3b": "pseudo frame repetition count",
+  "mechanism_gate": {
+    "M1": "AUC(R_total) > 0.5",
+    "M2": "reliability-weighted expected corner gross < uniform V3-B",
+    "M3": "reliability-weighted expected frame gross < uniform V3-B",
+    "on_failure": "V5_RELIABILITY_MECHANISM_FAIL; stop without training; do not change the score"
+  },
+  "dev_gate": {
+    "G1": "V5 Night detection >= V3-B Night detection",
+    "G2": "V5 Day detection >= R0 - 0.02",
+    "G3": "V5 paired NME < R0",
+    "G4": "V5 Night paired NME <= R0",
+    "G5": "V5 paired NME < V3-B",
+    "G6": "V5 Night NME < V3-B",
+    "G7": "V5 axis all <= R0",
+    "G8": "V5 q>=0.75 axis <= R0",
+    "G9": "G1/G2 alone cannot rescue a G3/G4 failure"
+  },
+  "forbidden_after_this_lock": [
+    "changing the formula",
+    "changing a rank direction",
+    "changing block weights",
+    "sweeping thresholds, cutoffs or retention",
+    "fitting any weight on PAPER_EVAL"
+  ],
+  "frozen_before_results": true
+}
