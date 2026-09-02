@@ -1,0 +1,95 @@
+{
+  "schema_version": "v2_keypoint_mask_contract_v1",
+  "ultralytics_version": "8.4.60",
+  "torch_version": "2.1.1+cu118",
+  "checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+  "kpt_shape": [
+    9,
+    3
+  ],
+  "item_names": [
+    "box",
+    "kpt_location",
+    "kpt_visibility",
+    "cls",
+    "dfl",
+    "rle"
+  ],
+  "runs": {
+    "all_visible": {
+      "total_loss": 31.184288024902344,
+      "items": {
+        "box": 1.8552401065826416,
+        "kpt_location": 4.585833549499512,
+        "kpt_visibility": 0.0027588228695094585,
+        "cls": 1.9298043251037598,
+        "dfl": 0.10906907916069031,
+        "rle": 18.895978927612305
+      },
+      "box_branch_grad": 3412.7059557645407,
+      "keypoint_branch_grad": 5387.0287727713585
+    },
+    "half_visible": {
+      "total_loss": 31.820335388183594,
+      "items": {
+        "box": 1.8552401065826416,
+        "kpt_location": 3.34492826461792,
+        "kpt_visibility": 4.1530303955078125,
+        "cls": 1.9298043251037598,
+        "dfl": 0.10906907916069031,
+        "rle": 18.41728973388672
+      },
+      "box_branch_grad": 3412.7059557645407,
+      "keypoint_branch_grad": 10449.79407119751
+    },
+    "all_masked": {
+      "total_loss": 11.79377555847168,
+      "items": {
+        "box": 1.8552401065826416,
+        "kpt_location": 0.0,
+        "kpt_visibility": 6.9620232582092285,
+        "cls": 1.9298043251037598,
+        "dfl": 0.10906907916069031,
+        "rle": 0.0
+      },
+      "box_branch_grad": 3412.7059557645407,
+      "keypoint_branch_grad": 4037.240480929613
+    },
+    "half_visible_shift_masked_point": {
+      "total_loss": 31.820335388183594,
+      "items": {
+        "box": 1.8552401065826416,
+        "kpt_location": 3.34492826461792,
+        "kpt_visibility": 4.1530303955078125,
+        "cls": 1.9298043251037598,
+        "dfl": 0.10906907916069031,
+        "rle": 18.41728973388672
+      },
+      "box_branch_grad": 3412.7059557645407,
+      "keypoint_branch_grad": 10449.79407119751
+    },
+    "half_visible_shift_visible_point": {
+      "total_loss": 34.80665588378906,
+      "items": {
+        "box": 1.8552401065826416,
+        "kpt_location": 4.520983695983887,
+        "kpt_visibility": 4.1530303955078125,
+        "cls": 1.9298043251037598,
+        "dfl": 0.10906907916069031,
+        "rle": 18.87679672241211
+      },
+      "box_branch_grad": 3412.7059557645407,
+      "keypoint_branch_grad": 8155.523460328579
+    }
+  },
+  "findings": {
+    "box_supervision_survives_full_mask": true,
+    "box_gradient_ratio_masked_over_visible": 1.0,
+    "pose_terms_zero_when_fully_masked": true,
+    "masked_point_coordinates_are_ignored": true,
+    "visible_point_coordinates_matter": true,
+    "masking_still_supervises_keypoint_objectness": true,
+    "keypoint_gradient_ratio_masked_over_visible": 0.7494373338668198
+  },
+  "interpretation": "kpt_shape[-1] == 3 이므로 masked keypoint 는 pose/RLE 항에서 빠지지만 bce_pose(pred_kpt[..., 2], kpt_mask) 를 통해 '보이지 않음' 을 적극 학습한다.  V2 의 per-keypoint mask 는 순수한 ignore 가 아니라 '이 코너는 신뢰할 수 없다' 는 negative visibility supervision 을 겸한다.  배포가 kp_conf >= 0.5 를 쓰므로 DEV 에서 kp_conf 분포를 반드시 감시한다."
+}

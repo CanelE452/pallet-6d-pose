@@ -1,0 +1,106 @@
+{
+  "schema_version": "selftrain_v2_method_lock_v1",
+  "purpose": "Freeze the V2 supervision contract before any V2 arm is trained. V1 is preserved untouched as the failure/diagnosis baseline.",
+
+  "method_version": "V2",
+  "dev_informed": true,
+  "development_population": "PAPER_EVAL_319",
+  "final_confirmation_opened": false,
+
+  "teacher": "same R0",
+  "teacher_refresh": false,
+  "teacher_checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+  "teacher_sha256": "970a0913b38ed4c9",
+  "teacher_sha256_note": "prefix only; full value in data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+  "pool_manifest": "data/evaluation/pallet_eval_v1/adaptation/MAIN_UNLABELED_BALANCED.csv",
+
+  "box_conf_threshold": 0.85,
+  "kp_conf_threshold": 0.5,
+  "remove_threshold": 0.05,
+  "flip_threshold": 0.05,
+
+  "pseudo_fraction": 0.25,
+  "ambiguity_threshold": 0.75,
+
+  "total_optimizer_updates": 900,
+  "batch_size": 32,
+  "learning_rate": 0.002,
+  "epochs": 10,
+  "updates_per_epoch": 90,
+  "entries_per_epoch": 2880,
+  "pseudo_slots_per_epoch": 720,
+  "synthetic_slots_per_epoch": 2160,
+
+  "final_selection_after_confirmation": false,
+
+  "provenance": {
+    "reused_from_v1_preregistered": [
+      "box_conf_threshold 0.85",
+      "kp_conf_threshold 0.5",
+      "remove_threshold 0.05",
+      "flip_threshold 0.05",
+      "total_optimizer_updates 900",
+      "batch_size 32",
+      "learning_rate 0.002",
+      "static teacher, single round"
+    ],
+    "v2_development_choices": {
+      "pseudo_fraction": {
+        "value": 0.25,
+        "honest_status": "DEV-INFORMED, NOT PREREGISTERED",
+        "evidence": "V1 A12 sensitivity on PAPER_EVAL_319: ALL corner median 6.967 px at 0.25 vs 7.210 px at 0.50 vs 7.312 px at 0.75, with detection identical at 0.984 in all three. R0 baseline 6.616 px.",
+        "note": "This is a choice made after seeing development results. It must not be described as a preregistered V1 value."
+      },
+      "ambiguity_threshold": {
+        "value": 0.75,
+        "honest_status": "DEV-INFORMED, NOT PREREGISTERED",
+        "evidence": "CORNER_REGRESSION_CAUSES.md and generated/AXIS_FAILURES.md: projected squareness q median 0.870 on AXIS_PERMUTED frames vs 0.500 on OK frames; the three newly broken frames sit at 0.797 / 0.955 / 0.964.",
+        "note": "Derived from development diagnosis on PAPER_EVAL_319."
+      }
+    }
+  },
+
+  "supervision_contract": {
+    "box": "top-1 detection exists AND box_conf >= 0.85. Keypoint count does not gate box supervision.",
+    "keypoint_corner": "KEEP_i requires kp_conf_i >= 0.5 AND r_remove_i <= 0.05 AND r_flip_i <= 0.05. KEEP -> visibility 2, otherwise visibility 0 (pose loss ignores it).",
+    "keypoint_centroid": "index 8 is not a removal-PnP corner. KEEP requires kp_conf_8 >= 0.5 AND r_flip_8 <= 0.05 only.",
+    "ambiguous_frame": "q >= 0.75 -> semantic corners 0..7 are all set to visibility 0. Box and centroid supervision are kept. The frame is NOT removed.",
+    "frame_removal": "A frame is never dropped for keypoint reasons. Only a missing or low-confidence box removes it."
+  },
+
+  "ambiguity_score": {
+    "definition": "q = min(projected_width, projected_depth) / max(projected_width, projected_depth) where projected_width = ||kp1 - kp0|| and projected_depth = ||kp4 - kp0|| from the teacher prediction",
+    "gt_free": true,
+    "invariant_under_90deg_permutation": true,
+    "invariance_note": "min/max makes q unchanged when a yaw90 permutation swaps the two edges; enforced by unit test"
+  },
+
+  "synthetic_replay_bins": {
+    "B0": "q < 0.50",
+    "B1": "0.50 <= q < 0.75",
+    "B2": "q >= 0.75",
+    "policy_v2_d": "equal exposure across B0/B1/B2 (720 each of 2160 synthetic slots)",
+    "policy_v2_abc": "original synthetic replay, unchanged",
+    "shortfall": "sampling with replacement",
+    "total_synthetic_exposure_unchanged": true
+  },
+
+  "architecture": {
+    "changed": false,
+    "note": "YOLO26n-Pose unchanged. No new head, backbone or inference branch. V2 changes training data and the supervision contract only. Inference path is identical to deployment."
+  },
+
+  "known_constraint_keypoint_objectness": {
+    "receipt": "data/pallet/results/paper_selftrain_v2/KEYPOINT_MASK_CONTRACT.json",
+    "measured_on": "ultralytics 8.4.60",
+    "box_gradient_ratio_masked_over_visible": 1.0,
+    "pose_terms_zero_when_fully_masked": true,
+    "masked_point_coordinates_are_ignored": true,
+    "masking_still_supervises_keypoint_objectness": true,
+    "implication": "visibility=0 is not a pure ignore. Because kpt_shape[-1] == 3, bce_pose(pred_kpt[..., 2], kpt_mask) actively teaches 'not visible' at masked points. Deployment thresholds kp_conf >= 0.5, so the kp_conf distribution is a monitored DEV diagnostic. The kobj gain is NOT changed.",
+    "kobj_gain_changed": false
+  },
+
+  "frozen_before_results": true,
+  "no_threshold_change_after_results": "Once this file is committed, V2 thresholds are not changed on the basis of V2 results. A development failure is recorded as V2_METHOD_STATUS = FAILED, not repaired by sweeping."
+}
