@@ -11,7 +11,7 @@
 ```text
 Task                          Frames   Human action           Blocks what              판정
 ──────────────────────────────────────────────────────────────────────────────────────────────
-Daytime visibility               70    visibility 라벨만       M2 strict keypoint      REQUIRED
+Daytime visibility               70    119 kp 확인만           M2 strict keypoint      REQUIRED
 Pose signed-axis                146    axis 확인               6D pose metrics         NOT_NEEDED_NOW
 Wood symmetry                     —    geometry convention     Wood 6D pose            OPTIONAL
 Annotation reliability           TBD   blind reannotation      noise-floor claim       RECOMMENDED
@@ -35,6 +35,34 @@ visibility unknown          630
 
 `A = xy 는 있고 visibility 만 unknown`.  **좌표를 다시 찍을 일이 전혀 없다.**
 B(좌표 없음)·C(schema)·D(파일 없음)는 0 건이다 — 추측이 아니라 세었다.
+
+### 자동 분류로 630 → 119 로 줄였다 (2026-09-02)
+
+630 개를 전부 사람이 보게 하지 않는다.  기하로 결정되는 것은 기하로 정했다.
+
+```text
+AUTO_TRUNCATED                  21   in_frame == False.  GT v2 기존 규칙
+                                     기존 outside_keypoints 선언과 불일치 0
+AUTO_SELF_OCCLUDED              95   back-face culling, signed-axis 두 후보 일치
+AUTO_CENTROID_OCCLUDED          70   repo 규약 (신규 어노 146 장 전부 visibility=1)
+SELF_VISIBLE_CANDIDATE         325   두 후보 모두 visible + depth 이상 없음
+────────────────────────────────────────────────────────────────────────
+자동 확정                      511
+EXTERNAL_OCCLUSION_CANDIDATE   119   ← 사람이 볼 것 (18.9%)
+```
+
+`SELF_VISIBILITY_DISAGREES` 는 0 이다 — signed-axis 미해결이 self-visibility 판정을
+흔들지 않았다.  camera-facing permutation 이 두 후보를 같은 인덱스로 맞춰 주기 때문이다.
+
+depth 신호는 사람이 매긴 프레임 태그와 잘 맞는다.  ext 후보가 있는 64 프레임 중
+62 개가 `occlusion=medium` 이다 (Daytime 70 중 medium 65).  임계값이 헛돌지 않는다는
+교차 검증이다.  그래도 자동 확정하지 않는다 — depth 노이즈와 실제 가림을 센서만으로
+가르지 않는다.
+
+```text
+queue   data/evaluation/pallet_eval_v1/review/DAYTIME_OCCLUSION_REVIEW_QUEUE.csv
+report  _docs/paper/DAYTIME_OCCLUSION_AUTO_CLASSIFICATION.md
+```
 
 이게 막고 있는 것: M2 의 Daytime strict keypoint 열.  현재는 all-annotated 진단으로
 대신 채워져 있고, Nighttime 과 같은 정의로 비교할 수 없다.
@@ -131,7 +159,7 @@ NEW_IMAGE_COLLECTION_REQUIRED = false
 ## 순서
 
 ```text
-1. Daytime visibility review        사람 1회, 70 프레임 / 609 keypoint
+1. Daytime visibility review        사람 1회, 119 keypoint (630 중 511 은 자동 확정)
 2. (자동) selector 알고리즘          pose 를 여는 유일한 길
 3. wood symmetry convention          2 가 풀린 뒤에 의미
 4. annotation reliability            언제든 병행 가능
