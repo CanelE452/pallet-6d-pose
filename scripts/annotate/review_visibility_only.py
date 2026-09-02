@@ -33,6 +33,7 @@ GT 반영은 `apply_visibility_amendments.py` 가 따로 하고, 거기서 허�
 
     v  visible      o  occluded     t  truncated    u  unknown(보류)
     n  다음 후보     p  이전 후보     [ ]  프레임 이동
+    -  =  확대 축소 / 확대
     c  coordinate_review_flag 토글 (좌표가 의심스러울 때 — 고치지 않고 표시만)
     s  저장          q  저장 후 종료
 """
@@ -59,6 +60,15 @@ STATE_NAME = {2: "visible", 1: "occluded", 0: "truncated", None: "unknown"}
 STATE_COLOUR = {2: (80, 220, 80), 1: (60, 160, 240), 0: (150, 150, 150),
                 None: (60, 60, 230)}
 PANEL_WIDTH = 330
+# 팔레트가 화면에서 작게 잡히는 프레임이 많다.  확대 없이는 "저 코너가 고깔 뒤인가"
+# 를 사람이 판단할 수 없다 — 실제 프레임을 렌더해 보고 넣었다.
+ZOOM_BOX = 140      # 원본에서 잘라낼 정사각 크기(px).  - / = 로 조절한다.
+ZOOM_BOX_MIN, ZOOM_BOX_MAX = 50, 320
+ZOOM_VIEW = 300     # 확대 패널 한 변(px)
+# cuboid 구조를 알아야 어느 면인지 판단할 수 있다.  camera-facing 0123 규약.
+CUBOID_EDGES = ((0, 1), (1, 2), (2, 3), (3, 0),
+                (4, 5), (5, 6), (6, 7), (7, 4),
+                (0, 4), (1, 5), (2, 6), (3, 7))
 
 
 def load_amendments() -> dict:
@@ -75,10 +85,72 @@ def save_amendments(data: dict) -> None:
     AMENDMENTS.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
-def draw(image, points, frame_row, targets, cursor, amendment, frame_index, frame_total):
-    canvas = np.zeros((max(image.shape[0], 420), image.shape[1] + PANEL_WIDTH, 3),
-                      dtype=np.uint8)
+def magnifier(image, points, cursor, targets, amendment, box=ZOOM_BOX):
+    """cursor keypoint 주변을 확대한다.  이게 없으면 가림 판단 자체가 불가능하다."""
+
+    view = np.zeros((ZOOM_VIEW, ZOOM_VIEW, 3), dtype=np.uint8)
+    centre = points[cursor].get("xy")
+    if centre is None:
+        return view
+    height, width = image.shape[:2]
+    half = box // 2
+    x = int(round(centre[0]))
+    y = int(round(centre[1]))
+    x0, y0 = max(0, x - half), max(0, y - half)
+    x1, y1 = min(width, x + half), min(height, y + half)
+    crop = image[y0:y1, x0:x1]
+    if crop.size == 0:
+        return view
+    scale = ZOOM_VIEW / max(crop.shape[0], crop.shape[1])
+    resized = cv2.resize(crop, None, fx=scale, fy=scale,
+                         interpolation=cv2.INTER_NEAREST)
+    view[: resized.shape[0], : resized.shape[1]] = resized
+
+    def to_view(px, py):
+        return int(round((px - x0) * scale)), int(round((py - y0) * scale))
+
+    for a, b in CUBOID_EDGES:
+        pa, pb = points[a].get("xy"), points[b].get("xy")
+        if pa is None or pb is None:
+            continue
+        cv2.line(view, to_view(*pa), to_view(*pb), (70, 70, 70), 1, cv2.LINE_AA)
+    for index, point in enumerate(points):
+        if point.get("xy") is None:
+            continue
+        vx, vy = to_view(*point["xy"])
+        if not (0 <= vx < ZOOM_VIEW and 0 <= vy < ZOOM_VIEW):
+            continue
+        state = amendment.get(str(index))
+        colour = STATE_COLOUR[STATES[state]] if state in STATES else (110, 110, 110)
+        if index == cursor:
+            cv2.drawMarker(view, (vx, vy), (255, 255, 255), cv2.MARKER_CROSS, 26, 2)
+            cv2.circle(view, (vx, vy), 13, (255, 255, 255), 1)
+        else:
+            cv2.circle(view, (vx, vy), 5, colour, 1)
+        cv2.putText(view, str(index), (vx + 9, vy - 9),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, colour, 1, cv2.LINE_AA)
+    cv2.rectangle(view, (0, 0), (ZOOM_VIEW - 1, ZOOM_VIEW - 1), (90, 90, 90), 1)
+    cv2.putText(view, f"KP{cursor}  x{scale:.1f}", (8, ZOOM_VIEW - 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 200, 200), 1, cv2.LINE_AA)
+    return view
+
+
+ZOOM_TOP = 24 + 23 * 19   # 텍스트 패널 아래.  높이 계산과 배치가 같은 값을 쓴다.
+
+
+def draw(image, points, frame_row, targets, cursor, amendment, frame_index,
+         frame_total, box=ZOOM_BOX):
+    panel_height = max(image.shape[0], ZOOM_TOP + ZOOM_VIEW + 14)
+    canvas = np.zeros((panel_height, image.shape[1] + PANEL_WIDTH, 3), dtype=np.uint8)
     canvas[: image.shape[0], : image.shape[1]] = image
+
+    # cuboid 모서리를 흐리게 그려 어느 면인지 알아볼 수 있게 한다.
+    for a, b in CUBOID_EDGES:
+        pa, pb = points[a].get("xy"), points[b].get("xy")
+        if pa is None or pb is None:
+            continue
+        cv2.line(canvas, (int(pa[0]), int(pa[1])), (int(pb[0]), int(pb[1])),
+                 (70, 70, 70), 1, cv2.LINE_AA)
 
     for index, point in enumerate(points):
         if point.get("xy") is None:
@@ -120,9 +192,18 @@ def draw(image, points, frame_row, targets, cursor, amendment, frame_index, fram
     line(18, "t truncated u unknown", (170, 170, 170))
     line(19, "n/p next-prev  [ ] frame", (170, 170, 170))
     line(20, "c coord-flag  s save  q quit", (170, 170, 170))
+    line(21, "- / =  zoom out / in", (170, 170, 170))
     flag = amendment.get("coordinate_review_flag")
     if flag:
-        line(21, "COORDINATE REVIEW FLAGGED", (60, 200, 255))
+        line(22, "COORDINATE REVIEW FLAGGED", (60, 200, 255))
+
+    zoom = magnifier(image, points, cursor, targets, amendment, box)
+    if (ZOOM_TOP + ZOOM_VIEW <= canvas.shape[0]
+            and left + ZOOM_VIEW <= canvas.shape[1]):
+        canvas[ZOOM_TOP:ZOOM_TOP + ZOOM_VIEW, left:left + ZOOM_VIEW] = zoom
+    else:  # 배치가 어긋나면 조용히 사라지지 않게 알린다
+        cv2.putText(canvas, "ZOOM PANEL DID NOT FIT", (left, ZOOM_TOP + 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (60, 60, 230), 1, cv2.LINE_AA)
     return canvas
 
 
@@ -160,6 +241,7 @@ def main() -> int:
 
     cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL)
     frame_index = 0
+    box = ZOOM_BOX
     while True:
         frame_id = review_frames[frame_index]
         meta = index_rows[frame_id]
@@ -179,7 +261,7 @@ def main() -> int:
 
         while True:
             canvas = draw(image, points, meta, targets, cursor, amendment,
-                          frame_index, len(review_frames))
+                          frame_index, len(review_frames), box)
             cv2.imshow(WINDOW, canvas)
             key = cv2.waitKey(20) & 0xFF
             if key == 255:
@@ -197,6 +279,10 @@ def main() -> int:
             elif char == "p":
                 position = targets.index(cursor) if cursor in targets else 0
                 cursor = targets[(position - 1) % len(targets)]
+            elif char == "-":
+                box = min(ZOOM_BOX_MAX, box + 30)   # 잘라내는 상자가 커지면 배율은 준다
+            elif char in "=+":
+                box = max(ZOOM_BOX_MIN, box - 30)
             elif char == "c":
                 amendment["coordinate_review_flag"] = not amendment.get(
                     "coordinate_review_flag", False)
