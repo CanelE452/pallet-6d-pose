@@ -1,0 +1,99 @@
+{
+  "schema_version": "sensor_validation_result_v1",
+  "generated_utc": "2026-09-03T11:14:10.875091+00:00",
+  "lock": "SENSOR_VALIDATION_LOCK.json",
+  "lock_commit": "d064226",
+  "teacher_predictions_used": false,
+  "scale_fitted": false,
+  "student_training": 0,
+  "pseudo_label_correction": 0,
+  "gate1": "NOT_RUN",
+  "parameter_sweep": 0,
+  "threshold_tuned_after_results": 0,
+  "population": {
+    "frames": 506,
+    "measured": 506,
+    "recordings": 18,
+    "day": 390,
+    "night": 116,
+    "plastic": 506,
+    "wood": 0,
+    "overlaps_existing_eval": 116,
+    "role": "development sensor validation only; must never be reused as an independent confirmation population"
+  },
+  "reference_quality_split": {
+    "why": "capturepallet11 supplies 243 of 506 frames and its reference reprojection is 22.8 px against 1.6 px elsewhere. It is the pallet11_gt set, independently recorded as apriltag-broken and not-to-be-used long before this measurement; it is separated rather than deleted.",
+    "all": {
+      "n": 506,
+      "reference_reproj_px": 8.160955556854832,
+      "surface_residual_cm": 2.788842207012431,
+      "ring_surface_residual_cm": 10.920900012697373,
+      "fraction_face_better_than_ring": 0.9347826086956522
+    },
+    "excluding_pallet11": {
+      "n": 263,
+      "reference_reproj_px": 1.611461216929992,
+      "surface_residual_cm": 2.562872401566117,
+      "ring_surface_residual_cm": 10.670413726626048,
+      "fraction_face_better_than_ring": 0.9809885931558935
+    }
+  },
+  "A_RGB_DEPTH_GEOMETRIC_COMPATIBILITY": {
+    "verdict": "SUPPORTED",
+    "point_to_surface_residual_median_cm": 2.562872401566117,
+    "point_to_surface_residual_p90_cm": 7.358988990341131,
+    "ray_depth_residual_median_cm": 14.91010098307719,
+    "reference_reproj_px": 1.611461216929992,
+    "reason": "backprojected depth points sit about 2.6 cm from a cuboid surface placed by manual keypoints and registered dimensions alone. On an object 1.1 by 1.3 by 0.15 m seen at metres, that is agreement, and it is the evidence the acquisition records could not give.",
+    "the_weaker_number": "the ray-to-surface depth residual is far larger, around 26 cm, because that quantity is sensitive to reference pose error at grazing incidence; both are reported and neither was tuned."
+  },
+  "B_K_COMPATIBILITY": {
+    "verdict": [
+      "DAY_SUPPORTED",
+      "NIGHT_SUPPORTED"
+    ],
+    "day_surface_residual_cm": 2.456555396464856,
+    "night_surface_residual_cm": 2.656867950799469,
+    "reason": "the two intrinsic groups give the same residual scale, 2.5 and 2.7 cm, so each is empirically consistent with its own recordings' colour geometry",
+    "permitted_phrasing": "EMPIRICALLY_COLOR_COMPATIBLE",
+    "forbidden_phrasing_not_used": "COLOR_K_CONFIRMED_BY_CAPTURE"
+  },
+  "C_SCALE_COMPATIBILITY": {
+    "verdict": "SUPPORTED",
+    "scale_evaluated": 0.001,
+    "scale_fitted": false,
+    "sweep": 0,
+    "reason": "a wrong scale factor would misplace the depth by metres against a reference built only from image geometry and known dimensions. The residual is centimetres, so the frozen value is not contradicted."
+  },
+  "D_PALLET_VS_BACKGROUND_DISCRIMINABILITY": {
+    "verdict": "SUPPORTED",
+    "primary_statistic": "fraction(face residual < ring residual)",
+    "value_all": 0.9347826086956522,
+    "value_excluding_pallet11": 0.9809885931558935,
+    "face_residual_cm": 2.562872401566117,
+    "ring_residual_cm": 10.670413726626048,
+    "reason": "this answers the question Gate 0B could not. The face interior is explained by the known cuboid about four times better than the ring around it, in 98 percent of clean-reference frames."
+  },
+  "boundary_alignment": {
+    "manual_edge_to_depth_edge_median_px": 35.1875114440918,
+    "manual_edge_to_depth_edge_p90_px": 109.80400848388672,
+    "day_median_px": 24.7738037109375,
+    "night_median_px": 84.98624801635742,
+    "limitation": "this measures distance, not displacement. The manual outline is the convex hull of all eight corners, so it includes the bottom edge that rests on the ground, where no depth discontinuity can exist by construction. A large distance is therefore expected regardless of alignment, and the measurement cannot separate a real offset from that.",
+    "conclusion": "does not establish condition 4, and does not contradict it either"
+  },
+  "ready_conditions": {
+    "1_depth_compatible_with_manual_rgb_geometry": "MET",
+    "2_frozen_scale_not_contradicted": "MET",
+    "3_pallet_surface_better_explained_than_background": "MET",
+    "4_no_repeated_systematic_boundary_displacement": "NOT_ESTABLISHED"
+  },
+  "FINAL": "NOT_READY_FOR_GATE1",
+  "final_reason": "three of the four preregistered conditions are met, and met convincingly. The fourth is not met, and not because evidence runs against it \u2014 the boundary measurement as specified cannot answer it, since the manual hull includes an edge that touches the ground where no depth discontinuity exists. Gate 0B's shift analysis is the other half of that question and it was graded UNCLEAR. Declaring READY would mean treating an unanswerable measurement as a pass.",
+  "what_would_settle_condition_4": [
+    "restrict the boundary comparison to the pallet's upper silhouette, where a depth step must exist, instead of the full hull",
+    "or measure displacement direction rather than distance, and test whether it is consistent across frames"
+  ],
+  "not_claimed": "nothing here says depth correction would improve accuracy",
+  "next_action": "USER_REVIEW_SENSOR_VALIDATION"
+}
