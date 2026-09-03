@@ -1,0 +1,266 @@
+{
+  "schema_version": "fast_6d_screen_v1b_lock_v1",
+  "date": "2026-09-04",
+  "status": "POST_STOP_EXPLORATORY_CORRECTION",
+  "frozen": "FROZEN_BEFORE_ANY_V1B_RESULT",
+
+  "repo_head": "f0059ad9137fde795b624ad50965b7fca34d29c3",
+  "supersedes_only": ["FAST_6D_SCREEN_V1 arm S2", "FAST_6D_SCREEN_V1 arm S5"],
+  "v1_not_rewritten": "data/pallet/results/paper_fast6d_screen_v1 is READ ONLY; its S0/S1/S3/S4 conclusions stand",
+
+  "claim_boundary": {
+    "population": "PAPER_EVAL positive, N 319, already consumed as development data",
+    "role": "DEVELOPMENT RESULT, NOT INDEPENDENTLY CONFIRMED",
+    "max_promotable_status": "METHOD_CANDIDATE",
+    "forbidden_words": ["state-of-the-art", "generalizes", "confirmed", "held-out",
+                        "independent improvement", "final"],
+    "experiment_stop_lock_not_modified": "_docs/paper/final/EXPERIMENT_STOP_LOCK.json"
+  },
+
+  "output_contract_preserved": {
+    "input": "monocular RGB",
+    "output": "full 6D pose R and t",
+    "direct_3dof_forbidden": true,
+    "depth_forbidden": true,
+    "new_training": 0,
+    "new_checkpoint": 0,
+    "new_self_training": 0,
+    "real_gt_fine_tuning_forbidden": "REAL_FT_V1 is never launched; EXPERIMENT_STOP_LOCK records 106/402 left-right ordering violations and 187/402 stale 90-degree permutations"
+  },
+
+  "baseline_C0_L0": {
+    "identical_arm": "both C0 and L0 are the same frozen YOLO R0 baseline; two names only so each contrast reads cleanly",
+    "checkpoint_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "predictions_artifact": "data/pallet/results/paper_pose_metric_closure_v1/predictions/R0.json",
+    "pose_path": "predict_pose_without_gt -> frozen selector -> SQPnP -> solvePnPRefineLM",
+    "expected_parity_read_from_artifact": {
+      "n": 319, "pose_coverage": 1.0,
+      "rotation_median_deg": 2.2625, "yaw_median_deg": 1.2306,
+      "translation_median_cm": 7.8969,
+      "iou3d_median": 0.60318, "add_sym_auc": 0.42847
+    },
+    "parity_gate": "the recomputed ALL summary must match the frozen values to 1e-6, and 40 deterministic frames are dumped per-frame; a mismatch stops every candidate arm before it runs"
+  },
+
+  "evaluation_contract": {
+    "pose_object_contract": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json",
+    "pose_object_contract_sha256": "a4c2918b4b0e9c97f94332d2e7e35132a8cbe0e738db25d92ea55e0d81210dbd",
+    "gt": "GEOMETRY_RESOLVED_POSE_GT.json",
+    "symmetry": "{I, Ry(180)}",
+    "iou3d_definition": "oriented_iou_3d with GT extents on BOTH boxes, exactly as run_pose_evaluation.py:165",
+    "primary": ["iou3d_median", "add_sym_auc"],
+    "secondary": ["pose_coverage", "rotation_median_deg", "yaw_median_deg", "translation_median_cm"],
+    "new_metric_definitions_forbidden": true
+  },
+
+  "arms": {
+    "C0": "frozen YOLO R0 baseline",
+    "C1": {
+      "name": "observable-semantics bbox translation refinement",
+      "rotation": "frozen at R0, never moved",
+      "variables": ["tx", "ty", "tz"],
+      "what_v1_got_wrong": "V1 S2 built the projected box from all eight corners; YOLO was trained on the min/max of the IN-IMAGE corners only",
+      "observable_box_rule": {
+        "inside_test": "finite AND 0 <= u < image_width AND 0 <= v < image_height",
+        "box": "min/max of u and v over the inside corners only",
+        "minimum_inside_corners": 4,
+        "below_minimum": "C1_UNRESOLVED_OBSERVABLE_BOX — the frame is recorded as unresolved and is NOT quietly counted as a baseline success",
+        "authority": "scripts/self_training_yolo/real_ft_v1/build_real_ft_dataset.py to_yolo_label, corroborated 400/400 against the synthetic convention in REAL_FT_V1_METHOD_LOCK.json label_conversion.box_rule_evidence",
+        "gt_or_manual_visibility_used": false
+      },
+      "residuals": {
+        "point": "16 coordinate residuals, x and y of 8 corners",
+        "bbox": "4 residuals, left right top bottom",
+        "normalisation": "divided by the image diagonal",
+        "group_balance": "each block divided by sqrt of its residual count",
+        "lambda_sweep_forbidden": true
+      },
+      "reading_rule": "a fall in predicted reprojection is not a pass; judgement is GT IoU3D and ADDsym only"
+    },
+    "L0": "frozen YOLO R0 baseline (same numbers as C0)",
+    "L2": {
+      "name": "line rotation only, translation frozen — historical F2 semantics",
+      "implementation": "mh_fusion.rotation_only, unchanged",
+      "translation": "t0 held exactly, never re-optimised",
+      "role": "diagnostic control"
+    },
+    "L3": {
+      "name": "line rotation + YOLO point translation refit — historical F3 semantics",
+      "implementation": "mh_fusion.rotation_only then mh_fusion.translation_refit, both unchanged",
+      "line_term_in_translation_stage": "forbidden by construction; translation_refit takes corners only",
+      "role": "PRIMARY line candidate"
+    },
+    "L4": {
+      "name": "yaw-only + point translation refit — historical F4 semantics",
+      "implementation": "mh_fusion.yaw_only then mh_fusion.translation_refit, unchanged",
+      "up_axis": "mh_fusion.up_axis, mean(X[{0,1,4,5}]) - mean(X[{2,3,6,7}])",
+      "role": "mechanism diagnostic, never the promotion primary"
+    }
+  },
+
+  "hybrid_wiring": {
+    "point_cue": "current YOLO R0 keypoints (8 corners). The line model's own corner predictions are NEVER used as pose point input.",
+    "line_cue": "SplitLate line branch, frozen inference",
+    "base_pose": "current frozen YOLO R0 pose R0, t0",
+    "line_support": {
+      "source": "support_from_grid on the PREDICTED YOLO corners mapped into the canonical 50 grid",
+      "gt_support_forbidden_in_primary": true,
+      "gt_support_parity_only": "may be computed as a parity reference, never entering any paper-facing number"
+    }
+  },
+
+  "line_checkpoints": {
+    "step": 25000,
+    "seed1": {
+      "path": "weights/paper_s2/paper_s2_multihead/screen_A1_CORNER_LINE_FINAL40K_seed1/step_25000.pth",
+      "sha256": "97e33a940ac41eddc272fdf1ae01efa6989aa25e7d00c09e5930636384f486ef"
+    },
+    "seed2": {
+      "path": "weights/paper_s2/paper_s2_multihead/screen_A1_CORNER_LINE_FINAL40K_seed2/step_25000.pth",
+      "sha256": "0d138ed3b543abc06e8d0b377dfb88d34c0a4792fac4d12daaae3ac62c9e1e73"
+    },
+    "seed_cherry_pick_forbidden": true,
+    "inference_preprocessing": "paper_s2_real_eval.preprocess_squash — RGB, resize 400x400, mean/std normalise. No new resize convention.",
+    "decode": "DH.decode(line_scores, *DH.lattice()) then DH.canonical_from_centred",
+    "new_line_training": 0
+  },
+
+  "historical_lambda_read_from_file_not_hardcoded": {
+    "source": "data/pallet/results/paper_s2_multihead/theta_posealigned_d0.json seeds.seed{n}.selected_lambda_theta",
+    "read_value_seed1": 3.0,
+    "read_value_seed2": 1.0,
+    "note": "the two seeds carry different historical values; that contract is followed rather than unified",
+    "lambda_sweep_forbidden": true,
+    "reselection_from_paper_eval_forbidden": true
+  },
+
+  "line_solver_constants_unchanged": {
+    "source": "scripts/stage0/multihead/mh_diagnose.py",
+    "HUBER_PX": 5.0,
+    "MAX_NFEV": 60,
+    "note": "these are the canonical implementation's own constants, copied here for the record and not altered"
+  },
+
+  "optimizer_rules_C1": {
+    "inherited_from": "FAST_6D_SCREEN_LOCK.json optimizer_rules_S1_S2, with the prose huber scale written numerically to prevent the V1 parsing defect",
+    "initial_t": "S0 t",
+    "max_iterations": 10,
+    "max_nfev": 40,
+    "loss": "huber",
+    "huber_f_scale": 1.0,
+    "huber_scale_applies_after": "image-diagonal normalisation",
+    "xtol": 1e-15, "ftol": 1e-15, "gtol": 1e-15,
+    "tolerance_rationale": "scipy defaults of 1e-8 terminate immediately against residuals of order 1e-4; these are solver plumbing, not method parameters",
+    "step_accepted_only_when_objective_decreases": true,
+    "positive_depth_required": true,
+    "nan_or_inf": "fall back to t0 and record the frame",
+    "parameter_sweep": 0
+  },
+
+  "exception_policy": {
+    "bare_except_with_silent_fallback_forbidden": true,
+    "every_fallback_records": ["frame_id", "exception_type", "message", "fallback_reason"],
+    "exception_count_reported": true,
+    "mostly_no_op_run": "if exceptions make an arm largely a no-op, the run is marked INVALID_IMPLEMENTATION_RUN and the numbers are not used"
+  },
+
+  "geometry_convention_gate": {
+    "line_role_convention": "camera-facing 0123",
+    "yolo_convention": "camera_dynamic_0123_v4",
+    "required_topology": "0-3 near face, 4-7 far face, top {0,1,4,5}, bottom {2,3,6,7}",
+    "model_point_parity_checked": "symmetry_aware_pose_metrics.cuboid_model_points(across,height,along) vs annotate_pnp.make_pallet_keypoints_3d_diagram(width=across, depth=along, height=height)[:8], index-wise, exact",
+    "projection_roundtrip_test": "project cuboid_model_points(gt_extents) with (R_gt, t_gt) through the frame K and compare index-wise with the manual annotated keypoints; reported per object type",
+    "wood_failure_rule": "if the convention cannot be demonstrated for wood, WOOD_LINE_STATUS = BLOCKED_GEOMETRY_CONVENTION and only plastic is evaluated for the line arms; wood is not silently folded into ALL",
+    "gate_threshold_px": 12.0,
+    "gate_statistic": "median index-wise reprojection error of the GT pose against the manual keypoints, per object type",
+    "threshold_rationale": "the annotation quality bar already recorded in GEOMETRY_RESOLVED_POSE_GT is a few px; 12 px is a deliberately loose sanity bound on INDEX ORDER, not an accuracy claim"
+  },
+
+  "unit_tests_T1_T7": {
+    "reuse_existing": "scripts/stage0/multihead/mh_fusion.py run_tests, executed unchanged with its OUT redirected into the V1B namespace so no read-only artifact is written",
+    "tests": ["T1 rotation stage leaves translation exactly", "T2 refit determinism",
+              "T3 rho invariance", "T4 lambda 0 reproduces point-only",
+              "T5 GT input recovery", "T6 refit Huber cost non-increasing",
+              "T7 yaw injection recovery"],
+    "fail_action": "LINE_FUSION_IMPLEMENTATION_GATE = FAIL, line arms stop, C1 and the paper closure continue"
+  },
+
+  "two_seed_policy": {
+    "each_seed_evaluated_independently": true,
+    "L3_promotion_requires_all_of": {
+      "A": "both seeds: delta IoU3D >= 0 AND delta ADDsym AUC >= 0",
+      "B": "median over the two seeds: delta IoU3D >= +0.020 OR delta ADDsym AUC >= +0.020",
+      "C": "both seeds: pose coverage drop <= 0.01",
+      "D": "both seeds: neither rotation median nor translation median worse than baseline by more than 5 percent"
+    },
+    "this_is_a_method_selection_gate_not_a_significance_threshold": true,
+    "session_CI_reported_separately": true,
+    "headline_from_the_better_seed_only_forbidden": true
+  },
+
+  "C1_promotion_gate": {
+    "primary": "delta IoU3D >= +0.020 OR delta ADDsym AUC >= +0.020",
+    "and_simultaneously": [
+      "the other primary metric at or above baseline",
+      "pose coverage drop no more than 0.01 absolute",
+      "rotation median and translation median not worse than baseline by more than 5 percent"
+    ]
+  },
+
+  "uncertainty": {
+    "paired_frame_bootstrap": 10000,
+    "session_cluster_bootstrap": 10000,
+    "seed": 20260904,
+    "grouping": "the existing 13-session grouping of the 319 population, from AXIS_REVIEW_MANIFEST session_id; no new grouping is invented",
+    "contrasts": ["C1-C0", "L2-L0 per seed", "L3-L0 per seed", "L4-L0 per seed"],
+    "metrics": ["iou3d", "add_sym_auc", "rotation_median_deg", "translation_median_cm"]
+  },
+
+  "subgroups": {
+    "material": {"plastic_standard_110x130x11": 194, "wood_small_80x59x14": 125},
+    "lighting_source": "AXIS_REVIEW_MANIFEST paper_domain, the existing field; sessions carrying 'none' are reported as UNLABELLED rather than guessed from their names",
+    "lighting_counts_from_the_manifest": {"nighttime": 50, "daytime": 70, "none": 199},
+    "subgroups_never_select_the_method": "only the ALL gate selects; subgroups are descriptive"
+  },
+
+  "runtime_benchmark": {
+    "trigger": "run automatically if L3 passes the gate OR both seeds are positive in direction",
+    "arms": ["YOLO R0 only", "SplitLate line only", "hybrid sequential"],
+    "warmup": 50, "timed": 200,
+    "cuda_synchronize": true,
+    "report": ["median ms", "p90 ms", "FPS equivalent", "parameter count", "checkpoint size"],
+    "never_called_jetson": "this is a workstation GPU benchmark"
+  },
+
+  "result_states": ["PROMOTABLE_SIGNAL_FOUND", "NO_PROMOTABLE_SIGNAL", "PARTIALLY_BLOCKED"],
+  "branches": {
+    "positive": "if C1 or L3 is GO, continue automatically to candidate_closure/ (no new training; the arm is already a deployable inference formulation)",
+    "negative": "if C1 STOP and L3 STOP, invent no new candidate and run PAPER_FRAMING_CLOSURE_V1 instead"
+  },
+
+  "forbidden_after_seeing_results": [
+    "bbox margin", "line lambda tuning", "line threshold sweep", "bbox weight sweep",
+    "changing the Huber scale", "changing iterations", "seed cherry-pick",
+    "learned line head", "YOLO line head", "new loss", "RAFT", "DiffPnP variant",
+    "another DOPE crop", "another dimension adapter", "new student training",
+    "new self-training", "new depth method", "new temporal method",
+    "YOLO or DOPE architecture rewrite", "real GT fine-tuning"
+  ],
+
+  "read_only": [
+    "data/pallet/results/paper_fast6d_screen_v1",
+    "data/pallet/results/paper_selftrain_v1", "data/pallet/results/paper_selftrain_v2",
+    "data/pallet/results/paper_selftrain_v3", "data/pallet/results/paper_selftrain_v4",
+    "data/pallet/results/paper_selftrain_v5",
+    "data/pallet/results/paper_selftrain_site_v1",
+    "data/pallet/results/paper_temporal_selftrain_v1",
+    "data/pallet/results/paper_depth_selftrain_v1",
+    "data/pallet/results/paper_pose_metric_closure_v1",
+    "data/pallet/results/paper_s2_scratch_diffpnp",
+    "data/pallet/results/paper_s2_multihead",
+    "_docs/paper/final/EXPERIMENT_STOP_LOCK.json",
+    "all existing weights"
+  ],
+
+  "next_action": "USER_REVIEW_OVERNIGHT_RESULT"
+}
