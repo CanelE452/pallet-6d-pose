@@ -20,9 +20,18 @@ Why both exist:
 
 from __future__ import annotations
 
+import hashlib
+import json
+from pathlib import Path
 from typing import Sequence
 
 import numpy as np
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+POSE_OBJECT_CONTRACT_ARG = "--pose-object-contract"
+DEFAULT_POSE_OBJECT_CONTRACT = (
+    REPO_ROOT / "data/pallet/results/paper_pose_metric_closure_v1"
+    / "POSE_EVAL_OBJECT_CONTRACT.json")
 
 ORACLE_TAG = "oracle"
 MAIN_TAG = "main"
@@ -181,3 +190,70 @@ def cuboid_model_points(extents: Sequence[float]) -> np.ndarray:
     from symmetry_aware_pose_metrics import cuboid_model_points as build
 
     return build(extents)
+
+
+def load_pose_object_contract(path) -> dict:
+    """Load the pose-evaluation object contract and record its hash.
+
+    The path must be given explicitly (`--pose-object-contract`).  This contract is
+    **not** the historical evaluator contract and the two are never merged: the
+    historical registry's sha256 is pinned across 198 places in earlier artifacts and
+    is left untouched.
+
+    Every result produced under this track carries `contract_sha256`, so a reader can
+    tell which object definition a number was computed under.
+    """
+
+    if path is None:
+        raise ValueError(
+            f"the pose object contract must be passed explicitly via "
+            f"{POSE_OBJECT_CONTRACT_ARG}; it never falls back to a default")
+    contract_path = Path(path)
+    if not contract_path.exists():
+        raise FileNotFoundError(f"pose object contract not found: {contract_path}")
+    raw = contract_path.read_bytes()
+    contract = json.loads(raw)
+    expected = "paper_pose_eval_object_contract_v1"
+    if contract.get("schema_version") != expected:
+        raise ValueError(
+            f"expected schema_version {expected!r}, got "
+            f"{contract.get('schema_version')!r} — this looks like a different contract")
+    contract["contract_sha256"] = hashlib.sha256(raw).hexdigest()
+    contract["contract_path"] = str(contract_path)
+    return contract
+
+
+def object_spec(contract: dict, object_type: str) -> dict:
+    """Dimensions and orientation equivalence for one object, from the contract."""
+
+    if object_type not in contract:
+        raise KeyError(f"{object_type!r} is not in the pose object contract")
+    spec = contract[object_type]
+    equivalence = tuple(spec["orientation_equivalence_deg"])
+    if equivalence != (0, 180):
+        raise ValueError(
+            f"{object_type}: this evaluation only supports a 0/180 equivalence class, "
+            f"got {equivalence}")
+    if 90 in spec.get("distinct_orientations_deg", []) is False:  # pragma: no cover
+        raise ValueError(f"{object_type}: 90 degrees must remain a distinct orientation")
+    return {
+        "object_type": object_type,
+        "long_m": float(spec["physical_dimensions_m"]["long"]),
+        "short_m": float(spec["physical_dimensions_m"]["short"]),
+        "height_m": float(spec["physical_dimensions_m"]["height"]),
+        "orientation_equivalence_deg": list(equivalence),
+        "distinct_orientations_deg": list(spec.get("distinct_orientations_deg", [])),
+        "contract_sha256": contract.get("contract_sha256"),
+    }
+
+
+def build_argument_parser(description: str):
+    """Every pose-evaluation entry point takes the contract explicitly."""
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument(POSE_OBJECT_CONTRACT_ARG, dest="pose_object_contract",
+                        required=True, type=Path,
+                        help="path to POSE_EVAL_OBJECT_CONTRACT.json")
+    return parser

@@ -12,11 +12,17 @@
 **모델 예측은 이 화면에 절대 나오지 않는다.**  R0/R5 예측, selector 점수, ADD, yaw
 오차 어느 것도 표시하지 않는다.  사람 판정이 모델 결과에 오염되면 안 되기 때문이다.
 
+PnP 적합·잔차도 이 경로에 존재하지 않는다.  "어느 가설이 더 잘 맞는가" 를 보여주면
+사람이 독립적으로 판단하지 않고 적합도를 따라가게 된다.  `V` 오버레이는 각 가설이
+**어느 방향을 긴 축이라고 부르는지** 만 굵기로 보여준다 (`test_review_gui_leakage.py` 가
+AST 로 강제).
+
 원본 annotation 은 수정하지 않는다.  판정은 sidecar 에만 쌓인다.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from datetime import datetime, timezone
@@ -29,7 +35,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 OUT_DIR = REPO_ROOT / "data/pallet/results/paper_pose_metric_closure_v1"
 MANIFEST = OUT_DIR / "AXIS_REVIEW_MANIFEST.json"
 LABELS = OUT_DIR / "AXIS_REVIEW_LABELS.json"
+SMOKE_LABELS = OUT_DIR / "AXIS_REVIEW_LABELS_SMOKE.json"
 PROGRESS = OUT_DIR / "AXIS_REVIEW_PROGRESS.json"
+SMOKE_PROGRESS = OUT_DIR / "AXIS_REVIEW_PROGRESS_SMOKE.json"
 
 WINDOW = "physical axis review"
 MAX_W, MAX_H = 1500, 820
@@ -52,9 +60,9 @@ def now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def load_labels() -> dict:
-    if LABELS.exists():
-        return json.loads(LABELS.read_text())
+def load_labels(path: Path) -> dict:
+    if path.exists():
+        return json.loads(path.read_text())
     return {
         "schema_version": "physical_axis_review_v1",
         "review_definition":
@@ -65,12 +73,13 @@ def load_labels() -> dict:
     }
 
 
-def save(labels: dict, index: int, total: int) -> None:
+def save(labels: dict, index: int, total: int, *,
+         labels_path: Path = LABELS, progress_path: Path = PROGRESS) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     labels["updated_utc"] = now()
-    LABELS.write_text(json.dumps(labels, indent=2) + "\n")
+    labels_path.write_text(json.dumps(labels, indent=2) + "\n")
     entries = labels["frames"].values()
-    PROGRESS.write_text(json.dumps({
+    progress_path.write_text(json.dumps({
         "schema_version": "physical_axis_review_progress_v1",
         "total": total,
         "reviewed": len(labels["frames"]),
@@ -86,43 +95,6 @@ def text(canvas, message, origin, colour=(235, 235, 235), scale=0.6, weight=1):
 
     cv2.putText(canvas, message, origin, cv2.FONT_HERSHEY_SIMPLEX, scale,
                 colour, weight, cv2.LINE_AA)
-
-
-def solve_hypothesis(points: np.ndarray, camera: np.ndarray,
-                     across: float, along: float, height: float):
-    """Fit the cuboid under one W/D assignment and return reprojected corners.
-
-    Uses only the annotated keypoints, the intrinsics and the physical dimensions.
-    No ground-truth pose is read.
-    """
-
-    half_a, half_b, half_h = across / 2.0, along / 2.0, height / 2.0
-    # corner order must match camera-facing 0123:
-    # 0,1 near top   2,3 near bottom   4,5 far top   6,7 far bottom
-    model = np.array([
-        [-half_a, -half_h, -half_b], [+half_a, -half_h, -half_b],
-        [+half_a, +half_h, -half_b], [-half_a, +half_h, -half_b],
-        [-half_a, -half_h, +half_b], [+half_a, -half_h, +half_b],
-        [+half_a, +half_h, +half_b], [-half_a, +half_h, +half_b],
-    ], dtype=np.float64)
-    usable = np.isfinite(points[:8]).all(axis=1)
-    if usable.sum() < 6:
-        return None
-    try:
-        ok, rvec, tvec = cv2.solvePnP(
-            model[usable], points[:8][usable].astype(np.float64), camera, None,
-            flags=cv2.SOLVEPNP_SQPNP)
-    except cv2.error:
-        return None
-    if not ok:
-        return None
-    rvec, tvec = cv2.solvePnPRefineLM(
-        model[usable], points[:8][usable].astype(np.float64), camera, None, rvec, tvec)
-    projected, _ = cv2.projectPoints(model, rvec, tvec, camera, None)
-    projected = projected.reshape(-1, 2)
-    residual = float(np.linalg.norm(
-        projected[usable] - points[:8][usable], axis=1).mean())
-    return projected, residual
 
 
 def draw_frame(frame: dict, entry: dict | None, index: int, total: int,
@@ -144,27 +116,25 @@ def draw_frame(frame: dict, entry: dict | None, index: int, total: int,
 
     finite = np.isfinite(pts).all(axis=1)
 
-    if overlay_mode:  # V key: show the cuboid implied by each hypothesis
-        raw = frame.get("_intrinsics")
-        if raw:
-            camera = np.array([[raw["fx"], 0, raw["cx"]],
-                               [0, raw["fy"], raw["cy"]], [0, 0, 1]], np.float64)
-            long_m, short_m = frame["physical_long_m"], frame["physical_short_m"]
-            hgt = frame.get("_height_m", 0.11)
-            across, along = ((long_m, short_m) if overlay_mode == 1
-                             else (short_m, long_m))
-            solved = solve_hypothesis(points, camera, across, along, hgt)
-            if solved is not None:
-                projected, residual = solved
-                shown = projected * scale
-                colour = COL_A if overlay_mode == 1 else COL_B
-                for a, b in CUBOID_EDGES:
-                    pa = (int(round(shown[a][0])), int(round(shown[a][1])))
-                    pb = (int(round(shown[b][0])), int(round(shown[b][1])))
-                    cv2.line(view, pa, pb, colour, 1, cv2.LINE_AA)
-                tag = "A" if overlay_mode == 1 else "B"
-                text(view, f"hypothesis {tag} is LONG   fit residual {residual:5.1f} px",
-                     (14, 26), colour, 0.62, 2)
+    if overlay_mode:
+        # 설명용 오버레이다.  어느 가설이 더 잘 맞는지는 보여주지 않는다 —
+        # 각 가설이 "어느 방향을 긴 축이라고 부르는지" 만 굵게 강조한다.
+        # PnP 적합도, 잔차, 점수는 이 경로에 존재하지 않는다.
+        long_edges, short_edges, long_colour, short_colour, tag = (
+            (AXIS_A_EDGES, AXIS_B_EDGES, COL_A, COL_B, "A")
+            if overlay_mode == 1 else
+            (AXIS_B_EDGES, AXIS_A_EDGES, COL_B, COL_A, "B"))
+        for a, b in short_edges:
+            if finite[a] and finite[b]:
+                cv2.line(view, point(a), point(b), (120, 120, 120), 1, cv2.LINE_AA)
+        for a, b in long_edges:
+            if finite[a] and finite[b]:
+                cv2.line(view, point(a), point(b), long_colour, 9, cv2.LINE_AA)
+        banner = (f"if Axis {tag} is the LONG side:  "
+                  f"thick = {frame['physical_long_cm']} cm, "
+                  f"thin = {frame['physical_short_cm']} cm")
+        text(view, banner, (14, 28), (0, 0, 0), 0.62, 4)
+        text(view, banner, (14, 28), long_colour, 0.62, 2)
 
     for a, b in AXIS_A_EDGES:
         if finite[a] and finite[b]:
@@ -239,7 +209,7 @@ def draw_frame(frame: dict, entry: dict | None, index: int, total: int,
         text(canvas, f"LONG = Axis {axis}{note}", (18, base + 64), COL_OK, 0.68, 2)
 
     text(canvas, "[A/1] long = A    [B/2] long = B    [U] unclear    "
-                 "[V] cuboid overlay    [Backspace] clear",
+                 "[V] which axis is long    [Backspace] clear",
          (18, base + 96), (185, 185, 185), 0.53, 1)
     text(canvas, "[N/Space/->] next   [P/<-] prev   [G] go to   [S] save   [Q/Esc] save and quit",
          (18, base + 120), (185, 185, 185), 0.53, 1)
@@ -259,27 +229,40 @@ def ask_index(total: int) -> int | None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="physical long-axis review")
+    parser.add_argument("--smoke", type=int, metavar="N", default=0,
+                        help="첫 N 장만 연습한다.  결과는 본 검수와 분리된 "
+                             "AXIS_REVIEW_LABELS_SMOKE.json 에 저장된다.")
+    args = parser.parse_args()
+
     if not MANIFEST.exists():
         print("manifest missing — run build_axis_review_manifest.py first")
         return 1
     manifest = json.loads(MANIFEST.read_text())
     frames = manifest["frames_list"]
+    if args.smoke:
+        frames = frames[:max(1, args.smoke)]
+    labels_path = SMOKE_LABELS if args.smoke else LABELS
+    progress_path = SMOKE_PROGRESS if args.smoke else PROGRESS
     total = len(frames)
 
-    # intrinsics 는 overlay 에만 쓰이므로 여기서 붙인다 (manifest 를 키우지 않는다)
-    for frame in frames:
-        payload = json.loads((REPO_ROOT / frame["annotation"]).read_text())
-        camera = payload.get("camera_data", {})
-        frame["_intrinsics"] = camera.get("intrinsics")
-        dims = payload["objects"][0].get("physical_dimensions_m") or {}
-        frame["_height_m"] = float(dims.get("y", 0.11))
+    # 검수 화면은 annotation 을 다시 열지 않는다.  manifest 의 키포인트·치수면 충분하고,
+    # 열지 않으면 저장된(미확인) parity 나 pose 가 이 경로로 새어들 수 없다.
 
-    labels = load_labels()
+    labels = load_labels(labels_path)
+    if args.smoke:
+        labels["smoke"] = True
+        labels["not_for_evaluation"] = ("practice run; never merged into "
+                                        "AXIS_REVIEW_LABELS.json")
     index = next((i for i, f in enumerate(frames)
                   if f["frame_id"] not in labels["frames"]), 0)
     overlay_mode = 0
 
-    cv2.namedWindow(WINDOW, cv2.WINDOW_AUTOSIZE)
+    window = WINDOW + (" [SMOKE]" if args.smoke else "")
+    cv2.namedWindow(window, cv2.WINDOW_AUTOSIZE)
+    if args.smoke:
+        print(f"SMOKE MODE — first {total} frames, saved separately to "
+              f"{labels_path.name}")
     print(f"{total} frames.  starting at {index + 1}.  "
           f"already reviewed: {len(labels['frames'])}")
 
@@ -289,7 +272,7 @@ def main() -> int:
         entries = labels["frames"].values()
         progress = (len(labels["frames"]),
                     sum(1 for e in entries if e.get("status") == "UNCLEAR"))
-        cv2.imshow(WINDOW, draw_frame(frame, entry, index, total, progress, overlay_mode))
+        cv2.imshow(window, draw_frame(frame, entry, index, total, progress, overlay_mode))
         key = cv2.waitKey(0) & 0xFF
 
         def record(long_axis: str | None, status: str) -> None:
@@ -305,7 +288,8 @@ def main() -> int:
                 "source": "manual_visual_review",
                 "propagated_by_session": False,
             }
-            save(labels, index, total)
+            save(labels, index, total, labels_path=labels_path,
+                 progress_path=progress_path)
 
         if key in (ord("a"), ord("A"), ord("1")):
             record("CF_WIDTH", "CONFIRMED")
@@ -318,7 +302,8 @@ def main() -> int:
             index = min(index + 1, total - 1)
         elif key in (8, 127):  # backspace / delete
             labels["frames"].pop(frame["frame_id"], None)
-            save(labels, index, total)
+            save(labels, index, total, labels_path=labels_path,
+                 progress_path=progress_path)
         elif key in (ord("v"), ord("V")):
             overlay_mode = (overlay_mode + 1) % 3
         elif key in (ord("n"), ord("N"), 32, 83, 84):
@@ -330,10 +315,12 @@ def main() -> int:
             if target is not None:
                 index = target
         elif key in (ord("s"), ord("S")):
-            save(labels, index, total)
+            save(labels, index, total, labels_path=labels_path,
+                 progress_path=progress_path)
             print(f"saved — {len(labels['frames'])}/{total}")
         elif key in (ord("q"), ord("Q"), 27):
-            save(labels, index, total)
+            save(labels, index, total, labels_path=labels_path,
+                 progress_path=progress_path)
             break
 
     cv2.destroyAllWindows()
@@ -341,7 +328,10 @@ def main() -> int:
     print(f"reviewed  {len(labels['frames'])}/{total}")
     print(f"confirmed {sum(1 for e in entries if e.get('status') == 'CONFIRMED')}")
     print(f"unclear   {sum(1 for e in entries if e.get('status') == 'UNCLEAR')}")
-    print(f"labels    {LABELS.relative_to(REPO_ROOT)}")
+    print(f"labels    {labels_path.relative_to(REPO_ROOT)}")
+    if args.smoke:
+        print("SMOKE — these labels are separate and are never used for evaluation.")
+        print("main review:  python scripts/paper/pose_metric_closure_v1/review_physical_axis.py")
     return 0
 
 

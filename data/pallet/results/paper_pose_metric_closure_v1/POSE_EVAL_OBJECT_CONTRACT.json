@@ -1,0 +1,60 @@
+{
+  "schema_version": "paper_pose_eval_object_contract_v1",
+  "purpose": "Object geometry and orientation-equivalence for the POSE_METRIC_CLOSURE_V1 evaluation only.",
+  "declared_date": "2026-09-03",
+
+  "relationship_to_existing_registry": {
+    "existing": "challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json",
+    "modified": false,
+    "why_separate": "the existing registry's sha256 is pinned in 62 files across 198 places. Editing it to mark wood's symmetry FROZEN would rewrite the provenance of every prior experiment. This contract is additive: it governs this evaluation and nothing else.",
+    "historical_artifact_registry_sha_rewritten": false,
+    "dimensions_agree_with_existing_registry": true
+  },
+
+  "orientation_definition": {
+    "basis": "physical long-axis orientation",
+    "equivalent_deg": [0, 180],
+    "distinct_deg": [90, 270],
+    "why_180_is_equivalent": "both objects are rectangular cuboids, so a half turn about the vertical axis maps the object onto itself",
+    "why_90_is_not": "the footprints are rectangular, and a quarter turn changes which face the forks enter. It is a different pose for the task, not a symmetry.",
+    "yaw_metric": "yaw error is evaluated modulo 180, folded into 0..90 degrees"
+  },
+
+  "plastic_standard_110x130x11": {
+    "physical_dimensions_m": {"long": 1.30, "short": 1.10, "height": 0.11},
+    "footprint_aspect_ratio": 1.1818181818181819,
+    "orientation_equivalence_deg": [0, 180],
+    "distinct_orientations_deg": [90, 270],
+    "equivalence_basis": "rectangular cuboid; the half turn is an exact geometric symmetry of the shape",
+    "physical_inspection_claimed": false
+  },
+
+  "wood_small_80x59x14": {
+    "physical_dimensions_m": {"long": 0.80, "short": 0.59, "height": 0.14},
+    "footprint_aspect_ratio": 1.3559322033898304,
+    "orientation_equivalence_deg": [0, 180],
+    "distinct_orientations_deg": [90, 270],
+    "equivalence_basis": "declared benchmark/operational long-axis equivalence; not claimed as verified full visual symmetry",
+    "physical_inspection_claimed": false,
+    "measured_support": {
+      "footprint": "0.80 x 0.59 m rectangular, so 90 and 270 are excluded by geometry alone",
+      "deck_mirror_ncc": 0.957,
+      "slat_mirror_residual_mm": 6,
+      "cuboid_invariance_under_Ry180": "exact",
+      "unverified": "the opposite fork-entry face is never observed in any frame, and one block carries an IPPC stamp, so the object is visually asymmetric under 180 degrees even though it is geometrically symmetric"
+    }
+  },
+
+  "population": {
+    "ALL": 319,
+    "plastic_standard_110x130x11": 194,
+    "wood_small_80x59x14": 125,
+    "wood_included_in_pose_table": true
+  },
+
+  "usage": {
+    "explicit_argument_required": "--pose-object-contract",
+    "rule": "the pose evaluation must be given this path explicitly. It never falls back to the historical evaluator contract, and the two are never silently merged.",
+    "recorded_in_results": "the sha256 of this file is written into every pose evaluation result produced under this track"
+  }
+}
