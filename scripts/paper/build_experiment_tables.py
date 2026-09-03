@@ -147,7 +147,9 @@ def build_m1(results: dict, expected: dict) -> str:
     lines += [
         "```",
         "",
-        "`R med` 와 `yaw` 는 `POSE_METRICS_STATUS = BLOCKED` 이라 비워 둔다.",
+        "`R med` 와 `yaw` 는 이 표에서 비워 둔다 — 6D 는 별도 pose 표에 있다",
+        "(`_docs/paper/final/generated/TABLE_FINAL_POSE.md`).  검출/2D 와 6D 는",
+        "다른 질문이고 모집단도 달라서 한 표에 합치지 않는다.",
         "2D 개선을 6D pose 개선이라고 쓰지 않는다.",
         "",
         "## DOPE 행의 비대칭 — 각주로 반드시 남긴다",

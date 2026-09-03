@@ -199,7 +199,8 @@ state-of-the-art
 ```text
 localisation / pose gain     contradicted by D; no arm beats R0
 filter improves night det.   contradicted by B; naive reaches the same value
-6D pose of any kind          POSE_METRICS_STATUS = BLOCKED
+6D pose improvement          claim I; 0 of 24 metric blocks resolve in the
+                             improvement direction under session clustering
 held-out                     PAPER_EVAL role = DEV, held_out_final = false
 unseen / arbitrary pallet    no experiment on an unstudied pallet category
 label-free                   manual real annotations exist and are used to evaluate
@@ -211,23 +212,56 @@ The permitted phrasing for the training condition is:
 
 ## Pose metrics
 
+Amended 2026-09-04. See `PAPER_CANONICAL_SYNC_20260904.md`.
+
 ```text
-POSE_METRICS_STATUS = BLOCKED
-blocked_reason      = POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;
-                      FINAL_MANIFEST_NOT_FROZEN;
-                      wood: CANONICAL_MIGRATION_NOT_PASS;
-                      SYMMETRY_NOT_FROZEN
+POSE_METRICS_STATUS       = REPORTABLE
+can_claim_6d_improvement  = false
 ```
 
-Consequently **no performance sentence** may be written about yaw, rotation,
-translation, ADD, ADD-S, 3D IoU, 5cm5deg, or 6D pose AUC.
-
-Describing the pipeline is permitted:
+These are two different statements and are never merged.
 
 ```text
+historical first pass   BLOCKED. The block was diagnosed as the axis selector.
+                        Preserved in PAPER_CLAIM_LOCK.json under
+                        pose_metrics.historical_first_pass — not deleted.
+current second pass     REPORTABLE. The actual blocker was the absence of a
+                        ground-truth physical axis, not the selector. A
+                        geometry-reconstructed 6D reference was built from manual
+                        2D cuboid keypoints, calibrated intrinsics and registered
+                        pallet dimensions, under a rule frozen before any 6D
+                        result was seen. No model prediction chose the reference,
+                        and the selector was not modified.
+what did not change     the axis selector is still weak (0.59-0.65 measured
+                        against a 0.95 gate). That is now a reported diagnostic,
+                        not a reason to withhold the metrics.
+```
+
+Reporting is permitted:
+
+```text
+allowed    "We evaluate downstream 6D pose using a geometry-reconstructed
+            reference pose."
+allowed    "We report rotation, yaw, translation, oriented 3D IoU, and
+            symmetry-aware ADD AUC."
 allowed    "keypoints are converted to a 6D pose using PnP"
 forbidden  "our method improves 6D pose"
+forbidden  "self-training improves 6D pose"
+forbidden  "confirmed 6D improvement" / "held-out 6D improvement"
 ```
+
+What may be claimed about the result itself:
+
+```text
+allowed    "No self-training variant showed a session-cluster-resolved
+            improvement in downstream 6D pose over the synthetic-only baseline."
+forbidden  "No difference exists."
+forbidden  "Self-training statistically worsens all 6D metrics."
+forbidden  "All 6D components degrade."
+```
+
+The 5cm5deg slot stays withdrawn — that came from the 2026-08-26 metric revision
+and is independent of the pose block.
 
 ## Population and evidence-tier rules
 

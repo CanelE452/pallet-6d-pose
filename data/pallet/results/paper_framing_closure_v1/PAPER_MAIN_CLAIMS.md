@@ -11,12 +11,22 @@
 
 ## lock 이후 달라진 것 세 가지
 
-### 1. 6D pose 는 이제 **보고 가능**하다 (주장 가능은 아니다)
+### 1. 6D pose 는 이제 **보고 가능**하다 (주장 가능은 아니다)   — 2026-09-04 반영 완료
 
 ```
 lock 시점            POSE_METRICS_STATUS = BLOCKED, 표에서 열 자체를 제거
-지금                 GEOMETRY_RESOLVED_POSE_GT 아래 7 arm 의 full 6D 표가 존재
+지금                 POSE_METRICS_STATUS = REPORTABLE
+                     geometry-reconstructed 6D reference pose 아래 7 arm 표 존재
 바뀌지 않은 것        can_claim_6d_improvement = false
+동기화               PAPER_CLAIM_LOCK.json 은 2026-09-04 에 amendment 됐고,
+                     historical first pass 는 삭제하지 않고 보존했다
+```
+
+```
+                  R med   Yaw med   t med cm    IoU3D   ADDsym AUC
+R0 synthetic-only  2.2625   1.2306     7.8969  0.60318      0.42847
+R5 full consistency 2.5345  1.2938     8.8265  0.58677      0.40010
+개선 방향으로 session-cluster 구간이 0 을 배제한 metric block: 0 / 24
 ```
 
 바뀐 것은 **측정 가능성**이지 결론이 아니다.  24 개 session-cluster 구간이
@@ -65,7 +75,12 @@ depth       센서 계약 4 조건 중 3 개 충족, 4 번째는 명세된 측�
             NOT_READY_FOR_GATE1.  depth 가 도움이 된다는 주장은 어디에도 없다
 V1B         YOLO bbox 도 SplitLate line 도 6D pose 를 개선하지 않는다.
             bbox 는 **올바른 semantics 로 고쳤을 때 더 나빠지고**(-0.066 vs -0.022),
-            line 은 lambda 가 클수록 더 나빠진다
+            line 은 두 historical 구성 모두 강한 YOLO 기준선을 못 넘는다.
+            ★ 정정(2026-09-04): 앞선 초안의 "lambda 가 클수록 더 나빠진다" 는
+            과한 진술이었다.  seed1 은 lambda 3.0, seed2 는 lambda 1.0 이라
+            **seed 와 lambda 가 confounded** 다.  쓸 수 있는 것은
+            "두 historical seed-specific line-fusion 구성이 모두 개선에 실패했고,
+            더 큰 악화는 seed-1 구성에서 나타났다" 까지다
 ```
 
 ## 이번 작업이 논문에 더하는 한 문장

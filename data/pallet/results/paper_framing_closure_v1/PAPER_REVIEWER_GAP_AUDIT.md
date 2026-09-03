@@ -3,53 +3,43 @@
 `data/pallet/results/paper_framing_closure_v1/PAPER_STATIC_STAT_AUDIT.json` 의
 G1~G5 를 사람이 읽을 형태로 옮긴 것.  새 추론 0 · 새 학습 0 · 새 threshold 0.
 
-## 1. ★ 최우선 — pose 상태가 문서 사이에서 어긋나 있다
+## 1. pose 상태 불일치 — RESOLVED (2026-09-04)
 
-리뷰어가 파일 두 개만 열어봐도 바로 걸리는 모순이다.
+발견 당시 상태:
 
 ```
-_docs/paper/final/PAPER_CLAIM_LOCK.json
-    pose_metrics.POSE_METRICS_STATUS = "BLOCKED"
-    can_claim_6d_improvement          = false
-    blocked_quantities                = [yaw, rotation, translation, ADD, ADD-S,
-                                         3D IoU, 5cm5deg, 6D pose AUC]
-
-_docs/paper/final/LIMITATIONS.md §3
-    "No claim about rotation, translation, yaw, ADD, ADD-S, 3D IoU, 5cm5deg, or
-     6D pose AUC appears anywhere in this paper. These columns are removed ..."
-
+PAPER_CLAIM_LOCK.json      POSE_METRICS_STATUS = "BLOCKED"
+LIMITATIONS.md §3          "pose 열을 표에서 제거했다"
 그런데
-
-_docs/paper/final/generated/TABLE_FINAL_POSE.md
-    7 개 arm 의 PoseCov · AxisAcc · R med · Yaw med · t med · IoU3D · ADDsym AUC
-    전체 표가 이미 생성돼 있다
-
-data/pallet/results/paper_pose_metric_closure_v1/POSE_CLOSURE_STATUS.json
-    POSE_METRICS_STATUS = "REPORTABLE"   (second pass, 2026-09-03)
-    second_pass.what_changed = "the block was the absence of a ground-truth physical
-    axis, not the selector..."
+generated/TABLE_FINAL_POSE.md   7 arm 6D 표가 이미 존재
+POSE_CLOSURE_STATUS.json        POSE_METRICS_STATUS = "REPORTABLE" (second pass)
 ```
 
-**무엇이 실제로 맞는가.**  두 번째 pass 가 현재 상태다.  차단 사유는 selector 가
-아니라 GT 축의 부재였고, 결과를 보기 전에 얼린 규칙으로 geometry-resolved GT 를
-만들면서 selector 를 **전혀 건드리지 않고** 6D 지표를 보고할 수 있게 됐다.
-`POSE_CLOSURE_STATUS.json` 안의 `metrics_still_blocked` 필드는 first pass 잔재이며
-같은 파일의 `POSE_METRICS_STATUS = REPORTABLE` 과 모순된다.
-
-**무엇이 바뀌지 않는가.**  `can_claim_6d_improvement = false` 는 그대로 옳다.
-24 개 session-cluster 구간이 전부 0 을 포함한다.
-
-**왜 내가 고치지 않았는가.**  claim lock 은 자율 작업이 편집하는 파일이 아니다.
-`EXPERIMENT_STOP_LOCK.json` 의 `allowed` 는 "typo and bug fixes that do not change
-any reported metric" 까지만 허용한다.  BLOCKED → REPORTABLE 은 그 범위가 아니다.
+**조치.**  canonical sync 로 정리했다.  두 번째 pass 가 현재 상태다 — 차단 사유는
+selector 가 아니라 **GT 물리축의 부재**였고, 결과를 보기 전에 얼린 규칙으로
+geometry-reconstructed reference 를 만들면서 selector 를 전혀 건드리지 않고
+6D 지표를 열었다.
 
 ```
-ACTION = REQUIRES_USER_DECISION
-선택 A   claim lock 과 LIMITATIONS §3 을 갱신해 6D 표를 본문에 넣는다
-         (측정은 되고 차이는 안 갈린다 — 서사에 오히려 잘 맞는다)
-선택 B   6D 표를 부록으로 내리고 §3 을 "차이가 갈리지 않는다" 로 다시 쓴다
-어느 쪽이든  표가 생성돼 있는데 문서가 "제거했다" 고 말하는 지금 상태로 두지 말 것
+PAPER_CLAIM_LOCK.json          pose_metrics 를 amendment.
+                               POSE_METRICS_STATUS = REPORTABLE
+                               can_claim_6d_improvement = false
+                               historical_first_pass 에 BLOCKED 원문 보존 (삭제 아님)
+PAPER_CLAIM_LOCK.md            prose twin 동기화
+LIMITATIONS.md §3              "블록됨" -> "reference 는 재구성된 것이지 센서 GT 가
+                               아니다" 로 재작성.  개선 부재는 그대로 유지
+METRIC_NAMING_LOCK.md          6D 항목을 BLOCKED -> REPORTABLE, 이름 고정
+DISCUSSION / ABSTRACT_DRAFT /
+FINAL_ABSTRACT_RESULT_SLOTS /
+INTRODUCTION_STORY / METHOD_OUTLINE /
+TITLE_CANDIDATES / RESULTS_STORY /
+CONTRIBUTIONS                  같은 취지로 동기화
+TABLE_FINAL_1.md               generator 수정 후 재생성.  "pose 열은 BLOCKED 라
+                               없다" -> "6D 는 별도 pose 표에 있다"
 ```
+
+**바뀌지 않은 것.**  `can_claim_6d_improvement = false`.
+개선 방향으로 session-cluster 구간이 0 을 배제한 metric block 은 **0 / 24** 다.
 
 ## 2. ranking 구간 공백 — 채웠다
 
@@ -105,8 +95,16 @@ Q  "필터가 라벨 품질을 올리는데 왜 student 가 안 좋아지나"
 A  그것이 논문의 결과다.  해석(teacher 품질 병목)은 모든 진단과 일관되지만
    측정된 양이 아니라고 명시한다
 
-Q  "6D pose 는 왜 없나 / 왜 있나"
-A  §1 참조.  사용자 결정 대기 중이다
+Q  "6D pose 는 왜 있나 — 전에는 블록이라고 하지 않았나"
+A  §1 참조.  첫 진단이 blocker 를 selector 로 잘못 짚었고, 실제 blocker 는 GT 축의
+   부재였다.  얼린 규칙으로 reference 를 만들면서 selector 를 건드리지 않고 열렸다.
+   과거 BLOCKED 기록은 claim lock 안에 그대로 보존돼 있다.  그리고 표가 생겼다고
+   개선을 주장하지는 않는다 — 0/24 다
+
+Q  "site-matched 는 왜 안 했나"
+A  했다.  A8_DAY_ONLY 를 site 정합 88 프레임(recording cluster 7)에서 평가했고
+   네 지표 모두 구간이 0 을 포함한다.  2,227 프레임 수량 확대 학습은 새 과학적
+   질문이 아니라 수량 확대라서 method search 종료 이후 하지 않기로 했다
 
 Q  "seed 하나로 낸 결론 아닌가"
 A  line 트랙은 두 seed 를 독립 평가했고 둘 다 음성이다.  V1~V5 는 대체로 단일

@@ -1,9 +1,15 @@
 # Table — 6D pose by material
 
-Population: the in-house real-image evaluation set, 319 positive frames.
-Ground truth comes from `GEOMETRY_RESOLVED_POSE_GT.json` — the physical long axis is
-resolved from manually annotated keypoints, calibrated intrinsics and the registered
-pallet dimensions. No model prediction enters the ground truth.
+Population: the in-house real-image evaluation set, 319 positive frames
+(plastic 194, wood 125), `population_contract.role = DEV` — a repeatedly used
+development population, never held-out.
+
+The reference is a **geometry-reconstructed 6D reference pose**
+(`GEOMETRY_RESOLVED_POSE_GT.json`): the physical long axis is resolved from manually
+annotated 2D cuboid keypoints, calibrated intrinsics and the registered pallet
+dimensions, under a rule frozen before any 6D result was seen. No model prediction
+enters it. It is not metrology-grade sensor ground truth and it inherits the
+annotation noise of the manual keypoints.
 
 Orientation is a 180-degree equivalence class, so yaw folds to 0-90 and a wrong
 long/short assignment is never absorbed. `ADDsym AUC` is the group-aware ADD over

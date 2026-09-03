@@ -21,9 +21,8 @@ pose 계산단 기하 신호          V1 S1·S3·S4 (translation refit ·      �
                              V1B L2·L3·L4 (line 융합, 두 seed)      전부 음성
 추가 센서 · 시간축             depth Gate 0/0B/센서검증               NOT_READY_FOR_GATE1
                              temporal pilot + closure              적격 모집단 0
-현장 정합 적응                 SITE_ENVIRONMENT_AUDIT + preflight    실행은 승인 대기.
-                                                                   88 프레임 재평가는
-                                                                   기준선과 안 갈림
+현장 정합 적응                 A8_DAY_ONLY 를 site 정합 88 프레임에서   해소된 개선 없음.
+                             평가 (recording cluster 7)          네 지표 모두 구간이 0 포함
 ```
 
 여기에 더해 **모집단이 소진됐다**.  PAPER_EVAL 319 는 다섯 선택 트랙, 세 teacher
@@ -54,24 +53,41 @@ artifact 가 지지하는 범위는 `PAPER_MAIN_CLAIMS.md` 마지막 절에 정�
    selector 실측 0.59~0.65, gate 0.95
 ```
 
-## 남은 사용자 결정 (자율 작업이 하지 않는다)
+## 결정 상태 — 2026-09-04 canonical sync 로 전부 해소
 
 ```
-D1 ★ pose 상태          claim lock 과 LIMITATIONS §3 이 "BLOCKED / 열 제거" 라고
-                       적는데 6D 표가 이미 생성돼 있다.  둘 중 하나로 정리 필요.
-                       PAPER_REVIEWER_GAP_AUDIT §1
+D1 ★ pose 상태          RESOLVED.  POSE_METRICS_STATUS = REPORTABLE,
+                       can_claim_6d_improvement = false.  6D 표는 본문에 들어간다.
+                       PAPER_CLAIM_LOCK.json 은 amendment 됐고 historical first pass 는
+                       삭제하지 않고 보존했다
 
-D2   LIMITATIONS §8     ranking 구간이 이제 frame-level 로는 존재한다.
-                       "구간 없음" 문장을 정확히 다시 쓸 것
+D2   ranking 구간        PARTIALLY RESOLVED.  frame-level 구간은 계산했다
+                       (R5-R0 AUROC +0.00318 [+0.000092, +0.006898], 0 배제).
+                       session-cluster 구간은 negative 행에 session_id 가 없어
+                       여전히 계산 불가 — 이건 데이터의 성질이지 미결정이 아니다
 
-D3   site-matched       실행 승인 대기(adapt 2,227 / eval 100).  이것만이 아직
-     self-training      열려 있는 실험이며, 열려 있는 이유는 **모집단이 다르기**
-                       때문이다(PAPER_EVAL 이 아님).  하려면 별도 frozen protocol
+D3   site-matched       RESOLVED.  소규모 arm(A8_DAY_ONLY)은 **이미 평가됐다**
+                       (88 프레임, recording cluster 7).  네 지표 모두 구간이 0 포함.
+                       full-site 2,227 수량 확대 학습은 NOT_RUN_AND_NOT_PLANNED.
+                       "유일하게 남은 실험" 이라는 표현은 폐기한다
 
-D4   wood pose          registry 재발행(198 핀 갱신) vs wood 를 pose 표에서 제외.
-                       현재 표는 wood 를 포함한다 — 어느 쪽이 정본인지 확정 필요
+D4   wood pose          RESOLVED.  wood 125 는 pose 표에 **포함**된다.
+                       평가 전용 POSE_EVAL_OBJECT_CONTRACT 를 쓰므로
+                       OBJECT_GEOMETRY_REGISTRY.json 재발행은 하지 않는다.
+                       ALL 319 = plastic 194 + wood 125
 
-D5   6D 그림            Figure 2 에 6D 패널을 붙일지 (D1 에 종속)
+D5   6D 그림            RESOLVED.  Figure 2 를 3 패널 계층으로 그린다
+                       (A 검출/랭킹 · B 2D 국소화 · C 하류 6D).
+                       새 추론 없이 기존 frozen 결과만으로 그릴 수 있다
+```
+
+새 미결정 사항은 **artifact 부족 두 건**뿐이고, 둘 다 계산이 아니라 데이터의 성질이다.
+
+```
+BLOCKED_MISSING_ARTIFACT   ranking 의 완전한 session-cluster 구간
+                           (negative 2,689 행에 session_id 없음)
+BLOCKED_MISSING_ARTIFACT   필터 품질 지표의 신뢰구간
+                           (FILTER_SEPARABILITY.json 에 항목별 배열 없음)
 ```
 
 ## 다음에 하지 말아야 할 것

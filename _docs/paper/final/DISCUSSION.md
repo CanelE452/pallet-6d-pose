@@ -148,11 +148,14 @@ no independent confirmation
   the fast-teacher probes — the contract and the result were committed together,
   so their ordering cannot be established from version history at all.
 
-pose metrics blocked
-  POSE_METRICS_STATUS = BLOCKED. No claim about rotation, translation, yaw, ADD,
-  ADD-S, 3D IoU or 6D pose AUC appears anywhere. The blocker is algorithmic: the
-  best axis selector measured reaches 0.65 against a gate of 0.95, so further
-  annotation would not open it.
+pose reported, no pose improvement claimed
+  POSE_METRICS_STATUS = REPORTABLE since 2026-09-04. Rotation, yaw, translation,
+  oriented IoU3D and symmetry-aware ADD AUC are measured against a
+  geometry-reconstructed 6D reference pose and reported in their own table. What
+  is not claimed is an improvement: of 24 metric blocks in the paired bootstrap,
+  zero resolve in the improvement direction under session clustering. The axis
+  selector remains weak (0.59-0.65 measured against a 0.95 gate) and that is now
+  reported as a diagnostic rather than used to withhold the metrics.
 
 2D is not 6D
   keypoint pixel error is not final pose accuracy. A study measuring 2D keypoints

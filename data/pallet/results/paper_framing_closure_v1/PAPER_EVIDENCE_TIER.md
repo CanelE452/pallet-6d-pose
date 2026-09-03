@@ -32,8 +32,10 @@ session-cluster paired bootstrap        POSE_PAIRED_BOOTSTRAP.json, 10,000, seed
   (6D)                                  20260903.  24 개 metric block 전부 산출
 ```
 
-★ **6D pose 표를 MAIN 에 두는 것은 문서 하나와 충돌한다** — `PAPER_REVIEWER_GAP_AUDIT.md`
-§1 을 반드시 함께 읽을 것.  이 배정은 제안이며, 사용자 결정 전에는 확정이 아니다.
+★ **2026-09-04 확정.**  6D pose 표는 MAIN 이다.  `PAPER_CLAIM_LOCK.json` 이
+`POSE_METRICS_STATUS = REPORTABLE` 로 amendment 됐고 historical first pass 는 보존됐다.
+표를 싣되 개선은 주장하지 않는다 — 개선 방향으로 session-cluster 구간이 0 을 배제한
+metric block 은 0/24 다.
 
 ## SUPPORTING
 
@@ -42,9 +44,9 @@ session-cluster paired bootstrap        POSE_PAIRED_BOOTSTRAP.json, 10,000, seed
 ────────────────────────────────────────────────────────────────────────────────────────
 pseudo-label 필터 품질(분리도·retention) 필터 신호가 무작위가 아님(claim F/G)             B
 축 oracle 진단(ORACLE vs MAIN path)      selector 가 병목임을 보이는 상한선               B/C
-site-matched adaptation 감사            같은 물리 장소 / 다른 recording 분리가 가능함     B
-  (SITE_ENVIRONMENT_AUDIT_V1,
-   SITE_A_ARM_EVALUATION 88 frames)
+site-matched 소규모 arm 평가            A8_DAY_ONLY 를 site 정합 88 프레임에서 평가.     B
+  (SITE_ENVIRONMENT_AUDIT_V1,             **완료됨.** recording cluster 7 개 전부에서
+   SITE_A_ARM_EVALUATION 88 frames)        구간이 0 을 포함 = 해소된 개선 없음
 material / lighting 부분모집단           일반화 범위 서술.  선택 근거로 쓰지 않는다        B
 ranking 결과(AUROC · FPR95)             claim C.  **이번에 구간을 채웠다** —              A 점추정
   + 이번에 계산한 부트스트랩 구간         G1 참조.  구간 자체는 사후 계산이므로 B          + B 구간
@@ -71,7 +73,10 @@ FAST / STRONG teacher probe             method lock 없음.  계약과 결과가
 FAST_6D_SCREEN_V1  S1 · S3 · S4         POST-STOP 탐색.  전부 음성이고 S3 는 **정확히
 FAST_6D_SCREEN_V1B C1 · L2 · L3 · L4    0 개** 선택을 바꿨다(=DOPE 병목이 공간 게이팅이
                                         아니라 peak 정밀도라는 음성 증거)
-site-matched self-training 실행 자체     아직 실행 안 됨(사용자 승인 대기)
+full-site 2,227 프레임 수량 확대 학습     NOT_RUN_AND_NOT_PLANNED.  기존 site-matched
+                                        가설의 새 과학적 질문이 아니라 pseudo-label
+                                        수량 확대에 가깝고, method search 종료 이후
+                                        실행하지 않기로 결정했다
 ```
 
 ## EXCLUDE

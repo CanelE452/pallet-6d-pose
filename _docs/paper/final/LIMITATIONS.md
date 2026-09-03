@@ -35,29 +35,32 @@ Two arms in the V1 namespace are also post-hoc: `R6_CONF_FLIP` and the `B_CONF_*
 family do not appear in the exposure lock's `arms[]` and were created after the
 main results were seen. They are not in any main table.
 
-## 3. Pose metrics are blocked
+## 3. The pose reference is reconstructed, not measured by a sensor
 
 ```text
-POSE_METRICS_STATUS = BLOCKED
-blocked_reason      = POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;
-                      FINAL_MANIFEST_NOT_FROZEN;
-                      wood: CANONICAL_MIGRATION_NOT_PASS;
-                      SYMMETRY_NOT_FROZEN
+POSE_METRICS_STATUS = REPORTABLE   (amended 2026-09-04)
 ```
 
-No claim about rotation, translation, yaw, ADD, ADD-S, 3D IoU, 5cm5deg, or 6D pose
-AUC appears anywhere in this paper. These columns are **removed** from the
-paper-facing tables rather than left as blank cells, so that a reader never sees an
-empty pose column and infers the measurement merely failed to run.
+The 6D layer is reported, but the reference it is scored against is a
+**geometry-reconstructed 6D reference pose**: manual 2D cuboid keypoints,
+calibrated intrinsics and registered physical dimensions, resolved under a rule
+frozen before any 6D result was seen. It is not metrology-grade sensor ground
+truth, not a motion-capture pose, and it inherits the annotation noise of the
+manual keypoints. No model prediction was used to choose it.
 
-The blocker is algorithmic, not a matter of unfinished labelling: the best axis
-selector measured reaches 0.65 against a gate of 0.95. More annotation would not
-open it. The square footprint of one pallet type makes width and depth visually
-interchangeable, which is the same ambiguity that produces the 90-degree keypoint
-permutations discussed in the analysis.
+An earlier version of this document stated that pose metrics were blocked. That
+was the first-pass diagnosis, which attributed the block to the axis selector. The
+actual blocker was the absence of a ground-truth physical axis; resolving the
+reference opened the metrics without modifying the selector. The first-pass record
+is preserved in `PAPER_CLAIM_LOCK.json` under `pose_metrics.historical_first_pass`.
 
-Pipeline description remains accurate and permitted: the predicted 2D keypoints are
-consumed by a Perspective-n-Point solver.
+What did **not** change: no improvement in 6D pose is claimed. Of 24 metric blocks
+in the paired bootstrap, zero resolve in the improvement direction under session
+clustering. The axis selector also remains weak — 0.59 to 0.65 measured against a
+0.95 gate — and the square-ish footprint of one pallet type makes width and depth
+visually interchangeable, which is the same ambiguity behind the 90-degree keypoint
+permutations discussed in the analysis. That is now reported as a diagnostic
+finding rather than used to withhold the metrics.
 
 ## 4. A 2D keypoint metric is not insertion success
 
@@ -89,22 +92,47 @@ The headline nighttime detection comparison rests on 50 frames of one material.
 Every use of this subgroup prints its N. A separate, broader lighting split exists
 (`Lighting_night`, N = 106, plastic and wood) and the two are never interchanged.
 
-## 8. Ranking differences carry no separate confidence interval
+## 8. Ranking uncertainty is only partly available
 
-Paired bootstrap intervals exist for detection and for keypoint error. The AUROC and
-FPR95 differences have **no** matching interval in the artifacts, and
-session-clustered bootstrap is unavailable for the current negative capture:
+Paired bootstrap intervals exist for detection and for keypoint error. As of
+2026-09-04 a **frame-level** paired interval also exists for the ranking metrics,
+computed from the frozen per-frame scores with no new inference:
 
 ```text
+R5 - R0   AUROC  +0.00318  95% frame CI [+0.000092, +0.006898]   excludes zero
+R5 - R0   FPR95  -0.01339  95% frame CI [-0.02566,  +0.005578]   contains zero
 session_cluster_bootstrap_95ci = UNAVAILABLE_FOR_CURRENT_DEV_NEGATIVE_CAPTURE
 ```
 
-The ranking result is therefore phrased as *the best observed* AUROC and FPR95 among
-the frozen arms, not as a statistically established improvement.
+The session-clustered interval remains uncomputable for a concrete reason: every
+negative row in the per-frame artifacts carries an empty session identifier, so the
+negative pool cannot be resampled by cluster. A partial interval that resamples
+only the positive sessions was computed and is recorded, but it does not cover
+negative-side variability and is never reported as a session-clustered interval.
+
+The frame-level interval was computed **after** the ranking was observed, so it is
+a Tier-B follow-up to Tier-A point estimates. The ranking result is therefore
+phrased as *the highest observed* AUROC with a positive paired frame-level
+difference — never as a statistically confirmed or session-level significant
+improvement.
 
 The detection result carries the same caution from the other direction: the overall
 R0-versus-full-filter detection difference is not resolved
 (`p_better` 0.121 frame-level, 0.244 session-clustered).
+
+## 8b. No untouched confirmation population remains
+
+Every selection track, teacher probe and no-train screen consumed PAPER_EVAL as a
+development population. There is no population left that the current method search
+has never consulted, so nothing in this study can be upgraded to confirmatory by
+re-running it. Opening confirmation would require a new capture and a protocol
+frozen before any result on it is observed.
+
+## 8c. Post-hoc diagnostics are kept separate from the frozen comparisons
+
+The exploratory tracks — the no-train pose screens, the temporal pilot, the depth
+gates — were designed after PAPER_EVAL results had been seen. They appear only as
+diagnostics and never in the same table block as the frozen adaptation arms.
 
 ## 9. No closed-loop forklift evaluation
 

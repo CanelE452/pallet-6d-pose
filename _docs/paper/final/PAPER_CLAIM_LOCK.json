@@ -66,7 +66,30 @@
         "night_fpr95_R0": 0.194868,
         "night_fpr95_R5": 0.0587579
       },
-      "note": "This is the only axis on which the proposed filter is best of all seven arms. It is stated as best observed, not as an established improvement: the ranking metrics carry no bootstrap interval in the artifacts."
+      "note": "This is the only axis on which the proposed filter is best of all seven arms. It is stated as best observed, not as an established improvement: the ranking metrics carry no bootstrap interval in the artifacts.",
+      "amended_20260904": {
+        "frame_level_paired_interval_now_exists": true,
+        "auroc_delta_R5_minus_R0": 0.00318,
+        "auroc_frame_CI95": [
+          9.2e-05,
+          0.006898
+        ],
+        "auroc_frame_excludes_zero": true,
+        "fpr95_delta_R5_minus_R0": -0.013388,
+        "fpr95_frame_CI95": [
+          -0.02566,
+          0.005578
+        ],
+        "fpr95_frame_excludes_zero": false,
+        "session_cluster_interval": "STILL_UNAVAILABLE — every negative row lacks a session identifier",
+        "tier": "the point estimates are Tier A; this interval was computed after the ranking was seen and is Tier B",
+        "permitted_phrasing": "The full consistency variant achieved the highest observed AUROC. Its paired frame-level AUROC difference relative to R0 was positive, while session-clustered uncertainty for the ranking metric could not be estimated for the negative population.",
+        "forbidden_phrasing": [
+          "statistically confirmed ranking improvement",
+          "session-level significant ranking improvement"
+        ],
+        "source": "data/pallet/results/paper_framing_closure_v1/PAPER_STATIC_STAT_AUDIT.json G1"
+      }
     },
     {
       "id": "D",
@@ -131,6 +154,47 @@
       },
       "label_required": "development evidence",
       "note": "judge such frames by maximum corner error; the distribution is bimodal and the median hides the failure"
+    },
+    {
+      "id": "I",
+      "tier": "A",
+      "added": "2026-09-04",
+      "claim": "No evaluated self-training variant showed a session-cluster-resolved improvement in downstream 6D pose over the synthetic-only baseline.",
+      "evidence": {
+        "R0": {
+          "rotation_median_deg": 2.2625,
+          "yaw_median_deg": 1.2306,
+          "translation_median_cm": 7.8969,
+          "iou3d_median": 0.60318,
+          "add_sym_auc": 0.42847,
+          "n": 319,
+          "pose_coverage": 1.0,
+          "axis_accuracy": 0.7492
+        },
+        "R5_PROPOSED": {
+          "rotation_median_deg": 2.5345,
+          "yaw_median_deg": 1.2938,
+          "translation_median_cm": 8.8265,
+          "iou3d_median": 0.58677,
+          "add_sym_auc": 0.4001,
+          "n": 319,
+          "pose_coverage": 1.0,
+          "axis_accuracy": 0.7335
+        },
+        "comparisons": 6,
+        "metric_blocks": 24,
+        "session_cluster_intervals_excluding_zero_in_the_improvement_direction": 0,
+        "session_cluster_intervals_excluding_zero_in_any_direction": 0,
+        "frame_level_intervals_excluding_zero": 2
+      },
+      "source": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVALUATION_*.json and POSE_PAIRED_BOOTSTRAP.json",
+      "permitted_phrasing": "No self-training variant showed a session-cluster-resolved improvement in downstream 6D pose over the synthetic-only baseline.",
+      "forbidden_phrasing": [
+        "No difference exists.",
+        "Self-training statistically worsens all 6D metrics.",
+        "All 6D components degrade."
+      ],
+      "caveat": "13 recording groups is a small number of clusters. An interval containing zero means this data cannot separate the arms, not that they are equal."
     }
   ],
   "forbidden_sentences": [
@@ -147,27 +211,80 @@
     "no real annotation was used anywhere",
     "state-of-the-art",
     "primary pose metric (for the pixel metric)",
-    "we evaluate pose accuracy",
-    "we switched to NME because px was unfair"
+    "we switched to NME because px was unfair",
+    "self-training improves 6D pose",
+    "confirmed 6D improvement",
+    "held-out 6D improvement",
+    "our line fusion improves pose",
+    "the YOLO bbox constraint improves translation",
+    "the temporal method failed",
+    "depth-assisted monocular adaptation"
   ],
   "pose_metrics": {
-    "POSE_METRICS_STATUS": "BLOCKED",
-    "blocked_reason": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR; FINAL_MANIFEST_NOT_FROZEN; wood: CANONICAL_MIGRATION_NOT_PASS; SYMMETRY_NOT_FROZEN",
+    "POSE_METRICS_STATUS": "REPORTABLE",
     "can_claim_6d_improvement": false,
-    "blocked_quantities": [
-      "yaw",
-      "rotation error",
-      "translation error",
-      "ADD",
-      "ADD-S",
-      "3D IoU",
-      "5cm5deg",
-      "6D pose AUC"
-    ],
+    "amended_on": "2026-09-04",
+    "amended_by": "_docs/paper/final/PAPER_CANONICAL_SYNC_20260904.md",
+    "historical_first_pass": {
+      "status": "BLOCKED",
+      "preserved_verbatim": true,
+      "note": "This is the record as it stood when the lock was declared. It is kept, not deleted.",
+      "original_block": {
+        "POSE_METRICS_STATUS": "BLOCKED",
+        "blocked_reason": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR; FINAL_MANIFEST_NOT_FROZEN; wood: CANONICAL_MIGRATION_NOT_PASS; SYMMETRY_NOT_FROZEN",
+        "can_claim_6d_improvement": false,
+        "blocked_quantities": [
+          "yaw",
+          "rotation error",
+          "translation error",
+          "ADD",
+          "ADD-S",
+          "3D IoU",
+          "5cm5deg",
+          "6D pose AUC"
+        ],
+        "pipeline_description_allowed": true,
+        "example_allowed": "keypoints are converted to a 6D pose using PnP",
+        "example_forbidden": "our method improves 6D pose",
+        "blocker_is_algorithmic": "best measured axis selector 0.65 against a gate of 0.95; further manual annotation would not open these slots"
+      }
+    },
+    "current_second_pass": {
+      "status": "REPORTABLE",
+      "basis": "geometry-reconstructed 6D reference pose, built from manual 2D cuboid keypoints, calibrated intrinsics and registered pallet dimensions",
+      "gt_rule": "data/pallet/results/paper_pose_metric_closure_v1/GT_AXIS_RESOLUTION_LOCK.json, frozen before any 6D result was seen",
+      "model_prediction_used_to_choose_gt": false,
+      "selector_modified": false,
+      "new_training": 0,
+      "new_inference": "R0 replay reproduced its cache exactly",
+      "symmetry_group": "{I, Ry(180 deg)}",
+      "object_contract": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json",
+      "object_contract_sha256": "a4c2918b4b0e9c97f94332d2e7e35132a8cbe0e738db25d92ea55e0d81210dbd",
+      "existing_registry_rewritten": false,
+      "population": {
+        "ALL": 319,
+        "plastic": 194,
+        "wood": 125
+      },
+      "what_the_first_pass_got_wrong": "the block was diagnosed as the selector. The actual blocker was the absence of a ground-truth physical axis. Resolving the reference opened the metrics without touching the selector.",
+      "what_did_not_change": "the axis selector is still weak (0.59-0.65 measured against a 0.95 gate). That stands as a diagnostic finding, not as a reason to withhold the metrics.",
+      "reportable_quantities": [
+        "rotation error",
+        "yaw error",
+        "translation error",
+        "oriented IoU3D",
+        "symmetry-aware ADD AUC",
+        "pose coverage",
+        "axis accuracy"
+      ],
+      "still_withdrawn": {
+        "5cm5deg": "withdrawn by the 2026-08-26 metric revision, independently of the pose block"
+      }
+    },
+    "why_reportable_is_not_improvement": "Reportable means the quantity can be measured and tabulated. Improvement means an arm beats the baseline. Of 24 metric blocks in POSE_PAIRED_BOOTSTRAP, zero have a session-cluster interval excluding zero in the improvement direction.",
     "pipeline_description_allowed": true,
-    "example_allowed": "keypoints are converted to a 6D pose using PnP",
-    "example_forbidden": "our method improves 6D pose",
-    "blocker_is_algorithmic": "best measured axis selector 0.65 against a gate of 0.95; further manual annotation would not open these slots"
+    "example_allowed": "We evaluate downstream 6D pose using a geometry-reconstructed reference pose.",
+    "example_forbidden": "our method improves 6D pose"
   },
   "proposed_method_identity": {
     "proposed_is": "V1 frozen full consistency filter (R5_PROPOSED)",
@@ -202,8 +319,29 @@
   },
   "hedges_are_load_bearing": {
     "increases observed": "R0 vs full filter detection p_better 0.121 frame, 0.244 session-clustered; 'substantially improves' overstates it",
-    "best observed AUROC and FPR95": "no bootstrap interval exists for ranking metrics and session-clustered bootstrap is UNAVAILABLE_FOR_CURRENT_DEV_NEGATIVE_CAPTURE",
-    "consistent with a teacher-quality bottleneck": "an interpretation that fits every diagnostic, not a measured quantity"
+    "best observed AUROC and FPR95": "as of 2026-09-04 a frame-level paired interval exists (AUROC +0.00318, [+0.000092, +0.006898], excludes zero; FPR95 contains zero). It was computed after the ranking was seen, and session-clustered uncertainty remains uncomputable because negative rows carry no session identifier.",
+    "consistent with a teacher-quality bottleneck": "an interpretation that fits every diagnostic, not a measured quantity",
+    "no session-cluster-resolved 6D improvement": "0 of 24 metric blocks resolve in the improvement direction. With 13 clusters that is a statement about resolving power, not about equality."
   },
-  "naming_authority": "_docs/paper/final/METRIC_NAMING_LOCK.md"
+  "naming_authority": "_docs/paper/final/METRIC_NAMING_LOCK.md",
+  "forbidden_sentences_amendment_20260904": {
+    "removed_because_now_stale": [
+      "we evaluate pose accuracy"
+    ],
+    "why_removed": "the pose layer is REPORTABLE, so evaluating pose is permitted. What stays forbidden is claiming an improvement in it.",
+    "newly_permitted": [
+      "We evaluate downstream 6D pose using a geometry-reconstructed reference pose.",
+      "We report rotation, yaw, translation, oriented 3D IoU, and symmetry-aware ADD AUC."
+    ],
+    "temporal_wording": "the temporal pilot is POPULATION_LIMITED, not a measured failure"
+  },
+  "canonical_sync": {
+    "document": "_docs/paper/final/PAPER_CANONICAL_SYNC_20260904.md",
+    "date": "2026-09-04",
+    "what_it_changed": "the pose layer was moved from BLOCKED to REPORTABLE and the ranking interval gap was filled. No metric was recomputed and no historical result was edited.",
+    "experimentation_status": "STOPPED",
+    "new_method_candidate": "NONE",
+    "full_site_training": "NOT_RUN_AND_NOT_PLANNED",
+    "site_matched_small_arm": "ALREADY_COMPLETED"
+  }
 }

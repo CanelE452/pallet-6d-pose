@@ -151,6 +151,7 @@ raw pixel error and NME are never mixed in one column
 NME is labelled a post-hoc scale-normalised diagnostic wherever it appears
 absolute px is never compared across subgroups to rank condition difficulty
 paired comparisons say they are paired; coverage is reported next to them
-no 6D pose quantity appears anywhere
+6D pose quantities appear only in the pose table and its subgroup tables, always
+  against the geometry-reconstructed reference, never as an improvement claim
 "held-out" appears nowhere — PAPER_EVAL role is DEV
 ```

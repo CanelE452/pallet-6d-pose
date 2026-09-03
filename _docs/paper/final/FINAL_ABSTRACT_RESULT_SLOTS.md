@@ -105,35 +105,37 @@ retroactively the proposed method.
 ## BLOCKED — may not be written at all
 
 ```text
-slot                    status
-────────────────────────────────
-yaw                     BLOCKED
-rotation error          BLOCKED
-translation error       BLOCKED
-6D pose AUC             BLOCKED
-ADD / ADD-S             BLOCKED
-3D IoU                  BLOCKED
-5cm5deg                 BLOCKED
+slot                    status        R0        R5_PROPOSED
+──────────────────────────────────────────────────────────────
+rotation median [deg]   REPORTABLE    2.2625    2.5345
+yaw median [deg]        REPORTABLE    1.2306    1.2938
+translation median [cm] REPORTABLE    7.8969    8.8265
+oriented IoU3D          REPORTABLE    0.60318   0.58677
+symmetry-aware ADD AUC  REPORTABLE    0.42847   0.40010
+5cm5deg                 WITHDRAWN     by the 2026-08-26 metric revision
 ```
 
 ```text
-POSE_METRICS_STATUS = BLOCKED
-blocked_reason      = POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;
-                      FINAL_MANIFEST_NOT_FROZEN;
-                      wood: CANONICAL_MIGRATION_NOT_PASS;
-                      SYMMETRY_NOT_FROZEN
-declaration         _docs/audits/paper/POSE_METRIC_READINESS.md
-machine verdict     data/pallet/results/paper_eval_v1/EVALUATOR_CONTRACT.json
+POSE_METRICS_STATUS = REPORTABLE          (amended 2026-09-04)
+reference           = geometry-reconstructed 6D reference pose
+source              = data/pallet/results/paper_pose_metric_closure_v1/
+                        POSE_EVALUATION_*.json
+sync document       = _docs/paper/final/PAPER_CANONICAL_SYNC_20260904.md
 ```
 
-The blocker is algorithmic, not a matter of unfinished labelling: the best axis
-selector measured reaches 0.65 against a gate of 0.95, so additional manual review
-would not open these slots.
+These slots are fillable, but **no improvement slot is**. Of 24 metric blocks in
+the paired bootstrap, zero resolve in the improvement direction under session
+clustering. The abstract states the absence of a resolved gain, never a gain.
+
+The axis selector remains weak (0.59-0.65 measured against a 0.95 gate). That is
+reported as a diagnostic, not used to withhold the slots.
 
 ## Unavailable
 
 ```text
-session-cluster bootstrap 95% CI    UNAVAILABLE_FOR_CURRENT_DEV_NEGATIVE_CAPTURE
+session-cluster ranking 95% CI      UNAVAILABLE_FOR_CURRENT_DEV_NEGATIVE_CAPTURE
+                                      (negative rows carry no session identifier;
+                                       a frame-level ranking CI does now exist)
 NME for R0-CONT, R1, R2, R3, R4     never computed by the V1 evaluator
 catastrophic (>40 px) rate on the   only exists on the n = 1,979 teacher-probe
   full 319 population                 sub-population

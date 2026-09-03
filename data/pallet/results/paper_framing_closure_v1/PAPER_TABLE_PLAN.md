@@ -7,6 +7,8 @@
 
 ## 본문
 
+실제 번호는 현재 manuscript 구조를 따르고 역할만 맞춘다 — 새 번호를 임의로 깨지 않는다.
+
 ```
 T1  검출과 랭킹 (2D)                     TABLE_FINAL_1
       AP50-95 · AP50 · AUROC · FPR95 · pooled supervised keypoint median/p90
@@ -18,12 +20,15 @@ T2  미세 국소화 (2D)                     TABLE_FINAL_2
       필수 단서   원본 이미지 픽셀 단위이며 6D pose 오차가 아니다
                  (METRIC_NAMING_LOCK 의 표현 그대로)
 
-T3  6D pose 주 비교                      TABLE_FINAL_POSE      ★ 배치 미정
+Pose Table  하류 6D 전체 평가          TABLE_FINAL_POSE      ★ 본문 확정 (2026-09-04)
       PoseCov · AxisAcc · R · yaw · t · IoU3D · ADDsym AUC, 7 arm
-      필수 단서   24 개 session-cluster 구간이 전부 0 을 포함한다.
+      2D/검출 표와 **합치지 않는다** — 다른 질문이고 모집단도 다르다
+      필수 단서   개선 방향으로 session-cluster 구간이 0 을 배제한 metric block 0/24.
                  AxisAcc 를 반드시 옆에 둔다 — 축 정확도 변화가 pose 정확도로
-                 비례해 옮겨가지 않는다
-      ★ PAPER_REVIEWER_GAP_AUDIT §1 의 사용자 결정 전에는 본문/부록 확정 불가
+                 비례해 옮겨가지 않는다.
+                 R0_CONT 는 318 프레임(PoseCov 0.997), 나머지는 319 — 숨기지 않는다.
+                 reference 는 geometry-reconstructed 6D reference pose 이며
+                 센서 GT 가 아니다
 ```
 
 ## 부록

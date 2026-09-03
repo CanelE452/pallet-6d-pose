@@ -18,9 +18,12 @@ Raw pixel error is **scale-sensitive**: a pallet that projects larger yields a
 larger absolute error at the same relative accuracy. Compare models within a row,
 not absolute values across rows.
 
-Pose columns are absent because `POSE_METRICS_STATUS = BLOCKED`. They are removed
-rather than left blank, so that no reader mistakes an empty cell for a measured
-zero.
+This table covers the detection, ranking and 2D keypoint layers. Downstream 6D
+results are reported separately in the pose table (`TABLE_FINAL_POSE.md`), which
+scores rotation, yaw, translation, oriented IoU3D and symmetry-aware ADD AUC
+against a geometry-reconstructed 6D reference pose. The two layers are kept in
+separate tables because they answer different questions and carry different
+populations.
 
 `Det` is the IoU@0.5 match rate. `AP50` and `AP50-95` are the evaluator's
 `box_ap50` and `box_ap50_95`. `AUROC` and `FPR95` are frame-level ranking

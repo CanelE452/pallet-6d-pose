@@ -119,9 +119,12 @@ KP_NOTE = (
     "larger absolute error at the same relative accuracy. Compare models within a row,\n"
     "not absolute values across rows.\n"
     "\n"
-    "Pose columns are absent because `POSE_METRICS_STATUS = BLOCKED`. They are removed\n"
-    "rather than left blank, so that no reader mistakes an empty cell for a measured\n"
-    "zero."
+    "This table covers the detection, ranking and 2D keypoint layers. Downstream 6D\n"
+    "results are reported separately in the pose table (`TABLE_FINAL_POSE.md`), which\n"
+    "scores rotation, yaw, translation, oriented IoU3D and symmetry-aware ADD AUC\n"
+    "against a geometry-reconstructed 6D reference pose. The two layers are kept in\n"
+    "separate tables because they answer different questions and carry different\n"
+    "populations."
 )
 
 

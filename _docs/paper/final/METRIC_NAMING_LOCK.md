@@ -113,20 +113,26 @@ labelled *post-hoc scale-normalised diagnostic*.
 ## 6D pose layer
 
 ```text
-POSE_METRICS_STATUS = BLOCKED
+POSE_METRICS_STATUS = REPORTABLE          (amended 2026-09-04)
 ```
 
 ```text
-translation error   BLOCKED     rotation error   BLOCKED
-yaw error           BLOCKED     ADD / ADD-S      BLOCKED
-ADD / ADD-S AUC     BLOCKED     3D IoU           BLOCKED
-5cm5deg                         already withdrawn from reporting by the frozen
-                                contract's 2026-08-26 revision, independently of
-                                the current block
+rotation error      REPORTABLE   name it "rotation error [deg]"
+yaw error           REPORTABLE   folded to 0-90 under the 180-degree class
+translation error   REPORTABLE   report in cm
+3D IoU              REPORTABLE   name it "oriented IoU3D" — never "IoU"
+ADD / ADD-S AUC     REPORTABLE   name it "symmetry-aware ADD AUC"
+5cm5deg             WITHDRAWN    by the frozen contract's 2026-08-26 revision,
+                                 independently of the pose layer
 ```
 
-These columns are **removed** from paper-facing tables rather than left as blank
-cells, so no reader mistakes an empty cell for a measured zero.
+The 6D reference is named **geometry-reconstructed 6D reference pose** (or
+*geometry-resolved*).  Never "metrology-grade GT", "ground-truth sensor pose", or
+"motion-capture GT" — it is reconstructed from manual 2D cuboid keypoints,
+calibrated intrinsics and registered physical dimensions.
+
+Pose columns now appear in a **separate pose table**, not merged into the
+2D/detection table.
 
 Pipeline description is permitted and accurate:
 

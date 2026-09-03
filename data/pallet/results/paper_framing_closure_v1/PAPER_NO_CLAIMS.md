@@ -13,8 +13,10 @@
     더 나쁘다**
 
 "구조선(line) 을 회전에 붙이면 pose 가 좋아진다"
-    L3 가 두 seed 모두 반증했다.  lambda 3.0 인 seed1 이 lambda 1.0 인 seed2 보다
-    더 크게 나빠진다 — 세기 조절로 구할 수 있는 결과가 아니다
+    L3 가 두 seed 모두 반증했다.  ★ 단 "lambda 가 클수록 나빠진다" 라고 쓰지 않는다 —
+    seed1 은 lambda 3.0, seed2 는 lambda 1.0 이라 seed 와 lambda 가 confounded 다.
+    허용 표현: "두 historical seed-specific line-fusion 구성이 모두 강한 YOLO
+    기준선을 개선하지 못했고, 더 큰 악화는 seed-1 구성에서 나타났다"
 
 "시간축 일관성을 쓰면 pseudo-label 이 좋아진다"
     정식 모집단 계약 아래 적격 centre 가 0 개다.  실패했다고도, 성공했다고도
@@ -26,9 +28,18 @@
 "실제 GT 로 미세조정하면 되므로 우리 방향이 옳다"
     REALFT 는 통제된 비교가 아니라 상한선이다.  같은 열 블록에 넣지 않는다
 
-"6D pose 가 개선됐다"  /  "yaw 오차가 줄었다"
+"6D pose 가 개선됐다"  /  "yaw 오차가 줄었다"  /  "self-training improves 6D pose"
     lock 의 금지 문장 그대로.  6D 표가 생겼다고 해서 이 금지가 풀리지 않는다.
     표가 생긴 것과 차이가 갈리는 것은 다른 문제다
+
+"temporal 방법이 실패했다"
+    POPULATION_LIMITED 이다.  적격 centre 가 0 개라 성공도 실패도 측정되지 않았다
+
+"depth 보조 monocular 방법"
+    Gate 1 이 실행되지 않았다.  main method 에 depth 는 없다
+
+"확증된 6D 개선" / "held-out 6D 개선"
+    독립 확증 모집단이 존재하지 않는다
 ```
 
 ## 이번 결과에 붙는 필수 단서

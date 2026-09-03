@@ -65,11 +65,37 @@ value, so "no arm is to the left of R0" is visible at a glance.
 Caption must state that the horizontal axis is raw 2D pixel error on the paired
 population, and that PAPER_EVAL is a development population, not a sealed test set.
 
-Optional second panel with the same axes but ranking (FPR95, lower is better) on the
-y-axis — this is where the full filter is the best arm, and the contrast with the
-detection panel is informative.
+### Figure 2 is a three-panel hierarchy (amended 2026-09-04)
 
-Source: `data/pallet/results/paper_eval_v1/arms/ARM_RESULTS.json`.
+The trade-off above is one stage of a chain, and the chain is the paper's finding.
+Draw all three panels with the same seven arms and the same marker for R0, so the
+reader sees the signal fail to propagate.
+
+```text
+Panel A   detection / ranking     AUROC or FPR95, and nighttime detection coverage
+                                  -> here the adapted arms do change, and the full
+                                     consistency arm has the highest observed AUROC
+Panel B   2D localisation         pooled supervised keypoint median error [px]
+                                  -> no arm is to the left of R0 (6.616 px)
+Panel C   downstream 6D           oriented IoU3D and symmetry-aware ADD AUC
+                                  -> no arm is above R0 (0.603 / 0.428), and no
+                                     session-cluster interval resolves an improvement
+```
+
+The visual message is one sentence: **gains at the earlier stage do not propagate
+monotonically to downstream geometry.**
+
+Every panel uses existing frozen results — no new inference is needed to draw it.
+
+```text
+Panel A/B source   data/pallet/results/paper_eval_v1/arms/ARM_RESULTS.json
+Panel C source     data/pallet/results/paper_pose_metric_closure_v1/
+                     POSE_EVALUATION_*.json
+Panel C intervals  POSE_PAIRED_BOOTSTRAP.json (session-cluster, 13 groups)
+```
+
+Panel C caption must say the 6D reference is a **geometry-reconstructed 6D reference
+pose**, not sensor ground truth, and must not describe any arm as improved.
 
 ## Figure 3 — Pseudo-label quality against retention
 

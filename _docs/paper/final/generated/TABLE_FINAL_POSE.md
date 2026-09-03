@@ -1,9 +1,15 @@
 # Table — 6D pose, main comparison
 
-Population: the in-house real-image evaluation set, 319 positive frames.
-Ground truth comes from `GEOMETRY_RESOLVED_POSE_GT.json` — the physical long axis is
-resolved from manually annotated keypoints, calibrated intrinsics and the registered
-pallet dimensions. No model prediction enters the ground truth.
+Population: the in-house real-image evaluation set, 319 positive frames
+(plastic 194, wood 125), `population_contract.role = DEV` — a repeatedly used
+development population, never held-out.
+
+The reference is a **geometry-reconstructed 6D reference pose**
+(`GEOMETRY_RESOLVED_POSE_GT.json`): the physical long axis is resolved from manually
+annotated 2D cuboid keypoints, calibrated intrinsics and the registered pallet
+dimensions, under a rule frozen before any 6D result was seen. No model prediction
+enters it. It is not metrology-grade sensor ground truth and it inherits the
+annotation noise of the manual keypoints.
 
 Orientation is a 180-degree equivalence class, so yaw folds to 0-90 and a wrong
 long/short assignment is never absorbed. `ADDsym AUC` is the group-aware ADD over
@@ -30,5 +36,16 @@ change in axis accuracy does not translate proportionally into a change in
 pose accuracy, so the two must be read together rather than one standing
 in for the other.
 
+`PoseCov` is not decoration: the source-only continuation arm solves 318 of
+the 319 frames and every other arm solves all 319. The paired bootstrap
+against that arm therefore runs on 318 shared frames, which is why its
+reference values differ in the fourth decimal from this table's R0 row.
+The difference is a population difference, not a discrepancy.
+
+No arm improves on the synthetic-only baseline here. Of the 24 metric blocks
+in `POSE_PAIRED_BOOTSTRAP.json`, zero have a session-cluster interval that
+excludes zero in the improvement direction. With 13 recording groups that is
+a statement about resolving power, not a statement that the arms are equal.
+
 Pose columns other than these are not reported. Strict signed ADD is absent
-because the 180-degree sign is deliberately unresolved in the ground truth.
+because the 180-degree sign is deliberately unresolved in the reference.

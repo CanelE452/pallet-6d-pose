@@ -1,8 +1,9 @@
 # Title candidates
 
 Constraint: the title must not promise more than the evidence supports. The study
-does **not** show improved keypoint localisation, and pose metrics are blocked, so
-any title containing *improved*, *accurate*, or *robust ... pose* is excluded.
+does **not** show improved keypoint localisation, and although 6D pose is now
+measured and reported, no arm shows a session-cluster-resolved improvement in it.
+Any title containing *improved*, *accurate*, or *robust ... pose* is excluded.
 
 Colon-free titles are preferred.
 

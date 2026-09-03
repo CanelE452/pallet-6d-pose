@@ -13,9 +13,14 @@
 >
 > ```text
 > 1  pose 열 (R med · yaw med · t med · IoU3D · AUC…)
->    영구적으로 채워지지 않는다.  POSE_METRICS_STATUS = BLOCKED
->    (axis selector 최고 0.65 vs gate 0.95 — 알고리즘 문제라 추가 어노테이션으로
->     열리지 않는다).  최종 표에서는 빈칸이 아니라 **열 자체를 제거**했다.
+>    **이 문서의 틀에는** 적지 않는다.  2026-09-04 부터
+>    `POSE_METRICS_STATUS = REPORTABLE` 이고 6D 는 **별도 pose 표**에 있다
+>    (`_docs/paper/final/generated/TABLE_FINAL_POSE.md`).  여기에 복붙하지 않는
+>    이유는 다른 열과 같다 — 숫자 저장소가 아니기 때문이다.
+>    (옛 판에는 "BLOCKED 라 영구히 비어 있다" 고 적혀 있었다.  그 진단은
+>     blocker 를 axis selector 로 잘못 짚은 first pass 였고,
+>     실제 blocker 는 GT 물리축의 부재였다 —
+>     `_docs/paper/final/PAPER_CANONICAL_SYNC_20260904.md` 참조.)
 >
 > 2  SingleShotPose · PVNet 행
 >    SSP = INCOMPATIBLE(구현 없음), PVNet = NEEDS_TRAIN(사전 결과 부정적).

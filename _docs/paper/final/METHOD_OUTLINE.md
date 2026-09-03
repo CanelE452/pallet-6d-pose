@@ -20,11 +20,12 @@ Keypoint indices follow a camera-facing convention:
 8            projected centroid
 ```
 
-The keypoints are converted to a 6D pose by PnP downstream. **The quantitative
-claims in this paper are at the detection and 2D keypoint level.** Pose metrics are
-reported nowhere, because the pose selector is unresolved for this evaluation set
-(see Limitations); the PnP stage is described because it is the consumer of the
-keypoints, not because it is measured here.
+The keypoints are converted to a 6D pose by PnP downstream, and that pose is
+measured. **The quantitative claims in this paper span three layers: detection and
+ranking, 2D keypoint localisation, and downstream 6D pose.** The 6D layer is scored
+against a geometry-reconstructed reference pose (manual 2D cuboid keypoints,
+calibrated intrinsics, registered dimensions), not against sensor ground truth, and
+no improvement is claimed in it (see Limitations).
 
 ## 3.2 Synthetic source supervision
 
@@ -115,15 +116,18 @@ The frozen metric contract has four layers. Two are currently measurable.
 Detection layer      coverage, box AP50 / AP50-95, AUROC, FPR95        READY
 2D keypoint layer    Euclidean original-image pixel error,
                      median / p90, Proj@5/10/20px, gross20             READY
-6D pose layer        conceptually downstream via PnP                   BLOCKED
+6D pose layer        rotation, yaw, translation, oriented IoU3D,
+                     symmetry-aware ADD AUC, against a
+                     geometry-reconstructed reference pose             REPORTABLE
 Operational layer    fork-pocket alignment success                     NOT EVALUATED
 ```
 
-The pipeline is `RGB -> bbox + 9 keypoints -> PnP`. It is described in full because
-PnP is the consumer of the keypoints. **The quantitative results of this paper stop
-at detection and 2D keypoint localisation.** Pose columns are removed from the
-tables rather than left blank, and no sentence claims a 6D, yaw, translation, or
-alignment improvement.
+The pipeline is `RGB -> bbox + 9 keypoints -> PnP`. **The quantitative results of
+this paper run through all three measured layers and stop before the operational
+one.** Pose columns live in their own table rather than being merged into the
+2D/detection table, and no sentence claims a 6D, yaw, translation, or alignment
+improvement — of 24 metric blocks in the paired bootstrap, zero resolve in the
+improvement direction under session clustering.
 
 Reader-facing metric names are fixed in `METRIC_NAMING_LOCK.md`.
 

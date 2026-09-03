@@ -65,7 +65,8 @@ semantics, and not the number of observations pooled.
 
 ```text
 not claimed   a method that improves keypoint localisation
-not claimed   a method that improves 6D pose accuracy
+not claimed   a method that improves 6D pose accuracy — 6D is measured and
+              reported, and no arm resolves in the improvement direction
 not claimed   a geometry filter with a demonstrated downstream gain
 not claimed   generalisation to pallets outside the studied category
 not claimed   a new architecture

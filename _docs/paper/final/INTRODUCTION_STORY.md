@@ -54,11 +54,11 @@ Answering it requires that detection and 2D keypoint localisation be measured
 separately. If they are collapsed into a single score, an improvement in one can
 hide the absence of improvement in the other.
 
-State the evaluation scope here, once and plainly: **we evaluate detection and 2D
-geometric keypoint accuracy, which form the inputs to downstream PnP pose
-recovery.** The downstream 6D stage is described but is not used for quantitative
-claims, because the evaluation axis-selection contract is unresolved — a point the
-Limitations section carries.
+State the evaluation scope here, once and plainly: **we evaluate detection and
+ranking, fine 2D geometric keypoint accuracy, and the downstream 6D pose those
+keypoints produce.** The 6D layer is scored against a geometry-reconstructed
+reference pose rather than sensor ground truth, and no improvement is claimed in
+it — a point the Limitations section carries.
 
 ## P6 — How we answer it
 
@@ -92,7 +92,10 @@ do        keep "detection improves / localisation does not" as one sentence
 don't     promise a method that fixes it
 don't     describe prior work as having failed where we succeeded
 don't     use "label-free" — manual real annotations exist for evaluation
-don't     write "we evaluate pose accuracy" — the pose layer is blocked
+do        write "we evaluate downstream 6D pose against a geometry-reconstructed
+          reference pose" — the pose layer is reported
+don't     write "our method improves 6D pose" — no arm resolves in the
+          improvement direction under session clustering
 don't     say "substantially improves detection" — the overall difference is
           not statistically resolved
 ```

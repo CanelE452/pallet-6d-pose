@@ -107,7 +107,9 @@ keys `models.<arm>.subgroups.{ALL,Nighttime}.{detection_rate_iou50, auroc, fpr95
 ## Deliberate omissions
 
 ```text
-6D pose / yaw / rotation / translation   POSE_METRICS_STATUS = BLOCKED
+6D pose improvement                      reportable but not resolved; the
+                                         abstract states the absence of a
+                                         resolved gain, never a gain
 axis permutation 0.047 -> 0.041          Tier B development result, not an
                                          abstract number
 indoor/outdoor independent adaptation    no such experiment exists
