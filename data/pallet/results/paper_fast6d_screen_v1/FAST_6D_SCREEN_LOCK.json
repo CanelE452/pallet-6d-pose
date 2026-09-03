@@ -1,0 +1,197 @@
+{
+  "schema_version": "fast_6d_screen_lock_v1",
+  "date": "2026-09-04",
+  "status": "FROZEN_BEFORE_ANY_SCREEN_RESULT",
+
+  "SCREEN_ROLE": "EXPLORATORY_METHOD_SELECTION_ONLY",
+  "what_this_decides": "which design earns a short training run, nothing else",
+  "population_is_reused_development_data": "PAPER_EVAL positive has already been used for development. A good number here may never be called held-out, independent, or final.",
+
+  "repo_head": "a82cf2b41efda0b3806a2778dc836cf5ebba25dc",
+
+  "output_contract_preserved": {
+    "input": "monocular RGB",
+    "output": "full 6D pose R and t",
+    "direct_3dof_forbidden": true,
+    "depth_forbidden": true,
+    "new_training": 0,
+    "new_checkpoint": 0
+  },
+
+  "baseline_S0": {
+    "model": "synthetic-only YOLO26n-Pose R0",
+    "checkpoint_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "pose_path": "scripts/paper/pose_metric_closure_v1/pose_evaluation_paths.py predict_pose_without_gt",
+    "cached_result_reused": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVALUATION_R0.json",
+    "read_from_artifact_not_guessed": {
+      "n": 319, "pose_coverage": 1.0,
+      "rotation_median_deg": 2.2625, "yaw_median_deg": 1.2306,
+      "translation_median_cm": 7.8969,
+      "iou3d_median": 0.6032, "add_sym_auc": 0.4285
+    }
+  },
+
+  "evaluation_contract": {
+    "population": "PAPER_EVAL positive, N 319",
+    "pose_object_contract": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json",
+    "pose_object_contract_sha256": "a4c2918b4b0e9c97f94332d2e7e35132a8cbe0e738db25d92ea55e0d81210dbd",
+    "dimensions_read_from_contract_never_hardcoded": true,
+    "gt": "GEOMETRY_RESOLVED_POSE_GT.json, the frozen geometry-reconstructed reference",
+    "symmetry": "{I, Ry(180)}",
+    "primary": ["iou3d_median", "add_sym_auc"],
+    "secondary": ["pose_coverage", "rotation_median_deg", "yaw_median_deg",
+                  "translation_median_cm"],
+    "dope_arms_add": ["pooled supervised keypoint median", "p90", "gross20"],
+    "new_metric_definitions_forbidden": true,
+    "negatives_not_used": "this is a pose screen; the 2689 negatives are not needed",
+    "cross_model_detection_scores_not_compared": "YOLO and DOPE score semantics differ, so no AUROC, FPR95 or AP ranking between them"
+  },
+
+  "arms": {
+    "S0": "current YOLO26n-Pose through the frozen prediction-only selector",
+    "S1": {
+      "name": "point-only translation refit control",
+      "purpose": "separate any S2 gain from the mere act of re-optimising a pose",
+      "rotation": "frozen at R0, never moved",
+      "variables": ["tx", "ty", "tz"],
+      "objective": "robust reprojection of the cuboid corners against S0 predicted keypoints",
+      "bbox_forbidden_in_this_arm": true,
+      "this_is_not_full_6dof_diffpnp": true
+    },
+    "S2": {
+      "name": "point plus YOLO bbox translation refinement",
+      "rotation": "frozen at R0",
+      "variables": ["tx", "ty", "tz"],
+      "cues": ["predicted keypoints", "YOLO detected bbox"],
+      "residuals": {
+        "point": "16 coordinate residuals, x and y of 8 corners",
+        "bbox": "4 residuals, left right top bottom of the projected cuboid bbox against the YOLO bbox",
+        "normalisation": "each residual divided by the original image width or height",
+        "group_balance": "each block divided by sqrt of its residual count, so the point block does not become four times stronger by size alone",
+        "lambda_sweep_forbidden": true,
+        "centroid_not_added_to_the_bbox_objective": true
+      },
+      "reading_rule": "a fall in the objective is not a pass. If predicted reprojection improves while GT IoU or ADDsym falls, it is the same failure as the rejected DiffPnP seed."
+    },
+    "S3": {
+      "name": "full-canvas bbox-gated DOPE decoding",
+      "network_input_unchanged": "full image forward, no crop",
+      "bbox_used_as": "decoder spatial prior only",
+      "context": "square centred on the YOLO bbox, side 1.25 x max(width, height), clipped to the image",
+      "rule": "candidate peaks outside that square are not preferred for that keypoint",
+      "no_heatmap_modification": "no beta, no sigmoid, no learned prior; this arm has no tunable weight",
+      "fallback": "if no candidate lies inside the context, mark BBOX_GATE_FALLBACK and report it separately rather than silently counting a raw DOPE candidate as a success"
+    },
+    "S4": {
+      "name": "square-context ROI DOPE",
+      "differs_from_the_rejected_crop": "the rejected version used a tight bbox resized to a 400 short side, which turned edge-on pallets into wide strips. This crops a square, so the object aspect ratio is unchanged.",
+      "crop": "square centred on the bbox, side 1.25 x max(width, height), padded outside the image, resized to 400x400",
+      "padding": "BORDER_REFLECT_101",
+      "padding_justification": "the instruction offered constant 127 as a fallback if an authoritative audit showed reflect to be worst. It does not: MECHANISM_DIAGNOSTIC_REPORT compares both without condemning reflect, and the recorded convention is that DOPE inference requires reflect padding because plain squash systematically under-detects truncated and close-range pallets. The authoritative convention is followed and the deviation from the fallback is recorded here.",
+      "inverse_map_gate": "a unit test must map synthetic points original to crop to resize and back with max coordinate error below 1e-4 px, or S4 does not run"
+    },
+    "S5": {
+      "name": "line rotation plus point/bbox translation",
+      "status_determined_by_audit_before_locking": "BLOCKED_INCOMPATIBLE_PROVENANCE",
+      "why": "every line artifact in this repository (paper_s2_multihead line_uncertainty, line_signed_bias, point_line_solver) was produced on the synthetic multihead populations D0_MH_SEEN512 and D2_MH_DEV512. No line prediction cache exists on the real 319 frames, and no canonical adapter maps that model onto this population. The lock's own rule says an unclear compatibility ends the arm rather than inventing one.",
+      "new_line_training_forbidden": true
+    }
+  },
+
+  "optimizer_rules_S1_S2": {
+    "existing_helper_searched": "the repository has solvePnPRefineLM in several places but no translation-only least-squares convention, so the values below are declared here",
+    "initial_t": "S0 t",
+    "max_iterations": 10,
+    "loss": "Huber",
+    "huber_scale": "1.0 after image-diagonal normalisation",
+    "step_accepted_only_when_objective_decreases": true,
+    "positive_depth_required": true,
+    "nan_or_inf": "fall back to the original t0",
+    "parameter_sweep": 0
+  },
+
+  "historical_rejections_not_retried": {
+    "predicted_seed_full_6dof_diffpnp": "_docs/audits/PREDSEED_DIFFPNP_GATE.md — REJECT. Predicted 2D reprojection 11.96 to 6.35 px, but fixed GT reprojection 23.16 to 24.20 px and rotation +13.8 percent worse. Fitting harder to biased keypoints is not pose accuracy.",
+    "diffpnp3d_retraining": "paper_s2_scratch_diffpnp/CONCLUSION.md — PARTIAL transfer. Rear and sub-3-degree gains, no overall pose accuracy gain.",
+    "tight_strip_dope_crop": "the rejected crop turned edge-on pallets into extreme wide strips and collapsed rear localisation; S4 uses a square instead",
+    "bbox_or_hull_as_segmentation_gt": "not a visible mask, forbidden",
+    "fixed_lambda_corner_line_multitask": "_docs/audits/MULTIHEAD_FAILURE_DIAG.md — the gradients agree weakly (cosine +0.13 to +0.25); the magnitude ratio moved about 35,000x during training, so a lambda fixed at step 0 is meaningless by step 25,000"
+  },
+
+  "dimension_conditioning": {
+    "training_this_screen": 0,
+    "reason": "exact dimensions already enter the PnP geometry; whether network-level conditioning adds anything to keypoint localisation needs evidence first",
+    "audit_only": ["dimension_conditioning_probe", "phase_e_spatial_fusion",
+                   "spatial_concat_scratch"],
+    "verdict_vocabulary": ["STRONG", "WEAK", "NONE"],
+    "use_existing_preregistered_gate_if_one_exists": true
+  },
+
+  "promotion_gate": {
+    "this_is_a_screening_promotion_rule_not_a_paper_significance_threshold": true,
+    "primary": "delta IoU3D >= +0.020 OR delta ADDsym AUC >= +0.020",
+    "and_simultaneously": [
+      "the other primary metric's point estimate at or above baseline",
+      "pose coverage drop no more than 0.01 absolute",
+      "rotation median and translation median not worse than baseline by more than 5 percent"
+    ],
+    "dope_arms_add": "pooled keypoint median not worse than raw DOPE",
+    "selection": {
+      "zero_GO": "FAST_6D_SCREEN = NO_PROMOTABLE_SIGNAL, no further architecture training",
+      "one_GO": "that arm is PROMOTED_FOR_USER_REVIEW",
+      "several_GO": "highest ADDsym AUC first, IoU3D breaks a tie",
+      "winner_is_never_trained_automatically": true
+    }
+  },
+
+  "uncertainty": {
+    "paired_frame_bootstrap": true,
+    "session_cluster_bootstrap": true,
+    "grouping": "the existing session grouping of the 319 population; no new grouping is invented",
+    "contrasts": ["S2-S0", "S3-D0", "S4-D0", "S5-S0"]
+  },
+
+  "fairness_rule": {
+    "each_candidate_runs_once": true,
+    "forbidden_after_seeing_results": [
+      "bbox context 1.25 to 1.5", "changing the Huber scale", "changing iterations",
+      "changing line entropy weighting", "changing DOPE padding",
+      "reordering the S5 solver"
+    ],
+    "no_parameter_search_to_rescue_a_failed_arm": true
+  },
+
+  "read_only": [
+    "data/pallet/results/paper_selftrain_v1", "data/pallet/results/paper_selftrain_v2",
+    "data/pallet/results/paper_selftrain_v3", "data/pallet/results/paper_selftrain_v4",
+    "data/pallet/results/paper_selftrain_v5",
+    "data/pallet/results/paper_temporal_selftrain_v1",
+    "data/pallet/results/paper_depth_selftrain_v1",
+    "data/pallet/results/paper_pose_metric_closure_v1",
+    "data/pallet/results/paper_s2_scratch_diffpnp",
+    "data/pallet/results/paper_s2_multihead",
+    "challenge/yolo_pose_one_model/dimension_conditioning_probe",
+    "all existing weights"
+  ],
+  "existing_code_changes": "only additive optional entry points or wrappers; default behaviour stays byte-compatible",
+
+  "audit_paths_verified_before_locking": {
+    "present": ["_docs/audits/PREDSEED_DIFFPNP_GATE.md",
+                "data/pallet/results/paper_s2_scratch_diffpnp/CONCLUSION.md",
+                "data/pallet/eval_results/achieve/stage22_coord_pilot",
+                "_docs/audits/MULTIHEAD_FAILURE_DIAG.md",
+                "_docs/archive/paper_support_20260830/architecture.md",
+                "Deep_Object_Pose/common/belief_residual.py",
+                "scripts/paper/pose_metric_closure_v1/pose_evaluation_paths.py",
+                "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json"],
+    "absent": ["data/pallet/eval_results/achieve/stage22_coord_diag"],
+    "dope_reference": {
+      "predictions": "data/pallet/results/paper_eval_v1/baselines/DOPE_R0_PREDICTIONS.json",
+      "weights": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+      "weights_sha256_prefix": "0de80490cb3b4f9b",
+      "covers_the_319": "319 of 319 frames present, 297 with detected corners"
+    }
+  },
+
+  "next_action": "USER_REVIEW_FAST_6D_SCREEN"
+}
