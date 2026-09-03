@@ -1,0 +1,40 @@
+{
+  "schema_version": "fast_c_membership_freeze_v1",
+  "purpose": "FAST-C ensemble membership 을 결과 보기 전에 고정한다.",
+  "compatibility_checked": {
+    "kpt_shape": "[9, 3] — 전 후보 동일",
+    "flip_idx": "[1,0,3,2,5,4,7,6,8] — 전 후보 동일",
+    "nc": "1 — 전 후보 동일",
+    "real_supervision": "0 — 각 데이터셋 train symlink 에 raw_data/01_real/real_data 경로 0 건",
+    "inference_padding": "PAD 100 BORDER_REFLECT_101, imgsz 640, top-1 by box conf — 공통 배포 recipe"
+  },
+  "audited_candidates": {
+    "OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42": {
+      "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/best.pt",
+      "exists": true,
+      "sha256": "0e8f0ee0abfc46cd7a8d387e992126849c8378468d6f70fed15aa1e01c3bc414"
+    },
+    "OLD_ROOT_G38_EXP73916_60EP_SEED42": {
+      "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_EXP73916_60EP_SEED42/weights/best.pt",
+      "exists": true,
+      "sha256": "ac6650c058075bdce2b9e25fc7ec5b82ed50dff845ed8804d310be30dfbdb7cc"
+    },
+    "FIXED_OBJECT_BROAD40K_60EP_SEED42_ADAPTIVE_CONFIRM": {
+      "path": "challenge/yolo_pose_one_model/runs_fixed/FIXED_OBJECT_BROAD40K_60EP_SEED42_ADAPTIVE_CONFIRM/weights/best.pt",
+      "exists": true,
+      "sha256": "85b20e563c7866184f19f8e336aa30cb46aedc9acab698832f0572b42afc55c7"
+    }
+  },
+  "frozen_membership": [
+    "R0 (YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42)",
+    "OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42"
+  ],
+  "views_per_checkpoint": [
+    "original",
+    "horizontal flip"
+  ],
+  "total_views": 4,
+  "merge": "coordinate-wise median, min 3 valid",
+  "selection_rationale": "§11 이 예시로 든 G38_ONLY_60EP 를 그대로 쓴다.  세 후보 중 결과를 보고 고르지 않기 위해 프로토콜이 지명한 것을 택했다.",
+  "frozen_before_results": true
+}
