@@ -1,0 +1,177 @@
+{
+  "schema_version": "acquisition_provenance_audit_v1",
+  "generated_utc": "2026-09-03T10:52:56.160315+00:00",
+  "gt_used": false,
+  "search_performed": {
+    "searched_paths": [
+      "scripts/",
+      "challenge/",
+      "_docs/history/",
+      "data/pallet/raw_data/",
+      "/home/minjae/Documents/github/25y_automatic_lifter-master",
+      "/home/minjae/Documents/github/26y_automatic_lifter-master.zip"
+    ],
+    "searched_tokens": [
+      "cam_K write",
+      "imwrite depth",
+      "rs.align",
+      "aligned_depth_frame",
+      "get_depth_scale",
+      "depth_units",
+      "rosbag",
+      "aligned_depth_to_color",
+      "literal session names"
+    ],
+    "writer_of_rgb_depth_png_sequence_found": false,
+    "note": "no code in either repository writes the rgb/<ns>.png + depth/<ns>.png + cam_K.txt layout. save_rgbd.py writes colour JPEG only; logger.py writes raw/meta/model calibration logs; main_rec.py records forklift runs. The recorder that produced these eight sequences is not present."
+  },
+  "evidence_found": [
+    {
+      "file": "_docs/history/2026-05-14.md",
+      "line": 63,
+      "quote": "data/outside/capture* \ud615\uc2dd (cam_K.txt + rgb/{ts}.png + depth/{ts}.png, depth=uint16 mm)",
+      "what_it_establishes": "a project record stating the stored depth is uint16 millimetres for this exact layout",
+      "what_it_does_not_establish": "it describes the format a reader was written against, not a writer's contract"
+    },
+    {
+      "file": "_docs/history/2026-05-14.md",
+      "line": 57,
+      "quote": "task.yaml\uc758 camera intrinsic\uc774 header.txt geo_fx/fy/cx/cy\uc640 \uc77c\uce58 (614.18/614.31/329.28/234.53)",
+      "what_it_establishes": "the day cam_K equals the DOPE baseline RGB header intrinsic, so it is the colour-stream K for the RGB pipeline",
+      "what_it_does_not_establish": "that the same file is the K the depth was aligned into at capture time"
+    },
+    {
+      "file": "_docs/history/2026-05-14.md",
+      "line": "data/outside \ub370\uc774\ud130 \uba54\ubaa8",
+      "quote": "12\uac1c \uc2dc\ud000\uc2a4, \uc57d 9,900 frames, intrinsic\uc740 baseline header\uc640 \ub3d9\uc77c (RealSense D435i)",
+      "what_it_establishes": "device family is RealSense D435i and the intrinsic matches the RGB baseline"
+    },
+    {
+      "file": "challenge/scripts/live/run_live_io.py",
+      "symbol": "NpDepthFrame",
+      "quote": "numpy uint16(mm) depth; get_distance returns d/1000.0",
+      "what_it_establishes": "consumer contract for the scale"
+    },
+    {
+      "file": "/home/minjae/.../25y_automatic_lifter-master/depth_cam/logger.py",
+      "line": 148,
+      "quote": "align = rs.align(rs.stream.color) ... aligned.get_depth_frame()",
+      "what_it_establishes": "the project's own capture-side code, when it captures depth, aligns to colour first",
+      "what_it_does_not_establish": "that this particular file produced these sequences; logger.py writes raw/meta/model, not rgb/ and depth/"
+    }
+  ],
+  "recordings": {
+    "capturepallet01": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "LIKELY_COLOR_K",
+      "K_reason": "the day cam_K matches the DOPE baseline RGB header exactly and has been used as the colour K by the RGB PnP pipeline",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    },
+    "capturepallet10": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "LIKELY_COLOR_K",
+      "K_reason": "the day cam_K matches the DOPE baseline RGB header exactly and has been used as the colour K by the RGB PnP pipeline",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    },
+    "capturepallet11": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "LIKELY_COLOR_K",
+      "K_reason": "the day cam_K matches the DOPE baseline RGB header exactly and has been used as the colour K by the RGB PnP pipeline",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    },
+    "capturenight01": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "UNPROVEN",
+      "K_reason": "the night cam_K has no counterpart in any recorded header, so which stream it belongs to is not established",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    },
+    "capturenight02": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "UNPROVEN",
+      "K_reason": "the night cam_K has no counterpart in any recorded header, so which stream it belongs to is not established",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    },
+    "capturenight03": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "UNPROVEN",
+      "K_reason": "the night cam_K has no counterpart in any recorded header, so which stream it belongs to is not established",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    },
+    "capturenight04": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "UNPROVEN",
+      "K_reason": "the night cam_K has no counterpart in any recorded header, so which stream it belongs to is not established",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    },
+    "capturenight10": {
+      "capture_writer": "NOT_FOUND_IN_ANY_AVAILABLE_REPOSITORY",
+      "evidence_files": [
+        "_docs/history/2026-05-14.md",
+        "challenge/scripts/live/run_live_io.py",
+        "25y_automatic_lifter-master/depth_cam/logger.py"
+      ],
+      "depth_scale_role": "DEPTH_SCALE_STRONG_REPO_CONTRACT",
+      "depth_scale_reason": "a project history entry states uint16 mm for this layout and two independent consumers divide by 1000; no acquisition record",
+      "K_role": "UNPROVEN",
+      "K_reason": "the night cam_K has no counterpart in any recorded header, so which stream it belongs to is not established",
+      "alignment_role": "ASSUMED_ALIGNED_UNPROVEN",
+      "provenance_strength": "C_COMPATIBLE_ONLY"
+    }
+  }
+}
