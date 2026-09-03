@@ -1,0 +1,280 @@
+{
+  "schema_version": "site_a_pseudo_preflight_v1",
+  "generated_utc": "2026-09-03T08:57:33.938638+00:00",
+  "PREFLIGHT_ONLY": true,
+  "new_training": 0,
+  "new_student": 0,
+  "new_threshold": 0,
+  "new_filter": 0,
+  "new_teacher": 0,
+  "GT_USED_FOR_SELECTION": false,
+  "evaluation_gt_read": false,
+  "existing_v1_artifact_modified": false,
+  "teacher": {
+    "checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "recipe": {
+      "pad": 100,
+      "border": "BORDER_REFLECT_101",
+      "imgsz": 640,
+      "confidence_floor": 0.001,
+      "instance": "highest box confidence",
+      "source": "release README deployment contract; confidence floor lowered to the evaluator contract value so pseudo-label gates see the full distribution instead of a pre-applied 0.4 cut"
+    }
+  },
+  "filter_lock": {
+    "path": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+    "TAU_BOX": 0.85,
+    "kp_conf": 0.5,
+    "min_valid_corners": 6,
+    "tau_remove": 0.05,
+    "tau_flip": 0.05,
+    "reprojection_in_F4": false
+  },
+  "funnel": {
+    "total": 2227,
+    "detected": 2122,
+    "candidate_ge6_corners": 2114,
+    "confidence_F1": 574,
+    "proposed_F4": 563
+  },
+  "a8_reference": {
+    "teacher_input": 500,
+    "proposed_F4": 120
+  },
+  "by_recording": {
+    "capturepallet01": {
+      "input": 42,
+      "detected": 39,
+      "candidate": 39,
+      "confidence": 0,
+      "proposed": 0,
+      "retention_from_input": 0.0,
+      "share_of_accepted": 0.0
+    },
+    "capturepallet10": {
+      "input": 613,
+      "detected": 572,
+      "candidate": 572,
+      "confidence": 118,
+      "proposed": 118,
+      "retention_from_input": 0.19249592169657423,
+      "share_of_accepted": 0.20959147424511546
+    },
+    "capturepallet11": {
+      "input": 1572,
+      "detected": 1511,
+      "candidate": 1503,
+      "confidence": 456,
+      "proposed": 445,
+      "retention_from_input": 0.2830788804071247,
+      "share_of_accepted": 0.7904085257548845
+    }
+  },
+  "membership": {
+    "a8_accepted": 120,
+    "full_accepted": 563,
+    "a8_also_in_full": 120,
+    "a8_lost_in_full": 0,
+    "new_in_full": 443,
+    "a8_by_recording": {
+      "capturepallet10": 21,
+      "capturepallet11": 99
+    }
+  },
+  "exposure": {
+    "pseudo_exposures_per_epoch": 1440,
+    "source": "existing MAIN contract; not chosen here",
+    "a8_unique": 120,
+    "a8_repeat_per_epoch": 12.0,
+    "full_unique": 563,
+    "full_repeat_per_epoch": 2.5577264653641207
+  },
+  "coverage": {
+    "bbox_area_frac": {
+      "a8": {
+        "n": 120,
+        "median": 0.01882349213012314,
+        "p10": 0.010472472082111684,
+        "p90": 0.11194109317464339,
+        "min": 0.008287722509218534,
+        "max": 0.16078023684444814
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 0.0183092639116785,
+        "p10": 0.009438881860096443,
+        "p90": 0.11949312728874278,
+        "min": 0.007896691574745394,
+        "max": 0.17932001604540346
+      }
+    },
+    "center_x_frac": {
+      "a8": {
+        "n": 120,
+        "median": 0.5315620243549346,
+        "p10": 0.2663594198226929,
+        "p90": 0.8624829530715943,
+        "min": 0.20188407301902772,
+        "max": 0.9993157863616944
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 0.5194846630096436,
+        "p10": 0.2571691417694092,
+        "p90": 0.8395760536193847,
+        "min": 0.18373880982398988,
+        "max": 1.0004451274871826
+      }
+    },
+    "center_y_frac": {
+      "a8": {
+        "n": 120,
+        "median": 0.5785303592681885,
+        "p10": 0.5694357236226399,
+        "p90": 0.6437370649973552,
+        "min": 0.561711311340332,
+        "max": 0.7015343030293782
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 0.5777147928873698,
+        "p10": 0.5690678532918294,
+        "p90": 0.645064385732015,
+        "min": 0.5602522214253743,
+        "max": 0.7657696406046549
+      }
+    },
+    "bbox_aspect": {
+      "a8": {
+        "n": 120,
+        "median": 8.622928308661425,
+        "p10": 7.448085464497636,
+        "p90": 10.199237425501979,
+        "min": 2.0712667020247135,
+        "max": 11.03739129556496
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 8.791312058344587,
+        "p10": 7.747624908798412,
+        "p90": 10.46973693935927,
+        "min": 1.51640090240829,
+        "max": 11.698631445862688
+      }
+    },
+    "kp_spread_frac": {
+      "a8": {
+        "n": 120,
+        "median": 0.2794581050441907,
+        "p10": 0.21662029329209856,
+        "p90": 0.5957142258773747,
+        "min": 0.19320205938188761,
+        "max": 0.8034365116616381
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 0.2737025567697573,
+        "p10": 0.20908846861790706,
+        "p90": 0.6480291829638503,
+        "min": 0.1750370364357684,
+        "max": 0.8095845530251704
+      }
+    },
+    "box_conf": {
+      "a8": {
+        "n": 120,
+        "median": 0.9177433550357819,
+        "p10": 0.8729190409183503,
+        "p90": 0.9397132217884063,
+        "min": 0.8511633276939392,
+        "max": 0.9471521973609924
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 0.9157055020332336,
+        "p10": 0.8698169708251953,
+        "p90": 0.9403244256973267,
+        "min": 0.8503561019897461,
+        "max": 0.95417720079422
+      }
+    },
+    "s_remove": {
+      "a8": {
+        "n": 120,
+        "median": 0.01641978313635222,
+        "p10": 0.008538205024068572,
+        "p90": 0.0309361139755352,
+        "min": 0.001999287407380115,
+        "max": 0.04592006194295393
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 0.01611919605932428,
+        "p10": 0.0073506058182591745,
+        "p90": 0.030334260009622548,
+        "min": 0.0016247113644601865,
+        "max": 0.04988718050498162
+      }
+    },
+    "s_flip": {
+      "a8": {
+        "n": 120,
+        "median": 0.011359613390718701,
+        "p10": 0.005688713843582275,
+        "p90": 0.021011582548890687,
+        "min": 0.0026310418349083852,
+        "max": 0.042416784194055326
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 0.010623544292517917,
+        "p10": 0.0051910820279989145,
+        "p90": 0.020593162293447716,
+        "min": 0.0022963593258546557,
+        "max": 0.042416784194055326
+      }
+    },
+    "valid_corners": {
+      "a8": {
+        "n": 120,
+        "median": 8.0,
+        "p10": 8.0,
+        "p90": 8.0,
+        "min": 6.0,
+        "max": 8.0
+      },
+      "full_f4": {
+        "n": 563,
+        "median": 8.0,
+        "p10": 8.0,
+        "p90": 8.0,
+        "min": 6.0,
+        "max": 8.0
+      }
+    }
+  },
+  "temporal_spacing": {
+    "capturepallet10": {
+      "accepted": 118,
+      "pool_frames": 613,
+      "frame_period_ns": 67224576.0,
+      "median_gap_frames": 1.002856098341178,
+      "p10_gap_frames": 0.9955985620496884,
+      "longest_consecutive_run": 9,
+      "span_frames": 255.3803370957669,
+      "span_seconds": 17.16783488
+    },
+    "capturepallet11": {
+      "accepted": 445,
+      "pool_frames": 1572,
+      "frame_period_ns": 67223552.0,
+      "median_gap_frames": 1.001441399585669,
+      "p10_gap_frames": 0.9963030099926883,
+      "longest_consecutive_run": 16,
+      "span_frames": 940.0907110650743,
+      "span_seconds": 63.1962368
+    }
+  },
+  "no_go_stop_decision_made_here": true
+}

@@ -118,6 +118,10 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0, help="smoke 용 상한 (0=전체)")
     parser.add_argument("--out-name", default="R0_TEACHER_CACHE.json")
     parser.add_argument("--device", default="0")
+    # 아래 둘은 기본값이 기존 경로라 기존 동작은 그대로다.  다른 pool 에 같은
+    # teacher·같은 recipe 를 적용할 때만 넘긴다.
+    parser.add_argument("--pool-csv", default=str(POOL_CSV))
+    parser.add_argument("--out-dir", default=str(OUT_DIR))
     args = parser.parse_args()
 
     from ultralytics import YOLO
@@ -125,7 +129,9 @@ def main() -> int:
     import ultralytics
 
     flip_perm = _flip_permutation()
-    rows = list(csv.DictReader(POOL_CSV.open(encoding="utf-8")))
+    pool_csv = Path(args.pool_csv).resolve()
+    out_dir = Path(args.out_dir).resolve()
+    rows = list(csv.DictReader(pool_csv.open(encoding="utf-8")))
     if args.limit:
         rows = rows[: args.limit]
     print(f"pool rows {len(rows)}   flip_idx {flip_perm}", flush=True)
@@ -206,8 +212,8 @@ def main() -> int:
         "schema_version": "paper_teacher_prediction_cache_v1",
         "teacher_checkpoint": str(TEACHER.relative_to(REPO_ROOT)),
         "teacher_sha256": teacher_sha,
-        "pool_manifest": str(POOL_CSV.relative_to(REPO_ROOT)),
-        "pool_manifest_sha256": sha256_file(POOL_CSV),
+        "pool_manifest": str(pool_csv.resolve().relative_to(REPO_ROOT)),
+        "pool_manifest_sha256": sha256_file(pool_csv),
         "recipe": {
             "pad": PAD,
             "border": "BORDER_REFLECT_101",
@@ -236,8 +242,8 @@ def main() -> int:
         "n_flip_detected": n_flip_detected,
         "entries": entries,
     }
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    target = OUT_DIR / args.out_name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    target = out_dir / args.out_name
     target.write_text(json.dumps(payload) + "\n")
     print(f"\nwrote {target.relative_to(REPO_ROOT)}  "
           f"{target.stat().st_size / 1e6:.1f} MB")
