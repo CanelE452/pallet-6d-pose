@@ -38,6 +38,9 @@ LABELS = OUT_DIR / "AXIS_REVIEW_LABELS.json"
 SMOKE_LABELS = OUT_DIR / "AXIS_REVIEW_LABELS_SMOKE.json"
 PROGRESS = OUT_DIR / "AXIS_REVIEW_PROGRESS.json"
 SMOKE_PROGRESS = OUT_DIR / "AXIS_REVIEW_PROGRESS_SMOKE.json"
+RECHECK_LIST = OUT_DIR / "AXIS_RECHECK_LIST.json"
+RECHECK_LABELS = OUT_DIR / "AXIS_REVIEW_LABELS_RECHECK.json"
+RECHECK_PROGRESS = OUT_DIR / "AXIS_REVIEW_PROGRESS_RECHECK.json"
 
 WINDOW = "physical axis review"
 MAX_W, MAX_H = 1500, 820
@@ -143,28 +146,9 @@ def draw_frame(frame: dict, entry: dict | None, index: int, total: int,
         if finite[a] and finite[b]:
             cv2.line(view, point(a), point(b), COL_B, 3, cv2.LINE_AA)
 
-    if finite[8]:
-        centre = np.array(point(8), float)
-        for edges, colour, tag in ((AXIS_A_EDGES, COL_A, "A"),
-                                   (AXIS_B_EDGES, COL_B, "B")):
-            vectors = [pts[b] - pts[a] for a, b in edges if finite[a] and finite[b]]
-            if not vectors:
-                continue
-            direction = np.mean(vectors, axis=0)
-            norm = float(np.linalg.norm(direction))
-            if norm < 1e-6:
-                continue
-            direction = direction / norm * float(np.clip(norm * 0.75, 90.0, 190.0))
-            tip = centre + direction
-            cv2.arrowedLine(view, tuple(centre.astype(int)), tuple(tip.astype(int)),
-                            colour, 4, cv2.LINE_AA, tipLength=0.18)
-            cv2.arrowedLine(view, tuple(centre.astype(int)),
-                            tuple((centre - direction).astype(int)),
-                            colour, 4, cv2.LINE_AA, tipLength=0.18)
-            label = tuple((tip + direction * 0.22).astype(int))
-            cv2.circle(view, tuple(tip.astype(int)), 3, colour, -1, cv2.LINE_AA)
-            text(view, tag, label, (0, 0, 0), 1.15, 6)
-            text(view, tag, label, colour, 1.15, 3)
+    # 화살표는 그리지 않는다.  중심에서 뻗은 화살표가 팔레트 윗면을 가려
+    # 정작 판단해야 할 물체가 안 보인다는 지적을 받았다.  축 구분은 선 색으로 한다
+    # (상단 범례: A = 주황, B = 파랑).
 
     for i in range(9):
         if not finite[i]:
@@ -233,6 +217,9 @@ def main() -> int:
     parser.add_argument("--smoke", type=int, metavar="N", default=0,
                         help="첫 N 장만 연습한다.  결과는 본 검수와 분리된 "
                              "AXIS_REVIEW_LABELS_SMOKE.json 에 저장된다.")
+    parser.add_argument("--recheck", action="store_true",
+                        help="AXIS_RECHECK_LIST.json 의 프레임만 다시 본다.  "
+                             "이전 답과 기하 판정은 화면에 표시하지 않는다.")
     args = parser.parse_args()
 
     if not MANIFEST.exists():
@@ -242,14 +229,29 @@ def main() -> int:
     frames = manifest["frames_list"]
     if args.smoke:
         frames = frames[:max(1, args.smoke)]
-    labels_path = SMOKE_LABELS if args.smoke else LABELS
-    progress_path = SMOKE_PROGRESS if args.smoke else PROGRESS
+    if args.recheck:
+        if not RECHECK_LIST.exists():
+            print("recheck list missing — run validate_axis_review.py first")
+            return 1
+        wanted = set(json.loads(RECHECK_LIST.read_text())["frames"])
+        frames = [f for f in frames if f["frame_id"] in wanted]
+        if not frames:
+            print("recheck list is empty")
+            return 1
+    labels_path = (RECHECK_LABELS if args.recheck
+                   else SMOKE_LABELS if args.smoke else LABELS)
+    progress_path = (RECHECK_PROGRESS if args.recheck
+                     else SMOKE_PROGRESS if args.smoke else PROGRESS)
     total = len(frames)
 
     # 검수 화면은 annotation 을 다시 열지 않는다.  manifest 의 키포인트·치수면 충분하고,
     # 열지 않으면 저장된(미확인) parity 나 pose 가 이 경로로 새어들 수 없다.
 
     labels = load_labels(labels_path)
+    if args.recheck:
+        labels["recheck"] = True
+        labels["blind"] = ("the previous answer and the geometric verdict are not shown; "
+                           "this is a second independent look")
     if args.smoke:
         labels["smoke"] = True
         labels["not_for_evaluation"] = ("practice run; never merged into "
@@ -258,8 +260,12 @@ def main() -> int:
                   if f["frame_id"] not in labels["frames"]), 0)
     overlay_mode = 0
 
-    window = WINDOW + (" [SMOKE]" if args.smoke else "")
+    window = WINDOW + (" [RECHECK]" if args.recheck
+                       else " [SMOKE]" if args.smoke else "")
     cv2.namedWindow(window, cv2.WINDOW_AUTOSIZE)
+    if args.recheck:
+        print(f"RECHECK — {total} frames flagged by an independent check.")
+        print("Your previous answer is hidden on purpose. Judge each one fresh.")
     if args.smoke:
         print(f"SMOKE MODE — first {total} frames, saved separately to "
               f"{labels_path.name}")
@@ -269,6 +275,8 @@ def main() -> int:
     while True:
         frame = frames[index]
         entry = labels["frames"].get(frame["frame_id"])
+        # 재검수는 blind 다.  이번 세션에서 방금 누른 것만 보여주고, 1차 판정은
+        # 절대 표시하지 않는다 — 보면 그대로 다시 누르게 된다.
         entries = labels["frames"].values()
         progress = (len(labels["frames"]),
                     sum(1 for e in entries if e.get("status") == "UNCLEAR"))
