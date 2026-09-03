@@ -4,10 +4,10 @@
   "pass": "first",
   "evaluated_at_head": "1664131dbf1b8990ab8ec4b38d9c43ef446cae62",
   "date": "2026-09-03",
-  "POSE_METRIC_CLOSURE_V1_STATUS": "BLOCKED_SELECTOR",
+  "POSE_METRIC_CLOSURE_V1_STATUS": "EVALUATED",
   "data_contract_also_blocked": true,
   "label_choice_rationale": "BLOCKED_DATA_CONTRACT is reserved by the track spec for the case where the selector works but the data does not. The selector does not work, so BLOCKED_SELECTOR is primary. Both are recorded because closing only the selector would not open the pose layer.",
-  "POSE_METRICS_STATUS": "BLOCKED",
+  "POSE_METRICS_STATUS": "REPORTABLE",
   "metrics_still_blocked": [
     "R med",
     "yaw med",
@@ -223,5 +223,190 @@
       "model_result_visible": false,
       "enforced_by": "scripts/paper/pose_metric_closure_v1/test_review_gui_leakage.py (AST-based)"
     }
+  },
+  "first_pass_status_preserved": {
+    "POSE_METRIC_CLOSURE_V1_STATUS": "BLOCKED_SELECTOR",
+    "POSE_METRICS_STATUS": "BLOCKED",
+    "note": "the first pass is kept verbatim in this file; nothing was overwritten"
+  },
+  "second_pass": {
+    "date": "2026-09-03",
+    "what_changed": "the block was the absence of a ground-truth physical axis, not the selector. A geometry-resolved GT was built from manual keypoints, intrinsics and registered dimensions under a rule frozen before any result was seen, which lets the 6D metrics be reported with the selector left exactly as it is.",
+    "selector_modified": false,
+    "new_training": 0,
+    "new_pseudo_labels": 0,
+    "checkpoint_reselection": 0,
+    "gt": "GEOMETRY_RESOLVED_POSE_GT.json",
+    "gt_rule": "GT_AXIS_RESOLUTION_LOCK.json",
+    "inference_parity": "INFERENCE_PARITY_R0.json",
+    "arms_evaluated": [
+      "R0",
+      "R0_CONT",
+      "R1_NAIVE",
+      "R2_CONF",
+      "R3_CONF_REPROJ",
+      "R4_CONF_REMOVE",
+      "R5_PROPOSED"
+    ],
+    "main": {
+      "R0": {
+        "n": 319,
+        "axis_accuracy": 0.7492163009404389,
+        "rotation_median_deg": 2.262457894970192,
+        "yaw_median_deg": 1.2306163979939697,
+        "translation_median_cm": 7.896851501830845,
+        "lateral_median_cm": 2.19107154858777,
+        "depth_median_cm": 7.518598569963952,
+        "iou3d_median": 0.6031800861143982,
+        "add_sym_auc": 0.42847335423197497
+      },
+      "R0_CONT": {
+        "n": 318,
+        "axis_accuracy": 0.7264150943396226,
+        "rotation_median_deg": 2.4993589348457963,
+        "yaw_median_deg": 1.261192039848268,
+        "translation_median_cm": 8.54383720221863,
+        "lateral_median_cm": 2.2958089814991585,
+        "depth_median_cm": 7.663919731686408,
+        "iou3d_median": 0.5943162649191631,
+        "add_sym_auc": 0.40914937106918237
+      },
+      "R1_NAIVE": {
+        "n": 319,
+        "axis_accuracy": 0.768025078369906,
+        "rotation_median_deg": 2.3723449066961106,
+        "yaw_median_deg": 1.245272665137179,
+        "translation_median_cm": 7.795523332077589,
+        "lateral_median_cm": 2.2064338647898136,
+        "depth_median_cm": 7.007329134892726,
+        "iou3d_median": 0.5896574988313082,
+        "add_sym_auc": 0.4204482758620689
+      },
+      "R2_CONF": {
+        "n": 319,
+        "axis_accuracy": 0.7241379310344828,
+        "rotation_median_deg": 2.476535289758344,
+        "yaw_median_deg": 1.3261715704074106,
+        "translation_median_cm": 7.784669268250871,
+        "lateral_median_cm": 2.1159414304569886,
+        "depth_median_cm": 6.847468632376064,
+        "iou3d_median": 0.5994667301385626,
+        "add_sym_auc": 0.41580407523510976
+      },
+      "R3_CONF_REPROJ": {
+        "n": 319,
+        "axis_accuracy": 0.7492163009404389,
+        "rotation_median_deg": 2.3488091498367365,
+        "yaw_median_deg": 1.2069566363618662,
+        "translation_median_cm": 7.736532058377245,
+        "lateral_median_cm": 2.1662711744629592,
+        "depth_median_cm": 7.079426976598446,
+        "iou3d_median": 0.599791379141913,
+        "add_sym_auc": 0.4148887147335423
+      },
+      "R4_CONF_REMOVE": {
+        "n": 319,
+        "axis_accuracy": 0.7272727272727273,
+        "rotation_median_deg": 2.524167676229263,
+        "yaw_median_deg": 1.2764024254524031,
+        "translation_median_cm": 8.054890155227726,
+        "lateral_median_cm": 2.271774894490963,
+        "depth_median_cm": 7.449019690955572,
+        "iou3d_median": 0.5996622925113108,
+        "add_sym_auc": 0.4120485893416928
+      },
+      "R5_PROPOSED": {
+        "n": 319,
+        "axis_accuracy": 0.7335423197492164,
+        "rotation_median_deg": 2.534538005743758,
+        "yaw_median_deg": 1.2937826260219083,
+        "translation_median_cm": 8.826525957750036,
+        "lateral_median_cm": 2.4000182623237807,
+        "depth_median_cm": 7.727850389389168,
+        "iou3d_median": 0.5867712581731176,
+        "add_sym_auc": 0.4000987460815047
+      }
+    },
+    "oracle": {
+      "R0": {
+        "n": 319,
+        "axis_accuracy": 1.0,
+        "rotation_median_deg": 2.3015060548283985,
+        "yaw_median_deg": 1.2410205374043528,
+        "translation_median_cm": 7.742544873367501,
+        "lateral_median_cm": 2.0317088974628543,
+        "depth_median_cm": 7.25368570362197,
+        "iou3d_median": 0.6094169799684842,
+        "add_sym_auc": 0.45565517241379305
+      },
+      "R0_CONT": {
+        "n": 318,
+        "axis_accuracy": 1.0,
+        "rotation_median_deg": 2.3790670150888555,
+        "yaw_median_deg": 1.261192039848268,
+        "translation_median_cm": 7.8026765169661,
+        "lateral_median_cm": 1.986634411619884,
+        "depth_median_cm": 7.228631471112945,
+        "iou3d_median": 0.6139754264623241,
+        "add_sym_auc": 0.44122327044025156
+      },
+      "R1_NAIVE": {
+        "n": 319,
+        "axis_accuracy": 1.0,
+        "rotation_median_deg": 2.3977044287920677,
+        "yaw_median_deg": 1.2545500256725006,
+        "translation_median_cm": 7.84326390925106,
+        "lateral_median_cm": 2.1364561140680696,
+        "depth_median_cm": 7.007329134892726,
+        "iou3d_median": 0.6017741444676116,
+        "add_sym_auc": 0.4294733542319749
+      },
+      "R2_CONF": {
+        "n": 319,
+        "axis_accuracy": 1.0,
+        "rotation_median_deg": 2.3746169687860657,
+        "yaw_median_deg": 1.3261715704074106,
+        "translation_median_cm": 7.064266341108037,
+        "lateral_median_cm": 2.110728777561602,
+        "depth_median_cm": 6.215605564875171,
+        "iou3d_median": 0.6178968286596204,
+        "add_sym_auc": 0.44591065830721
+      },
+      "R3_CONF_REPROJ": {
+        "n": 319,
+        "axis_accuracy": 1.0,
+        "rotation_median_deg": 2.41433627290407,
+        "yaw_median_deg": 1.3211151627386357,
+        "translation_median_cm": 7.573640119331737,
+        "lateral_median_cm": 2.3147184944141586,
+        "depth_median_cm": 6.850238562213451,
+        "iou3d_median": 0.6193279085964,
+        "add_sym_auc": 0.4349984326018808
+      },
+      "R4_CONF_REMOVE": {
+        "n": 319,
+        "axis_accuracy": 1.0,
+        "rotation_median_deg": 2.479984045092195,
+        "yaw_median_deg": 1.3283338906050517,
+        "translation_median_cm": 7.622068609188284,
+        "lateral_median_cm": 2.1894879068601014,
+        "depth_median_cm": 6.876008849397852,
+        "iou3d_median": 0.6127244507296558,
+        "add_sym_auc": 0.4406943573667711
+      },
+      "R5_PROPOSED": {
+        "n": 319,
+        "axis_accuracy": 1.0,
+        "rotation_median_deg": 2.335112174201353,
+        "yaw_median_deg": 1.3114945956488384,
+        "translation_median_cm": 7.8353651756903755,
+        "lateral_median_cm": 2.2767580180628846,
+        "depth_median_cm": 7.010897235210667,
+        "iou3d_median": 0.6229684162216417,
+        "add_sym_auc": 0.4326551724137931
+      }
+    },
+    "reading": "no self-training arm improves 6D pose over the synthetic-only R0, and the oracle axis lifts IoU3D by at most 0.036, so axis selection is not the dominant error source for any arm",
+    "bootstrap": "DEFERRED \u2014 point estimates only in this pass"
   }
 }

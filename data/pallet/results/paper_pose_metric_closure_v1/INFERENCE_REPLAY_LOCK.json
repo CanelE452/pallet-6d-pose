@@ -1,0 +1,42 @@
+{
+  "schema_version": "inference_replay_lock_v1",
+  "status": "FROZEN",
+  "date": "2026-09-03",
+  "purpose": "one recipe for every arm, so a cached R0 and a freshly inferred R5 are comparable",
+  "canonical_recipe_source": "challenge/evaluation_v2/paper_real_eval.py and the R0 selector diagnostic's inference_recipe block",
+  "recipe": {
+    "input_size": 640,
+    "pad_px": 100,
+    "pad_border": "BORDER_REFLECT_101",
+    "unpad_rule": "subtract pad from box and keypoint coordinates after inference",
+    "confidence_floor": 0.001,
+    "top_detection_rule": "highest box confidence per frame",
+    "augmentation": false,
+    "half_precision": false,
+    "device": "0",
+    "nms_iou": "ultralytics default (not overridden)"
+  },
+  "population": {
+    "manifest": "AXIS_REVIEW_MANIFEST.json",
+    "n": 319,
+    "frame_order_sha256": "72f83f6f0682209beec6134d8ab935ff1f56348ba816691133882a9d38d8c15f",
+    "frame_order": "manifest order, identical for every arm"
+  },
+  "runner": "scripts/paper/pose_metric_closure_v1/run_frozen_arm_inference.py",
+  "outputs": "data/pallet/results/paper_pose_metric_closure_v1/predictions/<ARM>.json",
+  "stored_per_frame": [
+    "box_xyxy",
+    "box_conf",
+    "keypoints_xy (9)",
+    "keypoints_conf (9)"
+  ],
+  "why_raw_2d_is_stored": "the 2D prediction stays the source of truth so the evaluator can be re-verified later without re-running any model",
+  "frozen_after_results": [
+    "confidence",
+    "nms",
+    "padding",
+    "checkpoint",
+    "selector"
+  ],
+  "new_training": 0
+}

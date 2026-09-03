@@ -1,0 +1,84 @@
+{
+  "schema_version": "gt_axis_resolution_lock_v1",
+  "status": "FROZEN",
+  "frozen_before_any_pose_result": true,
+  "date": "2026-09-03",
+  "prose_twin": "_docs/paper/pose_metric_closure_v1/GT_AXIS_RESOLUTION_LOCK.md",
+
+  "REFERENCE_INPUTS": [
+    "manually annotated GT 2D keypoints",
+    "calibrated camera intrinsics K",
+    "registered physical pallet dimensions",
+    "object type"
+  ],
+  "FORBIDDEN_INPUTS": [
+    "R0 prediction",
+    "R5 prediction",
+    "any model prediction",
+    "selector score",
+    "model confidence",
+    "downstream ADD / yaw / translation / IoU result"
+  ],
+  "model_predictions_used": false,
+
+  "object_dimensions_m": {
+    "source": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json",
+    "registry_modified": false,
+    "plastic_standard_110x130x11": {"long": 1.30, "short": 1.10, "height": 0.11},
+    "wood_small_80x59x14": {"long": 0.80, "short": 0.59, "height": 0.14}
+  },
+
+  "rule": [
+    "1. construct hypothesis A: camera-facing WIDTH is the physical long axis, edges (0,1)(2,3)(4,5)(6,7)",
+    "2. construct hypothesis B: camera-facing DEPTH is the physical long axis, edges (0,4)(1,5)(2,6)(3,7)",
+    "3. solve each independently from the GT keypoints with SQPnP then RefineLM",
+    "4. compute the same reprojection residual for each: mean Euclidean distance between reprojected model corners and annotated corners over supervised corners",
+    "5. select the hypothesis with the lower residual",
+    "6. retain the 180-degree sign as an equivalence class; it is never resolved"
+  ],
+  "solver": {"initial": "SOLVEPNP_SQPNP", "refine": "solvePnPRefineLM", "identical_for_both_hypotheses": true},
+  "selection_criterion": "lower reprojection residual on GT keypoints",
+
+  "symmetry": {
+    "equivalent_deg": [0, 180],
+    "distinct_deg": [90, 270],
+    "sign_resolved": false,
+    "note": "90 degrees is never absorbed; a rotation that changes which face the forks enter is a different pose"
+  },
+
+  "quality_condition": {
+    "threshold_px": 5.0,
+    "source": "scripts/annotate/_audit_annotate.py:200 — the repository's pre-existing annotation-quality bar",
+    "invented_for_this_track": false,
+    "measured_on_these_319": {"median": 1.13, "p90": 2.47, "p95": 2.78, "max": 4.48},
+    "all_319_pass": true
+  },
+
+  "exclusion_policy": {
+    "default": "NO_AUTOMATIC_EXCLUSION",
+    "unresolved_only_when": "solver failure — fewer than six usable corners, or SQPnP returns no solution",
+    "margin_based_exclusion": false,
+    "rationale": "choosing a margin cut-off after seeing the distribution is the post-hoc selection this lock exists to prevent. Both hypothesis residuals and the margin are preserved per frame instead.",
+    "always_recorded": ["hypothesis_A_reproj_px", "hypothesis_B_reproj_px", "resolution_margin_px"]
+  },
+
+  "human_review": {
+    "role": "ANNOTATION_RELIABILITY_DIAGNOSTIC",
+    "is_source_of_truth": false,
+    "retained": ["AXIS_REVIEW_LABELS.json", "AXIS_REVIEW_LABELS_RECHECK.json"],
+    "interpretation": "the reviewer judged apparent image length, which under strong perspective foreshortening is not the same quantity as physical long-axis length. This is not described as human error."
+  },
+
+  "withdrawn_diagnosis": {
+    "claim": "at low elevation the axis identification is impossible in principle",
+    "status": "WITHDRAWN",
+    "reason": "not supported by measurement — with annotated keypoints and known geometry the two hypotheses separate by residual in almost every frame, including at 0-2 degrees elevation",
+    "must_keep_separate": ["GEOMETRIC_UNOBSERVABILITY", "PREDICTION_OR_SELECTOR_FAILURE"]
+  },
+
+  "frozen_fields": [
+    "reference inputs", "forbidden inputs", "hypothesis construction", "solver",
+    "selection criterion", "sign policy", "quality bar", "exclusion policy"
+  ],
+  "change_after_results": "prohibited"
+}
