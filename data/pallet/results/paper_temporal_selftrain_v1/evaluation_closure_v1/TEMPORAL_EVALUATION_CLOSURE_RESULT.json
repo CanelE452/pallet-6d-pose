@@ -1,0 +1,71 @@
+{
+  "schema_version": "temporal_evaluation_closure_result_v1",
+  "generated_utc": "2026-09-03T12:27:43.797207+00:00",
+  "intent": "TEMPORAL_EVALUATION_CLOSURE_INTENT.json",
+  "refinement_outputs_modified": false,
+  "new_inference": 0,
+  "new_refinement": 0,
+  "student_training": 0,
+  "formal_eligible": 0,
+  "FORMAL_TEMPORAL_PILOT": "POPULATION_LIMITED",
+  "original_pilot_classification": "EXPLORATORY_DIAGNOSTIC_ONLY",
+  "why": "under the population contract the lock actually stated, no centre in the temporal pilot qualifies. Every eligible-looking centre came from legacy annotation the workspace marks as not paper eligible, and the recordings whose annotations are paper eligible are exactly the ones that feed PAPER_EVAL and were excluded whole by design.",
+  "rule_not_relaxed": true,
+  "failed_to_improve_is_not_a_formal_result": "the earlier FAILED_TO_IMPROVE was computed on a population the lock excluded, with a summary-of-summaries 2D metric and a private pose selector. It is retained as an exploratory diagnostic, not a preregistered result.",
+  "audit": {
+    "schema_version": "temporal_center_eligibility_audit_v1",
+    "generated_utc": "2026-09-03T12:27:43.797062+00:00",
+    "original_centres": 109,
+    "formal_eligible": 0,
+    "formal_recordings": 0,
+    "recordings": [],
+    "exclusion_counts": {
+      "evaluation-ineligible": 109,
+      "workspace exclusion_reason UNVERIFIED_LEGACY": 109
+    },
+    "rule_was_not_relaxed": true,
+    "usage_role_distribution": {
+      "DEV_SUPPORT": 109
+    }
+  },
+  "structural_finding": {
+    "claim": "the lock's two population conditions cannot both be satisfied for plastic in this repository",
+    "condition_1": "the centre must carry paper-eligible annotation (workspace usage_role EVAL_LABELED)",
+    "condition_2": "the centre's source recording must not feed PAPER_EVAL 319",
+    "evidence": {
+      "eval_labelled_frames": 402,
+      "paper_eval_positive": 319,
+      "eval_labelled_outside_paper_eval": 83,
+      "where_those_83_live": "all 83 are plastic_night_01, whose source recording is real_unlabeled_night_20260830",
+      "that_recording_feeds_paper_eval": "yes \u2014 plastic_night_01 and wood_night_01 frames in the 319 manifest come from it",
+      "therefore": "every paper-eligible plastic positive frame sits in a recording the lock excludes whole"
+    },
+    "so_the_zero_is_not_bad_luck": "it is not that too few eligible centres happened to be sampled; under the contract as written no eligible centre can exist for plastic",
+    "what_the_pilot_actually_sampled": "109 centres, all usage_role DEV_SUPPORT with workspace exclusion_reason UNVERIFIED_LEGACY \u2014 legacy annotation the workspace preserves but does not treat as paper eligible",
+    "a_separate_reachability_gap": {
+      "note": "the pilot's population builder indexed only raw_data/outside and raw_data/night, so the incoming pool where plastic_night_01 lives was never reachable anyway. 84 centres were excluded as 'not resolvable to a raw recording'.",
+      "but": "even had it been reachable, the recording-level exclusion would have removed it, so this gap does not change the verdict"
+    }
+  },
+  "what_would_make_a_formal_run_possible": [
+    "relaxing the whole-recording exclusion to a frame-level disjointness rule, which is a contract change and the user's decision, not one to be made while holding a result",
+    "or annotating centres in a recording that supplies nothing to PAPER_EVAL"
+  ],
+  "exploratory_diagnostics_retained": {
+    "status": "observations about mechanism, not performance claims",
+    "observations_per_corner_median": 7.0,
+    "fb_rejection_rate": 0.0809,
+    "geometry_coverage": 0.945,
+    "consensus_displacement_px": 1.81,
+    "raw_teacher_gt_error_px": 7.9,
+    "displacement_over_error": 0.23,
+    "fraction_of_corners_moving_toward_gt": 0.5,
+    "reading": "the temporal median moves each coordinate about a quarter of the distance the teacher is wrong by, in a direction uncorrelated with the truth. That is what neighbouring predictions sharing one error looks like.",
+    "these_are_not_formal_results": true
+  },
+  "geometry_step_6d_identity": {
+    "observed_in_the_exploratory_run": "TEMPORAL_GEOMETRY and TEMPORAL_ONLY returned identical 6D numbers",
+    "explanation": "fitting PnP to consensus points and reprojecting them leaves the pose unchanged when PnP is solved again on the reprojection",
+    "not_generalised": "this was seen under the pilot's own private selector. Whether the frozen predict_pose_without_gt path would reproduce it exactly was never checked, because no formal population exists to check it on, so it is recorded as an observation rather than a property."
+  }
+}
