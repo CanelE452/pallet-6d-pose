@@ -57,15 +57,21 @@ def _permute(sequence, times: int):
     return out
 
 
-def canonicalise(document: dict) -> tuple[dict, int, float, float]:
-    """문서 하나를 정규화하고 ``(문서, 회전횟수, 이전 yaw, 이후 yaw)`` 를 돌려준다."""
+def canonicalise(document: dict, *, offset: float = 0.0) -> tuple[dict, int, float, float]:
+    """문서 하나를 정규화하고 ``(문서, 회전횟수, 이전 yaw, 이후 yaw)`` 를 돌려준다.
+
+    ``offset`` 은 정규 구간의 시작점 [rad] 이다.  기본 0 이면 yaw 를 ``[0, 90)`` 로
+    보낸다.  **배포 모델이 학습된 규약에 맞추려면 이 값을 맞춰야 한다** — 구간을 잘못
+    잡으면 keypoint 가 모델 예측에서 90° 돌아가 pose 지표가 통째로 무너진다
+    (실측: 어긋난 구간 107.9px vs 맞는 구간 5.1px).
+    """
     obj = document["objects"][0]
     transform = np.asarray(obj["pose_transform"], dtype=np.float64)
     rotation = transform[:3, :3]
     before = yaw_of(rotation)
 
-    # yaw 를 [0, 90) 로 보내는 데 필요한 90° 되돌림 횟수
-    turns = int(math.floor(before / QUARTER)) % 4
+    # yaw 를 [offset, offset+90) 로 보내는 데 필요한 90° 되돌림 횟수
+    turns = int(math.floor((before - offset) / QUARTER)) % 4
     if turns == 0:
         return document, 0, before, before
 
@@ -88,6 +94,9 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("paths", nargs="+", help="GT 폴더 또는 JSON 파일")
     ap.add_argument("--apply", action="store_true", help="실제로 파일을 쓴다 (기본은 dry-run)")
+    ap.add_argument("--offset-deg", type=float, default=-90.0,
+                    help="정규 구간 시작 [deg]. 기본 -90 은 배포 모델이 학습된 규약이다 "
+                         "(0 으로 두면 keypoint 가 모델에서 90도 돌아간다)")
     args = ap.parse_args(argv)
 
     files: list[Path] = []
@@ -109,7 +118,8 @@ def main(argv=None) -> int:
             if isinstance(obj.get("projected_cuboid"), list):
                 before_points = sorted(map(tuple, obj["projected_cuboid"]))
 
-            document, turns, before, after = canonicalise(document)
+            document, turns, before, after = canonicalise(
+                document, offset=math.radians(args.offset_deg))
             turn_counts[turns] += 1
             if turns == 0:
                 continue
@@ -120,8 +130,10 @@ def main(argv=None) -> int:
                 if before_points != after_points:
                     failures.append(f"{path.name}: 2D 점 집합이 바뀌었다")
                     continue
-            if not (0.0 <= after < QUARTER + 1e-9):
-                failures.append(f"{path.name}: yaw 가 [0,90) 밖 ({math.degrees(after):.2f}°)")
+            low = math.radians(args.offset_deg)
+            if not (low - 1e-9 <= after < low + QUARTER + 1e-9):
+                failures.append(
+                    f"{path.name}: yaw 가 정규 구간 밖 ({math.degrees(after):.2f}°)")
                 continue
 
             changed += 1

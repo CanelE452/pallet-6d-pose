@@ -1,0 +1,43 @@
+# pallet-pose-yolo26n-livegt — 추론 계약. 이 값들을 지키지 않으면 성능이 나오지 않는다.
+model: pallet_yolo26n_pose_livegt.pt
+architecture: yolo26n-pose
+
+input:
+  width: 640
+  height: 480
+  color: BGR
+  coordinate_system: opencv_x_right_y_down_z_forward
+
+padding:                      # ★ 필수. 없이 추론하면 검출률이 크게 떨어진다
+  enabled: true
+  mode: BORDER_REFLECT_101
+  pixels: 100
+  subtract_before_pnp: true   # 예측 좌표에서 100 을 뺀 뒤 기하 계산
+
+inference:
+  imgsz: 640
+  conf: 0.4                   # FP율이 0.05 에서도 0% 이므로 0.25 까지 낮춰도 안전
+  instance_selection: max_box_conf
+  single_class: true
+
+keypoints:                    # camera-facing 규약 (물체 고정 아님)
+  count: 9
+  order:
+    0: near_top_left
+    1: near_top_right
+    2: near_bottom_right
+    3: near_bottom_left
+    4: far_top_left
+    5: far_top_right
+    6: far_bottom_right
+    7: far_bottom_left
+    8: centroid
+  top_indices:    [0, 1, 4, 5]
+  bottom_indices: [2, 3, 6, 7]
+  horizontal_flip_allowed: false   # 좌우 비대칭 — flip 하면 순서가 깨진다
+
+pnp:
+  method: SOLVEPNP_SQPNP
+  refine: refineLM
+  keypoint_conf_threshold: 0.5
+  include_centroid: true
