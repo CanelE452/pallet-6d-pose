@@ -1,0 +1,113 @@
+{
+  "schema_version": "pose_closure_status_v1",
+  "track": "POSE_METRIC_CLOSURE_V1",
+  "pass": "first",
+  "evaluated_at_head": "1664131dbf1b8990ab8ec4b38d9c43ef446cae62",
+  "date": "2026-09-03",
+
+  "POSE_METRIC_CLOSURE_V1_STATUS": "BLOCKED_SELECTOR",
+  "data_contract_also_blocked": true,
+  "label_choice_rationale": "BLOCKED_DATA_CONTRACT is reserved by the track spec for the case where the selector works but the data does not. The selector does not work, so BLOCKED_SELECTOR is primary. Both are recorded because closing only the selector would not open the pose layer.",
+
+  "POSE_METRICS_STATUS": "BLOCKED",
+  "metrics_still_blocked": ["R med", "yaw med", "t med", "IoU3D", "ADD", "ADD-S", "ADD/ADD-S pose AUC"],
+
+  "selector": {
+    "population": "DEV_POS140",
+    "manifest": "challenge/real_gt_v2/manifests/DEV_POS140.json",
+    "membership_sha256": "b0be817305a5f34914d4a4f7f0da231375f98e5d6e07070ba8840d3209f1e971",
+    "frames": 140,
+    "scored": 138,
+    "no_detection": 2,
+    "gates": {"overall_min": 0.95, "night_min": 0.90, "min_session_min": 0.85, "coverage_min": 0.95},
+    "measured": {
+      "frozen_diagnostic": {"overall": 0.5929, "night": 0.4643, "min_session": 0.3333, "coverage": 1.0, "status": "FAIL"},
+      "R0": {"overall": 0.6500, "night": 0.6786, "min_session": 0.3030, "coverage": 1.0, "status": "FAIL"},
+      "R5_PROPOSED": {"overall": 0.5929, "night": 0.8214, "min_session": 0.2121, "coverage": 1.0, "status": "FAIL"}
+    },
+    "failure_decomposition": {
+      "both_hypotheses_geometrically_valid": "138/138 (100%)",
+      "exactly_one_valid": "0/138",
+      "score_margin_auc_for_correctness": 0.5562,
+      "constant_guess_baseline": 0.5725,
+      "selector_accuracy_pooled": 0.6014,
+      "gain_over_constant": 0.0289,
+      "best_fail_closed_point": {"threshold": 12.0, "coverage": 0.145, "accuracy": 0.750},
+      "cost_when_wrong": {"rotation_deg_median": 85.300, "yaw_deg_median": 85.274, "translation_m_median": 0.219, "translation_m_median_when_correct": 0.065}
+    },
+    "signal_is_condition_dependent_not_absent": {
+      "eval_cad": {"n": 18, "accuracy": 1.000, "expected_mix": "long 3 / short 15", "note": "genuine two-class discrimination; a constant predictor caps at 15/18"},
+      "eval_noapril": {"n": 12, "accuracy": 1.000, "expected_mix": "long 12", "note": "constant guess scores the same; not evidence"},
+      "eval_night08": {"n": 12, "accuracy": 0.333, "expected_mix": "long 11 / short 1"}
+    },
+    "structural_reason": "plastic footprint 1.10 m x 1.30 m, aspect ratio 1.182; swapping the two is an 18 percent change that unknown yaw and depth largely absorb"
+  },
+
+  "leakage": {
+    "gt_used_to_choose_prediction_hypothesis": false,
+    "gt_used_to_train_deployed_selector": false,
+    "paper_eval_used_to_tune_selector": false,
+    "verification_method": "read the function signature, not the contract's own claim",
+    "evidence": "challenge/evaluation_v2/pnp_selector.py:495 select_pnp_hypotheses(predicted_keypoints, camera_intrinsics, physical_dimensions, config); zero references to gt_/ground_truth/target_pose in the file; the result's axis_assignment is an output",
+    "implication": "the reported 0.5929 / 0.6500 are already honest values, not numbers that would fall once a leak is removed"
+  },
+
+  "populations": {
+    "SELECTOR_SOURCE": {"status": "AVAILABLE", "n": 60000, "kind": "synthetic only", "source": "spatial_concat_scratch/PROBE_METADATA_60K.jsonl", "caveat": "this source has already been used; synthetic dev balanced accuracy 0.904 / AUROC 0.966 versus 0.59-0.65 on real. The bottleneck is sim-to-real transfer, not data volume."},
+    "SELECTOR_DEV": {"status": "NOT_AVAILABLE", "candidate_frames": 121, "disqualifications": ["no selector labels: axis_assignment_confirmed absent on all 409 legacy_unverified pose frames", "DATASET_CONTRACT defines DEV_UNVERIFIED as 'preserved legacy annotation, not paper eligible'", "sample too small for the gates: 95 percent interval around 0.95 is about +/-3.9pp at n=121, and +/-6.5pp at night n=43"]},
+    "POSE_FINAL": {"status": "NOT_AVAILABLE", "inventory": 0, "reason": "all five FINAL manifests are empty; 146 of the 229 physical FINAL frames are absorbed into PAPER_EVAL by SHA; and with zero axis-confirmed frames the evaluator would have to receive the GT axis again"}
+  },
+
+  "axis_confirmation": {
+    "real_frames_with_axis_assignment_confirmed_true": 0,
+    "pose_bearing_real_annotations_scanned": 2004,
+    "explicit_false": 700,
+    "field_absent_legacy": 1304,
+    "consequence": "no axis-confirmed real pose ground truth exists anywhere in the repository"
+  },
+
+  "wood": {
+    "symmetry_status": "UNREVIEWED",
+    "canonical_migration": "BLOCKED",
+    "pose_eligible": false,
+    "geometry_is_fine": true,
+    "geometry_evidence": {"canonical_roundtrip_max_px": 2.3e-13, "frames": 125, "annotation_residual_median_px_dev45": 1.94},
+    "supportable_symmetry_set": ["I", "Ry(180)"],
+    "symmetry_evidence": {"footprint_m": [0.80, 0.59], "aspect_ratio": 1.356, "deck_mirror_ncc": 0.957, "slat_residual_mm": 6},
+    "actual_blocker": "freezing wood requires editing challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json, whose sha256 is pinned in 62 files across 198 places",
+    "remaining_after_that": ["wood selector NOT_RUN", "FINAL_WOOD_POS unavailable"]
+  },
+
+  "evaluator": {
+    "R_med": "IMPLEMENTED_BUT_BLOCKED",
+    "yaw_med": "IMPLEMENTED_BUT_BLOCKED",
+    "t_med": "IMPLEMENTED_BUT_BLOCKED",
+    "ADD": "IMPLEMENTED_BUT_BLOCKED",
+    "ADD_S": "IMPLEMENTED_BUT_BLOCKED_needs_frozen_symmetry_contract",
+    "pose_AUC": "TWO_IMPLEMENTATIONS_ONE_MUST_BE_CANONICAL",
+    "IoU3D": "NOT_IMPLEMENTED_IN_PAPER_EVALUATOR",
+    "implementation_gaps_found_by_reading_code": [
+      "IoU3D absent from challenge/evaluation_v2/; exists only at scripts/stage0/real_eval/re_metrics.py:171",
+      "pose_auc exists twice with different discretisation: pose_metrics.py:297 (normalised errors, 1001 steps) and re_metrics.py:73 (raw errors plus diameter, 100 steps)"
+    ],
+    "unit_tests": {"path": "scripts/paper/pose_metric_closure_v1/test_pose_metric_contract.py", "count": 19, "result": "all pass", "model_loaded": false}
+  },
+
+  "safety": {
+    "r0_r5_retraining": 0,
+    "new_self_training": 0,
+    "inference_runs": 0,
+    "evaluator_reruns": 0,
+    "existing_result_modifications": 0,
+    "long_training_runs": 0,
+    "paper_final_documents_modified": false,
+    "placeholder_pose_numbers_inserted": false
+  },
+
+  "decisions_awaiting_user": [
+    {"id": "wood", "options": ["A: re-issue the registry with wood frozen and update all 198 pins", "B: exclude wood from the pose table and report wood for detection and 2D only"], "recommendation": "B costs nothing and matches the current paper; A is only worth it if a wood selector is expected to pass a gate that plastic already failed"},
+    {"id": "synthetic_axis_head", "question": "approve training an appearance-based semantic-axis head on synthetic supervision", "against": ["the dimension-based version of this already exists and scores 0.904 synthetic against 0.59-0.65 real", "a learned polarity predictor in this repository went 0.95 synthetic to 0.023 real", "the gate requires night >= 0.90 and night is the weakest condition"], "for": ["the dims-shuffle ablation dropping to 0.745 shows the existing head learned dimensions, which is exactly the signal that does not survive an 18 percent aspect ratio; an appearance cue is a different input"], "status": "NOT_STARTED_AWAITING_APPROVAL"}
+  ],
+
+  "next_decision": "KEEP_POSE_METRICS_BLOCKED"
+}

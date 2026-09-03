@@ -1,0 +1,138 @@
+{
+  "schema_version": "pose_metric_closure_method_lock_v1",
+  "track": "POSE_METRIC_CLOSURE_V1",
+  "scope": "POSE_EVALUATION_CLOSURE_ONLY",
+  "declared_at_head": "1664131dbf1b8990ab8ec4b38d9c43ef446cae62",
+  "declared_date": "2026-09-03",
+  "registered_before_any_selector_development": true,
+
+  "not_a_resumption_of": {
+    "stop_lock": "_docs/paper/final/EXPERIMENT_STOP_LOCK.json",
+    "still_in_force": true,
+    "note": "This track does not develop a self-training method. It closes an evaluator contract. The stop lock's prohibitions remain in force and are repeated below."
+  },
+
+  "forbidden": [
+    "V6 self-training",
+    "modifying any pseudo-label filter",
+    "retuning any threshold used by V1-V5",
+    "modifying reliability weighting",
+    "retraining R0 through R5",
+    "selecting a better student",
+    "iterating model architecture against PAPER_EVAL results",
+    "long training runs without explicit user approval"
+  ],
+
+  "selector_gates": {
+    "registered_before_results": true,
+    "overall_accuracy_min": 0.95,
+    "night_accuracy_min": 0.90,
+    "minimum_session_accuracy_min": 0.85,
+    "coverage_min": 0.95,
+    "tail_dominance_must_pass": true,
+    "all_must_hold_simultaneously": true,
+    "source_of_first_three": "challenge/evaluation_v2/pnp_selector.py OVERALL_AXIS_ACCURACY_MIN / NIGHT_AXIS_ACCURACY_MIN / SESSION_AXIS_ACCURACY_MIN",
+    "coverage_rationale": "A selector that returns POSE_UNRESOLVED on hard frames and scores well on the rest has not solved the problem. Accuracy without a coverage floor is gameable by discarding difficulty.",
+    "additional_reported_but_not_gated": [
+      "90-degree gross axis error rate",
+      "near-square subset accuracy"
+    ]
+  },
+
+  "leakage_contract": {
+    "selector_inputs_allowed": [
+      "predicted 9 keypoints",
+      "camera intrinsics",
+      "fixed physical dimensions from the frozen registry",
+      "frozen selector configuration"
+    ],
+    "selector_inputs_forbidden": [
+      "GT dimensions_m",
+      "GT pose",
+      "GT rotation",
+      "GT yaw",
+      "GT axis assignment",
+      "GT keypoint error",
+      "test-set ADD",
+      "test-set IoU3D",
+      "session prior"
+    ],
+    "gt_read_phase": "GT parity is read only after every selection decision is complete",
+    "deployed_selector_training_labels": "synthetic only; real target-domain pose GT may never train a deployed selector",
+    "why": "the paper's training-condition sentence is 'without manually annotated target-domain pose labels during training'; training a deployed selector on real target yaw or axis GT would void it",
+    "real_pose_gt_permitted_uses": ["selector DEV evaluation", "final pose evaluation"],
+    "hyperparameters": "frozen on synthetic development data; real SELECTOR_DEV is a sanity check only. Any departure from this is recorded in the paper.",
+    "paper_eval_tuning": "prohibited. PAPER_EVAL role is DEV, held_out_final is false, and it has been consumed by V1-V5 and every diagnostic track."
+  },
+
+  "populations": {
+    "SELECTOR_SOURCE": {"role": "selector design and training", "preference": "synthetic only", "status": "PENDING_INVENTORY"},
+    "SELECTOR_DEV": {"role": "selector algorithm and gate development", "requirement": "image sha256 overlap with PAPER_EVAL must be 0", "status": "PENDING_INVENTORY"},
+    "POSE_FINAL": {
+      "role": "untouched real evaluation, opened exactly once after the evaluator freezes",
+      "requirements": [
+        "overlap 0 with SELECTOR_SOURCE",
+        "overlap 0 with SELECTOR_DEV",
+        "overlap 0 with PAPER_EVAL and every diagnostic population",
+        "overlap 0 with the self-training adaptation pool",
+        "image sha256 overlap 0, not merely different session names"
+      ],
+      "composition_preference": "daytime and nighttime; plastic required; wood only if its symmetry and canonical contracts close",
+      "status": "PENDING_INVENTORY"
+    },
+    "known_hazard": "DEV_POS140, the population the selector diagnostic ran on, is drawn from the same seven canonical eval sessions as PAPER_EVAL. It cannot serve as SELECTOR_DEV."
+  },
+
+  "unresolved_pose_handling": {
+    "selector_may_return": "POSE_UNRESOLVED",
+    "must_report_together": ["pose coverage", "conditional pose error on resolved frames", "failure-aware score over all frames"],
+    "prohibited": "silently dropping unresolved frames from the pose table"
+  },
+
+  "ordering": {
+    "rule": "strictly sequential; no step may start before the previous one passes",
+    "steps": [
+      "STEP 1  selector closure",
+      "STEP 2  wood symmetry and canonical closure",
+      "STEP 3  signed-axis GT closure",
+      "STEP 4  evaluator unit tests",
+      "STEP 5  final manifest freeze",
+      "STEP 6  POSE_METRICS_STATUS = READY",
+      "STEP 7  only then evaluate R0, R0-CONT, R1, R2, R3, R4, R5 with one evaluator"
+    ],
+    "on_selector_fail": "stop. Do not expand training or inference. POSE_METRICS_STATUS stays BLOCKED and the paper reports why."
+  },
+
+  "terminal_states": {
+    "allowed": ["READY", "BLOCKED_SELECTOR", "BLOCKED_DATA_CONTRACT"],
+    "prohibited": ["PARTIALLY_READY", "any state that opens a pose headline without every gate passing"]
+  },
+
+  "claim_gate": {
+    "note": "A READY evaluator does not authorise the sentence 'self-training improves 6D pose'.",
+    "all_four_required": [
+      "evaluator READY",
+      "comparison fair (same evaluator, same population, exposure-matched arms)",
+      "effect direction favourable",
+      "uncertainty acceptable (paired comparison with an interval)"
+    ],
+    "if_pose_does_not_improve": "report it. The conclusion becomes: self-training improves detection and ranking, but neither 2D localisation nor 6D pose."
+  },
+
+  "immutability": {
+    "must_not_change": [
+      "V1-V5 result JSON, per-frame CSV, checkpoints, teacher caches, pseudo manifests",
+      "PAPER_EVAL membership",
+      "_docs/paper/final/ documents until pose numbers actually exist",
+      "challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json"
+    ],
+    "registry_note": "the registry sha256 is pinned in roughly fifty places across the paper track; it is read-only for this work",
+    "placeholder_rule": "no yaw, ADD, or IoU3D placeholder value may be inserted into any paper-facing document while this track is incomplete"
+  },
+
+  "first_pass_scope": {
+    "included": ["blocker reproduction", "data inventory", "selector information analysis", "symmetry and canonical audit", "population split design", "this method lock", "evaluator unit tests"],
+    "excluded": ["any long training run"],
+    "if_auxiliary_selector_training_is_required": "report the expected cost and the exact data contract, then stop and wait for approval"
+  }
+}

@@ -25,6 +25,25 @@
 원문 계약은 `metric_split_lock.md` §2 이고 reader-facing 이름은
 `final/METRIC_NAMING_LOCK.md` 가 정본이다.
 
+## Open track — pose metric closure
+
+```text
+pose_metric_closure_v1/
+```
+
+6D pose metric(`R med · yaw med · t med · IoU3D · ADD · ADD-S · pose AUC`)이
+`BLOCKED` 인 이유를 코드·artifact 로 재현하고, 열 수 있는지 판정하는 **독립 트랙**이다.
+
+self-training 재개가 아니다 — `final/EXPERIMENT_STOP_LOCK.json` 은 그대로 유효하고
+이 트랙은 그 예외가 아니라 다른 종류의 작업(`POSE_EVALUATION_CLOSURE_ONLY`)이다.
+
+이 트랙이 READY 로 끝나기 전에는 `final/` 의 어떤 문서도 pose 수치로 고치지 않는다.
+placeholder 숫자도 넣지 않는다.
+
+> 참고: 이 폴더가 생기면서 paper root 는 4개가 아니라 **5개**다.
+> `final/` 이 유일한 paper-facing 정본이라는 규칙은 그대로다 —
+> `pose_metric_closure_v1/` 은 아직 논문에 들어가지 않는 진행 중 트랙이다.
+
 ## Historical protocol
 
 ```text
