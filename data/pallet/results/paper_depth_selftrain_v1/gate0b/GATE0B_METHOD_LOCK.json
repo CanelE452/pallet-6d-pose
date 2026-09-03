@@ -1,0 +1,146 @@
+{
+  "schema_version": "gate0b_method_lock_v1",
+  "date": "2026-09-03",
+  "status": "FROZEN_BEFORE_ANY_GATE0B_MEASUREMENT",
+
+  "purpose": "resolve acquisition provenance, full-population coverage, and pallet-local depth structure before any coordinate correction",
+
+  "student_training_allowed": false,
+  "pseudo_label_correction_allowed": false,
+  "gate1_allowed": false,
+  "evaluation_gt_used": false,
+
+  "audit_population": {
+    "day": ["capturepallet01", "capturepallet10", "capturepallet11"],
+    "night": ["capturenight01", "capturenight02", "capturenight03",
+              "capturenight04", "capturenight10"],
+    "expected_total_rgbd_pairs": 8031
+  },
+
+  "teacher": "existing frozen synthetic-only R0",
+  "teacher_role": "ROI proposal only; teacher correctness is not evaluated",
+  "teacher_checkpoint_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+  "teacher_recipe_source": "data/pallet/results/paper_selftrain_v1/teacher_cache/R0_TEACHER_CACHE.json — recipe and flip_contract are read from that file, not restated here",
+
+  "important_corrections_to_gate0": [
+    "different intrinsics do NOT forbid pooling; each frame/recording must use its own K",
+    "cam_K.txt existence does NOT by itself prove that it is the color-stream intrinsic",
+    "same-K backprojection/reprojection round trip validates algebra only, not RGB-depth calibration",
+    "whole-ROI background contamination does NOT prove absence of local pallet depth structure"
+  ],
+
+  "reused_repository_conventions": {
+    "face_topology_source": "scripts/evaluation/classify_daytime_visibility.py FACES",
+    "faces": {
+      "near": [0, 1, 2, 3], "far": [4, 5, 6, 7],
+      "top": [0, 1, 4, 5], "bottom": [2, 3, 6, 7],
+      "left": [0, 3, 4, 7], "right": [1, 2, 5, 6]
+    },
+    "keypoint_convention": "camera-facing 0123",
+    "keypoint_sampling_radius": 3,
+    "keypoint_sampling_source": "challenge/scripts/live/run_live_io.py sample_depth(radius=3)",
+    "keypoint_validity_threshold": 0.5,
+    "keypoint_validity_source": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json keypoint_validity.kp_conf_threshold",
+    "depth_scale_m_per_unit": 0.001,
+    "depth_scale_source": "challenge/scripts/live/run_live_io.py NpDepthFrame"
+  },
+
+  "roi_definitions": {
+    "ROI_A": "teacher bbox",
+    "ROI_B": "convex hull of the valid predicted 8 corners",
+    "ROI_C": "projected cuboid face interiors, each polygon shrunk toward its own centroid"
+  },
+  "face_interior_shrink_ratio": 0.20,
+  "shrink_ratio_justification": "no interior-margin convention exists in this repository, so the value is declared here before any measurement and is never swept afterwards; 20 percent is the value named in the task specification",
+
+  "plane_fit": {
+    "method": "deterministic least squares via PCA on the backprojected points",
+    "ransac_forbidden": true,
+    "reported": ["median absolute point-to-plane residual",
+                 "p90 absolute point-to-plane residual"],
+    "no_inlier_threshold_invented": true
+  },
+
+  "validity_layers": {
+    "loose": "depth > 0",
+    "strict": "depth > 0 AND depth != dtype_max",
+    "both_reported": true,
+    "no_new_far_clipping_threshold": true
+  },
+
+  "provenance_grades": {
+    "A_EXPLICIT": "recording or session metadata, or an execution record for that recording, links it to a capture writer whose contract states alignment, scale and K",
+    "B_STRONG": "history, log or provenance links this capture series to a specific writer or pipeline whose contract is clear",
+    "C_COMPATIBLE_ONLY": "current reader or live code consumes this format as aligned depth, but nothing links the raw recording to how it was produced",
+    "UNKNOWN": "not even that"
+  },
+  "k_role_grades": ["COLOR_K_CONFIRMED", "DEPTH_K_CONFIRMED",
+                    "LIKELY_COLOR_K", "UNPROVEN"],
+  "color_k_confirmed_requires_acquisition_provenance": true,
+
+  "prospective_criteria": {
+    "PROVENANCE_CONDITION": {
+      "CONTRACT_CONFIRMED": "every recording intended for the method reaches A_EXPLICIT or B_STRONG on the contracts metric reconstruction needs",
+      "CONTRACT_UNRESOLVED": "only C_COMPATIBLE_ONLY is available"
+    },
+    "LOCAL_SIGNAL_CONDITION": {
+      "requirement": "over half of detected ROI frames have at least one projected face interior that holds enough valid depth to fit a plane numerically and is not a catastrophic spread",
+      "quantities_deliberately_left_open": ["enough", "catastrophic"],
+      "why_open": "no repository or physical contract fixes these numbers, and inventing them after seeing the distribution would be fitting to the result",
+      "if_no_defensible_number_is_found": "report LOCAL_SIGNAL = DESCRIPTIVE_ONLY rather than manufacturing a pass",
+      "one_number_that_is_defensible": "a face interior needs at least 3 valid depth points for a plane to be defined at all; that is geometry, not a tuned threshold"
+    }
+  },
+
+  "alignment_diagnostic": {
+    "add": "symmetric chamfer distance between RGB structural edges and depth discontinuity edges",
+    "keep": "the existing Gate 0 edge proxy is not discarded",
+    "report": ["zero_shift_score", "best_shift_score", "best_dx", "best_dy"],
+    "forbidden": "using the best shift to move the depth, or to correct an offset; this is verification only"
+  },
+
+  "round_trip_smoke_meaning": {
+    "THIS_VALIDATES": "projection algebra implementation only",
+    "THIS_DOES_NOT_VALIDATE": ["RGB-depth alignment", "cam_K stream identity",
+                               "depth metric scale"],
+    "must_not_be_cited_as_calibration_evidence": true
+  },
+
+  "contact_sheet_selection": {
+    "rule": "per recording, deterministic representatives from close, mid and far bands of teacher bbox area",
+    "max_per_recording": 12,
+    "not_selected_by": ["ground truth", "model performance", "error ranking"]
+  },
+
+  "verdict_axes": {
+    "A_ACQUISITION_PROVENANCE": ["CONFIRMED", "UNRESOLVED", "FAILED"],
+    "B_FULL_POPULATION_SENSOR_VALIDITY": ["PASS", "PARTIAL", "FAIL"],
+    "C_PALLET_LOCAL_DEPTH_SIGNAL": ["PROMISING", "MIXED", "POOR", "DESCRIPTIVE_ONLY"],
+    "D_ALIGNMENT_EMPIRICAL": ["SUPPORTS_ALIGNMENT", "UNCLEAR", "CONTRADICTS_ALIGNMENT"],
+    "FINAL": ["READY_FOR_GATE1_PILOT", "NOT_READY_FOR_GATE1"],
+    "ready_requires": "acquisition contract sufficiently recovered AND local pallet depth signal actually present AND alignment evidence not contradictory"
+  },
+
+  "read_only_paths": [
+    "data/pallet/results/paper_depth_selftrain_v1/gate0",
+    "data/pallet/results/paper_depth_selftrain_v1/METHOD_INTENT_LOCK.json",
+    "data/pallet/results/paper_selftrain_v1",
+    "data/pallet/results/paper_selftrain_v2",
+    "data/pallet/results/paper_selftrain_v3",
+    "data/pallet/results/paper_selftrain_v4",
+    "data/pallet/results/paper_selftrain_v5",
+    "data/pallet/results/paper_selftrain_site_v1",
+    "data/pallet/results/paper_pose_metric_closure_v1",
+    "data/pallet/results/site_environment_audit_v1"
+  ],
+  "stop_if_existing_artifact_hash_changes": true,
+
+  "allowed_new_inference": "R0 ROI proposals for adaptation frames that no existing cache covers, under the recipe read from R0_TEACHER_CACHE.json",
+  "forbidden": ["new model", "new checkpoint selection", "new pseudo-label",
+                "new filter", "new student", "threshold chosen after seeing results",
+                "sweeping the shrink ratio", "moving depth by the best shift"],
+
+  "gate1_after_success": "Gate 1 compares teacher raw coordinates against depth-corrected coordinates for pseudo-label quality. Even a successful Gate 0B does not start student training.",
+
+  "next_action_after_gate0b": "USER_REVIEW_GATE0B"
+}
