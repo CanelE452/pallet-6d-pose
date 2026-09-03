@@ -1,0 +1,145 @@
+{
+  "schema_version": "sensor_validation_lock_v1",
+  "date": "2026-09-03",
+  "status": "FROZEN_BEFORE_ANY_MEASUREMENT",
+
+  "why_this_track_exists": "Gate 0B is blocked by acquisition provenance, not by the depth itself. No writer for the stored layout exists in any available repository, so alignment and the night intrinsic's stream identity cannot be established from records. Where the repository already holds manually annotated RGB geometry, known pallet dimensions, depth and an intrinsic for the same frame, that gap can be tested empirically instead of documented.",
+
+  "predecessor": {
+    "gate0b_lock_commit": "74af7a29150f90dfe79424d7f19311220e911ab7",
+    "gate0b_result_commit": "1c32a6c5a9db11b676bd58d39e6459b4ceabbab5",
+    "gate0b_final": "NOT_READY_FOR_GATE1_PILOT",
+    "gate0b_final_is_not_revisited_here": true
+  },
+
+  "questions": {
+    "Q1": "are the stored depth and cam_K geometrically compatible with manually annotated RGB pallet geometry",
+    "Q2": "can known pallet geometry distinguish pallet-supporting depth structure from incidental ground or background planes"
+  },
+  "not_the_purpose": [
+    "measuring R0 performance",
+    "comparing against R5",
+    "measuring self-training improvement",
+    "tuning pseudo-label correction"
+  ],
+
+  "forbidden": {
+    "student_training": 0,
+    "pseudo_label_correction": 0,
+    "gate1": "NOT_RUN",
+    "new_filter": 0,
+    "new_threshold_tuning": 0,
+    "choosing_a_success_threshold_after_seeing_results": true,
+    "selecting_the_population_by_name": true
+  },
+
+  "read_only_paths": [
+    "data/pallet/results/paper_depth_selftrain_v1/gate0",
+    "data/pallet/results/paper_depth_selftrain_v1/gate0b",
+    "data/pallet/results/paper_selftrain_v1",
+    "data/pallet/results/paper_selftrain_v2",
+    "data/pallet/results/paper_selftrain_v3",
+    "data/pallet/results/paper_selftrain_v4",
+    "data/pallet/results/paper_selftrain_v5",
+    "data/pallet/results/paper_selftrain_site_v1",
+    "data/pallet/results/paper_pose_metric_closure_v1",
+    "data/pallet/results/site_environment_audit_v1"
+  ],
+
+  "population_rule": {
+    "required_per_frame": ["RGB exists", "depth exists", "cam_K exists",
+                           "manual or reviewed 2D cuboid keypoints exist",
+                           "known physical pallet dimensions exist"],
+    "discovery": "enumerate by content, resolving each annotated frame back to its raw recording by image SHA256 rather than by path string, because the import manifest records the GT folder as the source for most frames",
+    "selection_by_session_name_forbidden": true,
+    "output": "SENSOR_VALIDATION_POPULATION.csv",
+    "fields": ["frame_id", "source_recording", "rgb_path", "depth_path",
+               "annotation_path", "object_type", "dimensions", "lighting",
+               "current_evaluation_role", "source_provenance"]
+  },
+
+  "leakage_contract": {
+    "role": "development sensor validation only",
+    "must_record_overlap_with_paper_eval": "OVERLAPS_EXISTING_EVAL",
+    "allowed_now": "these frames may be used for this sensor question",
+    "forbidden_later": "this population must never be reused as an independent confirmation population for method success",
+    "reason": "using the same frames to validate the sensor and then to confirm the method would make the confirmation circular"
+  },
+
+  "reference_geometry": {
+    "source": "manual 2D keypoints plus the registered physical dimensions",
+    "not_a_model_prediction": true,
+    "pose_reconstruction": "the existing frozen geometry/PnP contract in this repository; no new solver, no new convention",
+    "existing_geometry_reference_may_be_read": "GEOMETRY_RESOLVED_POSE_GT.json may be read for the reference pose, but it is never used to tune anything and Gate 1 tuning against it stays forbidden"
+  },
+
+  "measurements_fixed_before_results": {
+    "A_depth_at_manual_face": {
+      "faces_from": "manual 2D cuboid keypoints",
+      "face_topology_source": "scripts/evaluation/classify_daytime_visibility.py FACES",
+      "shrink_ratio": 0.20,
+      "shrink_ratio_source": "identical to GATE0B_METHOD_LOCK.json, not re-chosen here",
+      "per_face": ["valid depth fraction", "median depth", "MAD",
+                   "p10-p90 span", "plane residual"]
+    },
+    "B_known_geometry_compatibility": {
+      "step_1": "reconstruct a reference cuboid pose from manual 2D keypoints and known dimensions using the frozen contract",
+      "step_2": "project that 3D cuboid into the image",
+      "step_3": "compare the measured depth against the depth the reference surface implies",
+      "emphasis": "the reference is manual geometry, not a model prediction"
+    },
+    "C_residual_definitions": {
+      "primary": "for each valid measured depth pixel, the distance between the backprojected 3D point and the manual-reference cuboid surface",
+      "secondary": "absolute difference in centimetres between measured z and the z the reference surface implies along the same ray",
+      "both_reported_if_both_implementable": true,
+      "reported": ["median residual", "p90 residual"],
+      "threshold_sweep_forbidden": true
+    },
+    "D_discriminability": {
+      "compare": ["measured depth inside the annotated face interior",
+                  "depth implied by the reference cuboid surface",
+                  "depth in the surrounding ground or background ring"],
+      "quantities": ["|face measured - cuboid expected|",
+                     "|ring measured - cuboid expected|"],
+      "signal_sought": "face residual smaller than ring residual",
+      "success_threshold_after_results_forbidden": true
+    }
+  },
+
+  "specification_gap": {
+    "the_instruction_was_truncated": true,
+    "truncated_at": "section 13, mid-sentence, at 'lock에서 우선: fraction'",
+    "consequence": "the pass criterion for discriminability, and any section after 13, were never received",
+    "what_is_frozen_here_anyway": "everything through section 13 that was received, so the measurements cannot drift later",
+    "what_is_deliberately_left_open": "the criterion that would turn the discriminability comparison into a verdict",
+    "default_if_no_criterion_arrives": "report the fraction of frames where the face residual is smaller than the ring residual, as a descriptive number, and set SENSOR_VALIDATION = DESCRIPTIVE_ONLY. Manufacturing a threshold to produce a pass is forbidden.",
+    "measurement_does_not_start_until": "the missing criterion is supplied, or the user confirms the descriptive-only default"
+  },
+
+  "verdict_axes": {
+    "Q1_GEOMETRIC_COMPATIBILITY": ["COMPATIBLE", "PARTIAL", "INCOMPATIBLE",
+                                   "DESCRIPTIVE_ONLY"],
+    "Q2_DISCRIMINABILITY": ["DISCRIMINATES", "MIXED", "DOES_NOT_DISCRIMINATE",
+                            "DESCRIPTIVE_ONLY"],
+    "categories_are_closed": "no verdict string outside these lists may be written, a rule added because Gate 0B violated exactly that"
+  },
+
+  "artifacts": [
+    "SENSOR_VALIDATION_LOCK.json",
+    "SENSOR_VALIDATION_POPULATION.csv",
+    "SENSOR_VALIDATION_PER_FRAME.csv",
+    "SENSOR_VALIDATION_SUMMARY.json",
+    "SENSOR_VALIDATION_REPORT.md"
+  ],
+  "scripts_go_in": "scripts/self_training_yolo/depth_corrected/",
+
+  "commit_discipline": {
+    "this_lock_is_committed_alone": true,
+    "lock_and_result_must_not_share_a_commit": true,
+    "measurement_begins_only_after_this_lock_is_confirmed_on_the_remote": true
+  },
+
+  "a_pass_does_not_mean": "that depth-assisted correction would improve accuracy. It would mean only that the stored depth is geometrically consistent with manually annotated RGB geometry, which is the evidence Gate 0B could not obtain from records.",
+
+  "next_action": "USER_SUPPLIES_TRUNCATED_CRITERION_OR_CONFIRMS_DESCRIPTIVE_ONLY"
+}
