@@ -4,6 +4,40 @@
 > `_docs/paper/final/FINAL_EXPERIMENT_PLAN.md`.**
 > 이 문서는 실험 provenance 를 보존하기 위한 **historical design document** 로 남긴다.
 > 계약·수치는 그대로 두되, 논문에 들어갈 질문·표·주장은 `_docs/paper/final/` 을 따른다.
+>
+> ### 아래 표가 `—` 로 비어 있는 것은 정상이다
+>
+> 이 문서의 표는 **틀과 계약**이지 숫자 저장소가 아니다(§"생성된 표" 참조 —
+> *"여기 숫자를 손으로 복붙하지 않는다"*). `—` 는 미완료 작업이 아니라
+> **여기엔 적지 않는다**는 뜻이고, 세 종류가 섞여 있다.
+>
+> ```text
+> 1  pose 열 (R med · yaw med · t med · IoU3D · AUC…)
+>    영구적으로 채워지지 않는다.  POSE_METRICS_STATUS = BLOCKED
+>    (axis selector 최고 0.65 vs gate 0.95 — 알고리즘 문제라 추가 어노테이션으로
+>     열리지 않는다).  최종 표에서는 빈칸이 아니라 **열 자체를 제거**했다.
+>
+> 2  SingleShotPose · PVNet 행
+>    SSP = INCOMPATIBLE(구현 없음), PVNet = NEEDS_TRAIN(사전 결과 부정적).
+>    `_docs/audits/paper/EXTERNAL_BASELINE_AUDIT.md` 참조.  채울 계획이 없다.
+>
+> 3  실제로 값이 있는 행 (DOPE · YOLO26n baseline · Proposed 등)
+>    숫자는 여기가 아니라 아래에 있다.
+> ```
+>
+> **현재 논문 표의 정본:**
+>
+> ```text
+> _docs/paper/final/generated/TABLE_FINAL_1.md   주 비교 (Panel A 통제 arm / Panel B reference)
+> _docs/paper/final/generated/TABLE_FINAL_2.md   주야 적응
+> _docs/paper/final/generated/TABLE_FINAL_3.md   3A 필터 품질 · 3B 하류 학생
+> _docs/paper/final/generated/TABLE_FINAL_4.md   조건별 robustness
+> _docs/paper/final/generated/TABLE_FINAL_DIAGNOSTIC.md   development 진단 (Tier B)
+> _docs/paper/final/generated/RESULT_SOURCE_MAP.json      265개 수치 → 파일경로 → JSON 키
+> ```
+>
+> 아래 본문의 M1~M5 · A1~A11 은 **그 표들이 어떤 계약 아래 만들어졌는지**를 남기기
+> 위한 기록이다.  논문을 쓸 때 읽어야 할 것은 `_docs/paper/final/` 이다.
 
 본 문서는 논문에 필요한 실험과 결과표 구조를 고정한다.
 
