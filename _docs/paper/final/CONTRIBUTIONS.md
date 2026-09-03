@@ -2,22 +2,29 @@
 
 Three. No fourth is claimed, because no fourth is supported.
 
-## C1 — An adaptation protocol that measures detection, ranking, and localisation separately
+## C1 — An adaptation protocol that separates detection, ranking, fine 2D localisation, and downstream 6D pose
 
 Most synthetic-to-real adaptation studies report an aggregate detection or pose
 score. That aggregate cannot distinguish *finding more pallets* from *placing their
 corners more precisely*, and in this study the two move in opposite directions.
 
-We define a protocol in which target-domain adaptation is evaluated along three
-axes that are never collapsed into one number:
+We define a protocol in which target-domain adaptation is evaluated along four
+layers that are never collapsed into one number:
 
 ```text
-detection coverage       is the pallet found at all, per acquisition condition
-confidence ranking       are true positives ranked above negatives
-keypoint localisation    how far are the supervised corners, in original-image pixels
+detection coverage           is the pallet found at all, per acquisition condition
+confidence ranking           are true positives ranked above negatives
+fine 2D keypoint             how accurately are the supervised image-plane keypoints
+  localisation               placed, in original-image pixels
+downstream 6D pose           do those image-space changes propagate to rotation,
+                             translation, oriented IoU3D and symmetry-aware ADD AUC,
+                             measured against the geometry-reconstructed 6D
+                             reference pose
 ```
 
-The separation is what makes the paper's main result statable at all.
+The hierarchy is necessary because changes in detection and confidence ranking do
+not necessarily coincide with changes in fine keypoint localisation or downstream
+6D pose. That separation is what makes the paper's main result statable at all.
 
 ## C2 — An exposure-matched comparison of pseudo-label selection rules
 
@@ -60,6 +67,13 @@ Each probe is a development experiment, not an independent confirmation, and is
 labelled as such throughout the paper. Their collective value is that they rule
 mechanisms *out*: the limitation is not one filter implementation, not the masking
 semantics, and not the number of observations pooled.
+
+Label quality, 2D localisation and downstream pose connect as follows. Where
+selection or weighting measurably improves the pseudo-labels the student sees, the
+resulting model shows no corresponding gain in fine 2D localisation, and no
+evaluated self-training variant shows a session-cluster-resolved downstream 6D
+improvement over the synthetic-only baseline. Additional post-hoc pose-formulation probes, described in the discussion,
+likewise failed to produce a promotable 6D signal.
 
 ## What is deliberately not claimed as a contribution
 

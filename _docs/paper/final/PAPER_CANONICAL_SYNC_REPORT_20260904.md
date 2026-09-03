@@ -279,3 +279,101 @@ CENTRAL_FINDING          PSEUDO_LABEL_RELIABILITY_DOES_NOT_NECESSARILY_TRANSLATE
 ## [NEXT ACTION]
 
 PAPER_WRITING
+
+---
+
+# FINAL TEXT CLOSURE — 2026-09-04
+
+canonical sync(`63fd78d`) 이후 재감사에서 **활성 문서 네 곳**이 아직 어긋나 있었다.
+canonical state 자체는 이미 맞았고, 남은 것은 산문이었다.  이번 작업은 그 네 개만
+고친 **text-only closure** 다.  새 실험·새 통계·새 추론 0.
+
+## 무엇이 어긋나 있었나, 그리고 왜 이전 감사가 못 잡았나
+
+이전 감사는 문자열 검색이었다.  네 건 모두 **있어야 할 문장이 없는** 결함이라
+검색으로는 잡히지 않았고, "6D pose" 라는 단어가 note 나 omission 표에만 있어도
+있는 것처럼 보였다.  그래서 이번에는 본문 범위를 파싱하는 테스트를 넣었다.
+
+```text
+Abstract downstream 6D                       FIXED
+  본문이 detection/ranking -> 2D 까지만 말하고 하류 6D 결과가 없었다.
+  본문에 넣었다: 같은 arm 을 하류 pose 까지 끌고 갔고, geometry-reconstructed
+  6D reference 기준으로 어떤 variant 도 session-cluster 로 해소된 개선을
+  보이지 않는다.  결론 문장도 2D 와 6D 를 함께 말하도록 확장했다.
+  중복을 압축해 297 -> 310 words (목표 280~310), 검증 숫자 10 개는 전부 유지.
+
+Abstract ranking caveat                      FIXED
+  "The ranking metrics carry no bootstrap interval in the artifacts" 는
+  현재 사실이 아니다.  frame-level paired 구간은 존재하고(AUROC +0.00318,
+  CI [+0.000092, +0.006898], 0 배제 / FPR95 는 0 포함), 없는 것은
+  session-cluster 구간이다(negative 행에 session_id 없음).
+  Tier B 라는 점과 함께 다시 썼고, 과거 상태는 "Historical:" 로 남겼다.
+
+Contributions four-layer hierarchy           FIXED
+  C1 이 detection / ranking / 2D localisation 세 축뿐이었다.
+  네 층으로 바꿨다 — detection coverage · confidence ranking ·
+  fine 2D keypoint localisation · downstream 6D pose(geometry-reconstructed
+  6D reference pose 기준).  C3 결론도 label quality -> 2D -> 6D 를 잇도록 했다.
+  contribution 개수는 3 개 그대로다 — 네 번째를 만들지 않았다.
+
+Claim C internal contradiction               FIXED
+  같은 object 안에서 note 는 "구간이 없다", amended_20260904 는 "구간이 있다"
+  라고 말하고 있었다.  현재 note 를 최신 상태로 다시 쓰고, 원문은
+  historical_note_before_20260904 에 보존했다.  prose twin 도 같은 의미로 맞췄다.
+
+layer count 불일치 (부수)                     FIXED
+  METHOD_OUTLINE 이 "three layers", CONTRIBUTIONS 가 "four layers" 였다.
+  네 축으로 통일했다.
+```
+
+## 새 정적 테스트 — 단어 검색이 아니라 본문 범위 검사
+
+```text
+T13  abstract_mentions_downstream_6d          ## Abstract 의 blockquote 본문만 본다.
+                                              note·omission 표에 있는 "6D" 는 세지 않는다
+T14  abstract_ranking_note_not_stale          현재형 "no bootstrap interval" 금지,
+                                              session-cluster 불가 언급을 요구
+T15  contributions_has_four_layer_hierarchy   ## C1 본문 범위만 본다.
+                                              "deliberately not claimed" 목록은 제외
+T16  claim_c_current_note_matches_amendment   현재 note 와 amendment 가 모순되지 않을 것.
+                                              historical note 는 허용
+```
+
+**음성 대조로 검증했다.**  `63fd78d` 시점 파일로 되돌리면 네 테스트가 모두 FAIL 하고
+(11/16), 수정본에서는 모두 PASS 한다(16/16).  통과만 확인하고 넘어가지 않았다.
+
+## 결과
+
+```text
+active stale issues     0        (NEEDS_USER = 0)
+tests                   16/16 PASS
+result numbers changed  0        generated/ 무변경, 재생성 없음
+result artifacts        0        read-only namespace 12 곳 git 무변경
+training / inference    0 / 0
+```
+
+## 남은 두 개는 데이터의 성질이지 미결정이 아니다
+
+```text
+BLOCKED_MISSING_ARTIFACT   ranking 의 완전한 session-cluster 구간
+                           negative 2,689 행에 session_id 가 없다
+BLOCKED_MISSING_ARTIFACT   필터 품질 지표의 신뢰구간
+                           FILTER_SEPARABILITY.json 에 항목별 배열이 없다
+```
+
+## 두 문장을 혼동하지 않는다
+
+```text
+measured result   "No self-training variant showed a session-cluster-resolved
+                   improvement in downstream 6D pose over the synthetic-only
+                   baseline."
+interpretation    "Pseudo-label reliability does not necessarily translate into
+                   fine geometric localisation or downstream 6D pose."
+```
+
+첫째를 기제 주장처럼 쓰지 않고, 둘째를 인과 증명처럼 쓰지 않는다.
+
+```text
+PAPER_CANONICAL_SYNC_STATUS = COMPLETE
+NEXT_ACTION                 = PAPER_WRITING
+```

@@ -45,6 +45,12 @@ STALE = [
     ("wood awaiting decision", "wood 125 is included"),
     ("held-out confirmation", "no confirmation population exists"),
     ("metrology-grade", "geometry-reconstructed 6D reference pose"),
+    ("carry no bootstrap interval", "a paired frame-level ranking interval exists"),
+    ("no bootstrap interval exists", "a paired frame-level ranking interval exists"),
+    ("detection, ranking, and localisation separately", "four layers, 6D included"),
+    ("three axes that are never collapsed", "four layers, 6D included"),
+    ("transfer to fine 2D geometric keypoint localisation",
+     "the conclusion must reach downstream 6D too"),
 ]
 # 금지어를 '쓰지 말라' 고 적은 줄은 false positive
 PROHIBITION = re.compile(
@@ -375,6 +381,76 @@ def main() -> int:
     resolved = [k for k, v in sources["site_matched"]["A8_vs_R0"].items() if v["excludes_zero"]]
     check("site_matched_no_resolved_improvement", not resolved,
           resolved or "all four cluster intervals contain zero")
+
+    # ---- 본문 범위 파서.  단어가 note 나 omission 목록에만 있으면 PASS 가 아니다
+    def section_body(text: str, heading: str) -> str:
+        """`heading` 아래부터 다음 같은 수준 heading 전까지."""
+        lines = text.splitlines()
+        try:
+            start = next(i for i, l in enumerate(lines) if l.strip() == heading)
+        except StopIteration:
+            return ""
+        level = heading.split(" ")[0]
+        body = []
+        for line in lines[start + 1:]:
+            if line.startswith(level + " ") or (
+                    line.startswith("#") and len(line.split(" ")[0]) <= len(level)):
+                break
+            body.append(line)
+        return "\n".join(body)
+
+    abstract_md = (FINAL / "ABSTRACT_DRAFT.md").read_text()
+    # Abstract 는 blockquote 본문만 본다 — note·omission 표는 제외
+    abstract_body = "\n".join(
+        l[2:] for l in section_body(abstract_md, "## Abstract").splitlines()
+        if l.startswith("> "))
+
+    # T13 Abstract 본문이 하류 6D 결과를 실제로 말하는가
+    has_6d = ("6D" in abstract_body
+              and "session-cluster-resolved" in abstract_body
+              and "synthetic-only baseline" in abstract_body)
+    forbidden_in_abstract = [w for w in ("no difference", "worsens", "statistically confirmed")
+                             if w in abstract_body.lower()]
+    check("abstract_mentions_downstream_6d", has_6d and not forbidden_in_abstract,
+          {"body_words": len(abstract_body.split()),
+           "has_6D": "6D" in abstract_body,
+           "has_session_cluster_resolved": "session-cluster-resolved" in abstract_body,
+           "has_baseline": "synthetic-only baseline" in abstract_body,
+           "forbidden_found": forbidden_in_abstract,
+           "checked_scope": "the ## Abstract blockquote only, not the notes below it"})
+
+    # T14 Abstract 의 ranking note 가 현재형 stale 이 아닌가
+    ranking_note = section_body(abstract_md, "## Phrasing decisions and why")
+    stale_now = ("carry no bootstrap interval" in ranking_note
+                 or "no bootstrap interval exists" in ranking_note)
+    historically_qualified = "Historical:" in ranking_note or "at the time" in ranking_note.lower()
+    check("abstract_ranking_note_not_stale",
+          (not stale_now) and "Session-clustered" in ranking_note,
+          {"stale_present_tense": stale_now,
+           "historically_qualified": historically_qualified,
+           "mentions_session_clustered_unavailability": "Session-clustered" in ranking_note})
+
+    # T15 CONTRIBUTIONS C1 본문에 네 층이 다 있는가 (not-claimed 목록은 제외)
+    contributions = (FINAL / "CONTRIBUTIONS.md").read_text()
+    c1 = section_body(contributions, next(
+        (l.strip() for l in contributions.splitlines() if l.startswith("## C1")), "## C1"))
+    layers = {"detection": "detection" in c1.lower(),
+              "ranking": "ranking" in c1.lower(),
+              "2D localisation": "2d" in c1.lower() and "localisation" in c1.lower(),
+              "6D pose": "6d pose" in c1.lower()}
+    check("contributions_has_four_layer_hierarchy", all(layers.values()),
+          {"layers_found_in_C1_body": layers,
+           "checked_scope": "the ## C1 section body only, not 'deliberately not claimed'"})
+
+    # T16 Claim C 의 현재 note 가 amendment 와 모순되지 않는가
+    claim_c = next(c for c in lock["supported_claims"] if c["id"] == "C")
+    note_stale = "no bootstrap interval" in claim_c.get("note", "")
+    check("claim_c_current_note_matches_amendment",
+          (not note_stale) and "amended_20260904" in claim_c
+          and "historical_note_before_20260904" in claim_c,
+          {"current_note_is_stale": note_stale,
+           "amendment_present": "amended_20260904" in claim_c,
+           "historical_note_preserved": "historical_note_before_20260904" in claim_c})
 
     # T8 referenced paths exist
     missing = [s for s in (

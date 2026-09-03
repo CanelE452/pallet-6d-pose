@@ -28,11 +28,18 @@ Machine-readable twin: `PAPER_CLAIM_LOCK.json`.
 "increases observed"          the R0-vs-full-filter detection difference has
                               p_better 0.121 (frame) and 0.244 (session-clustered).
                               "substantially improves" overstates it.
-"best observed AUROC/FPR95"   no bootstrap interval exists for the ranking metrics,
-                              and session-clustered bootstrap is unavailable for the
-                              current negative capture. Best observed is what the
-                              artifacts support; "improves ranking" as an
-                              unconditional claim is not.
+"best observed AUROC/FPR95"   a paired frame-level interval exists since the
+                              2026-09-04 static audit: the AUROC contrast is
+                              positive (+0.00318, CI [+0.000092, +0.006898]) and
+                              the FPR95 contrast is unresolved. Session-clustered
+                              ranking uncertainty is still unavailable because the
+                              negative rows carry no session identifier, and the
+                              interval is Tier B — computed after the point
+                              estimate was seen. Best observed is what the
+                              artifacts support; "established", "confirmed" or
+                              "significant" ranking improvement is not.
+                              (At the time of the original lock no interval
+                              existed at all.)
 "consistent with"             the teacher ceiling is an interpretation that fits
                               every diagnostic, not a measured quantity.
 ```

@@ -21,8 +21,9 @@ Keypoint indices follow a camera-facing convention:
 ```
 
 The keypoints are converted to a 6D pose by PnP downstream, and that pose is
-measured. **The quantitative claims in this paper span three layers: detection and
-ranking, 2D keypoint localisation, and downstream 6D pose.** The 6D layer is scored
+measured. **The quantitative claims in this paper span four measured axes:
+detection coverage, confidence ranking, fine 2D keypoint localisation, and
+downstream 6D pose.** The 6D layer is scored
 against a geometry-reconstructed reference pose (manual 2D cuboid keypoints,
 calibrated intrinsics, registered dimensions), not against sensor ground truth, and
 no improvement is claimed in it (see Limitations).
