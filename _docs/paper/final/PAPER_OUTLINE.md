@@ -21,12 +21,13 @@ paper-facing interpretation. That file is preserved as a historical design docum
    4.3  Baselines
    4.4  Metrics
 5  Results
-   5.1  Main comparison                          -> Table 1
+   5.1  Main comparison                          -> Table 1 (Panel A / B)
    5.2  Daytime and nighttime adaptation         -> Table 2
-   5.3  Pseudo-label selection ablation          -> Table 3
+   5.3  Fine 2D keypoint localisation and
+        pseudo-label selection                   -> Table 3A / 3B
    5.4  Robustness                               -> Table 4
 6  Analysis and Discussion
-   6.1  The detection-localisation trade-off
+   6.1  The detection / 2D-localisation separation
    6.2  Why improved pseudo-label purity does not transfer
    6.3  Semantic-axis ambiguity near square projections
    6.4  Teacher ceiling

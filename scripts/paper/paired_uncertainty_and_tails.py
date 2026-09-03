@@ -32,7 +32,7 @@ ARMS = REPO_ROOT / "data/pallet/results/paper_eval_v1/arms"
 WORKSPACE = REPO_ROOT / "data/evaluation/pallet_eval_v1"
 OUT_JSON = REPO_ROOT / "data/pallet/results/paper_eval_v1/PAIRED_UNCERTAINTY.json"
 TAIL_CSV = REPO_ROOT / "data/pallet/results/paper_eval_v1/TAIL_HIGH_ERROR_FRAMES.csv"
-REPORT = REPO_ROOT / "_docs/paper/generated/APPENDIX_UNCERTAINTY.md"
+REPORT = REPO_ROOT / "_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/APPENDIX_UNCERTAINTY.md"
 
 BOOTSTRAP = 10000
 RNG = np.random.default_rng(20260902)

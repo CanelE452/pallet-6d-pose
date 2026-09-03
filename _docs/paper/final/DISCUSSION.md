@@ -64,7 +64,7 @@ and it is still not enough.
 
 ## 6.4 Near-square projections carry a 90-degree ambiguity
 
-The catastrophic corner errors are not mislocalised points. They are **index
+The catastrophic 2D keypoint errors are not mislocalised points. They are **index
 permutations**: the corners are in the right places and the labels have rotated by
 90 degrees. They concentrate where the projected pallet is close to square, which is
 where the width and depth axes become visually interchangeable.
@@ -72,7 +72,7 @@ where the width and depth axes become visually interchangeable.
 Two consequences are worth stating for readers building similar systems:
 
 ```text
-a  such frames must be judged by maximum corner error. The error distribution is
+a  such frames must be judged by maximum 2D keypoint error. The distribution is
    bimodal — a few corners are enormously wrong and the rest are fine — so the
    median reports a healthy frame.
 b  the ambiguity is a property of the viewpoint, not of the model. No amount of
@@ -84,14 +84,31 @@ An ambiguity-aware development variant reduced the permutation rate from 0.047 t
 0.041, and to 0.084 from 0.096 on the ambiguous subgroup. That is development
 evidence, it is reported as such, and that variant is not the proposed method.
 
-## 6.5 Night and occlusion are the hardest conditions
+## 6.5 Scale sensitivity of the 2D metric
+
+Raw image-plane pixel error depends on projected object size, so condition-to-
+condition comparisons of absolute pixel error are potentially confounded by scale.
+A pallet that fills the frame yields a larger absolute error than a distant one at
+the same relative accuracy.
+
+Our primary interpretation is therefore **model-to-model comparison within the same
+subgroup**, never a ranking of subgroup difficulty by absolute pixel value. The
+daytime median of 10.556 px against the nighttime 7.686 px does not establish that
+daytime is the harder condition.
+
+Post-hoc scale-normalised diagnostics were used only to test whether an observed
+condition difference could be explained by scale. They are **not** substituted for
+the frozen metric, and no result in this paper was re-reported under a different
+metric after the fact.
+
+## 6.6 Night and occlusion are the hardest conditions
 
 R0's error concentrates predictably: daytime gross-error rate 0.302 against 0.119
 at night, occlusion 0.243 against 0.123 clean, truncation 0.274. Adaptation helps
 nighttime *detection* most, which is consistent with 6.1 — nighttime is where the
 source model's presence signal was weakest, and where new real images add most.
 
-## 6.6 What would actually be needed
+## 6.7 What would actually be needed
 
 Selection has been explored to the end of its usefulness on this population. Three
 directions remain, and each supplies something selection cannot:

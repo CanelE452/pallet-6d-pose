@@ -42,7 +42,7 @@ COORD_QA = WORKSPACE / "review" / "DAYTIME_COORDINATE_QA_QUEUE.csv"
 AUTO_QUEUE = WORKSPACE / "review" / "DAYTIME_OCCLUSION_REVIEW_QUEUE.csv"
 
 # 사전 고정된 자동 분류 -> (visibility, reason).
-# 규정은 `_docs/paper/DAYTIME_OCCLUSION_AUTO_CLASSIFICATION.md` 에 있고 모델 결과를
+# 규정은 `_docs/archive/paper_pre_final_20260903/annotation_and_dataset_review/DAYTIME_OCCLUSION_AUTO_CLASSIFICATION.md` 에 있고 모델 결과를
 # 보기 전에 정해졌다.  여기서는 그 판정을 옮겨 적을 뿐, 새로 정하지 않는다.
 AUTO_STATES = {
     "AUTO_TRUNCATED": (0, "truncated"),

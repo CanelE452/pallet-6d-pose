@@ -4,9 +4,25 @@ Which numbers may appear in the abstract, and which may not. Every value here wa
 read from a frozen artifact; the traceable map is
 `generated/RESULT_SOURCE_MAP.json`.
 
-The earlier `_docs/paper/ABSTRACT_RESULT_SLOTS.md` is preserved as a historical
+The earlier `_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/ABSTRACT_RESULT_SLOTS.md` is preserved as a historical
 generator output. It must not be used: its `Improvement` slot holds **−9.0 %**, so
 copying that template into an abstract would carry a premise the data refutes.
+
+## Reported 2D localisation endpoint
+
+```text
+metric      pooled supervised keypoint median [px]   (2D keypoint layer)
+direction   lower is better
+R0          6.616
+full filter 7.210
+result      NO IMPROVEMENT
+
+pose layer  BLOCKED
+operational NOT EVALUATED
+```
+
+This is the finest localisation endpoint currently computable, not a promotion of
+the pixel metric to a pose metric. Naming authority: `METRIC_NAMING_LOCK.md`.
 
 ## CONFIRMATORY — Tier A, may appear in the abstract
 
@@ -15,7 +31,7 @@ slot                          value                    source
 ──────────────────────────────────────────────────────────────────────────────────
 Synthetic-only detection      0.975  (n = 319)         R0.subgroups.ALL
 Synthetic-only AUROC          0.9921 (319 vs 2,689)    R0.subgroups.ALL.auroc
-Synthetic-only keypoint       6.616 px median          R0.subgroups.ALL.corner_median_px
+Synthetic-only 2D keypoint    6.616 px median          R0.subgroups.ALL.corner_median_px
 
 Night detection R0            0.840  (n = 50)          R0.subgroups.Nighttime
 Night detection naive ST      0.960  (n = 50)          R1_NAIVE.subgroups.Nighttime
@@ -56,7 +72,7 @@ The nighttime subgroup has N = 50 and is plastic-only. Every use of it carries t
 ```text
 R0 vs full filter, paired bootstrap, probability the filter is better
   corner                 0.028 (frame)   0.065 (session-clustered)
-  pooled corner median   0.006 (frame)   0.095 (session-clustered)
+  pooled 2D kp median    0.006 (frame)   0.095 (session-clustered)
 ```
 
 Statable: localisation **did not improve**; the direction is a small degradation,
@@ -106,7 +122,7 @@ blocked_reason      = POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR;
                       FINAL_MANIFEST_NOT_FROZEN;
                       wood: CANONICAL_MIGRATION_NOT_PASS;
                       SYMMETRY_NOT_FROZEN
-declaration         _docs/paper/POSE_METRIC_READINESS.md
+declaration         _docs/audits/paper/POSE_METRIC_READINESS.md
 machine verdict     data/pallet/results/paper_eval_v1/EVALUATOR_CONTRACT.json
 ```
 

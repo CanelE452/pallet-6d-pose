@@ -38,7 +38,7 @@ V2_EVAL = REPO_ROOT / "data/pallet/results/paper_eval_v2/arms"
 V2_RESULTS = REPO_ROOT / "data/pallet/results/paper_selftrain_v2"
 V3_RESULTS = REPO_ROOT / "data/pallet/results/paper_selftrain_v3"
 OUT_JSON = V3_RESULTS / "NIGHT_RESIDUAL_DIAGNOSIS.json"
-OUT_MD = REPO_ROOT / "_docs/paper/V3_NIGHT_RESIDUAL_DIAGNOSIS.md"
+OUT_MD = REPO_ROOT / "_docs/archive/paper_pre_final_20260903/diagnostics/V3_NIGHT_RESIDUAL_DIAGNOSIS.md"
 
 BASE = "R0"
 ARMS = ("V2A_CONF25__FULL", "V2B_KP_MASK__FULL", "V2C_AMBIG__FULL", "V2D_FULL__FULL")

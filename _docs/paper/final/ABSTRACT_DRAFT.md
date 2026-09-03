@@ -1,96 +1,130 @@
 # Abstract draft
 
-Every number is Tier A and traceable through `generated/RESULT_SOURCE_MAP.json`.
+Every number below was checked cell-by-cell against
+`data/pallet/results/paper_eval_v1/arms/ARM_RESULTS.json`. All ten match.
+Traceable map: `generated/RESULT_SOURCE_MAP.json`.
 
-## Draft
+## Abstract
 
-> Automated forklifts must localise a pallet precisely enough to insert forks into
-> its pockets, but supervising 6D pose on real warehouse imagery is expensive and
-> must be repeated whenever the pallet, camera, or lighting changes. Synthetic
-> rendering removes that annotation cost while leaving a synthetic-to-real gap, and
-> self-training on unlabeled target images is the natural way to close it. Pallet
-> keypoint estimation, however, has a failure mode that generic detection
-> self-training does not: a pseudo-label can be entirely adequate as a detection
-> while several of its geometric keypoints are wrong, so confidence filtering
-> retains exactly the labels that reinforce the error.
->
-> We study this under a controlled, exposure-matched protocol in which every
-> adaptation arm shares one initialisation, one optimiser budget, one number of
-> pseudo-label and synthetic-replay exposures, and one seed, so that only the
-> pseudo-label selection rule varies. We evaluate detection coverage, confidence
-> ranking, and fine keypoint localisation separately rather than collapsing them
-> into a single score, and we compare confidence filtering against projective
-> consistency, single-keypoint-removal reprojection consistency, and horizontal-flip
-> keypoint consistency.
->
-> A source model trained only on rendered images, without any real pose label, is
-> already a strong real-domain baseline: 0.975 detection and 0.9921 ranking AUROC on
-> 319 real frames against 2,689 real negatives. Self-training on unlabeled target
-> RGB raises nighttime detection from 0.840 to 0.960 — a gain that naive
-> self-training achieves on its own — and adding the consistency filters reduces the
-> false-positive rate at 95 percent recall from 0.0417 to 0.0283. Under the same
-> protocol, none of the seven arms improves fine keypoint localisation over the
-> synthetic-only model; median supervised keypoint error rises from 6.6 to 7.2
-> pixels for the full filter, and the best adapted arm remains above the baseline.
->
-> Post-hoc diagnostics indicate the limitation is not attributable to a single
-> filtering implementation. A reliability score that measurably improves the quality
-> of the labels the student sees leaves student localisation unchanged, and pooling
-> additional views from the same teacher improves the median while worsening the
-> tail. We conclude that under unlabeled single-frame adaptation, detection coverage
-> and confidence ranking improve while fine keypoint localisation is bounded by the
-> teacher, and we identify teacher quality and additional observational information,
-> rather than better selection, as the directions that remain.
-
-## Word budget
-
-Roughly 330 words. If the venue requires less, cut in this order:
+> Accurate pallet pose perception is important for autonomous forklift alignment,
+> yet obtaining precise pose annotations from real warehouse images is
+> labor-intensive and difficult to scale. Synthetic rendering provides scalable
+> geometric supervision, but models trained only on rendered images face a
+> synthetic-to-real domain shift in illumination, background, camera
+> characteristics, and occlusion. We conduct a controlled study of target-domain
+> self-training for a monocular RGB pallet keypoint estimator whose predictions are
+> consumed by a downstream Perspective-n-Point solver. The study considers a
+> structurally constrained pallet family and requires no manually annotated
+> target-domain pose labels during training. Under an exposure-matched protocol, all
+> adaptation arms share the same source initialization, optimizer budget,
+> pseudo-label exposure, synthetic replay, and augmentation; only the pseudo-label
+> selection rule varies. We compare naive self-training, confidence filtering,
+> standard reprojection consistency, single-keypoint-removal reprojection
+> consistency, and horizontal-flip keypoint consistency. On an in-house development
+> population of 319 real positive frames and 2,689 real negative frames, the
+> synthetic-only model obtains 0.975 detection coverage and 0.9921 AUROC.
+> Self-training increases observed nighttime detection coverage from 0.840 to 0.960
+> with naive selection and to 0.980 with confidence selection. The full consistency
+> variant achieves the best observed ranking among the frozen arms, with an AUROC of
+> 0.9953 and an FPR95 of 0.0283, compared with 0.0417 for the synthetic-only model.
+> However, none of the six continuation or adaptation arms improves fine 2D keypoint
+> localisation: the pooled supervised keypoint median error is 6.616 pixels for the
+> synthetic-only source model and 7.210 pixels for the full consistency variant. Post-hoc diagnostics further show that
+> measurably improving expected pseudo-label quality does not necessarily improve
+> the student. These results show that unlabeled target adaptation can benefit
+> detection coverage and confidence ranking, but such gains do not automatically
+> transfer to fine 2D geometric keypoint localisation. The findings are consistent with a
+> teacher-quality bottleneck and motivate stronger or multi-frame supervision for
+> future synthetic-to-real pallet pose adaptation.
 
 ```text
-1  the second half of paragraph 2 (the list of consistency signals)
-2  the reliability-score sentence in paragraph 4
-3  the "best adapted arm remains above the baseline" clause
+word count   297
 ```
 
-Never cut: the localisation negative result, or the clause noting that naive
-self-training already reaches 0.960.
-
-## Number check
+## Number check — all verified against the frozen artifact
 
 ```text
-0.975    R0 detection, ALL, n = 319
-0.9921   R0 AUROC, 319 positive vs 2,689 negative
-0.840    R0 nighttime detection, n = 50
-0.960    naive self-training nighttime detection, n = 50
-0.0417   R0 FPR95
-0.0283   full filter FPR95
-6.6      R0 keypoint median, original-image px (6.616)
-7.2      full filter keypoint median (7.210)
+claim in abstract          value      artifact value     verdict
+──────────────────────────────────────────────────────────────────
+detection coverage         0.975      0.974922           MATCH
+AUROC synthetic-only       0.9921     0.992131           MATCH
+night detection R0         0.840      0.840000           MATCH
+night detection naive      0.960      0.960000           MATCH
+night detection confidence 0.980      0.980000           MATCH
+AUROC full consistency     0.9953     0.995311           MATCH
+FPR95 full consistency     0.0283     0.028263           MATCH
+FPR95 synthetic-only       0.0417     0.041651           MATCH
+keypoint median R0         6.616 px   6.615678           MATCH
+keypoint median full       7.210 px   7.209888           MATCH
+
+"none of the six ... arms improves"   6 of 6 arms are above R0's median   MATCH
+   (R0-CONT, naive, confidence, +reprojection, +removal, +flip)
 ```
 
-## Deliberate omissions and why
+Source: `data/pallet/results/paper_eval_v1/arms/ARM_RESULTS.json`,
+keys `models.<arm>.subgroups.{ALL,Nighttime}.{detection_rate_iou50, auroc, fpr95, corner_median_px}`.
+
+## Phrasing decisions and why
 
 ```text
-"our filter improves night detection"     naive reaches 0.960 unaided;
-                                          confidence-only reaches 0.980
-detection p_better = 0.121                too technical for an abstract, but the
-                                          abstract must not therefore imply the
-                                          detection gain is decisive — hence
-                                          "raises nighttime detection", not
-                                          "significantly improves detection"
-axis permutation 0.047 -> 0.041           Tier B development result
-any 6D pose quantity                      POSE_METRICS_STATUS = BLOCKED
-"held-out"                                PAPER_EVAL role is DEV
-"label-free"                              manual real annotations exist for
-                                          evaluation; the filters also consume a
-                                          dimension registry
+"We conduct a controlled study"        not "We propose [Name]". There is no method
+                                       being proposed; the contribution is the
+                                       controlled measurement.
+
+"increases observed nighttime          not "substantially improves detection".
+ detection coverage"                   The overall detection difference has
+                                       p_better 0.121 (frame) / 0.244 (session).
+                                       Nighttime is the subgroup where the
+                                       movement is visible, and it is attributed
+                                       to self-training as a whole — naive
+                                       selection reaches 0.960 unaided.
+
+"achieves the best observed ranking     not "improves ranking". The ranking metrics
+ among the frozen arms"                 carry no bootstrap interval in the
+                                        artifacts, so best observed is what the
+                                        evidence supports.
+
+"consistent with a teacher-quality      not "we show the teacher is the bottleneck".
+ bottleneck"                            It is an interpretation that fits every
+                                        diagnostic, not a measured quantity.
+
+"single-keypoint-removal                never "leave-one-keypoint-out" or "LOO".
+ reprojection consistency"
+
+"horizontal-flip keypoint               never "flip reprojection consistency" —
+ consistency"                           no reprojection is involved.
+
+"structurally constrained pallet        no claim of generalisation to unseen or
+ family"                                arbitrary pallets.
+
+"no manually annotated target-domain    not "label-free". Manual real annotations
+ pose labels during training"           exist and are used for evaluation.
+
+"in-house development population"       states the population's role in the
+                                        abstract itself. Nothing here is held-out.
 ```
 
-## Phrasing rules applied
+## Deliberate omissions
 
 ```text
-"without any real pose label" describes source training — accurate, R0 saw none
-"unlabeled target RGB" describes adaptation — accurate
-"without manual target-domain pose labels during training" is the full form,
-  used in the introduction where there is room for it
+6D pose / yaw / rotation / translation   POSE_METRICS_STATUS = BLOCKED
+axis permutation 0.047 -> 0.041          Tier B development result, not an
+                                         abstract number
+indoor/outdoor independent adaptation    no such experiment exists
+held-out pallet                          no such experiment exists
+"our filter improves night detection"    naive reaches 0.960 unaided
 ```
+
+## If the venue requires a shorter abstract
+
+Cut in this order:
+
+```text
+1  the sentence listing the five compared selection rules
+2  "Post-hoc diagnostics further show ..." (one sentence)
+3  "The study considers a structurally constrained pallet family ..." — but only
+   if the limitation is stated prominently elsewhere
+```
+
+Never cut the localisation negative result, and never cut the clause noting that
+naive selection already reaches 0.960.

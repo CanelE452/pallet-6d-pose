@@ -3,7 +3,10 @@
 > 🛑 **2026-08-17 — 논문 정본은 `_docs/paper/` 로 분리됐다.**
 > 이 README 아래의 목차와 `method/`·`models/`·`experiments/`·`filter/` 문서는
 > **2026-03~06 옛 세대**(v8 전제, 폐기된 평가셋 수치, 반대되는 판정)다.
-> **논문을 쓸 때는 `_docs/paper/README.md` 만 본다.** 여기 것과 충돌하면 paper/ 가 맞다.
+> **논문 실험 수치는 `_docs/paper/final/generated/` 만 본다.**
+> (옛 정본이던 `evaluation_tables/RESULT_TABLE_TEMPLATES.md` 는
+>  `_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/` 로 옮겼고 SUPERSEDED 다.)
+> 이전 support 문서는 `_docs/archive/paper_support_20260830/`에 보존한다.
 > 아래는 이력 참고용으로 남긴다.
 
 > **논문 제목:** 파렛트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응

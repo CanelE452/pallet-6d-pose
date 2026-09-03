@@ -1,9 +1,40 @@
 # Metric & Split Lock — 논문 심사용 frozen protocol
 
+> **2026-08-28 V3 ACTIVE MULTI-SHAPE CONTRACT:** main metrics remain exactly
+> (1) Box AP50:95, (2) Restricted ADD-S AUC, (3) symmetry-aware rotation
+> median, (4) translation median, and (5) symmetry-aware yaw median.
+> `5cm5deg`/`10cm10deg` are historical or diagnostic only. Every result reports
+> ALL/PLASTIC/WOOD plus Population ID, N, pose-valid N/total, checkpoint SHA,
+> geometry-registry SHA, object-specific symmetry-contract SHA, DAY/NIGHT N,
+> and session-cluster bootstrap 95% CI.
+>
+> Current development populations are plastic 140/128, wood 45, their fair 173
+> union, and negative 2,689. Wood45 is previously evaluated DEV. Geometry is
+> manifest-driven: plastic `(1.10,0.11,1.30)` m and wood
+> `(0.80,0.14,0.59)` m. Legacy per-frame dimensions and GT parity are forbidden
+> dispatch inputs. Plastic uses frozen `{I,Ry(180°)}`; wood symmetry is
+> `UNREVIEWED` and never inherits plastic symmetry.
+>
+> Plastic selector failed (83/140 overall, 13/28 NIGHT, minimum session 4/12,
+> and 13/14 failures in each pose tail). Wood selector is `NOT_RUN`. Thus
+> PLASTIC, WOOD, and ALL pose fields are null. The four multi-shape FINAL
+> populations remain unavailable.
+>
+> **`PAPER_METHOD_STATUS = NOT_LOCKED`.** All old final-test membership,
+> self-training main-claim, per-domain dimensions, 5cm gates, and `[LOCKED]`
+> labels below are **HISTORICAL / SUPERSEDED**. They are retained for
+> reproducibility, not as the current paper contract. See the active table at
+> `_docs/paper/final/` (the superseded table templates now live under
+`_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/`); previous support
+> documents are archived at `_docs/archive/paper_support_20260830/`.
+
+## Historical metric/split record begins below
+
 > 생성일: 2026-06-05 | 트랙: camera-facing 0123 (논문용, v1/v2 제외)
 > 목적: baseline 학습 *전에* 평가 자(metric)와 데이터 split을 동결한다.
 >       자가 바뀌면 모든 경쟁자를 재실행해야 하므로, 이 문서가 lock되기 전 학습 시작 금지.
-> 상태: **[LOCKED]** 표시는 확정. **[SLOT]** 표시는 너만 아는 값으로 채울 자리.
+> 상태: 아래 **[LOCKED]**는 작성 당시의 역사적 표시다. 현행 lock은 위 V3 ACTIVE
+> CONTRACT를 따른다. **[SLOT]**은 미확정 역사 항목이다.
 
 ---
 

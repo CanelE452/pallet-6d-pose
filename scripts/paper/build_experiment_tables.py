@@ -8,9 +8,9 @@
     challenge/real_gt_v2/manifests/PAPER_EVAL_*.json               population N
 
 쓰는 것
-    _docs/paper/generated/TABLE_M1.md ... TABLE_M5.md
-    _docs/paper/generated/APPENDIX_TABLES.md
-    _docs/paper/ABSTRACT_RESULT_SLOTS.md
+    _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/TABLE_M1.md ... TABLE_M5.md
+    _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/APPENDIX_TABLES.md
+    _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/ABSTRACT_RESULT_SLOTS.md
 
 불변식 (§33) — 어기면 표를 만들지 않고 실패한다
     M2 Daytime N   == PAPER_DOMAIN_COVERAGE Daytime N
@@ -39,7 +39,7 @@ EXPOSURE = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/SELFTRAIN_EXPOSUR
 DATASET_REPORT = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/PSEUDO_DATASET_REPORT.json"
 COVERAGE = REPO_ROOT / "data/evaluation/pallet_eval_v1/reports/PAPER_DOMAIN_COVERAGE.md"
 MANIFESTS = REPO_ROOT / "challenge/real_gt_v2/manifests"
-OUT = REPO_ROOT / "_docs/paper/generated"
+OUT = REPO_ROOT / "_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated"
 
 # reader-facing row 이름.  내부 arm id 를 논문 표에 그대로 쓰지 않는다.
 M2_ROWS = [
@@ -171,7 +171,7 @@ def build_m1(results: dict, expected: dict) -> str:
         "Real-FT          NEEDS_AUDIT    PAPER_EVAL 과의 학습 중복을 먼저 감사해야 한다",
         "```",
         "",
-        "근거는 `_docs/paper/EXTERNAL_BASELINE_AUDIT.md`.  억지 wrapper 로 숫자를",
+        "근거는 `_docs/audits/paper/EXTERNAL_BASELINE_AUDIT.md`.  억지 wrapper 로 숫자를",
         "만들지 않는다.",
     ]
     return "\n".join(lines) + "\n"
@@ -1072,11 +1072,11 @@ def main() -> int:
     }
     for name, text in written.items():
         (OUT / name).write_text(text)
-        print(f"wrote _docs/paper/generated/{name}")
-    (REPO_ROOT / "_docs/paper/ABSTRACT_RESULT_SLOTS.md").write_text(
+        print(f"wrote _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/{name}")
+    (REPO_ROOT / "_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/ABSTRACT_RESULT_SLOTS.md").write_text(
         build_abstract_slots(results, expected)
     )
-    print("wrote _docs/paper/ABSTRACT_RESULT_SLOTS.md")
+    print("wrote _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/ABSTRACT_RESULT_SLOTS.md")
     print(f"\ninvariants OK: {expected}")
     return 0
 

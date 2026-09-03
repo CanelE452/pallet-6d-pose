@@ -105,9 +105,18 @@ STRONG teacher T1/C1/S1 gates   the audit cites _docs/paper/STRONG_TEACHER_V1_PR
                                 as the gate definition. That file does not exist
                                 anywhere in the repository or the working tree, so
                                 the gates cannot be shown to have been pre-registered.
-REAL_FT_V1                      designed, audited, and stopped before any training;
-                                lock never committed, no result exists
+REAL_FT_V1                      see the correction below
 ```
+
+REAL_FT_V1 was designed and audited before training, but its method lock was
+committed later in the paper-finalization commit `818bd3e`, after the track had
+already been stopped. The committed lock documents the intended design but cannot
+establish preregistration. No training result exists. **It is not Tier A and must
+never be promoted there.**
+
+An earlier draft of this ledger said the lock was "never committed". That was
+wrong: it is in `818bd3e`. What it cannot do is order itself against a result,
+because there is no result.
 
 ## Two defects that affect citation
 

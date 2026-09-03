@@ -2,16 +2,20 @@
 
 **Every row is development evidence (Tier B).** Each was designed after
 PAPER_EVAL diagnostics had been seen, so none is an independent confirmation
-and none may be described as a held-out result.
+and none may be described as a held-out result. For three of them — geometry
+repair, the strong-teacher audit and the fast-teacher probes — the contract and
+the result were committed together, so their ordering cannot be established
+from version history at all.
 
-The purpose of the table is not to count failures. It is to record which
-candidate mechanisms were isolated and ruled out.
+The purpose of this table is not to count failures. It records which candidate
+mechanisms were isolated and ruled out.
 
 ## Student arms
 
 `base` and `arm` are paired NME medians on that arm's own common-frame subset,
-so the base column differs slightly per row and the columns are not a single
-shared baseline.
+so the base column differs slightly per row and is not one shared baseline.
+NME normalises by the projected cuboid diagonal and is **not** the same
+quantity as the raw pixel error in Tables 1-4.
 
 ```text
 arm                             n_fr  base NME  arm NME     delta                      CI95
@@ -25,8 +29,41 @@ V3B_TRUE_IGNORE_AMBIG            310   0.02080  0.02194  +0.00067      [-0.00008
 V5_RELIABILITY_WEIGHTED          308   0.02072  0.02201  +0.00086      [+0.00018, +0.00140]
 ```
 
-No arm's interval lies entirely below zero. Improvement in the student's
-keypoint localisation was never observed.
+No arm's interval lies entirely below zero. An improvement in the
+student's keypoint localisation was never observed.
+
+## Do the selection signals separate good labels from bad?
+
+Post-hoc, measured against evaluation GT on a population already consumed
+by earlier arms. Frame level n = 194, corner level n = 1979.
+
+A dash means the signal is **not defined at that level**, not that it was
+measured and came out empty: the frame-level signals (`s_*`, `box_conf`,
+`valid_corners`) score a whole frame, while the corner-level signals
+(`r_*`, `kp_conf`) score one keypoint. The two sets are different by
+construction.
+
+```text
+signal                    frame-level AUC   corner-level AUC
+────────────────────────────────────────────────────────────
+box_conf                           0.7245                  —
+kp_conf                                 —             0.6023
+r_flip                                  —             0.6567
+r_remove                                —             0.6317
+s_flip                             0.7345                  —
+s_remove                           0.7256                  —
+s_reproj                           0.7413                  —
+valid_corners                      0.5197                  —
+combined                           0.8116             0.7259
+```
+
+The signals are informative but weak. Two facts bound what can be claimed:
+
+- the per-keypoint confidence floor removes **0 corners** — every
+  supervised corner already clears it, so confidence gating is inert at the
+  corner level;
+- the combined frame-level discriminator stays below 0.82 AUC on a
+  population where roughly half the frames contain a gross error.
 
 ## Geometry repair — why no student was trained
 
@@ -40,10 +77,10 @@ REPAIRED                        2
 NO_VALID_HYPOTHESIS             1
 ```
 
-Repair candidates were about one percent of supervised corners, and the
+Repair candidates were roughly one percent of supervised corners, and the
 competing geometric hypotheses disagree precisely on the corners that need
 repairing. The intervention had no population to act on, so no student was
-trained — the track stopped at the mechanism stage rather than producing a
+trained: the track stopped at the mechanism stage rather than producing a
 null training result.
 
 ## Reliability weighting — label quality improved, student did not
@@ -57,16 +94,16 @@ median_error_px            20.0479     18.2491     -1.7988
 p90_error_px               31.4206     28.7036     -2.7170
 ```
 
-The reliability score ranks frames with AUC 0.7625, above every
-individual signal it is built from, and the labels the student sees do get
-cleaner. The student's localisation did not move. This is the most direct
+The reliability score ranks frames at AUC 0.7625, above every
+individual signal it combines, and the labels the student sees do get
+cleaner. Student localisation did not move. This is the most direct
 evidence that pseudo-label purity is not the binding constraint.
 
 ## Multi-view teacher consensus — median better, tail worse
 
-Paired comparison on the identical keypoint set: a candidate that discards
-hard keypoints would otherwise flatter itself. Coverage is listed
-separately for exactly that reason.
+Paired on the identical keypoint set: a candidate that discards hard
+keypoints would otherwise flatter itself. Coverage is listed separately for
+exactly that reason.
 
 ```text
 probe       coverage   n_kp   R0 NME  cand NME   R0 p90  cand p90  R0 gross  cand gross

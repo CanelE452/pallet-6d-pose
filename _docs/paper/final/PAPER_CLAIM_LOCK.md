@@ -9,16 +9,33 @@ Machine-readable twin: `PAPER_CLAIM_LOCK.json`.
 ## Core thesis
 
 > Synthetic supervision alone yields a strong pallet keypoint estimator without any
-> real pose label. Self-training on unlabeled target RGB substantially improves
-> real-domain detection coverage under difficult acquisition conditions and improves
-> confidence-based separation of positives from negatives. Under a controlled
+> real pose label. Self-training on unlabeled target RGB **increases observed
+> nighttime detection coverage, while the overall detection difference is not
+> statistically resolved**, and the full consistency variant **achieves the best
+> observed AUROC and FPR95 among the frozen adaptation arms**. Under a controlled
 > exposure-matched protocol it does **not** improve fine keypoint localisation over
 > the synthetic-only model, and adding projective and equivariant consistency to the
 > pseudo-label selection rule does not recover a localisation gain. Post-hoc
 > diagnostics show the limitation is not explained by any single filtering
 > implementation: pseudo-label purity can be improved without moving the student,
 > and pooling additional observations from the same teacher improves the median
-> while worsening the tail.
+> while worsening the tail. These observations are **consistent with** a
+> teacher-quality bottleneck; the study does not establish one.
+
+### Why the hedges are load-bearing
+
+```text
+"increases observed"          the R0-vs-full-filter detection difference has
+                              p_better 0.121 (frame) and 0.244 (session-clustered).
+                              "substantially improves" overstates it.
+"best observed AUROC/FPR95"   no bootstrap interval exists for the ranking metrics,
+                              and session-clustered bootstrap is unavailable for the
+                              current negative capture. Best observed is what the
+                              artifacts support; "improves ranking" as an
+                              unconditional claim is not.
+"consistent with"             the teacher ceiling is an interpretation that fits
+                              every diagnostic, not a measured quantity.
+```
 
 ## Claims the evidence supports
 
@@ -92,10 +109,17 @@ Metric names must be copied exactly: the evaluator emits `box_ap50`, `box_ap50_9
 `auroc`, `fpr95`. There is **no** metric named "ranking AP" anywhere in the
 artifacts; do not invent one.
 
-### D — Fine keypoint localisation does not improve
+### D — Fine 2D keypoint localisation does not improve
+
+Fine keypoint localisation is evaluated **in the 2D image plane**, using supervised
+keypoint error in original-image pixels — the keypoint layer of the frozen metric
+contract (`metric_split_lock.md` 2.2). Naming authority: `METRIC_NAMING_LOCK.md`.
+
+**These values are not 6D pose errors and must not be interpreted as yaw,
+translation, ADD, or operational alignment accuracy.**
 
 ```text
-supervised keypoints, original-image pixel error, ALL population
+supervised keypoints, original-image 2D pixel error, ALL population
                      n_kp   median px   p90 px    gross20
   R0                 2756     6.616     38.670     0.172
   R0-CONT            2729     6.911     45.187     0.182
@@ -110,7 +134,7 @@ No arm beats R0's median. The direction is a small degradation, and it is suppor
 at the frame level and marginal when clustered by session:
 
 ```text
-R0 vs R5 corner error, paired bootstrap, probability that R5 is better
+R0 vs R5 2D keypoint error, paired bootstrap, probability that R5 is better
   frame-level        0.028
   session-clustered  0.065
 ```
@@ -148,7 +172,7 @@ axis-permutation rate (frames, criterion in AXIS_FAILURES.json)
 ```
 
 Diagnosed for R0, R2, and R5 only. Diagnostic evidence; the frames are judged by
-maximum corner error, because the error distribution is bimodal and the median hides
+maximum 2D keypoint error, because the distribution is bimodal and the median hides
 the failure.
 
 ## Claims that are forbidden
@@ -241,5 +265,7 @@ keypoint-removal reprojection consistency         leave-one-out
 horizontal-flip keypoint consistency              flip reprojection
 projective and equivariant consistency            geometric filter (as an umbrella)
 box AP50 / box AP50-95 / AUROC / FPR95            ranking AP
-original-image pixel error                        corner error (unqualified)
+pooled supervised keypoint median error [px]      corner error (unqualified)
+2D keypoint localisation error                    reprojection error
+post-hoc scale-normalised diagnostic (for NME)    a primary or frozen metric
 ```

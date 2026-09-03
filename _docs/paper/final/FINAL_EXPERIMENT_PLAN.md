@@ -12,7 +12,8 @@ Q1  How strong is synthetic-only supervision for real-world pallet detection
 Q2  Does self-training with unlabeled target RGB improve real-domain detection
     coverage and confidence ranking?
 
-Q3  Does the same adaptation also improve fine keypoint localisation?
+Q3  Does the same adaptation improve fine 2D keypoint localisation in the
+    image plane?
 
 Q4  Do confidence, projective consistency, and equivariant consistency identify
     better pseudo-labels, and does improved pseudo-label selection translate into
@@ -51,7 +52,7 @@ Detection            coverage on the evaluation population
 Detection AP         exact metric name copied from the evaluator
 Ranking AUROC        positives against the real negative set
 FPR95                at 95 percent true-positive rate
-Keypoint error       original-image pixel error, paired population
+Pooled kp med [px]   2D keypoint layer; original-image Euclidean error
 ```
 
 Column rules: the metric name in the header must be the evaluator's own name.
@@ -62,7 +63,8 @@ interchanged. The keypoint column states its unit and that the comparison is pai
 
 ```text
 rows     R0 / Naive / Confidence / Full filter
-columns  Day detection   Night detection   Day localisation   Night localisation
+columns  Day detection   Night detection
+         Day pooled kp med [px]   Night pooled kp med [px]
 ```
 
 This table carries the paper's headline message on its own: nighttime detection
@@ -78,7 +80,7 @@ rows     Confidence
 
 columns  Retention              fraction of teacher predictions kept
          Pseudo-label quality   measured against evaluation GT, diagnostic
-         Student localisation   downstream, paired
+         Student 2D localisation   downstream pooled kp median [px]
 ```
 
 The table exists to keep two questions visibly apart:

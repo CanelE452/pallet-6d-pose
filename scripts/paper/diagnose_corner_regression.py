@@ -15,7 +15,7 @@ D 는 M4 와 contact sheet 가 맡는다.
 
 출력:
     data/pallet/results/paper_eval_v1/REGRESSION_DIAGNOSIS.json
-    _docs/paper/generated/REGRESSION_DIAGNOSIS.md
+    _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/REGRESSION_DIAGNOSIS.md
 """
 
 from __future__ import annotations

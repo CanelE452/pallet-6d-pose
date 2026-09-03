@@ -4,32 +4,50 @@
   "declared_date": "2026-09-03",
   "prose_twin": "_docs/paper/final/PAPER_CLAIM_LOCK.md",
   "numbers_traced_in": "_docs/paper/final/generated/RESULT_SOURCE_MAP.json",
-
-  "core_thesis": "Synthetic supervision alone yields a strong pallet keypoint estimator without any real pose label. Self-training on unlabeled target RGB substantially improves real-domain detection coverage under difficult acquisition conditions and improves confidence-based separation of positives from negatives. Under a controlled exposure-matched protocol it does not improve fine keypoint localisation over the synthetic-only model, and adding projective and equivariant consistency to the pseudo-label selection rule does not recover a localisation gain. Post-hoc diagnostics show the limitation is not explained by any single filtering implementation.",
-
+  "core_thesis": "Synthetic supervision alone yields a strong pallet keypoint estimator without any real pose label. Self-training on unlabeled target RGB increases observed nighttime detection coverage, while the overall detection difference is not statistically resolved, and the full consistency variant achieves the best observed AUROC and FPR95 among the frozen adaptation arms. Under a controlled exposure-matched protocol it does not improve fine keypoint localisation over the synthetic-only model, and adding projective and equivariant consistency to the pseudo-label selection rule does not recover a localisation gain. Post-hoc diagnostics show the limitation is not explained by any single filtering implementation. These observations are consistent with a teacher-quality bottleneck; the study does not establish one.",
   "population": {
     "name": "PAPER_EVAL",
     "positive_frames": 319,
     "negative_frames": 2689,
     "role": "DEV",
     "held_out_final": false,
-    "consumed_as_development_by": ["V2", "V3", "V4", "V5", "FILTER_SEPARABILITY", "FAST_TEACHER", "STRONG_TEACHER"],
+    "consumed_as_development_by": [
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "FILTER_SEPARABILITY",
+      "FAST_TEACHER",
+      "STRONG_TEACHER"
+    ],
     "consequence": "no number computed on this population may be called held-out or independently confirmed"
   },
-
   "supported_claims": [
     {
       "id": "A",
       "tier": "A",
       "claim": "Synthetic-only supervision is already a strong real-domain baseline.",
-      "evidence": {"detection_all": 0.9749216, "auroc": 0.9921310, "box_ap50": 0.9362817, "box_ap50_95": 0.7687667, "keypoint_median_px": 6.615678},
+      "evidence": {
+        "detection_all": 0.9749216,
+        "auroc": 0.992131,
+        "box_ap50": 0.9362817,
+        "box_ap50_95": 0.7687667,
+        "keypoint_median_px": 6.615678
+      },
       "source": "data/pallet/results/paper_eval_v1/arms/ARM_RESULTS.json models.R0"
     },
     {
       "id": "B",
       "tier": "A",
-      "claim": "Self-training on unlabeled target RGB improves nighttime detection coverage.",
-      "evidence": {"R0": 0.840, "R1_NAIVE": 0.960, "R2_CONF": 0.980, "R5_PROPOSED": 0.960, "N": 50, "subgroup": "Nighttime, plastic only"},
+      "claim": "Self-training on unlabeled target RGB increases observed nighttime detection coverage; the overall detection difference is not statistically resolved.",
+      "evidence": {
+        "R0": 0.84,
+        "R1_NAIVE": 0.96,
+        "R2_CONF": 0.98,
+        "R5_PROPOSED": 0.96,
+        "N": 50,
+        "subgroup": "Nighttime, plastic only"
+      },
       "mandatory_caveats": [
         "The gain is NOT attributable to the geometry filter: naive self-training reaches 0.960 unaided and confidence-only reaches 0.980, higher than the full filter.",
         "The overall detection difference between R0 and the full filter is not separated from noise: p_better 0.121 frame-level, 0.244 session-clustered.",
@@ -39,18 +57,41 @@
     {
       "id": "C",
       "tier": "A",
-      "claim": "Self-training with the full consistency filter improves confidence-based ranking, and is the best arm on this axis.",
-      "evidence": {"auroc_R0": 0.9921310, "auroc_R5": 0.9953112, "fpr95_R0": 0.0416512, "fpr95_R5": 0.0282633, "night_fpr95_R0": 0.1948680, "night_fpr95_R5": 0.0587579},
-      "note": "This is the only axis on which the proposed filter is best of all seven arms. Any positive claim about the filter should be made here, not about detection."
+      "claim": "The full consistency variant achieves the best observed AUROC and FPR95 among the frozen adaptation arms.",
+      "evidence": {
+        "auroc_R0": 0.992131,
+        "auroc_R5": 0.9953112,
+        "fpr95_R0": 0.0416512,
+        "fpr95_R5": 0.0282633,
+        "night_fpr95_R0": 0.194868,
+        "night_fpr95_R5": 0.0587579
+      },
+      "note": "This is the only axis on which the proposed filter is best of all seven arms. It is stated as best observed, not as an established improvement: the ranking metrics carry no bootstrap interval in the artifacts."
     },
     {
       "id": "D",
       "tier": "A",
-      "claim": "Fine keypoint localisation does not improve over the synthetic-only model.",
-      "evidence": {"R0": 6.615678, "best_adapted_arm": 6.998716, "full_filter": 7.209888, "unit": "original-image pixels, median of supervised keypoints"},
-      "uncertainty": {"corner_p_better_frame": 0.0282, "corner_p_better_session": 0.0653},
+      "claim": "Fine 2D keypoint localisation does not improve over the synthetic-only model.",
+      "evidence": {
+        "R0": 6.615678,
+        "best_adapted_arm": 6.998716,
+        "full_filter": 7.209888,
+        "unit": "original-image pixels, median of supervised keypoints"
+      },
+      "uncertainty": {
+        "corner_p_better_frame": 0.0282,
+        "corner_p_better_session": 0.0653
+      },
       "permitted_phrasing": "self-training did not improve localisation; the direction is a small degradation, frame-level significant and not session-level significant",
-      "forbidden_phrasing": "self-training harms localisation (without the session-level caveat)"
+      "forbidden_phrasing": "self-training harms localisation (without the session-level caveat)",
+      "metric_semantics": {
+        "layer": "2D_KEYPOINT",
+        "frozen_contract": "metric_split_lock.md 2.2",
+        "definition": "Fine keypoint localisation is evaluated in the 2D image plane using supervised keypoint error in original-image pixels.",
+        "disclaimer": "These values are not 6D pose errors and must not be interpreted as yaw, translation, ADD, or operational alignment accuracy.",
+        "pose_metric": false,
+        "scale_sensitive": true
+      }
     },
     {
       "id": "E",
@@ -61,26 +102,37 @@
       "id": "F",
       "tier": "B",
       "claim": "The pseudo-label selection signals are not random.",
-      "evidence": {"frame_combined_auc": 0.8115942, "corner_combined_auc": 0.7258527, "corners_removed_by_confidence_floor": 0},
+      "evidence": {
+        "frame_combined_auc": 0.8115942,
+        "corner_combined_auc": 0.7258527,
+        "corners_removed_by_confidence_floor": 0
+      },
       "label_required": "development evidence"
     },
     {
       "id": "G",
       "tier": "B",
       "claim": "Reliability weighting improved the quality of the labels the student saw and did not improve student localisation.",
-      "evidence": {"corner_gross_uniform": 0.2078059, "corner_gross_weighted": 0.1822917, "reliability_auc": 0.7625160},
+      "evidence": {
+        "corner_gross_uniform": 0.2078059,
+        "corner_gross_weighted": 0.1822917,
+        "reliability_auc": 0.762516
+      },
       "label_required": "development evidence"
     },
     {
       "id": "H",
       "tier": "B",
       "claim": "Near-square projections carry a 90-degree semantic-axis ambiguity that is one of the failure modes.",
-      "evidence": {"axis_rate_R0": 0.047, "axis_rate_R2": 0.053, "axis_rate_R5": 0.050},
+      "evidence": {
+        "axis_rate_R0": 0.047,
+        "axis_rate_R2": 0.053,
+        "axis_rate_R5": 0.05
+      },
       "label_required": "development evidence",
       "note": "judge such frames by maximum corner error; the distribution is bimodal and the median hides the failure"
     }
   ],
-
   "forbidden_sentences": [
     "our method improves keypoint localisation",
     "our geometry filter improves pose accuracy",
@@ -93,44 +145,65 @@
     "unseen-pallet generalisation",
     "arbitrary pallet generalisation",
     "no real annotation was used anywhere",
-    "state-of-the-art"
+    "state-of-the-art",
+    "primary pose metric (for the pixel metric)",
+    "we evaluate pose accuracy",
+    "we switched to NME because px was unfair"
   ],
-
   "pose_metrics": {
     "POSE_METRICS_STATUS": "BLOCKED",
     "blocked_reason": "POSE_METRICS_BLOCKED_NO_RELIABLE_AXIS_SELECTOR; FINAL_MANIFEST_NOT_FROZEN; wood: CANONICAL_MIGRATION_NOT_PASS; SYMMETRY_NOT_FROZEN",
     "can_claim_6d_improvement": false,
-    "blocked_quantities": ["yaw", "rotation error", "translation error", "ADD", "ADD-S", "3D IoU", "5cm5deg", "6D pose AUC"],
+    "blocked_quantities": [
+      "yaw",
+      "rotation error",
+      "translation error",
+      "ADD",
+      "ADD-S",
+      "3D IoU",
+      "5cm5deg",
+      "6D pose AUC"
+    ],
     "pipeline_description_allowed": true,
     "example_allowed": "keypoints are converted to a 6D pose using PnP",
     "example_forbidden": "our method improves 6D pose",
     "blocker_is_algorithmic": "best measured axis selector 0.65 against a gate of 0.95; further manual annotation would not open these slots"
   },
-
   "proposed_method_identity": {
     "proposed_is": "V1 frozen full consistency filter (R5_PROPOSED)",
     "v3b_is": "post-hoc ambiguity-aware development variant",
     "rule": "V3-B is never presented as the proposed method, and V1 frozen arms and V3-B are never given the same evidence level"
   },
-
   "subgroup_hazard": {
-    "Nighttime": {"N": 50, "scope": "plastic only"},
-    "Lighting_night": {"N": 106, "scope": "plastic and wood"},
+    "Nighttime": {
+      "N": 50,
+      "scope": "plastic only"
+    },
+    "Lighting_night": {
+      "N": 106,
+      "scope": "plastic and wood"
+    },
     "rule": "never interchange; always print N"
   },
-
   "terminology": {
     "single-keypoint-removal reprojection consistency": "never LOO or leave-one-out",
     "horizontal-flip keypoint consistency": "never flip reprojection",
     "projective and equivariant consistency": "umbrella term",
     "box_ap50 / box_ap50_95 / auroc / fpr95": "the evaluator's own names; there is no metric called ranking AP",
     "original-image pixel error": "never unqualified corner error",
-    "without manual target-domain pose labels during training": "replaces label-free"
+    "without manual target-domain pose labels during training": "replaces label-free",
+    "pooled supervised keypoint median error [px]": "never unqualified corner error; never reprojection error",
+    "NME": "post-hoc scale-normalised diagnostic; never a frozen or primary metric"
   },
-
   "citation_state": {
     "inventory_found": false,
     "bib_files": 0,
     "rule": "no citation may be fabricated; Related Work must be written against literature the authors actually consult"
-  }
+  },
+  "hedges_are_load_bearing": {
+    "increases observed": "R0 vs full filter detection p_better 0.121 frame, 0.244 session-clustered; 'substantially improves' overstates it",
+    "best observed AUROC and FPR95": "no bootstrap interval exists for ranking metrics and session-clustered bootstrap is UNAVAILABLE_FOR_CURRENT_DEV_NEGATIVE_CAPTURE",
+    "consistent with a teacher-quality bottleneck": "an interpretation that fits every diagnostic, not a measured quantity"
+  },
+  "naming_authority": "_docs/paper/final/METRIC_NAMING_LOCK.md"
 }

@@ -323,9 +323,17 @@ python scripts/dope/run_dope_live.py \
 
 ## 연구 문서
 
-`_docs/`에 상세 연구 설계 문서:
+현재 논문 실험 표:
+
+- `_docs/paper/final/generated/` — 최종 논문 표 (Table 1~4 + diagnostic)
+- `_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/evaluation_tables/` — SUPERSEDED 옛 템플릿
+- `_docs/archive/paper_support_20260830/` — 표 밖의 이전 support 문서 보관본
+
+아래 `_docs/method/`·`_docs/preprocessing/` 문서는 과거 세대 참고자료이며 현재
+paper contract나 keypoint convention을 정의하지 않는다:
+
 - `method/overview.md` — 전체 파이프라인 설계
 - `method/step1_synthetic_data.md` — 합성 데이터 생성 가이드
 - `method/step2_geometric_filter.md` — Geometric Filter 설계
-- `preprocessing/keypoint_definition.md` — 키포인트 컨벤션 (Y=UP)
+- `preprocessing/keypoint_definition.md` — legacy Y=UP 키포인트 기록
 - `survey/survey-6d-pose-estimation.md` — 6D Pose 분야 서베이

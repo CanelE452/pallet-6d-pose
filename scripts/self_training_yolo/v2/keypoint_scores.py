@@ -2,7 +2,7 @@
 
 V1 은 frame 하나에 score 세 개를 매겨 통째로 ACCEPT/REJECT 했다.  그 결과 pool
 272 장 중 13 장(4.8%)만 바뀌었고, 정작 near-square 시점은 학습셋에서 사라졌다
-(`_docs/paper/CORNER_REGRESSION_CAUSES.md`).
+(`_docs/archive/paper_pre_final_20260903/diagnostics/CORNER_REGRESSION_CAUSES.md`).
 
 V2 는 같은 기하 신호를 **코너마다** 매긴다.
 

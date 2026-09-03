@@ -365,7 +365,7 @@ def main() -> int:
               f"파일: `{OUT.relative_to(REPO_ROOT)}/`", ""]
     (REPO_ROOT / "_docs" / "paper" / "generated" / "VISUAL_AUDIT.md").write_text(
         "\n".join(lines) + "\n")
-    print("wrote _docs/paper/generated/VISUAL_AUDIT.md")
+    print("wrote _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/VISUAL_AUDIT.md")
     return 0
 
 

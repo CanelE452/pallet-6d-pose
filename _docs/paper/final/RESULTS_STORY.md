@@ -13,7 +13,7 @@ detection daytime  1.000   (n = 70)
 AUROC              0.9921  (319 positive vs 2,689 real negatives)
 box AP50           0.9363
 box AP50-95        0.7688
-keypoint median    6.616 px
+pooled kp median   6.616 px  (2D keypoint layer)
 ```
 
 The point of opening here is that the baseline is not weak. A study that finds
@@ -55,14 +55,20 @@ Where the full filter **is** best is ranking. It has the highest AUROC and the
 lowest FPR95 of all seven arms, and nighttime FPR95 falls from 0.1949 to 0.0588.
 If the paper makes a positive claim about the proposed filter, this is it.
 
-## 4.3 Fine localisation
+## 4.3 Fine 2D keypoint localisation
 
-**Question: does the same adaptation improve keypoint placement? (Q3)**
+**Question: does the same adaptation improve 2D keypoint placement in the image
+plane? (Q3)**
+
+Define the metric on first use: *2D keypoint localisation error is the Euclidean
+distance between the predicted and the annotated keypoint in original-image pixels,
+pooled over supervised keypoints of matched detections.* It is the keypoint layer of
+the frozen metric contract, not a pose metric.
 
 **No.**
 
 ```text
-                       keypoint median px   gross20
+                       pooled kp median px   gross20
 R0                            6.616          0.172
 synthetic-replay control      6.911          0.182
 naive                         7.120          0.180
@@ -114,10 +120,10 @@ probes show the size of the artefact directly: accepting only agreed keypoints d
 1,979 to 1,284 and looks like an improvement, while the paired comparison on the
 same keypoints shows the tail getting worse.
 
-**Semantic-axis ambiguity.** The catastrophic corner errors are 90-degree index
+**Semantic-axis ambiguity.** The catastrophic 2D keypoint errors are 90-degree index
 permutations, not mislocalised points: the corners are in the right places and the
 labels are rotated. They concentrate where the projection is near-square. Such
-frames must be judged by maximum corner error — the error distribution is bimodal
+frames must be judged by maximum 2D keypoint error — the distribution is bimodal
 and the median hides the failure entirely.
 
 **Pseudo-label purity is not the binding constraint.** A GT-free reliability score
@@ -142,6 +148,8 @@ are.
 every subgroup number carries its N
 every Tier B result is labelled development evidence in the sentence that uses it
 raw pixel error and NME are never mixed in one column
+NME is labelled a post-hoc scale-normalised diagnostic wherever it appears
+absolute px is never compared across subgroups to rank condition difficulty
 paired comparisons say they are paired; coverage is reported next to them
 no 6D pose quantity appears anywhere
 "held-out" appears nowhere — PAPER_EVAL role is DEV

@@ -1,7 +1,30 @@
 # RGB-only Pallet 6D Pose — 논문 전략 & 실험 protocol 통합 결정 문서
 
+> **2026-08-28 ACTIVE MULTI-SHAPE CONTRACT:** the adopted paper pipeline is
+> YOLO-based; DOPE is legacy/comparison code. Development populations are
+> plastic 140/128, wood 45, their fair 173-positive union, and negative 2,689.
+> Wood45 was previously evaluated and is `CROSS_SHAPE_DEV`, never FINAL.
+> Geometry is dispatched by manifest `object_type`: plastic
+> `(1.10,0.11,1.30)` m and wood `(0.80,0.14,0.59)` m are never interchanged.
+> Plastic symmetry is frozen `{I,Ry(180°)}` and its selector failed; wood
+> symmetry is `UNREVIEWED` and its selector is `NOT_RUN`. ALL pose is therefore
+> null. `FINAL_PLASTIC_POS`, `FINAL_WOOD_POS`, `FINAL_ALL_POS`, and `FINAL_NEG`
+> are unavailable, not valid empty tests.
+>
+> **`PAPER_METHOD_STATUS = NOT_LOCKED`.** All self-training, PnP-free filter,
+> old final-test, 5cm5deg, and method `[LOCKED]` statements below are
+> **HISTORICAL / SUPERSEDED** unless an active document explicitly re-locks them.
+> Preserve them as experiment provenance; do not use them to fill the proposed
+> method row. The active experiment tables are in
+> `_docs/paper/final/` (the superseded table templates now live under
+`_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/`); the previous
+> support snapshot is in `_docs/archive/paper_support_20260830/`.
+
+## Historical strategy record begins below
+
 > 트랙: camera-facing 0123 (논문용). object-frame v8 / v1·v2 폐기.
-> 표기: **[LOCKED]** = 확정 · **[SLOT]** = 너만 아는 값으로 채울 자리 · **[BLOCKER]** = 진행 막는 것
+> 이 아래 표기에서 **[LOCKED]**는 작성 당시의 역사적 lock이다. 현행 lock은 위 ACTIVE
+> CONTRACT와 위 support snapshot을 따른다.
 > 동반 문서: `metric_split_lock.md`(frozen protocol 상세) · `session_inventory_v2.py`(세션 진단)
 
 ---

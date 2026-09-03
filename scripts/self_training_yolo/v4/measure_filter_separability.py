@@ -41,7 +41,7 @@ TEACHER_CACHE = V4 / "V4_PROXY_TEACHER_CACHE.json"
 M4_RECORDS = REPO_ROOT / "data/pallet/results/paper_selftrain_v1/M4_FRAME_RECORDS.json"
 REGISTRY = REPO_ROOT / "challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json"
 OUT_JSON = V4 / "FILTER_SEPARABILITY.json"
-OUT_MD = REPO_ROOT / "_docs/paper/FILTER_SEPARABILITY.md"
+OUT_MD = REPO_ROOT / "_docs/archive/paper_pre_final_20260903/diagnostics/FILTER_SEPARABILITY.md"
 
 GROSS_PX = 20.0
 BOX_CONF = 0.85

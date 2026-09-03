@@ -109,13 +109,13 @@ FPR95       ↓    false-positive rate at 95% TPR
 채운 아래 파일이 정본이다.  여기 숫자를 손으로 복붙하지 않는다.
 
 ```text
-_docs/paper/generated/TABLE_M1.md          main method comparison
-_docs/paper/generated/TABLE_M2.md          daytime / nighttime adaptation
-_docs/paper/generated/TABLE_M3.md          component ablation (R0-CONT 포함)
-_docs/paper/generated/TABLE_M4.md          filter quality
-_docs/paper/generated/TABLE_M5.md          robustness / morphology
-_docs/paper/generated/APPENDIX_TABLES.md   elevation · exposure · external baseline 상태
-_docs/paper/ABSTRACT_RESULT_SLOTS.md       초록에 넣을 수 있는 값과 없는 값
+_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/TABLE_M1.md          main method comparison
+_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/TABLE_M2.md          daytime / nighttime adaptation
+_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/TABLE_M3.md          component ablation (R0-CONT 포함)
+_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/TABLE_M4.md          filter quality
+_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/TABLE_M5.md          robustness / morphology
+_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/APPENDIX_TABLES.md   elevation · exposure · external baseline 상태
+_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/ABSTRACT_RESULT_SLOTS.md   (SUPERSEDED)
 ```
 
 생성: `python scripts/paper/build_experiment_tables.py`

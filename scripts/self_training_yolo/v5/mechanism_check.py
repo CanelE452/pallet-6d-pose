@@ -44,7 +44,7 @@ LOCK = REPO_ROOT / "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER
 REGISTRY = REPO_ROOT / "challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json"
 SCORES_CSV = V5 / "RELIABILITY_POOL_SCORES.csv"
 OUT_JSON = V5 / "V5_MECHANISM_CHECK.json"
-OUT_MD = REPO_ROOT / "_docs/paper/V5_MECHANISM_CHECK.md"
+OUT_MD = REPO_ROOT / "_docs/archive/paper_pre_final_20260903/diagnostics/V5_MECHANISM_CHECK.md"
 
 GROSS_PX = 20.0
 REGISTRY_NAME = {"plastic": "plastic_standard_110x130x11",

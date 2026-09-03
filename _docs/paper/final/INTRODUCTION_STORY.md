@@ -50,9 +50,15 @@ but
 > **which parts of pallet perception improve under self-training, and can geometric
 > consistency prevent pose-keypoint errors from being reinforced?**
 
-Answering it requires that detection and localisation be measured separately. If
-they are collapsed into a single score, an improvement in one can hide the absence
-of improvement in the other.
+Answering it requires that detection and 2D keypoint localisation be measured
+separately. If they are collapsed into a single score, an improvement in one can
+hide the absence of improvement in the other.
+
+State the evaluation scope here, once and plainly: **we evaluate detection and 2D
+geometric keypoint accuracy, which form the inputs to downstream PnP pose
+recovery.** The downstream 6D stage is described but is not used for quantitative
+claims, because the evaluation axis-selection contract is unresolved — a point the
+Limitations section carries.
 
 ## P6 — How we answer it
 
@@ -65,11 +71,12 @@ result on the evaluation population is observed.
 
 ## P7 — The main finding
 
-Adaptation to unlabeled target images substantially improves detection coverage,
-most visibly under nighttime acquisition, and improves confidence-based separation
-of true positives from negatives. Under the same protocol it does **not** improve
-fine keypoint localisation over the synthetic-only model, and adding projective and
-equivariant consistency to the selection rule does not recover a localisation gain.
+Adaptation to unlabeled target images increases observed detection coverage, most
+visibly under nighttime acquisition, and the full consistency variant achieves the
+best observed confidence-based separation of true positives from negatives among
+the frozen arms. Under the same protocol it does **not** improve fine 2D keypoint
+localisation over the synthetic-only model, and adding projective and equivariant
+consistency to the selection rule does not recover a localisation gain.
 
 That asymmetry is the paper's central result. Post-hoc diagnostics — reported as
 diagnostics — indicate the limitation is not attributable to a single filter
@@ -85,6 +92,9 @@ do        keep "detection improves / localisation does not" as one sentence
 don't     promise a method that fixes it
 don't     describe prior work as having failed where we succeeded
 don't     use "label-free" — manual real annotations exist for evaluation
+don't     write "we evaluate pose accuracy" — the pose layer is blocked
+don't     say "substantially improves detection" — the overall difference is
+          not statistically resolved
 ```
 
 The honest phrasing for the training condition is **"without manual target-domain

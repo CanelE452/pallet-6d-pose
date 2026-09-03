@@ -107,7 +107,27 @@ A synthetic-replay-only control arm replaces the pseudo slots with additional
 synthetic replay under the same budget. It answers how much of any observed change
 comes from further optimisation alone.
 
-## 3.8 Evaluation separation
+## 3.8 Evaluation layers and what this paper measures
+
+The frozen metric contract has four layers. Two are currently measurable.
+
+```text
+Detection layer      coverage, box AP50 / AP50-95, AUROC, FPR95        READY
+2D keypoint layer    Euclidean original-image pixel error,
+                     median / p90, Proj@5/10/20px, gross20             READY
+6D pose layer        conceptually downstream via PnP                   BLOCKED
+Operational layer    fork-pocket alignment success                     NOT EVALUATED
+```
+
+The pipeline is `RGB -> bbox + 9 keypoints -> PnP`. It is described in full because
+PnP is the consumer of the keypoints. **The quantitative results of this paper stop
+at detection and 2D keypoint localisation.** Pose columns are removed from the
+tables rather than left blank, and no sentence claims a 6D, yaw, translation, or
+alignment improvement.
+
+Reader-facing metric names are fixed in `METRIC_NAMING_LOCK.md`.
+
+## 3.9 Evaluation separation
 
 Three families of measurement, reported separately and never merged:
 

@@ -41,7 +41,7 @@ from the figure alone, that the paper measures them apart.
 The paper's central claim in one panel.
 
 ```text
-x-axis   keypoint localisation error (original-image px, paired population)
+x-axis   2D keypoint median error [px] (original-image, paired population)
          -> right is worse
 y-axis   nighttime detection coverage
          -> up is better
@@ -62,7 +62,7 @@ reading the caption.
 Draw R0 with a distinct marker and a vertical reference line at its localisation
 value, so "no arm is to the left of R0" is visible at a glance.
 
-Caption must state that the horizontal axis is raw pixel error on the paired
+Caption must state that the horizontal axis is raw 2D pixel error on the paired
 population, and that PAPER_EVAL is a development population, not a sealed test set.
 
 Optional second panel with the same axes but ranking (FPR95, lower is better) on the
@@ -77,7 +77,7 @@ Built entirely from the existing separability analysis. **No new computation.**
 
 ```text
 x-axis   retention (fraction of teacher predictions kept)
-y-axis   pseudo-label quality of what is kept
+y-axis   pseudo-label 2D keypoint quality of what is kept
 curves   confidence only
          + projective consistency
          + keypoint-removal consistency
@@ -90,7 +90,7 @@ are not random — which makes the downstream null result more interesting, not 
 Caption must label this a post-hoc diagnostic computed against evaluation GT, and
 state that it measures label quality, not student quality.
 
-Source: `_docs/paper/FILTER_SEPARABILITY.md` and its backing JSON.
+Source: `_docs/archive/paper_pre_final_20260903/diagnostics/FILTER_SEPARABILITY.md` and its backing JSON.
 
 ## Figure 4 — Failure modes
 
@@ -110,7 +110,7 @@ anchor of the figure.
 
 Panel (b) needs an overlay that shows predicted index labels, not just points —
 otherwise the failure is invisible, since the corner *positions* are correct and only
-the *assignment* is wrong. Judge such frames by maximum corner error, never by the
+the *assignment* is wrong. Judge such frames by maximum 2D keypoint error, not the
 median: the error distribution is bimodal and the median hides it.
 
 Sources: existing contact sheets under the V1 and V2 diagnostic outputs.

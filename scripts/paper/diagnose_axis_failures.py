@@ -25,7 +25,7 @@ median 이 작은 쪽 봉우리에 앉는다 — 한때 이걸 "좌우 뒤집힘
 
 출력:
     data/pallet/results/paper_eval_v1/AXIS_FAILURES.json
-    _docs/paper/generated/AXIS_FAILURES.md
+    _docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/AXIS_FAILURES.md
 """
 
 from __future__ import annotations

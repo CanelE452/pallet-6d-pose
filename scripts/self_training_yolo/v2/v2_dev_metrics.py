@@ -34,7 +34,7 @@ EVAL_OUT = REPO_ROOT / "data/pallet/results/paper_eval_v2/arms"
 V2_RESULTS = REPO_ROOT / "data/pallet/results/paper_selftrain_v2"
 OUT_JSON = V2_RESULTS / "V2_DEV_METRICS.json"
 GATE_JSON = V2_RESULTS / "V2_DEV_GATE.json"
-OUT_MD = REPO_ROOT / "_docs/paper/generated/V2_DEV_RESULTS.md"
+OUT_MD = REPO_ROOT / "_docs/archive/paper_pre_final_20260903/legacy_paper_outputs/generated/V2_DEV_RESULTS.md"
 
 ARMS = ("V2A_CONF25", "V2B_KP_MASK", "V2C_AMBIG", "V2D_FULL")
 BASE = "R0"
@@ -428,7 +428,7 @@ def render(report: dict, verdict: dict) -> None:
         "",
         "**개발 모집단은 PAPER_EVAL 319 다.**  V2 방법이 이 모집단의 진단을 보고",
         "설계됐으므로 여기서 최종 성능을 주장하지 않는다",
-        "(`_docs/paper/SELFTRAIN_V2_PROTOCOL.md`).",
+        "(`_docs/archive/paper_pre_final_20260903/diagnostics/SELFTRAIN_V2_PROTOCOL.md`).",
         "",
         "## Coverage 와 Geometry — 두 축을 합치지 않는다",
         "",
