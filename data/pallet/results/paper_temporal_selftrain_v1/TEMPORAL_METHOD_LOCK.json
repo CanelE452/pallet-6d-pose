@@ -1,0 +1,217 @@
+{
+  "schema_version": "temporal_method_lock_v1",
+  "date": "2026-09-03",
+  "status": "FROZEN_BEFORE_ANY_MEASUREMENT",
+
+  "method": "monocular temporal geometric pseudo-label refinement",
+  "idea": "every self-training arm so far changed which teacher pseudo-labels were kept and used the teacher's own coordinates as supervision, so the student inherits the teacher's structured keypoint error. Here the coordinates themselves are refined using image evidence from neighbouring real RGB frames, then constrained by the known pallet cuboid.",
+
+  "question": "does multi-frame RGB evidence actually move the teacher's keypoint coordinates closer to ground truth",
+  "this_pilot_does_not_train_a_student": true,
+
+  "paper_contract_preserved": {
+    "adaptation_input": "RGB only",
+    "deployment_input": "RGB only",
+    "real_pose_labels_for_adaptation": "NO",
+    "depth": "NO",
+    "rgbd_privileged_supervision": "NO",
+    "new_sensor": "NO",
+    "student_architecture": "existing YOLO26n-Pose",
+    "inference_pipeline": "existing RGB -> keypoints -> SQPnP",
+    "claim_candidate": "synthetic-to-real self-training using monocular RGB target video"
+  },
+
+  "depth_is_not_read": {
+    "forbidden_inputs": ["depth PNG", "depth caches", "depth metrics",
+                         "anything under paper_depth_selftrain_v1"],
+    "reason": "the depth track is stopped as a main-method candidate and kept only as diagnostic evidence; reading it here would break the monocular claim"
+  },
+
+  "read_only_paths": [
+    "data/pallet/results/paper_selftrain_v1", "data/pallet/results/paper_selftrain_v2",
+    "data/pallet/results/paper_selftrain_v3", "data/pallet/results/paper_selftrain_v4",
+    "data/pallet/results/paper_selftrain_v5", "data/pallet/results/paper_selftrain_site_v1",
+    "data/pallet/results/paper_pose_metric_closure_v1",
+    "data/pallet/results/paper_depth_selftrain_v1"
+  ],
+
+  "teacher": {
+    "model": "frozen synthetic-only R0",
+    "checkpoint_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "recipe_source": "data/pallet/results/paper_selftrain_v1/teacher_cache/R0_TEACHER_CACHE.json",
+    "recipe_is_read_not_restated": true,
+    "reuse_cached_frames": true,
+    "parity_check": {"samples": 30, "must_match": ["box", "box_conf", "keypoints", "kp_conf"]},
+    "refresh_forbidden": true
+  },
+
+  "optical_flow": {
+    "method": "OpenCV pyramidal Lucas-Kanade, cv2.calcOpticalFlowPyrLK",
+    "no_external_checkpoint": true,
+    "why_classical": "an external pretrained flow network would add a new confound and break the pure-RGB geometric character of the pilot; a failure here must stay simple to explain",
+    "win_size": [31, 31],
+    "max_level": 3,
+    "criteria_count": 30,
+    "criteria_epsilon": 0.01,
+    "forward_backward_max_error_px": 2.0,
+    "these_values_are_not_swept": true
+  },
+
+  "tracklet": {
+    "length": 7,
+    "offsets": [-3, -2, -1, 0, 1, 2, 3],
+    "same_raw_recording_only": true,
+    "recording_boundary_never_crossed": true,
+    "missing_frames_are_not_interpolated": true,
+    "ordering": "by nanosecond filename timestamp, the real acquisition order",
+    "length_is_not_swept": true
+  },
+
+  "population": {
+    "center_frame_requirements": [
+      "positive real frame",
+      "genuine manual or reviewed 2D cuboid keypoints",
+      "resolvable to a raw RGB recording by image SHA256",
+      "neighbouring RGB frames exist in that recording",
+      "plastic pallet",
+      "not a known-broken annotation"
+    ],
+    "excluded": {
+      "pallet11_gt": "recorded as apriltag-broken well before this work",
+      "FT_OVERLAP_or_evaluation_ineligible": "never used as a pilot centre",
+      "recordings_that_feed_PAPER_EVAL_319": [
+        "capturepallet02", "capturepallet03", "capturepallet04", "capturepallet05",
+        "capturepallet07", "capturepallet08", "capturepallet09", "capturepalletcad",
+        "capturenight08", "capturenight09"
+      ],
+      "why_whole_recordings": "so a prospective confirmation population for this method is not spent in advance"
+    },
+    "measured_before_locking": {
+      "candidate_centres": 88,
+      "recordings": 7,
+      "composition": "all night, all plastic",
+      "paper_eval_frame_overlap": 0
+    },
+    "scope_limitation_declared_now": "strict recording exclusion leaves no daytime centre at all. The pilot therefore measures a night-only, plastic-only slice, and any result must be read that way. This is stated before the measurement, not after.",
+    "population_limited_flag_rule": "if usable centres had been too few to measure, report POPULATION_LIMITED and stop rather than relaxing the exclusion. 88 centres across 7 recordings is measurable, so the pilot proceeds with the composition limitation recorded instead."
+  },
+
+  "object_geometry": {
+    "source": "challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json",
+    "object_type": "plastic_standard_110x130x11",
+    "dimensions_m": {"x": 1.1, "y": 0.11, "z": 1.3},
+    "read_not_hardcoded": true,
+    "registry_is_read_only": true,
+    "wood_excluded_from_this_pilot": true
+  },
+
+  "keypoint_validity": {
+    "kp_conf_min": 0.5,
+    "source": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+    "applies_to": "both the neighbour source keypoint and the centre keypoint",
+    "no_new_confidence_threshold": true
+  },
+
+  "algorithm": {
+    "step_1_transport": "for each tracklet frame and keypoint, walk the teacher coordinate to the centre frame through consecutive RGB pairs, computing forward and backward flow at every hop",
+    "hop_acceptance": ["status success", "forward-backward error <= 2.0 px",
+                       "coordinate inside the image"],
+    "any_hop_failure": "that neighbour observation is rejected for that keypoint",
+    "step_2_observation_set": "centre teacher plus every surviving transported neighbour",
+    "min_observations": 3,
+    "below_minimum": "mark TEMPORAL_UNRESOLVED; never fall back to the raw teacher and count it as a success",
+    "step_3_consensus": "coordinate-wise median, x and y independently",
+    "mean_forbidden": true,
+    "learned_fusion_forbidden": true,
+    "step_4_geometry": "solve the frozen PnP contract on the consensus coordinates for both physical width/depth hypotheses and keep the one with the smaller median reprojection residual, computed without any ground truth; then reproject the cuboid corners and centroid",
+    "no_new_pose_selector": true
+  },
+
+  "three_versions_saved_per_frame": {
+    "RAW_TEACHER": "the existing R0 keypoints",
+    "TEMPORAL_ONLY": "the LK-warped multi-frame median",
+    "TEMPORAL_GEOMETRY": "consensus, then cuboid PnP, then reprojection",
+    "why_three": "to separate whether temporal RGB evidence helps at all from whether the geometry projection adds anything",
+    "these_are_not_training_arms": true
+  },
+
+  "generator_evaluator_separation": {
+    "refinement_may_read": ["RGB frames", "cam_K", "frozen R0 predictions",
+                            "frozen plastic dimensions", "this lock"],
+    "refinement_must_not_read": ["manual keypoints", "GT projected cuboid",
+                                 "GT pose", "any GT error", "PAPER_EVAL metrics"],
+    "enforcement": "the refinement function takes no ground-truth argument, and a test asserts that by AST inspection",
+    "evaluation_reads_gt_only_after_refinement_is_written_to_disk": true
+  },
+
+  "metrics_fixed_before_results": {
+    "2D": {"corner_median_px": "lower better", "corner_p90_px": "lower better",
+           "gross20": "fraction of supervised corners with error above 20 px, lower better"},
+    "6D": {"pose_coverage": "higher or held", "iou3d_median": "higher better",
+           "add_sym_auc": "higher better",
+           "also_reported": ["rotation median", "yaw median", "translation median"]},
+    "the_decisive_four": ["corner_p90_px", "gross20", "iou3d_median", "add_sym_auc"],
+    "definitions_are_reused_not_redefined": {
+      "2D": "Euclidean keypoint error in original image coordinates",
+      "6D": "the frozen pose closure evaluator",
+      "symmetry": "{I, Ry(180)}",
+      "iou3d": "existing exact oriented IoU",
+      "addsym": "existing symmetry-aware ADD",
+      "auc": "existing fixed [0, 0.1 x diameter]"
+    },
+    "new_metric_definitions_forbidden": true
+  },
+
+  "comparison": {
+    "paired_on_the_same_centre_frame": true,
+    "pairs": ["RAW vs TEMPORAL_ONLY", "RAW vs TEMPORAL_GEOMETRY",
+              "TEMPORAL_ONLY vs TEMPORAL_GEOMETRY"],
+    "frames_where_geometry_failed_are_not_silently_dropped": true,
+    "must_report_both": ["coverage", "common-frame accuracy"],
+    "uncertainty": ["frame paired bootstrap", "recording-cluster paired bootstrap"],
+    "cluster_count_must_be_stated": true
+  },
+
+  "no_hyperparameter_rescue": {
+    "rule": "this locked pilot is evaluated exactly once",
+    "forbidden_after_seeing_results": ["changing the window size", "lengthening the tracklet",
+                                       "relaxing the forward-backward threshold",
+                                       "swapping in a learned flow network",
+                                       "replacing the median with a weighted mean"],
+    "if_it_does_not_improve": "TEMPORAL_METHOD_PILOT = FAILED_TO_IMPROVE, and no further method search is opened"
+  },
+
+  "verdict_axes": {
+    "A_TEMPORAL_ONLY_2D": ["IMPROVED", "MIXED", "NO_IMPROVEMENT"],
+    "B_TEMPORAL_GEOMETRY_2D": ["IMPROVED", "MIXED", "NO_IMPROVEMENT"],
+    "C_DOWNSTREAM_6D": ["IMPROVED", "MIXED", "NO_IMPROVEMENT"],
+    "D_COVERAGE": ["ACCEPTABLE", "DEGRADED"],
+    "categories_are_closed": "no verdict string outside these lists may be written; an assertion in the evaluation code enforces it",
+    "arbitrary_numeric_success_thresholds_forbidden": true,
+    "verdicts_describe_point_estimate_direction_and_cluster_uncertainty_together": true
+  },
+
+  "visual_diagnostic": {
+    "max_centres": 30,
+    "selection": "deterministic by frame ordering, never by good or bad outcome",
+    "overlay": ["manual GT", "RAW", "TEMPORAL_ONLY", "TEMPORAL_GEOMETRY",
+                "transported observations as small dots"],
+    "gt_overlay_only_at_evaluation_time": true
+  },
+
+  "forbidden_in_this_pilot": {
+    "student_training": 0, "pseudo_real_training_dataset": 0,
+    "new_yolo_checkpoint": 0, "teacher_refresh": 0, "threshold_sweep": 0,
+    "tracklet_length_sweep": 0, "optical_flow_parameter_sweep": 0,
+    "loss_weight_sweep": 0, "depth": 0,
+    "evaluation_gt_as_refinement_input": 0
+  },
+
+  "commit_discipline": {
+    "this_lock_is_committed_alone": true,
+    "lock_and_result_must_not_share_a_commit": true,
+    "measurement_begins_only_after_this_lock_is_on_the_remote": true
+  },
+
+  "next_action": "USER_REVIEW_TEMPORAL_PILOT"
+}
