@@ -1,0 +1,62 @@
+{
+  "schema_version": "temporal_evaluation_closure_intent_v1",
+  "date": "2026-09-03",
+
+  "purpose": "re-evaluate frozen temporal outputs under the originally intended population, pooled 2D metric, and frozen pose-evaluation contract",
+
+  "refinement_outputs_modified": false,
+  "new_inference": false,
+  "new_refinement": false,
+  "new_optical_flow": false,
+  "student_training": false,
+  "new_hyperparameter": false,
+  "depth_read": false,
+
+  "reasons_for_closure": [
+    "pilot population admitted evaluation-ineligible DEV_UNVERIFIED frames",
+    "2D aggregation was frame-summary-of-summary rather than pooled corners",
+    "6D path bypassed the frozen prediction-only pose selector",
+    "coverage threshold 0.90 was not preregistered"
+  ],
+
+  "what_each_defect_was": {
+    "population": "TEMPORAL_METHOD_LOCK excludes 'FT_OVERLAP_or_evaluation_ineligible' as a pilot centre. The builder filtered only FT_OVERLAP, so DEV_UNVERIFIED frames were admitted. The lock's own wording was not followed.",
+    "2D_aggregation": "the pilot reported median of per-frame medians and median of per-frame p90s. A p90 of per-frame p90s is not the p90 of the corner error distribution, and frames with few corners carried the same weight as frames with many.",
+    "6D_path": "the pilot solved both width/depth hypotheses itself and kept the smaller reprojection residual. The repository already has predict_pose_without_gt, which routes through the frozen select_pnp_hypotheses. Substituting a private selector makes the numbers incomparable with every other pose result in this repository.",
+    "coverage_threshold": "ACCEPTABLE was declared at coverage >= 0.90, a number chosen while writing the evaluator rather than before the measurement."
+  },
+
+  "this_closure_is_not_an_algorithm_experiment": "no threshold is being selected here, so the lock-before-result separation is procedural bookkeeping rather than evidence for a paper claim, and it is not presented as such",
+
+  "read_only": [
+    "data/pallet/results/paper_temporal_selftrain_v1/TEMPORAL_METHOD_LOCK.json",
+    "data/pallet/results/paper_temporal_selftrain_v1/pilot/"
+  ],
+  "frozen_inputs_reused_verbatim": [
+    "TEMPORAL_REFINEMENT_PER_FRAME.json — RAW_TEACHER, TEMPORAL_ONLY, TEMPORAL_GEOMETRY coordinates"
+  ],
+
+  "evaluation_contract_to_be_used": {
+    "pose_path": "scripts/paper/pose_metric_closure_v1/pose_evaluation_paths.py predict_pose_without_gt",
+    "selector": "challenge/evaluation_v2/pnp_selector.select_pnp_hypotheses, frozen",
+    "oracle_axis_forbidden": true,
+    "object_contract": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json, loaded and hashed, dimensions never hardcoded",
+    "pose_reference": "existing geometry-reconstructed reference where the centre appears in it; otherwise POSE_REFERENCE_UNAVAILABLE, never a newly built one",
+    "2D": "pooled supervised corner errors across frames, with the total corner count reported",
+    "6D_metrics": "existing definitions only — rotation, yaw, translation medians, exact oriented IoU3D, symmetry-aware ADD AUC over the frozen [0, 0.1 x diameter] range",
+    "coverage": "reported as a number, with no qualitative threshold"
+  },
+
+  "known_broken_rule": "only sets recorded as broken before the temporal work may be excluded on that basis, such as pallet11_gt APRILTAG_BROKEN. Recordings may not be dropped because their error turned out large.",
+
+  "population_limited_rule": "if the formal eligible count is zero or too small to evaluate, report FORMAL_TEMPORAL_PILOT = POPULATION_LIMITED and classify the original 109-centre run as EXPLORATORY_DIAGNOSTIC_ONLY. Relaxing the eligibility rule to manufacture a usable N is forbidden.",
+
+  "possible_final_states": ["FAILED_TO_IMPROVE", "POPULATION_LIMITED",
+                            "OBSERVED_IMPROVEMENT"],
+  "even_a_positive_result_does_not_start_training": true,
+  "no_new_method_search_regardless_of_outcome": true,
+
+  "original_pilot_is_preserved": "TEMPORAL_PILOT_EVALUATION.json and its report are not edited or deleted; the closure report cites them in a separate exploratory section",
+
+  "next_action": "PAPER_FRAMING_DECISION"
+}
