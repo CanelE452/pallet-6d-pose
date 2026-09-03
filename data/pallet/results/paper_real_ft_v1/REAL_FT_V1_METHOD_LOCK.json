@@ -1,0 +1,155 @@
+{
+  "schema_version": "paper_real_ft_method_lock_v1",
+  "purpose": "Freeze the recipe and the gates before any training, so PAPER_EVAL can never select the epoch, the mixing fraction, or the label filter.",
+  "registered_utc": "2026-09-03",
+  "question": "With the exposure budget held identical to V1-V5, does replacing pseudo-labels with real manual GT beat source-only R0 on keypoint localisation?",
+
+  "paper_eval_gt_used_for_selection": false,
+  "paper_eval_used_for_training": false,
+  "paper_eval_used_for_validation": false,
+
+  "inherits_unchanged": {
+    "from": "data/pallet/results/paper_selftrain_v1/SELFTRAIN_EXPOSURE_LOCK.json",
+    "fields": [
+      "batch_size", "learning_rate", "total_optimizer_updates", "epochs",
+      "updates_per_epoch", "pseudo_exposures_per_epoch",
+      "synthetic_exposures_per_epoch", "initialisation",
+      "checkpoint_selection", "augmentation", "synthetic_replay"
+    ],
+    "note": "Not one field is re-tuned. The single change is the SOURCE OF THE LABELS in the 1440 non-synthetic slots."
+  },
+
+  "recipe": {
+    "init_checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "init_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "batch_size": 32,
+    "learning_rate": 0.002,
+    "epochs": 10,
+    "updates_per_epoch": 90,
+    "total_optimizer_updates": 900,
+    "real_exposures_per_epoch": 1440,
+    "synthetic_exposures_per_epoch": 1440,
+    "seed": 42,
+    "fliplr": 0.0,
+    "checkpoint_selection": "last.pt — fixed, never selected on any metric",
+    "synthetic_replay_membership_sha256": "9dbd9c927733fb20e1b869c568e064a32a9e1a07392c534c4d39bc6f5958da82"
+  },
+
+  "training_labels": {
+    "source_root": "challenge/data/01_real/live_capture_gt",
+    "gt_source": "manual",
+    "schema": "real_pallet_gt_v2",
+    "keypoint_frame": "camera_dynamic_0123_v4",
+    "declared_split_in_source": "train",
+    "candidate_frames": 402,
+    "sessions": {
+      "capture_20260902_kimjihoon_manual_gt": 290,
+      "capture_20260902_manual_gt": 54,
+      "forklift_v4_174925_manual_gt": 24,
+      "forklift_v4_173507_manual_gt": 19,
+      "forklift_v4_174342_manual_gt": 13,
+      "forklift_v4_174126_manual_gt": 2
+    },
+    "slot_fill_rule": "deterministic round-robin over the accepted frame list sorted by (session, stem), with replacement, until 1440 slots are filled",
+    "eligibility_gate": "PENDING_3D_EXPERT_CONVENTION_VERDICT",
+    "eligibility_note": "Frames are admitted only after the keypoint-index convention is verified. If USABLE_AS_TRAINING_LABELS = NO, the experiment is not run.",
+    "accepted_membership_sha256": null
+  },
+
+  "label_conversion": {
+    "registered_before_any_training": true,
+    "format": "0 cx cy w h then 9 triples (x y v), all normalised",
+    "box_rule": "bounding box of the visible keypoints after clipping to the image, matching the synthetic convention",
+    "box_rule_evidence": "verified on 400 random synthetic labels from g38_legacy_v1v2_p0_tex20k: 400/400 agree within 2e-3",
+    "off_screen_corner_rule": "v = 0",
+    "off_screen_corner_rationale": "The synthetic training convention contains zero keypoints outside [0,1] (measured: 0/400 labels). The belief-map head cannot place a peak outside the decoded grid, so an off-image coordinate is not a learnable target, and clipping it would teach a wrong location. Marking v=0 keeps the label inside the convention the model was pretrained under.",
+    "off_screen_scale": "87 of 3212 corners (2.7 percent) across 46 of 402 frames",
+    "missing_xy_rule": "v = 0; affects 4 corners in 2 frames",
+    "visibility_values_used": [0, 2],
+    "sentinel_1_used": false,
+    "loss": "standard PoseLoss26 as in V1 and V2, not the V3 true-ignore loss",
+    "loss_rationale": "Real GT is fully known, so no ignore semantics are needed; using the standard loss keeps the arm comparable to V1/V2 rather than introducing a second change."
+  },
+
+  "preflight_contract_checks": [
+    {
+      "id": "P1",
+      "check": "ultralytics does not silently clip or drop keypoints marked v=0 in a way that alters the supervised coordinates",
+      "must_pass_before": "full training"
+    },
+    {
+      "id": "P2",
+      "check": "the 1440 synthetic replay entries are byte-identical to the V1-V5 replay subset (membership sha256 match)",
+      "must_pass_before": "full training"
+    },
+    {
+      "id": "P3",
+      "check": "no accepted real image hashes to any PAPER_EVAL image",
+      "must_pass_before": "full training"
+    }
+  ],
+
+  "leakage_evidence": {
+    "method": "sha256 over raw image bytes, PAPER_EVAL 319 versus every live_capture_gt image",
+    "paper_eval_images_hashed": 319,
+    "paper_eval_read_failures": 0,
+    "live_capture_images_hashed": 402,
+    "live_capture_images_missing": 0,
+    "duplicate_images": 0,
+    "coverage_note": "All 402 candidate frames were hashed, including the 290 kimjihoon frames whose images live outside the annotation folder. An earlier pass covered only the 112 co-located images; that gap was closed before any training.",
+    "images_without_colocated_file": {
+      "capture_20260902_kimjihoon_manual_gt": "challenge/data/01_real/_live_captures/handheld_20260902/sessions/capture_20260902_kimjihoon/rgb"
+    },
+    "independent_separations": [
+      "object type: training is plastic_standard_110x110x15 only; PAPER_EVAL wood_183705/wood_184309 are wood",
+      "resolution and intrinsics: training 640x480 CALIBRATED realsense factory; PAPER_EVAL wood sessions 1280x720 SENSOR_PROFILE_SCALED legacy_import",
+      "repository contract: live_capture_gt objects[0].split == 'train'; PAPER_EVAL comes from objects[0].split == 'eval'"
+    ]
+  },
+
+  "evaluation": {
+    "evaluator": "challenge/evaluation_v2/paper_real_eval.py",
+    "population": "PAPER_EVAL_POSITIVE",
+    "n_frames": 319,
+    "identical_to": "V1, V2, V3, V4, V5 and FAST teacher probes",
+    "primary_metric": "paired NME",
+    "paired_rule": "compare R0 and REAL_FT on the same supervised keypoints only; coverage reported separately",
+    "report_split_by": ["material (plastic 194 / wood 125)", "lighting (daytime 168 / nighttime 106)"],
+    "material_note": "Training labels are 100% plastic, so the wood half is cross-object generalisation and must never be merged into a single headline number."
+  },
+
+  "gates": [
+    {"id": "G1", "primary": true, "rule": "ALL paired NME < R0", "on_fail": "REAL_FT_V1 = FAILED; conclusion is that label quality is not the bottleneck"},
+    {"id": "G2", "rule": "Night paired NME <= R0"},
+    {"id": "G3", "rule": "NME p90 <= R0", "note": "the tail is where V1-V5 and all three FAST teachers died"},
+    {"id": "G4", "rule": "gross20 <= R0"},
+    {"id": "G5", "rule": "Daytime detection >= 0.95"},
+    {"id": "G6", "rule": "Nighttime detection >= R0"}
+  ],
+
+  "statistics": {
+    "paired_delta_ci": "bootstrap over frames, 10000 resamples, 95 percent",
+    "unresolved_label": "NOT_STATISTICALLY_RESOLVED when the interval contains zero",
+    "note": "The point-estimate gate decides PASS/FAIL as registered; the interval is reported alongside and never overrides it."
+  },
+
+  "conditional_second_arm": {
+    "name": "REAL_IMG_PSEUDO_CONTROL",
+    "runs_only_if": "G1 PASS",
+    "design": "identical exposure, identical 402 real images, labels replaced by R0's own predictions",
+    "question": "separates the effect of seeing real images from the effect of correct human labels",
+    "why_conditional": "if G1 fails there is no effect to attribute"
+  },
+
+  "forbidden": [
+    "tuning epochs, lr, mixing fraction, or any threshold on PAPER_EVAL results",
+    "selecting a checkpoint other than last.pt",
+    "putting any PAPER_EVAL frame into training or validation",
+    "designing REAL_FT_V2 against the same PAPER_EVAL after a failure",
+    "reporting plastic and wood merged into one headline localisation number",
+    "modifying any V1-V5 or FAST teacher artefact"
+  ],
+
+  "external_prior_art_consulted": false,
+  "external_prior_art_note": "Literature on real-label efficiency for synthetic-to-real keypoint transfer was not reviewed. The design comes entirely from in-repository measurement."
+}

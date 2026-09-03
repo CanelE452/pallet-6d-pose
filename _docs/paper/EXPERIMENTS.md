@@ -1,5 +1,10 @@
 # Paper Experiments
 
+> **Superseded for paper-facing interpretation by
+> `_docs/paper/final/FINAL_EXPERIMENT_PLAN.md`.**
+> 이 문서는 실험 provenance 를 보존하기 위한 **historical design document** 로 남긴다.
+> 계약·수치는 그대로 두되, 논문에 들어갈 질문·표·주장은 `_docs/paper/final/` 을 따른다.
+
 본 문서는 논문에 필요한 실험과 결과표 구조를 고정한다.
 
 새로운 실험을 계속 추가하기 위한 문서가 아니다.

@@ -1,0 +1,60 @@
+{
+  "schema_version": "paper_experiment_stop_lock_v1",
+  "status": "EXPERIMENTATION_STOPPED",
+  "declared_at_head": "c23959af9d35e92e84e78fc8f161c870bee3cecf",
+  "declared_date": "2026-09-03",
+
+  "reason": "Single-frame pseudo-label selection and no-train teacher variants have been sufficiently explored for the current development population. Five selection tracks and three no-train teacher probes all failed to improve fine keypoint localisation over the synthetic-only model, and PAPER_EVAL has now been consumed as a development population by every one of them. Further variants designed against the same population cannot produce confirmatory evidence.",
+
+  "what_was_explored": {
+    "selection_tracks": ["V1 frozen filter arms", "V2 per-keypoint masking", "V3 true-ignore loss", "V4 geometry repair", "V5 reliability weighting"],
+    "teacher_probes": ["FAST-A flip consensus", "FAST-B multi-resolution median", "FAST-C cross-checkpoint median"],
+    "diagnostics": ["corner regression decomposition", "axis permutation analysis", "filter separability", "strong-teacher audit"]
+  },
+
+  "forbidden_next_without_new_protocol": [
+    "V6 threshold tuning",
+    "new reliability weights",
+    "new test-time augmentation",
+    "new filter combination",
+    "PAPER_EVAL-guided model changes",
+    "pseudo-label fraction sweeps",
+    "re-designating a better-scoring arm as the Proposed method after the fact"
+  ],
+
+  "allowed": [
+    "paper writing",
+    "artifact audit",
+    "table generation from existing result artifacts",
+    "typo and bug fixes that do not change any reported metric",
+    "a future independent study under a separately frozen protocol and a population that has never been consulted"
+  ],
+
+  "stopped_before_it_started": {
+    "track": "REAL_FT_V1",
+    "what_it_would_have_been": "fine-tuning R0 on 402 real manual-GT frames from challenge/data/01_real/live_capture_gt under the identical exposure contract, with pseudo-labels replaced by human labels",
+    "status": "NOT_RUN",
+    "gpu_training_runs": 0,
+    "inference_runs": 0,
+    "artefacts_left_in_place": [
+      "data/pallet/results/paper_real_ft_v1/PURPOSE.md",
+      "data/pallet/results/paper_real_ft_v1/REAL_FT_V1_METHOD_LOCK.json",
+      "scripts/self_training_yolo/real_ft_v1/build_real_ft_dataset.py",
+      "scripts/self_training_yolo/real_ft_v1/run_real_ft_dev.py",
+      "challenge/yolo_pose_one_model/datasets/paper_real_ft_v1/ (symlink dataset, never trained on)"
+    ],
+    "why_it_was_blocked_anyway": "A delegated convention audit found that 106 of the 402 candidate label frames (26.4 percent) violate the left-right corner ordering that the source model was trained under, and that 187 of 402 have a keypoint_annotations field that is stale by a 90 degree permutation relative to projected_cuboid. The labels would have taught the very failure mode the experiment was meant to fix.",
+    "kept_for": "provenance — it records a track that was designed, audited, and stopped before consuming any compute"
+  },
+
+  "what_would_reopen_experimentation": [
+    "a target-domain evaluation population that has never been used for development",
+    "a training-label source whose keypoint index convention has been verified against the source model's convention",
+    "a protocol frozen and committed before any result on that population is observed"
+  ],
+
+  "immutable_prior_artifacts": {
+    "rule": "V1 through V5 result JSON, per-frame CSV, teacher caches, checkpoints, pseudo manifests, method locks, exposure locks, filter locks, FAST teacher results, and previously generated result tables are historical experiment records and are never edited.",
+    "paper_facing_documents_live_in": "_docs/paper/final/"
+  }
+}
