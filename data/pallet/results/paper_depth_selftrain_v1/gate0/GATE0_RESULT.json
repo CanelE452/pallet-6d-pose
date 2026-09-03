@@ -1,0 +1,171 @@
+{
+  "schema_version": "gate0_result_v1",
+  "generated_utc": "2026-09-03T09:44:55.951181+00:00",
+  "method_intent_lock_sha256": "f6ab9dd70fb1d05d7223d17bbf359f0ad23827f0b54c6246996a224ce4175a48",
+  "GT_USED_FOR_GATE0": false,
+  "new_training": 0,
+  "new_pseudo_label": 0,
+  "threshold_tuned_after_result": 0,
+  "criteria_were_declared_before_results": true,
+  "A_calibration_contract": {
+    "verdict": "PARTIAL",
+    "depth_metric_scale": "0.001 m per unit",
+    "scale_evidence": "repository consumer contract only (run_live_io.NpDepthFrame docstring 'uint16(mm)' and get_distance /1000.0, corroborated by classify_daytime_visibility.DEPTH_SCALE_MM). No acquisition metadata in any recording declares a scale.",
+    "scale_from_sensor_folklore": false,
+    "depth_intrinsics_found": false,
+    "depth_to_color_extrinsics_found": false,
+    "aligned_to_color_declared": false,
+    "why_partial": "the lock required a known scale AND either a confirmed aligned-to-color contract or depth intrinsics plus extrinsics. The scale has repository-level evidence but no acquisition record, and neither alignment branch is documented anywhere. Alignment is only empirically plausible, never confirmed. If the stored depth were not already aligned, nothing in this repository could align it because no extrinsics exist.",
+    "intrinsics_groups_differ": true,
+    "intrinsics_groups": {
+      "94fe5dd93558ac4d8c7eb7c1f7d7c5a9632fb8af1695bd8392fd2cab898e78c8": [
+        "capturepallet01",
+        "capturepallet10",
+        "capturepallet11"
+      ],
+      "5daae57c3197ab7c1e8a9e0988e77caf86a278056cd084e15e65aa6933d11a46": [
+        "capturenight01",
+        "capturenight02",
+        "capturenight03",
+        "capturenight04",
+        "capturenight10"
+      ]
+    }
+  },
+  "B_rgbd_pairing": {
+    "verdict": "PASS_ON_RATE_WITH_UNVERIFIABLE_SYNC",
+    "pairing_rate_overall": 1.0,
+    "per_recording_min": 1.0,
+    "threshold": 0.95,
+    "pairing_method": "EXACT_FILENAME_STEM",
+    "timestamp_delta": "UNMEASURABLE",
+    "caveat": "each frame has one shared nanosecond stem naming both files; there is no independent depth timestamp, so rgb-to-depth capture delta cannot be measured from what is stored"
+  },
+  "C_roi_support": {
+    "verdict": "PASS_ON_DECLARED_CRITERION",
+    "usable_support_rate_overall": 0.9984532095901005,
+    "usable_support_rate_day": 0.9985761746559089,
+    "usable_support_rate_night": 0.9979123173277662,
+    "thresholds": {
+      "overall": 0.7,
+      "day": 0.5,
+      "night": 0.5
+    },
+    "roi_valid_ratio_median_all": 0.973149325459461,
+    "important_qualification": "the declared criterion counts valid depth pixels. It does not ask whether those pixels describe the pallet. The structure measurement below shows they often describe the background.",
+    "roi_depth_structure": {
+      "DAY": {
+        "n": 1924,
+        "roi_depth_spread_p10_p90_cm": 461.03003978729214,
+        "background_minus_object_cm": 78.7000060081482,
+        "roi_median_range_m": 5.355000019073486
+      },
+      "NIGHT": {
+        "n": 479,
+        "roi_depth_spread_p10_p90_cm": 124.39999580383301,
+        "background_minus_object_cm": 51.50001049041748,
+        "roi_median_range_m": 3.623000144958496
+      },
+      "capturenight01": {
+        "n": 110,
+        "roi_depth_spread_p10_p90_cm": 127.30002403259277,
+        "background_minus_object_cm": 87.70002126693726,
+        "roi_median_range_m": 4.093000173568726
+      },
+      "capturenight02": {
+        "n": 79,
+        "roi_depth_spread_p10_p90_cm": 98.40002059936523,
+        "background_minus_object_cm": 128.8000226020813,
+        "roi_median_range_m": 1.7400001287460327
+      },
+      "capturenight03": {
+        "n": 108,
+        "roi_depth_spread_p10_p90_cm": 96.90000712871552,
+        "background_minus_object_cm": -26.750004291534424,
+        "roi_median_range_m": 3.5705002546310425
+      },
+      "capturenight04": {
+        "n": 80,
+        "roi_depth_spread_p10_p90_cm": 1019.7000503540039,
+        "background_minus_object_cm": 0.6000041961669922,
+        "roi_median_range_m": 4.278000354766846
+      },
+      "capturenight10": {
+        "n": 102,
+        "roi_depth_spread_p10_p90_cm": 150.89998245239258,
+        "background_minus_object_cm": 1.4500141143798828,
+        "roi_median_range_m": 5.333000421524048
+      },
+      "capturepallet01": {
+        "n": 38,
+        "roi_depth_spread_p10_p90_cm": 1378.8500785827637,
+        "background_minus_object_cm": -565.2000427246094,
+        "roi_median_range_m": 22.610000610351562
+      },
+      "capturepallet10": {
+        "n": 427,
+        "roi_depth_spread_p10_p90_cm": 448.20008277893066,
+        "background_minus_object_cm": 100.9000301361084,
+        "roi_median_range_m": 6.494000434875488
+      },
+      "capturepallet11": {
+        "n": 1459,
+        "roi_depth_spread_p10_p90_cm": 462.5,
+        "background_minus_object_cm": 75.39997100830078,
+        "roi_median_range_m": 4.696000099182129
+      }
+    },
+    "structure_reading": "a pallet is at most about 1.3 m deep, so an ROI whose depth spans 4.6 m (day) is dominated by background rather than the object. Three night recordings show essentially no depth step between the ROI and the ring around it."
+  },
+  "D_alignment": {
+    "verdict": "UNCLEAR",
+    "visual_systematic_misalignment_observed": false,
+    "automatic_proxy": {
+      "capturepallet01": {
+        "zero_shift_agreement": 0.5815700525432334,
+        "best_shift_is_zero_rate": 0.0,
+        "median_best_abs_shift_px": 14.0
+      },
+      "capturepallet10": {
+        "zero_shift_agreement": 0.4962476985835993,
+        "best_shift_is_zero_rate": 0.0,
+        "median_best_abs_shift_px": 9.0
+      },
+      "capturepallet11": {
+        "zero_shift_agreement": 0.5006356150731813,
+        "best_shift_is_zero_rate": 0.1,
+        "median_best_abs_shift_px": 6.0
+      },
+      "capturenight01": {
+        "zero_shift_agreement": 0.08391419547935128,
+        "best_shift_is_zero_rate": 0.0,
+        "median_best_abs_shift_px": 24.0
+      },
+      "capturenight02": {
+        "zero_shift_agreement": 0.168629480945214,
+        "best_shift_is_zero_rate": 0.0,
+        "median_best_abs_shift_px": 19.0
+      },
+      "capturenight03": {
+        "zero_shift_agreement": 0.13950977721979912,
+        "best_shift_is_zero_rate": 0.0,
+        "median_best_abs_shift_px": 16.0
+      },
+      "capturenight04": {
+        "zero_shift_agreement": 0.13741410595090317,
+        "best_shift_is_zero_rate": 0.1,
+        "median_best_abs_shift_px": 11.0
+      },
+      "capturenight10": {
+        "zero_shift_agreement": 0.11777862933000817,
+        "best_shift_is_zero_rate": 0.0,
+        "median_best_abs_shift_px": 17.0
+      }
+    },
+    "why_unclear": "the edge proxy almost never peaks at zero shift, which would suggest a 6-24 px offset, but the proxy is asymmetric and depth edges bleed at object boundaries, and at night the RGB Canny map is very sparse so the score is unreliable. The visual sheets show pallet decks, hedges and ground planes landing where the RGB shows them, with no repeated systematic displacement. Neither source is strong enough to decide, and the gate forbids deciding on the automatic number alone."
+  },
+  "GATE0": "PARTIAL",
+  "what_a_partial_means": "the sensor data is not disqualified, but the depth-assisted correction method cannot be started as specified. The scale and alignment are assumed rather than documented, and the pallet is frequently not separable from its surroundings in depth.",
+  "not_claimed": "nothing here says depth correction would improve accuracy",
+  "next_action": "USER_REVIEW_DEPTH_GATE"
+}

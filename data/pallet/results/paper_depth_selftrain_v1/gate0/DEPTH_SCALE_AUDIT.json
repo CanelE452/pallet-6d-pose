@@ -1,0 +1,195 @@
+{
+  "schema_version": "depth_scale_audit_v1",
+  "generated_utc": "2026-09-03T09:38:48.062823+00:00",
+  "gt_used": false,
+  "scale_was_assumed_from_sensor_folklore": false,
+  "evidence": {
+    "file": "challenge/scripts/live/run_live_io.py",
+    "symbol": "NpDepthFrame",
+    "docstring": "numpy uint16(mm) depth -> RealSense depth_frame \uc778\ud130\ud398\uc774\uc2a4 \ud749\ub0b4",
+    "conversion": "get_distance returns d[y, x] / 1000.0",
+    "loader": "load_seq reads the same rgb/ + depth/ + cam_K.txt layout as these recordings",
+    "corroboration": "scripts/evaluation/classify_daytime_visibility.py sets DEPTH_SCALE_MM = 0.001",
+    "what_it_is_not": "this is a consumer-side contract in this repository, not a depth_scale declared by the acquisition software; no metadata file in these recordings states a scale"
+  },
+  "no_acquisition_metadata_declares_scale": true,
+  "saturation_warning": "a value equal to the dtype maximum is reported separately. No consumer in this repository special-cases it, so it would convert to an implausible distance if treated as a measurement. This audit does not invent a clipping rule; it reports the fraction.",
+  "recordings": {
+    "capturepallet01": {
+      "lighting": "day",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.0032604980468749997,
+      "saturated_at_dtype_max_fraction_mean": 0.08582288953993056,
+      "raw_excluding_zero_and_saturated": {
+        "min": 1106.0,
+        "p10": 1369.0,
+        "median": 6564.0,
+        "p90": 24419.0,
+        "max": 61048.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 1.369,
+        "median": 6.564,
+        "p90": 24.419
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    },
+    "capturepallet10": {
+      "lighting": "day",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.01195407443576389,
+      "saturated_at_dtype_max_fraction_mean": 0.129261474609375,
+      "raw_excluding_zero_and_saturated": {
+        "min": 430.0,
+        "p10": 579.0,
+        "median": 3488.0,
+        "p90": 29071.0,
+        "max": 61048.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 0.579,
+        "median": 3.488,
+        "p90": 29.071
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    },
+    "capturepallet11": {
+      "lighting": "day",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.028467746310763892,
+      "saturated_at_dtype_max_fraction_mean": 0.12435750325520833,
+      "raw_excluding_zero_and_saturated": {
+        "min": 331.0,
+        "p10": 539.0,
+        "median": 3745.0,
+        "p90": 30524.0,
+        "max": 61048.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 0.539,
+        "median": 3.745,
+        "p90": 30.524
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    },
+    "capturenight01": {
+      "lighting": "night",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.047199571397569445,
+      "saturated_at_dtype_max_fraction_mean": 0.04175862630208333,
+      "raw_excluding_zero_and_saturated": {
+        "min": 258.0,
+        "p10": 1217.0,
+        "median": 5008.0,
+        "p90": 30799.0,
+        "max": 61598.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 1.217,
+        "median": 5.008,
+        "p90": 30.799
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    },
+    "capturenight02": {
+      "lighting": "night",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.03896687825520833,
+      "saturated_at_dtype_max_fraction_mean": 0.025993109809027776,
+      "raw_excluding_zero_and_saturated": {
+        "min": 518.0,
+        "p10": 1171.0,
+        "median": 3225.0,
+        "p90": 7421.0,
+        "max": 61598.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 1.171,
+        "median": 3.225,
+        "p90": 7.421
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    },
+    "capturenight03": {
+      "lighting": "night",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.006872965494791667,
+      "saturated_at_dtype_max_fraction_mean": 0.11161295572916667,
+      "raw_excluding_zero_and_saturated": {
+        "min": 589.0,
+        "p10": 1171.0,
+        "median": 8324.0,
+        "p90": 36234.0,
+        "max": 61598.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 1.171,
+        "median": 8.324,
+        "p90": 36.234
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    },
+    "capturenight04": {
+      "lighting": "night",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.008170844184027777,
+      "saturated_at_dtype_max_fraction_mean": 0.10550360785590278,
+      "raw_excluding_zero_and_saturated": {
+        "min": 793.0,
+        "p10": 1213.0,
+        "median": 7897.0,
+        "p90": 38499.0,
+        "max": 61598.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 1.213,
+        "median": 7.897,
+        "p90": 38.499
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    },
+    "capturenight10": {
+      "lighting": "night",
+      "raw_dtype": "uint16",
+      "raw_dtype_max": 65535,
+      "frames_sampled": 24,
+      "zero_fraction_mean": 0.03414713541666667,
+      "saturated_at_dtype_max_fraction_mean": 0.06365681966145834,
+      "raw_excluding_zero_and_saturated": {
+        "min": 509.0,
+        "p10": 1194.0,
+        "median": 3366.0,
+        "p90": 23692.0,
+        "max": 61598.0
+      },
+      "metres_if_scale_is_0_001": {
+        "p10": 1.194,
+        "median": 3.366,
+        "p90": 23.692
+      },
+      "depth_scale": 0.001,
+      "metric_conversion_confidence": "CONSUMER_CONTRACT_ONLY"
+    }
+  }
+}

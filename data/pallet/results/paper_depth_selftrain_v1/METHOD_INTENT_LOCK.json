@@ -1,0 +1,76 @@
+{
+  "schema_version": "depth_method_intent_lock_v1",
+  "date": "2026-09-03",
+  "status": "FROZEN_BEFORE_ANY_GATE0_RESULT_WAS_READ",
+
+  "method_direction": "depth-assisted geometric correction of RGB teacher pseudo-labels, followed by RGB-only student distillation",
+
+  "gate0_only": true,
+  "training_allowed": false,
+  "gt_used_for_gate0": false,
+
+  "teacher": "existing synthetic-only R0",
+  "deployment_input": "RGB only",
+  "depth_role": "offline adaptation privileged signal only",
+
+  "why_this_direction": "every self-training arm so far changed which frames were kept, never the teacher's predicted coordinates. The student therefore inherits the teacher's structured geometric error. Depth is a measurement independent of the teacher, so it is the first signal that could correct the coordinates themselves rather than reselect frames.",
+
+  "gate0_question": "is the depth in the existing unlabelled real recordings synchronised, scaled, calibrated and dense enough on the pallet to support metric geometric correction",
+
+  "gate0_thresholds_declared_before_results": {
+    "calibration": "every recording intended for the method must have a known depth metric scale AND either a confirmed aligned-to-color contract or depth intrinsics plus depth-to-color extrinsics",
+    "pairing_rate_min": 0.95,
+    "roi_usable_support_overall_min": 0.70,
+    "roi_usable_support_day_min": 0.50,
+    "roi_usable_support_night_min": 0.50,
+    "usable_support_definition": "valid depth pixels >= max(200, 5% of ROI pixel count); this only says there are enough depth samples to attempt a geometric fit, not that a fit would be accurate",
+    "alignment": "repeated systematic RGB-depth misalignment in the visual audit fails the gate even if an automatic edge score looks good"
+  },
+
+  "audit_recordings": {
+    "day": ["capturepallet01", "capturepallet10", "capturepallet11"],
+    "night": ["capturenight01", "capturenight02", "capturenight03",
+              "capturenight04", "capturenight10"],
+    "why_these": "these are the existing MAIN unlabelled adaptation source recordings; evaluation source recordings are deliberately excluded from this sensor audit"
+  },
+
+  "forbidden_in_gate0": [
+    "student training",
+    "new pseudo-label generation",
+    "pseudo-label coordinate correction",
+    "cuboid fitting",
+    "ICP or RANSAC parameter sweeps",
+    "6D pose computed from depth",
+    "new loss or architecture",
+    "threshold tuning",
+    "changing any threshold after seeing the result",
+    "reading evaluation ground truth",
+    "choosing depth settings by looking at ground truth"
+  ],
+
+  "reads_allowed_in_gate0": [
+    "RGB",
+    "depth",
+    "camera metadata",
+    "capture metadata",
+    "source provenance",
+    "existing frozen R0 prediction cache, for pallet ROI only"
+  ],
+
+  "existing_artifacts_are_read_only": [
+    "data/pallet/results/paper_selftrain_v1",
+    "data/pallet/results/paper_selftrain_v2",
+    "data/pallet/results/paper_selftrain_v3",
+    "data/pallet/results/paper_selftrain_v4",
+    "data/pallet/results/paper_selftrain_v5",
+    "data/pallet/results/paper_selftrain_site_v1",
+    "data/pallet/results/paper_pose_metric_closure_v1",
+    "data/pallet/results/site_environment_audit_v1",
+    "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+    "data/pallet/results/paper_selftrain_v1/SELFTRAIN_EXPOSURE_LOCK.json"
+  ],
+
+  "a_pass_does_not_mean": "that depth correction will improve accuracy. A pass means only that there is a technical basis to attempt the experiment; pseudo-label correction quality is a separate question for Gate 1.",
+
+  "next_action_after_gate0": "USER_REVIEW_DEPTH_GATE"
+}
