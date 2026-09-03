@@ -111,10 +111,26 @@
         "metric_p99_median_m": 61.598
       }
     },
-    "note": "the whole population was audited this time, not only the frames an existing cache happened to hold"
+    "note": "the whole population was audited this time, not only the frames an existing cache happened to hold",
+    "verdict_qualifier": "PASS_FOR_AVAILABILITY_NOT_METRIC_ACCURACY",
+    "pass_means": [
+      "all 8031 frames audited",
+      "a substantial amount of nonzero, non-saturated depth exists",
+      "the raw sensor data reads and yields statistics"
+    ],
+    "pass_does_not_mean": [
+      "that the depth is accurate enough",
+      "that the far tail is trustworthy",
+      "that it is calibrated to the RGB",
+      "that it can be used for pallet fitting as is"
+    ],
+    "qualifications_kept": {
+      "dtype_max_median": 0.09293294270833333,
+      "metric_p99_median_m": 61.048
+    }
   },
   "C_PALLET_LOCAL_DEPTH_SIGNAL": {
-    "verdict": "PROMISING_WITH_ONE_UNRESOLVED_QUESTION",
+    "verdict": "DESCRIPTIVE_ONLY",
     "face_interior_rate": 0.9915988109086209,
     "face_valid_points_median": 2277.5,
     "face_mad_cm_median": 17.50001311302185,
@@ -154,10 +170,23 @@
     },
     "the_finding": "the whole box spans 152 cm of depth while the face interior has a median absolute deviation of 17.5 cm and fits a plane to 22 mm. Gate 0's conclusion that no local structure exists does not survive measuring the local region.",
     "the_unresolved_question": "a low plane residual proves a planar surface, not that the plane is the pallet. The ring around the face is at nearly the same depth as the face (-2.5 cm overall), which is what a ground plane seen obliquely would also produce. capturepallet10 shows this plainly: a 91 cm face spread that still fits a plane to 13 mm, which is a slanted ground plane, not a pallet deck.",
-    "why_not_PROMISING_outright": "resolving it needs the pallet's known dimensions and a fitted box, and that is Gate 1 work, not a sensor question"
+    "why_not_PROMISING_outright": "resolving it needs the pallet's known dimensions and a fitted box, and that is Gate 1 work, not a sensor question",
+    "verdict_before_correction": "PROMISING_WITH_ONE_UNRESOLVED_QUESTION",
+    "why_corrected": "that string is not one of the categories this track's own lock allows. Inventing a category after seeing the numbers is exactly what the lock exists to prevent, so it is replaced by the allowed category the evidence actually supports.",
+    "what_is_established": [
+      "depth structure exists inside the projected faces",
+      "the local distribution is far tighter than the whole box",
+      "a planar structure is observed and fits numerically"
+    ],
+    "what_is_not_established": [
+      "whether that plane is the pallet surface or the ground",
+      "whether it agrees with the known cuboid geometry",
+      "whether it is useful for correcting pseudo-label coordinates"
+    ],
+    "scope": "performance-independent descriptive sensor evidence only"
   },
   "D_ALIGNMENT_EMPIRICAL": {
-    "verdict": "SUPPORTS_ALIGNMENT",
+    "verdict": "UNCLEAR",
     "metric": "symmetric chamfer distance, both directions",
     "day_relative_improvement_from_shifting": 0.04176331480985354,
     "modal_best_shift_share": {
@@ -173,14 +202,39 @@
     "reason": "a real rigid offset would show a consistent best shift and a large gain. The day recordings improve by about four percent when shifted, and across every recording the best shift agrees on a direction in only 8 to 42 percent of frames, with many landing on the search boundary \u2014 the signature of a metric escaping rather than locating an offset.",
     "what_this_does_not_establish": "sub-pixel calibration, or that the depth is aligned rather than merely not grossly misaligned",
     "night_caveat": "night chamfer baselines are two to three times higher because the colour edge map is sparse, so the night numbers are weak evidence in either direction",
-    "gate0_proxy_retained": true
+    "gate0_proxy_retained": true,
+    "verdict_before_correction": "SUPPORTS_ALIGNMENT",
+    "why_corrected": "the measurement rules out a consistent global rigid displacement; it does not establish calibrated RGB-depth alignment. The report text already said so and the label did not follow it.",
+    "precise_interpretation": "No consistent global rigid displacement was identified, but the available evidence does not establish calibrated RGB-depth alignment.",
+    "gross_systematic_offset_evidence": "none found",
+    "calibrated_alignment_proof": "none"
   },
   "FINAL": "NOT_READY_FOR_GATE1_PILOT",
-  "final_reason": "the local depth signal is real and much better than Gate 0 suggested, and alignment is not contradicted. What blocks a pilot is provenance: with every recording at C_COMPATIBLE_ONLY, a metric correction would rest on an alignment nobody recorded and, for the night half, on an intrinsic whose stream is unknown. The lock requires A_EXPLICIT or B_STRONG for CONTRACT_CONFIRMED and that is not met.",
+  "final_reason": "the local depth signal is real and much better than Gate 0 suggested, and alignment is not contradicted. What blocks a pilot is provenance: with every recording at C_COMPATIBLE_ONLY, a metric correction would rest on an alignment nobody recorded and, for the night half, on an intrinsic whose stream is unknown. The lock requires A_EXPLICIT or B_STRONG for CONTRACT_CONFIRMED and that is not met. With C corrected to DESCRIPTIVE_ONLY and D to UNCLEAR, the NOT_READY verdict rests on three legs rather than one: provenance is unresolved, the local signal is descriptive rather than demonstrated to be the pallet, and alignment is unproven.",
   "what_would_change_it": [
     "an acquisition record, capture script or device log tying these eight sequences to a writer that states alignment and stream",
     "or a physical check that establishes alignment and the night K empirically, for example a target of known geometry captured with the same rig"
   ],
   "not_claimed": "nothing here says depth correction would improve accuracy",
-  "next_action": "USER_REVIEW_GATE0B"
+  "next_action": "USER_REVIEW_GATE0B",
+  "verdict_correction": {
+    "date": "2026-09-03",
+    "NUMERIC_RESULTS_CHANGED": false,
+    "new_inference": 0,
+    "new_measurement": 0,
+    "reason": "align the verdict strings with the categories frozen in GATE0B_METHOD_LOCK.json",
+    "before": {
+      "A_ACQUISITION_PROVENANCE": "UNRESOLVED",
+      "B_FULL_POPULATION_SENSOR_VALIDITY": "PASS",
+      "C_PALLET_LOCAL_DEPTH_SIGNAL": "PROMISING_WITH_ONE_UNRESOLVED_QUESTION",
+      "D_ALIGNMENT_EMPIRICAL": "SUPPORTS_ALIGNMENT"
+    },
+    "after": {
+      "A_ACQUISITION_PROVENANCE": "UNRESOLVED",
+      "B_FULL_POPULATION_SENSOR_VALIDITY": "PASS",
+      "C_PALLET_LOCAL_DEPTH_SIGNAL": "DESCRIPTIVE_ONLY",
+      "D_ALIGNMENT_EMPIRICAL": "UNCLEAR"
+    },
+    "FINAL_unchanged": "NOT_READY_FOR_GATE1_PILOT"
+  }
 }

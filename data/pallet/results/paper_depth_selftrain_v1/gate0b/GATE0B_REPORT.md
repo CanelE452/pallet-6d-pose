@@ -99,7 +99,9 @@ about four percent from shifting, and the best shift agrees on a direction in on
 to 42 percent of frames with many pinned to the search boundary — a metric escaping,
 not an offset being found. The depth was never moved; this is verification only.
 
-This rules out gross misalignment. It does not establish sub-pixel calibration.
+No consistent global rigid displacement was identified, but this evidence does
+not establish calibrated RGB-depth alignment. Those are two different claims and
+the verdict is UNCLEAR, not support.
 
 ## Verdict
 
@@ -122,3 +124,33 @@ Nothing here says depth correction would improve accuracy.
 
 `NEXT_ACTION = USER_REVIEW_GATE0B`
 
+
+## Verdict correction
+
+The verdicts above were rewritten to the categories this track's own lock allows.
+No number changed, nothing was re-measured and no model ran.
+
+```text
+C  PROMISING_WITH_ONE_UNRESOLVED_QUESTION  ->  DESCRIPTIVE_ONLY
+D  SUPPORTS_ALIGNMENT                      ->  UNCLEAR
+B  PASS, qualified as PASS_FOR_AVAILABILITY_NOT_METRIC_ACCURACY
+FINAL  unchanged
+NUMERIC_RESULTS_CHANGED = false
+```
+
+`PROMISING_WITH_ONE_UNRESOLVED_QUESTION` was not one of the four categories the lock
+permits. Inventing a category after seeing the numbers is precisely what the lock
+exists to prevent, and the honest allowed category is `DESCRIPTIVE_ONLY`: depth
+structure inside the faces is established, and whether that structure is the pallet
+rather than the ground is not.
+
+The alignment label was stronger than the paragraph beneath it. Ruling out a
+consistent rigid offset is not the same as establishing calibrated alignment.
+
+`PASS` on sensor validity means the whole population was audited, the data reads and
+a substantial amount of nonzero non-saturated depth exists. It does not mean the
+depth is accurate, that the far tail is trustworthy, that it is calibrated to the
+RGB, or that it is ready for pallet fitting. The dtype-maximum fraction and the
+sixty-one metre p99 stand as qualifications.
+
+With C and D corrected the NOT_READY verdict rests on three legs rather than one.
