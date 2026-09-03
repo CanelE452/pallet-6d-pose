@@ -1,0 +1,91 @@
+{
+  "schema_version": "fast6d_v1b_arm_v1",
+  "generated_utc": "2026-09-03T16:55:33.736972+00:00",
+  "population_total": 319,
+  "frames_evaluated": 319,
+  "C1_UNRESOLVED_OBSERVABLE_BOX": {
+    "n": 0,
+    "frame_ids": [],
+    "rule": "fewer than four in-image projected corners, or no YOLO box; these frames are NOT counted as a C1 success"
+  },
+  "observable_box_semantics": {
+    "inside_test": "finite AND 0 <= u < width AND 0 <= v < height",
+    "recomputed_at_every_residual_evaluation": true,
+    "rationale": "the target box was labelled from whichever corners were in-image, so the predicted box must be built the same way at whatever translation is being tested",
+    "frames_whose_inside_set_changed_during_refinement": 4
+  },
+  "MAIN_paired_on_resolved": {
+    "n": 319,
+    "C0": {
+      "n": 319,
+      "pose_coverage": 1.0,
+      "accepted_rate": 1.0,
+      "rotation_median_deg": 2.262457894970192,
+      "yaw_median_deg": 1.2306163979939697,
+      "translation_median_cm": 7.896851501830845,
+      "iou3d_median": 0.6031800861143982,
+      "add_sym_auc": 0.42847335423197497,
+      "predicted_reproj_median_px": 3.549222786233024
+    },
+    "C1": {
+      "n": 319,
+      "pose_coverage": 1.0,
+      "accepted_rate": 1.0,
+      "rotation_median_deg": 2.262457894970192,
+      "yaw_median_deg": 1.2306163979939697,
+      "translation_median_cm": 9.82029786311447,
+      "iou3d_median": 0.537164349236824,
+      "add_sym_auc": 0.37927742946708465,
+      "predicted_reproj_median_px": 4.249093405819137
+    }
+  },
+  "secondary_full_population": {
+    "C0": {
+      "n": 319,
+      "pose_coverage": 1.0,
+      "accepted_rate": 1.0,
+      "rotation_median_deg": 2.262457894970192,
+      "yaw_median_deg": 1.2306163979939697,
+      "translation_median_cm": 7.896851501830845,
+      "iou3d_median": 0.6031800861143982,
+      "add_sym_auc": 0.42847335423197497,
+      "predicted_reproj_median_px": 3.549222786233024
+    },
+    "C1_unresolved_frames_keep_t0_and_are_flagged": {
+      "n": 319,
+      "pose_coverage": 1.0,
+      "accepted_rate": 1.0,
+      "rotation_median_deg": 2.262457894970192,
+      "yaw_median_deg": 1.2306163979939697,
+      "translation_median_cm": 9.82029786311447,
+      "iou3d_median": 0.537164349236824,
+      "add_sym_auc": 0.37927742946708465,
+      "predicted_reproj_median_px": 4.249093405819137
+    }
+  },
+  "optimizer_rules": {
+    "inherited_from": "FAST_6D_SCREEN_LOCK.json optimizer_rules_S1_S2, with the prose huber scale written numerically to prevent the V1 parsing defect",
+    "initial_t": "S0 t",
+    "max_iterations": 10,
+    "max_nfev": 40,
+    "loss": "huber",
+    "huber_f_scale": 1.0,
+    "huber_scale_applies_after": "image-diagonal normalisation",
+    "xtol": 1e-15,
+    "ftol": 1e-15,
+    "gtol": 1e-15,
+    "tolerance_rationale": "scipy defaults of 1e-8 terminate immediately against residuals of order 1e-4; these are solver plumbing, not method parameters",
+    "step_accepted_only_when_objective_decreases": true,
+    "positive_depth_required": true,
+    "nan_or_inf": "fall back to t0 and record the frame",
+    "parameter_sweep": 0
+  },
+  "exceptions": {
+    "count": 0,
+    "by_type": {},
+    "records": []
+  },
+  "new_training": 0,
+  "depth": 0,
+  "parameter_sweep": 0
+}
