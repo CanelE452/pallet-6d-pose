@@ -33,24 +33,31 @@ from prepare_yolo_pose import PAD, one  # noqa: E402  변환 규약을 공유한
 GT_ROOT = REPO / "challenge/data/01_real/live_capture_gt"
 CAPTURE_ROOT = REPO / "challenge/data/01_real/_live_captures"
 
-# GT 폴더 이름 → (이미지 rgb 폴더, 촬영 그룹).  촬영 그룹이 split 단위다.
-SESSION_MAP = {
-    "capture_20260902_manual_gt": (
-        "handheld_20260902/sessions/capture_20260902", "handheld_20260902"),
-    "capture_20260902_kimjihoon_manual_gt": (
-        "handheld_20260902/sessions/capture_20260902_kimjihoon", "handheld_20260902"),
-    "forklift_v4_173507_manual_gt": (
-        "forklift_v4_20260901/sessions/forklift_v4_173507", "forklift_v4_20260901"),
-    "forklift_v4_174126_manual_gt": (
-        "forklift_v4_20260901/sessions/forklift_v4_174126", "forklift_v4_20260901"),
-    "forklift_v4_174342_manual_gt": (
-        "forklift_v4_20260901/sessions/forklift_v4_174342", "forklift_v4_20260901"),
-    "forklift_v4_174925_manual_gt": (
-        "forklift_v4_20260901/sessions/forklift_v4_174925", "forklift_v4_20260901"),
-}
+def discover_sessions() -> dict[str, tuple[str, str]]:
+    """GT 폴더 이름에서 (이미지 rgb 폴더, 촬영 그룹) 을 찾는다.
+
+    예전에는 여기에 6 개를 손으로 적어 뒀는데, 세션이 28 개로 늘어난 뒤에도 그대로라
+    새 촬영분이 **조용히 학습에서 빠졌다**.  그래서 이름 규약으로 찾는다 —
+    ``<세션>_manual_gt`` 는 ``_live_captures/<그룹>/sessions/<세션>/rgb`` 에 대응한다.
+    """
+    found = {}
+    for gt_dir in sorted(GT_ROOT.glob("*_manual_gt")):
+        name = gt_dir.name[: -len("_manual_gt")]
+        hits = list(CAPTURE_ROOT.glob(f"*/sessions/{name}/rgb"))
+        if len(hits) != 1:
+            print(f"  ⚠️ {name}: rgb 후보 {len(hits)}개 — 건너뜀")
+            continue
+        rgb = hits[0]
+        found[gt_dir.name] = (
+            str(rgb.parent.relative_to(CAPTURE_ROOT)),   # <그룹>/sessions/<세션>
+            rgb.parents[2].name)                          # <그룹>
+    return found
 
 
-def collect_jobs(out_root: Path, val_groups: set[str], *,
+SESSION_MAP = None   # main() 에서 discover_sessions() 로 채운다
+
+
+def collect_jobs(out_root: Path, val_groups: set[str], session_map: dict, *,
                  mode: str = "group", every: int = 6):
     """(split, job) 목록과 그룹별 개수를 만든다.
 
@@ -65,7 +72,7 @@ def collect_jobs(out_root: Path, val_groups: set[str], *,
     jobs = {"train": [], "val": []}
     counts: dict[str, int] = {}
     missing_image = 0
-    for gt_name, (rgb_rel, group) in SESSION_MAP.items():
+    for gt_name, (rgb_rel, group) in session_map.items():
         gt_dir = GT_ROOT / gt_name
         if not gt_dir.is_dir():
             continue
@@ -90,23 +97,24 @@ def collect_jobs(out_root: Path, val_groups: set[str], *,
     return jobs, counts, missing_image
 
 
-def add_crop_jobs(out_root: Path, crop_dir: Path, val_stems: set[str]):
-    """truncation crop 을 train 에만 더한다.
+def add_derived_jobs(out_root: Path, src_dir: Path, val_stems: set[str],
+                     *, sep: str, prefix: str):
+    """원본에서 파생된 증강본을 train 에만 더한다.
 
-    **val 프레임에서 파생된 crop 은 반드시 뺀다.**  crop 은 원본을 잘라 만든 것이라,
-    val 원본의 crop 이 train 에 들어가면 val 이 train 을 외운 값을 재게 된다.
-    crop 파일명은 ``<세션>_<프레임>_t<k>`` 이므로 ``_t<k>`` 를 떼면 원본을 찾는다.
+    **val 프레임에서 나온 것은 반드시 뺀다.**  파생본은 원본을 변형한 것이라,
+    val 원본의 파생본이 train 에 들어가면 val 이 train 을 외운 값을 재게 된다.
+    파일명 끝의 ``sep`` 뒤를 떼면 원본 stem 이 된다 (crop ``_t<k>`` / flip ``_f``
+    / noise ``_n``).
     """
     jobs, dropped = [], 0
-    for ann in sorted(crop_dir.glob("*.json")):
+    for ann in sorted(src_dir.glob("*.json")):
         image = ann.with_suffix(".png")
         if not image.is_file():
             continue
-        origin = ann.stem.rsplit("_t", 1)[0]
-        if origin in val_stems:
+        if ann.stem.rsplit(sep, 1)[0] in val_stems:
             dropped += 1
             continue
-        stem = f"crop__{ann.stem}"
+        stem = f"{prefix}{ann.stem}"
         jobs.append((
             stem,
             os.path.relpath(image, REPO),
@@ -130,6 +138,8 @@ def main(argv=None) -> int:
                     help="interleave 모드에서 몇 장마다 하나를 val 로 뺄지")
     ap.add_argument("--crop-dir", default=None,
                     help="truncation crop 폴더. train 에만 더하고 val 파생분은 뺀다")
+    ap.add_argument("--aug-dir", default=None,
+                    help="flip/noise 증강 폴더(_f/_n). train 에만 더한다")
     args = ap.parse_args(argv)
 
     out_root = REPO / "challenge/yolo_pose_one_model" / args.out
@@ -137,8 +147,11 @@ def main(argv=None) -> int:
         (out_root / "images" / split).mkdir(parents=True, exist_ok=True)
         (out_root / "labels" / split).mkdir(parents=True, exist_ok=True)
 
+    session_map = discover_sessions()
+    print(f"세션 자동 탐색: {len(session_map)}개")
     jobs, counts, missing = collect_jobs(
-        out_root, {args.val_group}, mode=args.split_mode, every=args.val_every)
+        out_root, {args.val_group}, session_map,
+        mode=args.split_mode, every=args.val_every)
     print(f"split 모드: {args.split_mode}"
           + (f" (매 {args.val_every}장마다 val)" if args.split_mode == "interleave"
              else f" (val group={args.val_group})"))
@@ -146,18 +159,24 @@ def main(argv=None) -> int:
     if missing:
         print(f"  ⚠️ 대응 이미지 없음 {missing}개 (건너뜀)")
 
-    crop_dropped = 0
-    if args.crop_dir:
-        # val 원본의 stem 집합.  job[0] 은 "<gt_name>__<frame>" 이고 crop 은
-        # "<gt_name 에서 _manual_gt 뺀 것>_<frame>" 이라 형태를 맞춰 준다.
-        val_stems = set()
-        for job in jobs["val"]:
-            gt_name, frame = job[0].split("__", 1)
-            val_stems.add(f"{gt_name.replace('_manual_gt', '')}_{frame}")
-        crop_jobs, crop_dropped = add_crop_jobs(
-            out_root, Path(args.crop_dir), val_stems)
-        jobs["train"].extend(crop_jobs)
-        print(f"crop 추가: {len(crop_jobs)}개 (val 파생 {crop_dropped}개 제외)")
+    # val 원본의 stem 집합.  job[0] 은 "<gt_name>__<frame>" 이고 파생본은
+    # "<gt_name 에서 _manual_gt 뺀 것>_<frame>" 이라 형태를 맞춰 준다.
+    val_stems = set()
+    for job in jobs["val"]:
+        gt_name, frame = job[0].split("__", 1)
+        val_stems.add(f"{gt_name.replace('_manual_gt', '')}_{frame}")
+
+    derived = {}
+    for label, path, sep, prefix in (
+            ("crop", args.crop_dir, "_t", "crop__"),
+            ("aug", args.aug_dir, "_", "aug__")):
+        if not path:
+            continue
+        add, dropped = add_derived_jobs(
+            out_root, Path(path), val_stems, sep=sep, prefix=prefix)
+        jobs["train"].extend(add)
+        derived[label] = {"added": len(add), "dropped_from_val": dropped}
+        print(f"{label} 추가: {len(add)}개 (val 파생 {dropped}개 제외)")
 
     results = {}
     for split in ("train", "val"):
@@ -187,7 +206,7 @@ def main(argv=None) -> int:
         "split_mode": args.split_mode, "val_every": args.val_every,
         "val_group": args.val_group, "group_counts": counts,
         "results": results, "missing_image": missing,
-        "crop_dir": args.crop_dir, "crop_dropped_from_val": crop_dropped,
+        "crop_dir": args.crop_dir, "aug_dir": args.aug_dir, "derived": derived,
         "source": "challenge/data/01_real/live_capture_gt (manual, 4-fold normalised)",
     }, ensure_ascii=False, indent=2), encoding="utf-8")
 
