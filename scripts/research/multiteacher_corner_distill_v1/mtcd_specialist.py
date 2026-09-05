@@ -92,24 +92,8 @@ def mixture_target(points: np.ndarray, size: int = CROP, sigma: float = 3.0):
     return acc
 
 
-def extract_crop(image: np.ndarray, centre, size: int = CROP) -> tuple[np.ndarray, np.ndarray]:
-    """중심 주변 정사각 crop. 경계는 reflect 로 채운다 — 학습·추론 recipe 와 같은 규약."""
-    half = size // 2
-    cx, cy = int(round(centre[0])), int(round(centre[1]))
-    x0, y0 = cx - half, cy - half
-    h, w = image.shape[:2]
-    px0, py0 = max(0, -x0), max(0, -y0)
-    px1, py1 = max(0, x0 + size - w), max(0, y0 + size - h)
-    sx0, sy0 = max(0, x0), max(0, y0)
-    sx1, sy1 = min(w, x0 + size), min(h, y0 + size)
-    patch = image[sy0:sy1, sx0:sx1]
-    if px0 or py0 or px1 or py1:
-        import cv2
-        patch = cv2.copyMakeBorder(patch, py0, py1, px0, px1, cv2.BORDER_REFLECT_101)
-    if patch.shape[0] != size or patch.shape[1] != size:
-        import cv2
-        patch = cv2.resize(patch, (size, size))
-    return patch, np.array([x0, y0], dtype=np.float64)
+# crop 추출은 torch 없는 mtcd_common 에 산다 — 여기서는 재수출만 한다.
+from mtcd_common import extract_crop  # noqa: E402,F401
 
 
 def soft_argmax(heat_logits: torch.Tensor, size: int = CROP) -> torch.Tensor:

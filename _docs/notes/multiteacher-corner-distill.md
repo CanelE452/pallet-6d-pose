@@ -36,4 +36,56 @@ Gate C 실패 → adapter 로 구조하지 않는다. 융합 target 품질이 R0
 
 ## 2. 결과
 
-(진행 중 — 게이트별로 이어 쓴다)
+`FINAL_CASE = CASE_B ORACLE_COMPLEMENTARITY_ONLY` · 승격 없음 · DEVELOPMENT_METHOD_SIGNAL.
+전체 산출물은 `data/pallet/results/multiteacher_corner_distill_v1/final/`.
+
+### 한 문장
+
+정답은 여러 교사 안에 실제로 있는데, GT 없이 그것을 고를 신호가 어디에도 없었다.
+
+### 게이트별
+
+```
+게이트                              판정                                    근거
+──────────────────────────────────────────────────────────────────────────────────────────
+A 여러 교사 상보성                  STRONG                                  R0 gross 코너의 30.3% 를
+                                                                            다른 교사가 10px 로 맞힘
+A 파라미터 없는 융합                실패                                    좌표 median p90 72.7 ·
+                                                                            medoid 69.9 (R0 43.9)
+A 불일치의 오류 예측                AUC 0.79                                R0 자신의 confidence 0.658
+B 국소 코너 증거                    STRONG (그러나 밀도의 산물)             균등난수 대비 lift 5px +0.015
+B 고전 CV 선택기                    ORACLE_ONLY_HEADROOM                    gross 구제율 0.000
+C 국소 전문가                       STOP                                    median -11.1% 이나 p90 -0.7%
+D 융합 target 품질                  FAIL                                    usable 에서 R0 를 못 이김
+D2 학생 증류                        NOT_RUN                                 게이트가 차단
+E 도메인 편향                       DOMAIN_SEPARABLE_BUT_NOT_ERROR_LINKED   AUROC 1.0000 / 오차 AUC 0.482
+E adapter                           NOT_RUN                                 두 번째 조건 불통과
+```
+
+### 기전 — 네 게이트가 같은 벽을 가리킨다
+
+교사 불일치는 "어디가 틀렸는지" 를 잘 안다(AUC 0.79). 그런데 "무엇이 맞는지" 는 모른다.
+그래서 불일치로 거른 usable 부분집합은 **R0 가 이미 맞히는 자리**가 되고
+(R0 median 6.97 → 5.80, p90 60.31 → 20.14), 거기서 융합은 R0 를 이기지 못한다.
+국소 RGB 도 대안을 못 준다 — 학습된 전문가조차 R0 의 gross 코너 498개 중 1개만 구제했다.
+도메인 축은 오차와 무관하다. pseudo-label 은 좌표를 요구하는데 이 트랙이 만든 것은 신뢰도뿐이다.
+
+### 그래도 남는 사실 두 개
+
+- 국소 전문가는 중앙값을 실제로 개선한다 — 6.36 → 5.66 px (11.1%), harm 1.45%,
+  ADDsym AUC 0.4285 → 0.4373. 꼬리를 못 건드려 게이트는 못 넘었다.
+- 교사 불일치는 값싸고 강한 오류 탐지기다. 라벨 생성이 아니라 거부(rejection) 축에 쓸 수 있다.
+- 미라벨 풀의 불일치 중앙값이 DEV_EVAL 의 7배다. self-training 병목이 방법이 아니라
+  **adaptation pool 의 구성**일 수 있다. (둘 다 이 트랙의 잠긴 범위 밖이라 실행하지 않았다.)
+
+### 다시 하지 말아야 할 것
+
+좌표 median·medoid 융합 / 반경 12~64px 고전 CV 코너 선택기 / source 에서 보정한 합의 임계를
+미라벨 풀에 적용 / Pose26 sigma 기반 교사 가중 / 합성-실제 도메인 정렬.
+
+### 실행 이력
+
+첫 Gate C 실행이 77분 만에 산출물 0 으로 정지했다. 원인 두 겹 — step 마다 PNG 를 콜드로
+디코딩(3.1초/step)한 것과, torch 를 import 한 부모를 fork 한 프로세스 풀에서 OpenMP 런타임이
+100% CPU 로 스핀한 것. crop 사전추출 + spawn + 스레드 1 로 고쳐 0.02초/step 이 됐고
+양 arm 모두 5,000 update 를 완주했다. 계약(구조·예산·jitter·arm·임계)은 바꾸지 않았다.

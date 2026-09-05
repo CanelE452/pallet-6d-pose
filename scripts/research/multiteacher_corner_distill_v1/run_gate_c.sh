@@ -3,27 +3,40 @@
 #   STEP 1  C0 학습        STEP 2  C1 학습
 #   STEP 3  2D 평가        STEP 4  6D 평가
 #   STEP 5  판정(임계 하드코딩)
+#
 # 완료 판정은 산출물 존재로만 한다. exit code 나 프로세스 존재로 하지 않는다.
+# 학습 출력은 PYTHONUNBUFFERED 로 실시간 기록한다 — 앞선 실행에서 conda run 버퍼링
+# 때문에 로그가 77 분간 0 바이트였고 정지를 늦게 알아챘다.
 set -u
 cd /home/minjae/Documents/github/pallet-pose
 R=data/pallet/results/multiteacher_corner_distill_v1
 G=$R/gate_c_local_specialist
 L=$R/logs
 mkdir -p "$L"
-PY="conda run -n pallet-yolo26 python"
+PY="/home/minjae/anaconda3/envs/pallet-yolo26/bin/python"
 S=scripts/research/multiteacher_corner_distill_v1
+export PYTHONUNBUFFERED=1
 
 fail () { echo "[GATE_C][FAIL] $1" | tee -a "$L/gate_c_driver.log"; exit 1; }
 say  () { echo "[GATE_C] $(date +%H:%M:%S) $1" | tee -a "$L/gate_c_driver.log"; }
 
-say "nvidia-smi before"; nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv,noheader | tee -a "$L/gate_c_driver.log"
+say "nvidia-smi before"
+nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv,noheader | tee -a "$L/gate_c_driver.log"
+
+[ -f "$R/audit/CROP_BANK_train.npz" ] || fail "CROP_BANK_train.npz 없음 — build_crop_bank.py 를 먼저 돌려라"
 
 for ARM in C0 C1; do
   say "STEP train $ARM"
+  rm -f "$G/HEARTBEAT_$ARM.json"
   $PY $S/gate_c_train_specialist.py --arm "$ARM" --updates 5000 --cap-minutes 60 \
       > "$L/train_$ARM.log" 2>&1
   [ -f "$G/TRAIN_$ARM.json" ] || fail "TRAIN_$ARM.json 없음 — 학습이 산출물을 남기지 못했다"
-  say "  $ARM done: $(python3 -c "import json;d=json.load(open('$G/TRAIN_$ARM.json'));print('updates',d['updates_done'],'real_kp',d['n_real_usable_keypoints'])")"
+  say "  $ARM: $(python3 -c "
+import json
+d=json.load(open('$G/TRAIN_$ARM.json'))
+print('updates', d['updates_done'], '/', d['requested_updates'],
+      '| real_kp', d['n_real_usable_keypoints'],
+      '| stalled', d['stalled'])")"
 done
 
 say "STEP 2D evaluation"
@@ -33,8 +46,7 @@ tail -8 "$L/gate_c_eval.log" | tee -a "$L/gate_c_driver.log"
 
 say "STEP 6D evaluation"
 for ARM in C0 C1; do
-  $PY $S/eval_pose_arm.py --arm "$ARM" \
-      --out-dir "$(pwd)/$G" >> "$L/gate_c_eval.log" 2>&1
+  $PY $S/eval_pose_arm.py --arm "$ARM" --out-dir "$(pwd)/$G" >> "$L/gate_c_eval.log" 2>&1
   [ -f "$G/POSE_EVALUATION_$ARM.json" ] || fail "POSE_EVALUATION_$ARM.json 없음"
 done
 
@@ -42,5 +54,25 @@ say "STEP verdict"
 $PY $S/gate_c_verdict.py 2>&1 | tee -a "$L/gate_c_driver.log"
 [ -f "$G/GATE_C_VERDICT.json" ] || fail "GATE_C_VERDICT.json 없음"
 
-say "nvidia-smi after"; nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv,noheader | tee -a "$L/gate_c_driver.log"
-say "COMPLETE"
+say "STEP gate E domain probe"
+$PY $S/gate_e_domain_probe.py > "$L/gate_e.log" 2>&1
+if [ -f "$R/gate_e_domain_adapter/GATE_E_RESULT.json" ]; then
+  tail -4 "$L/gate_e.log" | tee -a "$L/gate_c_driver.log"
+else
+  say "  gate E 실패 — 로그: $L/gate_e.log"; tail -5 "$L/gate_e.log" | tee -a "$L/gate_c_driver.log"
+fi
+
+say "STEP final report"
+$PY $S/build_final_report.py > "$L/final_report.log" 2>&1
+[ -f "$R/final/MULTITEACHER_FINAL_RESULT.json" ] || fail "MULTITEACHER_FINAL_RESULT.json 없음"
+
+say "nvidia-smi after"
+nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv,noheader | tee -a "$L/gate_c_driver.log"
+say "COMPLETE — $(python3 -c "
+import json
+d=json.load(open('$R/final/MULTITEACHER_FINAL_RESULT.json'))
+v=d['verdicts']
+print('SPECIALIST', v['REAL_LOCAL_SPECIALIST'],
+      '| TARGET', v['DISTILL_TARGET_QUALITY'],
+      '| DOMAIN', v['TARGET_BIAS_SIGNAL'],
+      '| CASE', v['FINAL_CASE'])")"

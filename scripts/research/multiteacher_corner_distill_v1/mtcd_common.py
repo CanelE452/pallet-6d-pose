@@ -258,3 +258,42 @@ def arm_2d_report(frames_pred: dict, gts: list[dict]) -> dict:
                     for name in ("supervised", "visible", "corners", "centroid")}
         out[key]["by_index"] = {str(i): error_stats(b["by_index"][i]) for i in range(9)}
     return out
+
+
+# ------------------------------------------------------------------- crop ---
+# torch 를 import 하지 않는 곳에 둔다.  crop 추출 워커가 torch 를 안 불러야
+# fork/spawn 에서 OpenMP 런타임 문제가 생기지 않는다.
+CROP_PX = 64
+
+
+def extract_crop(image, centre, size: int = CROP_PX):
+    """중심 주변 정사각 crop. 경계는 reflect 로 채운다.
+
+    창이 이미지 밖으로 완전히 벗어나면 numpy 음수 슬라이스로 엉뚱한 영역을 잡으므로
+    시작점을 먼저 클램프한다.
+    """
+    import cv2
+
+    half = size // 2
+    h, w = image.shape[:2]
+    cx, cy = int(round(float(centre[0]))), int(round(float(centre[1])))
+    x0, y0 = cx - half, cy - half
+    sx0, sy0 = min(max(0, x0), w), min(max(0, y0), h)
+    sx1, sy1 = min(max(0, x0 + size), w), min(max(0, y0 + size), h)
+    patch = image[sy0:sy1, sx0:sx1]
+    px0, py0 = sx0 - x0, sy0 - y0
+    px1, py1 = (x0 + size) - sx1, (y0 + size) - sy1
+    if patch.size == 0:
+        patch = np.zeros((1, 1, image.shape[2] if image.ndim == 3 else 1),
+                         dtype=image.dtype)
+        px0 = py0 = 0
+        px1, py1 = size - 1, size - 1
+    if px0 or py0 or px1 or py1:
+        # REFLECT_101 은 border 가 원본보다 크면 못 쓴다 — 그때는 REPLICATE 로 떨어진다.
+        mode = (cv2.BORDER_REFLECT_101
+                if max(px0, px1) < patch.shape[1] and max(py0, py1) < patch.shape[0]
+                else cv2.BORDER_REPLICATE)
+        patch = cv2.copyMakeBorder(patch, py0, py1, px0, px1, mode)
+    if patch.shape[0] != size or patch.shape[1] != size:
+        patch = cv2.resize(patch, (size, size))
+    return patch, np.array([x0, y0], dtype=np.float64)
