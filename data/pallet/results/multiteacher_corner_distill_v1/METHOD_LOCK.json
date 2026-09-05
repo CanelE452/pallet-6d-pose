@@ -1,0 +1,418 @@
+{
+  "schema_version": "mtcd_method_lock_v1",
+  "track": "MULTI_TEACHER_CORNER_DISTILL_V1",
+  "status": "FROZEN_BEFORE_ANY_DEV_EVAL_MEASUREMENT",
+  "date": "2026-09-05",
+  "start_head": "985201c2297e8408fce72d72e3d4ca8e790bbdb8",
+  "purpose_note": "_docs/notes/multiteacher-corner-distill.md",
+  "what_this_lock_is_for": "게이트 임계·모집단·지표·구조·예산을 결과를 보기 전에 못박는다. 이 파일이 push 된 뒤에만 DEV_EVAL 측정을 시작한다.",
+  "read_only_paths": [
+    "_docs/paper/final/",
+    "data/pallet/results/paper_selftrain_v1",
+    "data/pallet/results/paper_selftrain_v2",
+    "data/pallet/results/paper_selftrain_v3",
+    "data/pallet/results/paper_selftrain_v4",
+    "data/pallet/results/paper_selftrain_v5",
+    "data/pallet/results/paper_pose_metric_closure_v1",
+    "data/pallet/results/paper_fast6d_screen_v1",
+    "data/pallet/results/paper_fast6d_screen_v1b",
+    "data/pallet/results/paper_temporal_selftrain_v1",
+    "data/pallet/results/paper_depth_selftrain_v1",
+    "weights/ (이 트랙의 새 폴더를 제외한 모든 기존 checkpoint)"
+  ],
+  "teacher_admission": {
+    "registry": "TEACHER_REGISTRY.json",
+    "registry_sha256": "caaec84cc85156ca68d609e0d87106906887549dd292cd9e1952aa27897bc2eb",
+    "n_teachers": 7,
+    "heterogeneous_axes": [
+      "ARCHITECTURE",
+      "REPRESENTATION",
+      "TRAINING_SOURCE_COVERAGE"
+    ],
+    "SEED_ENSEMBLE_ONLY": false,
+    "rule": "real keypoint/pose 감독 0 · pseudo-label 감독 0 · camera-facing 0123 v4 · 학습 완주 · PAPER_EVAL 미사용. 축마다 하나씩만 admit — teacher 수를 늘리면 oracle 상한이 단조 증가하기 때문이다.",
+    "wiring_parity_gate": {
+      "artifact": "audit/TEACHER_WIRING_PARITY.json",
+      "sha256": "b08cb7f43ebf30a29b471405400aa1b504c63578b54e211fc2829988be2a05e6",
+      "rule": "SOURCE_DEV 에서 identity 배정이 flip_lr / near_far_swap / top_bottom / c4_rot90 모두보다 낮은 median 오차여야 하고 identity median < 15 px 여야 한다",
+      "result": "7/7 PASS, identity margin 12.96 ~ 18.77 px",
+      "note": "이 검사는 배선 검증이며 연구 질문의 측정이 아니다. 그래서 DEV_EVAL 을 쓰지 않았다."
+    }
+  },
+  "populations": {
+    "SOURCE_TRAIN": {
+      "yaml": "challenge/yolo_pose_one_model/datasets/g38_legacy_v1v2_p0_tex20k/data.yaml",
+      "n_train": 55980,
+      "n_val_source_dev": 4020,
+      "replay_subset": "data/pallet/results/paper_selftrain_v1/SYNTHETIC_REPLAY_SUBSET.txt",
+      "replay_membership_sha256_declared": "9dbd9c92 (SELFTRAIN_EXPOSURE_LOCK 선언값)"
+    },
+    "TARGET_UNLABELED": {
+      "manifest": "data/evaluation/pallet_eval_v1/adaptation/MAIN_UNLABELED_BALANCED.csv",
+      "manifest_sha256": "afb581a0850c702b00e2ee47939c302772a7c4f531a623443f0a4c0b9b4d303b",
+      "n": 1000,
+      "daytime": 500,
+      "nighttime": 500,
+      "leakage_gate": "ADAPTATION_POOL_LOCK.json — eval sha overlap 0, eval session overlap 0, passed true",
+      "rule": "1,000 장을 그대로 쓴다. 8,031 로 늘리지 않는다 — 이 트랙의 질문은 양이 아니라 합의의 질이다."
+    },
+    "DEV_EVAL": {
+      "manifest": "data/pallet/results/paper_pose_metric_closure_v1/AXIS_REVIEW_MANIFEST.json",
+      "manifest_sha256": "a436f8e898b9ee050441ee9fb3a4f0eaec731a20563a61d435d66a927d9b80c4",
+      "frame_order_sha256": "72f83f6f0682209beec6134d8ab935ff1f56348ba816691133882a9d38d8c15f",
+      "n": 319,
+      "plastic": 194,
+      "wood": 125,
+      "sessions": 13,
+      "role": "DEV — 반복 사용된 개발 모집단. held-out 아님",
+      "census": "audit/DEV_EVAL_CENSUS.json",
+      "census_sha256": "be8c0b6e908b514b06877760c87f7de20ee0de0b9c00d00c3e656607887337ad"
+    },
+    "INDEPENDENT_CONFIRMATION_AVAILABLE": "NO",
+    "independent_confirmation_reason": "같은 기하(110x130x11) + 같은 규약 + SHA 겹침 0 + method selection 미사용을 모두 만족하는 real manual-GT 모집단이 저장소에 없다. live_capture_gt 851장은 정사각 110x110x15 로 다른 물체이고 challenge FT 가 이미 소비했다. capturenight05/06/07 잔여 1,581장은 기하는 맞지만 어노가 0장이다. 근거는 audit/POPULATION_AUDIT.md.",
+    "consequence": "최종 상태는 어떤 결과든 DEVELOPMENT_METHOD_SIGNAL. held-out / confirmed / final / state-of-the-art 표현 금지."
+  },
+  "metrics_2d": {
+    "error": "||pred_kp - gt_kp||, 원본 이미지 픽셀",
+    "supervised": "keypoint_annotations 의 xy 존재 & visibility > 0",
+    "visible": "visibility == 2 (manual_click, reason 'visible')",
+    "median_p90": "np.median / np.percentile(...,90), keypoint 를 프레임 넘어 pooled — challenge/evaluation_v2/paper_real_eval.py::_distribution 과 같은 정의",
+    "gross20": "(e > 20).mean()",
+    "gross40": "(e > 40).mean()",
+    "gross_definition_source": "challenge/yolo_pose_one_model/runs_pallet_loss/overnight_20260823/real_equiv_eval.py:146",
+    "reporting_blocks": {
+      "POOLED_ALL": "검출된 모든 프레임",
+      "POOLED_MATCHED50": "그 arm 의 top-1 상자가 GT 코너 외접상자와 IoU>=0.5 인 프레임 — 논문 헤드라인과 같은 정의",
+      "PAIRED_COMMON": "짝지은 비교는 양쪽 다 예측이 있는 프레임만. arm 마다 다른 매칭 게이트를 적용하지 않는다"
+    },
+    "parity_evidence": "R0 의 POOLED_MATCHED50 은 median 6.615677617706521 / p90 38.67003769171306 로 논문 공표값 6.6157 / 38.670 과 자릿수까지 일치",
+    "per_keypoint": "corner 0..7 각각, centroid 8 별도, visible / supervised 별도",
+    "detection_coverage": "예측이 나온 프레임 수 / 319"
+  },
+  "metrics_6d": {
+    "evaluator": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py — 한 줄도 고치지 않는다",
+    "reuse_method": "모듈을 import 한 뒤 OUT_DIR 만 이 트랙 폴더로 바꾼다. GT_PATH·MANIFEST 는 읽기 전용 원본을 그대로 본다.",
+    "object_contract": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json",
+    "object_contract_sha256": "a4c2918b4b0e9c97f94332d2e7e35132a8cbe0e738db25d92ea55e0d81210dbd",
+    "reported": [
+      "PoseCov(coverage)",
+      "axis_accuracy",
+      "rotation_median_deg",
+      "yaw_median_deg",
+      "translation_median_cm",
+      "iou3d_median",
+      "add_sym_auc"
+    ],
+    "primary_path": "MAIN (prediction-only selector). ORACLE 은 항상 oracle 로 표시한다.",
+    "new_metric_invention": 0,
+    "forbidden": [
+      "5cm5deg",
+      "10cm10deg"
+    ],
+    "known_limitation": "축 선택기 정확도가 pooled 0.6014 (constant guess 0.5725) 이고 틀리면 rotation 85.3도 비용이 든다. 그래서 6D 차이는 축 선택기의 성패에 크게 지배된다. 결과 해석에 먼저 쓴다."
+  },
+  "uncertainty": {
+    "frame_bootstrap": {
+      "n_boot": 10000,
+      "seed": 20260905,
+      "ci": "percentile 95"
+    },
+    "session_cluster_bootstrap": {
+      "unit": "AXIS_REVIEW_MANIFEST 의 session_id (13개)",
+      "n_boot": 10000,
+      "seed": 20260905,
+      "ci": "percentile 95"
+    },
+    "rule": "session-cluster 구간이 0 을 배제할 때만 STRONG_DEV_SIGNAL. 포함하면 PROMISING_BUT_UNRESOLVED.",
+    "implementation": "scripts/research/multiteacher_corner_distill_v1/mtcd_common.py::bootstrap_paired"
+  },
+  "gate_a": {
+    "training": 0,
+    "fusion_arms": {
+      "F0": "R0 only",
+      "F1": "좌표 성분별 median",
+      "F2": "geometric medoid — 다른 teacher 좌표까지의 거리 합이 최소인 실제 teacher 좌표",
+      "F3": "native uncertainty weighted mean — BLOCKED_NOT_COMPARABLE"
+    },
+    "F3_block_reason": "SIGMA_STATUS = DIAGNOSTIC_ONLY. Pose26 의 kpts_sigma 는 self.training 일 때만 생성되고 fuse() 가 head 를 None 으로 지운다. 값은 sigmoid 로 (0,1) 상한이고 단위가 anchor scale 의존 grid unit 이라 teacher 간 comparable 하지 않으며, DOPE 에는 sigma 자체가 없다. 근거 audit/SIGMA_AUDIT.md",
+    "no_fitted_weights": "teacher confidence 로 가중치를 학습하지 않는다. F1/F2 는 파라미터가 없다.",
+    "oracle_upper_bound": "keypoint 마다 argmin_j ||p_j - GT||. 배포 가능한 방법이 아니라 상한이다.",
+    "monotonicity_guard": "oracle 상한은 teacher 수에 단조 증가한다. 그래서 (a) teacher 를 축마다 하나씩만 admit 했고 (b) 1차 증거는 개수에 단조가 아닌 pair 별 조건부 rescue 율로 보고한다.",
+    "GO_criterion": {
+      "headroom_strong_requires_BOTH": [
+        "oracle-best 가 best single teacher 대비 visible p90 상대개선 >= 15% OR gross20 상대감소 >= 20%",
+        "R0 의 gross20 (>20px) keypoint 중 다른 teacher 가 <=10px 인 비율 >= 20%"
+      ],
+      "note": "이 임계는 engineering screen gate 이고 논문 유의성 임계가 아니다."
+    },
+    "STOP_consequence": "MULTI_TEACHER_HEADROOM = INSUFFICIENT 이면 Gate C/D 의 multi-teacher 학습을 전부 중단한다. Gate B 는 독립 질문이므로 계속 실행한다.",
+    "disagreement_diagnostic": {
+      "signals": [
+        "max teacher disagreement",
+        "median pair disagreement",
+        "teacher spread covariance",
+        "R0 box_conf",
+        "R0 keypoint conf"
+      ],
+      "target": "R0 keypoint 가 >20px gross 인가",
+      "rule": "각 scalar 단독 AUC 와 정규화 없는 단순 rank average 만. PAPER_EVAL 에 가중치를 fit 하지 않는다. 새 learned reliability model 금지."
+    }
+  },
+  "gate_b": {
+    "training": 0,
+    "population": "DEV_EVAL 의 supervised visible(visibility==2) 코너만. occluded/truncated 는 primary 에서 제외하고 별도 진단으로만 본다.",
+    "search_radius_px": 12,
+    "radius_rationale": "지시문 기본값. 기계적 상한을 먼저 계산해 이 반경이 게이트를 통과할 여지가 있는지 확인했다 — 오차를 max(e-r,0) 로 줄이는 이상적 스냅에서 visible p90 -27.3%, gross20 -27.5% 로 두 임계를 모두 넘는다. audit/LOCAL_SNAP_CEILING.txt",
+    "radius_known_limit": "supervised 코너의 6.96% 는 오차 >= 100px 이라 반경 12 로는 원리적으로 못 고친다. 그 꼬리는 Gate A 의 몫이다.",
+    "candidate_generators_frozen": {
+      "shi_tomasi": {
+        "quality": 0.01,
+        "min_dist": 3,
+        "max_corners": 20
+      },
+      "harris": {
+        "block": 3,
+        "ksize": 3,
+        "k": 0.04,
+        "rel_threshold": 0.01
+      },
+      "lsd_intersections": {
+        "min_len": 5,
+        "min_angle_deg": 15,
+        "max_lines": 8
+      },
+      "gradient_junction": {
+        "sigma": 1.0,
+        "rel_threshold": 0.05
+      }
+    },
+    "how_chosen": "SOURCE_DEV(합성 val) 에서만 grid 를 돌려 cov5 최대 · 후보수 최소로 골랐다. real GT 로 튜닝하지 않았다. audit/SOURCE_CALIBRATION.json",
+    "source_coverage_observed": {
+      "shi_tomasi_cov5": 0.781,
+      "harris_cov5": 0.705,
+      "junction_cov5": 0.731,
+      "lsd_cov5": 0.246
+    },
+    "prediction_only_selector": {
+      "terms": [
+        "teacher coarse point 와의 거리",
+        "corner response",
+        "두 line 교차각",
+        "예상 투영 cuboid 변 방향과의 일치도"
+      ],
+      "combination": "각 term 의 rank 를 동일 비중 평균. scalar magnitude 튜닝 금지, 가중치 학습 금지.",
+      "abstain": "후보가 없거나 line/junction 증거가 모순이면 R0 좌표 유지. 무조건 snap 금지."
+    },
+    "GO_criterion": {
+      "local_image_headroom_strong_requires_BOTH": [
+        "oracle candidate 기준 visible-corner p90 >= 15% 개선 OR gross20 >= 20% 상대감소",
+        "GT 5px 이내 후보 존재율 >= 60%"
+      ],
+      "classical_selector_positive": "prediction-only selector 가 R0 보다 좋으면 CLASSICAL_LOCAL_SELECTOR_SIGNAL = POSITIVE, 아니면 ORACLE_ONLY_HEADROOM"
+    },
+    "STOP_consequence": "LOCAL_CORNER_HEADROOM = INSUFFICIENT 이면 learned corner specialist 학습 금지."
+  },
+  "gate_c": {
+    "runs_only_if": "Gate B headroom 충분",
+    "architecture": {
+      "type": "small U-Net (encoder 3 stage / decoder 3 stage, skip)",
+      "input": "R0 coarse keypoint 중심 local RGB crop 64x64 + keypoint semantic ID 0..7 (learned embedding, 8 x 16 -> broadcast concat)",
+      "crop_px": 64,
+      "outputs": [
+        "local residual heatmap 64x64 (1채널, softmax)",
+        "visibility logit",
+        "uncertainty scalar",
+        "semantic edge direction 2개 (sin/cos)"
+      ],
+      "excluded": "centroid index 8 은 국소 코너 전문가 대상이 아니다",
+      "forbidden": "transformer 금지. parameter count 를 결과에 기록한다.",
+      "budget_note": "teacher-time only — 최종 배포 속도를 제한하지 않는다"
+    },
+    "crop_jitter": {
+      "source": "SOURCE_DEV 에서 frozen R0 를 실제로 돌려 얻은 coarse residual 벡터를 복원추출",
+      "artifact": "audit/R0_SOURCE_COARSE_RESIDUALS.npy",
+      "sha256": "238a56ca2ef976b042b637334f8bf8c327fe441635dd195882c3d20014a3b667",
+      "n_vectors": 3175,
+      "summary": {
+        "median_px": 1.876,
+        "p90_px": 6.739,
+        "p99_px": 33.12
+      },
+      "rule": "crop 중심을 정확한 GT 에 두지 않는다"
+    },
+    "arms": {
+      "C0": "SYN_LOCAL — 합성 정확 라벨만",
+      "C1": "SYN_PLUS_REAL_SOFT — 합성 정확 + high-consensus real soft distribution + real photometric consistency"
+    },
+    "controls": "동일 init · 동일 synthetic 노출 · 동일 optimizer updates",
+    "budget": {
+      "optimizer_updates": 5000,
+      "wall_clock_cap_min": 60,
+      "rule": "둘 중 먼저 도달하는 쪽에서 멈춘다"
+    },
+    "checkpoint": "last only. PAPER_EVAL 로 epoch 선택 금지.",
+    "real_consensus_gate": {
+      "decided_on": "SOURCE_DEV 에서 teacher disagreement 와 실제 source 오차의 관계로 정한다",
+      "rule": "disagreement 가 gate 보다 크면 그 keypoint 에 real loss 를 주지 않는다 (abstain)",
+      "value_will_be_written_to": "gate_c_local_specialist/CONSENSUS_GATE.json — Gate C 착수 전 SOURCE_DEV 로만 산출"
+    },
+    "real_target": "단일 hard coordinate 금지. teacher 좌표별 local Gaussian mixture Q_k(x,y).",
+    "teacher_weight": "admitted heterogeneous teacher equal weight (SIGMA_STATUS 가 USABLE 이 아니므로 inverse uncertainty 를 쓰지 않는다)",
+    "augmentation": {
+      "allowed": [
+        "brightness",
+        "contrast",
+        "HSV",
+        "noise",
+        "blur"
+      ],
+      "forbidden": [
+        "flip",
+        "rotation",
+        "정확한 역매핑이 없는 crop transform"
+      ]
+    },
+    "GO_criterion": {
+      "requires_ALL": [
+        "C1 vs R0: visible p90 >= 10% 개선 OR gross20 >= 15% 상대감소",
+        "median 악화 <= 5%",
+        "R0-good(<=10px) 구간 harm rate <= 10%",
+        "PoseCov 하락 <= 1%p",
+        "IoU3D 또는 ADDsym AUC 점추정이 R0 보다 악화하지 않음",
+        "C1 이 C0 보다 좋을 것 (real soft supervision 의 추가 이득 인정 조건)"
+      ]
+    },
+    "STOP_consequence": "REAL_LOCAL_SPECIALIST = STOP. Gate A 가 strong 이면 specialist 없이 student distillation 은 진행 가능하지만 specialist 를 teacher pool 에 넣지 않는다."
+  },
+  "gate_d": {
+    "target_record_fields": [
+      "frame_id",
+      "keypoint_id",
+      "teacher coordinates",
+      "teacher disagreement",
+      "uncertainty",
+      "specialist distribution",
+      "final mixture Q",
+      "usable/abstain",
+      "reason"
+    ],
+    "determinism": "target 생성은 결정적이어야 한다",
+    "offline_quality_audit": {
+      "compare": [
+        "R0 hard point",
+        "F1 coordinate median",
+        "F2 medoid",
+        "F2S multi-teacher soft distribution mean/MAP",
+        "F3S = F2S + specialist"
+      ],
+      "gate": "융합 target 자체가 R0 보다 나쁘면 DISTILL_TARGET_QUALITY = FAIL -> student 학습 금지"
+    }
+  },
+  "gate_d2_student": {
+    "architecture": "현행 R0 와 동일 YOLO26n-Pose",
+    "init": "frozen R0 checkpoint sha 970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "arms": {
+      "S0": "R0 FROZEN — 재학습 없음",
+      "S1": "HARD_MEDOID_ST — multi-teacher medoid hard coordinate",
+      "S2": "SOFT_MT_KD — 합성 정확 + real multi-teacher soft target + abstention",
+      "S3": "SOFT_MT_LOCAL_KD — S2 + local specialist distribution (Gate C GO 일 때만)"
+    },
+    "exposure_contract": {
+      "source": "data/pallet/results/paper_selftrain_v1/SELFTRAIN_EXPOSURE_LOCK.json",
+      "total_optimizer_updates": 900,
+      "epochs": 10,
+      "batch": 32,
+      "lr0": 0.002,
+      "pseudo_per_epoch": 1440,
+      "synthetic_replay_per_epoch": 1440,
+      "small_pool_policy": "복원추출로 고정 슬롯을 채운다",
+      "rule": "v1 의 50/50 · 900 updates 를 그대로 쓴다. 비율을 새로 고르면 새 방법의 효과와 비율 변경의 효과가 섞인다.",
+      "forbidden": "60 epoch scratch training 금지"
+    },
+    "checkpoint_selection": "last only. PAPER_EVAL 로 checkpoint 선택 금지.",
+    "loss": {
+      "synthetic": "stock exact PoseLoss26 그대로",
+      "real_S1": "medoid hard coordinate loss (control)",
+      "real_S2_S3": "weighted robust coordinate loss fallback — teacher soft distribution 의 expected coordinate + uncertainty weight",
+      "why_fallback": "SIGMA_STATUS != USABLE 이므로 sigma 기반 Gaussian/mixture NLL·KL 을 쓰지 않는다. 이 결정은 결과를 보기 전에 내렸고 결과를 보고 바꾸지 않는다.",
+      "wiring": "PoseLoss26 을 상속하고 PoseModel.init_criterion 을 override 한다. E2ELoss(model, loss_fn) 이 one2many·one2one 두 벌을 만드는 것을 unit test 로 검증한다 (pallet_yolo_loss 의 기존 패턴).",
+      "forbidden": "PAPER_EVAL 결과를 보고 KL <-> coordinate loss 를 바꾸지 않는다"
+    },
+    "promotion_criterion": {
+      "requires_ALL": [
+        "A. p90 >= 10% 상대개선 OR gross20 >= 15% 상대감소",
+        "B. pooled median 악화 <= 5%",
+        "C. PoseCov 하락 <= 1%p",
+        "D. IoU3D >= R0 점추정 OR ADDsym AUC >= R0 점추정, 그리고 다른 holistic 지표에 명백한 큰 악화 없음",
+        "E. soft KD arm 이 hard-medoid control(S1) 보다 좋을 것"
+      ],
+      "signal_grade": "session cluster CI 가 개선 방향으로 0 배제 -> STRONG_DEV_SIGNAL, 포함 -> PROMISING_BUT_UNRESOLVED"
+    }
+  },
+  "gate_e": {
+    "probe": {
+      "features": "R0 frozen backbone/neck 3 level, global average pooling",
+      "classifier": "simple logistic regression, 5-fold source/target split",
+      "populations": "SOURCE_DEV(합성 val) vs TARGET_UNLABELED, balanced 동수",
+      "rule": "PAPER_EVAL 로 domain classifier 를 학습하지 않는다"
+    },
+    "association": "DEV_EVAL real 프레임에서 domain score vs R0 keypoint median / gross frame indicator 의 Spearman·AUC",
+    "verdict_rule": {
+      "TARGET_BIAS_SIGNAL_strong": "domain AUROC >= 0.85 AND domain score 의 gross-error frame 분리 AUC >= 0.65",
+      "one_only": "DOMAIN_SEPARABLE_BUT_NOT_ERROR_LINKED",
+      "neither": "NO_ACTIONABLE_DOMAIN_BIAS"
+    },
+    "adapter_admission": {
+      "runs_only_if": "TARGET_BIAS_SIGNAL strong",
+      "E0": "AdaBN — frozen weights, TARGET_UNLABELED 로 BN running statistics 만 재계산. 구조가 BN stats adaptation 과 호환되는지 소스로 먼저 확인한다.",
+      "E1": "TARGET_RESIDUAL_ADAPTER — neck 3 scale 에만 작은 bottleneck residual adapter. backbone/원래 head 는 freeze 또는 tiny LR. adapter parameter <= base model 의 5%.",
+      "forbidden": [
+        "negative gradient unlearning",
+        "DANN / gradient reversal"
+      ],
+      "GO": "2D tail 개선 + 6D primary 악화 없음",
+      "detection_only_outcome": "DOMAIN_ADAPTER_DETECTION_ONLY"
+    }
+  },
+  "failure_handling": {
+    "no_rerun_on_bad_metric": true,
+    "oom": "semantic-equivalent batch reduction 만 허용하고 gradient accumulation 으로 effective batch 를 유지한다",
+    "bug_fix": "계약을 복원하는 수정만. 결과를 보고 hyperparameter 를 바꾸지 않는다.",
+    "silent_except_forbidden": "except Exception: return baseline 금지. 모든 exception 은 frame/type/message/stage 로 기록한다."
+  },
+  "execution_order": [
+    "audit",
+    "teacher cache",
+    "oracle/headroom",
+    "classical corner evidence",
+    "specialist short pilot (headroom 있을 때만)",
+    "pseudo-target quality audit",
+    "student 900-update training (target 이 개선될 때만)",
+    "domain probe",
+    "adapter (actionable domain bias 일 때만)"
+  ],
+  "runner_reliability": {
+    "completion_check": "결과 artifact 존재로만 판정한다. pgrep 하나로 완료를 판정하지 않는다.",
+    "gpu": "모든 GPU 명령은 foreground sequential. 학습 전후로 nvidia-smi 를 남긴다.",
+    "logs": "data/pallet/results/multiteacher_corner_distill_v1/logs/"
+  },
+  "interpretation_lock": {
+    "PAPER_EVAL_is_DEV": true,
+    "forbidden_words": [
+      "held-out",
+      "confirmed",
+      "final",
+      "state-of-the-art"
+    ],
+    "status_if_positive": "DEVELOPMENT_METHOD_SIGNAL",
+    "independent_check": "INDEPENDENT_CONFIRMATION_AVAILABLE = NO 이므로 수행하지 않는다. winner 를 보고 confirmation set 을 만들지 않는다."
+  },
+  "final_cases": [
+    "CASE_A NO_TEACHER_COMPLEMENTARITY",
+    "CASE_B ORACLE_COMPLEMENTARITY_ONLY",
+    "CASE_C LOCAL_SPECIALIST_SIGNAL_ONLY",
+    "CASE_D MULTITEACHER_STUDENT_POSITIVE",
+    "CASE_E TARGET_ADAPTER_ADDITIONAL_GAIN",
+    "CASE_F NO_PROMOTABLE_SIGNAL"
+  ]
+}

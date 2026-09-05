@@ -1,0 +1,284 @@
+{
+  "schema_version": "mtcd_teacher_registry_v1",
+  "status": "FROZEN_BEFORE_MEASUREMENT",
+  "date": "2026-09-05",
+  "admission_rule": {
+    "required": [
+      "real keypoint/pose 감독 0",
+      "pseudo-label 감독 0",
+      "camera-facing 0123 v4 규약",
+      "kpt_shape [9,3]",
+      "flip_idx [1,0,3,2,5,4,7,6,8]",
+      "학습 완주",
+      "PAPER_EVAL 을 학습·선택에 사용 0"
+    ],
+    "heterogeneous_means": "아키텍처 / representation / 학습 소스 커버리지 중 하나가 다르다",
+    "seed_ensemble_only": false,
+    "why_not_more": "teacher 를 늘릴수록 oracle 상한은 단조 증가한다. 그래서 개수가 아니라 축으로 골랐고, 축마다 하나씩만 넣었다."
+  },
+  "teachers": {
+    "T0_R0_YOLO26N_G38LEGACY": {
+      "checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "kind": "yolo",
+      "architecture": "YOLO26n-pose (end2end)",
+      "training_data": "g38_legacy_v1v2_p0_tex20k",
+      "n_train_synthetic": 55980,
+      "epochs": 60,
+      "real_gt_supervision": 0,
+      "pseudo_label_supervision": 0,
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "kpt_shape": [
+        9,
+        3
+      ],
+      "flip_idx": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "heterogeneity_axis": "REFERENCE",
+      "note": "현행 정본 teacher. 모든 비교의 기준선이며 teacher pool 에도 들어간다."
+    },
+    "T1_YOLOV8N_G38": {
+      "checkpoint": "challenge/yolo_pose_one_model/runs_arch_baseline/AB_G38_B8_YOLOV8N_30EP_SEED42/weights/last.pt",
+      "sha256": "be9be2fb6c452f7ff9f4fef27ff96246c753333a8e33d00bf7c217a2b764b9a3",
+      "kind": "yolo",
+      "architecture": "YOLOv8n-pose (NMS decoder)",
+      "training_data": "g38_generic_only",
+      "n_train_synthetic": 38002,
+      "epochs": 30,
+      "real_gt_supervision": 0,
+      "pseudo_label_supervision": 0,
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "kpt_shape": [
+        9,
+        3
+      ],
+      "flip_idx": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "heterogeneity_axis": "ARCHITECTURE",
+      "note": "decoder 구조가 end2end 가 아니다. T2·T6 과 데이터·recipe·seed 동일."
+    },
+    "T2_YOLO11N_G38": {
+      "checkpoint": "challenge/yolo_pose_one_model/runs_arch_baseline/AB_G38_B11_YOLO11N_30EP_SEED42/weights/last.pt",
+      "sha256": "1faa376f58b9567598b9397b7ffaf6aee9f40d519d26fc866c9a898793fae72e",
+      "kind": "yolo",
+      "architecture": "YOLO11n-pose",
+      "training_data": "g38_generic_only",
+      "n_train_synthetic": 38002,
+      "epochs": 30,
+      "real_gt_supervision": 0,
+      "pseudo_label_supervision": 0,
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "kpt_shape": [
+        9,
+        3
+      ],
+      "flip_idx": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "heterogeneity_axis": "ARCHITECTURE",
+      "note": "T1·T6 과 데이터·recipe·seed 동일. 기록상 오검출이 가장 심하다."
+    },
+    "T3_DOPE_HEATMAP": {
+      "checkpoint": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+      "sha256": "0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f",
+      "kind": "dope",
+      "architecture": "DOPE VGG-19, 9 belief + 16 affinity, 6 stage",
+      "training_data": "dope_final_g38_p0_tex (= T0 과 동일 프레임 집합)",
+      "n_train_synthetic": 55980,
+      "epochs": 60,
+      "real_gt_supervision": 0,
+      "pseudo_label_supervision": 0,
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "kpt_shape": [
+        9,
+        3
+      ],
+      "flip_idx": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "heterogeneity_axis": "REPRESENTATION",
+      "note": "직접회귀가 아니라 heatmap. T0 과 학습 프레임이 같아 표현 축만 다르다. 입력 448."
+    },
+    "T4_YOLO26N_G38ONLY60": {
+      "checkpoint": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+      "sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+      "kind": "yolo",
+      "architecture": "YOLO26n-pose (end2end)",
+      "training_data": "g38_generic_only",
+      "n_train_synthetic": 38002,
+      "epochs": 60,
+      "real_gt_supervision": 0,
+      "pseudo_label_supervision": 0,
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "kpt_shape": [
+        9,
+        3
+      ],
+      "flip_idx": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "heterogeneity_axis": "TRAINING_SOURCE_COVERAGE",
+      "note": "legacy v1/v2 target-specific synthetic 을 보지 않았다."
+    },
+    "T5_YOLO26N_BROAD40K": {
+      "checkpoint": "challenge/yolo_pose_one_model/runs_paper/yolo26n_paper_generic_v1_seed42/weights/last.pt",
+      "sha256": "6a40a4d430fd205a427e38a1927aad2a0a0bef20b984484e0b77318e7bd355ea",
+      "kind": "yolo",
+      "architecture": "YOLO26n-pose (end2end)",
+      "training_data": "broad40k (generic asset 4종)",
+      "n_train_synthetic": 39500,
+      "epochs": 60,
+      "real_gt_supervision": 0,
+      "pseudo_label_supervision": 0,
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "kpt_shape": [
+        9,
+        3
+      ],
+      "flip_idx": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "heterogeneity_axis": "TRAINING_SOURCE_COVERAGE",
+      "note": "다른 asset pool. ★best.pt 금지 — val 500 이 train 과 같은 pool 의 strided subsample 이라 holdout 이 아니다."
+    },
+    "T6_YOLO26N_G38ONLY30": {
+      "checkpoint": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/weights/last.pt",
+      "sha256": "37f904b975db3e95297af5acb51f6e99360f4b59245cef04d0511af3f5a189b1",
+      "kind": "yolo",
+      "architecture": "YOLO26n-pose (end2end)",
+      "training_data": "g38_generic_only",
+      "n_train_synthetic": 38002,
+      "epochs": 30,
+      "real_gt_supervision": 0,
+      "pseudo_label_supervision": 0,
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "kpt_shape": [
+        9,
+        3
+      ],
+      "flip_idx": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "heterogeneity_axis": "ARCHITECTURE_CONTROL",
+      "note": "T1·T2 와 데이터·recipe·seed 가 같고 아키텍처만 YOLO26n. 'arch 효과' 를 '30ep·데이터 효과' 와 분리한다."
+    }
+  },
+  "excluded": {
+    "C7_EXP73916": {
+      "checkpoint": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_EXP73916_60EP_SEED42/weights/best.pt",
+      "sha256": "ac6650c058075bdce2b9e25fc7ec5b82ed50dff845ed8804d310be30dfbdb7cc",
+      "reason": "적격이지만 새 축을 더하지 않는다 — G+T 73,916 은 T0 의 구성(generic + target synthetic)과 같은 축이다."
+    },
+    "C8_YOLO26M": {
+      "checkpoint": "challenge/yolo_pose_one_model/runs/stage_a_m_640_b8_seed42/weights/best.pt",
+      "reason": "results.csv 13줄 = 12/60 epoch 에서 중단. 미완주 checkpoint 는 teacher 로 쓰지 않는다. capacity 축은 이번 V1 에서 비운다."
+    },
+    "FIXED_OBJECT_*": {
+      "reason": "object-frame(fixed) 라벨 — 0~7 의 의미가 camera-facing 과 순열만큼 다르다. 좌표 median/medoid 를 취하면 조용히 깨진다. ★FAST_C_MEMBERSHIP_FREEZE 의 '호환' 판정은 flip_idx 문자열만 본 것이라 재사용 금지."
+    },
+    "REAL_FT_*": {
+      "reason": "real manual GT 로 fine-tune 됨 (release/*-ft, runs_ft/*, challenge/weights/*_ft_manual, DOPE challenge_track/*)"
+    },
+    "LIVEGT_*": {
+      "reason": "정사각 팔레트 plastic_standard_110x110x15 — 논문 트랙(110x130x11)과 다른 물체"
+    },
+    "SELFTRAIN_*": {
+      "reason": "R0 의 pseudo-label 로 학습됨. teacher 편향을 상속하므로 상보성 실험의 교사가 될 수 없다."
+    },
+    "V8_LEGACY_2026_05": {
+      "reason": "fliplr 0.5 로 학습 — 현행 계약(fliplr 0.0)과 충돌. 재현 불가."
+    }
+  },
+  "inference_recipe": {
+    "yolo": {
+      "pad_px": 100,
+      "border": "BORDER_REFLECT_101",
+      "imgsz": 640,
+      "confidence_floor": 0.001,
+      "top_rule": "highest box confidence",
+      "augment": false,
+      "half": false,
+      "source": "INFERENCE_REPLAY_LOCK.json (그대로 재사용)"
+    },
+    "dope": {
+      "pad_px": 100,
+      "border": "BORDER_REFLECT_101",
+      "imgsz": 448,
+      "normalisation": "ImageNet mean/std",
+      "peak": "gaussian sigma 2, threshold 0.3, 11x11 weighted centroid + 0.4395",
+      "inverse_map": "belief 격자 -> padded 캔버스 -> PAD 100 제거",
+      "why_pad": "DOPE 학습셋 PNG 가 이미 PAD 100 캔버스다 (bd_convert.py: 720x480 -> 920x680, 라벨 = projected_cuboid + 100). PAD 없이 넣으면 학습과 프레이밍이 달라진다.",
+      "box": "detector box 가 없으므로 예측 코너 8개의 외접상자를 쓴다 (box_source=corner_hull)"
+    },
+    "identical_across_teachers": "PAD·border·top-1 규칙은 모든 teacher 에서 같다. imgsz 만 학습값을 따른다."
+  },
+  "counts": {
+    "n_teachers": 7,
+    "n_heterogeneous_excluding_reference": 6,
+    "axes": [
+      "ARCHITECTURE",
+      "ARCHITECTURE_CONTROL",
+      "REFERENCE",
+      "REPRESENTATION",
+      "TRAINING_SOURCE_COVERAGE"
+    ]
+  }
+}
