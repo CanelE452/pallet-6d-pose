@@ -7,9 +7,10 @@
 ## 목적
 
 ```text
-POSE_METRIC_READINESS.md      6D pose metric 이 왜 열리지 않는지, 해제 조건은 무엇인지
-EXTERNAL_BASELINE_AUDIT.md    외부 baseline(DOPE / SSP / PVNet) 의 비교 가능 여부
-SELF_TRAINING_TRACK_AUDIT.md  YOLO26 self-training 트랙 착수 감사 (학습 0회 시점)
+POSE_METRIC_READINESS.md         6D pose metric 이 왜 열리지 않는지, 해제 조건은 무엇인지
+EXTERNAL_BASELINE_AUDIT.md       외부 baseline(DOPE / SSP / PVNet) 의 비교 가능 여부
+SELF_TRAINING_TRACK_AUDIT.md     YOLO26 self-training 트랙 착수 감사 (학습 0회 시점)
+PALLET_POSE_LITERATURE_AUDIT.md  선행 pallet pose 연구 11편이 논문에 보고한 값과 비교 가능 여부
 ```
 
 ## 지금 알아야 할 것
