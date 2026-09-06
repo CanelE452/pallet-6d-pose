@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8"><title>리뷰 답 회수</title>
+<style>body{background:#111;color:#eee;font:16px/1.7 system-ui,"Noto Sans KR",sans-serif;padding:40px;max-width:760px;margin:0 auto}
+pre{background:#0d0d0d;border:1px solid #333;border-radius:8px;padding:14px;white-space:pre-wrap;font-size:13px}
+b{color:#4da3ff}.ok{color:#3ddc84}.bad{color:#ff6b6b}</style>
+<h2>리뷰 답 회수</h2>
+<p>이 페이지는 브라우저에 저장된 리뷰 답을 서버로 보내기만 합니다. <b>아무것도 지우지 않습니다.</b></p>
+<pre id="o">보내는 중…</pre>
+<script>
+(async () => {
+  const o = document.getElementById('o');
+  const keys = ['gtreview_v1','gtreview_corner_v1','gtreview_rep2_v1'];
+  const payload = {};
+  const summary = [];
+  for (const k of keys) {
+    let v = null;
+    try { v = localStorage.getItem(k); } catch (e) { summary.push(`${k}: 읽기 실패 ${e.name}`); continue; }
+    if (!v) { summary.push(`${k}: 없음`); continue; }
+    try { payload[k] = JSON.parse(v); } catch { payload[k] = v; }
+    const n = payload[k] && typeof payload[k] === 'object' ? Object.keys(payload[k]).length : '?';
+    summary.push(`${k}: 프레임 ${n}`);
+  }
+  if (!Object.keys(payload).length) { o.innerHTML = '<span class="bad">저장된 답을 찾지 못했습니다.</span>\n' + summary.join('\n'); return; }
+  try {
+    const r = await fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const j = await r.json();
+    o.innerHTML = '<span class="ok">서버로 보냈습니다.</span>\n' + summary.join('\n') + '\n\n' + JSON.stringify(j, null, 1);
+  } catch (e) { o.innerHTML = '<span class="bad">전송 실패: ' + e + '</span>\n' + summary.join('\n'); }
+})();
+</script>

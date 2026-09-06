@@ -1,0 +1,111 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<title>GT review — 2/3차</title>
+<style>
+:root{--bg:#111;--fg:#eee;--mut:#999;--line:#333;--acc:#4da3ff;--ok:#3ddc84;--warn:#ffb74d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,"Noto Sans KR",sans-serif}
+header{position:sticky;top:0;background:#0b0b0bee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);
+ padding:10px 16px;display:flex;gap:10px;align-items:center;z-index:9;flex-wrap:wrap}
+.sp{flex:1}button{background:#222;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;font:inherit}
+button:hover{border-color:var(--acc)}button.primary{background:var(--acc);color:#001;border-color:var(--acc);font-weight:600}
+main{padding:16px;max-width:1500px;margin:0 auto}
+h2.sec{margin:28px 0 6px;font-size:18px;border-bottom:2px solid var(--acc);padding-bottom:6px}
+.help{background:#161616;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:8px 0 18px}
+.frame{border:1px solid var(--line);border-radius:10px;margin-bottom:20px;overflow:hidden}
+.fh{padding:9px 14px;background:#181818;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}
+.cell{background:#000;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cell h4{margin:0;padding:6px 10px;font-size:12px;background:#1c1c1c;color:#bbb}
+.cell img{width:100%;display:block;cursor:zoom-in}
+.q{padding:11px 14px;border-top:1px solid var(--line);display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.q label{display:flex;gap:6px;align-items:center;cursor:pointer;border:1px solid var(--line);border-radius:6px;padding:5px 9px}
+.q label:hover{border-color:var(--acc)}.q input{accent-color:var(--acc)}
+.mut{color:var(--mut);font-size:12px}.done{outline:2px solid var(--ok)}
+.cn{display:inline-flex;gap:5px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:4px 8px;margin:3px}
+.cn b{min-width:52px}
+#lb{position:fixed;inset:0;background:#000e;display:none;align-items:center;justify-content:center;z-index:50;cursor:zoom-out}
+#lb img{max-width:98vw;max-height:98vh}
+</style></head><body>
+<header><b>GT review — 2/3차</b><span class="mut" id="prog"></span><span class="sp"></span>
+<button class="primary" onclick="dl('a')">① 1차 답 CSV</button>
+<button class="primary" onclick="dl('b')">② 코너 상세 CSV</button>
+<button class="primary" onclick="dl('c')">③ 재리뷰 CSV</button></header>
+<main>
+<div class="help"><b>1차 답(58장)은 이미 저장돼 있습니다.</b> 상단 ①을 누르면 그대로 다시 받아집니다 —
+지난번에 두 번째 파일이 유실됐던 것을 여기서 회수합니다. 다시 판정하실 필요 없습니다.
+<br>이 페이지에서 새로 하실 것은 아래 <b>B</b>와 <b>C</b> 두 구간입니다.
+버튼은 한 번에 하나씩 눌러 주세요(브라우저가 연속 다운로드를 막습니다).</div>
+<div class="help" style="border-color:var(--warn)"><b>「둘 다 틀림」 선택지를 추가했습니다.</b>
+지난번 메모로 남기신 네 프레임(“a b 둘다 완벽하게 틀림” 등)이 그 경우입니다 —
+저장된 pose 자체가 사진과 안 맞는다는 뜻이고, 「모르겠음」과는 **다른 정보**입니다.
+1차 페이지(<a href="REVIEW.html" style="color:var(--acc)">REVIEW.html</a>)에도 넣었으니,
+해당 프레임만 다시 골라 주시면 됩니다. 나머지는 그대로 남아 있습니다.</div>
+<div id="app"></div></main>
+<div id="lb" onclick="this.style.display='none'"><img id="lbi"></div>
+<script>
+const D={"frames": [{"id": "eval_outside__1778653498432396288", "dir": "eval_outside__1778653498432396288", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653882316513792", "dir": "eval_pallet09__1778653882316513792", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet07__1778652158404883456", "dir": "eval_pallet07__1778652158404883456", "extrap": [4, 5, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_pallet07__1778652176547299328", "dir": "eval_pallet07__1778652176547299328", "extrap": [4, 5, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_night08__1779449470423201536", "dir": "eval_night08__1779449470423201536", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653889069260032", "dir": "eval_pallet09__1778653889069260032", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_night08__1779449485800670464", "dir": "eval_night08__1779449485800670464", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_pallet09__1778653664407620608", "dir": "eval_pallet09__1778653664407620608", "extrap": [5, 6, 8], "n_click": 6, "has_geom": true}, {"id": "eval_pallet07__1778652138515809024", "dir": "eval_pallet07__1778652138515809024", "extrap": [5, 6, 8], "n_click": 6, "has_geom": true}, {"id": "eval_pallet09__1778653634641026304", "dir": "eval_pallet09__1778653634641026304", "extrap": [4, 5, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_noapril__1775201415399297536", "dir": "eval_noapril__1775201415399297536", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_cad__1778653031275751936", "dir": "eval_cad__1778653031275751936", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_cad__1778653007724386048", "dir": "eval_cad__1778653007724386048", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_outside__1778653522084302848", "dir": "eval_outside__1778653522084302848", "extrap": [3, 4, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_outside__1778653539789436160", "dir": "eval_outside__1778653539789436160", "extrap": [3, 5, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_outside__1778651530691638016", "dir": "eval_outside__1778651530691638016", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet07__1778652174598774528", "dir": "eval_pallet07__1778652174598774528", "extrap": [4, 5, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_pallet09__1778653806958839552", "dir": "eval_pallet09__1778653806958839552", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653798391620864", "dir": "eval_pallet09__1778653798391620864", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet07__1778652154608392192", "dir": "eval_pallet07__1778652154608392192", "extrap": [4, 5, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_night09__1779449593782795264", "dir": "eval_night09__1779449593782795264", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_outside__1778653337772735232", "dir": "eval_outside__1778653337772735232", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_night09__1779449602689248000", "dir": "eval_night09__1779449602689248000", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_outside__1778651579029250816", "dir": "eval_outside__1778651579029250816", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet07__1778652142480077056", "dir": "eval_pallet07__1778652142480077056", "extrap": [1, 2, 5, 6, 7, 8], "n_click": 3, "has_geom": false}, {"id": "eval_outside__1778651650839160832", "dir": "eval_outside__1778651650839160832", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653823253508096", "dir": "eval_pallet09__1778653823253508096", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_outside__1778653526955536896", "dir": "eval_outside__1778653526955536896", "extrap": [3, 5, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_outside__1778651518865604096", "dir": "eval_outside__1778651518865604096", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653643678509824", "dir": "eval_pallet09__1778653643678509824", "extrap": [3, 4, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_night09__1779449638581035008", "dir": "eval_night09__1779449638581035008", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_outside__1778651569891693056", "dir": "eval_outside__1778651569891693056", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653659065885952", "dir": "eval_pallet09__1778653659065885952", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653832794714368", "dir": "eval_pallet09__1778653832794714368", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_night08__1779449488068910592", "dir": "eval_night08__1779449488068910592", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_outside__1778651651444080384", "dir": "eval_outside__1778651651444080384", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653898342159872", "dir": "eval_pallet09__1778653898342159872", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet07__1778652150610404864", "dir": "eval_pallet07__1778652150610404864", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_cad__1778653029965134592", "dir": "eval_cad__1778653029965134592", "extrap": [6, 7, 8], "n_click": 6, "has_geom": true}, {"id": "eval_noapril__1775201416944730624", "dir": "eval_noapril__1775201416944730624", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet07__1778652144496057088", "dir": "eval_pallet07__1778652144496057088", "extrap": [1, 2, 5, 6, 7, 8], "n_click": 3, "has_geom": false}, {"id": "eval_pallet07__1778652140531310080", "dir": "eval_pallet07__1778652140531310080", "extrap": [1, 2, 5, 6, 8], "n_click": 4, "has_geom": true}, {"id": "eval_noapril__1775201428535961600", "dir": "eval_noapril__1775201428535961600", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653704118966272", "dir": "eval_pallet09__1778653704118966272", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_noapril__1775201421043401984", "dir": "eval_noapril__1775201421043401984", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_outside__1778651519235162880", "dir": "eval_outside__1778651519235162880", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet07__1778652166837872128", "dir": "eval_pallet07__1778652166837872128", "extrap": [3, 5, 6, 8], "n_click": 5, "has_geom": true}, {"id": "eval_cad__1778653018878592768", "dir": "eval_cad__1778653018878592768", "extrap": [1, 2, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_outside__1778653545299653120", "dir": "eval_outside__1778653545299653120", "extrap": [3, 4, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_outside__1778653364045039360", "dir": "eval_outside__1778653364045039360", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_outside__1778653508779767808", "dir": "eval_outside__1778653508779767808", "extrap": [4, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_pallet09__1778653661653195264", "dir": "eval_pallet09__1778653661653195264", "extrap": [5, 6, 8], "n_click": 6, "has_geom": true}, {"id": "eval_noapril__1775201418120676608", "dir": "eval_noapril__1775201418120676608", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_night09__1779449661263803392", "dir": "eval_night09__1779449661263803392", "extrap": [1, 2, 5, 6, 7, 8], "n_click": 3, "has_geom": false}, {"id": "eval_pallet09__1778653674184865536", "dir": "eval_pallet09__1778653674184865536", "extrap": [5, 6, 8], "n_click": 6, "has_geom": true}, {"id": "eval_cad__1778653017736058368", "dir": "eval_cad__1778653017736058368", "extrap": [1, 2, 6, 7, 8], "n_click": 4, "has_geom": true}, {"id": "eval_noapril__1775201443822140928", "dir": "eval_noapril__1775201443822140928", "extrap": [5, 6, 7, 8], "n_click": 5, "has_geom": true}, {"id": "eval_night09__1779449604823769344", "dir": "eval_night09__1779449604823769344", "extrap": [1, 2, 3, 6, 7, 8], "n_click": 3, "has_geom": false}], "detail": ["eval_pallet07__1778652142480077056", "eval_pallet07__1778652144496057088", "eval_night09__1779449661263803392", "eval_night09__1779449604823769344", "eval_pallet07__1778652158404883456", "eval_pallet07__1778652176547299328", "eval_pallet09__1778653634641026304", "eval_outside__1778653522084302848", "eval_outside__1778653539789436160", "eval_outside__1778653498432396288", "eval_pallet09__1778653882316513792", "eval_night08__1779449470423201536", "eval_pallet09__1778653889069260032", "eval_noapril__1775201415399297536", "eval_night08__1779449485800670464"], "repeat": ["eval_outside__1778653498432396288", "eval_pallet09__1778653882316513792", "eval_pallet07__1778652158404883456", "eval_pallet07__1778652176547299328", "eval_night08__1779449470423201536", "eval_pallet09__1778653889069260032", "eval_night08__1779449485800670464", "eval_pallet09__1778653664407620608", "eval_pallet07__1778652138515809024", "eval_pallet09__1778653634641026304", "eval_noapril__1775201415399297536", "eval_cad__1778653031275751936", "eval_cad__1778653007724386048", "eval_outside__1778653522084302848", "eval_outside__1778653539789436160", "eval_outside__1778651530691638016", "eval_pallet07__1778652174598774528", "eval_pallet09__1778653806958839552", "eval_pallet09__1778653798391620864", "eval_pallet07__1778652154608392192"]}, F=D.frames, KA='gtreview_v1', KB='gtreview_corner_v1', KC='gtreview_rep2_v1';
+let A=JSON.parse(localStorage.getItem(KA)||'{}');
+let B=JSON.parse(localStorage.getItem(KB)||'{}');
+let C=JSON.parse(localStorage.getItem(KC)||'{}');
+const byId=Object.fromEntries(F.map(f=>[f.id,f]));
+const sB=()=>localStorage.setItem(KB,JSON.stringify(B));
+const sC=()=>localStorage.setItem(KC,JSON.stringify(C));
+function zoom(s){document.getElementById('lbi').src=s;document.getElementById('lb').style.display='flex'}
+function setB(id,ci,v){B[id]=B[id]||{};B[id][ci]=v;sB();render()}
+function setC(id,k,v){C[id]=C[id]||{};C[id][k]=v;sC();render()}
+function prog(){
+ const b=D.detail.filter(id=>{const f=byId[id];return f.extrap.every(c=>(B[id]||{})[c])}).length;
+ const c=D.repeat.filter(id=>(C[id]||{}).hyp).length;
+ document.getElementById('prog').textContent=` B 코너상세 ${b}/${D.detail.length} · C 재리뷰 ${c}/${D.repeat.length}`}
+function radio(name,cur,val,lab,fn){return `<label><input type="radio" name="${name}" ${cur===val?'checked':''} onchange="${fn}">${lab}</label>`}
+function render(){
+ let h='<h2 class="sec">B. 코너 상세 — 빈 사각형(외삽) 점이 물리적으로 존재하는 코너인가</h2>'
+ +'<div class="help">02 이미지의 <b>빈 사각형</b>에는 번호가 붙어 있습니다. 번호별로 하나씩 골라 주세요.<br>'
+ +'<b>물리 코너</b> = 사진 속 팔레트의 진짜 모서리 자리에 있다 (가려져 있어도 위치가 맞으면 물리 코너입니다)<br>'
+ +'<b>가상</b> = 그 자리에 팔레트 모서리가 없다 (허공, 다른 물체 위, 완전히 빗나감)<br>'
+ +'<b>애매</b> = 가려지거나 흐려서 못 정하겠다<br>'
+ +`15장 · 외삽 코너 ${D.detail.reduce((s,id)=>s+byId[id].extrap.length,0)}개, 10분쯤 걸립니다.</div>`;
+ D.detail.forEach(id=>{const f=byId[id];const s=B[id]||{};
+  const ok=f.extrap.every(c=>s[c]);
+  h+=`<section class="frame ${ok?'done':''}"><div class="fh"><b>${id}</b>
+   <span class="mut">외삽 코너 ${f.extrap.join(', ')}</span></div>
+   <div class="grid">
+    <div class="cell"><h4>01 raw</h4><img loading="lazy" src="${f.dir}/01_raw.png" onclick="zoom(this.src)"></div>
+    <div class="cell"><h4>02 GT keypoints — 빈 사각 = 외삽</h4><img loading="lazy" src="${f.dir}/02_gt_only.png" onclick="zoom(this.src)"></div></div>
+   <div class="q" style="display:block">`
+   +f.extrap.map(c=>`<span class="cn"><b>코너 ${c}</b>`
+     +radio(`b_${id}_${c}`,s[c],'physical','물리',`setB('${id}',${c},'physical')`)
+     +radio(`b_${id}_${c}`,s[c],'virtual','가상',`setB('${id}',${c},'virtual')`)
+     +radio(`b_${id}_${c}`,s[c],'ambiguous','애매',`setB('${id}',${c},'ambiguous')`)+`</span>`).join('')
+   +`</div></section>`});
+ h+='<h2 class="sec">C. 재리뷰 — 같은 20장을 다시 판정 (1차 답은 가려져 있습니다)</h2>'
+ +'<div class="help">GT 산포(repeatability)를 재기 위한 2회차입니다. <b>1차에 뭐라고 답했는지는 보이지 않습니다.</b> '
+ +'기억을 떠올리려 하지 말고 지금 보이는 대로 다시 고르세요. 다르게 나와도 정상이고, 그 차이가 측정하려는 값입니다.</div>';
+ D.repeat.forEach(id=>{const f=byId[id];const s=C[id]||{};
+  h+=`<section class="frame ${s.hyp?'done':''}"><div class="fh"><b>${id}</b></div>
+   <div class="grid">
+    <div class="cell"><h4>01 raw</h4><img loading="lazy" src="${f.dir}/01_raw.png" onclick="zoom(this.src)"></div>
+    <div class="cell"><h4>02 GT keypoints</h4><img loading="lazy" src="${f.dir}/02_gt_only.png" onclick="zoom(this.src)"></div>
+    <div class="cell"><h4>Hypothesis A</h4><img loading="lazy" src="${f.dir}/03_geometry_A.png" onclick="zoom(this.src)"></div>
+    <div class="cell"><h4>Hypothesis B</h4><img loading="lazy" src="${f.dir}/03_geometry_B.png" onclick="zoom(this.src)"></div></div>
+   <div class="q"><b>어느 쪽이 사진과 맞나</b>`
+   +radio(`c_${id}`,s.hyp,'A','A',`setC('${id}','hyp','A')`)
+   +radio(`c_${id}`,s.hyp,'B','B',`setC('${id}','hyp','B')`)
+   +radio(`c_${id}`,s.hyp,'both_wrong','둘 다 틀림',`setC('${id}','hyp','both_wrong')`)
+   +radio(`c_${id}`,s.hyp,'cannot_tell','모르겠음',`setC('${id}','hyp','cannot_tell')`)
+   +`<span class="mut">확신도</span>`
+   +[1,2,3,4,5].map(n=>radio(`cf_${id}`,s.conf,String(n),n,`setC('${id}','conf','${n}')`)).join('')
+   +`</div></section>`});
+ document.getElementById('app').innerHTML=h;prog()}
+function csv(rows,name){const b=new Blob(['﻿'+rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
+function dl(w){
+ if(w==='a'){const r=[['frame_id','hypothesis_A_better','hypothesis_B_better','cannot_tell','both_wrong','confidence_1to5','extrapolated_points_verdict','note']];
+  F.forEach(f=>{const s=A[f.id];if(!s)return;
+   r.push([f.id,s.hyp==='A'?1:0,s.hyp==='B'?1:0,s.hyp==='cannot_tell'?1:0,s.hyp==='both_wrong'?1:0,s.conf||'',s.extrap||'',(s.note||'').replace(/[\n,]/g,' ')])});
+  csv(r,'REVIEW_FILLED_pass1.csv')}
+ if(w==='b'){const r=[['frame_id','corner_id','verdict']];
+  D.detail.forEach(id=>{Object.entries(B[id]||{}).forEach(([c,v])=>r.push([id,c,v]))});csv(r,'REVIEW_FILLED_corner.csv')}
+ if(w==='c'){const r=[['frame_id','pass2_choice','pass2_confidence']];
+  D.repeat.forEach(id=>{const s=C[id];if(s&&s.hyp)r.push([id,s.hyp,s.conf||''])});csv(r,'REVIEW_FILLED_pass2.csv')}}
+render();
+</script></body></html>
