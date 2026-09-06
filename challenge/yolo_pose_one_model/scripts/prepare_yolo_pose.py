@@ -36,11 +36,37 @@ SENTINEL = -0.5          # renderer writes -1,-1 for "not projected"
 
 
 def load_kps(ann_path):
-    """Return the 9 keypoints in contract order, or None if unusable."""
+    """Return the 9 keypoints in contract order, or None if unusable.
+
+    ``keypoint_annotations`` 가 있으면 그것을 쓴다.  같은 파일 안의
+    ``projected_cuboid`` 와 인덱스 배정이 다를 수 있고, 규약을 지키는 쪽이
+    ``keypoint_annotations`` 이기 때문이다.  2026-09-06 `live_capture_gt` 851장 전수:
+
+        camera-facing 0123 규약 (0 왼쪽 / 1 오른쪽, 0·1 위 / 3·2 아래)
+          keypoint_annotations   위반   0 / 851
+          projected_cuboid       위반 198 / 851  (23.3%)
+
+    위반 198장 중 196장이 좌우가 **완전히** 뒤집힌 것이고(뒤집힘 폭 중앙값 35.9 px,
+    정상 프레임의 여유폭 중앙값 180.1 px), 경계 잡음으로 볼 수 있는 5 px 미만은 13장뿐이다.
+    근거: `_docs/audits/accuracy_root_cause_v1/REAL_LABEL_AUDIT.md`.
+
+    합성 GT 에는 ``keypoint_annotations`` 가 없으므로(표본 전수 0/40) 기존과 똑같이
+    ``projected_cuboid`` 로 떨어진다 — 합성 데이터셋 재빌드 결과는 바뀌지 않는다.
+    """
     try:
         obj = json.load(open(ann_path, encoding="utf-8"))["objects"][0]
     except Exception:
         return None
+
+    ann = obj.get("keypoint_annotations")
+    if isinstance(ann, list) and len(ann) >= 9:
+        kps = []
+        for entry in ann[:9]:
+            xy = entry.get("xy") if isinstance(entry, dict) else None
+            kps.append((SENTINEL, SENTINEL) if xy is None
+                       else (float(xy[0]), float(xy[1])))
+        return kps
+
     proj = obj.get("projected_cuboid")
     if not proj or len(proj) < 8:
         return None

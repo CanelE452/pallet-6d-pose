@@ -54,8 +54,50 @@ def test_field_pallet_dimensions_match_the_measured_110x110x15() -> None:
     registry = load_object_geometry_registry(CHALLENGE_REGISTRY_PATH)
     spec = registry.resolve(PLASTIC_SQUARE_OBJECT_TYPE)
     assert spec.physical_dimensions_m == {"x": 1.10, "y": 0.15, "z": 1.10}
-    assert spec.symmetry_status == "UNREVIEWED"
-    assert spec.symmetry_contract is None
+
+
+def test_field_pallet_symmetry_contract_is_frozen_as_c4() -> None:
+    """2026-09-06: UNREVIEWED 였던 것이 4-way 실물 확인으로 FROZEN 이 됐다.
+
+    근거는 (i) registry 의 정사각 footprint (x = z = 1.100 m) 와
+    (ii) 프로젝트 소유자의 실물 관찰 "네 면 모두에 포크 구멍이 있다".
+    계약 문서: challenge/config/SQUARE_PALLET_SYMMETRY_CONTRACT.json
+    """
+    registry = load_object_geometry_registry(CHALLENGE_REGISTRY_PATH)
+    spec = registry.resolve(PLASTIC_SQUARE_OBJECT_TYPE)
+    assert spec.symmetry_status == "FROZEN"
+    assert spec.symmetry_contract == (
+        "challenge/config/SQUARE_PALLET_SYMMETRY_CONTRACT.json")
+
+    contract = json.loads(
+        (REPO_ROOT / spec.symmetry_contract).read_text(encoding="utf-8"))
+    assert contract["object_type"] == PLASTIC_SQUARE_OBJECT_TYPE
+    assert contract["status"] == "FROZEN"
+    assert contract["equivalent_yaw_degrees"] == [0, 90, 180, 270]
+
+    # 받아들인 회전들이 진짜 C4 군인가 — proper rotation 이고 합성에 닫혀 있어야 한다.
+    import numpy as np
+
+    mats = [np.asarray(R, dtype=float)
+            for R in contract["accepted_proper_rotations"]]
+    assert len(mats) == 4
+    for R in mats:
+        assert np.isclose(np.linalg.det(R), 1.0)
+        assert np.allclose(R @ R.T, np.eye(3), atol=1e-12)
+    group = {tuple(np.round(R, 9).ravel()) for R in mats}
+    for A in mats:
+        for B in mats:
+            assert tuple(np.round(A @ B, 9).ravel()) in group
+
+
+def test_paper_object_keeps_its_own_180_degree_contract() -> None:
+    """정사각 물체를 C4 로 얼렸다고 논문 물체까지 넓히면 안 된다."""
+    registry = load_object_geometry_registry(CHALLENGE_REGISTRY_PATH)
+    spec = registry.resolve(PLASTIC_OBJECT_TYPE)
+    assert spec.symmetry_contract == "challenge/real_gt_v2/SYMMETRY_CONTRACT.json"
+    contract = json.loads(
+        (REPO_ROOT / spec.symmetry_contract).read_text(encoding="utf-8"))
+    assert contract["equivalent_yaw_degrees"] == [0, 180]
 
 
 def test_field_pallet_is_the_default_only_in_the_challenge_registry() -> None:

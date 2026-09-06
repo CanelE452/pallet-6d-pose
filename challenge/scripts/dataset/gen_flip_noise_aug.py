@@ -72,6 +72,21 @@ def flip(img: np.ndarray, obj: dict) -> tuple[np.ndarray, dict]:
     cen = obj.get("projected_cuboid_centroid")
     if cen:
         out["projected_cuboid_centroid"] = [w - 1.0 - float(cen[0]), float(cen[1])]
+    # ``keypoint_annotations`` 도 같이 뒤집는다.  ``dict(obj)`` 는 얕은 복사라
+    # 이걸 안 하면 이미지와 projected_cuboid 만 뒤집히고 keypoint_annotations 는
+    # 원본 그대로 남는다.  학습 변환기(prepare_yolo_pose.load_kps)가 그 필드를
+    # 우선하므로, 그대로 두면 **뒤집힌 이미지에 안 뒤집힌 라벨**이 붙는다.
+    ann = obj.get("keypoint_annotations")
+    if isinstance(ann, list) and len(ann) >= 9:
+        flipped = []
+        for entry in ann[:9]:
+            e = dict(entry)
+            xy = e.get("xy")
+            if xy is not None:
+                e["xy"] = [w - 1.0 - float(xy[0]), float(xy[1])]
+            flipped.append(e)
+        # 코너 8개는 좌우 짝을 맞바꾸고, centroid(8)는 제자리다.
+        out["keypoint_annotations"] = [flipped[i] for i in FLIP_PERM_8] + [flipped[8]]
     out["pose_transform"] = None          # 반사는 유효한 회전이 아니다
     out["aug"] = "fliplr"
     return cv2.flip(img, 1), out

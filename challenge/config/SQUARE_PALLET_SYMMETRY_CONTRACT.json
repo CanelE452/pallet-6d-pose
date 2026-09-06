@@ -1,0 +1,43 @@
+{
+  "schema_version": "real_pallet_symmetry_contract_v2",
+  "object_type": "plastic_standard_110x110x15",
+  "status": "FROZEN",
+  "metric_variant": "ADD-S",
+  "canonical_axis": "+Y",
+  "equivalent_yaw_degrees": [0, 90, 180, 270],
+  "accepted_proper_rotations": [
+    [[ 1, 0, 0], [0, 1, 0], [ 0, 0, 1]],
+    [[ 0, 0, 1], [0, 1, 0], [-1, 0, 0]],
+    [[-1, 0, 0], [0, 1, 0], [ 0, 0,-1]],
+    [[ 0, 0,-1], [0, 1, 0], [ 1, 0, 0]]
+  ],
+  "equivalence_basis": {
+    "kind": "PHYSICAL_INSPECTION_PLUS_REGISTERED_GEOMETRY",
+    "statement": "Poses of this pallet that differ only by a multiple of 90 degrees about canonical +Y are defined as equivalent, because (i) the registered footprint is square (x = 1.100 m, z = 1.100 m) and (ii) the physical pallet has fork pockets open on all four sides.",
+    "physical_inspection_claimed": true,
+    "inspection_record": {
+      "date": "2026-09-06",
+      "reviewer": "project owner",
+      "method": "direct visual inspection of the physical pallet",
+      "finding": "openings present on all four side faces (4-way entry)",
+      "artifact": "user statement in session; no drawing or mesh in repository"
+    },
+    "footprint_source": {
+      "file": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+      "field": "objects[plastic_standard_110x110x15].physical_dimensions_m",
+      "value_m": {"x": 1.1, "y": 0.15, "z": 1.1}
+    },
+    "claim_boundary": "This contract states that 90-degree yaw differences are equivalent for POSE EVALUATION and for FORK INSERTION. It does NOT claim that the pallet is visually indistinguishable under 90-degree rotation: the top deck pattern was not assessed for 4-fold symmetry, and no claim is made that a vision model cannot or should not distinguish the phases."
+  },
+  "inclusion_exclusion_rules": [
+    "The equivalence applies to the pallet body's canonical geometric pose.",
+    "All four yaw phases separated by multiples of 90 degrees are equivalent, because the canonical X and Z extents are equal (1.100 m each) and all four sides admit fork entry.",
+    "Cargo, straps, fixtures, and directional attachments are outside the symmetric pallet-body definition and must not be used to expand or contract the accepted rotation set.",
+    "This contract governs POSE metrics only. It does NOT license mixing keypoint index conventions: an index-wise 2D keypoint metric still requires that training labels and evaluation labels use the same index assignment. See challenge/config/KEYPOINT_FIELD_CONTRACT.json.",
+    "This contract applies ONLY to plastic_standard_110x110x15. The paper objects plastic_standard_110x130x11 and wood_small_80x59x14 keep their own contracts and are unaffected."
+  ],
+  "why_this_object_differs_from_the_paper_object": "challenge/real_gt_v2/SYMMETRY_CONTRACT.json excludes 90 degrees with the reason 'the canonical X and Z extents differ' (1.10 m vs 1.30 m). That reason does not hold here: this object's X and Z extents are equal. The two contracts are therefore consistent, not contradictory.",
+  "fixed_without_dev_or_final_pose_results": false,
+  "provenance_note": "Written 2026-09-06 during _docs/audits/accuracy_root_cause_v1. Development results on this object had already been observed at that time (challenge_c4_track). This contract is therefore NOT pre-registered, and any number reported under it is a DEVELOPMENT result. It was fixed to resolve a label-convention defect, not to select a model.",
+  "supersedes": "objects[plastic_standard_110x110x15].symmetry_status == 'UNREVIEWED' / symmetry_contract == null"
+}

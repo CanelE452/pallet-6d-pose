@@ -5,7 +5,7 @@ Python + PyTorch + Isaac Sim + DOPE.
 
 ## 🛑 평가셋 (새 세션 필독 — 다른 셋 쓰지 말 것)
 
-> **평가는 `objects[0].split == "eval"` 인 manual GT 161장만 사용한다.**
+> **평가는 `objects[0].split == "eval"` 인 manual GT 140장만 사용한다.**
 > 경로는 `challenge/data_paths.py` 의 `EVAL_CANONICAL` 이 유일한 출처다 —
 > 문자열로 다시 쓰지 말고 import 한다.
 > 상세·이력·금지사항: `_docs/EVAL_SET_CANONICAL.md` (테스트로 강제:
@@ -14,17 +14,25 @@ Python + PyTorch + Isaac Sim + DOPE.
 ```
 01_real/eval_canonical/_outside_eval_manual_gt         22   filter-val 세션
 01_real/eval_canonical/capture0403noapril_manual_gt    12
-01_real/eval_canonical/capturepalletcad_manual_gt      22
+01_real/eval_canonical/capturepalletcad_manual_gt      18
 01_real/manual_gt/capturepallet07_manual_gt            27   ★final-test
-01_real/manual_gt/capturepallet09_manual_gt            36   ★final-test
-01_real/manual_gt/capturenight08_manual_gt             17   ★final-test
-01_real/manual_gt/capturenight09_manual_gt             25   ★final-test
-                                        (challenge/data/ 아래)  합 161
+01_real/manual_gt/capturepallet09_manual_gt            33   ★final-test
+01_real/manual_gt/capturenight08_manual_gt             12   ★final-test
+01_real/manual_gt/capturenight09_manual_gt             16   ★final-test
+                                        (challenge/data/ 아래)  합 140
 ```
 
-- ⚠️ **"56장" 은 폐기된 수치다.** 2026-08-07/08-08 에 `metric_split_lock.md` §1.6 의
-  final-test 세션 4개를 봉인 해제해 정본에 편입했다(63+42=105장 추가). 옛 문서·메모리에
-  56장이 보이면 그건 07-3x 기준이다. 실측·테스트 선언값 모두 161.
+- ⚠️ **"161장" 과 "56장" 은 둘 다 낡은 수치다.** 161 은 2026-08-27 GT-QA 로 확정 오류
+  21장을 격리하기 **이전** 값이고(격리분은 `challenge/real_gt_v2/_archive/
+  real_gt_invalid_20260827/` 로 이동, 제외 계약은 `INVALID_GT_QUARANTINE.json`),
+  56 은 그보다 더 옛 07-3x 기준이다. 2026-09-06 디스크 전수·
+  `data_paths.EVAL_CANONICAL_TOTAL`·`test_eval_set_canonical.py` 모두 **140**.
+  161장 기준 결과는 과거 기록으로만 두고 새 평가의 분모로 쓰지 않는다.
+- ⚠️ **논문 트랙이 쓰는 수는 또 다르다 — 계보를 섞지 말 것.**
+  `161 −21(GT-QA) = 140 −12(FT 중복) = 128 plastic clean
+   +66(신규 plastic) = 194 −→ +125(wood) = 319 = PAPER_EVAL_ALL_POS`
+  (role=DEV, `held_out_final: false`). 근거
+  `_docs/audits/accuracy_root_cause_v1/FAILURE_DECOMPOSITION.md`.
 - ★final-test 4개는 정본이지만 **threshold 튜닝·모델 선택 금지**(봉인 소진, 재봉인 불가).
   보고 시 outside/night 를 한 덩어리로 합치지 말 것 — `data_paths.FINAL_TEST` 참조.
 - `split` 은 **최상위가 아니라 `objects[0].split`**. 최상위만 읽으면 전부 "없음" 으로 보인다.
@@ -101,7 +109,7 @@ Python + PyTorch + Isaac Sim + DOPE.
 ## Compaction Rules
 
 - **compact 시 원문 디테일 보존** (요약 금지):
-  - 정본 평가셋 규칙 — `objects[0].split=="eval"` 161장(7폴더) + wood45.
+  - 정본 평가셋 규칙 — `objects[0].split=="eval"` 140장(7폴더) + wood45.
     평가뿐 아니라 **development·진단·probe subset 도 정본에서** 뽑는다
     (`data/_eval_sets/*combined` 사용 금지 — 여기서 뽑아 판정 4건이 뒤집힌 이력)
   - 현재 architecture 판정과 그 근거 한 줄

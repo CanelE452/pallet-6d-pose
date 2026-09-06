@@ -18,8 +18,14 @@ axis choice showing as roughly 90 degrees of error.
     pose AUC         area under accuracy(tau) for tau in [0, 0.1 x diameter],
                      1001 integration points, normalised to [0, 1]
 
-90 degrees is never absorbed by the symmetry group.  For a forklift the difference
-between entering the pockets and hitting the deck is exactly that rotation.
+90 degrees is never absorbed by the symmetry group, because the canonical X and Z
+extents of the evaluated object differ (1.10 m vs 1.30 m).  That is a geometric
+statement about this object, not a claim about forklift operation: the repository's
+own records say both audited pallets are 4-way entry, so a 90 degree rotation meets
+another pair of pockets rather than the deck.  Whether the deployed square-footprint
+object (plastic_standard_110x110x15) admits the same equivalence is UNREVIEWED --
+it carries no symmetry contract.  See
+_docs/audits/accuracy_root_cause_v1/DEPLOYMENT_GEOMETRY_AUDIT.md
 """
 
 from __future__ import annotations
