@@ -27,3 +27,17 @@ class A1SymmetryPoseModel(PoseModel):
         if getattr(self, "end2end", False):
             return E2ELoss(self, A1SymmetryPoseLoss)
         return A1SymmetryPoseLoss(self)
+
+
+class DiffPnPPoseModel(PoseModel):
+    """DiffPnP 3D-corner 항을 더한 pose 모델.
+
+    ``DIFFPNP_CONFIG`` 가 없거나 ``lambda_dp=0`` 이면 항을 계산하지 않으므로
+    stock 경로와 구성적으로 동일하다.
+    """
+
+    def init_criterion(self):
+        from .diffpnp import DiffPnPPoseLoss26
+        if getattr(self, "end2end", False):
+            return E2ELoss(self, DiffPnPPoseLoss26)
+        return DiffPnPPoseLoss26(self)

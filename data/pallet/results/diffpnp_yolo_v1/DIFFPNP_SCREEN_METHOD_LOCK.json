@@ -1,0 +1,32 @@
+{
+  "schema_version": "diffpnp_screen_method_lock_v1",
+  "registered_utc_note": "결과를 보기 전에 작성됐다. 실행 후 수정하지 않는다.",
+  "question": "평가가 pose 를 읽는 연산(예측 2D -> PnP)을 학습 loss 에 넣으면 실제 pose 정확도가 개선되는가",
+  "design": {
+    "arms": {"C_LAMBDA0": "lambda_dp = 0 (대조)", "T_LAMBDA1": "lambda_dp = 1.0 (처치)"},
+    "only_variable": "lambda_dp",
+    "shared": "yolo26n-pose.pt · g38_legacy_v1v2_p0_tex20k · 10 epochs · batch 32 · imgsz 640 · SGD · cos_lr · seed 42 · deterministic · patience 0",
+    "lambda_source": "Q0_GRAD_BAND.json — pred_kpts 기울기 노름 비율 4.5% (목표 5%), 값 비율로 정하지 않았다",
+    "mosaic_note": "close_mosaic=10 >= epochs 이므로 이 스크린은 mosaic 없이 돈다. DiffPnP 감독률 약 99% (스모크 실측 6061/6127)"
+  },
+  "gate_0_harness_validity": {
+    "rule": "두 arm 의 args.yaml 이 lambda 관련 항목을 뺀 전부에서 동일해야 하고, 두 arm 모두 최종 epoch 마크가 있어야 한다",
+    "on_fail": "VOID"
+  },
+  "primary_population": "PAPER_EVAL 319 (development set — held-out 아님)",
+  "primary_metrics": {
+    "rotation_median_deg": "lower_is_better",
+    "translation_median_cm": "lower_is_better",
+    "iou3d_median": "higher_is_better",
+    "add_sym_auc": "higher_is_better"
+  },
+  "secondary_metrics": ["frames_with_prediction", "axis_accuracy", "yaw_median_deg"],
+  "verdict_rule": {
+    "relative_tolerance": 0.01,
+    "ACCEPT_DIFFPNP": "T 가 4개 primary 중 하나도 허용범위(1%) 밖으로 나빠지지 않고 최소 2개가 개선",
+    "REJECT": "그 외",
+    "indistinguishable_guard": "최대 상대변화가 1e-6 미만이면 개선 갯수와 무관하게 NO_CHANGE 로 읽는다 (solver_swap_v1 에서 이 함정에 걸렸다)"
+  },
+  "stop_rule": "T 가 REJECT 면 full 60epoch 학습으로 확대하지 않는다. SOLVER_LOSS_TRACK 은 이미 CLOSED 였고 이번은 사용자 지시로 여는 것이다.",
+  "leakage_note": "PAPER_EVAL 319 는 반복 사용된 development set. 어떤 결과도 held-out/final/SOTA 로 부르지 않는다."
+}

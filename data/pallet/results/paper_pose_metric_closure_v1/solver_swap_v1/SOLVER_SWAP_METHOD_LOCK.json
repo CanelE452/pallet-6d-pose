@@ -1,0 +1,57 @@
+{
+  "schema_version": "solver_swap_method_lock_v1",
+  "registered_utc_note": "결과를 보기 전에 작성됐다. 이 파일은 실행 후 수정하지 않는다.",
+  "scope": {
+    "new_training_steps": 0,
+    "new_inference_runs": 0,
+    "changed": "pose read-out PnP solver only",
+    "frozen": [
+      "predictions/{ARM}.json keypoints",
+      "select_pnp_hypotheses axis choice (internally SQPnP — 의도적으로 고정)",
+      "GEOMETRY_RESOLVED_POSE_GT.json",
+      "symmetry_aware_pose_metrics + oriented_iou3d",
+      "frame population"
+    ]
+  },
+  "solver_arms": {
+    "S0_SQPNP_LM": "cv2.SOLVEPNP_SQPNP + cv2.solvePnPRefineLM (canonical)",
+    "D1_GN_LS": "EPnP init + 10-step unrolled damped Gauss-Newton, squared reprojection",
+    "D2_GN_HUBER": "EPnP init + 10-step unrolled damped Gauss-Newton, IRLS Huber delta=12px",
+    "D3_SQPNP_GN": "SQPnP init + 10-step unrolled damped Gauss-Newton, squared reprojection",
+    "D4_GN_HUBER_CONF": "D2 + per-keypoint confidence weights"
+  },
+  "hyperparameters_fixed_before_run": {
+    "gn_steps": 10,
+    "damping": 1e-3,
+    "delta_clip": 0.5,
+    "huber_delta_px": 12.0,
+    "huber_delta_source": "metric_split_lock.md §3.1 reject rule (median reproj > 12px) — 튜닝하지 않았다",
+    "dtype": "float64",
+    "init_solver_for_D1_D2_D4": "cv2.SOLVEPNP_EPNP (no LM)"
+  },
+  "gate_0_harness_validity": {
+    "rule": "S0 로 다시 계산한 ALL 이 기존 POSE_EVALUATION_{ARM}.json 의 paths.MAIN.ALL 과 tolerance 1e-9 안에서 일치해야 한다",
+    "keys": ["n", "axis_accuracy", "rotation_median_deg", "yaw_median_deg", "translation_median_cm", "iou3d_median", "add_sym_auc"],
+    "on_fail": "VOID — D1~D4 수치를 읽지 않는다"
+  },
+  "gate_1_solver_correctness": {
+    "rule": "합성 무잡음 대응점에서 GN solver 가 알려진 pose 를 회복해야 한다",
+    "rotation_tolerance_deg": 1e-6,
+    "translation_tolerance_m": 1e-8,
+    "on_fail": "VOID"
+  },
+  "primary_arms": ["R0", "R5_PROPOSED"],
+  "primary_metrics": {
+    "rotation_median_deg": "lower_is_better",
+    "translation_median_cm": "lower_is_better",
+    "iou3d_median": "higher_is_better",
+    "add_sym_auc": "higher_is_better"
+  },
+  "verdict_rule": {
+    "population": "paired — 모든 solver arm 이 pose 를 반환한 프레임 교집합",
+    "ACCEPT_SOLVER_SWAP": "어떤 D arm 이 R0 와 R5_PROPOSED 두 arm 모두에서 4개 primary metric 중 하나도 나빠지지 않고(상대 1% 허용) 최소 2개가 개선될 때",
+    "REJECT": "그 외",
+    "relative_tolerance": 0.01
+  },
+  "leakage_note": "PAPER_EVAL 319장은 반복 사용된 development set. 어떤 결과도 held-out/final/SOTA 로 부르지 않는다."
+}

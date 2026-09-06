@@ -55,3 +55,14 @@ class ASCTrainer(A1SymmetryTrainer):
 
         self.add_callback("on_train_epoch_start", _start)
         self.add_callback("on_train_epoch_end", _end)
+
+
+class DiffPnPTrainer(PoseTrainer):
+    def get_model(self, cfg=None, weights=None, verbose=True):
+        from .model import DiffPnPPoseModel
+        model = DiffPnPPoseModel(cfg, nc=self.data["nc"],
+                                 data_kpt_shape=self.data["kpt_shape"],
+                                 ch=self.data["channels"], verbose=verbose)
+        if weights:
+            model.load(weights)
+        return model

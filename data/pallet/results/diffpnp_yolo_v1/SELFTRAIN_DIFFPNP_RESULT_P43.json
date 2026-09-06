@@ -1,0 +1,92 @@
+{
+  "schema_version": "selftrain_diffpnp_result_v1",
+  "generated_utc": "2026-09-06T00:27:04.484041+00:00",
+  "elapsed_sec": 508.5,
+  "self_training_arm": "R5_PROPOSED_P43",
+  "epochs": 10,
+  "lambda_dp": 0.1432,
+  "index_meta": {
+    "schema_version": "diffpnp_selftrain_index_v1",
+    "arm": "R5_PROPOSED_P43",
+    "n_indexed": 1683,
+    "n_replay": 1440,
+    "n_pseudo_label": 243,
+    "reasons": {
+      "pl_ok": 243,
+      "pl_too_few_visible": 12,
+      "pl_reference_reproj_rejected": 4,
+      "replay_ok": 1440
+    },
+    "pl_reference": "cv2.SOLVEPNP_SQPNP + RefineLM on the pseudo-label keypoints",
+    "pl_reference_caveat": "교사가 낸 좌표에서 읽은 pose 다 — 교사가 모르는 것을 알려주지 않는다",
+    "pl_dims_m": {
+      "long": 1.3,
+      "short": 1.1,
+      "height": 0.12
+    },
+    "pl_reference_reproj_px": {
+      "median": 1.9977217021976372,
+      "p90": 4.233145486090428
+    },
+    "replay_reference": "GT projected_cuboid 로 푼 PnP (합성 인덱스 재사용)"
+  },
+  "arms": {
+    "ST_C_LAMBDA0_P43": {
+      "n": 319,
+      "axis_accuracy": 0.7398119122257053,
+      "rotation_median_deg": 2.599894690894638,
+      "yaw_median_deg": 1.365253885796335,
+      "translation_median_cm": 7.647189241958883,
+      "iou3d_median": 0.596306733069674,
+      "add_sym_auc": 0.4185658307210031
+    },
+    "ST_T_DIFFPNP_P43": {
+      "n": 319,
+      "axis_accuracy": 0.7398119122257053,
+      "rotation_median_deg": 2.4227038922245048,
+      "yaw_median_deg": 1.2905798766508667,
+      "translation_median_cm": 7.877816816431453,
+      "iou3d_median": 0.5898371078519238,
+      "add_sym_auc": 0.41597962382445147
+    }
+  },
+  "verdict": {
+    "verdict": "REJECT",
+    "no_metric_worse_beyond_tolerance": false,
+    "improved_metric_count": 1,
+    "largest_absolute_relative_change": 0.06815306761873527,
+    "indistinguishable_from_control": false,
+    "effective_reading": "NOT_IMPROVED",
+    "by_metric": {
+      "rotation_median_deg": {
+        "control": 2.599894690894638,
+        "treatment": 2.4227038922245048,
+        "relative_change": -0.06815306761873527,
+        "better": true,
+        "worse_beyond_tolerance": false
+      },
+      "translation_median_cm": {
+        "control": 7.647189241958883,
+        "treatment": 7.877816816431453,
+        "relative_change": 0.030158476163654236,
+        "better": false,
+        "worse_beyond_tolerance": true
+      },
+      "iou3d_median": {
+        "control": 0.596306733069674,
+        "treatment": 0.5898371078519238,
+        "relative_change": -0.010849492147180331,
+        "better": false,
+        "worse_beyond_tolerance": true
+      },
+      "add_sym_auc": {
+        "control": 0.4185658307210031,
+        "treatment": 0.41597962382445147,
+        "relative_change": -0.006178733921249041,
+        "better": false,
+        "worse_beyond_tolerance": false
+      }
+    }
+  },
+  "leakage_note": "PAPER_EVAL 319 는 반복 사용된 development set. 어떤 결과도 held-out/final/SOTA 로 부르지 않는다."
+}

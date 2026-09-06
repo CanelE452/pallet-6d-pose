@@ -1,0 +1,40 @@
+{
+  "schema_version": "selftrain_diffpnp_method_lock_v1",
+  "registered_utc_note": "결과를 보기 전에 작성됐다. 실행 후 수정하지 않는다.",
+  "question": "SQPnP 로 학습한 base(R0)를 pseudo-label 로 self-training 할 때 DiffPnP 항을 같이 켜면 실제 pose 가 좋아지는가",
+  "why_this_cell_is_new": "앞선 두 실험은 (가) 평가 read-out solver 교체 (나) 합성 데이터 학습에 DiffPnP 투입이었다. self-training 단계는 아직 시험하지 않은 칸이다.",
+  "design": {
+    "base": "R0 (POSE_ARM_CHECKPOINT_LOCK 의 FROZEN checkpoint) — SQPnP 기반 합성 학습 모델",
+    "dataset": "paper_selftrain_v1/R5_PROPOSED (PL 1440 노출 + 합성 replay 1440 노출)",
+    "recipe": "run_paper_selftraining.py 의 TRAIN_ARGS 그대로 · exposure lock 예산(10 epoch, 900 update, batch 32, lr 0.002)",
+    "arms": {"ST_C_LAMBDA0": "lambda_dp = 0 (대조)", "ST_T_DIFFPNP": "lambda_dp = Q0 가 정한 값"},
+    "only_variable": "lambda_dp"
+  },
+  "reference_pose_definition": {
+    "pseudo_label_frames": "PL keypoint 에 cv2.SOLVEPNP_SQPNP + RefineLM — 평가가 pose 를 읽는 연산과 같다",
+    "replay_synthetic_frames": "GT projected_cuboid 로 푼 PnP (기존 합성 인덱스 재사용)",
+    "caveat": "PL 참조는 교사 자신의 좌표에서 읽은 pose 다. 교사가 모르는 것을 알려주지 못하며, 이 항의 기전은 2D 오차를 pose 영향도로 재가중하는 것이다.",
+    "pl_dims_source": "metric_split_lock.md §3.2 [LOCKED] 1.10 x 1.30 x 0.12 m, W/D 배정은 프레임마다 재투영 낮은 쪽",
+    "reference_reject": "PL 참조 재투영 > 12px 이면 그 프레임은 사이드카에서 제외 (metric_split_lock 의 reject 임계와 같은 값)"
+  },
+  "lambda_rule": "Q0 에서 pred_kpts 기울기 노름 비율 5% 에 해당하는 값. loss 값 비율로 정하지 않는다.",
+  "gate_0_harness_validity": {
+    "rule": "두 arm 이 같은 base·같은 데이터셋·같은 seed 로 10 epoch 을 마쳐야 하고, 산출물(last.pt)이 있어야 한다",
+    "on_fail": "VOID"
+  },
+  "primary_population": "PAPER_EVAL 319 (development set — held-out 아님)",
+  "primary_metrics": {
+    "rotation_median_deg": "lower_is_better",
+    "translation_median_cm": "lower_is_better",
+    "iou3d_median": "higher_is_better",
+    "add_sym_auc": "higher_is_better"
+  },
+  "verdict_rule": {
+    "relative_tolerance": 0.01,
+    "ACCEPT_DIFFPNP": "처치가 4개 primary 중 하나도 허용범위(1%) 밖으로 나빠지지 않고 최소 2개가 개선",
+    "REJECT": "그 외",
+    "indistinguishable_guard": "최대 상대변화가 1e-6 미만이면 NO_CHANGE 로 읽는다"
+  },
+  "prior_evidence_note": "같은 계열 선행 4건이 전부 부정 방향이다 (2026-07 DOPE StageB PARTIAL / 2026-08 predseed REJECT / 2026-09-06 평가측 REJECT / 2026-09-06 합성학습 REJECT). 이 칸은 사용자 지시로 여는 것이다.",
+  "leakage_note": "PAPER_EVAL 319 는 반복 사용된 development set. 어떤 결과도 held-out/final/SOTA 로 부르지 않는다."
+}
