@@ -5,7 +5,9 @@ the existing challenge YOLO sets - kept the same so the two are comparable):
 
   image   : cv2.copyMakeBorder(..., BORDER_REFLECT_101) with pad px on all four sides
   keypoint: x += pad, y += pad
-  v       : 2 if the padded canvas contains the point, else 0 (and x=y=0 is written)
+  v       : 2 if the point is known AND the padded canvas contains it, else 0
+            (and x=y=0 is written).  "known" is carried as a third tuple element,
+            never encoded as a magic coordinate.
   bbox    : axis-aligned bbox of the v==2 keypoints, normalised by the PADDED size
   line    : "0 cx cy w h  x0 y0 v0 ... x8 y8 v8"
 
@@ -62,24 +64,37 @@ def load_kps(ann_path):
     if isinstance(ann, list) and len(ann) >= 9:
         kps = []
         for entry in ann[:9]:
-            xy = entry.get("xy") if isinstance(entry, dict) else None
-            kps.append((SENTINEL, SENTINEL) if xy is None
-                       else (float(xy[0]), float(xy[1])))
+            e = entry if isinstance(entry, dict) else {}
+            xy = e.get("xy")
+            # 계약 정본: scripts/annotate/real_gt_v2_schema.py
+            # ``keypoint_annotations_to_ultralytics`` — visibility 0 은 좌표가
+            # 남아 있어도 provenance 를 모른다는 뜻이라 학습 타깃이 [0,0,0] 이어야 한다.
+            known = xy is not None and int(e.get("visibility", 0)) != 0
+            kps.append((float(xy[0]), float(xy[1]), True) if known
+                       else (0.0, 0.0, False))
         return kps
 
     proj = obj.get("projected_cuboid")
     if not proj or len(proj) < 8:
         return None
     cen = obj.get("projected_cuboid_centroid")
-    kps = [tuple(map(float, p)) for p in proj[:8]]
-    kps.append(tuple(map(float, cen)) if cen else (SENTINEL, SENTINEL))
+    kps = [(float(p[0]), float(p[1]), True) for p in proj[:8]]
+    kps.append((float(cen[0]), float(cen[1]), True) if cen else (0.0, 0.0, False))
     return kps
 
 
 def to_line(w, h, kps):
+    """kps 는 ``(x, y)`` 또는 ``(x, y, known)``.
+
+    ``known=False`` 는 좌표를 모른다는 뜻이라 padding 뒤에 캔버스 안으로 들어오더라도
+    감독하지 않는다 — 상태를 좌표 값 하나로 표현하면 sentinel 이 실제 점과 구별되지
+    않는다(-0.5 + PAD = 99.5 는 캔버스 안이라 v=2 가 됐고 bbox 까지 늘렸다).
+    """
     vis, out = [], []
-    for x, y in kps:
-        v = 2 if (0 <= x < w and 0 <= y < h) else 0
+    for p in kps:
+        x, y = p[0], p[1]
+        known = p[2] if len(p) > 2 else True
+        v = 2 if (known and 0 <= x < w and 0 <= y < h) else 0
         vis.append(v)
     if sum(v == 2 for v in vis) == 0:
         return None
@@ -92,7 +107,8 @@ def to_line(w, h, kps):
     bw = min(1.0, max(0.0, max(1.0, x1 - x0) / w))
     bh = min(1.0, max(0.0, max(1.0, y1 - y0) / h))
     parts = ["0", f"{cx:.6f}", f"{cy:.6f}", f"{bw:.6f}", f"{bh:.6f}"]
-    for (x, y), v in zip(kps, vis):
+    for p, v in zip(kps, vis):
+        x, y = p[0], p[1]
         if v == 2:
             parts += [f"{min(1.0, max(0.0, x / w)):.6f}", f"{min(1.0, max(0.0, y / h)):.6f}", "2"]
         else:
@@ -111,7 +127,7 @@ def one(job):
         return "unreadable_image"
     padded = cv2.copyMakeBorder(img, PAD, PAD, PAD, PAD, cv2.BORDER_REFLECT_101)
     ph, pw = padded.shape[:2]
-    line = to_line(pw, ph, [(x + PAD, y + PAD) for x, y in kps])
+    line = to_line(pw, ph, [(x + PAD, y + PAD, k) for x, y, k in kps])
     if line is None:
         return "all_kp_outside"
     cv2.imwrite(str(img_dst), padded)

@@ -87,6 +87,24 @@ MIN_VIS_DIM = 50.0
 # --------------------------------------------------------------------------- #
 # IO helpers
 # --------------------------------------------------------------------------- #
+import keypoint_annotations_transform as kat  # noqa: E402
+
+
+def _assert_matches(M, src_kps, dst_kps, tol=1e-6):
+    """합성한 affine 이 실제로 계산된 좌표를 재현하는지 확인한다.
+
+    합성 공식을 손으로 유도했으므로, 틀렸을 때 조용히 어긋난 라벨을 내보내지 않고
+    여기서 죽게 한다.
+    """
+    for a, b in zip(src_kps, dst_kps):
+        if is_sentinel(a) or is_sentinel(b):
+            continue
+        x = M[0, 0] * a[0] + M[0, 1] * a[1] + M[0, 2]
+        y = M[1, 0] * a[0] + M[1, 1] * a[1] + M[1, 2]
+        assert abs(x - b[0]) < tol and abs(y - b[1]) < tol, (
+            f"affine 합성이 좌표를 재현하지 못한다: {(x, y)} != {tuple(b)}")
+
+
 def is_sentinel(p):
     return p[0] == SENTINEL or p[1] == SENTINEL
 
@@ -130,7 +148,8 @@ def visible_bbox(kps):
     return w, h, w * h
 
 
-def write_output(out_dir, stem, img, kps, src_obj, src_cam, meta):
+def write_output(out_dir, stem, img, kps, src_obj, src_cam, meta, M=None,
+                 parent_frame=None):
     cv2.imwrite(os.path.join(out_dir, stem + ".png"), img)
     obj = {
         "class": "pallet",
@@ -145,6 +164,14 @@ def write_output(out_dir, stem, img, kps, src_obj, src_cam, meta):
               "euler_angles", "dimensions_m"):
         if k in src_obj:
             obj[k] = src_obj[k]
+    # 정본 keypoint 필드도 같은 affine 으로 옮긴다.  이 스크립트는 flip 을 하지
+    # 않으므로 인덱스 순열은 없다(docstring 참조) — perm 을 주지 않는다.
+    if M is not None:
+        kat.attach(obj, src_obj, M, W_IMG, H_IMG,
+                   parent_frame=parent_frame,
+                   transformation={"kind": "ratio_affine", "matrix":
+                                   [[float(v) for v in row] for row in M],
+                                   "meta": meta})
     out = {
         "camera_data": {
             "width": W_IMG,
@@ -184,7 +211,7 @@ def apply_affine(img, kps, sx, sy):
             x = M[0, 0] * p[0] + M[0, 1] * p[1] + M[0, 2]
             y = M[1, 0] * p[0] + M[1, 1] * p[1] + M[1, 2]
             out.append([x, y])
-    return out_img, np.array(out, dtype=np.float64)
+    return out_img, np.array(out, dtype=np.float64), M
 
 
 def gen_affine_variant(img, kps, kind, rng, args):
@@ -199,7 +226,7 @@ def gen_affine_variant(img, kps, kind, rng, args):
         if abs(sx - sy) < 0.12:
             sy = sx * rng.choice([0.65, 0.8, 1.25, 1.5])
             sy = float(np.clip(sy, args.squash_min, args.squash_max))
-    out_img, out_kps = apply_affine(img, kps, sx, sy)
+    out_img, out_kps, M = apply_affine(img, kps, sx, sy)
     # keep enough of the pallet on screen
     if count_in_image(out_kps) < 6:
         return None
@@ -207,7 +234,7 @@ def gen_affine_variant(img, kps, kind, rng, args):
     if varea < W_IMG * H_IMG * 0.03:
         return None
     meta = {"kind": kind, "sx": round(sx, 4), "sy": round(sy, 4)}
-    return out_img, out_kps, meta
+    return out_img, out_kps, meta, M
 
 
 # --------------------------------------------------------------------------- #
@@ -349,7 +376,15 @@ def gen_trunc_variant(img, kps, rng, args):
             and not (0 <= p[0] < W_IMG and 0 <= p[1] < H_IMG))
         meta = {"kind": "trunc", "side": side, "f": round(f, 3),
                 "deep": deep, "pad": int(pad), "off_after_pad": still_off}
-        return pimg, pkps, meta
+        # crop 과 pad_back 을 합성한 affine.  정본 keypoint 필드를 같은 변환으로
+        # 옮기기 위해 필요하다.  두 단계 모두 축정렬 scale+translate 라 합성이 닫힌다.
+        csx, csy = W_IMG / cw, H_IMG / ch
+        psx = W_IMG / (W_IMG + 2 * pad) if pad > 0 else 1.0
+        psy = H_IMG / (H_IMG + 2 * pad) if pad > 0 else 1.0
+        M = np.array([[csx * psx, 0.0, (-cx0 * csx + pad) * psx],
+                      [0.0, csy * psy, (-cy0 * csy + pad) * psy]])
+        _assert_matches(M, kps, pkps)
+        return pimg, pkps, meta, M
     return None
 
 
@@ -479,9 +514,10 @@ def main():
             if res is None:
                 n_fail += 1
                 continue
-            out_img, out_kps, meta = res
+            out_img, out_kps, meta, M = res
             uniq = "{}_{}_v{}".format(args.kind, stem, vi)
-            write_output(args.out_dir, uniq, out_img, out_kps, obj, cam, meta)
+            write_output(args.out_dir, uniq, out_img, out_kps, obj, cam, meta,
+                         M=M, parent_frame=jp)
             records.append({"stem": uniq, "meta": meta})
             if "pad" in meta:
                 pads.append(meta["pad"])

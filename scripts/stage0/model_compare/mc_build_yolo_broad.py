@@ -44,7 +44,7 @@ def job(args):
     padded = cv2.copyMakeBorder(image, PY.PAD, PY.PAD, PY.PAD, PY.PAD,
                                 cv2.BORDER_REFLECT_101)
     ph, pw = padded.shape[:2]
-    line = PY.to_line(pw, ph, [(x + PY.PAD, y + PY.PAD) for x, y in kps])
+    line = PY.to_line(pw, ph, [(x + PY.PAD, y + PY.PAD, k) for x, y, k in kps])
     if line is None:
         return "all_kp_outside"
     cv2.imwrite(os.path.join(OUT, "images", split, f"{stem}.png"), padded)

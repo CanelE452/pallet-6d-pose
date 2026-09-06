@@ -298,6 +298,23 @@ def main():
                 "pseudo_kps": raw_orig,
                 "reproj_error_px": reproj_orig,
                 "gate_info": info,
+                # 정본 필드를 **출처를 밝혀** 명시적으로 쓴다.  안 쓰면 학습
+                # 변환기가 projected_cuboid fallback 으로 조용히 내려가고,
+                # 이 좌표가 사람이 찍은 것인지 모델이 만든 것인지 알 수 없게 된다.
+                "keypoint_annotations": [
+                    {"xy": ([float(pt[0]), float(pt[1])]
+                            if pt is not None and 0 <= pt[0] < w and 0 <= pt[1] < h
+                            else None),
+                     "visibility": (1 if pt is not None
+                                    and 0 <= pt[0] < w and 0 <= pt[1] < h else 0),
+                     "in_frame": bool(pt is not None
+                                      and 0 <= pt[0] < w and 0 <= pt[1] < h),
+                     "source": "pnp_projected",
+                     "reason": "unknown"}
+                    for pt in proj_all[:9]],
+                "keypoint_source": "pnp_projected",
+                "parent_frame": rgb_path,
+                "transformation": {"kind": "pseudo_label_pnp_reprojection"},
             }],
         }
         with open(os.path.join(out_dir, f"{stem}.json"), "w", encoding="utf-8") as f:

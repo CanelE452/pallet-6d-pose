@@ -33,14 +33,14 @@ def _write(tmp_path, obj):
 
 def test_load_kps_prefers_keypoint_annotations(tmp_path):
     """두 필드가 다르면 keypoint_annotations 를 따라야 한다."""
-    ann = [{"xy": [float(i), float(i) + 0.5]} for i in range(9)]
+    ann = [{"xy": [float(i), float(i) + 0.5], "visibility": 2} for i in range(9)]
     proj = [[100.0 + i, 200.0 + i] for i in range(8)]
     kps = load_kps(_write(tmp_path, {
         "keypoint_annotations": ann,
         "projected_cuboid": proj,
         "projected_cuboid_centroid": [999.0, 999.0],
     }))
-    assert kps == [(float(i), float(i) + 0.5) for i in range(9)]
+    assert kps == [(float(i), float(i) + 0.5, True) for i in range(9)]
 
 
 def test_load_kps_falls_back_for_synthetic(tmp_path):
@@ -49,14 +49,29 @@ def test_load_kps_falls_back_for_synthetic(tmp_path):
     kps = load_kps(_write(tmp_path, {
         "projected_cuboid": proj, "projected_cuboid_centroid": [7.0, 7.0],
     }))
-    assert kps == [(float(i), float(i)) for i in range(8)] + [(7.0, 7.0)]
+    assert kps == [(float(i), float(i), True) for i in range(8)] + [(7.0, 7.0, True)]
 
 
-def test_load_kps_null_xy_becomes_sentinel(tmp_path):
-    ann = [{"xy": [1.0, 2.0]} for _ in range(9)]
-    ann[3] = {"xy": None}
+def test_load_kps_marks_unknown_points_instead_of_a_sentinel_coordinate(tmp_path):
+    """모르는 점은 좌표가 아니라 상태로 표시한다.
+
+    예전 계약은 ``(-0.5, -0.5)`` sentinel 이었는데 ``+PAD`` 를 더하면
+    ``(99.5, 99.5)`` 가 되어 캔버스 안이라 ``v=2`` 로 감독됐고 bbox 까지 늘렸다.
+    end-to-end 근거: `challenge/tests/test_label_contract_end_to_end.py`.
+    """
+    ann = [{"xy": [1.0, 2.0], "visibility": 2} for _ in range(9)]
+    ann[3] = {"xy": None, "visibility": 0}
     kps = load_kps(_write(tmp_path, {"keypoint_annotations": ann}))
-    assert kps[3] == (SENTINEL, SENTINEL)
+    assert kps[3] == (0.0, 0.0, False)
+    assert kps[3][:2] != (SENTINEL, SENTINEL)
+
+
+def test_load_kps_visibility_zero_is_unknown_even_with_coordinates(tmp_path):
+    """좌표가 남아 있어도 visibility 0 이면 provenance 를 모르는 점이다."""
+    ann = [{"xy": [1.0, 2.0], "visibility": 2} for _ in range(9)]
+    ann[6] = {"xy": [3.0, 4.0], "visibility": 0}
+    kps = load_kps(_write(tmp_path, {"keypoint_annotations": ann}))
+    assert kps[6] == (0.0, 0.0, False)
 
 
 def test_flip_also_flips_keypoint_annotations():

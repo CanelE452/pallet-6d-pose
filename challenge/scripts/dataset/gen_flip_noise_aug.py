@@ -43,7 +43,9 @@ GT_ROOT = REPO / "challenge/data/01_real/live_capture_gt"
 CAPTURE_ROOT = REPO / "challenge/data/01_real/_live_captures"
 
 # 좌우가 바뀌면 코너 이름도 바뀐다.  9 점짜리(centroid 포함)는 마지막이 불변.
-FLIP_PERM_8 = (1, 0, 3, 2, 5, 4, 7, 6)
+import keypoint_annotations_transform as kat  # noqa: E402
+
+FLIP_PERM_8 = kat.FLIP_PERM_8
 
 
 def sessions() -> dict[str, Path]:
@@ -63,7 +65,8 @@ def sessions() -> dict[str, Path]:
     return found
 
 
-def flip(img: np.ndarray, obj: dict) -> tuple[np.ndarray, dict]:
+def flip(img: np.ndarray, obj: dict, parent_frame: str | None = None
+         ) -> tuple[np.ndarray, dict]:
     w = img.shape[1]
     out = dict(obj)
     proj = obj["projected_cuboid"]
@@ -89,10 +92,14 @@ def flip(img: np.ndarray, obj: dict) -> tuple[np.ndarray, dict]:
         out["keypoint_annotations"] = [flipped[i] for i in FLIP_PERM_8] + [flipped[8]]
     out["pose_transform"] = None          # 반사는 유효한 회전이 아니다
     out["aug"] = "fliplr"
+    out.update(kat.provenance(parent_frame,
+                              {"kind": "hflip", "width": w,
+                               "perm": list(FLIP_PERM_8)}))
     return cv2.flip(img, 1), out
 
 
-def noise(img: np.ndarray, obj: dict, rng: random.Random) -> tuple[np.ndarray, dict]:
+def noise(img: np.ndarray, obj: dict, rng: random.Random,
+          parent_frame: str | None = None) -> tuple[np.ndarray, dict]:
     sigma = rng.uniform(4.0, 12.0)          # 8bit 기준 센서 노이즈
     gain = rng.uniform(0.92, 1.08)          # 약한 대비
     bias = rng.uniform(-10.0, 10.0)         # 약한 밝기
@@ -100,6 +107,10 @@ def noise(img: np.ndarray, obj: dict, rng: random.Random) -> tuple[np.ndarray, d
     f += np.random.normal(0.0, sigma, img.shape).astype(np.float32)
     out = dict(obj)
     out["aug"] = f"noise(sigma={sigma:.1f},gain={gain:.2f},bias={bias:+.1f})"
+    # 노이즈는 좌표를 안 바꾸므로 keypoint_annotations 는 그대로가 맞다.
+    out.update(kat.provenance(parent_frame,
+                              {"kind": "noise", "sigma": round(sigma, 2),
+                               "gain": round(gain, 3), "bias": round(bias, 2)}))
     return np.clip(f, 0, 255).astype(np.uint8), out
 
 
@@ -143,9 +154,9 @@ def main(argv=None) -> int:
 
             for mode in args.modes:
                 if mode == "flip":
-                    new_img, new_obj = flip(img, objs[0])
+                    new_img, new_obj = flip(img, objs[0], str(ann))
                 else:
-                    new_img, new_obj = noise(img, objs[0], rng)
+                    new_img, new_obj = noise(img, objs[0], rng, str(ann))
                 stem = f"{name}_{ann.stem}_{'f' if mode == 'flip' else 'n'}"
                 cv2.imwrite(str(out_dir / f"{stem}.png"), new_img)
                 (out_dir / f"{stem}.json").write_text(json.dumps({

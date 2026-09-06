@@ -88,6 +88,9 @@ def get_keypoints(obj):
     return np.array(kps, dtype=np.float64)
 
 
+import keypoint_annotations_transform as kat  # noqa: E402
+
+
 def is_sentinel(p):
     return p[0] == SENTINEL or p[1] == SENTINEL
 
@@ -257,11 +260,12 @@ def gen_variant(img, kps, deep, rng, max_tries):
             continue
         if min(vw, vh) < MIN_VIS_DIM:
             continue
-        return out_img, out_kps, side, f, in_cnt
+        return out_img, out_kps, side, f, in_cnt, win
     return None
 
 
-def write_output(out_dir, stem, img, kps, src_obj, src_cam):
+def write_output(out_dir, stem, img, kps, src_obj, src_cam, win=None,
+                 parent_frame=None):
     cv2.imwrite(os.path.join(out_dir, stem + ".png"), img)
     obj = {
         "class": "pallet",
@@ -273,6 +277,17 @@ def write_output(out_dir, stem, img, kps, src_obj, src_cam):
     }
     if "pose_transform" in src_obj:
         obj["pose_transform"] = src_obj["pose_transform"]
+    # 정본 keypoint 필드를 crop 과 **같은 affine** 으로 옮겨 함께 내보낸다.
+    # 안 그러면 학습 변환기가 projected_cuboid fallback 으로 내려가는데,
+    # 그 필드는 live_capture_gt 851장에서 규약을 198장(23.3%) 어긴다.
+    if win is not None:
+        cx0, cy0, cw, ch = win
+        sx, sy = W_OUT / cw, H_OUT / ch
+        kat.attach(obj, src_obj,
+                   [[sx, 0.0, -cx0 * sx], [0.0, sy, -cy0 * sy]], W_OUT, H_OUT,
+                   parent_frame=parent_frame,
+                   transformation={"kind": "truncation_crop", "window": list(win),
+                                   "scale": [sx, sy], "out_size": [W_OUT, H_OUT]})
     out = {
         "camera_data": {
             "width": W_OUT,
@@ -392,10 +407,11 @@ def main():
             if res is None:
                 n_fail += 1
                 continue
-            out_img, out_kps, side, f, in_cnt = res
+            out_img, out_kps, side, f, in_cnt, win = res
             _, _, varea = visible_bbox(out_kps)
             uniq = "{}_{}_t{}".format(tag, stem, vi)
-            write_output(args.out_dir, uniq, out_img, out_kps, obj, cam)
+            write_output(args.out_dir, uniq, out_img, out_kps, obj, cam,
+                         win=win, parent_frame=jp)
             records.append({"stem": uniq, "side": side, "f": f, "deep": deep,
                             "in": in_cnt, "area_pct": 100.0 * varea / (W_OUT * H_OUT)})
             side_hist[side] = side_hist.get(side, 0) + 1

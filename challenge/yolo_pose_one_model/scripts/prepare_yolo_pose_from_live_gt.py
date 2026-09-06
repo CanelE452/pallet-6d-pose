@@ -97,6 +97,51 @@ def collect_jobs(out_root: Path, val_groups: set[str], session_map: dict, *,
     return jobs, counts, missing_image
 
 
+def assert_derived_is_current(src_dir: Path, *, sample: int = 30) -> None:
+    """파생 폴더가 정본 keypoint 필드를 들고 있고, 고친 생성기에서 나왔는지 본다.
+
+    두 가지 실패를 막는다.  둘 다 **조용히** 틀린 라벨로 학습하게 만든다.
+
+    1. `keypoint_annotations` 가 없다 -> `load_kps` 가 `projected_cuboid` fallback
+       으로 내려간다.  그 필드는 `truncation_crops_livegt` 에서 318/1,203 이
+       camera-facing 0123 규약을 어긴다.
+    2. 필드는 있는데 provenance(`keypoint_source`)가 없다 -> 생성기를 고치기 **전에**
+       만들어진 산출물이다.  낡은 `flip_noise_aug_livegt` 가 그 상태인데,
+       851/851 이 이미지만 뒤집히고 라벨은 안 뒤집혔다.
+
+    근거: `_docs/audits/next_accuracy_v2/DERIVED_DATA_AUDIT.md`
+    """
+    files = sorted(src_dir.glob("*.json"))[:sample]
+    if not files:
+        raise SystemExit(f"파생 폴더에 JSON 이 없다: {src_dir}")
+    no_field, no_prov = [], []
+    for f in files:
+        try:
+            obj = json.loads(f.read_text(encoding="utf-8"))["objects"][0]
+        except Exception:
+            no_field.append(f.name)
+            continue
+        ann = obj.get("keypoint_annotations")
+        if not (isinstance(ann, list) and len(ann) >= 9):
+            no_field.append(f.name)
+        elif not obj.get("keypoint_source"):
+            no_prov.append(f.name)
+    if no_field:
+        raise SystemExit(
+            f"거부: {src_dir} 의 {len(no_field)}/{len(files)} 이 keypoint_annotations 를\n"
+            f"  갖고 있지 않다 -> projected_cuboid fallback 으로 내려간다.\n"
+            f"  예: {no_field[:3]}\n"
+            f"  생성기를 고쳤으니 이 폴더를 **다시 만들어라**.\n"
+            f"  근거 _docs/audits/next_accuracy_v2/DERIVED_DATA_AUDIT.md")
+    if no_prov:
+        raise SystemExit(
+            f"거부: {src_dir} 의 {len(no_prov)}/{len(files)} 에 keypoint_source 가 없다\n"
+            f"  -> 생성기를 고치기 전에 만들어진 낡은 산출물이다.\n"
+            f"  예: {no_prov[:3]}\n"
+            f"  낡은 flip 산출물은 851/851 이 이미지만 뒤집히고 라벨은 안 뒤집혔다.\n"
+            f"  이 폴더를 **다시 만들어라**.")
+
+
 def add_derived_jobs(out_root: Path, src_dir: Path, val_stems: set[str],
                      *, sep: str, prefix: str):
     """원본에서 파생된 증강본을 train 에만 더한다.
@@ -140,7 +185,17 @@ def main(argv=None) -> int:
                     help="truncation crop 폴더. train 에만 더하고 val 파생분은 뺀다")
     ap.add_argument("--aug-dir", default=None,
                     help="flip/noise 증강 폴더(_f/_n). train 에만 더한다")
+    ap.add_argument("--pad", type=int, default=None,
+                    help="reflect padding 픽셀. 기본은 prepare_yolo_pose.PAD(=100). "
+                         "0 이면 무패딩 — Jetson 처럼 추론 예산이 빠듯할 때 쓴다. "
+                         "★학습과 추론의 padding 은 반드시 같아야 한다(train/infer parity)")
     args = ap.parse_args(argv)
+
+    if args.pad is not None:
+        # ``one()`` 은 모듈 전역 PAD 를 조회하므로 여기서 갈아끼우면 반영된다.
+        import prepare_yolo_pose as _pyp
+        _pyp.PAD = args.pad
+        print(f"padding = {args.pad} px" + (" (무패딩)" if args.pad == 0 else ""))
 
     out_root = REPO / "challenge/yolo_pose_one_model" / args.out
     for split in ("train", "val"):
@@ -172,6 +227,7 @@ def main(argv=None) -> int:
             ("aug", args.aug_dir, "_", "aug__")):
         if not path:
             continue
+        assert_derived_is_current(Path(path))
         add, dropped = add_derived_jobs(
             out_root, Path(path), val_stems, sep=sep, prefix=prefix)
         jobs["train"].extend(add)
@@ -202,7 +258,9 @@ def main(argv=None) -> int:
         "  0: pallet\n", encoding="utf-8")
 
     (out_root / "_prepare_live_gt.json").write_text(json.dumps({
-        "pad": PAD, "border": "BORDER_REFLECT_101",
+        # ★ import 된 PAD 는 --pad 로 갈아끼워도 안 바뀐다 — 모듈에서 실제 값을 읽는다.
+        "pad": __import__("prepare_yolo_pose").PAD,
+        "border": "BORDER_REFLECT_101",
         "split_mode": args.split_mode, "val_every": args.val_every,
         "val_group": args.val_group, "group_counts": counts,
         "results": results, "missing_image": missing,

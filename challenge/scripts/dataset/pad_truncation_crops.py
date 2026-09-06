@@ -58,6 +58,9 @@ EDGE_PAIRS = [
 ]
 
 
+import keypoint_annotations_transform as kat  # noqa: E402
+
+
 def is_sentinel(p):
     return p[0] == SENTINEL or p[1] == SENTINEL
 
@@ -137,7 +140,8 @@ def pad_and_resize(img, kps, pad_mode):
     return out_img, np.array(out, dtype=np.float64), pad
 
 
-def write_output(out_dir, stem, img, kps, src_obj, src_cam):
+def write_output(out_dir, stem, img, kps, src_obj, src_cam, pad=None,
+                 src_size=None, parent_frame=None):
     cv2.imwrite(os.path.join(out_dir, stem + ".png"), img)
     obj = {
         "class": "pallet",
@@ -151,6 +155,15 @@ def write_output(out_dir, stem, img, kps, src_obj, src_cam):
     for k in ("pose_transform", "cuboid", "location", "quaternion_xyzw"):
         if k in src_obj:
             obj[k] = src_obj[k]
+    # 정본 keypoint 필드도 같은 pad+resize affine 으로 옮긴다.
+    if pad is not None and src_size is not None:
+        sw, sh = src_size
+        sx, sy = W_OUT / (sw + 2 * pad), H_OUT / (sh + 2 * pad)
+        kat.attach(obj, src_obj,
+                   [[sx, 0.0, pad * sx], [0.0, sy, pad * sy]], W_OUT, H_OUT,
+                   parent_frame=parent_frame,
+                   transformation={"kind": "pad_resize", "pad_px": pad,
+                                   "scale": [sx, sy], "out_size": [W_OUT, H_OUT]})
     out = {
         "camera_data": {
             "width": W_OUT,
@@ -251,7 +264,9 @@ def main():
             if not is_sentinel(p) and not (0 <= p[0] < W_OUT and 0 <= p[1] < H_OUT):
                 still_off += 1
         stem = os.path.splitext(os.path.basename(jp))[0]
-        write_output(args.out_dir, stem, out_img, out_kps, obj, cam)
+        write_output(args.out_dir, stem, out_img, out_kps, obj, cam,
+                     pad=pad, src_size=(img.shape[1], img.shape[0]),
+                     parent_frame=jp)
         stems.append(stem)
         pads.append(pad)
 
