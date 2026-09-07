@@ -1,0 +1,862 @@
+[작업명] Utility-Aware Conditional Self-Training for Monocular Pallet Pose
+[저장소] CanelE452/pallet-6d-pose
+[목적] 기존 global fixed-threshold pseudo-label filter를 그대로 재시도하지 않고,
+       "어떤 관측 조건의 pseudo-label로 fine-tuning했을 때 실제 student 성능이 좋아지는가"를
+       개발셋에서 분석한 뒤, 그 utility를 예측하는 deployable filter/selection policy를 만들고
+       별도 session/instance에서 검증한다.
+
+================================================================================
+0. 가장 중요한 최상위 원칙
+================================================================================
+
+이번 실험의 질문은 "pseudo-label이 GT에 얼마나 가까운가?" 하나가 아니다.
+
+최상위 질문:
+
+    어떤 GT-free observable condition의 pseudo-label subset으로 fine-tuning했을 때
+    실제 held-out student pose 성능이 개선되는가?
+
+즉 기존 방식:
+
+    pseudo-label correctness filter
+    = confidence + reproj + removal + flip threshold
+
+만 최적화하지 않는다.
+
+이번 방식:
+
+    pseudo-label training utility estimation
+    = 어떤 sample이 실제 student generalization을 개선시키는지 측정
+    → 그 utility를 설명/예측하는 GT-free condition 찾기
+    → selection policy freeze
+    → disjoint session/instance에서 self-training student 검증
+
+이다.
+
+절대 금지:
+- PAPER_EVAL GT를 보고 filter threshold를 정한 뒤 같은 PAPER_EVAL에서 성능 주장
+- GT keypoint error / GT bbox IoU / GT yaw error를 final filter input으로 사용
+- 결과를 본 뒤 threshold를 계속 조정해서 가장 잘 나온 rule을 고르는 것
+- low-angle이 중요하다는 이유만으로 threshold를 임의로 느슨하게 하는 것
+- square/C4 deployment track과 rectangular paper self-training track을 섞는 것
+- 새 loss / DiffPnP / LC / solver 변경 / architecture 변경을 동시에 넣는 것
+- self-training student 비교에서 pseudo-label 개수와 update 수를 arm마다 다르게 두는 것
+
+이번 track은 논문용 rectangular pallet self-training track이다.
+기존 square 110x110x15 / C4 deployment track과 숫자를 섞지 않는다.
+
+================================================================================
+1. Repository / experiment freeze
+================================================================================
+
+먼저:
+
+    git status --short
+    git rev-parse HEAD
+    git log -10 --oneline --decorate
+
+를 기록한다.
+
+새 namespace:
+
+    _docs/experiments/utility_selftrain_v1/
+    data/pallet/results/utility_selftrain_v1/
+    scripts/research/utility_selftrain_v1/
+
+기존 결과를 덮어쓰지 않는다.
+
+반드시 현재 self-training 관련 정본을 읽는다:
+
+    data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json
+    data/pallet/results/paper_selftrain_v1/
+    scripts/self_training_yolo/build_pseudo_manifests.py
+    scripts/self_training_yolo/build_pseudo_datasets.py
+    scripts/self_training_yolo/filter_quality_m4.py
+    scripts/research/next_accuracy_v2/pl_quality_by_elevation.py
+    _docs/audits/next_accuracy_v2/LOW_ANGLE_PL_QUALITY.md
+
+현재 frozen baseline filter의 정본 값을 파일에서 재확인해 기록한다.
+예상값을 하드코딩하지 말고 실제 lock에서 읽는다.
+
+기존 lock에서 확인해야 할 항목:
+- TAU_BOX
+- kp_conf_threshold
+- min_valid_corners
+- tau_reproj
+- tau_remove
+- tau_flip
+- score normalization
+- teacher checkpoint / SHA
+- adaptation pool manifest / SHA
+
+================================================================================
+2. 현재 실패 구조를 baseline으로 재현
+================================================================================
+
+기존 teacher cache / frame records를 재사용할 수 있으면 새 inference를 돌리지 않는다.
+
+기존 frame-level record에서 최소 다음을 복원한다:
+
+    frame_id
+    session
+    condition/day-night metadata
+    teacher box confidence
+    valid corner count
+    keypoint confidence min/mean
+    s_reproj
+    s_remove
+    s_flip
+    current F4 pass/fail
+    predicted bbox xyxy
+    predicted keypoints
+    predicted pose / PnP outputs if stored
+
+GT가 존재하는 DEVELOPMENT frame에서는 분석용으로만 다음도 붙인다:
+
+    GT keypoint median/max error
+    GT bbox IoU
+    GT pose translation/depth/yaw error
+    gross >20px / catastrophic >40px
+
+중요:
+GT-derived field는 POLICY ANALYSIS용일 뿐 final selection rule input으로 절대 사용하지 않는다.
+
+기존 qualitative failure를 수치로 재현:
+- high-confidence but wrong
+- low-confidence but geometry-consistent and accurate
+- correct but rejected
+- wrong but accepted
+
+다음 confusion table을 만든다:
+
+                    teacher accurate    teacher wrong
+    filter accept
+    filter reject
+
+"accurate" 정의는 하나만 쓰지 말고 최소:
+- max corner <= 10 px
+- max corner <= 20 px
+- gross/catastrophic
+를 같이 보고한다.
+
+산출물:
+    BASELINE_FILTER_AUDIT.json
+    BASELINE_FILTER_AUDIT.md
+
+================================================================================
+3. 최종 filter에서 사용 가능한 GT-free feature set 정의
+================================================================================
+
+아래 feature를 candidate로 사용 가능하다.
+
+A. confidence
+    box_conf
+    kp_conf_min
+    kp_conf_mean
+    kp_conf_std
+    valid_corner_count
+
+B. geometry consistency
+    s_reproj
+    s_remove
+    s_flip
+    max_geom = max(s_reproj, s_remove, s_flip)
+    mean_geom
+    ratios between scores
+
+C. scale / projected size
+    predicted bbox width, height
+    bbox area / image area
+    bbox diagonal / image diagonal
+    projected cuboid diagonal
+    predicted pallet pixel height / width if stable
+
+D. predicted pose condition
+    predicted elevation
+    predicted yaw modulo valid paper C2 symmetry
+    predicted distance / depth
+    predicted lateral offset
+    PnP reprojection error
+    PnP condition number if available and well-defined
+
+E. GT-free invariance / consistency IoU
+    original prediction bbox
+    vs flip prediction mapped back
+    vs resize/scale/crop prediction mapped back
+    IoU between transformed predictions
+
+주의:
+- GT bbox IoU는 final feature 금지
+- GT yaw error는 final feature 금지
+- GT keypoint error는 final feature 금지
+- predicted yaw/elevation/depth는 허용되지만 noisy estimate라는 점을 기록
+- paper rectangular track은 C2 convention을 유지
+
+================================================================================
+4. DATA SPLIT — 정책 개발과 최종 평가를 분리
+================================================================================
+
+이 부분을 절대 생략하지 않는다.
+
+현재 repository에 진짜 confirmatory population이 없다면,
+기존 labeled real DEV를 session-level로 다시 분리해 최소:
+
+    POLICY_DEV
+    POLICY_VAL
+    STUDENT_EVAL
+
+세 역할로 나눈다.
+
+가능하면:
+- same frame / adjacent frame overlap 금지
+- same exact session이 두 split에 들어가지 않게 함
+- pallet instance / material / day-night 분포 기록
+
+권장 우선순위:
+1. session-level separation
+2. 가능하면 pallet-instance separation
+3. material 분포도 기록
+
+중요:
+PAPER_EVAL 319 전체를 policy tuning과 최종 성능 평가에 동시에 사용하지 않는다.
+
+만약 repository만으로 이런 disjoint split이 성립하지 않으면:
+    RESULT_ROLE = DEVELOPMENT_ONLY
+로 명시하고,
+paper final claim을 만들지 않는다.
+
+최종 selection rule은 STUDENT_EVAL GT를 보기 전에 freeze한다.
+
+산출물:
+    SPLIT_CONTRACT.json
+    SPLIT_CONTRACT.md
+
+================================================================================
+5. Stage A — "정확도"와 GT-free feature의 관계 분석
+================================================================================
+
+POLICY_DEV에서 teacher prediction을 분석한다.
+
+각 feature를 다음처럼 binning한다.
+결과를 보고 bin을 바꾸지 말고, 먼저 quantile-based 또는 fixed physical bin을 정한다.
+
+예시:
+
+5.1 Scale
+    bbox_diag quantile:
+        Q1 small
+        Q2
+        Q3
+        Q4 large
+
+5.2 Predicted elevation
+    <8
+    8-15
+    15-30
+    >=30
+단 실제 분포가 비면 quantile bin으로 대체하고 기록한다.
+
+5.3 Predicted yaw
+    C2-aware yaw magnitude bins:
+        near frontal
+        moderate oblique
+        strong oblique
+정확한 경계는 POLICY_DEV 분포를 보기 전에 METHOD_LOCK에 기록.
+
+5.4 Confidence
+    <0.70
+    0.70-0.80
+    0.80-0.90
+    >=0.90
+
+5.5 Geometry score
+    max_geom:
+        very strong
+        strong
+        borderline
+        poor
+quantile 또는 fixed threshold 둘 중 하나를 사전 선택.
+
+각 bin에서:
+    N
+    coverage
+    median/max corner GT error
+    >20px
+    >40px
+    pose error if eligible
+를 낸다.
+
+하지만 이 단계의 목적은 final filter 완성이 아니라
+"어떤 조건에서 purity가 달라지는지" 보는 것이다.
+
+산출물:
+    FEATURE_PURITY_MAP.json
+    FEATURE_PURITY_MAP.md
+
+================================================================================
+6. Stage B — 기존 threshold sweep은 POLICY_DEV 안에서만
+================================================================================
+
+현재 global geometry threshold가 0.05 계열이면,
+더 엄격한 threshold가 accepted-but-wrong을 줄일 수 있는지 POLICY_DEV에서만 본다.
+
+후보 예:
+    tau ∈ {0.01, 0.02, 0.03, 0.04, 0.05}
+
+단 실제 lock 값을 읽고 후보를 구성한다.
+
+각각:
+    coverage
+    purity
+    >20px
+    >40px
+    accepted accurate
+    accepted wrong
+    rejected accurate
+    rejected wrong
+를 낸다.
+
+confidence도:
+    0.70 / 0.75 / 0.80 / 0.85 / 0.90 / 0.95
+등을 볼 수 있으나,
+confidence 하나만으로 최종 정책을 결정하지 않는다.
+
+중요:
+이 sweep은 "student utility"가 아니라 filter purity 분석이다.
+여기서 가장 purity 높은 threshold를 그대로 최종 정책으로 선택하지 않는다.
+
+산출물:
+    THRESHOLD_PURITY_SWEEP.json
+    THRESHOLD_PURITY_SWEEP.md
+
+================================================================================
+7. Stage C — 반드시 student fine-tuning utility map을 만든다
+================================================================================
+
+이번 실험의 핵심이다.
+
+각 subset으로 실제 student를 짧게 fine-tuning하고,
+POLICY_VAL 또는 STUDENT_EVAL의 disjoint labeled sessions에서 성능을 측정한다.
+
+모든 arm은 반드시:
+    same teacher
+    same student init
+    same optimizer
+    same LR
+    same epochs/steps
+    same pseudo-label count
+    same batch size
+    same augmentation
+    same loss
+    same evaluation
+를 사용한다.
+
+pseudo-label count가 부족한 subset은:
+- 다른 arm도 동일 N으로 downsample
+- 같은 number of optimizer updates
+를 맞춘다.
+
+"더 많은 pseudo-label" 효과와 "어떤 조건" 효과를 분리한다.
+
+--------------------------------------------------------------------------------
+7.1 최소 utility arms
+--------------------------------------------------------------------------------
+
+너무 많은 arm을 처음부터 만들지 않는다.
+먼저 아래를 추천한다.
+
+U0  RANDOM_MATCHED
+    current candidate pool에서 조건 무시, 동일 N 무작위
+
+U1  CURRENT_F4
+    기존 frozen F4 filter 통과분, 동일 N
+
+U2  SMALL_SCALE
+    predicted projected-size가 작은 hard subset
+    단 geometry quality 최소 기준은 유지
+
+U3  LARGE_SCALE
+    큰 projected-size subset
+    U2와 N 동일
+
+U4  LOW_ELEV
+    predicted elevation low
+    N matched
+
+U5  HIGH_ELEV
+    predicted elevation high
+    N matched
+
+U6  LOWCONF_STRONGGEOM
+    confidence는 상대적으로 낮지만
+    reproj/remove/flip이 모두 매우 좋은 subset
+    "정확하지만 기존 conf 때문에 버려지는 hard sample rescue" 가설
+
+U7  HIGHCONF_BORDERLINEGEOM
+    confidence는 높지만
+    max_geom이 기존 threshold 경계에 가까운 subset
+    "accepted but wrong"이 많이 들어갈 수 있는 위험군 가설
+
+가능하면 U6/U7을 가장 우선한다.
+사용자 qualitative 예제가 바로 이 차이를 보인다.
+
+--------------------------------------------------------------------------------
+7.2 yaw / IoU utility arm
+--------------------------------------------------------------------------------
+
+위 8개에서 신호가 있거나 budget이 허용될 때만 추가:
+
+U8  FRONTAL_YAW
+U9  OBLIQUE_YAW
+
+U10 HIGH_TRANSFORM_IOU
+    original vs transformed prediction consistency IoU 높음
+
+U11 LOW_TRANSFORM_IOU
+    consistency IoU 낮음
+
+GT IoU를 selection에 사용하지 않는다.
+GT IoU는 POLICY_DEV에서 분석용으로만 사용.
+
+================================================================================
+8. Utility metric
+================================================================================
+
+각 student arm의 성능을 단순 teacher pseudo-label purity가 아니라
+held-out student 성능으로 판단한다.
+
+Primary:
+    2D corner median / p90
+    translation median / p90
+    depth median / p90
+
+Secondary:
+    lateral median
+    rotation median / p90
+    yaw median
+    detection coverage
+    symmetry-aware pose metric if current evaluator contract is valid
+
+조건별:
+    ALL
+    plastic
+    wood if population supports it
+    Low
+    Far
+    Clean
+    Occlusion
+    small projected object
+    large projected object
+
+중요:
+condition overlap은 인과효과처럼 해석하지 않는다.
+
+각 arm에서:
+    Δ vs U0 RANDOM_MATCHED
+    Δ vs U1 CURRENT_F4
+를 둘 다 낸다.
+
+================================================================================
+9. "어떤 조건이 fine-tuning에 도움이 되는가" 정의
+================================================================================
+
+단순 purity가 높다고 useful이라고 하지 않는다.
+
+utility score 예:
+
+    Utility(subset)
+      = weighted improvement of held-out student metrics
+
+단 숫자 weight를 사후 임의로 정하지 않는다.
+
+가장 안전한 1차 판정:
+
+    subset이 U0와 U1 대비
+    translation/depth/corner 중 최소 2개에서 개선
+    AND
+    p90 catastrophic tail을 크게 악화시키지 않음
+    AND
+    여러 disjoint sessions에서 방향이 대체로 일관됨
+
+정확한 gate는 결과 보기 전에 METHOD_LOCK에 기록한다.
+
+예시 [미검증]:
+    translation median >=5% improve
+    or depth median >=5% improve
+    corner median 악화 <5%
+    p90 악화 <5%
+를 screen gate로 사용 가능.
+
+================================================================================
+10. Stage D — utility predictor / condition-aware policy
+================================================================================
+
+Stage C에서 positive utility subset이 실제로 확인됐을 때만 진행한다.
+
+처음부터 black-box classifier를 만들지 않는다.
+
+우선 interpretable policy를 만든다.
+
+예시 구조:
+
+    Branch A: strict high-confidence
+        conf high
+        AND geometry very strong
+
+    Branch B: hard-sample rescue
+        conf moderate
+        AND geometry extremely strong
+        AND condition in utility-positive regime
+
+    Branch C: reject
+        high confidence
+        BUT geometry borderline
+        especially utility-negative regime
+
+예를 들어 qualitative intuition은:
+
+    high conf + flip near threshold  -> stricter
+    moderate conf + all geometry very strong -> rescue
+
+이지만,
+실제 threshold는 POLICY_DEV + POLICY_VAL에서 결정하고 freeze한다.
+
+가능한 rule family:
+    decision tree depth <= 3
+    monotonic rule list
+    logistic regression
+정도까지만 허용.
+
+복잡한 MLP/GBDT는 처음부터 쓰지 않는다.
+데이터가 작아 overfit 위험이 크다.
+
+Final filter feature는 반드시 GT-free만 사용한다.
+
+산출물:
+    UTILITY_POLICY_CANDIDATES.json
+    UTILITY_POLICY_SELECTED.json
+    UTILITY_POLICY.md
+
+================================================================================
+11. Final filter freeze
+================================================================================
+
+STUDENT_EVAL GT를 보기 전에:
+
+    teacher SHA
+    adaptation pool SHA
+    feature definitions
+    feature normalization
+    threshold / rule
+    accepted set hash
+    pseudo-label count
+    training recipe
+    student init SHA
+    evaluation protocol
+
+를 모두 METHOD_LOCK_UTILITY_ST.json에 freeze한다.
+
+이 뒤에는 STUDENT_EVAL 결과를 보고 threshold를 바꾸지 않는다.
+
+================================================================================
+12. Final self-training comparison
+================================================================================
+
+최소 arm:
+
+S0  SYNTH_ONLY / matched continuation control
+S1  NAIVE_SELFTRAIN
+S2  CURRENT_F4
+S3  UTILITY_AWARE_POLICY
+
+모든 self-training arm:
+    same pseudo-label count 가능하면 맞춤
+    same student init
+    same steps
+    same loss
+    same recipe
+
+가능하면:
+    S3a = utility policy with equal N
+    S3b = utility policy with natural N
+둘을 분리해서 quantity effect도 본다.
+
+평가:
+    STUDENT_EVAL disjoint sessions/instances
+
+Primary:
+    corner median/p90
+    translation median/p90
+    depth median/p90
+
+Secondary:
+    yaw/rotation
+    detection
+    condition-specific robustness
+
+================================================================================
+13. 최종 판정
+================================================================================
+
+다음 중 하나로만 판정한다.
+
+UTILITY_SELFTRAIN_SUPPORTED
+    utility-aware policy가 matched current F4 및 naive보다
+    held-out student 성능을 의미 있게 개선
+
+UTILITY_SIGNAL_PARTIAL
+    특정 condition에서는 개선하지만 overall 또는 tail에서 불확실
+
+UTILITY_FILTER_NOT_SUPPORTED
+    subset utility는 일부 있어도 deployable GT-free policy로 회수 불가
+
+NO_USEFUL_PSEUDOLABEL_REGIME_FOUND
+    어떤 condition에서도 matched FT가 일관되게 개선되지 않음
+
+INVALID
+    split leakage / unmatched N / config mismatch / GT-derived feature leakage
+
+절대:
+    "GT에서 잘 보이는 feature를 골랐더니 좋아졌다"
+를 unlabeled self-training claim으로 쓰지 않는다.
+
+================================================================================
+14. 중요한 해석 — low elevation
+================================================================================
+
+"real GT low-angle supervision이 도움이 됐다"
+와
+"low-angle pseudo-label self-training이 도움이 된다"
+는 다른 주장이다.
+
+기존 evidence:
+- low-angle pseudo-label은 raw 품질이 가장 나쁨
+- 기존 filter는 catastrophic을 줄이지만 residual gross가 큼
+- coverage도 낮음
+
+따라서 low-angle threshold를 무조건 완화하지 않는다.
+
+확인해야 할 가설:
+
+    "low-angle 전체"가 useful한가?  X
+
+대신:
+
+    "low-angle 중 geometry가 매우 강하고 teacher가 안정적인 hard-but-clean subset"
+    이 student에 useful한가?
+
+를 테스트한다.
+
+즉 low-angle은 condition feature이지 자동 accept signal이 아니다.
+
+================================================================================
+15. 중요한 해석 — confidence
+================================================================================
+
+기존 qualitative example에서:
+- conf high인데 wrong
+- conf moderate인데 accurate
+가 존재한다.
+
+따라서 confidence threshold 하나로 final selection을 만들지 않는다.
+
+반드시:
+    confidence × geometry × condition
+interaction을 본다.
+
+특히:
+    LOWCONF_STRONGGEOM
+    HIGHCONF_BORDERLINEGEOM
+두 subset의 student utility 비교가 이번 실험의 핵심이다.
+
+================================================================================
+16. 중요한 해석 — IoU
+================================================================================
+
+"작은 IoU / 큰 IoU"를 쓸 때 구분한다.
+
+사용 가능:
+    prediction-consistency IoU
+    (original vs flip/scale/crop mapped-back prediction)
+
+최종 filter 사용 금지:
+    predicted bbox vs GT bbox IoU
+
+GT IoU는 POLICY_DEV에서
+"이 GT-free consistency feature가 실제 correctness와 관련 있는가"
+분석할 때만 사용한다.
+
+================================================================================
+17. 중요한 해석 — yaw
+================================================================================
+
+paper rectangular track의 valid symmetry는 C2이다.
+
+predicted yaw를 feature로 쓸 때:
+    symmetry-aware folded yaw
+또는
+    camera-facing orientation convention
+을 명확히 한다.
+
+GT yaw error를 final feature로 사용하지 않는다.
+
+yaw bin이 utility-positive여도
+그 bin 자체가 원인이라고 단정하지 않는다.
+scale/elevation/occlusion과 confounded일 수 있으므로
+multivariable 분석 또는 matched subset으로 확인한다.
+
+================================================================================
+18. Multi-geometry / C1-C2-C4 실험은 별도 track
+================================================================================
+
+이번 self-training 실험과 섞지 않는다.
+
+중요:
+직전 LC/A2b loss 실패는
+dimension-conditioned C1/C2/C4 symmetry loss를 테스트한 것이 아니다.
+
+별도 후속 track에서만:
+
+    one model
+    common 9-keypoint representation
+    per-sample dimensions W,H,D
+    per-sample symmetry group C1/C2/C4
+    known dimensions + PnP
+
+를 검증한다.
+
+C4가 충분히 학습되려면:
+    exact-square C4 samples
+    rectangular C2 samples
+    near-square but C2 hard negatives
+가 충분히 있어야 한다.
+
+현재 exact C4 데이터 노출이 부족하면
+그 상태로 C1/C2/C4 모델을 기각하지 않는다.
+
+================================================================================
+19. 이번 실험에서 CLI가 마지막에 보고할 표
+================================================================================
+
+먼저 아래 요약을 출력한다.
+
+UTILITY SELF-TRAINING AUDIT
+
+HEAD =
+TEACHER_SHA =
+CURRENT_FILTER =
+POLICY_DEV N / sessions =
+POLICY_VAL N / sessions =
+STUDENT_EVAL N / sessions =
+
+BASELINE FILTER
+  coverage =
+  accepted wrong =
+  rejected accurate =
+  >20px after filter =
+  >40px after filter =
+
+UTILITY MICRO-FT
+subset                         N   cornerΔ   tΔ   depthΔ   p90Δ   verdict
+-----------------------------------------------------------------------
+RANDOM_MATCHED
+CURRENT_F4
+SMALL_SCALE
+LARGE_SCALE
+LOW_ELEV
+HIGH_ELEV
+LOWCONF_STRONGGEOM
+HIGHCONF_BORDERLINEGEOM
+FRONTAL_YAW      (if run)
+OBLIQUE_YAW      (if run)
+HIGH_CONSIST_IOU (if run)
+LOW_CONSIST_IOU  (if run)
+
+FINAL POLICY
+features =
+rule =
+accepted N =
+coverage =
+policy frozen before STUDENT_EVAL = YES/NO
+
+FINAL STUDENT
+metric                     S0      S1      S2      S3
+------------------------------------------------------
+corner median
+corner p90
+translation median
+translation p90
+depth median
+depth p90
+yaw median
+rotation median
+detection
+
+condition rows:
+Low
+Far
+Clean
+Occlusion
+
+FINAL VERDICT =
+WHAT THIS SUPPORTS =
+WHAT THIS DOES NOT SUPPORT =
+
+================================================================================
+20. 실행 순서
+================================================================================
+
+절대 처음부터 모든 student arm을 full training하지 않는다.
+
+순서:
+
+1. repository freeze
+2. split contract
+3. teacher/frame record audit
+4. feature purity map
+5. threshold purity sweep
+6. equal-N micro-FT utility arms
+7. utility-positive condition 확인
+8. interpretable GT-free policy 설계
+9. POLICY_VAL 검증
+10. policy freeze
+11. final self-training S0/S1/S2/S3
+12. STUDENT_EVAL
+13. verdict
+
+================================================================================
+21. STOP RULE
+================================================================================
+
+다음이면 즉시 중단:
+
+- GT-derived feature가 final selector에 들어감
+- POLICY_DEV와 STUDENT_EVAL session overlap
+- pseudo-label count/update 수가 arm마다 달라 matched comparison 불가
+- positive utility subset이 하나도 없음
+- utility-positive subset이 있어도 GT-free feature로 회수 불가
+- filter rule을 STUDENT_EVAL 결과 보고 수정
+- square/C4 deployment data가 paper rectangular track에 혼입
+
+positive utility subset이 하나도 없으면:
+    SELFTRAIN_UTILITY_TRACK_CLOSED
+로 종료하고
+데이터 다양성 / capacity / representation track으로 이동한다.
+
+================================================================================
+22. 최종 연구 질문
+================================================================================
+
+이번 실험의 최종 문장은 다음 질문에 답해야 한다.
+
+"Can unlabeled target-domain frames be selected according to their expected
+fine-tuning utility, rather than only pseudo-label correctness, to improve
+synthetic-to-real monocular pallet pose estimation?"
+
+YES라고 말하려면:
+- utility-positive subset이 실제로 존재
+- GT-free observable feature로 그 subset을 선택 가능
+- rule을 freeze한 뒤 disjoint session/instance에서 student가 개선
+이 세 가지가 모두 필요하다.
+
+그 전에는 "new self-training method"라고 주장하지 않는다.

@@ -1,0 +1,114 @@
+{
+  "schema_version": "utility_selftrain_v1_method_lock",
+  "status": "FROZEN_BEFORE_ANY_UTILITY_RESULT",
+  "frozen_at_head": "903f1b3bb4e473908c7ed52335c834029e206afa",
+  "frozen_date": "2026-09-07",
+  "instruction_sha256": "4a7d74ff5bfad6ed77722830d2d8eb0f8682f353eddbc9504abde48ae693d014",
+
+  "RESULT_ROLE": "DEVELOPMENT_ONLY",
+  "result_role_reason": "PAPER_EVAL is a development population (PAPER_CLAIM_LOCK.json held_out_final=false) and EXPERIMENT_STOP_LOCK.json requires a never-consulted population to reopen confirmatory experimentation.  No such population exists in this repository, so instruction section 4 forces DEVELOPMENT_ONLY and section 13's top grade UTILITY_SELFTRAIN_SUPPORTED is unreachable by construction.",
+
+  "teacher": {
+    "checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "cache": "data/pallet/results/paper_selftrain_v1/teacher_cache/R0_TEACHER_CACHE.json",
+    "cache_sha256": "2b985344ef43553c43935722e10b609179a06b2c72fce15c8a249f7b2ca93001",
+    "recipe": {"pad": 100, "border": "BORDER_REFLECT_101", "imgsz": 640,
+               "confidence_floor": 0.001, "instance": "highest box confidence"}
+  },
+  "adaptation_pool": {
+    "manifest": "data/evaluation/pallet_eval_v1/adaptation/MAIN_UNLABELED_BALANCED.csv",
+    "sha256": "afb581a0850c702b00e2ee47939c302772a7c4f531a623443f0a4c0b9b4d303b",
+    "frames": 1000, "detected": 954, "candidates_valid_corners_ge_6": 926,
+    "not_expanded_reason": "the eight source sessions are ~7 fps continuous recordings; decimating to 1 s spacing leaves 648 frames across all 8031, so the existing 1000-frame pool already oversamples the temporally distinct content.  Enlarging the pool adds near-duplicates, not viewpoints."
+  },
+  "student": {
+    "init": "same as teacher checkpoint (sha verified by run_paper_selftraining.py:202-206)",
+    "recipe": "SELFTRAIN_EXPOSURE_LOCK.json + run_paper_selftraining.py TRAIN_ARGS",
+    "epochs": 10, "optimizer_updates": 900, "batch": 32, "lr0": 0.002,
+    "pseudo_exposures_per_epoch": 1440, "synthetic_exposures_per_epoch": 1440,
+    "fliplr": 0.0,
+    "fliplr_reason": "horizontal flip augmentation would make the flip-consistency score an identity the training itself enforces"
+  },
+
+  "features": {
+    "source": "scripts/research/utility_selftrain_v1/extract_features.py",
+    "gt_free": ["box_conf", "kp_conf_min", "kp_conf_mean", "kp_conf_std",
+                "valid_corner_count", "s_reproj", "s_remove", "s_flip",
+                "max_geom", "mean_geom", "max_geom_f4",
+                "ratio_reproj_remove", "ratio_remove_flip",
+                "bbox_w_px", "bbox_h_px", "bbox_area_frac", "bbox_diag_frac",
+                "proj_diag_frac", "pred_elev_deg", "pred_depth_m",
+                "pred_yaw_c2_deg", "pred_lateral_m", "pnp_reproj_px",
+                "flip_box_iou"],
+    "forbidden_as_selection_input": ["gt_corner_median_px", "gt_corner_max_px",
+                                     "gt_gross_gt20", "gt_catastrophic_gt40",
+                                     "gt_n_supervised", "any GT bbox IoU", "any GT yaw error"],
+    "geometry_normalisation": "projected cuboid diagonal of the PnP-reprojected 8 corners (dimensionless), pseudo_label_filters.py:152-153",
+    "pose_hypothesis_rule": "the registry leaves width/depth ambiguous and geometry_scores takes a per-score minimum over both hypotheses, so no single pose is implied.  Pose features use the hypothesis with the smallest reprojection score.  This choice is fixed here and is not revisited after results are seen.",
+    "elevation_definition": "n = R @ [0,-1,0]; u = -t/|t|; elevation = degrees(arcsin(|n.u|)).  Same formula as scripts/research/accuracy_root_cause_v1/elevation_check.py, with the predicted pose substituted for the GT pose.",
+    "yaw_definition": "yaw about the camera vertical, folded into the paper object's C2 equivalence {0,180} (challenge/real_gt_v2/SYMMETRY_CONTRACT.json)."
+  },
+
+  "binning": {
+    "rule": "quantile bins computed on POLICY_DEV, fixed here before the purity map is read",
+    "scale_bbox_diag_frac": "quartiles Q1..Q4",
+    "confidence_box_conf": "fixed [0,0.70) [0.70,0.80) [0.80,0.90) [0.90,1.0]",
+    "geometry_max_geom_f4": "quartiles Q1..Q4",
+    "elevation_pred_elev_deg": {
+      "declared_fixed_bins": ["<8", "8-15", "15-30", ">=30"],
+      "substitution": "quartiles",
+      "substitution_reason": "measured on the pool before any purity result: 847 of 926 candidates fall in the single <8 bin (91.5%), so the fixed physical bins are degenerate.  Instruction section 5.2 permits quantile substitution when the actual distribution is empty; recorded here."
+    },
+    "yaw_pred_yaw_c2_deg": "tertiles: near frontal / moderate oblique / strong oblique"
+  },
+
+  "arms": {
+    "matched_n_rule": "every arm is downsampled to the same number of unique pseudo-labels, set by the smallest arm.  Exposure slots stay at 1440 per epoch for every arm, so optimizer updates are identical by construction.",
+    "definitions_are_measured_not_tuned": true,
+    "list": ["U0_RANDOM_MATCHED", "U1_CURRENT_F4", "U2_SMALL_SCALE", "U3_LARGE_SCALE",
+             "U4_LOW_ELEV", "U5_HIGH_ELEV", "U6_LOWCONF_STRONGGEOM",
+             "U7_HIGHCONF_BORDERLINEGEOM"]
+  },
+
+  "replicates": {
+    "n_draws_per_arm": 3,
+    "mechanism": "build_pseudo_datasets.py --sampling-seed {42,43,44}",
+    "why_not_args_seed": "ultralytics seeds the trainer but not the dataloader generator (ultralytics/data/build.py:348).  Three runs differing only in args.seed were bit-identical (max parameter delta 0.000e+00), so args.seed does not produce a replicate."
+  },
+
+  "utility_gate": {
+    "structure": "instruction section 9: improvement in at least two of {corner median, translation median, depth median} versus BOTH U0_RANDOM_MATCHED and U1_CURRENT_F4, without a large p90 tail regression, with a consistent direction across draws.",
+    "thresholds_are_set_from_measured_noise_not_from_the_example": true,
+    "measured_same_rule_spread": {
+      "corner_median_px": {"value_pct": 7.5, "source": "A2_NAIVE_MATCHED_S1/S2/S3 = 6.8385 / 6.9862 / 7.3485 px, ARM_RESULTS.json"},
+      "corner_p90_px": {"value_pct": 17.5, "source": "A2_NAIVE_MATCHED_S1/S2/S3 = 32.61 / 36.74 / 38.32 px"},
+      "corner_p90_px_worst_case": {"value_pct": 55.6, "source": "B_CONF_RANDOM_S1/S2/S3 = 36.97 / 42.91 / 57.51 px"},
+      "translation_median": {"value_pct": 14.3, "source": "memory selftrain-pseudo-draw-noise-floor, R5_PROPOSED three draws"},
+      "rotation_median": {"value_pct": 6.7, "source": "same"}
+    },
+    "required_improvement_vs_each_baseline": {
+      "corner_median_px_pct": 15.0,
+      "translation_median_pct": 29.0,
+      "depth_median_pct": 29.0,
+      "rule": "two times the measured same-rule spread; depth reuses the translation spread because no depth-specific draw spread has been measured (marked as an assumption, not a measurement)"
+    },
+    "max_allowed_regression": {"corner_p90_px_pct": 17.5},
+    "consistency": "the improvement direction must hold in at least 2 of the 3 draws, and in at least 2 of the 4 POLICY_VAL sessions",
+    "note": "the 5 percent figure in instruction section 9 is explicitly tagged [미검증] there.  It sits below every measured spread above and is therefore not used."
+  },
+
+  "stop_rules": {
+    "source": "instruction section 21, applied verbatim",
+    "additional": "section 7 line 339 offers 'POLICY_VAL 또는 STUDENT_EVAL' for the utility map.  STUDENT_EVAL is excluded here: using it would consume the population that section 11 freezes and section 12 measures.  The utility map is computed on POLICY_VAL only."
+  },
+
+  "student_eval": {
+    "frozen": true,
+    "sessions": ["eval_pallet07", "eval_pallet09", "eval_night08", "eval_night09",
+                 "wood_day_01", "wood_184309"],
+    "n_frames": 132,
+    "opened_only_at": "instruction section 12",
+    "not_yet_read": true
+  }
+}

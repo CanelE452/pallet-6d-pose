@@ -1,0 +1,138 @@
+{
+  "schema_version": "utility_selftrain_v1_repo_freeze",
+  "recorded_utc": "2026-09-07T03:57:11.499215Z",
+  "instruction_source": "_docs/experiments/utility_selftrain_v1/INSTRUCTION_AS_RECEIVED.txt",
+  "instruction_sha256": "4a7d74ff5bfad6ed77722830d2d8eb0f8682f353eddbc9504abde48ae693d014",
+  "git": {
+    "HEAD": "903f1b3bb4e473908c7ed52335c834029e206afa",
+    "branch": "main",
+    "dirty_entries": 171,
+    "note": "working tree is dirty; this freeze records HEAD only, not the working tree"
+  },
+  "frozen_filter_lock": {
+    "path": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+    "sha256": "57c9b939ffe6af03b5454672951c4e78f6c96df517b79d143039b8cdb01ddf47",
+    "TAU_BOX": 0.85,
+    "kp_conf_threshold": 0.5,
+    "min_valid_corners": 6,
+    "corner_count": 8,
+    "tau_reproj": 0.05,
+    "tau_remove": 0.05,
+    "tau_flip": 0.05,
+    "score_normalization": "projected cuboid diagonal (dimensionless)",
+    "score_field": "result.boxes.conf",
+    "teacher_checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "teacher_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "pool_manifest": "data/evaluation/pallet_eval_v1/adaptation/MAIN_UNLABELED_BALANCED.csv",
+    "pool_manifest_sha256": "afb581a0850c702b00e2ee47939c302772a7c4f531a623443f0a4c0b9b4d303b",
+    "teacher_cache": "data/pallet/results/paper_selftrain_v1/teacher_cache/R0_TEACHER_CACHE.json",
+    "teacher_cache_sha256": "2b985344ef43553c43935722e10b609179a06b2c72fce15c8a249f7b2ca93001",
+    "GT_USED_FOR_SELECTION": false
+  },
+  "pool_census_measured": {
+    "source": "pseudo_manifests/ALL_SCORED.csv + teacher_cache/R0_TEACHER_CACHE.json",
+    "pool_frames": 1000,
+    "excluded": {
+      "not_detected": 46,
+      "valid_corners_lt_6": 28,
+      "s_flip_missing": 10
+    },
+    "candidates_with_all_scores": 916,
+    "max_geom_quantiles": {
+      "q25": 0.01945818284108174,
+      "median": 0.035573065135305414,
+      "q75": 0.09626343511366373,
+      "p90": 0.4956968799614081
+    },
+    "bbox_diag_over_image_diag_quantiles": {
+      "q25": 0.15525820742556237,
+      "median": 0.24275963998569086,
+      "q75": 0.41790757297958403
+    },
+    "session_counts": {
+      "capturepallet10": 122,
+      "capturepallet11": 340,
+      "capturepallet01": 8,
+      "capturenight04": 79,
+      "capturenight03": 97,
+      "capturenight10": 91,
+      "capturenight01": 108,
+      "capturenight02": 71
+    }
+  },
+  "arm_feasibility_measured": {
+    "note": "geometry score here is g4 = max(s_remove, s_flip), the pair F4_PROPOSED actually uses. Thresholds are a PROVISIONAL size census, not a locked policy.",
+    "candidates_with_F4_scores": 916,
+    "median_box_conf": 0.6238067150115967,
+    "median_g4": 0.033388114345402745,
+    "fixed_threshold_definition": {
+      "U6_LOWCONF_STRONGGEOM(conf<0.85, g4<=0.02)": 89,
+      "U7_HIGHCONF_BORDERLINEGEOM(conf>=0.85, 0.03<=g4<=0.08)": 32,
+      "U1_CURRENT_F4(conf>=0.85, g4<=0.05)": 259
+    },
+    "median_split_definition": {
+      "conf_hi x geom_strong": 361,
+      "conf_hi x geom_weak": 98,
+      "conf_lo x geom_strong": 97,
+      "conf_lo x geom_weak": 360
+    },
+    "median_split_matched_N": 97,
+    "scale_split": {
+      "SMALL(diag<median)": 457,
+      "LARGE(diag>=median)": 459
+    }
+  },
+  "existing_manifest_counts": {
+    "A2_NAIVE_MATCHED_S1.csv": 259,
+    "A2_NAIVE_MATCHED_S2.csv": 259,
+    "A2_NAIVE_MATCHED_S3.csv": 259,
+    "ALL_SCORED.csv": 1000,
+    "B_CONF_DECILE.csv": 259,
+    "B_CONF_RANDOM_S1.csv": 259,
+    "B_CONF_RANDOM_S2.csv": 259,
+    "B_CONF_RANDOM_S3.csv": 259,
+    "B_CONF_TOPN.csv": 259,
+    "F0_NAIVE.csv": 926,
+    "F1_CONF.csv": 272,
+    "F2_CONF_REPROJ.csv": 251,
+    "F3_CONF_REMOVE.csv": 267,
+    "F4_DAY_ONLY.csv": 120,
+    "F4_NIGHT_ONLY.csv": 139,
+    "F4_PROPOSED.csv": 259,
+    "F5_CONF_FLIP.csv": 263
+  },
+  "UNRESOLVED": [],
+  "RESOLVED": [
+    {
+      "id": "F4_COUNT_MISMATCH",
+      "resolution": "F4_PROPOSED does NOT use s_reproj. build_pseudo_manifests.py:173-174 defines F4 = F1_CONF AND s_remove<=tau AND s_flip<=tau. Reproducing that rule over ALL_SCORED gives exactly 259, and F0/F1/F2/F3/F5 also reproduce exactly (926/272/251/267/263). The earlier 243 came from wrongly including s_reproj.",
+      "status": "CLOSED"
+    }
+  ],
+  "training_cost_measured": {
+    "runs_root": "challenge/yolo_pose_one_model/paper_selftrain_v1/",
+    "note": "the driver writes runs here, NOT under data/pallet/results/paper_selftrain_v1/",
+    "existing_runs_total": 45,
+    "full_runs(10 epoch)": 39,
+    "minutes_per_full_run": {
+      "mean": 3.53,
+      "min": 3.38,
+      "max": 3.89
+    },
+    "implication": "one arm costs ~3.5 GPU-minutes, so replicates are affordable: 12 arms x 3 sampling-seed draws = 36 runs ~= 2.1 GPU-hours, excluding evaluation.",
+    "gpu": "NVIDIA GeForce RTX 3080, 10 GB"
+  },
+  "noise_floor_measured": {
+    "source": "memory selftrain-pseudo-draw-noise-floor (2026-09-06), R5_PROPOSED, three pseudo-label sampling draws, identical base/recipe/seed, evaluated on PAPER_EVAL 319",
+    "unique_pseudo_labels_at_measurement": 259,
+    "spread_between_identical_arms": {
+      "rotation_median_deg": "6.7%",
+      "translation_median_cm": "14.3%",
+      "IoU3D_median": "1.6%",
+      "ADD_AUC": "4.5%"
+    },
+    "instruction_example_gate": "section 9 proposes translation or depth median >= 5% improvement",
+    "conflict": "the proposed 5% gate is below the measured 14.3% single-draw spread on translation median, so a single draw per arm cannot separate signal from draw noise on that metric.",
+    "note": "the instruction itself tags that gate [미검증] and requires the real gate to be recorded in METHOD_LOCK before results are seen."
+  }
+}
