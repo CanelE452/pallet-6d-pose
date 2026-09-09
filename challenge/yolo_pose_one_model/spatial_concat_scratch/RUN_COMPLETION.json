@@ -1,0 +1,69 @@
+{
+  "schema_version": "g38_p0_tex20k_spatial_cleanstart_completion_v1",
+  "completed_at_utc": "2026-08-29T23:52:46Z",
+  "status": "complete",
+  "dataset": {
+    "unique_images": 60000,
+    "train": 55980,
+    "val": 4020,
+    "sources": {
+      "G38": 40000,
+      "P0": 10000,
+      "TEX": 10000
+    }
+  },
+  "base": {
+    "initialization": "official generic YOLO26n-pose; no prior pallet checkpoint",
+    "epochs": 60,
+    "primary_checkpoint": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/last.pt",
+      "sha256": "1bb80116f2cce50c84741a792e8c87a9a4d69c26861c3ba528d593d8817cff9d"
+    },
+    "epoch60_val": {
+      "box_map50": 0.99447,
+      "box_map50_95": 0.95813,
+      "pose_map50": 0.97758,
+      "pose_map50_95": 0.95701
+    }
+  },
+  "spatial_probe": {
+    "feature_rows": 60000,
+    "train_invalid": 0,
+    "dev_valid": 4019,
+    "dev_abstentions_counted_as_errors": 1,
+    "s0_median_seed_balanced_accuracy": 0.8552543008185787,
+    "s1_median_seed_balanced_accuracy": 0.9041407131447026,
+    "s1_shuffled_dimensions_balanced_accuracy": 0.7453294950513207,
+    "s1_minus_s0": 0.048886412326123896,
+    "s1_minus_shuffled_dimensions": 0.15881121809338183,
+    "summary": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/SPATIAL_CONCAT_60K_SUMMARY.json",
+      "sha256": "417e5083c59976bda42dbb6dc89565f8e3bd241036b8173ee5fd369a2f698364"
+    }
+  },
+  "real_dev_base": {
+    "scope": "reused development diagnostics; base YOLO only",
+    "correct_box_n_of_140": 132,
+    "night_top1_correct_box_n_of_28": 20,
+    "common_four_model_intersection_n": 117,
+    "common_intersection_corner_median_px": 9.194174572450482,
+    "common_intersection_corner_p90_px": 37.33738857519411,
+    "positive_negative_auroc": 0.9836544719226479,
+    "comparison": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/REAL_DEV_BASE_COMPARISON.json",
+      "sha256": "9976bfc1b59e08ff3ee12ef7c24187c87d594173edf1e5e59b62d13d84e0557b"
+    }
+  },
+  "recovery_provenance": {
+    "base_retrained_after_spatial_failure": false,
+    "failed_partial_shards_reused": false,
+    "failure_incident_sha256": "2cd7b3e9358e7e58b5831ae33eacafb9ca2adbed0666dc705d82e2885ab65d2e",
+    "feature_cache_audit_sha256": "0d5f5f9f3ff9de77b46c561cc4456c38a8b9537e6efea9fe700edebbd4ae7deb",
+    "probe_training_recovery_contract_sha256": "ef50c4ca028e51aac689f24eddfef50fa4114c622be6bbc72ef8e52a18d69028"
+  },
+  "limitations": [
+    "Spatial S0/S1 metrics use the mixed synthetic validation split and are exploratory, not an independent paper holdout.",
+    "Real DEV evaluates the base YOLO checkpoint, not the post-hoc S1 probe.",
+    "PnP was not evaluated by the real DEV harness."
+  ]
+}

@@ -57,6 +57,45 @@ class ASCTrainer(A1SymmetryTrainer):
         self.add_callback("on_train_epoch_end", _end)
 
 
+class ChallengeC4Trainer(PoseTrainer):
+    """C4 branch 히스토그램을 epoch 마다 남긴다 — 한쪽 쏠림은 구현 버그 신호다."""
+
+    def get_model(self, cfg=None, weights=None, verbose=True):
+        from .model import ChallengeC4PoseModel
+        model = ChallengeC4PoseModel(cfg, nc=self.data["nc"],
+                                     data_kpt_shape=self.data["kpt_shape"],
+                                     ch=self.data["channels"], verbose=verbose)
+        if weights:
+            model.load(weights)
+        return model
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        import os
+
+        log = os.path.join(self.save_dir, "C4_BRANCH_HIST.csv")
+
+        def _end(trainer):
+            crit = getattr(trainer.model, "criterion", None)
+            hists = []
+            for name in ("one2many", "one2one"):
+                inner = getattr(crit, name, None)
+                if inner is not None and hasattr(inner, "c4_branch_hist"):
+                    hists.append((name, list(inner.c4_branch_hist)))
+                    inner.c4_branch_hist = [0, 0, 0, 0]
+            if not hists and hasattr(crit, "c4_branch_hist"):
+                hists.append(("single", list(crit.c4_branch_hist)))
+                crit.c4_branch_hist = [0, 0, 0, 0]
+            new = not os.path.exists(log)
+            with open(log, "a") as f:
+                if new:
+                    f.write("epoch,criterion,identity,rot90,rot180,rot270\n")
+                for name, h in hists:
+                    f.write(f"{trainer.epoch},{name},{h[0]},{h[1]},{h[2]},{h[3]}\n")
+
+        self.add_callback("on_train_epoch_end", _end)
+
+
 class DiffPnPTrainer(PoseTrainer):
     def get_model(self, cfg=None, weights=None, verbose=True):
         from .model import DiffPnPPoseModel

@@ -1,0 +1,92 @@
+{
+  "object_type": "plastic_standard_110x110x15",
+  "dims_m": {
+    "x": 1.1,
+    "y": 0.15,
+    "z": 1.1
+  },
+  "symmetry_group": "C4 about the height axis (y)",
+  "applies_to": "square real FT only",
+  "does_not_apply_to": {
+    "dataset": "broad40k / paper generic synthetic",
+    "reason": "generic pool contains rectangular pallets where a 90 deg yaw is NOT the same physical target; applying C4 there would teach a false equivalence"
+  },
+  "allowed_targets": "G = {identity, yaw+90, yaw+180, yaw+270} applied as whole-cuboid index permutations",
+  "loss": "Lsym = min over g in G of L(pred, GT o perm_g)",
+  "selection_unit": "one GT object; all positive anchors assigned to that object share the same branch",
+  "forbidden": [
+    "pred[i] -> nearest GT point",
+    "Hungarian(pred[0:8], GT[0:8])",
+    "per-keypoint independent permutation"
+  ],
+  "coordinate_and_visibility": "the same permutation is applied to the full [x,y,v] triplet; they cannot diverge by construction (a single gather over the keypoint axis)",
+  "untouched": [
+    "box loss",
+    "cls loss",
+    "dfl loss",
+    "anchor assignment",
+    "pose/kobj/rle gains"
+  ],
+  "permutations": {
+    "0": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "90": [
+      1,
+      5,
+      6,
+      2,
+      0,
+      4,
+      7,
+      3,
+      8
+    ],
+    "180": [
+      5,
+      4,
+      7,
+      6,
+      1,
+      0,
+      3,
+      2,
+      8
+    ],
+    "270": [
+      4,
+      0,
+      3,
+      7,
+      5,
+      1,
+      2,
+      6,
+      8
+    ]
+  },
+  "permutation_semantics": "new[j] = old[perm[j]]",
+  "derivation": "3D vertex coordinates rotated by Ry(deg), matched back to original indices by exact coordinate distance (<1e-9)",
+  "verified": {
+    "bijection_0_7": true,
+    "centroid_fixed": true,
+    "top_bottom_preserved": true,
+    "cuboid_12_edges_preserved": true,
+    "closure_and_inverse": true,
+    "four_rotations_identity": true
+  },
+  "downstream_risk": {
+    "consumer": "doyoung0503/newauto  depth_cam/calib",
+    "contract": "POSE_FACE_KPTS = (0,1,2,3); _box_object_points origin = FRONT FACE centre",
+    "consequence_if_phase_flips": "tvec jumps to the adjacent face centre (0.55*sqrt(2) = 0.778 m for a 1.10 m square) and yaw jumps by 90 deg",
+    "gate": "C4 metric improvement alone does not justify deployment"
+  }
+}

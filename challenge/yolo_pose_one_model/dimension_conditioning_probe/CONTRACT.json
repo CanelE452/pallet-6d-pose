@@ -1,0 +1,80 @@
+{
+  "schema_version": "dimension_conditioning_probe_contract_v1",
+  "generated_at_utc": "2026-08-28T13:52:45.499914+00:00",
+  "repo": {
+    "head": "f8472ac08cdbf748754dacbca4b54fb4c576d666",
+    "working_tree_clean": false,
+    "working_tree_status_sha256": "b90535f9bc0d4132d417368f0e2589dc83f7599eccfb444ca034cb63f75d276a",
+    "note": "evaluation_v2 v2 stack and real_gt_v2 wood artifacts are UNCOMMITTED at probe time; this hash pins the exact dirty state."
+  },
+  "environment": {
+    "conda_env": "pallet-yolo26",
+    "reason": "yolo26 C3k2 layers require ultralytics>=8.4; pallet-pose ships 8.0.120 and cannot torch.load these weights",
+    "python": "3.10.20",
+    "torch": "2.1.1+cu118",
+    "cuda": "11.8",
+    "ultralytics": "8.4.60",
+    "gpu": "NVIDIA GeForce RTX 3080 (10240 MiB)",
+    "opencv": "4.9.0"
+  },
+  "primary_checkpoint": {
+    "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+    "sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c"
+  },
+  "yolo_parameter_updates_authorized": 0,
+  "forbidden_in_this_task": [
+    "30ep full training",
+    "backbone modification",
+    "keypoint-head FiLM",
+    "hyperparameter selection using real GT",
+    "selector threshold change after seeing real results",
+    "copying DEV numbers into FINAL tables",
+    "modifying existing checkpoints",
+    "modifying existing GT",
+    "reporting 5cm5deg",
+    "evaluating wood with plastic dimensions or plastic with wood dimensions outside the labelled A4 control"
+  ],
+  "frozen_gates": {
+    "note": "fixed before any Phase A result was computed",
+    "G1_selector_fails_paper_gate": {
+      "overall_min": 0.95,
+      "night_min": 0.9,
+      "minimum_session_min": 0.85
+    },
+    "G2_at_least_two_of": [
+      "restricted ADD-S AUC >= +0.03 absolute (A1 - A0)",
+      "rotation median >= 10% relative reduction",
+      "translation median >= 10% relative reduction",
+      "yaw median >= 10% relative reduction",
+      "pose-valid rate >= +5pp"
+    ],
+    "G3_no_continuous_metric_worse_than_5pct": true,
+    "G4_min_fraction_of_selector_errors_recovered": 0.25,
+    "G4_recovery_definition": "frame counts as recovered when A0 is pose-invalid and A1 is pose-valid, OR A1 restricted-ADD-S normalized error is at least 10% lower than A0 in relative terms"
+  },
+  "interpretation_clarifications": {
+    "G3_implemented_scope": "PRIMARY_PLASTIC_DEV140_ALL",
+    "G3_scope_was_explicit_in_user_protocol": false,
+    "G3_strict_every_subgroup_sensitivity": "FAIL_DUE_TO_NIGHT_TRANSLATION",
+    "disposition": "Both scope interpretations lead to no deployment and no full training; see FINAL_DIMENSION_CONDITIONING_REPORT.md."
+  },
+  "phase_c_frozen_gates": {
+    "origin": "thresholds copied from the user protocol; population fixed by DATA_CONTRACT.json",
+    "population_id": "COMMON_DEV_PLASTIC_POS128",
+    "P1_plastic_overall_accuracy_min": 0.95,
+    "P2_plastic_night_accuracy_min": 0.9,
+    "P3_plastic_minimum_session_accuracy_min": 0.85,
+    "P4_B3_minus_B2_accuracy_min": 0.05,
+    "P5_B3_minus_B4_accuracy_min": 0.05,
+    "P6_oracle_auc_headroom_recovery_min": 0.7,
+    "P7_pose_valid_rate_delta_min": 0.0,
+    "P8_prediction_arrays_exact": true,
+    "P9_relative_latency_increase_max": 0.05,
+    "P9_execution_rule": "run only after P1 through P8 pass"
+  },
+  "bootstrap": {
+    "kind": "session-cluster",
+    "iterations": 1000,
+    "seed": 20260828
+  }
+}

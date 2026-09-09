@@ -1,0 +1,87 @@
+{
+  "schema_version": "cleanstart_60k_architecture_extension_v1_exploratory",
+  "irrevocably_exploratory": true,
+  "paper_final_claim_allowed": false,
+  "independent_test_opened": false,
+  "feature_cache_frozen": true,
+  "yolo_parameter_updates": 0,
+  "dimension_input": "fixed_renderer_dimensions_m_xyz_transformed_to_frozen_4d_phase_c_feature",
+  "camera_facing_dimensions_model_input_forbidden": true,
+  "arms": [
+    "S2_SPATIAL_FILM",
+    "S3_SPATIAL_CROSS_ATTENTION",
+    "D0_DIMS_ONLY",
+    "K0_KP_ONLY",
+    "C1_CENTER_CONCAT"
+  ],
+  "frozen_reference_arms": [
+    "S0_SPATIAL_NO_DIMS",
+    "S1_SPATIAL_CONCAT"
+  ],
+  "reference_arm": "S1_SPATIAL_CONCAT",
+  "training": {
+    "seeds": [0, 1, 2],
+    "epochs": 40,
+    "steps_per_epoch": 40,
+    "batch": 512,
+    "samples_per_epoch_with_replacement": 20480,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "betas": [0.9, 0.999],
+    "epsilon": 1e-08,
+    "scheduler": "none",
+    "gradient_clipping": "none",
+    "amp": false,
+    "class_balanced_sampler": true,
+    "loss": "balanced_cross_entropy",
+    "checkpoint_selection": "earliest maximum mixed synthetic DEV balanced accuracy"
+  },
+  "reference_sampler_schedule_sha256_by_seed": {
+    "0": "887b935c586f8a40331cdbe28056f2ecddb03a106206310faf07b1b6e96fac0b",
+    "1": "9274acfd316582b60e74294149fa8268a3c38690f3df752742795e84ed5ab6a5",
+    "2": "8666c4ddbb8c1859d93ef3fc5415075b21c226e9ca3f53ef2218620b5e74ddd1"
+  },
+  "evaluation": {
+    "population": "locked mixed synthetic DEV 4020 including one abstention as error",
+    "artifact_lock": "median selected-epoch DEV balanced accuracy; tie lower seed",
+    "conditioned_arm_controls": "correct and shared seed-42 all-triplets-changed shuffled fixed XYZ dimensions",
+    "per_source": ["G38", "P0", "TEX"],
+    "seed_summary": "mean and sample standard deviation over seeds 0,1,2",
+    "bootstrap": {
+      "replicates": 10000,
+      "seed": 20260830,
+      "interval": "paired cluster percentile 95% CI for DEV balanced-accuracy delta vs S1",
+      "clusters": "G38 pair_group_id singleton; matched P0/TEX pair_group_id joint cluster"
+    },
+    "optional_latency": {
+      "scope": "branch-only CUDA batch=1",
+      "warmups": 20,
+      "iterations": 200,
+      "statistics": ["p50_ms", "p95_ms"]
+    }
+  },
+  "runner_sha256": "4e94d36772dd2a9e177ac9b32a79acabad636022de0ff80e1f10a9f240ba3f9e",
+  "source_bindings": {
+    "feature_cache_sha256": "1d1e54ed2cd5f6c162e99ebad06b118ab546c872b99c655d0f7e9552c08f9f7b",
+    "feature_audit_sha256": "0d5f5f9f3ff9de77b46c561cc4456c38a8b9537e6efea9fe700edebbd4ae7deb",
+    "probe_metadata_sha256": "20b863b75e763da04ca4ea7fcb270765ec262969725c696ea4ce3a0fae77a71e",
+    "probe_metadata_audit_sha256": "04fa6fb56514cb778403908e0c21aea5a3a857e7783a8f41353d0982c69bdca0",
+    "probe_training_recovery_contract_sha256": "ef50c4ca028e51aac689f24eddfef50fa4114c622be6bbc72ef8e52a18d69028",
+    "base_probe_runner_sha256": "4cf84d563930a3107ca3ec4137501d643b517b79d09ebafdff8e00b8c7f9c3ea",
+    "phase_e_runner_sha256": "a4091e443dfe5e52069551d275a8d05ea99d92d51f960f40b742170af6ee955d",
+    "base_spatial_summary_sha256": "417e5083c59976bda42dbb6dc89565f8e3bd241036b8173ee5fd369a2f698364",
+    "S0_SPATIAL_NO_DIMS_seed0_run_sha256": "4d72e871952ff86361680813f0c7506c069ba8fc141c8453546e890f1a32e881",
+    "S0_SPATIAL_NO_DIMS_seed0_checkpoint_sha256": "61fffd3a97085daa1e86dea3333a93b36d8dfb1b2455aae76bbafcbe6f2516eb",
+    "S0_SPATIAL_NO_DIMS_seed1_run_sha256": "4d87fcb1e920ed2d45cdb5ae1cddb5dbfc93055bf29648df8c681d53f913b201",
+    "S0_SPATIAL_NO_DIMS_seed1_checkpoint_sha256": "b5f5132ddc574ca0a4725ad984a50f114f67e93f1661dba0f94448af599ff3c3",
+    "S0_SPATIAL_NO_DIMS_seed2_run_sha256": "26a0b624c7882e9d512c23f092ec4e0da1064902655a852f65d0817040c158ea",
+    "S0_SPATIAL_NO_DIMS_seed2_checkpoint_sha256": "b8fc77e3d04b1d8963d51fc6603b556f580a0498fc504247ac66b8aa3747dff1",
+    "S1_SPATIAL_CONCAT_seed0_run_sha256": "e3b0fa28a93df308bf8d76d6181477a39ac883fd1d17f9fd6fbc4bf4dd7bcbae",
+    "S1_SPATIAL_CONCAT_seed0_checkpoint_sha256": "970a36f613cf834622331a833c5bb3f1f79ca5b4fbff1b3fc2c2bc0840a1cb81",
+    "S1_SPATIAL_CONCAT_seed1_run_sha256": "5f413d78e79e4d2e235f65e9b5c5791c668d43c7499d9ed467e5420c1bb1ba30",
+    "S1_SPATIAL_CONCAT_seed1_checkpoint_sha256": "d215de2526c3836452ed3efe7663f6ba2c5ba4299ceedf8f8b6d880703d2f3ff",
+    "S1_SPATIAL_CONCAT_seed2_run_sha256": "0986c8185e15e45dbd0417becb713629c77ee80e3899ccd8dbe9356f84edb2f6",
+    "S1_SPATIAL_CONCAT_seed2_checkpoint_sha256": "04987378443ca49147e87a67679ba429a6dcea654563789db0d0c7a1bf932d74"
+  }
+}

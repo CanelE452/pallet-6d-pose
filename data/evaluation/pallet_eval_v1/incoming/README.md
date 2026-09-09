@@ -41,6 +41,8 @@ PnP GT JSON, 호환 PNG, `frame_tags.csv`, `_overlays/<stem>.png`는 해당 출�
 `intrinsics_quality=UNKNOWN`으로 기록한다. raw의 `PROVIDED_UNVERIFIED` 품질과
 `camera_info.json` 출처는 `intrinsics_source`에 그대로 남긴다.
 
-staging save는 top-level 평가 manifest나 progress/report MD를 갱신하지 않으며
-evaluation member를 자동 생성하지 않는다. 검수한 frame의 DEV/FINAL promotion과
-평가 활성화는 별도 절차다. 동일 SHA frame은 active evaluation에 중복 승격하지 않는다.
+staging에서 `s`로 저장하면 방금 검수한 frame만 대응 active evaluation session으로
+즉시 독립 복사한다. image, JSON, overlay, condition tag를 동기화한 다음 top-level
+manifest와 통합 progress/report MD를 바로 갱신한다. 다른 incoming annotation을 함께
+훑지 않으며 별도 promotion 명령도 필요 없다. 동일 SHA frame은 통합 진행률에서 한 번만
+센다.

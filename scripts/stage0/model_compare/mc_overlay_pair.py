@@ -40,9 +40,9 @@ EDGES = [(0, 1), (1, 2), (2, 3), (3, 0),
          (4, 5), (5, 6), (6, 7), (7, 4),
          (0, 4), (1, 5), (2, 6), (3, 7)]
 
-OUT = os.path.join(ROOT, "data/pallet/results/model_compare/overlay_target_vs_challenger")
-TARGET = ("yolo26n_synth", "TARGET  n-SYN74K  (saw target pallet 35,914 imgs)")
-CHALLENGER = ("yolo26n_paper_generic_v1", "CHALLENGER  n-GEN40K  (saw target 0 imgs)")
+OUT = os.path.join(ROOT, "data/pallet/results/model_compare/overlay_target_vs_paper")
+TARGET = ("yolo26n_synth", "UPPER REF  generic + target 2 geometries (35,914)")
+CHALLENGER = ("G38_ONLY_60EP", "PAPER  generic only  (saw target 0)  [controlled]")
 GREEN, BLUE, RED, WHITE = (0, 255, 0), (255, 80, 0), (0, 0, 255), (255, 255, 255)
 
 
@@ -140,11 +140,10 @@ def contact_sheet(index, cols=2, panel_w=760):
     sheet = np.vstack(rows)
 
     caption = np.zeros((30, sheet.shape[1], 3), np.uint8)
-    cv2.putText(caption, "LEFT half of each tile = TARGET n-SYN74K (saw target) | "
-                         "RIGHT half = CHALLENGER n-GEN40K (saw target 0) | "
+    cv2.putText(caption, f"LEFT half of each tile = {TARGET[1]}   |   "
+                         f"RIGHT half = {CHALLENGER[1]}   |   "
                          "green=GT  blue=pred kp  red=pred pose reproj",
-                (8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1,
-                cv2.LINE_AA)
+                (8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.42, WHITE, 1, cv2.LINE_AA)
     sheet = np.vstack([caption, sheet])
     path = os.path.join(OUT, "CONTACT_SHEET.png")
     cv2.imwrite(path, sheet)

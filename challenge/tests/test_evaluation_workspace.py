@@ -376,10 +376,11 @@ def test_final_progress_overlap_unknown_and_deletion_refresh(tmp_path: Path) -> 
     assert progress.unknown_metadata == 1
     progress_report = (root / "reports/ANNOTATION_PROGRESS.md").read_text()
     assert "UNKNOWN_METADATA" in progress_report
-    assert (
-        "Status               EMPTY — NO REGISTERED FINAL_EVAL ALIAS"
-        in progress_report
-    )
+    assert "# 통합 평가 데이터 어노테이션 진행률" in progress_report
+    assert "# DEV evaluation population" not in progress_report
+    assert "# FINAL_EVAL alias status" not in progress_report
+    assert "DEV" not in progress_report
+    assert "FINAL" not in progress_report
     priority_report = (root / "reports/NEXT_ANNOTATION_PRIORITY.md").read_text()
     assert "New annotation required   NO" in priority_report
     assert "NEEDS_METADATA" not in priority_report
@@ -736,7 +737,7 @@ def test_eval_population_fails_closed_on_positive_negative_sha_overlap() -> None
         evaluation_population_views([positive, negative])
 
 
-def test_progress_report_orders_dev_alias_physical_final_and_all_available(
+def test_progress_report_uses_one_combined_population(
     tmp_path: Path,
 ) -> None:
     root = tmp_path / "pallet_eval_v1"
@@ -761,24 +762,34 @@ def test_progress_report_orders_dev_alias_physical_final_and_all_available(
     overlay.parent.mkdir(parents=True)
     overlay.write_bytes(b"overlay")
 
-    report = render_progress_report(root, [dev], load_targets(root))
-    assert report.index("# DEV evaluation population") < report.index(
-        "# FINAL_EVAL alias status"
-    ) < report.index(
-        "# Paper evaluation readiness"
-    ) < report.index("# All available evaluation")
-    assert "Combined positive       1 / 173" in report
-    assert "Annotated positive      1 / 173" in report
-    assert "Review overlays         1 / 173" in report
-    assert "Lighting tagged         1 / 173" in report
-    assert "Occlusion tagged        0 / 173" in report
-    assert "Elevation tagged        1 / 173" in report
-    assert "Status               READY — REUSED DEV_EVAL, NOT HELD OUT" in report
-    assert "FINAL_EVAL positive     1" in report
-    # 2026-09-01: 300 은 frame count 가 아니라 복합 게이트의 한 조건이다.
-    assert re.search(r"Positive total\s+1 / 300 minimum", report)
+    final = _valid_frame_row(
+        "final__annotated",
+        hashlib.sha256(b"final").hexdigest(),
+        role="FINAL",
+    )
+    final.update(
+        {
+            "controlled_eval_eligible": "true",
+            "is_annotated": "true",
+            "object_type": "wood",
+            "lighting": "night",
+        }
+    )
+
+    report = render_progress_report(root, [dev, final], load_targets(root))
+    assert report.startswith("# 통합 평가 데이터 어노테이션 진행률")
+    assert "# DEV evaluation population" not in report
+    assert "# FINAL_EVAL alias status" not in report
+    assert "# All available evaluation" not in report
+    assert "DEV positive" not in report
+    assert "FINAL_EVAL positive" not in report
+    assert "DEV" not in report
+    assert "FINAL" not in report
+    assert re.search(r"Positive total\s+2 / 300", report)
+    assert re.search(r"Plastic\s+1 / 180", report)
+    assert re.search(r"Wood\s+1 / 120", report)
+    assert re.search(r"Negative unique\s+0 / 1500", report)
     assert "DATASET_READY" in report
-    assert "ALL positive            1" in report
 
 
 def test_overlay_audit_names_reused_alias_and_physical_final_separately(

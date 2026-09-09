@@ -29,6 +29,20 @@ class A1SymmetryPoseModel(PoseModel):
         return A1SymmetryPoseLoss(self)
 
 
+class ChallengeC4PoseModel(PoseModel):
+    """과제용 정사각 팔레트 C4 — keypoint target 동치류만 바꾼다.
+
+    ``C4_CONFIG`` 가 없으면 ``ChallengeC4PoseLoss`` 는 stock 경로를 그대로 타므로
+    이 model 로 학습해도 indexed 학습과 동일하다(F0 control 이 이 성질을 쓴다).
+    """
+
+    def init_criterion(self):
+        from .c4 import ChallengeC4PoseLoss
+        if getattr(self, "end2end", False):
+            return E2ELoss(self, ChallengeC4PoseLoss)
+        return ChallengeC4PoseLoss(self)
+
+
 class DiffPnPPoseModel(PoseModel):
     """DiffPnP 3D-corner 항을 더한 pose 모델.
 

@@ -22,11 +22,11 @@ metadata가 없으면 `unknown`으로 남는다.
 
 ## Annotation SESSION selector
 
-annotation UI의 `SESSION` 목록에는 수정 가능한 DEV 9개(플라스틱 7개 + 목재 2개)와
-신규 촬영본의 zero-copy `STAGING EDIT` 4개가 함께 표시된다. DAY와 NIGHT capture가
+annotation UI의 `SESSION` 목록에는 현재 기존 평가 session 12개와 신규 촬영본의
+zero-copy `STAGING EDIT` 4개, 총 16개가 함께 표시된다. 신규 DAY와 NIGHT capture는
 각각 `PLASTIC`, `WOOD` 두 행으로 보인다. 각 행은 같은 raw capture를 복사하지 않고
-참조하되 서로 겹치지 않는 실제 frame subset만 표시하며, object별 registry
-geometry로 PnP를 푼다. raw session은 수정·이동하지 않는다.
+참조하되 서로 겹치지 않는 실제 frame subset만 표시하며, object별 registry geometry로
+PnP를 푼다. raw session은 수정·이동하지 않는다.
 
 분류 정본은 각 raw frame을 정확히 한 번 기록한
 `incoming/sessions/<capture>/manifests/frame_review.csv`다. 실제 픽셀을 프레임
@@ -47,9 +47,11 @@ PnP GT JSON, 호환 PNG, `frame_tags.csv`, `_overlays/<stem>.png`는 각각
 intrinsics는 검증되지 않았으므로 GT의 `intrinsics_quality`는 `UNKNOWN`이고, 원래
 `PROVIDED_UNVERIFIED` 품질과 `camera_info.json` 출처는 `intrinsics_source`에 보존한다.
 
-staging save는 top-level `manifests/frames.csv`, DEV/FINAL 평가 manifest,
-progress/report MD를 자동 갱신하거나 evaluation member를 만들지 않는다. 맞는 object
-frame을 검수한 뒤 DEV/FINAL로 promotion하는 작업은 별도 절차다.
+staging에서 `s`로 저장한 검수 완료 frame은 대응하는 active evaluation session으로
+즉시 독립 복사된다. 방금 저장한 frame의 image, JSON, overlay, condition tag만 동기화한
+뒤 top-level manifest와 progress/report MD를 바로 갱신한다. raw capture는 그대로 두며,
+다른 incoming annotation을 함께 훑거나 일괄 편입하지 않는다. 동일 SHA image는 통합
+진행률에서 한 번만 센다.
 
 ## Evaluation populations
 
@@ -138,9 +140,9 @@ python scripts/annotate/annotate.py \
 
 G. 선택적으로 physical FINAL을 확장할 때 매 save마다 JSON,
 `_overlays/<stem>.png`, `manifests/frames.csv`, report가 갱신된다.
-`reports/NEXT_ANNOTATION_PRIORITY.md`는 새 annotation을 요구하지 않고 현재
-DEV_EVAL과 physical FINAL을 합친 `ALL_AVAILABLE` 목표 진행률을 보여준다.
-`0/300` 같은 수치는 DEV/FINAL로 나누지 않고 이 combined population에서 계산한다.
+`reports/NEXT_ANNOTATION_PRIORITY.md`는 새 annotation을 요구하지 않고 통합 평가
+collection의 목표 진행률을 보여준다. `0/300` 같은 수치는 role별로 나누지 않고 같은
+image를 SHA256으로 한 번만 세는 단일 combined population에서 계산한다.
 
 선택적으로 새 FINAL 촬영을 추가할 때만 `final/positive/sessions/<session>/rgb/` 또는
 `final/negative/sessions/<session>/rgb/`에 둔다. 각 session에 `session.json`을
@@ -161,8 +163,9 @@ positive/negative 또는 plastic/wood가 섞인 연속 촬영본은 곧바로 FI
 `scripts/evaluation/import_incoming_capture.py`로 `incoming/sessions/`에 먼저
 비파괴 import한다. raw capture는 `INCOMING_UNREVIEWED`로 유지하면서 SESSION의
 object별 zero-copy `STAGING EDIT` 행에서 annotation한다. staging output은
-`incoming/annotations/`에만 쓰며 DEV/FINAL 평가와 combined 목표 수치에 자동으로
-포함되지 않는다. 검수한 frame의 promotion과 평가 활성화는 별도로 수행한다.
+`incoming/annotations/`에 쓰고, `s`로 저장한 해당 frame만 대응 active evaluation
+session에 독립 복사한다. 복사 직후 통합 목표 수치와 report를 갱신하므로 별도 promotion
+명령은 필요 없다. 다른 staging frame은 저장·편입하지 않는다.
 
 `far`, `elevation`, `view`는 임의 threshold로 추정하지 않는다. 명시하지
 않은 값은 `unknown`으로 남는다. 이 값은 DEV alias의 provenance를 그대로 설명할

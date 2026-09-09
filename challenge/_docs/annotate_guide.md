@@ -122,6 +122,62 @@ p              이전 frame
 q              종료
 ```
 
+### SESSION 선택
+
+화면의 `SESSION` 버튼에서는 현재 기존 평가 session 12개와 신규 촬영본의 zero-copy
+`STAGING EDIT` 4개, 총 16개를 선택할 수 있다. 신규 DAY와 NIGHT는 각각 `PLASTIC`,
+`WOOD` 두 행으로 표시된다. 두 행은 같은 raw capture를 복사하지 않고 참조하지만 서로
+겹치지 않는 실제 frame subset만 보여주며, object별 geometry로 PnP를 푼다.
+
+분류 정본은 각 raw frame을 정확히 한 번 기록한
+`incoming/sessions/<capture>/manifests/frame_review.csv`다. 실제 픽셀을 프레임
+단위로 검수해 `plastic`, `wood`, `exclude`로 나눴으며, `exclude`(파렛트 없음,
+카메라 이동, 심한 motion blur)는 두 객체 view에서 모두 숨긴다. 큰 재질 경계는
+DAY source ordinal 기준 `WOOD=69..5480`, `PLASTIC=5481..24193`,
+`WOOD=24241..29028`이고, NIGHT는 `WOOD=1..4849`,
+`PLASTIC=4850..13583`이다. 경계 안의 검수 제외 구간까지 적용한 최종 수는 DAY
+`PLASTIC 17,917 / WOOD 9,362 / EXCLUDE 1,749`, NIGHT
+`PLASTIC 7,913 / WOOD 4,546 / EXCLUDE 1,124`이다.
+partition view 안의 `frame N/M`과 goto는 view-local 번호다. 패널에는 원본 기준
+`source ordinal N/raw_total`도 함께 표시하며, 경계 추적은 source ordinal 또는
+filename을 사용한다.
+
+staging 저장 위치는 `incoming/annotations/<capture>__plastic/` 또는
+`incoming/annotations/<capture>__wood/`다. PnP GT JSON, 호환 PNG,
+`frame_tags.csv`, `_overlays/<stem>.png`는 이 객체별 출력 아래에만 생성되고
+`incoming/sessions/<capture>/`의 raw 파일은 수정·이동하지 않는다.
+
+신규 capture의 제공 intrinsics는 검증되지 않았으므로 GT에는
+`intrinsics_quality=UNKNOWN`으로 기록하고, 원래 `PROVIDED_UNVERIFIED` 품질과
+`camera_info.json` 출처는 `intrinsics_source`에 보존한다. staging에서 `s`로 저장하면
+방금 검수한 frame만 대응 active evaluation session으로 독립 복사하고, condition tag를
+포함해 평가 manifest와 통합 진행률 MD를 즉시 갱신한다. 별도 promotion 명령은 필요
+없으며 다른 incoming frame을 함께 편입하지 않는다.
+
+### 평가 조건 및 session 일괄 적용
+
+`/`로 `CONDITIONS` 모드에 들어간다.
+
+```
+1 / 2          occlusion / truncation ON·OFF
+3 / 4 / 5      elevation LOW / MID / HIGH
+n / m / 6      distance NEAR / MID / FAR
+u              distance를 UNKNOWN으로 되돌림
+a, a           방금 바꾼 tag만 현재 session의 annotated frame 전체에 적용
+s              현재 frame만 저장하고 다음으로 이동
+/ 또는 Esc   CLICK 모드로 복귀
+```
+
+일괄 적용은 해당 session에서 annotation JSON이 있는 frame만 대상으로 하며,
+미어노테이션 frame과 다른 기존 tag는 건드리지 않는다. 실수로 전체 session을
+바꾸지 않도록 `a`를 두 번 눌러야 실제 저장된다.
+
+현재 active evaluation condition은 camera와 pallet 사이의 물리적 거리인
+`NEAR / MID / FAR`만 사용한다. 고정 meter threshold는 아직 정의하지 않았으므로
+명확하지 않으면 `u`를 누른다. 현재 session의 annotated frame 전체를 distance
+UNKNOWN으로 되돌릴 때는 `u`, `a`, `a` 순서로 누른다. 과거 CSV의 `size_bin` 열은
+파일 호환을 위해 보존하지만 UI, 진행률, 논문 condition 표에서는 사용하지 않는다.
+
 저장하면 `challenge/data/<시퀀스명>_manual_gt/<timestamp>.json` + `.png` 가 같이
 저장된다.
 

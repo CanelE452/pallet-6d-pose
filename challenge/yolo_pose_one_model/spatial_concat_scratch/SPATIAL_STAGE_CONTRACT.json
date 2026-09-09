@@ -1,0 +1,80 @@
+{
+  "schema_version": "spatial_concat_stage_contract_v1",
+  "contract_revision": 2,
+  "frozen_at_utc": "2026-08-29T23:24:48Z",
+  "scope": "challenge-track exploratory mixed-data training; not paper-final evidence",
+  "source_bindings": {
+    "base_training_contract_sha256": "eeee76970e75de672fdcc3e0ee38697a3d4afc7ab040b47d6de87dbe32715124",
+    "base_interruption_event_sha256": "c8c43693e6dc293cb72061e031127a98dde0390a50b6660cebcfb2e4d918e84f",
+    "probe_metadata_sha256": "20b863b75e763da04ca4ea7fcb270765ec262969725c696ea4ce3a0fae77a71e",
+    "probe_metadata_audit_sha256": "04fa6fb56514cb778403908e0c21aea5a3a857e7783a8f41353d0982c69bdca0",
+    "phase_c_runner_sha256": "bd3cb93899e46ff298fdce78a0a0b48eefd1d9e88396b4ca964f6d7fcbafdbb2",
+    "phase_e_runner_sha256": "a4091e443dfe5e52069551d275a8d05ea99d92d51f960f40b742170af6ee955d",
+    "runner_sha256": "1d9f5424f90bb1c9e4ed06834f822a01df31fa93bd344054ffcabec3e40be553"
+  },
+  "additional_provenance": {
+    "dataset_build_sha256": "7430b79bd8a65a27ceaf60b86a3b1b7fb9dbd7c7621f169c502a0bb693231bb9",
+    "metadata_builder_sha256": "9b634889f79143bcbf5ccaea73fd39dd4a2d09153578a7f0facc6ec6baaab067",
+    "data_yaml_sha256": "19e0501c835df11e7d2356864bf7cd38da367618fd07e3822fad9ccc92417ec5"
+  },
+  "base_checkpoint": {
+    "rule": "epoch-60 last.pt after a fresh uninterrupted fixed-budget run",
+    "yolo_parameters_frozen_during_spatial_stage": true
+  },
+  "recovery": {
+    "incident": "SPATIAL_EXTRACTION_FAILURE_20260830.json",
+    "incident_sha256": "2cd7b3e9358e7e58b5831ae33eacafb9ca2adbed0666dc705d82e2885ab65d2e",
+    "prior_contract_sha256": "b70af52ac5a807f82e2f0b7868cf9cd38895c087380102120b4f63247dde4928",
+    "prior_metadata_sha256": "f9f21ed048c32ddd38f75bb40e5e2f8c56cdef8754a8757633132d7abed503bd",
+    "root_cause": "legacy P0/TEX raw shape was hardcoded to 480x720 instead of derived independently per prepared image",
+    "corrected_rows": 17020,
+    "base_checkpoint_retrained": false,
+    "prior_partial_shards_reused": false,
+    "recovery_policy": "full 60000-row re-extraction under one corrected recipe"
+  },
+  "architecture": "exact post-hoc Phase-E S0/S1 7x7 selected-source spatial concat",
+  "dimension_input": "fixed_renderer_dimensions_m_xyz_model_input",
+  "camera_facing_dimensions_model_input_forbidden": true,
+  "feature_extraction": {
+    "already_padded_input": true,
+    "additional_padding": 0,
+    "prepared_border": "100px BORDER_REFLECT_101",
+    "raw_shape_source": "prepared PNG header height/width minus the frozen 100px border on each side",
+    "two_pass_exactness_required": true,
+    "prepared_image_bytes_bound_by_sha256": true,
+    "confidence_floor": 0.001,
+    "imgsz": 640,
+    "batch": 32,
+    "shard_size": 512,
+    "patch": "7x7x64 around the final selected one2one classification source cell",
+    "invalid_train_or_dev_policy": "hard_fail"
+  },
+  "probe_training": {
+    "arms": [
+      "S0_SPATIAL_NO_DIMS",
+      "S1_SPATIAL_CONCAT"
+    ],
+    "seeds": [0, 1, 2],
+    "epochs": 40,
+    "steps_per_epoch": 40,
+    "batch": 512,
+    "samples_per_epoch_with_replacement": 20480,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "class_balanced_sampler": true,
+    "loss": "balanced_cross_entropy"
+  },
+  "selection": {
+    "checkpoint_epoch": "earliest maximum mixed synthetic DEV balanced accuracy",
+    "locked_artifact": "median DEV seed, with lowest seed breaking an exact tie",
+    "threshold": 0.5,
+    "s1_is_fixed_primary": true
+  },
+  "real_used_for_training_or_selection": 0,
+  "limitations": [
+    "The mixed validation set is exploratory DEV, not an independent TEST or paper holdout.",
+    "P0 and TEX are distinct renders of matched scenario IDs and remain grouped in the same split.",
+    "The selected source-cell lookup is postprocess-discrete, so this is a frozen-YOLO post-hoc head rather than an end-to-end dimension-conditioned YOLO."
+  ]
+}

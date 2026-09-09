@@ -334,14 +334,22 @@ def test_eval_root_save_and_delete_increment_then_decrement_final_progress(
     assert annotate._save_state_annotation(
         state, np.eye(3), str(annotation),
         str(annotation.with_suffix(".png")), str(source))
-    assert "[Progress] FINAL 1/300" in capsys.readouterr().out
+    saved_output = capsys.readouterr().out
+    assert (
+        "[READY] combined target 1/300 positive, 0/1500 negative "
+        "(SHA256-deduplicated)"
+    ) in saved_output
     rows = load_frames(root)
     assert len(rows) == 1 and rows[0]["is_annotated"] == "true"
 
     assert annotate._delete_annotation(
         state, str(annotation),
         str(annotation.with_suffix(".png"))) == "save-next"
-    assert "[Progress] FINAL 0/300" in capsys.readouterr().out
+    deleted_output = capsys.readouterr().out
+    assert (
+        "[EMPTY] combined target 0/300 positive, 0/1500 negative "
+        "(SHA256-deduplicated)"
+    ) in deleted_output
     rows = load_frames(root)
     assert len(rows) == 1 and rows[0]["is_annotated"] == "false"
 

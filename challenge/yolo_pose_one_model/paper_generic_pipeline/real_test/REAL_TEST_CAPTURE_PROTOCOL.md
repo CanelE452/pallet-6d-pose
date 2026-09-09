@@ -23,7 +23,7 @@
 indoor day          indoor dim/night
 outdoor day         outdoor night
 partial occlusion   truncation (좌/우 측면 잘림 위주)
-far/small           near/large
+far                 near
 ```
 한 세션이 한 stratum 의 절반을 넘지 않게 한다.
 

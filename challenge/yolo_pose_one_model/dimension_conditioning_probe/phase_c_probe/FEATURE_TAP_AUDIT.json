@@ -1,0 +1,376 @@
+{
+  "schema_version": "dimension_conditioning_feature_tap_audit_v1",
+  "generated_at_utc": "2026-08-28T14:29:53.514528+00:00",
+  "discovery": {
+    "rule": "unique named_modules entry exposing one2one_cv3, one2one_cv4, get_topk_index, nl and stride",
+    "resolved_head_path": "model.23",
+    "resolved_head_type": "Pose26",
+    "level_count": 3,
+    "penultimate_paths": [
+      "model.23.one2one_cv3.0.1",
+      "model.23.one2one_cv3.1.1",
+      "model.23.one2one_cv3.2.1"
+    ],
+    "logit_paths": [
+      "model.23.one2one_cv3.0.2",
+      "model.23.one2one_cv3.1.2",
+      "model.23.one2one_cv3.2.2"
+    ],
+    "hardcoded_module_path_used": false,
+    "selected_feature": "one2one classification penultimate at final top-ranked source cell",
+    "selection_reason": "actual end-to-end inference branch; uniform 64 channels at P3/P4/P5; read-only candidate-aligned vector"
+  },
+  "instrumentation_prediction_parity": {
+    "reference": "challenge/yolo_pose_one_model/dimension_conditioning_probe/phase_a_oracle/PREDICTION_CACHE.npz",
+    "n_frames": 185,
+    "max_abs_diff": {
+      "candidate_count": 0,
+      "confidence": 0.0,
+      "box": 0.0,
+      "keypoints": 0.0
+    },
+    "required_tolerance": 0.0,
+    "passed": true
+  },
+  "candidate_provenance": {
+    "check": "sigmoid(mapped one2one readout logit) vs returned confidence",
+    "n": 40183,
+    "max_abs_diff": 8.626048408899578e-08,
+    "passed": true
+  },
+  "feature_dimensions": {
+    "image": 64,
+    "kp_geometry": 26,
+    "dimensions": 4
+  },
+  "prerequisites": {
+    "phase_a": {
+      "path": "challenge/yolo_pose_one_model/dimension_conditioning_probe/phase_a_oracle/DEV_DIMENSION_ORACLE_DIAGNOSTIC.json",
+      "sha256": "7c14b990ac1da23b78feed0058e2e5c1b0f71e3690f416d203dbe09a35327d8a",
+      "verdict": "ORACLE_PARITY_HEADROOM_PRESENT"
+    },
+    "phase_b": {
+      "path": "challenge/yolo_pose_one_model/dimension_conditioning_probe/phase_b_data/SYNTH_METADATA_AUDIT.json",
+      "sha256": "32a54c669bd5f0f445cea28e9315be46a869cf296c487f85ecaf0062cc5a8161",
+      "hard_block": {
+        "dimension_supervision_not_auditable": false,
+        "parity_not_exactly_reconstructable": false,
+        "physical_dimensions_constant": false
+      },
+      "split_status": "PROVISIONAL_ASSET_ID_DISJOINT",
+      "asset_id_disjoint": true,
+      "topology_certified": false,
+      "new_render_assessment": {
+        "criterion": "Each registered target must lie inside the observed fixed-axis range on x/y/z and have at least one G38 frame within 20% on every fixed axis.",
+        "interpretation": "G38 has abundant nonconstant dimensions and exact parity supervision, but it does not cover every registered object neighborhood. A new render is required before a multishape/plastic+wood dimension-generalization claim.",
+        "new_render_required": true,
+        "non_fabrication_note": "No DIM_PROBE_SYNTH frames, asset IDs, backgrounds, viewpoints, or memberships are emitted here because such renderer metadata does not yet exist.",
+        "uncovered_registry_object_types": [
+          "wood_small_80x59x14"
+        ],
+        "verdict": "DIM_PROBE_SYNTH_REQUIRED_FOR_MULTISHAPE_REGISTRY_COVERAGE"
+      }
+    },
+    "scope_lock": {
+      "primary": "PLASTIC_STANDARD_ONLY",
+      "plastic_selector_diagnostic_population": "DEV_PLASTIC_POS140",
+      "plastic_model_comparison_population": "COMMON_DEV_PLASTIC_POS128",
+      "synthetic_test_claim": "PROBE_HEAD_ASSET_ID_HELDOUT_ONLY_NOT_END_TO_END_HELDOUT",
+      "synthetic_test_probe_head_split": "PROVISIONAL_ASSET_ID_DISJOINT_NOT_TOPOLOGY_CERTIFIED",
+      "synthetic_test_frozen_feature_extractor_exposure": "PRIMARY_YOLO_WAS_TRAINED_ON_ORIGINAL_G38_MEMBERSHIP_SPANNING_ALL_FOUR_ASSETS",
+      "synthetic_test_original_g38_origin_counts": {
+        "train": 9591,
+        "val": 504,
+        "total": 10095
+      },
+      "synthetic_test_end_to_end_heldout_claim_allowed": false,
+      "B4_real_control_population": "COMMON_DEV_MULTISHAPE_POS_128_PLUS_45",
+      "wood": "OUT_OF_RANGE_EXTRAPOLATION_DIAGNOSTIC_ONLY",
+      "multishape_claim_allowed": false,
+      "multishape_blocker": "DIM_PROBE_SYNTH_REQUIRED_FOR_MULTISHAPE_REGISTRY_COVERAGE"
+    },
+    "split_membership": {
+      "path": "challenge/yolo_pose_one_model/dimension_conditioning_probe/phase_b_data/SPLIT_MEMBERSHIP.json",
+      "sha256": "fd8f39f59e229bd9bdd9172212ea3e52dcf8e77b80898b67905e809e90d8582e"
+    }
+  },
+  "kp_geometry_definition": {
+    "center": "predicted bbox center",
+    "normalizer": "predicted bbox diagonal",
+    "coordinates": 18,
+    "scalars": [
+      "bbox width/height",
+      "bbox area/raw image area"
+    ],
+    "structural": [
+      "mean camera-facing width edge / bbox diagonal",
+      "mean height edge / bbox diagonal",
+      "mean depth edge / bbox diagonal",
+      "width edge / height edge",
+      "depth edge / height edge",
+      "width edge / depth edge"
+    ]
+  },
+  "normalization": {
+    "image": {
+      "mean": [
+        2.917324824305691,
+        0.5880478864945442,
+        3.733750647604928,
+        -0.052044889051238184,
+        1.5413071893388808,
+        -0.23057831106574914,
+        -0.21950577707184804,
+        0.09515845378296584,
+        -0.15159240527148132,
+        -0.234512017057964,
+        -0.25136777260504944,
+        -0.20705489184946696,
+        -0.16417012288592847,
+        0.5132262815635028,
+        0.5827586826564845,
+        0.17650527912470645,
+        -0.1486328145246601,
+        -0.1329451976870387,
+        1.618045574178925,
+        -0.256670559955792,
+        -0.2424107567790097,
+        5.30881504089357,
+        1.3910021719046386,
+        -0.2327448808081324,
+        -0.040705910249285486,
+        -0.03475815142882826,
+        -0.07612617166699107,
+        -0.10560132497459555,
+        3.9580597579609402,
+        -0.21981494845821536,
+        0.889973873693174,
+        3.2219152253411854,
+        -0.09527313676993071,
+        4.740504415724754,
+        -0.14272790848061082,
+        1.9853266913632746,
+        -0.19840058066246757,
+        -0.14924382917468168,
+        -0.19658931493813514,
+        -0.07272108370686045,
+        -0.059457653744567636,
+        1.4345226938887927,
+        -0.07707022458785588,
+        -0.19455916508769983,
+        -0.0683269743924689,
+        -0.14562911966647785,
+        -0.029669915357157784,
+        1.2208431702477451,
+        -0.020610818963389583,
+        -0.23331803099180656,
+        -0.17665627328167563,
+        -0.20886379204881433,
+        -0.11486610547630786,
+        -0.1626833974962206,
+        -0.20663929843941295,
+        -0.19745648114759456,
+        -0.08458682343235419,
+        2.399476909884992,
+        -0.12135564059653234,
+        1.5684803193450618,
+        -0.06564952465167803,
+        -0.015717855235238703,
+        -0.07864974877699887,
+        -0.07926811522317573
+      ],
+      "std": [
+        1.9371275034703104,
+        0.5430182306267083,
+        2.3411522468107253,
+        0.08062458352173113,
+        2.9422371506499596,
+        0.055734501359281395,
+        0.07171896364210542,
+        0.3538594894226741,
+        0.10049643325290597,
+        0.05034051781780457,
+        0.15595382594121068,
+        0.11713285018323226,
+        0.12333572854197956,
+        1.3406465327104973,
+        1.048563469559949,
+        0.3245931132745979,
+        0.09053319676346168,
+        0.10215036421266002,
+        1.268091037932904,
+        0.0541621300661153,
+        0.059693845610118916,
+        2.8630685163956473,
+        1.002138076844065,
+        0.06355522891228164,
+        0.08466340961123223,
+        0.4952837517544033,
+        0.10577550315401923,
+        0.10082917513799626,
+        2.4775312634764823,
+        0.06087972113295227,
+        1.8738644129392759,
+        2.135077531281927,
+        0.11418958899927155,
+        3.064660201660776,
+        0.09790774032035972,
+        3.7305290642100113,
+        0.10845491401821519,
+        0.10310731054593202,
+        0.07364371014280006,
+        0.09655598317381174,
+        0.10752899586300166,
+        1.0169128250223023,
+        0.12653265114708284,
+        0.10999327253529152,
+        0.09266209252192442,
+        0.1045750263966013,
+        0.08042508451836833,
+        1.1578679948189774,
+        0.028320890523974577,
+        0.0696566801660559,
+        0.09469549347559969,
+        0.08260125428646324,
+        0.10744516493943762,
+        0.12346855416493452,
+        0.09727290190895117,
+        0.11132299145674285,
+        0.11909527818573709,
+        0.9012369687569877,
+        0.10158911815863096,
+        3.040496213024812,
+        0.08990948248294946,
+        0.023647500743913582,
+        0.4271301371790702,
+        0.11286935375404696
+      ],
+      "source": "SYNTHETIC_TRAIN_VALID_ONLY"
+    },
+    "kp": {
+      "mean": [
+        -0.3104066253434535,
+        0.1032851435596603,
+        0.3088532567732556,
+        0.1030120913572354,
+        0.3033809543646705,
+        0.18096937939403593,
+        -0.3008446060136034,
+        0.18117707798430213,
+        -0.2659637336038485,
+        -0.2026743619348695,
+        0.26314794530801955,
+        -0.20473079639101951,
+        0.25922718619488594,
+        -0.13560422728548455,
+        -0.25826233969366025,
+        -0.13353874031483498,
+        -0.0012903162761489756,
+        -0.03207569944887647,
+        1.857949983934921,
+        0.11173968139249839,
+        0.6024506845836203,
+        0.07520403015416684,
+        0.43112540384931336,
+        9.33567597923544,
+        7.356227946899492,
+        1.6332061747687379
+      ],
+      "std": [
+        0.157760239634495,
+        0.14180631723712295,
+        0.15533027125167612,
+        0.1412291084693104,
+        0.15489045407857782,
+        0.1267445686669996,
+        0.1575726563513465,
+        0.1270928307288478,
+        0.16555747447621993,
+        0.10587139365973877,
+        0.1663933530928916,
+        0.10605967907130974,
+        0.16199117595668894,
+        0.11387446701994472,
+        0.1610670973428378,
+        0.11358360426815642,
+        0.04119106820058213,
+        0.02291501953428644,
+        1.1543955516752746,
+        0.13231439373445125,
+        0.11799749296360953,
+        0.029749686465228995,
+        0.11817913584059578,
+        4.1893915145834075,
+        4.9622862345835514,
+        1.0651095636419063
+      ],
+      "source": "SYNTHETIC_TRAIN_VALID_ONLY"
+    },
+    "dims": {
+      "mean": [
+        0.4738889596241359,
+        -1.230279730819432,
+        0.7563907710395323,
+        -0.2825018114598973
+      ],
+      "std": [
+        0.0668536885234427,
+        0.07299250831916039,
+        0.1006522290937357,
+        0.15450782387899065
+      ],
+      "source": "SYNTHETIC_TRAIN_VALID_ONLY"
+    }
+  },
+  "yolo_requires_grad_true": 0,
+  "yolo_optimizer_membership": 0,
+  "feature_cache": {
+    "path": "challenge/yolo_pose_one_model/dimension_conditioning_probe/phase_c_probe/FEATURE_CACHE.npz",
+    "sha256": "b92fac5cc0aa86667a8e8621829d375f1aadcbf30448595fcc466bfafdc215f8"
+  },
+  "checkpoint_unchanged": true,
+  "candidate_scope": {
+    "rule": "highest-confidence final detection per frame",
+    "reason": "matches the frozen Phase-A and deployment one-pose contract; parity is not trained on lower-ranked distractor detections",
+    "synthetic": {
+      "frames": 40000,
+      "total_final_detections": 59532,
+      "frames_with_multiple_detections": 10930,
+      "cached_top_candidate_rows": 40000
+    },
+    "real": {
+      "frames": 185,
+      "total_final_detections": 671,
+      "frames_with_multiple_detections": 122,
+      "cached_top_candidate_rows": 183
+    }
+  },
+  "feature_recipe": {
+    "version": "dimension_conditioning_top1_one2one_cls_pen_v2",
+    "checkpoint_sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+    "phase_a_sha256": "7c14b990ac1da23b78feed0058e2e5c1b0f71e3690f416d203dbe09a35327d8a",
+    "phase_b_sha256": "32a54c669bd5f0f445cea28e9315be46a869cf296c487f85ecaf0062cc5a8161",
+    "split_membership_sha256": "fd8f39f59e229bd9bdd9172212ea3e52dcf8e77b80898b67905e809e90d8582e",
+    "geometry_registry_sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+    "inference": {
+      "confidence_floor": 0.001,
+      "imgsz": 640,
+      "pad": 100,
+      "border": "BORDER_REFLECT_101",
+      "candidate": "highest-confidence final detection"
+    },
+    "tap": {
+      "head_discovery": "unique module exposing one2one_cv3/one2one_cv4/get_topk_index/nl/stride",
+      "feature": "immediate producer of one2one classification readout",
+      "mapping": "captured get_topk_index final-source cell"
+    },
+    "kp_geometry": "bbox-center/diagonal 18xy + aspect + area + 6 edge features",
+    "dimension_feature": "fixed-axis xyz logs reconstructed with perm_v4",
+    "sha256": "6f8ad9ff10aa7e3862fb38b4fc5e12357ccc05d859ccf1468c045dfcc9da218c"
+  },
+  "scope_annotation_refresh": {
+    "feature_cache_rewritten": false,
+    "yolo_inference_rerun": false,
+    "reason": "clarify probe-head split versus upstream frozen-YOLO exposure"
+  }
+}

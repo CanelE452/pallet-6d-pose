@@ -1,0 +1,38 @@
+{
+  "schema_version": "spatial_probe_training_recovery_contract_v1",
+  "frozen_at_utc": "2026-08-29T23:48:30Z",
+  "scope": "challenge-track exploratory probe training from the completed corrected 60k feature cache",
+  "source_bindings": {
+    "base_checkpoint_lock_sha256": "95d8d887c997b280a6735561f580ff90bf307c464d1c27fb99b44f6eeb842b49",
+    "probe_metadata_sha256": "20b863b75e763da04ca4ea7fcb270765ec262969725c696ea4ce3a0fae77a71e",
+    "probe_metadata_audit_sha256": "04fa6fb56514cb778403908e0c21aea5a3a857e7783a8f41353d0982c69bdca0",
+    "feature_cache_sha256": "1d1e54ed2cd5f6c162e99ebad06b118ab546c872b99c655d0f7e9552c08f9f7b",
+    "feature_cache_audit_sha256": "0d5f5f9f3ff9de77b46c561cc4456c38a8b9537e6efea9fe700edebbd4ae7deb",
+    "spatial_extraction_contract_sha256": "3288024eadfceb46a5356337fd63c9dc1238578b513c71bd080d3400d118eafe",
+    "spatial_extraction_runner_sha256": "1d9f5424f90bb1c9e4ed06834f822a01df31fa93bd344054ffcabec3e40be553",
+    "probe_training_runner_sha256": "4cf84d563930a3107ca3ec4137501d643b517b79d09ebafdff8e00b8c7f9c3ea",
+    "phase_e_runner_sha256": "a4091e443dfe5e52069551d275a8d05ea99d92d51f960f40b742170af6ee955d",
+    "failure_incident_sha256": "2cd7b3e9358e7e58b5831ae33eacafb9ca2adbed0666dc705d82e2885ab65d2e"
+  },
+  "policy": {
+    "train_invalid_detection_rows": "hard_fail",
+    "dev_invalid_detection_rows": "retain_as_abstention",
+    "dev_abstention_metric_treatment": "prediction=-1; confusion abstain column; accuracy and per-class recall denominators include the abstention, so it counts as an error",
+    "expected_dev_abstention_count": 1,
+    "expected_dev_abstention_global_indices": [
+      59507
+    ],
+    "expected_dev_abstention_frame_ids": [
+      "TEX__shard_04_f0110"
+    ],
+    "checkpoint_selection_metric": "DEV balanced accuracy including abstentions as recall errors"
+  },
+  "rationale": [
+    "The corrected extraction is complete and passed its 60k coverage, image-byte, and two-pass exactness audit.",
+    "All 55980 TRAIN rows have detections; only one of 4020 DEV rows abstains at the pre-registered confidence floor 0.001.",
+    "The confidence floor is not changed after observing DEV, and the abstaining row is neither removed nor assigned a ground-truth-dependent probability.",
+    "The same abstention error applies to S0, S1, and shuffled-dimension controls."
+  ],
+  "real_used_for_training_or_selection": 0,
+  "yolo_parameter_updates": 0
+}

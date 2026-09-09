@@ -114,8 +114,8 @@ def hough_rows():
 
 
 HEAD = [("타깃", 5), ("model", 27), ("pnp↑", 7), ("corner↓", 8), ("R med↓", 8),
-        ("yaw med↓", 9), ("t med↓", 8), ("IoU3D↑", 8), ("AUC-open↑", 10),
-        ("AUC-seal↑", 10), ("AUC-all↑", 9), ("AP↑", 8), ("AUROC↑", 8),
+        ("yaw med↓", 9), ("t med↓", 8), ("IoU3D↑", 8), ("AUCopen↑", 10),
+        ("AUCseal↑", 10), ("AUCall↑", 9), ("AP↑", 8), ("AUROC↑", 8),
         ("FPR95↓", 8)]
 
 

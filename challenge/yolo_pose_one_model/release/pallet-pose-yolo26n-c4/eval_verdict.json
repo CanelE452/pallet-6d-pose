@@ -1,0 +1,85 @@
+{
+  "model": "pallet_yolo26n_pose_c4.pt",
+  "base": "CanelE452/pallet-pose-yolo26n-livegt",
+  "loss": "ChallengeC4PoseLoss (C4 symmetry-aware, one2many + one2one)",
+  "train": {
+    "total": 2088,
+    "original": 696,
+    "flip": 696,
+    "noise": 696,
+    "truncation_crop": 0,
+    "note": "crop 제외 (사용자 지시)"
+  },
+  "val": {
+    "total": 155,
+    "derived": 0,
+    "leakage": 0
+  },
+  "val_metrics": {
+    "c4_model": {
+      "detected": "154/155",
+      "fixed_index": {
+        "median_px": 2.9,
+        "p90_px": 6.31,
+        "lt5_rate": 0.799,
+        "gt20_rate": 0.071
+      },
+      "c4_equivalent": {
+        "median_px": 2.64,
+        "p90_px": 5.28,
+        "lt5_rate": 0.87,
+        "gt20_rate": 0.0
+      },
+      "symmetry_rescued": 11,
+      "true_collapse": 0,
+      "selected_perm": {
+        "0": 143,
+        "90": 0,
+        "180": 0,
+        "270": 11
+      }
+    },
+    "base_livegt": {
+      "detected": "154/155",
+      "fixed_index": {
+        "median_px": 1.9,
+        "p90_px": 3.54,
+        "lt5_rate": 0.929,
+        "gt20_rate": 0.032
+      },
+      "c4_equivalent": {
+        "median_px": 1.9,
+        "p90_px": 3.44,
+        "lt5_rate": 0.948,
+        "gt20_rate": 0.013
+      },
+      "symmetry_rescued": 3,
+      "true_collapse": 2,
+      "selected_perm": {
+        "0": 151,
+        "90": 2,
+        "180": 0,
+        "270": 1
+      }
+    }
+  },
+  "phase_stability_no_gt": {
+    "method": "이웃 프레임 예측끼리만 비교 (GT 미사용)",
+    "c4_model": {
+      "142318": 1.0,
+      "103429": 0.972,
+      "capture_20260902": 1.0
+    },
+    "base_livegt": {
+      "142318": 1.0,
+      "103429": 1.0,
+      "capture_20260902": 1.0
+    }
+  },
+  "caveats": [
+    "소표본 — 개선이 전부 한 자릿수 사건, seed 하나",
+    "truncation crop 제외 — 잘린 프레임 성능은 base 보다 낮을 수 있음 (미측정)",
+    "val 이 train 과 같은 세션 분포 — 처음 보는 현장 일반화 미검증",
+    "fixed-index 지표는 base 가 낫다"
+  ]
+}

@@ -21,6 +21,23 @@
 
 ---
 
+## 진행 중 계열 노트 (`_docs/notes/`, 과제 트랙)
+
+주제축 문서(제안→시도→결과→판정)는 `_docs/notes/{계열}.md` 에 있다. 아래 표는
+이 색인이 처음 만들어진 2026-09-06 시점에 확인된 계열만 담는다 — 새 계열이 생기면
+줄을 추가한다 (논문 트랙 진행 상황은 `_docs/paper/README.md` 가 별도 정본).
+
+| 계열 | 묻는 것 | 상태 | 최신 결과 | 문서 |
+|---|---|:--:|---|---|
+| c4-rotation-symmetry | 정사각 팔레트 90도 회전 대칭을 학습 손실·평가 지표에 어떻게 반영하나 | 🟡 | 정본 라벨 재학습 사전등록 gate PASS — 개선 실체는 index 일관성 회복(phase0 비율 50.6~57.1%→98.7%), 위치정확도(C4-equivalent median)는 거의 그대로, C4 loss 고유 효과는 NOT_ESTABLISHED (2026-09-06) | [notes](notes/c4-rotation-symmetry.md) |
+| pallet-dht-global-layout | 동일 후보의 8점·12선 배치와 번호를 함께 선택하면 개선되는가 | 완료 · 향상 실패 | 합성256 계수선택,512val+319실사. 기존P9041.487→global79.682px,양호점577/1711악화. 좋은번호후보가있어도점수로배제됨. HTML실제창·독립QA·Discord204완료 (2026-09-09) | [notes](notes/pallet_dht_global_layout.md) |
+| pallet-dht-gt-audit | 수동 정답이 정확한데도 P90 41.49px인가 | 감사·전달 완료 | 원 좌표 재계산 일치. visible P90 37.11/직접클릭28.81px, GT7 높이끝·화면밖visible 기록 재검토 후보. 정본수정0, 전체GT정확성 인증아님. HTML실제창/Discord204확인 (2026-09-09) | [notes](notes/pallet_dht_gt_audit.md) |
+| pallet-dht-decoder-probe | 선 교점 후보를 최종 점 계산에 직접 사용하면 작은 결합부 학습으로 개선되는가 | 완료 · 추가 향상 미확인 | 14장×기존3seed진단+동일55,118parameter2모듈×1000updates/실사319평가. 선median6.661px vs점6.514px,진행기준불충족. 후보가중좌표·gate분해 및fixed1악화확인. HTML창/독립QA/Discord204완료 (2026-09-09) | [notes](notes/pallet_dht_decoder_probe.md) |
+| pallet-dht-coupling | 점·선 gradient 충돌, 손실 비중, PCGrad와 명시적 점–선 관계를 분리하면 개선되는가 | 완료 · 종합 향상 미확인 | 12/12 학습·실사319+negative2689 평가 완료, 기존9대조군·48비교. 경사 비중 변화는 확인했지만 안정적 향상 없음. 21모델 갤러리·독립 QA·브라우저 표시·Discord204 완료 (2026-09-09) | [notes](notes/pallet_dht_coupling.md) |
+| pallet-dht-joint | Self-training 없이 Deep Hough 특징과 점 예측을 한 모델로 학습하면 개선되는가 | 완료 | 전체 YOLO+HT/IHT, 동일 예산 3구조×3seeds×합성55,980장 2epochs 및 실사319+negative2689/모델 완료. 점 median6.865→6.689px이나 6지표 CI 모두0 포함·매칭 감소로 종합 우월성 미확인. Runtime strict parity7/702 실패 보존. HTML 창·Discord204 확인 (2026-09-08) | [notes](notes/pallet_dht_joint.md) |
+
+---
+
 ## 2026-08-15 구조 재편 — 경로가 바뀌었다
 
 저장소가 평평하게 불어나 있어서 폴더를 계열별로 나눴다. **옛 경로를 그대로 쓰면 깨진다.**

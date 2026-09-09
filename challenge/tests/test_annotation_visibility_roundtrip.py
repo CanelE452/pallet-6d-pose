@@ -17,11 +17,16 @@ sys.path.insert(0, str(ANNOTATE))
 from annotate import (  # noqa: E402
     _cycle_wd_parity,
     _delete_annotation,
+    _handle_click_key,
+    _handle_manip_key,
+    _make_state_annotation,
     _require_nonlegacy_output_dir,
     _save_contract_error,
+    _save_contract_screen_text,
+    _sync_axis_candidates,
     resolve_out_dir,
 )
-from annotate_draw import draw_overlay  # noqa: E402
+from annotate_draw import build_panel, draw_overlay  # noqa: E402
 from annotate_io import (  # noqa: E402
     State,
     load_existing_annotation,
@@ -287,12 +292,113 @@ def test_final_population_blocks_unknown_corner_visibility():
     state.population_role = "FINAL"
     state.axis_assignment = "YAW_0"
     state.axis_assignment_candidates = ["YAW_0", "YAW_180"]
-    state.axis_assignment_confirmed = True
+    state.axis_assignment_confirmed = False
     assert "kp0~7 visibility unknown at 6" in _save_contract_error(state)
+    assert _save_contract_screen_text(_save_contract_error(state)) == (
+        "SAVE BLOCKED: set visibility kp6 with b")
 
     state.keypoint_annotations[6]["visibility"] = 1
     state.keypoint_annotations[6]["reason"] = "occluded"
+    # Signed 0/180 selection is intentionally not part of normal annotation.
     assert _save_contract_error(state) is None
+
+
+def test_annotation_editor_always_keeps_signed_pair_unresolved():
+    K, points, pose = _fixture()
+    state = State()
+    state.img_shape = (480, 640, 3)
+    state.kps_2d = [list(point) for point in points]
+    state.extrap_mask = [False] * 9
+    state.keypoint_annotations = _annotations(points)
+    for entry in state.keypoint_annotations[:8]:
+        if entry["visibility"] == 0:
+            entry["visibility"] = 1
+            entry["reason"] = "occluded"
+    state.pose = pose
+    state.population_role = "FINAL"
+    state.axis_assignment = "YAW_0"
+    state.axis_assignment_candidates = ["YAW_0", "YAW_180"]
+    state.axis_assignment_confirmed = True
+
+    _sync_axis_candidates(state)
+    assert state.axis_assignment is None
+    assert state.axis_assignment_candidates == ["YAW_0", "YAW_180"]
+    assert state.axis_assignment_confirmed is False
+
+    annotation = _make_state_annotation(state, K)
+    obj = annotation["objects"][0]
+    assert obj["camera_facing_pnp"]["axis_assignment"] is None
+    assert obj["camera_facing_pnp"]["axis_assignment_confirmed"] is False
+    assert obj["canonical_pose"] is None
+    assert [item["axis_assignment"] for item in
+            obj["canonical_pose_candidates"]] == ["YAW_0", "YAW_180"]
+    assert obj["pose_status"] == "UNCONFIRMED_SIGNED_AXIS"
+    assert obj["migration_status"] == "MANUAL_REVIEW_REQUIRED"
+
+
+def test_y_key_is_noop_in_click_and_manipulate_modes():
+    K, points, pose = _fixture()
+    state = State()
+    state.kps_2d = [list(point) for point in points]
+    state.pose = pose
+    state.axis_assignment = None
+    state.axis_assignment_candidates = ["YAW_0", "YAW_180"]
+    state.axis_assignment_confirmed = False
+    state.dirty = False
+    state.annotation_dirty = False
+    before = (
+        state.axis_assignment,
+        list(state.axis_assignment_candidates),
+        state.axis_assignment_confirmed,
+        state.dirty,
+        state.annotation_dirty,
+    )
+
+    assert _handle_click_key(
+        ord("y"), state, "unused.json", "unused.png", "unused-src.png", K
+    ) is None
+    assert _handle_manip_key(
+        ord("y"), state, "unused.json", "unused.png", "unused-src.png", K
+    ) is None
+    after = (
+        state.axis_assignment,
+        list(state.axis_assignment_candidates),
+        state.axis_assignment_confirmed,
+        state.dirty,
+        state.annotation_dirty,
+    )
+    assert after == before
+
+
+def test_annotation_panel_hides_signed_axis_controls(monkeypatch):
+    _, points, pose = _fixture()
+    pose["_camera_facing_hypothesis"] = "long_face_front"
+    labels = []
+    original_put_text = cv2.putText
+
+    def capture_put_text(image, label, *args, **kwargs):
+        labels.append(str(label))
+        return original_put_text(image, label, *args, **kwargs)
+
+    monkeypatch.setattr(cv2, "putText", capture_put_text)
+    build_panel(
+        900,
+        0,
+        [list(point) for point in points],
+        pose,
+        0,
+        1,
+        1.0,
+        False,
+        mode="click",
+    )
+    rendered_text = "\n".join(labels)
+    assert "w=swap long/short" in rendered_text
+    for forbidden in (
+        "y=sign", "signed axis", "axis:", "candidates:",
+        "CONFIRMED", "UNCONFIRMED", "YAW_",
+    ):
+        assert forbidden not in rendered_text
 
 
 def test_final_population_cannot_delete_all_points_or_use_legacy_session_hint(

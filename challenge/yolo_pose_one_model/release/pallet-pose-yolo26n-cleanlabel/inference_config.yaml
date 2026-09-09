@@ -1,0 +1,66 @@
+# pallet-pose-yolo26n-cleanlabel — 추론 계약. 이 값들을 지키지 않으면 성능이 나오지 않는다.
+model: pallet_yolo26n_pose_cleanlabel.pt
+architecture: yolo26n-pose
+trained_with: C4_symmetry_aware_keypoint_loss   # 추론 방식은 기존과 동일하다
+
+input:
+  width: 640
+  height: 480
+  color: BGR
+  coordinate_system: opencv_x_right_y_down_z_forward
+
+padding:                      # ★ 필수. 없이 추론하면 검출률이 크게 떨어진다
+  enabled: true
+  mode: BORDER_REFLECT_101
+  pixels: 100
+  subtract_before_pnp: true   # 예측 좌표에서 100 을 뺀 뒤 기하 계산
+
+inference:
+  imgsz: 640
+  conf: 0.4
+  instance_selection: max_box_conf
+  single_class: true
+
+keypoints:                    # camera-facing 규약 (물체 고정 아님)
+  count: 9
+  order:
+    0: near_top_left
+    1: near_top_right
+    2: near_bottom_right
+    3: near_bottom_left
+    4: far_top_left
+    5: far_top_right
+    6: far_bottom_right
+    7: far_bottom_left
+    8: centroid
+  top_indices:    [0, 1, 4, 5]
+  bottom_indices: [2, 3, 6, 7]
+  horizontal_flip_allowed: false   # 좌우 비대칭 — flip 하면 순서가 깨진다
+
+# ★ 이 모델만의 주의사항 — C4 대칭으로 학습했다
+symmetry:
+  group: C4                   # yaw 90/180/270 을 같은 정답으로 인정하고 학습
+  object: plastic_standard_110x110x15   # 정사각 1.10 x 0.15 x 1.10 m
+  permutations:               # new[j] = old[perm[j]]
+    0:   [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    90:  [1, 5, 6, 2, 0, 4, 7, 3, 8]
+    180: [5, 4, 7, 6, 1, 0, 3, 2, 8]
+    270: [4, 0, 3, 7, 5, 1, 2, 6, 8]
+  consequence: |
+    어느 면을 0~3(앞면)으로 볼지가 프레임/세션마다 다를 수 있다.  실측에서는 한
+    연속 시퀀스 안에서 97~100% 유지됐지만, 세션이 바뀌면 90도 배수로 달라질 수
+    있다.  0~3 을 특정 물리적 면으로 가정하는 downstream 은 아래를 확인할 것.
+  downstream_warning: |
+    PnP objectPoints 의 원점이 '전면 중심'이면, 앞면이 90도 바뀔 때 tvec 이 인접
+    면 중심으로 옮겨간다 (1.10 m 정사각 기준 0.55*sqrt(2) = 0.78 m).  절대 yaw 를
+    기록/비교하는 로직이 있다면 90도 배수 차이를 감안해야 한다.
+
+pnp:
+  method: SOLVEPNP_SQPNP
+  refine: refineLM
+  keypoint_conf_threshold: 0.5
+  include_centroid: true
+  object_dimensions_m:        # ★ 정사각이다. 직사각 값으로 풀면 자세가 흔들린다
+    x: 1.10
+    y: 0.15
+    z: 1.10

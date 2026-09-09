@@ -73,7 +73,9 @@ class State:
     kps_2d = None       # length 9, each [x, y] or None
     extrap_mask = None  # length 9, bool — True = t/x 외삽 점 (PnP weight 0.3, v7)
     keypoint_annotations = None  # GT v2 length-9 visibility/source/reason entries
-    axis_assignment = None       # signed YAW_0/90/180/270; human confirmation required
+    # Singular signed mapping is compatibility-only. Normal annotation keeps
+    # the two symmetry-equivalent candidates unresolved.
+    axis_assignment = None
     axis_assignment_candidates = None
     axis_assignment_confirmed = False
     population_role = "DEV"
@@ -86,6 +88,34 @@ class State:
     loaded_object_type = None
     intrinsics_quality = None
     intrinsics_source = None
+    # Evaluation-workspace metadata is kept outside the GT schema.  Mutable
+    # mappings are initialised per frame by ``annotate.py`` (never shared via
+    # these class defaults).
+    session_metadata = None
+    eval_session_dir = None
+    source_session_dir = None
+    source_frame_ordinal = None
+    source_frame_count = None
+    session_frame_paths = None
+    annotation_output_dir = None
+    active_evaluation_member = True
+    refresh_evaluation_workspace = True
+    force_explicit_object_type = False
+    # False for genuinely review-only contexts.  Object-specific incoming
+    # staging views are writable but remain active_evaluation_member=False.
+    session_writable = True
+    workspace_scope = None
+    frame_tags = None
+    frame_tag_sources = None
+    frame_tag_overrides = None
+    frame_tag_pending_updates = None
+    frame_tag_cycle_values = None
+    frame_tags_dirty = False
+    annotation_dirty = False
+    current_frame_identity = None
+    current_annotation_path = None
+    loaded_annotation_path = None
+    discard_armed = None
     # Full snapshots of the document/object loaded from disk.  They are kept
     # separate from the editable v2 state so an old label can be saved into a
     # new v2 namespace without rewriting or dropping any compatibility field.
@@ -100,13 +130,16 @@ class State:
     dirty = False       # 미저장 변경
     last_mouse = None
     split = "eval"      # 이 프레임의 용도: "eval"(평가용) or "train". v 키로 토글, JSON 저장
-    # Goto (임의 frame 점프): trackbar 클릭/드래그 + G/: 번호 입력
+    # Goto (임의 frame 점프): trackbar 클릭/드래그 + ; 번호 입력
     goto = None         # 점프 목표 (selected 인덱스). 설정되면 main 루프가 소비
     goto_mode = False   # 번호 입력 중
     goto_buf = ""       # 입력 버퍼
     annot_only = False  # True = n/p 가 어노된 frame(out_dir JSON 존재)만 이동
     # MANIPULATE mode (6DoF pose 직접 편집)
     mode = "click"      # "click" or "manip"
+    # CLICK 안의 전용 평가조건 편집 sub-mode. 숫자 1~6을 keypoint 선택과
+    # 명확히 분리해 O(문자)와 0(숫자)처럼 보이는 단축키 혼동을 없앤다.
+    condition_mode = False
     locked_pose = None  # manip 진입 시 PnP pose snapshot (dict: R, t)
     trans_step = 0.02   # m (translate step)
     rot_step_deg = 5.0  # degrees (rotate step)
@@ -444,7 +477,8 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
                     axis_assignment_confirmed=False, legacy_object=None,
                     legacy_document=None, population_role="DEV", metadata=None,
                     occlusion_level="unknown", geometry_spec=None,
-                    intrinsics_quality=None, intrinsics_source=None):
+                    intrinsics_quality=None, intrinsics_source=None,
+                    force_explicit_object_type=False):
     """NDDS 호환 JSON dict 생성.
 
     GT = 사용자가 클릭한 manual_kps 그대로. 안 찍은 점은 PnP projection 으로 fallback,
@@ -505,7 +539,8 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
         physical_dimensions,
         strict_geometry=geometry_spec is not None)
     if axis_assignment is None and axis_assignment_confirmed:
-        axis_assignment = pose.get("_axis_assignment")
+        raise ValueError(
+            "axis_assignment_confirmed requires an explicit axis_assignment")
     axis_name = _axis_name(axis_assignment) if axis_assignment_confirmed else None
     if axis_name is not None and axis_name not in candidates:
         raise ValueError(
@@ -602,7 +637,7 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
     # Existing plastic GT-v2 predates object_type and remains byte-compatible.
     # Every non-default object must be explicit at both levels so it can never
     # be evaluated with the plastic compatibility default.
-    if object_type != PLASTIC_OBJECT_TYPE:
+    if object_type != PLASTIC_OBJECT_TYPE or force_explicit_object_type:
         obj["object_type"] = object_type
 
     generated_camera_data = {
@@ -622,8 +657,9 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
     result["camera_data"] = copy.deepcopy(
         result.get("camera_data", generated_camera_data))
     result["objects"] = [obj]
-    if object_type != PLASTIC_OBJECT_TYPE:
+    if object_type != PLASTIC_OBJECT_TYPE or force_explicit_object_type:
         result["object_type"] = object_type
+        obj["object_type"] = object_type
     elif result.get("object_type") is not None:
         # Preserve an already-explicit canonical plastic v2 label, but never a
         # stale cross-object type inherited through legacy_document.
@@ -749,6 +785,7 @@ def load_existing_annotation(state, out_json, *, read_only=False):
                 else None)
             state.occlusion_level = obj.get("occlusion_level", "unknown")
             state.active = next((i for i, k in enumerate(state.kps_2d) if k is None), 8)
+            state.loaded_annotation_path = os.path.abspath(out_json)
             return True
     except AnnotationGeometryMismatch:
         # Returning False would make the UI look like a blank frame and allow

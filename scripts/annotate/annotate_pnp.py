@@ -1378,6 +1378,8 @@ def apply_manip(state, dx=0, dy=0, dz=0, dyaw=0, dpitch=0, droll=0):
     state.locked_pose["R"] = R
     state.locked_pose["t"] = t
     state.dirty = True
+    state.annotation_dirty = True
+    state.discard_armed = None
 
 
 def pose_from_locked(state, K, dims=None):

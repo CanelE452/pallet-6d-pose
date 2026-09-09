@@ -170,6 +170,28 @@ def test_plastic_and_wood_outputs_are_order_independent_and_axis_is_object_aware
             ]
 
 
+def test_object_specific_staging_can_make_plastic_type_explicit():
+    points, pose = _pose(PLASTIC)
+    document = make_annotation(
+        points,
+        pose,
+        (480, 640, 3),
+        K,
+        geometry_spec=PLASTIC,
+        population_role="FINAL",
+        intrinsics_quality="UNKNOWN",
+        intrinsics_source="unverified incoming camera_info",
+        force_explicit_object_type=True,
+    )
+
+    validate_gt_v2(document)
+    assert document["object_type"] == PLASTIC_OBJECT_TYPE
+    assert document["objects"][0]["object_type"] == PLASTIC_OBJECT_TYPE
+    assert document["objects"][0]["physical_dimensions_m"] == {
+        "x": 1.1, "y": 0.11, "z": 1.3,
+    }
+
+
 def test_pose_and_existing_label_cross_object_mix_fail_closed(tmp_path):
     points, pose = _pose(PLASTIC)
     with pytest.raises(ValueError, match="selected object_type"):

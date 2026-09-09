@@ -1,0 +1,89 @@
+{
+  "schema_version": "spatial_concat_clean_start_training_contract_v1",
+  "frozen_at_utc": "2026-08-29T08:17:33Z",
+  "repo_head_at_freeze": "f8472ac08cdbf748754dacbca4b54fb4c576d666",
+  "authorization": "User requested a combined clean-start training run using the prior dataset and both recent legacy-related downloads.",
+  "scope": "challenge-performance exploratory; not paper-track evidence",
+  "scratch_definition": {
+    "meaning": "fresh pallet-task training from the official generic YOLO26n-pose initialization",
+    "random_initialization": false,
+    "prior_g38_or_legacy_checkpoint_loaded": false,
+    "reason": "This matches the prior G38/Y0E fresh-training convention while removing the sequential legacy-finetune dependency."
+  },
+  "dataset": {
+    "yaml": "challenge/yolo_pose_one_model/datasets/g38_legacy_v1v2_p0_tex20k/data.yaml",
+    "yaml_sha256": "19e0501c835df11e7d2356864bf7cd38da367618fd07e3822fad9ccc92417ec5",
+    "train": {
+      "g38": 38002,
+      "legacy_v1v2_p0": 8989,
+      "legacy_v1v2_p0_tex": 8989,
+      "total": 55980
+    },
+    "val": {
+      "g38": 1998,
+      "legacy_v1v2_p0": 1011,
+      "legacy_v1v2_p0_tex": 1011,
+      "total": 4020
+    },
+    "downloaded_p0_duplicate_instances_added": 0,
+    "p0_tex_split_grouping": "same base sample_id always in same split",
+    "target_repeat": 1,
+    "build_report_sha256": "7430b79bd8a65a27ceaf60b86a3b1b7fb9dbd7c7621f169c502a0bb693231bb9",
+    "legacy_spatial_metadata_sha256": "1a37109f4789f6f574927f8862d15983fb5bd4657b0852dbbaa2ac43ab75ba29"
+  },
+  "base_yolo": {
+    "initial_checkpoint": "challenge/weights/pretrained_yolo/yolo26n-pose.pt",
+    "initial_checkpoint_sha256": "eb3bb8268828aeaf515cec23a4bfafd793944a86fe9af94ba7823609c14522a9",
+    "model": "YOLO26n-pose",
+    "epochs": 60,
+    "batch": 32,
+    "imgsz": 640,
+    "workers": 2,
+    "optimizer": "SGD",
+    "lr0": 0.01,
+    "lrf": 0.01,
+    "momentum": 0.937,
+    "weight_decay": 0.0005,
+    "cos_lr": true,
+    "warmup_epochs": 3.0,
+    "close_mosaic": 10,
+    "mosaic": 0.3,
+    "scale": 0.25,
+    "hsv_hsvsv": [0.015, 0.5, 0.35],
+    "fliplr": 0.0,
+    "flipud": 0.0,
+    "patience": 0,
+    "seed": 42,
+    "deterministic": true,
+    "checkpoint_for_spatial_stage": "last.pt after the fixed 60-epoch budget",
+    "comparison_only_checkpoint": "best.pt"
+  },
+  "spatial_stage": {
+    "execution_order": "after the base YOLO checkpoint is frozen",
+    "architecture": "exact Phase-E S1 7x7 selected-source spatial concat",
+    "end_to_end_with_yolo": false,
+    "reason": "postprocess-selected source-cell lookup is discrete; making it dense/end-to-end would be a different architecture",
+    "yolo_parameter_updates": 0,
+    "feature_cache_reuse": "forbidden; re-extract from the new YOLO",
+    "required_arms": ["S0_SPATIAL_NO_DIMS", "S1_SPATIAL_CONCAT"],
+    "seeds": [0, 1, 2],
+    "dimension_input": "fixed renderer-axis xyz reconstructed with perm_v4",
+    "forbidden_dimension_input": "stored camera-facing W/H/D because W>D reveals parity exactly",
+    "selection": "synthetic validation only; threshold 0.5; never select on real GT"
+  },
+  "limitations": [
+    "P0 and TEX describe 20,000 distinct renders but 10,000 matched scenario IDs.",
+    "The TEX producer documentation says it replaces P0; including both is the user's challenge-track override.",
+    "The mixed validation split is not an independent paper holdout.",
+    "Phase-E S1 previously failed real diagnostic gates, so this run does not presume that retraining will improve real parity."
+  ],
+  "failed_pre_epoch_attempt": {
+    "workers": 8,
+    "last_observed_batch": "epoch 1 batch 27/1750",
+    "checkpoint_created": false,
+    "results_row_created": false,
+    "kernel_event": "global OOM killed the training Python process",
+    "preserved_run_dir": "runs/_failed_oom_workers8_before_epoch1_20260829T172200KST",
+    "corrective_action": "workers reduced to 2; all model/data/optimizer/augmentation hyperparameters unchanged"
+  }
+}

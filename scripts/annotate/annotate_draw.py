@@ -472,11 +472,91 @@ def _keypoint_status(entry):
     return f"{symbol}{visibility}"
 
 
+_FRAME_TAG_PANEL_FIELDS = (
+    ("occlusion", "Occlusion", "occ"),
+    ("truncation", "Truncation", "trunc"),
+    ("elevation_bin", "Elevation", "elev"),
+    ("distance_bin", "Distance", "dist"),
+)
+_FRAME_TAG_SOURCE_LABELS = {"FRAME", "JSON", "SESSION", "UNSET"}
+_BINARY_CONDITION_KEYS = {"occlusion": "1", "truncation": "2"}
+_CONDITION_PANEL_KEYS = {
+    **_BINARY_CONDITION_KEYS,
+    "elevation_bin": "3/4/5",
+    "distance_bin": "n/m/6",
+}
+_BINARY_CONDITION_POSITIVE_VALUES = {"mild", "medium", "heavy"}
+
+
+def _mapping_value(mapping, *keys):
+    """Read the first present key from a State-owned mapping-like value."""
+    getter = getattr(mapping, "get", None)
+    if not callable(getter):
+        return None
+    for key in keys:
+        value = getter(key)
+        if value is not None:
+            return value
+    return None
+
+
+def _first_metadata_value(*values):
+    for value in values:
+        if value is not None and str(value).strip():
+            return value
+    return None
+
+
+def _frame_tag_is_set(value):
+    """``none`` is a real condition; only absent/unknown values are missing."""
+    return (value is not None
+            and str(value).strip().lower() not in {"", "unknown", "unset"})
+
+
+def _frame_tag_value(value):
+    return str(value).strip().upper() if _frame_tag_is_set(value) else "UNKNOWN"
+
+
+def _frame_tag_display_value(key, value):
+    """Show evaluation-binary conditions without exposing stored severity."""
+    normalized = str(value or "unknown").strip().lower()
+    if key not in _BINARY_CONDITION_KEYS:
+        return _frame_tag_value(value)
+    if normalized in _BINARY_CONDITION_POSITIVE_VALUES:
+        return "ON"
+    if normalized == "none":
+        return "OFF"
+    return "UNKNOWN"
+
+
+def _frame_tag_source(value, source):
+    if not _frame_tag_is_set(value):
+        return "UNSET"
+    label = str(source or "").strip().upper()
+    return label if label in _FRAME_TAG_SOURCE_LABELS else "UNSET"
+
+
+def _object_panel_value(value):
+    """Keep canonical geometry IDs in State while showing a compact object name."""
+    if not _frame_tag_is_set(value):
+        return "UNKNOWN"
+    label = str(value).strip().upper()
+    if label.startswith("PLASTIC"):
+        return "PLASTIC"
+    if label.startswith("WOOD"):
+        return "WOOD"
+    return label[:18]
+
+
 def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
                 mode="click", trans_step=0.02, rot_step=5.0, split="eval",
                 annot_only=False, sess_name=None, keypoint_annotations=None,
-                axis_assignment=None, axis_candidates=None,
-                axis_confirmed=False, population_role="DEV"):
+                population_role="DEV",
+                frame_tags=None, frame_tag_sources=None,
+                object_type=None, object_type_source=None,
+                lighting=None, lighting_source=None, condition_mode=False,
+                review_only=False, source_frame_ordinal=None,
+                source_frame_count=None):
     """우측 키 안내 + 현재 상태 패널."""
     panel = np.full((h, PANEL_W, 3), 25, dtype=np.uint8)
 
@@ -485,28 +565,93 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
                     scale, color, thick, cv2.LINE_AA)
 
     y = 18
-    mode_color = (0, 255, 0) if mode == "click" else (0, 200, 255)
-    put(y, f"MODE: {mode.upper()}  [m=toggle]", mode_color, 0.5, 2); y += 22
+    display_mode = (
+        "review only" if review_only
+        else "conditions" if condition_mode else mode)
+    mode_color = (
+        (40, 40, 230) if review_only
+        else (0, 220, 255) if condition_mode
+        else (0, 255, 0) if mode == "click"
+        else (0, 200, 255)
+    )
+    mode_hint = (
+        "browse" if review_only
+        else "/=back" if condition_mode else "m=toggle")
+    put(y, f"MODE: {display_mode.upper()}  [{mode_hint}]",
+        mode_color, 0.5, 2); y += 22
     split_color = (0, 255, 0) if split == "eval" else (150, 150, 150)
     put(y, f"SPLIT: {split.upper()}  [v=toggle]", split_color, 0.5, 2); y += 22
 
-    if mode == "click":
+    if review_only:
+        put(y, "RAW MIXED CAPTURE", (80, 120, 255), 0.5, 1); y += 22
+        put(y, "n/p=step  ,/.=10  ;=goto", (200, 200, 200)); y += 16
+        put(y, "+/-=zoom  h/j/k/l=pan", (200, 200, 200)); y += 16
+        put(y, "TAB,[,]=session  q=quit", (255, 160, 0), 0.38); y += 16
+        put(y, "PnP / SAVE / TAGS DISABLED", (80, 120, 255), 0.36, 2); y += 54
+    elif condition_mode:
+        put(y, "KEYBOARD - CONDITIONS", (0, 220, 255), 0.5, 1); y += 22
+        put(y, "1=occlusion ON/OFF", (255, 210, 90), 0.36); y += 16
+        put(y, "2=truncation ON/OFF", (255, 210, 90), 0.36); y += 16
+        put(y, "3=LOW  4=MID  5=HIGH", (255, 210, 90), 0.36); y += 16
+        put(y, "n=NEAR  m=MID  6=FAR", (255, 210, 90), 0.34); y += 16
+        put(y, "u=DISTANCE UNKNOWN", (255, 210, 90), 0.34); y += 16
+        put(y, "a,a=apply edits to annotated session", (0, 255, 0), 0.31); y += 16
+        put(y, "s=save+next  [/]=back  Esc=back", (0, 255, 0), 0.36); y += 36
+    elif mode == "click":
         put(y, "KEYBOARD - CLICK", (255, 255, 0), 0.5, 1); y += 22
         put(y, "L=set  R/d=delete  0-8=select", (200, 200, 200)); y += 16
-        put(y, "b=vis  w=W/D parity  y=sign", (120, 220, 255), 0.36); y += 16
+        put(y, "b=visibility  w=swap long/short", (120, 220, 255), 0.36); y += 16
         put(y, "s=save  f=near-only  g=auto", (0, 255, 0)); y += 16
         put(y, "t=line*  x=extrap*  c=centroid", (0, 255, 255)); y += 16
         put(y, "z=undo  r=reset  v=split", (200, 200, 200)); y += 16
-        put(y, "n/p=step  ,/.=10  G/:=goto", (200, 200, 200)); y += 16
+        put(y, "n/p=step  ,/.=10  ;=goto", (200, 200, 200)); y += 16
         put(y, "TAB,[,]=session  m=mode  q=quit", (255, 160, 0), 0.38); y += 20
+        put(y, "[/] CONDITION editor", (255, 210, 90), 0.40, 2); y += 34
     else:
         put(y, "KEYBOARD - MANIPULATE", (255, 255, 0), 0.5, 1); y += 22
         put(y, "w/x Y  a/d X  q/e Z", (200, 200, 200)); y += 16
         put(y, "j/l yaw  i/k pitch  u/o roll", (200, 200, 200), 0.38); y += 16
         put(y, f"  1/2  trans x/2 x2 ({trans_step*100:.1f}cm)", (200, 200, 200)); y += 16
         put(y, f"  3/4  rot x/2 x2  ({rot_step:.1f}\xb0)", (200, 200, 200)); y += 16
-        put(y, "  b/y  vis / signed axis", (120, 220, 255)); y += 16
-        put(y, "S=save+next  m=CLICK  Q=quit", (0, 255, 0)); y += 20
+        put(y, "  b  keypoint visibility", (120, 220, 255)); y += 16
+        put(y, "s=save+next  m=CLICK then q=quit", (0, 255, 0), 0.36); y += 20
+
+    # Always show resolved evaluation metadata.  Resolution and precedence live
+    # in the annotation/evaluation state; the renderer only presents that
+    # result so UI, frames.csv, and progress reporting cannot develop separate
+    # inference rules.
+    put(y, "FRAME TAGS", (255, 255, 0), 0.5, 1); y += 21
+    object_value = _object_panel_value(object_type)
+    object_source = _frame_tag_source(object_type, object_type_source)
+    light_value = _frame_tag_value(lighting)
+    light_source = _frame_tag_source(lighting, lighting_source)
+    put(y, f"Object: {object_value} [{object_source}]",
+        (190, 220, 255), 0.36); y += 15
+    put(y, f"Lighting: {light_value} [{light_source}]",
+        (190, 220, 255), 0.36); y += 17
+
+    missing = []
+    for key, label, short_label in _FRAME_TAG_PANEL_FIELDS:
+        value = _mapping_value(frame_tags, key)
+        source = _frame_tag_source(
+            value, _mapping_value(frame_tag_sources, key))
+        shortcut = _CONDITION_PANEL_KEYS.get(key) if condition_mode else None
+        shown_label = f"{shortcut} {label}" if shortcut else label
+        put(y, f"{shown_label}: {_frame_tag_display_value(key, value)} [{source}]",
+            (210, 210, 210) if source != "UNSET" else (135, 135, 135),
+            0.35)
+        y += 15
+        if not _frame_tag_is_set(value):
+            missing.append(short_label)
+    complete = len(_FRAME_TAG_PANEL_FIELDS) - len(missing)
+    complete_color = (0, 220, 0) if not missing else (0, 180, 255)
+    put(y, f"TAGS {complete}/{len(_FRAME_TAG_PANEL_FIELDS)}",
+        complete_color, 0.43, 2); y += 16
+    if missing:
+        put(y, "missing: " + ",".join(missing), (0, 180, 255), 0.31); y += 16
+    else:
+        put(y, "missing: none", (120, 190, 120), 0.31); y += 16
+    y += 5
 
     put(y, "KEYPOINTS", (255, 255, 0), 0.5, 1); y += 22
     n_set = sum(1 for k in kps_2d if k is not None)
@@ -530,6 +675,9 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
     _last = (total > 0 and frame_idx >= total - 1)
     put(y, f"frame {frame_idx+1}/{total}" + ("  <- LAST" if _last else ""),
         (0, 200, 255) if _last else (200, 200, 200)); y += 16
+    if source_frame_ordinal is not None and source_frame_count is not None:
+        put(y, f"source ordinal {source_frame_ordinal}/{source_frame_count}",
+            (120, 200, 255), 0.37); y += 15
     if _last:
         put(y, "n = 다음 세션으로", (0, 200, 255), 0.38); y += 14
     put(y, f"zoom x{zoom:.1f}", (200, 200, 200)); y += 16
@@ -540,12 +688,6 @@ def build_panel(h, active_idx, kps_2d, pose, frame_idx, total, zoom, dirty,
         override = bool(pose.get("_wd_manual_override_available", False))
         put(y, f"W/D: {parity}{' MANUAL' if override else ''}",
             (120, 220, 255) if override else (180, 180, 180), 0.34); y += 14
-    axis_text = str(axis_assignment or "-")
-    put(y, f"axis: {axis_text} {'CONFIRMED' if axis_confirmed else 'UNCONFIRMED'}",
-        (0, 220, 0) if axis_confirmed else (0, 180, 255), 0.38); y += 15
-    if axis_candidates:
-        put(y, "candidates: " + "/".join(map(str, axis_candidates)),
-            (170, 200, 255), 0.34); y += 14
     if dirty:
         put(y, "*UNSAVED*", (0, 0, 255), 0.5, 2); y += 18
     if pose is not None:
@@ -657,10 +799,64 @@ def render(state, frame_idx, total_frames, frame_name):
         cv2.rectangle(vis, (0, 30), (w, 52), (0, 0, 0), -1)
         cv2.putText(vis, warn_msg, (10, 47),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.46, (0, 0, 255), 2, cv2.LINE_AA)
-    if state.mode == "manip":
+    review_only = not getattr(state, "session_writable", True)
+    if review_only:
+        cv2.rectangle(vis, (1, 1), (w - 2, h - 2), (40, 40, 230), 3)
+        if not (toast and toast[2] > _time.time()):
+            cv2.rectangle(vis, (0, 28), (w, 58), (0, 0, 0), -1)
+            cv2.putText(
+                vis,
+                "REVIEW ONLY: MIXED RAW CAPTURE - NAVIGATION ONLY",
+                (12, 49),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.46,
+                (80, 120, 255),
+                2,
+                cv2.LINE_AA,
+            )
+    elif getattr(state, "condition_mode", False):
+        cv2.rectangle(vis, (1, 1), (w - 2, h - 2), (0, 220, 255), 3)
+        if not (toast and toast[2] > _time.time()):
+            cv2.rectangle(vis, (0, 28), (w, 58), (0, 0, 0), -1)
+            cv2.putText(
+                vis,
+                "CONDITIONS: n/m/6 DIST | u UNKNOWN | a,a BATCH",
+                (12, 49),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.48,
+                (0, 220, 255),
+                2,
+                cv2.LINE_AA,
+            )
+    elif state.mode == "manip":
         cv2.rectangle(vis, (1, 1), (w - 2, h - 2), (255, 180, 0), 3)
+    frame_tags = getattr(state, "frame_tags", None)
+    frame_tag_sources = getattr(state, "frame_tag_sources", None)
+    capture_metadata = getattr(state, "capture_metadata", None)
+    object_type = _first_metadata_value(
+        _mapping_value(frame_tags, "object_type", "object"),
+        getattr(state, "resolved_object_type", None),
+        getattr(state, "object_type", None))
+    object_type_source = _first_metadata_value(
+        _mapping_value(frame_tag_sources, "object_type", "object"),
+        getattr(state, "object_type_source", None),
+        getattr(state, "object_source", None))
+    lighting = _first_metadata_value(
+        _mapping_value(frame_tags, "lighting_condition", "lighting"),
+        getattr(state, "resolved_lighting", None),
+        getattr(state, "lighting_condition", None),
+        getattr(state, "lighting", None),
+        _mapping_value(capture_metadata, "lighting_condition", "lighting"))
+    lighting_source = _first_metadata_value(
+        _mapping_value(frame_tag_sources, "lighting_condition", "lighting"),
+        getattr(state, "lighting_source", None),
+        getattr(state, "lighting_condition_source", None))
+    unsaved = bool(
+        getattr(state, "dirty", False)
+        or getattr(state, "annotation_dirty", False)
+        or getattr(state, "frame_tags_dirty", False))
     panel = build_panel(h, state.active, state.kps_2d, state.pose,
-                        frame_idx, total_frames, state.zoom, state.dirty,
+                        frame_idx, total_frames, state.zoom, unsaved,
                         mode=state.mode, trans_step=state.trans_step,
                         rot_step=state.rot_step_deg,
                         split=getattr(state, "split", "eval"),
@@ -668,10 +864,17 @@ def render(state, frame_idx, total_frames, frame_name):
                         sess_name=getattr(state, "sess_name", None),
                         keypoint_annotations=getattr(
                             state, "keypoint_annotations", None),
-                        axis_assignment=getattr(state, "axis_assignment", None),
-                        axis_candidates=getattr(
-                            state, "axis_assignment_candidates", None),
-                        axis_confirmed=getattr(
-                            state, "axis_assignment_confirmed", False),
-                        population_role=getattr(state, "population_role", "DEV"))
+                        population_role=getattr(state, "population_role", "DEV"),
+                        frame_tags=frame_tags,
+                        frame_tag_sources=frame_tag_sources,
+                        object_type=object_type,
+                        object_type_source=object_type_source,
+                        lighting=lighting,
+                        lighting_source=lighting_source,
+                        condition_mode=getattr(state, "condition_mode", False),
+                        review_only=review_only,
+                        source_frame_ordinal=getattr(
+                            state, "source_frame_ordinal", None),
+                        source_frame_count=getattr(
+                            state, "source_frame_count", None))
     return np.hstack([vis, panel])

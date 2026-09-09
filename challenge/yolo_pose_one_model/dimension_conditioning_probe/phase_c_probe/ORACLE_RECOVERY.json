@@ -1,0 +1,200 @@
+{
+  "definition": "(AUC_candidate - AUC_A0) / (AUC_A1 - AUC_A0)",
+  "population": {
+    "population_id": "COMMON_DEV_PLASTIC_POS128",
+    "count": 128,
+    "manifest": "challenge/real_gt_v2/manifests/COMMON_DEV_PLASTIC_POS128.json",
+    "manifest_sha256": "abdd77a1bf261d065393137c0078e04b0fa5e3af0ec797da4b9a8b2219b41841",
+    "phase_a_per_frame": "challenge/yolo_pose_one_model/dimension_conditioning_probe/phase_a_oracle/ORACLE_PER_FRAME.csv",
+    "phase_a_per_frame_sha256": "6fd5201c89b624ad601395173c6b5ec2027f7337dfd572dfcfe07ba07e2415e2",
+    "metrics": {
+      "A0_CURRENT_SELECTOR": {
+        "status": "COMPLETE",
+        "N": 128,
+        "parity_correct_n": 75,
+        "parity_accuracy": 0.5859375,
+        "pnp_solved_n": 126,
+        "pnp_solve_rate": 0.984375,
+        "pose_valid_n": 126,
+        "pose_valid_total": 128,
+        "pose_valid_rate": 0.984375,
+        "restricted_adds_auc": 0.27236328125,
+        "rotation_median_deg": 9.045657670844683,
+        "translation_median_m": 0.1288958009699917,
+        "yaw_median_deg": 8.409117782625078
+      },
+      "A1_GT_PARITY_ORACLE": {
+        "status": "COMPLETE",
+        "N": 128,
+        "parity_correct_n": 128,
+        "parity_accuracy": 1.0,
+        "pnp_solved_n": 126,
+        "pnp_solve_rate": 0.984375,
+        "pose_valid_n": 126,
+        "pose_valid_total": 128,
+        "pose_valid_rate": 0.984375,
+        "restricted_adds_auc": 0.32071875,
+        "rotation_median_deg": 4.079442522688052,
+        "translation_median_m": 0.10240019957663762,
+        "yaw_median_deg": 3.0550548359350764
+      }
+    }
+  },
+  "A0_restricted_adds_auc": 0.27236328125,
+  "A1_oracle_restricted_adds_auc": 0.32071875,
+  "denominator": 0.04835546875000002,
+  "dev140_selector_diagnostic_reference": {
+    "A0_restricted_adds_auc": 0.2647571428571428,
+    "A1_oracle_restricted_adds_auc": 0.3146571428571429
+  },
+  "arms": {
+    "B1_KP_ONLY": {
+      "restricted_adds_auc": 0.18760546875,
+      "oracle_recovery_ratio": -1.7528071734388873
+    },
+    "B2_IMAGE_KP": {
+      "restricted_adds_auc": 0.19041015625,
+      "oracle_recovery_ratio": -1.6948057193634372
+    },
+    "B3_IMAGE_KP_DIMS": {
+      "restricted_adds_auc": 0.2736015625,
+      "oracle_recovery_ratio": 0.025607884320220306
+    }
+  },
+  "phase_c_gate": {
+    "population_id": "COMMON_DEV_PLASTIC_POS128",
+    "population_n": 128,
+    "P1": {
+      "passed": false,
+      "value": 0.6015625,
+      "minimum": 0.95
+    },
+    "P2": {
+      "passed": false,
+      "value": 0.39285714285714285,
+      "minimum": 0.9
+    },
+    "P3": {
+      "passed": false,
+      "value": 0.16666666666666666,
+      "minimum": 0.85
+    },
+    "P4": {
+      "passed": true,
+      "B3_minus_B2_absolute": 0.0859375,
+      "delta_percentage_points": 8.59375,
+      "correct_frame_delta": {
+        "numerator": 11,
+        "denominator": 128
+      },
+      "minimum": 0.05
+    },
+    "P5": {
+      "passed": true,
+      "B3_minus_B4_absolute": 0.0625,
+      "delta_percentage_points": 6.25,
+      "correct_frame_delta": {
+        "numerator": 8,
+        "denominator": 128
+      },
+      "minimum": 0.05
+    },
+    "P6": {
+      "passed": false,
+      "value": 0.025607884320220306,
+      "minimum": 0.7
+    },
+    "P7": {
+      "passed": true,
+      "pose_valid_rate_delta": 0.0,
+      "minimum": 0.0
+    },
+    "P8": {
+      "passed": true,
+      "prediction_max_abs_diff": {
+        "candidate_count": 0,
+        "confidence": 0.0,
+        "box": 0.0,
+        "keypoints": 0.0
+      },
+      "mapped_logit_confidence_max_abs_diff": 8.626048408899578e-08
+    },
+    "P9": {
+      "passed": false,
+      "status": "DEFERRED_UNLESS_P1_TO_P8_PASS",
+      "reason": "NO_DEPLOYMENT_CANDIDATE_REACHED_LATENCY_GATE",
+      "maximum_relative_increase": 0.05
+    },
+    "P1_to_P8_passed": false,
+    "passed": false
+  },
+  "simpler_arm_gates": {
+    "B1_KP_ONLY": {
+      "conditions": {
+        "P1_overall": false,
+        "P2_night": true,
+        "P3_min_session": false,
+        "P6_oracle_recovery": false,
+        "P7_pose_valid_no_harm": true,
+        "P8_prediction_exact": true
+      },
+      "values": {
+        "population_id": "COMMON_DEV_PLASTIC_POS128",
+        "overall_accuracy": 0.5390625,
+        "night_accuracy": 0.9285714285714286,
+        "minimum_session_accuracy": 0.18181818181818182,
+        "oracle_recovery_ratio": -1.7528071734388873,
+        "pose_valid_rate_delta": 0.0
+      },
+      "P9": {
+        "status": "DEFERRED_UNLESS_SOURCE_PERFORMANCE_GATE_PASSES",
+        "passed": false
+      },
+      "source_performance_passed": false,
+      "passed": false
+    },
+    "B2_IMAGE_KP": {
+      "conditions": {
+        "P1_overall": false,
+        "P2_night": false,
+        "P3_min_session": false,
+        "P6_oracle_recovery": false,
+        "P7_pose_valid_no_harm": true,
+        "P8_prediction_exact": true
+      },
+      "values": {
+        "population_id": "COMMON_DEV_PLASTIC_POS128",
+        "overall_accuracy": 0.515625,
+        "night_accuracy": 0.8214285714285714,
+        "minimum_session_accuracy": 0.18181818181818182,
+        "oracle_recovery_ratio": -1.6948057193634372,
+        "pose_valid_rate_delta": 0.0
+      },
+      "P9": {
+        "status": "DEFERRED_UNLESS_SOURCE_PERFORMANCE_GATE_PASSES",
+        "passed": false
+      },
+      "source_performance_passed": false,
+      "passed": false
+    }
+  },
+  "pre_latency_winner_by_priority": null,
+  "scope_lock": {
+    "primary": "PLASTIC_STANDARD_ONLY",
+    "plastic_selector_diagnostic_population": "DEV_PLASTIC_POS140",
+    "plastic_model_comparison_population": "COMMON_DEV_PLASTIC_POS128",
+    "synthetic_test_claim": "PROBE_HEAD_ASSET_ID_HELDOUT_ONLY_NOT_END_TO_END_HELDOUT",
+    "synthetic_test_probe_head_split": "PROVISIONAL_ASSET_ID_DISJOINT_NOT_TOPOLOGY_CERTIFIED",
+    "synthetic_test_frozen_feature_extractor_exposure": "PRIMARY_YOLO_WAS_TRAINED_ON_ORIGINAL_G38_MEMBERSHIP_SPANNING_ALL_FOUR_ASSETS",
+    "synthetic_test_original_g38_origin_counts": {
+      "train": 9591,
+      "val": 504,
+      "total": 10095
+    },
+    "synthetic_test_end_to_end_heldout_claim_allowed": false,
+    "B4_real_control_population": "COMMON_DEV_MULTISHAPE_POS_128_PLUS_45",
+    "wood": "OUT_OF_RANGE_EXTRAPOLATION_DIAGNOSTIC_ONLY",
+    "multishape_claim_allowed": false,
+    "multishape_blocker": "DIM_PROBE_SYNTH_REQUIRED_FOR_MULTISHAPE_REGISTRY_COVERAGE"
+  }
+}

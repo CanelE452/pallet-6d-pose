@@ -1,0 +1,79 @@
+{
+  "schema_version": "spatial_concat_extraction_failure_v1",
+  "failed_at_utc": "2026-08-29T16:29:52Z",
+  "scope": "post-hoc spatial feature extraction only; completed YOLO base training is unaffected",
+  "error": {
+    "type": "RunnerError",
+    "message": "prepared shape mismatch: P0__shard_00_f0001 (680, 840) != (680, 920)",
+    "processed_rows_before_failure": 24435,
+    "expected_total_rows": 60000
+  },
+  "root_cause": {
+    "component": "build_probe_metadata.py legacy_rows",
+    "prior_builder_sha256": "1ed9475aaafcd8a6c1033f2e63185eefd6bd40765ee904732b20181dd82d5776",
+    "fault": "P0 and TEX raw_shape_height_width was hardcoded to [480, 720] for all 20000 legacy rows",
+    "legacy_rows_with_wrong_shape": 17020,
+    "legacy_rows_with_coincidentally_correct_480x720_shape": 2980,
+    "wrong_shape_by_source": {
+      "P0": 8506,
+      "TEX": 8514
+    },
+    "wrong_shape_by_split": {
+      "train": 15305,
+      "val": 1715
+    },
+    "renderer_label_vs_prepared_image_crosscheck": {
+      "rows": 20000,
+      "mismatches": 0,
+      "rule": "camera_data height/width equals prepared PNG height/width minus 200"
+    }
+  },
+  "corrected_raw_shape_counts": {
+    "480x640": 28805,
+    "480x720": 8814,
+    "540x960": 16728,
+    "560x560": 5653
+  },
+  "failed_attempt_bindings": {
+    "runner_sha256": "1d9f5424f90bb1c9e4ed06834f822a01df31fa93bd344054ffcabec3e40be553",
+    "spatial_contract_sha256": "b70af52ac5a807f82e2f0b7868cf9cd38895c087380102120b4f63247dde4928",
+    "probe_metadata_sha256": "f9f21ed048c32ddd38f75bb40e5e2f8c56cdef8754a8757633132d7abed503bd",
+    "probe_metadata_audit_sha256": "a36adc39c131b4f0ae0333dd23bf0ff801ec5842dd4d75dfaab0e7993eeece2f",
+    "base_checkpoint_lock_sha256": "e510686bb82ad39fd464d834425f17d1a37c082fbb44cbbf89b8977cd9d47886",
+    "feature_recipe_sha256": "9fbb7cc8924865515790c59384e8d73b65aac4e668b57f0a660e84dbaac6b1ce",
+    "base_last_pt_sha256": "1bb80116f2cce50c84741a792e8c87a9a4d69c26861c3ba528d593d8817cff9d",
+    "base_results_csv_sha256": "8d918542568d1c98d507267535b2dce8e475de4a9385b504f4e9a91d5bbd0c00"
+  },
+  "archived_partial_shards": {
+    "directory": "challenge/yolo_pose_one_model/spatial_concat_scratch/recovery/failed_spatial_extract_shape_v1_20260830T012952KST/spatial_feature_shards_60k",
+    "count": 48,
+    "rows": 24435,
+    "bytes": 142681938,
+    "source_counts": {
+      "G38": 24435,
+      "P0": 0,
+      "TEX": 0
+    },
+    "raw_shape_counts": {
+      "480x640": 19315,
+      "480x720": 5120
+    },
+    "filename_and_content_sha256_manifest_sha256": "3f5bb55c9c59c81942674510b60346743ac92bfa246d90cf8c6adac26a25d827",
+    "reused_in_recovery": false
+  },
+  "archive": {
+    "directory": "challenge/yolo_pose_one_model/spatial_concat_scratch/recovery/failed_spatial_extract_shape_v1_20260830T012952KST",
+    "contains_prior_metadata_audit_contract_lock_runner_and_shards": true,
+    "prior_builder_content_available": false,
+    "prior_builder_hash_available": true
+  },
+  "recovery": {
+    "base_retrained": false,
+    "base_checkpoint_changed": false,
+    "metadata_rule": "derive each raw shape independently from its prepared PNG header minus the frozen 100px border on every side",
+    "full_feature_reextraction_required": true,
+    "reason_no_shard_reuse": "corrected global metadata and spatial contract change the single-recipe shard fingerprint",
+    "probe_and_real_dev_stages_must_run_only_after_corrected_60000_row_cache_passes"
+      : true
+  }
+}

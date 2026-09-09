@@ -1,0 +1,55 @@
+{
+  "schema_version": "cleanstart_60k_followup_completion_v1",
+  "status": "COMPLETE_WITH_PAPER_FINAL_BLOCKERS",
+  "scope": "target-model DEV comparison, frozen-cache architecture extension, paper experiment queue preparation",
+  "base_model": {
+    "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/last.pt",
+    "sha256": "1bb80116f2cce50c84741a792e8c87a9a4d69c26861c3ba528d593d8817cff9d"
+  },
+  "target_comparison": {
+    "primary_target": "FT_REFERENCE",
+    "primary_target_role": "historical real-supervised upper bound; 12 overlapping DEV140 DAY frames excluded from the primary DEV128 comparison",
+    "secondary_target": "OLD_STAGE_A",
+    "json": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/target_model_comparison/TARGET_MODEL_COMPARISON.json",
+      "sha256": "c47a96ce33747108fbe213ebaa46c745f4db4f5be6f492e2458468f08265e39f"
+    },
+    "report": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/target_model_comparison/TARGET_MODEL_COMPARISON.md",
+      "sha256": "5c2368aad06c032ab116c05064cf60cf6dc132a0d8a2210f0ba7e6e8fae2e6b5"
+    }
+  },
+  "architecture_extension": {
+    "new_head_runs": 15,
+    "evaluated_arms": 7,
+    "yolo_parameter_updates": 0,
+    "selected_architecture": "S1_SPATIAL_CONCAT",
+    "selection_reason": "S2 FiLM did not improve the three-seed mean; S3 attention improved it by only 0.2765 percentage points, its locked paired 95% interval crossed zero, and neither complex arm met the frozen S1-plus-2-point threshold",
+    "summary": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/architecture_extension/ARCHITECTURE_EXTENSION_SUMMARY.json",
+      "sha256": "d3373791bd650c71fc8918d2a8a87d28623ef39bc632c2ff8e60ddc8ff0b0e6b"
+    },
+    "report": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/architecture_extension/ARCHITECTURE_EXTENSION_REPORT.md",
+      "sha256": "5734178f5fbb0005df0f6ea82febc60409a771b5001f7b58697be2521e32de22"
+    },
+    "latency": {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/architecture_extension/CUDA_BRANCH_LATENCY.json",
+      "sha256": "e1899f133917141761e55adae6cfd96f9ad21fac08846cdd13dd10d10808e7a2",
+      "measurement_scope": "RTX 3080, CUDA batch 1, branch only; excludes YOLO, feature extraction, host transfer, and PnP"
+    },
+    "immutable_summary_note": "The summary was frozen before the optional latency command, so its NOT_REQUESTED field is a creation-time snapshot. The later latency artifact binds that exact summary by SHA-256; this completion manifest binds both immutable artifacts without rewriting the training provenance."
+  },
+  "paper_documents": {
+    "results": "_docs/paper/evaluation_tables/RESULT_TABLE_TEMPLATES.md",
+    "architecture": "_docs/archive/paper_support_20260830/architecture.md",
+    "training_queue": null,
+    "table_completion_status": "_docs/paper/evaluation_tables/RESULT_TABLE_TEMPLATES.md"
+  },
+  "paper_final_claim_allowed": false,
+  "remaining_blockers": [
+    "wire the selected S1 real 7x7 feature path through parity selection and PnP",
+    "freeze and evaluate on a new untouched FINAL population",
+    "finish method adapters and controlled training for retained DOPE, PVNet, and SingleShotPose baselines before filling Table 1"
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "audited_at": "2026-09-05",
+  "git_head": "985201c2297e8408fce72d72e3d4ca8e790bbdb8",
+  "env": {
+    "ultralytics": "8.4.60",
+    "torch": "2.1.1+cu118",
+    "cuda": "11.8",
+    "gpu": "NVIDIA GeForce RTX 3080 10240MiB",
+    "python": "3.10.20"
+  },
+  "stage_a_source": {
+    "run": "challenge/yolo_pose_one_model/runs_paper/yolo26n_paper_generic_v1_seed42",
+    "dataset": "challenge/yolo_pose_one_model/datasets/broad40k",
+    "train_frames": 39500,
+    "val_frames": 500,
+    "kpt_shape": [
+      9,
+      3
+    ],
+    "flip_idx": [
+      1,
+      0,
+      3,
+      2,
+      5,
+      4,
+      7,
+      6,
+      8
+    ],
+    "label_token_check": "all 40,000 label lines have exactly 32 tokens",
+    "image_label_pairing": "0 unmatched stems, 0 symlinks, 0 broken links",
+    "keypoint_convention": "camera_dynamic_0123_v4 (camera-facing)",
+    "val_is_holdout": false,
+    "val_note": "strided subsample of the same pool as train; checkpoint selection forbidden -> use last.pt",
+    "contamination": {
+      "v1v2_palletobj_target": 0,
+      "pallet_full_obj": 0,
+      "real_capture_filename_patterns": 0,
+      "real_positive_in_training": 0,
+      "source_assets": {
+        "eur_pallet_bk_cc0.glb": 10182,
+        "woodpallet_block_jtoastie_ccby.glb": 10099,
+        "scene_1.usd": 10095,
+        "scene.usd": 9624
+      },
+      "method": "exhaustive grep over all 40,000 source *_label.json (asset string + gt_source)",
+      "caveat": "mesh-hash confirmation NOT_POSSIBLE_LOCALLY (0/4 asset files present); exclusion rests on asset-string enumeration + dimensions_m signature"
+    },
+    "distinct_from": {
+      "g38_legacy_v1v2_p0_tex20k": "different dataset, 55,980/4,020, 100% symlinks; train stem intersection with broad40k = 0"
+    },
+    "recipe": {
+      "model": "challenge/weights/pretrained_yolo/yolo26n-pose.pt (COCO)",
+      "epochs": 60,
+      "batch": 32,
+      "optimizer": "SGD",
+      "lr0": 0.01,
+      "lrf": 0.01,
+      "cos_lr": true,
+      "warmup_epochs": 3.0,
+      "pose": 12.0,
+      "kobj": 1.0,
+      "seed": 42,
+      "patience": 0,
+      "mosaic": 0.3,
+      "close_mosaic": 10,
+      "scale": 0.25,
+      "fliplr": 0.0,
+      "flipud": 0.0,
+      "translate": 0.1,
+      "hsv": [
+        0.015,
+        0.5,
+        0.35
+      ],
+      "erasing": 0.4,
+      "auto_augment": "randaugment",
+      "imgsz": 640,
+      "single_cls": true,
+      "deterministic": true
+    },
+    "completion": {
+      "results_csv_epoch_rows": 60,
+      "epochs_requested": 60
+    },
+    "loss": "stock PoseLoss26 (no custom loss in args)",
+    "checkpoints": {
+      "last.pt": {
+        "sha256": "6a40a4d430fd205a427e38a1927aad2a0a0bef20b984484e0b77318e7bd355ea",
+        "bytes": 6552679,
+        "matches_prior_record": "dimension_conditioning_probe/SOURCE_AUDIT.md"
+      },
+      "best.pt": {
+        "sha256": "632b1248911c6cc4629eb97b601d1833c5251d53eba26145354f3c3dd5fa46ce",
+        "usable": false,
+        "reason": "val is not a holdout"
+      }
+    },
+    "reuse_decision": "REUSE last.pt as F0/F1 INIT",
+    "reuse_criteria": {
+      "membership_matches": true,
+      "coco_init": true,
+      "60_epochs_completed": true,
+      "batch_32": true,
+      "seed_42": true,
+      "stock_pose_loss": true,
+      "no_real_supervision": true,
+      "checkpoint_intact": true,
+      "results_csv_normal": true
+    }
+  },
+  "square_real_ft_source": {
+    "reference_run": "challenge/yolo_pose_one_model/runs_live_gt/ft_live_gt_v4",
+    "dataset": "challenge/yolo_pose_one_model/datasets/live_gt_v4",
+    "train_total": 3087,
+    "val_total": 155,
+    "train_breakdown": {
+      "original": 696,
+      "truncation_crop": 999,
+      "aug_flip": 696,
+      "aug_noise": 696
+    },
+    "val_breakdown": {
+      "original": 155,
+      "derived": 0
+    },
+    "val_derived_leakage": 0,
+    "leakage_method": "normalised derived stems (strip crop__/aug__ prefix, _t<n>/_f/_n suffix, manual_gt__ token) and intersected with val original stems; rule validated by 696/696 match against train originals",
+    "kpt_shape": [
+      9,
+      3
+    ],
+    "flip_idx": [
+      1,
+      0,
+      3,
+      2,
+      5,
+      4,
+      7,
+      6,
+      8
+    ],
+    "label_token_check": "all 3,242 label files: 1 line, 32 tokens",
+    "session_groups": {
+      "handheld_20260902": 344,
+      "forklift_v4_20260901": 67,
+      "forklift_v4_20260903": 51,
+      "forklift_v4_20260904": 389
+    },
+    "split": {
+      "mode": "interleave",
+      "val_every": 6
+    },
+    "known_imbalance": "truncation crops cover only 333/696 (48%) of train originals; they were generated from the older 402-frame capture set only",
+    "uncontrolled_aug": [
+      "erasing=0.4",
+      "auto_augment=randaugment"
+    ],
+    "recipe_from_artifact": {
+      "epochs": 40,
+      "batch": 32,
+      "imgsz": 640,
+      "optimizer": "SGD",
+      "lr0": 0.01,
+      "lrf": 0.01,
+      "cos_lr": true,
+      "warmup_epochs": 3.0,
+      "momentum": 0.937,
+      "weight_decay": 0.0005,
+      "pose": 12.0,
+      "kobj": 1.0,
+      "box": 7.5,
+      "cls": 0.5,
+      "dfl": 1.5,
+      "rle": 1.0,
+      "mosaic": 0.3,
+      "close_mosaic": 10,
+      "scale": 0.25,
+      "fliplr": 0.0,
+      "flipud": 0.0,
+      "translate": 0.0,
+      "degrees": 0.0,
+      "shear": 0.0,
+      "perspective": 0.0,
+      "hsv": [
+        0.015,
+        0.5,
+        0.35
+      ],
+      "seed": 42,
+      "patience": 0,
+      "deterministic": true,
+      "single_cls": true,
+      "workers": 4
+    },
+    "note": "v4 started from pallet_yolo26n_pose_ft.pt (sha256 ba4ef77d...). This track deliberately uses the PAPER_GENERIC Stage A checkpoint instead, per the experiment design; only the recipe is inherited."
+  },
+  "blocking_conditions_checked": {
+    "broad40k_real_or_v1v2_contamination": "NOT FOUND (clean)",
+    "stage_a_provenance_unknown": "RESOLVED (sha256 matches prior record)"
+  }
+}

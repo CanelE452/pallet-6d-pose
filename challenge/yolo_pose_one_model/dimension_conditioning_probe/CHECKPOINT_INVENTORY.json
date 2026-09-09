@@ -1,0 +1,391 @@
+{
+  "schema_version": "dimension_conditioning_probe_checkpoint_inventory_v2",
+  "generated_at_utc": "2026-08-28T14:13:47.061092351Z",
+  "audit_scope": "Artifact-backed resolution of Y0 vanilla G38 30ep, G38 60ep vanilla, and the current paper-facing YOLO baseline. No checkpoint was modified or executed for training.",
+  "repository_snapshot": {
+    "head": "f8472ac08cdbf748754dacbca4b54fb4c576d666",
+    "branch": "main",
+    "git_status_short": {
+      "captured_at_utc": "2026-08-28T14:13:47.061092351Z",
+      "entry_count": 100,
+      "modified_worktree_entries": 34,
+      "type_changed_worktree_entries": 1,
+      "untracked_entries": 65,
+      "sha256_of_lf_status_stream": "982dc776558ad559346da27734554cf074a9b05681b538bc355efbdcfa42e504",
+      "probe_scope_status": "?? challenge/yolo_pose_one_model/dimension_conditioning_probe/",
+      "interpretation": "DIRTY_WORKTREE. The status digest is evidence, not a clean-tree claim; the probe directory was already represented by one untracked directory entry."
+    }
+  },
+  "primary_checkpoint_key": "PRIMARY_G38_GENERIC_ONLY_60EP",
+  "primary_logical_role": "CURRENT_PAPER_BASELINE",
+  "unique_requested_checkpoint_artifacts": 2,
+  "logical_roles": [
+    {
+      "role": "Y0_VANILLA_G38_30EP",
+      "artifact_key": "Y0_VANILLA_G38_30EP",
+      "checkpoint_path": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/weights/last.pt",
+      "sha256": "37f904b975db3e95297af5acb51f6e99360f4b59245cef04d0511af3f5a189b1",
+      "commit": {
+        "checkpoint_embedded_commit": null,
+        "source_audit_head": "96ddf1967ecee2759e5d36578a84f2e4eb021efe",
+        "status": "DIRECT_SOURCE_AUDIT_DIRTY_WORKTREE",
+        "caveat": "The run-level source audit records this HEAD and a dirty tree; it is not a clean commit-bound checkpoint."
+      },
+      "training_membership": {
+        "key": "G38_GENERIC_ONLY",
+        "data_yaml": "challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+        "train_unique": 38002,
+        "val_unique": 1998
+      },
+      "configured_epochs": 30,
+      "completed_results_rows": 30,
+      "checkpoint_ultralytics_version": "8.4.60",
+      "alias_of_role": null
+    },
+    {
+      "role": "G38_VANILLA_60EP",
+      "artifact_key": "PRIMARY_G38_GENERIC_ONLY_60EP",
+      "checkpoint_path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+      "sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+      "commit": {
+        "checkpoint_embedded_commit": null,
+        "reflog_reconstructed_head": "152012b6757d792f8e32179815523d14f10ca85c",
+        "status": "REFLOG_RECONSTRUCTED_NOT_CHECKPOINT_BOUND",
+        "caveat": "The checkpoint timestamp falls after this HEAD's reflog entry and before the next entry, but the checkpoint embeds no commit and ignored/dirty artifacts prevent exact commit binding."
+      },
+      "training_membership": {
+        "key": "G38_GENERIC_ONLY",
+        "data_yaml": "challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+        "train_unique": 38002,
+        "val_unique": 1998
+      },
+      "configured_epochs": 60,
+      "completed_results_rows": 60,
+      "checkpoint_ultralytics_version": "8.4.60",
+      "alias_of_role": null
+    },
+    {
+      "role": "CURRENT_PAPER_BASELINE",
+      "artifact_key": "PRIMARY_G38_GENERIC_ONLY_60EP",
+      "checkpoint_path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+      "sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+      "commit": {
+        "checkpoint_embedded_commit": null,
+        "reflog_reconstructed_head": "152012b6757d792f8e32179815523d14f10ca85c",
+        "status": "REFLOG_RECONSTRUCTED_NOT_CHECKPOINT_BOUND",
+        "caveat": "This role aliases the G38 vanilla 60ep artifact; it does not introduce a third checkpoint or stronger provenance."
+      },
+      "training_membership": {
+        "key": "G38_GENERIC_ONLY",
+        "data_yaml": "challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+        "train_unique": 38002,
+        "val_unique": 1998
+      },
+      "configured_epochs": 60,
+      "completed_results_rows": 60,
+      "checkpoint_ultralytics_version": "8.4.60",
+      "alias_of_role": "G38_VANILLA_60EP",
+      "identity_assertion": "Same path, SHA-256, size, args, membership, and checkpoint metadata as G38_VANILLA_60EP."
+    }
+  ],
+  "primary_selection_evidence": [
+    {
+      "path": "_docs/paper/baselines/BASELINE_READINESS.md",
+      "locator": "lines 205-218",
+      "claim": "Marks this G38 run DEV_INFERENCE_READY, names epoch-60 last.pt as eligible, and says best.pt and the later pose-classification run are not substitutes."
+    },
+    {
+      "path": "challenge/evaluation_v2/dev_results/YOLO26_G38_DEV.json",
+      "locator": "weights",
+      "claim": "Records the same path, SHA-256, and the policy that the epoch-60 last.pt source of truth was not selected from DEV results."
+    },
+    {
+      "path": "challenge/evaluation_v2/selector_diagnostic/PLASTIC_SELECTOR_DIAGNOSTIC.json",
+      "locator": "checkpoint",
+      "claim": "Records the same path/SHA, run args, and G38 training-data contract."
+    },
+    {
+      "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/ubuntu_cf_loss_queue_20260823T0930/G38_ADAPT_INIT_LOCK.json",
+      "locator": "G38_INIT_PATH, G38_INIT_SHA256, chosen_by",
+      "claim": "Locks the identical last.pt by artifact rather than memory."
+    }
+  ],
+  "shared_training_membership": {
+    "key": "G38_GENERIC_ONLY",
+    "data_yaml": {
+      "path": "challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+      "sha256": "8191c1111294b52b396175e2f38210e3484fd5ad3e6af70e103f8ce278432f88"
+    },
+    "manifest": {
+      "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/ubuntu_cf_loss_queue_20260823T0930/G38_GENERIC_ONLY_MANIFEST.json",
+      "sha256": "a085075c86ad65ecdb6ff7a5961baa6424451ec7024ec330b9df10688b7aff48"
+    },
+    "train": {
+      "unique_stems": 38002,
+      "sorted_stem_sha256_no_terminal_newline": "74eb31741c34addb97c1d396f6fe4a620f1fa993e325083b7d3551c82560484b"
+    },
+    "val": {
+      "unique_stems": 1998,
+      "sorted_stem_sha256_no_terminal_newline": "0a8c70e3db287f76e9a3f90f9b0ea916ca9373a41b2cee5051b41cb886a45d9d"
+    },
+    "train_val_intersection": 0,
+    "current_symlink_stems_equal_manifest": true,
+    "missing_or_extra_image_label_stems": 0,
+    "keypoint_convention": "camera_dynamic_0123_v4",
+    "keypoint_count": 9,
+    "real_training_examples": 0,
+    "evidence": [
+      "challenge/yolo_pose_one_model/runs_posecls_g38/DATA_CONTRACT.json",
+      "challenge/yolo_pose_one_model/runs_camera_facing_loss/ubuntu_cf_loss_queue_20260823T0930/G38_GENERIC_ONLY_MANIFEST.json"
+    ]
+  },
+  "pretrained_initialization": {
+    "path": "challenge/weights/pretrained_yolo/yolo26n-pose.pt",
+    "sha256": "eb3bb8268828aeaf515cec23a4bfafd793944a86fe9af94ba7823609c14522a9",
+    "role": "Initialization for both accepted runs.",
+    "caveat": "This is the clean pretrained initializer, not the G38 60ep fine-tuned paper baseline."
+  },
+  "candidates": [
+    {
+      "key": "Y0_VANILLA_G38_30EP",
+      "logical_roles": [
+        "Y0_VANILLA_G38_30EP"
+      ],
+      "selection_status": "AUDITED_COMPARATOR",
+      "run_dir": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42",
+      "selected_checkpoint": {
+        "kind": "last.pt",
+        "path": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/weights/last.pt",
+        "sha256": "37f904b975db3e95297af5acb51f6e99360f4b59245cef04d0511af3f5a189b1",
+        "size_bytes": 6546471
+      },
+      "non_selected_sibling": {
+        "kind": "best.pt",
+        "path": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/weights/best.pt",
+        "sha256": "1964ba22364677b4ef244e2be65cdc527e82d647c26b2053e1b0de547db10f39",
+        "size_bytes": 6546471,
+        "reason": "Existing Y0 audits bind last.pt; best.pt is not the audited Y0 artifact."
+      },
+      "args_yaml": {
+        "path": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/args.yaml",
+        "sha256": "6696634419ef7f7dbcb9fee34c6d4b690d574abec85a8e45acf70f84847f9a65",
+        "data_value": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+        "model_value": "/home/minjae/Documents/github/pallet-pose/challenge/weights/pretrained_yolo/yolo26n-pose.pt"
+      },
+      "training": {
+        "membership_key": "G38_GENERIC_ONLY",
+        "epochs": 30,
+        "results_csv_data_rows": 30,
+        "patience": 0,
+        "batch": 32,
+        "imgsz": 640,
+        "seed": 42,
+        "optimizer": "SGD",
+        "runtime_criterion_class": "PoseLoss26",
+        "runtime_batches": 1188,
+        "runtime_pc_role_posealign_qpose_calls": 0,
+        "runtime_evidence": "challenge/yolo_pose_one_model/runs_posecls_g38/Y26_G38_Y0_VANILLA_30EP_SEED42/RUNTIME_AUDIT.json"
+      },
+      "checkpoint_metadata": {
+        "date": "2026-08-25T16:07:28.361979",
+        "ultralytics_version": "8.4.60",
+        "checkpoint_top_level_epoch": -1,
+        "epoch_interpretation": "Optimizer-stripped final checkpoint; use args.yaml plus 30 results.csv data rows as completion evidence.",
+        "model_class": "ultralytics.nn.tasks.PoseModel",
+        "parameter_count": 3043704,
+        "embedded_git": {
+          "root": "None",
+          "branch": null,
+          "commit": null,
+          "message": null,
+          "origin": null
+        }
+      },
+      "commit_provenance": {
+        "checkpoint_embedded_commit": null,
+        "source_audit_head": "96ddf1967ecee2759e5d36578a84f2e4eb021efe",
+        "status": "DIRECT_SOURCE_AUDIT_DIRTY_WORKTREE",
+        "evidence": [
+          "challenge/yolo_pose_one_model/runs_posecls_g38/SOURCE_AUDIT.json",
+          "challenge/yolo_pose_one_model/p26_representation_audit/CONTRACT.json",
+          "challenge/yolo_pose_one_model/p26_representation_audit/SOURCE_AUDIT.md"
+        ]
+      }
+    },
+    {
+      "key": "PRIMARY_G38_GENERIC_ONLY_60EP",
+      "logical_roles": [
+        "G38_VANILLA_60EP",
+        "CURRENT_PAPER_BASELINE"
+      ],
+      "selection_status": "PRIMARY_ARTIFACT_LOCKED",
+      "run_dir": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42",
+      "selected_checkpoint": {
+        "kind": "last.pt",
+        "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/last.pt",
+        "sha256": "1a806ca497fde5175334e908540ebae22a45deeb08862f014ac8460f8d43ac3c",
+        "size_bytes": 6552807
+      },
+      "non_selected_sibling": {
+        "kind": "best.pt",
+        "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/weights/best.pt",
+        "sha256": "0e8f0ee0abfc46cd7a8d387e992126849c8378468d6f70fed15aa1e01c3bc414",
+        "size_bytes": 6552807,
+        "reason": "The paper readiness and evaluation artifacts explicitly lock last.pt and reject best.pt as a substitute."
+      },
+      "args_yaml": {
+        "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/args.yaml",
+        "sha256": "baad2df25b15bcbdfc34e6b85f6769de9c19eee52ceacdd9ab6aaf505539b5cd",
+        "data_value": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/datasets/g38_generic_only/data.yaml",
+        "model_value": "/home/minjae/Documents/github/pallet-pose/challenge/weights/pretrained_yolo/yolo26n-pose.pt"
+      },
+      "training": {
+        "membership_key": "G38_GENERIC_ONLY",
+        "epochs": 60,
+        "results_csv_data_rows": 60,
+        "patience": 15,
+        "batch": 32,
+        "imgsz": 640,
+        "seed": 42,
+        "optimizer": "SGD",
+        "runtime_criterion_class": "PoseLoss26",
+        "runtime_pc_role_calls": 0,
+        "runtime_evidence": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_GENERIC_ONLY_60EP_SEED42/RUNTIME_AUDIT.json"
+      },
+      "checkpoint_metadata": {
+        "date": "2026-08-23T22:53:07.728346",
+        "ultralytics_version": "8.4.60",
+        "checkpoint_top_level_epoch": -1,
+        "epoch_interpretation": "Optimizer-stripped final checkpoint; use args.yaml plus 60 results.csv data rows as completion evidence.",
+        "model_class": "ultralytics.nn.tasks.PoseModel",
+        "parameter_count": 3043704,
+        "embedded_git": {
+          "root": "None",
+          "branch": null,
+          "commit": null,
+          "message": null,
+          "origin": null
+        }
+      },
+      "commit_provenance": {
+        "checkpoint_embedded_commit": null,
+        "reflog_reconstructed_head": "152012b6757d792f8e32179815523d14f10ca85c",
+        "reflog_lower_bound": "2026-08-20T19:19:55+09:00",
+        "next_reflog_head": "96ddf1967ecee2759e5d36578a84f2e4eb021efe",
+        "next_reflog_time": "2026-08-25T10:24:01+09:00",
+        "status": "REFLOG_RECONSTRUCTED_NOT_CHECKPOINT_BOUND",
+        "caveat": "The run, datasets, and weights include ignored or uncommitted state; the exact training source cannot be reconstructed from this commit alone."
+      }
+    }
+  ],
+  "rejected_candidates": [
+    {
+      "key": "HISTORICAL_LITERAL_PAPER_NAMED_BROAD40K_60EP",
+      "selection_status": "REJECTED_NOT_CURRENT_PAPER_BASELINE",
+      "run_dir": "challenge/yolo_pose_one_model/runs_paper/yolo26n_paper_generic_v1_seed42",
+      "checkpoint": {
+        "path": "challenge/yolo_pose_one_model/runs_paper/yolo26n_paper_generic_v1_seed42/weights/last.pt",
+        "sha256": "6a40a4d430fd205a427e38a1927aad2a0a0bef20b984484e0b77318e7bd355ea",
+        "size_bytes": 6552679,
+        "date": "2026-08-21T01:10:30.513680",
+        "ultralytics_version": "8.4.60",
+        "checkpoint_top_level_epoch": -1,
+        "embedded_git_commit": null
+      },
+      "best_pt_sha256": "632b1248911c6cc4629eb97b601d1833c5251d53eba26145354f3c3dd5fa46ce",
+      "args_yaml": {
+        "path": "challenge/yolo_pose_one_model/runs_paper/yolo26n_paper_generic_v1_seed42/args.yaml",
+        "sha256": "2d427905180dc200ff3871e89a4677f52280754c4bbdbae1d828dc2b2a349334"
+      },
+      "training_membership": {
+        "data_yaml": "challenge/yolo_pose_one_model/datasets/broad40k/data.yaml",
+        "manifest": "challenge/yolo_pose_one_model/datasets/paper_generic_v1_manifest.json",
+        "manifest_sha256": "6d00ea81488f7db02cf9e4c467c85fff022db7a8cc3cc7c0f5659a02403c2829",
+        "train_unique": 39500,
+        "val_unique": 500
+      },
+      "configured_epochs": 60,
+      "completed_results_rows": 60,
+      "commit": {
+        "checkpoint_embedded_commit": null,
+        "reflog_reconstructed_head": "152012b6757d792f8e32179815523d14f10ca85c",
+        "status": "REFLOG_RECONSTRUCTED_NOT_CHECKPOINT_BOUND"
+      },
+      "rejection_reason": "Its paper-like directory name is historical. It trained on broad40k (39,500/500), not the frozen G38 generic-only membership, and current paper artifacts explicitly select G38 epoch-60 last.pt."
+    },
+    {
+      "key": "G38_EXP73916_60EP",
+      "selection_status": "REJECTED_EXPOSURE_MATCHED_CONTROL_NOT_VANILLA",
+      "run_dir": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_EXP73916_60EP_SEED42",
+      "checkpoint": {
+        "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_EXP73916_60EP_SEED42/weights/last.pt",
+        "sha256": "cde730597b7f62f48d87b8e0bae8223ff92c95d36fd14bf47cb12e0ba2010093",
+        "size_bytes": 6552807,
+        "date": "2026-08-24T07:01:14.919994",
+        "ultralytics_version": "8.4.60",
+        "checkpoint_top_level_epoch": -1,
+        "embedded_git_commit": null
+      },
+      "best_pt_sha256": "ac6650c058075bdce2b9e25fc7ec5b82ed50dff845ed8804d310be30dfbdb7cc",
+      "args_yaml": {
+        "path": "challenge/yolo_pose_one_model/runs_camera_facing_loss/OLD_ROOT_G38_EXP73916_60EP_SEED42/args.yaml",
+        "sha256": "94d598e60e1a497e72a229001095cc637500122bc3769c00c3010fc4116458ca"
+      },
+      "training_membership": {
+        "data_yaml": "challenge/yolo_pose_one_model/datasets/g38_exp73916/data.yaml",
+        "manifest": "challenge/yolo_pose_one_model/runs_camera_facing_loss/ubuntu_cf_loss_queue_20260823T0930/G38_EXP73916_MANIFEST.json",
+        "manifest_sha256": "3579513eee8b70e0173d10c7f38fc8095b92e904895a9af61436eca1c0f4bbd8",
+        "unique_content": 38002,
+        "training_exposures": 73916,
+        "duplicated_aliases": 35914,
+        "val_unique": 1998
+      },
+      "configured_epochs": 60,
+      "completed_results_rows": 60,
+      "commit": {
+        "checkpoint_embedded_commit": null,
+        "reflog_reconstructed_head": "152012b6757d792f8e32179815523d14f10ca85c",
+        "status": "REFLOG_RECONSTRUCTED_NOT_CHECKPOINT_BOUND"
+      },
+      "rejection_reason": "This is the 73,916-exposure duplicated-content control, not vanilla G38."
+    }
+  ],
+  "commit_and_version_caveats": [
+    "All audited .pt files are ignored by the repository rule .gitignore:52 (*.pt) and are not Git-tracked artifacts.",
+    "Every inspected checkpoint embeds Ultralytics 8.4.60 and an all-null commit record (with root serialized as the string None); no exact training commit can be read from the checkpoint.",
+    "The candidate args/results artifacts first appear in commit eb8ed3a5264ea8329e112144431c58602b047f19, which post-dates training and must not be reported as the training commit.",
+    "Y0 has a direct run-level source audit at 96ddf1967ecee2759e5d36578a84f2e4eb021efe, but that audit itself records a dirty worktree and untracked/ignored datasets and weights.",
+    "For the Aug-21/Aug-23/Aug-24 checkpoints, 152012b6757d792f8e32179815523d14f10ca85c is only a reflog reconstruction of HEAD during the timestamp interval, not a checkpoint-bound source snapshot."
+  ],
+  "audit_environment": {
+    "default_shell_python": {
+      "python": "3.13.9",
+      "torch": "2.5.1+cu121",
+      "ultralytics_import": "FAILED_NOT_INSTALLED_IN_DEFAULT_INTERPRETER"
+    },
+    "checkpoint_inspection_interpreter": {
+      "path": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+      "python": "3.10.20",
+      "torch": "2.1.1+cu118",
+      "torchvision": "0.16.1+cu118",
+      "torch_cuda_build": "11.8",
+      "cudnn": 8700,
+      "ultralytics": "8.4.60",
+      "opencv_python_package": "4.9.0.80",
+      "cv2": "4.9.0"
+    },
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "total_memory_bytes_torch": 10331226112,
+      "total_memory_mib_nvidia_smi": 10240,
+      "compute_capability": "8.6",
+      "uuid": "GPU-8e902e93-41c0-df35-240a-e53c17a21542",
+      "driver": "580.173.02",
+      "nvidia_smi_cuda_version": "13.0"
+    },
+    "installed_ultralytics_source_hashes": {
+      "ultralytics/nn/modules/head.py": "150c4913bd7599eb252372d4ef7e6a2d2339b5840c083f1b6d9b1675a885e883",
+      "ultralytics/utils/loss.py": "8b4efa8f0c9e734c62edd62bac6509acd718b599c690bb763a786855333e546b"
+    }
+  }
+}
