@@ -56,3 +56,5 @@ P9041.487329px는 저장 좌표와 공식 same-ID mask로 재현됐지만 GT 전
 기존 GT-only 검토에서 원사례0/1/2/4/7은 보이는 외곽 부근,5/6은 의자에 가려 확인 불가,3은 화면 밖 v0였다. 좌우·상하 필요조건도 정면 면 선택과 전체 ID의 정확성을 보장하지 않는다. plastic_night_01:037376의 높이 끝점 등 재검토 후보는 있지만 대체 좌표·주석 오차 분포·정량 오차 상한을 새로 측정하지 않았다. 모델 오차만 보고 GT를 고치거나 작은 GT 오차가 전체 큰 오차를 설명한다고 결론내리지 않는다. [GT 감사 결론](../../data/pallet/results/pallet_dht_gt_audit_v1/AUDIT_CONCLUSION.json), [GT-only 기하 검토](../../data/pallet/results/pallet_dht_gt_audit_v1/specialist_gt_review.md), [재검토 목록](../../data/pallet/results/pallet_dht_gt_audit_v1/GT_REVIEW_QUEUE.json).
 
 초기 가설은 무한선 점수와 soft DLT만으로 C4 의미 배치를 구별하지 못한 이전 결과에서 출발했다. v2는 전체 선분과 끝점 영상 근거를 추가해 이를 실제 학습으로 검증했다. 이번 한계를 근거로 성공 기준을 바꾸거나 전체 목표를 완료 처리하지 않는다.
+
+후속으로 증거 축(선분 내부/명시 DHT/같은-ID reference)을 분리해 재검증한 실험은 [pallet_point_line_v4](pallet_point_line_v4.md) — 합성 진입 기준 미달로 실사 미진입.

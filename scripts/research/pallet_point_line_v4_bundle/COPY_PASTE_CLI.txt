@@ -1,0 +1,9 @@
+첨부한 pallet_point_line_v4_bundle.zip을 사용해 CanelE452/pallet-6d-pose에서 실험을 진행해.
+
+먼저 ZIP의 README_KO.md, SOURCE_REVIEW.md, CLI_INSTRUCTIONS_KO.md를 읽어. 새 폴더에 압축을 풀고 verify_bundle.py와 tests를 먼저 실행해. 이미 제공된 pointline_v4 core는 다시 작성하지 말고 실제 저장소의 데이터/checkpoint/feature hook/canonical evaluator 연결만 추가해.
+
+기존 structured-v2도 끝점·유한 선분·후보별 정답오차 감독을 구현했다는 정정을 유지해. 이번에는 P/S/H/HA 네 군으로 영상 증거와 같은-ID baseline reference의 영향을 나눠 비교해. P/S를 완전한 no-Hough 모델이라고 부르지 마.
+
+지시문의 source/GT 계약 및 native 후보 가용성 gate를 먼저 확인하고, 통과 시 4군×3seed의 실제 캐시 학습과 고정 평가를 실행해. 합성·실사 DEV 기준을 모두 통과한 경우에만 정해진 전체 네트워크 공동학습 예산으로 넘어가. 단위 테스트 성공을 성능 성공으로 대체하지 마.
+
+기존 원본·GT·checkpoint·결과는 보존하고, FINAL·실사 학습·self-training·새 렌더·무한 재시도·Git push·외부 알림은 하지 마. 로컬 필드명/경로/치수는 파일을 읽어서 확인하고 추측하지 마. 막히면 정확한 차단 사유와 실제 수행한 단계까지 기록해. 정상 진행에 필요한 같은 확인 질문을 단계마다 반복하지 마.

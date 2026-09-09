@@ -35,6 +35,7 @@
 | pallet-dht-decoder-probe | 선 교점 후보를 최종 점 계산에 직접 사용하면 작은 결합부 학습으로 개선되는가 | 완료 · 추가 향상 미확인 | 14장×기존3seed진단+동일55,118parameter2모듈×1000updates/실사319평가. 선median6.661px vs점6.514px,진행기준불충족. 후보가중좌표·gate분해 및fixed1악화확인. HTML창/독립QA/Discord204완료 (2026-09-09) | [notes](notes/pallet_dht_decoder_probe.md) |
 | pallet-dht-coupling | 점·선 gradient 충돌, 손실 비중, PCGrad와 명시적 점–선 관계를 분리하면 개선되는가 | 완료 · 종합 향상 미확인 | 12/12 학습·실사319+negative2689 평가 완료, 기존9대조군·48비교. 경사 비중 변화는 확인했지만 안정적 향상 없음. 21모델 갤러리·독립 QA·브라우저 표시·Discord204 완료 (2026-09-09) | [notes](notes/pallet_dht_coupling.md) |
 | pallet-dht-joint | Self-training 없이 Deep Hough 특징과 점 예측을 한 모델로 학습하면 개선되는가 | 완료 | 전체 YOLO+HT/IHT, 동일 예산 3구조×3seeds×합성55,980장 2epochs 및 실사319+negative2689/모델 완료. 점 median6.865→6.689px이나 6지표 CI 모두0 포함·매칭 감소로 종합 우월성 미확인. Runtime strict parity7/702 실패 보존. HTML 창·Discord204 확인 (2026-09-08) | [notes](notes/pallet_dht_joint.md) |
+| pallet-point-line-v4 | 고정 backbone·고정 후보 bank 위에서 유한 선분 내부 읽기·명시 Deep Hough 단서·같은-ID reference 를 분리하면 개선되는가 | 완료 · 합성 진입 실패, 실사 미진입 | 4군(P/S/H/HA)×3seed synth_val512 주지표 전부 baseline(0.005755) 근방. 사전등록 기준 H seed1 에서 실패 → `NO_SYNTHETIC_ADVANCEMENT_SIGNAL`. 512장 중 1~5장의 8코너 인덱스 순열 뒤집힘이 전부를 결정, 세 가설 모두 미확인. 병목=랭킹(oracle 여유42.19%). 실사 DEV·단계 C 미실행 (2026-09-09) | [notes](notes/pallet_point_line_v4.md) |
 
 ---
 
