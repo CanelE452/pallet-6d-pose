@@ -1,0 +1,52 @@
+{
+  "FINAL_open_allowed": false,
+  "ancestor_verified": "4a6c0abfd185fef9d06d9db92a22cc0c63249b9f",
+  "assignment": "baseline-selected whole-object C1/C2, identical assignment for P and Q in targets AND reported metrics",
+  "batch": 64,
+  "branch": "main",
+  "calibration": "min primary subject to median/P90 nonworse and good damage<=.005; tie tolerance1e-12 higher tau; infeasible -> always P without extra grid",
+  "checkpoint_selection": "last step only",
+  "dropout": 0.1,
+  "frozen_checkpoint": "data/pallet/results/pallet_symmetry_dht_local_v2_wls_correction/heads/hough_seed1/checkpoint_final.pt",
+  "frozen_checkpoint_sha256": "50406286a135dc7ff5991af0940fb8f9cdd07048dc5fb6296cc4936dd46e54d5",
+  "frozen_hough_seed": 1,
+  "gradient_clip": 10.0,
+  "hidden": [
+    64,
+    64
+  ],
+  "loss": "SmoothL1 beta=1 on 1000*normalized gain",
+  "lr": 0.001,
+  "network_output_scale": 1000.0,
+  "optimizer": "AdamW",
+  "oracle_gate": "primary relative gain>=.01 AND median/P90 nonworse",
+  "real_DEV": "only after all 3 seeds pass; fixed weights/tau",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "source_sha256": {
+    "_docs/experiments/pallet_hough_gain_selector_v1/PURPOSE_AND_SCOPE.md": "c6e357b9bbd57559743c83577aea5aca331404e5b43ab9a18e19ec15c2cd774a",
+    "scripts/research/pallet_hough_gain_selector_v1/core.py": "b702e3e700f9d0f9300abdeaa160c283ea7b0608e4a414855b83ed7fe4eb3ffd",
+    "scripts/research/pallet_hough_gain_selector_v1/experiment.py": "d8dec4ab29473daf94436c72ee75f0fcdf9b5ecce6a78c494a73416fc9e80f3f"
+  },
+  "start_main": "4a6c0abfd185fef9d06d9db92a22cc0c63249b9f",
+  "start_origin_main": "4a6c0abfd185fef9d06d9db92a22cc0c63249b9f",
+  "start_worktree_clean_before_new_files": true,
+  "steps_per_seed": 2000,
+  "success": "all 3 seeds: primary>=1%, median/P90/coverage nonworse, damage<=.005, catastrophic0; all selected-Q mean gains>0 and seed mean realized gain>0",
+  "target": "frame gain / diagonal",
+  "tau_grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    1.0
+  ],
+  "tau_units": "raw px equivalent = predicted normalized gain * frame raw diagonal",
+  "test_Q_sha256": "56f08bec01e8fe9b165a058717eb29fbe48266442c46f1e29b13811893ed5274",
+  "upstream_seed_selection": "first numeric seed; no upstream seed comparison",
+  "weight_decay": 0.0001
+}
