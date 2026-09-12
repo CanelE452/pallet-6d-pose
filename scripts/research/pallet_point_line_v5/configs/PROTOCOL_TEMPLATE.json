@@ -1,0 +1,42 @@
+{
+  "schema": "plpose_v5_pilot_protocol_template_1",
+  "status": "TEMPLATE_NOT_A_COMPLETED_EXPERIMENT",
+  "scope": "dimension-and-symmetry consistent per-instance pose, synthetic-only training",
+  "primary_arm": "hough",
+  "arms": ["point", "direct", "hough"],
+  "seeds": [1, 2, 3],
+  "cache_head_steps": 2000,
+  "cache_head_batch": 4,
+  "optimizer": "AdamW",
+  "lr": 0.0001,
+  "precision": "FP32",
+  "checkpoint_selection": "fixed_last_step",
+  "stage0_generated_tests_are_scientific_evidence": false,
+  "real_evaluation_requires_new_explicit_stage_authorization": true,
+  "online_training_requires_new_explicit_stage_authorization": true,
+  "frozen_raw_data_and_GT_must_not_be_changed": true,
+  "all_calibration_choices_must_be_frozen_before_any_validation_scores": true,
+  "new_thresholds_status": "UNVALIDATED_ENGINEERING_PILOT_BUDGET_CRITERIA",
+  "proposed_pilot_screen": {
+    "primary_relative_gain_vs_matched_point_min_each_seed": 0.01,
+    "symmetric_conditional_median_nonworse_each_seed": true,
+    "symmetric_conditional_p90_nonworse_each_seed": true,
+    "pose_coverage_nonworse_each_seed": true,
+    "new_catastrophic_frames_mean10_to50_max_each_seed": 0,
+    "matched_baseline_output_reference_also_required": true,
+    "dense_DHT_latency_and_memory_must_be_reported": true,
+    "scientific_success_not_set_by_screen_automatically": true
+  },
+  "must_resolve_before_training": [
+    "object frame and per-image camera-facing to object-order mapping",
+    "deployable dimensions source and axes",
+    "actual asset-specific allowed symmetry, not shape-only inference",
+    "native feature sampling offset and independent raw-image alignment",
+    "all outputs and features from one forward and checkpoint",
+    "same detector and ROI/candidate population in all arms",
+    "GT-free inference initialization and selection",
+    "all failure/missing-detection denominator handling",
+    "shared module initialization and batch trace",
+    "current C4 population support or explicit C4_NOT_EVALUATED"
+  ]
+}
