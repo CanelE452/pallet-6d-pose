@@ -1,0 +1,21 @@
+{
+  "schema": "symdht_local_protocol_lock_v1",
+  "status": "FROZEN_BEFORE_PERFORMANCE",
+  "population": {"train": 1792, "calibration": 256, "synth_val": 512},
+  "arms": ["point", "direct", "hough"],
+  "seeds": [1, 2, 3],
+  "optimizer": "AdamW",
+  "steps_per_trainable_arm_seed": 2000,
+  "batch_size": 8,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "checkpoint_selection": "last-step only",
+  "features": {"P3_channels": 64, "P4_channels": 128, "concat_channels": 192, "roi_grid": 24},
+  "lattice": {"theta_bins": 36, "rho_bins": 65, "top_modes": 3},
+  "fusion": {"point_sigma_raw_diagonal_fraction": 0.005, "line_sigma_raw_diagonal_fraction": 0.005, "max_shift_raw_diagonal_fraction": 0.01, "center_index": 8},
+  "loss_weights": {"point": 1.0, "line": 0.1, "null": 0.05, "no_harm": 0.5, "anchor": 0.05},
+  "symmetry": "one explicit whole-object C1/C2 assignment shared by every loss term; no per-point matching or Hungarian",
+  "main_gate": {"relative_primary_improvement_each_hough_seed": 0.01, "median_nonworse": true, "p90_nonworse": true, "new_catastrophic_frames": 0, "good_point_damage_max_rate": 0.005},
+  "real_dev_rule": "forbidden unless every Hough seed passes every synthetic main-gate check",
+  "forbidden": ["threshold sweep", "sigma sweep", "max-shift sweep", "grid sweep", "loss-weight sweep", "extra seed", "extra epoch", "global pose solver", "point-head training", "backbone fine-tuning"]
+}
