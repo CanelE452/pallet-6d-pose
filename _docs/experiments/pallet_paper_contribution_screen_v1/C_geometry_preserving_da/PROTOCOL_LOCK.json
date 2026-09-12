@@ -1,0 +1,20 @@
+{
+  "status": "LOCKED_BEFORE_STUDENT_TRAINING",
+  "arms": ["C0", "C1", "C2"],
+  "seeds": [1, 2, 3],
+  "optimizer_updates_per_fit": 900,
+  "checkpoint": "last actual optimizer update; no EMA/best selection",
+  "microbatches_per_update": "24 synthetic in all arms; then 8 real in C1/C2",
+  "loss_scaling": "canonical batch-summed loss; synthetic and real gradients accumulated for exactly one SGD step; no implicit nbs accumulation",
+  "augmentation": "V3 canonical settings; independent domain datasets; deterministic per-image RNG; mosaic off for final 3 of 10 epochs",
+  "paired_order": "per-seed/per-epoch permutation; 90 updates per epoch; actual transformed image/target hashes recorded",
+  "real_source": "byte-identical existing V3A_TRUE_IGNORE 273 pseudo labels; no new filtering",
+  "synthetic_source": "existing 1440 R0 synthetic replay subset",
+  "C2": "actual module-object box/cls parameter allowlist, backbone/neck/pose frozen, frozen BN eval; real criterion detection-only and receives no keypoints",
+  "primary_detection_metric": "AP50-95",
+  "success": "3-seed mean C2 AP50-95>C0; recover >=70% C1 gain if positive; common-frame kp median/P90/gross20 nonworse; no catastrophic pose regression",
+  "catastrophic_pose_regression": "relative median translation or yaw degradation >10%, or pose coverage reduction >1 percentage point versus C0",
+  "evaluation_role": "DEVELOPMENT",
+  "retuning": false,
+  "note": "New paired bounded comparison, not exact reproduction of V3 mixed-domain batch BN statistics. All arms share the same synthetic microbatch and actual-update schedule. Frozen pose does not guarantee unchanged post-selection keypoints."
+}

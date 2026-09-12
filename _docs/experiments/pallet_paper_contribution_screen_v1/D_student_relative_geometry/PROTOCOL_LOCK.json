@@ -1,0 +1,35 @@
+{
+  "status": "LOCKED_BEFORE_GAIN_MEASUREMENT",
+  "teacher": "A frozen image_line_only seed1",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "split": "existing local teacher heldout only; SHA256 scenario modulo10 60/20/20; no target outcomes used",
+  "architecture": "Linear(input,64),ReLU,Dropout(0.1),Linear(64,1)",
+  "optimizer": "AdamW lr0.001 wd0.0001",
+  "steps": 1500,
+  "batch": 256,
+  "loss": "MSE of signed G/raw_diagonal; divide target by trust_train RMS only for numeric conditioning",
+  "normalization": "features trust_train mean/std only",
+  "thresholds_px": [
+    0.0,
+    0.1,
+    0.25,
+    0.5,
+    1.0
+  ],
+  "cal_selection": "maximum mean selected gain among coverage>=0.1,harm<0.25,cluster-bootstrap lower>0; no cal-valid threshold means abstain",
+  "test_gate": "all3 positive mean and >=2 full PASS, including >=0.25px mean",
+  "GT_free_features": "signed/abs disagreement, entropy/null, coverage, length, anchor uncertainty, baseline score, line variance, semantic role onehot",
+  "forbidden_feature_audit": [
+    "no GT",
+    "no gain",
+    "no frame/session/source identifiers",
+    "no symmetry choice"
+  ],
+  "bootstrap": "2000 scenario-cluster samples; fixed seed817",
+  "student_updates": 0,
+  "dht_control_sha256": "50406286a135dc7ff5991af0940fb8f9cdd07048dc5fb6296cc4936dd46e54d5"
+}
