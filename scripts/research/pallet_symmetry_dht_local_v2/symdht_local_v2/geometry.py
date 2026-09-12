@@ -102,10 +102,10 @@ def single_mode_wls(base_points: Tensor, point_valid: Tensor, point_sigma: Tenso
         normal, offset = lines[:, edge_index, :2], lines[:, edge_index, 2]
         weight = utility[:, edge_index] * inv_line_var
         outer = normal[..., :, None] * normal[..., None, :]
-        signed = (normal * base_points[:, a]).sum(-1) + offset
         contribution = weight[..., None, None] * outer
-        force = -(weight * signed)[..., None] * normal
         for corner in (a, b):
+            signed = (normal * base_points[:, corner]).sum(-1) + offset
+            force = -(weight * signed)[..., None] * normal
             matrix[:, corner] = matrix[:, corner] + contribution
             rhs[:, corner] = rhs[:, corner] + force
     delta8 = torch.linalg.solve(matrix, rhs.unsqueeze(-1)).squeeze(-1)
