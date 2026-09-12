@@ -1,0 +1,47 @@
+{
+  "schema": "plpose_v5_local_validation_1",
+  "status": "CPU_SOFTWARE_VALIDATED_NOT_PALLET_EXPERIMENT",
+  "environment": {"python":"3.13.5","torch":"2.10.0+cpu","numpy":"2.3.5","opencv":"4.13.0","cuda_available":false,"platform":"Linux-6.18.35-x86_64-with-glibc2.41"},
+  "pytest": {"tests":72,"failures":0,"errors":0,"skipped":0},
+  "compileall_pass": true,
+  "cli_help_executed": ["runner train","runner score","assessment evaluate","assessment compare"],
+  "final_generated_RGB_demo": {"arms":3,"optimizer_steps_per_arm":8,"total_optimizer_steps":24,"all_backbone_roi_head_groups_changed":true,"source_binding_matches_final_core":true},
+  "separate_pytest_cache_integration": {"arms":3,"optimizer_steps_per_arm":2,"total_optimizer_steps":6,"GT_files_physically_absent_during_all_three_scoring_calls":true,"shared_initial_tensors_verified":true,"same_minibatch_trace_verified":true,"checkpoint_load_and_offline_metrics_exercised":true},
+  "important_checks": [
+    "analytical projection Jacobian vs finite differences, all6 directions",
+    "unrolled final-pose observation derivative vs finite differences",
+    "pose loss ALONE reaches Hough parameters and input features",
+    "point-only, line-only, point+line local oracle recovery",
+    "line_weight0 point-control exact parity",
+    "single edge endpoints cannot cherry-pick different modes independently",
+    "one symmetry for all losses; C2/C4 invariance and rectangular-C4 rejection",
+    "independent coordinate ramp and bilinear support mask checks",
+    "angle/rho seam and separated line mode gradients",
+    "missing pose stays in evaluation denominator; duplicate source-image split check",
+    "observation extra-GT-key and changed-file rejection; loader counters are actual reads"
+  ],
+  "default_new_head_parameter_counts": {"point":24927,"direct":26879,"hough":32683},
+  "source_sha256": {
+    "__init__.py":"4991e13fb94c8221dc58d4ef5f23712ff013b2a45e5f38e4ea4eea10ddee852f",
+    "adapters.py":"3992e154b6724f0f0d36fead5951dda1932fe9888680c7a0c6ce803fbb5daec0",
+    "assessment.py":"716e80ef8060426d8a8faf03f000742763e8aacf2dd670046b93279370223597",
+    "contracts.py":"9f210ccfb1516a55cae7923a58db805e854fdc8d475e83aa1a55b57b3c55a3cb",
+    "demo.py":"a11d5ce70e06e266b8b6fbde54756d20e6db8c330bb57176ba97ad4d9ffe47ec",
+    "diagnostics.py":"d28926b6d15d749bda93474cb5a397b78af9c344072581370859e5fc184e106c",
+    "fixtures.py":"f85dd1d098c83b8eedea4457d1de760aabc195b3b7509dd9815102fe3830e448",
+    "geometry.py":"2fbf1827ae5a339a77b1e166f3951c091affe7a32c388ca28cbca0e9df3d1c51",
+    "hough.py":"4c3ed8b7ae0b8587c02292248e51bd224ea49c8ad8894c634c8599f63eab267c",
+    "io.py":"8cbcde24490ae503e79ab0a35a159ee85d1b76846a41e9eea610d89b55d212e4",
+    "model.py":"ef5bb8bf6e02ad182ca55bf82af1f4562a72a70320a46eca5f5f3a70dcdf3bf5",
+    "objective.py":"f820291c8b85c79a9f0a63b4e65c711e1d0a77825be48c7dc1ad5b6581f23cb8",
+    "runner.py":"1aca583463182c502989f26518a3a9069e24ee9c1853e675e91f5cbddec66403",
+    "solver.py":"8700274201f32b4d2f4b9be5ebce3727ed84afbc70f3f037b861554780802de9"
+  },
+  "not_executed": ["actual pallet training","actual YOLO checkpoint loading/integration","real DEV inference","GPU/Jetson benchmarking or export","independent final test","official metric parity"],
+  "limits": [
+    "Generated fixture RGB uses GT-derived diagnostic ROIs; not real inference evidence.",
+    "Point head is new, not a parity-preserving patch of YOLO point outputs.",
+    "Piecewise differentiable local solver, no global optimum or calibrated uncertainty guarantee.",
+    "Source image bytes/physical symmetry/coordinate convention require local evidence."
+  ]
+}
