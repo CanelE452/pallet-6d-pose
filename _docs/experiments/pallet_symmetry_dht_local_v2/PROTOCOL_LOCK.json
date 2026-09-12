@@ -1,0 +1,84 @@
+{
+  "C4_status": "C4_NOT_EVALUATED",
+  "arms": [
+    "point",
+    "direct",
+    "hough"
+  ],
+  "batch_size": 8,
+  "checkpoint_selection": "last-step only",
+  "forbidden": [
+    "threshold sweep",
+    "loss-weight sweep",
+    "architecture sweep",
+    "extra seed",
+    "extra epoch",
+    "lattice sweep",
+    "PCGrad",
+    "translation loss",
+    "new pose solver",
+    "candidate bank",
+    "beam search",
+    "full network fine-tuning",
+    "additional rendering",
+    "self-training",
+    "real-label training"
+  ],
+  "fusion": {
+    "alternative_policy": "utility-weighted MAP one mode per semantic edge",
+    "center_index": 8,
+    "line_sigma_raw_diagonal_fraction": 0.005,
+    "max_shift_raw_diagonal_fraction": 0.01,
+    "point_sigma_raw_diagonal_fraction": 0.005
+  },
+  "lattice": {
+    "rho_bandwidth_bins": 1.0,
+    "rho_bins": 65,
+    "target": "continuous geometry soft distribution",
+    "theta_bandwidth_bins": 1.0,
+    "theta_bins": 36
+  },
+  "learning_rate": 0.001,
+  "loss_weights": {
+    "line": 0.1,
+    "no_harm": 0.5,
+    "point": 1.0,
+    "utility": 0.05
+  },
+  "main_gate": {
+    "coverage_nonworse": true,
+    "good_point_damage_max_rate": 0.005,
+    "median_nonworse": true,
+    "new_catastrophic_frames": 0,
+    "p90_nonworse": true,
+    "relative_primary_improvement_each_hough_seed": 0.01
+  },
+  "optimizer": "AdamW",
+  "population": {
+    "calibration": 256,
+    "synth_val": 512,
+    "train": 1792
+  },
+  "purpose": "one final bounded test of exactly four equation-level failure mechanisms",
+  "real_dev_rule": "forbidden unless every Hough seed passes every synthetic main-gate check",
+  "removed": {
+    "anchor": "removed",
+    "null_as_utility_proxy": "replaced by direct utility supervision"
+  },
+  "schema": "symdht_local_protocol_lock_v2",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "source_commit": "b4220f17f12197cc9fb17c9c4d5adb89ac474107",
+  "status": "FROZEN_BEFORE_PERFORMANCE",
+  "steps_per_trainable_arm_seed": 2000,
+  "utility": {
+    "candidate_detached_for_label": true,
+    "definition": "predicted usefulness for correcting the current point; not physical visibility",
+    "inference_GT_free": true,
+    "synthetic_positive_gain_strictly_greater_px": 0.25
+  },
+  "weight_decay": 0.0001
+}
