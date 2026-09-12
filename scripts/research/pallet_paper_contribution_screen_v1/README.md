@@ -4,6 +4,16 @@ The authoritative protocol is the user master attachment SHA bound in
 MASTER_PROTOCOL_LOCK.json. Read the current result pointer and reports before
 attempting execution.
 
+## Posthoc score/box diagnostic
+
+`track_c/selection_diagnostic.py` isolates R0/C2 score and box effects at identical
+pre-postprocess grid indices, using all three frozen C2 seeds and no training.
+The separately authorized protocol and results are in
+`_docs/experiments/pallet_paper_contribution_screen_v1/C_score_box_selection_v1/`.
+Phases are `initialize`, `infer`, `evaluate`, `summarize`, `verify`; do not rerun inference
+after its completion receipt. This diagnostic does not replace the original C
+verdict, authorize adapter training or freeze a new paper method.
+
 ## Authorized completion
 
 The user authorized one additional900-update repair of the lost C2 seed1 fit
