@@ -1,5 +1,6 @@
 """Recompute paired raw-error endpoints and frozen C success rule."""
 import csv
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -30,6 +31,12 @@ def geometry(rows,keys):
         proj5=float((pooled<=5).mean()),proj10=float((pooled<=10).mean()),proj20=float((pooled<=20).mean()))
 
 def main():
+    global OUT
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--output-dir',type=Path,default=OUT)
+    args=parser.parse_args()
+    OUT=args.output_dir.resolve()
+    assert OUT.is_relative_to(DOC.resolve()),'Reports must stay inside this experiment'
     audits={};per=[];all_rows={};pose={};exposure={}
     for seed in [1,2,3]:
         for arm in ['C0','C1','C2']:
@@ -72,12 +79,24 @@ def main():
         **{k+'_nonworse':c2['paired_geometry'][k]<=c0['paired_geometry'][k] for k in ['median_px','p90_px','gross20']},
         pose_safe=all(c2['pose'][k]<=1.1*c0['pose'][k] for k in ['translation_median_cm','yaw_median_deg']) and c2['pose_coverage']>=c0['pose_coverage']-.01)
     passed=all(gates.values())
+    per_seed_gates=[]
+    for seed in [1,2,3]:
+        p={r['arm']:r for r in per if r['seed']==seed}
+        g=next(r['arms'] for r in paired if r['seed']==seed)
+        d1=p['C1']['ap50_95']-p['C0']['ap50_95']
+        d2=p['C2']['ap50_95']-p['C0']['ap50_95']
+        per_seed_gates.append(dict(seed=seed,C1_minus_C0_AP50_95=d1,C2_minus_C0_AP50_95=d2,
+            C2_minus_C1_AP50_95=p['C2']['ap50_95']-p['C1']['ap50_95'],
+            detection_improvement=d2>0,recovery_70pct=d1<=0 or d2>=.7*d1,
+            geometry_nonworse={k:g['C2'][k]<=g['C0'][k] for k in ['median_px','p90_px','gross20']},
+            pose_safe=all(p['C2']['pose'][k]<=1.1*p['C0']['pose'][k] for k in ['translation_median_cm','yaw_median_deg'])
+                and p['C2']['pose_coverage']>=p['C0']['pose_coverage']-.01))
     write(OUT/'PER_SEED.json',dict(per_seed=per,paired=paired,seed_means=means,
         metric_notes=dict(Det='top-score IoU>=0.5 matched rate; fixed inference conf0.001',ranking='unchanged historical paper ranking function, including historical stable tie ordering',geometry='supervised0..8 pooled raw errors on 3-arm common frames',pose='unchanged MAIN, not oracle')))
     write(OUT/'TRAINING_AUDIT.json',dict(status='PASS',audits=audits,total_optimizer_updates=8100,
         init_parity=True,actual_augmented_batch_hash_parity=True,real_labels='frozen273 pseudo only',last_only=True))
     write(OUT/'VERDICT.json',dict(status='PASS' if passed else 'FAIL',verdict='C_GEOMETRY_PRESERVING_DA_SIGNAL' if passed else 'C_GEOMETRY_PRESERVING_DA_FAIL',
-        gates=gates,C1_minus_C0_detection=conventional_gain,C2_minus_C0_detection=detection_gain,
+        gates=gates,per_seed_gates=per_seed_gates,C1_minus_C0_detection=conventional_gain,C2_minus_C0_detection=detection_gain,
         recovery_fraction=detection_gain/conventional_gain if conventional_gain>0 else None,evidence_level='DEVELOPMENT' if passed else 'NEGATIVE_DEVELOPMENT',
         adapter_implemented=False,independent_confirmation_status='NOT_RUN'))
     print(dict(gates=gates,passed=passed,means=means),flush=True)

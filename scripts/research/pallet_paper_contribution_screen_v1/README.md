@@ -1,7 +1,32 @@
 # Paper-contribution screen v1
 
-The authoritative protocol is the user master attachment SHA bound in the new
-MASTER_PROTOCOL_LOCK.json. Read the final reports before attempting execution.
+The authoritative protocol is the user master attachment SHA bound in
+MASTER_PROTOCOL_LOCK.json. Read the current result pointer and reports before
+attempting execution.
+
+## Authorized completion
+
+The user authorized one additional900-update repair of the lost C2 seed1 fit
+and the remaining six scheduled fits. The current result pointer is
+`_docs/experiments/pallet_paper_contribution_screen_v1/CURRENT_RESULT.json`;
+completed evidence goes under `C_geometry_preserving_da/RESUME_COMPLETE/`.
+The valid comparison is9x900 updates; cumulative C cost includes the lost900
+updates, for9000 total. This does not authorize further refits or tuning.
+
+Completion entry points (same environment; no additional training):
+
+```text
+track_c/aggregate.py --output-dir _docs/experiments/pallet_paper_contribution_screen_v1/C_geometry_preserving_da/RESUME_COMPLETE
+track_c/verify_saved.py
+track_c/complete_report.py
+```
+
+The aggregator verifies actual augmented-input parity; the independent audit
+checks saved C2 frozen tensors and raw pose output against R0, and recomputes
+all9 canonical CSV median/P90 scores. The report applies the frozen gate and
+retains the original partial records below as historical evidence.
+
+## Historical initial partial run
 
 This run is **partial**: A candidate frozen; C wiring PASS but only C0/C1 seed1
 checkpoints/evaluations retained; C2 seed1 consumed900 updates before an audit
@@ -30,5 +55,6 @@ GPU requires the already available process-only library setting
 `LD_LIBRARY_PATH=/tmp/nvidia-580.173.02-userspace`; no reboot/driver changes.
 Other projects' GPU processes must not be killed, modified or waited on.
 
-`EXECUTION_BLOCKER.json` is deliberately a driver stop guard. Removing it is not
-an authorized workaround: C2 seed1 already consumed its900-update budget.
+`EXECUTION_BLOCKER.json` is retained as the historical driver stop guard.
+The driver now requires the explicit `RESUME_AUTHORIZATION.json` receipt to
+continue past it; deleting the blocker is not an authorized workaround.

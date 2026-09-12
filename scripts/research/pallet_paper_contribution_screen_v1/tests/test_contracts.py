@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 import numpy as np
 import torch
+import pytest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from common.contracts import R0,R0_SHA,sha,tensor_sha
 from track_c.wiring import load_model,detection_parameters,freeze_detection_only
@@ -9,6 +10,7 @@ from track_c.train import batches,HYP,DATA,frozen_buffers
 from track_d.mechanism import split_for,selected_stats,SIDE_EDGES
 from track_b.jacobian import delta
 from track_e.alignment import summarize
+from track_c.verify_saved import detection_state_keys
 
 def test_checkpoint_sha():assert sha(R0)==R0_SHA
 
@@ -48,6 +50,37 @@ def test_frozen_buffer_names_are_actual_state_keys():
     assert 'model.0.bn.num_batches_tracked' in buffers
     assert all(k in m.state_dict() for k in buffers)
     assert all(torch.equal(v,m.state_dict()[k]) for k,v in buffers.items())
+
+def test_independent_detection_state_ownership():
+    m=load_model();mutable=detection_state_keys(m)
+    assert mutable<=set(m.state_dict())
+    assert 'model.0.bn.running_mean' not in mutable
+    assert 'model.23.cv2.0.0.bn.running_mean' in mutable
+    assert not any('.cv4.' in key or '.one2one_cv4.' in key for key in mutable)
+
+def test_retained_unverified_checkpoint_prevents_refit(tmp_path,monkeypatch):
+    import track_c.train as training
+    monkeypatch.setattr(training,'RAW',tmp_path)
+    folder=tmp_path/'C_geometry_preserving_da/C2_seed1'
+    folder.mkdir(parents=True)
+    (folder/'last_unverified.pt').write_bytes(b'persisted before audit')
+    def forbidden_load():raise RuntimeError('Must not initialize another fit')
+    monkeypatch.setattr(training,'load_model',forbidden_load)
+    with pytest.raises(AssertionError,match='never repeat its fit'):
+        training.train('C2',1)
+
+def test_pose_probe_does_not_change_detection_training_output():
+    import copy
+    a=load_model();b=copy.deepcopy(a)
+    freeze_detection_only(a);freeze_detection_only(b)
+    torch.manual_seed(13)
+    with torch.no_grad():
+        b(torch.rand(2,3,64,64))
+        x=torch.rand(2,3,64,64);left=a(x);right=b(x)
+    # Non-frozen detection BN updates running statistics during the C2 probe,
+    # but training uses current batch statistics. Frozen feature/pose BN is eval.
+    assert all(torch.equal(left[branch][key],right[branch][key])
+               for branch in left for key in ['boxes','scores','kpts'])
 
 def test_group_split_deterministic():
     assert split_for('scenario1')==split_for('scenario1')

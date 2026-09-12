@@ -124,6 +124,7 @@ def train(arm,seed):
     if (out/'TRAINING_AUDIT.json').exists():return
     out.mkdir(parents=True,exist_ok=True)
     assert not (out/'last.pt').exists(),'Never overwrite a checkpoint'
+    assert not (out/'last_unverified.pt').exists(),'Audit the retained final checkpoint; never repeat its fit'
     m=load_model().cuda();m.args=get_cfg(overrides=HYP)
     initial=tensor_sha(m.state_dict())
     if arm=='C2':freeze_detection_only(m)
@@ -177,13 +178,13 @@ def train(arm,seed):
     pending=out/'last_unverified.pt'
     assert not pending.exists()
     torch.save(dict(model=saved,ema=None,train_args=HYP,epoch=9,optimizer=None),pending)
+    write(out/'EXPOSURE.json',exposure)
     state=m.state_dict()
     assert all(torch.equal(v,state[n].cpu()) for n,v in frozen.items())
     assert all(torch.equal(v,state[n].cpu()) for n,v in bn.items())
     if arm=='C2':
         with torch.no_grad():assert all(torch.equal(raw_before[k],v['kpts']) for k,v in m(probe).items())
     pending.rename(out/'last.pt')
-    write(out/'EXPOSURE.json',exposure)
     write(out/'TRAINING_AUDIT.json',dict(status='PASS',arm=arm,seed=seed,optimizer_updates=updates,
         synthetic_exposure=21600,real_exposure=0 if arm=='C0' else 7200,
         init_state_sha256=initial,checkpoint_sha256=sha(out/'last.pt'),
