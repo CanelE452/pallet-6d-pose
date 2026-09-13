@@ -1,0 +1,16 @@
+{
+  "formula": "max(midrank(spread_x),midrank(spread_z),midrank(spread_yaw),candidate_switch,axis_switch,pnp_failure,detection_failure)",
+  "midrank": "(count(value<v)+0.5*count(value==v))/N on finite values; missing assigned1",
+  "spread": "90th percentile absolute deviations from coordinatewise median, NumPy linear quantile",
+  "insufficient": "Fewer than2 valid poses -> all spreads missing; invalid P0 -> yaw spread missing",
+  "yaw": "P0 yaw unwrap anchor, wrap[-pi,pi), median unwrapped center, absolute circular deviations",
+  "candidate_switch": "Among pose-valid views including P0; compare recovered dense grid index to P0; absent P0 detection ->1",
+  "axis_switch": "Among pose-valid views including P0; absent P0 pose ->1",
+  "pnp_failure": "Number without valid pose /8, includes detection failures",
+  "detection_failure": "Number without above-floor candidate /8",
+  "scalar_units": "Only empirical ranks and rates; never add meters to degrees",
+  "range": [
+    0,
+    1
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "status": "FROZEN_BEFORE_POOL_GT_ERROR_READ",
+  "timestamp": "2026-09-13T08:53:32.817741+00:00",
+  "start_sha": "d653dce26c43db3fd60c387ed1936bea5751aa24",
+  "branch": "main",
+  "old_verdict": "RETROSPECTIVE_AL_NO_SIGNAL",
+  "old_primary_unchanged": true,
+  "source_binding_sha256": "d4f68460eb5f3b15c1b582952258814f7a7d5e52cfa3522330340bf80b203583",
+  "code_bindings": {
+    "scripts/research/pallet_task_risk_active_v1/perturb.py": "53a1e9af5ddafd46724e4852474a4b71b47d31b9df68737106d0fa9bf1d53d33",
+    "scripts/research/pallet_task_risk_active_v1/extract.py": "71fbeb9b16be71cfb3cb0bc833299f9d6b7064ae5186db5cf752f11e5739f36e",
+    "scripts/research/pallet_task_risk_active_v1/test_contracts.py": "26483072a98c4b46ba12a3a6f25377c455742a8a58a6b793a637800b39e4f71e",
+    "scripts/research/pallet_task_risk_active_v1/stats.py": "9e342c3071accd56998a71065dc0d17a57f196e22a9189afc064f29a7c8156a0",
+    "scripts/research/pallet_task_risk_active_v1/mechanism.py": "0ac8f02fc925fbba4a291a109f2a7b212822796198be8a47a8ba3c2ea0315ee3",
+    "scripts/research/pallet_task_risk_active_v1/contracts.py": "002bde31f7d3491209ebb915b28f4e7465fa2219a95e09474eb7a58671d513d4",
+    "scripts/research/pallet_task_risk_active_v1/risk.py": "1191f2307ac83c4de656ce882738035bfd0f59849ac474313b57de774532c203",
+    "scripts/research/pallet_task_risk_active_v1/pose_adapter.py": "c9414b5921712b95f210d4f046fdc3b98fb6c5adb5bffc39aa16a15f7877e0ff",
+    "scripts/research/pallet_task_risk_active_v1/acquisition.py": "aa2a4c1cf512e78df79447bf25579ac4e368f90852c83c15cc536e3f7e2588d3"
+  },
+  "definition_bindings": {
+    "PERTURBATION_LOCK.json": "79f8f2dfc42995c233b0c4c609812c7f5124e2903798f09a72527f345f3d80d6",
+    "TASK_RISK_DEFINITION.json": "ddd30fe3b068be08e8c10fa50ba0c3f02c98c062ff5f4345095f7e2f2633398f",
+    "METRIC_LOCK.json": "0ae7d745b7bc64e714da35dd5d7e3ecb2a8decb92c6cbec89d58b30a76f3d15f",
+    "TASK_SPACE_INPUT_CONTRACT.json": "8c6e0b9b8df1c49098d7db61dad482de20d789e40a7b7746ff95aa644147edfc"
+  },
+  "pipeline": "Lock -> old-selection poolGT audit -> isolated GT-free1392 inference -> freeze risk -> poolGT predictive diagnostic -> conditional selection/training -> reserved145 scoring",
+  "GT_scope": "Phase1 may access pool174 labels AFTER this lock. Extraction is a separate process with GT read denial. Reserved145 labels and mixed319 GT-value containers stay unopened for value parsing until Phase6.",
+  "task_GT": "Rebuild pool-only geometry-resolved GT using unchanged canonical cuboid/solve/min-residual rule from pool label keypoint_annotations; do not parse mixed319 GT container.",
+  "stage0_gates": {
+    "G0_original_pose_min": 0.9,
+    "G0_at_least6of8_min": 0.9,
+    "G1_operational_AUROC_min": 0.65,
+    "G2_AUROC_gain_min": 0.05,
+    "G3_positive_spearman_sessions_min": 6,
+    "within_session_min_valid_frames": 8,
+    "G4_other_operational_AUROC_loss_max": 0.03,
+    "same_operational_target_for_G1_G2_G3": true
+  },
+  "diagnostic": {
+    "hard": "error>=pool80th percentile, ties all hard; missing error ranks worst",
+    "score_top30_ties": "deterministic original frozen pool order; exactly30",
+    "bootstrap_draws": 10000,
+    "seed": 20260913,
+    "bootstrap_hard_labels": "Original frozen pool hard20 labels retained when resampling pairs",
+    "bootstrap_single_class": "Undefined AUROC draws excluded and their count reported",
+    "within_session": "Finite-error entries, >=8, nonconstant score and error; report undefined explicitly"
+  },
+  "acquisition": {
+    "budget": 30,
+    "weight": "1+R_task, NOT reranked",
+    "distance": "existing squared-distance k-center",
+    "initial": "same centroid nearest",
+    "temporal_gap_ns": 2000000000,
+    "selection_seed": 20260913
+  },
+  "training": {
+    "proposed_seeds": [
+      1,
+      2,
+      3
+    ],
+    "full174_seeds": [
+      1
+    ],
+    "max_fits": 4,
+    "max_updates": 1200,
+    "initialization": "same existing R0 exact SHA",
+    "updates_per_fit": 300,
+    "synthetic_batch": 24,
+    "real_batch": 8,
+    "synthetic_slots": 7200,
+    "real_slots": 2400,
+    "training_hyp": {
+      "task": "pose",
+      "imgsz": 640,
+      "batch": 32,
+      "epochs": 10,
+      "optimizer": "SGD",
+      "lr0": 0.002,
+      "lrf": 0.01,
+      "momentum": 0.937,
+      "weight_decay": 0.0005,
+      "warmup_epochs": 1.0,
+      "box": 7.5,
+      "cls": 0.5,
+      "dfl": 1.5,
+      "pose": 12.0,
+      "kobj": 1.0,
+      "hsv_h": 0.015,
+      "hsv_s": 0.5,
+      "hsv_v": 0.35,
+      "degrees": 0.0,
+      "translate": 0.1,
+      "scale": 0.25,
+      "shear": 0.0,
+      "perspective": 0.0,
+      "flipud": 0.0,
+      "fliplr": 0.0,
+      "mosaic": 0.15,
+      "close_mosaic": 3,
+      "mixup": 0.0,
+      "copy_paste": 0.0,
+      "erasing": 0.4,
+      "deterministic": true
+    },
+    "implementation": "Exact old simulation.py train/loader/optimizer behavior in isolated new output roots; no BN-freeze change",
+    "same_seed_synthetic_tensor_parity_required": true,
+    "last_step_only": true,
+    "controls_retrained": false
+  },
+  "inference_budget": {
+    "pool_images": 174,
+    "views": 8,
+    "new_real_image_forwards": 1392,
+    "optimizer_updates": 0,
+    "framework_dummy_warmup": "Record separately; no extra real-image warmup",
+    "P0_cached_stock_parity": {
+      "coordinate_atol_px": 0.0001,
+      "score_atol": 1e-06,
+      "candidate_index_exact": true
+    }
+  },
+  "no_tuning": true,
+  "no_independent_confirmation": true,
+  "no_novelty_claim": true
+}

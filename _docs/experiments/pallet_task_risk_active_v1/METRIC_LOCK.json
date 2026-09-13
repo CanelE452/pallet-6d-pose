@@ -1,0 +1,29 @@
+{
+  "primary": "translation_CVaR90_cm",
+  "definition": "Mean of worst ceil(0.10*N) per-frame errors. N145 ->15. Fixed full145 denominator; primary valid only when all compared arms pose coverage=1.",
+  "secondary": [
+    "yaw_CVaR90_deg",
+    "kp_frame_mean_CVaR90_px",
+    "common_pooled_kp_P90",
+    "common_pooled_kp_median",
+    "gross20",
+    "AP50_95",
+    "Det",
+    "AUROC",
+    "FPR95",
+    "translation_median",
+    "yaw_median",
+    "IoU3D",
+    "ADDsym_AUC",
+    "pose_coverage"
+  ],
+  "missing_pose": "Do not redefine primary on common-valid. Proposed coverage loss -> safety FAIL.",
+  "student_gate": {
+    "A": "proposed translation CVaR90 seed mean < diversity AND better in>=2/3 paired seeds",
+    "B": "same versus old geometry_weighted_diversity",
+    "C": "yaw CVaR90 mean <= max(diversity,old_geometry)",
+    "D": "pooled common kp P90 mean <= BOTH random and diversity",
+    "E": "Det loss versus best(random,diversity,old_geometry)<=1/145; pose coverage1",
+    "F": "No primary swapping; AP/median gains do not override primary fail"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "views": [
+    "original",
+    "intensity0.80",
+    "intensity1.20",
+    "channel_mean_contrast0.80",
+    "channel_mean_contrast1.20",
+    "gamma0.80",
+    "gamma1.20",
+    "gaussian_sigma1.0"
+  ],
+  "color_order": "BGR as cv2/current inference; channelwise operations are RGB-order equivariant",
+  "arithmetic": "float32, clip[0,255], uint8 truncation; P0 exact copy",
+  "gamma": "255*(image/255)**gamma",
+  "contrast": "(image - per-image per-channel mean)*factor + mean",
+  "blur": "cv2.GaussianBlur kernel(0,0), sigmaX=1, sigmaY=1, BORDER_REFLECT_101",
+  "geometry": "No resize/crop/rotation/translation; perturb before unchanged reflect padding",
+  "random": false
+}
