@@ -1,0 +1,13 @@
+# Catastrophic frame decomposition
+
+Frame: `eval_pallet09:1778653804674198784`. No model was trained or changed in this audit. Cached predictions and the frozen deterministic two-dimension PnP evaluator were used.
+
+The proposed seeds have mean nine-point reference errors of 286.368, 286.023 and 285.770 px. Selected DEPTH-hypothesis translation errors are 2782.177, 2665.798 and 2661.426 cm. Forcing the other WIDTH hypothesis yields 3150.716, 2991.001 and 3040.038 cm: switching the axis alone does not rescue the result. Controls have much smaller 2D errors (roughly 9–37 px). Thus a very large 2D prediction error already exists upstream; known-size PnP amplifies it. This is not evidence that axis selection alone caused the catastrophe.
+
+`CAT_FRAME_DECOMPOSITION.json` preserves all nine points, boxes/scores, cached candidate-list selected indices, available manual/reference errors, original selector diagnostics, both frozen PnP hypotheses and proposed/control point-versus-axis counterfactuals. A historical dense YOLO grid index was not saved and is explicitly unavailable; it was not reconstructed or guessed.
+
+This frame supplies 63.29%, 62.21%, 64.63% of proposed seeds' worst-15 translation-error sums. Deleting it gives diagnostic CVaR90 values of 111.420, 111.902, 100.184 cm, versus original 293.077, 285.672, 274.510 cm. These leave-one-out numbers are **not** a replacement primary evaluation or a success verdict.
+
+The frame had preexisting QA/provenance flags, but so did the full reserved population. Existing flags do not prove incorrect geometry or explain why only the proposed method made a huge 2D error.
+
+Further coordinate/instance audit (`CAT_PADDING_INSTANCE_AUDIT.json`): the original image is 640×480. All three proposed top-score boxes begin around x=698–700 and end at x=740, entirely to the right of the original image. All nine proposed points also lie right of x=640; several are clipped exactly at 640+100. With the unchanged 100px reflected-border inference recipe, this identifies selection of a padding-region detection as the upstream failure. Other cached candidates overlap the original-image pallet region but have lower predicted scores; no candidate was substituted in evaluation. The original artifact mislabeled a generic index involution as C2 yaw; the actual repository C2_YAW counterfactual is separately corrected in `CANONICAL_C2_DIAGNOSTIC_CORRECTION.json`, with mean errors286.436/286.115/285.838px. Thus the failure is not merely a corner-index permutation or a choice between the two PnP dimensions. No padding filter, selector fix, model change or new performance score is introduced.

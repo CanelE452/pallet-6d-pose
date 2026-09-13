@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-09-13T09:53:10.632729+00:00",
+  "start_sha": "a9640cbf9a1ca2a7aab323258577a49b15bbf3d0",
+  "branch": "main",
+  "old_task_verdict": "TASK_RISK_AL_NO_SIGNAL",
+  "old_line_overall_accuracy_improved": false,
+  "order": "A no-training robustness -> B preflight/design locks/tests -> P1/P2/P3 training -> synthetic selection freeze -> DEV319 -> statistics/runtime/audit",
+  "A_QA_rule": "Flag iff preexisting migration_status MANUAL_REVIEW_REQUIRED or nonempty manual_review_reasons or archived explicit review list. QA_CLEAN requires explicit existing clean/verified metadata; otherwise QA_UNKNOWN. No outcome-dependent classification.",
+  "A_S1": "Fixed QA_CLEAN membership only; empty clean population -> NOT_ESTIMABLE, never remove just the catastrophic frame as new primary.",
+  "A_empty_QA_verdict": "TASK_RISK_RESULT_QA_SENSITIVE_REQUIRES_CAUTION; original failure unchanged; no claim QA explains method-specific catastrophe",
+  "A_robustness_rule": "On nonempty clean set, proposed translation CVaR seed mean worse than both mandatory controls -> ROBUST; neither strictly better than both -> SENSITIVE_BUT_NO_POSITIVE_SIGNAL; otherwise QA_SENSITIVE_REQUIRES_CAUTION. Diagnostic only.",
+  "B_primary": "seed-mean same-seed L-P pooled9kp median on fixed DEV319; paired13-session bootstrap95% high<0",
+  "B_safety": "P90 and gross20 L<=P; equal pose coverage; >=3/4 downstream mean directions L better, and no downstream session CI excludes0 toward L harm",
+  "bootstrap": {
+    "draws": 10000,
+    "seed": 20260913,
+    "frame_and_session": true,
+    "seed_mean_within_each_paired_draw": true
+  },
+  "mechanism": {
+    "easy_R0_error_px_max": 5,
+    "mid_max": 10,
+    "hard_min_exclusive": 10,
+    "GT_assisted_diagnostic_only": true
+  },
+  "B_fits": 3,
+  "student_seeds": [
+    1,
+    2,
+    3
+  ],
+  "L_retraining": 0,
+  "R0_retraining": 0,
+  "real_training": 0,
+  "B_budget": "Exact existing TRAIN_PROTOCOL; no result-based changes; source/parameter/evidence/order locks before first update",
+  "forbidden": [
+    "task-risk retraining",
+    "new risk scores",
+    "line/DHT/Hough rescue",
+    "real-based hyperparameter selection",
+    "paper/final edits",
+    "additional seeds"
+  ],
+  "final_architecture_rule": "LINE_BIAS if all gates. Otherwise GENERIC_POINT_REFINER_DOMINATES if session primary low>0 and reverse P90/gross/coverage/downstream safety; else LOCAL_REFINEMENT_ONLY if both L/P seed-mean median<R0 with >=2/3 seed improvements each; otherwise NO_REFINEMENT_SIGNAL. No independent or novelty claim."
+}

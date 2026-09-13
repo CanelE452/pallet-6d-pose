@@ -1,0 +1,211 @@
+{
+  "status": "PASS",
+  "train_protocol": {
+    "schema": "pallet_line_pose_training_protocol_v1",
+    "complete": true,
+    "frozen_at_utc": "2026-09-07T16:13:04.748881+00:00",
+    "objective": "Implement and actually train a pallet-specific image-conditioned point-line architecture and compare against the frozen paper YOLO26n under the full paper contract; superiority is unproven.",
+    "baseline": {
+      "checkpoint": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "frozen_parameters": true,
+      "frozen_batchnorm": true
+    },
+    "model_config": {
+      "c3": 64,
+      "c4": 128,
+      "hidden": 16,
+      "along_samples": 32
+    },
+    "architecture": {
+      "type": "shared YOLO neck features + predicted-instance-conditioned line candidate distribution + differentiable anchored corner solve",
+      "side_edges": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          7
+        ]
+      ],
+      "angle_degrees": [
+        -12,
+        12,
+        13
+      ],
+      "offset_bbox_diagonal_fraction": [
+        -0.08,
+        0.08,
+        17
+      ],
+      "null_class": true,
+      "anchor_std_bbox_diagonal_fraction": 0.025,
+      "variance_floor_input_px2": 1.0,
+      "feature_precision": "FP16 round-trip in cache and actual inference, head/geometry FP32; AMP off",
+      "input": "paper rectTrue/autoTrue/stride32/imgsz640; already-reflected training images are not padded again; P3/P4 right-bottom zero padded to80/40 with true input rectangle retained",
+      "detector_selection": "top1 by confidence; GT only selects matched loss target after prediction, IoU>=.5; box/confidence/candidate order/centroid unchanged"
+    },
+    "arms": {
+      "image_joint": {
+        "geometry_only": false,
+        "corner_weight": 1.0
+      },
+      "geometry_joint": {
+        "geometry_only": true,
+        "corner_weight": 1.0
+      },
+      "image_line_only": {
+        "geometry_only": false,
+        "corner_weight": 0.0
+      }
+    },
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "steps": 6000,
+    "batch": 16,
+    "checkpoint_every": 500,
+    "log_every": 50,
+    "training_lambda": 1.0,
+    "optimizer": {
+      "name": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "warmup_steps": 100,
+      "cosine_final_lr_fraction": 0.1,
+      "gradient_clip_norm": 5.0
+    },
+    "loss": "Per-frame supported-line soft CE + corner_weight*per-frame SmoothL1((refined-GT)/anchor_std,beta=1); center8 excluded from refinement loss.",
+    "sampling": "Same seed-specific shuffled train-row sequence for all arms, without replacement until exhaustion; only frames with matched GT and >=1 valid corner enter loss batches. All source train records and missing/unmatched counts remain in cache/audit. No real GT or synthetic val enters optimizer.",
+    "partitions": {
+      "train": 55980,
+      "calibration": 1004,
+      "selection": 1031,
+      "heldout": 1985,
+      "scenario_disjoint": true,
+      "source_manifest": "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json"
+    },
+    "calibration": {
+      "population": "synthetic calibration",
+      "temperature_grid": [
+        0.5,
+        1.0,
+        2.0,
+        4.0
+      ],
+      "objective": "mean per-frame supported-line CE, individually per arm/seed",
+      "tie": "nearest abs(log(T)) then smaller T",
+      "references": [
+        "https://proceedings.mlr.press/v70/guo17a.html"
+      ]
+    },
+    "selection": {
+      "population": "synth_val",
+      "partition": "selection",
+      "lambda_grid": [
+        0.0,
+        0.0625,
+        0.25,
+        1.0,
+        4.0
+      ],
+      "max_move_image_diagonal_fractions": [
+        null,
+        0.01
+      ],
+      "objective": "mean frame capped original-diagonal-normalized8corner error, then average3seeds; unmatched GT/missing predictions fail with1",
+      "tie": "smaller lambda then stricter cap",
+      "checkpoint": "fixed final6000 only, not best-real/best-val"
+    },
+    "evaluation": {
+      "positive_frames": 319,
+      "negative_frames": 2689,
+      "role": "reused DEV, held_out_final=false",
+      "paper_source": "_docs/paper/final/PAPER_CANONICAL_NUMBER_SOURCES.json",
+      "primary_2d": [
+        "keypoint_location_median_px",
+        "keypoint_location_p90_px"
+      ],
+      "primary_6d": [
+        "rotation_median_deg",
+        "translation_median_cm",
+        "iou3d_median",
+        "add_sym_auc"
+      ],
+      "preservation": [
+        "box_AP50_95",
+        "box_AP50",
+        "negative_boxes_scores"
+      ],
+      "statistics": "paired session bootstrap with same frames; report all3 training seeds and session-level intervals, not independent corners",
+      "timing": "actual complete image-to-prediction baseline vs integrated model; report overhead separately"
+    },
+    "decision": {
+      "keypoint_gain": "Both pooled9keypoint median and P90 improve in the three-seed mean; session-paired CI must support improvement for a confirmed claim.",
+      "pose_gain": "Report all four canonical6D metrics. An improvement in2D alone cannot establish pose superiority; any6D tradeoff is explicit.",
+      "overall_accuracy_claim": "Requires confirmed keypoint and6D gains with preserved detection/negative metrics; no claim of faster inference unless actually measured.",
+      "stopping": "Fixed one protocol; no real-result-driven candidate/temperature/lambda changes. Numerical bugs repaired with history preserved; repeated hypothesis failure triggers reassessment rather than endless parameter tuning."
+    },
+    "limitations": [
+      "R0 itself was trained on G38 plus legacy P0/TEX; this is not internet-only unseen-pallet evidence.",
+      "The synthetic partitions come from the existing R0 validation; some previous probes overlap. See SOURCE_DATA_AUDIT.json.",
+      "New branch training is extra compute beyond the frozen60epoch R0; geometry-only and line-only controls have matched extra budget.",
+      "Amodal structural lines are not physical edge visibility or attention.",
+      "CUDA grid_sample backward may not be bit deterministic; paired seeds are recorded."
+    ],
+    "source_sha256": {
+      "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+      "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_line_pose_v1/SOURCE_DATA_AUDIT.json": "575ef24ed11a2a280a227c23d4e396c51cb6375baf75fb0d49a1496c77114a3f",
+      "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_line_pose_v1/BASELINE_PROTOCOL.json": "f300e97f6cc372669b50e22931b7d0c36bf7d84cd54e7983f822227c4c33bfb0",
+      "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_line_pose_v1/model.py": "1db2d2e200d2d6cb3b80c4386a32292872a7de485202b3af5195bfd0a4c8fb7d",
+      "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_line_pose_v1/features.py": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab",
+      "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_line_pose_v1/source_data.py": "dec46a82d9db025736c1b390ff144f036a006ca7c0f0c5da21e3c7c803edee41",
+      "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_line_pose_v1/paper_evaluation.py": "445f4206aea8ff00bcad3694df7fdc553875ed94be5858d729ae79e4ace61c27"
+    }
+  },
+  "actual_train_records": 55980,
+  "matched_usable_train_records": 55915,
+  "partitions": {
+    "train": 55980,
+    "calibration": 1004,
+    "selection": 1031,
+    "heldout": 1985
+  },
+  "cache_read_only": true,
+  "augmentation": "None added: reuse exact existing cached spatial features and canonical target coordinates",
+  "symmetry": "Source/cache canonical index assignment is fixed; existing L cache/train has NO C2 min-over-permutation reassignment. P reuses those exact targets. C1/C2 diagram permutations are checked as semantic coordinate transforms, not a new training loss.",
+  "coordinates": "Same label-affine letterboxed input pixels internally; original-image displacement=delta/gain; exact baseline coordinate preservation through restore_refinement",
+  "valid": "Same matched train rows and per-point cached gt_valid/predicted finite sentinel mask. P has no edge endpoint/length mask since it has no edge target; per-frame supported-item reduction reused.",
+  "real_DEV_selection": false
+}

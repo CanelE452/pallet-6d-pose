@@ -1,0 +1,15 @@
+# Frozen controlled comparison
+
+R0 is the unchanged paper YOLO26n. L is the already completed `image_line_only` seeds 1/2/3, not the original line experiment's primary `image_joint` arm. The old primary failure remains unchanged. P is one generic point-local candidate classifier; no line/edge topology, WLS, neighboring point geometry, teacher, real supervision, or auxiliary objective enters its forward/loss path.
+
+Both heads read cached frozen P3/P4 evidence with the same 16-channel adapters, 8 roles, 221 non-null candidates plus one null, and 32 spatial samples per candidate per scale. P has 18,962 trainable parameters versus L's 19,810 (-4.28%). P uses a shared 4x8 2D patch encoder rather than L's along-segment 1D encoder. Matching parameters and spatial reads does **not** establish equal FLOPs or runtime.
+
+P's 13-direction, 17-radius bank has maximum radius 0.08 predicted-box diagonal, copied conservatively from L's offset envelope. This does not capture L's additional angle-induced/fusion movement envelope. Gaussian target sigma is one radial spacing. The square stencil diameter is 0.1310373991727829 box diagonals: the median old L predicted train-segment span, fixed without GT/error or real images. It is not tuned after coverage or outcome inspection.
+
+L supervises line-grid geometry (bilinear targets, out-of-grid null); P supervises point displacement (Gaussian targets, explicit zero null). Both use supported-item means per frame, then supported-frame means. They share exactly the 55,915 usable matched train rows, cached canonical point coordinates and validity. L's *edge* GT support and length masks cannot be passed as point-index masks: P uses point validity, not a mislabeled edge mask. This objective-specific support difference is a limitation, not claimed identical edge supervision.
+
+The existing L source does not perform C2 minimum-over-permutations training assignment. P therefore reuses its fixed canonical assignment without adding a symmetry objective. C1/C2 tests check joint coordinate/target reindexing and permutation round trips, not architectural rotation equivariance. The odd polar bank and learned point role embedding are not claimed C2-equivariant.
+
+Optimization is unchanged: seeds 1/2/3; 6,000 updates each; batch 16; AdamW 0.001, weight decay 0.0001, betas 0.9/0.999; 100-step warmup then cosine to 0.1 fraction; gradient clip 5; FP32 head, cached FP16 features, no AMP or new augmentation. Only final step 6,000 checkpoints are eligible. Reconstructed old orders are validated against each saved final sampler permutation, position, epoch and RNG; no historical per-step trace is invented.
+
+Synthetic-only calibration uses the original temperature grid; one shared lambda/cap for all P seeds uses the original all-source-GT-denominator 8-corner selection objective and tie rule. Heldout 9-keypoint metrics are additional reports, not a changed selection criterion. DEV319 is historically reused development data, never independent confirmation.

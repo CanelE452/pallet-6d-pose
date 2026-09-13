@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-09-13T10:07:45.112455+00:00",
+  "paths": {
+    "scripts/research/pallet_final_ml_contribution_test_v1/generic_point_refiner.py": "ec854fcb51f33f1bcbf0e336135b10b8b121c876b0ae4f7ad4d4065cebe658bd",
+    "scripts/research/pallet_final_ml_contribution_test_v1/train_point.py": "2c0086e2f20fbb62b5b8c25c214d958cda91e89dbd4cfa22e7372f9309ae76cb",
+    "scripts/research/pallet_final_ml_contribution_test_v1/point_inference.py": "cef2977d2c9ef700f35267d64a899e1b2924d77f5296f11b689f908db5db42f1",
+    "scripts/research/pallet_final_ml_contribution_test_v1/preflight.py": "ebf613c796144432856e3ad7d564b81e6c3cc6ed6e4a2906c01be9a6531f2855",
+    "scripts/research/pallet_final_ml_contribution_test_v1/common.py": "1e9746014476f9bbdf26249aef3372bf462d3f05394494cf43b98603daa561ee",
+    "scripts/research/pallet_final_ml_contribution_test_v1/test_contracts.py": "857acee74760996b97b21005ee50336b7b4d6a332f101ffb84984b287cd0015c",
+    "_docs/experiments/pallet_final_ml_contribution_test_v1/B_line_vs_point/PARAMETER_BUDGET_LOCK.json": "b2c058274270687b041f65942c1e1785b19af5727a05f4b87b11dc94457d100c",
+    "_docs/experiments/pallet_final_ml_contribution_test_v1/B_line_vs_point/GENERIC_CANDIDATE_GEOMETRY.json": "73dda374acea4e00dd293385142627bf1297b41394fc8d8ae598a451b8157a95",
+    "_docs/experiments/pallet_final_ml_contribution_test_v1/B_line_vs_point/INIT_ORDER_PARITY.json": "dd4279d7cc905178a2c29f42b48beaf38d76c2e03e159bd411f982d1265df5c2",
+    "_docs/experiments/pallet_final_ml_contribution_test_v1/B_line_vs_point/METHOD_SCOPE.md": "ff2e02a6f0325b441c3910dec372ae94e02c3727b55f7130768ac6a68b422621"
+  },
+  "training_started": false,
+  "selection_protocol": {
+    "population": "synth_val",
+    "partition": "selection",
+    "lambda_grid": [
+      0.0,
+      0.0625,
+      0.25,
+      1.0,
+      4.0
+    ],
+    "max_move_image_diagonal_fractions": [
+      null,
+      0.01
+    ],
+    "objective": "mean frame capped original-diagonal-normalized8corner error, then average3seeds; unmatched GT/missing predictions fail with1",
+    "tie": "smaller lambda then stricter cap",
+    "checkpoint": "fixed final6000 only, not best-real/best-val"
+  },
+  "calibration_protocol": {
+    "population": "synthetic calibration",
+    "temperature_grid": [
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "objective": "mean per-frame supported-line CE, individually per arm/seed",
+    "tie": "nearest abs(log(T)) then smaller T",
+    "references": [
+      "https://proceedings.mlr.press/v70/guo17a.html"
+    ]
+  }
+}
