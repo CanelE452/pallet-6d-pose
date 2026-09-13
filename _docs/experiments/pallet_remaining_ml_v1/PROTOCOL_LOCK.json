@@ -1,0 +1,74 @@
+{
+  "status": "LOCKED_BEFORE_NEW_TRAINING",
+  "start_main": "cb561105990537653d078c997df3cb4f2bf3b5a5",
+  "source_bindings": {
+    "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "_docs/experiments/pallet_active_learning_v1/retrospective_v1/SPLIT.json": "e0821c88289fff62114cf4a8a77e98660d7e07fc26077a168654347be8637127",
+    "_docs/experiments/pallet_active_learning_v1/retrospective_v1/FINAL_AUDIT.json": "62214ec51fe0c853fc7c1db9052c5388be314368d7c41e53835e6b91b05c03cb",
+    "data/pallet/results/pallet_paper_contribution_screen_v1/C_geometry_preserving_da/dataset/BINDINGS.json": "fc794aa523317f21f0af332152d5ec2a7fea9cf0dc1dc576fec05d29abf8f3ae",
+    "scripts/research/pallet_active_learning_v1/simulation.py": "4c0c324eb7b08a9d8d947fbcedf59b417be84dda97abe3686abc9dda3a9ef4c3",
+    "scripts/research/pallet_active_learning_v1/simulation_evaluate.py": "d874fa68a4e6cb768be9daeb11356be4c5d913640e5e71d4f1e9e82144d6d21a",
+    "challenge/evaluation_v2/paper_real_eval.py": "0d2b4a12ad84e1b46171f70c141bfc8136a7e4bd2205c0cd0f783fcc8dd53676",
+    "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720",
+    "data/pallet/results/pallet_line_pose_v1/baseline/FULL_CANDIDATES.json": "06768ab3c18b1ee9251ba10c1596745643c11a084f054577c8ffdf1289ce09a3",
+    "data/pallet/results/paper_pose_metric_closure_v1/GEOMETRY_RESOLVED_POSE_GT.json": "798959a6b9afc8e8c5d2a058e801a642b02b2462d6c94c67b82608486cf61666",
+    "data/pallet/results/paper_pose_metric_closure_v1/AXIS_REVIEW_MANIFEST.json": "a436f8e898b9ee050441ee9fb3a4f0eaec731a20563a61d435d66a927d9b80c4",
+    "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json": "a4c2918b4b0e9c97f94332d2e7e35132a8cbe0e738db25d92ea55e0d81210dbd"
+  },
+  "split_counts": {
+    "train": 112,
+    "meta_calibration": 62,
+    "evaluation": 145
+  },
+  "split_rule": "Reuse existing session-connected pool/eval; apply same deterministic object-stratified group split within pool for train/meta.",
+  "evidence": "RETROSPECTIVE_DEVELOPMENT; historical evaluation already inspected; no independent confirmation or novelty claim",
+  "sample_importance": {
+    "methods": [
+      "uniform",
+      "hard_loss",
+      "meta_weight"
+    ],
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "updates_per_fit": 300,
+    "fits": 9,
+    "total_student_updates": 2700,
+    "synthetic_batch": 24,
+    "real_batch": 8,
+    "meta_batch": 4,
+    "epochs": 10,
+    "updates_per_epoch": 30,
+    "initialization": "Identical frozen-source R0; all parameters train except DFL; all BatchNorm running statistics frozen in every arm",
+    "data": "All train-subset existing GT-v2 labels; disjoint meta labels only for weight learning; same source sets and schedules in controls",
+    "weighting": "Per-image stock E2ELoss(PoseLoss26), includes vis1. Uniform=1; hard_loss=nonnegative current loss normalized to sum8; meta_weight=positive dot product of train and meta gradients on final keypoint coordinate projections, normalized to sum8. All-negative meta alignment gives zero real weight, synthetic replay continues.",
+    "derivation": "Negative derivative of clean meta loss wrt zero-initialized example weights for virtual SGD in keypoint-projection subspace; first-order alignment, not full-parameter Ren reproduction or learned MLP.",
+    "proxy_parameters": "Both cv4_kpts and one2one_cv4_kpts weights/biases, all three scales. Gradient alignment only; real weighted loss updates full trainable model.",
+    "fairness": "Every arm computes same meta/proxy diagnostics, no meta optimizer update; actual augmented input hashes checked across arms. Real/meta mosaic and mixing disabled for unambiguous sample identity; synthetic recipe unchanged.",
+    "checkpoint": "Last update only; no EMA, validation-best, retry or sweep",
+    "gate": "Meta improves seed-mean three-arm common-frame kp median vs BOTH uniform/hard_loss; >=2/3 seeds each; paired P90/gross20 nonworse, AP50-95 and Det nonworse, translation/yaw <=1.1x and pose coverage nonworse"
+  },
+  "pose_acceptance": {
+    "source": "Frozen R0 only, no selection of best student",
+    "methods": [
+      "confidence",
+      "negative_reprojection",
+      "logistic",
+      "mlp_seed1",
+      "mlp_seed2",
+      "mlp_seed3"
+    ],
+    "learning": "Logistic and one-hidden-layer32 ReLU MLP; full-batch Adam lr0.001 wd0.001 for1000updates; BCE unsafe label, standardize on train only; no class rebalancing",
+    "target": "Unsafe if missing/invalid pose or IoU<0.5 or MAIN translation>10cm or yaw>5degrees. Geometry-reconstructed reference; exploratory operational tolerance, NOT safety certification.",
+    "inputs": "Prediction-only score, image-normalized box/keypoint geometry, known intrinsics/object specification and prediction-only PnP residual, hypothesis gap, predicted translation/rotation. No GT errors, GT physical axis, session ID or filename features.",
+    "population": "Positive pallet frames with known camera/object specification only; background/negative deployment acceptance NOT_TESTED",
+    "threshold": "Calibration only: maximum accepted count at empirical unsafe fraction<=0.10 with at least10 accepted; whole score ties accepted together; no feasible threshold -> reject all",
+    "evaluation": "145 fixed frames; report risk-coverage curves and tie-invariant AURC; threshold fixed before test labels opened; no oracle deployed",
+    "gate": "MLP mean AURC beats confidence AND logistic, >=2/3 seeds each; all seeds test accepted coverage>=0.30 and unsafe risk<=0.10",
+    "budget": "One logistic and3 MLPs x1000=4000 gate optimizer updates; R0 updates0"
+  },
+  "additional_training_after_results": false,
+  "old_results_preserved": true
+}
