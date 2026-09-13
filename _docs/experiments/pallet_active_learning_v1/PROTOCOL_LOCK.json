@@ -1,0 +1,29 @@
+{
+  "status": "ACQUISITION_PILOT_LOCKED",
+  "start_main": "e044d9cbb88738f82a76523009a24fe9eaf6f454",
+  "checkpoint_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+  "methods": [
+    "random",
+    "diversity",
+    "instability_only",
+    "geometry_weighted_diversity"
+  ],
+  "preview_budget_per_method": 30,
+  "budget_status": "Nonbinding preview; actual annotation/training budget requires user confirmation",
+  "random_seed": 20260913,
+  "min_selected_temporal_gap_seconds": 2,
+  "features": "Frozen R0 P3/P4/P5 global mean; per-level L2 normalization then concatenation and L2 normalization",
+  "instability": "Mean nine-corner selected-output displacement / preprocessed image diagonal under fixed0.8 RGB intensity; original versus perturbed top grid candidate",
+  "candidate_index": "Unchanged stock one2one grid/top-k; record top index changes and detection-floor availability",
+  "perturbation": "Single fixed photometric perturbation; no geometric or symmetry reassignment, no sweep",
+  "diversity": "Greedy k-center squared Euclidean distance, shared centroid-nearest initial sample",
+  "geometry_weight": "Multiply nearest-selected squared distance by1+empirical midrank of instability (range1..2)",
+  "temporal_constraint": "All methods skip already selected frames within2seconds in the same capture; no relaxation",
+  "missing_detection": "Retain and flag; no positive-only pseudo-label filter; human may annotate no-object",
+  "compared_baseline_note": "Diversity k-center and uncertainty-only controls; not a claimed reproduction of CLUE",
+  "GT_in_selection": false,
+  "student_updates": 0,
+  "annotation_source": "Human required; predictions are not ground truth",
+  "evidence": "ACQUISITION_PILOT_ONLY; label efficiency and pose improvement NOT_RUN",
+  "next_stage": "Freeze budget/splits/training protocol before revealing new labels; same R0, loss and exposures; independent sessions needed for confirmation"
+}
