@@ -1,93 +1,54 @@
-# 소량 실사 전이학습/replay 통제 실험 — CPU 사전 감사 후 기술적 중단
+# 소량 실사 전이학습 — 합성 replay 통제 실험 완료
 
-2026-09-14. 시작 main: `d0d416eb21fea1a2a932d61ab94ded98edbe638d`.
+판정: `NO_ADAPTATION_GAIN_AT_LOCKED_BUDGET`.
 
-현재 정본은 이 보고서와 `CURRENT_RESULT.json`이다. **12개 fit 중0개 실행,
-본 학습0update, smoke0update, 새 모델 평가0회. 성능 결과 또는 과학적 FAIL이 아니다.**
-이 보고서는 학습 완료 보고서가 아니며 CPU 사전 감사만 완료했다.
+고정된 real30장, BN running statistics 고정, stock YOLO pose loss 조건에서 네 학습 전략을 seed1/2/3 각각300 optimizer update로 비교했다. 총12fit·3600 본 update와 사전 smoke1update를 수행했다. 모든 모델은 같은 R0에서 시작했고 step300 마지막 checkpoint만 평가했다.
 
-## [확인] 자원 중단
+## 핵심 결과
 
-샌드박스 내 실패 뒤 호스트 권한으로 세 차례 확인했다. 모두
-`Failed to initialize NVML: Driver/library version mismatch`(exit18)였다.
-로드된 커널 모듈은 `580.173.02`, NVML은 `580.178`이었다. GPU ID/VRAM/다른
-작업은 조회할 수 없었으므로 GPU busy 또는 CUDA 부재로 단정하지 않는다.
-드라이버/전력 설정 변경, 프로세스 종료, 재부팅, 외부 알림은 하지 않았다.
-세 확인 사이에 CPU 감사를 진행했으며 더 이상 GPU를 반복 조회하지 않는다.
+| 모델 | Target PCK10 | Source PCK10 | Target AP50-95 | Target kp median/P90 | Translation cm | Rotation deg | Negative AUROC |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| R0 | 0.772832 | 0.925658 | 0.762226 | 4.730/38.612 | 11.2414 | 2.1239 | 0.995371 |
+| T8_FULL (3-seed mean) | 0.720133 | 0.766228 | 0.784464 | 5.037/40.181 | 8.5005 | 2.6920 | 0.989532 |
+| T8_QUARTER (3-seed mean) | 0.719877 | 0.766301 | 0.783986 | 5.033/40.177 | 8.4900 | 2.6897 | 0.989532 |
+| REPLAY (3-seed mean) | 0.774111 | 0.908553 | 0.776333 | 4.440/30.879 | 10.9301 | 2.3241 | 0.993952 |
+| T32_COMPUTE (3-seed mean) | 0.739320 | 0.779751 | 0.791814 | 4.612/43.615 | 8.3486 | 2.6542 | 0.993477 |
 
-## [확인] 완료된 CPU 범위
+PCK10은 검출 실패·잘못된 top1·점 누락을0점 처리하는 전체 감독 GT 고정분모 지표다. Target은 과거에 본 DEV145장·4세션이며 독립 확인셋이 아니다. Source는 새 미세조정에 사용하지 않은 heldout512장 development probe이며 R0의 과거 validation 노출은 배제하지 않았다.
 
-- R0 파일 SHA256 `970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7` 일치.
-- 기존 random 선택30장, pool174장, 평가145장·4촬영세션을 그대로 확인했다.
-  pool/evaluation의 파일 SHA와 연결촬영 세션 교집합은0이다.
-- negative2689장과 replay1440장의 실제 이미지 접근 및 SHA를 확인했다.
-  실사319/negative 사이 이미지 SHA 교집합도0이다.
-- 기존 합성 heldout1985장 중 replay와 파일 SHA 중복0. 고정 salt와 SHA 순서로
-  512장(484scenario)을 선택하고 실제 prepared image/원본 YOLO label SHA를 검증했다.
-  기존100px 패딩/원본좌표 변환을 유지해야 하며, 새 평가 adapter는 아직 없다.
-  이 검사는 파일 SHA 기준이다. 모든 근접 중복이나 새로운 독립 source test를 보장하지 않는다.
-- 설치 버전은 PyTorch `2.1.1+cu118`, Ultralytics `8.4.60`.
-  실제 R0를 CPU로 읽어 criterion이 `E2ELoss(PoseLoss26)`임을 확인했다.
-- 실제 loss source에서 `loss * batch_size` 반환과 E2E branch 가중치를 확인했다.
-  `ell=C8/8`, `L_backward=32*J`에 따라 아래 계수를 고정했다.
-- BN126개에 유한 running buffer가 존재하며 affine은 학습 가능하다.
-  실제 gradient/학습 후 buffer 불변 검사는 미실행이다.
-- DFL은 `Identity`, `reg_max=1`, 파라미터0개다. 따라서 별도 fixed parameter
-  목록이 비어 있는 것은 이 checkpoint의 실제 구조이며 DFL 해제를 뜻하지 않는다.
-- CPU helper6개 테스트 통과: 노출계획, C8계수, toy gradient 항등식,
-  PCK 고정분모/10px 경계/비유한·미검출 처리, 점역할 오류, RNG stream seed.
-  실제 YOLO gradient/loader parity 통과로 확대하지 않는다.
-- 바인딩한 기존44개 파일(참조 코드·checkpoint·manifest·paper final 포함)은
-  감사 전후 SHA가 같다. 기존 실험이나 GT에 쓰기 작업을 하지 않았다.
-  모든 역사적 대형 cache 전체를 다시 해시한 감사라는 뜻은 아니다.
+## 사전 contrast — PCK10 차이 percentage point
 
-## [설계·미실행] 군과 노출
+| Contrast | Target Δ | Target session95% | Source Δ | Source scenario95% |
+|---|---:|---:|---:|---:|
+| C_main | +5.423 | [+3.976, +7.150] | +14.225 | [+12.402, +16.015] |
+| C_pract | +5.398 | [+3.976, +7.049] | +14.232 | [+12.412, +16.014] |
+| C_budget | +3.479 | [+1.852, +4.996] | +12.880 | [+11.022, +14.762] |
+| C_scale | -0.026 | [-0.083, +0.000] | +0.007 | [-0.015, +0.036] |
 
-각 seed당300update, seed1→2→3 순서로 각 행의 네 군을 실행하도록 설계 고정했다.
-모든 군은 BN running statistics만 R0에 고정, affine 포함 학습 파라미터 업데이트,
-stock loss/FP32/SGD/last-step300을 사용한다. 현재 구현된 것은 계약/helper/CPU 감사이며
-loader와 학습 runner는 아직 구현되지 않았다.
+## R0 대비
 
-| 군 | 실제 backward 계수(C8 기준) | 계획 실사slot | 계획 합성slot | 실제 update(seed1/2/3) |
-|---|---|---:|---:|---|
-| T8_FULL | 4×target_base | 2400 | 0 | 0/0/0 |
-| T8_QUARTER | target_base | 2400 | 0 | 0/0/0 |
-| REPLAY | target_base+source1+source2+source3 | 2400 | 7200 | 0/0/0 |
-| T32_COMPUTE | target_base+target_extra1+2+3 | 9600 | 0 | 0/0/0 |
+| 군 | Target Δ | Target session95% | Source Δ | Source scenario95% |
+|---|---:|---:|---:|---:|
+| T8_FULL | -5.270 | [-8.728, -2.179] | -15.943 | [-17.888, -14.029] |
+| T8_QUARTER | -5.295 | [-8.821, -2.179] | -15.936 | [-17.882, -14.029] |
+| REPLAY | +0.128 | [-1.613, +1.797] | -1.711 | [-2.749, -0.711] |
+| T32_COMPUTE | -3.351 | [-6.609, -0.708] | -14.591 | [-16.555, -12.645] |
 
-이는 nominal 계획이고 현재 실제 영상 노출은 전 군0이다. Mosaic 보조 참조량은
-별도 집계해야 한다. ell은 독립 sample loss들의 엄밀한 평균이라는 주장이 아니다.
+각 bootstrap draw는 동일 frame/session/scenario weight를 모든 모델·seed에 공유하고 seed별 통계의 평균을 비교한다. 단일 R0를 세 독립 모델처럼 복제하지 않는다. 10,000 resample은 실제 세션 수를 늘리지 않으며, 구간은 다중비교 familywise 보장이 아니다. 0 포함은 동등·비열등 증명이 아니다.
 
-## [미실행] 성능과 비교
+## 실행 무결성 및 한계
 
-| 모델 | Target ALL_GT_PCK10 | Source ALL_GT_PCK10 | 2D/6D/detection |
-|---|---|---|---|
-| R0 | 미평가 | 미평가 | 신규 panel 미평가 |
-| T8_FULL | 미학습/미평가 | 미학습/미평가 | 미실행 |
-| T8_QUARTER | 미학습/미평가 | 미학습/미평가 | 미실행 |
-| REPLAY | 미학습/미평가 | 미학습/미평가 | 미실행 |
-| T32_COMPUTE | 미학습/미평가 | 미학습/미평가 | 미실행 |
+- nominal slot/fit: T8_FULL·T8_QUARTER real2400, REPLAY real2400+synthetic7200, T32_COMPUTE real9600. Mosaic 원본 참조는 trace에 별도 보존했다.
+- 실제 criterion 반환은 batch-size multiplier와 내부 target-score/foreground 정규화를 포함한다. ell을 독립 sample loss 평균이라고 주장하지 않는다.
+- 모든 arm의 target_base augmented tensor SHA는 같은 seed·step에서 exact 동일했다. Source/target Mosaic 보조 영상은 각 domain allowlist 안에 있었다.
+- BN126개의 running_mean/variance/counter는 R0와 bit-exact였고 affine은 학습했다. DFL은 이 모델에서 reg_max1 Identity로 파라미터가 없다.
+- Target145/negative2689/source512를 새 checkpoint로 실제 추론했다. R0 target/negative만 동일 weight·recipe의 기존 canonical cache를 SHA 확인 후 재사용했고 source R0는 새 추론했다.
+- clean runtime은 고정26프레임×3repeat의 모든 호출을 유지했다. R0 pooled median=14.363ms. 이는 display/RustDesk가 활성화된 단일 RTX3080 측정이며 Jetson/export 주장이 아니다.
+- GT-v2는 수동/기하 재구성 provenance가 섞였으며 새 독립 motion-capture GT가 아니다. Source와 target의 절대 픽셀오차를 같은 난이도로 직접 차감하지 않는다.
+- 기존 line/P/active-learning 판정은 변경하지 않는다. 성능을 본 뒤 LR·계수·seed·checkpoint·primary를 바꾸거나 추가 학습하지 않았다.
 
-REPLAY−T8_QUARTER, REPLAY−T8_FULL, REPLAY−T32_COMPUTE,
-T8_QUARTER−T8_FULL 효과와 CI는 계산하지 않았다. 기존 AL/P/line 결과를
-새군 대신 넣거나 기존319장 성능을145장 분모와 섞지 않았다.
-원래 모델보다 좋아졌는지, replay가 loss축소/추가실사노출보다 유리한지는 모두 미확인이다.
+## 논문에 쓸 수 있는 범위
 
-## 논문 문장과 재개
+실제 수치가 뒷받침하는 경우에만, 동일한 표적 정답30장과 고정 BN 통계 조건에서 source replay를 동반한 supervised fine-tuning이 target-only 대조와 어떤 개발 성능 차이를 보였는지 기술할 수 있다. 이 결과는 새 replay 알고리즘, 합성 사전학습 자체의 인과 우위, 임의30장의 충분성, zero-label/self-training, 독립 창고 일반화를 증명하지 않는다.
 
-현재 쓸 수 있는 내용은 **BN 통계 고정 조건에서 동일30-label replay를 비교하는
-통제 실험을 설계하고 데이터/수식의 정적 사전 감사를 수행했으나 자원 오류로 학습을
-시작하지 못했다**는 실행 기록이다. replay 성능 향상·원본 능력 보존·전이학습 실패,
-새 알고리즘, 독립 일반화는 주장할 수 없다.
-
-`RESUME.md`에 CPU 재감사 명령과 남은 구현/학습/평가 순서를 기록했다.
-모델이나 optimizer의 재개 state가 없으므로 처음부터의 본 학습은 재실행이 아니라
-아직 수행하지 않은 최초 실행이다. 사전 승인된3600update 예산은 전부 남아 있다.
-GPU가 복구되어도 남은 실제-model/loader gate를 건너뛰면 안 된다.
-
-## Git 공개 범위
-
-이번 신규 코드와 작은 감사 결과만 main에 commit/push한다. RGB/가중치/원본 라벨을
-새로 추가하지 않는다. 데이터 경로·이미지 SHA·membership·소프트웨어 source SHA는
-요청한 provenance로 포함한다. 기존 capacity_screen의 무관한 untracked 세 경로는
-그대로 남긴다. 최종 commit과 실제 remote 일치는 실행 응답에서 별도 검증한다.
+보조 진단 태그: REPLAY_SOURCE_RETENTION_SIGNAL, REPLAY_TARGET_MAIN_CONTRAST_SIGNAL. 상세 수치는 `METRICS_PER_SEED.json`, `PAIRED_CONTRASTS.json`, `MECHANISM_AUDIT.json`, `RUNTIME.json`에 있다.

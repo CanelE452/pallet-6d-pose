@@ -108,7 +108,7 @@ def target_metrics(name,population,split,cache):
 def pose_metrics(name,frames):
     # The old wrapper is reused with globals redirected into this new experiment.
     result=OLD.pose_evaluation(RAW/'evaluation'/name,frames,name)
-    binding=read(RAW/'evaluation'/name/'ACTUAL_POSE_BINDING.json')['frame_id_binding']
+    binding=read(RAW/'evaluation_inputs'/'FRAME_ID_BINDING.json')
     mapping={r['evaluation_frame_id']:r['pose_frame_id'] for r in binding}
     return result,mapping
 
