@@ -28,7 +28,7 @@ def bootstrap(rowsets,clusters,scheme):
     assert all(sorted(rows)==keys for rows in rowsets.values())
     groups=sorted(set(clusters[k] for k in keys));index={g:i for i,g in enumerate(groups)}
     group_index=np.asarray([index[clusters[k]] for k in keys]);rng=np.random.default_rng(SEED)
-    out={name:[] for name in CONTRASTS}; arm_samples={arm:[] for arm in ARMS};r0=[]
+    out={name:[] for name in CONTRASTS}; arm_samples={arm:[] for arm in ARMS};versus_r0={arm:[] for arm in ARMS};r0=[]
     for _ in range(BOOT):
         counts=rng.multinomial(len(groups),np.full(len(groups),1/len(groups))) if scheme=='cluster' else rng.multinomial(len(keys),np.full(len(keys),1/len(keys)))
         weights=counts[group_index] if scheme=='cluster' else counts
@@ -36,13 +36,16 @@ def bootstrap(rowsets,clusters,scheme):
         arm_values={}
         for arm in ARMS:
             value=float(np.mean([pck({k:rowsets[f'{arm}_seed{s}'][k] for k in keys},weights) for s in (1,2,3)]))
-            arm_values[arm]=value;arm_samples[arm].append(value)
+            arm_values[arm]=value;arm_samples[arm].append(value);versus_r0[arm].append(value-base)
         for label,(left,right) in CONTRASTS.items():out[label].append(arm_values[left]-arm_values[right])
     return dict(scheme=scheme,units=len(groups) if scheme=='cluster' else len(keys),resamples=BOOT,seed=SEED,
         contrasts={label:dict(low=float(np.quantile(values,.025)),high=float(np.quantile(values,.975)),
             fraction_positive=float(np.mean(np.asarray(values)>0)),excludes_zero=bool(np.quantile(values,.025)>0 or np.quantile(values,.975)<0)) for label,values in out.items()},
         R0=dict(low=float(np.quantile(r0,.025)),high=float(np.quantile(r0,.975))),
-        arms={arm:dict(low=float(np.quantile(v,.025)),high=float(np.quantile(v,.975))) for arm,v in arm_samples.items()})
+        arms={arm:dict(low=float(np.quantile(v,.025)),high=float(np.quantile(v,.975))) for arm,v in arm_samples.items()},
+        versus_R0={arm:dict(low=float(np.quantile(v,.025)),high=float(np.quantile(v,.975)),
+            fraction_positive=float(np.mean(np.asarray(v)>0)),excludes_zero=bool(np.quantile(v,.025)>0 or np.quantile(v,.975)<0))
+            for arm,v in versus_r0.items()})
 
 
 def geometry(rows,keys):
@@ -82,10 +85,14 @@ def main():
     for arm in ARMS:
         rr=[per_seed[f'{arm}_seed{s}'] for s in (1,2,3)];keys=[k for k,v in rr[0].items() if isinstance(v,(float,int))]
         seed_means[arm]={k:float(np.mean([r[k] for r in rr])) for k in keys}
+        for nested in ('target_individual_matched','source_individual_matched'):
+            seed_means[arm][nested]={k:float(np.mean([r[nested][k] for r in rr])) for k in rr[0][nested]}
         seed_means[arm]['target_common_geometry']={k:float(np.mean([target_common_geometry[f'{arm}_seed{s}'][k] for s in (1,2,3)])) for k in ('median_px','p90_px','frame_mean_px','gross20')}
         seed_means[arm]['source_common_geometry']={k:float(np.mean([source_common_geometry[f'{arm}_seed{s}'][k] for s in (1,2,3)])) for k in ('median_px','p90_px','frame_mean_px','gross20')}
     point={label:dict(target_pck10=seed_means[left]['target_ALL_GT_PCK10']-seed_means[right]['target_ALL_GT_PCK10'],
         source_pck10=seed_means[left]['source_ALL_GT_PCK10']-seed_means[right]['source_ALL_GT_PCK10']) for label,(left,right) in CONTRASTS.items()}
+    point['versus_R0']={arm:dict(target_pck10=seed_means[arm]['target_ALL_GT_PCK10']-per_seed['R0']['target_ALL_GT_PCK10'],
+        source_pck10=seed_means[arm]['source_ALL_GT_PCK10']-per_seed['R0']['source_ALL_GT_PCK10']) for arm in ARMS}
     target_clusters={k:target_rows['R0'][k]['session'] for k in target_keys};source_clusters={k:source_rows['R0'][k]['scenario'] for k in source_keys}
     target_boot_cluster=bootstrap(target_rows,target_clusters,'cluster');target_boot_frame=bootstrap(target_rows,target_clusters,'frame')
     source_boot_cluster=bootstrap(source_rows,source_clusters,'cluster');source_boot_frame=bootstrap(source_rows,source_clusters,'frame')
