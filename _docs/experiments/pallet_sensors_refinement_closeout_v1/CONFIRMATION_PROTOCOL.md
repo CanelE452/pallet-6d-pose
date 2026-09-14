@@ -1,0 +1,15 @@
+# Independent confirmation protocol — data collection still required
+
+Status: NEW_CONFIRMATION_DATA_REQUIRED. Existing FINAL manifests explicitly have unavailable membership. DEV319, past AL/transfer data and geometry-QA frames cannot be renamed as an independent test.
+
+Start with12 separately captured sessions×15 frames=180 images, spanning indoor/outdoor and day/night where feasible. This is a collection plan, not a guaranteed statistical power calculation. Preserve capture group, original video, timestamp, camera mount/calibration, object identity, physical dimensions and all earlier usage. Select spaced frames using a rule fixed before predictions; adjacent video frames do not create180 independent observations. Record material, distance and boundary visibility only when measured or independently annotated.
+
+Freeze R0 and P1/P2/P3, D1/D2/D3, and the eventual prior comparator checkpoint/code/selection hashes before opening the confirmation annotations. P seed1 is the prespecified deployment representative; seed-mean statistics are not ensemble predictions or seed1 performance. The prior comparator is unfinished, so confirmation evaluation is currently gated. Never use early confirmation results to modify a comparator.
+
+Primary: pooled supervised9-keypoint median in original pixels, computed per model seed, then mean paired P-minus-single-R0 difference. Use shared session multiplicities for10,000 bootstrap draws, seed20260914. Retain the full population and explicitly audit conditional precision support. ALL_GT_PCK5/10/20, detected coverage, supervision counts, tails and geometry are separate safety/descriptive outputs. Do not invent a tolerable loss percentage; operational tolerances require a documented application requirement.
+
+At least30 prespecified frames receive two independent annotations with predictions hidden. Annotators record uncertainty and landmark type. Blind adjudication follows annotation1/annotation2 storage, not overwrite. Reference pose reconstructed from manual2D+intrinsics+dimensions is labeled geometry-reconstructed reference. An independent physical6D measurement needs its own device, calibration, uncertainty and coordinate alignment. Without actual insertion trials no forklift success/safety claim is possible.
+
+`CONFIRMATION_CAPTURE_TEMPLATE.csv` and `CONFIRMATION_SCHEMA.json` define the collection handoff. `confirmation.py --panel PANEL.json --predictions PREDICTIONS.json` is a gated future2D evaluator. It rejects unfrozen comparators, unreviewed capture history and recorded image/session overlap. It does not prove independence from missing provenance or manufacture6D reference. The runtime pipeline and canonical6D code bindings are available for a separately bound future pose evaluator.
+
+Human actions: collect new sessions; measure size/intrinsics; provide blinded annotations and original capture lineage; review comparator freeze; then authorize opening the frozen confirmation panel. No additional training begins automatically.

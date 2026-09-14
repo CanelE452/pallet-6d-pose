@@ -1,0 +1,13 @@
+# Annotation and reference QA
+
+Current9-point index convention is retained. Corners0–7 describe the camera-facing cuboid convention; point8 is the projected geometric center under the established annotation contract, not the arithmetic mean of arbitrary visible boundary pixels. Explicitly distinguish visible physical boundary, occluded/amodal inferred corner and unavailable point. The existing visibility/supervision flag is a label contract; it must not be renamed as a physical occlusion detector.
+
+Before annotating, show a prediction-free index diagram and physical landmark definitions. Record image coordinates at full precision, original resolution, distortion convention, calibration source and pixel-to-image transforms. Keep unlabeled points unavailable; do not fill them using P/R0 predictions. Preserve annotation versions and independent annotator IDs.
+
+For the30 double-annotated frames, report per-landmark displacement distribution, session dependence, signed x/y differences, annotator-specific bias and uncertainty around model comparisons. The annotation1→annotation2 difference is repeatability evidence, not ground-truth model error. A model gain below individual annotation spread is not automatically invalid: repeated-measure variability and systematic bias require separate analysis. Conversely a small numerical gain is not industrial significance.
+
+Audit the existing reference builder and its inputs: `build_axis_review_manifest.py` reads manual annotation keypoints; `build_geometry_resolved_pose_gt.py` solves the two dimension hypotheses from those points and known geometry. Its MAIN reference contains `model_predictions_used:false`. The current reference is not an independently instrumented6D measurement. Prior manual-label generation/blinding cannot be proven from that flag; keep this limitation visible.
+
+Use the existing prediction-only selector for estimated poses. Keep its known-size inputs separate from P's neural inputs. Report pose failures and coverage, nonfinite values and unsupported calibration explicitly. Never use the better GT-aligned hypothesis as deployed MAIN output. Pose displacement in centimeters can be converted to millimeters; a pixel reduction cannot be converted to a single millimeter value without depth/calibration and an explicitly defined metric.
+
+Before new confirmation: verify camera intrinsics for the actual capture; measure each registered object; define object/camera axes and distortion; audit visible/amodal labeling consistency; retain unadjudicated and adjudicated labels; record geometry reconstruction residuals. Human QA and physical measurement are still required.
