@@ -1,0 +1,168 @@
+{
+  "status": "DESIGN_AND_MEMBERSHIP_LOCKED_TRAINING_GATE_NOT_READY",
+  "reference_main": "d0d416eb21fea1a2a932d61ab94ded98edbe638d",
+  "arms": {
+    "T8_FULL": {
+      "target_base": 1.0
+    },
+    "T8_QUARTER": {
+      "target_base": 0.25
+    },
+    "REPLAY": {
+      "target_base": 0.25,
+      "source_1": 0.25,
+      "source_2": 0.25,
+      "source_3": 0.25
+    },
+    "T32_COMPUTE": {
+      "target_base": 0.25,
+      "target_extra_1": 0.25,
+      "target_extra_2": 0.25,
+      "target_extra_3": 0.25
+    }
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "execution_order": [
+    "T8_FULL_seed1",
+    "T8_QUARTER_seed1",
+    "REPLAY_seed1",
+    "T32_COMPUTE_seed1",
+    "T8_FULL_seed2",
+    "T8_QUARTER_seed2",
+    "REPLAY_seed2",
+    "T32_COMPUTE_seed2",
+    "T8_FULL_seed3",
+    "T8_QUARTER_seed3",
+    "REPLAY_seed3",
+    "T32_COMPUTE_seed3"
+  ],
+  "fits": 12,
+  "updates_per_fit": 300,
+  "total_updates": 3600,
+  "smoke_update_cap": 16,
+  "planned_exposures": {
+    "T8_FULL": {
+      "real": 2400,
+      "synthetic": 0,
+      "total": 2400,
+      "updates": 300
+    },
+    "T8_QUARTER": {
+      "real": 2400,
+      "synthetic": 0,
+      "total": 2400,
+      "updates": 300
+    },
+    "REPLAY": {
+      "real": 2400,
+      "synthetic": 7200,
+      "total": 9600,
+      "updates": 300
+    },
+    "T32_COMPUTE": {
+      "real": 9600,
+      "synthetic": 0,
+      "total": 9600,
+      "updates": 300
+    }
+  },
+  "microbatch": 8,
+  "common_backward_scale": 32,
+  "stock_hyp": {
+    "task": "pose",
+    "imgsz": 640,
+    "batch": 32,
+    "epochs": 10,
+    "optimizer": "SGD",
+    "lr0": 0.002,
+    "lrf": 0.01,
+    "momentum": 0.937,
+    "weight_decay": 0.0005,
+    "warmup_epochs": 1.0,
+    "box": 7.5,
+    "cls": 0.5,
+    "dfl": 1.5,
+    "pose": 12.0,
+    "kobj": 1.0,
+    "hsv_h": 0.015,
+    "hsv_s": 0.5,
+    "hsv_v": 0.35,
+    "degrees": 0.0,
+    "translate": 0.1,
+    "scale": 0.25,
+    "shear": 0.0,
+    "perspective": 0.0,
+    "flipud": 0.0,
+    "fliplr": 0.0,
+    "mosaic": 0.15,
+    "close_mosaic": 3,
+    "mixup": 0.0,
+    "copy_paste": 0.0,
+    "erasing": 0.4,
+    "deterministic": true
+  },
+  "optimizer": "Reuse legacy bias/norm/other SGD Nesterov grouping; no auto scaling",
+  "schedule": "Same epoch-index cosine; 30 warmup updates; clip norm10 before single optimizer.step",
+  "BN": "Freeze only R0 running statistics, train affine; no target/negative BN calibration",
+  "FP32": true,
+  "AMP": false,
+  "EMA": false,
+  "checkpoint": "step300 last only",
+  "criterion": "stock E2ELoss(PoseLoss26), update once per epoch; never pseudo TRUE_IGNORE",
+  "RNG": "Independent domain+stream datasets/buffers, workers0; crypto seed; cyclic shuffle without replacement; preserve model RNG around loader",
+  "parity": "Same seed all arms require exact target_base image/box/keypoint/visibility tensor SHA per update",
+  "augmentation": "Legacy HYP all arms, mosaic0 from epoch7; audit every auxiliary image against domain allowlist",
+  "primary": "ALL_GT_PCK10, full supervised GT denominator, highest-score top1 IoU>=.5, finite error<=10px; misses score0",
+  "secondary": [
+    "ALL_GT_PCK5/20",
+    "AP50/AP50-95",
+    "match rate",
+    "negative AUROC/FPR95 and fixed threshold FP",
+    "all13model common-matched and separate-matched kp median/P90/frame mean/gross20",
+    "canonical 6D translation/yaw/rotation/IoU3D/ADDsym with coverage/failures",
+    "padding-only top1"
+  ],
+  "inference": "Canonical target padding100/confidence floor.001/imgsz640 and stock PnP unchanged; raw new-weight forwards for all13 models",
+  "source_retention_n": 512,
+  "contrasts": {
+    "C_main": [
+      "REPLAY",
+      "T8_QUARTER"
+    ],
+    "C_pract": [
+      "REPLAY",
+      "T8_FULL"
+    ],
+    "C_budget": [
+      "REPLAY",
+      "T32_COMPUTE"
+    ],
+    "C_scale": [
+      "T8_QUARTER",
+      "T8_FULL"
+    ]
+  },
+  "uncertainty": "Seed-mean statistic; common paired frame/session draw across every model; re-sum PCK numerator/denominator per draw; fixed single R0",
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": 20260914,
+    "interval": "95% percentile, marginal not familywise",
+    "target_sessions": 4,
+    "source_cluster": "scenario_id",
+    "target_leave_one_session_out": 4
+  },
+  "evidence": "Historical DEV145, NEG2689, source-retention development probe; no independent confirmation",
+  "pending": [
+    "isolated loader with Mosaic provenance",
+    "actual-model gradient/BN/save-load tests",
+    "resumable runner",
+    "new primary/source evaluator adapter",
+    "paired statistical evaluator",
+    "GPU availability"
+  ],
+  "automatic_training_authorized_by_this_CPU_audit": false
+}
