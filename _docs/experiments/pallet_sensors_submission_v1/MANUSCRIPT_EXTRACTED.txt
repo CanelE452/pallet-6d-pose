@@ -232,28 +232,28 @@ mation annotations may be opened.                               to one universal
 B. Development population and supervision                       are included.
   The current positive development panel has 319 images
 in 13 recorded sessions; 2689 negative images accompany         D. Cost and independent confirmation
-the detection-preservation audit. There are 311 matched           The expanded panel including the prior is deferred
-positive frames and 2,756 supervised points for conditional     because a separate GPU training task was active. Only the
-precision, versus 2,818 supervised points in the complete       previous R0/P/D/L session is reported here as historical
-ground-truth denominator. Point supervision is the origi-       timing; prior latency and a same-session prior speed
-nal label contract and is not renamed as measured physical      comparison are not yet measured.
-visibility. Visible boundaries, inferred amodal corners, and      Desktop latency starts from decoded BGR input and
-unavailable landmarks require distinct interpretation in        includes preprocessing, R0, refinement, and restoration.
-new annotation QA.                                              Canonical PnP time is recorded separately and added for
-  The primary statistic pools supervised original-pixel         the whole estimation path. Loading and image decoding
-Euclidean errors within each model seed, computes its           are excluded. The protocol uses the historical 26 images,
-median, and then averages the three seed statistics. It is      20 warmups per model, five balanced cyclic/reversed
-neither an ensemble prediction nor the average of frame         blocks, batch one, and four Torch intra-operation CPU
-medians. Its conditional precision denominator excludes         threads. OpenCV and inter-operation settings are sepa-
-unmatched frames, which is why complete-denominator             rately recorded; four is not claimed as a universal process
-PCK is also required. For threshold t,                          thread limit. Training and scoring do not overlap timing.
+the detection-preservation audit. There are 311 matched           The expanded panel was measured in the same session
+positive frames and 2,756 supervised points for conditional     for all comparators.
+precision, versus 2,818 supervised points in the complete         Desktop latency starts from decoded BGR input and
+ground-truth denominator. Point supervision is the origi-       includes preprocessing, R0, refinement, and restoration.
+nal label contract and is not renamed as measured physical      Canonical PnP time is recorded separately and added for
+visibility. Visible boundaries, inferred amodal corners, and    the whole estimation path. Loading and image decoding
+unavailable landmarks require distinct interpretation in        are excluded. The protocol uses the historical 26 images, 20
+new annotation QA.                                              warmups per model, five balanced cyclic/reversed blocks,
+  The primary statistic pools supervised original-pixel         batch one, and four Torch intra-operation CPU threads.
+Euclidean errors within each model seed, computes its           OpenCV/inter-operation observations were saved only for
+median, and then averages the three seed statistics. It is      the subsequent isolated-memory phase, not the timing
+neither an ensemble prediction nor the average of frame         phase; four is not a universal process thread limit. Training
+medians. Its conditional precision denominator excludes         and scoring do not overlap timing. Display/remote desktop
+unmatched frames, which is why complete-denominator             activity is disclosed; no fastest repeat is selected. Prior-
+PCK is also required. For threshold t,                          specific cropping and its separate backbone are included,
                              ∑
-                                 i,k hik (t)                    Display/remote desktop activity is disclosed; no fastest
-                     PCKt =                  ,            (5)   repeat is selected. Prior-specific cropping and its separate
+                                 i,k hik (t)                    while P recomputes detector features instead of reading a
+                     PCKt =                  ,            (5)   training cache. The supplement records numerical replay
                                   NGT
-                                                                backbone are included, while P recomputes detector fea-
+                                                                checks and the recovery of memory measurement after the
 where missing predictions, unmatched top instances, and
-                                                                tures instead of reading a training cache.
+                                                                completed timing panel.
 nonfinite points contribute zero hits, not zero error.
                                                                   Independent confirmation is awaiting new data. The
 Matching remains at the registered box IoU threshold. If
@@ -283,124 +283,156 @@ C. Uncertainty and pose metrics                                 PCK thresholds, 
    We use 10,000 paired session bootstrap draws with seed       in the supplement. P changes the baseline pooled median
 20260914, applying each draw’s frame/session multiplic-         from 6.616 to 5.905 pixels, a reduction of 0.711 pixels.
 ities to every model seed. The P–R0 statistic compares          Its paired-session reduction interval is [0.411,1.174] pixels.
-INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                                         5
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                                                                5
 
 
 
-                            TABLE II                                                                                 TABLE III
-Reused DEV: seed-mean statistics, not an ensemble. Translation is                         Historical R0/P/D/L desktop median latency in ms, representative
- against the geometry reference. NM means not measured in this                               seed1. Expanded panel deferred; prior NM. Training/scoring
-                              build.                                                                  excluded from timing; all repeats retained.
+                                                                                                                  All observed development sessions; negative favors P
 
-        Model                Median                 P90          PCK10           Trans.              Model       BGR-to-2D      PnP      Total
-                                 px                  px             %               cm
-                                                                                                     R0                9.406   1.361    10.800
-        R0                       6.616         38.670                63.73        7.897              P1               13.529   1.350    15.047
-        P mean                   5.905         37.766                67.34        7.153              D1               12.777   1.367    14.485
-        D mean                   6.430         37.566                64.57        7.597              L1               17.872   1.349    19.333
-        L mean                   6.070         37.320                66.78        7.548              PRIOR1             NM      NM        NM
-        PRIOR mean               5.569         37.227                68.41        6.895
+                               6.6                                         R0        wood_night_01
 
-                           All observed development sessions; negative favors P           supplementary rows. All wrapped prior seeds retain the
-  wood_night_01
-   wood_day_01
-                                                                                          baseline matched supervision support, with no nonfinite
-   wood_184309                                                                            supervised coordinates. The P–prior paired median differ-
-   wood_183705
- plastic_night_01                                                                         ence is 0.336 px, with session interval [0.063, 0.585] px.
-  plastic_day_01
-   eval_pallet09
-                                                                                          This interval favors the prior, so P is not the most accurate
-   eval_pallet07                                                                          comparator under this central-error criterion. A negative
-    eval_outside
-     eval_noapril                                                                         contrast favors P; a positive contrast favors the prior.
-    eval_night09
-    eval_night08
-                                                                                          The complete-denominator PCK, tail and pose rows must
-        eval_cad
-                                                                                          be considered alongside the median. Six thousand updates
-                    −2.0             −1.5              −1.0               −0.5
-                                  P − R0 pooled median error (px), seed mean
-                                                                                    0.0
-                                                                                          per seed do not certify saturation or reproduce the original
-                                                                                          140-epoch protocol.
-Fig. 3. P–R0 development median effects by recorded session.
-Negative values favor P. These are descriptive effects from the
-reused panel, not independent confirmation intervals. All sessions                        C. Eﬀiciency and accuracy–cost tradeoffs
-are retained.                                                                                The expanded panel including the prior is deferred
-                                                                                          because a separate GPU training task was active. Only the
-PCK10 changes from 63.733% to 67.341%. These figures                                      previous R0/P/D/L session is reported here as historical
-describe the present development panel only.                                              timing; prior latency and a same-session prior speed
-   The P–D median difference is -0.525 pixels, with paired-                               comparison are not yet measured.
-session interval [-0.980,-0.210]. This supports a lower                                      P’s selected seed1 is the prespecified deployment repre-
-central development residual for P than this fixed direct                                 sentative; it must not be confused with the seed mean. Its
-control. It does not prove that direct regression as a                                    desktop BGR-to-2D and PnP-inclusive median times are
-method class is inferior. D has a slightly lower observed                                 13.529 and 15.047 ms, compared with 9.406 and 10.800
-P90, and the P–D tail interval includes zero. D also has                                  ms for R0 in the cited timing session. Allocator memory
-lower measured desktop latency. There is therefore no all-                                is reported separately from whole-device memory, which
-metric dominance claim. The internal line control also has                                also includes the display and other software. The tables
-a lower observed P90 than P.                                                              do not extrapolate to Jetson, report unmeasured energy
-   Figure 3 retains every recorded session. The                                           savings, or infer operational throughput from an isolated
-eval_noapril session has an adverse P–R0 central                                          cached tensor.
-effect; the other twelve observed sessions improve. Leave-
-one-session-out estimates remain favorable in this panel,                                 D. Independent confirmation
-but such deletion diagnostics are not new independent
-datasets. No unfavorable session is removed from the                                         Not yet measured: no independently reviewed cap-
-aggregate.                                                                                ture/annotation panel is available. The proposed collec-
-   The seed-mean reduction in geometry-reference trans-                                   tion count is a plan, not a completed experiment. De-
-lation median is 7.439 mm. This is a change in error                                      velopment observations are not relabeled as confirmation
-statistics against a reconstructed reference, not mea-                                    results.
-sured insertion improvement. It cannot establish physical
-metrology accuracy independently of the image-label and                                               VI. Limitations and Interpretation
-reference-construction uncertainty.                                                          First, the primary development improvement is con-
-                                                                                          ditional on matched supervision and on a historically
-B. Prior-derived comparison                                                               selected model family. Complete-denominator PCK limits
-   The prior checkpoints were fixed at the final training                                 one failure mode of optimistic reporting, but does not turn
-update; only the wrapper rule was selected on synthetic                                   reused DEV into a confirmation set. The session intervals
-data. The selected wrapper has lambda 1.000 and cap                                       condition on only thirteen observed sessions and three
-fraction 0.01. Raw and wrapped outputs are separate                                       trained seeds; they do not quantify every deployment shift.
-INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                   6
+                                                                           P          wood_day_01
+
+                                                                           D
+DEV pooled median error (px)
+
+                                                                                      wood_184309
+
+
+                               6.4
+                                                                                      wood_183705
+                                                                           L        plastic_night_01
+
+                                                                           PRIOR     plastic_day_01
+                                                                                      eval_pallet09
+
+                               6.2                                                    eval_pallet07
+                                                                                       eval_outside
+                                                                                        eval_noapril
+                                                                                       eval_night09
+
+                               6.0                                                     eval_night08
+                                                                                           eval_cad
+
+                                                                                                           −2.0             −1.5              −1.0               −0.5     0.0
+
+                               5.8                                                                                       P − R0 pooled median error (px), seed mean
 
 
 
-   Second, the comparison contracts differ in useful ways                                  References
-that must remain visible. P reads internal R0 features;        [1] M. Knitt, J. Schyga, A. Adamanov, J. Hinckeldeyn, and
-the PoseFix-derived prior computes a separate RGB                  J. Kreutzfeldt, “Estimating the pose of a euro pallet with an RGB
-representation and adds ImageNet pretraining. D has a              camera based on synthetic training data,” Logistics Journal:
-                                                                   Proceedings, no. 18, 2022.
-different output support and loss. Equal source exposure is    [2] A. Miura, H. Uchiyama, M. Yamaguchi, N. Kai, T. Shiroshima,
-not equal compute or equal optimization diﬀiculty. None            and H. Saito, “Real-time 6DoF pallet pose estimation with
-of these comparisons identifies a universal architectural          monocular metric depth,” in International Conference on
-                                                                   Computer Vision Theory and Applications, vol. 2, 2026,
-optimum. Bounded prior learning curves diagnose progress           pp. 149–161. [Online]. Available: https://www.scitepress.org/
-but cannot certify full convergence.                               PublishedPapers/2026/146268/
-                                                               [3] G. Moon, J. Y. Chang, and K. M. Lee, “PoseFix: Model-
-   Third, current pose errors are measured against a               agnostic general human pose refinement network,” in IEEE/CVF
-geometry-reconstructed reference. Annotation ambiguity,            Conference on Computer Vision and Pattern Recognition, 2019,
-calibration, object dimensions, and reference construction         pp. 7773–7781.
-                                                               [4] X. Sun, B. Xiao, F. Wei, S. Liang, and Y. Wei, “Integral human
-can affect interpretation. Independently blinded duplicate         pose regression,” in European Conference on Computer Vision,
-labels and reviewed capture lineage are required for               2018, pp. 536–553.
-new confirmation; physical 6D accuracy would require           [5] P. Castro and T.-K. Kim, “CRT-6D: Fast 6D object
-                                                                   pose estimation with cascaded refinement transformers,” in
-additional metrology. Neither preserved detections nor             IEEE/CVF Winter Conference on Applications of Computer
-improved median error guarantees harmless tails, correct           Vision, 2023, pp. 5735–5744. [Online]. Available: https:
-pallet axes, or safe handling.                                     //arxiv.org/abs/2210.11718
-                                                               [6] J.   O.    Zhang,     A.    Sax,   A.      Zamir,     L.   Guibas,
-   Finally, this implementation is tied to the frozen de-          and J. Malik, “Side-tuning: A baseline for network
-tector’s feature interface and a desktop environment.              adaptation via additive side networks,” in European
-Embedded export parity and Jetson latency are not mea-             Conference on Computer Vision, 2020, pp. 698–714.
-                                                                   [Online]. Available: https://www.ecva.net/papers/eccv_2020/
-sured. The work provides an auditable sensing experiment,          papers_ECCV/html/1104_ECCV_2020_paper.php
+
+                                                                                   Fig. 4. P–R0 development median effects by recorded session.
+                               5.6                                                 Negative values favor P. These are descriptive effects from the
+                                                                                   reused panel, not independent confirmation intervals. All sessions
+                                       12.5 15.0 17.5 20.0 22.5 25.0 27.5 30.0     are retained.
+                                           BGR-to-pose median latency (ms)
+                                                                                                                TABLE III
+                                                                                           Desktop median latency in ms, representative seed1.
+Fig. 3. Actual per-seed DEV median against same-session median                          Training/scoring excluded from timing; all repeats retained.
+full-path latency. Lower is preferable on both axes. Each seed is a
+point, not a timing-selected winner or ensemble; separate-backbone                                     Model          BGR-to-2D                   PnP             Total
+prior cost is included. Source result/runtime hashes are recorded in
+FIGURE_MANIFEST.json.                                                                                  R0                      9.733            1.422           11.217
+                                                                                                       P1                     13.661            1.382           15.352
+                                                                                                       D1                     13.231            1.416           14.800
+                            TABLE II
+                                                                                                       L1                     18.226            1.399           19.736
+Reused DEV: seed-mean statistics, not an ensemble. Translation is
+ against the geometry reference. NM means not measured in this                                         PRIOR1                 27.537            1.470           29.020
+                              build.
+
+                               Model          Median      P90    PCK10    Trans.   reference-construction uncertainty.
+                                                  px       px       %        cm
+                               R0               6.616   38.670    63.73    7.897
+                               P mean           5.905   37.766    67.34    7.153   B. Prior-derived comparison
+                               D mean           6.430   37.566    64.57    7.597      The prior checkpoints were fixed at the final training
+                               L mean           6.070   37.320    66.78    7.548
+                                                                                   update; only the wrapper rule was selected on synthetic
+                               PRIOR mean       5.569   37.227    68.41    6.895
+                                                                                   data. The selected wrapper has lambda 1.000 and cap
+                                                                                   fraction 0.01. Raw and wrapped outputs are separate
+                                                                                   supplementary rows. All wrapped prior seeds retain the
+PCK10 changes from 63.733% to 67.341%. These figures                               baseline matched supervision support, with no nonfinite
+describe the present development panel only.                                       supervised coordinates. The P–prior paired median differ-
+   The P–D median difference is -0.525 pixels, with paired-                        ence is 0.336 px, with session interval [0.063, 0.585] px.
+session interval [-0.980,-0.210]. This supports a lower                            This interval favors the prior, so P is not the most accurate
+central development residual for P than this fixed direct                          comparator under this central-error criterion. A negative
+control. It does not prove that direct regression as a                             contrast favors P; a positive contrast favors the prior.
+method class is inferior. D has a slightly lower observed                          The complete-denominator PCK, tail and pose rows must
+P90, and the P–D tail interval includes zero. D also has                           be considered alongside the median. Six thousand updates
+lower measured desktop latency. There is therefore no all-                         per seed do not certify saturation or reproduce the original
+metric dominance claim. The internal line control also has                         140-epoch protocol.
+a lower observed P90 than P.
+   Figure 4 retains every recorded session. The
+eval_noapril session has an adverse P–R0 central                                   C. Eﬀiciency and accuracy–cost tradeoffs
+effect; the other twelve observed sessions improve. Leave-                            The expanded panel was measured in the same session
+one-session-out estimates remain favorable in this panel,                          for all comparators.
+but such deletion diagnostics are not new independent                                 P’s selected seed1 is the prespecified deployment repre-
+datasets. No unfavorable session is removed from the                               sentative; it must not be confused with the seed mean. Its
+aggregate.                                                                         desktop BGR-to-2D and PnP-inclusive median times are
+   The seed-mean reduction in geometry-reference trans-                            13.661 and 15.352 ms, compared with 9.733 and 11.217
+lation median is 7.439 mm. This is a change in error                               ms for R0 in the cited timing session. Allocator memory
+statistics against a reconstructed reference, not mea-                             is reported separately from whole-device memory, which
+sured insertion improvement. It cannot establish physical                          also includes the display and other software. The tables
+metrology accuracy independently of the image-label and                            do not extrapolate to Jetson, report unmeasured energy
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                  6
+
+
+
+savings, or infer operational throughput from an isolated     require the corresponding evidence rather than a more
+cached tensor.                                                favorable presentation of development numbers.
+
+D. Independent confirmation                                              Data, Code, and Author Declarations
+   Not yet measured: no independently reviewed cap-             Scripts, small numerical artifacts, coordinate checks,
+ture/annotation panel is available. The proposed collec-      source/weight hashes, and reproduction commands are
+tion count is a plan, not a completed experiment. De-         assembled in the companion repository paths identified
+velopment observations are not relabeled as confirmation      in the supplement. Raw images, videos, and large exter-
+results.                                                      nal/model weights are not publicly redistributed without
+                                                              permission. The source ImageNet checkpoint retrieval
+            VI. Limitations and Interpretation                procedure is documented separately. Author names, aﬀili-
+   First, the primary development improvement is con-         ations, ORCID identifiers, funding, conflicts, related prior
+ditional on matched supervision and on a historically         publications, AI-use disclosure, and submission consent
+selected model family. Complete-denominator PCK limits        remain for the actual author team to confirm. This internal
+one failure mode of optimistic reporting, but does not turn   draft has not been submitted.
+reused DEV into a confirmation set. The session intervals
+condition on only thirteen observed sessions and three                                    References
+trained seeds; they do not quantify every deployment shift.   [1] M. Knitt, J. Schyga, A. Adamanov, J. Hinckeldeyn, and
+                                                                  J. Kreutzfeldt, “Estimating the pose of a euro pallet with an RGB
+   Second, the comparison contracts differ in useful ways         camera based on synthetic training data,” Logistics Journal:
+that must remain visible. P reads internal R0 features;           Proceedings, no. 18, 2022.
+the PoseFix-derived prior computes a separate RGB             [2] A. Miura, H. Uchiyama, M. Yamaguchi, N. Kai, T. Shiroshima,
+                                                                  and H. Saito, “Real-time 6DoF pallet pose estimation with
+representation and adds ImageNet pretraining. D has a             monocular metric depth,” in International Conference on
+different output support and loss. Equal source exposure is       Computer Vision Theory and Applications, vol. 2, 2026,
+not equal compute or equal optimization diﬀiculty. None           pp. 149–161. [Online]. Available: https://www.scitepress.org/
+                                                                  PublishedPapers/2026/146268/
+of these comparisons identifies a universal architectural     [3] G. Moon, J. Y. Chang, and K. M. Lee, “PoseFix: Model-
+optimum. Bounded prior learning curves diagnose progress          agnostic general human pose refinement network,” in IEEE/CVF
+but cannot certify full convergence.                              Conference on Computer Vision and Pattern Recognition, 2019,
+                                                                  pp. 7773–7781.
+   Third, current pose errors are measured against a          [4] X. Sun, B. Xiao, F. Wei, S. Liang, and Y. Wei, “Integral human
+geometry-reconstructed reference. Annotation ambiguity,           pose regression,” in European Conference on Computer Vision,
+calibration, object dimensions, and reference construction        2018, pp. 536–553.
+                                                              [5] P. Castro and T.-K. Kim, “CRT-6D: Fast 6D object
+can affect interpretation. Independently blinded duplicate        pose estimation with cascaded refinement transformers,” in
+labels and reviewed capture lineage are required for              IEEE/CVF Winter Conference on Applications of Computer
+new confirmation; physical 6D accuracy would require              Vision, 2023, pp. 5735–5744. [Online]. Available: https:
+                                                                  //arxiv.org/abs/2210.11718
+additional metrology. Neither preserved detections nor        [6] J.   O.    Zhang,     A.    Sax,   A.      Zamir,     L.   Guibas,
+improved median error guarantees harmless tails, correct          and J. Malik, “Side-tuning: A baseline for network
+pallet axes, or safe handling.                                    adaptation via additive side networks,” in European
+                                                                  Conference on Computer Vision, 2020, pp. 698–714.
+   Finally, this implementation is tied to the frozen de-         [Online]. Available: https://www.ecva.net/papers/eccv_2020/
+tector’s feature interface and a desktop environment.             papers_ECCV/html/1104_ECCV_2020_paper.php
+Embedded export parity and Jetson latency are not mea-
+sured. The work provides an auditable sensing experiment,
 not a demonstrated control system. The author team
 must assess whether the remaining independent evidence
 and scientific contribution are suﬀicient for submission;
 compilation and formatting checks are not an acceptance
 decision.
 
-
-                     VII. Conclusion
-
+                       VII. Conclusion
    A fixed feature-reusing point refiner improves the cen-
 tral landmark residual on the current pallet development
 panel with a measured desktop cost. The preserved detec-
@@ -411,21 +443,4 @@ quantifies a fixed-budget tradeoff, not converged-method
 superiority. Independent real-session confirmation remains
 required. Further claims about independent generaliza-
 tion, physical sensing accuracy, or operational success
-require the corresponding evidence rather than a more
-favorable presentation of development numbers.
-
-
-          Data, Code, and Author Declarations
-
-  Scripts, small numerical artifacts, coordinate checks,
-source/weight hashes, and reproduction commands are
-assembled in the companion repository paths identified
-in the supplement. Raw images, videos, and large exter-
-nal/model weights are not publicly redistributed without
-permission. The source ImageNet checkpoint retrieval
-procedure is documented separately. Author names, aﬀili-
-ations, ORCID identifiers, funding, conflicts, related prior
-publications, AI-use disclosure, and submission consent
-remain for the actual author team to confirm. This internal
-draft has not been submitted.
 

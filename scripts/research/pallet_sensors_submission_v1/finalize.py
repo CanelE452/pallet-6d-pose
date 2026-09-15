@@ -24,6 +24,11 @@ def run():
     if checks['EVALUATE']:
         rt=read(DOC/'RUNTIME_PANEL.json');assert len(rt['records'])==13*26*5
         assert rt['accuracy_parity'] and rt['canonical_MAIN_pose_parity']
+        for b in [rt['raw_attempt'],rt['recovery'],rt['numeric_amendment']]+[v['source'] for v in rt['isolated_memory'].values()]:
+            assert sha(ROOT/b['path'])==b['sha256']
+        assert len(rt['isolated_memory'])==13
+        assert all(v['end_to_end_ms']['n']==130 for v in rt['summary'].values())
+        assert all(r['crop_px_max']<=3e-4 for r in rt['numerical_replay'])
         for s in (1,2,3):
             assert complete(f'PRIOR{s}_INFERENCE') and complete(f'PRIOR{s}_SCORED') and complete(f'PRIOR{s}_raw_SCORED')
     c=read(DOC/'CONFIRMATION_COMPLETE.json') if (DOC/'CONFIRMATION_COMPLETE.json').exists() else {}
@@ -74,7 +79,9 @@ def run():
             lines.append(f"| {fam} {'single' if fam=='R0' else 'seed mean'} | {m('median_px'):.6f} | {m('p90_px'):.6f} | {pck:.4f} | {p('translation_median_cm'):.6f} | {p('coverage'):.4f} | {latency} |")
         lines+=['','정확도는 seed별 통계의 평균이고 속도 대표는 seed1이다. 같은 열을 ensemble 또는 seed1 정확도로 해석하지 않는다. Raw prior는 UNIFIED_DEV_RESULTS와 보조자료의 별도 행이다. Rotation/yaw/IoU3D/ADDsym AUC, 전체 frame/point 분모와 모든 latency 반복도 해당 JSON/PDF에 보존했다.','']
     if interpretation.get('P_minus_PRIOR',{}).get('status')=='P_HIGHER_DEV_MEDIAN':
-        lines+=['','이번 고정 예산의 주 중앙오차 비교에서는 PRIOR가 P보다 낮은 오차를 보였다. P를 가장 정확한 비교군으로 결론내리지 않는다. 알려진 파라미터 수와 미측정인 새 동일 세션 속도를 구분해야 한다.','']
+        lines+=['','이번 고정 예산의 주 중앙오차 비교에서는 PRIOR가 P보다 낮은 오차를 보였다. P를 가장 정확한 비교군으로 결론내리지 않는다. 파라미터 수와 실제 속도 측정 여부를 구분해 정확도–비용 관계를 해석한다.','']
+    if checks['EVALUATE']:
+        lines+=['','새 동일 세션 속도는 처음 완료된 1,690개 유효 표본을 전부 사용했다. PRIOR의 비결정적 GPU 업샘플링에서 나온 미세 좌표 차이는 기존 네트워크 검증의 절대 crop 기준(상대 허용치 0)으로 확인했다. 검출/중심은 bit-exact, 현재 PnP hypothesis/coverage는 동일하며 원 DEV 수치는 바꾸지 않았다. 이어진 메모리 가드 중단 후 각 모델을 새 프로세스에서 측정했다. 실패한 부분 표본도 남겼고 더 빠른 실행을 고르지 않았다. 속도 구간의 OpenCV/inter-op thread 관측치는 보존되지 않아 미기록으로 표시했고, 별도 메모리 단계 관측과 구분했다.','']
     (DOC/'FINAL_REPORT_KO.md').write_text('\n'.join(lines))
     receipt('AUDIT_COMPLETE',[DOC/'FINAL_AUDIT.json'],[DOC/'FINAL_STATUS.json',DOC/'FINAL_REPORT_KO.md'],start,all_available_work_complete=all(checks.values()))
     print(json.dumps({k:status[k] for k in ('EXECUTION','PRIOR','DEV','COST','CONFIRMATION','MANUSCRIPT','PUBLICATION')},ensure_ascii=False),flush=True)

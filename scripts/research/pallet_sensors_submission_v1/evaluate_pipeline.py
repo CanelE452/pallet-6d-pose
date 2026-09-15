@@ -4,9 +4,9 @@ def run():
     if complete('EVALUATE_COMPLETE'): verify(); return
     import dev_completion
     if complete('DEV_COMPLETE'):
-        from submission_runtime import run as runtime
+        from runtime_recovery import run as runtime
         start=now();verify();runtime()
-        receipt('EVALUATE_COMPLETE',[DOC/'DEV_COMPLETE.json',HERE/'evaluate_pipeline.py',HERE/'submission_runtime.py'],
+        receipt('EVALUATE_COMPLETE',[DOC/'DEV_COMPLETE.json',HERE/'evaluate_pipeline.py',HERE/'runtime_numeric.py',HERE/'runtime_numeric_checks.py',HERE/'runtime_recovery.py',HERE/'memory_one.py',DOC/'RUNTIME_NUMERIC_AMENDMENT.json'],
             [DOC/'UNIFIED_DEV_RESULTS.json',DOC/'P_VS_PRIOR_PAIRED.json',DOC/'RUNTIME_PANEL.json'],start)
     else:
         import evaluate_compatible

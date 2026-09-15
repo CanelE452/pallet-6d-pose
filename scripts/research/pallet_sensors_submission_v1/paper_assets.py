@@ -93,7 +93,10 @@ def resource_table(runtime,rtpath):
     table+=f"The shared R0 has {params['R0']['total']:,} parameters. The recorded first cache pass processed {cache['rows_extracted_this_process']:,} records in {cache['elapsed_seconds_this_process']:.2f} seconds; bound cache arrays occupy {sum(r['bytes'] for r in arrays)/2**30:.3f} GiB. Head fit time excludes that extraction. NM indicates an unavailable historical allocation measurement, not zero cost. R0 is not newly trained.\n"
     if 'threads' in runtime:
         t=runtime['threads'];cpu=next((x['data'] for x in runtime['cpu_hardware']['lscpu'] if x['field']=='Model name:'),'see runtime hardware record')
-        table+=f"CPU: {cpu}. Recorded thread settings after model loading: Torch intra-operation {t['torch_intraop']}, inter-operation {t['torch_interop']}, OpenCV {t['opencv']}. These settings do not imply that every library or background process used the same thread count.\n"
+        table+=f"CPU: {cpu}. Timed code fixes Torch intra-operation threads to {t['torch_intraop']}. "
+        if 'memory_phase_threads' in runtime:
+            z=runtime['memory_phase_threads']['R0'];table+=f"Inter-operation and OpenCV thread observations were not durably captured in the timed phase. In the separate fresh-process memory phase, observed settings were Torch intra-operation {z['torch_intraop']}, inter-operation {z['torch_interop']}, OpenCV {z['opencv']} (R0 process; all models are in the runtime JSON). These are not retrospectively labeled timed-phase observations.\n"
+        else:table+=f"Recorded inter-operation {t['torch_interop']}, OpenCV {t['opencv']}. These are library settings, not a universal process thread limit.\n"
     (PAPER/'generated_tables/resources.tex').write_text(table)
 
 if __name__=='__main__':

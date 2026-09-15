@@ -2,7 +2,7 @@
 
 - 시작 main: `0b8487b87b55d117d2f0aa4b1f3ef5b9dc6573ad`.
 - 게시 SHA는 작업 완료 메시지와 ignored raw/PUBLISH_COMPLETE.json에서 확인한다. 자기 SHA를 커밋 내부에 억지로 넣지 않는다.
-- 실행: PARTIAL_TECHNICAL; 선행 비교: MATCHED_BUDGET_COMPLETE; 독립 확인: AWAITING_INDEPENDENT_DATA.
+- 실행: COMPLETE_FOR_AVAILABLE_INPUTS; 선행 비교: MATCHED_BUDGET_COMPLETE; 독립 확인: AWAITING_INDEPENDENT_DATA.
 - 기존 R0/P/D/L의 학습·가중치·선택·평가 결과는 그대로 보존했다. 기존 모델 추가 학습은 0회다.
 - 선행은 실제 공식 TF1 CPU 네트워크를 기준으로 연산/가중치를 검증한 PyTorch PoseFix-derived pallet9다. RGB 및 pallet9 target/support 변경, BN의 실제 epsilon 보정을 공개했다. torchvision 대체나 D 재명명 결과가 아니다.
 
@@ -23,10 +23,6 @@
 ## 결과와 한계
 
 DEV319/13 sessions 및 negative2689이며 기존 조건부 매칭311장/2,756점, 전체 GT2,818점 분모를 보존했다. 새 prior의 실제 분모·비유한값·pose coverage는 UNIFIED_DEV_RESULTS.json에 따로 기록했다.
-
-새 전체 panel 속도 측정은 외부 finetune_green_zip.py의 GPU 점유 때문에 보류했다. GPU는 정상 동작 중이며 no-CUDA/드라이버 오류가 아니다. 지시문의 반복 확인 상한에 따라 다른 작업을 종료하거나 무기한 대기하지 않았다. 기존 속도는 역사적 기록으로만 보존하며 PRIOR와의 동일 세션 속도 비교라고 하지 않는다.
-
-GPU 작업 담당자가 다른 학습 종료를 확인한 뒤 `python scripts/research/pallet_sensors_submission_v1/run.py evaluate`로 비용 단계부터 재개한다. 이어 confirmation → manuscript → 모든 새 PDF 페이지 검사/visual receipt → audit → publish를 실행한다. 완료된 18,000 updates와 DEV 추론/통계를 재수행하지 않는다. 백그라운드 대기 작업은 남기지 않았다.
 
 - P_minus_R0: -0.710767px, paired-session95% interval [-1.173744, -0.411083]. 음수는 P의 낮은 오차를 뜻한다.
 - P_minus_D: -0.525361px, paired-session95% interval [-0.980016, -0.210116]. 음수는 P의 낮은 오차를 뜻한다.
@@ -49,13 +45,16 @@ R0 초기 checkpoint에는 COCO-pose 사전학습 이력이 있다. 합성 전�
 
 | 모델 | median px | P90 px | 전체 PCK10 % | translation cm | pose coverage | 대표 full-path ms |
 |---|---:|---:|---:|---:|---:|---:|
-| R0 single | 6.615678 | 38.670038 | 63.7331 | 7.896852 | 1.0000 | NM (새 panel 보류) |
-| P seed mean | 5.904910 | 37.766432 | 67.3409 | 7.152979 | 1.0000 | NM (새 panel 보류) |
-| D seed mean | 6.430271 | 37.566241 | 64.5730 | 7.597128 | 1.0000 | NM (새 panel 보류) |
-| L seed mean | 6.069932 | 37.319600 | 66.7850 | 7.548493 | 1.0000 | NM (새 panel 보류) |
-| PRIOR seed mean | 5.568679 | 37.226827 | 68.4055 | 6.895311 | 1.0000 | NM (새 panel 보류) |
+| R0 single | 6.615678 | 38.670038 | 63.7331 | 7.896852 | 1.0000 | 11.217 |
+| P seed mean | 5.904910 | 37.766432 | 67.3409 | 7.152979 | 1.0000 | 15.352 |
+| D seed mean | 6.430271 | 37.566241 | 64.5730 | 7.597128 | 1.0000 | 14.800 |
+| L seed mean | 6.069932 | 37.319600 | 66.7850 | 7.548493 | 1.0000 | 19.736 |
+| PRIOR seed mean | 5.568679 | 37.226827 | 68.4055 | 6.895311 | 1.0000 | 29.020 |
 
 정확도는 seed별 통계의 평균이고 속도 대표는 seed1이다. 같은 열을 ensemble 또는 seed1 정확도로 해석하지 않는다. Raw prior는 UNIFIED_DEV_RESULTS와 보조자료의 별도 행이다. Rotation/yaw/IoU3D/ADDsym AUC, 전체 frame/point 분모와 모든 latency 반복도 해당 JSON/PDF에 보존했다.
 
 
-이번 고정 예산의 주 중앙오차 비교에서는 PRIOR가 P보다 낮은 오차를 보였다. P를 가장 정확한 비교군으로 결론내리지 않는다. 알려진 파라미터 수와 미측정인 새 동일 세션 속도를 구분해야 한다.
+이번 고정 예산의 주 중앙오차 비교에서는 PRIOR가 P보다 낮은 오차를 보였다. P를 가장 정확한 비교군으로 결론내리지 않는다. 파라미터 수와 실제 속도 측정 여부를 구분해 정확도–비용 관계를 해석한다.
+
+
+새 동일 세션 속도는 처음 완료된 1,690개 유효 표본을 전부 사용했다. PRIOR의 비결정적 GPU 업샘플링에서 나온 미세 좌표 차이는 기존 네트워크 검증의 절대 crop 기준(상대 허용치 0)으로 확인했다. 검출/중심은 bit-exact, 현재 PnP hypothesis/coverage는 동일하며 원 DEV 수치는 바꾸지 않았다. 이어진 메모리 가드 중단 후 각 모델을 새 프로세스에서 측정했다. 실패한 부분 표본도 남겼고 더 빠른 실행을 고르지 않았다. 속도 구간의 OpenCV/inter-op thread 관측치는 보존되지 않아 미기록으로 표시했고, 별도 메모리 단계 관측과 구분했다.
