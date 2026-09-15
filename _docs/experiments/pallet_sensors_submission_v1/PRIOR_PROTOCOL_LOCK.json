@@ -1,0 +1,99 @@
+{
+  "name": "PoseFix-derived pallet9, matched-exposure adaptation",
+  "source_commit": "5556364bb0f43b0743a5fcd820de48f34b3d4360",
+  "prior_design": {
+    "classification": "purpose-adapted PoseFix pallet9 comparator, not faithful human-benchmark reproduction",
+    "source_commit": "5556364bb0f43b0743a5fcd820de48f34b3d4360",
+    "source_license": "MIT; retain original notice when distributing adapted official code",
+    "keypoints": "17 human to 9 pallet; preserve center8 at restoration, exclude center8 loss; no human swap/inversion skeleton priors",
+    "image_pose_encoding": "RGB mean-centered 384x288 crop; aspect-correct predicted bbox x1.25; nine Gaussian input maps sigma9; 96x72 output",
+    "kept": "ResNet152 option, Gaussian pose encoding, heatmap CE plus coordinate L1 and expectation readout",
+    "changed": "predicted pallet boxes and frozen R0 source train poses replace human GT box/human empirical noise; no DEV residual fit, no pose flipping until index-contract verification",
+    "initialization": "Official tf-slim ImageNet resnet_v1_152 checkpoint referenced by README; validate download/hash and expanded input conv before run; no COCO/PoseTrack pose weights by default",
+    "weights_availability": "Official README links Google Drive human-trained PoseFix snapshots and tf-slim ImageNet backbones; linked, not downloaded/verified here",
+    "additional_supervision": "ImageNet class-label pretraining if checkpoint obtained; human keypoint supervision excluded in default adapted comparator",
+    "matched_budget": {
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "steps": 6000,
+      "batch": 16,
+      "exposures_per_seed": 96000,
+      "source_order": "exact P order arrays",
+      "optimizer": "official Adam lr0.0005, weight regularization0.00001, default Adam betas0.9/0.999; no added warmup/clip",
+      "decay_factor": 10,
+      "decay_at_updates": [
+        3858,
+        5143
+      ],
+      "schedule": "ceil(6000*90/140) and ceil(6000*120/140); adapted matched-budget schedule, not140 completed epochs"
+    },
+    "convergence_budget": {
+      "epochs": 140,
+      "steps_per_seed": 489300,
+      "separate_additional_budget": true,
+      "selection": "synthetic selection only, last fixed checkpoint"
+    },
+    "validation": "same cal/selection/heldout membership, fixed P lambda/cap grid with exact old source corner objective and tie; no temperature sweep for coordinate output",
+    "runtime": "full image crop+extra backbone+readout+restoration; include original R0 detector; PnP separate",
+    "resource_estimate": {
+      "status": "NOT_MEASURABLE_UNTIL_NETWORK_RUNTIME_READY",
+      "hours": null,
+      "peak_memory_GB": null,
+      "CPU_adapter_median_ms": 42.132796999794664,
+      "no_proxy_model_estimate": true
+    },
+    "next_gate": "Isolated compatible runtime, official-network forward/backward+weight loading+operator parity and measured peak VRAM/seconds per update; then bind numerical schedule and code before any full fit",
+    "interpretation": "matched-exposure result cannot establish converged-method superiority; convergence budget is a separate comparator; official baseline performance NOT_YET_MEASURED"
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "steps": 6000,
+  "batch": 16,
+  "source_order": "exact P order_seed*.npy",
+  "lr": 0.0005,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "epsilon": 1e-08,
+  "L2_conv_weight_penalty_half_scale": 1e-05,
+  "decay_updates": [
+    3858,
+    5143
+  ],
+  "clip": "NOT_USED",
+  "augmentation": "fixed source-image crop; no human pose noise/flip/scale/rotation; matched P exposures",
+  "crop": [
+    384,
+    288
+  ],
+  "heatmap": [
+    96,
+    72
+  ],
+  "input_maps_amplitude": 255,
+  "input_sigma": 9,
+  "RGB": true,
+  "center_loss": false,
+  "center_restored": true,
+  "scalar_atol": 1e-05,
+  "scalar_rtol": 0.0001,
+  "network_atol": 0.0003,
+  "network_rtol": 0.0003,
+  "network_relative_l2_max": 0.0001,
+  "smoke_max_updates": 100,
+  "checkpoint_policy": "last6000 only; durable optimizer/RNG/order cursor",
+  "no_DEV_selection": true,
+  "amendments": [
+    "Official gen_batch.py currently leaves BGR conversion commented out; requested RGB is an explicit purpose adaptation, not exact loader reproduction.",
+    "Official trainer includes L2 over conv weights, not AdamW weight decay.",
+    "TF1 Adam epsilon is applied to uncorrected sqrt second moment; preserve its update formula.",
+    "Safe bilinear targets retain only in-range scatter indices and normalize; crop-outside/nonfinite GT gets no training supervision, never removed from evaluation GT."
+  ]
+}

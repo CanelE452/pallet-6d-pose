@@ -1,0 +1,39 @@
+{
+  "nominal_batch": 16,
+  "microbatch": 16,
+  "gradient_accumulation": 1,
+  "BN_equivalent_to_batch16": true,
+  "BN_policy": "train-mode BN per physical microbatch; one running-stat update per forward; explicit resource amendment if micro<16",
+  "activation_checkpointing": false,
+  "AMP": false,
+  "TF32": false,
+  "clipping": "NOT_USED",
+  "attempts": [
+    {
+      "microbatch": 16,
+      "status": "PASS",
+      "nominal_batch": 16,
+      "seconds_per_update": 0.6404545870027505,
+      "peak_allocated_MiB": 7255.712890625,
+      "gradient_norm": 31.46108627319336,
+      "head_update_norm": 0.02321736514568329,
+      "BN_updates": 1
+    }
+  ],
+  "before": {
+    "time": "2026-09-15T00:04:34.805768+00:00",
+    "gpu": "NVIDIA GeForce RTX 3080, 580.178.04, 434 MiB, 10240 MiB, 56, 30 %",
+    "compute": "",
+    "foreign_compute": [],
+    "display_retained": true
+  },
+  "after": {
+    "time": "2026-09-15T00:04:38.082547+00:00",
+    "gpu": "NVIDIA GeForce RTX 3080, 580.178.04, 2280 MiB, 10240 MiB, 64, 23 %",
+    "compute": "1471121, /home/minjae/anaconda3/envs/pallet-yolo26/bin/python, 1844 MiB",
+    "foreign_compute": [],
+    "display_retained": true
+  },
+  "estimated_18000_update_hours": 3.2022729350137524,
+  "estimate_scope": "single cold actual update including transfer; not a completion guarantee"
+}

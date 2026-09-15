@@ -1,0 +1,7 @@
+# Canonical scorer metadata correction
+
+The original evaluation attempt completed all three source-selected models' 3,008 actual image forwards before canonical scoring stopped at 2026-09-15T02:19:25.323096+00:00. The historical scorer required `selection_population == "synth_val"`; the new immutable selection file already recorded synthetic partitions and `no_real_selection`, but omitted that literal compatibility field.
+
+The original `PRIOR_SELECTION.json`, DEV lock, image predictions, point replacements, model weights, and training code remain unchanged. `evaluate_compatible.py` creates a separate selection metadata view adding this field, and separate replacement metadata views pointing to it. Their frame values are asserted equal to the originals. The canonical scorer's guard is not bypassed or weakened. The new scoring receipts bind both the original and adapted artifacts and the compatibility code. No extra training, forward pass, threshold selection, or favorable subset is introduced by this repair.
+
+A subsequent evaluation retry was stopped before scoring because another task's `finetune_green_zip.py` occupied the GPU. That task was not stopped. Cached-prediction CPU scoring can proceed independently; the actual runtime stage still requires absence of other GPU compute. New stage failures are archived in the ignored raw directory before updating the latest status. The initial scorer exception's exact condition and timestamp are retained here and in `SCORER_METADATA_AMENDMENT.json`; it is not a model-quality failure.

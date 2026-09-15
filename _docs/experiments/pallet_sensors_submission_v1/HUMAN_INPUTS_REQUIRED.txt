@@ -1,0 +1,34 @@
+독립 확인 자료 인계 — 연구자/촬영 담당자/어노테이터가 제공해야 합니다.
+
+현재: 기존 FINAL manifest는 membership UNAVAILABLE. 새 독립 확인 평가 0장.
+권장 출발안: 별도12세션×15장=180장(검정력 보장 아님), 실내/외×낮/밤.
+예측 전 frame 선택 규칙, 원영상/source video/capture group/촬영시각/카메라·장착,
+팔레트 identity/material/실측 치수·카메라 intrinsics·왜곡 설정과 측정 출처를 보존하세요.
+과거 source/train/cal/selection/DEV/AL/replay/QA에서 본 장면은 재촬영·재인코딩
+파일명 변경만으로 독립이 되지 않습니다. lineage 검토 담당자가 연결 이력을 확인해야 합니다.
+
+원자료 위치(공개 Git 제외): data/pallet/results/pallet_sensors_submission_v1/confirmation/incoming/
+panel.json: CONFIRMATION_SCHEMA.json의 필드를 따르며 실제 file path/hash를 적습니다.
+annotation1/annotation2/adjudication은 별도 파일로 보존합니다.
+모델 예측을 보지 않은 상태로 최소30장 이중 어노테이션 및 blind adjudication,
+corner0..7/center8 의미, visible/amodal/unavailable 구분을 기록합니다.
+누락점은 예측으로 채우지 않습니다. 모델 성능을 보고 GT나 membership을 수정하지 않습니다.
+검토 서명/시각/실측 여부를 CLI가 대신 true로 채우지 않습니다.
+
+모든 prior 비교군 완료/선택 고정 이후 아래 명령으로 schema/hash/history/QA를 검증하고
+고정 전체 panel의 실제 영상 추론 및2D 분석을 재개합니다:
+  python scripts/research/pallet_sensors_submission_v1/run.py confirmation --panel data/pallet/results/pallet_sensors_submission_v1/confirmation/incoming/panel.json
+  python scripts/research/pallet_sensors_submission_v1/run.py manuscript
+
+새 frame의 geometry-reference6D는 카메라/축/실측 치수/수동 reference 연결 감사 후 별도로
+binding해야 합니다.2D 개선을6D 실측 결과로 환산하지 않습니다.
+Jetson은 미측정. 저자/ORCID/소속/연구비/COI/선행발표/AI 사용/투고동의는 AUTHOR_REVIEW.md.
+
+GPU 비용 측정 재개: 현재 FINAL_STATUS의 COST가 보류이면 GPU 작업 담당자가 다른 학습의
+종료를 확인한 뒤 run.py evaluate를 실행하세요. 저장된 DEV_COMPLETE로 비용 단계부터
+재개하며 본 학습/영상 추론/통계를 다시 하지 않습니다. 이어 confirmation → manuscript →
+새 PDF 모든 페이지 검사 및 visual receipt → audit → publish입니다. 다른 작업을 kill하지 않습니다.
+
+Synthetic toy 레코드(실제 확인자료가 아님): frame_id=toy_000, session_id=toy_session,
+image=toy.png, keypoints_xy=[[0,0],...총9개], supervision=[false,...총9개].
+가짜 image hash/실측 값/검토 서명으로 이 예시를 평가 입력으로 사용하지 마세요.

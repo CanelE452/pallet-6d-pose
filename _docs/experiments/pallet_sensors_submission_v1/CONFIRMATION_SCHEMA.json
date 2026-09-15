@@ -1,0 +1,42 @@
+{
+  "schema": "pallet_independent_confirmation_v1",
+  "required_panel_fields": [
+    "comparators_frozen",
+    "prior_baseline_completed",
+    "capture_history_reviewed",
+    "frames",
+    "model_freeze_sha256",
+    "lineage_review_author",
+    "lineage_review_time",
+    "annotation1_file",
+    "annotation2_file",
+    "adjudication_file",
+    "double_annotation_frame_ids",
+    "reference_QA_completed"
+  ],
+  "required_frame_fields": [
+    "frame_id",
+    "session_id",
+    "capture_group_id",
+    "source_video_id",
+    "image",
+    "image_sha256",
+    "new_independent_capture",
+    "annotators_blinded",
+    "box_xyxy",
+    "keypoints_xy",
+    "supervision",
+    "intrinsics",
+    "dimensions_m",
+    "timestamp",
+    "camera_id",
+    "pallet_identity",
+    "landmark_types",
+    "measurement_provenance"
+  ],
+  "predictions_schema": "methods R0,P1,P2,P3,D1,D2,D3,L1,L2,L3,PRIOR1,PRIOR2,PRIOR3 -> frame_id -> candidate list",
+  "missing_prediction_policy": "Frame entry must exist, empty list means no detection and zero PCK hits. Nonfinite predicted point receives no hit; conditional precision support must be audited.",
+  "provenance_policy": "Registered weights/code/rules frozen before unblinding; no tuning or further fitting after opening",
+  "primary": "pooled supervised9 median, mean seed deltas versus single R0; session95 CI",
+  "safety": "all-GT PCK and coverage, no invented deployment tolerance"
+}

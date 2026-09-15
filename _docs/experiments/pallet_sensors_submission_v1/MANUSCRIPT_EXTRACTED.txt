@@ -1,0 +1,431 @@
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                                                         1
+
+
+
+
+Synthetic-Supervised Local Keypoint Refinement for
+         Monocular Pallet Pose Estimation
+                                     Internal research draft—author details pending
+
+
+
+
+   Abstract—Accurate image landmarks are important to
+monocular pallet pose measurement, but improving localization                                            Reused P3/P4 features
+need not require changing an established detector. We study a
+fixed, synthetic-supervised local keypoint refiner that reuses
+two feature scales of a frozen RGB estimator. The 18,962-                                       Frozen R0                         P local                  PnP
+                                                                        RGB image              points + box                     refinement                 pose
+parameter module predicts a distribution over local corner dis-
+placements while preserving bounding boxes, confidence scores,
+instance selection, and the center landmark. On 319 reused
+development images from 13 sessions, the mean over three
+                                                                                                                          Synthetic supervision           Intrinsics
+independently trained seeds of pooled landmark median error                                                                  (training only)          known dimensions
+changes from 6.616 to 5.905 pixels. The paired-session interval
+for the reduction is [0.411,1.174] pixels. Complete-denominator
+                                                                       Preserved: boxes, scores, selection, center8. Updated: supported corners0 7.
+keypoint accuracy, error tails, geometry-reference pose errors,
+and desktop latency are reported separately. A matched-
+evidence direct regression control and a source-derived PoseFix     Fig. 1. Tested information paths. P uses image features and predicted
+pallet adaptation test distinct refinement alternatives. The P–     points/box. Camera intrinsics and registered physical dimensions
+prior median difference is 0.336 pixels (paired-session interval    enter the downstream pose solver, not P. Synthetic labels supervise
+[0.063,0.585]). The interval favors the prior, not P. This is       P during training only. Boxes, scores, selected instance, and center
+                                                                    are preserved; corner geometry can change.
+a fixed-budget development comparison. These measurements
+establish the scope of the development evidence, not an unseen-
+session guarantee. Independent real-session confirmation is not
+yet available. Neither an original expectation operator nor            We investigate the already-trained point refiner P.
+operational handling reliability is claimed.                        It reads existing detector features and scores candidate
+   Index Terms—Monocular vision, pallet pose, keypoint re-          displacements around each predicted corner. The detector
+finement, synthetic supervision, feature reuse, measurement         is frozen, but this is not a guarantee that corrected
+evaluation.                                                         geometry is harmless: a wrong displacement can still
+                                                                    degrade a keypoint or a pose. Our evaluation therefore
+                                                                    retains tails, individual sessions, and complete ground-
+                       I. Introduction                              truth denominators alongside the central error statistic.
+   Pallet localization provides geometric input to inspec-          The method depends on a specific internal feature inter-
+tion, tracking, and material-handling systems. A monoc-             face and is not demonstrated to be model-agnostic.
+ular RGB camera offers a compact sensing interface,                    The contributions are an explicitly specified feature-
+but image-level detection is not the same quantity as               reusing refinement interface, controlled development com-
+accurate geometric measurement. The same correctly de-              parisons with distinct direct, line-structured, and prior-
+tected instance can have displaced corners; a downstream            derived alternatives, and an auditable measurement pro-
+perspective-n-point (PnP) solver can amplify some image             tocol tying original-pixel outputs to downstream geometry
+errors depending on geometry and viewing configuration.             and measured cost. These are system and empirical
+It is therefore useful to distinguish detection, conditional        contributions to be assessed against the evidence. We
+landmark precision, and pose measurement when evaluat-              do not introduce a new expectation operator, a low-rank
+ing a refinement method.                                            adaptation algorithm, or a new safety controller. Figure 1
+   Synthetic training can supply image supervision without          separates the learned correction from the frozen detector
+manually annotating every pallet training image. Syn-               and the geometry inputs.
+thetic RGB pallet pose estimation is already established,
+for example through the Euro-pallet study of Knitt et al.                        II. Related Work and Comparison Scope
+[1]. We do not claim its invention, a measured reduction in         A. Pallet perception and synthetic supervision
+annotation labor, or a universal synthetic-to-real solution.
+                                                                      Knitt et al. [1] trained a DOPE-based pallet estimator
+Instead, we ask a narrower question: can a small local
+                                                                    using synthetic imagery and evaluated RGB Euro-pallet
+module improve the residual geometry of a fixed estimator
+                                                                    pose. More recently, Miura et al. [2] studied monocular
+while leaving its detection outputs unchanged?
+                                                                    pallet pose using metric-depth predictions and ground-
+  Not submitted. Independent confirmation and author declarations   plane information. These works motivate the application
+remain subject to the evidence status reported in this draft.       and establish that RGB pallet estimation and synthetic
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                          2
+
+
+
+data are not new in themselves. Their datasets and                The historical image pipeline is preserved: rectangular
+auxiliary information differ from ours; published numbers      detector preprocessing at the registered input size, stride-
+are not subtracted from the present development results.       aware padding, and original-image restoration. Prepared
+                                                               synthetic images already include their recorded reflection
+B. Pose and coordinate refinement                              padding and are not padded a second time. Let g be the
+   PoseFix[3] refines an input pose using the image and        letterbox scale and o its offset. Original points p and
+a separate backbone. Its human-pose training procedure         network-input points p̃ satisfy p̃ = gp+o. Corrections are
+synthesizes pose errors from human-keypoint statistics.        restored as displacements divided by g, not by applying a
+Our purpose adaptation replaces those human assump-            second interpolation or correction scale.
+tions with frozen source-training predictions from the
+pallet detector. It is named PoseFix-derived pallet9,          B. Local candidate evidence
+matched-exposure adaptation, not a reproduction of the            P adapts P3/P4 features with small learned channel
+original human benchmark. Integral regression[4] estab-        projections. Around each valid corner, 13 directions and
+lishes differentiable coordinate expectation as prior art.     17 radii define 221 displacement candidates within 0.08
+P applies an expectation to candidate displacements; the       predicted-box diagonal. A zero-displacement null can-
+expectation itself is not a claimed invention.                 didate completes the 222-way distribution. Each non-
+   CRT-6D[5] uses object-surface keypoint features in cas-     null candidate reads a 4 × 8 stencil from both feature
+caded pose refinement. It is relevant to sparse feature-       scales using the registered bilinear sampling geometry.
+based correction, but has a different object-surface and       A shared patch encoder and corner-role/context features
+pose contract. The inspected oﬀicial repository at the         feed candidate and null scorers. No explicit edge or Hough
+recorded commit contains no executable network; no             representation is required by P.
+substitute transformer is reported as CRT-6D. Our named
+                                                                  Let db denote the predicted box diagonal in network-
+prior experiment is limited to the declared PoseFix-derived
+                                                               input pixels, vj the normalized candidate offsets, and zkj
+family rather than expanding a benchmark after seeing
+                                                               the score for corner k. For the frozen temperature T and
+results.
+                                                               scale λ, the proposed displacement is
+                                                                                       ∑ exp(zkj /T )
+C. Feature reuse and small side networks                                     δ k = λdb    ∑                 vj .       (1)
+   Side-tuning[6] relates to adapting a fixed representation                            j    l exp(zkl /T )
+through a separate learned path. P shares the general
+                                                               The null candidate has vnull = 0. Given an original-image
+motivation of retaining a backbone and training a smaller
+                                                               diagonal dI and frozen cap fraction α, the final input-space
+addition. Nevertheless, P does not implement LoRA,
+                                                               movement and restoration are
+and no new parameter-eﬀicient fine-tuning benchmark                                          (             )
+is established. Both P and the direct control D have                                               αdI g
+                                                                               δ̄ k = δ k min 1,             ,          (2)
+small learned heads. Their difference therefore cannot be                                          ∥δ k ∥2
+attributed simply to parameter eﬀiciency. Freezing the                         p′k = pk + δ̄ k /g,                      (3)
+backbone also does not make inference overhead zero.
+                                                               with unit scaling for a zero movement. P retains its already
+              III. Fixed Refinement Method                     selected λ = 1 and α = 0.01, with the original per-seed
+                                                               temperatures. Unsupported points are unchanged; point
+A. Sensor, detector, and coordinates
+                                                               8 is copied exactly. Detection boxes, confidences, candi-
+   The baseline R0 is a YOLO26n pose estimator pro-            date order, and nonselected points are preserved. These
+ducing a box, confidence, and nine points per candidate        contracts do not imply unchanged or always improved 6D
+instance. The selected instance is the highest-confidence      geometry.
+prediction under the existing pipeline. Corner indices 0–
+7 retain the registered cuboid convention, and index 8
+retains the established center definition. The wrapper does    C. Training and internal controls
+not use a ground-truth box or pose to select the input            P learns a soft distribution over candidate displacements
+instance. Ground truth is used downstream for training         from synthetic corner residuals. The finite target support
+supervision and evaluation matching only.                      and per-frame reduction are retained from the fixed imple-
+   R0 was initialized from a pretrained YOLO26n                mentation. The already completed P, D, and L fits each
+pose checkpoint, and its stored provenance identifies          use their recorded three seeds and fixed exposure budget;
+COCO-pose training in that checkpoint. The pallet run          none is retrained here. P has 18,962 learned parameters. D
+also records pretrained initialization. Thus, “synthetic-      reuses the same sampling and shared feature descriptors,
+supervised refinement” refers to the training of the addi-     but regresses normalized corner residuals with an L1
+tional module, not a claim that no real annotations ever       objective. It has 19,450 parameters and an unbounded raw
+contributed to the full estimator. Real labels are also used   output, in contrast to P’s candidate convex hull. This is a
+in development and evaluation. R0 is not retrained in the      comparison of readout/supervision packages, not a causal
+present comparison.                                            ablation of softmax alone.
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                                               3
+
+
+
+                                                                                                                         TABLE I
+                                  0.08       221 candidates                                  Comparator information contract. All added heads have zero
+                                             input / null                                      real-pallet training examples. R0’s upstream COCO-pose
+                                  0.06       one actual 4 x 8 stencil                       initialization is shared; geometry is supplied to PnP, not these
+  y displacement / box diagonal
+
+                                                                                                                          heads.
+                                  0.04
+                                                                                             Method      Added inference input       Added pretraining
+                                  0.02
+                                                                                             R0          none                        none
+                                  0.00                                                       P/D/L       R0 P3/P4, pose/box          none
+                                                                                             Prior       RGB crop, pose/box          ImageNet classes
+                                  0.02
+                                  0.04                                                    moving-statistics behavior. Stem/residual stride, padding,
+                                  0.06                                                    transposed-convolution alignment, weight layout, Gaus-
+                                                                                          sian amplitude, bilinear target mass, expectation coor-
+                                  0.08                                                    dinates, loss reduction, and Adam updates are checked
+                                         0.075 0.050 0.0250.000 0.025 0.050 0.075         against the oﬀicial TF1 CPU implementation. Full-
+                                              x displacement / box diagonal               network eval outputs are also checked on the GPU. This
+                                                                                          is a source-based PyTorch port, not an assertion that the
+Fig. 2. The implemented candidate lattice and one actual sampling                         unmodified TF1 GPU program ran.
+stencil in box-diagonal units. The blue stencil is shown at a fixed                          ImageNet TF-Slim backbone weights are transferred
+candidate index, not selected for performance. The probability                            by exact variable mapping, with oﬀicial seed-specific
+expectation in (1) combines candidate displacements; no illustrative
+weights are presented as measured outputs. Geometry and source                            initialization for added pose channels and output layers.
+hashes are recorded in FIGURE_MANIFEST.json.                                              No human PoseFix-trained weights are used for this added
+                                                                                          network. Center loss is masked and the original center is
+                                                                                          restored. Targets outside the valid crop are not clamped
+   L is the historical line-structured internal control. Its                              into invented boundary labels; valid bilinear mass is
+results are retained to show that explicit line structure has                             retained and normalized with safe scatter indices. This
+not established an all-metric benefit in this configuration.                              training-support mask never changes evaluation ground
+Earlier Hough, active-adaptation, and replay investiga-                                   truth.
+tions are part of the research history, not new primary                                      The declared prior budget is three seeds, each 6000
+comparisons in this manuscript. No unfavorable historical                                 Adam updates of 16 source examples, using the exact P
+outcome was deleted.                                                                      sample order. The learning rate is 5 × 10−4 , divided by
+   For a supported corner with target residual rk , P’s                                   ten at updates 3858 and 5143. Convolution weights receive
+target mass is                                                                            the oﬀicial graph L2 term, not AdamW decay; no warmup
+         exp[−∥db vj − rk ∥2 /(2σ 2 )]                                                    or clipping is added. The final checkpoint is used. This
+  qkj = ∑                              ,                                σ = 0.08db /17.
+          l exp[−∥db vl − rk ∥ /(2σ )]
+                              2      2                                                    matched-exposure budget is not the original 140-epoch
+                                                         (4)                              training protocol and does not establish converged-method
+Cross-entropy is averaged over supported corners within                                   superiority. All three matched-budget fits were completed;
+each frame and then over frames with support. This                                        the learning curves are diagnostic, not a best-checkpoint
+smooth finite-candidate target differs from D’s direct                                    selector.
+residual L1 supervision. Its existing settings are retained,
+not newly optimized here.                                                                 E. Downstream geometric measurement
+                                                                                             The unchanged prediction-only selector uses the reg-
+D. Purpose-adapted prior comparator                                                       istered camera intrinsics and physical pallet dimensions
+   The prior uses the oﬀicial PoseFix ResNet152 arrange-                                  to select its dimension hypothesis. The selected cuboid
+ment, a 384×288 RGB crop, nine Gaussian pose maps with                                    is solved using the canonical SQPnP/RefineLM path.
+sigma 9 crop pixels and amplitude 255, three upsampling                                   Intrinsics and dimensions are not neural inputs to P
+stages, and a 96 × 72 nine-channel output. The predicted                                  or D. Ground truth does not choose the prediction’s
+box is aspect-corrected and expanded by 1.25. It is not                                   most favorable pose hypothesis. Current reference poses
+replaced by a ground-truth box. Human swap/inversion                                      are reconstructed from manual image points and known
+noise and human joint flipping are removed; the input                                     geometry, rather than obtained from an independent
+pose is the frozen R0 source prediction. The requested                                    physical 6D instrument. Near-square axis confusion is not
+RGB input is explicitly distinguished from the inspected                                  newly excused by adding a symmetry minimization.
+oﬀicial loader, whose channel-reversal line is commented
+                                                                                                 IV. Datasets and Measurement Protocol
+out.
+   The source graph requests a BN epsilon of 10−9 ,                                       A. Source exposure and rule selection
+but the executed TF1 fused operator enforces 1.001 ×                                        The source manifest contains 55,980 training records,
+10−5 . The port matches the actual operator, including                                    with 55,915 usable matched training rows, and cali-
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                             4
+
+
+
+bration/selection/heldout partitions of 1,004/1,031/1,985       against one baseline, not three copies treated as inde-
+records. Source images, labels, row order, and completed        pendent models. P–D and P–prior are secondary develop-
+model choices are hash-bound. Actual RGB crops, rather          ment contrasts. Secondary intervals are not multiplicity-
+than guessed images reconstructed from cached features,         adjusted and are not confirmatory superiority, equiva-
+are used for the prior backbone. Synthetic source subsets       lence, or noninferiority tests. The reused development data
+are historically reused and are not described as universally    cannot be made independent by specifying this protocol
+untouched data.                                                 after previous analyses.
+  The prior shares the existing synthetic-only lambda/cap         Rotation, yaw, translation, 3D IoU, and symmetry-
+grid, objective, and tie rule. Coordinate outputs do not        aware ADD AUC are evaluated under the existing
+receive a fabricated temperature sweep. Raw prior and           geometry-reference convention. Pose coverage and 2D
+capped-wrapper results are reported separately. Heldout         matching are different denominators: a solver can re-
+results are computed after selection; DEV does not choose       turn a pose from an incorrectly matched top detection.
+the checkpoint, learning rate, noise model, or wrapper.         Translation-error changes in centimeters can be expressed
+The model panel is frozen before any independent confir-        in millimeters, but a pixel reduction cannot be converted
+mation annotations may be opened.                               to one universal millimeter gain. No insertion trials or
+                                                                independently instrumented physical pose measurements
+B. Development population and supervision                       are included.
+  The current positive development panel has 319 images
+in 13 recorded sessions; 2689 negative images accompany         D. Cost and independent confirmation
+the detection-preservation audit. There are 311 matched           The expanded panel including the prior is deferred
+positive frames and 2,756 supervised points for conditional     because a separate GPU training task was active. Only the
+precision, versus 2,818 supervised points in the complete       previous R0/P/D/L session is reported here as historical
+ground-truth denominator. Point supervision is the origi-       timing; prior latency and a same-session prior speed
+nal label contract and is not renamed as measured physical      comparison are not yet measured.
+visibility. Visible boundaries, inferred amodal corners, and      Desktop latency starts from decoded BGR input and
+unavailable landmarks require distinct interpretation in        includes preprocessing, R0, refinement, and restoration.
+new annotation QA.                                              Canonical PnP time is recorded separately and added for
+  The primary statistic pools supervised original-pixel         the whole estimation path. Loading and image decoding
+Euclidean errors within each model seed, computes its           are excluded. The protocol uses the historical 26 images,
+median, and then averages the three seed statistics. It is      20 warmups per model, five balanced cyclic/reversed
+neither an ensemble prediction nor the average of frame         blocks, batch one, and four Torch intra-operation CPU
+medians. Its conditional precision denominator excludes         threads. OpenCV and inter-operation settings are sepa-
+unmatched frames, which is why complete-denominator             rately recorded; four is not claimed as a universal process
+PCK is also required. For threshold t,                          thread limit. Training and scoring do not overlap timing.
+                             ∑
+                                 i,k hik (t)                    Display/remote desktop activity is disclosed; no fastest
+                     PCKt =                  ,            (5)   repeat is selected. Prior-specific cropping and its separate
+                                  NGT
+                                                                backbone are included, while P recomputes detector fea-
+where missing predictions, unmatched top instances, and
+                                                                tures instead of reading a training cache.
+nonfinite points contribute zero hits, not zero error.
+                                                                  Independent confirmation is awaiting new data. The
+Matching remains at the registered box IoU threshold. If
+                                                                collection plan starts with 12 separate sessions and 15
+prior support differs, an intersection-only median cannot
+                                                                prespecified frames per session, with at least 30 frames
+replace this failure-aware report.
+                                                                independently double annotated before blind adjudication.
+  Registered object sizes and the per-annotation camera
+                                                                This is not a power guarantee. Predictions are hidden
+intrinsics are tabulated in the supplement. They are
+                                                                during annotation and the full panel must be frozen before
+inputs to this geometry-reference evaluation, not newly
+                                                                evaluation. Existing FINAL-named manifests have un-
+certified metrology. The canonical solver uses no distortion
+                                                                available membership and are not treated as independent
+coeﬀicients; independent camera calibration uncertainty is
+                                                                observations.
+not established by these annotation records. The declared
+long-axis benchmark admits a half turn but not a quarter
+turn. In particular, the wood object’s visual symmetry                                   V. Results
+under a half turn is unverified. Such conventions do not        A. Fixed development comparisons
+establish physical fork-entry interchangeability.
+                                                                   Table II summarizes the original-pixel and geometry-
+                                                                reference measurements. Complete per-seed tables, extra
+C. Uncertainty and pose metrics                                 PCK thresholds, coverage, and uncertainty are supplied
+   We use 10,000 paired session bootstrap draws with seed       in the supplement. P changes the baseline pooled median
+20260914, applying each draw’s frame/session multiplic-         from 6.616 to 5.905 pixels, a reduction of 0.711 pixels.
+ities to every model seed. The P–R0 statistic compares          Its paired-session reduction interval is [0.411,1.174] pixels.
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                                         5
+
+
+
+                            TABLE II                                                                                 TABLE III
+Reused DEV: seed-mean statistics, not an ensemble. Translation is                         Historical R0/P/D/L desktop median latency in ms, representative
+ against the geometry reference. NM means not measured in this                               seed1. Expanded panel deferred; prior NM. Training/scoring
+                              build.                                                                  excluded from timing; all repeats retained.
+
+        Model                Median                 P90          PCK10           Trans.              Model       BGR-to-2D      PnP      Total
+                                 px                  px             %               cm
+                                                                                                     R0                9.406   1.361    10.800
+        R0                       6.616         38.670                63.73        7.897              P1               13.529   1.350    15.047
+        P mean                   5.905         37.766                67.34        7.153              D1               12.777   1.367    14.485
+        D mean                   6.430         37.566                64.57        7.597              L1               17.872   1.349    19.333
+        L mean                   6.070         37.320                66.78        7.548              PRIOR1             NM      NM        NM
+        PRIOR mean               5.569         37.227                68.41        6.895
+
+                           All observed development sessions; negative favors P           supplementary rows. All wrapped prior seeds retain the
+  wood_night_01
+   wood_day_01
+                                                                                          baseline matched supervision support, with no nonfinite
+   wood_184309                                                                            supervised coordinates. The P–prior paired median differ-
+   wood_183705
+ plastic_night_01                                                                         ence is 0.336 px, with session interval [0.063, 0.585] px.
+  plastic_day_01
+   eval_pallet09
+                                                                                          This interval favors the prior, so P is not the most accurate
+   eval_pallet07                                                                          comparator under this central-error criterion. A negative
+    eval_outside
+     eval_noapril                                                                         contrast favors P; a positive contrast favors the prior.
+    eval_night09
+    eval_night08
+                                                                                          The complete-denominator PCK, tail and pose rows must
+        eval_cad
+                                                                                          be considered alongside the median. Six thousand updates
+                    −2.0             −1.5              −1.0               −0.5
+                                  P − R0 pooled median error (px), seed mean
+                                                                                    0.0
+                                                                                          per seed do not certify saturation or reproduce the original
+                                                                                          140-epoch protocol.
+Fig. 3. P–R0 development median effects by recorded session.
+Negative values favor P. These are descriptive effects from the
+reused panel, not independent confirmation intervals. All sessions                        C. Eﬀiciency and accuracy–cost tradeoffs
+are retained.                                                                                The expanded panel including the prior is deferred
+                                                                                          because a separate GPU training task was active. Only the
+PCK10 changes from 63.733% to 67.341%. These figures                                      previous R0/P/D/L session is reported here as historical
+describe the present development panel only.                                              timing; prior latency and a same-session prior speed
+   The P–D median difference is -0.525 pixels, with paired-                               comparison are not yet measured.
+session interval [-0.980,-0.210]. This supports a lower                                      P’s selected seed1 is the prespecified deployment repre-
+central development residual for P than this fixed direct                                 sentative; it must not be confused with the seed mean. Its
+control. It does not prove that direct regression as a                                    desktop BGR-to-2D and PnP-inclusive median times are
+method class is inferior. D has a slightly lower observed                                 13.529 and 15.047 ms, compared with 9.406 and 10.800
+P90, and the P–D tail interval includes zero. D also has                                  ms for R0 in the cited timing session. Allocator memory
+lower measured desktop latency. There is therefore no all-                                is reported separately from whole-device memory, which
+metric dominance claim. The internal line control also has                                also includes the display and other software. The tables
+a lower observed P90 than P.                                                              do not extrapolate to Jetson, report unmeasured energy
+   Figure 3 retains every recorded session. The                                           savings, or infer operational throughput from an isolated
+eval_noapril session has an adverse P–R0 central                                          cached tensor.
+effect; the other twelve observed sessions improve. Leave-
+one-session-out estimates remain favorable in this panel,                                 D. Independent confirmation
+but such deletion diagnostics are not new independent
+datasets. No unfavorable session is removed from the                                         Not yet measured: no independently reviewed cap-
+aggregate.                                                                                ture/annotation panel is available. The proposed collec-
+   The seed-mean reduction in geometry-reference trans-                                   tion count is a plan, not a completed experiment. De-
+lation median is 7.439 mm. This is a change in error                                      velopment observations are not relabeled as confirmation
+statistics against a reconstructed reference, not mea-                                    results.
+sured insertion improvement. It cannot establish physical
+metrology accuracy independently of the image-label and                                               VI. Limitations and Interpretation
+reference-construction uncertainty.                                                          First, the primary development improvement is con-
+                                                                                          ditional on matched supervision and on a historically
+B. Prior-derived comparison                                                               selected model family. Complete-denominator PCK limits
+   The prior checkpoints were fixed at the final training                                 one failure mode of optimistic reporting, but does not turn
+update; only the wrapper rule was selected on synthetic                                   reused DEV into a confirmation set. The session intervals
+data. The selected wrapper has lambda 1.000 and cap                                       condition on only thirteen observed sessions and three
+fraction 0.01. Raw and wrapped outputs are separate                                       trained seeds; they do not quantify every deployment shift.
+INTERNAL DRAFT FOR AUTHOR REVIEW, SEPTEMBER 2026                                                                                   6
+
+
+
+   Second, the comparison contracts differ in useful ways                                  References
+that must remain visible. P reads internal R0 features;        [1] M. Knitt, J. Schyga, A. Adamanov, J. Hinckeldeyn, and
+the PoseFix-derived prior computes a separate RGB                  J. Kreutzfeldt, “Estimating the pose of a euro pallet with an RGB
+representation and adds ImageNet pretraining. D has a              camera based on synthetic training data,” Logistics Journal:
+                                                                   Proceedings, no. 18, 2022.
+different output support and loss. Equal source exposure is    [2] A. Miura, H. Uchiyama, M. Yamaguchi, N. Kai, T. Shiroshima,
+not equal compute or equal optimization diﬀiculty. None            and H. Saito, “Real-time 6DoF pallet pose estimation with
+of these comparisons identifies a universal architectural          monocular metric depth,” in International Conference on
+                                                                   Computer Vision Theory and Applications, vol. 2, 2026,
+optimum. Bounded prior learning curves diagnose progress           pp. 149–161. [Online]. Available: https://www.scitepress.org/
+but cannot certify full convergence.                               PublishedPapers/2026/146268/
+                                                               [3] G. Moon, J. Y. Chang, and K. M. Lee, “PoseFix: Model-
+   Third, current pose errors are measured against a               agnostic general human pose refinement network,” in IEEE/CVF
+geometry-reconstructed reference. Annotation ambiguity,            Conference on Computer Vision and Pattern Recognition, 2019,
+calibration, object dimensions, and reference construction         pp. 7773–7781.
+                                                               [4] X. Sun, B. Xiao, F. Wei, S. Liang, and Y. Wei, “Integral human
+can affect interpretation. Independently blinded duplicate         pose regression,” in European Conference on Computer Vision,
+labels and reviewed capture lineage are required for               2018, pp. 536–553.
+new confirmation; physical 6D accuracy would require           [5] P. Castro and T.-K. Kim, “CRT-6D: Fast 6D object
+                                                                   pose estimation with cascaded refinement transformers,” in
+additional metrology. Neither preserved detections nor             IEEE/CVF Winter Conference on Applications of Computer
+improved median error guarantees harmless tails, correct           Vision, 2023, pp. 5735–5744. [Online]. Available: https:
+pallet axes, or safe handling.                                     //arxiv.org/abs/2210.11718
+                                                               [6] J.   O.    Zhang,     A.    Sax,   A.      Zamir,     L.   Guibas,
+   Finally, this implementation is tied to the frozen de-          and J. Malik, “Side-tuning: A baseline for network
+tector’s feature interface and a desktop environment.              adaptation via additive side networks,” in European
+Embedded export parity and Jetson latency are not mea-             Conference on Computer Vision, 2020, pp. 698–714.
+                                                                   [Online]. Available: https://www.ecva.net/papers/eccv_2020/
+sured. The work provides an auditable sensing experiment,          papers_ECCV/html/1104_ECCV_2020_paper.php
+not a demonstrated control system. The author team
+must assess whether the remaining independent evidence
+and scientific contribution are suﬀicient for submission;
+compilation and formatting checks are not an acceptance
+decision.
+
+
+                     VII. Conclusion
+
+   A fixed feature-reusing point refiner improves the cen-
+tral landmark residual on the current pallet development
+panel with a measured desktop cost. The preserved detec-
+tion interface, failure-aware denominators, internal con-
+trols, and source-derived prior comparison make the scope
+of this claim explicit. The source-derived prior comparison
+quantifies a fixed-budget tradeoff, not converged-method
+superiority. Independent real-session confirmation remains
+required. Further claims about independent generaliza-
+tion, physical sensing accuracy, or operational success
+require the corresponding evidence rather than a more
+favorable presentation of development numbers.
+
+
+          Data, Code, and Author Declarations
+
+  Scripts, small numerical artifacts, coordinate checks,
+source/weight hashes, and reproduction commands are
+assembled in the companion repository paths identified
+in the supplement. Raw images, videos, and large exter-
+nal/model weights are not publicly redistributed without
+permission. The source ImageNet checkpoint retrieval
+procedure is documented separately. Author names, aﬀili-
+ations, ORCID identifiers, funding, conflicts, related prior
+publications, AI-use disclosure, and submission consent
+remain for the actual author team to confirm. This internal
+draft has not been submitted.
+

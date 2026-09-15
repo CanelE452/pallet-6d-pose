@@ -1,0 +1,329 @@
+            Supplementary Material: Fixed Local Pallet Refinement
+                                       Internal draft for author review
+                                                  September 2026
+
+
+1    Status and reading guide
+This supplement preserves the distinction between completed development evidence and independent confirma-
+tion. The machine-readable status is in FINAL_STATUS.json under the submission experiment directory. All three
+matched-budget fits were completed; the learning curves are diagnostic, not a best-checkpoint selector. Independent
+real-session confirmation is not yet available. No method’s incomplete result is represented by another model or a
+zero-valued measurement.
+
+
+2    Full development results
+Original-pixel medians and P90 are pooled over each model’s supervised matched points. Frame mean is the mean
+of matched per-frame errors, not the pooled median. Gross20 and PCK are percentages; PCK retains the full
+2,818-point ground-truth denominator. Raw prior rows, when available, precede no claim that the selected capped
+wrapper is the original standalone method.
+
+                Model           Med         P90    Mean     Gross20     PCK5     PCK10    PCK20           N
+                R0             6.616   38.670     21.673        17.20   37.19     63.73       80.98    2756
+                P1             5.851   38.025     20.930        15.57   42.26     67.64       82.58    2756
+                P2             5.943   37.728     21.010        15.89   42.16     67.07       82.26    2756
+                P3             5.921   37.546     20.949        15.42   41.66     67.32       82.72    2756
+                L1             6.052   37.204     21.145        16.07   41.23     66.57       82.08    2756
+                L2             6.037   37.302     21.085        15.93   41.06     66.93       82.22    2756
+                L3             6.121   37.453     21.164        16.00   41.02     66.86       82.15    2756
+                D1             6.366   37.479     21.411        16.11   39.14     64.66       82.04    2756
+                D2             6.457   37.810     21.456        16.44   38.75     64.62       81.72    2756
+                D3             6.467   37.410     21.435        16.22   38.96     64.44       81.94    2756
+                PRIOR1         5.569   37.218     20.784        15.49   44.78     68.31       82.65    2756
+                PRIOR1_raw     5.569   36.776     20.655        15.42   44.78     68.28       82.72    2756
+                PRIOR2         5.541   37.373     20.738        15.64   44.75     68.84       82.51    2756
+                PRIOR2_raw     5.541   37.295     20.594        15.53   44.78     68.88       82.61    2756
+                PRIOR3         5.596   37.089     20.830        15.71   43.90     68.06       82.43    2756
+                PRIOR3_raw     5.599   36.721     20.700        15.60   43.90     68.10       82.54    2756
+
+
+
+3    Geometry-reference results
+Rotation and yaw are degrees; translation is centimeters. These are not independent physical 6D measurements.
+Pose coverage is separate from box matching: the canonical prediction-only selector may return a pose from a top
+detection that does not meet the 2D matching gate. No new symmetry minimization was introduced to excuse
+near-square axis confusion.
+
+                Model           Rot(deg)     Yaw(deg)      Trans(cm)    IoU3D    ADD AUC        Coverage
+                R0                  2.262         1.231         7.897    0.603        0.428           1.000
+                P1                  2.089         1.074         6.865    0.642        0.454           1.000
+                P2                  2.106         1.136         6.917    0.637        0.456           1.000
+                P3                  2.073         1.156         7.678    0.637        0.454           1.000
+
+
+                                                            1
+                  Model             Rot(deg)      Yaw(deg)     Trans(cm)          IoU3D    ADD AUC            Coverage
+                  L1                    2.110        1.115                7.609    0.637            0.450        1.000
+                  L2                    2.103        1.122                7.364    0.636            0.452        1.000
+                  L3                    2.136        1.132                7.672    0.625            0.445        1.000
+                  D1                    2.201        1.192                7.570    0.621            0.441        1.000
+                  D2                    2.181        1.182                7.540    0.619            0.442        1.000
+                  D3                    2.188        1.192                7.682    0.616            0.440        1.000
+                  PRIOR1                2.018        1.100                7.185    0.614            0.455        1.000
+                  PRIOR1_raw            2.018        1.100                7.185    0.616            0.456        1.000
+                  PRIOR2                2.004        1.102                6.675    0.628            0.467        1.000
+                  PRIOR2_raw            2.010        1.105                6.844    0.628            0.464        1.000
+                  PRIOR3                2.132        1.190                6.825    0.619            0.460        1.000
+                  PRIOR3_raw            2.132        1.190                6.825    0.619            0.460        1.000
+
+
+
+4    Registered geometry and camera inputs
+
+                                    Object      Long(m)      Short(m)        Height(m)     Frames
+                                    Plastic        1.30          1.10               0.11      194
+                                    Wood           0.80          0.59               0.14      125
+
+
+
+                            Width     Height          fx             fy           cx        cy      Frames
+                              640        480     605.906     605.970        317.596    256.292           28
+                              640        480     608.298     607.846        326.401    239.547          146
+                              640        480     614.184     614.313        329.280    234.529          100
+                             1280        720     908.860     908.955        636.394    384.438           45
+
+    Intrinsics above are annotation records in pixels, not newly measured calibration accuracy. The canonical solver passes
+no distortion coeﬀicients. The records inspected here provide resolution and intrinsics, not an independently verified
+lens/calibration uncertainty report. Object dimensions are the unchanged registered geometry; the evaluation contract
+does not claim new physical inspection. The declared long-axis equivalence allows a half turn, but not a quarter turn.
+The wood object is not established as visually symmetric under the half turn. These benchmark conventions do not certify
+interchangeable physical fork-entry geometry.
+
+
+5    Complete timing summaries
+The expanded panel including the prior is deferred because a separate GPU training task was active. Only the
+previous R0/P/D/L session is reported here as historical timing; prior latency and a same-session prior speed
+comparison are not yet measured.
+   All values are milliseconds. The same-session expanded panel is used after the prior evaluation is complete;
+otherwise only the explicitly historical timing is available. Every measured repeat is retained. Model and image
+loading are excluded, but actual RGB preprocessing, detector forward, feature sampling/refinement, restoration and
+canonical PnP are included in their named intervals. Allocated-memory figures do not include unrelated desktop
+processes.
+
+                    Model    2D med       mean        P90      Total med          mean       P90      Add2D med
+                    R0          9.406     9.593     11.033           10.800       11.035   12.559              0.000
+                    P1         13.529    13.729     15.955           15.047       15.216   17.314              4.029
+                    P2         13.716    13.889     16.036           15.506       15.432   17.459              4.286
+                    P3         13.540    13.792     15.807           15.251       15.291   17.213              4.291
+                    L1         17.872    17.736     19.444           19.333       19.193   20.854              8.076
+                    L2         17.767    17.619     19.311           19.145       19.079   20.853              8.020
+                    L3         17.826    17.652     19.570           19.294       19.101   20.880              8.118
+                    D1         12.777    12.945     14.736           14.485       14.386   16.255              3.430
+
+
+                                                                 2
+                                              Model         2D med                        mean          P90      Total med                           mean           P90         Add2D med
+                                              D2             12.554                       13.038     14.950                   14.252                14.479        16.247                            3.214
+                                              D3             12.686                       12.967     14.865                   14.224                14.422        16.225                            3.546
+
+
+
+6                   Controlled training and convergence limits
+Parameter, memory and cache accounting
+
+                                             Model                  Learned                        Total     Add/R0(%)                          Inf.MiB           Train MiB                   s/update
+                                             R0                      0                       2615142                    0.00                        190.09             NM                              NM
+                                             P1                  18962                       2634104                    0.73                        190.17             NM                           0.0590
+                                             D1                  19450                       2634592                    0.74                        190.17             NM                           0.0662
+                                             L1                  19810                       2634952                    0.76                        190.17             NM                              NM
+                                             PRIOR1           68661641                      71276783                 2625.54                          NM            7779.02                         0.4163
+
+    The shared R0 has 2,615,142 parameters. The recorded first cache pass processed 60,000 records in 1668.83 seconds;
+bound cache arrays occupy 68.677 GiB. Head fit time excludes that extraction. NM indicates an unavailable historical
+allocation measurement, not zero cost. R0 is not newly trained. P and D share source order, feature evidence and
+
+
+                        Largest gain: P1-R0 -14.64px
+                                         R0                                                        P1                                                        D1                                                   PRIOR1
+                  100                                                         100                                                       100                                                       100
+                  200                                                         200                                                       200                                                       200
+original y (px)
+
+
+
+
+                                                            original y (px)
+
+
+
+
+                                                                                                                      original y (px)
+
+
+
+
+                                                                                                                                                                                original y (px)
+                                                       GT                                                        GT                                                        GT                                                      GT
+                  300                                  R0                     300                                P1                     300                                D1                     300                              PRIOR1
+
+                  400                                                         400                                                       400                                                       400
+                  500                                                         500                                                       500                                                       500
+                        400         600          800                                400       600          800                                400      600          800                                 400     600          800
+                                   original x (px)                                           original x (px)                                          original x (px)                                          original x (px)
+
+                        Largest harm: P1-R0 +13.72px
+                                         R0                                                        P1                                                        D1                                                   PRIOR1
+                  200                                  GT
+                                                       R0                     200                                GT
+                                                                                                                 P1                     200                                GT
+                                                                                                                                                                           D1                     200                              GT
+                                                                                                                                                                                                                                   PRIOR1
+
+                  300                                                         300                                                       300                                                       300
+original y (px)
+
+
+
+
+                                                            original y (px)
+
+
+
+
+                                                                                                                      original y (px)
+
+
+
+
+                                                                                                                                                                                original y (px)
+
+
+
+
+                  400                                                         400                                                       400                                                       400
+                  500                                                         500                                                       500                                                       500
+                  600                                                         600                                                       600                                                       600
+                                600       800     1000                                      600       800     1000                                   600       800     1000                                   600       800     1000
+                                  original x (px)                                             original x (px)                                          original x (px)                                          original x (px)
+
+
+Figure 1: Actual improving and harming DEV cases: the lowest and highest per-frame median difference P1–
+R0, with lexical frame-ID ties. Same-frame GT and every plotted model use unchanged original coordinates and
+shared limits. Membership and raw sources are in FIGURE_MANIFEST.json. Images are not republished without
+verified image rights; these coordinate-only panels do not establish physical boundary correctness or independent
+generalization.
+
+historical optimizer/exposure settings, but their loss and output geometry differ. D’s small fixed-probe decrease
+is neither a convergence guarantee nor evidence of fundamental regression inferiority. The prior uses ImageNet
+TF-Slim ResNet152 initialization and the oﬀicial loss/Adam semantics adapted to nine pallet points. Its sample
+order is exactly the existing P order and its nominal batch is sixteen. Source train/cal probes at step0 and every500
+updates are diagnostic only. No checkpoint or wrapper is selected on DEV.
+
+
+
+
+                                                                                                                      3
+                                                             Fixed train probe                                                                      Fixed cal probe
+                                                                                   D seed1                                    0.0229
+                                       0.0192
+                                                                                   D seed2
+
+
+              Normalized residual L1
+
+
+
+
+                                                                                                     Normalized residual L1
+                                                                                   D seed3
+                                                                                                                              0.0228
+                                       0.0191
+
+
+                                                                                                                              0.0227
+                                       0.0190
+
+                                                                                                                              0.0226
+                                       0.0189
+
+                                                                                                                              0.0225
+                                       0.0188
+                                                0     1000   2000 3000 4000       5000   6000                                          0     1000   2000 3000 4000       5000   6000
+                                                              Optimizer updates                                                                      Optimizer updates
+
+
+
+Figure 2: Already-completed D fixed probes. Their limited change is disclosed alongside the comparison, not
+suppressed. Loss magnitudes are not compared with P’s different objective.
+
+                                                         Fixed train probe                                                                      Fixed cal probe
+                                       20                                           seed1                                                                                  seed1
+                                                                                    seed2                                     20                                           seed2
+          CE + coordinate L1
+
+
+
+
+                                                                                                CE + coordinate L1
+                                                                                    seed3                                                                                  seed3
+                                       15                                                                                     15
+                                       10                                                                                     10
+                                        5                                                                                      5
+                                            0       1000 2000 3000 4000 5000 6000                                                  0       1000 2000 3000 4000 5000 6000
+                                                         Optimizer updates                                                                      Optimizer updates
+
+Figure 3: Prior fixed train/cal probes from the completed bounded fits. These curves did not select a checkpoint
+or extend training.
+
+
+7    Operator and weight provenance
+The oﬀicial PoseFix source commit is 5556364bb0f43b0743a5fcd820de48f34b3d4360. Its MIT notice and the Ten-
+sorFlow authors’ Apache-2.0 attribution are retained. The oﬀicial TF1 CPU reference runs in an isolated Python3.7
+environment, and the PyTorch port uses the existing YOLO runtime without replacing that environment’s Torch,
+CUDA, or NumPy.
+     The reference initializes new weights using the oﬀicial graph and transfers ImageNet RGB/backbone variables.
+Added pose channels remain at the oﬀicial seeded initialization. The port maps convolution HWIO to OIHW,
+transpose convolution HWOI to IOHW, and every BN aﬀine/moving variable. Missing and unexpected keys are
+explicitly checked. Full eval-coordinate and stage-feature comparisons use the actual source images and the same
+weights; scalar/loss-gradient and moving-statistics comparisons separately test training operators.
+     The graph’s nominal BN epsilon is not its effective value: the TF1 fused wrapper enforces 1.001 × 10−5 . The
+torch port matches this executed behavior. The Gaussian amplitude is255 exactly once. Expectation coordinates
+are zero-based and scaled by4 at the locked resolution. Bilinear target neighbors outside the grid are excluded
+and remaining mass normalized; nonfinite/outside-crop targets are masked in training, without altering evaluation
+membership. Raw RGB is explicitly the requested adaptation from the inspected BGR-preserving source loader.
+     The full batch16 resource probe and actual parameter update are recorded separately from the three main
+fits. Main initialization and optimizer state do not reuse that smoke update. Checkpoints contain optimizer,
+Python/NumPy/CPU/CUDA RNG, step and exact order-prefix hash. The loader has no hidden random augmen-
+tation state; pending RGB reads can be reconstructed deterministically from the next recorded row.
+
+
+
+
+                                                                                                4
+8    Research history and interpretation
+Prior Hough/line, active-adaptation, replay and robustness investigations motivated subsequent decisions, but do
+not become additional unseen validation sets. Old code, checkpoints, metrics and verdicts remain unchanged. This
+selection history means DEV is reused development evidence. The fixed model is not redesigned in response to an
+unfavorable prior comparison.
+    The baseline checkpoint is not purely synthetic-from-scratch: the recorded initialization checkpoint identifies
+COCO-pose training, despite a historical output directory containing the word scratch. P’s additional training uses
+synthetic labels only. ImageNet supervision for the added prior is separately disclosed. These distinctions prevent
+an overbroad claim that no real annotation contributed anywhere.
+
+
+9    Independent data and annotation handoff
+The actual collection and schema are in HUMAN_INPUTS_REQUIRED.txt and CONFIRMATION_SCHEMA.json. The
+starting plan is12 separate sessions with15 prespecified frames each; at least30 frames receive two independent
+prediction-blinded annotations and blind adjudication. The count is not a power guarantee. Preserve original
+videos, timestamps, capture groups, camera/mount, calibration, actual object dimensions/identity and prior-use
+declarations. Changed image encoding or filename does not prove independence from an old scene.
+    Unreviewed provenance and an unfrozen comparator panel block confirmation only, not the completed develop-
+ment experiment. New-frame reference geometry must be bound to its camera/dimensions/index convention before
+a 6D claim. Human annotation, author identities, funding and consent cannot be fabricated by the CLI. These
+obligations are separate from compilation and code checks.
+
+
+10     Reproduction and access
+From the repository root, use the recorded environment and run.py status, run.py all, or run.py resume under
+scripts/research/pallet_sensors_submission_v1/. Exact shell commands, downloads, locks and stage receipts
+are in REPRODUCE.md. Completion receipts are checked against actual input/output hashes, not accepted solely on
+a status string. Main uses no branch rewrite, force push or deletion of unrelated user changes.
+    Public materials contain code, small numerical results, plots and manuscript sources. Raw training/evaluation
+imagery, video, feature caches, model weights and the isolated environment remain excluded from public Git. Access
+restrictions and licenses must be reviewed before any separate sharing. No unverified speedup, annotation-cost
+reduction, or public-data right is inferred.
+
+
+
+
+                                                        5
+

@@ -1,0 +1,16 @@
+# Primary-source reference and venue review
+
+Checked 2026-09-15. Bibliography metadata and scientific comparisons are separate from running any additional external benchmark.
+
+| Work | Primary source | Verified publication metadata / scope |
+|---|---|---|
+| PoseFix | [IEEE](https://ieeexplore.ieee.org/document/8953654/), [official code](https://github.com/mks0601/PoseFix_RELEASE/tree/5556364bb0f43b0743a5fcd820de48f34b3d4360) | Moon, Chang, Lee; CVPR2019; pp7773–7781; DOI10.1109/CVPR.2019.00796. Only the declared pallet9 adaptation is trained here. |
+| Integral Human Pose Regression | [Springer](https://link.springer.com/chapter/10.1007/978-3-030-01231-1_33) | Sun, Xiao, Wei, Liang, Wei; ECCV2018; pp536–553; DOI10.1007/978-3-030-01231-1_33. Coordinate expectation is prior art. |
+| CRT-6D | [CVF](https://openaccess.thecvf.com/content/WACV2023/html/Castro_CRT-6D_Fast_6D_Object_Pose_Estimation_With_Cascaded_Refinement_Transformers_WACV_2023_paper.html), [IEEE-deposited DOI metadata](https://api.crossref.org/works/10.1109/WACV56688.2023.00570) | Castro, Kim; WACV2023. DOI10.1109/WACV56688.2023.00570. CVF open-access pagination5746–5755 differs from published IEEE metadata5735–5744; refs.bib uses the latter alongside its DOI. No CRT substitute network was run. |
+| Side-Tuning | [Springer](https://link.springer.com/chapter/10.1007/978-3-030-58580-8_41), [authors](https://sidetuning.berkeley.edu/) | Zhang, Sax, Zamir, Guibas, Malik; ECCV2020; pp698–714; DOI10.1007/978-3-030-58580-8_41. Conceptual relation is not a novelty or PEFT superiority proof. |
+| Synthetic Euro-pallet RGB pose | [Logistics Journal](https://proc.logistics-journal.de/article/view/1038) | Knitt, Schyga, Adamanov, Hinckeldeyn, Kreutzfeldt;2022; DOI10.2195/lj_proc_knitt_en_202211_01. Synthetic RGB pallet pose is established prior work. |
+| Monocular metric-depth pallet pose | [SciTePress](https://www.scitepress.org/PublishedPapers/2026/146268/) | Miura, Uchiyama, Yamaguchi, Kai, Shiroshima, Saito; VISAPP2026 volume2; pp149–161; DOI10.5220/0014626800004084. Publisher metadata retrieved with TLS-verified curl after browser403; original HTML retained in ignored raw. Metric-depth and ground-plane paths differ; no cross-dataset subtraction. |
+
+The [IEEE Sensors Journal author guide](https://ieee-sensors.org/ieee-sensors-journal/for-authors/) and [IEEE journal templates](https://journals.ieeeauthorcenter.ieee.org/create-your-ieee-journal-article/authoring-tools-and-templates/tools-for-ieee-authors/ieee-article-templates/) were checked. The internal draft uses IEEEtran two-column formatting and supplies a separate graphical abstract. The usual eight-page recommendation is not an absolute publication limit; current guide describes mandatory overlength charges beyond eight pages. Authors must verify the final venue-specific template, graphical-abstract dimensions, declarations, permissions and any charges before submitting. No submission, payment or copyright agreement was executed.
+
+Downloaded reference HTML/DOI JSON, TF1 runtime, pretrained weights, compiler assets and fonts are not redistributed in this Git commit. The checked citations support the limited paraphrases in the manuscript, not claimed reproduced results.
