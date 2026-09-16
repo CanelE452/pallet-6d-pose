@@ -67,7 +67,7 @@ def main():
         print(arm,summaries[arm],flush=True)
     path=E.DOC/'A/evaluation_correction.csv';path.parent.mkdir(parents=True,exist_ok=True)
     with path.open('w',newline='') as f:
-        w=csv.DictWriter(f,fieldnames=list(allrows[0]));w.writeheader();w.writerows(allrows)
+        w=csv.DictWriter(f,fieldnames=list(allrows[0]),lineterminator='\n');w.writeheader();w.writerows(allrows)
     E.write(E.DOC/'A/A0_SQUARE.json',dict(status='COMPLETE',arms=summaries,checkpoint_bindings=bindings,
       actual_inferences=inference_count,actual_training_updates=0,
       historical_matching='same historical conf0.25 top1; no added GT IoU gate',

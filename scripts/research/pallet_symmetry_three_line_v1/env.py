@@ -8,6 +8,7 @@ DOC=ROOT/'_docs/experiments/pallet_symmetry_three_line_v1'
 RAW=ROOT/'data/pallet/results/pallet_symmetry_three_line_v1'
 sys.path.insert(1,str(ROOT))
 sys.path.insert(2,str(ROOT/'scripts/research/pallet_final_ml_contribution_test_v1'))
+sys.path.append(str(ROOT/'scripts/paper/pose_metric_closure_v1'))
 import common as C
 R0=C.R0; R0_SHA=C.R0_SHA
 DHT=ROOT/'data/pallet/results/pallet_symmetry_dht_local_v2_wls_correction/heads/hough_seed1/checkpoint_final.pt'

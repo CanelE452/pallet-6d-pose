@@ -1,7 +1,7 @@
 # 대칭 target / 세 incident edge — 분리된 개발 실험
 
 2026-09-16. 기준 main `44fdd7b415c5ba8cdaaf41ff487217d59a639de1`.
-사용자의 새 지시는 이 경로의 B만 승인한다. 과거 Hough 종료 메모, 원고, 배포 가중치는 수정하지 않는다.
+사용자의 새 지시는 이 경로의 A/B 실험을 승인하며, Hough 재사용은 여기의 B에 한정한다. 과거 Hough 종료 메모, 원고, 배포 가중치는 수정하지 않는다.
 
 ## 순서와 현재 상태
 
@@ -27,7 +27,7 @@ B: 원래 R0/P1-3/DHT corrected Hough1을 동결. 새 학습 0. 첨부 full-post
 
 ## 출처 및 주장 경계
 
-- [COPE (WACV 2023)](https://openaccess.thecvf.com/content/WACV2023/html/Thalhammer_COPE_End-to-End_Trainable_Constant_Runtime_Object_Pose_Estimation_WACV_2023_paper.html): 공식 페이지 확인 요청. 대칭 supervision 자체의 최초 제안 주장 없음.
+- [COPE (WACV 2023)](https://openaccess.thecvf.com/content/WACV2023/papers/Thalhammer_COPE_End-to-End_Trainable_Constant_Runtime_Object_Pose_Estimation_WACV_2023_paper.pdf): 공식 색인의 서지정보와 PDF 링크 확인; 개별 HTML 직접 접근은 403이었다. 본문 전체를 검토했다고 주장하지 않으며, 대칭 supervision 자체의 최초 제안 주장도 없다.
 - [BOP task definitions](https://bop.felk.cvut.cz/tasks/): MSSD/MSPD는 사전 정의 object symmetries 사용. 여기의 sparse-corner 평균은 dense-mesh BOP 재현이 아니다.
 - [Deep Hough-Transform Line Priors](https://www.ecva.net/papers/eccv_2020/papers_ECCV/html/4061_ECCV_2020_paper.php): Hough prior를 학습 feature에 결합하는 선행 맥락.
 - [Deep Hough Transform for Semantic Line Detection](https://www.ecva.net/papers/eccv_2020/papers_ECCV/html/779_ECCV_2020_paper.php): line parameter space voting의 선행 맥락.
