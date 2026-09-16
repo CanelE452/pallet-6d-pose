@@ -1,0 +1,30 @@
+{
+  "schema": "pallet_symmetry_three_line_v1",
+  "baseline_commit": "44fdd7b415c5ba8cdaaf41ff487217d59a639de1",
+  "A": {
+    "cohorts": ["RECT", "SQUARE"], "arms": ["INDEXED", "EQUIV"], "seeds": [1,2,3],
+    "updates_per_fit": 2000, "maximum_main_updates": 24000, "physical_batch": 16,
+    "precision": "FP32", "AMP": false, "EMA": false,
+    "optimizer": "AdamW", "lr": 0.0001, "betas": [0.9,0.999], "weight_decay": 0.0001,
+    "scheduler": "constant", "warmup": false, "clip_global_norm": 10,
+    "BN_running_stats": "fixed", "BN_affine": "trainable", "random_augmentation": false,
+    "last_only": true, "probe_steps": [100,500,1000,2000], "max_smoke_updates": 12,
+    "loss_implementation_lock": "PENDING_API_CONFLICT_RESOLUTION_BEFORE_ANY_MAIN_UPDATE"
+  },
+  "B": {
+    "R0_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "DHT_sha256": "50406286a135dc7ff5991af0940fb8f9cdd07048dc5fb6296cc4936dd46e54d5",
+    "P_seeds": [1,2,3], "DHT_seed": 1, "new_optimizer_updates": 0,
+    "eta_grid": [0,0.125,0.25,0.5,1.0], "eta_tie_tolerance": 1e-12,
+    "eta_selection": "per family, mean three-P-seed all-frame E_sym, calibration256 only",
+    "P_temperature_lambda_cap": "unchanged P_SELECTION.json",
+    "sigma_raw": "max(1 pixel, transformed single rho-bin normal distance)",
+    "full_lattice_bins": 2340, "candidate_count": 222, "frame_batch": 1,
+    "shuffle_seed": 20260916, "B4_eta": "B3 selected eta unchanged",
+    "GPU_vs_CPU_bias_atol": 0.00005, "GPU_vs_CPU_bias_rtol": 0.00005,
+    "P_eta0": "bit-exact same-input native decode; separate rerun tolerance 0.0003 input pixels",
+    "GT_free_orbit": "max total endpoint clipped posterior support, whole 12-channel group, identity tie"
+  },
+  "statistics": {"bootstrap": 10000, "seed": 20260916, "cluster": "verified scene/session else frame with dependency limitation", "estimator": "mean paired training-seed metric differences", "secondary_multiplicity": "unadjusted exploratory"},
+  "FINAL_access": false, "paper_edits": false, "deployment_changes": false, "external_notification": false
+}
