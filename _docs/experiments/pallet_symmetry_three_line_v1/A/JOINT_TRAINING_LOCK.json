@@ -1,0 +1,217 @@
+{
+  "approval": "User: 일단 그렇게 해봐; paused before training; user: 다시해줘 resumes approved joint choice.",
+  "objective": "min over one allowed g per GT row of weighted two-head STOCK pose/visibility/RLE loss, with per-head batch-global RLE clamp intact",
+  "optimizer": "AdamW",
+  "lr": 0.0001,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "weight_decay": 0.0001,
+  "updates": 2000,
+  "physical_batch": 16,
+  "precision": "FP32; CUDA matmul and cuDNN TF32 disabled",
+  "AMP": false,
+  "EMA": false,
+  "augmentation": false,
+  "BN": "fixed statistics, affine trainable",
+  "clip_norm": 10,
+  "parameter_set": "all full-detector parameters requires_grad=True in both arms",
+  "E2E_head_weights": [
+    0.8,
+    0.2
+  ],
+  "E2E_head_schedule": "constant native initial weights; step-based recipe has no epoch callback or added decay",
+  "loss_scale": "stock returned per-batch loss summed unchanged; no extra normalization",
+  "selector": "certified separable lower bound, else exact one-hot MILP with zero gap; failure stops fit",
+  "selection_numeric_tolerance": "FP64 reduction of FP32 per-anchor costs; reconstruction tested against stock, atol/rtol 2e-5; selected loss/gradient uses stock directly",
+  "sampler": {
+    "RECT_1": {
+      "train_images": 55980,
+      "sample_count": 32000,
+      "index_sequence_sha256": "c951ed6f3cd7e62c94877d61aec42a1f96f704f3c34107f087cc13f646aa86f4",
+      "first_batch_ids": [
+        "G38__G__f23158",
+        "TEX__shard_00_f0468",
+        "G38__G__f23901",
+        "G38__G__f32792",
+        "G38__G__f18552",
+        "G38__G__f30656",
+        "TEX__shard_03_f1065",
+        "G38__G__f29555",
+        "TEX__shard_06_f0739",
+        "P0__shard_07_f0108",
+        "G38__G__f12394",
+        "G38__G__f31498",
+        "G38__G__f33913",
+        "P0__shard_00_f0786",
+        "G38__G__f4622",
+        "TEX__shard_05_f0030"
+      ],
+      "all_train_membership_SHA": "6703589cf9a02e58300f4931b0c520d01be1f0a4032c475a018d7910680c9efc"
+    },
+    "RECT_2": {
+      "train_images": 55980,
+      "sample_count": 32000,
+      "index_sequence_sha256": "a05acd65366ff5e17669d2d70e3e8acab0bee1ea8435d95276998304f6724d4c",
+      "first_batch_ids": [
+        "G38__G__f16932",
+        "G38__G__f34859",
+        "G38__G__f8052",
+        "G38__G__f16028",
+        "G38__G__f23234",
+        "G38__G__f4925",
+        "G38__G__f21616",
+        "P0__shard_04_f0921",
+        "P0__shard_01_f0206",
+        "P0__shard_05_f0298",
+        "G38__G__f10610",
+        "G38__G__f27546",
+        "G38__G__f9280",
+        "TEX__shard_05_f0536",
+        "P0__shard_02_f0301",
+        "G38__G__f19144"
+      ],
+      "all_train_membership_SHA": "6703589cf9a02e58300f4931b0c520d01be1f0a4032c475a018d7910680c9efc"
+    },
+    "RECT_3": {
+      "train_images": 55980,
+      "sample_count": 32000,
+      "index_sequence_sha256": "10b585e458b4fa6dd9ed4f2f9cd899eb22078c5a5d8525645342767e9a613339",
+      "first_batch_ids": [
+        "G38__G__f22625",
+        "G38__G__f14358",
+        "G38__G__f15873",
+        "G38__G__f34852",
+        "G38__G__f5495",
+        "G38__G__f23946",
+        "G38__G__f9535",
+        "G38__G__f19334",
+        "TEX__shard_00_f1232",
+        "G38__G__f24551",
+        "G38__G__f0636",
+        "G38__G__f12363",
+        "G38__G__f2853",
+        "G38__G__f35810",
+        "G38__G__f39814",
+        "TEX__shard_01_f0329"
+      ],
+      "all_train_membership_SHA": "6703589cf9a02e58300f4931b0c520d01be1f0a4032c475a018d7910680c9efc"
+    },
+    "SQUARE_1": {
+      "train_images": 696,
+      "sample_count": 32000,
+      "index_sequence_sha256": "e40c287bda79f56aa76f98bdc93402893634ea00c1bc1b79e53952e7682df31a",
+      "first_batch_ids": [
+        "capture_20260902_kimjihoon_manual_gt__007969",
+        "capture_20260902_kimjihoon_manual_gt__007209",
+        "forklift_v4_20260904_captured_manual_gt__018028",
+        "capture_20260902_kimjihoon_manual_gt__003969",
+        "forklift_v4_20260904_144614_manual_gt__000314",
+        "forklift_v4_174342_manual_gt__000180",
+        "forklift_v4_20260904_captured_manual_gt__016948",
+        "capture_20260902_kimjihoon_manual_gt__006549",
+        "forklift_v4_20260903_190408_manual_gt__001170",
+        "capture_20260902_kimjihoon_manual_gt__008389",
+        "forklift_v4_20260904_144733_manual_gt__000066",
+        "forklift_v4_20260904_144733_manual_gt__001386",
+        "forklift_v4_20260904_142318_manual_gt__005035",
+        "capture_20260902_kimjihoon_manual_gt__003829",
+        "forklift_v4_20260904_144614_manual_gt__000224",
+        "capture_20260902_kimjihoon_manual_gt__007229"
+      ],
+      "all_train_membership_SHA": "859c7e9a82591f413e24b87b11526765b924de3e1c44cc1898500016ab817ef2"
+    },
+    "SQUARE_2": {
+      "train_images": 696,
+      "sample_count": 32000,
+      "index_sequence_sha256": "1f2d3fc168c449af86824abb1fd5265de63f8ab5a72e49164548bad397c37ff9",
+      "first_batch_ids": [
+        "forklift_v4_20260903_190408_manual_gt__000740",
+        "forklift_v4_20260904_103739_manual_gt__000690",
+        "forklift_v4_20260904_142318_manual_gt__001380",
+        "forklift_v4_20260904_144733_manual_gt__000576",
+        "forklift_v4_20260904_142318_manual_gt__000030",
+        "capture_20260902_kimjihoon_manual_gt__006489",
+        "forklift_v4_20260903_190743_manual_gt__000420",
+        "forklift_v4_20260904_145924_manual_gt__000069",
+        "forklift_v4_20260904_142318_manual_gt__001290",
+        "capture_20260902_kimjihoon_manual_gt__008509",
+        "forklift_v4_20260904_144733_manual_gt__000516",
+        "capture_20260902_kimjihoon_manual_gt__006789",
+        "capture_20260902_manual_gt__010703",
+        "forklift_v4_20260904_103739_manual_gt__000660",
+        "capture_20260902_kimjihoon_manual_gt__002869",
+        "forklift_v4_20260904_150335_manual_gt__000115"
+      ],
+      "all_train_membership_SHA": "859c7e9a82591f413e24b87b11526765b924de3e1c44cc1898500016ab817ef2"
+    },
+    "SQUARE_3": {
+      "train_images": 696,
+      "sample_count": 32000,
+      "index_sequence_sha256": "d5e39edf489f6d367d848d598c65d5868e95be683b72dbcc95eba8f2d7cc3cdc",
+      "first_batch_ids": [
+        "capture_20260902_kimjihoon_manual_gt__006649",
+        "forklift_v4_20260904_103739_manual_gt__000480",
+        "capture_20260902_kimjihoon_manual_gt__004329",
+        "capture_20260902_kimjihoon_manual_gt__008469",
+        "capture_20260902_kimjihoon_manual_gt__006229",
+        "forklift_v4_20260904_captured_manual_gt__016918",
+        "forklift_v4_20260904_142318_manual_gt__003445",
+        "capture_20260902_kimjihoon_manual_gt__006469",
+        "capture_20260902_kimjihoon_manual_gt__007989",
+        "capture_20260902_kimjihoon_manual_gt__006849",
+        "capture_20260902_kimjihoon_manual_gt__006369",
+        "forklift_v4_20260903_190408_manual_gt__000010",
+        "capture_20260902_kimjihoon_manual_gt__002849",
+        "capture_20260902_kimjihoon_manual_gt__008409",
+        "forklift_v4_20260903_190408_manual_gt__000700",
+        "forklift_v4_20260904_145924_manual_gt__001209"
+      ],
+      "all_train_membership_SHA": "859c7e9a82591f413e24b87b11526765b924de3e1c44cc1898500016ab817ef2"
+    }
+  },
+  "bindings": [
+    {
+      "path": "scripts/research/pallet_symmetry_three_line_v1/a_train.py",
+      "sha256": "22bfe0b17012756f955a792b9707c34554371c6288be6ec7140f4a0fe0e42cce",
+      "bytes": 11949
+    },
+    {
+      "path": "scripts/research/pallet_symmetry_three_line_v1/a_loss.py",
+      "sha256": "0476c77b01b7f7e28e5985ed4a55207921a45ab8613a906172255aaa10a7d462",
+      "bytes": 5433
+    },
+    {
+      "path": "scripts/research/pallet_symmetry_three_line_v1/a_joint.py",
+      "sha256": "765a874595ffb9d700274394de5964d8da4c9e7712100e8121daa75e4f19c478",
+      "bytes": 2992
+    },
+    {
+      "path": "scripts/research/pallet_symmetry_three_line_v1/a_data.py",
+      "sha256": "2a41356ae92518c280b3ed0743cf5e40c7f3bccfebf027abb04fcf8553b43036",
+      "bytes": 3845
+    },
+    {
+      "path": "data/pallet/results/pallet_symmetry_three_line_v1/A/rect_target_sidecar.json",
+      "sha256": "514c505acff0865878ef53646f71983178856b83a9fdb5136fc6ba6a1faa0d48",
+      "bytes": 46910150
+    },
+    {
+      "path": "data/pallet/results/pallet_symmetry_three_line_v1/A/square_annotation_target_view.json",
+      "sha256": "9c9c301fb0e0e71ba872b91324ce290afd964256a98ce4320d4b4a64a6696a28",
+      "bytes": 1084066
+    },
+    {
+      "path": "data/pallet/results/pallet_symmetry_three_line_v1/A/square_membership.json",
+      "sha256": "f420dd7398c973a4cd067b8eb610faf237083b4aef662c9831b4a5c86cca67a3",
+      "bytes": 646880
+    }
+  ],
+  "probe": "fixed first 16 TRAIN records at updates100/500/1000/2000",
+  "checkpoint": "raw last weights; resume carries optimizer, RNG, sampler offset and branch histograms",
+  "groups": "actual 3D-derived C1/C2; separately approved task-C4 square",
+  "new_square_view_shared_by_both_arms": true,
+  "no_P_or_DHT_in_A": true,
+  "FINAL_access": false
+}
