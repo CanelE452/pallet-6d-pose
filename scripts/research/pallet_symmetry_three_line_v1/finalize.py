@@ -5,6 +5,10 @@ import torch
 import env as E
 
 def main():
+    # Never overwrite completed/resumed A with this historical pre-training report.
+    if (E.DOC/'A/MAIN_TRAINING_COMPLETE.json').exists():
+        from a_finalize import main as completed_main
+        return completed_main()
     torch.set_num_threads(4)
     binding=E.read(E.DOC/'SOURCE_BINDING.json')
     for r in binding['files']:

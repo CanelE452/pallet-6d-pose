@@ -16,6 +16,8 @@ B: 원래 R0/P1-3/DHT corrected Hough1을 동결. 새 학습 0. 첨부 full-post
 
 ## 설치 API에서 발견한 사전 수식 충돌
 
+후속 정정: 사용자가 공동 선택을 승인했고 `A/JOINT_TRAINING_LOCK.json`으로 새 실행 계약을 고정했다. 아래 충돌 발견 기록은 보존하며, 현재의 실제 학습·평가 상태는 `A/training_audit.json`과 `A/results_and_intervals.json`을 따른다.
+
 `PoseLoss26.calculate_keypoints_loss`는 visible point 전체에 걸친 RLE 평균을 **배치 전체에서 clamp(min=0)** 한다.
 따라서 일반적으로 `max(0, r1+r2) != max(0,r1)+max(0,r2)`다. 예: r1=-2,r2=3일 때 1 != 3.
 두 E2E head에는 서로 다른 assignment / visible-count reduction과 .8/.2 초기 head weight가 있다.

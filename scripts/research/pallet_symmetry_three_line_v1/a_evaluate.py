@@ -37,6 +37,10 @@ def iou(a,b):
     inter=float(np.maximum(np.minimum(a[2:],b[2:])-np.maximum(a[:2],b[:2]),0).prod())
     return inter/max(area(a)+area(b)-inter,1e-12)
 
+def confidence_selected_match(candidates,gt_box):
+    top=max(candidates,key=lambda x:x['score']) if candidates else None
+    return top,top is not None and iou(top['box_xyxy'],gt_box)>=.5
+
 def summarize_all(rows):
     valid=[r for r in rows if r['evaluable']];summary=summarize(valid)
     fixed=np.concatenate([r['fixed_errors'] for r in valid])
@@ -55,8 +59,7 @@ def main():
             payload=E.read(E.RAW/f'A/predictions/{split}/{arm}.json');assert payload['complete'] and not payload['GT_input']
             rows=[]
             for p in payload['records']:
-                t=table[p['id']];top=max(p['candidates'],key=lambda x:x['score']) if p['candidates'] else None
-                matched=top is not None and iou(top['box_xyxy'],t['box'])>=.5
+                t=table[p['id']];top,matched=confidence_selected_match(p['candidates'],t['box'])
                 pred=np.asarray(top['keypoints_xy']) if matched else np.full((9,2),np.nan)
                 score=measure(pred,t['points'],t['valid'],t['perms'],t['raw_hw'])
                 raw=np.asarray(top['keypoints_xy'])[:8] if top is not None else np.empty((0,2));h,w=t['raw_hw']
