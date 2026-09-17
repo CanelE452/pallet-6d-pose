@@ -1,0 +1,111 @@
+{
+  "start_SHA": "824b292c8ab56a2166a35f51b76ea73af0b69eca",
+  "paper_arms": [
+    "N0_BASE_REPLAY",
+    "N1_SYM_ONLY",
+    "N2_DIM_ONLY",
+    "N3_DIM_SYM",
+    "N4_META_SYM"
+  ],
+  "square_arms": [
+    "S0_FIXED",
+    "S1_SYM",
+    "S2_META_SYM"
+  ],
+  "mixed_arms": [
+    "M0_DIM_SYM",
+    "M1_META_SYM"
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "steps": 6000,
+  "batch": 16,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "warmup_steps": 100,
+    "cosine_final_lr_fraction": 0.1,
+    "gradient_clip_norm": 5.0
+  },
+  "expected_fits": 30,
+  "expected_main_updates": 180000,
+  "smoke_updates": 200,
+  "config": {
+    "c3": 64,
+    "c4": 128,
+    "hidden": 16,
+    "encoded": 24,
+    "stencil_fraction": 0.1310373991727829
+  },
+  "temperature_grid": [
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ],
+  "calibration_target": "original fixed-index P Gaussian candidate CE for ALL arms; same objective and grid, no calibration GT phase assignment",
+  "selected_rule": {
+    "lam": 1.0,
+    "max_move_image_diagonal_fraction": 0.01
+  },
+  "checkpoint": "last6000 only",
+  "no_new_lambda_cap_sweep": true,
+  "FP32": true,
+  "AMP": false,
+  "TF32": "retain existing PyTorch defaults; record actual environment, do not claim deterministic CUDA grid_sample backward",
+  "train_phase": "one whole-object GT tuple and mask, identity-first tie, frozen R0 residual mean/bbox diagonal, missing prediction normalized penalty1",
+  "branch_in_inference": false,
+  "normalization": "paper TRAIN-only fixed stats shared across all tracks",
+  "square_temperature": "T=1 fixed; no square DEV calibration; original P lambda/cap",
+  "mixed_temperature": "same original P fixed-target CE on synthetic calibration only",
+  "primary_contrasts": [
+    [
+      "N1_SYM_ONLY",
+      "N0_BASE_REPLAY"
+    ],
+    [
+      "N2_DIM_ONLY",
+      "N0_BASE_REPLAY"
+    ],
+    [
+      "N3_DIM_SYM",
+      "N2_DIM_ONLY"
+    ],
+    [
+      "N4_META_SYM",
+      "N3_DIM_SYM"
+    ],
+    [
+      "N4_META_SYM",
+      "N0_BASE_REPLAY"
+    ]
+  ],
+  "bootstrap": {
+    "seed": 20260917,
+    "resamples": 10000,
+    "real_unit": "session",
+    "synthetic_unit": "frame plus scenario secondary"
+  },
+  "parity_tolerance": {
+    "initial_logits_maxabs": 0,
+    "detector_candidates_maxabs": 0,
+    "oldP_replay_Esym_absolute": 0.0001,
+    "oldP_replay_pooled_median_px_absolute": 0.1
+  },
+  "safety": "No severe damage: proposed-minus-control good5_to_bad10 count <=0 and gross20 delta <=0; canonical GT identity aligned. Otherwise UNRESOLVED even if CI supports improvement.",
+  "verdict": "CI lower>0 WORSENED; CI upper<0 plus >=2/3 better and preservation+safety SUPPORTED; otherwise UNRESOLVED; integrity failure stops execution",
+  "no_multiplicity_adjusted_confirmatory_claim": true,
+  "square_mixed_claim": "secondary/diagnostic only, domain and group confounded",
+  "canonical_dimension_correction": "G38 fixed renderer XYZ from validated immutable geometry side table, not camera-facing dimensions_m",
+  "valid_smoke_updates": 200,
+  "archived_invalid_smoke_updates": 100,
+  "total_smoke_updates": 300
+}
