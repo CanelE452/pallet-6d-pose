@@ -1,0 +1,197 @@
+{
+  "experiment": "pallet_posefix_utility_selector_v1",
+  "user_authorized_training": true,
+  "purpose": "Learn which fixed N2/Replay corner candidate reduces error; no generator fine-tuning or paper-model promotion",
+  "model": "Shared local RGB CNN + global RGB/structure + paired endpoint context; outputs eight signed corner utilities",
+  "parameters": 53233,
+  "numeric_dim": 26,
+  "global_dim": 64,
+  "device": "cuda",
+  "seed": 1,
+  "steps": 1500,
+  "batch": 32,
+  "sampler_seed": 8103,
+  "split_seed": 8101,
+  "stress_seed": 8102,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 5
+  },
+  "loss": "masked SmoothL1(beta=1) on 100*(N2 error - Replay error)/predicted-box diagonal, equal supported-corner weights; no class rebalance",
+  "target": "One approved whole-object symmetry branch minimizing N2 supported mean is chosen ONCE for both candidates; GT supervision only, never input. Out-of-crop GT not dropped.",
+  "policy": "Both endpoints of native vertical pair need predicted utility >0 and finite valid candidates; otherwise exact N2. No tuned threshold, blend, geometry/flip gate, GT reassignment or new coordinate.",
+  "pairs": [
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      4,
+      7
+    ],
+    [
+      5,
+      6
+    ]
+  ],
+  "variants": [
+    "clean",
+    "stress"
+  ],
+  "stress": "Two random vertical pairs of R0 inputs each receive one uniform-angle .05-.15 predicted-box-diagonal displacement shared by their valid endpoints. RNG SeedSequence([8102,row]). RGB/boxes/features/centroid unchanged. NO GT used to construct stress inputs. Both frozen N2 and Replay run on each same variant.",
+  "split": "Scenario-group disjoint ~80/20 among 1616 historical synthetic heldout rows after excluding whole Replay-probe scenario groups. Variants never cross split.",
+  "generator_exposure": "No N2/PRIOR/Replay weight-gradient exposure to pool. R0 validation/checkpoint-selection and historical development exposure EXIST; not fully unseen candidate data.",
+  "C4_training_images": 0,
+  "real_training_images": 0,
+  "numerical_parity": "Recompute clean source N2 with same frozen weights/decode; atol .001 prepared-image px against archived predictions accommodates batch16 cached vs batch1 live floating point. No GT in parity.",
+  "image_context": "Predicted-box crop expanded1.25 at96x72 plus candidate-centered24x24 patches; not entire raw frame. Wrong or too small detector crop remains a limitation.",
+  "source_validation": "Report fixed last1500 only. No early stopping, model/threshold selection, best-checkpoint search or rescue run.",
+  "real_evaluation": "Fixed GREEN150 manual and DEV72 unknown-origin legacy reference, all denominators and detector metadata preserved. Known reused development evaluation, not independent confirmation.",
+  "real_arms": [
+    "A_N2",
+    "REPLAY",
+    "CORNER_FULL_PAIR",
+    "LEARNED_PAIR"
+  ],
+  "real_outputs": "Freeze ALL222 GT-free choices before scoring. Real RGB/features first used only after fit checkpoint is fixed.",
+  "original_models_frozen": true,
+  "final_model_modified": false,
+  "pseudo_labels_generated": false,
+  "auto_promote": false,
+  "gpu_temperature_limit_C": 80,
+  "foreign_compute_preserved": true,
+  "system_changes": false,
+  "checkpoint": "last1500 only; separate root; fixed one seed",
+  "split_binding": {
+    "path": "_docs/experiments/pallet_posefix_utility_selector_v1/SPLIT.json",
+    "sha256": "9e8167eff3b6acdc4fa9e72b719e955f16ecf0d83fdc03533a679e8abb3e311c",
+    "bytes": 1037683
+  },
+  "checkpoints": [
+    {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "bytes": 6552807
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N2_DIM_ONLY_seed1/last.pt",
+      "sha256": "bb37ef2b6808392f6ae28dd0aa43d18573d8cb664b9ff694c1e688d6ac4bb1d4",
+      "bytes": 305470
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/last300.pt",
+      "sha256": "fc9b3d7b7f2e7c38b608a12461cf16a58b76669f12ef9be5c8dc35d81104a41d",
+      "bytes": 275590870
+    }
+  ],
+  "sources": [
+    {
+      "path": "_docs/paper/final_dimension_v1/MODEL_LOCK.json",
+      "sha256": "c56809f6ea5f39a8e167875e8e970c5c08b071cf37b0417452bb7c20bb39141e",
+      "bytes": 10005
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_replay_v1/PROTOCOL.json",
+      "sha256": "acab83bf84d59a9087dc2ad0bfbfa748c25a81872a2ae8801cb7784bb2a6663f",
+      "bytes": 11652
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_replay_v1/FIT.json",
+      "sha256": "34ba44bbeed625bce744e9fa95305a70faea2e93c754ef36dfe2a8fbc0b468a8",
+      "bytes": 2173
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/PREDICTIONS.json",
+      "sha256": "35874da9bc77f5d87fae91ccd6517a6dac71776e2d5a2ec849d41c9db55414c6",
+      "bytes": 2781263
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_corner_gate_v1/RESULTS.json",
+      "sha256": "8b581566c313c74336bb81f779d8a67c4d9cf8e283d6f7a69b34b2c676da332d",
+      "bytes": 20306
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_corner_gate_v1/OUTPUTS_LOCK.json",
+      "sha256": "40d7f35496282283342a87a58d6c24946b4e1aecdbcc4d0c613e908dc1c42313",
+      "bytes": 954
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_corner_gate_v1/INFERENCE.json",
+      "sha256": "72f971b96cd8acfe9ab391d3d970c2b01c3b072b9406fccc2a1946563aafd8f5",
+      "bytes": 5970994
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_corner_gate_v1/PREDICTIONS.json",
+      "sha256": "1cd57dcea1eaded79874e5f5baf6bbb377ac2765610575813b69944671252df3",
+      "bytes": 3456485
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_corner_gate_v1/PER_FRAME_METRICS.json",
+      "sha256": "996aaa1a917d6e5c1e70fb6584ce83564b62f684e98455aa5358548a27554452",
+      "bytes": 2305293
+    },
+    {
+      "path": "scripts/research/pallet_posefix_corner_gate_v1/infer.py",
+      "sha256": "cdd1e2eb58d8cfcfc8cfa0e3b476fdac0f511c01e346e0bce64e718043a890a4",
+      "bytes": 16908
+    },
+    {
+      "path": "scripts/research/pallet_posefix_corner_gate_v1/evaluate.py",
+      "sha256": "f82958ecd371cbedb36689eadefccef6f6c56f6b45ca91d781091d9e58a3d2b3",
+      "bytes": 11369
+    },
+    {
+      "path": "scripts/research/pallet_posefix_large_error_v1/evaluate.py",
+      "sha256": "c66505c17a0bd93ccf096db685dcd5e3906052acbd4fbd6610822400031e7f83",
+      "bytes": 14473
+    },
+    {
+      "path": "scripts/research/pallet_posefix_replay_v1/source.py",
+      "sha256": "81d0301d0360fb0a9e6cd685f3fc3fb8add1252996cb413bf09f502754c83eb6",
+      "bytes": 5098
+    }
+  ],
+  "code": [
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/__init__.py",
+      "sha256": "0925724fd2450bfe813f1f18d989b8d9bff03e368e85009eb8482dbc5cff8267",
+      "bytes": 78
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/core.py",
+      "sha256": "dfafe307c718373354097998d89f4ac8c3735d65806e441da29561e604cef36a",
+      "bytes": 6448
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/generate.py",
+      "sha256": "87aa0942a1104316ee25d2c15d0c4722c90948593bf572c34c27324fa95235de",
+      "bytes": 21321
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/model.py",
+      "sha256": "50439bea4da59ea4845cfa9d907a3f2f2f330a2b259471adc75610f616b37cc6",
+      "bytes": 12457
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/test_model.py",
+      "sha256": "efb4bb52e2fd0f0d741c7af93e725e09acdb095c02945f220c7a6e848d563c3b",
+      "bytes": 7522
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/train.py",
+      "sha256": "280abf6fb7b48e9158951935a2c7f4d03e917ae816e98d123517307f1184c59f",
+      "bytes": 8092
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/evaluate.py",
+      "sha256": "156b16a52d2322c0295a611b4a3145f2b01fa2e6bd2597aff4f09cda2f74308d",
+      "bytes": 7919
+    }
+  ]
+}

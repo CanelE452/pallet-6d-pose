@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>초록 팔레트 · 보정 전후 진단</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1119;--panel:#131e2b;--line:#2a394b;--text:#e8eef6;--muted:#acbcd0;--accent:#9ee9ba;--gt:#ff65ee;--pred:#ffe45b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,'Noto Sans KR',sans-serif}main{max-width:1440px;margin:auto;padding:36px 24px 70px}header{max-width:970px;margin-bottom:26px}h1{font-size:clamp(28px,4vw,42px);line-height:1.3;margin:8px 0 18px;letter-spacing:-1px}h2{font-size:23px;margin:0 0 14px}h3{margin:0;font-size:18px}p{margin:10px 0}a{color:#a2d6ff}.eyebrow{color:var(--accent);font-size:13px;letter-spacing:2px}.muted,small{color:var(--muted)}.section{margin-top:32px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}.card strong{display:block;font-size:29px;font-variant-numeric:tabular-nums}.card small{display:block}.bad{color:#ffad9c}.good{color:#9ee9ba}.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0}.toolbar label{display:inline-flex;gap:6px;align-items:center}button,select{font:inherit;color:var(--text);background:#182738;border:1px solid #3b5068;padding:9px 13px;border-radius:9px;cursor:pointer}button[aria-pressed="true"]{border-color:var(--accent);background:#244437;color:white}button:hover,select:hover{border-color:#a2d6ff}button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.case-buttons{display:flex;gap:8px;flex-wrap:wrap}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:14px}.model-head{padding:15px 17px;border-bottom:1px solid var(--line);min-height:135px}.image-panel{background:#101821;border:1px solid var(--line);border-radius:14px;overflow:hidden}.image-panel canvas{width:100%;display:block;background:#101821}.stats{font-size:14px;color:var(--muted);margin-top:9px}.stats strong{font-size:22px;color:var(--text)}.legend{display:flex;flex-wrap:wrap;gap:20px;font-size:14px;margin:12px 0}.legend b{font-size:20px}.caption{background:#132331;border-left:3px solid var(--accent);padding:14px 18px;margin:14px 0}.case-id{font-size:12px;overflow-wrap:anywhere}.table-scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:15px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:500}.heatmap{width:100%;display:block;border-radius:10px;margin-top:18px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.note{font-size:14px;color:var(--muted)}details{margin:18px 0}summary{cursor:pointer;color:#a2d6ff}code{overflow-wrap:anywhere}footer{margin-top:32px;border-top:1px solid var(--line);padding-top:20px;font-size:13px;color:var(--muted)}#load-status{font-size:13px;color:var(--accent)}@media(max-width:780px){main{padding:24px 14px}.cards{grid-template-columns:1fr 1fr}.comparison,.two{grid-template-columns:1fr}.model-head{min-height:0}.card strong{font-size:25px}}@media print{body{background:white;color:black}.toolbar,button,select{display:none}.panel,.card,.image-panel{break-inside:avoid}.comparison{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body><main>
+<header><div class="eyebrow">GREEN150 / SAVED-PREDICTION AUDIT / 2026.09.19</div>
+<h1>초록 팔레트,<br>보정하면서 무엇이 달라졌나?</h1>
+<p>이번 악화는 초록색 전체의 검출 실패가 아니라, <strong>다각도 사진에서 원래 맞던 코너까지 잘못 옮기는 현상</strong>입니다. 저장 예측과 고정 모델의 출력 분포로 확인했습니다.</p>
+<p class="note">현재 최종 모델·라벨 변경 없음 · 추가 학습 없음 · 수동 클릭 GT만 표시 · 원본 이미지와 수치가 포함된 오프라인 HTML</p></header>
+<div class="cards">
+<div class="card"><small>평가 범위</small><strong>150장</strong><small>수동 GT 681코너 / 원본 640×480</small></div>
+<div class="card"><small>현재 최종 → Replay PCK10</small><strong id="accuracy"></strong><small>10px 이내 코너 비율</small></div>
+<div class="card"><small>현재 맞음 → Replay 틀림</small><strong class="bad" id="lost"></strong><small>10px 기준 / 모두 다각도 사진</small></div>
+<div class="card"><small>현재 틀림 → Replay 맞음</small><strong class="good" id="gained"></strong><small>큰 보정의 성공 사례도 존재</small></div>
+</div>
+<section class="section" aria-labelledby="comparison-title"><h2 id="comparison-title">1. 같은 이미지에서 직접 비교</h2>
+<p class="muted">사례와 모델을 바꾸어 보세요. 기본값은 현재 최종 모델과 Replay입니다. 두 패널은 항상 같은 영역을 보여줍니다.</p>
+<div class="case-buttons" id="cases"></div>
+<div class="toolbar"><label>표시 범위 <select id="view"><option value="crop">팔레트 확대</option><option value="full">원본 전체</option><option value="corner">핵심 코너 확대</option></select></label>
+<label><input type="checkbox" id="gt" checked>수동 정답</label><label><input type="checkbox" id="lines" checked>예측 연결선</label><label><input type="checkbox" id="arrows" checked>R0부터 이동</label></div>
+<div class="legend"><span><b style="color:var(--gt)">×</b> 수동 정답 G</span><span><b style="color:var(--pred)">●</b> 선택한 모델 예측 P</span><span><b style="color:#56ddff">○</b> 핵심 코너의 R0 입력</span><span>흰 화살표: R0 → 선택한 모델</span></div>
+<div class="comparison">
+<div class="image-panel"><div class="model-head"><label for="left">왼쪽 모델 </label><select id="left"></select><div class="stats" id="left-stats"></div></div><canvas id="left-canvas" role="img" aria-label="왼쪽 모델의 원본 이미지 위 예측과 수동 정답"></canvas></div>
+<div class="image-panel"><div class="model-head"><label for="right">오른쪽 모델 </label><select id="right"></select><div class="stats" id="right-stats"></div></div><canvas id="right-canvas" role="img" aria-label="오른쪽 모델의 원본 이미지 위 예측과 수동 정답"></canvas></div>
+</div><div class="caption" id="case-description" aria-live="polite"></div><div class="case-id muted" id="case-id"></div>
+<p class="note">핵심 코너 오차와 프레임 평균 오차는 다릅니다. 흰 화살표는 왼쪽 모델 → 오른쪽 모델이 아니라, 각 모델의 동일 native 코너에 대한 R0 → 보정 이동입니다. 확대 밖의 예측은 화면에 별도 안내합니다.</p>
+<div id="load-status" role="status">원본 이미지 로딩 중…</div></section>
+<section class="section"><h2>2. 전체 150장에서의 변화</h2><div class="panel table-scroll"><table><thead><tr><th>모델</th><th>10px 이내 / 681</th><th>PCK10 ↑</th><th>매칭 코너 평균 오차 ↓</th></tr></thead><tbody id="metrics"></tbody></table></div>
+<p class="note">모든 모델에서 검출 150장, GT 매칭 134장/610코너로 동일합니다. PCK10은 미매칭 71코너도 실패로 포함합니다. 평균 오차는 매칭된 610코너만 사용합니다. N2와 Replay의 C4 평가 분기는 150장 모두 동일합니다.</p>
+<div class="two"><div class="panel"><h3>악화는 다각도 사진에 집중</h3><p>다각도 119장에서 34개 악화 / 7개 개선. 리프터 계열 31장은 두 모델 모두 122/124개가 10px 이내입니다.</p></div><div class="panel"><h3>잘림만의 문제는 아님</h3><p>잘림 태그가 없는 103장에서도 20개 악화 / 1개 개선이 있습니다. 전체 코너 오차 중앙값은 개선되지만 큰 실패가 늘어납니다.</p></div></div></section>
+<section class="section"><h2>3. 왜 움직였나? 두 가지 출력 문제</h2><div class="two"><div class="panel"><h3>A. 다른 코너를 선택</h3><p>최악 사례에서 정답 (525,316)이 아니라 다른 코너 근처 (317,255)에 가장 높은 확률을 줍니다. 평균 출력 오차는 <strong>168.30px</strong>입니다.</p><p class="note">최고점 자체 오차는 216.91px. 단순히 평균 대신 최고점을 선택해도 해결되지 않습니다.</p></div><div class="panel"><h3>B. 정답을 찾아도 평균이 빗나감</h3><p>비잘림 사례에서는 최고점 오차가 <strong>1.22px</strong>인데, 먼 후보까지 평균내면서 최종 오차가 <strong>29.48px</strong>가 됩니다.</p><p class="note">멀리 떨어진 보조 후보 주변 7×7 셀에 약 28.5%의 확률질량이 남았습니다. 이는 검증된 정답 확률이 아닙니다.</p></div></div>
+<details open><summary>실제 확률분포 비교 펼치기 / 접기</summary><p class="note">아래 그림은 현재 DIM-only가 아니라 <strong>동일 PoseFix 구조의 기존 합성 학습 모델 → 실사+합성 Replay</strong> 비교입니다. 자홍 ×=정답, 노란 ○=평균 출력, 청록 △=최고점. 패널마다 별도로 정규화한 로그 색상으로, 모델 간 confidence를 비교하는 그림이 아닙니다.</p><img id="heatmap" class="heatmap" alt="잘못된 코너 선택과 여러 후보 평균으로 발생하는 두 종류의 실패를 보여주는 실제 확률분포"></details></section>
+<section class="section panel"><h2>확인한 사실과 아직 모르는 것</h2><p><strong>확인:</strong> 다른 코너로의 이동과 여러 후보 평균이 실제 오차를 만듭니다. 반대로 큰 오차를 40.99 → 6.85px로 줄인 사례도 있습니다.</p><p><strong>아직 가설:</strong> 실사 추가학습 9장에는 평가 대상 초록 정사각 팔레트가 없었습니다. 물체·시점 분포 차이가 원인일 수 있지만 색·형상·시점의 효과는 분리하지 못했습니다. 일부 crop의 문맥 부족도 전체 실패를 설명하지 못합니다.</p><p><strong>현재 판단:</strong> 큰 보정 자체보다, 옮길 점과 유지할 점을 구별하는 능력이 부족합니다. 이 Replay를 최종 모델로 교체하거나 수도레이블 생성에 바로 적용하지 않았습니다.</p></section>
+<details><summary>재현 정보 및 해석 제한</summary><div class="panel note"><p>이미지와 표시 좌표는 FIGURES.json의 원본 이미지 SHA 및 수치를 검증한 뒤 포함했습니다. 시각적 비교만 새로 생성했으며 모델을 재학습하거나 GT를 수정하지 않았습니다.</p><p>대칭은 물체 전체의 승인된 C4 분기를 사용합니다. 최악 사례의 실사-only는 다른 분기를 선택했으므로 같은 canonical GT를 비교하되 native index는 다를 수 있습니다. 개별 코너를 임의로 재매칭하지 않았습니다.</p><p>네 사례는 실패 기전과 성공 사례 설명용으로 선택했으며 무작위 표본이 아닙니다. GREEN150은 이미 반복 확인한 개발·진단 자료로 독립 최종 평가가 아닙니다.</p><p>원시 출처: <code>outputs/pallet_posefix_green_audit_v1/FIGURES.json</code><br><code>_docs/experiments/pallet_posefix_green_audit_v1/{NUMERIC_AUDIT,HEATMAP_DIAGNOSTIC}.json</code></p></div></details>
+<noscript><p>대화형 비교에는 브라우저 JavaScript가 필요합니다. 인터넷 연결은 필요하지 않습니다.</p></noscript>
+<footer>로컬 진단 뷰어 · 모든 이미지/좌표 내장 · 외부 전송/네트워크 요청 없음 · 최종 모델과 원본 데이터는 변경하지 않음</footer>
+</main>
+<script id="audit-data" type="application/json">__AUDIT_PAYLOAD__</script>
+<script>
+'use strict';
+const DATA=JSON.parse(document.getElementById('audit-data').textContent);
+const $=id=>document.getElementById(id);
+const labels={R0:'R0 · 보정 전',A_N2:'현재 최종 · DIM-only',REAL_ONLY:'실사-only PoseFix',REPLAY:'실사+합성 Replay'};
+const info={worst:['가장 크게 악화','앞쪽 코너가 왼쪽 다른 모서리 방향으로 크게 이동했습니다. 같은 프레임의 아래 코너 G2도 14.59 → 184.30px로 악화했습니다.'],truncated:['잘림 사례','거의 맞던 아래 코너가 왼쪽·위로 이동했습니다. 크게 움직일 필요가 없었던 코너입니다.'],nontruncated:['잘림 없는 실패','정답 근처 최고점은 남아 있지만, 먼 보조 후보 때문에 평균 좌표가 왼쪽으로 당겨졌습니다.'],improved:['실제로 개선','안쪽으로 빗나간 점이 실제 바깥 모서리로 이동했습니다. 큰 보정이 제대로 작동한 사례입니다.']};
+const state={tag:'worst',images:new Map()};
+for(const id of ['left','right'])for(const [key,label]of Object.entries(labels)){const op=document.createElement('option');op.value=key;op.textContent=label;$(id).append(op)}
+$('left').value='A_N2';$('right').value='REPLAY';
+for(const tag of ['worst','truncated','nontruncated','improved']){const button=document.createElement('button');button.textContent=info[tag][0];button.dataset.tag=tag;button.setAttribute('aria-pressed',String(tag===state.tag));button.onclick=()=>{state.tag=tag;render()};$('cases').append(button)}
+const all=DATA.subsets.all;
+$('accuracy').textContent=`${(all.models.N2.PCK10*100).toFixed(2)} → ${(all.models.REPLAY.PCK10*100).toFixed(2)}%`;
+$('lost').textContent=all.lost+'개';$('gained').textContent=all.gained+'개';
+for(const [key,label]of [['R0',labels.R0],['N2',labels.A_N2],['PRIOR','기존 합성 학습 PoseFix'],['REAL_ONLY',labels.REAL_ONLY],['REPLAY',labels.REPLAY],['REPLAY_CAP','Replay + 기존 8px 이동 제한 (진단용)']]){const v=all.models[key],tr=document.createElement('tr');for(const text of [label,`${v.correct10} / ${v.corners}`,`${(v.PCK10*100).toFixed(2)}%`,`${v.mean_matched.toFixed(2)}px`]){const td=document.createElement('td');td.textContent=text;tr.append(td)}$('metrics').append(tr)}
+$('heatmap').src=DATA.heatmap;
+function draw(side,row){
+ const model=row.models[$(side).value],canvas=$(side+'-canvas'),ctx=canvas.getContext('2d'),img=state.images.get(row.tag);
+ const limits=$('view').value==='full'?[0,img.naturalWidth,0,img.naturalHeight]:row[$('view').value==='corner'?'corner_zoom_limits_xy':'crop_limits_xy'];
+ const [x0,x1,y0,y1]=limits,w=x1-x0,h=y1-y0;
+ const visibleWidth=canvas.getBoundingClientRect().width||640,ratio=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.round(visibleWidth*ratio);canvas.height=Math.round(visibleWidth*h/w*ratio);
+ const s=canvas.width/w,u=canvas.width/visibleWidth;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,x0,y0,w,h,0,0,canvas.width,canvas.height);
+ const xy=p=>[(p[0]-x0)*s,(p[1]-y0)*s],inside=p=>p[0]>=x0&&p[0]<=x1&&p[1]>=y0&&p[1]<=y1;
+ function line(a,b,color,width=1.4){ctx.strokeStyle=color;ctx.lineWidth=width*u;ctx.beginPath();ctx.moveTo(...xy(a));ctx.lineTo(...xy(b));ctx.stroke()}
+ function circle(p,r,color,fill=false){ctx.beginPath();ctx.arc(...xy(p),r*u,0,2*Math.PI);ctx.strokeStyle=color;ctx.lineWidth=2*u;if(fill){ctx.fillStyle=color;ctx.fill()}ctx.stroke()}
+ function label(p,text,color){if(!inside(p))return;const [x,y]=xy(p);ctx.font=`${12*u}px system-ui`;const tw=ctx.measureText(text).width;const tx=Math.min(x+8*u,canvas.width-tw-5*u),ty=Math.max(16*u,y-9*u);ctx.fillStyle='#09121cdd';ctx.fillRect(tx-2*u,ty-13*u,tw+4*u,17*u);ctx.fillStyle=color;ctx.fillText(text,tx,ty)}
+ const points=model.all_native_corner_predictions,initial=row.models.R0.all_native_corner_predictions;
+ if($('lines').checked)for(const [a,b]of DATA.edges)if(a<8&&b<8)line(points[a],points[b],'#ffe45bd9');
+ if($('arrows').checked)points.forEach((p,i)=>{if(Math.hypot(p[0]-initial[i][0],p[1]-initial[i][1])<.15)return;line(initial[i],p,'#ffffffd9');const a=xy(initial[i]),b=xy(p),angle=Math.atan2(b[1]-a[1],b[0]-a[0]),size=7*u;ctx.fillStyle='white';ctx.beginPath();ctx.moveTo(...b);ctx.lineTo(b[0]-size*Math.cos(angle-.5),b[1]-size*Math.sin(angle-.5));ctx.lineTo(b[0]-size*Math.cos(angle+.5),b[1]-size*Math.sin(angle+.5));ctx.closePath();ctx.fill()});
+ points.forEach(p=>circle(p,2.5,'#ffe45b',true));
+ if($('gt').checked)row.manual_GT_xy.forEach((p,i)=>{if(!inside(p))return;const [x,y]=xy(p),r=6*u;ctx.strokeStyle='#ff65ee';ctx.lineWidth=2.5*u;ctx.beginPath();ctx.moveTo(x-r,y-r);ctx.lineTo(x+r,y+r);ctx.moveTo(x+r,y-r);ctx.lineTo(x-r,y+r);ctx.stroke();label(p,'G'+row.manual_GT_indices[i],'#ff65ee')});
+ circle(model.R0_same_native_xy,7,'#56ddff');circle(model.predicted_xy,8,'#ffe45b');label(model.predicted_xy,'P'+model.native_corner,'#ffe45b');
+ if(!inside(model.predicted_xy)){ctx.fillStyle='#09121cee';ctx.fillRect(0,canvas.height-38*u,canvas.width,38*u);ctx.fillStyle='#ffb2a6';ctx.font=`${13*u}px system-ui`;ctx.fillText('핵심 예측이 확대 영역 밖에 있습니다 — 원본 전체로 확인',12*u,canvas.height-14*u)}
+ $(side+'-stats').innerHTML=`G${row.focused_canonical_GT_corner} 오차 <strong>${model.canonical_corner_error_px.toFixed(2)}px</strong> · 프레임 평균 ${model.manual_frame_mean_px.toFixed(2)}px<br>R0부터 이동 ${model.movement_from_same_native_R0_px.toFixed(2)}px · C4 분기 ${model.C4_branch} · native P${model.native_corner}`;
+ canvas.setAttribute('aria-label',`${labels[$(side).value]}, ${row.id}, G${row.focused_canonical_GT_corner} 오차 ${model.canonical_corner_error_px.toFixed(2)}픽셀`);
+}
+function render(){const row=DATA.cases.find(r=>r.tag===state.tag);if(!state.images.has(row.tag))return;document.querySelectorAll('#cases button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tag===state.tag)));draw('left',row);draw('right',row);$('case-id').textContent=row.id;$('case-description').textContent=`${info[row.tag][1]} 현재 최종 → Replay의 G${row.focused_canonical_GT_corner} 오차: ${row.models.A_N2.canonical_corner_error_px.toFixed(2)} → ${row.models.REPLAY.canonical_corner_error_px.toFixed(2)}px.`;document.body.dataset.case=state.tag}
+for(const id of ['left','right','view','gt','lines','arrows'])$(id).addEventListener('change',render);
+window.addEventListener('resize',render);
+Promise.all(DATA.cases.map(row=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{state.images.set(row.tag,img);resolve()};img.onerror=reject;img.src=row.src}))).then(()=>{render();$('load-status').textContent='원본 4장 로딩 완료 · 모든 비교는 저장된 예측을 표시합니다.';document.body.dataset.ready='true'}).catch(()=>{$('load-status').textContent='이미지 로딩 실패. HTML을 다시 열어 주세요.';document.body.dataset.ready='error'});
+</script></body></html>

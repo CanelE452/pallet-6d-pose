@@ -1,0 +1,123 @@
+{
+  "experiment": "pallet_posefix_large_error_v1",
+  "purpose": "Existing PoseFix reevaluation plus tiny real supervised large-error trainability screen; not a paper contribution claim",
+  "prior_history": "PoseFix-derived official-TF1-parity ResNet152 pallet9; already trained synthetic-only seed1/2/3 x 6000; reuse seed1",
+  "new_model": "Same validated PoseFixPallet9 RGB + initial nine-point Gaussian maps; no detector updates",
+  "inputs": "RGB and frozen R0 points/predicted box ONLY; no depth, CAD, 3D rendering, PnP, dimensions, GT or symmetry label at inference",
+  "seed": 1,
+  "steps": 300,
+  "batch": 8,
+  "microbatch": 2,
+  "checkpoint": "last300 only; never selected on eval",
+  "initialization": "existing PRIOR1 last6000; all model parameters trainable; BN running mean/variance frozen",
+  "optimizer": {
+    "name": "TFAdam",
+    "lr": 0.0001,
+    "graph_L2_half_coefficient": 5e-06,
+    "gradient_clip": null
+  },
+  "loss": "unchanged PoseFix heatmap cross entropy + coordinate L1 + graph L2; masks restrict supervision to manually clicked finite in-frame corners within R0 crop",
+  "training": "Only existing 9 real TRAIN images with 38 verified manual corners; all candidate recording groups reserved from evaluation",
+  "input_corruption": "Per image: probability .5 unchanged R0 input; .5 replace each manual-valid supervised corner by GT plus independent uniform angle and .05-.15 predicted-box-diagonal radius in image pixels. Other corners/centroid stay R0. No human swap/inversion prior, no label changes.",
+  "training_rng": 6401,
+  "probe_rng": 6402,
+  "probe_repeats_per_image": 8,
+  "sanity": "step0 vs last300 on same training RGB: original R0 inputs plus 8 independently drawn fixed corruption cases each image; NOT unseen-image validation",
+  "sanity_pass": "noisy manual-supported corners mean error <=10 original-image px AND recovery of noisy-input >20px to <=10px >=.50 AND mean error <=.50 * noisy-input mean error",
+  "followup": "If sanity passes, evaluate final on untouched recording-separated DEV72 and GREEN150 manual. If not, stop this bounded screen; no hyperparameter search.",
+  "evaluation": "Same 222 cached R0 detections and approved whole-object symmetry scorer as previous large-error test. Report raw and historical .01 image-diagonal cap without choosing a winner; baseline R0 and N2.",
+  "existing_before_train_evaluation": true,
+  "gt_used_to_filter_eval": false,
+  "geometry_filter": false,
+  "evaluation_reused": true,
+  "independent_confirmation": false,
+  "causality": "Warm-start and supervision change together; not a noise-only causal ablation",
+  "no_original_weights_labels_paper_changes": true,
+  "auto_promote": false,
+  "gpu_thermal_limit_C": 80,
+  "system_changes": false,
+  "sources": {
+    "data/pallet/results/pallet_sensors_submission_v1/runs/PRIOR1/last.pt": {
+      "path": "data/pallet/results/pallet_sensors_submission_v1/runs/PRIOR1/last.pt",
+      "sha256": "b9670d1a42db8d4e80ae1efe55eb237f05f81f7bd089cefe4051bbedd7d0a581",
+      "bytes": 825930590
+    },
+    "_docs/experiments/pallet_sensors_submission_v1/PRIOR_SELECTION.json": {
+      "path": "_docs/experiments/pallet_sensors_submission_v1/PRIOR_SELECTION.json",
+      "sha256": "a47aac8a7c0aa4d5c426903dc60d72cbec8926d0a4f3a4dd04c2a794766896f0",
+      "bytes": 19335
+    },
+    "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json": {
+      "path": "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json",
+      "sha256": "fa63de9cb5aab2576d812c0dc7e0e956a27c48709df8d93a816177cb0a9c8040",
+      "bytes": 134663
+    },
+    "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json": {
+      "path": "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json",
+      "sha256": "ad717de5e1a74c9201ee26b33a200da83f069efc4023e703ec2493c5058c6d05",
+      "bytes": 334493
+    },
+    "data/pallet/results/pallet_large_error_refiner_v1/PREDICTIONS.json": {
+      "path": "data/pallet/results/pallet_large_error_refiner_v1/PREDICTIONS.json",
+      "sha256": "23c91ae34d749b9e286c3fcf4b8e8539146fc108e585481eafbdcf48c0d93f35",
+      "bytes": 7994456
+    },
+    "data/pallet/results/pallet_large_error_refiner_v1/PER_FRAME_METRICS.json": {
+      "path": "data/pallet/results/pallet_large_error_refiner_v1/PER_FRAME_METRICS.json",
+      "sha256": "c5439f0ee25b9897fd2ff83219e06f52707ed84329181865fca2a5969be7455c",
+      "bytes": 5972966
+    },
+    "_docs/experiments/pallet_symmetry_three_line_v1/OBJECT_EQUIVALENCE_AND_INDEX_CONTRACT.json": {
+      "path": "_docs/experiments/pallet_symmetry_three_line_v1/OBJECT_EQUIVALENCE_AND_INDEX_CONTRACT.json",
+      "sha256": "e692b152658292bc2890f415e2ae612116a4dd03850774f1fda234447d2995a3",
+      "bytes": 9314
+    },
+    "scripts/research/pallet_sensors_submission_v1/prior_model.py": {
+      "path": "scripts/research/pallet_sensors_submission_v1/prior_model.py",
+      "sha256": "83e96d5071c1bd4903e429fefa23c9b965e48d0ece2bdca2314e1dad2938014e",
+      "bytes": 7263
+    },
+    "scripts/research/pallet_sensors_submission_v1/posefix_contract_math.py": {
+      "path": "scripts/research/pallet_sensors_submission_v1/posefix_contract_math.py",
+      "sha256": "b0044b02fe20f73d2df2ea3bb005d0e3e4cd9dac3981c6c697fe32b71e0b03a1",
+      "bytes": 5339
+    },
+    "scripts/research/pallet_dim_conditioned_p_v1/eval_math.py": {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/eval_math.py",
+      "sha256": "4e3111f108e689d03ddac80387dc6492d1a6b180b7b8d7f5d98fe4722c43ea7b",
+      "bytes": 4273
+    },
+    "scripts/research/pallet_large_error_refiner_v1/evaluate.py": {
+      "path": "scripts/research/pallet_large_error_refiner_v1/evaluate.py",
+      "sha256": "5042df0f97d2331707fd2dcc65b54e4c9f1ee02f91ef63b1b1c60c91a176dc94",
+      "bytes": 16509
+    },
+    "scripts/research/pallet_large_error_refiner_v1/run.py": {
+      "path": "scripts/research/pallet_large_error_refiner_v1/run.py",
+      "sha256": "4a7ce61189f685ddbac82b80be8a28aa6c808ea007e6e42ca4bec27aa6ea5d1d",
+      "bytes": 18307
+    }
+  },
+  "code": {
+    "core.py": {
+      "path": "scripts/research/pallet_posefix_large_error_v1/core.py",
+      "sha256": "7b444aaddcaf418ec2478659d3f77b486566ccf6377fec4257a9110ce73467bf",
+      "bytes": 8509
+    },
+    "train.py": {
+      "path": "scripts/research/pallet_posefix_large_error_v1/train.py",
+      "sha256": "e2c094dd9953735b4e1874cb0df5fbd45898f94643ccb08fc39c4a135827b83d",
+      "bytes": 7069
+    },
+    "test_core.py": {
+      "path": "scripts/research/pallet_posefix_large_error_v1/test_core.py",
+      "sha256": "7b38d4e8caee0b05487be0ab12d9a6b72107e0153d66e58cc2f53e9ce77f8ac8",
+      "bytes": 2250
+    },
+    "evaluate.py": {
+      "path": "scripts/research/pallet_posefix_large_error_v1/evaluate.py",
+      "sha256": "c66505c17a0bd93ccf096db685dcd5e3906052acbd4fbd6610822400031e7f83",
+      "bytes": 14473
+    }
+  }
+}

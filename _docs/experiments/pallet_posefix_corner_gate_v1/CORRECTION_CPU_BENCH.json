@@ -1,0 +1,31 @@
+{
+  "status": "PREFLIGHT_RUNTIME_CORRECTION_BEFORE_FULL_INFERENCE_AND_SCORING",
+  "original_benchmark": {
+    "path": "_docs/experiments/pallet_posefix_corner_gate_v1/CPU_BENCH.json",
+    "sha256": "59ea62db8b8296c429f194a1747e5065cba6ff1c8b94e76cc02770d326124113",
+    "status": "INVALID_THREAD_BUDGET",
+    "preserved_unchanged": true,
+    "historical_code_sha256": "14c10819f92fb8b5e6c5c838534ed621911de6d0252171a055cb514a133ff86d",
+    "historical_code_sha_is_not_current_code": true,
+    "issue": "Ultralytics select_device with the string cpu reset PyTorch from 4 to 8 threads during first flipped-image detection. The row correctly recorded 8, but the top-level old summary incorrectly hardcoded 4. No CUDA was initialized."
+  },
+  "correction": "Use torch.device('cpu') to take the Ultralytics device early-return without changing its global thread setting; assert torch.get_num_threads()==4 after detector construction and inference; report actual thread count. Add a verify-and-return guard for already-completed inference manifests.",
+  "corrected_code": {
+    "path": "scripts/research/pallet_posefix_corner_gate_v1/infer.py",
+    "sha256": "7fd9df3fd43f17170c68329c70c5a0787b7dfdde2ad8b57c3f929a487c805d04"
+  },
+  "corrected_benchmark": {
+    "path": "_docs/experiments/pallet_posefix_corner_gate_v1/CPU_BENCH_CPU4.json",
+    "sha256": "8a23a5c547e2e64ffcb5504a16df89f8c976a373d14b1c27fba1434600c70d8e",
+    "actual_cpu_threads": 4,
+    "cuda_initialized": false,
+    "one_image_normal_and_true_flip_seconds": 1.2190961540327407,
+    "estimated_222_inference_seconds": 270.63934619526844,
+    "normal_prediction_parity_max_abs_px": 0.00014868483253849263
+  },
+  "thresholds_changed": false,
+  "model_changed": false,
+  "training_performed": false,
+  "evaluation_targets_read": false,
+  "benchmark_selection": "Same first ordered input, selected before any target scoring; repeated only to verify the fixed CPU budget."
+}

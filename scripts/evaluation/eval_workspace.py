@@ -2849,7 +2849,13 @@ def adaptation_leakage_rows(
 def write_reports(root: Path, frames: Sequence[Mapping[str, str]]) -> Progress:
     targets = load_targets(root)
     reports = root / "reports"
-    atomic_write_text(reports / "ANNOTATION_PROGRESS.md", render_progress_report(root, frames, targets))
+    progress_text = render_progress_report(root, frames, targets)
+    # Separate review cohorts must never silently enter the paper population.
+    # Preserve their separately generated counters when the main report refreshes.
+    review_progress = reports / "GREEN_REVIEW_PROGRESS.md"
+    if review_progress.exists():
+        progress_text = progress_text.rstrip() + "\n\n" + review_progress.read_text(encoding="utf-8")
+    atomic_write_text(reports / "ANNOTATION_PROGRESS.md", progress_text)
     atomic_write_text(reports / "DATASET_COMPOSITION.md", render_composition_report(root, frames))
     atomic_write_text(reports / "NEXT_ANNOTATION_PRIORITY.md", render_priority_report(frames, targets))
     atomic_write_text(reports / "OVERLAY_AUDIT.md", render_overlay_audit(root, frames))

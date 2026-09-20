@@ -1,0 +1,50 @@
+{
+  "teachers": {
+    "RAW_LR5": {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/runs/RAW_LR5/weights/last.pt",
+      "sha256": "783cd95ebf38b2894fadecc12613295cb60885a2d05a12c9726c8ffeb36982a1",
+      "bytes": 6541223
+    },
+    "REF_LR5": {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/runs/REF_LR5/weights/last.pt",
+      "sha256": "aa21d81dcb33d43b988f4c0d4076ad6f68455041bef27c4c3ff61cdb66f3e478",
+      "bytes": 6541287
+    }
+  },
+  "tau_normalized_box_diagonal": 0.02,
+  "sources": [
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/PROTOCOL.json",
+      "sha256": "43129516d0c23b56c1f99462982c0f7987361a84f5b3fa09ba9dcceeecccb82f",
+      "bytes": 964186
+    },
+    {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/PSEUDO_ACCEPTED.json",
+      "sha256": "9c9e05ee2d9a76aeefcab6d0c6494fab7f8335de9d1641bafcf197c1e4fc8553",
+      "bytes": 4919647
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/EVAL_PROTOCOL.json",
+      "sha256": "e78410b7af11f6fbc78cfd3799e6391fa4e55ee7e420d57bc4e19e4398b1634d",
+      "bytes": 314811
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/recovery_agreement.py",
+      "sha256": "064107c91a99e4b8fca75429bb91304531440d8b24562b3b0030e452c83e3c42",
+      "bytes": 10277
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/test_recovery_agreement.py",
+      "sha256": "20993aaaa9aab4eafb0b3d9b3b60354b08ed64c9ffc2222db56d4441ccc79585",
+      "bytes": 1525
+    }
+  ],
+  "mask": "Both fixed RAW_LR5 and REF_LR5 confident>=.5 and within.02 original R0 box diagonal of unchanged Replay target. Whole-object C2 aligned independently, center unchanged. No frame rejection, new geometry/flip/LOO rule, or coordinate replacement.",
+  "controls": "AGREE versus deterministic COUNT mask: same per-image trusted-corner count, random identities; REF_LR5 original unmasked control. Same217 real images, original order/multiplicities and512 synthetic replay.",
+  "training": "Two fresh R0 students; existing pose-only recipe LR1e-5,5epochs,320updates. No checkpoint/threshold sweep or teacher refresh.",
+  "goal_test": "Full194 existing DEV: matched R0>20 to <=10 at least5 corners across3frames, <=1percent R0<5 to >10 damage, PCK20 no worse than R0. Also report versus original REF and COUNT; satisfying this screen is NOT independent confirmation.",
+  "population": "Keep full194 for historical comparability; additionally report previously frozen retained159, never tune to either.",
+  "limitations": "Teachers are correlated and trained on this pseudo pool: agreement is not truth. Existing Replay has historical manual supervision; NO new real annotation or AprilTag input. Known teacher/eval overlap remains exploratory.",
+  "new_real_labels": false,
+  "auto_promote": false
+}

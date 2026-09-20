@@ -1,0 +1,60 @@
+{
+  "purpose": "N2 output fixed; whole-image confidence + historical median LOO keep/drop",
+  "source": {
+    "path": "data/pallet/results/pallet_posefix_replay_v1/PREDICTIONS.json",
+    "sha256": "35874da9bc77f5d87fae91ccd6517a6dac71776e2d5a2ec849d41c9db55414c6",
+    "bytes": 2781263
+  },
+  "metadata": [
+    {
+      "path": "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json",
+      "sha256": "fa63de9cb5aab2576d812c0dc7e0e956a27c48709df8d93a816177cb0a9c8040",
+      "bytes": 134663
+    },
+    {
+      "path": "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json",
+      "sha256": "ad717de5e1a74c9201ee26b33a200da83f069efc4023e703ec2493c5058c6d05",
+      "bytes": 334493
+    },
+    {
+      "path": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+      "sha256": "9ae991450c384f4fcb82cff74a71fe07d51c5dcc496a5e8fcb28f41b4420ff76",
+      "bytes": 2939
+    },
+    {
+      "path": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+      "sha256": "57c9b939ffe6af03b5454672951c4e78f6c96df517b79d143039b8cdb01ddf47",
+      "bytes": 3825
+    }
+  ],
+  "code": [
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/frozen_n2_frame_filter.py",
+      "sha256": "0ff0be3b53acf90c71d200ae65cb27f459c54c78d78d234296641a74691b7c38",
+      "bytes": 7734
+    },
+    {
+      "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+      "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215",
+      "bytes": 10511
+    },
+    {
+      "path": "scripts/research/pallet_real_refiner_twostage_v1/run.py",
+      "sha256": "bf57f2ea3ac0728fe9a17cef25481c1f1abfcd64075bddc61f8f46c219a19e36",
+      "bytes": 35669
+    }
+  ],
+  "threshold": 0.05,
+  "confidence": "Original raw R0 stage1: score>=0.85 and >=6/8 finite corners with kpconf>=0.5",
+  "LOO": "Original geometry_scores: median held-out residual / projected cuboid diagonal; min across registered W/D hypotheses",
+  "flip_used": false,
+  "not_identical_to_historical_LOO_plus_flip": true,
+  "coordinates": "Exact saved N2 prediction; rejected images omitted entirely. No learned selector, Replay, per-corner replacement, or N2 fallback.",
+  "model_training": false,
+  "pseudo_label_training_export": false,
+  "evaluation_used_only_for_audit": true,
+  "decisions_use_GT": false,
+  "threshold_tuning": false,
+  "independent_test": false,
+  "runtime": "Stored GPU N2 predictions; CPU OpenCV geometry only"
+}

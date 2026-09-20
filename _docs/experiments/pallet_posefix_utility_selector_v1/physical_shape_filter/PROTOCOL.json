@@ -1,0 +1,119 @@
+{
+  "purpose": "All8-LOO frozen Replay survivors -> positive camera depth and six-face topology/winding -> whole-image keep/drop",
+  "faces": [
+    [
+      0,
+      1,
+      2,
+      3
+    ],
+    [
+      4,
+      5,
+      6,
+      7
+    ],
+    [
+      0,
+      1,
+      5,
+      4
+    ],
+    [
+      1,
+      2,
+      6,
+      5
+    ],
+    [
+      2,
+      3,
+      7,
+      6
+    ],
+    [
+      3,
+      0,
+      4,
+      7
+    ]
+  ],
+  "face_names": [
+    "near",
+    "far",
+    "top",
+    "right",
+    "bottom",
+    "left"
+  ],
+  "depth_epsilon": "max(1e-9 m,1e-6 * registered 3D cuboid diagonal)",
+  "face_area_epsilon_normalized": 1e-08,
+  "normalization": "Raw predicted 8-point diagonal; no GT",
+  "collapsed_definition": "Numerically zero face area OR any collinear/duplicate face vertex, unless projected reference face is also degenerate",
+  "edge_on_policy": "Skip winding when predicted or projected face is degenerate; proper within-face crossings and concavity still fail",
+  "winding": "Compare with SAME indexed face of the candidate PnP projection, not a fixed screen orientation",
+  "hypothesis": "Existence of ONE allowed W/D hypothesis passing original all8 LOO<=.05 AND all8positiveZ AND all six faces",
+  "solver": "Unchanged existing EPNP for eight input points; no new optimizer or alternative-pose search",
+  "does_not_prove_no_physical_solution": true,
+  "global_edge_overlap_is_not_a_veto": true,
+  "no_new_reprojection_or_LOO_max_threshold": true,
+  "coordinates_changed": false,
+  "learned_selector": false,
+  "flip": false,
+  "self_training": false,
+  "evaluation_reused": true,
+  "parent_output": {
+    "path": "_docs/experiments/pallet_posefix_utility_selector_v1/all8_replay_frame_filter/OUTPUTS_LOCK.json",
+    "sha256": "3190c4938e1744c93ff7de80f1fa42d784cfb7628501f4c83d99b74673c893f5",
+    "bytes": 800
+  },
+  "parent_results": {
+    "path": "_docs/experiments/pallet_posefix_utility_selector_v1/all8_replay_frame_filter/RESULTS.json",
+    "sha256": "ff752e1bf721d18db4111617581c3cd8dc696d36a354a433d9dffbc6d7213ca8",
+    "bytes": 4234
+  },
+  "source": {
+    "path": "data/pallet/results/pallet_posefix_replay_v1/PREDICTIONS.json",
+    "sha256": "35874da9bc77f5d87fae91ccd6517a6dac71776e2d5a2ec849d41c9db55414c6",
+    "bytes": 2781263
+  },
+  "metadata": [
+    {
+      "path": "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json",
+      "sha256": "fa63de9cb5aab2576d812c0dc7e0e956a27c48709df8d93a816177cb0a9c8040",
+      "bytes": 134663
+    },
+    {
+      "path": "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json",
+      "sha256": "ad717de5e1a74c9201ee26b33a200da83f069efc4023e703ec2493c5058c6d05",
+      "bytes": 334493
+    },
+    {
+      "path": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+      "sha256": "9ae991450c384f4fcb82cff74a71fe07d51c5dcc496a5e8fcb28f41b4420ff76",
+      "bytes": 2939
+    },
+    {
+      "path": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+      "sha256": "57c9b939ffe6af03b5454672951c4e78f6c96df517b79d143039b8cdb01ddf47",
+      "bytes": 3825
+    }
+  ],
+  "code": [
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/physical_shape_filter.py",
+      "sha256": "2696d5878452ea07b2f46f97e935fc7bdc124c664789c3c45401d2b58ca9e990",
+      "bytes": 12241
+    },
+    {
+      "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+      "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215",
+      "bytes": 10511
+    }
+  ],
+  "test_code": {
+    "path": "scripts/research/pallet_posefix_utility_selector_v1/test_physical_shape_filter.py",
+    "sha256": "7240004c9c7979f651d8c56672dffb8fb46804cdba77a51c76b437a8fc340bb5",
+    "bytes": 2381
+  }
+}

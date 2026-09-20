@@ -1,0 +1,59 @@
+{
+  "objective": "Recover genuinely large corner errors, not just improve a median.",
+  "variants": [
+    "R0",
+    "FULL960",
+    "FULL1280",
+    "CROP125",
+    "CROP175",
+    "FLIP640"
+  ],
+  "population": "All194 ordinary-plastic existing DEV images; no frame filtering; R0 baseline boxes/scores/confidence/center are preserved.",
+  "generator": "Same frozen R0 at640/960/1280; predicted-box-centered crops1.25/1.75 at640; horizontal flip at640. Reflect101 border100 on each transformed input.",
+  "matching": "Select highest-IoU candidate to original predicted box, require IoU>=.5 and score>=.25; missing candidate falls back to original. No GT box used.",
+  "flip": "Inverse pixel-center x=original_width-1-x followed by fixed native reflection permutation. No learned reassignment or quarter-turn alignment.",
+  "decision": "Primary CONSENSUS is unweighted whole-pose medoid over available views, C2 quotient RMS8 distance normalized by original predicted box diagonal; fixed-order tie break within1e-12 numerical tolerance. Emit native prediction of selected view unchanged except original center/box/confidence retained.",
+  "scope": "A candidate-generation/selection stage, not yet new self-training. Individual views are predeclared secondary controls, not best-on-eval selection.",
+  "primary_metrics": "Canonical-identity aligned baseline>20px to corrected<=10px recovery, baseline<5px to corrected>10px damage; matched-only and all-frame counts. Report full194 PCK20,median/P90,pose.",
+  "followup_gate": "Primary consensus must recover at least5 previously>20px corners in at least3 images, damage no more than1percent of baseline<5px corners, and not reduce full194 PCK20. This only permits a follow-up training experiment, not goal completion.",
+  "oracle": "GT best complete view per frame by mean symmetry8 error is diagnostic only. No oracle per-corner splicing, no oracle output training or deployment.",
+  "evaluation": "Official plastic C2 remains unchanged. Reused DEV, not independent confirmation. No eval annotations passed to inference or selection. No GT-derived indices used at inference.",
+  "constraints": "No depth/CAD, no new geometry/shape/X filters, no new real GT training, no replacement of existing final models, no GPU/system changes.",
+  "sources": [
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/large_corner_views.py",
+      "sha256": "ca0bc487fb74ecd92036ce8f3ba40f30be05ee64045de9c6de1c48983cc8941b",
+      "bytes": 14558
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/test_large_corner_views.py",
+      "sha256": "59451c9db112f941e735623783be026b32911edad0e84e676c585a34a241578f",
+      "bytes": 1942
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/recovery_common.py",
+      "sha256": "7a393a49bb6ed3981fea9234aa58eb274e40de4470f6e97053591b803386f047",
+      "bytes": 3703
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/EVAL_PROTOCOL.json",
+      "sha256": "e78410b7af11f6fbc78cfd3799e6391fa4e55ee7e420d57bc4e19e4398b1634d",
+      "bytes": 314811
+    },
+    {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/EVAL_PREDICTIONS_R0.json",
+      "sha256": "fef60cee642b89983662d3db50c6fe176deb6c4fa2a7aadefbb3a1f0da5b7809",
+      "bytes": 1346010
+    },
+    {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "bytes": 6552807
+    },
+    {
+      "path": "_docs/experiments/pallet_symmetry_three_line_v1/OBJECT_EQUIVALENCE_AND_INDEX_CONTRACT.json",
+      "sha256": "e692b152658292bc2890f415e2ae612116a4dd03850774f1fda234447d2995a3",
+      "bytes": 9314
+    }
+  ]
+}

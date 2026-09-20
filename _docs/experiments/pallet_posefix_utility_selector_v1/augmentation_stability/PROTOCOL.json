@@ -1,0 +1,107 @@
+{
+  "experiment": "augmentation_stability_v1",
+  "scope": "All179 existing confidence+all8-median-LOO survivors; no flip in this parent",
+  "disabled": [
+    "physical_shape_filter",
+    "x_crossing_filter"
+  ],
+  "variants": [
+    "identity",
+    "brightness085",
+    "brightness115",
+    "resize090",
+    "resize110",
+    "crop_left_top",
+    "crop_right_bottom"
+  ],
+  "inference": "Each transformed RGB is rerun through frozen R0 and frozen Replay. Inverse-map coordinates. Top-confidence candidate each time, no GT matching.",
+  "primary_score": "max over8 native corners of RMS displacement from original Replay across6 augmentations / original R0 box diagonal",
+  "missing": "Missing or invalid predicted corners -> score null, sort most unstable",
+  "correspondence": "Fixed native corner identity; NO symmetry/GT reassignment. Equivalent identity switches may count as instability.",
+  "output": "Keep/drop whole image; saved original Replay prediction copied exactly, no averaging, fallback or replacement",
+  "primary_retention": 0.8,
+  "secondary_retention": [
+    0.6,
+    0.9
+  ],
+  "retention_rounding": "floor per population; deterministic id tie-break",
+  "comparisons": [
+    "same-count lowest original all8 LOO",
+    "same-count highest R0 confidence",
+    "uniform random subset expectation"
+  ],
+  "evaluation": "Decisions frozen before reading saved GT errors; PCK20 and bad20 image detection AUROC, matched-only separately",
+  "reuse": "DEV unknown-origin reference and GREEN manual; reused development audit, not independent confirmation",
+  "threshold_tuning": false,
+  "training": false,
+  "promotion": false,
+  "output_coordinates_changed": false,
+  "resize_mapping": "OpenCV pixel center: x_new=(x_old+0.5)*scale-0.5",
+  "crop": "Remove2% left+top or right+bottom; do not use GT to choose crop",
+  "brightness": "Multiply uint8 channels by0.85 or1.15; clip+round",
+  "parity_tolerance_px": 0.001,
+  "device": "cuda",
+  "thermal_limit_C": 80,
+  "sources": [
+    {
+      "path": "_docs/experiments/pallet_posefix_utility_selector_v1/all8_replay_frame_filter/OUTPUTS_LOCK.json",
+      "sha256": "3190c4938e1744c93ff7de80f1fa42d784cfb7628501f4c83d99b74673c893f5",
+      "bytes": 800
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_utility_selector_v1/all8_replay_frame_filter/DECISIONS.json",
+      "sha256": "5d2796c8149e87b105930b3780c1133059c06f9cfc96c0645f5cd37d01215f39",
+      "bytes": 52081
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_utility_selector_v1/all8_replay_frame_filter/ACCEPTED_UNCHANGED_PREDICTIONS.json",
+      "sha256": "0ec53a84ba18a6c3445ad7e97327c0471ee3993b00e2e69cd4a48273eaf65ee5",
+      "bytes": 475612
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/PREDICTIONS.json",
+      "sha256": "35874da9bc77f5d87fae91ccd6517a6dac71776e2d5a2ec849d41c9db55414c6",
+      "bytes": 2781263
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_replay_v1/FIT.json",
+      "sha256": "34ba44bbeed625bce744e9fa95305a70faea2e93c754ef36dfe2a8fbc0b468a8",
+      "bytes": 2173
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/last300.pt",
+      "sha256": "fc9b3d7b7f2e7c38b608a12461cf16a58b76669f12ef9be5c8dc35d81104a41d",
+      "bytes": 275590870
+    },
+    {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "bytes": 6552807
+    },
+    {
+      "path": "scripts/research/pallet_posefix_large_error_v1/core.py",
+      "sha256": "7b444aaddcaf418ec2478659d3f77b486566ccf6377fec4257a9110ce73467bf",
+      "bytes": 8509
+    },
+    {
+      "path": "scripts/research/pallet_posefix_replay_v1/core.py",
+      "sha256": "7d4c6b355b3b951138d07c91b1544ad0b6ff69e7385170e9f5b2d0f768572b2a",
+      "bytes": 9483
+    },
+    {
+      "path": "scripts/research/pallet_line_pose_v1/features.py",
+      "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab",
+      "bytes": 6641
+    }
+  ],
+  "code": {
+    "path": "scripts/research/pallet_posefix_utility_selector_v1/augmentation_stability.py",
+    "sha256": "17076970383c4e3e1b835ca56853efb3e0ec61ca2fd5626cd630f100b5cd0b89",
+    "bytes": 12892
+  },
+  "tests": {
+    "path": "scripts/research/pallet_posefix_utility_selector_v1/test_augmentation_stability.py",
+    "sha256": "b6f03c84ead08fda035db3b58a005df2167337fd6dfe8e4b11fbd37ab0e25abf",
+    "bytes": 1409
+  }
+}

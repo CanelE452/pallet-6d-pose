@@ -1,0 +1,2482 @@
+{
+  "objective": "Test whether global heatmap expectation hides a correct distant dominant mode in existing RGB coordinate refiners. Do not confuse identity reassignment with this genuine coordinate change.",
+  "architecture": "Exactly frozen prior Replay BASE and fixed pseudo DENOISE last300;no training or new labels",
+  "decode": "MEAN is existing full96x72 softmax expectation. MODE is softmax conditional expectation in fixed5x5 cells centered on global logit argmax,clipped by image grid boundary,stride4. No temperature/radius search. Ties use flattened first index. No reference coordinate or GT given to decoder.",
+  "inputs": "Original R0 predicted box/RGB/points and unchanged384x288 crop;no GT,dims,PnP,depth,CAD,tag input. Same logits feed both decoders.",
+  "controls": "Paired fixed decoder intervention within each of2existing models;not a new model architecture or retraining claim. Existing BASE/DENOISE mean predictions must reproduce within .003 original-image pixels.",
+  "source_rows": [
+    {
+      "row": 337,
+      "id": "G38__G__f0337",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f0337.png",
+        "sha256": "027a146aca94808ff06e2d3082367f9e5c1ded6dd0f1e5a94009eaf96c0e5df1",
+        "bytes": 1347485
+      }
+    },
+    {
+      "row": 626,
+      "id": "G38__G__f0626",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f0626.png",
+        "sha256": "cd47b16045a9d7d23d6c0068335cfa9d61d36a8803347695c6f667fc1c2ee463",
+        "bytes": 1205755
+      }
+    },
+    {
+      "row": 1534,
+      "id": "G38__G__f10485",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f10485.png",
+        "sha256": "20e11fea0f8336f133393734da601d82c5a10944c83eea284f554ed407fe13c1",
+        "bytes": 941134
+      }
+    },
+    {
+      "row": 1797,
+      "id": "G38__G__f10724",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f10724.png",
+        "sha256": "f2a91066e70f7c7ff0982854a54c23c305c0ded715b8b7773dd52fe33592463a",
+        "bytes": 1032515
+      }
+    },
+    {
+      "row": 1917,
+      "id": "G38__G__f10833",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f10833.png",
+        "sha256": "3070d4116c9113e7a49977b9d1a327cff547872181575a77aedb1e92d67347fe",
+        "bytes": 1345596
+      }
+    },
+    {
+      "row": 2946,
+      "id": "G38__G__f11769",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f11769.png",
+        "sha256": "51834a4b9abb1d0498fd7ed36306a4888ba31a7b32580ab379937d0644f6a151",
+        "bytes": 671982
+      }
+    },
+    {
+      "row": 3073,
+      "id": "G38__G__f11884",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f11884.png",
+        "sha256": "81a874fac00b7b418d337f55c0d979c0f0a07f1f973b85d1cf92b0a3b17bb963",
+        "bytes": 688488
+      }
+    },
+    {
+      "row": 3122,
+      "id": "G38__G__f11929",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f11929.png",
+        "sha256": "d36f383e7866ca8c4c93d3457c081ca386de7b0a9c8dcf7b65a08ec92c4e6392",
+        "bytes": 1532086
+      }
+    },
+    {
+      "row": 3364,
+      "id": "G38__G__f12149",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f12149.png",
+        "sha256": "443b28f07d6bea5ef22cb7c5bd3bdef3b430d248635fd066c5a0fc9d9254c534",
+        "bytes": 974214
+      }
+    },
+    {
+      "row": 3450,
+      "id": "G38__G__f12227",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f12227.png",
+        "sha256": "2912e29473f2c127dd8f733f5b47d221afc73a5553270979a573ddde55c1560b",
+        "bytes": 1147199
+      }
+    },
+    {
+      "row": 3522,
+      "id": "G38__G__f12292",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f12292.png",
+        "sha256": "04bbbb318d44b30e0fecbc32a811f03311b125d1a428e586466c62f09db2de19",
+        "bytes": 1603837
+      }
+    },
+    {
+      "row": 3778,
+      "id": "G38__G__f12525",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f12525.png",
+        "sha256": "9e5633f2aa7b422dd696198110978ec1709e2c27d7730d69b590097dbcbecb54",
+        "bytes": 983192
+      }
+    },
+    {
+      "row": 4037,
+      "id": "G38__G__f12760",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f12760.png",
+        "sha256": "74cf8e4cb89cb3527d73dccc16af4b675f34d0bbc1d217fde9b8c561bcee597f",
+        "bytes": 1040451
+      }
+    },
+    {
+      "row": 4479,
+      "id": "G38__G__f13162",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f13162.png",
+        "sha256": "9fbfc1647db86626d14e8f77d0503fa0b3c94cb3e25fba3780f76fcbd14e949b",
+        "bytes": 1208053
+      }
+    },
+    {
+      "row": 4890,
+      "id": "G38__G__f13536",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f13536.png",
+        "sha256": "c63c0736d3457d3d1e3f27282fd905dbdfafecfccac4b22e56667666019cf900",
+        "bytes": 853705
+      }
+    },
+    {
+      "row": 5077,
+      "id": "G38__G__f13706",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f13706.png",
+        "sha256": "a1c6708c8e88cfef9adddbc5d320d2ec7be695de022c73427610ad74e596158a",
+        "bytes": 579646
+      }
+    },
+    {
+      "row": 5934,
+      "id": "G38__G__f14485",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f14485.png",
+        "sha256": "8e838f055e9f672a2031d4e596ead66a009e2d77d493886d508341caeb396dd0",
+        "bytes": 976793
+      }
+    },
+    {
+      "row": 5945,
+      "id": "G38__G__f14495",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f14495.png",
+        "sha256": "5502dfb0652f78eedbcaecba41edb2b64e0a921513b7518a58876d4348c0c940",
+        "bytes": 602276
+      }
+    },
+    {
+      "row": 6117,
+      "id": "G38__G__f14651",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f14651.png",
+        "sha256": "e8706020a228ebe7bff6cc3e2688823136d71d80ca4430275b93138d85e8984f",
+        "bytes": 819410
+      }
+    },
+    {
+      "row": 6470,
+      "id": "G38__G__f14972",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f14972.png",
+        "sha256": "1eced3537874e5e00acb6c4f822a179509b820300dc5b7e553bc8aaa50708309",
+        "bytes": 648160
+      }
+    },
+    {
+      "row": 6559,
+      "id": "G38__G__f15053",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f15053.png",
+        "sha256": "37b3a503e7752b704e54805aef710993f4cb6eeb95e88ad9ac5e9335cedce329",
+        "bytes": 914613
+      }
+    },
+    {
+      "row": 7010,
+      "id": "G38__G__f15463",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f15463.png",
+        "sha256": "6ee8c4b3ecee3ef49a045fc5710795bf8b5a32607a548ac18077c450479e24c6",
+        "bytes": 869358
+      }
+    },
+    {
+      "row": 7016,
+      "id": "G38__G__f15469",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f15469.png",
+        "sha256": "0c8e828194b644719dd32f86c9f855c46d3d24a99293a0993ceb860d44531820",
+        "bytes": 818758
+      }
+    },
+    {
+      "row": 7095,
+      "id": "G38__G__f15540",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f15540.png",
+        "sha256": "41dfc534dec69ccb65a74ae95d11f896c8dca41ab534d6847481bab5cf1bfe71",
+        "bytes": 1468769
+      }
+    },
+    {
+      "row": 7436,
+      "id": "G38__G__f15850",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f15850.png",
+        "sha256": "50c46074584f2cba533c9ffb91080ee7ca2b09366595355c6d799b5930bf98ee",
+        "bytes": 692326
+      }
+    },
+    {
+      "row": 7668,
+      "id": "G38__G__f16061",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f16061.png",
+        "sha256": "3aa291c3408ce138133eaa0dad48ad85db3e41e69a73dbee2d169c7e3422a3a3",
+        "bytes": 1678774
+      }
+    },
+    {
+      "row": 8172,
+      "id": "G38__G__f1652",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f1652.png",
+        "sha256": "d865ecd4ef682f2ae060aa1306ba85256e25bf359c332be9cb81b64f36cc3dcf",
+        "bytes": 1053326
+      }
+    },
+    {
+      "row": 8692,
+      "id": "G38__G__f16992",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f16992.png",
+        "sha256": "840b6a8c3bfb991c5fb7d0b54fd97b507cf39ebfb7970e1ccf72fba33ad70c43",
+        "bytes": 1001073
+      }
+    },
+    {
+      "row": 8888,
+      "id": "G38__G__f17170",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f17170.png",
+        "sha256": "950a435b3c1444b3e7177341b70117033896e4fada96804d235438b2d3cce767",
+        "bytes": 894640
+      }
+    },
+    {
+      "row": 9309,
+      "id": "G38__G__f17553",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f17553.png",
+        "sha256": "0dd218bb300c798459d486748ecc868783d29fe25e9c7b90f61f92199aa6612f",
+        "bytes": 1441405
+      }
+    },
+    {
+      "row": 9472,
+      "id": "G38__G__f17701",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f17701.png",
+        "sha256": "b3ae2f1e07979958e737882eb7f5dce43ae31983b229e3f57796fa19e8f7c055",
+        "bytes": 771507
+      }
+    },
+    {
+      "row": 9719,
+      "id": "G38__G__f17926",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f17926.png",
+        "sha256": "aeaa66bf52b720b24106f9af78a8178fe3b9718fbc5ca32c09e11a8e41746807",
+        "bytes": 858977
+      }
+    },
+    {
+      "row": 9765,
+      "id": "G38__G__f17968",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f17968.png",
+        "sha256": "692e05255f7fa724dd1524fdf784d416ed1d12ea2503b0110f0416f1a9d8fa2e",
+        "bytes": 803283
+      }
+    },
+    {
+      "row": 9799,
+      "id": "G38__G__f17999",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f17999.png",
+        "sha256": "3072863e93138d13a312cdd09644d4eefb0664fbd38916bf0c7941eb9d5a3f52",
+        "bytes": 575227
+      }
+    },
+    {
+      "row": 9927,
+      "id": "G38__G__f18115",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f18115.png",
+        "sha256": "91cefe0d48fc0a93575b2a60e801e3afdd7a836c52eedede116443b403becd38",
+        "bytes": 953283
+      }
+    },
+    {
+      "row": 10238,
+      "id": "G38__G__f18398",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f18398.png",
+        "sha256": "0bae314e598649a54ef461b2fffd41f0040cb96c83c5c3c0ad159404ab4b9d8a",
+        "bytes": 629735
+      }
+    },
+    {
+      "row": 10445,
+      "id": "G38__G__f18586",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f18586.png",
+        "sha256": "2e9b1da8aae82111d1fd390a1e213b0e36e7bcaf64d1240af5fc65e4da4b867d",
+        "bytes": 1553248
+      }
+    },
+    {
+      "row": 10496,
+      "id": "G38__G__f18632",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f18632.png",
+        "sha256": "2d12a614dab387761eed2833fd479e1ee4a0ef277393c4bbfcdedd7f815c7269",
+        "bytes": 1008048
+      }
+    },
+    {
+      "row": 10637,
+      "id": "G38__G__f18760",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f18760.png",
+        "sha256": "31d8b6a847d9850f69e160ef899c7decdd929916e428172cae3066675817f750",
+        "bytes": 948323
+      }
+    },
+    {
+      "row": 10679,
+      "id": "G38__G__f18799",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f18799.png",
+        "sha256": "cbfb3479c63eb4f2d585ea3a5e6794ca584e0d9042fc6c019f10328e880a7df8",
+        "bytes": 832131
+      }
+    },
+    {
+      "row": 10793,
+      "id": "G38__G__f18902",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f18902.png",
+        "sha256": "2f0324a572d33558e52539a1e3ac04bc58cb1235db9b274a345464070190d2c2",
+        "bytes": 595744
+      }
+    },
+    {
+      "row": 11404,
+      "id": "G38__G__f19458",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f19458.png",
+        "sha256": "f7dbe585b070c9b6875e322be4ad9679d9f314e8f656d4114246acf485fa968f",
+        "bytes": 687744
+      }
+    },
+    {
+      "row": 11420,
+      "id": "G38__G__f19472",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f19472.png",
+        "sha256": "87a8c40ef779fed6d809b15167fe882f8db42491dd5d54752b506b8f5e654b80",
+        "bytes": 1169486
+      }
+    },
+    {
+      "row": 12093,
+      "id": "G38__G__f20084",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f20084.png",
+        "sha256": "4969291a219ed1f2d24628e78f0079713bbb569de48291bf56255addc1bb7061",
+        "bytes": 769921
+      }
+    },
+    {
+      "row": 12341,
+      "id": "G38__G__f2031",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f2031.png",
+        "sha256": "e77c446f0f9991d8007f9ec6880e15b21c442fd194381c80b96e548ff1e1b7f7",
+        "bytes": 1210641
+      }
+    },
+    {
+      "row": 12460,
+      "id": "G38__G__f20418",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f20418.png",
+        "sha256": "e16bc848b1b1febd5b5419f0ea85d5cabb781673c0b7a755eaa58573cea04456",
+        "bytes": 946626
+      }
+    },
+    {
+      "row": 12522,
+      "id": "G38__G__f20474",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f20474.png",
+        "sha256": "1a7d13961619c82c217a1df4fc3e4dd4b40b79203d21fdd864c3c1e4a5278b4c",
+        "bytes": 851924
+      }
+    },
+    {
+      "row": 12619,
+      "id": "G38__G__f20562",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f20562.png",
+        "sha256": "2275663a8cd3ffe8bc0f1eb12daae3c5cf83e0448783cb2ee81ec58b2a1a896c",
+        "bytes": 1344529
+      }
+    },
+    {
+      "row": 13693,
+      "id": "G38__G__f21539",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f21539.png",
+        "sha256": "5aae9d7e9b2e753a9fb5508733d279e6a6087f7d061f20c4e932ef6271f213e5",
+        "bytes": 914946
+      }
+    },
+    {
+      "row": 13974,
+      "id": "G38__G__f21794",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f21794.png",
+        "sha256": "8d6384396a8b587b4291f5221b6037a0d34d58b4c5b85eee0b36268958a6e259",
+        "bytes": 883575
+      }
+    },
+    {
+      "row": 14041,
+      "id": "G38__G__f21855",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f21855.png",
+        "sha256": "7ae8f6d5858a07ff676d80d4abd0a95ecff73345ec874f46fce9200bb4302da8",
+        "bytes": 732446
+      }
+    },
+    {
+      "row": 14050,
+      "id": "G38__G__f21863",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f21863.png",
+        "sha256": "eb03f10310add39ca2735b668f9fcfe745928b941899c2ff0ce3c4aebe5a1434",
+        "bytes": 1536286
+      }
+    },
+    {
+      "row": 14284,
+      "id": "G38__G__f22076",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f22076.png",
+        "sha256": "0fb37abeb31f7ce06b9a94c7e4a59a9f13be41b96fb1268257bd22613f352c30",
+        "bytes": 772175
+      }
+    },
+    {
+      "row": 14572,
+      "id": "G38__G__f22338",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f22338.png",
+        "sha256": "d19a14abbcec88172d5b4775e36dd57cd599df0d8760bf15317807e433ec3f27",
+        "bytes": 638372
+      }
+    },
+    {
+      "row": 14987,
+      "id": "G38__G__f22715",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f22715.png",
+        "sha256": "cdd4af5935c6be1fe33a7f01a388177567ae7c7c9753afc155050264b7b79ada",
+        "bytes": 1535157
+      }
+    },
+    {
+      "row": 15016,
+      "id": "G38__G__f22741",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f22741.png",
+        "sha256": "206b0a2cbd9fcf1f51c42a5092f32fa73bdc1184381c6e8d56b9997a0ffd5c58",
+        "bytes": 776816
+      }
+    },
+    {
+      "row": 15230,
+      "id": "G38__G__f22936",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f22936.png",
+        "sha256": "5e890849c984c93e5184da58b5ea16bae1fd68258acabe1e9ebc28b7d70e8e43",
+        "bytes": 799187
+      }
+    },
+    {
+      "row": 15278,
+      "id": "G38__G__f2298",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f2298.png",
+        "sha256": "385b38b9892d62b8d690be11ad32579575ab543289bf99c65fedb92f619cba86",
+        "bytes": 845684
+      }
+    },
+    {
+      "row": 15319,
+      "id": "G38__G__f23017",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f23017.png",
+        "sha256": "0be827d369efd3ef24f5f674dca7a0f80198fd06edd6d41d8e51883c029bcfc7",
+        "bytes": 1617697
+      }
+    },
+    {
+      "row": 15345,
+      "id": "G38__G__f23040",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f23040.png",
+        "sha256": "216ca5ca0f76437322729ef4be951310ce3971bd215d0728317e08eae14af9c2",
+        "bytes": 894110
+      }
+    },
+    {
+      "row": 15434,
+      "id": "G38__G__f23121",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f23121.png",
+        "sha256": "c5ea2f0731d55166846210836adda368b232f6123c031ff9f6b2685c099ea27e",
+        "bytes": 1154537
+      }
+    },
+    {
+      "row": 16016,
+      "id": "G38__G__f23650",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f23650.png",
+        "sha256": "6259081edf1da4579a209bc7b84032c800c806af5bd36a21bd60a874a67588d1",
+        "bytes": 934834
+      }
+    },
+    {
+      "row": 17139,
+      "id": "G38__G__f24671",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f24671.png",
+        "sha256": "7ea6fd1fb58336f3c0b45d89d9587a999f8c8bc7d8cf583c5395784895534dd8",
+        "bytes": 919022
+      }
+    },
+    {
+      "row": 17335,
+      "id": "G38__G__f2485",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f2485.png",
+        "sha256": "49e1a3f173432d4ca8c136f683173ba8663219f3664f1531fb9cb0e1146a1240",
+        "bytes": 1101769
+      }
+    },
+    {
+      "row": 17676,
+      "id": "G38__G__f2516",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f2516.png",
+        "sha256": "97c8908f8302beabe3b50569d2548f409a3f94be29fac23a8ea86b9dc6b6c302",
+        "bytes": 915224
+      }
+    },
+    {
+      "row": 18495,
+      "id": "G38__G__f25904",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f25904.png",
+        "sha256": "04ea838a766e2f67417d810a02d1aa1bdbf478c453c0904404239bf5823d85af",
+        "bytes": 721381
+      }
+    },
+    {
+      "row": 18560,
+      "id": "G38__G__f25963",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f25963.png",
+        "sha256": "39a40393eb45002421ab1a6b92e7e3adb599cdfe28afd3e6ceb359e7ae740c93",
+        "bytes": 876192
+      }
+    },
+    {
+      "row": 18754,
+      "id": "G38__G__f2614",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f2614.png",
+        "sha256": "9eb9b7ede805dc70c64df8cc75c982eb9e79d8256a4a73e3760c7ee9183a5427",
+        "bytes": 1038157
+      }
+    },
+    {
+      "row": 19022,
+      "id": "G38__G__f26383",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f26383.png",
+        "sha256": "caff0a33bd0bc7c219e8b30daa53de254c376be6745599e78e06dcf77f1dbdc8",
+        "bytes": 770273
+      }
+    },
+    {
+      "row": 19636,
+      "id": "G38__G__f26941",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f26941.png",
+        "sha256": "1c8f867a9a0757676c38df240fc2a1098d13af4823d0d4825e634fcc79c3b4a7",
+        "bytes": 871537
+      }
+    },
+    {
+      "row": 20085,
+      "id": "G38__G__f2735",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f2735.png",
+        "sha256": "2f26f6d150eb0a23f5e37b5f974159c75b9aff238625665859eef02e824af1c0",
+        "bytes": 1035508
+      }
+    },
+    {
+      "row": 20405,
+      "id": "G38__G__f27640",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f27640.png",
+        "sha256": "5b7da5a4736eac473674e1ad62261ffc69c759d52164375cb03a517aa19a7f88",
+        "bytes": 1214846
+      }
+    },
+    {
+      "row": 21133,
+      "id": "G38__G__f28302",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f28302.png",
+        "sha256": "41e291fb0803540a6f761f84d072d623d09df27abdfa35a477faea44f31b1c04",
+        "bytes": 1759059
+      }
+    },
+    {
+      "row": 21176,
+      "id": "G38__G__f28341",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f28341.png",
+        "sha256": "51db3801f1ba3722632f5130d201145a051135bbe9489b2a0232d67217ecadae",
+        "bytes": 753093
+      }
+    },
+    {
+      "row": 21475,
+      "id": "G38__G__f28613",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f28613.png",
+        "sha256": "614adc71b0ac187f436a98810fe547ae841c124346405f8b65489db387c0add3",
+        "bytes": 828423
+      }
+    },
+    {
+      "row": 21915,
+      "id": "G38__G__f29013",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f29013.png",
+        "sha256": "dd8a1c97cc09d29c04f1594c5b6671c9a7815e5daf06a5af7d376fe4361afcbf",
+        "bytes": 1097201
+      }
+    },
+    {
+      "row": 22051,
+      "id": "G38__G__f29137",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f29137.png",
+        "sha256": "b0d05602179976298f558784e4962c75677051a62027001259e39a658310b433",
+        "bytes": 863708
+      }
+    },
+    {
+      "row": 22077,
+      "id": "G38__G__f29160",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f29160.png",
+        "sha256": "8012e34a06aa8eb03b270fc6ba82dbcf27bb4fa88a6b431cce0b91d1c7cf30e5",
+        "bytes": 609901
+      }
+    },
+    {
+      "row": 22501,
+      "id": "G38__G__f29546",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f29546.png",
+        "sha256": "90c44a373239ba5291c0c67900e74b59b238180784b0beaa6bc801bbd9e2ae4d",
+        "bytes": 948723
+      }
+    },
+    {
+      "row": 22904,
+      "id": "G38__G__f29912",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f29912.png",
+        "sha256": "8a01368a63e270fe48fbe6948c60e85c6327e642d36f7c4633018c2ba15c402d",
+        "bytes": 928949
+      }
+    },
+    {
+      "row": 23152,
+      "id": "G38__G__f30138",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f30138.png",
+        "sha256": "464c4c66c0487eae4e47b1dc5616a2f43e1ddea83cbc48ae723315a7c6031243",
+        "bytes": 1036415
+      }
+    },
+    {
+      "row": 23678,
+      "id": "G38__G__f30616",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f30616.png",
+        "sha256": "e640fc5339e5f8798a769cfd06f4113bf2dd7fa3aa7bdf7402ba51c4b6812f9c",
+        "bytes": 701080
+      }
+    },
+    {
+      "row": 24126,
+      "id": "G38__G__f31023",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f31023.png",
+        "sha256": "68f72f1c435da2a408ddaba8fec72f87b829aca1fc4629e3f051e0c9c5c3a2cb",
+        "bytes": 844113
+      }
+    },
+    {
+      "row": 24653,
+      "id": "G38__G__f31502",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f31502.png",
+        "sha256": "207b0afe18946619cb8338c8ec8f059790034f9140731abf52991189c0fa7ff8",
+        "bytes": 1049164
+      }
+    },
+    {
+      "row": 25241,
+      "id": "G38__G__f32037",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f32037.png",
+        "sha256": "03adba9843fc57f2f32f053e98d9490e1bf2e6189e99bd10bdcc1dcc54e43526",
+        "bytes": 1342240
+      }
+    },
+    {
+      "row": 25283,
+      "id": "G38__G__f32075",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f32075.png",
+        "sha256": "fdee50c1708a158e593cce4a4b39f1504c6f37ad7522b8ab3bcb57c00df41775",
+        "bytes": 1117003
+      }
+    },
+    {
+      "row": 25453,
+      "id": "G38__G__f3223",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f3223.png",
+        "sha256": "735d35796eb5fee2059747bcbd2a73431a0fc075b1ce569fbb84737c10b9d273",
+        "bytes": 1319776
+      }
+    },
+    {
+      "row": 25577,
+      "id": "G38__G__f32342",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f32342.png",
+        "sha256": "d002ba8e64549f1689b8d801adf1dba9fcb3f34f18d8bc6b28563739debd1a14",
+        "bytes": 1614886
+      }
+    },
+    {
+      "row": 26429,
+      "id": "G38__G__f33117",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f33117.png",
+        "sha256": "daf43eb089c4d7396d08874868de53dcfeeaa636bb7893747f4f8e8d18154351",
+        "bytes": 971088
+      }
+    },
+    {
+      "row": 26682,
+      "id": "G38__G__f33347",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f33347.png",
+        "sha256": "fc7f08e2a851799eb26342c2dc54ab523648df03dce23635a0323c7fe1830005",
+        "bytes": 1064082
+      }
+    },
+    {
+      "row": 27152,
+      "id": "G38__G__f33774",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f33774.png",
+        "sha256": "fd4441b61ac77bb9fb3a57dfcb82a2cfb5f63c5663bc5726852dd836a2abc67f",
+        "bytes": 997039
+      }
+    },
+    {
+      "row": 27155,
+      "id": "G38__G__f33777",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f33777.png",
+        "sha256": "2544bae012efb81a0a9adc66d8246a800aabf9890aad028adef5d65bc676b6a2",
+        "bytes": 1369847
+      }
+    },
+    {
+      "row": 27315,
+      "id": "G38__G__f33922",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f33922.png",
+        "sha256": "68c2438c068fc4914101c09ec09052e08ff9a2e5c1c6b42c452fbe19bffef685",
+        "bytes": 607492
+      }
+    },
+    {
+      "row": 27409,
+      "id": "G38__G__f34008",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f34008.png",
+        "sha256": "960cead02423aca075ab1fe4fef07ab8cc048ba3ed4827b5db94b63d41248ba6",
+        "bytes": 934824
+      }
+    },
+    {
+      "row": 27910,
+      "id": "G38__G__f34463",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f34463.png",
+        "sha256": "41066f72797366b12efdd88edabb0e847aa037fda90016aeb5c5d670f401a3c8",
+        "bytes": 1269194
+      }
+    },
+    {
+      "row": 27959,
+      "id": "G38__G__f34508",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f34508.png",
+        "sha256": "e073def6434afc4f15896e950ab22c2b8609be9a4809d14753245cd04abc1c5c",
+        "bytes": 882807
+      }
+    },
+    {
+      "row": 28545,
+      "id": "G38__G__f35040",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f35040.png",
+        "sha256": "8217cca1584ba1cf2357c0cce4d12e1c594d0f5d24a1b802f37990dc08564353",
+        "bytes": 818773
+      }
+    },
+    {
+      "row": 28587,
+      "id": "G38__G__f35079",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f35079.png",
+        "sha256": "cebdb0108023cff75dee09b1704921ca7a6d41bd566761ad27e9d193c4bb07f2",
+        "bytes": 936936
+      }
+    },
+    {
+      "row": 28601,
+      "id": "G38__G__f35091",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f35091.png",
+        "sha256": "a6f981f2d6e89845e1ac4833cfd1d14872b9fcd052c758724c79e21875b258e4",
+        "bytes": 1126769
+      }
+    },
+    {
+      "row": 29315,
+      "id": "G38__G__f35740",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f35740.png",
+        "sha256": "95fdf9c833118c876a15facb3c1db9c19d3cf661d0898461b09eb70f4e47972f",
+        "bytes": 880936
+      }
+    },
+    {
+      "row": 29318,
+      "id": "G38__G__f35743",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f35743.png",
+        "sha256": "ccce962fdd219f1493801ec227da918751fe6dd3f65c9b9807cb2fb96d13abd9",
+        "bytes": 1251100
+      }
+    },
+    {
+      "row": 29748,
+      "id": "G38__G__f36134",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f36134.png",
+        "sha256": "d68fa85ddd2f70125e6b94d4a10bb892de67fae4eba293a67dfb34ce57b88bb8",
+        "bytes": 1540350
+      }
+    },
+    {
+      "row": 30753,
+      "id": "G38__G__f37048",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f37048.png",
+        "sha256": "2ced0dcf6ae59e9b87e9937bfdb546b8dc1020559f606617497029b7b50d438e",
+        "bytes": 1189118
+      }
+    },
+    {
+      "row": 30854,
+      "id": "G38__G__f3714",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f3714.png",
+        "sha256": "3e5edee9001d0a1da8ae27d3d4bd390b097c49ec66bff6d4e6c9d01c145d5423",
+        "bytes": 1012097
+      }
+    },
+    {
+      "row": 30943,
+      "id": "G38__G__f37220",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f37220.png",
+        "sha256": "927352a76e18ae196f370e72665dfc9fcd4a06fa3905f39748ea47513bca3b33",
+        "bytes": 1122991
+      }
+    },
+    {
+      "row": 32668,
+      "id": "G38__G__f38789",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f38789.png",
+        "sha256": "3244d3bbecd7e1df72fd7de2c8d3eeb1568c70f71691ede7008f666c921e8fb2",
+        "bytes": 1052089
+      }
+    },
+    {
+      "row": 32745,
+      "id": "G38__G__f38859",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f38859.png",
+        "sha256": "fe5919be1f5f6230648f689de86112af77a158153ac6f77b1ef5e8ea52c78d88",
+        "bytes": 906778
+      }
+    },
+    {
+      "row": 32799,
+      "id": "G38__G__f38908",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f38908.png",
+        "sha256": "0bd09997a0b7c0d20cc6901214ed5eb7f3ad051f98f57d9241445bff20803f37",
+        "bytes": 842294
+      }
+    },
+    {
+      "row": 33023,
+      "id": "G38__G__f39111",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f39111.png",
+        "sha256": "08d5b974272725b7da369f900aa2bcc69628c70608984f35ab47e096d8b0930e",
+        "bytes": 1014522
+      }
+    },
+    {
+      "row": 33091,
+      "id": "G38__G__f39173",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f39173.png",
+        "sha256": "3fe4e085825a4d231e5a8e10105c93a062260b3f7cb70dc7a3ad9844b5bc75c5",
+        "bytes": 1143111
+      }
+    },
+    {
+      "row": 33147,
+      "id": "G38__G__f39224",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f39224.png",
+        "sha256": "20be7de6cc633d6b1ca6984d92f4057c72d601f6b8287aae36aa098869ae5ec8",
+        "bytes": 796628
+      }
+    },
+    {
+      "row": 33159,
+      "id": "G38__G__f39235",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f39235.png",
+        "sha256": "bae36e163c86a589a64f6bf2d7403a03a51b7e172ed476a48eda3d110ccbb486",
+        "bytes": 1058404
+      }
+    },
+    {
+      "row": 33493,
+      "id": "G38__G__f39539",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f39539.png",
+        "sha256": "f84925312fca79c0b130be9af4e2e2a8c99249d49fe2b9d2847ddd3b07ee93e2",
+        "bytes": 952118
+      }
+    },
+    {
+      "row": 33692,
+      "id": "G38__G__f3972",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f3972.png",
+        "sha256": "ae7621353867ddfcd6d6ee100dac7d0f944ced150c31423ef5eef8380ba51746",
+        "bytes": 660708
+      }
+    },
+    {
+      "row": 33838,
+      "id": "G38__G__f39852",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f39852.png",
+        "sha256": "f5199b619867d2a934bcde5ab1ee43c396c94e768fc980b777164bd9ab93d6a0",
+        "bytes": 1017557
+      }
+    },
+    {
+      "row": 34076,
+      "id": "G38__G__f4076",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f4076.png",
+        "sha256": "81bc194b4bfb26e1232a4e54e47f0eba43aa5a07401540a911dd694a22dc5c54",
+        "bytes": 1048481
+      }
+    },
+    {
+      "row": 34342,
+      "id": "G38__G__f4342",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f4342.png",
+        "sha256": "475d53c2e4bab06d6ac4c5a5eb60d54b4810cfc3276e2ce8cc213cc5739a3150",
+        "bytes": 877251
+      }
+    },
+    {
+      "row": 34712,
+      "id": "G38__G__f4712",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f4712.png",
+        "sha256": "dadaf6c0be0e67a561923cc410fe758aaa03131032a726e104227b5113deb306",
+        "bytes": 1005879
+      }
+    },
+    {
+      "row": 35419,
+      "id": "G38__G__f5419",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f5419.png",
+        "sha256": "cb79626877733faf17be6c26ceb1cc88658548472b1dd467c280ba4dba2d0357",
+        "bytes": 1352474
+      }
+    },
+    {
+      "row": 36501,
+      "id": "G38__G__f6501",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f6501.png",
+        "sha256": "7a8ddbb4027e31d692c3fb01c3294f5641ea19825bd5cd82abba5fa0fe5cdc61",
+        "bytes": 784724
+      }
+    },
+    {
+      "row": 36612,
+      "id": "G38__G__f6612",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f6612.png",
+        "sha256": "e532511fc0f0ecc274aa06729d9b74e7048c2999eb8b27e0b5f9f63b6c523b21",
+        "bytes": 854635
+      }
+    },
+    {
+      "row": 37225,
+      "id": "G38__G__f7225",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f7225.png",
+        "sha256": "535684e34da0b708c2cfd772262b3ee45c63fc39dafc83e94a27b1db7d9d4adc",
+        "bytes": 673353
+      }
+    },
+    {
+      "row": 37377,
+      "id": "G38__G__f7377",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f7377.png",
+        "sha256": "546c7fed3ec6f67c3ab0dc4adc1bb1793c3d4748f4c391aed8ed67f1764c4eb9",
+        "bytes": 927263
+      }
+    },
+    {
+      "row": 37392,
+      "id": "G38__G__f7392",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f7392.png",
+        "sha256": "58286f87695c00591060ad019ab4bcbdc8a9394a729adbc9930cc6759cbd968b",
+        "bytes": 1197112
+      }
+    },
+    {
+      "row": 37429,
+      "id": "G38__G__f7429",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f7429.png",
+        "sha256": "8faec28acad55a089693831a48de418f9e061f0779f54d7aa609963a33e9e3f4",
+        "bytes": 637935
+      }
+    },
+    {
+      "row": 37727,
+      "id": "G38__G__f7727",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f7727.png",
+        "sha256": "26ef66a36869973f67eff43edf3f2b6df40485552eeb348c177157979cc5d07a",
+        "bytes": 1228858
+      }
+    },
+    {
+      "row": 38357,
+      "id": "G38__G__f8357",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f8357.png",
+        "sha256": "054d2ca3c674cc18bb134323ff4104f70edb21df2644489aeddf21b480017f03",
+        "bytes": 749910
+      }
+    },
+    {
+      "row": 38409,
+      "id": "G38__G__f8409",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f8409.png",
+        "sha256": "72daf389c7b55e78fcdfeb0f8b5833229574d63a0a6641abb043198c1bbd3314",
+        "bytes": 1066029
+      }
+    },
+    {
+      "row": 38728,
+      "id": "G38__G__f8728",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f8728.png",
+        "sha256": "36ff5f069b22f7633607282b78576510a99a1aee95d440bb64d0df83e9582362",
+        "bytes": 887987
+      }
+    },
+    {
+      "row": 38900,
+      "id": "G38__G__f8900",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f8900.png",
+        "sha256": "f998b9e654e3d5e987b8a1f7d9ea545b6a969b6b8cd2109cce71c131b21e704b",
+        "bytes": 803648
+      }
+    },
+    {
+      "row": 38973,
+      "id": "G38__G__f8973",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f8973.png",
+        "sha256": "87504fa0f4dfa1b339c9b32af7d4804d4fa3396a59fb974a624cec87888328f3",
+        "bytes": 936400
+      }
+    },
+    {
+      "row": 39531,
+      "id": "G38__G__f9531",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f9531.png",
+        "sha256": "d63bdbc0f295d916c27368107fe7077c2584da4fa9db6f48a1ea76a0094e37eb",
+        "bytes": 884313
+      }
+    },
+    {
+      "row": 39735,
+      "id": "G38__G__f9735",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f9735.png",
+        "sha256": "d46dc3951e985e471a3f4eccc924f624333d5342b15eead5a4d4d6fbacbbab66",
+        "bytes": 747939
+      }
+    },
+    {
+      "row": 39973,
+      "id": "G38__G__f9973",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/stage_a/images/val/G__f9973.png",
+        "sha256": "03fa464b83440a6400e82ba81ae43e7279e02c5d54e3b6289ad0fd155d4fcf18",
+        "bytes": 679628
+      }
+    },
+    {
+      "row": 40173,
+      "id": "P0__shard_00_f0173",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_00_f0173.png",
+        "sha256": "6e86c839fd87590a01eab69bf976f3acccca1cfef9dd640bce2b101fa917649a",
+        "bytes": 1345082
+      }
+    },
+    {
+      "row": 40217,
+      "id": "P0__shard_00_f0217",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_00_f0217.png",
+        "sha256": "7341b811e4ac9f74fcb6e48f16ca90ad8ff0b30677fc11935656e66da9155668",
+        "bytes": 742379
+      }
+    },
+    {
+      "row": 40410,
+      "id": "P0__shard_00_f0410",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_00_f0410.png",
+        "sha256": "01649ba679358d33bb9661bda9e40ba5cf1b89df9a643f26fe93a53323c3a12a",
+        "bytes": 1139928
+      }
+    },
+    {
+      "row": 40715,
+      "id": "P0__shard_00_f0715",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_00_f0715.png",
+        "sha256": "647bdaf54ab7a8810e96e2850df42a884a8de2a196a86c7420931616607ebbc0",
+        "bytes": 700918
+      }
+    },
+    {
+      "row": 40843,
+      "id": "P0__shard_00_f0843",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_00_f0843.png",
+        "sha256": "d8ff5dbd9742bd41012ce4a08f285a3e048ce3757f17f56a51c35308a259fdc6",
+        "bytes": 712368
+      }
+    },
+    {
+      "row": 40851,
+      "id": "P0__shard_00_f0851",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_00_f0851.png",
+        "sha256": "b963faf991a5d3c80fbadf9b48409ef6853d78ec12d97628ea11de3f777f73fe",
+        "bytes": 1302916
+      }
+    },
+    {
+      "row": 41010,
+      "id": "P0__shard_00_f1010",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_00_f1010.png",
+        "sha256": "0a2a22fe4ab0f36224d8edf7d6a7780fa78f0c52c55bc87c830eafc1adedb6ce",
+        "bytes": 1122019
+      }
+    },
+    {
+      "row": 41323,
+      "id": "P0__shard_01_f0073",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0073.png",
+        "sha256": "f791a048ce57252b204ba9984364b7e66ca28c0f364e5cc433d6f27a71adc704",
+        "bytes": 984875
+      }
+    },
+    {
+      "row": 41469,
+      "id": "P0__shard_01_f0219",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0219.png",
+        "sha256": "54028b25f0af928623c420b1d2864e95c955264d589432475b4b9fa7b1f3d26d",
+        "bytes": 934817
+      }
+    },
+    {
+      "row": 41501,
+      "id": "P0__shard_01_f0251",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0251.png",
+        "sha256": "3d7b6649d0fbd069f1af9284e8cd834c3335c942e8a129549e9d044f5ae02205",
+        "bytes": 570771
+      }
+    },
+    {
+      "row": 41647,
+      "id": "P0__shard_01_f0397",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0397.png",
+        "sha256": "4a5d983e36957bd7acce7d51120528aee4143084eb1141c2d7c9c3bb6e3e35d8",
+        "bytes": 1035017
+      }
+    },
+    {
+      "row": 41709,
+      "id": "P0__shard_01_f0459",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0459.png",
+        "sha256": "36d841c9547346719f252c5f1929ec403fca0da021fdd17bc6185dbe689d1509",
+        "bytes": 594211
+      }
+    },
+    {
+      "row": 41760,
+      "id": "P0__shard_01_f0510",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0510.png",
+        "sha256": "039a25c86926fd5d154636aea6390b0c810b74e4ddb2f79154c7403374a13844",
+        "bytes": 833492
+      }
+    },
+    {
+      "row": 41929,
+      "id": "P0__shard_01_f0679",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0679.png",
+        "sha256": "db13cd7dfee5d78a1c70fc69bcdc4c38b2db4ed08fc3337c69778d4ccb9602a2",
+        "bytes": 974397
+      }
+    },
+    {
+      "row": 42139,
+      "id": "P0__shard_01_f0889",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0889.png",
+        "sha256": "9708c511b5044c747013198c82de3ff24339e8a94403a6d71e8e62085eb7769e",
+        "bytes": 858207
+      }
+    },
+    {
+      "row": 42145,
+      "id": "P0__shard_01_f0895",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f0895.png",
+        "sha256": "85e5d40777883736453008d81a3c2d4fc3c4ebc3086eba77cf73ee94a881957b",
+        "bytes": 598902
+      }
+    },
+    {
+      "row": 42409,
+      "id": "P0__shard_01_f1159",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_01_f1159.png",
+        "sha256": "052e464957e856a46f54bd871545ecffd60d92cbf27575bd3fcfe38f29bb13aa",
+        "bytes": 1198402
+      }
+    },
+    {
+      "row": 42568,
+      "id": "P0__shard_02_f0068",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_02_f0068.png",
+        "sha256": "e7b172d0736bbfa657c5d3df553a47ada946e25126983f95e7b4a06890e91386",
+        "bytes": 937626
+      }
+    },
+    {
+      "row": 42668,
+      "id": "P0__shard_02_f0168",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_02_f0168.png",
+        "sha256": "7fdf29f0b3643163ad0e0262424a2f0e29bb21d91cfc170fae3356041b120085",
+        "bytes": 1118864
+      }
+    },
+    {
+      "row": 42823,
+      "id": "P0__shard_02_f0323",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_02_f0323.png",
+        "sha256": "22a2551942deba671b83d068b667806292b043ef1a769a366fe499fb216b8dfd",
+        "bytes": 980783
+      }
+    },
+    {
+      "row": 43072,
+      "id": "P0__shard_02_f0572",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_02_f0572.png",
+        "sha256": "526a04af2b7a8a15fcbbd82f8c0ed3dfb8b9650d680319cfbe59d50e8cb28984",
+        "bytes": 942976
+      }
+    },
+    {
+      "row": 43217,
+      "id": "P0__shard_02_f0717",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_02_f0717.png",
+        "sha256": "a4962558891941247a3191b7fde50c363c8b7f78a247e4166f61336c6aae4d0c",
+        "bytes": 839121
+      }
+    },
+    {
+      "row": 43522,
+      "id": "P0__shard_02_f1022",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_02_f1022.png",
+        "sha256": "446ff7323fdc7ea81987e5562a76675833c62fef4ad03b4752ea03a19acc8d1d",
+        "bytes": 970016
+      }
+    },
+    {
+      "row": 44142,
+      "id": "P0__shard_03_f0392",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_03_f0392.png",
+        "sha256": "ea5d4f0fb9abd30889bdec0a9f867dbc2b5fb4865e5df4afc4c7bf6ec2ad5fd3",
+        "bytes": 617596
+      }
+    },
+    {
+      "row": 44197,
+      "id": "P0__shard_03_f0447",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_03_f0447.png",
+        "sha256": "a67c82235eb1a2b6188d17640628d45ccd30d11248fc4937fd8c016662e0c6b2",
+        "bytes": 961216
+      }
+    },
+    {
+      "row": 44260,
+      "id": "P0__shard_03_f0510",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_03_f0510.png",
+        "sha256": "7559fed4ee6d7e655e300e3f1d406afb6bccb4c754764e507e9ec7a99f91ae62",
+        "bytes": 1321491
+      }
+    },
+    {
+      "row": 45052,
+      "id": "P0__shard_04_f0052",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_04_f0052.png",
+        "sha256": "0d2627b02c2f5cfadf4f2a90aae64300e9b73e7d90dfb87c3348fdb8043d08c0",
+        "bytes": 650441
+      }
+    },
+    {
+      "row": 45225,
+      "id": "P0__shard_04_f0225",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_04_f0225.png",
+        "sha256": "200c82f7c74a9db20ad3f2b075e9b14e11b41b22a353dc108483ffc92a7dd087",
+        "bytes": 1134287
+      }
+    },
+    {
+      "row": 45551,
+      "id": "P0__shard_04_f0551",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_04_f0551.png",
+        "sha256": "69efbb72bbba12e6108ce2ceeda72076012e4dd3237505edd988a5800a8053d7",
+        "bytes": 976387
+      }
+    },
+    {
+      "row": 45629,
+      "id": "P0__shard_04_f0629",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_04_f0629.png",
+        "sha256": "4d1f8ef48a1c67336cb41f2970c2a271ca6c41b92a7a7769a5cb4f8f3e331009",
+        "bytes": 1432421
+      }
+    },
+    {
+      "row": 45855,
+      "id": "P0__shard_04_f0855",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_04_f0855.png",
+        "sha256": "c30a2e510b70505f2c039caade78939645b0485a4d71e67dd9f63ec852f0c16a",
+        "bytes": 631528
+      }
+    },
+    {
+      "row": 46162,
+      "id": "P0__shard_04_f1162",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_04_f1162.png",
+        "sha256": "d17c070d5d9e02eb9fdaaf11fdab647feda884a89ae3cdbef9f8e9ebec7b94d8",
+        "bytes": 1363446
+      }
+    },
+    {
+      "row": 46381,
+      "id": "P0__shard_05_f0131",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_05_f0131.png",
+        "sha256": "87507e69ac5da1accb390e2b0108fcc53e60a74955302e13ebc218a3a34700ab",
+        "bytes": 880715
+      }
+    },
+    {
+      "row": 46867,
+      "id": "P0__shard_05_f0617",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_05_f0617.png",
+        "sha256": "73dfb7f496e5b22f83c2ac94bd3077afae78d00fff856aeb5f51546ae850cbcd",
+        "bytes": 881675
+      }
+    },
+    {
+      "row": 46881,
+      "id": "P0__shard_05_f0631",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_05_f0631.png",
+        "sha256": "1be148daa6a0828890af9ecd71f410b0df1804029525914848ba255190c0e85d",
+        "bytes": 798593
+      }
+    },
+    {
+      "row": 46953,
+      "id": "P0__shard_05_f0703",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_05_f0703.png",
+        "sha256": "c1a043a66923de0334f32e35004f0a8c9c7f6453f5dbff5b6769682b0d386f01",
+        "bytes": 754131
+      }
+    },
+    {
+      "row": 46996,
+      "id": "P0__shard_05_f0746",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_05_f0746.png",
+        "sha256": "6095e7fa153123ce8dfec153b2352504523ef91175f2d7908ef918f8fbbe4d37",
+        "bytes": 932665
+      }
+    },
+    {
+      "row": 47322,
+      "id": "P0__shard_05_f1072",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_05_f1072.png",
+        "sha256": "fe1bbef1f5cb16919c112e02972663ba5292c6be17497439a313d7e4190844c5",
+        "bytes": 739639
+      }
+    },
+    {
+      "row": 47400,
+      "id": "P0__shard_05_f1150",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_05_f1150.png",
+        "sha256": "e177b992949790821948759656da77b026c260d3223e5fb247ae0edf86d6bd57",
+        "bytes": 957695
+      }
+    },
+    {
+      "row": 47755,
+      "id": "P0__shard_06_f0255",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_06_f0255.png",
+        "sha256": "d7b7756c4530a2211836c45cd54d3fb764e39e67ddfab7490eae416dcf3b5552",
+        "bytes": 1081583
+      }
+    },
+    {
+      "row": 47769,
+      "id": "P0__shard_06_f0269",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_06_f0269.png",
+        "sha256": "29ec710ee2958e99911733e168b0be6352b384d8ad62e9bb563eaa2abc8710c8",
+        "bytes": 787905
+      }
+    },
+    {
+      "row": 48010,
+      "id": "P0__shard_06_f0510",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_06_f0510.png",
+        "sha256": "b92c051f51e274601bdbd8ca8eec0d0b1f6d8204f9c4def84b6599a9446093b9",
+        "bytes": 837224
+      }
+    },
+    {
+      "row": 48041,
+      "id": "P0__shard_06_f0541",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_06_f0541.png",
+        "sha256": "30439d974a4ac4bbee312aca1af4848d7cc32455a22563e477deebda15c34d7b",
+        "bytes": 1087527
+      }
+    },
+    {
+      "row": 48591,
+      "id": "P0__shard_06_f1091",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_06_f1091.png",
+        "sha256": "498414876b7d4d6a269a26ba0643d74b89ec87837548dafe0ed196ef18221e54",
+        "bytes": 716077
+      }
+    },
+    {
+      "row": 48656,
+      "id": "P0__shard_06_f1156",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_06_f1156.png",
+        "sha256": "876ad2b9aa4ac8d949d0b02d298271b11f47b147d7df7803be9dd060d342fc1b",
+        "bytes": 679594
+      }
+    },
+    {
+      "row": 48675,
+      "id": "P0__shard_06_f1175",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_06_f1175.png",
+        "sha256": "13b6a1ad8906d7488d4160382a03864e7de09aa0971a391f5006ab2c6e79e725",
+        "bytes": 941749
+      }
+    },
+    {
+      "row": 48767,
+      "id": "P0__shard_07_f0017",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0017.png",
+        "sha256": "aca0d2a83b56424812414b61979d0ed8e379e60abcfdf7c28ccaf7145bd7cd59",
+        "bytes": 881675
+      }
+    },
+    {
+      "row": 48798,
+      "id": "P0__shard_07_f0048",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0048.png",
+        "sha256": "8ea1a62dce31c33a0c261628818b86911f7cd0ddcaf3ed9e87fd8fca099e79d2",
+        "bytes": 1040790
+      }
+    },
+    {
+      "row": 48949,
+      "id": "P0__shard_07_f0199",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0199.png",
+        "sha256": "04f6ce028c93cafa70ce7e786e87f080a95d5164d2e7c78d25f60eafd65435e0",
+        "bytes": 942140
+      }
+    },
+    {
+      "row": 49263,
+      "id": "P0__shard_07_f0513",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0513.png",
+        "sha256": "aa2498465ca2b7b6ec4a739fe96df6aa272f0f7cf992dff05d57a897cecbb801",
+        "bytes": 866473
+      }
+    },
+    {
+      "row": 49287,
+      "id": "P0__shard_07_f0537",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0537.png",
+        "sha256": "08de1e2bd78126508c09b218bbb979eb2af565b44f50349d925a6e5795d44cfb",
+        "bytes": 1022469
+      }
+    },
+    {
+      "row": 49525,
+      "id": "P0__shard_07_f0775",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0775.png",
+        "sha256": "361837c7b2e45b8210447ad55792f3a587c2ac0480a189ae404f054a2f257fa3",
+        "bytes": 1332679
+      }
+    },
+    {
+      "row": 49537,
+      "id": "P0__shard_07_f0787",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0787.png",
+        "sha256": "4de6ce4fd00d82c0cb1dfc53a8082266ebaf496336ed41a6305bd07aae8669a3",
+        "bytes": 1034213
+      }
+    },
+    {
+      "row": 49731,
+      "id": "P0__shard_07_f0981",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f0981.png",
+        "sha256": "f4cbe952263040dbb5214c326a606ee39f0dd1fc03d4de279757c70ebf976662",
+        "bytes": 703192
+      }
+    },
+    {
+      "row": 49926,
+      "id": "P0__shard_07_f1176",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_10k/images/val/shard_07_f1176.png",
+        "sha256": "99f443e746f9ca649bbd6728c01ea5e3bd2a0b8089babcbda019c6a703f2a511",
+        "bytes": 752734
+      }
+    },
+    {
+      "row": 50010,
+      "id": "TEX__shard_00_f0010",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_00_f0010.png",
+        "sha256": "260813a1717479052e2c80e05e0b947b0a3216577fc6b218e3309fc10191ab6d",
+        "bytes": 949715
+      }
+    },
+    {
+      "row": 50016,
+      "id": "TEX__shard_00_f0016",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_00_f0016.png",
+        "sha256": "bd9580228a2c7e184b4fdd43cba2be11671e02cc7d4caeabfafa1b2a697fe006",
+        "bytes": 709436
+      }
+    },
+    {
+      "row": 50079,
+      "id": "TEX__shard_00_f0079",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_00_f0079.png",
+        "sha256": "ca05579a6c100bd198b03a20a86e23d605ef10dbc46b44bf157e62b714261109",
+        "bytes": 1210798
+      }
+    },
+    {
+      "row": 50233,
+      "id": "TEX__shard_00_f0233",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_00_f0233.png",
+        "sha256": "2d3931eaeb02a8c59907c97806781dbb7c42aaf45517adceec4563dca44caa19",
+        "bytes": 626512
+      }
+    },
+    {
+      "row": 50429,
+      "id": "TEX__shard_00_f0429",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_00_f0429.png",
+        "sha256": "8a4a25e09681d1513f4cf0562643e6747e492abb755ca3741f517f9441fe3c1b",
+        "bytes": 1157200
+      }
+    },
+    {
+      "row": 50850,
+      "id": "TEX__shard_00_f0850",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_00_f0850.png",
+        "sha256": "3c6025e4f90098d456f3c2263f9531226c1196afc1464a42d6a66455b747ef53",
+        "bytes": 733444
+      }
+    },
+    {
+      "row": 51010,
+      "id": "TEX__shard_00_f1010",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_00_f1010.png",
+        "sha256": "4e62ae385ef51b09b49dfce3d24cdc6fa926c2a6cadf6a2ec0010c3141f29b0d",
+        "bytes": 821691
+      }
+    },
+    {
+      "row": 51469,
+      "id": "TEX__shard_01_f0219",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f0219.png",
+        "sha256": "d207c306d43714c4c29d3cd5e8cceb54ee8670185ec794371617cd9e77fb94e1",
+        "bytes": 1021358
+      }
+    },
+    {
+      "row": 51524,
+      "id": "TEX__shard_01_f0274",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f0274.png",
+        "sha256": "ab91082e3e95c2bfcd1127713dd12f2a62f7776063cfa39b909c8d85fc2b3f39",
+        "bytes": 847342
+      }
+    },
+    {
+      "row": 51555,
+      "id": "TEX__shard_01_f0305",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f0305.png",
+        "sha256": "ba831c0f32ffe592f706f81d3aa486b11926e2270c8165e3d6b428fe25bb280c",
+        "bytes": 1147371
+      }
+    },
+    {
+      "row": 51801,
+      "id": "TEX__shard_01_f0551",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f0551.png",
+        "sha256": "b307ca53f05d6e0f0f00040f95d102e704a30bfa40c8db619cb46871b4ac1105",
+        "bytes": 763186
+      }
+    },
+    {
+      "row": 52061,
+      "id": "TEX__shard_01_f0811",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f0811.png",
+        "sha256": "d04ba4cce2050ec231c0802104480a416dd1fa19d0cf6fb033e71f73635fc74d",
+        "bytes": 639814
+      }
+    },
+    {
+      "row": 52184,
+      "id": "TEX__shard_01_f0934",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f0934.png",
+        "sha256": "7e589041aeb8ce965fb29802fa9889274d5a7cd41abd94ba2647635c2f299d15",
+        "bytes": 704700
+      }
+    },
+    {
+      "row": 52394,
+      "id": "TEX__shard_01_f1144",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f1144.png",
+        "sha256": "959c2beacf99466010dd2dbee9c2952b1f05f480b4f51b86d996471ae840f51d",
+        "bytes": 1048250
+      }
+    },
+    {
+      "row": 52446,
+      "id": "TEX__shard_01_f1196",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_01_f1196.png",
+        "sha256": "945977fd8ed3d24cc94b8372c20bfc1256fb005e06094645db0395ec4406f6c6",
+        "bytes": 651215
+      }
+    },
+    {
+      "row": 52661,
+      "id": "TEX__shard_02_f0161",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0161.png",
+        "sha256": "fb2dab5bce7fa1e2af7b9ff80df942848b704d9dcf448b65e6560d118c425f8f",
+        "bytes": 1057820
+      }
+    },
+    {
+      "row": 52941,
+      "id": "TEX__shard_02_f0441",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0441.png",
+        "sha256": "8ef4c0a65e3bf0b55cab1d96bb62da3e85a135c8ece7fffffaf48d222973fb9a",
+        "bytes": 847092
+      }
+    },
+    {
+      "row": 53072,
+      "id": "TEX__shard_02_f0572",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0572.png",
+        "sha256": "0e2aa77720f4a8c1d502f11b971eecc5d175ed894aa2f5cdf8089da077c4d55b",
+        "bytes": 602429
+      }
+    },
+    {
+      "row": 53098,
+      "id": "TEX__shard_02_f0598",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0598.png",
+        "sha256": "0d188df72ab4a8c5d59e17458d8c8571bddd60f7d78d60c772e77e14237eb82a",
+        "bytes": 638941
+      }
+    },
+    {
+      "row": 53140,
+      "id": "TEX__shard_02_f0640",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0640.png",
+        "sha256": "f6229f19af0484b726cd7572bec0adcb0820a0ff65aaa72ff32a000eb8462ecb",
+        "bytes": 688476
+      }
+    },
+    {
+      "row": 53206,
+      "id": "TEX__shard_02_f0706",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0706.png",
+        "sha256": "17bc15e72692dc445e631dae9832276ba412e741d1d142df247b864779d81b59",
+        "bytes": 730076
+      }
+    },
+    {
+      "row": 53217,
+      "id": "TEX__shard_02_f0717",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0717.png",
+        "sha256": "ab6d70a9bc2f92386df86b123923040e0b1d19ba9dfb41d008a5836404f19098",
+        "bytes": 971475
+      }
+    },
+    {
+      "row": 53311,
+      "id": "TEX__shard_02_f0811",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0811.png",
+        "sha256": "6a70805a7b50c4fdd55dacdf40be5b33bddf011223166b55febb02ae3ff31420",
+        "bytes": 1151626
+      }
+    },
+    {
+      "row": 53457,
+      "id": "TEX__shard_02_f0957",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f0957.png",
+        "sha256": "5698d4b7ca0630ab38fbbb3879f4a4f182008b747e46f78fb4fc8cba2b2f5470",
+        "bytes": 1036650
+      }
+    },
+    {
+      "row": 53547,
+      "id": "TEX__shard_02_f1047",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_02_f1047.png",
+        "sha256": "fa204386ecd520ce0f3098a48138ac7072f1324cb2c036dece156e9a138535f2",
+        "bytes": 855643
+      }
+    },
+    {
+      "row": 53845,
+      "id": "TEX__shard_03_f0095",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f0095.png",
+        "sha256": "f9acaaf2ea94d900e4bda98660393ff4fd369ac15cc3f1e0cf661129528914e5",
+        "bytes": 1485279
+      }
+    },
+    {
+      "row": 53868,
+      "id": "TEX__shard_03_f0118",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f0118.png",
+        "sha256": "2646f59c622badb2ea4b769e438461f4a33081d3826840b7848a20b045b74e4c",
+        "bytes": 913193
+      }
+    },
+    {
+      "row": 53928,
+      "id": "TEX__shard_03_f0178",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f0178.png",
+        "sha256": "6e50e2ca3a727ba45e7f03bfefef2dc1b72300b654464970eaac49b5ee50a471",
+        "bytes": 1123848
+      }
+    },
+    {
+      "row": 54251,
+      "id": "TEX__shard_03_f0501",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f0501.png",
+        "sha256": "712c1e4ea81ee7f8a44babb58174d5f7fa99b7c3588936c0247eb9bb30f385a8",
+        "bytes": 768251
+      }
+    },
+    {
+      "row": 54530,
+      "id": "TEX__shard_03_f0780",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f0780.png",
+        "sha256": "e20b2ec6f23d4f35c7af1afcf4585062f5c2bfdaa42bc723b93cbb04a467e298",
+        "bytes": 898054
+      }
+    },
+    {
+      "row": 54677,
+      "id": "TEX__shard_03_f0927",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f0927.png",
+        "sha256": "ebb294260f552679e2309b7e11f3e8d3b904efeba8d6394bf54be9982bacaeab",
+        "bytes": 949194
+      }
+    },
+    {
+      "row": 54812,
+      "id": "TEX__shard_03_f1062",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f1062.png",
+        "sha256": "0e1f2383f96bf72b552262d44ab376ea0d8aed4aec4b9fb9f20cc601203752c4",
+        "bytes": 848092
+      }
+    },
+    {
+      "row": 54833,
+      "id": "TEX__shard_03_f1083",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_03_f1083.png",
+        "sha256": "29ed7f68e5986f05041f746ed0371900c33f86486a11f5b7e53922a5566a7546",
+        "bytes": 1257543
+      }
+    },
+    {
+      "row": 55219,
+      "id": "TEX__shard_04_f0219",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f0219.png",
+        "sha256": "d6aae2a6b0f8add6cb80e8a579931dbd04882b26e259ade01e6428c29a366874",
+        "bytes": 1011505
+      }
+    },
+    {
+      "row": 55450,
+      "id": "TEX__shard_04_f0450",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f0450.png",
+        "sha256": "6cb586952edc0bb0cb47bf1b60025c072c9d7e7bcdc43723801fb3feea68e59e",
+        "bytes": 751932
+      }
+    },
+    {
+      "row": 55546,
+      "id": "TEX__shard_04_f0546",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f0546.png",
+        "sha256": "8f86b9d5d4cef2138dbcaed9f1f287bcc4388e9c475d1808d3c943b26cb49965",
+        "bytes": 1447765
+      }
+    },
+    {
+      "row": 55558,
+      "id": "TEX__shard_04_f0558",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f0558.png",
+        "sha256": "08f269562d99cdb36df73d7e269d7d173f8dd4b1fef549ff6070550d44bc4809",
+        "bytes": 666155
+      }
+    },
+    {
+      "row": 55840,
+      "id": "TEX__shard_04_f0840",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f0840.png",
+        "sha256": "1aa80c6c6f87e74157da5f471d785a698cb8f690ba8923bf30f4e09ff0f2fc35",
+        "bytes": 1617128
+      }
+    },
+    {
+      "row": 55842,
+      "id": "TEX__shard_04_f0842",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f0842.png",
+        "sha256": "2191ff2d4694b772da1eaeceff65bb05a69d1f184f4d8e6df91567c762ff7c41",
+        "bytes": 717000
+      }
+    },
+    {
+      "row": 55869,
+      "id": "TEX__shard_04_f0869",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f0869.png",
+        "sha256": "6a809f72204b2018569b64ecacfdef5e57958193a8ba6e5487ef1a8c2797cab4",
+        "bytes": 777816
+      }
+    },
+    {
+      "row": 56191,
+      "id": "TEX__shard_04_f1191",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f1191.png",
+        "sha256": "00021ba42f667ca7c9e8db88576e18893f03b9baf44ca7bb428550f171fb99de",
+        "bytes": 782925
+      }
+    },
+    {
+      "row": 56226,
+      "id": "TEX__shard_04_f1226",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_04_f1226.png",
+        "sha256": "75359d747518d1194185aadd429d92355d40793d2de3f262c41bc2b46571d320",
+        "bytes": 978419
+      }
+    },
+    {
+      "row": 56314,
+      "id": "TEX__shard_05_f0064",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f0064.png",
+        "sha256": "040e817a99a044ca6d5480f4fa8054cd92fc8f89014b4dcf05e1e5455f79f947",
+        "bytes": 1473246
+      }
+    },
+    {
+      "row": 56645,
+      "id": "TEX__shard_05_f0395",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f0395.png",
+        "sha256": "ed0e455439f43600364e52a1c4bc62c11f7ec45a6af57ce86f26b522dd17a184",
+        "bytes": 759304
+      }
+    },
+    {
+      "row": 56696,
+      "id": "TEX__shard_05_f0446",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f0446.png",
+        "sha256": "b9a603a638c67ac561424f4c530971d46df7ec1d91f7fd9259eb464fe3518e0a",
+        "bytes": 899848
+      }
+    },
+    {
+      "row": 56881,
+      "id": "TEX__shard_05_f0631",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f0631.png",
+        "sha256": "1f0915060b416c0f54a702ce8cabe37227b83702b69a255d50aa4977f8900476",
+        "bytes": 1003853
+      }
+    },
+    {
+      "row": 56931,
+      "id": "TEX__shard_05_f0681",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f0681.png",
+        "sha256": "f4b2beb8fec398d7ad5cba081b449039ca280d772b1208a170e51317c6f86108",
+        "bytes": 1067760
+      }
+    },
+    {
+      "row": 57086,
+      "id": "TEX__shard_05_f0836",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f0836.png",
+        "sha256": "a59e00c0fe2fb2521defce5333d65447562b54ea9d1e5c39b848d3fdb925af77",
+        "bytes": 1179806
+      }
+    },
+    {
+      "row": 57107,
+      "id": "TEX__shard_05_f0857",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f0857.png",
+        "sha256": "3e57d5a3eea7da6515f74f184f300d21ec103fe1e4e916c5fb74c22cdd542b31",
+        "bytes": 685795
+      }
+    },
+    {
+      "row": 57358,
+      "id": "TEX__shard_05_f1108",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_05_f1108.png",
+        "sha256": "2df59d157da96f2be8cfec171c2e7cb364d05498976c678611ead063bb411b76",
+        "bytes": 901719
+      }
+    },
+    {
+      "row": 57620,
+      "id": "TEX__shard_06_f0120",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0120.png",
+        "sha256": "95ad08c37afab33be333d9d240ce8317905600d7131ee8525d085f73f989c2e6",
+        "bytes": 856185
+      }
+    },
+    {
+      "row": 57692,
+      "id": "TEX__shard_06_f0192",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0192.png",
+        "sha256": "468e73b78899d885d9c849399dc1e4588d8c9f4b30088599f7f2a4d395241ee3",
+        "bytes": 1017996
+      }
+    },
+    {
+      "row": 57845,
+      "id": "TEX__shard_06_f0345",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0345.png",
+        "sha256": "2724905ec4dbc579519eccc864a0748b64557f50a6dda0f3de5187b21ddb5da1",
+        "bytes": 1035334
+      }
+    },
+    {
+      "row": 58312,
+      "id": "TEX__shard_06_f0812",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0812.png",
+        "sha256": "83cb62798875d9eb89d2917615a346ca1538be0e2bcf18e3fa7e8cb959ae5234",
+        "bytes": 1338307
+      }
+    },
+    {
+      "row": 58343,
+      "id": "TEX__shard_06_f0843",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0843.png",
+        "sha256": "ea78dd577422515bce483826bab14c7eb15b5d1b465475291fad2682fb3ada26",
+        "bytes": 818997
+      }
+    },
+    {
+      "row": 58427,
+      "id": "TEX__shard_06_f0927",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0927.png",
+        "sha256": "c1be8bb6c651d24faac77de3c1282f49f6a67d63536638e09ee1426acd74e6d2",
+        "bytes": 717768
+      }
+    },
+    {
+      "row": 58436,
+      "id": "TEX__shard_06_f0936",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0936.png",
+        "sha256": "fcab2e66beaac9fa70e9ff696f5fefa3aa06c48ac0960887d52400a22d74a04d",
+        "bytes": 702373
+      }
+    },
+    {
+      "row": 58495,
+      "id": "TEX__shard_06_f0995",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f0995.png",
+        "sha256": "b7f546f470757f6cdf66f091bfadd84fa5081f3ef806392d8f26d15fbc3f1513",
+        "bytes": 1110156
+      }
+    },
+    {
+      "row": 58557,
+      "id": "TEX__shard_06_f1057",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_06_f1057.png",
+        "sha256": "67af787f53412fbab62cbf3c94f923b0dce3cce83e1edf60c190971b3675c22a",
+        "bytes": 775344
+      }
+    },
+    {
+      "row": 58798,
+      "id": "TEX__shard_07_f0048",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f0048.png",
+        "sha256": "0f396da093e6beac6f3e577d09834e0659bb1263ef8f24d13275cc3c0d40330d",
+        "bytes": 669640
+      }
+    },
+    {
+      "row": 59009,
+      "id": "TEX__shard_07_f0259",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f0259.png",
+        "sha256": "e61cf51cc882e0649e9713056fe42b89fc3fe72b5be4936ef29ba3dbab5f99ac",
+        "bytes": 778915
+      }
+    },
+    {
+      "row": 59202,
+      "id": "TEX__shard_07_f0452",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f0452.png",
+        "sha256": "6d7ef353cd3446834f73894fe707e0fecd379d0b019e3acfe6a3f1bc30ab41b6",
+        "bytes": 861495
+      }
+    },
+    {
+      "row": 59525,
+      "id": "TEX__shard_07_f0775",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f0775.png",
+        "sha256": "4f10c008f46341d38c23034dd92216ffa9d39a0649a2fc094be72ef858caf5d2",
+        "bytes": 1239299
+      }
+    },
+    {
+      "row": 59629,
+      "id": "TEX__shard_07_f0879",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f0879.png",
+        "sha256": "546c2836919788c4c2ce0afb6f409de7a749e56d6bb12a6cb19c29bd9573a2ff",
+        "bytes": 1024504
+      }
+    },
+    {
+      "row": 59713,
+      "id": "TEX__shard_07_f0963",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f0963.png",
+        "sha256": "a068843136c1ecf57d827329690690eb508e0657e9c1b32baf9916c5e9f99920",
+        "bytes": 663756
+      }
+    },
+    {
+      "row": 59765,
+      "id": "TEX__shard_07_f1015",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f1015.png",
+        "sha256": "2eccd66b572ea52e54798efb715e61f91441fb740154ada032329482a9f84857",
+        "bytes": 738324
+      }
+    },
+    {
+      "row": 59883,
+      "id": "TEX__shard_07_f1133",
+      "image": {
+        "path": "challenge/yolo_pose_one_model/datasets/legacy_v1v2_p0_tex10k/images/val/shard_07_f1133.png",
+        "sha256": "0c5fdac0397dcd72c7fa69dc4c72a49f3c5d0ac5a22fbabfa0633494fd9b4eef",
+        "bytes": 812712
+      }
+    }
+  ],
+  "source_cache_signature": {
+    "points": "a4c13b42ea9fe107f4999bc00991b512db5d621c0f5fca567ef413601d0af4d8",
+    "boxes": "51e3efd20694c224bd3a9d66160af5a9c49c2d9ec55dc7cdf5fceee1f0cf4ce6",
+    "point_valid": "0e9863b57251c58777f598121b76be1f11a1f9460faf3d8c26bf6f35110d1102",
+    "input_shape": "470070d0ab7dd52c3f6d592e08408d9b3ab144128a962a30f2651261c874fcde",
+    "gt_points": "3e4a057d4452a726d9240b4f06f2fb4ce2b8d43a9c8a50c97a13c56b9d3a6159",
+    "gt_valid": "203e50f4d039561425023088f3906e1c77a511a5a6b73eba779c344d2ea7d4f8",
+    "matched": "aeaf67858dcfc47cb2c3864cd950b52dbc1fd86b40a767410584494785ae116b",
+    "record_index": "ac1f4d6a31b6bb880913d2a6d44a8e14744a2b608b2dcd3e5dddbd09d42de07c",
+    "gain": "acbce4a11f79b20088b06df1048762457d2667683fbb900591f6613723c51e66"
+  },
+  "source_screen": "Natural uncorrupted256heldout only. MODE versus same-model MEAN: PCK10 drop<=1pp,P90 ratio<=1.10. Against R0: good<5to>10damage<=1percent,hard>20to<=10 recoveries>=same-modelMEAN. No synthetic perturbation recoveries in this gate.",
+  "decision": "No checkpoint/parameter selection on realGT. Freeze source screen and both decoder configurations before all194real predictions. Evaluate all four candidates even if source fails,but explicitly not deployable. No new frame/corner filter and no automatic promotion.",
+  "real_screen": "Full194>=5hard>20to<=10recoveries across>=3frames,good<5to>10damage<=1percent,PCK20>=R0. Also fixed159 subset and >40,>80,>100tails. This screen is not full objective completion.",
+  "diagnostic": "Report GT-free mode-mean displacement,entropy,local probability mass;not a correctness score or selection rule. Evaluation GT used only after all candidate predictions fixed.",
+  "checkpoints": {
+    "BASE": {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/last300.pt",
+      "sha256": "fc9b3d7b7f2e7c38b608a12461cf16a58b76669f12ef9be5c8dc35d81104a41d",
+      "bytes": 275590870
+    },
+    "DENOISE": {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/pseudo_denoise/DENOISE/last300.pt",
+      "sha256": "9952ba47ba917d4d14c3ab068b1ecc0b193b37d7674a28279e579077ba3cb321",
+      "bytes": 275582854
+    }
+  },
+  "arms": [
+    "BASE_MEAN",
+    "BASE_MODE",
+    "DENOISE_MEAN",
+    "DENOISE_MODE"
+  ],
+  "new_training": 0,
+  "new_annotations": 0,
+  "new_tags": 0,
+  "caveats": "Repeated DEV,prior Replay teacher9manual images includes3evaloverlaps. DENOISE pseudo labels correlated and potentially wrong. Source heldout reused development. No independent confirmation or final-model promotion.",
+  "sources": [
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/recovery_pseudo_denoise.py",
+      "sha256": "9ff12ebe830aade77b79d3a096e4b1c31f69e1b2678e6ddaab6291f36bed0d5d",
+      "bytes": 16930
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/test_recovery_pseudo_denoise.py",
+      "sha256": "2a2b4289b5139a53aa33efec8670d2a0365064b40525162834067b14566e0ba6",
+      "bytes": 1770
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/recovery_pose.py",
+      "sha256": "58432202f1241803b50d1149a07556bc17ad71b1aceea95460d953c24a768083",
+      "bytes": 8372
+    },
+    {
+      "path": "scripts/research/pallet_posefix_large_error_v1/train.py",
+      "sha256": "e2c094dd9953735b4e1874cb0df5fbd45898f94643ccb08fc39c4a135827b83d",
+      "bytes": 7069
+    },
+    {
+      "path": "scripts/research/pallet_posefix_large_error_v1/core.py",
+      "sha256": "7b444aaddcaf418ec2478659d3f77b486566ccf6377fec4257a9110ce73467bf",
+      "bytes": 8509
+    },
+    {
+      "path": "scripts/research/pallet_posefix_replay_v1/core.py",
+      "sha256": "7d4c6b355b3b951138d07c91b1544ad0b6ff69e7385170e9f5b2d0f768572b2a",
+      "bytes": 9483
+    },
+    {
+      "path": "scripts/research/pallet_posefix_replay_v1/train.py",
+      "sha256": "c2dd445c94fcb218a40f5bce4c7fc3827dfde569ef6780da171445721921618e",
+      "bytes": 9182
+    },
+    {
+      "path": "scripts/research/pallet_posefix_replay_v1/source.py",
+      "sha256": "81d0301d0360fb0a9e6cd685f3fc3fb8add1252996cb413bf09f502754c83eb6",
+      "bytes": 5098
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/recovery_common.py",
+      "sha256": "7a393a49bb6ed3981fea9234aa58eb274e40de4470f6e97053591b803386f047",
+      "bytes": 3703
+    },
+    {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/PSEUDO_ACCEPTED.json",
+      "sha256": "9c9e05ee2d9a76aeefcab6d0c6494fab7f8335de9d1641bafcf197c1e4fc8553",
+      "bytes": 4919647
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/PROTOCOL.json",
+      "sha256": "43129516d0c23b56c1f99462982c0f7987361a84f5b3fa09ba9dcceeecccb82f",
+      "bytes": 964186
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_replay_v1/INPUT_LOCK.json",
+      "sha256": "462592a2656f01cc3525fedd4b486a48932828e019d1eeca982887475a698780",
+      "bytes": 547303
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/ORDERS.npz",
+      "sha256": "8f2307ba3cb17bd12905987af63013bd2709ca5b278ab6f494756e3584adcbbb",
+      "bytes": 252768
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/EVAL_PROTOCOL.json",
+      "sha256": "e78410b7af11f6fbc78cfd3799e6391fa4e55ee7e420d57bc4e19e4398b1634d",
+      "bytes": 314811
+    },
+    {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/EVAL_PREDICTIONS_R0.json",
+      "sha256": "fef60cee642b89983662d3db50c6fe176deb6c4fa2a7aadefbb3a1f0da5b7809",
+      "bytes": 1346010
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/heatmap_mode_recovery.py",
+      "sha256": "e47a5cd287d0c6198adb1bfb39f7c3502c0c7b770c297dc828d2e384be6adda2",
+      "bytes": 14972
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/heatmap_mode_decoder.py",
+      "sha256": "93477710a4dd50eb25458aa2d05a2420258a120842c4bda644e8dd822a90892d",
+      "bytes": 1454
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/test_heatmap_mode_decoder.py",
+      "sha256": "b1dec1be3e3355ba1c157e54771d0b25cceaf3a57f3993dabbfc832934f45762",
+      "bytes": 1541
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/recovery_pseudo_denoise.py",
+      "sha256": "9ff12ebe830aade77b79d3a096e4b1c31f69e1b2678e6ddaab6291f36bed0d5d",
+      "bytes": 16930
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/identity_rank.py",
+      "sha256": "4a2c6ac80d8d248a105d8bafa6b16a516ff595687f3ac4096aedf261ed3c3ff0",
+      "bytes": 21501
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pseudo_denoise/PROTOCOL.json",
+      "sha256": "d669d44303aab72e924a793f7a4e306ffbe6b0221d6cd91f66c4359040607c4d",
+      "bytes": 440389
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pseudo_denoise/FIT_DENOISE.json",
+      "sha256": "e9e875500f6471be83be3ca7bd687b8ed2c0534678a92a69cefdecaf79297cdd",
+      "bytes": 122966
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pseudo_denoise/RESULTS.json",
+      "sha256": "787cb2e500ef63057fcbe3b495a13c2ccf3098cf65649db82d4ebe65433e271b",
+      "bytes": 10439
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/ORDERS.npz",
+      "sha256": "8f2307ba3cb17bd12905987af63013bd2709ca5b278ab6f494756e3584adcbbb",
+      "bytes": 252768
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/last300.pt",
+      "sha256": "fc9b3d7b7f2e7c38b608a12461cf16a58b76669f12ef9be5c8dc35d81104a41d",
+      "bytes": 275590870
+    },
+    {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/pseudo_denoise/DENOISE/last300.pt",
+      "sha256": "9952ba47ba917d4d14c3ab068b1ecc0b193b37d7674a28279e579077ba3cb321",
+      "bytes": 275582854
+    }
+  ]
+}

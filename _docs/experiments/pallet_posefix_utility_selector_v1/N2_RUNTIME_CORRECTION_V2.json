@@ -1,0 +1,52 @@
+{
+  "status": "APPROVED_NUMERICAL_RUNTIME_COMPATIBILITY_ONLY",
+  "parity_tolerance_px": 0.001,
+  "failed_v1": {
+    "row": 15109,
+    "max_abs_px": 4.00543212890625e-05,
+    "logits_bit_exact": true,
+    "training_steps": 0,
+    "real_evaluation_performed": false
+  },
+  "reason": "V1 moved GPU-computed box norm/displacements to CPU; original archived decoder constructs norm/displacements on CPU. Recreate original CPU geometry and raw-coordinate arithmetic before +100 prepared translation.",
+  "changes": "N2 numerical compatibility only; rebuild CPU box norm/displacements and raw-before-padding arithmetic; original batch16 and TF32 runtime retained",
+  "unchanged": "All original code/PROTOCOL/splits/thresholds/seeds/model weights/steps; original .001 guard unchanged",
+  "prior_partial_chunks": "Preserved in original source_chunks; NEVER reuse for v2; v2 writes new source_cpu_geometry_v2 subtree",
+  "bindings": [
+    {
+      "path": "_docs/experiments/pallet_posefix_utility_selector_v1/PROTOCOL.json",
+      "sha256": "483dbe8f64f9b260948c79dcb423ec7e1fac47b384061d9778794ad293bd35b2",
+      "bytes": 8209
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/run_generate_historical_n2_v2.py",
+      "sha256": "06235795444aa4330def427ebe1591f0b0b82a3013e7000f88b76ab8ee84616d",
+      "bytes": 8279
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_utility_selector_v1/N2_RUNTIME_CORRECTION.json",
+      "sha256": "e5158d5d7b78cbaf2686d218893110d4d2f9fc748fd87e31df0f3c2b65189356",
+      "bytes": 3805
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/run_generate_historical_n2.py",
+      "sha256": "6cadac15e2b035dde7b06b033fa65f472048b6382900fb8c16f8bf2e80b7eceb",
+      "bytes": 7564
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_utility_selector_v1/DIAGNOSTIC_N2_PARITY.json",
+      "sha256": "2fb212213c9e09f16fb45879de2f12c69d9e8a913ac43f99af2caa0603f57182",
+      "bytes": 48538
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/logits/N2_DIM_ONLY_seed1.npz",
+      "sha256": "1bf4ca8f65b03d2bc664fa9a64fe77f48b661bc0bf7461bdc895167bcdf0f997",
+      "bytes": 28623152
+    },
+    {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/paper_evaluate.py",
+      "sha256": "a5888c1be825b3bb27efbe432555ef8b7d5181a928477af9845adf506160981b",
+      "bytes": 9477
+    }
+  ]
+}

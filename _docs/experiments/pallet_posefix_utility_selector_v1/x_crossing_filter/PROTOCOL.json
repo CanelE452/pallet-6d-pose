@@ -1,0 +1,90 @@
+{
+  "purpose": "Use X-only postfilter INSTEAD OF previous physical-shape postfilter",
+  "input": "All8 Replay median LOO survivors, NOT physical-shape survivors",
+  "rule": "One of six faces has a proper interior crossing of its opposite boundary edges -> drop whole image",
+  "keep": "Original complete Replay prediction, no coordinate changes or N2 fallback",
+  "faces": [
+    [
+      0,
+      1,
+      2,
+      3
+    ],
+    [
+      4,
+      5,
+      6,
+      7
+    ],
+    [
+      0,
+      1,
+      5,
+      4
+    ],
+    [
+      1,
+      2,
+      6,
+      5
+    ],
+    [
+      2,
+      3,
+      7,
+      6
+    ],
+    [
+      3,
+      0,
+      4,
+      7
+    ]
+  ],
+  "face_names": [
+    "near",
+    "far",
+    "top",
+    "right",
+    "bottom",
+    "left"
+  ],
+  "numeric_orientation_epsilon": 1e-08,
+  "normalization": "Observed eight-point diagonal, same numerical epsilon as previous crossing diagnostic",
+  "disabled": [
+    "positive-camera-depth veto",
+    "concavity veto",
+    "winding-vs-PnP veto",
+    "collapsed-face veto"
+  ],
+  "allowed": [
+    "crossing between different faces",
+    "endpoint touching",
+    "collinear overlap",
+    "concavity without X"
+  ],
+  "parent_output": {
+    "path": "_docs/experiments/pallet_posefix_utility_selector_v1/all8_replay_frame_filter/OUTPUTS_LOCK.json",
+    "sha256": "3190c4938e1744c93ff7de80f1fa42d784cfb7628501f4c83d99b74673c893f5",
+    "bytes": 800
+  },
+  "parent_results": {
+    "path": "_docs/experiments/pallet_posefix_utility_selector_v1/all8_replay_frame_filter/RESULTS.json",
+    "sha256": "ff752e1bf721d18db4111617581c3cd8dc696d36a354a433d9dffbc6d7213ca8",
+    "bytes": 4234
+  },
+  "code": {
+    "path": "scripts/research/pallet_posefix_utility_selector_v1/x_crossing_filter.py",
+    "sha256": "ac853817c2724977b92905037cbf15b13a5dd31396b34dc31a61072b1d427673",
+    "bytes": 5849
+  },
+  "tests": {
+    "path": "scripts/research/pallet_posefix_utility_selector_v1/test_x_crossing_filter.py",
+    "sha256": "9ba6bda6b847cf0394ad063a776114f3aff9af5d6d0844d7415e6b38ac03bd65",
+    "bytes": 1429
+  },
+  "GT_used_for_selection": false,
+  "model_modified": false,
+  "self_training": false,
+  "evaluation_reused": true
+}

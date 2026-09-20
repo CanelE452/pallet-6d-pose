@@ -1,0 +1,24 @@
+\begin{table}[t]\centering
+\caption{Completed DEV319: PCK and matching coverage (\%). Refiner rows are means of three seed-level scores except the fixed seed-1 row.}
+\begin{tabular}{lrrrr}\toprule
+Model & PCK5 & PCK10 & PCK20 & Coverage \\ \midrule
+R0 & 36.29 & 63.43 & 80.07 & 97.49 \\
+Original P & 41.75 & 67.49 & 81.81 & 97.49 \\
+P replay & 41.62 & 67.53 & 81.78 & 97.49 \\
+Dimension P & 42.99 & 68.59 & 82.38 & 97.49 \\
+Dimension P (seed 1) & 43.74 & 68.95 & 82.35 & 97.49 \\
+\bottomrule\end{tabular}
+\label{tab:coverage}
+\end{table}
+All arms retain the same detections and boxes: 319 detections and 311 matched frames. The complete supervised denominator has 2,499 corners; the matched summaries contain 2,445 corners.
+\begin{table*}[t]\centering
+\caption{Completed DEV319 paired N2--N0 diagnostics. Negative $\Delta E_{sym}$ means improvement. Improved/worsened/unchanged count frames; good-to-bad counts canonical corners with error $<5$ to $>10$ pixels.}
+\begin{tabular}{lrrrrr}\toprule
+Seed & $\Delta E_{sym}$ & Improved & Worsened & Unchanged & Good-to-bad \\ \midrule
+1 & -0.00028449 & 240 & 71 & 8 & 1 \\
+2 & -0.00027800 & 244 & 67 & 8 & 0 \\
+3 & -0.00022080 & 222 & 89 & 8 & 0 \\
+\bottomrule\end{tabular}
+\label{tab:damage}
+\end{table*}
+All three seeds improve the mean normalized error, but none improves every frame. Seed 1 has one good-to-bad corner; the reverse threshold transition is zero for all three seeds. This descriptive check is not a calibrated task-safety threshold.

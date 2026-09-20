@@ -623,13 +623,13 @@ def make_annotation(kps_2d, pose, image_shape, K, dims=None, split="eval",
     }
     # GT v2 is additive.  Every pre-existing object-level compatibility field
     # (including less common fields such as tag_id and sentinel_repaired) must
-    # survive old -> load -> save byte-for-byte at the JSON-value level.  Only
-    # the explicit v2 fields below are regenerated from the editor state.
+    # survive old -> load -> save at the JSON-value level, except editable
+    # split metadata. Restoring legacy split here silently undid the v key.
     generated_v2_fields = {
         "physical_dimensions_m", "camera_facing_pnp", "canonical_pose",
         "canonical_pose_candidates", "pose_status", "migration_status",
         "legacy", "keypoint_annotations", "occlusion_level", "truncation",
-        "object_type",
+        "object_type", "split",
     }
     for key, value in original_object.items():
         if key not in generated_v2_fields:

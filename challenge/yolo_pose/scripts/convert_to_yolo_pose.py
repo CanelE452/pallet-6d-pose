@@ -16,8 +16,8 @@ YOLO pose 한 줄 포맷 (정규화 0~1):
   class : 0 (pallet)
   cx,cy,w,h : 정규화된 bbox (image 안 keypoint 들의 axis-aligned bbox)
   kpN_x,y : 정규화된 keypoint 좌표 (0~1)
-  kpN_v   : visibility (0=outside-image, 2=visible)
-            YOLO 는 0/1/2 인데 1(가려짐) 정보 없으므로 0/2 만 사용
+  kpN_v   : visibility (0=unknown/outside, 1=PnP/occluded, 2=manual/visible)
+            합성 projected_cuboid fallback 은 0/2 를 사용
 
 Keypoint 순서 (v4 convention):
   0: front-top-LEFT     1: front-top-RIGHT
@@ -78,12 +78,26 @@ def parse_json(json_path: str):
     for obj in data.get("objects", []):
         if obj.get("class", "").lower() != "pallet":
             continue
-        cuboid = obj.get("projected_cuboid")
-        centroid = obj.get("projected_cuboid_centroid")
-        if cuboid is None or len(cuboid) != 8 or centroid is None:
-            continue
-        kps = [(float(p[0]), float(p[1])) for p in cuboid]
-        kps.append((float(centroid[0]), float(centroid[1])))
+        # Real GT v2 keeps manual and PnP-filled points in this explicit field.
+        # Ultralytics 8.4.60 supervises visibility 1 and 2, while 0 must remain
+        # [0,0,0]. This lets visible-only clicks (v=2) and PnP projections (v=1)
+        # train together without turning unknown points into targets.
+        annotations = obj.get("keypoint_annotations")
+        if isinstance(annotations, list) and len(annotations) >= 9:
+            kps = []
+            for entry in annotations[:9]:
+                xy = entry.get("xy") if isinstance(entry, dict) else None
+                visibility = int(entry.get("visibility", 0))
+                known = xy is not None and visibility in (1, 2)
+                kps.append((float(xy[0]), float(xy[1]), visibility)
+                           if known else (0.0, 0.0, 0))
+        else:
+            cuboid = obj.get("projected_cuboid")
+            centroid = obj.get("projected_cuboid_centroid")
+            if cuboid is None or len(cuboid) != 8 or centroid is None:
+                continue
+            kps = [(float(p[0]), float(p[1]), 2) for p in cuboid]
+            kps.append((float(centroid[0]), float(centroid[1]), 2))
         objs.append({"kps": kps})
 
     return img_w, img_h, objs
@@ -92,16 +106,19 @@ def parse_json(json_path: str):
 def to_yolo_line(img_w: int, img_h: int, kps: list) -> str | None:
     """9-keypoint → YOLO pose 한 줄. image 안 keypoint 가 0 이면 None 반환 (skip)."""
     visibility = []
-    for x, y in kps:
-        if 0 <= x < img_w and 0 <= y < img_h:
-            visibility.append(2)
+    for point in kps:
+        x, y = point[:2]
+        source_visibility = int(point[2]) if len(point) > 2 else 2
+        known = source_visibility in (1, 2)
+        if known and 0 <= x < img_w and 0 <= y < img_h:
+            visibility.append(source_visibility)
         else:
             visibility.append(0)
-    if sum(v == 2 for v in visibility) == 0:
+    if not any(v in (1, 2) for v in visibility):
         return None
 
     # bbox = image 안 keypoint 들의 axis-aligned bbox
-    in_kps = [(x, y) for (x, y), v in zip(kps, visibility) if v == 2]
+    in_kps = [point[:2] for point, v in zip(kps, visibility) if v in (1, 2)]
     xs = [p[0] for p in in_kps]
     ys = [p[1] for p in in_kps]
     x0, x1 = min(xs), max(xs)
@@ -116,8 +133,9 @@ def to_yolo_line(img_w: int, img_h: int, kps: list) -> str | None:
     h = max(0.0, min(1.0, h))
 
     parts = ["0", f"{cx:.6f}", f"{cy:.6f}", f"{w:.6f}", f"{h:.6f}"]
-    for (x, y), v in zip(kps, visibility):
-        if v == 2:
+    for point, v in zip(kps, visibility):
+        x, y = point[:2]
+        if v in (1, 2):
             nx = max(0.0, min(1.0, x / img_w))
             ny = max(0.0, min(1.0, y / img_h))
         else:
@@ -157,7 +175,8 @@ def pad_image_and_save(src_png: str, dst_png: str, pad: int, mode: str = "reflec
 
 def shift_keypoints(kps: list, dx: int, dy: int) -> list:
     """모든 keypoint 좌표에 (dx, dy) 더해서 padded coord 로 변환."""
-    return [(x + dx, y + dy) for (x, y) in kps]
+    return [(p[0] + dx, p[1] + dy, p[2]) if len(p) > 2
+            else (p[0] + dx, p[1] + dy) for p in kps]
 
 
 def unique_stem(png_path: str, src_root: str) -> str:

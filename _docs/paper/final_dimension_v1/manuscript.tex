@@ -1,0 +1,114 @@
+% Existing DEV319 plus GREEN150 saved-label analysis, 2026-09-19; not submitted.
+\documentclass[journal]{IEEEtran}
+\usepackage{amsmath,amssymb,booktabs,graphicx,url}
+\usepackage[hidelinks]{hyperref}
+\title{Dimension-Conditioned Local Keypoint Refinement for Monocular Pallet Pose Estimation}
+\author{Internal draft---author information pending}
+\begin{document}
+\maketitle
+\begin{abstract}
+Local landmark corrections can improve geometric localization without retraining an established detector. We study a dimension-conditioned point refiner that reuses two feature scales of a frozen monocular pallet estimator. Externally supplied canonical pallet dimensions condition the scores of bounded local displacement candidates. The additional network contains 20,259 parameters and preserves detection boxes, confidence scores, instance selection, and the center landmark. On a reused development panel of 319 images, the three-seed mean of matched, symmetry-aware eight-corner median error is 5.778 pixels, compared with 5.944 pixels for the matched basic-refiner control and 6.721 pixels for the detector alone. Complete-denominator PCK at 10 pixels is 68.59\%, 67.53\%, and 63.43\%, respectively. The dimension-conditioned model improves mean normalized error, but an existing strict damage criterion remains unresolved. Same-session desktop measurements yield a median full-pipeline latency of 15.130\,ms for the representative dimension-conditioned model versus 11.638\,ms for the detector pipeline. These results support a limited development-set benefit, not independent generalization, causal isolation of dimension information, or physical pose metrology.
+An additional 150-image green-square saved-label analysis gives manual-corner median errors of 4.580, 4.097, and 4.130 pixels for the detector, basic refiner, and dimension-conditioned refiner, respectively. This additional panel does not show a consistent dimension-conditioning advantage over the basic refiner; label provenance and capture dependence limit its interpretation.
+\end{abstract}
+\begin{IEEEkeywords}
+Pallet pose, monocular vision, keypoint refinement, known object dimensions, synthetic supervision.
+\end{IEEEkeywords}
+
+\section{Introduction}
+Image-level detection does not guarantee accurate corners for downstream geometric reconstruction. A useful engineering objective is to refine the landmarks of a frozen estimator while retaining its detection interface. Existing work establishes synthetic supervision for monocular pallet estimation and learned pose refinement as prior art \cite{knitt,posefix}. Neither synthetic pallet training nor coordinate expectation is introduced here \cite{integral}.
+
+Our final system adds a small dimension-conditioned local refiner to an already-trained YOLO26n pose estimator. Its scope is known-object operation: a pallet type and its canonical physical dimensions must be available externally. It does not identify the object type or infer its size from the image. This distinction matters because the additional metadata can be unavailable or wrong in deployment.
+
+The contribution is an explicitly bounded, feature-reusing correction interface and a controlled empirical assessment of a dimension-conditioned extension. The final architecture was selected after historical development experiments. The model lock records the selected configuration after the development results were observed. We therefore do not describe this choice as retrospective preregistration or as evidence of universal superiority.
+
+\section{Method}
+\subsection{Frozen detector and local candidates}
+R0 is the fixed YOLO26n pallet pose checkpoint. It predicts a box, confidence, eight cuboid corners, and a center for each detected instance. The highest-confidence instance is selected without ground truth. The original reflection-padding, rectangular letterbox, and original-pixel restoration paths are retained. R0 has a COCO-pose pretrained initialization; synthetic-only supervision refers to the added refiner's training, not the entire estimator's history.
+
+The point refiner reads P3/P4 features. Thirteen directions and seventeen radii yield 221 displacement candidates within 0.08 predicted-box diagonal; a zero-displacement null candidate completes the 222-way distribution. Each non-null candidate samples the unchanged $4\times8$ stencil from both scales. A shared visual encoder and corner-role features score the candidates. There is no DHT or predicted-line branch in the final inference architecture.
+
+\subsection{Canonical dimension conditioning}
+Let $W,D,H>0$ denote canonical width, depth, and height in metres, not camera-facing dimensions. The input vector is
+\begin{equation}
+\boldsymbol\phi=\left[\log W,\log D,\log H,\log(W/D),\log\frac{H}{\sqrt{WD}}\right].
+\end{equation}
+Each component is standardized using fixed mean and scale from the 55,980 synthetic TRAIN records. Neither calibration nor real evaluation images contribute to these statistics. Real object dimensions come from the registered object specification; there is no ground-truth-pose-dependent width/depth swap.
+
+A two-layer, 16-dimensional metadata encoder maps the standardized vector to a geometry embedding. A metadata scorer combines this embedding with a corner-role embedding, the normalized candidate displacement, and a null-candidate indicator. Its scalar residual is added to the corresponding visual logit. Its final linear layer is initialized to zero, preserving the visual logits at initialization. The final module has 20,259 parameters, compared with 18,962 for the basic P control. Consequently, the comparison does not isolate dimension information from the additional capacity.
+
+The selected N2 model does not receive an explicit C1/C2/C4 code and does not use the symmetry-target training modification explored in other arms. Those arms remain ablations, not silently merged components of the final model. Symmetry-aware evaluation below is separate from both training supervision and inference inputs.
+
+\subsection{Correction and training}
+For visual-plus-metadata logits $z_{kj}$, fixed temperature $T$, normalized offsets $\mathbf v_j$, and predicted box diagonal $d_b$, the displacement expectation is
+\begin{equation}
+\boldsymbol\delta_k=\lambda d_b\sum_j\operatorname{softmax}(z_k/T)_j\mathbf v_j.
+\end{equation}
+The null offset is zero. The frozen correction scale is $\lambda=1$ and the movement cap is 0.01 of the original image diagonal, transformed consistently into network-input coordinates. Displacements are restored through the original letterbox gain. Unsupported corners remain unchanged. The center, boxes, scores, candidate order, and nonselected instances are preserved exactly. Preserving detections is not a guarantee of harmless corner or pose corrections.
+
+N0 (basic P replay) and N2 (dimension-conditioned P) each have three independently trained seeds with 6,000 fixed-budget updates and 96,000 sample exposures per fit. The same synthetic order, visual architecture, candidate support, fixed-index Gaussian target, and optimizer protocol are retained. Temperature is selected by the existing synthetic calibration objective; it is not tuned on real images. Final-step checkpoints are used, not validation-selected intermediate checkpoints. The final deployment representative is seed 1; the three-seed mean is not an ensemble or a seed-1 measurement.
+
+Camera intrinsics and registered dimensions also enter the prediction-only PnP stage. Unlike basic P, N2 additionally receives dimensions before coordinate decoding. PnP reference poses reconstructed from image annotations are not independent physical six-degree-of-freedom measurements.
+
+\section{Evaluation Protocol}
+\subsection{Metric rationale and scope}
+Global symmetry handling and thresholded correctness have precedent in BOP~\cite{bop2020metrics}. Our annotated-corner mean is not BOP's maximum symmetry-aware projection distance (MSPD): the evaluated points, aggregation, and available ground truth differ. We evaluate image-plane landmark localization, not independently measured physical 6D accuracy.
+
+PCK measures correctness within a stated distance tolerance. MPII's PCKh uses a head-relative threshold~\cite{mpii2014metrics}; our fixed 5/10/20-pixel thresholds instead preserve the historical image-coordinate protocol. These thresholds and image-diagonal normalization are study-specific choices, not pallet manipulation tolerances. They do not compensate for object scale or establish metric-depth accuracy.
+
+Conditional median/P90 summarize matched localization errors and are accompanied by coverage and complete-denominator scores. The diagonal-valued missing penalty is our explicit evaluation convention, not a BOP formula. Condition-specific error analysis is motivated by pose-estimation diagnostics~\cite{ronchi2017metrics}. P90 and paired good-to-bad counts are supplementary descriptive checks, not standardized safety measures; the latter asks whether refinement damages previously accurate landmarks despite an average improvement.
+
+\subsection{Historical development panel}
+The historical panel contains 319 positive images from 13 reused sessions. Original predictions and annotation bindings are preserved. For the present table, R0 is rescored with the same symmetry-aware corner8 contract as N0 and N2; it is not copied from a different nine-point table. The detector candidates remain fixed.
+
+One allowed whole-object permutation jointly aligns the corners and supervision mask. There is no independent permutation choice per corner. Evaluation matching uses the highest-confidence prediction and box IoU of at least 0.5. Missing predictions receive an image-diagonal penalty in the full-denominator normalized error and PCK. Matched pooled corner8 median and P90 are conditional summaries and are therefore accompanied by full-denominator metrics and coverage.
+
+The primary dimension comparison is the seed-mean difference in frame normalized corner error $E_{sym}$. Paired session bootstrap uses 10,000 resamples. Intervals condition on the observed sessions and are not adjusted for all historical model exploration. A strict pre-existing damage check counts canonical-corner transitions from below 5 pixels to above 10 pixels and the reverse transition.
+
+\subsection{Evidence boundary}
+The present study reports the completed historical development evaluations, measured runtime, and a separately identified 150-image green-square saved-label analysis. These populations are not pooled into a 469-image score. The latter is authorized evaluation of available annotations, not a declaration of completed human label review or independent capture-level confirmation.
+
+\subsection{Additional green-square saved-label panel}
+The prediction-blind selection comprises all 47 requested truncated images, 73 non-truncated handheld images, and 30 evening images including seven darker-dusk candidates. For the sampled strata, folder-proportional quotas and evenly spaced frame-order bins are used. The 150-image count is a practical review budget, not a power calculation. Conditions overlap in the breakdown: 119 selected images are handheld, including 46 of the truncated images. Models, seeds, temperatures, and decoding remain unchanged; canonical dimensions $1.10\times1.10\times0.15$ m are supplied from the object registry, not inferred from annotation poses.
+
+Before inference, the audit found camera-intrinsic discrepancies between saved annotations and source-session files in 128 images. Of 1,200 corner entries, 681 are manually clicked and 519 are PnP-derived. We therefore declared a separate manual-corner primary analysis and retained all known corners as a secondary proxy analysis, without modifying annotations or recomputing reference points. RGB inference does not use these camera values. This is a transparent pre-inference scoring amendment for the new panel, not a correction to the existing development results.
+
+Whole-object C4 alignment is used for the registered corner geometry. The selected prediction is matched at IoU $\geq0.5$ against the bounding box of all known in-image annotation points. This matching reference can itself depend on PnP-derived points and can be sensitive to truncation. Thus even the manual-corner analysis is not wholly independent of the proxy geometry. All 150 frames produce a detection; 134 pass matching. The 16 unmatched frames are all in the truncation subset and remain in the full-denominator metrics. They are not mislabeled as detector misses. No independent physical 6D metric or confidence interval treating correlated session folders as independent captures is asserted.
+
+\section{Results and Interpretation}
+\begin{table*}[t]
+\centering
+\caption{Historical DEV319 under a single symmetry-aware corner8 contract. Median and P90 are matched pooled pixels; PCK10 uses the complete supervised denominator. The final row is the fixed deployment representative, not the three-seed mean.}
+\input{dev_table.tex}
+\label{tab:dev}
+\end{table*}
+The dimension-conditioned model has a three-seed mean median error of 5.7777 pixels versus 5.9439 for N0 and 6.7207 for R0. Full-denominator PCK10 is 68.59\%, 67.53\%, and 63.43\%, respectively. The paired-session mean-$E_{sym}$ difference N2--N0 is $-0.00026110$, with 95\% interval $[-0.00039285,-0.00016566]$. For N2--R0 the difference is $-0.00110202$, with interval $[-0.00162740,-0.00072502]$. These are reused-development results, not unseen-session guarantees.
+
+The fixed seed-1 N2 median is 5.6984 pixels and PCK10 is 68.95\%. The seed was fixed as a deployment representative, not selected from new green results. The modest dimension increment is not uniformly safe: across N2--N0 seeds, one canonical corner crosses from below 5 pixels to above 10 pixels with zero reverse transitions. The historical strict safety verdict therefore remains UNRESOLVED despite favorable mean-error intervals.
+
+\input{existing_evidence_tables.tex}
+
+The preserved historical PoseFix-derived pallet adapter achieves lower nine-point median error than original basic P under the prior matched-exposure experiment. That comparison uses a different metric table from Table~\ref{tab:dev}; it neither establishes N2 superiority over the prior nor permits subtracting unlike metrics. Prior-derived and line/refinement experiments are retained as context rather than relabeled as successful final-method results.
+
+\subsection{Green-square results}
+\input{green_tables.tex}
+On manually clicked corners, the three-seed mean matched median is 4.130 pixels for N2 versus 4.097 for N0 and 4.580 for R0. PCK10 is 80.96\%, 81.11\%, and 82.23\%, respectively. N2 improves the matched median relative to R0 but reduces PCK10; it does not consistently improve on N0. The N2--N0 mean normalized-error difference improves for seed 1 and worsens for seeds 2 and 3. No good-to-bad corner transition under the fixed 5/10-pixel criterion is observed for this paired comparison; this does not establish task safety.
+
+When PnP-derived corners are included, the N2 median becomes 3.788 pixels versus 3.834 for N0, but normalized error and PCK10 remain slightly worse. This difference between label-source analyses cautions against a positive conclusion based solely on the most favorable median. Evening localization medians improve, whereas the truncated and handheld subsets do not show an N2 advantage over N0. The darker-dusk subset contains only seven images and is descriptive, not a night-robustness benchmark.
+
+\subsection{Measured computational cost}
+\input{runtime_table.tex}
+Image decoding and camera acquisition are outside the timing scope. Measurements describe the current shared desktop, not isolated embedded throughput, energy use, or robot cycle time.
+
+\section{Limitations}
+The method assumes correct, externally supplied canonical dimensions and a compatible detector feature interface. Unknown object types are explicitly unsupported. Extra metadata capacity is not fully controlled, and the existing damage event prevents a blanket safety claim. The method and representative were fixed after historical results were available, so development comparisons remain exploratory.
+
+Annotated hidden corners can include PnP-derived coordinates; they do not become independent physical ground truth. The green analysis documents a square cohort, but related captures were used in historical square-development work and its final human review is not certified. This study does not establish generalization to a new capture population, independent physical pose accuracy, or handling success. Such claims require suitable additional data and reference measurements. A constant-dimension cohort alone does not isolate the value of dimension conditioning.
+
+\section{Conclusion}
+The selected system combines frozen YOLO predictions, registered dimensions, and a small local point refiner. The historical 319-image development panel supports lower average corner error than the detector and a modest increment over matched basic P across three seeds. The green-square saved-label analysis, however, does not reproduce a consistent advantage of dimension conditioning over basic P. The measured latency quantifies the computational cost. These mixed results, an observed historical damage event, and reference-data limitations support a bounded engineering assessment rather than universal improvement, harmless correction, or independently validated deployment performance.
+
+\section*{Reproducibility and Author Review}
+The companion final-dimension directory provides checkpoint/code/calibration hashes, a forward-only parity check, numerical source bindings, and separate freeze/inference/scoring commands. No additional training is part of this release. Raw data and model redistribution require the relevant permissions. Author names, affiliations, funding, conflicts, assistance disclosure, and submission consent require the actual authors' review. This is an internal draft and has not been submitted.
+\bibliographystyle{IEEEtran}
+\bibliography{../sensors_submission_v1/refs,metric_refs}
+\end{document}

@@ -1,0 +1,69 @@
+{
+  "experiment": "LEARNED_THEN_LOO",
+  "model_training": false,
+  "GPU_inference_reused": true,
+  "LOO_device": "CPU/OpenCV",
+  "threshold": 0.05,
+  "policy": "Actual learned-selected pose -> corner LOO -> intersect learned pairs -> N2 fallback -> monotone mixed-pose recheck; no flip or heatmap gate",
+  "normalization": "Choose single registry W/D hypothesis and D from learned-selected pose, pin during rechecks",
+  "no_GT_for_gating": true,
+  "no_threshold_search": true,
+  "independent_test": false,
+  "no_image_drops": true,
+  "final_model_modified": false,
+  "self_training": false,
+  "source_bindings": [
+    {
+      "path": "data/pallet/results/pallet_posefix_utility_selector_v1/PREDICTIONS.json",
+      "sha256": "0c3f1eafc9c42d39881a5001d79119e751581d1f546a478102e0282b55b1728f",
+      "bytes": 2797244
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_utility_selector_v1/DECISIONS.json",
+      "sha256": "6d021064e306ff2e650022fa78ae4bf1bd262c35a9f1e88c69cfe964d649e2cf",
+      "bytes": 197802
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_corner_gate_v1/PREDICTIONS.json",
+      "sha256": "1cd57dcea1eaded79874e5f5baf6bbb377ac2765610575813b69944671252df3",
+      "bytes": 3456485
+    },
+    {
+      "path": "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json",
+      "sha256": "fa63de9cb5aab2576d812c0dc7e0e956a27c48709df8d93a816177cb0a9c8040",
+      "bytes": 134663
+    },
+    {
+      "path": "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json",
+      "sha256": "ad717de5e1a74c9201ee26b33a200da83f069efc4023e703ec2493c5058c6d05",
+      "bytes": 334493
+    },
+    {
+      "path": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+      "sha256": "9ae991450c384f4fcb82cff74a71fe07d51c5dcc496a5e8fcb28f41b4420ff76",
+      "bytes": 2939
+    }
+  ],
+  "code": [
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/posthoc_loo.py",
+      "sha256": "3bec600c9f50fa30d7fab8612eea8fafdd81436fb33a1fec05f8c9b70c3bc2d4",
+      "bytes": 9469
+    },
+    {
+      "path": "scripts/research/pallet_posefix_corner_gate_v1/gates.py",
+      "sha256": "3b046ab8333d1256307d5b1c9e0ecbb9a9d077d7ffc6514b507edc25216391a0",
+      "bytes": 14243
+    },
+    {
+      "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+      "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215",
+      "bytes": 10511
+    },
+    {
+      "path": "scripts/research/pallet_posefix_large_error_v1/evaluate.py",
+      "sha256": "c66505c17a0bd93ccf096db685dcd5e3906052acbd4fbd6610822400031e7f83",
+      "bytes": 14473
+    }
+  ]
+}

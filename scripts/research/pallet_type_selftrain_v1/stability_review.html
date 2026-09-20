@@ -1,0 +1,32 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>일반 플라스틱 249장 — 수도레이블 검토</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101922;color:#e7edf2;font:15px system-ui}header{position:sticky;top:0;z-index:5;padding:12px 20px;background:#152735;border-bottom:1px solid #4e6476}h1{font-size:20px;margin:0 0 8px}p{margin:8px 0}button,select,input{font:inherit}button,select{padding:6px 12px;border-radius:5px;margin:3px;border:1px solid #647c8f;background:#213947;color:white;cursor:pointer}button.active{background:#126551}button.reject.active{background:#a63039}main{padding:12px}.card{padding:14px;margin-bottom:20px;background:#172631;border:1px solid #40505f;border-radius:8px}.card img{display:block;width:100%;height:auto;margin:10px 0;cursor:zoom-in}.details{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.muted{color:#a8bac8;font-size:13px}.warn{color:#ffd484}.corner{display:inline-block;padding:6px;margin:3px;border:1px solid #415567;border-radius:4px}.corner:has(input:checked){background:#753941}a{color:#78c7ff}#status{font-weight:bold}#search{width:170px;padding:7px}small{display:block}.priority{color:#ffb775}.note{width:340px;max-width:90%;padding:7px}details img{width:auto;max-width:100%}
+</style><header><h1>일반 플라스틱 학습 후보 249장 — 불안정한 순서</h1>
+<p>원본 · R0(파랑) · 보정 라벨(노랑) · 변형 추론(자홍). <b>GT가 아닙니다. 보정 좌표는 바꾸지 않습니다.</b></p>
+<p class="warn">상위 50장은 검토 우선순위일 뿐 자동 탈락이 아닙니다. 안정적이어도 틀릴 수 있습니다. 가려져 판단하기 어려운 점은 제외하거나 보류하세요.</p>
+<select id="filter"><option value="all">전체 249장</option><option value="priority">검토 우선 50장</option><option value="unreviewed">미검토</option><option value="keep">유지 표시</option><option value="reject">제외 표시</option><option value="unsure">보류 표시</option></select>
+<input id="search" placeholder="번호 또는 촬영 세션"><button id="export">검토 결과 JSON 내려받기</button><label><input type="file" id="import" accept="application/json"> 검토 JSON 불러오기</label>
+<p id="status"></p><p class="muted">브라우저 임시 저장 + JSON 파일 내보내기. 실제 학습 반영은 별도 단계이며 아직 재학습하지 않습니다. 이미지 클릭: 크게 보기.</p></header><main id="cards"></main>
+<script>
+const DATA=__DATA__, SOURCE='__SOURCE_HASH__', KEY='plastic249-review-'+SOURCE;
+let reviews={};try{reviews=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+const el=id=>document.getElementById(id),fmt=x=>x==null?'검출/코너 결측':x.toFixed(2);
+function save(){let ok=true;try{localStorage.setItem(KEY,JSON.stringify(reviews))}catch(e){ok=false}counts(ok)}
+function counts(ok=true){const c={keep:0,reject:0,unsure:0};Object.values(reviews).forEach(r=>{if(c[r.decision]!=null)c[r.decision]++});el('status').textContent=`유지 ${c.keep} / 제외 ${c.reject} / 보류 ${c.unsure} / 미검토 ${249-c.keep-c.reject-c.unsure}`+(ok?'':' — 임시 저장 불가: JSON을 꼭 내려받으세요');}
+function choice(id){return reviews[id]||{decision:'unreviewed',excluded_corners:[],note:''}}
+function set(id,key,value){reviews[id]={...choice(id),[key]:value,updated_at:new Date().toISOString()};save()}
+function render(){el('cards').replaceChildren();const f=el('filter').value,q=el('search').value.trim().toLowerCase();
+DATA.filter(r=>(f==='all'||f==='priority'&&r.rank<=50||choice(r.id).decision===f)&&(!q||String(r.rank)===q||r.session.toLowerCase().includes(q))).forEach(r=>{
+const card=document.createElement('article');card.className='card';const title=document.createElement('div');title.className='details';
+title.innerHTML=`<b>#${r.rank} · ${r.session}</b><span class="${r.rank<=50?'priority':''}">${r.rank<=50?'우선 검토':'일반 검토'}</span><span>보정 후 변형 RMS 최대 ${fmt(r.rms)}px</span><span>정규화 ${r.score==null?'결측':r.score.toFixed(5)}</span>`;card.append(title);
+const im=document.createElement('img');im.src=r.image;im.loading='lazy';im.alt=`${r.rank} 원본, R0, 보정, 변형 비교`;im.onclick=()=>window.open(r.image,'_blank');card.append(im);
+const controls=document.createElement('div');[['keep','유지'],['reject','이미지 제외'],['unsure','판단 보류'],['unreviewed','미검토로']].forEach(([v,t])=>{const b=document.createElement('button');b.textContent=t;b.className=v+(choice(r.id).decision===v?' active':'');b.onclick=()=>{set(r.id,'decision',v);controls.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active')};controls.append(b)});
+const note=document.createElement('input');note.className='note';note.placeholder='메모 (예: 뒤쪽 P4가 물체 안쪽에 있음)';note.value=choice(r.id).note;note.onchange=()=>set(r.id,'note',note.value);controls.append(note);card.append(controls);
+const caption=document.createElement('p');caption.textContent='체크한 코너만 학습 제외 제안 (좌표 수정 아님). 숫자: 변형 RMS / R0부터 보정 이동량 [px]';card.append(caption);
+for(let j=0;j<8;j++){const label=document.createElement('label');label.className='corner';const c=document.createElement('input');c.type='checkbox';c.checked=choice(r.id).excluded_corners.includes(j);c.onchange=()=>{let ids=new Set(choice(r.id).excluded_corners);c.checked?ids.add(j):ids.delete(j);set(r.id,'excluded_corners',[...ids].sort())};label.append(c,document.createTextNode(` P${j}: ${r.corners?fmt(r.corners[j]):'결측'} / ${fmt(r.move[j])}`));card.append(label)}
+const path=document.createElement('p');path.className='muted';path.textContent=r.source;card.append(path);el('cards').append(card)});counts();}
+el('filter').onchange=render;el('search').oninput=render;
+el('export').onclick=()=>{const payload={schema_version:'plastic249_manual_review_v1',source_sha256:SOURCE,exported_at:new Date().toISOString(),coordinates_changed:false,training_applied:false,records:DATA.map(r=>({id:r.id,rank:r.rank,...choice(r.id)}))};const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='plastic249_manual_review.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+el('import').onchange=async ev=>{try{const p=JSON.parse(await ev.target.files[0].text());if(p.schema_version!=='plastic249_manual_review_v1'||p.source_sha256!==SOURCE)throw Error('다른 후보 집합의 파일입니다');const ids=new Set(DATA.map(r=>r.id)), next={};for(const r of p.records){if(!ids.has(r.id)||next[r.id]||!['keep','reject','unsure','unreviewed'].includes(r.decision)||!Array.isArray(r.excluded_corners)||r.excluded_corners.some(x=>!Number.isInteger(x)||x<0||x>7))throw Error('검토 레코드가 올바르지 않습니다');next[r.id]=r}if(Object.keys(next).length!==249)throw Error('249개 레코드가 필요합니다');reviews=next;save();render()}catch(e){alert(e.message)}};
+render();
+</script></html>

@@ -1,0 +1,70 @@
+{
+  "status": "APPROVED_NUMERICAL_RUNTIME_COMPATIBILITY_ONLY",
+  "reason": "Restore the historical N2 numerical execution path after a clean-candidate parity guard stopped source generation before any complete source chunk, selector update, or real scoring.",
+  "first_failure": {
+    "row": 284,
+    "id": "G38__G__f0284",
+    "max_coordinate_difference_px": 0.0012216567993164062,
+    "completed_source_chunks": 0,
+    "selector_training_updates": 0
+  },
+  "diagnosis": {
+    "source_rows_checked": 32,
+    "archived_logits_dtype": "float32",
+    "current_FP32_batch1_max_coordinate_difference_px": 0.005227088928222656,
+    "TF32_only_batch1_max_coordinate_difference_px": 0.0033740997314453125,
+    "historical_TF32_original16_max_logit_difference": 0.0,
+    "historical_TF32_original16_CPUdecode_max_coordinate_difference_px": 0.0,
+    "archived_logits_GPUdecode_only_max_coordinate_difference_px": 0.00002193450927734375,
+    "cause": "cuDNN TF32 mode and original batch16 convolution-kernel execution, not a target, coordinate, gain, padding, or cap mismatch"
+  },
+  "runtime_only_changes": {
+    "N2_cudnn_allow_tf32": true,
+    "N2_matmul_allow_tf32": false,
+    "N2_batch": "Exact original validation rows in their original groups of16; preserve the original final-tail size",
+    "N2_decode": "CPU using unchanged fixed temperature, lambda, and raw-image diagonal cap",
+    "stress": "Replace ONLY the selected row point tensor inside its original batch context; other rows and all feature/box tensors unchanged",
+    "Replay_cudnn_allow_tf32": false,
+    "Replay_matmul_allow_tf32": false,
+    "memory": "At most one original GPU input-batch context and its small detached CPU clean output are retained",
+    "clean_verification": "All1616 selected clean outputs must have bit-exact archived logits and prepared-image coordinates; original0.001px guard also remains enabled"
+  },
+  "parity_tolerance_px": 0.001,
+  "original_protocol_modified": false,
+  "original_locked_source_code_modified": false,
+  "model_or_checkpoint_changed": false,
+  "dataset_split_changed": false,
+  "utility_target_or_stress_rule_changed": false,
+  "selector_hyperparameters_or_threshold_changed": false,
+  "GT_used_to_choose_runtime": false,
+  "additional_batch_context_rows": "Used only for frozen N2 historical numerical replay with supervision=False; they do not become selector training/validation examples and supply no GT to candidate forward.",
+  "provenance": "The wrapper and this correction are SHA-bound into every new source chunk and SOURCE_COMPLETE, in addition to the unchanged original protocol and code bindings.",
+  "command": "python -u -m scripts.research.pallet_posefix_utility_selector_v1.run_generate_historical_n2",
+  "bindings": [
+    {
+      "path": "_docs/experiments/pallet_posefix_utility_selector_v1/PROTOCOL.json",
+      "sha256": "483dbe8f64f9b260948c79dcb423ec7e1fac47b384061d9778794ad293bd35b2",
+      "bytes": 8209
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/run_generate_historical_n2.py",
+      "sha256": "6cadac15e2b035dde7b06b033fa65f472048b6382900fb8c16f8bf2e80b7eceb",
+      "bytes": 7564
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/diagnose_n2_parity.py",
+      "sha256": "1a1a1581395676456f6b232fa423f7247c24d39f611cfd81c0f502dca7bdbfc6",
+      "bytes": 5489
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_utility_selector_v1/DIAGNOSTIC_N2_PARITY.json",
+      "sha256": "2fb212213c9e09f16fb45879de2f12c69d9e8a913ac43f99af2caa0603f57182",
+      "bytes": 48538
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/logits/N2_DIM_ONLY_seed1.npz",
+      "sha256": "1bf4ca8f65b03d2bc664fa9a64fe77f48b661bc0bf7461bdc895167bcdf0f997",
+      "bytes": 28623152
+    }
+  ]
+}

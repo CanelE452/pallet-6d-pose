@@ -1,0 +1,71 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_TRAINING_LABELS",
+  "correction": "V1 visual inspection found background/no-detection examples. Preserve V1; restrict new review to detected candidate support. No evaluation errors/GT used.",
+  "eligibility": "R0 detection score>=0.5, finite8points/no sentinel, positive-size predicted bbox diagonal>=120 raw px. This is annotation eligibility only, not a changed pseudo-label/evaluation filter and not verified object presence.",
+  "quotas": {
+    "capturepallet11": [
+      "proposed_support",
+      10
+    ],
+    "capturenight01": [
+      "proposed_support",
+      3
+    ],
+    "capturenight03": [
+      "proposed_support",
+      3
+    ],
+    "capturenight02": [
+      "proposed_support",
+      2
+    ],
+    "capturenight04": [
+      "proposed_support",
+      2
+    ],
+    "capturepallet10": [
+      "proposed_validation",
+      5
+    ],
+    "capturenight10": [
+      "proposed_validation",
+      5
+    ]
+  },
+  "selection": "Per-session contiguous timestamp bins; support high uncertainty except every third bin low uncertainty; validation midpoint without uncertainty ranking.",
+  "uncertainty": "Max of 1-boxconfidence,1-meankpconfidence,existing flip/LOO scores,normalized refiner max displacement; review priority only, no correctness claim.",
+  "exposure": "All1000 have historical teacher/pseudo experiments; proposed validation is only disjoint from proposed support, NOT a globally untouched test. Final claims require independent confirmation.",
+  "labels": "No coordinates generated, no original annotation edits, no pseudo/filter changes, no train/eval reassignment, no training. Legacy manual_kps may include projected points and must not be automatically treated as manual supervision.",
+  "evaluation_scope": "Existing per-type EVAL_PROTOCOL plus POOL DEV+GREEN150 recording exclusions, transitive aliases and partial overlaps.",
+  "sources": [
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/large_corner_recovery_v1/real_support_review/PROTOCOL.json",
+      "sha256": "5f1a1806b61f7e81127a9b40cf4453ceba2f4a94d3e3690d1cfe7408d7f8807f",
+      "bytes": 274849
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/real_support_review.py",
+      "sha256": "6bb14521bc10167e20ca46b863637e5bdf5e54bd71baec0f14be80e00fffd862",
+      "bytes": 12676
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/real_support_review_v2.py",
+      "sha256": "8f6760646e62eb13ecce41bf969b05ab2d567945369d21d0202a3a7398fe8342",
+      "bytes": 7363
+    }
+  ],
+  "source_pool": 1000,
+  "eligible": 485,
+  "eligible_sessions": {
+    "capturepallet10": 37,
+    "capturepallet11": 195,
+    "capturenight04": 42,
+    "capturenight03": 65,
+    "capturenight10": 36,
+    "capturenight01": 76,
+    "capturenight02": 34
+  },
+  "human_verification_required": true,
+  "training_started": false,
+  "GT_used_for_selection": false
+}

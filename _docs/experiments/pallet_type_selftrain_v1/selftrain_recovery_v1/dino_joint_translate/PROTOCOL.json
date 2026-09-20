@@ -1,0 +1,162 @@
+{
+  "arms": [
+    "REGISTER"
+  ],
+  "calibration_rows": [
+    337,
+    626,
+    1797,
+    1917,
+    2946,
+    3364,
+    4479,
+    4890,
+    5077,
+    7016,
+    8172,
+    8692,
+    8888,
+    9472,
+    10238,
+    10445,
+    10496,
+    10679,
+    11420,
+    12460,
+    13693,
+    13974,
+    14041,
+    14050,
+    15016,
+    15230,
+    15278,
+    15319,
+    15345,
+    16016,
+    17139,
+    17335
+  ],
+  "test_rows": [
+    1534,
+    3073,
+    3122,
+    3450,
+    3522,
+    3778,
+    4037,
+    5934,
+    5945,
+    6117,
+    6470,
+    6559,
+    7010,
+    7095,
+    7436,
+    7668,
+    9309,
+    9719,
+    9765,
+    9799,
+    9927,
+    10637,
+    10793,
+    11404,
+    12093,
+    12341,
+    12522,
+    12619,
+    14284,
+    14572,
+    14987,
+    15434
+  ],
+  "objective": "Test joint learned image evidence for coherent large displacement,without splicing incompatible per-corner proposals.",
+  "models": "Frozen source-diversity SYN/MIX image-only heads and backbone;no new neural training.",
+  "proposal": "Average the two spatial softmax probabilities;5x5 local mass floor1e-12. Score mean logmass at all8corners. Search one shared translation dx=-288..288,dy=-384..384crop_px atstride4 and4 whole graph-preserving index permutations. All8candidatepoints must lie in heatmap domain. No newframefilter;incomplete input is unchanged fallback.",
+  "roles": "Four whole index permutations are actual edits,not extra scoring symmetries. Native center retained. Original relative8pointshape retained under permutation/translation;doesnotguarantee correctcuboid if R0shape is wrong.",
+  "source": "Same64source held,existing32calibration/32test split. Five views:raw,two fixedrandom whole translations,wholequarterpermutation,quarter+translation. Corrupt raw input points,not GT. Allimagefeatures/targets fixed.",
+  "views": "SeedSequence20261007,row,view. View1 displacement .1-.3boxdiag,view2 .3-.6,view4 .1-.6;angleuniform;view3quarteronly. Center unchanged. No realGT-dependent direction.",
+  "calibration": "Gainthreshold0..16 by.25 +1e9null. Selected-case beneficialprecision>=95% over raw+artificial calibration views;rawcalibration PCK10drop<=1pp,PCK20>=R0,P90<=1.1R0,gooddamage<=1%. Maxrawrecoveries,thencombinedrecoveries,thenhigherthreshold. Fixedtest32,no retune fromreal.",
+  "limitations": "Repeatedsource/realDEV;MIXteacherhistoricalmanual3overlap. Wholetranslation cannotrepairdeformedrelativegeometry. Candidatepattern search is not PnP/CAD/depth or geometricframefilter. No auto promotion.",
+  "new_annotations": 0,
+  "new_tags": 0,
+  "new_training_steps": 0,
+  "auto_promote": false,
+  "sources": [
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/dino_joint_translate.py",
+      "sha256": "8c43527063ea1911304bbbc09977a1f9b8f4723eab40c1d7ab3cb24932684bc0",
+      "bytes": 11635
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/dino_joint_translate_model.py",
+      "sha256": "bf4ac294cc5f2e59d6ec237aa9876dda885e73cfd6ef35f00eb0692e361c2951",
+      "bytes": 2863
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/test_dino_joint_translate_model.py",
+      "sha256": "17341e1af88e9f4231533b4462f644f35b5f9db4bfcef7a869f6a1c61ebc0de9",
+      "bytes": 2022
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/dino_joint_model.py",
+      "sha256": "896f0ad619fea66b361c1dc99bf4760b3db3950176c716fefebaac6a86de1992",
+      "bytes": 4051
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+      "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+      "bytes": 19921282
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_source_diversity/PROTOCOL.json",
+      "sha256": "b4f0646ca41464456003a687ce383c55845142877bdc5773906dc48a79863964",
+      "bytes": 7175891
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_source_diversity/CACHE_COMPLETE.json",
+      "sha256": "904e928c0d7cc4ad9e7431abb0404eeffa0ef20a04709b087c2d6a8dad5a6593",
+      "bytes": 3344583
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_source_diversity/COMPLETION_AUDIT.json",
+      "sha256": "4cf10f2e667c7bae1f0973c2bb32c7b3ae994c22bd221bc3ba78800b165085ad",
+      "bytes": 4745
+    },
+    {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_source_diversity/INFERENCE_RECEIPTS.json",
+      "sha256": "bb51a4a03ff4dea19a99d82aa244aae79e812d05727fc7812236e1d1f4bc4679",
+      "bytes": 120278
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_multipeak/RESULTS.json",
+      "sha256": "9133407f30f34b2b1a7af1ffc22315f9118d77ba3a378b6040ece8b14a7d866b",
+      "bytes": 260339
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_multipeak/LIMITATIONS_DIAGNOSTIC.json",
+      "sha256": "a274f5a3fbac0e40125c22ce6d2fbfa7d33faefc737e65aaa603a0cde7a59a5e",
+      "bytes": 9148
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_multipeak/COMPLETION_AUDIT.json",
+      "sha256": "54c998ca3c94f9ef52f760543b7b1f97e745cff2d49caf5b84e50210214c7a61",
+      "bytes": 3236
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_joint/PROTOCOL.json",
+      "sha256": "34aece7abfe31577baea830c94f7e375ae410218375065f63cd6766f2a51bf4a",
+      "bytes": 21652
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_source_diversity/FIT_SYN.json",
+      "sha256": "de229fc62f21640cca761f5f69217d395d453c255668fed3cff2f19d7ea9c228",
+      "bytes": 333877
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_source_diversity/FIT_MIX.json",
+      "sha256": "f05074f9e884b314c56c7c61d9c3b49c90a3106b1729c07b51d9620435d33799",
+      "bytes": 334363
+    }
+  ]
+}

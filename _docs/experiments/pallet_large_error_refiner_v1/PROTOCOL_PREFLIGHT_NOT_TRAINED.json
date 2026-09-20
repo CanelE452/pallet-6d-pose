@@ -1,0 +1,120 @@
+{
+  "experiment": "pallet_large_error_refiner_v1",
+  "status": "PREFLIGHT_ONLY_NOT_USED_FOR_TRAINING",
+  "seed": 1,
+  "steps": 2000,
+  "batch": 16,
+  "microbatch": 8,
+  "checkpoint": "last2000 only; no eval-based checkpoint selection",
+  "arms": {
+    "A": "frozen N2_DIM_ONLY seed1, cap=0.01 image diagonal",
+    "B": "same A, cap=0.04 image diagonal; candidate radius unchanged",
+    "C": "new joint full-ROI model; source synthetic ordinary R0 inputs",
+    "D": "same C architecture/init; synthetic R0 plus large input perturbations",
+    "E": "same D; replace half batch with verified human-click real targets"
+  },
+  "architecture": "64/128 P3/P4 -> 16/16 projected channels -> 32x32 box+20% ROI; 8 Gaussian input-corner maps sigma .04 ROI; 2 XY maps; 2 conv32 SiLU; pool4x4; 535->128->16 MLP; zero-init final; radial tanh cap .20 bbox diagonal; centroid unchanged",
+  "corruption": "sample modes 0.50 unchanged, 0.25 one random corner, 0.25 vertical edge [(0,3),(1,2),(4,7),(5,6)] translated together; uniform direction and 0.05-0.15 bbox-diagonal length; input only, no GT changes",
+  "loss": "masked corner SmoothL1 on residual/bbox diagonal, beta=.01; sum XY, mean valid corners per image then mean images; fixed camera-facing indices; identical CDE",
+  "augmentation": "only coordinate corruption; cached original image features for all arms; no real photometric advantage",
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.0003,
+    "final_lr": 3e-05,
+    "weight_decay": 0.0001,
+    "clip": 5.0
+  },
+  "synthetic_train_pool": 2048,
+  "source_half_paired": true,
+  "synthetic_stress_holdout": 256,
+  "real_supervision": "only explicit manual_click, visibility != 0, in_frame=True, finite inside-image 8 corners; no PnP/unknown/centroid/pseudo targets",
+  "real_candidate_frames": 24,
+  "verified_real_frames": 9,
+  "verified_corners": 38,
+  "inference_metadata": "canonical dimensions from object registry, known object type; existing TRAIN normalization; no pose/GT selection",
+  "filter": "same confidence >=.85, >=6 corners conf>=.5; remove <=.05 AND flip<=.05; fail -> original A coordinates, no frame removal; all arms reported ungated and gated",
+  "metrics": "whole-object approved C1/C2/C4 E_sym, fixed-index E_fixed, pooled P90, PCK10; recovery R0>20 to <=10 and damage R0<5 to >10 on same canonical GT corner identities",
+  "pass_rule": "separately ungated and gated: recovery improvement vs A >=10pp, PCK10 delta >=-0.5pp and damage rate delta <=+0.5pp on BOTH DEV72 and GREEN150_MANUAL; empty denominator not estimable",
+  "evaluation_reused": true,
+  "independent_confirmation": false,
+  "physical_pose_claim": false,
+  "role_permutation_repair": false,
+  "original_paper_release_untouched": true,
+  "auto_promote": false,
+  "no_other_training_runs": true,
+  "synthetic_stress": "256 calibration rows, fixed independent input-corruption RNG 219; all-corner input-pixel errors R0/C/D/E, clean and stress; mechanism diagnostic not real-test selection",
+  "gpu_thermal_limit_C": 80,
+  "system_changes": false,
+  "model_lock": {
+    "path": "_docs/paper/final_dimension_v1/MODEL_LOCK.json",
+    "sha256": "c56809f6ea5f39a8e167875e8e970c5c08b071cf37b0417452bb7c20bb39141e",
+    "bytes": 10005
+  },
+  "split": {
+    "path": "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json",
+    "sha256": "fa63de9cb5aab2576d812c0dc7e0e956a27c48709df8d93a816177cb0a9c8040",
+    "bytes": 134663
+  },
+  "original_head": {
+    "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N2_DIM_ONLY_seed1/last.pt",
+    "sha256": "bb37ef2b6808392f6ae28dd0aa43d18573d8cb664b9ff694c1e688d6ac4bb1d4",
+    "bytes": 305470
+  },
+  "bindings": [
+    {
+      "path": "scripts/research/pallet_large_error_refiner_v1/run.py",
+      "sha256": "5107228a95782f4af1b9f9aacded901c57ab476af4030f6d4bb9acc6fb1d41d5",
+      "bytes": 18240
+    },
+    {
+      "path": "scripts/research/pallet_large_error_refiner_v1/model.py",
+      "sha256": "b06a4b6fd9d84354afc81d277e0cfaebfd301b9ee0958520f658fe797fb5fe92",
+      "bytes": 4499
+    },
+    {
+      "path": "scripts/research/pallet_large_error_refiner_v1/evaluate.py",
+      "sha256": "5042df0f97d2331707fd2dcc65b54e4c9f1ee02f91ef63b1b1c60c91a176dc94",
+      "bytes": 16509
+    },
+    {
+      "path": "scripts/research/pallet_large_error_refiner_v1/test_model.py",
+      "sha256": "91ac94f43c89735fac1d9045e0afd90f1fa7c4bf07b9fe506b43ef404560e6d3",
+      "bytes": 3185
+    },
+    {
+      "path": "_docs/experiments/pallet_transfer_replay_control_v1/DATA_AUDIT.json",
+      "sha256": "8a0ab9bbf6bbdeab3ad560e060ae5310bd60d6aaf5849e739a4be2dc3a2d285d",
+      "bytes": 948785
+    },
+    {
+      "path": "data/pallet/results/site_environment_audit_v1/SOURCE_RECORDING_GROUPS.json",
+      "sha256": "f0be41054f8b4c955a0f004d7b6f57b6eeabd0e3ab6409086c39eb42fd4bd75a",
+      "bytes": 137299
+    },
+    {
+      "path": "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json",
+      "sha256": "ad717de5e1a74c9201ee26b33a200da83f069efc4023e703ec2493c5058c6d05",
+      "bytes": 334493
+    },
+    {
+      "path": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+      "sha256": "57c9b939ffe6af03b5454672951c4e78f6c96df517b79d143039b8cdb01ddf47",
+      "bytes": 3825
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DEV_CACHE_COMPLETE.json",
+      "sha256": "72b7c4e932607553facb348371400d54884d2ea8a8298347ba87906124170f91",
+      "bytes": 126892
+    },
+    {
+      "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+      "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215",
+      "bytes": 10511
+    },
+    {
+      "path": "scripts/evaluation/green_saved_labels_v1.py",
+      "sha256": "5a6b834923680985d864efa6da1ed9888b6c80658bc5e7e15b114f72513a8877",
+      "bytes": 13337
+    }
+  ]
+}

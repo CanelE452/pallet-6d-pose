@@ -277,6 +277,31 @@ def test_legacy_load_save_is_additive_and_preserves_all_compatibility_fields(
         "pose_transform"]
 
 
+@pytest.mark.parametrize("before,after", [("train", "eval"), ("eval", "train")])
+def test_split_toggle_survives_legacy_preservation_and_reload(tmp_path, before, after):
+    K, points, pose = _fixture()
+    original = make_annotation(points, pose, (480, 640, 3), K,
+                               split=before, keypoint_annotations=_annotations(points))
+    path = tmp_path / "frame.json"
+    path.write_text(json.dumps(original))
+    state = State()
+    assert load_existing_annotation(state, str(path))
+    assert state.split == before
+    _handle_click_key(ord('v'), state, str(path), "unused.png", "unused.png", K)
+    assert state.split == after and state.annotation_dirty
+    assert "press s to save" in state.toast[0]
+    saved = make_annotation(state.kps_2d, pose, (480, 640, 3), K,
+                            split=state.split, keypoint_annotations=state.keypoint_annotations,
+                            legacy_object=state.legacy_object, legacy_document=state.legacy_document)
+    assert saved["objects"][0]["split"] == after
+    for field in ("manual_kps", "projected_cuboid", "pose_transform", "dimensions_m"):
+        assert saved["objects"][0][field] == original["objects"][0][field]
+    path.write_text(json.dumps(saved))
+    reloaded = State()
+    assert load_existing_annotation(reloaded, str(path))
+    assert reloaded.split == after
+
+
 def test_final_population_blocks_unknown_corner_visibility():
     _, points, _ = _fixture()
     state = State()

@@ -94,14 +94,16 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def find_repo_root(start):
-    """Find the repository by its .git marker, including worktree .git files."""
+    """Find the repository in a clone or in the downloadable source ZIP."""
     current = os.path.abspath(start)
     while True:
-        if os.path.exists(os.path.join(current, ".git")):
+        if (os.path.exists(os.path.join(current, ".git"))
+                or (os.path.isdir(os.path.join(current, "pallet_yolo_loss"))
+                    and os.path.isdir(os.path.join(current, "challenge")))):
             return current
         parent = os.path.dirname(current)
         if parent == current:
-            raise RuntimeError(f"cannot find repository .git marker above {start}")
+            raise RuntimeError(f"cannot find pallet-pose repository above {start}")
         current = parent
 
 
@@ -1535,7 +1537,8 @@ def _handle_click_key(key, s, out_json, out_png, src_png, K):
     if key == ord('v'):
         s.split = "train" if s.split == "eval" else "eval"
         _mark_annotation_dirty(s)
-        print(f"[Split] this frame -> {s.split.upper()}  (저장 시 JSON 에 반영)")
+        _toast(s, f"SPLIT: {s.split.upper()} - press s to save",
+               log=f"[Split] this frame -> {s.split.upper()}  (저장 시 JSON 에 반영)")
         return None
 
     if key == ord('b'):
@@ -1808,6 +1811,8 @@ def main(argv=None):
                     help="object geometry registry JSON (기본: repository contract)")
     ap.add_argument("--legacy-read-dir", default=None,
                     help="기존 JSON을 읽기만 할 legacy manual_gt/eval_canonical 폴더")
+    ap.add_argument("--review-manifest", default=None,
+                    help="격리된 실사 학습/검증 후보 JSON. 목록의 frame만 표시하고 outputs에 저장")
     ap.add_argument(
         "--intrinsics-quality", default=None,
         choices=["CALIBRATED", "SENSOR_PROFILE_SCALED", "ESTIMATED_HFOV", "UNKNOWN"],
@@ -1821,6 +1826,9 @@ def main(argv=None):
         "--eval-root", default=None,
         help="evaluation workspace root; enables per-save manifest/progress refresh")
     args = ap.parse_args(argv)
+    if args.review_manifest and (args.eval_root or args.out_dir or args.out_root or args.legacy_read_dir
+                                 or args.stride != 1 or args.start != 0):
+        ap.error("--review-manifest requires --stride 1, --start 0, and no output/eval/legacy overrides")
     # Session metadata is filled into ``args`` below.  Preserve the actual CLI
     # values so a sibling session is resolved from its own metadata instead of
     # inheriting lighting/session id from whichever session opened first.
@@ -1883,7 +1891,15 @@ def main(argv=None):
     # 채 객체별 zero-copy STAGING context 두 개로 연다.
     evaluation_contexts = {}
     session_output_dirs = {}
-    if eval_root:
+    if args.review_manifest:
+        from annotate_review import load_review_contexts
+        try:
+            sessions, evaluation_contexts = load_review_contexts(
+                args.review_manifest, cli_session_args, geometry_registry, _REPO)
+        except (OSError, TypeError, KeyError, ValueError) as exc:
+            ap.error(f"invalid review manifest: {exc}")
+        session_output_dirs = {key: context["out_dir"] for key, context in evaluation_contexts.items()}
+    elif eval_root:
         try:
             sessions, evaluation_contexts = _discover_evaluation_session_pool(
                 eval_root, seq, requested_out, cli_session_args,
@@ -1928,12 +1944,14 @@ def main(argv=None):
         """세션 i 로 전환. FINAL 표시는 명시적 population role만 따른다."""
         nonlocal session_metadata, geometry_spec, active_context
         nm, sq, context_key = _session_entry_parts(sessions[i])
-        if eval_root:
+        if eval_root or args.review_manifest:
             context = evaluation_contexts[context_key]
             active_context = context
             session_args = context["args"]
             for field in _SESSION_RUNTIME_ARG_FIELDS:
                 setattr(args, field, getattr(session_args, field))
+            if args.review_manifest:
+                args.default_split = session_args.default_split
             session_metadata = dict(context["metadata"])
             geometry_spec = context["geometry_spec"]
             od = context["out_dir"]
@@ -1965,7 +1983,7 @@ def main(argv=None):
         sealed = args.population_role == "FINAL"
         # 여기서 makedirs 하면 세션 목록을 둘러보기만 해도 빈 GT 폴더가 생겨
         # done 집계와 discover_sessions 의 중복 판정이 오염된다. 저장할 때 만든다.
-        if eval_root:
+        if eval_root or args.review_manifest:
             k = np.asarray(context["K"], dtype=np.float64).copy()
             k_source = context["K_source"]
         else:
@@ -2239,7 +2257,7 @@ def main(argv=None):
             s.annot_only = False
         load_json = out_json
         load_is_read_only_legacy = False
-        if s.session_writable and not os.path.exists(load_json):
+        if s.session_writable and not os.path.exists(load_json) and not args.review_manifest:
             automatic_legacy_dir, _ = _resolve_legacy_read_dir(seq_name, _REPO)
             source_dir = legacy_read_dir or automatic_legacy_dir
             legacy_json = (os.path.join(source_dir, f"{stem}.json")
@@ -2269,6 +2287,8 @@ def main(argv=None):
             })
             s.capture_metadata = loaded_metadata
             s.population_role = args.population_role
+            if args.review_manifest and s.split != args.default_split:
+                raise RuntimeError("saved review split disagrees with frozen support/validation role")
             _ensure_keypoint_annotations(s)
             update_pose(s, K)
         try:
@@ -2306,6 +2326,9 @@ def main(argv=None):
             s.disp_shape = vis.shape[:2]   # _display_to_canvas 가 쓰는 실제 렌더 크기
             cv2.imshow(win, vis)
             key = cv2.waitKey(20) & 0xFF
+            if args.review_manifest and key == ord('v'):
+                print("[Review] support/validation split is fixed by manifest; v toggle disabled")
+                continue
 
             # 위젯(ANNOT-ONLY 버튼 / frame 슬라이더)은 키 입력이 없을 때(255)만 폴링한다.
             # 키 처리 前에 폴링하면 실제 키입력(예: 's' 저장)을 삼킬 수 있어 분리.
@@ -2328,7 +2351,7 @@ def main(argv=None):
                             session_summary(
                                 sessions, _REPO, args.population_role,
                                 session_output_dirs,
-                                evaluation_contexts if eval_root else None),
+                                evaluation_contexts if (eval_root or args.review_manifest) else None),
                             sess_i)
                         if j is not None and j != sess_i and _guard_dirty("세션 이동"):
                             s.sess_pick = j
@@ -2404,7 +2427,7 @@ def main(argv=None):
                     session_summary(
                         sessions, _REPO, args.population_role,
                         session_output_dirs,
-                        evaluation_contexts if eval_root else None),
+                        evaluation_contexts if (eval_root or args.review_manifest) else None),
                     sess_i)
                 if j is not None and j != sess_i and _guard_dirty("세션 이동"):
                     s.sess_pick = j

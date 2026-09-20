@@ -1,0 +1,115 @@
+{
+  "experiment": "pallet_posefix_corner_gate_v1",
+  "purpose": "One bounded no-training comparison: frozen N2 fallback vs frozen Replay, whole-frame gate vs pairwise corner gate",
+  "requested_by_user": true,
+  "prior_failure_cases_informed_design": true,
+  "independent_confirmation": false,
+  "evaluation_reused": true,
+  "threshold_tuning_on_evaluation": false,
+  "thresholds": {
+    "box_conf": 0.85,
+    "kp_conf": 0.5,
+    "min_valid_corners": 6,
+    "removal": 0.05,
+    "flip": 0.05,
+    "expectation_to_mode": 0.05,
+    "normal_flipped_box_iou": 0.5
+  },
+  "threshold_status": "0.05 transferred unchanged from existing normalized filter as an exploratory setting, NOT calibrated per-corner or mean-mode confidence; no sweep or rescue run",
+  "arms": [
+    "A_N2",
+    "REPLAY",
+    "LEGACY_FRAME",
+    "CORNER_GEOMETRY_PAIR",
+    "CORNER_FULL_PAIR"
+  ],
+  "primary_new_arm": "CORNER_FULL_PAIR",
+  "pair_indices": [
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      4,
+      7
+    ],
+    [
+      5,
+      6
+    ]
+  ],
+  "whole_frame": "Exact old confidence>=.85 and >=6 corners conf>=.5, median removal<=.05 AND median flip<=.05. No reprojection veto; frame pass copies all8 Replay corners, otherwise allN2.",
+  "geometry_pair": "Choose ONE registry W/D hypothesis by smallest finite median removal; both endpoints need valid/conf>=.5 and individual removal/D<=.05; globalconfidence/6valid required.",
+  "full_pair": "geometry_pair AND each endpoint unflipped prediction distance/D<=.05 AND expectation-to-heatmap-mode distance/D<=.05. Flip coordinates/index restored by fixed [1,0,3,2,5,4,7,6,8]. Flipped selected detection requires mapped box IoU>=.5 with normal R0.",
+  "heatmap_note": "Mode is only an uncertainty signal. Output remains the original expectation; no argmax coordinate replacement.",
+  "normalization": "Original Replay chosen-hypothesis projected diagonal D. Pin chosen hypothesis and D for mixed rechecks; no GT dimensions/pose.",
+  "mixed_recheck": "After mixing N2/Replay, recalculate per-corner removal on same hypothesis/D; revoke accepted pairs with either endpoint above.05 or not finite. Monotone rejection <=4 pair removals; rejected pairs never restored. Baseline-only corners not required to become accurate.",
+  "fallback": "Exact frozen N2 corner coordinates, no image drops. Centroid/boxes/scores/confidences/candidate order remain unchanged.",
+  "populations": {
+    "DEV72": "72 non-green plastic rectangle, legacy unknown-origin target; 555 corners",
+    "GREEN150_MANUAL": "150 squaregreen, manual-only681corners including fixed unmatched penalties"
+  },
+  "inference": "Frozen Replay original RGB + cachedR0, plus actual horizontal-flipped RGB -> frozenR0 -> sameReplay. Original8corner parity against savedReplay atol.01px. No evaluationannotationread in infer/gate stages.",
+  "runtime": "CPU4threads due unrelated GPU job; preserve foreignjob/RustDesk; no driver/power/reboot changes",
+  "benchmark": "First ordered image only for runtime/parity, no GT metrics/parameter changes; separate from fullcache",
+  "success_interpretation": "Report ALL fixed arms and preserved/blocked benefits, prevented/remaining harms, PCK/mean/median/P90 on full denominators. No automatic best-arm promotion.",
+  "model_training": false,
+  "pseudo_labels_generated": false,
+  "final_model_modified": false,
+  "sources": [
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/PREDICTIONS.json",
+      "sha256": "35874da9bc77f5d87fae91ccd6517a6dac71776e2d5a2ec849d41c9db55414c6",
+      "bytes": 2781263
+    },
+    {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/PER_FRAME_METRICS.json",
+      "sha256": "605a124502ace515d2a1ce3e6a3f542adbcf35ffcba9b9817c954eab094e1c7d",
+      "bytes": 1843595
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_replay_v1/FIT.json",
+      "sha256": "34ba44bbeed625bce744e9fa95305a70faea2e93c754ef36dfe2a8fbc0b468a8",
+      "bytes": 2173
+    },
+    {
+      "path": "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json",
+      "sha256": "fa63de9cb5aab2576d812c0dc7e0e956a27c48709df8d93a816177cb0a9c8040",
+      "bytes": 134663
+    },
+    {
+      "path": "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json",
+      "sha256": "ad717de5e1a74c9201ee26b33a200da83f069efc4023e703ec2493c5058c6d05",
+      "bytes": 334493
+    },
+    {
+      "path": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+      "sha256": "9ae991450c384f4fcb82cff74a71fe07d51c5dcc496a5e8fcb28f41b4420ff76",
+      "bytes": 2939
+    },
+    {
+      "path": "_docs/experiments/pallet_symmetry_three_line_v1/OBJECT_EQUIVALENCE_AND_INDEX_CONTRACT.json",
+      "sha256": "e692b152658292bc2890f415e2ae612116a4dd03850774f1fda234447d2995a3",
+      "bytes": 9314
+    },
+    {
+      "path": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+      "sha256": "57c9b939ffe6af03b5454672951c4e78f6c96df517b79d143039b8cdb01ddf47",
+      "bytes": 3825
+    },
+    {
+      "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+      "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215",
+      "bytes": 10511
+    }
+  ],
+  "checkpoint": {
+    "path": "data/pallet/results/pallet_posefix_replay_v1/last300.pt",
+    "sha256": "fc9b3d7b7f2e7c38b608a12461cf16a58b76669f12ef9be5c8dc35d81104a41d",
+    "bytes": 275590870
+  }
+}

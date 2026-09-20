@@ -1,0 +1,136 @@
+{
+  "experiment": "pallet_real_refiner_twostage_v1",
+  "status": "SINGLE_SEED_DEVELOPMENT_SCREEN",
+  "user_order": "raw R0 -> first filter -> N2 only on survivors -> second filter -> refiner training",
+  "teacher": {
+    "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N2_DIM_ONLY_seed1/last.pt",
+    "sha256": "bb37ef2b6808392f6ae28dd0aa43d18573d8cb664b9ff694c1e688d6ac4bb1d4",
+    "bytes": 305470
+  },
+  "model_lock": {
+    "path": "_docs/paper/final_dimension_v1/MODEL_LOCK.json",
+    "sha256": "c56809f6ea5f39a8e167875e8e970c5c08b071cf37b0417452bb7c20bb39141e",
+    "bytes": 10005
+  },
+  "bindings": [
+    {
+      "path": "scripts/research/pallet_real_refiner_twostage_v1/run.py",
+      "sha256": "5b1ea4461c3b5e7c1d038cbea4aa07bc095edf8551984df8d177a7be8afde4c3",
+      "bytes": 35649
+    },
+    {
+      "path": "scripts/research/pallet_real_refiner_twostage_v1/test_run.py",
+      "sha256": "2b91dc35e64eca203c21054f19b27566a22dc4f51edbc5e2ac8a920b8482a043",
+      "bytes": 2728
+    },
+    {
+      "path": "data/pallet/results/paper_selftrain_v1/teacher_cache/R0_TEACHER_CACHE.json",
+      "sha256": "2b985344ef43553c43935722e10b609179a06b2c72fce15c8a249f7b2ca93001",
+      "bytes": 1926146
+    },
+    {
+      "path": "data/evaluation/pallet_eval_v1/adaptation/PSEUDOLABEL_FILTER_LOCK.json",
+      "sha256": "57c9b939ffe6af03b5454672951c4e78f6c96df517b79d143039b8cdb01ddf47",
+      "bytes": 3825
+    },
+    {
+      "path": "data/pallet/results/site_environment_audit_v1/SOURCE_RECORDING_GROUPS.json",
+      "sha256": "f0be41054f8b4c955a0f004d7b6f57b6eeabd0e3ab6409086c39eb42fd4bd75a",
+      "bytes": 137299
+    },
+    {
+      "path": "_docs/paper/final_dimension_v1/green150_saved_labels_v1/DATASET_SNAPSHOT.json",
+      "sha256": "ad717de5e1a74c9201ee26b33a200da83f069efc4023e703ec2493c5058c6d05",
+      "bytes": 334493
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DEV_CACHE_COMPLETE.json",
+      "sha256": "72b7c4e932607553facb348371400d54884d2ea8a8298347ba87906124170f91",
+      "bytes": 126892
+    },
+    {
+      "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+      "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215",
+      "bytes": 10511
+    },
+    {
+      "path": "scripts/self_training_yolo/build_pseudo_manifests.py",
+      "sha256": "a5887133635a1c18ae7bcaf6bc4b162923c7cc54c6a843674f65dc72192db7ff",
+      "bytes": 11965
+    },
+    {
+      "path": "scripts/annotate/annotate_pnp.py",
+      "sha256": "b9794949dc88f336bded8ec31b157edccbd51689259bf98fd392366f80ccb89a",
+      "bytes": 67005
+    },
+    {
+      "path": "scripts/evaluation/green_saved_labels_v1.py",
+      "sha256": "5a6b834923680985d864efa6da1ed9888b6c80658bc5e7e15b114f72513a8877",
+      "bytes": 13337
+    }
+  ],
+  "stage1": "raw highest-box-confidence >= 0.85 and >= 6/8 finite corners with kp confidence >= 0.5",
+  "stage2": "refined single-keypoint-removal <= 0.05 AND refined unflipped consistency <= 0.05; projected-diagonal normalization; existing F4 thresholds",
+  "reprojection_score": "diagnostic only; no additional threshold",
+  "filters_reselected": false,
+  "pseudo_refresh": false,
+  "pseudo_gt_used": false,
+  "pool_object": "plastic_standard_110x130x11",
+  "canonical_WDH_m": [
+    1.1,
+    1.3,
+    0.11
+  ],
+  "dimensions_provenance": "existing build_pseudo_manifests.POOL_OBJECT_TYPE -> registry; no per-image GT dimensions",
+  "camera": "raw session cam_K, verified against old R0 cache; only filter uses intrinsics",
+  "baseline": "existing N2_DIM_ONLY seed1; immutable",
+  "train_arms": [
+    "SYN_ONLY",
+    "REAL_RAW",
+    "REAL_REFINED"
+  ],
+  "ablation": "REAL_RAW and REAL_REFINED have identical final-survivor image membership, valid mask, views, synthetic replay, update order; only target coordinates differ. Does not isolate second-filter selection effect.",
+  "init": "all train arms start from existing N2 seed1, not random init",
+  "seed": 1,
+  "steps": 1500,
+  "batch": 16,
+  "source_slots": 8,
+  "replacement_slots": 8,
+  "source_replay": 1024,
+  "real_pool": "all stage2 survivors; no outcome-based resampling or minimum-quantity gate",
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.0001,
+    "final_lr": 1e-05,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "weight_decay": 0.0001,
+    "gradient_clip": 5.0
+  },
+  "loss": "unchanged Gaussian candidate cross entropy, mean of source and replacement losses, weights 0.5 each",
+  "jitter": "input corners only: Gaussian sigma=min(0.003*bbox_diagonal,2 input pixels), clipped at 2 sigma; same for all arms",
+  "real_views": "two deterministic geometry-preserving RGB channel gain/offset views per accepted image; teacher uses unaugmented image; student uses one cached augmented view per exposure",
+  "photometric": {
+    "channel_gain": [
+      0.8,
+      1.2
+    ],
+    "additive_offset": [
+      -12.0,
+      12.0
+    ]
+  },
+  "synthetic_views": "existing original source features plus same coordinate jitter in both synthetic halves",
+  "checkpoint": "last1500 only; no DEV-based early stopping or hyperparameter search",
+  "inference": "R0 remains frozen; N2 dimensions/temperature/lambda/cap unchanged; no jitter/augmentation at inference",
+  "metrics": "DEV319 and GREEN150 manual-only primary; green all-known proxy secondary; E_sym, median/P90, PCK10, good5_to_bad10",
+  "signal_rule": "REAL_REFINED lower E_sym and non-worse P90/PCK10 vs both original N2 and SYN_ONLY in BOTH populations, zero good5_to_bad10 vs original; otherwise mixed/no-positive-screen. REAL_RAW is separate correction ablation.",
+  "green_excluded_from_training": true,
+  "independent_test": false,
+  "paper_model_auto_promotion": false,
+  "cuda_only": true,
+  "thermal_limit_C": 80,
+  "system_changes": false
+}
