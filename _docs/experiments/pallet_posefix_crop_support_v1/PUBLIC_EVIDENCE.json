@@ -1,0 +1,160 @@
+{
+  "audit": {
+    "PASS": true,
+    "scope": "E0_STOP_PATH_ONLY",
+    "old_bindings_unchanged": 1385,
+    "baseline_ID_parity": true,
+    "figures": 20,
+    "train_runs": 0,
+    "final_model_changed": false,
+    "evaluation_data_changed": false,
+    "gate_relaxed": false,
+    "expansion_sweep": false
+  },
+  "tests": ".............                                                            [100%]\n13 passed in 6.02s",
+  "deferred": {
+    "E0": "COMPLETE_GATE_FAILED",
+    "C1_training": "NOT_RUN_E0_GATE_FAILED",
+    "scale_sanity": "NOT_RUN_E0_GATE_FAILED",
+    "E1_candidate_audit": "NOT_RUN_E0_GATE_FAILED",
+    "training_input_audit": "NOT_RUN_E0_GATE_FAILED",
+    "identity_mapping": "E0 native↔canonical whole-object fixture checked; full train/source/cross-channel audit deferred by mandatory STOP",
+    "expected_training_outputs": "FIT/TRACE/new predictions/REAL_RESULTS/SOURCE_RESULTS/heatmap audit intentionally absent, not pending background work"
+  },
+  "protocol": {
+    "name": "pallet_posefix_crop_support_v1",
+    "expansion": 1.5,
+    "control_expansion": 1.25,
+    "E0_gate": {
+      "newly_reachable_min": 15,
+      "unreachable_fraction_reduction_min": 0.5,
+      "operator": "OR"
+    },
+    "crop_confirm": {
+      "newly_reachable_min": 15,
+      "old29_net_correct10_min": 5,
+      "primary_min_delta_pp": -0.5,
+      "clean_min_delta_pp": -1,
+      "green_min_delta_pp": -1,
+      "P90_max_ratio": 1.05
+    },
+    "decoder_route_fraction": 0.25,
+    "training": "one FULL_EXP150 only, conditioned on E0; FULL control reused",
+    "same_as_FULL": {
+      "seed": 1,
+      "optimizer": "TFAdam",
+      "lr": 0.0001,
+      "updates": 300,
+      "real_batch": 8,
+      "source_batch": 8,
+      "microbatch": 2,
+      "source_corruption_rng": 7103,
+      "source_probe_rng": 7104,
+      "BN": "running statistics + affine frozen ALL arms",
+      "regularization": {
+        "original_conv_weight_L2_half_coefficient": 5e-06,
+        "adapter_penalty": 0,
+        "reason": "Preserve previously audited explicit original_weight_l2; actual legacy recursion WOULD include Conv2d A/B, deliberately excluded. Different gradient scopes; NOT same strength.",
+        "contribution": "once per update over real microbatches; none over source microbatches"
+      }
+    },
+    "preserve": false,
+    "eval_during_training": false,
+    "student_selftraining": false,
+    "GT_crop": false,
+    "decoder": "unchanged expectation",
+    "no_rescue": true,
+    "final_model_changed": false,
+    "publication": "illustrated report main push per standing user instruction"
+  },
+  "decision": {
+    "STATUS": "COMPLETED_E0_STOP",
+    "E0_SUPPORT_GATE": "FIXED_EXPANSION_INSUFFICIENT",
+    "OLD_UNREACHABLE10": 29,
+    "EXP150_UNREACHABLE10": 15,
+    "NEWLY_REACHABLE10": 14,
+    "FULL_PCK10": 0.5035063113604488,
+    "EXP150_PCK10": null,
+    "DELTA": null,
+    "FULL_B3_RECOVERY": 6,
+    "EXP150_B3_RECOVERY": null,
+    "OLD29_ACTUAL_RECOVERY": null,
+    "CLEAN_DELTA": null,
+    "GREEN_DELTA": null,
+    "BASE_CORRECT_LOSS_DELTA": null,
+    "REACHABLE_HARD": 148,
+    "NO_OWN_CANDIDATE": null,
+    "CANDIDATE_PRESENT_NOT_DECODED": null,
+    "IDENTITY_SUSPECT": null,
+    "DECISION": "INCONCLUSIVE",
+    "NEXT_PRIMARY_ROUTE": "E_ADAPTIVE_SUPPORT",
+    "training_runs": 0,
+    "GPU_training": false,
+    "reason": "Predeclared E0 gate failed. Reachability improvement is not learned recovery. C1 train/sanity/E1 postponed; no relaxed gate or sweep."
+  },
+  "E0": {
+    "status": "FIXED_EXPANSION_INSUFFICIENT",
+    "PASS": false,
+    "old_unreachable10": 29,
+    "EXP150_unreachable10": 15,
+    "newly_reachable10": 14,
+    "still_unreachable10": 15,
+    "reduction_fraction": 0.4827586206896552,
+    "summary": {
+      "PRIMARY": {
+        "corners": 713,
+        "matched_corners": 659,
+        "no_crop": 0,
+        "C0": {
+          "support_outside_count": 76,
+          "unreachable5_count": 72,
+          "unreachable10_count": 71,
+          "unreachable20_count": 62
+        },
+        "C1": {
+          "support_outside_count": 60,
+          "unreachable5_count": 58,
+          "unreachable10_count": 57,
+          "unreachable20_count": 48
+        }
+      },
+      "FIXED_HARD": {
+        "corners": 163,
+        "matched_corners": 163,
+        "no_crop": 0,
+        "C0": {
+          "support_outside_count": 34,
+          "unreachable5_count": 30,
+          "unreachable10_count": 29,
+          "unreachable20_count": 20
+        },
+        "C1": {
+          "support_outside_count": 18,
+          "unreachable5_count": 16,
+          "unreachable10_count": 15,
+          "unreachable20_count": 6
+        }
+      },
+      "OLD_UNREACHABLE": {
+        "corners": 29,
+        "matched_corners": 29,
+        "no_crop": 0,
+        "C0": {
+          "support_outside_count": 29,
+          "unreachable5_count": 29,
+          "unreachable10_count": 29,
+          "unreachable20_count": 20
+        },
+        "C1": {
+          "support_outside_count": 18,
+          "unreachable5_count": 16,
+          "unreachable10_count": 15,
+          "unreachable20_count": 6
+        }
+      }
+    },
+    "baseline_ids_exact": true,
+    "definition": "All valid PRIMARY corners retained; structural counts only where frozen R0 crop exists. Fixed-hard matched set unchanged."
+  },
+  "illustration_audit": "CASE029/034 viewed; only historical references and frozen FULL points shown. No new model output. Reference physical correctness not independently confirmed."
+}
