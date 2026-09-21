@@ -47,8 +47,60 @@
 
 [추정] **ROUTE C: 다중 세션 clean 8/32/128 × CLEAN/OCC, 동일 총 노출의 보정기 통제 실험.** 보조 route 없음. [계획만 작성](NEXT_STAGE_PLAN.md).
 
+## 보정 전후 비교 이미지
+
+[확인] GitHub 본문에서 직접 볼 수 있는 비교 그림이다. 각 그림은 **위: 원본 RGB / R0 / N2, 아래: Replay / A10 / A11** 순서다. 초록 십자는 GT, 파란 원은 해당 코너 예측, 주황 선은 GT와 예측 사이 오차다. 같은 그림의 다섯 비교 패널은 동일 영역을 확대했다.
+
+[확인] 개선/악화는 해당 전이 그룹에서 A11−A10 변화가 큰 순서로 각 2코너, 큰 오류 복구는 R0 오차가 큰 순서로 2코너, 정상점 손상은 전부 1코너, 랜덤은 기존 seed 1 목록의 앞 2코너다. 그룹 간 중복과 동일 프레임의 다른 코너가 포함되며, 성능 집계를 대체하지 않는다. 새 추론·학습 없이 저장 좌표만 시각화했다.
+
+### A11이 새로 맞힌 사례
+
+[확인] `eval_pallet07:1778652127361815808` / **G0** — R0 25.68px → A10 19.06px → A11 6.15px. 외부/자기 가림 subtype은 미확인이다.
+
+![A11이 새로 맞힌 사례 1: 원본과 다섯 후보 비교](inline_figures/gain_01.jpg)
+
+[확인] `eval_pallet07:1778652127361815808` / **G3** — R0 22.72px → A10 15.97px → A11 6.03px. 외부/자기 가림 subtype은 미확인이다.
+
+![A11이 새로 맞힌 사례 2: 원본과 다섯 후보 비교](inline_figures/gain_02.jpg)
+
+### A10은 맞았지만 A11이 놓친 사례
+
+[확인] `eval_night09:1779449580573721600` / **G0** — R0 11.95px → A10 7.06px → A11 25.84px. 외부/자기 가림 subtype은 미확인이다.
+
+![A10은 맞았지만 A11이 놓친 사례 1: 원본과 다섯 후보 비교](inline_figures/loss_01.jpg)
+
+[확인] `eval_pallet09:1778653664407620608` / **G3** — R0 5.83px → A10 8.95px → A11 19.30px. 외부/자기 가림 subtype은 미확인이다.
+
+![A10은 맞았지만 A11이 놓친 사례 2: 원본과 다섯 후보 비교](inline_figures/loss_02.jpg)
+
+### R0의 큰 오류를 복구한 사례
+
+[확인] `eval_pallet07:1778652152626116352` / **G1** — R0 30.78px → A10 10.37px → A11 8.77px. 외부/자기 가림 subtype은 미확인이다.
+
+![R0의 큰 오류를 복구한 사례 1: 원본과 다섯 후보 비교](inline_figures/hard_01.jpg)
+
+[확인] `eval_pallet07:1778652140531310080` / **G5** — R0 26.02px → A10 10.30px → A11 1.55px. 외부/자기 가림 subtype은 미확인이다.
+
+![R0의 큰 오류를 복구한 사례 2: 원본과 다섯 후보 비교](inline_figures/hard_02.jpg)
+
+### 원래 정상점이 손상된 사례
+
+[확인] `eval_night08:1779449501478488320` / **G3** — R0 3.30px → A10 10.08px → A11 15.12px. 외부/자기 가림 subtype은 미확인이다.
+
+![원래 정상점이 손상된 사례 1: 원본과 다섯 후보 비교](inline_figures/damage_01.jpg)
+
+### 기존 고정 랜덤 대조 사례
+
+[확인] `eval_night09:1779449580573721600` / **G0** — R0 11.95px → A10 7.06px → A11 25.84px. 외부/자기 가림 subtype은 미확인이다.
+
+![기존 고정 랜덤 대조 사례 1: 원본과 다섯 후보 비교](inline_figures/random_01.jpg)
+
+[확인] `eval_pallet07:1778652128369383168` / **G4** — R0 15.60px → A10 14.02px → A11 6.47px. 외부/자기 가림 subtype은 미확인이다.
+
+![기존 고정 랜덤 대조 사례 2: 원본과 다섯 후보 비교](inline_figures/random_02.jpg)
+
 ## 검토 자료 및 무결성
 
 [확인] [코너 검토 갤러리](D3_REVIEW_GALLERY.html): 65코너/48프레임. GT·R0·N2·Replay·A10·A11, full RGB와 bbox crop. 새 annotation 입력 없음.
 
-[확인] [입력 감사](PRECHECK.md), [역사적 gate 재해석](DECISION_REINTERPRETATION.md), [검증](AUDIT.json). 원본 E2 및 checkpoint 불변, 새 학습/commit/push 없음. 추가 파일은 postmortem 하위에만 있다.
+[확인] [입력 감사](PRECHECK.md), [역사적 gate 재해석](DECISION_REINTERPRETATION.md), [분석 당시 검증](AUDIT.json). 원본 E2 및 checkpoint는 불변이며 새 학습은 없다. 분석 당시에는 commit/push하지 않았고, 이후 사용자 승인으로 게시했다. 이번 변경은 본문 이미지 추가이며 분석 수치는 그대로다. 과거 AUDIT의 보고서 해시는 이미지 추가 전 버전을 가리킨다. [이미지 게시 변경 기록](INLINE_PUBLICATION.json).
