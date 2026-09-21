@@ -1,0 +1,50 @@
+{
+  "status": "[추정]",
+  "primary": "C_DATA_OCCLUSION_GAP",
+  "secondary": null,
+  "A_conditions": {
+    "headroom_at_least_3": false,
+    "complementary": true,
+    "validated_inference_signal": false
+  },
+  "B_conditions": {
+    "verified_external_recovery_attribution": false,
+    "primary_geometry_oracle_available": false
+  },
+  "C_evidence": {
+    "single_recording": true,
+    "adjacent_clean_images": 253,
+    "real_occ_A11_minus_A10_pp": -0.8415147265077139,
+    "source_stress": {
+      "INITIAL_SYNTH": 0.195351137487636,
+      "A10": 0.6760633036597429,
+      "A11": 0.6913946587537092
+    }
+  },
+  "D_conditions": {
+    "low_frame_headroom": true,
+    "geometry_insufficiency_established": false
+  },
+  "new_training_started": false,
+  "causal_data_diversity_failure_proven": false,
+  "proposal": {
+    "sizes": [
+      8,
+      32,
+      128
+    ],
+    "inputs": [
+      "CLEAN",
+      "OCC actual frozen R0 rerun"
+    ],
+    "source_replay": "same fixed source protocol",
+    "total_updates": 300,
+    "real_exposures": 2400,
+    "seed": 1,
+    "split": "unlabeled clean multi-session training disjoint from evaluation by recording/image hash",
+    "selection": "fixed nested subsets; count recordings/viewpoints separately; no GT-based pseudo-label selection",
+    "inference": "same frozen detector; refiner only; last checkpoint; no E6 student self-training",
+    "analysis": "within-size A11-like vs A10-like direct contrast plus normal/source preservation, no best-of-6 deployment",
+    "if_insufficient_sessions": "stop preparation and request dataset choice; do not duplicate adjacent frames to claim diversity"
+  }
+}
