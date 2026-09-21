@@ -1,0 +1,50 @@
+{
+  "training_updates": 0,
+  "checkpoint": "canonical synthetic-only PRIOR1/2/3 last6000",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "counts": {
+    "calibration": 1004,
+    "selection": 1031,
+    "heldout": 1985,
+    "REAL_DEV": 319,
+    "SQUARE_DEV": 155
+  },
+  "passes": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "feedback": "Two independent trajectories: RAW feeds RAW; CAPPED feeds CAPPED. Shared PASS1 forward. Each pass cap relative to current input, not R0.",
+  "cap": 0.01,
+  "lambda_value": 1,
+  "cap_scale": "original image diagonal, excluding any prepared border",
+  "inputs": "Frozen R0 predicted bbox/crop/center/valid mask; pose corners only change. RGB always identical. No GT access in infer.",
+  "source_RGB": "Use existing prepared image and predicted box exactly as SourceRGB; subtract existing pad only at output; no second padding.",
+  "square": "155 existing C4 DEV; prepared +100 border accounted exactly. No square supervised checkpoint, diagnosis only.",
+  "metric": "Unmodified current eval_math: observed matched med/P90, full-GT PCK/Esym/gross20; whole-object branch. No pointwise matching.",
+  "errors": "Store canonical GT-aligned errors AND native-channel errors against locked PASS0 whole-object GT branch. Movement/cosine uses native channels; phase switches reported separately.",
+  "direction": "Undefined if either movement <=0.001px. Reversal cos<0; nonreversal 0<=cos<=0.1 orthogonal-ish; cos>0.1 same-direction. These disjoint bins do not claim semantics near boundary.",
+  "types": "Overlapping indicators. Monotonic all error diffs<-1e-9; pass1-best error1<error0 and error2 OR error3>error1; oscillation adjacent error increments change sign AND corresponding displacement cos<0; no-response ALL3 moves<=0.001px; repeated cap>=2 passes.",
+  "strata": [
+    "<=5",
+    "(5,10]",
+    "(10,20]",
+    ">20"
+  ],
+  "strata_population": "matched and input-valid, fixed PASS0 native-branch GT support; missing/mismatched penalties remain in main metrics but not geometric movement counts",
+  "phase_only": "Matched frames with mean fixed error>20px, mean symmetry error<=10px and branch!=0.",
+  "phase_B_gate": "Strong CASE C only if phase-only>=10% of matched REAL_DEV frames in at least2seeds PASS1 RAW; square secondary alone does not trigger main training.",
+  "numeric": "10 identical forward calls per seed on lexicographically first usable REAL_DEV frame; compare every call to first, batch1 FP32 cuDNN nondeterministic TF32 off; tolerance3e-4 crop component, not changed.",
+  "figures": "seed1 REAL_DEV CAPPED: lexicographically first eligible frame/native-corner for monotonic/reversal/repeatedcap. Fallback absent category labelled absent; never choose largest gain.",
+  "pose": "Existing pose.infer/metric/pose_auc with same K/geometry; real/square reconstructed references not independent measured physical GT.",
+  "no_selection": true,
+  "DEV_reused": true,
+  "no_sealed_access": true,
+  "system_changes": false,
+  "thermal_limit_C": 80
+}
