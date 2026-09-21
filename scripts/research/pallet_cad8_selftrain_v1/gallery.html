@@ -1,0 +1,52 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>CAD8 fine-tuning · occlusion 96장 전후</title>
+<style>
+body{background:#101b22;color:#eaf1f4;font:16px system-ui;margin:20px}a{color:#72cfff}h1{font-size:28px}.muted,small{color:#b8c9d1}.toolbar{position:sticky;top:0;background:#192a34;padding:12px;z-index:3;display:flex;gap:18px;align-items:center;flex-wrap:wrap}select,button{font:inherit;padding:6px;background:#223b49;color:white;border:1px solid #718b99}table{border-collapse:collapse;width:100%}td,th{padding:8px;border-bottom:1px solid #546772;text-align:left}.card{margin-top:30px;padding-top:12px;border-top:3px solid #6b818d}.panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}article{min-width:0}svg{width:100%;background:#15242c}.zoom{max-width:300px}.stats{min-height:64px}.good{color:#6de8a5}.bad{color:#ff9494}.quick{display:grid;grid-template-columns:1fr 1fr;gap:20px}.quick li{margin:8px 0}.detail{min-height:56px}.notice{background:#233442;padding:12px}article h3{min-height:48px}.card[hidden]{display:none}.summary{max-width:900px}
+</style>
+<h1>학습 전후 · 별도 occlusion 96장</h1>
+<p>왼쪽 <b>R0</b> → 가운데 <b>N3+PnP 수도레이블로 학습한 학생</b> → 오른쪽 <b>Replay+PnP 수도레이블로 학습한 학생</b>.</p>
+<p class="notice">이 화면은 <b>학생 모델 단독 추론</b>입니다. 평가 이미지에 보정기나 PnP를 추가한 결과가 아닙니다. CAD 학습 8장은 포함하지 않았습니다.</p>
+<p><span style="color:#57fb72">초록 = GT</span> · <span style="color:#3bbbff">파랑 = 해당 모델 예측</span> · <span style="color:#ffb34e">주황 원 = R0 위치</span> · 흰 선 = R0에서 실제 이동. 확대는 RGB와 좌표를 함께 확대하며 이동량을 부풀리지 않습니다.</p>
+<table class="summary"><tr><th>방법</th><th>중앙값 px ↓</th><th>PCK10 ↑</th><th>PCK20 ↑</th><th>매칭</th></tr><tr><td>R0</td><td>11.39</td><td>41.79%</td><td>62.82%</td><td>88/96</td></tr><tr><td>N3 수도레이블 학생</td><td>12.36</td><td>35.69%</td><td>58.21%</td><td>82/96</td></tr><tr><td>Replay 수도레이블 학생</td><td>12.20</td><td>34.19%</td><td>59.16%</td><td>83/96</td></tr></table>
+<p class="muted">중앙값은 매칭 성공 코너 기준. PCK는 매칭 실패를 포함한 전체 분모. 개선/악화 분류는 기존 평가의 프레임 평균 코너 오차 차이이며, 매칭 실패에는 벌점이 들어갑니다. GT는 표시·평가에만 사용했습니다.</p>
+<div id="quick" class="quick"></div>
+<div class="toolbar"><label>보기 <select id="mode" onchange="applyFilter()"><option value="all">전체 96장</option><option value="worse">Replay 학습 후 악화</option><option value="better">Replay 학습 후 개선</option><option value="n3worse">N3 학습 후 악화</option><option value="n3better">N3 학습 후 개선</option><option value="lost">R0 매칭 성공 → 학생 매칭 실패</option></select></label><label><input type="checkbox" id="arrows" checked onchange="drawCards();applyFilter()"> R0→학생 이동 표시</label><span id="count"></span></div>
+<main id="cards"></main>
+<script>
+const DATA=__DATA__;
+const EDGES=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+const LABELS=['R0 · 학습 전','N3+PnP 수도레이블로 학습','Replay+PnP 수도레이블로 학습'];
+const fmt=x=>x===null?'—':Number(x).toFixed(2);
+const finite=p=>p&&p.every(Number.isFinite);
+function svg(r,k,j,zoom=false){
+ const a=r.arms[k],q=a.points,b=r.arms[0].points;
+ let view='0 0 640 480';
+ if(zoom){let center=(b&&finite(b[j]))?b[j]:(q&&finite(q[j])?q[j]:r.gt[j]);view=`${center[0]-65} ${center[1]-65} 130 130`;}
+ let s=`<svg viewBox="${view}" xmlns="http://www.w3.org/2000/svg"><image href="${r.image}" width="640" height="480"/>`;
+ const wire=(p,color,width)=>{if(!p)return '';return EDGES.filter(([x,y])=>finite(p[x])&&finite(p[y])).map(([x,y])=>`<line x1="${p[x][0]}" y1="${p[x][1]}" x2="${p[y][0]}" y2="${p[y][1]}" stroke="${color}" stroke-width="${width}"/>`).join('')};
+ s+=wire(r.gt,'#57fb72',1.2)+wire(q,'#3bbbff',1.5);
+ if(q)for(let n=0;n<8;n++){
+  if(!finite(q[n]))continue;const [x,y]=q[n];
+  if(k>0&&b&&finite(b[n])&&document.getElementById('arrows').checked){
+   s+=`<circle cx="${b[n][0]}" cy="${b[n][1]}" r="3.5" fill="none" stroke="#ffb34e"/><line x1="${b[n][0]}" y1="${b[n][1]}" x2="${x}" y2="${y}" stroke="white" stroke-width="1.2"/>`;
+  }
+  s+=`<circle cx="${x}" cy="${y}" r="${n===j?4:2}" fill="#3bbbff"/><text x="${x+4}" y="${y-4}" fill="#3bbbff" stroke="#12222b" stroke-width=".3" font-size="11">P${n}</text>`;
+ }
+ for(let n=0;n<8;n++)if(r.valid[n]){let [x,y]=r.gt[n];s+=`<path d="M ${x-3} ${y} h 6 M ${x} ${y-3} v 6" stroke="#57fb72"/>`;}
+ if(!a.detected)s+='<text x="160" y="230" fill="#ff9494" font-size="28">NO DETECTION</text>';
+ return s+'</svg>';
+}
+function detail(r,k,j){let a=r.arms[k],b=r.arms[0].points,q=a.points;let move=b&&q?Math.hypot(q[j][0]-b[j][0],q[j][1]-b[j][1]):null;return `P${j} · R0부터 이동 ${fmt(move)}px<br>GT 거리 ${a.native_errors?fmt(a.native_errors[j]):'—'}px · C2 평가 분기 ${a.branch}${a.matched?'':' · 매칭 실패, 공식 지표에는 벌점'}`;}
+function update(i,j){let r=DATA[i],card=document.getElementById('frame-'+r.number);card.querySelectorAll('article').forEach((el,k)=>{el.querySelector('.zoom').innerHTML=svg(r,k,j,true);el.querySelector('.full').innerHTML=svg(r,k,j);el.querySelector('.detail').innerHTML=detail(r,k,j)});}
+function drawCards(){
+ document.getElementById('cards').innerHTML=DATA.map((r,i)=>{
+  const j=r.default_corner;
+  const panels=r.arms.map((a,k)=>`<article><h3>${LABELS[k]}</h3><div class="stats"><b class="${a.matched?'good':'bad'}">${a.matched?'매칭 성공':a.detected?'검출했으나 GT 매칭 실패':'검출 없음'}</b> · IoU ${fmt(a.iou)}<br>중앙값 ${fmt(a.median)}px · PCK20 ${a.pck20.toFixed(1)}%<br>confidence ${fmt(a.score)}</div><div class="full">${svg(r,k,j)}</div><div class="zoom">${svg(r,k,j,true)}</div><div class="detail">${detail(r,k,j)}</div></article>`).join('');
+  return `<section class="card" id="frame-${r.number}" data-index="${i}"><h2>${r.number}/96 · ${r.id}</h2><p>N3 평균 오차 변화 <span class="${r.n3_delta>0?'bad':'good'}">${r.n3_delta>=0?'+':''}${fmt(r.n3_delta)}px</span> · Replay <span class="${r.replay_delta>0?'bad':'good'}">${r.replay_delta>=0?'+':''}${fmt(r.replay_delta)}px</span> (−가 개선)</p><label>같은 코너 확대 <select class="corner" onchange="update(${i},Number(this.value))">${Array.from({length:8},(_,n)=>`<option value="${n}" ${n===j?'selected':''}>P${n}</option>`).join('')}</select></label><div class="panels">${panels}</div></section>`;
+ }).join('');
+}
+function applyFilter(){let n=0,mode=document.getElementById('mode').value;document.querySelectorAll('.card').forEach(c=>{let r=DATA[Number(c.dataset.index)],keep=mode==='all'||(mode==='worse'&&r.replay_delta>1e-9)||(mode==='better'&&r.replay_delta< -1e-9)||(mode==='n3worse'&&r.n3_delta>1e-9)||(mode==='n3better'&&r.n3_delta< -1e-9)||(mode==='lost'&&r.arms[0].matched&&(!r.arms[1].matched||!r.arms[2].matched));c.hidden=!keep;if(keep)n++;});document.getElementById('count').textContent=`${n}/96장 표시`;}
+function jump(n){document.getElementById('mode').value='all';applyFilter();document.getElementById('frame-'+n).scrollIntoView();window.scrollBy(0,-75);}
+const common=DATA.filter(r=>r.arms.every(a=>a.matched));
+document.getElementById('quick').innerHTML=[['Replay 개선 사례',common.filter(r=>r.replay_delta<0).sort((a,b)=>a.replay_delta-b.replay_delta).slice(0,4)],['Replay 악화 사례',common.filter(r=>r.replay_delta>0).sort((a,b)=>b.replay_delta-a.replay_delta).slice(0,4)]].map(([title,rows])=>`<div><h3>${title}</h3><p class="muted">세 모델 모두 매칭한 이미지 중 변화가 큰 순서</p><ul>${rows.map(r=>`<li><a href="#frame-${r.number}" onclick="jump(${r.number});return false">${r.number}번 · ${r.id}</a> (${fmt(r.replay_delta)}px)</li>`).join('')}</ul></div>`).join('');
+drawCards();applyFilter();
+</script></html>

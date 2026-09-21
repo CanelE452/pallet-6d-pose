@@ -1,0 +1,59 @@
+{
+  "arms": [
+    "R0",
+    "N3_DIM_SYM_seed1",
+    "REPLAY_RAW"
+  ],
+  "frames": 18,
+  "method": "frozen initial predicted pose; convex cuboid incident-face visibility; visible-only SQPnP+LM; replace confident hidden only",
+  "angle_margin_deg": 2,
+  "min_visible_inframe_confident_corners": 6,
+  "kp_confidence": 0.5,
+  "hidden_set_must_be_stable": true,
+  "dimensions": "frozen initial prediction-only W/D selector; no new GT axis selection",
+  "no_GT_for_inference": true,
+  "no_training": true,
+  "no_threshold_search": true,
+  "no_new_detector_inference": true,
+  "caveat": "Solid cuboid proxy, not actual pallet mesh visibility; does not detect external occlusion. Reused CAD DEV, not independent confirmation.",
+  "sources": [
+    {
+      "path": "outputs/pallet_cad_refiner_comparison_v1/INPUTS.json",
+      "sha256": "f05adb6e0ded545ec60be495ed2efaba698e298b49bf6bb3918ed1e5b562a183"
+    },
+    {
+      "path": "outputs/pallet_cad_refiner_comparison_v1/CACHED_PREDICTIONS.json",
+      "sha256": "49ea3b45ea75f826e4902fabb0fad24bb1dcf324bf810b716b2340d85e04c150"
+    },
+    {
+      "path": "outputs/pallet_cad_refiner_comparison_v1/REPLAY_PREDICTIONS.json",
+      "sha256": "18b785bf9313176c517d554446a67cffc42e4023c5575a30a08f1bc3910351b8"
+    },
+    {
+      "path": "outputs/pallet_cad_refiner_comparison_v1/POSE_PREDICTIONS.json",
+      "sha256": "27b8f74f8c4ab2557cf04e18873bf2557a2edaadff8aec7fcc4bf19f734a4090"
+    },
+    {
+      "path": "outputs/pallet_cad_refiner_comparison_v1/filter_audit/DECISIONS.json",
+      "sha256": "9476e2dbd2b1a3bd454c4d441aafcb51cca18956320a5455014c6f2819a54436"
+    },
+    {
+      "path": "scripts/research/pallet_cad_refiner_comparison_v1/self_occlusion.py",
+      "sha256": "295ce65a0b8e63a82ed1f3d9fbd27dc3607fc85c2938d4ef6b917f06059512d2"
+    },
+    {
+      "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+      "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215"
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py",
+      "sha256": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720"
+    }
+  ],
+  "tests": {
+    "front_view_hidden_far4": true,
+    "oblique_hidden_corner": true,
+    "synthetic_hidden_error_recovered": true,
+    "visible_and_center_exact": true
+  }
+}
