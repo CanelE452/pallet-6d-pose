@@ -1,0 +1,7 @@
+{
+  "source": "    def get_image_and_label(self, index: int) -> dict[str, Any]:\n        \"\"\"Get and return label information from the dataset.\n\n        Args:\n            index (int): Index of the image to retrieve.\n\n        Returns:\n            (dict[str, Any]): Label dictionary with image and metadata.\n        \"\"\"\n        label = deepcopy(self.labels[index])  # requires deepcopy() https://github.com/ultralytics/ultralytics/pull/1948\n        label.pop(\"shape\", None)  # shape is for rect, remove it\n        label[\"img\"], label[\"ori_shape\"], label[\"resized_shape\"] = self.load_image(index)\n        label[\"ratio_pad\"] = (\n            label[\"resized_shape\"][0] / label[\"ori_shape\"][0],\n            label[\"resized_shape\"][1] / label[\"ori_shape\"][1],\n        )  # for evaluation\n        if self.rect:\n            label[\"rect_shape\"] = self.batch_shapes[self.batch[index]]\n        return self.update_labels_info(label)\n",
+  "dataset_rect": false,
+  "load_image_rect_mode": true,
+  "resize": "long side640, ceil each dimension; M=stored RandomPerspective M @ diag(resized_w/w,resized_h/h,1)",
+  "native_check_correction": "Initial helper included visibility0 (0,0) sentinel targets; corrected to required supervised/in-frame-only before geometry binding completed. No supervised target mismatch found at that stage."
+}
