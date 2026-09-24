@@ -1,5 +1,7 @@
 # 기존 자료 EASY→HARD 전이 결정 실험
 
+2026-09-24 후속 분석: [T2 TRAIN H36의 남은 3점 — 결과·비교 이미지·학습 입력/loss 감사](THREE_CORNER_ANALYSIS_KO.md). 기존 실험 수치를 변경하지 않고 원인을 분석했다.
+
 ## 결론과 데이터 계약
 
 **COMPLETED_3_FITS** — T0/T1/T2 각320 update, 총960. 신규 촬영0, 신규 수동 어노테이션0, 신규 교사 학습0. 입력 대조: `MIXED_OR_NO_CONSISTENT_HARD_GAIN`. 좌표 대조: `MIXED_OR_NO_CONSISTENT_HARD_GAIN`.
