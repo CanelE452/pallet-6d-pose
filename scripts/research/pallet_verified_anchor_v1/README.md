@@ -1,5 +1,11 @@
 # Verified anchor — completed visible-corner evaluation
 
+Correction on 2026-09-24: **WAITING_FOR_HUMAN_QA (two status conflicts)**.
+The old evaluation below is preserved provisionally. See
+[directive completion audit](../../../_docs/experiments/pallet_verified_anchor_v1/DIRECTIVE_COMPLETION_KO.md).
+The missing metadata-conflict QA condition must be resolved before confirming the
+final reference and adding the already-frozen teacher supplementary comparison.
+
 Current status: **COMPLETED_VISIBLE_ANCHOR_EVALUATION**.
 See [the result report](../../../_docs/experiments/pallet_verified_anchor_v1/EVALUATION_REPORT_KO.md)
 for protocol, tables, limitations, and 26 embedded figures (18 case panels).

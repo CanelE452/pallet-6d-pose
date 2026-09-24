@@ -1,5 +1,8 @@
 # Minimal verified visible-corner anchor — 준비 보고서
 
+> **최신 정정:** [가시성 기록 충돌2점 QA 대기](DIRECTIVE_COMPLETION_KO.md).
+> 아래 후속 완료 표시는 정정 전 기록입니다. 기존 결과는 삭제하지 않고 잠정 상태로 보존합니다.
+
 > **후속 완료:** 상태72개 확인 → DIRECT_VISIBLE66개 → 추가 QA0개 → frozen 모델 재채점 완료.
 > 최신 표와 사례 이미지는 [최종 평가 보고서](EVALUATION_REPORT_KO.md)에 있습니다. 아래는 준비 당시 기록입니다.
 
