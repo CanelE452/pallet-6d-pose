@@ -1,0 +1,58 @@
+{
+  "primary": "SEVERE_ONLY_TRANSFER_SIGNAL",
+  "secondary": "CANDIDATE_GAIN_SELECTOR_LIMIT_IN_MODERATE",
+  "role_convention_status": "ROLE_MISMATCH_REPEATED",
+  "role_contract_warning": true,
+  "deltas": {
+    "ALL": {
+      "PCK10_pp": 1.3197969543147225,
+      "current_AUC": 0.023179687500000046,
+      "oracle_AUC": 0.024515624999999985,
+      "matched_P90_px": -5.885017587637492,
+      "selection_loss": 0.0013359374999999396
+    },
+    "CLEAN": {
+      "PCK10_pp": -1.3100436681222627,
+      "current_AUC": -0.013241379310344747,
+      "oracle_AUC": -0.013241379310344747,
+      "matched_P90_px": 2.335839155327985,
+      "selection_loss": 0.0
+    },
+    "MODERATE": {
+      "PCK10_pp": 0.0,
+      "current_AUC": -0.028428571428571414,
+      "oracle_AUC": 0.028619047619047655,
+      "matched_P90_px": -2.726050350640321,
+      "selection_loss": 0.05704761904761907
+    },
+    "SEVERE": {
+      "PCK10_pp": 2.6578073089701,
+      "current_AUC": 0.05061538461538462,
+      "oracle_AUC": 0.03744871794871801,
+      "matched_P90_px": 5.851525912410011,
+      "selection_loss": -0.013166666666666604
+    }
+  },
+  "primary_bottleneck": "Severity-dependent transfer: severe aggregate PCK/candidate/current improve, moderate current and clean preservation worsen. Severe matched P90 also worsens.",
+  "secondary_bottleneck": "Moderate selector loses improved candidate quality; repeated training-H10 role mismatch limits identity/6D interpretation.",
+  "uniform_transfer_supported": false,
+  "hard_anchor_correct10_delta": -1,
+  "more_hard_labeling_justified": "NOT_ESTABLISHED: teacher hard visible26/36 is better than S1 19/36; severe teacher8/14 and small biased anchor prevent a blanket conclusion.",
+  "selector_work_justified": "YES as a moderate-specific signal, but after resolving the bounded role-contract warning; no selector changes in this run.",
+  "representation_change_justified": "NOT_IDENTIFIED as the first necessary change by this frozen comparison.",
+  "next_one_experiment": {
+    "name": "BOUNDED_ROLE_CONTRACT_NORMALIZATION_PILOT",
+    "design_only": true,
+    "reason": "Directive CASE F: a second H10 frame meets the predeclared role-mismatch rule. Establish an explicit paper-facing role mapping before a new optimization experiment.",
+    "population": "Existing fixed H10 only; current two flagged cases are diagnostics, not automatic relabel candidates. No expansion or new capture.",
+    "variable": "One explicit deterministic conversion from documented annotation role convention to declared paper camera-facing contract; preserve rectangular physical C2 (180deg) equivalence separately.",
+    "controls": "Frozen original annotations, predictions, checkpoints, split, PnP selector and metrics. Never choose per-model/per-point best correspondence to define GT.",
+    "evidence": "Use already saved manual provenance and existing source-rule definitions; C4 best scores cannot establish semantic front. No new labeling or human review in this completed task.",
+    "stop": "If existing provenance/semantic front cannot uniquely support a mapping, retain UNRESOLVED; no auto-GT edits and no transfer claim based on remapped scores.",
+    "output": "Design for a versioned mapping proposal plus identity/C2 contract tests and unchanged-original comparison; not executed now.",
+    "training_steps": 0
+  },
+  "no_new_thresholds": true,
+  "not_independent_test": true,
+  "not_statistical_significance": true
+}
