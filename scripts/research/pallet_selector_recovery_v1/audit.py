@@ -62,6 +62,14 @@ def main(require_git=False):
     rc=C.read(C.sdoc(4)/'ROUTER_FEATURE_CONTRACT.json');rp=C.read(C.sdoc(4)/'ROUTER_SYNTH_PREDICTION_LOCK.json');pl=C.read(C.sdoc(4)/'OCCLUSION_PLAN_LOCK.json');C.verify(pl['plans']);C.verify(pl['original_policy'])
     ok('test_router_feature_contract_locked',rc['created_at']<pl['created_at']<rp['created_at'] and not rc['GT_input'] and not rc['severity_input'] and not rc['session_input'])
     ok('test_occlusion_plan_GT_blind',not pl['GT_error_used'] and not pl['model_outcomes_used'])
+    plans=C.read(C.ROOT/pl['plans']['path']);clean_features=dict(np.load(C.sraw(2)/'FEATURES_CLEAN.npz'));occ_features=dict(np.load(C.sraw(4)/'FEATURES_OCCLUDED.npz'))
+    assert np.array_equal(clean_features['ids'],occ_features['ids'])
+    skipped=np.array([not plans[str(fid)]['applied'] for fid in clean_features['ids']])
+    for a in C.ARMS:
+        assert np.array_equal(clean_features[a+'_current'][skipped],occ_features[a+'_current'][skipped])
+        assert np.array_equal(clean_features[a+'_geo'][skipped],occ_features[a+'_geo'][skipped])
+        assert np.array_equal(clean_features[a+'_ctx'][skipped],occ_features[a+'_ctx'][skipped])
+    ok('test_skipped_occlusion_matches_clean_exactly',True)
     rd=C.read(C.sdoc(4)/'ROUTER_DATASET_LOCK.json');C.verify(rd['dataset']);rz=dict(np.load(C.ROOT/rd['dataset']['path']))
     for i,p in zip(rz['ids'],rz['split']):assert ids[i]==p
     assert np.array_equal(rz['ids'][:6144],rz['ids'][6144:]);assert np.array_equal(rz['split'][:6144],rz['split'][6144:])
