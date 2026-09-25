@@ -45,7 +45,7 @@ def stage3():
     for g in ('CLEAN','MODERATE','SEVERE','ALL'):
         for a in C.ARMS:
             for k in ('current','scorer','oracle'):
-                r=j[g][a][k];lines.append(f"|{g}|{a}/{k}|{r.get('R_med_deg')}|{r.get('yaw_med_deg')}|{r.get('t_med_cm')}|{r.get('IoU3D_med')}|")
+                r=j[g][a][k];lines.append(f"|{g}|{a}/{k}|{r['rotation_deg']['median']:.4f}|{r['yaw_deg']['median']:.4f}|{r['translation_cm']['median']:.4f}|{r['IoU3D']['median']:.4f}|")
     lines+=['', 'Stage4의 S0 유효성은 사전 구현한 보수적 부호 규칙(Clean/Moderate/Severe AUC가 모두 비감소)을 사용한다. 효과크기 임계값을 결과에 맞춰 만들지 않았다. 이미 열람한 DEV이며 독립 검증이 아니다.']
     for f in sorted((C.DOC/'figures/stage3').glob('*.png')):lines+=['',f'![{f.stem}](../figures/stage3/{f.name})']
     C.save(C.sdoc(3)/'STAGE3_REPORT_KO.md','\n'.join(lines)+'\n')
