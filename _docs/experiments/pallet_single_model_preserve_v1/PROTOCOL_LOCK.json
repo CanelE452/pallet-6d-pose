@@ -1,0 +1,33 @@
+{
+  "created_at": "2026-09-25T14:57:33.604875+00:00",
+  "model": "S1",
+  "selector": "frozen GEO_LINEAR",
+  "adapter": "one2one_cv4_kpts final projection forward-hook per scale: h->Conv1x1(C,32)->SiLU->Conv1x1(32,27), zero last; xy mask only",
+  "training": {
+    "seed": 42,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch": 16,
+    "epochs": 5,
+    "updates": 320,
+    "selection": "LAST_ONLY",
+    "lambda_occ": 1.0,
+    "clean_loss": "SmoothL1 beta1 in 640-input pixel units on frozen highest-confidence detection decoded xy; sum / valid xy scalar count, v==2. No box matching or confidence threshold in task loss.",
+    "occ_loss": "SmoothL1 beta1 in identical 640-input pixel units, all9 xy at frozen top1 detection, finite only, detached S1 target.",
+    "batch_composition": "4 real-clean +4 synth-clean +8 synth-occluded-preserve; 64 batches/epoch",
+    "base_augmentation": "reuse immutable original S1 cached augmented RGB/targets; no regenerated base transforms",
+    "occlusion": "original S1 policy functions, supervised synthetic v==2, 640 cached canvas, deterministic hash seed42; no prediction-based placement"
+  },
+  "preservation_rule": "Clean AUC strictly higher AND Moderate/Severe nondecreasing; hard-anchor PCK10 warning separate",
+  "gap_rule": {
+    "both_fail_min": 6,
+    "frames_min": 3,
+    "corners_min": 3,
+    "missing_support_points_min": 6,
+    "severity_view_strata_min": 2,
+    "trusted_cell_min": 2
+  },
+  "no_new_label_training": true,
+  "no_result_based_tuning": true,
+  "independent_test": false
+}
