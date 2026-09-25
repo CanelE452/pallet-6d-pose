@@ -37,5 +37,24 @@ def stage1():
     recs=sorted({r['recording'] for r in rr});fig,ax=plt.subplots(figsize=(9,4));x=np.arange(len(recs))
     ax.bar(x-.18,[sum(r['recording']==rec and r['axis_wrong'] for r in rr) for rec in recs],.36,label='Current axis wrong');ax.bar(x+.18,[sum(r['recording']==rec and r['alternate_ADD_better'] for r in rr) for rec in recs],.36,label='Alternate ADD better');ax.set(xticks=x,xticklabels=recs,ylabel='Frames');ax.legend();finish(1,'05_recording_breakdown.png')
 
+def stage2():
+    val=C.read(C.sdoc(2)/'SCORER_VAL_RESULTS.json')['variants'];test=C.read(C.sdoc(2)/'SCORER_SYNTH_TEST.json')
+    fig,ax=plt.subplots(figsize=(8,4))
+    for name,v in val.items():ax.plot([r['epoch'] for r in v['curve']],[r['val_accuracy'] for r in v['curve']],label=name)
+    ax.set(xlabel='Epoch',ylabel='Synthetic VAL parity accuracy');ax.legend();finish(2,'01_validation.png')
+    fig,ax=plt.subplots(figsize=(8,4));x=np.arange(2)
+    for k,key in enumerate(('current_accuracy','learned_accuracy')):ax.bar(x+(k-.5)*.35,[test['by_expert'][a]['TEST'][key] for a in C.ARMS],.35,label=key)
+    ax.set(xticks=x,xticklabels=C.ARMS,ylim=(0,1),ylabel='Synthetic TEST parity accuracy');ax.legend();finish(2,'02_test.png')
+
+def stage3():
+    j=C.read(C.sdoc(3)/'REAL_SCORER_RESULTS.json')['groups'];t=C.read(C.sdoc(3)/'REAL_SCORER_TRANSITIONS.json')
+    m=j['MODERATE']['S1'];fig,ax=plt.subplots(figsize=(8,4));ax.bar(['CURRENT','SCORER','ORACLE'],[m[k]['ADDsym_AUC'] for k in ('current','scorer','oracle')]);ax.set(ylabel='ADDsym AUC',title='S1 Moderate21 / frozen scorer');finish(3,'01_moderate_auc_current_scorer_oracle.png')
+    fig,ax=plt.subplots(figsize=(8,4));ax.bar(['Current correct','Scorer correct','Recovered','Regressed'],[m['current']['axis_correct_count'],m['scorer']['axis_correct_count'],t['MODERATE']['S1']['recoveries'],t['MODERATE']['S1']['regressions']]);ax.set(ylabel='Frames / 21');finish(3,'02_axis_recovery.png')
+    for filename,gg in [('03_clean_severe_safeguards.png',['CLEAN','SEVERE']),('04_recording_breakdown.png',[g for g in j if g.startswith('REC')])]:
+        fig,ax=plt.subplots(figsize=(10,4));x=np.arange(len(gg))
+        for k,key in enumerate(('current','scorer')):ax.bar(x+(k-.5)*.35,[j[g]['S1'][key]['ADDsym_AUC'] for g in gg],.35,label=key)
+        ax.set(xticks=x,xticklabels=gg,ylabel='S1 ADDsym AUC');ax.legend();finish(3,filename)
+    fig,ax=plt.subplots(figsize=(8,4));gg=['CLEAN','MODERATE','SEVERE','ALL'];ax.bar(gg,[j[g]['S1']['gap_recovery'] or 0 for g in gg]);ax.axhline(0,color='black');ax.set(ylabel='Unclamped oracle gap recovery',title='Zero-height Clean has no positive oracle gap (N/A)');finish(3,'05_gap_recovery.png')
+
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('stage',type=int);a=p.parse_args();globals()[f'stage{a.stage}']()

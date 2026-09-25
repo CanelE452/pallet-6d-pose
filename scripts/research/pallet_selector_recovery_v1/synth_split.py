@@ -10,7 +10,9 @@ TABLE=C.ROOT/'challenge/yolo_pose_one_model/pallet_translation_loss_v1/GEOMETRY_
 
 def main():
     assert not (C.sdoc(2)/'SYNTHETIC_SPLIT_LOCK.json').exists()
-    source=C.read(MANIFEST)['records'];table=np.load(TABLE);ix={str(s):i for i,s in enumerate(table['stems'])}
+    source=C.read(MANIFEST)['records']
+    with np.load(TABLE) as loaded:table={k:loaded[k] for k in loaded.files}
+    ix={str(s):i for i,s in enumerate(table['stems'])}
     plans=[r for r in map(json.loads,(C.STRUCT/'AUGMENTATION_PLAN.jsonl').read_text().splitlines()) if r['material']=='PLASTIC' and not r['real']]
     replay_paths=sorted({r['image'] for r in plans});assert len(replay_paths)==512
     excluded_sha={C.sha(p) for p in replay_paths};excluded_scenarios={r['scenario_id'] for r in source if r['image_sha256'] in excluded_sha}

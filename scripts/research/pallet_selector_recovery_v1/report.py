@@ -17,5 +17,38 @@ def stage1():
     C.save(C.sdoc(1)/'STAGE1_REPORT_KO.md','\n'.join(lines))
     C.save(C.DOC/'REPORT_KO.md','# Selector recovery + frozen expert routing\n\nStage1 완료, Stage2–4 진행 중.\n\n[Stage1 보고서·이미지](stage1_diagnostic/STAGE1_REPORT_KO.md)\n')
 
+def stage2():
+    v=C.read(C.sdoc(2)/'SCORER_VAL_RESULTS.json');t=C.read(C.sdoc(2)/'SCORER_SYNTH_TEST.json');lab=C.read(C.sdoc(2)/'EXACT_LABEL_AUDIT.json')
+    lines=['# Stage2 — 합성 전용 W/D shared candidate scorer','',f"선택 모델: **{t['winner']}**. VAL 동률이면 LINEAR라는 사전 규칙으로 선택했다. TEST는 선택 완료 후 한 번만 평가했다.",'',
+        'TRAIN 4096 / VAL 1024 / TEST 1024 프레임. 같은 프레임의 S0/S1은 같은 split이다. renderer 그룹 분리, 기존 replay512와 그 파생 이미지까지 제외했다. exact Xcf의 metric width/depth로 라벨을 만들었으며 면적 휴리스틱을 쓰지 않았다.','',
+        f"정답 좌표와 renderer pose 재투영의 최대 차이 {lab['projection_max_px']:.6f}px. GEO + head GAP448의 두 모델만 학습했다. base weight/gradient는 그대로이며 hook 전후 예측은 bit-exact다.",'',
+        '|variant|VAL accuracy|best epoch|epochs|','|---|---:|---:|---:|']
+    for a,r in v['variants'].items():lines.append(f"|{a}|{r['best_val_accuracy']:.6f}|{r['best_epoch']}|{r['epochs']}|")
+    lines+=['','|expert / TEST strata|N|D9 accuracy|scorer accuracy|Brier|','|---|---:|---:|---:|---:|']
+    for a,groups in t['by_expert'].items():
+        for g,r in groups.items():lines.append(f"|{a} / {g}|{r['n']}|{r['current_accuracy']}|{r['learned_accuracy']}|{r['brier']}|")
+    lines+=['','합성 TEST 전체 D9 {:.4%} → scorer {:.4%}. Q2는 개선 신호 YES이며 실사 일반화의 증거는 아직 아니다.'.format(t['aggregate']['current_accuracy'],t['aggregate']['learned_accuracy']),
+        '', '주의: 원래 R0는 더 넓은 합성 원천으로 학습되었다. 이 TEST는 새 선택기/router 학습에서만 보류된 TEST이지 base detector가 처음 보는 합성 원천이라는 뜻이 아니다. 그룹 분리로 VAL/TEST는 P0/TEX 저양각 위주이며 HIGH 계층은 0장(N/A)이다.','',
+        '![VAL](../figures/stage2/01_validation.png)','![TEST](../figures/stage2/02_test.png)','',
+        '실사 GT 경로 접근을 runtime guard로 차단한 별도 학습 프로세스. real GT/axis/ADD/oracle로 checkpoint를 고르지 않았다.']
+    C.save(C.sdoc(2)/'STAGE2_REPORT_KO.md','\n'.join(lines)+'\n')
+
+def stage3():
+    j=C.read(C.sdoc(3)/'REAL_SCORER_RESULTS.json')['groups'];d=C.read(C.sdoc(3)/'STAGE3_DECISION.json');t=C.read(C.sdoc(3)/'REAL_SCORER_TRANSITIONS.json')
+    lines=['# Stage3 — frozen 합성 선택기의 실사 적용','',f"판정: **{d['primary']}** / {d['secondary']}",'',
+        '실사128장의 두 expert별 결정을 전부 저장/hash lock한 다음에만 참조값을 읽었다. 같은 scorer, 같은 tie 규칙을 모든 난도·expert에 적용했다. raw2D를 바꾸지 않으므로 기존 PCK와 verified-anchor PCK는 동일하다.','',
+        '|group|expert|current AUC|scorer AUC|oracle AUC|axis current→scorer|gap recovery|','|---|---|---:|---:|---:|---|---:|']
+    for g in ('CLEAN','MODERATE','SEVERE','ALL'):
+        for a in C.ARMS:
+            r=j[g][a];lines.append(f"|{g}|{a}|{r['current']['ADDsym_AUC']:.6f}|{r['scorer']['ADDsym_AUC']:.6f}|{r['oracle']['ADDsym_AUC']:.6f}|{r['current']['axis_correct_count']}→{r['scorer']['axis_correct_count']}|{r['gap_recovery']}|")
+    lines+=['',f"Moderate S1 transitions: {t['MODERATE']['S1']}",'','|group|arm/method|R med °|yaw med °|t med cm|IoU3D med|','|---|---|---:|---:|---:|---:|']
+    for g in ('CLEAN','MODERATE','SEVERE','ALL'):
+        for a in C.ARMS:
+            for k in ('current','scorer','oracle'):
+                r=j[g][a][k];lines.append(f"|{g}|{a}/{k}|{r.get('R_med_deg')}|{r.get('yaw_med_deg')}|{r.get('t_med_cm')}|{r.get('IoU3D_med')}|")
+    lines+=['', 'Stage4의 S0 유효성은 사전 구현한 보수적 부호 규칙(Clean/Moderate/Severe AUC가 모두 비감소)을 사용한다. 효과크기 임계값을 결과에 맞춰 만들지 않았다. 이미 열람한 DEV이며 독립 검증이 아니다.']
+    for f in sorted((C.DOC/'figures/stage3').glob('*.png')):lines+=['',f'![{f.stem}](../figures/stage3/{f.name})']
+    C.save(C.sdoc(3)/'STAGE3_REPORT_KO.md','\n'.join(lines)+'\n')
+
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('stage',type=int);a=p.parse_args();globals()[f'stage{a.stage}']()
