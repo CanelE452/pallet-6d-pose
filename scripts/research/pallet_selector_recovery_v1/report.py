@@ -50,5 +50,25 @@ def stage3():
     for f in sorted((C.DOC/'figures/stage3').glob('*.png')):lines+=['',f'![{f.stem}](../figures/stage3/{f.name})']
     C.save(C.sdoc(3)/'STAGE3_REPORT_KO.md','\n'.join(lines)+'\n')
 
+def stage4():
+    r=C.read(C.sdoc(4)/'REAL_ROUTER_RESULTS.json');d=C.read(C.sdoc(4)/'STAGE4_DECISION.json');syn=C.read(C.sdoc(4)/'ROUTER_SYNTH_RESULTS.json')['groups'];fit=C.read(C.sdoc(4)/'ROUTER_VAL_RESULTS.json');cost=C.read(C.sdoc(4)/'COMPUTE_COST.json');oc=C.read(C.sdoc(4)/'OCCLUSION_PLAN_LOCK.json')
+    lines=['# Stage4 — frozen S0/S1 clean-hard router','',f"판정: **{d['primary']}** / {d['secondary']}",'',
+        f"공통 selector: **{r['base_selector']}**. Stage3의 S1 회복은 확인됐지만 S0 Moderate에는 새 선택기가 손해여서, 지시문 fallback대로 양쪽 모두 D9를 썼다. 따라서 이 표는 S1+새 scorer의 Stage3 이득까지 결합했다는 뜻이 아니다.",'',
+        f"같은 합성 프레임 split을 재사용하여 clean/occluded 쌍 TRAIN8192 / VAL2048 / TEST2048 sample. 원래 S1의 size/fill/coverage/paired-feasibility 조건과 scheduled .5를 유지하여 실제 가림은 {oc['applied']}/{oc['frames']}개다. skip은 clean과 동일하게 남기고 applied-only도 따로 보고한다. placement는 GT오차/모델 결과를 사용하지 않았다. 원래 real 학습 policy를 synthetic에 적용했으며 random affine까지 복제한 실험은 아니다.",'',
+        f"고정 expert 두 개의 exact synthetic ADDnorm 중 더 작은 쪽을 라벨로 사용했다. MLP64/32 한 개, seed42, best VAL={fit['best_val_accuracy']:.6f}, epoch={fit['best_epoch']}. 실사 GT 입력0, TEST1회, real decision 전부 lock 후 평가.",'',
+        '|synthetic TEST|N|expert-choice acc|route S0/S1|S0 mean ADDnorm|S1|routed|oracle|','|---|---:|---:|---|---:|---:|---:|---:|']
+    for g,x in syn.items():lines.append(f"|{g}|{x['n']}|{x['accuracy']:.4f}|{x['route_S0']}/{x['route_S1']}|{x['S0']['mean_ADDnorm']}|{x['S1']['mean_ADDnorm']}|{x['ROUTED']['mean_ADDnorm']}|{x['ORACLE']['mean_ADDnorm']}|")
+    lines+=['','|real group|arm|PCK5|PCK10|PCK20|ADD AUC|axis correct|R med°|yaw med°|t med cm|IoU3D med|','|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+    for g in ('CLEAN','MODERATE','SEVERE','ALL'):
+        for a,x in r['groups'][g].items():
+            k=x['twoD']['PCK'];p=x['sixD'];lines.append(f"|{g}|{a}|{k['5']:.4f}|{k['10']:.4f}|{k['20']:.4f}|{p['ADDsym_AUC']:.6f}|{p['axis_correct_count']}/{p['frames']}|{p['rotation_deg']['median']:.3f}|{p['yaw_deg']['median']:.3f}|{p['translation_cm']['median']:.3f}|{p['IoU3D']['median']:.4f}|")
+    lines+=['','|group|S0 routes|S1 routes|routed AUC − S1 AUC|','|---|---:|---:|---:|']
+    for g in ('CLEAN','MODERATE','SEVERE','ALL'):
+        counts=r['routing'][g]['counts'];lines.append(f"|{g}|{counts['S0']}|{counts['S1']}|{d['actual_delta_vs_S1'][g]:+.6f}|")
+    lines+=['',f"Dual median {cost['timings_ms']['dual_total_ms']['median']:.2f}ms / mean {cost['timings_ms']['dual_total_ms']['mean']:.2f}ms, peak allocated {cost['GPU_peak_allocated_MiB']:.1f}MiB, benchmark wall {cost['wall_seconds']:.2f}s. RTX3080, batch1, dual resident, decode/load 제외, PnP+context+CPU router 포함. Jetson 측정도 최종 배포 승격도 아니다.",'',
+        '아래 사례는 routed−S1 ADD 차이의 양 끝에서 사후 선택한 설명용 이미지이다. 개선과 실패를 함께 보여주며, 극단 사례가 전체 빈도를 대표하지 않는다. GT best expert는 사후 진단용이고 추론 경로에 들어가지 않는다.']
+    for f in sorted((C.DOC/'figures/stage4').glob('*')):lines+=['',f'![{f.stem}](../figures/stage4/{f.name})']
+    C.save(C.sdoc(4)/'STAGE4_REPORT_KO.md','\n'.join(lines)+'\n')
+
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('stage',type=int);a=p.parse_args();globals()[f'stage{a.stage}']()
