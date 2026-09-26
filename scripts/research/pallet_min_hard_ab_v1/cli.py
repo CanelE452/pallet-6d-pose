@@ -25,6 +25,7 @@ def select(rows):
     C.save(C.DOC/'HARD_SELECTION_LOCK.json',value,immutable=True)
     C.save(C.DOC/'HARD_SELECTION_PUBLIC.json',value,immutable=True)
     C.set_state('WAITING_FOR_HUMAN_HARD_ANNOTATION',active_frames=len(initial),reserve=len(reserve),
+                rounds_completed=C.read(C.DOC/'DIFFICULTY_TAG_LOCK.json')['rounds'],
                 command='python -m scripts.research.pallet_min_hard_ab_v1.annotate_hard',training='NOT_RUN')
 
 def resume():
@@ -86,7 +87,8 @@ def status():
     print('CANDIDATE_POOL:');print('TOTAL:',audit['eligible_frames'],'/ source',audit['source_frames'])
     print('RECORDINGS:',audit['eligible_recordings']);print('EXCLUSIONS:',audit['exclusions'])
     print('SHA_OVERLAP:',audit['SHA_overlap_after_exclusion']);print('NEAR_DUP_OVERLAP:',audit['near_duplicate_overlap_after_exclusion'])
-    print('DIFFICULTY_TAGGING:');print('ROUNDS_COMPLETED:',state.get('rounds_completed',0));print('ROUND:',state.get('round','N/A'))
+    tag_lock=C.DOC/'DIFFICULTY_TAG_LOCK.json'
+    print('DIFFICULTY_TAGGING:');print('ROUNDS_COMPLETED:',C.read(tag_lock)['rounds'] if tag_lock.exists() else state.get('rounds_completed',0));print('ROUND:',state.get('round','N/A'))
     print('QUEUE_COUNTS:',{k:sum(v.values()) for k,v in queue['round_counts'].items()})
     summary=C.DOC/'DIFFICULTY_TAG_SUMMARY_PUBLIC.json'
     print('HUMAN_TAGGED:',C.read(summary) if summary.exists() else 0)

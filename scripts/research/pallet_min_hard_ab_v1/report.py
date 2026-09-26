@@ -105,6 +105,9 @@ Already-viewed HELDOUT128 DEV이며 독립 TEST가 아니다. 태깅 표본은 �
 
 준비 감사: 17개 체크와 11개 단위 테스트 PASS. 전체 고정 큐368장의 평가·예약/큐 내부 MAD를 독립 재계산했다. 실제 Tk 창에서 마우스 클릭 없이 키 입력, 즉시 다음 이동, 길게 누름 방지, undo, 저장 후 resume을 임시 태그로 검증했다. 사람 태그/실제 annotation/학습/평가 테스트는 NOT_RUN이다. [준비 테스트](PREPARATION_TESTS.json).
 '''
+    if (C.DOC/'HARD_SELECTION_LOCK.json').exists():
+        from .selection_report import enrich
+        report=enrich(report,summary)
     C.save(C.DOC/'REPORT_KO.md',report)
 
 if __name__=='__main__':render()
