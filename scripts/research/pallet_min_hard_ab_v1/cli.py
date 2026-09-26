@@ -72,6 +72,9 @@ def resume():
                     C.set_state('HARD_PREVALENCE_OR_DIVERSITY_INSUFFICIENT',rounds_completed=round_no,
                                 training='NOT_RUN',annotation='NOT_RUN',user_action_required=False)
                 else:select(tagged)
+        elif state['status'] in ('WAITING_FOR_EXISTING_ANNOTATION_KEYPOINTS','WAITING_FOR_HUMAN_HARD_METADATA'):
+            from .existing_click_progress import summarize
+            summarize()
         elif state['status'] in ('WAITING_FOR_HUMAN_HARD_ANNOTATION','WAITING_FOR_HUMAN_HARD_QA'):
             from .labels import validate_resume
             validate_resume()

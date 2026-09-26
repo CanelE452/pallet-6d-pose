@@ -24,23 +24,23 @@ Initial **8장 = Moderate4 + Severe4 /3 recordings**. Reserve2는 별도로 고�
 ### 지금 입력하는 방법
 
 ```bash
-python -m scripts.research.pallet_min_hard_ab_v1.annotate_hard
+python -m scripts.research.pallet_min_hard_ab_v1.open_existing_annotation
 ```
 
-1. 앞면/가까운 면 역할을 확신하면 **C**. 모호하면 ‘역할 불확실’ 버튼 후 Enter.
-2. 현재 관찰되는 팔레트 범위를 박스로 드래그. 화면 밖·가려진 외곽은 추정하지 않는다.
-3. P0..7은 직접 보일 때만 클릭한다. 클릭 즉시 다음 번호. **O** 가림/자체 가림, **X** 화면 밖, **U** 위치 모호는 좌표 없이 다음 점.
-4. P7까지 확인 후 **Enter**로 해당 이미지 완료. **Z** 되돌리기, **B** 박스 다시 입력.
+사용자 요청으로 전용 Tk 입력기를 닫고 **기존 `scripts/annotate/annotate.py`**로 전환했다. 공유 편집기 소스는 수정하지 않고 이번 프로세스에서만 격리 경로와 직접 클릭 저장을 연결했다.
 
-작게 보이면 **마우스 휠로 확대**, 오른쪽 버튼 드래그로 이동, **F**로 전체 보기. 확대 상태에서도 원본 좌표로 저장된다.
+- 좌클릭: 현재 P0..P7 입력 후 다음 번호.
+- 안 보이는 점은 찍지 말고 숫자키로 다음 보이는 번호를 선택.
+- **s** 저장 후 다음 이미지. 두 점만 입력해도 PnP 없이 저장 가능.
+- **z** 되돌리기 / **d** 현재 점 삭제 / **+,-** 확대·축소 / **q** 종료.
 
-보이지 않는 점/P8/PnP 보완은 입력하지 않는다. 아직 teacher inference·새 학습·A/B 평가는 하지 않았다. 입력 완료 후 창을 닫고 `python -m scripts.research.pallet_min_hard_ab_v1.cli resume` 또는 대화에 완료를 알린다.
+이번 pass는 직접 클릭만 저장한다. PnP 표시·자동채움·외삽·P8은 비활성화했고, 기존 GT/모델 출력은 불러오지 않는다. 정확한 xy는 private 폴더에만 저장하며 기존 입력 기록도 보존했다. **역할/가시성/수동 bbox 확인은 이후 별도 단계로 남아 있고, 클릭 저장만으로 최종 학습 label lock을 만들지 않는다.** 새 학습은 아직 없다.
 
 [선정 lock](HARD_SELECTION_LOCK.json) · [태깅 집계](DIFFICULTY_TAG_SUMMARY_PUBLIC.json) · [선정 검증 16항목 PASS](HARD_SELECTION_AUDIT.json)
 
 ## 1. 한 줄 결론
 
-**WAITING_FOR_HUMAN_HARD_ANNOTATION**. 현재는 Phase3 선정 완료 / Phase4 수동 입력 대기 단계이며 새 모델 학습·A/B 평가를 하지 않았다. BASE S1+GEO_LINEAR를 교체하지 않았다. 기존 RGB 8031장 → 미사용/중복 제외 후 **6821장 /8 recordings** → 첫 라운드 **123장**을 고정했다.
+**WAITING_FOR_EXISTING_ANNOTATION_KEYPOINTS**. 현재는 Phase3 선정 완료 / Phase4 수동 입력 대기 단계이며 새 모델 학습·A/B 평가를 하지 않았다. BASE S1+GEO_LINEAR를 교체하지 않았다. 기존 RGB 8031장 → 미사용/중복 제외 후 **6821장 /8 recordings** → 첫 라운드 **123장**을 고정했다.
 
 ## 2. 왜 이 실험을 했나
 

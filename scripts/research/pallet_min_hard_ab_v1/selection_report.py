@@ -48,6 +48,20 @@ python -m scripts.research.pallet_min_hard_ab_v1.annotate_hard
 [선정 lock](HARD_SELECTION_LOCK.json) · [태깅 집계](DIFFICULTY_TAG_SUMMARY_PUBLIC.json) · [선정 검증 16항목 PASS](HARD_SELECTION_AUDIT.json)
 
 '''
+    if (C.DOC/'ANNOTATION_EDITOR_OVERRIDE.json').exists():
+        detail=detail.replace('scripts.research.pallet_min_hard_ab_v1.annotate_hard','scripts.research.pallet_min_hard_ab_v1.open_existing_annotation')
+        start=detail.index('1. 앞면/가까운');end=detail.index('[선정 lock]',start)
+        detail=detail[:start]+'''사용자 요청으로 전용 Tk 입력기를 닫고 **기존 `scripts/annotate/annotate.py`**로 전환했다. 공유 편집기 소스는 수정하지 않고 이번 프로세스에서만 격리 경로와 직접 클릭 저장을 연결했다.
+
+- 좌클릭: 현재 P0..P7 입력 후 다음 번호.
+- 안 보이는 점은 찍지 말고 숫자키로 다음 보이는 번호를 선택.
+- **s** 저장 후 다음 이미지. 두 점만 입력해도 PnP 없이 저장 가능.
+- **z** 되돌리기 / **d** 현재 점 삭제 / **+,-** 확대·축소 / **q** 종료.
+
+이번 pass는 직접 클릭만 저장한다. PnP 표시·자동채움·외삽·P8은 비활성화했고, 기존 GT/모델 출력은 불러오지 않는다. 정확한 xy는 private 폴더에만 저장하며 기존 입력 기록도 보존했다. **역할/가시성/수동 bbox 확인은 이후 별도 단계로 남아 있고, 클릭 저장만으로 최종 학습 label lock을 만들지 않는다.** 새 학습은 아직 없다.
+
+'''+detail[end:]
+        report=report.replace('scripts.research.pallet_min_hard_ab_v1.annotate_hard','scripts.research.pallet_min_hard_ab_v1.open_existing_annotation')
     report=report.replace('현재는 Phase1–2 준비 단계이며','현재는 Phase3 선정 완료 / Phase4 수동 입력 대기 단계이며')
     report=report.replace('### 지금 하는 조작','### 완료된 난도 태깅 조작 (이력용)')
     report=report.replace('지금은 **키포인트/박스를 찍지 않는다**. 난도만 입력한다. 첫 라운드 완료 후:',
