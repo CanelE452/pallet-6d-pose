@@ -120,4 +120,21 @@ python -m scripts.research.pallet_min_hard_ab_v1.annotate_hard
 [사용자 확인 기록](DIRECT_CLICK_USER_CONFIRMATION.json)
 
 '''
+    if (C.DOC/'HARD_LABEL_LOCK.json').exists():
+        lock=C.read(C.DOC/'HARD_LABEL_LOCK.json')
+        detail=detail.replace('8장 클릭 저장 완료 → 메타데이터 확인 대기','8장·36점 주석 및 공통 PnP 박스 확정')
+        start=detail.index('숫자상 8장·36점')
+        detail=detail[:start]+'''**사용자 확인과 공통 PnP 박스 사용 승인 완료.** 8장·36점·3 recordings가 최소 감독량 조건을 통과했다. 좌표 유효성·중복·좌우/상하 순서 검사 경고 0. 직접 클릭만 수동 좌표로 사용하며 자동 코너 28개와 P8은 감독하지 않는다. PnP 투영 코너0..7의 축 정렬 외접 박스를 이미지 경계로 잘라 두 arm에 동일하게 제공하고, hard slot의 박스·분류·visibility loss는 사용하지 않는다.
+
+이는 원래 수동 visible-envelope bbox 조건의 사용자 승인 변경이다. 입력은 PnP 보조이며 독립적인 정확도 검증이 아니라 사용자 확신에 기반한다. hidden/불확실 점의 실제 가시성은 자동 판정하지 않고 모두 감독 제외한다.
+
+[확정 lock](HARD_LABEL_LOCK.json) · [프로토콜 변경](ANNOTATION_PROTOCOL_AMENDMENT.json) · [QA 및 출처](HARD_PROVENANCE_PUBLIC.json)
+
+'''
+        report=report.replace('Phase4 클릭 저장 완료 / 메타데이터 확인 대기','Phase4 label lock 완료')
+        report=report.replace('8장 클릭 저장은 완료됐고 메타데이터 확인이 남아 있다.','8장 label lock은 완료됐다.')
+        report=report.replace('클릭 저장 완료, 최종 확정 전','사용자 확인 후 label lock 완료')
+        report=report.replace('수동 bbox는 아직 없고 직접 클릭점의 가시성·번호 확신 확인도 남아 있다.','직접 클릭점은 사용자 확인을 받았고, 수동 bbox 대신 공통 PnP 박스를 사용하도록 승인받았다.')
+        report=report.replace('남은 것은 직접 클릭점 확인과 bbox 방식 결정이다.','사용자 확인과 bbox 방식 결정도 완료됐다.')
+        report=report.replace('최종 label lock/학습/평가는 아직 NOT_RUN이다.','최종 label lock까지 완료됐으며 학습/평가는 아직 NOT_RUN이다.')
     return report.replace('## 1. 한 줄 결론',detail+'## 1. 한 줄 결론',1)

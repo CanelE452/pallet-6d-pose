@@ -73,8 +73,12 @@ def resume():
                                 training='NOT_RUN',annotation='NOT_RUN',user_action_required=False)
                 else:select(tagged)
         elif state['status'] in ('WAITING_FOR_EXISTING_ANNOTATION_KEYPOINTS','WAITING_FOR_HUMAN_HARD_METADATA'):
-            from .existing_click_progress import summarize
-            summarize()
+            if (C.DOC/'PNP_BOX_USER_APPROVAL.json').exists():
+                from .lock_assisted_labels import main as lock_labels
+                lock_labels()
+            else:
+                from .existing_click_progress import summarize
+                summarize()
         elif state['status'] in ('WAITING_FOR_HUMAN_HARD_ANNOTATION','WAITING_FOR_HUMAN_HARD_QA'):
             from .labels import validate_resume
             validate_resume()
