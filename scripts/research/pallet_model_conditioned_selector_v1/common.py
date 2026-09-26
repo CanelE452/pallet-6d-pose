@@ -40,7 +40,7 @@ def immutable():
     for f in b['files']:verify(f)
     return len(b['files'])
 
-def guard(mode):
+def guard(mode,allowed_images=None):
     """Deny real reference opens in synth/decision processes; record permitted repo reads."""
     paths=[]
     tokens=['TRUTH_FOR_DISPLAY','GEOMETRY_RESOLVED','VERIFIED_LABELS','FRAME_METRICS','POSE_METRICS','ANCHOR_METRICS',
@@ -51,7 +51,8 @@ def guard(mode):
         if event!='open' or not isinstance(args[0],(str,bytes,os.PathLike)):return
         p=os.path.abspath(os.fsdecode(args[0]));writing=isinstance(args[1],str) and any(c in args[1] for c in 'wax+')
         if not writing:
-            assert not any(t in p for t in tokens),f'{mode.upper()}_REFERENCE_READ_DENIED: {p}'
+            rgb=allowed_images is not None and p in allowed_images and Path(p).suffix.lower() in ('.png','.jpg','.jpeg')
+            assert rgb or not any(t in p for t in tokens),f'{mode.upper()}_REFERENCE_READ_DENIED: {p}'
             if p.startswith(str(ROOT)):paths.append(p)
     sys.addaudithook(hook)
     return paths

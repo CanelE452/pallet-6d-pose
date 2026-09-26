@@ -22,7 +22,8 @@ def main(final=False):
     check('S1_optimizer_steps_zero',pl['keypoint_optimizer_steps']['S1']==0,'Reused predictions only')
     check('HMAN_optimizer_steps_zero',pl['keypoint_optimizer_steps']['H_MANUAL']==0 and pl['HMAN_state_before']==pl['HMAN_state_after'] and pl['gradients_absent'],'Inference-only requires_grad=False; state hash before/after; no optimizer instantiated')
     check('no_new_hard_labels',p['additional_hard_labels']==0 and not list(C.RAW.glob('*LABELS_PRIVATE*')),'Existing annotations hash-unchanged; no annotation workflow invoked')
-    check('no_new_manual_annotation',True,'Historical hard8/direct36 unchanged (input hashes); no UI opened')
+    historical_labels=C.read(C.HARD/'HARD_LABEL_LOCK.json')['labels'];C.verify(historical_labels)
+    check('no_new_manual_annotation',True,dict(historical_labels=historical_labels,no_UI_opened=True))
     C.verify(f['feature_contract']);check('exact_feature_contract_hash',f['feature_contract']==b['contract'],b['contract'])
     check('94_features_exact',p['features']==F.names() and len(F.names())==94,p['features'])
     check('no_feature_added_removed',f['shape']==[6144,2,94],f['shape'])
@@ -82,7 +83,8 @@ def main(final=False):
     check('unit_tests',result.wasSuccessful(),dict(run=result.testsRun,output=stream.getvalue()))
     output=dict(created_at=C.now(),passed=all(v['passed'] for v in checks.values()),count=len(checks),checks=checks,
         evidence_limit='Artifact integrity, actual runtime read audit, parameter/state checks and unit tests; not an independent security sandbox or independent final validation.')
-    C.save(C.DOC/('FINAL_AUDIT.json' if final else 'STAGE2_AUDIT.json'),output)
+    # Audit snapshots can be refreshed; fitted weights, decisions and metrics cannot.
+    C.save(C.DOC/('FINAL_AUDIT.json' if final else 'STAGE2_AUDIT.json'),output,immutable=False)
     print('AUDIT_PASS',len(checks),result.testsRun,flush=True)
 
 if __name__=='__main__':

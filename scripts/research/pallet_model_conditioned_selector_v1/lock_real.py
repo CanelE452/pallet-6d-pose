@@ -1,8 +1,10 @@
 """GT-free real decision process: lock all eight combinations before evaluation reads."""
 from . import common as C
-READS=C.guard('decision')
+RGB_READ_ALLOWLIST=set()
+READS=C.guard('decision',RGB_READ_ALLOWLIST)
 import numpy as np
 import torch
+import cv2
 from scripts.research.pallet_selector_recovery_v1 import features as F,models as M
 
 def main():
@@ -14,6 +16,12 @@ def main():
     pl=C.read(C.HARD/'POSE_DECISIONS_LOCK.json');rl=C.read(C.HARD/'RAW_PREDICTIONS_LOCK.json');C.verify(pl['poses']);C.verify(rl['predictions']);C.verify(rl['metadata'])
     rows=C.read(C.ROOT/rl['metadata']['path'])['real'];raw=C.read(C.ROOT/rl['predictions']['path'])['real'];poses=C.read(C.ROOT/pl['poses']['path'])['real'];out={};features={};parity=[]
     assert len(rows)==128
+    RGB_READ_ALLOWLIST.update(str((C.ROOT/r['image']['path']).absolute()) for r in rows)
+    # Original hard experiment stored native RGB dimensions separately in memory.
+    # Recover only image shape, not annotation/GT, for the identical area feature.
+    for r in rows:
+        C.verify(r['image']);im=cv2.imread(str(C.ROOT/r['image']['path']));assert im is not None
+        r['hw']=list(im.shape[:2])
     for model in C.MODELS:
         a=C.ARM[model];features[model]={}
         for s in C.SELECTORS:out[model+'_'+s]={}
