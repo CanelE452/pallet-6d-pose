@@ -76,4 +76,40 @@ python -m scripts.research.pallet_min_hard_ab_v1.annotate_hard
                           '위 설명은 완료된 난도 태깅의 이력이다. 지금은 상단 안내에 따라 8장 수동 입력을 진행한다. 입력 후:')
     report=report.replace('지금 사용자는 첫 라운드 난도 태깅만 하면 된다.','난도 태깅은 종료했고 지금은 선정된 8장만 수동 입력하면 된다.')
     report=report.replace('사람 태그/실제 annotation/학습/평가 테스트는 NOT_RUN이다.','기존 준비 감사 시점에는 사람 태그가 없었다. 현재 난도 태깅은 검증·고정됐으며 실제 corner annotation/학습/평가는 아직 NOT_RUN이다.')
+    progress_path=C.DOC/'EXISTING_CLICK_PROGRESS_PUBLIC.json'
+    if progress_path.exists():
+        p=C.read(progress_path)
+        if p['saved_frames']==p['required_frames']:
+            detail=detail.replace('Round1 완료 → 8장 수동 입력 대기','8장 클릭 저장 완료 → 메타데이터 확인 대기')
+            detail=detail.replace('### 지금 입력하는 방법','### 완료한 입력 방법 (수정할 때만 다시 실행)')
+            counts=p['direct_corner_counts']
+            chart=Image.new('RGB',(960,320),'#15222c');cd=ImageDraw.Draw(chart)
+            cd.text((20,15),'Saved direct clicks by corner (visibility / role confirmation pending)',fill='white')
+            for k,n in enumerate(counts):
+                x=45+k*112
+                if n:cd.rectangle((x,260-n*24,x+60,260),fill='#43bdd1')
+                cd.text((x+20,275),f'P{k}',fill='white');cd.text((x+20,240-n*24),str(n),fill='white')
+            chart.save(C.DOC/'figures/04_saved_direct_click_coverage.png')
+            table='\n'.join(f'|{i+1}|{r["recording"]}|{len(r["direct_corner_indices"])}|{len(r["assisted_corner_indices"])}|' for i,r in enumerate(p['per_frame']))
+            detail+=f'''### 저장 결과 확인
+
+**{p['saved_frames']}/{p['required_frames']}장 저장 완료**. 직접 클릭 코너 **{p['direct_clicks']}개**, PnP/외삽 보완 코너 **{p['assisted_points']}개**, 자동 중심점 **{p['auto_centroids']}개**. 직접 클릭 여부는 저장된 source로 구분하며, `manual_kps` 전체를 수동 정답으로 취급하지 않는다.
+
+|번호|recording|직접 클릭 코너|자동 보완 코너|
+|---|---|---:|---:|
+{table}
+
+![직접 클릭된 코너별 개수 — 가시성·번호 확신 확인 전](figures/04_saved_direct_click_coverage.png)
+
+숫자상 8장·36점·3 recordings로 입력량 조건에 도달했지만 **usable 확정은 아니다**. 직접 클릭점의 실제 가시성·번호 확신과 bbox 방식을 확인 중이다. 기존 도구에는 수동 bbox 입력이 없었으므로 수동 박스가 완료됐다고 기록하지 않는다. PnP 박스를 공통으로 사용할 경우 원래 프로토콜 변경을 명시해야 한다. 자동 보완 코너와 P8은 수동 감독에서 제외한다.
+
+**최종 label lock 없음 / teacher inference 미실행 / 새 학습·평가 미실행.** [저장 집계 및 원본 SHA](EXISTING_CLICK_PROGRESS_PUBLIC.json).
+
+'''
+            report=report.replace('Phase3 선정 완료 / Phase4 수동 입력 대기','Phase4 클릭 저장 완료 / 메타데이터 확인 대기')
+            report=report.replace('지금은 상단 안내에 따라 8장 수동 입력을 진행한다. 입력 후:','8장 클릭 저장은 완료됐고 메타데이터 확인이 남아 있다. 상태 확인:')
+            report=report.replace('## 4. Manual annotation — 아직 미수행','## 4. Manual annotation — 클릭 저장 완료, 최종 확정 전')
+            report=report.replace('현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로 수동 bbox와 직접 보이는 P0..7만 입력한다.','현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로 코너를 저장했다. 수동 bbox는 아직 없고 직접 클릭점의 가시성·번호 확신 확인도 남아 있다.')
+            report=report.replace('난도 태깅은 종료했고 지금은 선정된 8장만 수동 입력하면 된다.','난도 태깅과 8장 클릭 저장은 완료됐다. 남은 것은 직접 클릭점 확인과 bbox 방식 결정이다.')
+            report=report.replace('실제 corner annotation/학습/평가는 아직 NOT_RUN이다.','corner 클릭 저장은 완료됐고 최종 label lock/학습/평가는 아직 NOT_RUN이다.')
     return report.replace('## 1. 한 줄 결론',detail+'## 1. 한 줄 결론',1)

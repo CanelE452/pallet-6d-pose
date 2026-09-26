@@ -1,6 +1,6 @@
 # Minimal hard supervision A/B — 준비 및 사람 입력 대기
 
-## 현재 진행: Round1 완료 → 8장 수동 입력 대기
+## 현재 진행: 8장 클릭 저장 완료 → 메타데이터 확인 대기
 
 난도 태깅 **123/123 완료**. CLEAN 10, MODERATE 13, SEVERE 9, UNCERTAIN 0, INVALID 91. Hard **22장 /4 recordings**로 고정 종료 조건을 만족하여 Round2/3은 열지 않는다. INVALID91은 사용자의 판정을 그대로 보존했으며 모델로 재분류하지 않았다.
 
@@ -21,7 +21,7 @@ Initial **8장 = Moderate4 + Severe4 /3 recordings**. Reserve2는 별도로 고�
 
 ![선정 원본 축소 모음 — 예측/GT/PnP 없음](figures/03_selected_hard_frames_contact.jpg)
 
-### 지금 입력하는 방법
+### 완료한 입력 방법 (수정할 때만 다시 실행)
 
 ```bash
 python -m scripts.research.pallet_min_hard_ab_v1.open_existing_annotation
@@ -38,9 +38,30 @@ python -m scripts.research.pallet_min_hard_ab_v1.open_existing_annotation
 
 [선정 lock](HARD_SELECTION_LOCK.json) · [태깅 집계](DIFFICULTY_TAG_SUMMARY_PUBLIC.json) · [선정 검증 16항목 PASS](HARD_SELECTION_AUDIT.json)
 
+### 저장 결과 확인
+
+**8/8장 저장 완료**. 직접 클릭 코너 **36개**, PnP/외삽 보완 코너 **28개**, 자동 중심점 **8개**. 직접 클릭 여부는 저장된 source로 구분하며, `manual_kps` 전체를 수동 정답으로 취급하지 않는다.
+
+|번호|recording|직접 클릭 코너|자동 보완 코너|
+|---|---|---:|---:|
+|1|REC_019|5|3|
+|2|REC_011|4|4|
+|3|REC_019|5|3|
+|4|REC_011|4|4|
+|5|REC_019|4|4|
+|6|REC_024|5|3|
+|7|REC_011|4|4|
+|8|REC_024|5|3|
+
+![직접 클릭된 코너별 개수 — 가시성·번호 확신 확인 전](figures/04_saved_direct_click_coverage.png)
+
+숫자상 8장·36점·3 recordings로 입력량 조건에 도달했지만 **usable 확정은 아니다**. 직접 클릭점의 실제 가시성·번호 확신과 bbox 방식을 확인 중이다. 기존 도구에는 수동 bbox 입력이 없었으므로 수동 박스가 완료됐다고 기록하지 않는다. PnP 박스를 공통으로 사용할 경우 원래 프로토콜 변경을 명시해야 한다. 자동 보완 코너와 P8은 수동 감독에서 제외한다.
+
+**최종 label lock 없음 / teacher inference 미실행 / 새 학습·평가 미실행.** [저장 집계 및 원본 SHA](EXISTING_CLICK_PROGRESS_PUBLIC.json).
+
 ## 1. 한 줄 결론
 
-**WAITING_FOR_EXISTING_ANNOTATION_KEYPOINTS**. 현재는 Phase3 선정 완료 / Phase4 수동 입력 대기 단계이며 새 모델 학습·A/B 평가를 하지 않았다. BASE S1+GEO_LINEAR를 교체하지 않았다. 기존 RGB 8031장 → 미사용/중복 제외 후 **6821장 /8 recordings** → 첫 라운드 **123장**을 고정했다.
+**WAITING_FOR_HUMAN_HARD_METADATA**. 현재는 Phase4 클릭 저장 완료 / 메타데이터 확인 대기 단계이며 새 모델 학습·A/B 평가를 하지 않았다. BASE S1+GEO_LINEAR를 교체하지 않았다. 기존 RGB 8031장 → 미사용/중복 제외 후 **6821장 /8 recordings** → 첫 라운드 **123장**을 고정했다.
 
 ## 2. 왜 이 실험을 했나
 
@@ -84,7 +105,7 @@ python -m scripts.research.pallet_min_hard_ab_v1.tag_difficulty
 - **X** 사용 불가: 팔레트가 없거나 흐림/손상으로 주석 불가.
 - **Z** 직전 응답 취소. 키를 입력하면 저장하고 바로 다음 이미지로 이동. 중간에 닫아도 이어서 진행.
 
-위 설명은 완료된 난도 태깅의 이력이다. 지금은 상단 안내에 따라 8장 수동 입력을 진행한다. 입력 후:
+위 설명은 완료된 난도 태깅의 이력이다. 8장 클릭 저장은 완료됐고 메타데이터 확인이 남아 있다. 상태 확인:
 
 ```bash
 python -m scripts.research.pallet_min_hard_ab_v1.cli resume
@@ -92,9 +113,9 @@ python -m scripts.research.pallet_min_hard_ab_v1.cli resume
 
 Hard≥12, ≥3 recording, recording당 최대3장으로 initial8+reserve2 구성 가능하면 태깅을 중단한다. Severe≥2는 선호이며 강제 변경하지 않는다. 부족할 때만 다음 라운드, 최대 368장. Round3까지 부족하면 모델 실패 영상으로 채우지 않고 종료한다.
 
-## 4. Manual annotation — 아직 미수행
+## 4. Manual annotation — 클릭 저장 완료, 최종 확정 전
 
-태깅 완료 후 hard 인간 태그·recording·고정 SHA만으로 initial8+reserve≤2를 선정한다. 전체에서 recording당 최대3, initial에 최소3 recording. 4M/4S 선호. 현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로 수동 bbox와 직접 보이는 P0..7만 입력한다. P8/숨은점/PnP 보완은 감독하지 않는다. 역할 불확실은 제외한다. 6 usable/24 clicks/3개 corner 각3점/3recording 기준을 검사한다.
+태깅 완료 후 hard 인간 태그·recording·고정 SHA만으로 initial8+reserve≤2를 선정한다. 전체에서 recording당 최대3, initial에 최소3 recording. 4M/4S 선호. 현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로 코너를 저장했다. 수동 bbox는 아직 없고 직접 클릭점의 가시성·번호 확신 확인도 남아 있다. P8/숨은점/PnP 보완은 감독하지 않는다. 역할 불확실은 제외한다. 6 usable/24 clicks/3개 corner 각3점/3recording 기준을 검사한다.
 
 ## 5. Causal training contract — 아직 미수행
 
@@ -112,7 +133,7 @@ CLEAN29/MODERATE21/SEVERE78/ALL128, verified FINAL_V2, source256, per-recording,
 
 ## 15. 다음 단계
 
-난도 태깅은 종료했고 지금은 선정된 8장만 수동 입력하면 된다. 사람 태그 → selection lock → 직접 보이는 점·bbox 입력 → QA/label lock 순서를 지킨다. **학습 실행부의 pair-integrity 검증과 실제 fit/evaluation은 label lock 뒤 다음 작업 단계에서 이어서 완료한다.** 현재 prepare/resume은 사람 입력과 label lock까지 처리하며, 그 뒤 `HARD_LABELS_LOCKED_TRAINING_PENDING`에서 안전하게 멈춘다. 사람 입력을 대신 만들거나 자동 학습 성공을 기록하지 않는다.
+난도 태깅과 8장 클릭 저장은 완료됐다. 남은 것은 직접 클릭점 확인과 bbox 방식 결정이다. 사람 태그 → selection lock → 직접 보이는 점·bbox 입력 → QA/label lock 순서를 지킨다. **학습 실행부의 pair-integrity 검증과 실제 fit/evaluation은 label lock 뒤 다음 작업 단계에서 이어서 완료한다.** 현재 prepare/resume은 사람 입력과 label lock까지 처리하며, 그 뒤 `HARD_LABELS_LOCKED_TRAINING_PENDING`에서 안전하게 멈춘다. 사람 입력을 대신 만들거나 자동 학습 성공을 기록하지 않는다.
 
 ## 16. 한계
 
@@ -120,4 +141,4 @@ Already-viewed HELDOUT128 DEV이며 독립 TEST가 아니다. 태깅 표본은 �
 
 [후보 감사](CANDIDATE_POOL_AUDIT.json) · [큐 lock](DIFFICULTY_QUEUE_LOCK.json) · [프로토콜](PROTOCOL_LOCK.json) · [코드/실행 안내](../../../scripts/research/pallet_min_hard_ab_v1/README.md)
 
-준비 감사: 17개 체크와 11개 단위 테스트 PASS. 전체 고정 큐368장의 평가·예약/큐 내부 MAD를 독립 재계산했다. 실제 Tk 창에서 마우스 클릭 없이 키 입력, 즉시 다음 이동, 길게 누름 방지, undo, 저장 후 resume을 임시 태그로 검증했다. 기존 준비 감사 시점에는 사람 태그가 없었다. 현재 난도 태깅은 검증·고정됐으며 실제 corner annotation/학습/평가는 아직 NOT_RUN이다. [준비 테스트](PREPARATION_TESTS.json).
+준비 감사: 17개 체크와 11개 단위 테스트 PASS. 전체 고정 큐368장의 평가·예약/큐 내부 MAD를 독립 재계산했다. 실제 Tk 창에서 마우스 클릭 없이 키 입력, 즉시 다음 이동, 길게 누름 방지, undo, 저장 후 resume을 임시 태그로 검증했다. 기존 준비 감사 시점에는 사람 태그가 없었다. 현재 난도 태깅은 검증·고정됐으며 corner 클릭 저장은 완료됐고 최종 label lock/학습/평가는 아직 NOT_RUN이다. [준비 테스트](PREPARATION_TESTS.json).
