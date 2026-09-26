@@ -62,6 +62,14 @@ python -m scripts.research.pallet_min_hard_ab_v1.annotate_hard
 
 '''+detail[end:]
         report=report.replace('scripts.research.pallet_min_hard_ab_v1.annotate_hard','scripts.research.pallet_min_hard_ab_v1.open_existing_annotation')
+    if (C.DOC/'PNP_USER_OVERRIDE.json').exists():
+        detail=detail.replace('**s** 저장 후 다음 이미지. 두 점만 입력해도 PnP 없이 저장 가능.',
+                              '**s** 저장 후 다음 이미지. **g** PnP 자동 채움·저장 후 현재 이미지 유지, **n** 다음 이미지. PnP 불가 시에도 s로 부분 클릭 저장 가능.')
+        detail=detail.replace('이번 pass는 직접 클릭만 저장한다. PnP 표시·자동채움·외삽·P8은 비활성화했고, 기존 GT/모델 출력은 불러오지 않는다.',
+                              '사용자의 명시적 후속 요청으로 **PnP 표시·자동 채움을 켰다**. 이미지별 실제 cam_K를 사용한다. 직접 클릭과 PnP/외삽/중심 보완의 source를 분리하고, 자동 생성점/P8은 수동 감독 후보에서 제외한다. 기존 GT/모델 출력은 불러오지 않는다. 이 입력은 **HUMAN_PNP_ASSISTED_NOT_BLIND**이며 원래의 PnP 없는 주석 프로토콜과 다르다.')
+        report=report.replace('원본+정적 역할 안내만 표시하는 전용 입력기로','현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로')
+        report=report.replace('모델/teacher/좌표 GT/PnP 결과를 파싱하거나 GUI에 표시하지 않았다.',
+                              '난도 태깅/선정 단계에는 모델/teacher/좌표 GT/PnP 결과를 파싱하거나 표시하지 않았다. 선정 후 주석 단계만 사용자 요청으로 PnP 보조를 허용했다.')
     report=report.replace('현재는 Phase1–2 준비 단계이며','현재는 Phase3 선정 완료 / Phase4 수동 입력 대기 단계이며')
     report=report.replace('### 지금 하는 조작','### 완료된 난도 태깅 조작 (이력용)')
     report=report.replace('지금은 **키포인트/박스를 찍지 않는다**. 난도만 입력한다. 첫 라운드 완료 후:',

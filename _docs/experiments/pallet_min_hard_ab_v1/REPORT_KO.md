@@ -31,10 +31,10 @@ python -m scripts.research.pallet_min_hard_ab_v1.open_existing_annotation
 
 - 좌클릭: 현재 P0..P7 입력 후 다음 번호.
 - 안 보이는 점은 찍지 말고 숫자키로 다음 보이는 번호를 선택.
-- **s** 저장 후 다음 이미지. 두 점만 입력해도 PnP 없이 저장 가능.
+- **s** 저장 후 다음 이미지. **g** PnP 자동 채움·저장 후 현재 이미지 유지, **n** 다음 이미지. PnP 불가 시에도 s로 부분 클릭 저장 가능.
 - **z** 되돌리기 / **d** 현재 점 삭제 / **+,-** 확대·축소 / **q** 종료.
 
-이번 pass는 직접 클릭만 저장한다. PnP 표시·자동채움·외삽·P8은 비활성화했고, 기존 GT/모델 출력은 불러오지 않는다. 정확한 xy는 private 폴더에만 저장하며 기존 입력 기록도 보존했다. **역할/가시성/수동 bbox 확인은 이후 별도 단계로 남아 있고, 클릭 저장만으로 최종 학습 label lock을 만들지 않는다.** 새 학습은 아직 없다.
+사용자의 명시적 후속 요청으로 **PnP 표시·자동 채움을 켰다**. 이미지별 실제 cam_K를 사용한다. 직접 클릭과 PnP/외삽/중심 보완의 source를 분리하고, 자동 생성점/P8은 수동 감독 후보에서 제외한다. 기존 GT/모델 출력은 불러오지 않는다. 이 입력은 **HUMAN_PNP_ASSISTED_NOT_BLIND**이며 원래의 PnP 없는 주석 프로토콜과 다르다. 정확한 xy는 private 폴더에만 저장하며 기존 입력 기록도 보존했다. **역할/가시성/수동 bbox 확인은 이후 별도 단계로 남아 있고, 클릭 저장만으로 최종 학습 label lock을 만들지 않는다.** 새 학습은 아직 없다.
 
 [선정 lock](HARD_SELECTION_LOCK.json) · [태깅 집계](DIFFICULTY_TAG_SUMMARY_PUBLIC.json) · [선정 검증 16항목 PASS](HARD_SELECTION_AUDIT.json)
 
@@ -63,7 +63,7 @@ python -m scripts.research.pallet_min_hard_ab_v1.open_existing_annotation
 
 예약 recording의 **전체 원본 RGB**와 평가/anchor/학습 split 보호 영상 총 5324개 썸네일에 MAD 검사를 했다. 보존 후보의 평가/예약 SHA 및 MAD 중복0. 풀 내부에서도 SHA 순서로 중복을 제거하여 남은 모든 쌍의 grayscale64×48 MAD>2/255를 보장한다. MAD는 중복 검사에만 쓰고 hard 판정에 쓰지 않았다.
 
-각 recording을 시간순 최대48 bin으로 나눠 `sha256("hard-tag-v1:"+frame_id)` 최소 한 장을 뽑는다. Round1=bin0,3,6…; Round2=1,4,7…; Round3=2,5,8…. 태깅 전에 private queue SHA를 공개 lock에 고정했다. 모델/teacher/좌표 GT/PnP 결과를 파싱하거나 GUI에 표시하지 않았다. 과거 결과 파일은 provenance 보존을 위해 바이트 hash만 검증했다.
+각 recording을 시간순 최대48 bin으로 나눠 `sha256("hard-tag-v1:"+frame_id)` 최소 한 장을 뽑는다. Round1=bin0,3,6…; Round2=1,4,7…; Round3=2,5,8…. 태깅 전에 private queue SHA를 공개 lock에 고정했다. 난도 태깅/선정 단계에는 모델/teacher/좌표 GT/PnP 결과를 파싱하거나 표시하지 않았다. 선정 후 주석 단계만 사용자 요청으로 PnP 보조를 허용했다. 과거 결과 파일은 provenance 보존을 위해 바이트 hash만 검증했다.
 
 ![촬영별 고정 태깅 큐](figures/01_tagging_queue_recordings.png)
 
@@ -94,7 +94,7 @@ Hard≥12, ≥3 recording, recording당 최대3장으로 initial8+reserve2 구�
 
 ## 4. Manual annotation — 아직 미수행
 
-태깅 완료 후 hard 인간 태그·recording·고정 SHA만으로 initial8+reserve≤2를 선정한다. 전체에서 recording당 최대3, initial에 최소3 recording. 4M/4S 선호. 원본+정적 역할 안내만 표시하는 전용 입력기로 수동 bbox와 직접 보이는 P0..7만 입력한다. P8/숨은점/PnP 보완은 감독하지 않는다. 역할 불확실은 제외한다. 6 usable/24 clicks/3개 corner 각3점/3recording 기준을 검사한다.
+태깅 완료 후 hard 인간 태그·recording·고정 SHA만으로 initial8+reserve≤2를 선정한다. 전체에서 recording당 최대3, initial에 최소3 recording. 4M/4S 선호. 현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로 수동 bbox와 직접 보이는 P0..7만 입력한다. P8/숨은점/PnP 보완은 감독하지 않는다. 역할 불확실은 제외한다. 6 usable/24 clicks/3개 corner 각3점/3recording 기준을 검사한다.
 
 ## 5. Causal training contract — 아직 미수행
 
