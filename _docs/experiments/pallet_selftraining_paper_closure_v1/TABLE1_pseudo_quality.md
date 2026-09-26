@@ -1,0 +1,6 @@
+# Pseudo-label quality on 66 verified visible points in 16 reused DEV images; fixed native identity. A labeled proxy, not accuracy measured on unlabeled adaptation images.
+
+| Output | Points | PCK5 % | PCK10 % | PCK20 % | Med px | P90 px | Above20 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Synthetic-only R0 | 66 | 21/66 (31.82) | 44/66 (66.67) | 60/66 (90.91) | 7.144 | 18.390 | 6 |
+| Frozen Replay teacher | 66 | 30/66 (45.45) | 50/66 (75.76) | 63/66 (95.45) | 5.489 | 13.759 | 3 |

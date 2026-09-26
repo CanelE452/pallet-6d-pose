@@ -1,0 +1,16 @@
+# Matched coordinate intervention. Shared image membership is conditioned on the same raw-plus-refined filter acceptance, so this is not a comparison of different selection policies.
+
+| Contract | RAW and corrected |
+| --- | --- |
+| Initialization | Same R0 checkpoint |
+| Trainable state | Pose branches and flow only |
+| Real RGB | 217 identical unique images |
+| Real/synthetic exposure | 2560 / 2560 each |
+| Synthetic pool | 512 identical images; no negatives |
+| Supervised support | Identical raw/ref confidence intersection |
+| Optimizer / updates | AdamW / 320 |
+| Learning rate | 1e-5 main; 1e-4 sensitivity |
+| Augmentation / seed | Same settings / 42 |
+| Checkpoint choice | Fixed final last.pt |
+| Teacher supervision | 9 images / 38 manual corners |
+| Only changed target | Supervised pseudo coordinates |
