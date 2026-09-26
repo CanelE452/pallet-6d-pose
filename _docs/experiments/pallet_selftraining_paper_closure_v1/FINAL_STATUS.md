@@ -1,0 +1,20 @@
+# Final CLI hand-off
+
+1. Repository: `CanelE452/pallet-6d-pose`; branch `main`. Evidence/English-paper publication verified at `faf73b146fdd0083693f8ba4ba363876d75d13b9`; this receipt is a subsequent commit. The final command-line local/remote comparison supplies the receipt commit's SHA.
+2. Goal: corrected-pseudo self-training versus raw-pseudo self-training under a disclosed real-supervision budget. Q1–Q4 closed; no further method exploration.
+3. Q1: same verified visible66 points, raw44/66→teacher50/66 PCK10; median7.144→5.489px. SUPPORTED on this labeled DEV proxy, not measured quality of unlabeled217.
+4. Q2: same128 full-panel reference, raw47.51%→corrected51.47% PCK10; final commonD9 AUC0.33472→0.35902. SUPPORTED within this contract. Verified66 student sensitivity is43/66→43/66, not an improvement.
+5. Q3: R0 is49.14%/0.33796. Corrected student improves pooled PCK10/AUC over R0; PARTIAL practical benefit because P90/rotation/axis and some strata do not improve.
+6. Q4: final6D measured, not merely2D; geometry-derived reference, not independent physical pose. Ordinary plastic only, repeated DEV; broader material/session generalization NOT established.
+7. New student/refiner/selector fits: **0**. Existing12 matched student fits (2 learning-rate strata +2 order repeats, each SYN/RAW/REF) reused. Frozen Replay inference128 images on RTX3080; observed48–54°C. No reboot, driver change, or unrelated process termination.
+8. Core teacher manual supervision: **9 real images /38 manual corners**. Student217 unique real RGB; real2560 +synthetic2560 exposures;320 updates. Evaluation16images/66manualpoints is separate human effort. Generic pretraining and total historical development labor are not presented as zero.
+9. Evaluation:128images,7recordinggroups; Clean29/Moderate21/Severe78;985supportedcorners. Matched120frames/931corners. Student and teacher fitting recordings disjoint from this panel, but panel previously viewed.
+10. Independent confirmation: registered incoming panel absent; physicalFINAL229 rows belong to historically evaluated sessions. No independent experiment executed, no result invented. DEV-only manuscript completed; no new capture/annotation is required for this scoped draft.
+11. Extensions: Clean19 occlusion transfer, H_MANUAL/hard8, model-conditioned GEO_LINEAR kept separate. Their improvements are not added to the main coordinate-intervention effect.
+12. Final decision: **PAPER_CORE_SUPPORTED within reused ordinary-plastic legacy-reference DEV**. Method development **STOP**. All-metric superiority, large-error recovery, and independent physical accuracy are unsupported.
+13. Tables/images: `TABLE1`–`TABLE7` files, `REPORT_KO.md`,13 actual paired examples +pipeline/severity plots. Verified-visible student tie and worsening cases included. All31 figure/PDF assets are tracked in Git despite global image ignore rules.
+14. English source/PDF: `_docs/paper/selftraining_submission_v1/manuscript.tex` and `manuscript.pdf` (8pages). References, sentence-level claim map, limitations, generated-number path/hashes, and reproducibility documents included. Original local-refiner manuscript untouched.
+15. Audit:192automatic checks and13regression tests pass. PDF has no undefined references/citations/missing images/overfull warnings;8renderedpages inspected. Existing-stage reruns verified locks without retraining or rewriting results. Public `MEASUREMENT_ROWS.json` supports aggregate auditing without distributing exact manual coordinates.
+16. Remaining: **author review before actual submission** (author/affiliation/funding/data-release declarations, journal fit and DEV-only scope). No research-computation blocker remains. This is not a journal submission or acceptance guarantee. Independent confirmation is needed only for a stronger future claim, not fabricated to close the present manuscript.
+
+See [report](REPORT_KO.md), [PDF](../../paper/selftraining_submission_v1/manuscript.pdf), [audit](PAPER_AUDIT_KO.md), and [submission readiness](../../paper/selftraining_submission_v1/SUBMISSION_READINESS.md).
