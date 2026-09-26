@@ -44,6 +44,10 @@ def overlay(ax,im,pred,gt,title,color):
     ax.set_xlim(0,im.width);ax.set_ylim(im.height,0);ax.axis('off');ax.set_title(title,fontsize=9)
 
 def main():
+    if (C.DOC/'TABLE_FIGURE_FREEZE.json').exists():
+        for b in C.read(C.DOC/'TABLE_FIGURE_FREEZE.json')['tables']:C.verify(b)
+        C.verify(C.read(C.DOC/'TABLE_FIGURE_FREEZE.json')['figures'])
+        print('TABLES_FIGURES_ALREADY_FROZEN');return
     res=C.read(C.DOC/'CORE_RESULTS.json');q=C.read(C.DOC/'PSEUDO_LABEL_QUALITY.json');pa=C.read(C.DOC/'PAIRED_ANALYSIS.json')
     g=res['groups'];allg=g['ALL'];points=C.read(C.RAW/'ANCHOR_POINTS.json');fm=C.read(C.RAW/'FRAME_METRICS.json');pred=C.read(C.RAW/'PREDICTIONS.json');truth=C.read(C.TRUTH)
     rr={r['id']:r for r in C.records()};anchor={}

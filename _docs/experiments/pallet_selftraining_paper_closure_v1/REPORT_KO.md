@@ -171,3 +171,13 @@ Corrected vs raw: frame 평균오차 개선92 / 악화28 / 동일8. 10px 진입5
 Clean19 S0/S1/S2는 occlusion 확장, hard8/H_MANUAL은 추가 manual 확장, GEO_LINEAR는 selector 확장으로만 분류한다. 다른 teacher·감독 budget·학습 조건을 섞어 main self-training 이득이라고 하지 않는다. 초록·목재 전체 및 독립 미사용 촬영 일반화는 이번 main으로 검증하지 않았다.
 
 원고: [`selftraining_submission_v1`](../../paper/selftraining_submission_v1/manuscript.tex). 전체 수치·체크포인트·분모·해시는 JSON과 재현 문서를 참조한다.
+
+## 추가 근거 감사: 수동 재확인66점의 학생 결과
+
+| Arm | PCK10 | PCK20 | Median px | P90 px |
+| --- | --- | --- | --- | --- |
+| R0 | 44/66 | 60/66 | 7.144 | 18.390 |
+| RAW_LR5 | 43/66 | 60/66 | 7.046 | 19.574 |
+| REF_LR5 | 43/66 | 63/66 | 7.097 | 17.343 |
+
+이 작은 subset에서는 학생 PCK10이 raw43/66, corrected43/66으로 동일하고 R0는44/66이다. 따라서 학생 개선 주장은 전체128장 기존 reference의 pooled결과에 한정한다. 보정기44→50/66과 학생43→43/66은 서로 다른 질문이다. 보정 학생의 PCK20과 tail은 이66점에서는 개선되지만 median은 소폭 악화된다. 이 민감도도 원고와 보고서에 명시하고 유리한 subset으로 평가를 대체하지 않는다.
