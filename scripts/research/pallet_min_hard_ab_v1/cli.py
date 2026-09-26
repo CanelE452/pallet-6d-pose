@@ -83,7 +83,8 @@ def resume():
             from .labels import validate_resume
             validate_resume()
         elif state['status']=='HARD_LABELS_LOCKED_TRAINING_PENDING':
-            print('Human label lock exists. Next stage: implement/verify matched S1 fit and execute only after integrity gates. No A/B result yet.')
+            from .run_ab import main as run_ab
+            run_ab()
         else:
             print('No automatic state change:',state['status'])
 
@@ -99,8 +100,8 @@ def status():
     print('QUEUE_COUNTS:',{k:sum(v.values()) for k,v in queue['round_counts'].items()})
     summary=C.DOC/'DIFFICULTY_TAG_SUMMARY_PUBLIC.json'
     print('HUMAN_TAGGED:',C.read(summary) if summary.exists() else 0)
-    print('ANNOTATION/TRAINING/EVALUATION: human-input-gated; see STATUS.json; no A/B metrics before execution')
-    print('PRIMARY_DECISION: NOT_EVALUATED');print('COMMAND:',state.get('command','N/A'))
+    print('ANNOTATION/TRAINING/EVALUATION:',state['status'])
+    print('PRIMARY_DECISION:',C.read(C.DOC/'DECISION.json')['primary'] if (C.DOC/'DECISION.json').exists() else 'NOT_EVALUATED');print('COMMAND:',state.get('command','N/A'))
     print('RESUME: python -m scripts.research.pallet_min_hard_ab_v1.cli resume')
     print('REPORT: _docs/experiments/pallet_min_hard_ab_v1/REPORT_KO.md')
     receipt=C.OUT/'TAGGING_PREP_GIT.json'

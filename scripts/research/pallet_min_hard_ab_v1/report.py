@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from . import common as C
 
 def render():
+    if (C.DOC/'DECISION.json').exists():
+        from .final_report import render as final_render
+        return final_render()
     a=C.read(C.DOC/'CANDIDATE_POOL_AUDIT.json');q=C.read(C.DOC/'DIFFICULTY_QUEUE_LOCK.json');state=C.state()
     figures=C.DOC/'figures';figures.mkdir(parents=True,exist_ok=True)
     recs=sorted(a['eligible_recordings']);fig,ax=plt.subplots(figsize=(10,4))
