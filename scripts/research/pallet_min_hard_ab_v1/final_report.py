@@ -100,7 +100,10 @@ def render():
             '실행 기록: H_PSEUDO 완료 저장 후 동일 프로세스에서 다음 학습으로 넘어가는 과정이 종료됐다. 완료된 fit은 반복하지 않았고 H_MANUAL은 별도 프로세스에서 최초 실행했다. 반복 thread-pool 초기화를 피하도록 실행부를 수정했다. 재부팅·드라이버 변경·타 GPU 프로세스 종료 없음.','',
             '[입력 lock](HARD_LABEL_LOCK.json) · [사용자 승인 프로토콜 변경](ANNOTATION_PROTOCOL_AMENDMENT.json) · [사전 검사](PRETRAIN_TESTS.json) · [실제 학습 짝 감사](PAIR_INTEGRITY_MANUAL_VS_PSEUDO.json) · [최종 감사](COMPLETION_AUDIT.json) · [판정](DECISION.json)']
     C.save(C.DOC/'GALLERY_SELECTION.json',examples)
-    C.save(C.DOC/'REPORT_KO.md','\n'.join(lines)+'\n')
+    from .figures import render as render_figures
+    from .report_layout import assemble
+    render_figures()
+    C.save(C.DOC/'REPORT_KO.md',assemble('\n'.join(lines)+'\n'))
 
 
 if __name__=='__main__':render()

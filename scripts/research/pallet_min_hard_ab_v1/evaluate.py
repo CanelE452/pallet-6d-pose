@@ -13,8 +13,11 @@ def main():
     pl=C.read(C.DOC/'POSE_DECISIONS_LOCK.json');C.verify(pl['poses']);C.verify(pl['raw_lock'])
     rl=C.read(C.DOC/'RAW_PREDICTIONS_LOCK.json');C.verify(rl['predictions'])
     assert rl['created_at']<=pl['created_at']<C.now()
-    if (C.DOC/'RESULTS.json').exists():return
-    save(C.DOC/'SCORING_START.json',dict(created_at=C.now(),pose_lock=C.bind(C.DOC/'POSE_DECISIONS_LOCK.json')))
+    if (C.DOC/'RESULTS.json').exists():
+        finish_decision(C.read(C.DOC/'RESULTS.json')['groups'],C.read(C.DOC/'TRAIN_FIT.json')['groups']);return
+    if not (C.DOC/'SCORING_START.json').exists():
+        save(C.DOC/'SCORING_START.json',dict(created_at=C.now(),pose_lock=C.bind(C.DOC/'POSE_DECISIONS_LOCK.json')))
+    else:C.verify(C.read(C.DOC/'SCORING_START.json')['pose_lock'])
     from scripts.research.pallet_recording_disjoint_transfer_v1 import common as V
     from scripts.research.pallet_recording_disjoint_transfer_v1.evaluate import summary,transitions
     from scripts.research.pallet_clean19_pose_sensitive_diag_v1.evaluate import pose_row
@@ -74,6 +77,10 @@ def main():
     save(C.DOC/'TRAIN_FIT.json',dict(groups=fit,training_not_generalization=True))
     save(C.DOC/'RESULTS.json',dict(groups=result,already_viewed_DEV=True,independent_test=False,base_reproduced=True,
          selected_train_recording_intersection=[],same_frozen_GEO_LINEAR=True,oracle='GT POSTHOC NONDEPLOYABLE'))
+    finish_decision(result,fit)
+
+
+def finish_decision(result,fit):
     delta={g:{k:result[g]['H_MANUAL'][k]['ADDsym_AUC']-result[g]['BASE'][k]['ADDsym_AUC'] for k in ('current','oracle')} for g in ('CLEAN','MODERATE','SEVERE')}
     for g in delta:delta[g]['PCK10']=result[g]['H_MANUAL']['twoD']['PCK']['10']-result[g]['BASE']['twoD']['PCK']['10']
     hard=['MODERATE','SEVERE'];improved=[g for g in hard if delta[g]['current']>0]

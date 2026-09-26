@@ -82,13 +82,22 @@ def resume():
         elif state['status'] in ('WAITING_FOR_HUMAN_HARD_ANNOTATION','WAITING_FOR_HUMAN_HARD_QA'):
             from .labels import validate_resume
             validate_resume()
-        elif state['status']=='HARD_LABELS_LOCKED_TRAINING_PENDING':
+        elif state['status'] in ('HARD_LABELS_LOCKED_TRAINING_PENDING','TRAINING',
+                                'FIT_COMPLETE_EVALUATION_PENDING','PREDICTIONS_FROZEN_SCORING_PENDING',
+                                'EVALUATED_REPORT_PENDING','COMPLETE'):
             from .run_ab import main as run_ab
-            run_ab()
+            run_ab(allow_compute=state['status']!='COMPLETE')
         else:
             print('No automatic state change:',state['status'])
+        if state['status'] in ('WAITING_FOR_EXISTING_ANNOTATION_KEYPOINTS','WAITING_FOR_HUMAN_HARD_METADATA',
+                               'WAITING_FOR_HUMAN_HARD_ANNOTATION','WAITING_FOR_HUMAN_HARD_QA') and C.state()['status']=='HARD_LABELS_LOCKED_TRAINING_PENDING':
+            from .run_ab import main as run_ab
+            run_ab()
 
 def status():
+    if (C.DOC/'DECISION.json').exists():
+        from .status_output import render
+        print(render());return
     state=C.state();audit=C.read(C.DOC/'CANDIDATE_POOL_AUDIT.json');queue=C.read(C.DOC/'DIFFICULTY_QUEUE_LOCK.json')
     print('STATUS:',state['status']);print('HEAD_START:',C.read(C.DOC/'INPUT_BINDINGS.json')['head'])
     print('HEAD_END:',C.git('rev-parse','HEAD'));print('BRANCH:',C.git('branch','--show-current'))
@@ -109,12 +118,15 @@ def status():
     print('GIT_STATUS:',C.git('status','--short','--branch','--',str(C.DOC.relative_to(C.ROOT)),str((C.ROOT/'scripts/research'/C.NAME).relative_to(C.ROOT))))
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('action',choices=['prepare','resume','status']);a=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('action',choices=['prepare','resume','status','finalize']);a=parser.parse_args()
     if a.action=='prepare':
         from .prepare import main as prepare
         prepare()
     elif a.action=='resume':resume()
-    if a.action!='status':
+    elif a.action=='finalize':
+        from .run_ab import main as run_ab
+        run_ab(allow_compute=False)
+    if a.action not in ('status','finalize') and C.state()['status']!='COMPLETE':
         from .report import render
         render()
     status()
