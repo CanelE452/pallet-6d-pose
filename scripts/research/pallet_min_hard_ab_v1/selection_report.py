@@ -112,4 +112,12 @@ python -m scripts.research.pallet_min_hard_ab_v1.annotate_hard
             report=report.replace('현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로 수동 bbox와 직접 보이는 P0..7만 입력한다.','현재 사용자 override에서는 PnP 보조를 켠 기존 입력기로 코너를 저장했다. 수동 bbox는 아직 없고 직접 클릭점의 가시성·번호 확신 확인도 남아 있다.')
             report=report.replace('난도 태깅은 종료했고 지금은 선정된 8장만 수동 입력하면 된다.','난도 태깅과 8장 클릭 저장은 완료됐다. 남은 것은 직접 클릭점 확인과 bbox 방식 결정이다.')
             report=report.replace('실제 corner annotation/학습/평가는 아직 NOT_RUN이다.','corner 클릭 저장은 완료됐고 최종 label lock/학습/평가는 아직 NOT_RUN이다.')
+    if (C.DOC/'DIRECT_CLICK_USER_CONFIRMATION.json').exists():
+        detail+='''### 사용자 직접 클릭 확인
+
+사용자가 직접 클릭한 점의 위치·번호에 대해 **“꽤 확실해”**라고 확인했다. 이는 사람의 확신 수준 기록이며 독립적인 정확도 검증은 아니다. 자동 보완점을 수동 정답으로 승격하지 않는다. **원래 수동 박스 대신 공통 PnP 박스를 사용할지에 대한 승인은 아직 없다.** 따라서 최종 label lock과 학습은 대기한다.
+
+[사용자 확인 기록](DIRECT_CLICK_USER_CONFIRMATION.json)
+
+'''
     return report.replace('## 1. 한 줄 결론',detail+'## 1. 한 줄 결론',1)

@@ -59,6 +59,12 @@ python -m scripts.research.pallet_min_hard_ab_v1.open_existing_annotation
 
 **최종 label lock 없음 / teacher inference 미실행 / 새 학습·평가 미실행.** [저장 집계 및 원본 SHA](EXISTING_CLICK_PROGRESS_PUBLIC.json).
 
+### 사용자 직접 클릭 확인
+
+사용자가 직접 클릭한 점의 위치·번호에 대해 **“꽤 확실해”**라고 확인했다. 이는 사람의 확신 수준 기록이며 독립적인 정확도 검증은 아니다. 자동 보완점을 수동 정답으로 승격하지 않는다. **원래 수동 박스 대신 공통 PnP 박스를 사용할지에 대한 승인은 아직 없다.** 따라서 최종 label lock과 학습은 대기한다.
+
+[사용자 확인 기록](DIRECT_CLICK_USER_CONFIRMATION.json)
+
 ## 1. 한 줄 결론
 
 **WAITING_FOR_HUMAN_HARD_METADATA**. 현재는 Phase4 클릭 저장 완료 / 메타데이터 확인 대기 단계이며 새 모델 학습·A/B 평가를 하지 않았다. BASE S1+GEO_LINEAR를 교체하지 않았다. 기존 RGB 8031장 → 미사용/중복 제외 후 **6821장 /8 recordings** → 첫 라운드 **123장**을 고정했다.
