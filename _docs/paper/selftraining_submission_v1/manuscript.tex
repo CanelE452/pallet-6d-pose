@@ -8,7 +8,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Synthetic training reduces the need for task-specific real annotations, but self-training can reinforce inaccurate target-domain landmarks. We examine whether correcting pseudo-label coordinates improves monocular pallet pose estimation when the student training conditions are otherwise matched. A frozen PoseFix-derived teacher, adapted using nine real images and 38 manually verified corners with synthetic replay, corrects a synthetic-pallet-pretrained model's predictions. Raw and corrected students share 217 target images, supervision support, initialization, augmentation settings, synthetic replay, and 320 optimizer updates. On 66 directly verified visible development points, correction increases 10-pixel keypoint accuracy from \AnchorRaw{} to \AnchorCorr{} out of 66. On a repeatedly used, recording-disjoint development panel of 128 ordinary-plastic images, corrected versus raw student accuracy improves from \RawPCK{}\% to \CorrPCK{}\%, while fixed-pipeline geometry-reference pose AUC improves from \RawAUC{} to \CorrAUC{}. The synthetic-only baseline obtains \BasePCK{}\% and \BaseAUC{}. Both previously tested learning-rate settings and the available order repeats are retained. Tail error does not uniformly improve, and the pose reference is not independently measured physical ground truth. The evidence supports a scoped development result for corrected-target self-training, not zero-real-label learning, an unseen-session guarantee, or universal large-error recovery.
+Synthetic training reduces the need for task-specific real annotations, but self-training can reinforce inaccurate target-domain landmarks. We examine whether correcting pseudo-label coordinates improves monocular pallet pose estimation under matched student training conditions in two pallet material categories. The same frozen PoseFix-derived teacher, adapted using nine real images and 38 manually verified corners with synthetic replay, corrects a synthetic-pallet-pretrained model's predictions. Within each material, raw and corrected students share images, support, initialization, augmentation settings, synthetic replay, and 320 optimizer updates; the plastic and wood pools expose 217 and 361 unique real images, respectively. On 66 directly verified visible plastic development points, teacher correction increases 10-pixel accuracy from \AnchorRaw{} to \AnchorCorr{} out of 66; trusted wood pseudo-coordinate quality remains unresolved. On 128 reused, recording-disjoint ordinary-plastic images, corrected versus raw student PCK10 improves from \RawPCK{}\% to \CorrPCK{}\% and geometry-reference pose AUC from \RawAUC{} to \CorrAUC{}. On 45 similarly disjoint wood development images, the corresponding changes are 47.11\% to 47.69\% and 0.65643 to 0.66503. The wood gain is only two corners and does not surpass its original baseline. These pooled contrasts share a positive direction, but tails and recording-wise effects are mixed. Pose references are not independently measured physical ground truth. The evidence is limited to the two evaluated categories in reused development data, not universal material generalization or large-error recovery.
 \end{abstract}
 \begin{IEEEkeywords}
 Pallet perception, monocular pose estimation, pseudo-labels, self-training, synthetic-to-real adaptation, evaluation provenance.
@@ -19,7 +19,7 @@ An RGB pallet-pose estimator must localize geometric landmarks before recovering
 
 The question in this work is deliberately narrower than developing an additional pose architecture: under a disclosed real-supervision budget, are corrected pseudo-label coordinates more useful than the original coordinates for student adaptation? A gain over the original synthetic-only model is insufficient to answer this question. It could instead result from additional optimizer updates, synthetic replay, or a different subset of target images. A useful comparison must hold those factors fixed and compare raw-target and corrected-target students directly.
 
-We close this comparison using an existing matched experiment rather than introduce further modules after inspecting development results. A frozen teacher supplies corrected coordinates, while the student is used without that teacher at inference. We distinguish four questions: label quality on the same verified points; corrected versus raw student performance; practical value over the synthetic-only baseline; and the population and metric scope of the evidence. The contributions are (i) an auditable matched-coordinate self-training comparison with explicit manual supervision, (ii) a joint 2D and fixed-pipeline 6D evaluation with complete denominators, and (iii) an evidence-scope analysis retaining order sensitivity, error tails, and failed examples. Self-training, pose refinement, and PnP are not claimed as new algorithms.
+We close the original plastic comparison and a bounded wood extension without introducing further correction modules. A frozen teacher supplies corrected coordinates, while the student is used without that teacher at inference. We distinguish label quality, corrected versus raw student value, value beyond the baseline, and evidence scope. The contributions are (i) limited-supervision pseudo-coordinate correction with a disclosed manual budget, (ii) an auditable matched raw-versus-corrected student comparison with joint 2D and fixed-pipeline 6D evaluation, and (iii) material-stratified evidence across ordinary plastic and wood, retaining recording heterogeneity, error tails, and unfavorable cases. Self-training, pose refinement, and PnP are not claimed as new algorithms.
 
 \begin{figure*}[t]
 \centering\includegraphics[width=.96\textwidth]{figures/pipeline.pdf}
@@ -63,7 +63,7 @@ Each student starts independently from the same R0 checkpoint. Only the pose bra
 The historical experiment tested learning rates $10^{-4}$ and $10^{-5}$ with matched source-only, raw-target, and corrected-target arms. The latter rate was selected in the earlier reused development study. We disclose that selection, report both settings, and retain both available order repeats at the selected rate. Orders 43 and 44 change sample order; they are not three independent initialization seeds. Corresponding first-batch image-tensor hashes match within each raw/corrected repeat. This is a first-batch check, not a claim that a complete per-step tensor trace was recorded. Table~\ref{tab:fairness} lists the controlled factors.
 
 At deployment, only the student processes RGB. The teacher is absent. The final pose stage uses the same original D9 width/depth hypothesis selector for every arm and solves from corners 0--7. Landmark 8 remains part of the original selector residual; that known design choice is held fixed rather than altered to favor an arm. No trained model-specific router, reference-dependent oracle, or additional inference-time correction enters the main comparison.
-\input{generated_tables/TABLE5_fairness.tex}
+\input{../../experiments/pallet_material_selftrain_closure_v1/TABLE_MATERIAL_CONTRACT.tex}
 
 \section{Evaluation Protocol}
 \subsection{Populations and reference provenance}
@@ -85,8 +85,8 @@ We report paired per-frame changes, correct/incorrect corner transitions, every 
 
 \section{Results}
 \subsection{Q1: Does the teacher improve target quality?}
-On the same verified points, PCK10 increases from \AnchorRaw/66 to \AnchorCorr/66, and median error decreases from \AnchorRawMed{} to \AnchorCorrMed{} pixels (Table~\ref{tab:quality}). The P90 and count of errors above 20 pixels also decrease. This supports improved visible-point quality on this proxy, not perfect correction or unmeasured accuracy on all training targets. Figure~\ref{fig:pseudo} includes both an improvement and a deterioration selected from the actual paired errors.
-\input{generated_tables/TABLE1_pseudo_quality.tex}
+On the same verified plastic points, PCK10 increases from \AnchorRaw/66 to \AnchorCorr/66, and median error decreases from \AnchorRawMed{} to \AnchorCorrMed{} pixels (Table~\ref{tab:table-material-pseudo-quality}). The P90 and count of errors above 20 pixels also decrease. This supports improved visible-point quality on this proxy, not perfect correction or unmeasured accuracy on all training targets. No eligible directly verified wood points are available; its Q1 entry is unresolved, not zero accuracy. Figure~\ref{fig:pseudo} includes both an improvement and a deterioration selected from the actual paired errors.
+\input{../../experiments/pallet_material_selftrain_closure_v1/TABLE_MATERIAL_PSEUDO_QUALITY.tex}
 \begin{figure*}[t]
 \centering
 \includegraphics[width=.72\textwidth]{figures/pseudo_quality_01.pdf}\\
@@ -101,8 +101,8 @@ At the previously selected learning rate, corrected-target training raises PCK10
 The pose stage also improves under identical selection and solver code: ADDsym AUC changes from \RawAUC{} to \CorrAUC{} (Table~\ref{tab:main6d}). This is a final-pipeline result, not an oracle choice among poses. The other historical learning rate and both order repeats retain a favorable corrected-versus-raw direction for pooled PCK10 and AUC (Table~\ref{tab:controls}). They support consistency within the explored settings, not independent dataset replication.
 
 Importantly, on the smaller manually reverified subset the two students tie at 43/66 PCK10, compared with R0's 44/66 (Table~\ref{tab:verified}). Corrected-student PCK20 and P90 improve there, but its median is slightly worse than the raw student's. Thus the full-panel PCK10 gain is not reproduced at that threshold on this visible-only reference. Teacher quality and student improvement are distinct measurements; the favorable teacher result cannot replace this student check.
-\input{generated_tables/TABLE2_main_2d.tex}
-\input{generated_tables/TABLE2_main_6d.tex}
+\input{../../experiments/pallet_material_selftrain_closure_v1/TABLE_MATERIAL_MAIN.tex}
+\input{../../experiments/pallet_material_selftrain_closure_v1/TABLE_MATERIAL_6D.tex}
 
 \subsection{Q3: What is added beyond synthetic-only R0?}
 R0 obtains \BasePCK{}\% PCK10 and \BaseAUC{} pose AUC, compared with \CorrPCK{}\% and \CorrAUC{} after corrected-target self-training. The raw-target student is worse than R0 on those pooled metrics, so the result is not simply a benefit of any self-training. The source-only update controls are included to expose effects of additional source optimization. No detector improvement is claimed: detector boxes, scores, and candidate order remain exactly unchanged.
@@ -117,17 +117,19 @@ Table~\ref{tab:severity} retains all difficulty levels. Corrected versus raw PCK
 \caption{All pre-existing severity strata, under the same evaluation contract. Pooled gains do not establish uniform tail-error recovery or independent generalization.}
 \end{figure*}
 
+\input{material_extension}
+
 \section{Limitations and Evidence Closure}
 First, the teacher uses real manual supervision. Our intervention is conditional on nine adaptation images and 38 corners, as well as a shared teacher-filtered training selection. We do not claim zero real labels, superiority to directly spending the same annotation budget on the student, or a measured reduction in human annotation time. The 66 verified evaluation points are additional human effort and never student-training targets. Generic pretraining and earlier development annotation/inspection also remain part of the full project history.
 
 Second, the real adaptation data and evaluation recordings are disjoint, but the evaluation panel has been repeatedly used for method development. The LR5 setting was chosen in that history. Session-disjoint fitting does not undo that repeated inspection. The reserve provenance audit found no currently certified untouched, labeled confirmation panel; filename labels such as FINAL are not proof of independence. We therefore close a development-only manuscript without reporting an independent-confirmation number. A future untouched confirmation should be evaluated once with the locked pipeline, without using it to select the learning rate, filters, or checkpoint.
 
-Third, the selected visible-point reference and mixed-provenance full-panel reference answer different questions. Neither proves hidden-corner accuracy or independent physical pose accuracy. The main result covers ordinary rectangular plastic, not wood or square green pallets. Related Clean19 occlusion-transfer, manually supervised hard-image, and model-specific selector studies involve different budgets or interventions and are treated only as extensions, not added to this causal contrast.
+Third, the selected visible-point reference and mixed-provenance full-panel reference answer different questions. Neither proves hidden-corner accuracy or independent physical pose accuracy. The matched comparison covers only ordinary rectangular plastic and one wood category, not square green pallets or unseen materials. Wood has only two evaluation recordings, no Severe stratum, and no eligible independently sourced visible-point quality reference. Its small pooled corrected-minus-raw gain coexists with a worse keypoint P90 and failure to exceed R0. Material type is externally provided for routed evaluation; automatic material recognition and unknown-material handling are not evaluated. Related Clean19 occlusion-transfer, manually supervised hard-image, and model-specific selector studies involve different budgets or interventions and are historical extensions, not added to this causal contrast.
 
 Finally, the pose-head-only matched experiment does not show that arbitrary whole-model fine-tuning or other teacher architectures will improve. P90 and severe errors remain unresolved. Figure~\ref{fig:students} explicitly includes a worsened case and a low-change case. No additional architecture, loss, selector sweep, or annotation round is triggered to remove these limitations. The appropriate next action is manuscript review and, if required, independent confirmation, rather than open-ended method search.
 
 \section{Conclusion}
-With identical target images, supervision masks, initialization, augmentation settings, synthetic replay, and update budget, corrected pseudo-label coordinates improve the observed ordinary-plastic student's pooled keypoint accuracy and fixed-pipeline pose AUC relative to raw pseudo-labels. The same metrics also improve relative to the synthetic-pallet-only baseline, under an explicit nine-image, 38-corner teacher-adaptation budget. The result is supported within reused development data and does not establish uniform tail recovery or independent physical-pose generalization. This scoped conclusion closes the central experiment without requiring every auxiliary metric to improve.
+With identical target images, support, initialization, augmentation settings, synthetic replay, and update budget within each material, corrected pseudo-label coordinates yield positive pooled PCK10 and fixed-pipeline pose-AUC differences over raw-target self-training in the two evaluated material categories. The plastic student also improves over its original baseline; the wood student does not. Under the same nine-image, 38-corner teacher budget, this is a limited cross-category development signal, not evidence of universal material generalization, uniform tail recovery, or independently measured physical-pose accuracy. Wood pseudo-coordinate quality remains unresolved on trusted visible references. We close the bounded experiment with these limitations, without additional teacher, threshold, or architecture searches.
 
 \appendices
 \section{Sensitivity, Failure Cases, and Reproduction}
@@ -135,6 +137,13 @@ Table~\ref{tab:controls} contains all twelve existing student fits; no new fitti
 \input{generated_tables/TABLE4_all_historical_controls.tex}
 \input{generated_tables/TABLE6_recordings.tex}
 \input{generated_tables/TABLE7_verified_students.tex}
+\input{generated_tables/TABLE1_pseudo_quality.tex}
+\input{generated_tables/TABLE2_main_2d.tex}
+\input{generated_tables/TABLE2_main_6d.tex}
+\input{generated_tables/TABLE5_fairness.tex}
+\input{../../experiments/pallet_material_selftrain_closure_v1/TABLE_MATERIAL_2D.tex}
+\input{../../experiments/pallet_material_selftrain_closure_v1/TABLE_MATERIAL_SEVERITY.tex}
+\input{../../experiments/pallet_material_selftrain_closure_v1/TABLE_MATERIAL_RECORDINGS.tex}
 \begin{figure*}[t]
 \centering
 \includegraphics[width=.96\textwidth]{figures/student_01_improved.pdf}\\

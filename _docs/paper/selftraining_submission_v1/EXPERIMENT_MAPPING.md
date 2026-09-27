@@ -21,3 +21,7 @@
 ## Core mapping
 
 R0 / RAW_LR5 / REF_LR5 main. LR4 and ORDER43/44 complete sensitivity, SYN source-only controls. Same frozen Replay9/38 for Q1 and pseudo generation. Clean19 teacher never substituted. Newfits=0. Existing12 student fits reused.
+
+## Bounded material extension
+
+The preceding zero-fit statement describes the original Plastic evidence closure. Material closure adds exactly two Wood students: WOOD_RAW_LR5 and WOOD_REF_LR5, each320updates from R0. The same existing material-independent SYN_LR5 is reused. Wood evaluation excludes REC001/002 before scoring, leaving45legacy-reference images in REC039/042. Historical type-specific teachers and S0/S1/S2 are supplementary only and are not this causal pair. New namespace: `pallet_material_selftrain_closure_v1`; originalPlastic320 and later640supplement are not replaced.

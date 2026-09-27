@@ -1,5 +1,9 @@
 # Reproducibility
 
+## Material extension addendum
+
+The original Plastic320 artifacts and tables below remain unchanged. Wood uses the same frozen Replay9/38 and two new matched320-update students, with361 sampled unique images and a provenance-locked45-image panel. See `../../experiments/pallet_material_selftrain_closure_v1/REPRODUCE.md` for the separate executable workflow, paired checks, prediction-before-scoring lock, material tables, 30 contract tests, and the updated13-page build. The bounded640-update Plastic test remains supplemental. Raw images/coordinates/checkpoints are not a public dataset release. Trusted Wood pseudo-quality and independent physical6D remain unresolved. Only externally known material routing is evaluated.
+
 All commands run from repository root. Python: `/home/minjae/anaconda3/envs/pallet-yolo26/bin/python`.
 
 ```bash

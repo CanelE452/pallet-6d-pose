@@ -1,12 +1,12 @@
 # Limits that remain in the paper
 
-- Reused DEV, seven recording groups; historical LR5 selection; no independent confirmation.
-- Ordinary plastic only, no wood/green transfer guarantee.
--9-image/38-corner teacher manual adaptation;66 evaluation anchors extra; upstream generic pretraining and development history disclosed.
+- Reused DEV: seven Plastic and two Wood recording groups; historical LR5 selection; no independent confirmation.
+- Two evaluated categories: ordinary plastic and one Wood category. No green/unseen-material guarantee. Wood's pooled corrected-minus-raw signal is small (+2/346 corners), below R0, and recording-wise PCK10 signs differ.
+- 9-image/38-corner teacher manual adaptation;66 evaluation anchors extra; upstream generic pretraining and development history disclosed.
 - Raw control shares teacher-based selection and support; only the coordinate intervention is isolated.
 - No annotation-time efficiency or direct-manual-supervision superiority claim.
 - P90 and several pose/statified measures worsen; main student20→10px gross recovery count0.
--16 selected images/66 visible points do not validate hidden points or unlabeled217 exact quality.
+- 16 selected Plastic images/66 visible points do not validate hidden points or unlabeled217 exact quality. Wood has zero provenance-eligible verified-visible evaluation points; its Q1 is unresolved despite the legacy-reference student comparison.
 - Legacy full-panel points have mixed provenance;6D is geometry-derived, not independent measured ground truth.
 - Pose-head-only adaptation; order repeats are not independent init-seed repeats.
 - Private data/checkpoints are hash-bound but not automatically redistributed as a full public dataset.
