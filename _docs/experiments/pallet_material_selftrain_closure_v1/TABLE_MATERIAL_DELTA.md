@@ -1,0 +1,6 @@
+# Within-material corrected-minus-raw contrasts. Absolute differences between material rows do not isolate a causal material-difficulty effect.
+
+| Material | Correct10 delta | PCK10 delta pp | AUC delta | Med delta px | P90 delta px |
+| --- | --- | --- | --- | --- | --- |
+| Plastic | 39 | +3.959 | +0.02429 | -1.008 | +0.128 |
+| Wood | 2 | +0.578 | +0.00860 | -0.017 | +1.145 |

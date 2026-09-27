@@ -1,0 +1,21 @@
+# 공개본 재현 안내
+
+전체원자료·좌표·checkpoint를보유한로컬환경에서는다음순서로동일namespace의완료캐시와계약을검증한다. 기존완료fit은다시학습하지않는다. GitHub공개본은집계와코드이며private자료없는freshclone만으로학습재현되지는않는다.
+
+```bash
+python -m scripts.research.pallet_material_selftrain_closure_v1.lock_method
+python -m scripts.research.pallet_material_selftrain_closure_v1.wood_inventory_audit
+python -m scripts.research.pallet_material_selftrain_closure_v1.prepare_wood
+python -m scripts.research.pallet_material_selftrain_closure_v1.pseudo_pool
+python -m scripts.research.pallet_material_selftrain_closure_v1.train_pair prepare
+python -m scripts.research.pallet_material_selftrain_closure_v1.train_pair WOOD_RAW_LR5
+python -m scripts.research.pallet_material_selftrain_closure_v1.train_pair WOOD_REF_LR5
+python -m scripts.research.pallet_material_selftrain_closure_v1.infer_eval
+python -m scripts.research.pallet_material_selftrain_closure_v1.score_eval
+python -m scripts.research.pallet_material_selftrain_closure_v1.material_report
+python -m scripts.research.pallet_material_selftrain_closure_v1.figures
+python -m scripts.research.pallet_material_selftrain_closure_v1.final_audit build
+python -m scripts.research.pallet_material_selftrain_closure_v1.final_audit audit
+```
+
+사전감사와현재소스의정정흔적을보존했다. 세부raw/corrected타깃출처와privateSHA검증은로컬의REPRODUCE.md/JSON을참조한다. 두material주표는기존Plastic320과신규Wood320으로구성되며 Plastic640은보조결과다. teacher/threshold/GT/selector변경은없다.
