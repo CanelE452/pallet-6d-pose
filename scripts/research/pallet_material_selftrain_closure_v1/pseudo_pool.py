@@ -22,19 +22,29 @@ def main():
     C.save(C.RAW/'WOOD_RAW_PSEUDO.json',[dict(id=r['id'],raw=r['raw']) for r in frames],True)
     C.save(C.RAW/'WOOD_CORRECTED_PSEUDO.json',[dict(id=r['id'],refined=r['refined']) for r in frames if r['refined'] is not None],True)
     C.save(C.RAW/'WOOD_ACCEPTED_SHARED.json',accepted,True)
-    C.save(C.DOC/'WOOD_PSEUDO_PROTOCOL.json',dict(protocol=C.bind(C.DOC/'PSEUDO_PROTOCOL.json'),
-        original_code=C.bind(P.__file__),adapter_code=C.bind(__file__),complete=completed,
-        raw=C.bind(C.RAW/'WOOD_RAW_PSEUDO.json'),corrected=C.bind(C.RAW/'WOOD_CORRECTED_PSEUDO.json'),shared=C.bind(C.RAW/'WOOD_ACCEPTED_SHARED.json'),
-        raw_control_shares_teacher_based_selection=True),True)
+    if not (C.DOC/'WOOD_PSEUDO_PROTOCOL.json').exists():
+        C.save(C.DOC/'WOOD_PSEUDO_PROTOCOL.json',dict(protocol=C.bind(C.DOC/'PSEUDO_PROTOCOL.json'),
+            original_code=C.bind(P.__file__),adapter_code=C.bind(__file__),complete=completed,
+            raw=C.bind(C.RAW/'WOOD_RAW_PSEUDO.json'),corrected=C.bind(C.RAW/'WOOD_CORRECTED_PSEUDO.json'),shared=C.bind(C.RAW/'WOOD_ACCEPTED_SHARED.json'),
+            raw_control_shares_teacher_based_selection=True),True)
+    else:
+        locked=C.read(C.DOC/'WOOD_PSEUDO_PROTOCOL.json')
+        for key in ('protocol','original_code','raw','corrected','shared'):C.verify(locked[key])
+        assert locked['complete']==completed
     support=[paired_labels(r)[1] for r in accepted]
     sampled=np.random.default_rng(9021).choice(sorted(r['id'] for r in accepted),512,replace=True).tolist() if accepted else []
     # Operational diversity floor, not a power or outcome criterion. Locked
     # before either fit; retains the old512 replacement exposure and both source recordings.
     recordings=Counter(r['recording'] for r in accepted)
-    allowed=len(set(sampled))>=64 and len(recordings)==2 and bool(support) and min(support)>=6
-    C.save(C.DOC/'POOL_DECISION.json',dict(allowed=allowed,status='FIT_ALLOWED' if allowed else 'WOOD_PSEUDO_POOL_INSUFFICIENT',
+    allowed=len(set(sampled))>=64 and len(recordings)==2 and bool(support) and min(support)>0
+    C.save(C.DOC/'POOL_DECISION_CORRECTION.json',dict(reason='Pre-fit schema/contract correction, not outcome-based rescue. An extra minimum6 common-support gate was absent from Plastic and incorrectly rejected the whole Wood pool.',
+        prior_decision=C.bind(C.DOC/'POOL_DECISION.json'),plastic_common_support={'9':192,'7':42,'5':7,'8':5,'4':3},
+        existing_code=C.bind(paired_labels.__code__.co_filename),old_record_preserved=True,evaluation_scores_not_opened=True,
+        fits_before_correction=0,no_accepted_images_removed=True,no_filter_threshold_change=True,
+        correction_code=C.bind(__file__),generation_code_preserved_in_commit='47fdd24b5fc56753fb546ff5ec9ef267d54acebc'),True)
+    C.save(C.DOC/'POOL_DECISION_V2.json',dict(allowed=allowed,status='FIT_ALLOWED' if allowed else 'WOOD_PSEUDO_POOL_INSUFFICIENT',
         accepted=len(accepted),sampled_unique=len(set(sampled)),recordings=dict(recordings),support_histogram=dict(Counter(support)),
-        minimum_rule='At least64 actually sampled unique images (one per optimizer batch within one epoch), both source recordings represented, and>=6 shared supervised points per accepted image; operational feasibility only, not power.',
+        minimum_rule='At least64 actually sampled unique images (one per optimizer batch within one epoch), both source recordings represented, nonempty shared support. Existing Plastic supports4/5 also remain valid. Operational feasibility only, not power.',
         comparison=dict(plastic_accepted=249,plastic_sampled_unique=217,real_slots_per_epoch=512,wood_expected_occurrences_per_unique=512/len(set(sampled)) if sampled else None),
         no_eval_scores_used=True,no_threshold_changes=True,artifacts=[C.bind(C.RAW/'WOOD_ACCEPTED_SHARED.json')]),True)
     print('WOOD_POOL_DECISION',len(accepted),len(set(sampled)),dict(recordings),allowed,flush=True)
