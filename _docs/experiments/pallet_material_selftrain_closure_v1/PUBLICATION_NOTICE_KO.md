@@ -2,4 +2,4 @@
 
 공개 안전검사에서 재현 메타데이터와 평가 RGB 오버레이 공개를 확인하도록 요구해 작업을 보류했다. 해당 범위를 설명하고 승인을 요청한 뒤 사용자가 “push해줄수있게 해줘”라고 요청하여, 재현용 경로·해시와 평가 오버레이6장을 포함한 최종 결과 공개를 진행한다. 원본RGB파일·원시좌표배열·카메라행렬·가중치파일·전체로컬환경목록은 제외한다. 기존 자료는 삭제하지 않는다.
 
-`PUBLIC_RESULTS.json`은 집계를, `WOOD_RESULTS.json`과 `FIT_*.json`은 측정 및 checkpoint 메타데이터를, `MATERIAL_PAPER_AUDIT.json`은 검증 근거를 담는다. 전체 후보/카메라/환경 목록은 로컬에만 보존하고 공개용 요약으로 연결한다. 공개본만으로 비공개 원자료를 복원할 수 없으며 공개 benchmark 완전 배포라고 주장하지 않는다. 실제 최종 commit·원격 확인은 `PUSH_VERIFICATION.json`을 참조한다.
+`PUBLIC_RESULTS.json`은 집계를, `WOOD_RESULTS.json`과 `FIT_*_PUBLIC.json`은 측정 및 checkpoint 메타데이터를, `MATERIAL_PAPER_AUDIT.json`은 검증 근거를 담는다. 전체 후보/카메라/환경 목록은 로컬에만 보존하고 공개용 요약으로 연결한다. 공개본만으로 비공개 원자료를 복원할 수 없으며 공개 benchmark 완전 배포라고 주장하지 않는다. 실제 commit·원격 확인은 `PUSH_VERIFICATION.json`을 참조한다.

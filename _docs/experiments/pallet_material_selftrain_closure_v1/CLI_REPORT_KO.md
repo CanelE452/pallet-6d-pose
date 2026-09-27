@@ -289,7 +289,7 @@ NO — 공개 범위를 설명한 뒤 사용자가 push를 요청했다. 원본R
 
 ## FINAL_LOCAL_VERIFICATION
 
-TESTS: PASS / 30. AUDIT: PASS. BUILD: PASS / 13pages. PDF시각확인: 1·5·6페이지 및 실제악화사례. 방법개발STOP, 추가fit없음. 사전감사47fdd24b 및 학습완료def8fb20은origin/main반영확인. 최종결과·원고의 공개 범위가 승인되어 실제 staging을 검토한다. 최종 SHA는 PUSH_VERIFICATION.json을 참조하며, 본문의 COMMIT_AT_REPORT는 과거 보고서 생성 시점 snapshot이다. 기존미추적파일은보존했다.
+TESTS: PASS / 30. AUDIT: PASS. BUILD: PASS / 13pages. PDF시각확인: 1·5·6페이지 및 실제악화사례. 방법개발STOP, 추가fit없음. 사전감사47fdd24b·학습완료def8fb20·결과/이미지7e26d791·원고/PDF4d68f301은origin/main반영확인. `git ls-remote`에서 서버main과 로컬HEAD 및 origin/main의 4d68f301 일치를 확인했다. 이 확인기록을 추가하는 후속 메타데이터 커밋은 push 후 최종CLI응답에서 확인한다. 상세는 PUSH_VERIFICATION.json을 참조하며, 아래 COMMIT_AT_REPORT는 과거 보고서 생성 시점 snapshot이다. 기존미추적파일은보존했다.
 
 ## REMAINING_EVIDENCE_LIMITS
 
