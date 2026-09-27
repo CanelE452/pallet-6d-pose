@@ -12,3 +12,7 @@
 - Private data/checkpoints are hash-bound but not automatically redistributed as a full public dataset.
 
 - Verified66 student PCK10 ties43/66 in both arms (R0=44/66); full128 legacy-label gain is not independently confirmed on that threshold.
+
+## Subsequent bounded visible-transfer check
+
+The original results above remain unchanged. A single paired 640-update extension reproduced both original 320-update prefixes exactly. Verified PCK10 increased to 44/66 in BOTH students, retaining the tie. Corrected native TRAIN target residual decreased only 3.070→2.994 px. Relative to the original corrected student, full128 PCK10 worsened 507→504/985 while D9 AUC improved 0.35902→0.36189. This is mixed evidence, not a resolved transfer bottleneck or a new independent test. No additional intervention is triggered; see `pallet_visible_transfer_closure_v1/REPORT_KO.md` and the manuscript appendix.

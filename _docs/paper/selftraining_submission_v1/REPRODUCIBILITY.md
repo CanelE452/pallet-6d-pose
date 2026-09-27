@@ -22,3 +22,7 @@ CPU: existing environment, four evaluation workers. GPU is needed only for128 fr
 Tectonic is reused from the existing local compiler. Its cache is COPIED to the new namespace; old paper and compiler cache are not modified. PDF build logs and rendered-page checks are retained in the new result namespace.
 
 Numbers: generated_tables/NUMBER_PROVENANCE.json binds each table to source path/hash; MANUSCRIPT_NUMBER_PROVENANCE.json binds result macros to JSON paths. Counts that describe the protocol are in the comparability audit; transitions and per-frame categories are in PAIRED_ANALYSIS.json. MAIN128 corner denominator985, matched120frames/931corners, anchor16frames/66points remain distinct.
+
+## Subsequent bounded diagnosis
+
+The commands above reproduce the original closure at `9238735e`; rerunning `package prepare` on the revised manuscript would regenerate original package prose and is unnecessary. The post-hoc budget experiment has separate commands, immutable inputs/results, and build/audit logs in `_docs/experiments/pallet_visible_transfer_closure_v1/REPRODUCE.md`. It adds only two students, 640 updates each. Original first320 prefixes are bit-exact. The original tables and core results are preserved; `visible_transfer_appendix.tex` adds the mixed results without promoting a new main checkpoint.

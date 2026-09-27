@@ -1,0 +1,39 @@
+\section{Post-Hoc Visible-Transfer Diagnosis and Bounded Budget Test}
+\label{sec:visibletransfer}
+This analysis retains the original R0, raw LR5, corrected LR5, and nine-image/38-corner Replay teacher. No new RGB, manual coordinates, teacher fit, selector, reliability filter, or refiner architecture was introduced. The 66 points were already inspected development data; neither freezing predictions again nor their absence from student training makes them an independent test.
+
+\subsection{Why the verified-point result tied}
+Across all 66 fixed-identity points, the original raw-to-corrected student contrast has three entries into and three exits from the 10-pixel correct set. The net changes are +2 Clean, -2 Moderate, and 0 Severe. Continuous error improves at 34 points and worsens at 32, with a mean difference of -0.461 pixels. Equal PCK10 therefore does not establish equivalent predictions. Each student has ten points where only the teacher is correct and three where only the student is correct; teacher correctness at an evaluation point is not evidence that the point was a training target.
+
+Using identical predictions, point IDs, native coordinates, and missing-value handling, the same 66 points score 45/66 raw versus 44/66 corrected under the legacy reference, and 43/66 versus 43/66 after verification. The median legacy--verified reference displacement is 2.828 pixels (P90 5.374). Thus the corrected student's full-panel advantage was already absent on this selected subset before reference replacement. The full-panel/subset difference cannot be attributed entirely to annotation error. No reference was automatically repaired, and PCK10 remains the principal visible-point threshold.
+
+\subsection{Training-target following and locked intervention}
+The actual real-image occurrence list contains 217 unique images and 512 slots per epoch. Among 1,627 commonly supported corners, mean residual to the corrected target is 4.078 pixels for the raw student and 3.070 for the corrected student. For the 1,492 corners with target displacement at least one pixel, 82.64\% of student differences have positive projection onto the target-correction direction; the median scalar projection fraction is 0.319. This describes partial target following, not physical accuracy: the unlabeled training targets are not ground truth. Unique-image-uniform and occurrence-weighted summaries, center-only results, and recording/corner/support strata are retained separately in the repository.
+
+The diagnostic uses unaugmented native images and highest-confidence instances, never target-nearest candidate replacement. Saved padded training RGB is bit-exact with the original single 100-pixel reflection padding, and the target inverse transform agrees within $10^{-5}$ pixels. Recomputed R0 outputs agree with raw targets to below $10^{-6}$ pixels on average. There is no exhaustive augmented-tensor cache. Training losses mix source and real examples, use different area/support reductions, and are not native pixel residuals. The original coordinate loss decreases overall and in its final interval but is not monotonic. Remaining target residual and late loss decrease motivated one budget-only hypothesis test; contradictory pseudo supervision, augmentation effects, replay, and frozen representation remain competing explanations.
+
+Both new students start from the identical R0 and run 640 optimizer updates, preserving the original first 320-update learning-rate and end-to-end loss-weight schedules. The following 320 updates hold the actual final-prefix learning rate, $1.859423525\times10^{-6}$. Simply changing the cosine horizon to ten epochs would also change the prefix and was not used. For each arm, first-prefix training-loss/LR CSV values and saved EMA weights reproduce the original run exactly; all 747 protected tensors remain exact. This is not a claim of an exhaustive historical training-tensor audit. All images, boxes, common support, order, augmentation settings, and optimizer parameters remain matched, with only raw/corrected target coordinates differing. Both fixed final checkpoints are used. Their predictions and unchanged D9 poses were hash-locked before reference scoring.
+
+\begin{table}[t]
+\centering\small
+\caption{Bounded post-hoc budget test, not a replacement for the 320-update main experiment. TRAIN residual is to the corrected pseudo target, not to real ground truth. Full-panel PCK10 retains all 985 supported corners.}
+\label{tab:visiblebudget}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+Arm / updates & PCK10 /66 & Full (\%) & AUC & Fit px\\
+\midrule
+Raw / 320 & 43/66 & 47.513 & 0.33472 & 4.078\\
+Corrected / 320 & 43/66 & 51.472 & 0.35902 & 3.070\\
+Raw / 640 & 44/66 & 47.614 & 0.33681 & 4.032\\
+Corrected / 640 & 44/66 & 51.168 & 0.36189 & 2.994\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Mixed result and stopping decision}
+Both students gain one verified correct point, so the corrected-versus-raw tie remains (Table~\ref{tab:visiblebudget}). Corrected 640 versus corrected 320 has one entry and no exit at PCK10, while corrected versus raw at 640 has two entries and two exits. Corrected PCK5/PCK20 remains 26/66 and 63/66. Its mean verified error decreases from 10.082 to 10.040 pixels and P90 from 17.343 to 17.005, but median error worsens from 7.097 to 7.120. The corrected training-target residual falls by only 0.076 pixels. These small changes do not establish that additional optimization resolved visible transfer.
+
+On the unchanged full panel, corrected 640 versus corrected 320 loses three net correct corners (507/985 to 504/985; two entries, five exits), while pose AUC rises from 0.35902 to 0.36189. Matched P90 worsens from 42.085 to 42.160 pixels. Under the same 640-update budget, corrected still exceeds raw by 3.553 PCK10 percentage points and 0.02509 AUC, compared with 3.959 points and 0.02429 at 320 updates. Thus the intervention's effect and the corrected-target added value are different contrasts: the former is mixed, and the latter remains favorable on this reused legacy panel but not superior at verified PCK10. Detection remains 128/128, matched detection 120/128, and pose coverage 128/128 for all arms. The original 32-image synthetic validation role and all severity/recording summaries are retained without calibration or checkpoint selection.
+
+This single paired experiment does not uniquely identify the remaining cause or rule out every possible training budget. It provides no independent-session, hidden-point, or physical-6D validation. We preserve the original main results and close method development without a second intervention, additional labels, or a new uncertainty module. Full contrasts, damaging and low-change examples, hashes, and reproduction instructions are provided in the repository namespace \texttt{pallet\_visible\_transfer\_closure\_v1}.
