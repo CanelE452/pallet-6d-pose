@@ -1,0 +1,114 @@
+{
+  "schema": "pallet_material_selftrain_closure_v1.wood_pseudo_quality.v1",
+  "audit_date_KST": "2026-09-27",
+  "status": "UNRESOLVED",
+  "Q1_WOOD": "UNRESOLVED",
+  "reason": "교사의 실사 감독 recording과 분리된 Wood 평가 45장에는 출처가 확인되는 직접 클릭 가시점이 0개다. 기존 mixed/unknown reference를 verified pseudo-quality로 승격하지 않는다.",
+  "inference_or_scoring_performed_by_this_audit": false,
+  "legacy_quality_promoted_to_verified": false,
+  "GT_coordinates_published": false,
+  "teacher": {
+    "checkpoint": {
+      "path": "data/pallet/results/pallet_posefix_replay_v1/last300.pt",
+      "sha256": "fc9b3d7b7f2e7c38b608a12461cf16a58b76669f12ef9be5c8dc35d81104a41d",
+      "bytes": 275590870
+    },
+    "real_images": 9,
+    "manual_corners": 38,
+    "by_material": {
+      "WOOD": {"images": 6, "manual_corners": 23, "session": "wood_day_01", "recording": "REC_001"},
+      "PLASTIC": {"images": 3, "manual_corners": 15, "session": "plastic_night_01", "recording": "REC_002"}
+    },
+    "training_recordings": ["REC_001", "REC_002"],
+    "result_based_teacher_replacement": false
+  },
+  "historical_wood116_overlap": {
+    "images": 116,
+    "teacher_exact_ID_overlap": 5,
+    "teacher_image_SHA_overlap": 5,
+    "overlap_IDs": [
+      "wood_day_01:002141",
+      "wood_day_01:004032",
+      "wood_day_01:004481",
+      "wood_day_01:005286",
+      "wood_day_01:026085"
+    ],
+    "teacher_recording_overlap_images": 71,
+    "excluded_by_provenance": [
+      {"session": "wood_day_01", "recording": "REC_001", "images": 20},
+      {"session": "wood_night_01", "recording": "REC_002", "images": 51}
+    ],
+    "alias_warning": "plastic_night_01과 wood_night_01은 이름과 재료가 달라도 같은 REC_002다. wood_day_01만 제외하는 96장 집합은 teacher-recording-disjoint가 아니다.",
+    "performance_used_for_exclusion": false
+  },
+  "primary_reference_population": {
+    "images": 45,
+    "recordings": ["REC_039", "REC_042"],
+    "sessions": [
+      {"session": "wood_183705", "recording": "REC_039", "images": 25, "CLEAN": 18, "MODERATE_OCCLUSION": 7},
+      {"session": "wood_184309", "recording": "REC_042", "images": 20, "CLEAN": 20, "MODERATE_OCCLUSION": 0}
+    ],
+    "severity": {"CLEAN": 38, "MODERATE_OCCLUSION": 7, "SEVERE_OCCLUSION": null},
+    "severe_available": false,
+    "teacher_exact_ID_overlap": 0,
+    "teacher_image_SHA_overlap": 0,
+    "teacher_recording_overlap": 0,
+    "corner_annotation_rows": 360,
+    "corner_source_counts": {"unknown": 360},
+    "trusted_direct_visible_points": 0,
+    "images_with_trusted_direct_visible_points": 0,
+    "student_train_overlap_audit": "별도 WOOD_PROVENANCE_AUDIT.json에서 확정한다. 여기서는 teacher와 reference의 출처만 감사한다."
+  },
+  "reference_eligibility_rule": {
+    "corner_indices": "0..7; 중심 8번 제외",
+    "source": "manual_click",
+    "visibility": 2,
+    "reason": "visible",
+    "in_frame": true,
+    "finite_and_inside_native_image": true,
+    "recording_disjoint_from_teacher_manual_training": true,
+    "not_sufficient_as_manual_evidence": ["object-level gt_source=manual", "integer coordinates", "visibility flag without point source", "PnP projection", "file/folder name manual_gt"]
+  },
+  "metrics": {
+    "evaluated_trusted_points": 0,
+    "RAW_R0": {"PCK5": null, "PCK10": null, "PCK20": null, "median_px": null, "P90_px": null, "greater20_count": null, "coverage": null},
+    "FROZEN_REPLAY_CORRECTED": {"PCK5": null, "PCK10": null, "PCK20": null, "median_px": null, "P90_px": null, "greater20_count": null, "coverage": null},
+    "paired_gains_at10": null,
+    "paired_losses_at10": null,
+    "corrected_minus_raw_median_px": null,
+    "null_meaning": "적격 참조의 분모가 0이므로 미평가다. 0% 또는 정확도 불량을 뜻하지 않는다."
+  },
+  "historical116_point_provenance": {
+    "corner_annotation_rows": 928,
+    "source_counts": {"unknown": 360, "manual_click": 292, "pnp_projected": 268, "extrapolated": 8},
+    "finite_in_frame_direct_visible_points": 291,
+    "by_session": {"wood_day_01": 87, "wood_night_01": 204},
+    "all_291_in_teacher_exposed_recordings": true,
+    "291_are_not_all_exact_teacher_training_points": true,
+    "supplementary_only_if_scored": "동일 recording 노출을 명시한 보조값에 한정한다. 현재 주 Q1의 대체 또는 독립 검증으로 사용하지 않으며, teacher의 실제 학습점 중복도 별도로 구분해야 한다.",
+    "FINAL_V2_verified_reference_wood_frames": 0
+  },
+  "verification": {
+    "teacher9_plus_wood116_actual_image_SHA_verified": 125,
+    "image_SHA_mismatches": 0,
+    "wood116_actual_annotation_SHA_verified": 116,
+    "annotation_SHA_mismatches": 0,
+    "annotation_manifest_sha256": "1c5ffc83332c15cff0cca5d47e3b3effcc3c82c45cca4477cb69ed02e86ef136",
+    "annotation_manifest_rule": "wood/SPLIT.json.evaluation의 각 행에서 {id,path:annotation.path,sha256:실제 파일 SHA256}을 만들어 id 오름차순으로 정렬한다. json.dumps(sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()의 SHA256이다. 개별 annotation.path와 기대 SHA는 해당 SPLIT 안에 저장되어 있다."
+  },
+  "interpretation": {
+    "supported": "Wood45의 legacy reference를 사용하는 후속 matched self-training 평가와 별개로, 엄격한 Wood pseudo-label 품질 Q1은 미해결이다.",
+    "not_supported": ["Wood의 verified visible pseudo 품질이 개선됐다", "Wood에서도 teacher 좌표의 정확성을 검증했다", "독립적인 Wood 품질 검증이 완료됐다"],
+    "new_manual_labels_requested": false,
+    "new_teacher_fit_requested": false
+  },
+  "source_bindings": [
+    {"path": "_docs/experiments/pallet_posefix_replay_v1/FIT.json", "sha256": "34ba44bbeed625bce744e9fa95305a70faea2e93c754ef36dfe2a8fbc0b468a8", "bytes": 2173},
+    {"path": "_docs/experiments/pallet_posefix_replay_v1/INPUT_LOCK.json", "sha256": "462592a2656f01cc3525fedd4b486a48932828e019d1eeca982887475a698780", "bytes": 547303},
+    {"path": "_docs/experiments/pallet_large_error_refiner_v1/SPLIT.json", "sha256": "fa63de9cb5aab2576d812c0dc7e0e956a27c48709df8d93a816177cb0a9c8040", "bytes": 134663},
+    {"path": "_docs/experiments/pallet_posefix_large_error_v1/TRAIN_SUPPORT.json", "sha256": "f6638b5460d991784eda65e25e71056e78731f2c6701915f3d671dbce867f5dd", "bytes": 5990},
+    {"path": "_docs/experiments/pallet_replay_by_type_v1/wood/SPLIT.json", "sha256": "2ecc483c5cd9e7682a68149aa83d9ac3ef33483ae7a131e9049dd01819b7773a", "bytes": 89931},
+    {"path": "data/pallet/results/site_environment_audit_v1/SOURCE_RECORDING_GROUPS.json", "sha256": "f0be41054f8b4c955a0f004d7b6f57b6eeabd0e3ab6409086c39eb42fd4bd75a", "bytes": 137299},
+    {"path": "data/pallet/results/pallet_verified_anchor_v1/metadata_conflict_qa/VERIFIED_LABELS_FINAL_PRIVATE.json", "sha256": "a00e995cd9be12e5dd512520899e680fa0b544a4173790900f6618eea36f1e98", "bytes": 38748}
+  ]
+}

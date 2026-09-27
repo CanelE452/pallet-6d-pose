@@ -1,0 +1,465 @@
+{
+  "schema": "pallet_material_selftrain_closure_v1.WOOD_REUSE_MATRIX.v1",
+  "scope": "읽기 전용 구현/과거 산출물 감사 및 출처 분류; 신규 학습/평가 수치 없음",
+  "classification_vocabulary": [
+    "REUSABLE_INFRASTRUCTURE",
+    "REUSABLE_BASELINE",
+    "SUPPLEMENTARY_ONLY",
+    "NOT_COMPARABLE_TO_MAIN",
+    "LEAKAGE_RISK",
+    "OBSOLETE"
+  ],
+  "main_contract": {
+    "teacher": "SHARED_REPLAY_9_IMAGES_38_CORNERS",
+    "plastic_main": "R0 / RAW_LR5 / REF_LR5 unchanged",
+    "wood_main_population_before_scoring": {
+      "images": 45,
+      "recordings": [
+        "REC_039",
+        "REC_042"
+      ]
+    },
+    "candidate_recordings": [
+      "REC_001",
+      "REC_002"
+    ],
+    "candidate_exclusion": "all original319 GT frame exact image IDs/SHA; all main-evaluation recording/session aliases",
+    "routing": "material type externally provided for routed evaluation; no automatic material classification; unknown material behavior not validated"
+  },
+  "source_aliases": {
+    "REC_001": [
+      "data/evaluation/pallet_eval_v1/incoming/sessions/real_unlabeled_day_20260830",
+      "data/evaluation/pallet_eval_v1/final/positive/sessions/plastic_day_01",
+      "data/evaluation/pallet_eval_v1/incoming/annotations/real_unlabeled_day_20260830__plastic",
+      "data/evaluation/pallet_eval_v1/final/positive/sessions/wood_day_01",
+      "data/evaluation/pallet_eval_v1/incoming/annotations/real_unlabeled_day_20260830__wood"
+    ],
+    "REC_002": [
+      "data/evaluation/pallet_eval_v1/incoming/sessions/real_unlabeled_night_20260830",
+      "data/evaluation/pallet_eval_v1/final/positive/sessions/plastic_night_01",
+      "data/evaluation/pallet_eval_v1/final/positive/sessions/wood_night_01",
+      "data/evaluation/pallet_eval_v1/incoming/annotations/real_unlabeled_night_20260830__wood",
+      "data/evaluation/pallet_eval_v1/incoming/annotations/real_unlabeled_night_20260830__plastic",
+      "data/evaluation/pallet_eval_v1/final/positive/annotations/plastic_night_01"
+    ],
+    "REC_039": [
+      "data/pallet/raw_data/wood/_annotate_pallet_20260618_183705",
+      "data/pallet/raw_data/wood/selected/pallet_20260618_183705",
+      "data/evaluation/pallet_eval_v1/dev_existing/sessions/wood_183705",
+      "challenge/data/01_real/manual_gt/wood_pallet_20260618_183705_manual_gt",
+      "data/evaluation/pallet_eval_v1/dev_existing/annotations/wood_183705"
+    ],
+    "REC_042": [
+      "data/pallet/raw_data/wood/_annotate_pallet_20260618_184309",
+      "data/pallet/raw_data/wood/selected/pallet_20260618_184309",
+      "data/evaluation/pallet_eval_v1/dev_existing/sessions/wood_184309",
+      "challenge/data/01_real/manual_gt/wood_pallet_20260618_184309_manual_gt"
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "SHARED_REPLAY_9_IMAGES_38_CORNERS",
+      "roles": [
+        "REUSABLE_INFRASTRUCTURE"
+      ],
+      "permitted_use": "SHARED_METHOD_TEACHER",
+      "reason_ko": "Plastic main과 동일한 고정 Replay9/38 교사. RGB·예측9점·예측bbox만 입력하고 material·치수·GT를 입력받지 않으므로 Wood 아키텍처/좌표 계약 차단 없음. 낮은 성능을 이유로 교체하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_posefix_replay_v1/FIT.json",
+          "sha256": "34ba44bbeed625bce744e9fa95305a70faea2e93c754ef36dfe2a8fbc0b468a8",
+          "bytes": 2173
+        },
+        {
+          "path": "_docs/experiments/pallet_posefix_replay_v1/PROTOCOL.json",
+          "sha256": "acab83bf84d59a9087dc2ad0bfbfa748c25a81872a2ae8801cb7784bb2a6663f",
+          "bytes": 11652
+        },
+        {
+          "path": "_docs/experiments/pallet_posefix_large_error_v1/TRAIN_SUPPORT.json",
+          "sha256": "f6638b5460d991784eda65e25e71056e78731f2c6701915f3d671dbce867f5dd",
+          "bytes": 5990
+        },
+        {
+          "path": "scripts/research/pallet_posefix_large_error_v1/core.py",
+          "sha256": "7b444aaddcaf418ec2478659d3f77b486566ccf6377fec4257a9110ce73467bf",
+          "bytes": 8509
+        },
+        {
+          "path": "scripts/research/pallet_posefix_replay_v1/core.py",
+          "sha256": "7d4c6b355b3b951138d07c91b1544ad0b6ff69e7385170e9f5b2d0f768572b2a",
+          "bytes": 9483
+        }
+      ],
+      "checkpoint": {
+        "path": "data/pallet/results/pallet_posefix_replay_v1/last300.pt",
+        "sha256": "fc9b3d7b7f2e7c38b608a12461cf16a58b76669f12ef9be5c8dc35d81104a41d",
+        "bytes": 275590870
+      },
+      "manual_budget": {
+        "images": 9,
+        "corners": 38
+      },
+      "teacher_sessions": [
+        "wood_day_01",
+        "plastic_night_01"
+      ],
+      "teacher_recordings": [
+        "REC_001",
+        "REC_002"
+      ],
+      "inference": {
+        "api": "pallet_posefix_large_error_v1.core.predict(model, native_bgr, raw_prediction)",
+        "cap_fraction": null,
+        "center_preserved": true,
+        "boxes_scores_confidence_selection_preserved": true
+      }
+    },
+    {
+      "id": "FROZEN_R0_WOOD_PREDICTION_CACHE",
+      "roles": [
+        "REUSABLE_BASELINE"
+      ],
+      "permitted_use": "BASELINE_PREDICTIONS_SUBSET",
+      "reason_ko": "기존 R0 캐시에 Wood125장이 포함된다. 새 평가45개 고정ID와 native 좌표·전처리 계약이 일치하는 부분만 사용하며 다른 학생 또는 교사 출력으로 대체하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "data/pallet/results/pallet_type_selftrain_v1/EVAL_PREDICTIONS_R0.json",
+          "sha256": "fef60cee642b89983662d3db50c6fe176deb6c4fa2a7aadefbb3a1f0da5b7809",
+          "bytes": 1346010
+        }
+      ],
+      "checkpoint": {
+        "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+        "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+        "bytes": 6552807
+      },
+      "historical_wood_records": 125
+    },
+    {
+      "id": "MAIN_SYN_LR5_SOURCE_ONLY_CONTROL",
+      "roles": [
+        "REUSABLE_BASELINE"
+      ],
+      "permitted_use": "FROZEN_SOURCE_CONTROL_NEW_WOOD_INFERENCE_ONLY",
+      "reason_ko": "Plastic main의 SYN_LR5는 동일 mixed synthetic512만으로 320update한 material-independent source-only control이다. Wood 평가 추론은 필요하지만 새 SYN fit은 필요 없다. 초기 full-model SYN_ONLY와 혼동하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/FIT_SYN_LR5.json",
+          "sha256": "01ae018638fa1355547eb2eabf939dc8a66f5591cde2835aebd05e61276b1bd2",
+          "bytes": 7817
+        },
+        {
+          "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/PROTOCOL.json",
+          "sha256": "43129516d0c23b56c1f99462982c0f7987361a84f5b3fa09ba9dcceeecccb82f",
+          "bytes": 964186
+        },
+        {
+          "path": "scripts/research/pallet_type_selftrain_v1/recovery_pose_trainer.py",
+          "sha256": "ee8d5a247fd9e4e991377dc546e6b1350024919668c5c9d82137924cd2bc08f8",
+          "bytes": 1819
+        }
+      ],
+      "checkpoint": {
+        "path": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/runs/SYN_LR5/weights/last.pt",
+        "sha256": "14acc2237cfc521c505b1248a111ce078941bbf7819f1cf24061ca86c4068ada",
+        "bytes": 6541287
+      },
+      "new_fit_required": false,
+      "lr": 0.00001,
+      "updates": 320
+    },
+    {
+      "id": "PLASTIC_RAW_REF_TARGET_AND_TRAINING_HELPERS",
+      "roles": [
+        "REUSABLE_INFRASTRUCTURE"
+      ],
+      "permitted_use": "SHARED_LABEL_SUPPORT_AND_POSE_ONLY_TRAINER",
+      "reason_ko": "paired_labels와 label, PoseOnlyTrainer를 재사용한다. 기존 prepare/dataset entrypoint의 PLASTIC249·217·GREEN hard-code는 Wood orchestration으로 일반화하되 감독/좌표/학습 계약은 바꾸지 않는다. 기본 ARGS.lr0=1e-4가 아니라 main arm의1e-5 override가 필수다.",
+      "source_bindings": [
+        {
+          "path": "scripts/research/pallet_type_selftrain_v1/recovery_pose.py",
+          "sha256": "58432202f1241803b50d1149a07556bc17ad71b1aceea95460d953c24a768083",
+          "bytes": 8372
+        },
+        {
+          "path": "scripts/research/pallet_type_selftrain_v1/recovery_pose_trainer.py",
+          "sha256": "ee8d5a247fd9e4e991377dc546e6b1350024919668c5c9d82137924cd2bc08f8",
+          "bytes": 1819
+        },
+        {
+          "path": "scripts/research/pallet_type_selftrain_v1/train.py",
+          "sha256": "8c1c3695f3f69e4c8f8ad9ae9ca2465482fe7e4975e65428c7b0e833a27b38e7",
+          "bytes": 10189
+        }
+      ],
+      "updates": 320,
+      "epochs": 5,
+      "batch": 16,
+      "nbs": 16,
+      "seed": 42,
+      "common_support": "RAW/REF in-frame finite kp_conf>=0.5 support intersection; v=1 true-ignore elsewhere; center policy unchanged",
+      "padding": "reflect101 border100 exactly once"
+    },
+    {
+      "id": "PLASTIC_FROZEN_PSEUDO_FILTER",
+      "roles": [
+        "REUSABLE_INFRASTRUCTURE"
+      ],
+      "permitted_use": "UNCHANGED_WOOD_FILTER",
+      "reason_ko": "기존 raw confidence/flip/LOO → 동일 Replay → all8 LOO만 적용한다. Wood 결과로 임계값을 바꾸거나 추가 geometry/shape/stability 필터를 넣지 않는다.",
+      "source_bindings": [
+        {
+          "path": "scripts/research/pallet_type_selftrain_v1/pseudo.py",
+          "sha256": "faf0d4c4af9695aec1d0b10a778291fac57b2b0b24a800156528423f7c09171a",
+          "bytes": 6493
+        },
+        {
+          "path": "scripts/self_training_yolo/pseudo_label_filters.py",
+          "sha256": "792467ff5464b1a66a196fb58fcc0ebe3d759d88100388087946e0f631199215",
+          "bytes": 10511
+        }
+      ],
+      "thresholds": {
+        "box": 0.85,
+        "kp_conf": 0.5,
+        "min_confident_corners": 6,
+        "raw_flip": 0.05,
+        "raw_LOO": 0.05,
+        "corrected_all8_LOO": 0.05
+      },
+      "post_refinement_flip": false,
+      "extra_shape_filter": false
+    },
+    {
+      "id": "WOOD_DIMENSIONS_AND_CAMERA_CACHE",
+      "roles": [
+        "REUSABLE_INFRASTRUCTURE"
+      ],
+      "permitted_use": "REGISTERED_GEOMETRY_AND_INFERENCE_ONLY_METADATA",
+      "reason_ko": "등록 Wood physical{x=.80,y=.14,z=.59}m와 native K를 사용한다. 분리된 INFERENCE_METADATA는 좌표 GT를 읽지 않고 추론할 수 있다. pose.metadata(REAL_DEV)는 GT도 읽으므로 prediction lock 이후에만 호출한다.",
+      "source_bindings": [
+        {
+          "path": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+          "sha256": "9ae991450c384f4fcb82cff74a71fe07d51c5dcc496a5e8fcb28f41b4420ff76",
+          "bytes": 2939
+        },
+        {
+          "path": "data/pallet/results/pallet_visible_refine_hidden_pnp_v1/INFERENCE_METADATA.json",
+          "sha256": "33afed0965dc701e0f2b849f62a8d812b1375d053f1bbc68e98e1b704e81552f",
+          "bytes": 109911
+        }
+      ],
+      "object_type": "wood_small_80x59x14",
+      "physical_xyz_m": [
+        0.8,
+        0.14,
+        0.59
+      ]
+    },
+    {
+      "id": "COMMON_D9_AND_2D_SCORER",
+      "roles": [
+        "REUSABLE_INFRASTRUCTURE"
+      ],
+      "permitted_use": "IDENTICAL_DEPLOYABLE_COMMON_SELECTOR_AND_METRICS",
+      "reason_ko": "Plastic main과 같은 prediction-only D9 W/D selector, corner0..7 SQPnP+LM, native 2D full denominator/whole-object symmetry를 재사용한다. D9 selector residual은9점, 최종 solve는8코너이며 confidence 기반 새 solver/GT후보선택/성능별 router는 추가하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "scripts/research/pallet_dim_conditioned_p_v1/pose.py",
+          "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+          "bytes": 7720
+        },
+        {
+          "path": "scripts/research/pallet_clean19_pose_mismatch_v1/diagnose.py",
+          "sha256": "5d483cad5f5fe54036d9d6dcc8c45d9f7b63b326655b7f4fdef2ac195f5f516a",
+          "bytes": 21100
+        },
+        {
+          "path": "challenge/evaluation_v2/pnp_selector.py",
+          "sha256": "3e89f318c7c4a3396c6e7c2f9280c1755f32d7bd7b3d61e8a56b9bd5d0bd512e",
+          "bytes": 30933
+        },
+        {
+          "path": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py",
+          "sha256": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720",
+          "bytes": 10902
+        },
+        {
+          "path": "scripts/research/pallet_dim_conditioned_p_v1/eval_math.py",
+          "sha256": "4e3111f108e689d03ddac80387dc6492d1a6b180b7b8d7f5d98fe4722c43ea7b",
+          "bytes": 4273
+        }
+      ],
+      "pose_reference_scope": "geometry-resolved legacy annotation, not independent physical 6D truth"
+    },
+    {
+      "id": "HISTORICAL_WOOD_SPECIFIC_REPLAY_9_39",
+      "roles": [
+        "SUPPLEMENTARY_ONLY",
+        "NOT_COMPARABLE_TO_MAIN"
+      ],
+      "permitted_use": "HISTORICAL_CONTEXT_ONLY",
+      "reason_ko": "과거 Wood 전용9장/39수동코너 교사는 이번 mixed-material Replay9/38 교사와 감독 조건이 다르다. 교사 행동/실패 이력의 보조자료로만 남기며 현재 RAW-vs-corrected causal comparison 또는 성능 구제 교사로 사용하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_replay_by_type_v1/wood/TRAIN_SUPPORT.json",
+          "sha256": "dcd452c1182810a2bc4b48216b671656fc9c46f0239fbdd9b5abeea1d44c5642",
+          "bytes": 3373
+        },
+        {
+          "path": "_docs/experiments/pallet_replay_by_type_v1/wood/PROTOCOL.json",
+          "sha256": "5b4064f1d3ea3d02fe005c7d30d06c60a94866744e7d143ccb0f04969d76dc99",
+          "bytes": 1866
+        },
+        {
+          "path": "_docs/experiments/pallet_replay_by_type_v1/wood/FIT.json",
+          "sha256": "ec41213b49fbd54ef9387a7a16de8f683884fd6598043bcf02c8b3d1171a9676",
+          "bytes": 3805
+        }
+      ],
+      "manual_budget": {
+        "images": 9,
+        "corners": 39
+      },
+      "sessions": [
+        "wood_day_01",
+        "wood_night_01"
+      ],
+      "recordings": [
+        "REC_001",
+        "REC_002"
+      ]
+    },
+    {
+      "id": "HISTORICAL_PLASTIC_SPECIFIC_REPLAY",
+      "roles": [
+        "SUPPLEMENTARY_ONLY",
+        "NOT_COMPARABLE_TO_MAIN"
+      ],
+      "permitted_use": "HISTORICAL_CONTEXT_ONLY",
+      "reason_ko": "과거 Plastic 전용 보정기와 mixed Clean19 대비는 서로 다른 감독/노출의 비교다. 이번 동일 Replay9/38 계약을 대신하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_replay_by_type_v1/plastic/PROTOCOL.json",
+          "sha256": "3fde17f0f382179c4c6c3b431fd9fc49b512712d264db7537099e84636a85cab",
+          "bytes": 1873
+        }
+      ]
+    },
+    {
+      "id": "HISTORICAL_WOOD_S0_S1_S2",
+      "roles": [
+        "SUPPLEMENTARY_ONLY",
+        "NOT_COMPARABLE_TO_MAIN"
+      ],
+      "permitted_use": "HISTORICAL_OCCLUSION_DISTILLATION_CONTEXT_ONLY",
+      "reason_ko": "Clean19/typespecific teacher와 가림 증류/augmentation 개입을 포함한 S0/S1/S2는 이번 RAW-vs-corrected paired student control이 아니다. checkpoint/결과를 신규 Wood RAW/REF 이름으로 재포장하지 않는다. 평가 인프라만 별도 재사용 가능하다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_clean19_structured_easyhard_v1/PROTOCOL.json",
+          "sha256": "06c7dd2d8012cc857b8678a3103bcd1cff9b137524b3f996ea5d7029eeb8f05a",
+          "bytes": 3664
+        },
+        {
+          "path": "_docs/experiments/pallet_clean19_structured_easyhard_v1/FIT_WOOD_S0.json",
+          "sha256": "c57c1d9b3dab697780fb65e5764626d567a969609745ae02216355da2a835844",
+          "bytes": 163624
+        },
+        {
+          "path": "_docs/experiments/pallet_clean19_structured_easyhard_v1/FIT_WOOD_S1.json",
+          "sha256": "5a8dd3067fa050fec688ef9c7964bcf078dd97b5c247a896b0381ed8b49b4555",
+          "bytes": 163648
+        },
+        {
+          "path": "_docs/experiments/pallet_clean19_structured_easyhard_v1/FIT_WOOD_S2.json",
+          "sha256": "2ce5ed5515926a6f76e1063305adfc1d62296a875124ecaefac8e22c4bd031d9",
+          "bytes": 163645
+        }
+      ]
+    },
+    {
+      "id": "HISTORICAL_WOOD116_POPULATION",
+      "roles": [
+        "LEAKAGE_RISK",
+        "SUPPLEMENTARY_ONLY"
+      ],
+      "permitted_use": "PROVENANCE_AUDIT_NOT_UNFILTERED_NEW_MAIN",
+      "reason_ko": "Wood116은 wood_day_01(20)·wood_night_01(51)·wood_183705(25)·wood_184309(20)로 구성된다. day/night는 각각REC_001/REC_002이며 현재 교사의 Wood/plastic manual training recording과 겹친다. 재료명만으로 plastic_night 교사 recording을 Wood와 무관하다고 간주하면 안 된다. 결과를 보기 전에 두 전체 recording을 main Wood eval에서 제외해45개REC_039/042를 고정한다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_replay_clean19_v1/SPLIT.json",
+          "sha256": "ca70d0b6a5610724cfbaa922f9fc9f63ddac3db4d7728277c73394b3c4c6a65b",
+          "bytes": 237140
+        },
+        {
+          "path": "data/pallet/results/site_environment_audit_v1/SOURCE_RECORDING_GROUPS.json",
+          "sha256": "f0be41054f8b4c955a0f004d7b6f57b6eeabd0e3ab6409086c39eb42fd4bd75a",
+          "bytes": 137299
+        }
+      ],
+      "historical_count": 116,
+      "main_eval_count": 45,
+      "main_eval_recordings": [
+        "REC_039",
+        "REC_042"
+      ],
+      "excluded_recordings_for_provenance": [
+        "REC_001",
+        "REC_002"
+      ],
+      "main_subset_selected_from_results": false
+    },
+    {
+      "id": "HISTORICAL_NO_CALIBRATED_DISJOINT_POOL_BLOCK",
+      "roles": [
+        "OBSOLETE"
+      ],
+      "permitted_use": "OBSOLETE_FOR_45_PANEL_SCOPE_ONLY",
+      "reason_ko": "기존 Wood block은 Wood116/125 등 모든 당시 evaluation recording을 보존하던 계약의 결론이다. 이번에는 평가를 teacher-disjoint REC_039/042로 미리 고정하므로 REC_001/002의 미주석 Wood RGB를 후보로 감사할 수 있다. 이를 과거 실험의 오류 정정이나 모든 recording의 자유로운 역할 전환으로 표현하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_type_selftrain_v1/POOL.json",
+          "sha256": "04f8c9a5fd760b0df89e90571488cf1322bd8f6771c93ffaadc37f2f49f35712",
+          "bytes": 1783778
+        },
+        {
+          "path": "scripts/research/pallet_type_selftrain_v1/pool.py",
+          "sha256": "390639db3d746149e40c09e7740626512f0bb2aea605aa4fdeafee32efef839f",
+          "bytes": 5269
+        }
+      ],
+      "status_detail": "OBSOLETE_FOR_45_PANEL_SCOPE",
+      "pool_eligibility_condition": "Wood material confirmed; native camera metadata valid; all original319 GT-frame exact IDs/SHA excluded; REC_039/042 and aliases excluded"
+    },
+    {
+      "id": "PORTRAIT_WOOD_20260618_132917",
+      "roles": [
+        "NOT_COMPARABLE_TO_MAIN"
+      ],
+      "permitted_use": "STILL_BLOCKED_UNCALIBRATED_DO_NOT_USE",
+      "reason_ko": "별도225장 portrait session의 K/hfov 부재는 현재도 해소되지 않았다. 새45장 평가 계약이 calibration을 만들어주는 것은 아니다. K를 임의 생성하거나 기존필터를 생략해 사용하지 않는다.",
+      "source_bindings": [
+        {
+          "path": "_docs/experiments/pallet_type_selftrain_v1/POOL.json",
+          "sha256": "04f8c9a5fd760b0df89e90571488cf1322bd8f6771c93ffaadc37f2f49f35712",
+          "bytes": 1783778
+        },
+        {
+          "path": "_docs/history/2026-07-09.md",
+          "sha256": "49bd72205d8c779577d3e5cae0ba9616f7aad7a60320099d8a3d04f92c9cc9b7",
+          "bytes": 10760
+        }
+      ],
+      "candidate_path": "data/pallet/raw_data/wood/selected/20260618_132917",
+      "candidate_images": 225,
+      "status_detail": "STILL_BLOCKED_NO_CAMERA_CALIBRATION"
+    }
+  ],
+  "limitations": [
+    "두 재료 범주 내부 corrected-vs-raw delta만 비교한다; 절대 성능 차이는 material 난이도 인과효과가 아니다.",
+    "반복 DEV이며 independent confirmation/independent physical6D를 주장하지 않는다.",
+    "과거 type-specific 실험과 현재 causal matched comparison을 합쳐 동일 실험으로 보고하지 않는다.",
+    "새 teacher/refiner/selector/classifier fit은 없으며 DOPE를 추가하지 않는다."
+  ]
+}
