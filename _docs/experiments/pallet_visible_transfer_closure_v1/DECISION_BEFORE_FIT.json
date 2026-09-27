@@ -1,0 +1,45 @@
+{
+  "selected": "A_budget",
+  "utc": "2026-09-27T01:04:29.446532+00:00",
+  "new_fits_planned": 2,
+  "updates_each": 640,
+  "max_total_updates": 1280,
+  "purpose": "Test whether additional fixed-schedule optimization improves partial target following and transfers; not tune66point threshold.",
+  "evidence": {
+    "ref_target_mean_raw": 4.0779617916062,
+    "ref_target_mean_ref": 3.069715193409398,
+    "direction": {
+      "u_min_px": 1,
+      "v_min_px": 1e-08,
+      "n": 1492,
+      "aligned_fraction": 0.8264075067024129,
+      "cosine_median": 0.8729630278024378,
+      "projection_fraction_median": 0.31865867406682347,
+      "not_a_success_score": true
+    },
+    "last_two_pose_losses": {
+      "RAW_LR5": [
+        0.32862,
+        0.3219
+      ],
+      "REF_LR5": [
+        0.37385,
+        0.36602
+      ]
+    }
+  },
+  "counterarguments": [
+    "Native unaugmented residual is not augmented training objective.",
+    "Pseudo labels are not true coordinates.",
+    "Loss is mixed real/source; declining last interval does not prove convergence shortage.",
+    "Frozen representation, augmentation mismatch, contradictory targets and transfer limitations remain plausible."
+  ],
+  "choices": {
+    "A": "Selected: partial aligned following + remaining TRAIN residual + late objective decline justify a bounded hypothesis test, not a causal diagnosis.",
+    "B": "Not selected: no demonstrated calibration of corrected-coordinate reliability. Preserved confidence is not such evidence. No stability filter/Listen2Student implementation or calibration run.",
+    "C": "No fit remains legitimate if prefix or parity cannot be reproduced. No fallback to B."
+  },
+  "condition": "First320updates must reproduce original LR/loss/EMA checkpoint; mismatch stops experiment and leaves uncertainty, not another intervention.",
+  "development_stop_after": true,
+  "independent_test": false
+}
