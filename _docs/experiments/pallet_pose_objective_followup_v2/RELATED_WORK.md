@@ -52,3 +52,15 @@
 [확인] 기존 [`Replay protocol`](../pallet_posefix_replay_v1/PROTOCOL.json) 및 [`train.py`](../../../scripts/research/pallet_posefix_replay_v1/train.py)는300step, real8+source8/micro2, TFAdam1e−4, 모든 teacher parameter trainable/BN running stats frozen이다. 원래 시작은 PRIOR1 last6000이며 현재 frozen Replay에서 추가 적응하는 F와 동일한 초기화가 아니다. [`FIT.json`](../pallet_posefix_replay_v1/FIT.json)의300step 종료+최종probe elapsed는184.564471초, peak2,182.879MiB였다. 이것은 새 GPU 비용의 측정치가 아니라 예약 추정의 역사적 참고다.
 
 [추정] 기존300step을 근거로 한 T_KEEP/T_OCC 두 적응과 학생320step 두 전달은 최소4fit/1,240update다. 두 teacher는 동일한 현재 starting teacher에서 시작하고 T_KEEP의 추가학습도 생략하지 않는다. 원본 y_target과 가림 RGB에서 실제 추정한 q_init_occ/box_occ를 구분한다. fixed real membership·common support control을 확보한 뒤 학생 전달을 비교한다. teacher-only screen은 학생 T/R 성과가 아니다. 4fit 재현 reserve와 남은3cycle 상한을 침범하면 F는 `NOT_RUN_BUDGET/LOWER_PRIORITY`이지 방법 실패가 아니다.
+
+[확인, 추가 CPU 진단] [기존 가림 refiner v2](../pallet_occlusion_refiner_transfer_v2/E2_PROTOCOL.json)에는 실제 occluded-R0 초기점/box를 사용한 teacher CLEAN/OCC 및 source on/off 2×2가 이미 있었다. [저장5쌍 검사](F_MINIMUM_DIAGNOSTIC.md)로 입력·타깃 계약의 구현 가능성을 확인했다. 그러나 DAY264/253이라는 다른 pool, synthetic PoseFix 초기값, Replay+self-occlusion-PnP target, 다른 가림/공통 crop-support 규칙을 썼다. 이는 현재217/361의 frozen Replay에서 같은 예산으로 적응한 교사를 학생에게 전달하는 비교를 대신하지 않는다. source on/off factor도 compute-matched가 아니었다. 기존 결과의 회복·보존 절충은 재사용 가능한 위험 근거이지 현재 F의 실패 판정이 아니다.
+
+## 주cycle 이후 문헌 원리의 실제 disposition
+
+2026-09-29, 모든 예약 fit/eval 완료 후의 해석이다. [선택 기록](FINAL_SELECTION.json)은 당시 pending 상태로 보존하고 [재현 정정](REPLICATION_VALIDITY_CORRECTION.md)을 추가했다. 원논문이 제시한 원리, 실제 TRAIN에서 관측한 기전, 학생 DEV 성과는 별개다. R1/R2의 입력 난도 원리를 축소 적용한 A는 기존 REF 대비 T/R tradeoff였고, 실제 RLE clamp/위치 감쇠 진단을 바탕으로 한 B의 작은 SmoothL1 보조항은 주 T/R 무이득이었다. 어느 결과도 원논문 전체의 성공·실패를 재현한 것이 아니다.
+
+A에서 관측된 낮은 실제 가림 노출에 근거한 C는 schedule0.5→1만 바꾸어 적용률21.17%→41.17%, 가려진 REF 감독824→1,559점으로 늘렸다. 이는 원논문의 GT pose balancing/OHEM 재현이나 pseudo 정오답1:1 균형이 아니다. OLD_REF 대비 주 median은 −0.035730cm/−0.012101°의 아주 작은 joint sign, R0 및 matched NEW_RAW 대비는 둘 다 악화다. 사전 규칙에 따라 C 하나를 명목 seed43 baseline/recipe 반복과 Wood 적용 대상으로 골랐으며 **성능 승격은 하지 않았다**.
+
+A와 B의 유효한 두 독립 원리가 성립하지 않아 결합하지 않았다. detector Focal은 현재 동결 branch에 해당해 부적합하고 kobj Focal/GHMR은 단순 대조·재현 우선순위로 미실행이다. E는 실제 bilinear/수학적 Gaussian CPU sanity까지, F는 과거 실제 가림5쌍의 입력/타깃 계약 감사까지 수행했다. 두 teacher와 두 student의 전체 대조 예산을 생략하지 않았으므로 이번에 새 E/F fit을 시작하지 않은 것을 방법 실패라고 하지 않는다. [후보 lifecycle](CANDIDATE_MATRIX.md)에 구체적 근거·비용·미확인 범위를 기록했다.
+
+최종12fit/3,840update는 모두 실행했지만 seed43 설정이 실제 loader/worker stream을 바꾸지 않아 C42/43 trace와 모델이 동일했다. fit 전 stream 차이를 확인하지 못한 검증 누락으로 독립 학습변동성 재현은 `NOT_RUN_EFFECTIVE_TRAINING_VARIATION`이다. 비용4fit/1,280update는 그대로 남기고 추가 fit은 하지 않았다. Wood45에서 OLD_REF 대비 pooled median의 작은 joint sign이 있었어도 R0 대비는T/R 절충이며 Plastic의 반복 미완료를 대체하지 않는다. [독립 논의 검토](DISCUSSION_REVIEW.md)는1,008개 집계 cell과 per-frame/LORO 대조를 별도로 재계산했다. 실행의 정직한 제한은 `PARTIAL_BUDGET`, 성능 결론은 새로운 recipe 승격 없음이다.

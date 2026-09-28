@@ -17,13 +17,55 @@ from . import common as C
 from .metric_baseline import PRIMARY, SEVERITIES
 
 TOL=1e-7 # Existing metric-lock numerical parity tolerance, not practical significance.
-COLORS=['#26828e','#d8802e','#785ca6','#588f46','#bb5f7e','#617eac','#826344']
+COLORS=['#26828e','#d8802e','#588f46','#785ca6','#bb5f7e','#617eac','#826344']
 BASE_COLORS={'R0':'#333333','OLD_RAW':'#a47c36','OLD_REF':'#7853a2','SYN':'#888888'}
+REPLAY_CYCLES={'BASELINE_REPEAT','RECIPE_REPEAT'}
 SOURCES=set(); FIGURES=[]; EXAMPLES=[]
 
 
 def source(path):
     path=Path(path); SOURCES.add(path); return C.read(path)
+
+
+def register_retained():
+    """Register committed A/B examples without rendering or selecting anything."""
+    path=C.DOC/'RETAINED_FIGURE_MANIFEST.json'
+    if not path.exists():return None
+    previous=source(path)
+    assert previous['role']=='RETAINED_HISTORICAL_AB_EXAMPLES_NOT_FINAL_SELECTION'
+    assert len(previous['figures'])==len(previous['examples'])==4
+    current_figures={r['file']['path']:r for r in FIGURES}
+    current_examples={r['figure']['path'] for r in EXAMPLES if r.get('figure')}
+    for row in previous['figures']:
+        C.verify(row['file'])
+        if row['file']['path'] in current_figures:
+            assert row['file']==current_figures[row['file']['path']]['file']
+            continue
+        FIGURES.append(dict(row,historical_role=previous['role'],retained_manifest=C.bind(path)))
+    for row in previous['examples']:
+        C.verify(row['figure']);C.verify(row['image']);C.verify(row['previous_publication'])
+        approval=C.read(C.ROOT/row['previous_publication']['path'])
+        assert row['id'] in {e.get('id',e.get('frame_id')) for e in approval['examples']}
+        assert row['native_image_bounds_clipped'] and row['selected_recipe'] is False
+        if row['figure']['path'] not in current_examples:
+            EXAMPLES.append(dict(row,retained_historical=True,historical_role=previous['role'],retained_manifest=C.bind(path)))
+    return C.bind(path)
+
+
+def register_retained_only():
+    """Repair registration only: no PNG bytes, plot values, or choices change."""
+    SOURCES.clear();FIGURES.clear();EXAMPLES.clear()
+    path=C.DOC/'FIGURE_MANIFEST.json';value=C.read(path)
+    FIGURES.extend(value['figures']);EXAMPLES.extend(value['examples'])
+    retained=register_retained();assert retained is not None
+    value.update(figures=FIGURES,examples=EXAMPLES,retained_historical_manifest=retained,
+        retained_historical_figures=sum('historical_role' in f for f in FIGURES),
+        total_png_bytes=sum(f['file']['bytes'] for f in FIGURES))
+    bindings={b['path']:b for b in value['sources']}
+    for file in [Path(__file__),C.ROOT/retained['path']]:bindings[C.bind(file)['path']]=C.bind(file)
+    value['sources']=[bindings[k] for k in sorted(bindings)]
+    C.save(path,value)
+    print('RETAINED_PUBLIC_FIGURES_REGISTERED',value['retained_historical_figures'],flush=True)
 
 
 def direction(dt,dr):
@@ -72,8 +114,11 @@ def read_cycles():
         meta=source(raw/f'METADATA_{tag}.json')
         expected=128 if result['material']=='PLASTIC' else 45
         assert len(meta)==expected and all(len(metrics[a])==expected for a in metrics)
+        label=f"{result['cycle'].split('_')[0]} S{result['seed']}"
+        if result['cycle'] in REPLAY_CYCLES:label+=' [deterministic replay]'
         cycles.append(dict(result=result,path=path,raw=raw,tag=tag,metrics=metrics,metadata={r['id']:r for r in meta},
-            label=f"{result['cycle'].split('_')[0]} S{result['seed']}",slug=f"{result['cycle'].lower()}_{result['material'].lower()}_s{result['seed']}"))
+            label=label,independent_replication=False if result['cycle'] in REPLAY_CYCLES else None,
+            slug=f"{result['cycle'].lower()}_{result['material'].lower()}_s{result['seed']}"))
     return cycles
 
 
@@ -102,8 +147,8 @@ def objective_plot(baseline,cycles):
     for arm in ('R0','OLD_RAW','OLD_REF','SYN'):
         row=baseline['materials']['PLASTIC']['groups'][PRIMARY][arm]
         cards.append(dict(label=arm,row=row,color=BASE_COLORS[arm],marker={'R0':'*','OLD_RAW':'s','OLD_REF':'D','SYN':'X'}[arm],fill=True))
-    for i,cycle in enumerate(cycles):
-        if cycle['result']['material']!='PLASTIC':continue
+    overview=[c for c in cycles if c['result']['material']=='PLASTIC' and c['result']['cycle'] not in REPLAY_CYCLES]
+    for i,cycle in enumerate(overview):
         for target in ('RAW','REF'):
             cards.append(dict(label=cycle['label']+' '+target,row=cycle['result']['groups'][PRIMARY]['NEW_'+target],
                 color=COLORS[i%len(COLORS)],marker='o' if target=='RAW' else '^',fill=target=='REF'))
@@ -126,12 +171,13 @@ def objective_plot(baseline,cycles):
     fig.legend(handles,[f'{j+1}. '+label for j,label in enumerate(labels)],loc='lower center',ncol=min(4,len(labels)),fontsize=8,bbox_to_anchor=(.5,-.04))
     fig.suptitle('Plastic natural Moderate + Severe: fixed 99 reused-DEV frames',fontsize=12)
     fig.tight_layout(rect=(0,.12,1,.95))
-    save(fig,'objective99_tr_scatter','Lower T and R are better. Conditional medians with full99 pose coverage in legend; no T/R weighted sum, no independent-test claim. Right panel is difference of medians, not median frame delta.',dict(material='PLASTIC',frames=99))
+    fig.text(.5,-.09,'Nominal seed43 fits are deterministic replays, not independent replications; duplicate points omitted.',ha='center',va='top',fontsize=8)
+    save(fig,'objective99_tr_scatter','Lower T and R are better. Conditional medians with full99 pose coverage in legend; no T/R weighted sum, no independent-test claim. Right panel is difference of medians, not median frame delta. Seed43 has identical streams/state: duplicate reruns omitted from overview; see separate replay plots and REPLICATION_VALIDITY_CORRECTION.',dict(material='PLASTIC',frames=99))
 
 
 def severity_plot(baseline,cycles):
     for material in ('PLASTIC','WOOD'):
-        current=[c for c in cycles if c['result']['material']==material]
+        current=[c for c in cycles if c['result']['material']==material and c['result']['cycle'] not in REPLAY_CYCLES]
         # Wood has no new-cycle claim when no Wood fit exists; still retain baseline context.
         cards=[(a,baseline['materials'][material]['groups'],a,BASE_COLORS[a],'-') for a in ('R0','OLD_REF')]
         for i,c in enumerate(current):
@@ -151,7 +197,7 @@ def severity_plot(baseline,cycles):
         handles,labels=axs[0,0].get_legend_handles_labels();fig.legend(handles,labels,loc='lower center',ncol=min(5,len(labels)),fontsize=8)
         fig.suptitle(f'{material.title()} severity strata | medians and tails shown separately',fontsize=12)
         fig.tight_layout(rect=(0,.065,1,.96))
-        save(fig,material.lower()+'_severity_tr','Natural severity labels fixed before fits. P90 is not median. Missing Wood Severe is NA, not zero. Valid-pose conditional summaries retain full-stratum denominators in bound result JSON.',dict(material=material,counts=counts))
+        save(fig,material.lower()+'_severity_tr','Natural severity labels fixed before fits. P90 is not median. Missing Wood Severe is NA, not zero. Valid-pose conditional summaries retain full-stratum denominators in bound result JSON. Identical seed43 replay curves omitted; no independent robustness inferred.',dict(material=material,counts=counts))
 
 
 def paired_delta(cycle,populations):
@@ -178,9 +224,12 @@ def paired_delta(cycle,populations):
         ax.set(xlabel=f'Per-frame delta T (cm, {xs})',ylabel=f'Per-frame delta R (deg, {ys})',
                title=f"{after_arm} - {before_arm} | paired {len(common)}/{len(ids)}")
         ax.legend(fontsize=7,loc='best');ax.grid(alpha=.12);ax.spines[['top','right']].set_visible(False)
-    fig.suptitle(cycle['label']+' '+material.title()+' | every common-valid frame; no outlier trimming',fontsize=11)
-    fig.tight_layout(rect=(0,0,1,.94))
-    save(fig,cycle['slug']+'_paired_frame_tr_delta','Posthoc descriptive frame deltas. Symlog linear interval +/-1 in each axis is a display setting, not an improvement threshold. Numeric parity tolerance1e-7; no pose failures silently become zero.',dict(group=group,paired=counts))
+    is_replay=cycle['result']['cycle'] in REPLAY_CYCLES
+    note=' | NOT an independent seed confirmation' if is_replay else ' | every common-valid frame; no outlier trimming'
+    fig.suptitle(cycle['label']+' '+material.title()+note,fontsize=11)
+    if is_replay:fig.text(.5,.005,'Fixed loader streams and all 879 checkpoint tensors match the original run. Numerical replay only; no variance estimate.',ha='center',fontsize=9)
+    fig.tight_layout(rect=(0,.045 if is_replay else 0,1,.94))
+    save(fig,cycle['slug']+'_paired_frame_tr_delta','Posthoc descriptive frame deltas. Symlog linear interval +/-1 in each axis is a display setting, not an improvement threshold. Numeric parity tolerance1e-7; no pose failures silently become zero.'+(' Deterministic replay only, NOT independent training variation or evidence of robustness.' if is_replay else ''),dict(group=group,paired=counts,independent_replication=False if is_replay else None))
 
 
 def overlays(cycle,populations,selected=False,target='REF',comparison='OLD_REF'):
@@ -230,10 +279,15 @@ def main():
     SOURCES.add(Path(__file__)); baseline=source(C.DOC/'BASELINE_POSE_RESULTS.json')
     C.verify(baseline['private_metric_artifact'])
     source(C.DOC/'METRIC_AND_SELECTION_LOCK.json')
+    correction_path=C.DOC/'REPLICATION_VALIDITY_CORRECTION.json'
+    correction=source(correction_path) if correction_path.exists() else None
     populations=source(C.RAW/'metric_baseline/POPULATION_LOCK_PRIVATE.json')
     baseline_frames=source(C.ROOT/baseline['private_metric_artifact']['path'])
     checked=sum(verify_summaries(baseline['materials'][mat]['groups'],baseline_frames[mat],populations[mat]['groups']) for mat in populations)
     cycles=read_cycles()
+    if any(c['result']['cycle'] in REPLAY_CYCLES for c in cycles):
+        assert correction and correction['status']=='NOT_RUN_EFFECTIVE_TRAINING_VARIATION'
+        assert correction['deterministic_reexecution_verified'] and not correction['effective_data_variation']
     checked+=sum(verify_summaries(c['result']['groups'],c['metrics'],populations[c['result']['material']]['groups']) for c in cycles)
     objective_plot(baseline,cycles);severity_plot(baseline,cycles)
     for cycle in cycles:paired_delta(cycle,populations)
@@ -244,11 +298,19 @@ def main():
             c['result']['material']==selection.get('selected_material','PLASTIC') and c['result']['seed']==selection.get('selected_seed',42)),None)
         assert selected is not None,'Selected result missing; do not silently substitute another recipe'
         overlays(selected,populations,True,selection.get('selected_target','REF'),selection.get('comparison','OLD_REF'))
+        for cycle in cycles:
+            if cycle['result']['material']=='WOOD':overlays(cycle,populations)
     else:
         for cycle in cycles:overlays(cycle,populations)
+    retained=register_retained()
     C.save(C.DOC/'FIGURE_MANIFEST.json',dict(kind='Measured aggregate plots and pre-approved RGB only',generated_utc=C.now(),
         completed_cycles=[dict(cycle=c['result']['cycle'],material=c['result']['material'],seed=c['result']['seed'],result=C.bind(c['path'])) for c in cycles],
-        selected_recipe=selection,selection_status='FINAL_SELECTION_AVAILABLE' if selected else 'NO_FINAL_SELECTION_PER_CYCLE_EXAMPLES',
+        selected_recipe=selection,selection_status='HISTORICAL_SELECTION_WITH_REPLICATION_CORRECTION' if selected and correction else 'FINAL_SELECTION_AVAILABLE' if selected else 'NO_FINAL_SELECTION_PER_CYCLE_EXAMPLES',
+        replication_correction=C.bind(correction_path) if correction else None,
+        effective_independent_replication_status=correction['status'] if correction else 'NO_CORRECTION_AVAILABLE',
+        interpretation='PARTIAL_BUDGET: seed43 counts as spent fits but not independent replication; historical FINAL_SELECTION pending/seed wording is superseded by correction.' if correction else 'Reused DEV only.',
+        overview_omitted_duplicate_replays=[c['result']['cycle'] for c in cycles if c['result']['cycle'] in REPLAY_CYCLES],
+        retained_historical_manifest=retained,retained_historical_figures=sum('historical_role' in f for f in FIGURES),
         figures=FIGURES,examples=EXAMPLES,sources=[C.bind(path) for path in sorted(SOURCES)],
         total_png_bytes=sum(f['file']['bytes'] for f in FIGURES),T_R_median_P90_values_verified_from_private_frames=checked,
         image_policy='No new RGB IDs; image hash and old publication manifest verified; native image bounds preserved. No coordinate arrays published.',
@@ -256,9 +318,12 @@ def main():
             GT_for_posthoc_example_selection_only=True,all_full_population_denominators_preserved=True)))
     lines=['# Measured figure index','',
         'All labels/captions are English. These are reused-DEV diagnostics, not independent generalization or physical signed-axis validation.','']
+    if correction:
+        lines+=['Nominal seed43 fits reproduced identical loader streams and all879 tensors. They are numerical replays, **not independent training-seed replications**. Effective replication is NOT_RUN; final scope remains PARTIAL_BUDGET. Duplicate replay points/curves are omitted from the objective/severity overviews, while separately labeled replay plots remain visible. Historical FINAL_SELECTION wording does not override [the correction](REPLICATION_VALIDITY_CORRECTION.md).','']
     for figure in FIGURES:
         path=Path(figure['file']['path']).relative_to(C.DOC.relative_to(C.ROOT))
-        lines += [f"## {figure['name']}",'',f"![{figure['name']}]({path})",'',figure['caption'],'']
+        heading=('Retained historical A/B: ' if figure.get('historical_role') else '')+figure['name']
+        lines += [f"## {heading}",'',f"![{figure['name']}]({path})",'',figure['caption'],'']
     missing=[r for r in EXAMPLES if r['status']=='NA']
     if missing:
         lines+=['## Unavailable example categories','']
@@ -267,4 +332,8 @@ def main():
     print('V2_FIGURES_READY',len(FIGURES),'plots',len([r for r in EXAMPLES if r['status']=='AVAILABLE']),'RGB_examples',flush=True)
 
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser();parser.add_argument('--register-retained-only',action='store_true')
+    if parser.parse_args().register_retained_only:register_retained_only()
+    else:main()

@@ -1,0 +1,113 @@
+{
+  "cycle": "WOOD_APPLICABILITY",
+  "locked_before_fit": true,
+  "created_utc": "2026-09-28T15:16:21.836203+00:00",
+  "materials": [
+    "WOOD"
+  ],
+  "seeds": [
+    42
+  ],
+  "occlusion": true,
+  "loss": "UNCHANGED",
+  "updates_per_fit": 320,
+  "fits": 2,
+  "seed": 42,
+  "lr0": 1e-05,
+  "parent_protocols": {
+    "WOOD": {
+      "path": "_docs/experiments/pallet_material_selftrain_closure_v1/WOOD_TRAIN_PROTOCOL.json",
+      "sha256": "c21f5847f719b964437abcd08e0cef9e0eb76a6aafbd038419c2a27a08957d36",
+      "bytes": 994967
+    }
+  },
+  "initialization": {
+    "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "bytes": 6552807
+  },
+  "input_contract": "original vanilla transforms; RGB-only shared REF-conditioned random mask; support/coordinate target unchanged",
+  "masking": {
+    "schedule": 1.0,
+    "area_fractions": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "aspects": [
+      0.5,
+      1,
+      2
+    ],
+    "proposals": 32,
+    "covered_min": 1,
+    "remaining_min": 2,
+    "canvas": "final640",
+    "fill": "8x8 uniform uint8 bilinear",
+    "RNG": "local generator from original transform RNG state+basename"
+  },
+  "metric_lock": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/METRIC_AND_SELECTION_LOCK.json",
+    "sha256": "15049cfa65b070518039b6d963c5fd1dc603d29d811cfd6c3d96eaca436c6d0f",
+    "bytes": 14914
+  },
+  "preflight": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/OCCLUSION_PREFLIGHT_PLASTIC.json",
+    "sha256": "f91e7b7ede4537c743e02d7537072d2895ccab9e7a38f29fed590dffaa9f197f",
+    "bytes": 1056
+  },
+  "implementation": [
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/student.py",
+      "sha256": "c8ede92b5d142b1751cdb7b459ef049d950efa839bfea8aa8ab624ca82bfe961",
+      "bytes": 11678
+    },
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/occlusion.py",
+      "sha256": "79c6d5b015c7867916eb63c2f8e418c54f349412f1a2ed4ca0a9cc161c0f7fd6",
+      "bytes": 4852
+    },
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/exposure_student.py",
+      "sha256": "24eb9d10c2f722470d61d2ebc92de09658b579b10c5ea7e35ea5babf638e5a93",
+      "bytes": 7390
+    },
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/select_and_repeat.py",
+      "sha256": "3843ae3fdc7a53d7ffb5024df0886baf55fdf4ee079e92f50576c2b5f200dcf3",
+      "bytes": 6228
+    }
+  ],
+  "spec": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/cycles/WOOD_APPLICABILITY/SPEC.md",
+    "sha256": "4fcd953e6806697d101dc0e9ba36c9e573521929f3e11c15141b2377e7359def",
+    "bytes": 1561
+  },
+  "manual_added": 0,
+  "teacher_updates": 0,
+  "inference_change": false,
+  "source_cycle": "C_EXPOSURE",
+  "exposure": true,
+  "comparator": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/cycles/A_INPUT_OCCLUSION/RESULTS_PLASTIC_S42.json",
+    "sha256": "5a418e56993403483fb8085eacda38908d359837258cb7f8612dcd78911a349d",
+    "bytes": 2319111
+  },
+  "competing_B": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/cycles/B_COORDINATE_SUPPLEMENT/RESULTS_PLASTIC_S42.json",
+    "sha256": "f8389564cf9f1f8c7e04f7f635473bcbc8ed4cc070682a265340afa7605c4d70",
+    "bytes": 2320020
+  },
+  "exposure_preflight": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/EXPOSURE_PREFLIGHT_PLASTIC.json",
+    "sha256": "e90ef2272d7ed11bf6962f79e8bfce06dbcadd1bbb3b9aa72ca386957052e202",
+    "bytes": 811
+  },
+  "is_replication": false,
+  "is_material_applicability": true,
+  "selection": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/FINAL_SELECTION.json",
+    "sha256": "b7ebc6620271dde51db11f5c380a46fd0c9ec6faab5bbf380504ad5fb26930df",
+    "bytes": 4677
+  }
+}

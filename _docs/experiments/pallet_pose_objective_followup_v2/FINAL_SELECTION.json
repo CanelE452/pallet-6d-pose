@@ -1,0 +1,113 @@
+{
+  "created_utc": "2026-09-28T15:16:21.827142+00:00",
+  "selected_cycle": "C_EXPOSURE",
+  "selected_material": "PLASTIC",
+  "selected_seed": 42,
+  "selected_target": "REF",
+  "comparison": "OLD_REF",
+  "repetition_cycle": "RECIPE_REPEAT",
+  "control_repeat_cycle": "BASELINE_REPEAT",
+  "Wood_cycle": "WOOD_APPLICABILITY",
+  "repeat_seed": 43,
+  "control_recipe": "Original no-occlusion no-supplement RAW/REF main; same R0, actual training RNG43",
+  "status": "REPEAT_AND_WOOD_PENDING",
+  "outcome": "TINY_JOINT_SIGN_ONLY_NOT_PROMOTED",
+  "candidates": [
+    {
+      "card_id": "A_INPUT_OCCLUSION",
+      "translation_cm": 12.255719968695068,
+      "rotation_deg": 8.730256983853547,
+      "eligible_joint": false,
+      "added_inference_seconds": 0,
+      "new_training_GPU_seconds": 142.10353713296354,
+      "judgment": {
+        "label": "TRADEOFF",
+        "eligible_joint": false,
+        "coverage_guard_pass": true,
+        "translation_delta_cm": -0.16729051792281702,
+        "rotation_delta_deg": 0.035560991637352046,
+        "near_numeric_parity_limit": false,
+        "significance": "No meaningful/practical/independent gain automatically inferred from sign"
+      }
+    },
+    {
+      "card_id": "B_COORDINATE_SUPPLEMENT",
+      "translation_cm": 12.430252832393538,
+      "rotation_deg": 8.704028858466312,
+      "eligible_joint": false,
+      "added_inference_seconds": 0,
+      "new_training_GPU_seconds": 142.5167771729175,
+      "judgment": {
+        "label": "NO_GAIN",
+        "eligible_joint": false,
+        "coverage_guard_pass": true,
+        "translation_delta_cm": 0.007242345775653192,
+        "rotation_delta_deg": 0.009332866250117533,
+        "near_numeric_parity_limit": false,
+        "significance": "No meaningful/practical/independent gain automatically inferred from sign"
+      }
+    },
+    {
+      "card_id": "C_EXPOSURE",
+      "translation_cm": 12.387280773812634,
+      "rotation_deg": 8.68259524112808,
+      "eligible_joint": true,
+      "added_inference_seconds": 0,
+      "new_training_GPU_seconds": 138.52640761993825,
+      "judgment": {
+        "label": "JOINT_GAIN_ON_REUSED_DEV",
+        "eligible_joint": true,
+        "coverage_guard_pass": true,
+        "translation_delta_cm": -0.03572971280525117,
+        "rotation_delta_deg": -0.012100751088114592,
+        "near_numeric_parity_limit": false,
+        "significance": "No meaningful/practical/independent gain automatically inferred from sign"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "path": "_docs/experiments/pallet_pose_objective_followup_v2/cycles/A_INPUT_OCCLUSION/RESULTS_PLASTIC_S42.json",
+      "sha256": "5a418e56993403483fb8085eacda38908d359837258cb7f8612dcd78911a349d",
+      "bytes": 2319111
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_objective_followup_v2/cycles/B_COORDINATE_SUPPLEMENT/RESULTS_PLASTIC_S42.json",
+      "sha256": "f8389564cf9f1f8c7e04f7f635473bcbc8ed4cc070682a265340afa7605c4d70",
+      "bytes": 2320020
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_objective_followup_v2/cycles/C_EXPOSURE/RESULTS_PLASTIC_S42.json",
+      "sha256": "0510ddfc3249938fa47cf5a50d692034ef1583bc42157bade857c6b17f7f8f09",
+      "bytes": 2319072
+    }
+  ],
+  "criterion": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/METRIC_AND_SELECTION_LOCK.json",
+    "sha256": "15049cfa65b070518039b6d963c5fd1dc603d29d811cfd6c3d96eaca436c6d0f",
+    "bytes": 14914
+  },
+  "reason": "Only C has both negative median deltas vs OLD_REF with unchanged coverage. No AUC/PCK selection. Sign only, not meaningful gain.",
+  "limitations": [
+    "C seed42 is worse than R0 and matched NEW_RAW on both primary medians",
+    "Old REF difference about0.03573cm and0.01210deg is tiny and may be training/reference variability",
+    "All development reused; no independent physical pose truth or pretrained seed replication"
+  ],
+  "historical_seed_audit": {
+    "source": {
+      "path": "scripts/research/pallet_type_selftrain_v1/recovery_repeat.py",
+      "sha256": "435664ed049796fcddbb9b3f2f3d2c034ac7f30e7d08f8af49de569aed4b6406",
+      "bytes": 5207
+    },
+    "finding": "Historical ORDER43/44 permuted indexed1024aliases with optimizer seed42. New repeats set actual trainer seed43 and retain original file aliases."
+  },
+  "further_method_search": false,
+  "additional_fits": 6,
+  "additional_updates": 1920,
+  "total_planned_fits": 12,
+  "total_planned_updates": 3840,
+  "teacher_fits": 0,
+  "new_manual": 0,
+  "loss_B_combination": "NOT_RUN: B failed both OLD_REF primary medians; no useful second principle",
+  "gradient_scale_control": "NOT_NEEDED_FOR_B_NO_GAIN; scale confounding disclosed, not identified causally"
+}
