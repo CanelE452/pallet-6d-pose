@@ -1,0 +1,317 @@
+{
+  "created_at": "2026-09-28T14:48:26.065661+00:00",
+  "status": "FROZEN_BEFORE_V2_FITS_AND_FRESH_BASELINE_AGGREGATION",
+  "primary_population": {
+    "material": "PLASTIC",
+    "natural_severities": [
+      "MODERATE_OCCLUSION",
+      "SEVERE_OCCLUSION"
+    ],
+    "frames": 99,
+    "grouping": "Pool all original99 frame errors; never average severity medians",
+    "reference_role": "REUSED_DEV"
+  },
+  "populations": {
+    "PLASTIC": {
+      "frames": 128,
+      "Clean": 29,
+      "Moderate": 21,
+      "Severe": 78
+    },
+    "WOOD": {
+      "frames": 45,
+      "Clean": 38,
+      "Moderate": 7,
+      "Severe": 0
+    }
+  },
+  "translation": {
+    "name": "translation_cm",
+    "origin": "Centroid of origin-centered physical cuboid",
+    "frame": "OpenCV camera coordinates",
+    "formula": "100 * norm(t_pred_centroid_m - t_reference_centroid_m)",
+    "unit": "cm",
+    "camera_components": "x,z signed prediction-minus-reference and absolute error; no vehicle extrinsic provided, not forklift lateral/forward"
+  },
+  "rotation": {
+    "name": "rotation_deg",
+    "formula": "min_Q degrees(acos(clamp((trace((R_gt Q)^T R_pred)-1)/2,-1,1)))",
+    "symmetry": "C2: I and proper Ry(180deg); no 90deg W/D symmetry",
+    "frame": "Object-to-camera physical registry frame",
+    "correspondence": "R_physical=R_camera_facing @ Q_WD; same deterministic registry-X conversion for reference, no per-prediction truth branch",
+    "signed_axis_limit": "180deg equivalence follows legacy geometry contract; not independently verified physical insertion-face orientation"
+  },
+  "yaw": {
+    "name": "yaw_deg",
+    "definition": "Minimum existing atan2(relative[0,2],relative[2,2]) absolute wrap over same C2, degrees; supplementary, not fullR"
+  },
+  "summaries": {
+    "primary": "Pair of conditional T/R medians with nondecreasing coverage guard",
+    "secondary": "P90, yaw, camera-x/z errors and biases, registered W/D-axis mismatch count, full error quantiles, AUC/PCK/IoU",
+    "legacy": "Original valid-pose conditional numpy median/linear quantile P90 reproduced",
+    "full_population": "Unavailable ranked as positive infinity; linear extended-real quantiles. JSON null plus POSITIVE_INFINITY marker, never failure=0 or an invented finite penalty",
+    "common_valid": "Same valid frame intersection reported for every paired comparison",
+    "large_angle": "No new operational angular threshold: report fullR quantiles and original axis_correct extent-parity mismatch separately",
+    "difference": "NEW-minus-BASE; difference of medians and median of per-frame differences distinct"
+  },
+  "selection": {
+    "A": "Both T/R medians decrease versus OLD_REF on primary99 => JOINT_GAIN_ON_REUSED_DEV, subject to no coverage loss",
+    "B": "One decreases: preserve T_ONLY/R_ONLY or opposing-sign TRADEOFF; never claim both improve",
+    "C": "Compare both T/R separately versus R0 and matched new RAW",
+    "D": "Keep T/R Pareto-nondominated candidates; do not add cm and degrees",
+    "E": "Among joint Pareto candidates repeat lowest added inference runtime; then lowest new measured GPU training runtime; then predeclared card ID lexicographic. Fits/updates also disclosed",
+    "F": "No joint candidate: a justified single-axis replication may be separately declared before repetition; no automatic PCK/AUC fallback",
+    "G": "Small signs are not meaningful-gain thresholds: retain numeric parity tolerance1e-7, actual magnitude, repeat variability and reference uncertainty",
+    "H": "No AUC/PCK posthoc tie-break",
+    "checkpoint": "last at locked update budget, all seeds retained",
+    "historical": "C2/C3 T/R evaluation is retrospective descriptive reuse, not prospectively selected success or matched main217/361 intervention"
+  },
+  "oracle": {
+    "objectives": [
+      "translation_cm",
+      "rotation_deg"
+    ],
+    "pool": "Same original D9 candidate set or four original whole-output R0/RAW/REF/TEACHER poses",
+    "choice": "Minimize named objective then lexical candidate name; optimize separately; report complete T/R vector of each chosen pose",
+    "joint": "Count same single candidate strictly improving both current T and R; no combining minima from different candidates",
+    "isolation": "GT_DEPENDENT / DIAGNOSTIC_ONLY, selections private, never training/inference input"
+  },
+  "numeric_tolerance": {
+    "atol": 1e-07,
+    "rtol": 1e-07,
+    "purpose": "Historical numeric parity only, not operational acceptance threshold"
+  },
+  "sources_read": "Actual Pose.metric/infer/metadata, D.metric/aggregate, original cuboid/solver/GT constructor and C2 metric helpers",
+  "inputs": [
+    {
+      "path": "_docs/experiments/pallet_existing_data_transfer_v1/SPLIT_LOCK.json",
+      "sha256": "1d4e3cb71ab0bb6c1df59a89dd4e56269937a37d0a244e9cd588ae8788d9d7e3",
+      "bytes": 162993
+    },
+    {
+      "path": "_docs/experiments/pallet_material_selftrain_closure_v1/WOOD_PREDICTIONS_LOCK.json",
+      "sha256": "27e9f7068bcc555b87394fbba56b3afe90acff1a95fb68f3427abf92d9521899",
+      "bytes": 10244
+    },
+    {
+      "path": "_docs/experiments/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/RESULTS.json",
+      "sha256": "2fcef6e64896a1c8bf0f7d69d9e8ee72f01784fce6f08fa29b6a386ece91e530",
+      "bytes": 457413
+    },
+    {
+      "path": "_docs/experiments/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/RESULTS.json",
+      "sha256": "fd29243065441e14560349423467157ea7161ab828edbfbb6fff7aa07f904f4d",
+      "bytes": 392411
+    },
+    {
+      "path": "_docs/experiments/pallet_selftraining_paper_closure_v1/PREDICTIONS_LOCK.json",
+      "sha256": "f69bff48b25a7bc33840c74805752ebe46aa503a905a2f9fc3caa88a17e54d88",
+      "bytes": 1731
+    },
+    {
+      "path": "challenge/evaluation_v2/pnp_selector.py",
+      "sha256": "3e89f318c7c4a3396c6e7c2f9280c1755f32d7bd7b3d61e8a56b9bd5d0bd512e",
+      "bytes": 30933
+    },
+    {
+      "path": "data/pallet/results/pallet_material_selftrain_closure_v1/EVAL_METADATA.json",
+      "sha256": "c6ae84ecc8d2393cb2d9161079872c2d19c9de310797e5087bbb6dbf7e15bb5c",
+      "bytes": 31817
+    },
+    {
+      "path": "data/pallet/results/pallet_material_selftrain_closure_v1/FRAME_METRICS.json",
+      "sha256": "404df7698ac705e5833296027c84b21808b3df6de39ef5e084d64960f7ddc602",
+      "bytes": 273994
+    },
+    {
+      "path": "data/pallet/results/pallet_material_selftrain_closure_v1/POSE_METRICS.json",
+      "sha256": "539e8d4b5981c239004082cbc7feccb64d50e9a7723d210a7e385f734ce1f748",
+      "bytes": 82537
+    },
+    {
+      "path": "data/pallet/results/pallet_material_selftrain_closure_v1/POSE_PREDICTIONS.json",
+      "sha256": "02aed365ba993a1f4bb0e56d36a6481b05563f1e5ca224bc1277b069c459f422",
+      "bytes": 239168
+    },
+    {
+      "path": "data/pallet/results/pallet_material_selftrain_closure_v1/PREDICTIONS.json",
+      "sha256": "c2f917c8841ab2d3b5049eb4d12877d6be266e7ec5755f2e138ed26250c939fe",
+      "bytes": 415760
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/PLASTIC_FRAME_METRICS.json",
+      "sha256": "dcaa6cac5b160e36847a99c1cdb61d32628b7ec6dcdc31ff109411930cf8e82b",
+      "bytes": 937269
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/PLASTIC_METADATA.json",
+      "sha256": "2afe95ea05c03f7ab9ad203b4b44cfd51fbf70f89c4117e6ce2b57693cc00fa3",
+      "bytes": 86230
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/PLASTIC_POSES.json",
+      "sha256": "a7334df1607ad73d4202e06e53b70e626b44ff1cb9d34e68e9406771f1ce0ff3",
+      "bytes": 831253
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/PLASTIC_POSE_METRICS.json",
+      "sha256": "55a1ab915e7888eee79fca71e4a4b2d4beec3e2e30c86571bf885a7f8d474dda",
+      "bytes": 300267
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/PREDICTIONS_LOCK.json",
+      "sha256": "e89707b5e1f4001e8bf2a14f6c2637d6d135eb9d10d3ee36451052b092d883f5",
+      "bytes": 4158
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/WOOD_FRAME_METRICS.json",
+      "sha256": "9894a8be04198e0a1613ec0365e3d41dca65f56bbe8c78607e8200ba1c40f868",
+      "bytes": 328761
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/WOOD_METADATA.json",
+      "sha256": "c6ae84ecc8d2393cb2d9161079872c2d19c9de310797e5087bbb6dbf7e15bb5c",
+      "bytes": 31817
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/WOOD_POSES.json",
+      "sha256": "7e4f1c5e2483975f51875b94093c487f670eb4fd8a43b611765ba35125d46adf",
+      "bytes": 286939
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C2_REAL_AFFINE_OFF/WOOD_POSE_METRICS.json",
+      "sha256": "54dc903b7078df166d10ab2cbced5455f7aca2421eec267225df4bdb51e1eac1",
+      "bytes": 99032
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/PLASTIC_FRAME_METRICS.json",
+      "sha256": "131e0a6307058efc9495375d75d7e7e656e23e1faf819596afde7eb81d0ac6f2",
+      "bytes": 937227
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/PLASTIC_METADATA.json",
+      "sha256": "2afe95ea05c03f7ab9ad203b4b44cfd51fbf70f89c4117e6ce2b57693cc00fa3",
+      "bytes": 86230
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/PLASTIC_POSES.json",
+      "sha256": "9fe7d3df494ae4a53907c57151958406fbf9b871add9c86440799d5e649f31ce",
+      "bytes": 831022
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/PLASTIC_POSE_METRICS.json",
+      "sha256": "b23bcb351a69dd2743254e1c42cb1662c4c6b0091dbc39f203cdb88d3edc2de7",
+      "bytes": 300219
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/PREDICTIONS_LOCK.json",
+      "sha256": "b08cef89e8b663c435773aa42c52f14fd6c8706f3f598ad273d6517872d2aea3",
+      "bytes": 3666
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/WOOD_FRAME_METRICS.json",
+      "sha256": "05521daf288e45c8e05c2debe8c2d02b6b523c93eed063968445a01a7ca5776a",
+      "bytes": 328908
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/WOOD_METADATA.json",
+      "sha256": "c6ae84ecc8d2393cb2d9161079872c2d19c9de310797e5087bbb6dbf7e15bb5c",
+      "bytes": 31817
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/WOOD_POSES.json",
+      "sha256": "3da19e7feb1c4811e9835440577bec2e26a898ac8130f02c9af51ae6ce650772",
+      "bytes": 286954
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/cycles/C3_MANUAL38_CAPABILITY/WOOD_POSE_METRICS.json",
+      "sha256": "dc4c25cd6339e8f3dfb5848bde4699b3dc6b011606f163fc4b984d875b09cc09",
+      "bytes": 99024
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/pose_oracle/PLASTIC_CANDIDATES.json",
+      "sha256": "90e8ed41b60d199a6d648b6cd96bc4c466b57e8a097a872ccd4b6ed9bc7dcfc1",
+      "bytes": 3499191
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/pose_oracle/PLASTIC_METRICS.json",
+      "sha256": "0ed0109a2f2c2a910785255a9f85a282fd41beaa933baf63455d216c59ee7faa",
+      "bytes": 1038976
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/pose_oracle/WOOD_CANDIDATES.json",
+      "sha256": "13aef61855be32bba4215ca459a891216872d798abaf6ce4c84943874a0c7253",
+      "bytes": 1223268
+    },
+    {
+      "path": "data/pallet/results/pallet_oracle_mechanism_followup_v1/pose_oracle/WOOD_METRICS.json",
+      "sha256": "d1a797ed020d9919fbb2878fbd1fbae44acd5cb98daa231fddf5067ed3a20bed",
+      "bytes": 354535
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_objective_followup_v2/metric_baseline/POPULATION_LOCK_PRIVATE.json",
+      "sha256": "a593bb26499f983bc53677f38f40ec7fc0d2b3c8690809e48b2b3bbaff73f6ac",
+      "bytes": 48670
+    },
+    {
+      "path": "data/pallet/results/pallet_selftraining_paper_closure_v1/FRAME_METRICS.json",
+      "sha256": "f719c2aaf5d73ac012584a3e72a744d156dc0f557c6720aa01bf9e22481222c7",
+      "bytes": 2030821
+    },
+    {
+      "path": "data/pallet/results/pallet_selftraining_paper_closure_v1/POSE_METRICS.json",
+      "sha256": "7f5d0b47660473758c9c8fd0d41e44e122ea818ac2675b49a027c277b7bd4c1f",
+      "bytes": 650558
+    },
+    {
+      "path": "data/pallet/results/pallet_selftraining_paper_closure_v1/POSE_PREDICTIONS.json",
+      "sha256": "98b086bf372937ab565575dbe39cd07d13317ea4bb0d96a5d473a534a967be02",
+      "bytes": 1800639
+    },
+    {
+      "path": "data/pallet/results/pallet_selftraining_paper_closure_v1/PREDICTIONS.json",
+      "sha256": "3a0db22aa66883fe3b4b792d499b69fce22aadcf6402ab12ee250b841038b2c8",
+      "bytes": 5727327
+    },
+    {
+      "path": "data/pallet/results/pallet_visible_refine_hidden_pnp_v1/INFERENCE_METADATA.json",
+      "sha256": "33afed0965dc701e0f2b849f62a8d812b1375d053f1bbc68e98e1b704e81552f",
+      "bytes": 109911
+    },
+    {
+      "path": "data/pallet/results/paper_pose_metric_closure_v1/AXIS_REVIEW_MANIFEST.json",
+      "sha256": "a436f8e898b9ee050441ee9fb3a4f0eaec731a20563a61d435d66a927d9b80c4",
+      "bytes": 588993
+    },
+    {
+      "path": "data/pallet/results/paper_pose_metric_closure_v1/GEOMETRY_RESOLVED_POSE_GT.json",
+      "sha256": "798959a6b9afc8e8c5d2a058e801a642b02b2462d6c94c67b82608486cf61666",
+      "bytes": 464533
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/build_geometry_resolved_pose_gt.py",
+      "sha256": "914d72b27b2b36c389b0b366721cff5087b5969db976c740b53ae6f1a1a10e72",
+      "bytes": 8396
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py",
+      "sha256": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720",
+      "bytes": 10902
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/symmetry_aware_pose_metrics.py",
+      "sha256": "d1c9e1b36cce62d883de6c621384523732c3a7e1d5927101e3e8fc935a205bac",
+      "bytes": 8250
+    },
+    {
+      "path": "scripts/research/pallet_clean19_pose_mismatch_v1/diagnose.py",
+      "sha256": "5d483cad5f5fe54036d9d6dcc8c45d9f7b63b326655b7f4fdef2ac195f5f516a",
+      "bytes": 21100
+    },
+    {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/pose.py",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+      "bytes": 7720
+    }
+  ]
+}
