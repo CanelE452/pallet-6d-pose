@@ -1,0 +1,821 @@
+{
+  "schema_version": "pallet_oracle_mechanism_followup_prior_audit_v1",
+  "audit_head": "cf52dc624fb5c83e305ff3b951f3c362b9ca1842",
+  "audit_scope": "Section 2 mechanism-linked history; reports + result/FIT artifacts + selected source paths; not exhaustive repository history, no result recomputation or new fitting by this audit",
+  "new_fits": 0,
+  "new_optimizer_updates": 0,
+  "new_gpu_seconds": 0,
+  "baseline_contract": {
+    "teacher": "Replay9images38manualcorners; NOT Clean19/type-specific",
+    "plastic": {
+      "train_unique": 217,
+      "dev_images": 128,
+      "dev_corners": 985,
+      "updates": 320
+    },
+    "wood": {
+      "train_unique": 361,
+      "dev_images": 45,
+      "dev_corners": 346,
+      "updates": 320,
+      "verified_direct_visible_points": 0
+    },
+    "reference_role": "REUSED_DEV; geometry-derived 6D"
+  },
+  "status_vocabulary": [
+    "실행-양의신호",
+    "실행-무차이",
+    "실행-손상",
+    "구현오류로판정불가",
+    "다른조건에서만실행",
+    "oracle만실행",
+    "미실행",
+    "원자료부족"
+  ],
+  "evidence_note": "[확인] numeric values transcribed from linked execution reports/results; [추정] mechanistic interpretation and retry policy. Positive/negative status is scoped to the row objective; mixed collateral effects retained. An old STOP limits that old authorization, not this new follow-up.",
+  "entries": [
+    {
+      "id": "P01",
+      "question": "보정 좌표가 학생에게 추가 가치가 있나?",
+      "actual_change": "공통 RGB·bbox·support·순서·optimizer에서 raw→Replay 좌표",
+      "model_teacher": "R0→pose-only RAW/REF, frozen Replay9/38",
+      "information_supervision": "teacher manual9장38점(Plastic3/15,Wood6/23); 학생 추가 수동0",
+      "data_split": "Plastic217 TRAIN; DEV128/985,7recordings",
+      "historical_budget": "각320 update;12 historical SYN/RAW/REF arms",
+      "metric_reference": "full-denominator PCK; D9 normalized ADDsym AUC; geometry-derived reference",
+      "actual_result": "LR5 R0/RAW/REF PCK10 49.14/47.51/51.47%; AUC .33796/.33472/.35902; verified66 44/43/43",
+      "status": "실행-양의신호",
+      "failure_class": "주지표 개선, tail·verified 동률",
+      "rules_out": "현재조건에서 보정전달0·RAW와REF 동일출력",
+      "does_not_rule_out": "큰 오류 해결; unseen generalization; 수동검수 학생 PCK 우위",
+      "difference_from_current": "current baseline 동일",
+      "reuse": "S01 measurement/cache+S28 pose trainer",
+      "retry_requires": "재학습 불필요; 새로운 변경축과 RAW/REF pair 필요",
+      "sources": [
+        "S01",
+        "S28"
+      ]
+    },
+    {
+      "id": "P02",
+      "question": "Wood에서 보정 이득이 R0를 넘나?",
+      "actual_change": "Plastic와 같은 교사·LR·source 구성으로 Wood RAW/REF",
+      "model_teacher": "같은 R0와 Replay9/38",
+      "information_supervision": "교사 Wood 노출있음; 추가 수동0",
+      "data_split": "Wood361 TRAIN; DEV45/346 REC039/042; Severe0",
+      "historical_budget": "2fits×320",
+      "metric_reference": "legacy PCK+D9; verified Wood0",
+      "actual_result": "R0/RAW/REF PCK10 48.27/47.11/47.69%; AUC .67050/.65643/.66503; REF−RAW 진입8/이탈6",
+      "status": "실행-양의신호",
+      "failure_class": "REF>RAW, REF<R0; 원인 미분리",
+      "rules_out": "이 recipe에서 RAW보다 무조건 악화한다",
+      "does_not_rule_out": "Wood 교사 실제 정답품질; 검증된 가시점 전달; R0 실용 개선",
+      "difference_from_current": "current baseline 동일; oldWood116과 다른45",
+      "reuse": "S02 Wood cache·FIT·pool·train_pair",
+      "retry_requires": "현재 TRAIN 잔차/기울기에서 새로운 원인 근거",
+      "sources": [
+        "S02"
+      ]
+    },
+    {
+      "id": "P03",
+      "question": "높은 LR·source-only·순서 반복이 main 설명인가?",
+      "actual_change": "LR1e-4 vs1e-5; SYN/RAW/REF; sampling-order43/44",
+      "model_teacher": "같은 R0, pose-only",
+      "information_supervision": "같은9/38; 같은217 source512",
+      "data_split": "동일DEV128/985 재채점",
+      "historical_budget": "12fits×320, 독립초기화 아님",
+      "metric_reference": "S01 same reference",
+      "actual_result": "REF_LR4 .35311 vs RAW .34073; REF_ORDER43/44 .36100/.35880 vs RAW .33799/.33684; SYN_LR5 PCK48.63,AUC.33895",
+      "status": "실행-양의신호",
+      "failure_class": "single R0+recipe/order sensitivity",
+      "rules_out": "오직seed42 순서 우연에만 보정 이득이 있다",
+      "does_not_rule_out": "독립 initialization 재현; 최적 LR; backbone 충분성",
+      "difference_from_current": "RAW_LR5/REF_LR5 주표, LR4/order 보조",
+      "reuse": "S01 전체12arm, S28 repeat trace",
+      "retry_requires": "같은LR/order sweep 금지; 다른 원인 하나 또는 사전 고정 재현",
+      "sources": [
+        "S01",
+        "S28"
+      ]
+    },
+    {
+      "id": "P04",
+      "question": "전체모델 학습 악화가 보정 실패인가?",
+      "actual_change": "full-model 320 ST·SYN-only 후 pose-only 분리",
+      "model_teacher": "R0 student, shared Replay",
+      "information_supervision": "manual9/38; Plastic217,Green362",
+      "data_split": "old Plastic194/Green150; teacher 중복3 포함",
+      "historical_budget": "각320,lr1e-4",
+      "metric_reference": "old C2 corner8 PCK20/matching",
+      "actual_result": "Plastic PCK20 R0/SYN/ST77.86/76.14/77.26; Green88.99/86.78/85.02; 이후 pose-only main 보정 이득",
+      "status": "다른조건에서만실행",
+      "failure_class": "full-model 손상·검출변동",
+      "rules_out": "old full-model recipe가 모든재료 R0를 개선",
+      "does_not_rule_out": "모든ST 무용; 악화가 교사오류만 원인",
+      "difference_from_current": "trainable state·LR·population·metric 다름",
+      "reuse": "S04 fullmodel 결과; S28 protected trainer",
+      "retry_requires": "기존fullmodel 반복말고 제한된trainable변경과 matched pair",
+      "sources": [
+        "S04",
+        "S28"
+      ]
+    },
+    {
+      "id": "P05",
+      "question": "단순640 연장이 verified 전달을 해결하나?",
+      "actual_change": "첫320 bit-exact 재현+마지막LR 유지320추가",
+      "model_teacher": "RAW_NEW/REF_NEW, same teacher",
+      "information_supervision": "새RGB·교사·수동0",
+      "data_split": "same217 TRAIN; DEV128/verified66",
+      "historical_budget": "2fits×640(실제1280updates)",
+      "metric_reference": "same current PCK/D9; TRAIN모방오차",
+      "actual_result": "66점43/43→44/44; REF TRAIN3.070→2.994px; oldREF→newREF PCK507→504/985, AUC.35902→.36189",
+      "status": "실행-무차이",
+      "failure_class": "verified 차이0; 전체PCK 손상/AUC 소폭양성",
+      "rules_out": "이 고정 낮은LR 추가320만으로 학생visible 우위 확보",
+      "does_not_rule_out": "모든 최적화/학습량/표현 한계",
+      "difference_from_current": "동일baseline의 더 긴recipe, 기존320보존",
+      "reuse": "S03 RESULT,FIT,PREFIX,infer_train",
+      "retry_requires": "새근거 없이 반복금지; LR미세조정 아닌 원인분리",
+      "sources": [
+        "S03"
+      ]
+    },
+    {
+      "id": "P06",
+      "question": "source replay 제거하면 해결되나?",
+      "actual_change": "synthetic512를 real512 multiset복제로 교체",
+      "model_teacher": "same pose-only RAW/REF",
+      "information_supervision": "same217, same9/38; 실사노출2배",
+      "data_split": "oldDEV194/9sessions; teacher3중복",
+      "historical_budget": "2fits×320 lr1e-5",
+      "metric_reference": "old corner8 PCK20/IoU3D",
+      "actual_result": "REFmixed→real-only PCK20 78.718→78.519; median6.722→6.373; P9043.643→43.663; IoU .59405→.61208",
+      "status": "다른조건에서만실행",
+      "failure_class": "손익혼합; 새current128채점 미확인",
+      "rules_out": "그source-off+double-real recipe의 일관우위",
+      "does_not_rule_out": "순수source gradient충돌; 동일노출loss분리; Wood효과",
+      "difference_from_current": "기존teacher/217 같으나 DEV194,exposure2배",
+      "reuse": "S05 fit/cache/trace; 재추론보다128 subset 재채점 우선",
+      "retry_requires": "source-off 동일fit 재실행 금지; exposure고정 인과대조 근거",
+      "sources": [
+        "S05"
+      ]
+    },
+    {
+      "id": "P07",
+      "question": "학생 동의가 타깃 신뢰성을 고르나?",
+      "actual_change": "AGREE mask vs 같은frame 같은corner수 무작위 COUNT",
+      "model_teacher": "RAW/REF학생 동의, R0새학생",
+      "information_supervision": "manual추가0, 원래 corrected좌표 유지",
+      "data_split": "217 TRAIN; DEV194/159",
+      "historical_budget": "2fits×320",
+      "metric_reference": "old PCK20, canonical recovery20→10",
+      "actual_result": "AGREE/COUNT PCK20 78.39/78.72; REF78.72. AGREE1218/1627점; >20px보정6개 모두제거; 큰복구0",
+      "status": "실행-무차이",
+      "failure_class": "유효대조 음성; 신호제거",
+      "rules_out": "이agreement선별이 same-count random보다좋다",
+      "does_not_rule_out": "다른cue 신뢰성; 큰교정보존 weighting; 현재Wood",
+      "difference_from_current": "same217지만 마스크/oldpopulation 변경",
+      "reuse": "S06 same-count/true-ignore 검증코드",
+      "retry_requires": "더 정확한TRAIN cue와 큰보정 잃지않는 근거; retention대조",
+      "sources": [
+        "S06"
+      ]
+    },
+    {
+      "id": "P08",
+      "question": "치수·대칭 조건부 N2/N3가 큰 오류를 풀었나?",
+      "actual_change": "222후보/반경.08boxdiag 유지; canonical dimensions·symmetry target",
+      "model_teacher": "N0/N1/N2_DIM_ONLY/N3_DIM_SYM/N4",
+      "information_supervision": "등록W,D,H; object_type외부제공; real학습0",
+      "data_split": "synthetic TRAIN; reused REAL319; square별도",
+      "historical_budget": "30fits×6000=180000 (+smoke별도)",
+      "metric_reference": "E_sym/PCK; geometry-derived6D",
+      "actual_result": "REAL3seed N0/N2/N3 PCK10 .6753/.6859/.6859; N3−N2 E_sym −.00000279,CI0포함; N4−N0 신호",
+      "status": "다른조건에서만실행",
+      "failure_class": "N2양성, N3증분무차이/미확정",
+      "rules_out": "N3 symmetry항의 이설정 보편증분",
+      "does_not_rule_out": "전역형상/추가표현; symmetry조건의 모든효용",
+      "difference_from_current": "teacher아님, 별도P모델/metadata/319",
+      "reuse": "S07 N2/N3 fit·canonical치수 정정",
+      "retry_requires": "새정보/cue/표현 가설; N2 runtime parity 먼저",
+      "sources": [
+        "S07"
+      ]
+    },
+    {
+      "id": "P09",
+      "question": "PoseFix real adaptation/replay는 성공했나?",
+      "actual_change": "PRIOR1 real-only vs 동일real노출+합성replay",
+      "model_teacher": "ResNet152 PoseFix-derived; 전층,BN고정",
+      "information_supervision": "manual9/38; RGB+R0점/bbox; inference치수없음",
+      "data_split": "TRAIN9; source256; DEV72+Green150",
+      "historical_budget": "real/replay 각300; replay 실사2400+합성2400노출",
+      "metric_reference": "source/real PCK10,recovery,damage",
+      "actual_result": "replay TRAIN100%; DEV72 PCK60.180 vs N259.459; Green77.386 vs N281.351; sourceclean94.016→90.950; 원래screenFAIL",
+      "status": "다른조건에서만실행",
+      "failure_class": "부분복구+정상손상; 당시후속ST미실행",
+      "rules_out": "그9/38 fit의 모든도메인 보존",
+      "does_not_rule_out": "이번 sharedteacher 가치; 모든RGB보정 불가",
+      "difference_from_current": "현재교사와 checkpoint동일이나 당시평가/목표가다름",
+      "reuse": "S08 same Replay FIT+core; 현재sharedteacher로재사용",
+      "retry_requires": "교사재시도는 감독오류/보존 원인 분리; baseline교체금지",
+      "sources": [
+        "S08",
+        "S02"
+      ]
+    },
+    {
+      "id": "P10",
+      "question": "Clean19 mixed/material teacher가 같은 교사인가?",
+      "actual_change": "혼합19 vs Plastic10/Wood9 별도replay",
+      "model_teacher": "TYPE_REPLAY vs CLEAN19_REPLAY vs PRIOR1",
+      "information_supervision": "87direct provenance; Wood9/39; Plastic10/48",
+      "data_split": "TRAIN19; same-session DEV300=Plastic184+Wood116",
+      "historical_budget": "mixed300; type2×300; 재료별노출비다름",
+      "metric_reference": "PCK10/P90 old300",
+      "actual_result": "Wood PRIOR1/mixed/type PCK73.41/67.83/68.93; P9040.44/56.25/57.30. Plasticmixed/type67.69/67.55",
+      "status": "다른조건에서만실행",
+      "failure_class": "Wood적응 손상; material별exposure confound",
+      "rules_out": "이mixed/분리설정의prior대비일관우위",
+      "does_not_rule_out": "material자체 원인; 현재Wood45의교사정확성",
+      "difference_from_current": "Replay9/38아님; teacher54/66도main50/66과다름",
+      "reuse": "S09 기록·역할표; 모델명함정방지",
+      "retry_requires": "동일감독/노출의teacher대조 없이는재료인과주장금지",
+      "sources": [
+        "S09",
+        "S17"
+      ]
+    },
+    {
+      "id": "P11",
+      "question": "다교사에 정답 후보가 남았나?",
+      "actual_change": "R0+6 heterogeneous frozen teacher pointwise선택",
+      "model_teacher": "YOLO26/v8/11/DOPE 7teachers",
+      "information_supervision": "oracle만GT; production median/medoid는GTfree",
+      "data_split": "DEV319/2499supervised,1594visible",
+      "historical_budget": "새fit0 (기존교사비용존재)",
+      "metric_reference": "visible fixed-ID error; old pose계약",
+      "actual_result": "R0 median/P90 6.36/43.89; median융합6.31/72.66,medoid6.36/69.91; perpointoracle3.44/13.34; gross20의30.3%rescue",
+      "status": "oracle만실행",
+      "failure_class": "oracle양성; 실제단순융합손상",
+      "rules_out": "median/medoid만으로상보성회수",
+      "does_not_rule_out": "좋은teacher정보없음; 학습selector불가능",
+      "difference_from_current": "7teacher/319는현재4output/128,45가아님",
+      "reuse": "S10 gate_a code/nested pool/cache",
+      "retry_requires": "현재4pool oracle부터; cue/target없이teacher수증가금지",
+      "sources": [
+        "S10"
+      ]
+    },
+    {
+      "id": "P12",
+      "question": "native uncertainty융합·증류·adapter가 실패했나?",
+      "actual_change": "F3 sigma fusion block; usable fusion gate; domainprobe",
+      "model_teacher": "same7teachers; student/adapter실행안함",
+      "information_supervision": "sigma표준추론미생성·fuse삭제·stride별단위; DOPE없음",
+      "data_split": "DEV319; target1000; usable394/2499",
+      "historical_budget": "student0,adapter0; probe비용만",
+      "metric_reference": "targetquality/domainAUROC vs error",
+      "actual_result": "F3 BLOCKED; usableR0/F1/F2 median5.80/5.97/6.14; consensus targetpass1.52%; domainAUROC≈1,errorAUROC.482; studentNOT_RUN",
+      "status": "미실행",
+      "failure_class": "input/qualitygate 미충족; 학습실패아님",
+      "rules_out": "이fusiontarget 우위·domain구별=오류구별",
+      "does_not_rule_out": "증류/adapter자체성능; 현재customsigma교정가능성",
+      "difference_from_current": "옛319/multi pool; 현재sigma도설치코드에서train-only확인",
+      "reuse": "S11 sigma audit; S10 final verdicts",
+      "retry_requires": "TRAIN교정된공통단위 uncertainty 또는 target우위 근거",
+      "sources": [
+        "S10",
+        "S11"
+      ]
+    },
+    {
+      "id": "P13",
+      "question": "국소snap/edge후보면 큰오류를 회수하나?",
+      "actual_change": "12px Harris/Shi/LSD/junction+equal-rank selector",
+      "model_teacher": "R0 frozen",
+      "information_supervision": "RGBlocal·prededge; oracle만GT",
+      "data_split": "old DEV319 visible",
+      "historical_budget": "fit0",
+      "metric_reference": "local candidate P90,gross20,동수random밀도대조",
+      "actual_result": "R0/oracle/selector P90 43.89/33.88/45.03; GT5px후보율.807지만random lift.015; selectorgross.168 vs.157",
+      "status": "실행-손상",
+      "failure_class": "후보선택실패+밀도혼입",
+      "rules_out": "해당localcue/equal-rank가충분",
+      "does_not_rule_out": "전체형상·globalcue·더좋은uncertainty; r보다큰필요이동",
+      "difference_from_current": "legacyvisible1594 vs currentverified66",
+      "reuse": "S12 collect/selector_score/densitycontrol; r12 ceiling",
+      "retry_requires": "cue가동수random/그대로두기보다좋다는TRAIN근거",
+      "sources": [
+        "S12",
+        "S10"
+      ]
+    },
+    {
+      "id": "P14",
+      "question": "학습local specialist로tail을고치나?",
+      "actual_change": "64crop RGB+cornerID U-Net synthetic vs +realsoft",
+      "model_teacher": "C0/C1 frozenR0의 국소residual",
+      "information_supervision": "manual추가0; pseudo/합성",
+      "data_split": "crop79080; oldDEV319",
+      "historical_budget": "2×5000updates",
+      "metric_reference": "median,P90,gross,ADD",
+      "actual_result": "R0/C0/C1 median6.36/5.83/5.66; P9043.89/42.17/43.59; R0gross498중1rescue; C0AUC.437 vsR0.428",
+      "status": "다른조건에서만실행",
+      "failure_class": "median양성,tail목표무차이",
+      "rules_out": "이localexpert가gross tail해결",
+      "does_not_rule_out": "localRGB정보없음; 공간관계표현불가",
+      "difference_from_current": "별도국소모델/oldpopulation/큰예산",
+      "reuse": "S13 architecture/crop bank; immutable결과",
+      "retry_requires": "tail감지/선택정보를바꾸는근거; 같은5000재학습금지",
+      "sources": [
+        "S13"
+      ]
+    },
+    {
+      "id": "P15",
+      "question": "Replay 보정을RGB선택기로 안전하게 고를수있나?",
+      "actual_change": "N2 vsReplay 수직pair의 utility예측",
+      "model_teacher": "53233param CNN/MLP; frozenN2/Replay",
+      "information_supervision": "RGBpatch24,geometry,heatmap summary; syntheticGT target",
+      "data_split": "synthetic1616 split; DEV72/Green150",
+      "historical_budget": "1fit1500updates",
+      "metric_reference": "PCK10 native평가; green681manual",
+      "actual_result": "GreenN2/selector554/533정답; DEV330/333. clean1616 N2 logits·xy bit-exact 후 실행완료",
+      "status": "실행-손상",
+      "failure_class": "technicalfail수정완료후의유효음성",
+      "rules_out": "이utility cue/fit이green정상보존",
+      "does_not_rule_out": "색상만원인; 모든selector불가",
+      "difference_from_current": "currentpool아닌N2/Replay/C4green; runtime정정중요",
+      "reuse": "S14 corrected_v2 cache/fit/audit",
+      "retry_requires": "새cue 또는source正常保護 근거; 기술실패를최종미실행으로쓰지않음",
+      "sources": [
+        "S14"
+      ]
+    },
+    {
+      "id": "P16",
+      "question": "교란denoising으로큰보정만학습하면해결?",
+      "actual_change": "same217 pseudotarget에 clean vs50% input교란",
+      "model_teacher": "기존Replay 복사CLEAN/DENOISE",
+      "information_supervision": "새manual0,교사과거9/38",
+      "data_split": "oldDEV194/159",
+      "historical_budget": "2×300,합성replay동일",
+      "metric_reference": "R0>20→≤10 / <5→>10",
+      "actual_result": "194에서Replay/CLEAN/DENOISE복구7/5/14; 손상5/7/13; DENOISE40px초과복구0,P9050.52",
+      "status": "실행-손상",
+      "failure_class": "복구증가와보존손실",
+      "rules_out": "입력교란증가만으로자연큰오류/identity안전복구",
+      "does_not_rule_out": "전역역할증거·bettertargets·특정작은오류복구",
+      "difference_from_current": "teacher재학습이며student main아님",
+      "reuse": "S15 traces/corruptionexposure; naturalvsartificial구분",
+      "retry_requires": "실제오류와noise일치·정상보존의새근거",
+      "sources": [
+        "S15"
+      ]
+    },
+    {
+      "id": "P17",
+      "question": "Clean19 S0/S1/S2 가림증류는 했나?",
+      "actual_change": "같은87교사채널, noextra/random/structuredmask",
+      "model_teacher": "type-specificteacher, YOLO학생전층기본학습",
+      "information_supervision": "manual87 provenance채널; pseudo값,hidden/center제외",
+      "data_split": "TRAIN19; DEV300 same-session포함",
+      "historical_budget": "6×320,lr1e-4",
+      "metric_reference": "legacyPCK/D9+severities",
+      "actual_result": "S1−S0 moderatePCK+2.98pp/AUC−.0311; severe+2.56pp/+.0498; S2−S1 severePCK+1.44pp/AUC−.0018",
+      "status": "다른조건에서만실행",
+      "failure_class": "2D/6D·난도혼합",
+      "rules_out": "가림학습전달0",
+      "does_not_rule_out": "모든난도개선; currenthead-only/noaug필요성",
+      "difference_from_current": "teacher19/87,fulltraining,smallrealpool,lr1e-4",
+      "reuse": "S16 cachedRGB/target/augmentation trace",
+      "retry_requires": "같은S1/S2재실행금지; currentrecipe에서별개축",
+      "sources": [
+        "S16"
+      ]
+    },
+    {
+      "id": "P18",
+      "question": "S1 효과가recording분리에도남나?",
+      "actual_change": "기존S0/S1 새128 subset 재채점",
+      "model_teacher": "sameClean10/typeReplay",
+      "information_supervision": "추가감독0",
+      "data_split": "same현재Plastic128,7recordings,반복DEV",
+      "historical_budget": "fit0/inference0; frozenpose재계산",
+      "metric_reference": "sameD9+fixedsetoracle",
+      "actual_result": "severeS1−S0 PCK+2.658pp/AUC+.05062; moderatePCK0/AUC−.02843 despiteoracle+.02862; teacher54/66",
+      "status": "실행-양의신호",
+      "failure_class": "severe신호,moderate선택손실,clean손상",
+      "rules_out": "그S1효과가same-session에만있다",
+      "does_not_rule_out": "currentReplay9/38 학생효과; unseen test",
+      "difference_from_current": "population같지만teacher/student계약다름",
+      "reuse": "S17 frozenW/D hypotheses·commonmetric",
+      "retry_requires": "재채점재사용; 새로운selector엔model분포검토",
+      "sources": [
+        "S17"
+      ]
+    },
+    {
+      "id": "P19",
+      "question": "원래H10/T2 manual이면학습실패가해결?",
+      "actual_change": "T0추가Clean10/T1hardpseudo10/T2samemanual36",
+      "model_teacher": "R0 fullstudent; Clean10teacher",
+      "information_supervision": "teacher48+T2추가36; existingmanual",
+      "data_split": "DEV128; H10은newhard8아님",
+      "historical_budget": "3×320 seed42",
+      "metric_reference": "PCK/D9/oracle + TRAINfit",
+      "actual_result": "moderateAUC T0/T1/T2 .45717/.44136/.44888; severe.21826/.18517/.17894; T1fit36/36,T2 33/36; 나머지3은한frameidentity오류",
+      "status": "다른조건에서만실행",
+      "failure_class": "singleconfig혼합; supervisedTRAIN불완전",
+      "rules_out": "이36점이완전학습되어순수전이만실패; 라벨누락",
+      "does_not_rule_out": "모든manual무용; 3점의역할규약/parameter공유충돌",
+      "difference_from_current": "별도교사/supervision/fulltrain",
+      "reuse": "S18 actual128exposure·gradient/RLE·coordinateaudit",
+      "retry_requires": "새identity근거없이manual더주기/rolefree교정금지",
+      "sources": [
+        "S18"
+      ]
+    },
+    {
+      "id": "P20",
+      "question": "S1+GEO는 이미 성공했나?",
+      "actual_change": "같은W/D후보에synthetic-trained Linear94",
+      "model_teacher": "frozenS0/S1,GEO_LINEAR",
+      "information_supervision": "inferenceRGB/K/dims geometry; syntheticexactlabels",
+      "data_split": "TRAIN4096/VAL1024/TEST1024 grouped; DEV128",
+      "historical_budget": "scorer2fits,학생0",
+      "metric_reference": "D9 ADD vs samecandidateoracle",
+      "actual_result": "S1 ALL .348836→.365035; moderate .435690→.475333,oracle.540595,37.79%회수; S0moderate악화",
+      "status": "실행-양의신호",
+      "failure_class": "부분selector회수·modeldependence",
+      "rules_out": "현재선택방법만으로충분; 모든selector실패",
+      "does_not_rule_out": "currentRAW/REF/Wood호환; 완전gap회수",
+      "difference_from_current": "S1expert는currentREF가아님",
+      "reuse": "S19 scorer/features/split/decisionlocks",
+      "retry_requires": "currentfrozenpool에서zero-fit 호환검사우선; 동일scorer재학습금지",
+      "sources": [
+        "S19"
+      ]
+    },
+    {
+      "id": "P21",
+      "question": "두expert router면clean/hard둘다보존?",
+      "actual_change": "S0/S1 둘다D9; syntheticclean/occluded expertMLP",
+      "model_teacher": "two frozenexperts",
+      "information_supervision": "추가manual0; inference2models비용",
+      "data_split": "same6144synthetic+DEV128",
+      "historical_budget": "router1fit; expert0",
+      "metric_reference": "wholeexpertoracle, AUC",
+      "actual_result": "syntheticroute accuracy54.15%; realALL S1.348836→route.349281,oracle.373641; clean+.004207,severe−.003218;24.12ms",
+      "status": "실행-손상",
+      "failure_class": "clean/hard손익; synthetic단계부터미학습",
+      "rules_out": "이router가장점동시보존",
+      "does_not_rule_out": "wholeoutputoracle정보없음; 모든router불가",
+      "difference_from_current": "current4outputs와다름; stage3GEO와결합아님",
+      "reuse": "S19 stage4 frozenroute/oracle/cost",
+      "retry_requires": "synthetic학습가능cue 먼저; extra compute공개",
+      "sources": [
+        "S19"
+      ]
+    },
+    {
+      "id": "P22",
+      "question": "zero-init PRES1이면보존문제를풀나?",
+      "actual_change": "S1 frozen+7089param xyresidual; clean+occ-preserve",
+      "model_teacher": "PRES1+oldGEO",
+      "information_supervision": "Clean10teacher targets,합성GT/occludedS1target",
+      "data_split": "real1280+synthclean1280+synthocc2560 occurrences;DEV128",
+      "historical_budget": "1×320,AdamW1e-3",
+      "metric_reference": "samecandidatepose+verifiedHARD36",
+      "actual_result": "ALLAUC .365035→.363555; clean+.008276,moderate+.004429,severe−.006699; HARDPCK count0delta; init0pxparity",
+      "status": "실행-손상",
+      "failure_class": "smallresidual·selector손익",
+      "rules_out": "그zero-init/1:1loss가clean+hard동시보존",
+      "does_not_rule_out": "모든adapter/부분unfreeze; 표현력충분성",
+      "difference_from_current": "currentREF아닌S1,decodedSmoothL1,별도teacher",
+      "reuse": "S20 functionaldecode/zero-init/gradientparity",
+      "retry_requires": "preservation강도·학습부변경의독립근거; 동일recipe재시도금지",
+      "sources": [
+        "S20"
+      ]
+    },
+    {
+      "id": "P23",
+      "question": "추가hard8 manual이무용했나?",
+      "actual_change": "H_PSEUDO vs H_MANUAL 같은RGB/PnPbbox/support,xy만",
+      "model_teacher": "R0→Clean10+hard8 S1recipe",
+      "information_supervision": "추가direct36+PnPassistedbox; auto28/center8제외",
+      "data_split": "newhard8 3recordings vs DEV128,disjoint",
+      "historical_budget": "2×320,hard각40노출",
+      "metric_reference": "PCK10,verified36,D9/GEO/oracle",
+      "actual_result": "TRAIN24→36/36; hardverified19→24/36; severePCK43.52→46.84; ALLoldGEO .365035→.358570 butoracle.417559→.430551",
+      "status": "실행-양의신호",
+      "failure_class": "localization양성,oldselector손실",
+      "rules_out": "추가manual은쓸모없다",
+      "does_not_rule_out": "현재9/38같은budget효과; 독립일반화",
+      "difference_from_current": "추가supervision 및fulltrain,teacher다름",
+      "reuse": "S21 pairedtargetsupport/FIT/candidates",
+      "retry_requires": "새manual추가전 기존selector호환성결과P24재사용",
+      "sources": [
+        "S21"
+      ]
+    },
+    {
+      "id": "P24",
+      "question": "model-specific GEO로hard8 이득회수?",
+      "actual_change": "동일94feature linear를S1/HMAN별fitting",
+      "model_teacher": "frozenS1,H_MANUAL",
+      "information_supervision": "새manual0; 이전hard8비용존재",
+      "data_split": "same6144synthetic,DEV128",
+      "historical_budget": "2scorerfits; S1 15epochs,HMAN20(VALbest10/15)",
+      "metric_reference": "sameW/D AUC,coverage127/128HMAN",
+      "actual_result": "HMAN old→own AUC.358570→.373285; S1old.365035; HMANmoderate.429381→.490286,severe.207365→.215115; syntheticown936<old952/1024",
+      "status": "실행-양의신호",
+      "failure_class": "DEV회수; 합성우위/모든model특이성증명아님",
+      "rules_out": "hardmanual후pipeline개선불가",
+      "does_not_rule_out": "currentRAW/REF호환; unseen일반화; 유일원인",
+      "difference_from_current": "currentmain외확장최선,shared9/38기여아님",
+      "reuse": "S22 exactscorerlocks/features+results",
+      "retry_requires": "동일2fit금지; currentmodel의고정예측호환성부터",
+      "sources": [
+        "S22"
+      ]
+    },
+    {
+      "id": "P25",
+      "question": "Hough P/Q oracle가학습selector보장?",
+      "actual_change": "frozenPoint vs correctedHough gain regression",
+      "model_teacher": "52417param selector3seeds",
+      "information_supervision": "RGB/features/PQ/line; target합성GT공통Passignment",
+      "data_split": "train1792/cal256/val512;real미실행",
+      "historical_budget": "3×2000,upstream0",
+      "metric_reference": "normalized8cornererror;fixed-Poracle",
+      "actual_result": "oracle2.179%이득; Point.009474144; selectors.009456190/.009474144/.009498658; 3seed안정1%기준실패",
+      "status": "다른조건에서만실행",
+      "failure_class": "synthetic작은/불안정이득",
+      "rules_out": "이gainregression의안정회수",
+      "does_not_rule_out": "실사Hough불가; 다른표현불가",
+      "difference_from_current": "oldPoint/Hough,synthonly,currentmain아님",
+      "reuse": "S23 commonassignment·calibration fallback·outputGTseparation",
+      "retry_requires": "sourcegain cue/rareflip안정성근거; real성능0으로쓰지않기",
+      "sources": [
+        "S23"
+      ]
+    },
+    {
+      "id": "P26",
+      "question": "DHT pseudo-line student는해봤나?",
+      "actual_change": "고정Pointline vsDHTline quality+outputgradient검사",
+      "model_teacher": "samefrozenPoint/DHT",
+      "information_supervision": "syntheticGT진단만; realGT미열람",
+      "data_split": "cal256+val512",
+      "historical_budget": "student0,계획9fits미실행",
+      "metric_reference": "sameedge weightednormalerror,cosine",
+      "actual_result": "valPoint2.470785 vsDHT4.236055px; DHTbetter24.403%; cos.137762>0만통과; studentNA",
+      "status": "미실행",
+      "failure_class": "teachermechanismgate음성; NaN기술문제수정후최종",
+      "rules_out": "전체availableDHT line이Point보다좋은교사",
+      "does_not_rule_out": "학생의성능; gradient충돌의인과; 모든line방법",
+      "difference_from_current": "mainReplay좌표와다른representation",
+      "reuse": "S24 NaNsanitization+analyticgradientaudit",
+      "retry_requires": "Point보다유용한line source/cue근거; 양의cos만으론fit근거약함",
+      "sources": [
+        "S24"
+      ]
+    },
+    {
+      "id": "P27",
+      "question": "point-line/DHT 읽기증거가role오류를고치나?",
+      "actual_change": "같은candidatebank/P3P4에서P/S/H/HA evidence분리",
+      "model_teacher": "frozenHoughbackbone+160226paramscorer",
+      "information_supervision": "syntheticexact; nativeprediction,real미실행",
+      "data_split": "train1792/cal256/val512",
+      "historical_budget": "4×3×2000=24000",
+      "metric_reference": "normalizedmean/error; fixedbank",
+      "actual_result": "baseline.005755; H seeds.005789/.005436/.005436; 1~5framequarterturn이결과지배; real/전체network단계미실행",
+      "status": "다른조건에서만실행",
+      "failure_class": "seed1손상,2/3긍정; gate불통과",
+      "rules_out": "이evidence/config의3seed안정우위",
+      "does_not_rule_out": "모든point-line불가; P3해상도효과; Hough없음대조",
+      "difference_from_current": "P/S도Houghbackbone/candidates사용; current와다름",
+      "reuse": "S25 correctedreport/VERDICT; C4진단주의",
+      "retry_requires": "candidateidentitycue+catastrophicflip방지근거; current계약으로새로연결",
+      "sources": [
+        "S25"
+      ]
+    },
+    {
+      "id": "P28",
+      "question": "DOPE semantic polarity oracle면표현은충분?",
+      "actual_change": "5class line oracle vslearnedmap vsheatmaprank",
+      "model_teacher": "DOPEep57+PPD,181573paramhead",
+      "information_supervision": "GTline은privileged; learnedsynthetic감독",
+      "data_split": "oldN87(86pairs),synth3039train/1045val/5916probe",
+      "historical_budget": "overfit800 +long20epochs; 현회차0",
+      "metric_reference": "polarity/indexedreproj; 현재AUC아님",
+      "actual_result": "oraclemap+same scorer86/86; learnedL0/M1 2/86,1/86; synth≈95%; background/base활성편향관측",
+      "status": "다른조건에서만실행",
+      "failure_class": "realtransfer실패; oracle입력성공",
+      "rules_out": "그학습map이realcue충분; map선택기배선단독원인",
+      "does_not_rule_out": "globalshape표현불가; 모든lighting/domain원인기각",
+      "difference_from_current": "oldN87정의/GT·model다름,main증거로합치지않음",
+      "reuse": "S26 oracle-vslearned diagnostic; 현재낮은전이경고",
+      "retry_requires": "realobjectsupport/rolecue새근거; old N87결과를current상한으로사용금지",
+      "sources": [
+        "S26"
+      ]
+    },
+    {
+      "id": "P29",
+      "question": "색상만/edge-only 보정이이미독립반박됐나?",
+      "actual_change": "독립color-only axis 검색; localgray/edge/utilityRGB는발견",
+      "model_teacher": "N2/Replay/localcandidate",
+      "information_supervision": "구체적색상단독fit자료없음",
+      "data_split": "관련docs/recovery/PoseFix scopedsearch",
+      "historical_budget": "UNKNOWN",
+      "metric_reference": "UNKNOWN",
+      "actual_result": "green손상을색상/C4원인 하나로단정불가; 독립color-only 결과는미확인",
+      "status": "원자료부족",
+      "failure_class": "미발견≠미실행확정",
+      "rules_out": "없음",
+      "does_not_rule_out": "색상cue효용·한계; 전역RGB관계",
+      "difference_from_current": "과거localCV/색상도메인혼동금지",
+      "reuse": "S12·S14 RGB/gray feature source; 추가검색시정확artifact필요",
+      "retry_requires": "방법명만으로반복/실패선언금지; 먼저실행artifact존재증명",
+      "sources": [
+        "S12",
+        "S14"
+      ]
+    },
+    {
+      "id": "P30",
+      "question": "기하증강만끄는pair는새질문인가?",
+      "actual_change": "[추정] translate.1/scale.25→0; HSV·source비·감독·lr고정",
+      "model_teacher": "currentpose-only RAW/REF",
+      "information_supervision": "새감독0; same217/361",
+      "data_split": "currentTRAIN+sameDEV; 아직실행안함",
+      "historical_budget": "제안material당2×320; 이번지도fit0",
+      "metric_reference": "TRAINaug/nativetarget잔차+DEV PCK/D9",
+      "actual_result": "관련pose_only/repeat/real_only/agreement/640 protocol모두기하증강동일; no-geometry paired fit 미발견",
+      "status": "미실행",
+      "failure_class": "새가설; 원인확정아님",
+      "rules_out": "현재아무가설도반박하지않음",
+      "does_not_rule_out": "geometry-equivariance/clip/support/normalization/학습범위",
+      "difference_from_current": "samecurrent에서기하축만변경가능; source도끄면combined효과",
+      "reuse": "S28 actualARGS; S03 nativefollow; S02 stricttrainer",
+      "retry_requires": "먼저실제aug loss/target exposure차이계측; RAW/REF동일RNG·support·source입력변화공개",
+      "sources": [
+        "S28",
+        "S03",
+        "S02"
+      ]
+    }
+  ],
+  "sources": {
+    "S01": {
+      "report": "_docs/experiments/pallet_selftraining_paper_closure_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_selftraining_paper_closure_v1/MEASUREMENT_ROWS.json",
+      "code": "scripts/research/pallet_type_selftrain_v1/recovery_pose_trainer.py"
+    },
+    "S02": {
+      "report": "_docs/experiments/pallet_material_selftrain_closure_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_material_selftrain_closure_v1/WOOD_RESULTS.json",
+      "code": "scripts/research/pallet_material_selftrain_closure_v1/train_pair.py"
+    },
+    "S03": {
+      "report": "_docs/experiments/pallet_visible_transfer_closure_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_visible_transfer_closure_v1/RESULTS.json",
+      "code": "scripts/research/pallet_visible_transfer_closure_v1/fit.py"
+    },
+    "S04": {
+      "report": "_docs/experiments/pallet_type_selftrain_v1/RESULTS_KO.md",
+      "result": "_docs/experiments/pallet_type_selftrain_v1/RESULTS.json",
+      "code": "scripts/research/pallet_type_selftrain_v1/train.py"
+    },
+    "S05": {
+      "report": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_real_only/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_real_only/FIT_REF_REAL_ONLY.json",
+      "code": "scripts/research/pallet_type_selftrain_v1/recovery_real_only.py"
+    },
+    "S06": {
+      "report": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_agreement/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_agreement/RESULTS.json",
+      "code": "scripts/research/pallet_type_selftrain_v1/recovery_agreement_report.py"
+    },
+    "S07": {
+      "report": "_docs/experiments/pallet_dim_conditioned_p_v1/FINAL_REPORT_KO.md",
+      "result": "_docs/experiments/pallet_dim_conditioned_p_v1/fits/N2_DIM_ONLY_seed1.json",
+      "code": "scripts/research/pallet_dim_conditioned_p_v1/train.py"
+    },
+    "S08": {
+      "report": "_docs/experiments/pallet_posefix_replay_v1/RESULTS_KO.md",
+      "result": "_docs/experiments/pallet_posefix_replay_v1/FIT.json",
+      "code": "scripts/research/pallet_posefix_replay_v1/train.py"
+    },
+    "S09": {
+      "report": "_docs/experiments/pallet_replay_clean19_v1/RESULTS_KO.md",
+      "related": "_docs/experiments/pallet_replay_by_type_v1/RESULTS_KO.md",
+      "contract": "_docs/experiments/pallet_material_selftrain_closure_v1/WOOD_HISTORICAL_ROLE_MAP.md"
+    },
+    "S10": {
+      "report": "data/pallet/results/multiteacher_corner_distill_v1/final/MULTITEACHER_FINAL_REPORT.md",
+      "result": "data/pallet/results/multiteacher_corner_distill_v1/final/MULTITEACHER_FINAL_RESULT.json",
+      "code": "scripts/research/multiteacher_corner_distill_v1/gate_a_headroom.py"
+    },
+    "S11": {
+      "report": "data/pallet/results/multiteacher_corner_distill_v1/audit/SIGMA_AUDIT.md",
+      "lock": "data/pallet/results/multiteacher_corner_distill_v1/METHOD_LOCK.json",
+      "code": "scripts/research/multiteacher_corner_distill_v1/gate_d_target_quality.py"
+    },
+    "S12": {
+      "report": "data/pallet/results/multiteacher_corner_distill_v1/final/CORNER_EVIDENCE_RESULT.md",
+      "result": "data/pallet/results/multiteacher_corner_distill_v1/gate_b_corner_evidence/GATE_B_RESULT.json",
+      "code": "scripts/research/multiteacher_corner_distill_v1/gate_b_corner_evidence.py"
+    },
+    "S13": {
+      "report": "data/pallet/results/multiteacher_corner_distill_v1/final/LOCAL_SPECIALIST_RESULT.md",
+      "result": "data/pallet/results/multiteacher_corner_distill_v1/gate_c_local_specialist/GATE_C_VERDICT.json",
+      "code": "scripts/research/multiteacher_corner_distill_v1/gate_c_train_specialist.py"
+    },
+    "S14": {
+      "report": "_docs/experiments/pallet_posefix_utility_selector_v1/RESULTS_KO.md",
+      "result": "_docs/experiments/pallet_posefix_utility_selector_v1/FIT.json",
+      "audit": "_docs/experiments/pallet_posefix_utility_selector_v1/AUDIT_KO.md",
+      "code": "scripts/research/pallet_posefix_utility_selector_v1/core.py"
+    },
+    "S15": {
+      "report": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pseudo_denoise/INTERPRETATION_KO.md",
+      "code": "scripts/research/pallet_type_selftrain_v1/recovery_pseudo_denoise.py"
+    },
+    "S16": {
+      "report": "_docs/experiments/pallet_clean19_structured_easyhard_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_clean19_structured_easyhard_v1/FIT_PLASTIC_S1.json",
+      "code": "scripts/research/pallet_clean19_structured_easyhard_v1/train.py"
+    },
+    "S17": {
+      "report": "_docs/experiments/pallet_recording_disjoint_transfer_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_recording_disjoint_transfer_v1/RESULTS.json"
+    },
+    "S18": {
+      "report": "_docs/experiments/pallet_existing_data_transfer_v1/REPORT_KO.md",
+      "diagnosis": "_docs/experiments/pallet_existing_data_transfer_v1/THREE_CORNER_ANALYSIS_KO.md",
+      "result": "_docs/experiments/pallet_existing_data_transfer_v1/RESULTS.json"
+    },
+    "S19": {
+      "report": "_docs/experiments/pallet_selector_recovery_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_selector_recovery_v1/FINAL_DECISION.json"
+    },
+    "S20": {
+      "report": "_docs/experiments/pallet_single_model_preserve_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_single_model_preserve_v1/FIT.json",
+      "code": "scripts/research/pallet_single_model_preserve_v1/train.py"
+    },
+    "S21": {
+      "report": "_docs/experiments/pallet_min_hard_ab_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_min_hard_ab_v1/RESULTS.json",
+      "fit": "_docs/experiments/pallet_min_hard_ab_v1/FIT_H_MANUAL.json",
+      "code": "scripts/research/pallet_min_hard_ab_v1/train.py"
+    },
+    "S22": {
+      "report": "_docs/experiments/pallet_model_conditioned_selector_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_model_conditioned_selector_v1/stage3/REAL_SELECTOR_RESULTS.json",
+      "code": "scripts/research/pallet_model_conditioned_selector_v1/train_scorers.py"
+    },
+    "S23": {
+      "report": "_docs/experiments/pallet_hough_gain_selector_v1/REPORT_KO.md",
+      "result": "_docs/experiments/pallet_hough_gain_selector_v1/RESULT_SUMMARY.json",
+      "code": "scripts/research/pallet_hough_gain_selector_v1/core.py"
+    },
+    "S24": {
+      "report": "_docs/experiments/pallet_dht_pseudoline_selftrain_v1/REPORT_KO.md",
+      "code": "scripts/research/pallet_dht_pseudoline_selftrain_v1/geometry.py"
+    },
+    "S25": {
+      "report": "data/pallet/results/pallet_point_line_v4/REPORT_KO.md",
+      "result": "data/pallet/results/pallet_point_line_v4/VERDICT.json",
+      "audit": "data/pallet/results/pallet_point_line_v4/CORRECTIONS_KO.md"
+    },
+    "S26": {
+      "report": "_docs/audits/PPD_REAL_ONE_SHOT_REPORT.md",
+      "diagnosis": "_docs/audits/PPD_REAL_DOMAIN_GAP.md",
+      "overview": "_docs/audits/accuracy_root_cause_v1/PRIOR_EXPERIMENT_MAP_paper.md"
+    },
+    "S27": {
+      "report": "_docs/experiments/pallet_transfer_replay_control_v1/REPORT_KO.md"
+    },
+    "S28": {
+      "protocol": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/PROTOCOL.json",
+      "repeat": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_repeat/PROTOCOL.json",
+      "flip": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_flip/PROTOCOL.json",
+      "code": "scripts/research/pallet_type_selftrain_v1/recovery_pose.py"
+    },
+    "S29": {
+      "report": "_docs/experiments/pallet_cad8_selftrain_v1/HANDOFF_KO.md",
+      "result": "_docs/experiments/pallet_cad8_selftrain_v1/RESULTS.json"
+    }
+  }
+}
