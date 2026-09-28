@@ -62,6 +62,33 @@ def save(fig,name):
     fig.savefig(folder/(name+'.png'),dpi=150,bbox_inches='tight',facecolor='white')
     plt.close(fig)
 
+def c3_figures():
+    path=C.DOC/'cycles/C3_MANUAL38_CAPABILITY/RESULTS.json'
+    if not path.exists():return []
+    result=C.read(path);fig,axs=plt.subplots(1,3,figsize=(12,3.6))
+    for ax,group in zip(axs,('ALL','PLASTIC','WOOD')):
+        rows=result['TRAIN_capability']['groups'][group]
+        colors=['#888','#beaa62','#4b9283']
+        values=[rows[a]['MANUAL9']['mean_px'] for a in ('R0','RAW9','MANUAL9')]
+        ax.bar(range(3),values,color=colors)
+        for i,v in enumerate(values):ax.text(i,v+.3,f'{v:.2f}px',ha='center',fontsize=8)
+        ax.set_ylim(0,32);ax.set_xticks(range(3),['R0','RAW9','MANUAL9']);ax.set_title(group+' | TRAIN manual support')
+        ax.set_ylabel('Mean residual to stored manual coordinates');ax.spines[['top','right']].set_visible(False)
+    fig.suptitle('C3 finite TRAIN fitting: some gain, three Wood gross errors remain; NOT a generalization bound',fontsize=10)
+    fig.tight_layout();save(fig,'c3_train_capability')
+    fig,axs=plt.subplots(1,2,figsize=(10,3.8))
+    for ax,metric in zip(axs,('PCK10','AUC')):
+        for j,arm in enumerate(('R0','OLD_REF','RAW9','MANUAL9')):
+            values=[]
+            for mat in ('PLASTIC','WOOD'):
+                row=result['materials'][mat]['groups']['ALL'][arm]
+                values.append(100*row['twoD']['PCK']['10'] if metric=='PCK10' else row['sixD']['ADDsym_AUC'])
+            ax.bar(np.arange(2)+(j-1.5)*.18,values,.18,color=['#aaa','#9670ba','#d0a044','#498f83'][j],label=arm)
+        ax.set_xticks([0,1],['Plastic128','Wood45']);ax.set_title(metric);ax.spines[['top','right']].set_visible(False)
+    axs[0].legend(fontsize=8,ncol=2);fig.suptitle('C3: RAW9/MANUAL9 matched; R0 and old REF are descriptive across different TRAIN sets',fontsize=10)
+    fig.tight_layout();save(fig,'c3_development_tradeoff')
+    return [path]
+
 def main():
     poses=C.read(C.DOC/'ORACLE_POSE_RESULTS.json')['materials']
     coords=C.read(C.DOC/'ORACLE_COORDINATE_RESULTS.json')['materials']
@@ -98,11 +125,11 @@ def main():
         ax.set_xticks(range(3),['Mean','Median','P90']);ax.set_title(mat+' | 32 TRAIN real exposures');ax.set_ylabel('Residual / target box diagonal');ax.spines[['top','right']].set_visible(False)
     axs[0].legend(fontsize=8);fig.suptitle('Frozen probe: Plastic mean dominated by one outlier; not a causal conclusion',fontsize=10)
     fig.tight_layout();save(fig,'augmentation_probe')
-    examples=c2_figures()
+    examples=c2_figures();extra_sources=c3_figures()
     from pathlib import Path
     sources=[C.DOC/n for n in ('ORACLE_POSE_RESULTS.json','ORACLE_COORDINATE_RESULTS.json','TRAIN_TARGET_TRANSFER.json',
                               'SIGNAL_DIAGNOSTIC_PLASTIC.json','SIGNAL_DIAGNOSTIC_WOOD.json')]
-    sources.extend([Path(__file__),C.P.TRUTH,C.DOC/'cycles/C2_REAL_AFFINE_OFF/RESULTS.json'])
+    sources.extend([Path(__file__),C.P.TRUTH,C.DOC/'cycles/C2_REAL_AFFINE_OFF/RESULTS.json',*extra_sources])
     for mat,previous in [('PLASTIC',C.P),('WOOD',C.M)]:
         sources.extend([previous.DOC/'FIGURE_MANIFEST.json',previous.RAW/'PREDICTIONS.json'])
         sources.extend(C.RAW/'cycles/C2_REAL_AFFINE_OFF'/f'{mat}_{name}.json' for name in ('METADATA','PREDICTIONS','FRAME_METRICS'))

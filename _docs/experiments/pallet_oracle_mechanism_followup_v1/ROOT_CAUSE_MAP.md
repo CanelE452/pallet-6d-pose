@@ -19,3 +19,9 @@
 ## 현재 정보의 한계
 
 평가오류·oracle선택을학습표적이나가중치로전달하지않는다. 새직접클릭·깊이·mesh·물리pose가없어판정못하는항목은 REFERENCE_LIMITED/UNRESOLVED로남긴다. 동일계산의낙관치를더해서총headroom을만들지않는다. 후보를바꾸는미래방법은현재fixed-set회수율로채점할수없다.
+
+## 실행 뒤 갱신 — 사전 관측을 단일 원인으로 확정하지 않음
+
+C2 실제4fit에서 REF PCK10은 Plastic507→503/985, Wood165→164/346으로 낮아졌고 AUC도 각각 .000281/.002467 낮아졌다. 증강 제거가 현재 main의 제한된 이득을 해결한다는 가설은 지지되지 않았다. 사전 probe의 큰 Plastic 평균 차이는 최고 confidence 검출의 instance 전환에 지배됨을 확인했다. source/target gradient 혼합 부호로 PCGrad나 source 삭제를 정당화하지 않았다.
+
+C3 기존 직접38점의 RAW9/MANUAL9 학생 대조에서는 TRAIN PCK10이32→35/38, 중앙값4.974→2.810px로 개선됐으나 Wood의 큰3점은20px를 넘었다. DEV에서는 Plastic+5점, Wood−22점이고 두 재료 모두 기존REF 미달이다. 따라서 타깃 전달은 부분적으로 가능하지만, 작은 감독 집합의 학습·전이 문제가 함께 남는다. 하나의 LR/320update/pose-only 범위가 표현력 부족을 증명하지 않는다. 3사이클 종료 후 새 모듈로 확대하지 않는다.

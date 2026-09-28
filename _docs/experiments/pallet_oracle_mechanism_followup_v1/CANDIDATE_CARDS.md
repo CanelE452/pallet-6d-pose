@@ -19,12 +19,12 @@
 
 - 목적: frozen pseudo target을 변형된 영상에서 추종하도록 하는 부담이, 제한된 pose/flow 학생의 보정 전달을 저해하는지 검사한다. 단순 update 연장이나 새 supervision이 아니다.
 - 원문/전이 범위: [FixMatch §2.1–2.4](https://proceedings.neurips.cc/paper/2020/file/06964dce9addb1c5cb5d6e3d9838f733-Paper.pdf)의 weak-to-strong consistency 원리. [STAC §3.2](https://arxiv.org/html/2005.04757v2)는 좌표 타깃도 geometric transform을 따라야 함을 명시한다. STAC은 확인된 출판 venue 없이 `arXiv 2020 preprint`로만 기록하며 실행 알고리즘으로 채택하지 않는다. C2는 어느 논문의 재현도 아니고 기존 criterion을 보존하는 ablation이다.
-- 현재 관측: frozen REF의 TRAIN normalized-bbox residual은 affine ON/OFF에서 Plastic 0.05873/0.01276, Wood 0.01529/0.01346이었다. Plastic 차이는 tail 영향이 크다. [Plastic 원자료](SIGNAL_DIAGNOSTIC_PLASTIC.json), [Wood 원자료](SIGNAL_DIAGNOSTIC_WOOD.json). augmented input에서 오차가 크다는 사실은 잘못된 label transform이나 loss 구현 오류를 증명하지 않는다.
+- 현재 관측: frozen REF의 TRAIN normalized-bbox residual은 affine ON/OFF에서 Plastic 0.05873/0.01276, Wood 0.01529/0.01346이었다. Plastic 차이는 tail 영향이 크다. [후속 instance 감사](cycles/C2_REAL_AFFINE_OFF/TRAIN_OUTLIER_BOX_AUDIT.json)에서 지배적인 tail은 highest-score 검출이 target bbox와 다른 instance를 선택한 현상(IoU0; 다른 후보는0.8753)과 연결됐다. 따라서 평균 차이를 광범위한 좌표 회귀·loss 오류로 해석하지 않는다.
 - 최소 arm: 두 재료 각각 R0에서 RAW/REF 320update 쌍, 총 4fits/1,280updates. 바뀌는 축은 real 데이터의 random translate/scale OFF뿐이다. HSV, source augmentation, source/real 비율, 기존 loss·optimizer·LR·trainable 부위·마지막 checkpoint 평가를 유지한다. 실제 RNG/data-order 일치 여부는 실행 audit가 확인한다.
 - 필요 코드/대조: real dataset transform wrapper에서 두 계수만 바꾸고 source 경로는 보존한다. 기존 RAW/REF와 새 RAW/REF를 모두 보며 `(NEW_REF−NEW_RAW)−(REF−RAW)`도 보고한다. TF32/AMP, coordinate transform, visibility/true-ignore 및 source retention을 점검한다.
 - 가장 강한 반론: 원논문들은 적절한 strong augmentation의 이익을 보였다. augmentation을 줄이면 TRAIN imitation만 쉬워지고 generalization·robustness가 나빠질 수 있다. crop/support·interpolation·out-of-view 감독도 함께 바뀌므로 개선하더라도 단일 기하 원인이나 잘못된 loss를 확증하지 않는다.
 - 판정을 바꾸는 증거: TRAIN target imitation뿐 아니라 고정 DEV의 native2D/pose, recording별 손익, RAW 대비 REF 추가 이득, synthetic 보존. 이 대조를 개발에 이미 사용한 DEV에서 독립 확인으로 부르지 않는다.
-- 상태: `SELECTED_FOR_CONTROLLED_FITS`; 최종 실행 상태/결과는 cycle 산출물이 우선한다. 새 consistency loss·confidence gate·새 teacher는 추가하지 않는다.
+- 상태: `EXECUTED_NO_MAIN_IMPROVEMENT`. [C2 결과](cycles/C2_REAL_AFFINE_OFF/REPORT_KO.md): NEW_REF의 PCK10은 Plastic503/985(기존507), Wood164/346(기존165), AUC도 각각 감소했다. 새 recipe 채택/재현 조건을 충족하지 못했다. 새 consistency loss·confidence gate·새 teacher를 추가하지 않았다.
 
 ## C2b. source replay와 real 타깃의 최적화 진단 — fit 미채택
 
@@ -39,7 +39,7 @@
 - 판정을 바꾸는 증거: REF correction 방향의 학생 변화와 TRAIN imitation, NEW_REF−기존REF 및 NEW_REF−NEW_RAW, source/real 손익과 recording별 DEV 결과. 개선해도 replay 간섭이 유일 원인이라고 단정하지 않는다.
 - 상태: `DIAGNOSTIC_ONLY_NOT_SELECTED_FOR_FIT`. 현재 step0 gradient의 부호가 혼재해 PCGrad나 source downweight를 실행할 충분한 원인 증거가 아니다. 위 C2가 선택됐으며 이 카드의 가상 fit은 실제 예산 사용으로 세지 않는다. PCGrad 구현은 단순 대조가 부족하다는 근거가 있을 때만 별도 채택한다.
 
-## C3. 위치 신뢰성과 objectness를 분리한 감독 검사
+## D1. 위치 신뢰성과 objectness를 분리한 감독 검사 — 실행 보류
 
 - 목적: 교사의 confidence/stability가 실제 좌표 정확도를 예측하는지, 학생보다 나은 감독을 골라낼 정보가 있는지 확인한다.
 - 원문: [Soft Teacher §3.3](https://arxiv.org/html/2106.09018v2), [UTv2 §3.3](https://arxiv.org/html/2206.09500v1), [Guo §2](https://proceedings.mlr.press/v70/guo17a/guo17a.pdf). Soft Teacher는 jitter 후 재회귀 분산, UTv2는 별도로 학습한 regression uncertainty를 쓰며 둘 다 단순 detector score와 구분해야 한다.
@@ -52,16 +52,16 @@
 - 비용: cache 진단0fit; 새 teacher/scorer 학습·calibration fit은 모두 전체 예산에 포함. 충분한 별도 calibration이 없으면 새 filter training을 강행하지 않는다.
 - 상태: `DIAGNOSTIC_ONLY_UNTIL_TRAIN_RELIABILITY_EVIDENCE`. confidence를 PCK 정답확률로 표기하지 않는다.
 
-## C4. 적격 기존 TRAIN 직접감독으로 학생 capability 확인
+## C3. 적격 기존 TRAIN 직접감독으로 학생 capability 확인
 
 - 목적: 현재 허용된 학습부가 정확한 타깃을 따라갈 수 있는지를 확인한다. oracle 정보가 현재 학생에게 전달 가능한지와 일반화는 분리한다.
 - 근거/읽은 범위: [PoseFix §4–5](https://arxiv.org/html/1812.03595v2)의 supervised error correction; 실제 학생 학습부/target residual 진단. 이 카드는 새로운 논문 알고리즘이 아니라 통제 실험 설계다.
-- 같은/다른 가정: 기존 teacher9/38 또는 exact synthetic TRAIN 감독만 사용한다. 이미 teacher가 쓴9/38 직접 student 감독은 같은 수동 예산의 대안이며217/361 전체 정답학습 upper bound가 아니다.
-- 필요한 변경: 기존 trainer의 target source와 support를 정확히 연결하고 R0부터 단일 작은 fit. source replay, optimizer,320 또는 사전 고정640update, 평가 방식 보존. clone fit이면 TRAIN memorization 검사로 표기한다.
+- 같은/다른 가정: 이미 교사가 쓴9/38 직접 student 감독은 같은 수동 정보량의 대안이며217/361 전체 정답학습 upper bound가 아니다. Plastic3/15점+Wood6/23점의 주석과 RGB가 교사 당시 해시와 일치하고 현재 DEV128/45 및 subset66과 ID/SHA/recording 중복이 없음을 확인했다. `camera_dynamic_0123_v4`의 stored-index를 사용하며 signed physical axis는 미확정이다.
+- 실제 채택: 같은9장/38support의 RAW9/MANUAL9를 각각 R0에서320update, 총2fits/640updates로 비교한다. 기존 source512·real512 replacement·loss·optimizer·pose/flow-only를 유지한다. 원래 affine에서는 576 paired TRAIN 노출 중9개에 감독 mask 차이가 있었고, 사전명세대로 real translate/scale만 OFF하여38support를 유지한다. HSV/source 증강은 그대로다. 정확 좌표는 private artifact에만 보존한다.
 - 단순 대조: 동일 TRAIN에서 R0의 잔차, 같은 noisy target과 정확한 target의 비교. 더 복잡한 loss·backbone 해제부터 도입하지 않는다.
 - 반론:9/38은 모집단을 대표하지 않고 교사 사용 이력이 있다. synthetic 성공은 real visibility/representation의 충분성을 증명하지 않는다.
 - 바꿀 증거: accurate TRAIN도 못 맞추면 구현/최적화/trainable 범위 미분리; TRAIN 성공 DEV 무차이면 학습 가능성과 전이 실패 분리.
-- 상태: `CONDITIONAL_ON_ELIGIBLE_TRAIN_AND_UNRESOLVED_FOLLOWING`. 새 manual 데이터·DEV 감독 전환 없이만 실행.
+- 상태: `EXECUTED_PARTIAL_TRAIN_FOLLOWING_NO_PROMOTION`; [결과](cycles/C3_MANUAL38_CAPABILITY/REPORT_KO.md). RAW9→MANUAL9의 TRAIN PCK10은32/38→35/38로 개선했지만 같은 Wood TRAIN frame의 >20px 3점은 남았다. DEV Plastic +5/985·AUC+0.012457, Wood −22/346·AUC−0.043267, verified66 −3/66이었다. 완전한 TRAIN 적합 또는 순수 일반화 실패로 단정하지 않는다. 총2fits/640updates로 종료하며 추가 fit/승격 없음. [명세](cycles/C3_MANUAL38_CAPABILITY/SPEC.md), [CPU preflight](cycles/C3_MANUAL38_CAPABILITY/PREFLIGHT.json)를 보존했다. 원래 C4 설계 후보가 실행 cycle C3로 채택됐으며, 보류 신뢰성 카드는 D1로 구분한다.
 
 ## 대형/추가 조건 후보: 이번 최소 대조로 줄일 수 있는가
 
@@ -71,15 +71,15 @@
 | R2 Self6D++ | corrected pseudo target와 synthetic→real | RGB-only도 가능하지만 CAD/visible-amodal mask/renderer 필요; 네트워크 교체와 정보 효과 혼합 | mask/렌더/refiner 새 경로 대신 현존 타깃/가림 분해 | 기존 자산으로 독립 visual cue가 저비용 구현됨이 확인돼야 함. `DEFER_FRAMEWORK` |
 | R3 ONDA-Pose | real 분포에 맞춘 synthetic 및 global correction | CARF/geometry/texture 학습 비용; 치수만으로 외관을 만들 수 없음 | 기존 synthetic-real support 통계 대조; 원문 loss 미구현 | full methods와 현재 재사용 가능한 calibrated views/CAD 확인 전 `DEFER` |
 | R4 PseudoFlow | geometry consistency로 pseudo reliability | calibrated mesh renders와 dense optical flow 필요; 현 RLE flow와 무관 | 현재 sparse consistency audit부터, 새 RAFT/render pipeline 보류 | 실제 RGB cue가 오류를 구분하며 준비 자산/예산 존재 시 재검토. `DEFER` |
-| R5 Soft Teacher | 위치 신뢰성 분리 | box proposal jitter≠pallet point jitter; paper/code offset·정규화 차이 | C3; 현재 원래 좌표를 유지하고 matched retention 비교 | TRAIN에서 안정성-오류 관계가 단순대조보다 나음. `CONDITIONAL` |
-| R6 UTv2 | teacher/student 상대 uncertainty | 별도 학습 uncertainty branch 필요, 현재 출력 교정 불명 | 현재 출력 semantic/scale 확인, C3 | 비교 가능한 uncertainty와 적격 calibration 확보 시만. `DEFER_NEW_BRANCH` |
+| R5 Soft Teacher | 위치 신뢰성 분리 | box proposal jitter≠pallet point jitter; paper/code offset·정규화 차이 | D1; 현재 원래 좌표를 유지하고 matched retention 비교 | TRAIN에서 안정성-오류 관계가 단순대조보다 나음. `CONDITIONAL` |
+| R6 UTv2 | teacher/student 상대 uncertainty | 별도 학습 uncertainty branch 필요, 현재 출력 교정 불명 | 현재 출력 semantic/scale 확인, D1 | 비교 가능한 uncertainty와 적격 calibration 확보 시만. `DEFER_NEW_BRANCH` |
 | R7 SSPCM | 다교사 불일치로 outlier 분리 | 공통오류·동일 pretraining bias; 추가 teacher 비용 | 고정 R0/Replay/RAW/REF 교차표, 기존 multi-teacher 결과 | 관측된 상보성을 GT-free cue로 분리한다는 TRAIN 증거. `DEFER_EXTRA_TEACHER` |
 | R8 PCGrad | gradient 공유와 충돌 | 음의 cosine만으로 개선 보장 없음; source는 과거 task와 다름 | C2b step0 norm/dot; 배율 변경 미채택 | 간섭과 실제 손상의 연결이 재현될 때만. `DIAGNOSE_FIRST` |
 | R9 PVNet | visible evidence가 hidden keypoint 투표 | dense supervised direction target가 필요; 과거 Hough와 다른 의미 | 기존 point-line/Hough 정상 구현의 작은 capability부터 | 현 sparse oracle 밖 정보와 정상 dense target 파이프라인. `DEFER_NEW_REPRESENTATION` |
 | R10 EPro-PnP | point 오차와 pose 목적의 차이 | target pose supervision/Monte Carlo 분포 학습 필요; sparse weight만 바꾸면 원문 아님 | C1 frozen PnP/selection, exact synthetic sanity | 충분한 pose TRAIN과 비용, surrogate mismatch의 실증 필요. `DEFER_END_TO_END_LOSS` |
 | R11 MegaPose | RGB-render 비교로 candidate 구별 | CAD/외관/렌더와 범용 synthetic pretraining 전제; cuboid는 외관모델 아님 | 현 RGB/기하 candidate margin을 먼저 측정 | 허용된 기존 mesh/renderer로 cue가 존재할 때만. `DEFER_FRAMEWORK` |
 | R12 CRISP | correct→observed consistency→self-train | 실제 segmented depth, implicit shape, certificate의 전제가 다름 | scalar reprojection filter를 certificate라고 부르지 않고 C1의 한계로 기록 | 정보 계약 변경이 필요하면 사용자 결정 사안. `NOT_APPLICABLE_AS_IS` |
-| A Guo | confidence와 correctness의 측정 분리 | classification calibration을 위치에 자동 이식 불가; 적은38점 재사용 | C3 descriptive reliability/교차표 | 적격 독립 calibration이 생기면 재검토. `MEASUREMENT_PRINCIPLE` |
+| A Guo | confidence와 correctness의 측정 분리 | classification calibration을 위치에 자동 이식 불가; 적은38점 재사용 | D1 descriptive reliability/교차표 | 적격 독립 calibration이 생기면 재검토. `MEASUREMENT_PRINCIPLE` |
 | B GEM | source 보존과 target 적합 손익 | memory 대표성/국소 근사, 순차 task와 현재 joint recipe 차이 | C2b source retention+gradient accounting | 실제 source/real 손익 재현. `MEASUREMENT_PRINCIPLE` |
 | C IPPE | 후보 생성과 관측으로 구별 가능성 분리 | planar ambiguity와 W/D/C4는 다름;8점 cuboid는 비평면 | C1 candidate margins; 필요 시 새 후보pool 별도등록 | 후보는 좋지만 cue가 무정보이면 다른 observed cue 필요. `MEASUREMENT_PRINCIPLE` |
 | D FixMatch / STAC 참고 | pseudo label과 입력 변형 사이의 consistency | 분류 불변성과 좌표 equivariance는 다름; 강한 변형이 일반화에 유리할 수 있음 | C2에서 기존 loss 그대로 real translate/scale 한 축 대조 | target imitation 및 RAW 대비 REF 추가 이득 동시 확인. `CONTROLLED_ABLATION_NOT_REPRODUCTION` |

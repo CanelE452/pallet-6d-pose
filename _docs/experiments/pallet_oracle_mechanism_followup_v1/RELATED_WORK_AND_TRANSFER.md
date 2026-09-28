@@ -10,6 +10,10 @@
 
 [확인] 실행팀의 C1은 동일 후보/penalty에서 RMSE9만 Huber12 기반 픽셀 단위 점수로 바꾸었으나 [모든 arm의 선택변경과 gap 회수율이 0](cycles/C1_HUBER_D9/REPORT_KO.md)이었다. 이후 C2는 관측된 affine ON/OFF TRAIN residual 차이를 근거로 real translate/scale만 끄고 RAW/REF 쌍을 비교하도록 선택했다. source gradient 부호가 혼재한 관측만으로 replay 간섭을 확정하거나 PCGrad를 채택하지 않았다. C2는 새 loss가 아니며 결과 해석은 아래 D의 반론을 포함해야 한다.
 
+[확인] [완료된 C2](cycles/C2_REAL_AFFINE_OFF/REPORT_KO.md)는 두 재료 모두 기존 REF의 주목표를 개선하지 못했다. 원래 큰 TRAIN residual의 지배적인 한 노출은 회귀 오차만이 아니라 highest-score detector의 다른 instance 선택과 연결됐다. 따라서 단순 평균 차이를 augmentation/좌표 전달의 일반적 병목 증거로 쓰지 않는다. 별도 C3는 기존9/38 수동 TRAIN을 pose/flow-only 학생이 따라갈 수 있는지 묻는 유한 capability 대조이며, main217/361 전체 GT 상한을 주장하지 않는다.
+
+[확인] [완료된 C3](cycles/C3_MANUAL38_CAPABILITY/REPORT_KO.md)는 같은38support RAW9/MANUAL9에서 TRAIN PCK10을32→35/38로 올렸지만 Wood의 큰 오차3점을 남겼다. DEV Plastic PCK10 +5/985와 달리 Wood −22/346, verified66 −3/66이었고 새 recipe를 채택하지 않는다. 이는 부분적인 stored-index target 추종이지 완전한 fit 또는 물리적 축 정답 증명이 아니다. C1–C3의 음성·혼합 결과를 근거로 위 논문 계열 전체가 불가능하다고 판정하지 않으며, 이번 후속에서 추가 fit은 실행하지 않는다.
+
 ## 직접 관련 연구 R1–R12
 
 | ID / 출판 | 읽은 범위와 직접 출처 | 원래 입력·감독 | 현재로 옮길 원리 / 현재와 다른 전제 / 결정 |
