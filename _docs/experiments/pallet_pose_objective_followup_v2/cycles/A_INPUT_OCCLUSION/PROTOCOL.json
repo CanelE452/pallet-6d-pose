@@ -1,0 +1,79 @@
+{
+  "cycle": "A_INPUT_OCCLUSION",
+  "locked_before_fit": true,
+  "created_utc": "2026-09-28T14:50:30.717205+00:00",
+  "materials": [
+    "PLASTIC"
+  ],
+  "seeds": [
+    42
+  ],
+  "occlusion": true,
+  "loss": "UNCHANGED",
+  "updates_per_fit": 320,
+  "fits": 2,
+  "seed": 42,
+  "lr0": 1e-05,
+  "parent_protocols": {
+    "PLASTIC": {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/pose_only/PROTOCOL.json",
+      "sha256": "43129516d0c23b56c1f99462982c0f7987361a84f5b3fa09ba9dcceeecccb82f",
+      "bytes": 964186
+    }
+  },
+  "initialization": {
+    "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "bytes": 6552807
+  },
+  "input_contract": "original vanilla transforms; RGB-only shared REF-conditioned random mask; support/coordinate target unchanged",
+  "masking": {
+    "schedule": 0.5,
+    "area_fractions": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "aspects": [
+      0.5,
+      1,
+      2
+    ],
+    "proposals": 32,
+    "covered_min": 1,
+    "remaining_min": 2,
+    "canvas": "final640",
+    "fill": "8x8 uniform uint8 bilinear",
+    "RNG": "local generator from original transform RNG state+basename"
+  },
+  "metric_lock": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/METRIC_AND_SELECTION_LOCK.json",
+    "sha256": "15049cfa65b070518039b6d963c5fd1dc603d29d811cfd6c3d96eaca436c6d0f",
+    "bytes": 14914
+  },
+  "preflight": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/OCCLUSION_PREFLIGHT_PLASTIC.json",
+    "sha256": "f91e7b7ede4537c743e02d7537072d2895ccab9e7a38f29fed590dffaa9f197f",
+    "bytes": 1056
+  },
+  "implementation": [
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/student.py",
+      "sha256": "c8ede92b5d142b1751cdb7b459ef049d950efa839bfea8aa8ab624ca82bfe961",
+      "bytes": 11678
+    },
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/occlusion.py",
+      "sha256": "79c6d5b015c7867916eb63c2f8e418c54f349412f1a2ed4ca0a9cc161c0f7fd6",
+      "bytes": 4852
+    }
+  ],
+  "spec": {
+    "path": "_docs/experiments/pallet_pose_objective_followup_v2/cycles/A_INPUT_OCCLUSION/SPEC.md",
+    "sha256": "a50a480157b103bb450bb93228f2abdb323261820d046e0b22eec36713b9685e",
+    "bytes": 3828
+  },
+  "manual_added": 0,
+  "teacher_updates": 0,
+  "inference_change": false
+}
