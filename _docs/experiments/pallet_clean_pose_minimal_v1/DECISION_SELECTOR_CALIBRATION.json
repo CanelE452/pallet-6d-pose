@@ -1,0 +1,95 @@
+{
+  "created_at": "2026-09-29T14:08:28.571585+00:00",
+  "approved": true,
+  "locked_before_fit": true,
+  "hypothesis": "Frozen old GEO was trained on historical S0/S1 synthetic outputs. Current-model feature calibration may recover remaining same-candidate pose selection headroom.",
+  "evidence_is_observational_not_causal_proof": true,
+  "intervention": "Replace only the two frozen synthetic feature donor models by current RAW_CLEAR42 and REF_CLEAR42; refit one shared Linear94 using original physical W/D parity and exact synthetic TRAIN/VAL split.",
+  "why_these_donors": "Fixed matched simplest CLEAR pair; retain old two-donor pooling cardinality and avoid training separate selectors for RAW/REF. No new donor sweep.",
+  "candidate_headroom": "Original D9 natural99 has26 RAW_CLEAR and28 REF_CLEAR frames with a single existing candidate improving both T/R; oracle remains diagnosis only.",
+  "baseline_failure": "Neither REF_OCC42 nor43 beats OLD_REF217+sameGEO jointly; CLEAR42 correction and added occlusion trade T against R.",
+  "controls": "Same new scorer/normalization on R0, OLD_REF217, CLEAR42 RAW/REF, OCC42/43 RAW/REF. Keep all old D9/GEO results.",
+  "unchanged": [
+    "student weights",
+    "clean78 membership/targets/support",
+    "94features",
+    "candidate construction/final poses",
+    "physical parity labels",
+    "original synthetic split",
+    "Linear94/BCE/AdamW training recipe",
+    "real evaluation population/GT/C2"
+  ],
+  "disclosed_differences": [
+    "Donor model training lineage",
+    "synthetic feature distributions",
+    "TRAIN normalization estimated from new features",
+    "valid-pair count may change optimizer updates at fixed epoch cap"
+  ],
+  "forbidden": [
+    "new real images",
+    "new manual coordinates",
+    "TEST scoring or tuning",
+    "real GT fit/normalization/checkpoint selection",
+    "new feature/loss/threshold variants",
+    "second selector fit after valid negative result"
+  ],
+  "planned_new_student_fits": 0,
+  "planned_new_selector_fits": 1,
+  "criterion": "Report complete T/R vector, full denominator/paired/recording/tails and strongest simple controls. No automatic significance based on signs or arbitrary success threshold.",
+  "next_branch": "If a promising clean78 configuration exists, complete missing matched CLEAR43 pair only if necessary. Otherwise reassess remaining concrete TRAIN hypotheses, not blind parameter sweeps.",
+  "inherited_cost": {
+    "GPU_training_seconds": 417.7810587910935,
+    "student_fits": 6,
+    "optimizer_updates": 1920,
+    "selector_fits": 0
+  },
+  "remaining_student_fits": 4,
+  "ancestry_caveat": "R0 plus new scorer would remove the student only at deployment; its scorer would inherit self-trained donor supervision. Broader historical19/86 development evidence is not erased.",
+  "evidence": [
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/CONTROL_RESULTS.json",
+      "sha256": "a5c7b87fb152c2d171342937a23d996592f7814de9f63d08781a1ce91d5d9cd8",
+      "bytes": 10025650
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/CONTROL_ROBUSTNESS.json",
+      "sha256": "b97ec2b278692676aea056c89a89b9cf239149f7a5eeef9c2dd626e8105fe20a",
+      "bytes": 3664479
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/PRIOR_AND_STANDARD_AUDIT.json",
+      "sha256": "9a0f6393161b7d0cf18fac28f18ba308b6e43f1aa8a1e14b64bb4645fc0ec34c",
+      "bytes": 23581
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/PRIOR_AND_STANDARD_AUDIT_KO.md",
+      "sha256": "cf9c38b9883846bb9a36a1d9570285142eaf780460960ba09a7b68bd8d71da03",
+      "bytes": 21398
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_to_pose_transfer_v1/CANDIDATE_ORACLE_S42.json",
+      "sha256": "e9a13531ab82b86fea8346fdf6ad03fb68cd23ed2542b4d5936ebd4bd82d56ff",
+      "bytes": 1485293
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/CONTROL_REF_CLEAR_S42_LOCK.json",
+      "sha256": "28e398778e31db928a467c47ad150d8835de1e6d08ba293a3585801a67da1166",
+      "bytes": 12448
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/GOAL_LOCK.md",
+      "sha256": "380ca0621f6577382c0291d718ec626d04d3a135dfa314c773bd7ea639320189",
+      "bytes": 3330
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/ANALYSIS_LOCK.md",
+      "sha256": "983b5d92f4dc63529304948917efd7dd8f7ff5840a3ed567bd0a31a4f220d3bb",
+      "bytes": 2673
+    },
+    {
+      "path": "scripts/research/pallet_clean_pose_minimal_v1/decide_selector.py",
+      "sha256": "557e26772564f2911da314e23c3a58ff319d8b4411bba32460b9baca5510daad",
+      "bytes": 3907
+    }
+  ]
+}
