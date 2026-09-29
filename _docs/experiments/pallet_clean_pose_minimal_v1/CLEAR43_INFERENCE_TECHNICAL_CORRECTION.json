@@ -1,0 +1,30 @@
+{
+  "created_at": "2026-09-29T14:31:28.720002+00:00",
+  "status": "FAILED_BEFORE_PREDICTION_LOCK_PRESERVED",
+  "phase": "CLEAR43 frozen GPU inference",
+  "failure_report_source": "Root agent report of exec session82973",
+  "failure": "REFERENCE_READ_DENIED at approved metadata RGB data/evaluation/dev_existing/sessions/eval_cad/rgb/1778653003088339968.png",
+  "cause": "Inherited reference guard blocked all data/evaluation paths, including allowed RGB. No coordinate-contract, training, threshold, or model change.",
+  "fix": "Exact metadata-hash-bound RGB path allowlist only; neighboring RGB and all references remain blocked.",
+  "inference_metadata": {
+    "path": "data/pallet/results/pallet_clean_to_pose_transfer_v1/evaluation/S42/METADATA.json",
+    "sha256": "2afe95ea05c03f7ab9ad203b4b44cfd51fbf70f89c4117e6ce2b57693cc00fa3",
+    "bytes": 86230
+  },
+  "corrected_implementation": {
+    "path": "scripts/research/pallet_clean_pose_minimal_v1/evaluation_clear.py",
+    "sha256": "274fcc69fb404d651ca35784ad570e2ffc11ddcc34df55f4bad75088481d9706",
+    "bytes": 16242
+  },
+  "tests": {
+    "path": "scripts/research/pallet_clean_pose_minimal_v1/test_evaluation_clear.py",
+    "sha256": "8ad9822697f8f95490accd3ef8f855b26a66502dfd15a118851aab4e737b2662",
+    "bytes": 1811
+  },
+  "regression_test": "Approved RGB read succeeds; unlisted neighboring PNG and POSE_METRICS.json reads fail.",
+  "new_student_fits": 0,
+  "new_selector_fits": 0,
+  "optimizer_updates": 0,
+  "retry_scope": "Frozen inference only; no student retraining; no score-based rerun.",
+  "failed_prediction_outputs": 0
+}

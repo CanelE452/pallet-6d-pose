@@ -1,0 +1,184 @@
+{
+  "created_at": "2026-09-29T14:40:13.867943+00:00",
+  "status": "COMPLETED_NEGATIVE_BOUNDED_EXTENSION",
+  "retained_fixed_reference": "OLD_REF_GEO",
+  "globally_best_or_deployment_guarantee": false,
+  "new_jointly_dominating_configurations": [],
+  "delta_vs_retained_strong_simple_reference": {
+    "translation_cm": 0.0,
+    "translation_mm": 0.0,
+    "rotation_deg": 0.0
+  },
+  "interpretation": "No replacement established. Retain the existing fixed reference; zero delta is not a newly improved method.",
+  "reference_vs_same_GEO_R0": {
+    "translation_cm": -0.9931409930711705,
+    "rotation_deg": -0.2623242626581046
+  },
+  "correction_value_in_matched_old217": {
+    "translation_cm": -0.8419069042893383,
+    "rotation_deg": -0.08723567818402067
+  },
+  "closest_clear43_tradeoff_vs_reference": {
+    "translation_cm": -0.22601842187766152,
+    "rotation_deg": 0.029944023499786532
+  },
+  "headline_ko": "이번 추가 실험에서 기존217장 보정학생+기존GEO보다 위치·회전 중앙값을 함께 낮춘 구성은 없었다. 기존 고정 대조를 유지하고 입력가림·새GEO·clean78로의 교체는 채택하지 않는다. 전역최적 또는 실제배포 충분성을 입증한 것은 아니다.",
+  "component_conclusions_ko": [
+    "- **유지:** 기존217장 REF_LR5 학생+기존GEO. 자연99 위치11.4101cm/회전4.9553°. 추가 실험 전 강한 대조 그대로이므로 그 대조 대비 새 개선량은0cm/0°다. 운영중인 모델파일은 자동 교체하지 않았다.",
+    "- **자기학습:** 같은GEO의R0보다 위치중앙값−0.9931cm(−9.931mm), 회전−0.2623°. 41/99장은 둘다개선,23장은 둘다악화. 선택기만 붙인 R0와 구분되는 이득 신호지만 독립반복으로 필요성을 증명한 것은 아니다.",
+    "- **좌표 보정:** 기존217장 RAW+같은GEO 대비−0.8419cm(−8.419mm)/−0.0872°. 두중앙값은 낮으나 회전효과가작고 T P90은 악화한다. clean78 CLEAR는seed42회전미세악화/seed43개선으로 일반화된 공동이득을 주장하지 않는다.",
+    "- **입력 가림 제외:** 기존GEO의 REF OCC−CLEAR는seed42 T−0.1302cm/R+0.0609°, seed43 T+0.0802cm/R+0.0895°. 두흐름에서 R악화, T일관이득없음. 이설정의 가림필요성은 지지되지 않는다.",
+    "- **기존GEO 유지, 새GEO 제외:** 기존217REF는 D9→기존GEO로T−1.0129cm/R−3.7394°. 단독효과를 보존한다. 새GEO에서OCC 보정효과는seed42두지표개선,seed43두지표악화로 반전했다. 선택기를 다시학습하지 않았다.",
+    "- **clean78 교체 보류:** CLEAR43+기존GEO는 대조보다T−0.2260cm(−2.260mm), R+0.02994°의trade-off다. paired Δ중앙값은 오히려T+0.1354cm/R+0.0945°이며16장공동개선/43장공동악화다. seed43의 낮은T만 골라 업그레이드라고 하지 않는다."
+  ],
+  "tail_and_recording_ko": [
+    "모든33구성은현재128/128자세를산출했다. 산출성공은정확함이아니다. 유지대조의자연99 T P90은127.1431cm/R P90은88.8204°로 큰오류가남는다. 같은GEO R0의T P90 120.4714cm, RAW217의119.3087cm보다 악화하므로 중앙값이득과함께보고한다.",
+    "유지대조−R0의전체자연99 T중앙값은−0.9931cm지만 Moderate21은+0.4247cm, Severe78은+0.1850cm다. 결합분포의중앙값은 부분집합중앙값의평균이아니며 모든난도에일관된T개선으로읽으면안된다. Full128의R중앙값도+0.0145°로미세악화다.",
+    "기록별로REC007은T/R−5.4558cm/−13.6628°인반면 REC022는T−3.8778cm/R+0.2524°이고 REC021은T−0.4286cm/R+0.0198°다. pooled와recording평균은구분하며 작은기록의영향을남긴다.",
+    "[후보의 T-tail 상한 진단](CANDIDATE_TAIL_CEILING_KO.md): 명시한6구성 모두 두후보중 T만최선으로골라도P90은현재와같다. selected worst10중6~7장은이미T최선후보이며 기록구성은REC007 2/REC022 5/REC027 3이다. 더좋은선택만으로이P90을해결할수없다. T-onlyoracle는진단전용이며 R최솟값과합쳐가상자세를만들지않았다."
+  ],
+  "execution_and_stop_ko": [
+    "순서: frozen동일GEO대조 보완 → 한종류합성source-only선택기재보정 → 빠졌던CLEAR43 RAW/REF 320update각1회 → 동일가림TRAIN입력 교차추론(학습0) → 최종33구성과오류사례정리. 기존음성결과를오류라고부르며재학습하지않았다.",
+    "새선택기는합성TRAIN4096/VAL1024의현재RAW/REF CLEAR42 feature를사용했다. 동일Linear94→1, 기존pairwiseBCE, seed42, 기존학습규칙을유지했다. bestVAL0.9375로기존0.94043보다낮고실사반복도반전했으므로업그레이드로채택하지않았다.",
+    "[동일 입력 교차 진단](TRAIN_CROSS_INPUT_KO.md): 모든8모델에같은62 real occurrence/45unique,476감독점(covered21/unmasked455)을입력했다. 같은maskedRGB에서OCC학습은가린점own-target평균오차를0.0247~0.0777px줄였지만나머지점이0.0113~0.0207px나빠져전체평균은0.0097~0.0174px악화했다. 가림을전혀학습하지않았다는주장도, 노출을늘리면실사T/R가개선된다는주장도지지하지않는다.",
+    "mask노출은seed42 real2560회중418회이며가려진감독은632/19017점이었다. ROI기반placement확대는미검증가설로남기지만,같은maskedTRAIN의미세복원이자연pose개선을예측한다는근거가없다. 과거고빈도실패/학습량·LR·loss시도와현재tail상한까지읽고남은2fit을맹목적으로소진하지않는다. 미검증과불가능을구분한다.",
+    "[후속 가설 종료 판단](NEXT_HYPOTHESIS_DECISION_KO.md)에추가자료가있다면필요한증거를남겼다. 추가촬영/레이블/새loss/새selector/다른estimator로확대하지않고현재배치를종료한다."
+  ],
+  "key_pairs": [
+    [
+      "R0_GEO",
+      "OLD_REF_GEO"
+    ],
+    [
+      "OLD_RAW_GEO",
+      "OLD_REF_GEO"
+    ],
+    [
+      "OLD_REF_D9",
+      "OLD_REF_GEO"
+    ],
+    [
+      "RAW_CLEAR_S42_GEO",
+      "REF_CLEAR_S42_GEO"
+    ],
+    [
+      "RAW_OCC_S42_GEO",
+      "REF_OCC_S42_GEO"
+    ],
+    [
+      "REF_CLEAR_S42_GEO",
+      "REF_OCC_S42_GEO"
+    ],
+    [
+      "OLD_REF_GEO",
+      "REF_CLEAR_S42_GEO"
+    ],
+    [
+      "OLD_REF_GEO",
+      "REF_OCC_S42_GEO"
+    ],
+    [
+      "RAW_OCC_S42_NEWGEO",
+      "REF_OCC_S42_NEWGEO"
+    ],
+    [
+      "RAW_CLEAR_S43_GEO",
+      "REF_CLEAR_S43_GEO"
+    ],
+    [
+      "RAW_OCC_S43_GEO",
+      "REF_OCC_S43_GEO"
+    ],
+    [
+      "REF_CLEAR_S43_GEO",
+      "REF_OCC_S43_GEO"
+    ],
+    [
+      "OLD_REF_GEO",
+      "REF_CLEAR_S43_GEO"
+    ],
+    [
+      "OLD_REF_GEO",
+      "REF_OCC_S43_GEO"
+    ],
+    [
+      "RAW_OCC_S43_NEWGEO",
+      "REF_OCC_S43_NEWGEO"
+    ],
+    [
+      "OLD_REF_GEO",
+      "R0_NEWGEO"
+    ]
+  ],
+  "resource_totals": {
+    "student_fits": 8,
+    "selector_fits": 1,
+    "GPU_training_seconds": 578.8339302733075,
+    "optimizer_updates": 2560
+  },
+  "method_development_stopped": true,
+  "additional_manual": 0,
+  "additional_RGB": 0,
+  "evidence_status": "REUSED_DEV_ONLY",
+  "independent_confirmation": false,
+  "automatic_background_resume": false,
+  "user_action_required": false,
+  "untested": "ROI-conditioned masking coverage and other architectures are not proven impossible; no grounded next paired fit was selected.",
+  "inputs": [
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/FINAL_RESULTS.json",
+      "sha256": "a1c1b75dead0d6320f14e25fdb4f65ac20ca8c763de044f63083057176ef7e23",
+      "bytes": 40032233
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/FINAL_ROBUSTNESS.json",
+      "sha256": "50631c66c88dcecdd8284e47a3831f821d60e92d95e4832a7a778180b2ff82b3",
+      "bytes": 3039367
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/RESOURCE_LEDGER.json",
+      "sha256": "a937828bf694651ad5e6f5a5be8ed01e274109de9d37c5bbe9dc995ac9195c15",
+      "bytes": 2502
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/CALIBRATION_INTEGRITY_AUDIT.json",
+      "sha256": "1960b74b1e6ab4a037b4a36a986b97eb2a2349fcd2e9e03271c4f569868c9979",
+      "bytes": 3668
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/CLEAR43_EVALUATION_AUDIT.json",
+      "sha256": "a2f72b78f85bd6acb0e40629471764da8f943e0c98ac427520e0e2fab24973b6",
+      "bytes": 1762
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/TRAIN_CROSS_INPUT_RESULTS.json",
+      "sha256": "8a2fec7730f297da95d283a15060f380291593b7ba1e94605bdbc83aa5241c95",
+      "bytes": 113928
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/CANDIDATE_TAIL_CEILING.json",
+      "sha256": "c0196dba1bc1bbc3d18b7dd589017aa1bfaf12f19a083c79fbf690f1648b1775",
+      "bytes": 6814
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/NEXT_HYPOTHESIS_DECISION_KO.md",
+      "sha256": "dfb3cca69a2e54e3a5d24a8005659e4d24157ea6d968fef4888df9788be2fa17",
+      "bytes": 7647
+    },
+    {
+      "path": "_docs/experiments/pallet_clean_pose_minimal_v1/CASES_FINAL.json",
+      "sha256": "241e2f7566632858440e850d015af64bc9df13faf1333bd2e8d4f05aabf79603",
+      "bytes": 196724
+    }
+  ],
+  "case_embeds_ko": [
+    "![eval_night08:1779449485800670464](cases/FINAL/00_4259cc547077.png)",
+    "![eval_pallet07:1778652146612550912](cases/FINAL/00_3b56fc9133f9.png)",
+    "![eval_night09:1779449580573721600](cases/FINAL/00_c4e98398a725.png)",
+    "![eval_night08:1779449496875356416](cases/FINAL/00_7fa7a99186f4.png)",
+    "![eval_night08:1779449483432542720](cases/FINAL/00_ae7e94e5ad28.png)",
+    "![eval_pallet07:1778652144496057088](cases/FINAL/00_574a25748a61.png)",
+    "![eval_pallet09:1778653630038417664](cases/FINAL/00_e93daf312f78.png)",
+    "![eval_pallet07:1778652146612550912](cases/FINAL/01_3b56fc9133f9.png)"
+  ]
+}
