@@ -50,3 +50,42 @@ python -m scripts.research.pallet_clean_to_pose_transfer_v1.analysis --seed 42
 기존217/현재78, 과거Clean19, legacy/검수 좌표, 반복DEV/독립TEST를 구분한다. conditional selector·bridge·추가 seed는 결과와 TRAIN 근거를 확인해 별도 사전 잠금이 있는 경우에만 실행한다. 예산이 남았다는 이유로 실행하지 않는다. 총학생10fit/selector1fit/GPU학습6시간 상한은 `RESOURCE_LEDGER.json`에서 확인한다.
 
 최종 공개물은 한국어 보고서·집계 JSON·코드·숫자 그림이다. contact sheet와 원 RGB는 private에 남긴다. 관련 변경만 stage하고 실제 diff와 원격 SHA를 확인한다.
+
+## 선택기 검사와 한 번의 실제 seed 반복
+
+기존 GEO의 feature는 과거 Plastic S0/S1에서 왔다. 따라서 current teacher의9장/38코너와 전체 보완 pipeline의19장/86코너를 구분한다. [감독 계보](SELECTOR_SUPERVISION_PROVENANCE.md)를 먼저 읽는다. 새 selector 학습은 없다.
+
+```bash
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.selector_compat freeze
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.selector_compat score
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.selector_repeat freeze --seed 42
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.selector_repeat score --seed 42
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair freeze --stage REPEAT_PRIMARY_S43
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair preflight --stage REPEAT_PRIMARY_S43
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair train --stage REPEAT_PRIMARY_S43 --arm CLEAN_RAW_OCC
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair train --stage REPEAT_PRIMARY_S43 --arm CLEAN_REF_OCC
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair parity --stage REPEAT_PRIMARY_S43
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair infer --stage REPEAT_PRIMARY_S43
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair score --stage REPEAT_PRIMARY_S43
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair candidate-freeze --stage REPEAT_PRIMARY_S43
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.selector_seed43 freeze
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.followup_pair candidate-score --stage REPEAT_PRIMARY_S43
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.selector_seed43 score
+```
+
+`REPLICATION_DECISION.json`의 잠금 이후 seed43만 반복했다. 동일 R0 가중치이므로 독립 초기화가 아니라 다른 데이터/증강 stream 반복이다. protocol의 `global_resource_ledger` 해시는 prefit 역사 상태이며 stage의 불변 원장 사본과 대조한다. 이후 실제 fit은 최상위 원장에 누적한다. 원장을0으로 되돌리거나 과거 해시를 새 값으로 고치지 않는다.
+
+## 마지막 무학습 진단·마감
+
+```bash
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.train_augmented_following infer
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.train_augmented_following score
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.repeat_audit
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.close
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.report
+python -m scripts.research.pallet_clean_to_pose_transfer_v1.audit
+```
+
+K8 진단은 학습 전에 고정된 입력 prefix62회/45unique의476감독 코너 중 canonical REF 가림21점만 따로 분석한다. augmented640px이며 nativepx와 섞지 않는다. CLEAR의 같은21점은 실제 가린 점이 아니라 가림 예정 위치 비교군이다. 두 조건은 입력도 다르므로 그 잔차 차이를 가림 학습의 순수 효과로 읽지 않는다.
+
+repeat_audit와 report는 실제 산출물이 갖춰진 뒤 실행한다. 결과를 보고 추가 seed·LR·가림확률·teacher·selector를 바꾸는 명령은 이 재현 절차에 없다.

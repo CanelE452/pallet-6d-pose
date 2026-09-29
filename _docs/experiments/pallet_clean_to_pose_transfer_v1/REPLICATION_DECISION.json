@@ -1,0 +1,35 @@
+{
+  "status": "LOCKED_BEFORE_SEED43_FIT",
+  "selected_recipe": "same CLEAN_RAW_OCC / CLEAN_REF_OCC plus same frozen old GEO_LINEAR",
+  "new_training_seed": 43,
+  "additional_student_fits": 2,
+  "updates_per_student": 320,
+  "additional_selector_fits": 0,
+  "bridge_fits_selected": 0,
+  "change_from_primary_training": "training seed only; same RGB78, labels, boxes, support, source512/real512 membership, augmentation, occlusion schedule0.5, LR1e-5, pose+flow scope, optimizer, updates, last-only",
+  "selector_policy": "Apply identical already-frozen old GEO to both RAW and REF; preserve original D9 outputs alongside.",
+  "evidence": {
+    "seed42_REF_OCC_D9_natural99_T_cm": 12.5119667,
+    "seed42_REF_OCC_D9_natural99_R_deg": 6.1832493,
+    "seed42_REF_OCC_old_GEO_natural99_T_cm": 11.3696070,
+    "seed42_REF_OCC_old_GEO_natural99_R_deg": 5.2634974,
+    "R0_natural99_T_cm": 12.1479218,
+    "R0_natural99_R_deg": 6.0379445,
+    "changed_natural99": 12,
+    "paired_both_improve": 9,
+    "paired_both_worsen": 3,
+    "paired_both_tie": 87
+  },
+  "counterevidence": [
+    "Original D9 primary 2x2 has no joint natural99 gain; do not replace or erase that result.",
+    "REF_OCC+oldGEO T P90 remains128.645cm, worse than R0 120.471cm.",
+    "Clean29 worsens versus REF_OCC+D9, though remains below R0 medians.",
+    "Seed42 signal is reused DEV; oldGEO was trained on different historical model outputs.",
+    "Seed42 REF-only GEO result alone is not a fair corrected-minus-raw contrast. Same GEO must also be applied to RAW."
+  ],
+  "preflight": "Actual workers2 K8 seed42/43 streams differ; seed43 replay exact, ignored point loss/gradient contract passed. Full320 new pair trace required after fit.",
+  "stop_rule": "Report seed43 and both seeds whether positive, mixed or negative; no further seed, selector, bridge, threshold, LR, subset or checkpoint search to rescue results.",
+  "reason_no_new_selector": "Existing frozen scorer already gives joint median signal; no need to train another scorer.",
+  "reason_no_bridge": "Follow user selector-first order; promising zero-fit branch exists. LR/exposure alternatives remain unproven and are not executed merely because budget remains.",
+  "independent_confirmation": false
+}
