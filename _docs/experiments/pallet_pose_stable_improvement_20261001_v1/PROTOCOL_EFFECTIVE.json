@@ -1,0 +1,103 @@
+{
+  "created_at": "2026-09-30T22:05:05.906155+00:00",
+  "objective": "T와 R이 함께 안정적으로 개선되는 방법을 분석·구현·검증한다. 이 pilot의 완료를 전체 목표 달성으로 대체하지 않는다.",
+  "previous_goal_turn": "The preceding diagnosis/publication provided evidence, but did not demonstrate stable FULL125 improvement. This is a new improvement phase.",
+  "authorization": "User active goal requests analysis and solution for stable joint improvement; previous zero-new-fit limit described the completed diagnosis phase. This new bounded matched training attempt adds no new manual annotation.",
+  "supervision": "Keep current teacher and existing synthetic/manual teacher lineage; no new real reference labels for optimization. Replay teacher already used38manualcorners/9images, so do not call the inherited method wholly real-GT-free.",
+  "local_HEAD": "d10a8c7fd456a339b735d7504ac403d5eb15bb5c",
+  "previous_GitHub_commit": "babef3568a02118f4e9fc5ab4fd07ad24aff2757",
+  "parent_diagnosis": {
+    "path": "_docs/experiments/pallet_pose_diagnosis_20260930_v1/PUBLICATION_MANIFEST.json",
+    "sha256": "0580e1a183c5ab00b68dc7b200fa506d028d920ac54bad70e1125734f1a2ef75",
+    "bytes": 22250
+  },
+  "arms": [
+    "SINGLE251",
+    "DIVERSE251"
+  ],
+  "training_seeds": [
+    1,
+    2,
+    3
+  ],
+  "changed_factor": "Training recording composition: one DAY recording251 vs max-min balanced251 across eligible existing unlabeled recordings. Same fixed pseudo-target recipe, optimizer/update/source budget, augmentation family, initialization and BN policy.",
+  "motivation": "Full125 restores large coordinate errors on clean29 but natural/occluded-RGB transfer uncertain. Previous SINGLE32/MULTI32 was small two-recording2D pilot with mixed clean/hard outcomes. Full-sized multirecording6D comparison with three training seeds not established.",
+  "prior_negative_results": [
+    "LoRA/SAME_LAYER and source preservation not adopted after failed/mixed controls",
+    "Final Huber/confidence-weighted PnP already tested and rejected historically; not claim a novel unused fix",
+    "Coordinate direction correlation alone not supported by current29 stress"
+  ],
+  "sample_size": 251,
+  "exclude_original_DAY_id": "DAY264__005516",
+  "excluded_reason": "Exact SHA overlap with PAPER194; both new arms exclude all PAPER319 RGB hashes. LegacyFULL253 retained as historical baseline, not exact replication.",
+  "input_selection": "Before GPU pairing/output evaluation: exact cached R0/Replay stage1 survivors, same hidden-only selfocclusionPnP and all8LOO target checks, standard-pallet type only, max-min recording allocation then deterministic SHA/ID ordering. No outcome-based resampling.",
+  "pair_integrity": "Same object clean/OCC selected-box IoU>=0.5 and existing common crop target support; failure explicit, no clean-coordinate substitution. Training pauses if frozen selected251 cannot be prepared.",
+  "initialization": {
+    "path": "data/pallet/results/pallet_sensors_submission_v1/runs/PRIOR1/last.pt",
+    "sha256": "b9670d1a42db8d4e80ae1efe55eb237f05f81f7bd089cefe4051bbedd7d0a581",
+    "bytes": 825930590
+  },
+  "train_mode": "FULL convolutional parameters, frozen BN running statistics and affine",
+  "optimizer": {
+    "name": "TFAdam",
+    "lr": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "original_conv_L2_half_coefficient": 5e-06
+  },
+  "updates": 300,
+  "real_batch": 8,
+  "source_batch": 8,
+  "microbatch": 2,
+  "real_exposures_per_fit": 2400,
+  "source_exposures_per_fit": 2400,
+  "real_order": "numpy default_rng(6400+training_seed),300x8 uniform integer sampling; identical indices for both arms",
+  "source_order": "Existing locked source_rows300x8 unchanged across both arms and seeds; heldout256 excluded",
+  "source_corruption": "Existing normal/stress recipe, numpy default_rng(7102+training_seed); identical to paired arm",
+  "checkpoint": "Last300 only; no development checkpoint/seed/hyperparameter selection",
+  "primary_population": "Current full128 split as natural99 and clean29, identical IDs/reference/GEO contracts to diagnosis. Repeated DEV; fitting/teacher-recording disjoint.",
+  "secondary_population": "Wood45 existing DEV:38clean+7moderate,2recordings disjoint from new fitting/teacher. Shape-transfer stress only, weak2cluster uncertainty and reference provenance limits. No selecting/training on its result.",
+  "rejected_confirmation_population": "Plastic66 allREC001/REC002 exposed to fitting/teacher and one directDAY image overlap; not independent confirmation.",
+  "primary_metrics": [
+    "natural99 median centerT_cm",
+    "natural99 median physical-frame C2 rotation_deg"
+  ],
+  "stability_criteria": {
+    "all_three_seeds_joint_gain": "DIVERSE251 each seed has smaller natural99 T and R medians than pairedSINGLE251 and fixedR0/PRIOR1/FULL125. No best-seed reporting.",
+    "joint_uncertainty": "For DIVERSE-SINGLE and DIVERSE-R0, paired recording-and-training-seed bootstrap2000/seed20261001 of mean per-seed population medians has upper95% endpoint<0 for BOTH T and R.",
+    "recording_sensitivity": "Leaving out each of6naturalrecordings retains negative mean-seed median differences for BOTH metrics versus R0 and pairedSINGLE.",
+    "natural_tails": "Mean acrossseed P90 T/R no more than5% above R0 and pairedSINGLE. Full pose failure count must not increase.",
+    "clean_preservation": "Mean acrossseed clean29 median and P90 T/R no more than5% aboveR0; pose failure count notincrease.",
+    "tolerance_status": "The5% guards are provisional engineering non-regression limits, not an empirical noise floor/MDE or evidence of statistical equivalence.",
+    "strong_generalization": "Not claimed from reusedDEV,3seeds and6recordings. Independent new-recording confirmation remains a separate evidentiary limitation."
+  },
+  "budget": {
+    "max_new_fits": 6,
+    "max_optimizer_updates": 1800,
+    "masked_R0_preparation_forwards": 253,
+    "new_model_inference_max": 1038,
+    "frozen_PRIOR1_FULL125_wood_baselines_max": 90,
+    "new_manual_labels": 0,
+    "new_capture": 0
+  },
+  "resource_evidence": {
+    "host_GPU": "RTX3080 10GiB verified accessible outside sandbox; no driver/config modifications",
+    "historical_full300_seconds": 313.69884283596184,
+    "time_guarantee": false
+  },
+  "stopping": "One predeclared two-arm/three-seed attempt. Failed gates remain failures; no seed extension/threshold tuning. Diagnose failed mechanism before choosing further work under active goal.",
+  "completion": "Goal remains active unless a deployable non-oracle method meets the original stable joint-improvement objective with adequate evidence. Protocol/artifact completion alone is not goal completion.",
+  "amendment": {
+    "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PROTOCOL_AMENDMENT_01.json",
+    "sha256": "a27f28078f667a57ec274b0671502736381b94433da07e36251ee75454d8970b",
+    "bytes": 1393
+  },
+  "original_protocol": {
+    "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/GOAL_PROTOCOL.json",
+    "sha256": "75e7ad9c685d7548256e6d2a10ad50788a4ea11df0a113a65493504153331b82",
+    "bytes": 6744
+  }
+}

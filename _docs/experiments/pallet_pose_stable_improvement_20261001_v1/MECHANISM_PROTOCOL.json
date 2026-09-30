@@ -1,0 +1,62 @@
+{
+  "created_at": "2026-09-30T22:39:01.646441+00:00",
+  "type": "Supplemental diagnostic fixed before primary scoring; six-fit primary contract unchanged.",
+  "primary_effective_protocol": {
+    "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PROTOCOL_EFFECTIVE.json",
+    "sha256": "bf93ff016806a41182ca435eaafa076ee00e1387688163ff12350a4857f5a639",
+    "bytes": 7194
+  },
+  "primary_criteria_unchanged": true,
+  "models": [
+    "R0",
+    "PRIOR1",
+    "FULL125",
+    "SINGLE251_s1",
+    "SINGLE251_s2",
+    "SINGLE251_s3",
+    "DIVERSE251_s1",
+    "DIVERSE251_s2",
+    "DIVERSE251_s3"
+  ],
+  "populations": [
+    "NATURAL99",
+    "CLEAN29",
+    "WOOD45"
+  ],
+  "purpose": "Separate observed coordinate/continuous-pose changes under fixed R0 W/D from operational coordinate-plus-GEO changes.",
+  "held_rule": "For every model/frame, use the existing candidate with name equal to frozen R0 GEO_name. Do not recompute/select by reference or mix T/R minima.",
+  "unavailable": "If the R0 branch is undefined, absent, or its current-model candidate has unavailable pose, retain failed row; do not replace with current GEO.",
+  "preserved": "Same corner8 final SQPnP/LM candidate, K/dimensions, physical-frame C2 T/R, original confidence/box, full denominator.",
+  "caveat": "Held W/D does not hold continuous R/t or internal PnP root fixed. This is diagnostic; no new deployment rule is promoted.",
+  "direction_tolerance": 1e-07,
+  "direction_tolerance_role": "Existing numeric tolerance, not meaningful-effect threshold.",
+  "summaries": [
+    "Each model/seed conditional and failure-inclusive median/P90",
+    "Operational-minus-held paired directions",
+    "Both held and operational versus R0",
+    "R0-relative direction transition counts",
+    "W/D switch counts versus R0",
+    "Per-recording descriptive summaries"
+  ],
+  "old_detection_strata": {
+    "binding": {
+      "path": "data/pallet/results/pallet_pose_diagnosis_20260930_v1/E2_BOX_DIAGNOSTIC.json",
+      "sha256": "74a5dc4df45a04f0bc4b32bcca394b83c25e7e023c949dd77e972a06cf706b52",
+      "bytes": 1793115
+    },
+    "rule": "Use unchanged old E2 identity categories for all99, and original R0 top ceil(0.1*99)=10 translation errors; descending T then ID tie.",
+    "observational_only": true,
+    "no_population_filter_for_primary": true,
+    "no_new_threshold_or_topcase_selection": true
+  },
+  "entry_guard": "Require complete PREDICTIONS_LOCK, POSE_PREDICTIONS_LOCK and RESULTS, verify their artifact hashes and historical reference hashes before scoring.",
+  "no_model_seed_hyperparameter_selection": true,
+  "new_fits": 0,
+  "image_forwards": 0,
+  "original_goal_unaltered": "T와 R이 함께 안정적으로 개선되는 방법을 분석·구현·검증한다. 이 pilot의 완료를 전체 목표 달성으로 대체하지 않는다.",
+  "code": {
+    "path": "scripts/research/pallet_pose_stable_improvement_20261001_v1/mechanism.py",
+    "sha256": "a5f4d516c56dc175ebd68899272c4db7dc8db3a14b8cbe179ac81ee9a501897a",
+    "bytes": 16679
+  }
+}
