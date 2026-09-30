@@ -1,0 +1,31 @@
+{
+  "status": "PLAN_ONLY_NOT_EXECUTED",
+  "decision": "다음 학습 보류; 고정12pose의 clean→자연 가림→clean 36장 짝 촬영에서 동일 가림 좌표의 clean RGB 대 가림 RGB 비교 하나",
+  "reason": "Full125 is capable on unseen clean RGB with30px four-corner corruption (79/116 and81/116), while fixed-qO CO→OO degrades on clean29. Direction correlation is not supported as primary bottleneck. Natural99 has no paired clean views; reference and scene/crop alternatives remain.",
+  "sample_budget": {
+    "recordings": 6,
+    "static_poses_per_recording": 2,
+    "poses": 12,
+    "images_per_pose": 3,
+    "total_images": 36,
+    "power_based": false
+  },
+  "design": "Camera/object/intrinsics fixed within triplet. New recordings selected before outputs. Same qO and clean bbox/affine/score/confidence/validity in both arms; vary only clean-before RGB vs occluded RGB. Clean-after checks static-pose assumption. Fixed PRIOR1 and FULL125; no retraining.",
+  "reference": "Existing geometry contract using independently recorded clean-view annotations, with direct-click versus projected-point provenance recorded; no claim of independently measured physical6D. No invented occluded-corner GT. Store source images, K, dimensions, pose-hold/drift checks.",
+  "controls": "No output-based occluder placement or resizing; one declared occluder placement per pose. Pose drift flags retained. Native OO and detection failures reported separately; no qC substitution for missing qO.",
+  "primary": "Paired FULL125 CO vs OO T/R under same GEO and a held W/D diagnostic; report identity benefit and clean damage. Full12 denominator, failure counts, per-recording results, reference limitations.",
+  "decisions": {
+    "RGB_effect_consistent": "Then prioritize a single recording/occlusion composition training comparison with fixed compute, not correlation-only corruption.",
+    "RGB_effect_not_consistent": "Keep cause unresolved; do not launch a larger training sweep. Inspect reference/candidate/detection evidence already frozen."
+  },
+  "no_new_fits": true,
+  "no_collection_this_run": true,
+  "no_performance_guarantee": true,
+  "alternatives_not_selected": [
+    "direction-correlation-only retraining",
+    "new selector search",
+    "teacher-target-view3-arm sweep",
+    "source1024 inference",
+    "reference ROI inference"
+  ]
+}

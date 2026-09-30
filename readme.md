@@ -2,6 +2,16 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-09-30 clean→가림 pose 진단
+
+현재 natural99·clean29의 동일 T/R 평가, 실제 입력 이미지와 보정 전후 비교, 지시문 이행 검증을 함께 공개합니다. 새 학습은 0회이며 아래 결과는 반복 사용 DEV의 진단입니다.
+
+- [상세 결과 보고서와 그래프](_docs/experiments/pallet_pose_diagnosis_20260930_v1/REPORT_KO.md)
+- [자연 가림 99장 전체 이미지 비교](_docs/experiments/pallet_pose_diagnosis_20260930_v1/GALLERY_NATURAL99.md)
+- [입력·모델·평가 계약](_docs/experiments/pallet_pose_diagnosis_20260930_v1/INPUTS_AND_METHOD_KO.md)
+- [누락 보완·검증 및 남은 한계](_docs/experiments/pallet_pose_diagnosis_20260930_v1/REVIEW_CORRECTIONS_KO.md)
+- [전체 문서·수치·재현 안내](_docs/experiments/pallet_pose_diagnosis_20260930_v1/README.md)
+
 **3단계 파이프라인:**
 1. Isaac Sim 합성 데이터 생성 + DOPE 학습
 2. Geometric Filter + Pseudo-label 생성
