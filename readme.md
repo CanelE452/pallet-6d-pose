@@ -4,12 +4,13 @@
 
 ## 2026-10-01 T·R 안정적 개선 대조 실험
 
-같은 251장·학습량에서 단일 촬영과 여러 촬영의 데이터 구성을 비교하고, 각 군을 3개 seed로 반복합니다. 아래 보고서에 T·R 중앙값·P90·실패 수, 사전 안정성 기준 판정과 모든 자연 가림 사례를 공개합니다.
+같은 251장·학습량에서 단일 촬영과 여러 촬영의 데이터 구성을 비교하고, 각 군을 3개 seed로 반복했습니다. **6회 학습은 완료됐지만 T·R의 안정적인 동시 개선에는 실패했습니다.** 아래 보고서에 T·R 중앙값·P90·실패 수, 사전 안정성 기준 판정과 모든 자연 가림 사례를 공개합니다.
 
 - [상세 결과·판정·그래프](_docs/experiments/pallet_pose_stable_improvement_20261001_v1/REPORT_KO.md)
 - [자연 가림 99장 전체 비교](_docs/experiments/pallet_pose_stable_improvement_20261001_v1/GALLERY_NATURAL99.md)
 - [프레임별 전체 수치 CSV](_docs/experiments/pallet_pose_stable_improvement_20261001_v1/FRAME_RESULTS.csv)
 - [실행 계약과 입력 제외 이력](_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PROTOCOL_EFFECTIVE.json)
+- [현재 개선 상태·검출 오류 이미지·후보 선택의 한계](_docs/experiments/pallet_pose_joint_recovery_20261001_v1/REPORT_KO.md)
 
 ## 2026-09-30 clean→가림 pose 진단
 
