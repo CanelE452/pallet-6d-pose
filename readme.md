@@ -2,11 +2,19 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 후보 쌍별 감독 구조 검증
+
+같은94특징·네 후보에서 W/D 비교와 원본/보정 결과 비교를 함께 학습했습니다. 신규3개 fit은 수렴했지만 합성 검증45개 조건 중16개가 실패했습니다. TRAIN에서도 쌍별 정확도의 작은 개선이 최종 후보 선택으로 이어지지 않았습니다. **실사 T·R의 안정적 동시 개선은 아직 달성하지 못했습니다.**
+
+- [최신 결과·구조도·전체 T/R 그래프](_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/REPORT_KO.md)
+- [독립 TRAIN 수렴·최종 선택 검증](_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/TRAIN_CONVERGENCE_KO.md)
+- [source VAL1024장×8모델 전체 CSV](_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/SOURCE_VAL_FRAME_RESULTS.csv)
+
 ## 2026-10-01 선택기 수렴 통제와 실패 원인 검증
 
 입력은 **이미지 한 장과 팔레트 치수**이며 기존 카메라 보정 정보를 유지합니다. 선택기4개를 실제 학습해 수렴을 확인했지만, 합성 검증45개 조건 중4개가 실패했습니다. **실사 T·R의 안정적 동시 개선은 아직 달성하지 못했습니다.** 아래에 전체 수치·그래프·학습 파라미터와 독립 검증을 공개합니다.
 
-- [최신 실행 결과·수렴 인증·T/R 그래프](_docs/experiments/pallet_pose_selector_convergence_20261001_v1/REPORT_KO.md)
+- [직전 수렴 통제 결과·인증·T/R 그래프](_docs/experiments/pallet_pose_selector_convergence_20261001_v1/REPORT_KO.md)
 - [후보 선택·학습 목적함수·검출 데이터의 실패 원인](_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/REPORT_KO.md)
 - [source VAL1024장×8모델 전체 결과 CSV](_docs/experiments/pallet_pose_selector_convergence_20261001_v1/SOURCE_VAL_FRAME_RESULTS.csv)
 - [실제 최종 선택기4개의 파라미터](_docs/experiments/pallet_pose_selector_convergence_20261001_v1/model_parameters/)

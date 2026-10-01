@@ -1,0 +1,283 @@
+{
+  "schema": "pallet_pose_pairwise_supervision_v1",
+  "complete": true,
+  "created_at": "2026-10-01T00:54:59.833002+00:00",
+  "models": [
+    "R0_ONLY",
+    "UNION_s1",
+    "UNION_s2",
+    "UNION_s3"
+  ],
+  "new_models": [
+    "UNION_s1",
+    "UNION_s2",
+    "UNION_s3"
+  ],
+  "reused_models": [
+    "R0_ONLY"
+  ],
+  "model_count": 4,
+  "max_fits": 3,
+  "train_rows": 2598,
+  "feature_dim": 94,
+  "lambda_l2": 0.0001,
+  "bias": 0.0,
+  "normalization": "old_float32_then_float64",
+  "device": "cpu",
+  "cpu_threads": 1,
+  "initialization": "All94 weights zero for each new UNION fit.",
+  "solver": {
+    "method": "L-BFGS-B",
+    "maxiter": 1000,
+    "maxfun": 2000,
+    "ftol": 1e-15,
+    "gtol": 1e-08,
+    "bounds": null
+  },
+  "certificate": {
+    "optimizer_success": true,
+    "gap_upper_bound_max": 1e-06
+  },
+  "objective": "equal_group_pairwise_logistic",
+  "edge_groups": {
+    "WD": [
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        3
+      ]
+    ],
+    "expert": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  "group_weights": {
+    "WD": 0.5,
+    "expert": 0.5
+  },
+  "fixed_edge_denominators": 2,
+  "edge_loss": "softplus(score_winner - score_loser); lower score wins.",
+  "reduction": "Each UNION group averages its two fixed edges; group means weighted0.5 each. Average over all2598 frames, then add0.5*1e-4*||weight94||^2. Unavailable edges contribute zero without renormalizing groups or frames.",
+  "target_order": "Per frame: ascending original physical max(T/sT,R/sR) cost; within each exact-cost tie group, successive nondominated Pareto fronts; within each front, original R0 then hypothesis-name then expert tie key. All edge winners use this single total order.",
+  "tie_correction": "Pair-local Pareto/tie comparisons can form a theoretical cycle. Global ordering is fixed before learning, preserves original whole-best target, and may change ordering of lower-ranked exact ties. Actual differences are audited.",
+  "R0_reuse": "R0_ONLY has one long/short edge, weight1. Its target and logistic objective equal the converged two-class CE+ridge exactly as mathematical functions. Reuse original numeric parameters; validate independent objective/gradient equivalence, write an explicit metadata wrapper, perform zero new baseline optimizer steps.",
+  "inference": "All four UNION candidates remain eligible; one shared linear94 argmin chooses an entire R,t. No sequential WD filter, new image feature, cost-gap weight or tuned threshold.",
+  "supervision_limit": "Four edges omit diagonal comparisons. Acyclic labels do not guarantee that perfect edge predictions identify the unique global cost-best candidate. TRAIN audit counts multiple zero-indegree candidates; keep the fixed graph and assess the original whole-pose source and real gates, not edge accuracy alone.",
+  "checkpoint": "One certified final result per UNION. No best seed, iteration or hyperparameter search.",
+  "runtime_inputs": "One RGB image and pallet physical dimensions, with existing calibrated camera K/geometry contract. No temporal inputs or new real-GT training.",
+  "seed_meaning": "s1/s2/s3 are existing frozen refiner seeds. Deterministic shared R0_ONLY is fitted once and repeated only as a statistical control, not three independent fits.",
+  "source_val": {
+    "frames": 1024,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "median_strict": true,
+    "p90_ratio_max": 1.05,
+    "failure_no_increase": true,
+    "comparators": [
+      "R0_ONLY",
+      "R0_GEO",
+      "paired_DIVERSE_GEO"
+    ],
+    "all_seeds_required": true,
+    "no_checkpoint_selection": true,
+    "routing_lock_before_source_labels": true,
+    "real_route_requires_gate_pass": true,
+    "zero_valid_fallback": "R0_GEO_if_available_else_failure"
+  },
+  "real_evaluation": {
+    "populations": {
+      "NATURAL99": 99,
+      "CLEAN29": 29,
+      "WOOD45": 45
+    },
+    "all_frames_retained": true,
+    "IoU_filter": false,
+    "metric": "Unchanged center translation cm; full physical C2 rotation degrees; corner8 SQPnP+LM.",
+    "natural_joint_medians": "All3 seeds strictly lower T and R than shared R0_ONLY, paired original DIVERSE251, R0, PRIOR1 and FULL125.",
+    "uncertainty": "2000 crossed paired recording/seed bootstrap, seed20261001; upper95<0 for both T/R versus shared R0_ONLY and R0.",
+    "recording_sensitivity": "Leave each natural recording out: both mean-seed medians lower versus shared R0_ONLY and R0.",
+    "natural_tail": "Mean-seed T/R P90<=1.05 versus shared R0_ONLY and R0; no seed increases failures.",
+    "clean": "Mean-seed T/R median and P90<=1.05 R0; no seed increases failures.",
+    "wood": "All45 retained as separate form-transfer stress, no selection or dropped seed.",
+    "historical_gate_parity": "Same original stability gate structure and tolerances; R0_ONLY is this intervention matched control. No old trained coordinate outputs are changed.",
+    "reference_before_selection": false,
+    "quality_read_after_choices_locked": true,
+    "limitations": "Repeated DEV and source VAL exposure via frozen refiner; not new independent TEST. Passing alone does not prove unseen-recording generalization."
+  },
+  "real_operator_seal": "Source gate PASS is required before any new real routing. Real evaluator code and cached real input bindings will be frozen in a separate REAL_PROTOCOL before routing, using exactly the real_evaluation criteria fixed here.",
+  "before_after_TRAIN_diagnostics": "Describe frozen old/new model edge accuracy, WD/expert errors and operational pose costs without choosing thresholds/checkpoints or adding gates.",
+  "source_VAL_limitation": "Repeated development VAL, not new independent TEST. No criteria are changed based on already observed VAL differences.",
+  "inputs": {
+    "features": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURES.npz",
+      "sha256": "67fd05d744db1e194ec1ac467964ab801777987b962f38b1d53053f6784fbd14",
+      "bytes": 11150709
+    },
+    "train_labels": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_LABELS.npz",
+      "sha256": "8c24101cadae5cef3269670b418844a16466d16684d43c2b878cc978d3045038",
+      "bytes": 501167
+    },
+    "train_gate": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+      "sha256": "1f666773b7d7ace375ce48dbf3511eb48a60cb690a4812b83e826f78b961fe7c",
+      "bytes": 31625
+    },
+    "feasibility_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_FEASIBILITY_PROTOCOL.json",
+      "sha256": "38881f8edb920eb93f9467fcdcf7e78704c0a5b21091c129c0b4f7a2bffff7f1",
+      "bytes": 2490
+    },
+    "source_predictions_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PREDICTIONS_LOCK.json",
+      "sha256": "152026bd966f208f4816a36fd0c5f369ab1a9c917b74b0588ffa2bbca480091f",
+      "bytes": 8407832
+    },
+    "feature_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURE_LOCK.json",
+      "sha256": "0de603ddb46160fd17ea84db7851e986e1643e6ce87fa40ec125b671ea490386",
+      "bytes": 3108824
+    },
+    "source_contract": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+      "sha256": "025c67ccbaeb89a840d66e96ef040c2319cbcd2ef6be609716eed6ac0abc9d24",
+      "bytes": 1921959
+    },
+    "runtime_amendment": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_RUNTIME_AMENDMENT_01.json",
+      "sha256": "e888d51fa27d0df339392e8825eff2d57cccfbb0e53c67d42f08bea69a5c0155",
+      "bytes": 23810
+    },
+    "parent_train_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_PROTOCOL.json",
+      "sha256": "6e2425bc63f91888a6df7ddf48cac4d3bde0b1316d1cb70bf10c634be631e1fe",
+      "bytes": 6679
+    },
+    "source_poses": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_POSES.json",
+      "sha256": "eea0f3cf4b263e59d803236f69758e49edaa4d5f6db6f6f8fde0d655da4d6b0f",
+      "bytes": 171501342
+    },
+    "convergence_protocol": {
+      "path": "_docs/experiments/pallet_pose_selector_convergence_20261001_v1/PROTOCOL.json",
+      "sha256": "27cfc8c39ff1191358e0a48026b81eca96259aca9fb2e9b810df135baaa492de",
+      "bytes": 10020
+    },
+    "R0_origin_receipt": {
+      "path": "_docs/experiments/pallet_pose_selector_convergence_20261001_v1/FIT_R0_ONLY.json",
+      "sha256": "88dadc6982d31598bb51aac328cfb69e114ebb3efcb8df8052e02607ba017023",
+      "bytes": 5640
+    },
+    "R0_origin_checkpoint": {
+      "path": "data/pallet/results/pallet_pose_selector_convergence_20261001_v1/fits/R0_ONLY/final.json",
+      "sha256": "fbb304016bdd5564d618406009a7607f529aa050382bdb17529ade66493a81ac",
+      "bytes": 8382
+    },
+    "R0_origin_START": {
+      "path": "data/pallet/results/pallet_pose_selector_convergence_20261001_v1/fits/R0_ONLY/START.json",
+      "sha256": "3693c45c1aee2a6b37a3629c0f694e576e897c82239be1d4e4af0f7291a244da",
+      "bytes": 1716
+    },
+    "R0_origin_trace": {
+      "path": "data/pallet/results/pallet_pose_selector_convergence_20261001_v1/fits/R0_ONLY/TRACE.jsonl",
+      "sha256": "370ff01334b30e9507d6c61343494a6f1b581aca5dac58c2cc3668542bb9af91",
+      "bytes": 91324
+    },
+    "target_audit": {
+      "path": "_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/TARGET_CONTRACT_AUDIT.json",
+      "sha256": "398c2b0f0a250009ceff1f6b69c485c325b7f32b964d6902349d277964ae34c8",
+      "bytes": 49779
+    }
+  },
+  "codes": [
+    {
+      "path": "scripts/research/pallet_pose_selector_pairwise_20261001_v1/common.py",
+      "sha256": "c0ad5b4705f8a59e2e8506fb3c3a2f7f71b90844689d29c9adfa6abc92ec35d3",
+      "bytes": 1446
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_pairwise_20261001_v1/train.py",
+      "sha256": "7fe9a706781035f655d7249f2224b62e43096b1a71dde64afc043d3621d797c9",
+      "bytes": 29568
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_pairwise_20261001_v1/evaluate_source.py",
+      "sha256": "575f7c02067af8cb7d40336f381ef59d92fc3f9207d483729759b6db28df7d4e",
+      "bytes": 31516
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_pairwise_20261001_v1/seal.py",
+      "sha256": "b1257c44d15066a86c00cf317aecfb0918d9bdaede087bd628c142ac07298b18",
+      "bytes": 6166
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/common.py",
+      "sha256": "4efe5b318f56a4b051cba3b9ca62f09aaac777e247558961e071b29effd3eeae",
+      "bytes": 3248
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/source_features.py",
+      "sha256": "f36a26ebeb88e1cd36697c8be92c4080860de437407c67423c848baf03d07cfc",
+      "bytes": 22452
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/train.py",
+      "sha256": "26cf86cd3b2d3ede9c5d9dbe01ecd80508072b8ba36f6a800648f0dbf1b19e30",
+      "bytes": 27873
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/common.py",
+      "sha256": "4cb1943ee45524d7b546b9c669d666d72efce4c670077bcdfe0b1a517186178c",
+      "bytes": 1130
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/convex_train.py",
+      "sha256": "621afb898fe9f47ba03fe2cfbabcc82794f8a41c5a760a04349f4b8abdb5f4c4",
+      "bytes": 19904
+    }
+  ],
+  "evidence": {
+    "previous_source_gate": {
+      "path": "_docs/experiments/pallet_pose_selector_convergence_20261001_v1/SOURCE_VAL_GATE.json",
+      "sha256": "36cb112af8bba1b33756a83ba9b37c1717a09bb0d795afc211eac9e1732ef1a2",
+      "bytes": 50691
+    },
+    "previous_public_review": {
+      "path": "_docs/experiments/pallet_pose_selector_convergence_20261001_v1/PUBLIC_REVIEW.json",
+      "sha256": "d7dad03a2017ae68115963f2281479a00d35a91fe9ddcb424715c46d98153960",
+      "bytes": 13238
+    },
+    "previous_training_convergence": {
+      "path": "_docs/experiments/pallet_pose_selector_convergence_20261001_v1/TRAIN_CONVERGENCE.json",
+      "sha256": "b4efae38568886c455143fafebabe2818acc72a4fba8711636afb77f606f1ce1",
+      "bytes": 36186
+    },
+    "TRAIN_diagnostic": {
+      "path": "_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/TRAIN_DIAGNOSTIC.json",
+      "sha256": "b3740e95277ecf0a059acd1e648fb08cc29c6ed486e01421af0bd7ff62d45379",
+      "bytes": 4536716
+    },
+    "prior_objectives": {
+      "path": "_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/PRIOR_OBJECTIVE_AUDIT.json",
+      "sha256": "3e1cf779b88e2089245b0b21df7cadee74b3e9fd3eb24c9d2fbff21a8808bf8f",
+      "bytes": 11853
+    }
+  },
+  "evidence_access": "Evidence is verified by sealer only; fitting protocol() does not open it.",
+  "stop": "No more than3 new fits. Each max1000iterations/2000closures. Failed certificate or any original source VAL comparison stops this method before real routing. No extension.",
+  "previous_goal_turn_classification": "PROGRESS:4 certified fits, new source evidence, 58 public files remotely verified at92d1c2f7; full stable-real-T/R goal remains unmet.",
+  "goal_complete": false
+}
