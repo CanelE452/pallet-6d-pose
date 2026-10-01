@@ -2,6 +2,15 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 Newton으로 수렴 문제 해결, 합성 성능 기준은 미달
+
+동일한 T/R 두 축 회귀에서 최적화 계산만 Newton 방식으로 바꿨습니다. 네 모델 모두 수렴 인증을 받았으며 총 **528회 호출·94회 반복**을 사용했습니다. 합성 VAL은 **43/45 통과**로, seed 3의 T 중앙값이 기준 **1.674594cm → 1.682087cm**로 증가해 전체 조건을 충족하지 못했습니다. 실사 평가는 진행하지 않았고 **안정적 T·R 공동 개선 목표는 아직 미달성**입니다. 입력은 RGB 한 장·팔레트 치수·기존 K로 동일합니다.
+
+- [상세 결과·학습 및 T/R 그래프·실제 RGB와 치수](_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/REPORT_KO.md)
+- [solver만 변경한 사전 설계](_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/DESIGN_KO.md)
+- [독립 수렴 검산](_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/TRAIN_CONVERGENCE_KO.md) · [합성 성능 검산](_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/SOURCE_VAL_VERIFICATION_KO.md)
+- [네 모델 파라미터](_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/model_parameters/) · [실사 평가 미실행 확인](_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/REAL_EVALUATION_NOT_RUN_KO.md)
+
 ## 2026-10-01 T/R 변화 회귀의 수렴 단계 점검
 
 기존 자세 대비 T·R 변화를 직접 학습하는 두 출력 회귀를 구현했습니다. 첫 R0_ONLY 학습은 고정된 **1,000회 반복·1,108회 목적함수 호출**에서 수렴하지 못했습니다. 수렴 오차 상한은 **1.81×10⁻⁴**로 기준 **1×10⁻⁶**을 넘었으며, 나머지 세 모델과 합성 VAL·실사 평가는 실행하지 않았습니다. **이 방법의 T/R 개선 효과는 아직 측정하지 못했습니다.** 실제 실사 평가까지 완료한 직전 RBF 모델도 아래와 같이 안정적 개선 미달성입니다.

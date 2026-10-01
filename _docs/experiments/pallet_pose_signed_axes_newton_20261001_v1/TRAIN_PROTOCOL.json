@@ -1,0 +1,456 @@
+{
+  "schema": "pallet_pose_signed_axes_newton_training_v1",
+  "complete": true,
+  "created_at": "2026-10-01T04:09:39.428009+00:00",
+  "models": [
+    "R0_ONLY",
+    "UNION_s1",
+    "UNION_s2",
+    "UNION_s3"
+  ],
+  "feature_dim": 253,
+  "train_rows": 2598,
+  "max_fits": 4,
+  "device": "cpu",
+  "cpu_threads": 1,
+  "lambda_l2": 0.0001,
+  "bias": 0.0,
+  "normalization": "old_float32_then_float64",
+  "initialization": "All253x2 weights zero; fixed bias0; one deterministic final fit per model.",
+  "solver": {
+    "method": "block_generalized_newton_armijo",
+    "maxiter": 1000,
+    "maxfun": 2000,
+    "gradient_linf_tolerance": 1e-08,
+    "initial_alpha": 1.0,
+    "backtrack_factor": 0.5,
+    "armijo_c1": 0.0001,
+    "initialization": "zeros",
+    "damping": 0.0,
+    "huber_kink_curvature": 0.0
+  },
+  "certificate": {
+    "optimizer_success": true,
+    "gap_upper_bound_max": 1e-06,
+    "gradient_linf_max": 1e-08
+  },
+  "certificate_definition": "Huber(delta=1) of affine outputs is convex and continuously differentiable. L2 on all506 parameters makes J lambda-strongly convex, so J(W)-min J <= ||gradient J(W)||_F^2/(2lambda). Huber Hessian is piecewise defined away from residual magnitude1; no T/R or generalization guarantee.",
+  "objective": "For each frame, average Huber(delta=1) residual loss over its original valid candidates and both axes. Mean over all2598 frames, with the all-invalid frame contributing zero. Add lambda/2 times Frobenius norm squared of all253x2 weights, lambda=1e-4.",
+  "target_rule": "SIGNED_LOG1P_NORMALIZED_TR_ANCHOR_EXCESS",
+  "changed_factor": "Only the numerical solver changes: fixed block generalized Newton with Armijo backtracking replaces L-BFGS-B. Preserve the exact signed two-axis Huber objective, ridge, data/targets/features/scales/basis, zero initialization, runtime selection, per-fit iteration/call caps, and all source/real criteria.",
+  "target": "On valid candidates with finite operational R0 anchors, e=(candidate physical T/R error minus anchor physical T/R error) divided by the original fixed TRAIN scales; y=sign(e)*log1p(abs(e)) per axis. Never subtract inf-inf. Anchor targets are exactly zero; invalid placeholders remain zero.",
+  "anchor_rule": "Frozen input-only R0 operational GEO identity; never learned R0_ONLY or a reference-selected candidate. Index0/1 on every valid row; all-invalid row index-1 contributes zero loss but stays in the full2598 denominator. Missing valid anchor is a contract error.",
+  "runtime_safety": "Predicted changes need not equal actual changes. max-of-two with anchor score0 cannot certify actual nonregression. Preserve exact R0-then-hypothesis ties; a different R0 hypothesis tied at0 can be selected. Original source and both families of real stability criteria alone determine success.",
+  "candidate_pool": "R0_ONLY: R0 long/short. UNION seed s: R0 long/short plus frozen DIVERSE251_s long/short. Entire R,t selected together.",
+  "inference_tie": "Exact learned score tie: R0 then hypothesis name, with no reference access.",
+  "no_valid_fallback": "Both arms use the same saved R0 GEO whole pose when zero candidate is usable; if unavailable, mark failed and both errors +infinity.",
+  "architecture": "Shared253x2 linear regression on frozen candidate-minus-operational-anchor features; max of the two outputs supplies the whole-pose selection score.",
+  "seed_meaning": "s1/s2/s3 are existing frozen refiner seeds. Deterministic shared R0_ONLY is fitted once and repeated only as a statistical control, not three independent fits.",
+  "runtime_inputs": "One RGB image and pallet physical dimensions, with existing calibrated camera K/geometry contract. No temporal inputs or new real-GT training.",
+  "real_operator_seal": "Source gate PASS is required before any new real routing. Real evaluator code and cached real input bindings will be frozen in a separate REAL_PROTOCOL before routing, using exactly the real_evaluation criteria fixed here.",
+  "checkpoint": "One final solver result per model; no best iteration or best seed selection.",
+  "source_val": {
+    "frames": 1024,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "median_strict": true,
+    "p90_ratio_max": 1.05,
+    "failure_no_increase": true,
+    "comparators": [
+      "R0_ONLY",
+      "R0_GEO",
+      "paired_DIVERSE_GEO"
+    ],
+    "all_seeds_required": true,
+    "no_checkpoint_selection": true,
+    "routing_lock_before_source_labels": true,
+    "real_route_requires_gate_pass": true,
+    "zero_valid_fallback": "R0_GEO_if_available_else_failure"
+  },
+  "real_evaluation": {
+    "populations": {
+      "NATURAL99": 99,
+      "CLEAN29": 29,
+      "WOOD45": 45
+    },
+    "all_frames_retained": true,
+    "IoU_filter": false,
+    "metric": "Unchanged center translation cm; full physical C2 rotation degrees; corner8 SQPnP+LM.",
+    "natural_joint_medians": "All3 seeds strictly lower T and R than shared R0_ONLY, paired original DIVERSE251, R0, PRIOR1 and FULL125.",
+    "uncertainty": "2000 crossed paired recording/seed bootstrap, seed20261001; upper95<0 for both T/R versus shared R0_ONLY and R0.",
+    "recording_sensitivity": "Leave each natural recording out: both mean-seed medians lower versus shared R0_ONLY and R0.",
+    "natural_tail": "Mean-seed T/R P90<=1.05 versus shared R0_ONLY and R0; no seed increases failures.",
+    "clean": "Mean-seed T/R median and P90<=1.05 R0; no seed increases failures.",
+    "wood": "All45 retained as separate form-transfer stress, no selection or dropped seed.",
+    "historical_gate_parity": "Same original stability gate structure and tolerances; R0_ONLY is this intervention matched control. No old trained coordinate outputs are changed.",
+    "reference_before_selection": false,
+    "quality_read_after_choices_locked": true,
+    "limitations": "Repeated DEV and source VAL exposure via frozen refiner; not new independent TEST. Passing alone does not prove unseen-recording generalization."
+  },
+  "input_labels": "Source TRAIN only; no new real reference labels or source VAL qualities in optimization.",
+  "source_VAL_reuse": "Same held-out split reused for several method diagnoses, not a fresh generalization claim. Frozen refiner-training source overlaps remain disclosed.",
+  "inputs": {
+    "features": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURES.npz",
+      "sha256": "67fd05d744db1e194ec1ac467964ab801777987b962f38b1d53053f6784fbd14",
+      "bytes": 11150709
+    },
+    "train_labels": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_LABELS.npz",
+      "sha256": "8c24101cadae5cef3269670b418844a16466d16684d43c2b878cc978d3045038",
+      "bytes": 501167
+    },
+    "train_gate": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+      "sha256": "1f666773b7d7ace375ce48dbf3511eb48a60cb690a4812b83e826f78b961fe7c",
+      "bytes": 31625
+    },
+    "feasibility_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_FEASIBILITY_PROTOCOL.json",
+      "sha256": "38881f8edb920eb93f9467fcdcf7e78704c0a5b21091c129c0b4f7a2bffff7f1",
+      "bytes": 2490
+    },
+    "source_predictions_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PREDICTIONS_LOCK.json",
+      "sha256": "152026bd966f208f4816a36fd0c5f369ab1a9c917b74b0588ffa2bbca480091f",
+      "bytes": 8407832
+    },
+    "feature_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURE_LOCK.json",
+      "sha256": "0de603ddb46160fd17ea84db7851e986e1643e6ce87fa40ec125b671ea490386",
+      "bytes": 3108824
+    },
+    "source_contract": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+      "sha256": "025c67ccbaeb89a840d66e96ef040c2319cbcd2ef6be609716eed6ac0abc9d24",
+      "bytes": 1921959
+    },
+    "runtime_amendment": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_RUNTIME_AMENDMENT_01.json",
+      "sha256": "e888d51fa27d0df339392e8825eff2d57cccfbb0e53c67d42f08bea69a5c0155",
+      "bytes": 23810
+    },
+    "parent_train_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_PROTOCOL.json",
+      "sha256": "6e2425bc63f91888a6df7ddf48cac4d3bde0b1316d1cb70bf10c634be631e1fe",
+      "bytes": 6679
+    },
+    "source_poses": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_POSES.json",
+      "sha256": "eea0f3cf4b263e59d803236f69758e49edaa4d5f6db6f6f8fde0d655da4d6b0f",
+      "bytes": 171501342
+    },
+    "source_feasibility": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/SOURCE_FEASIBILITY.json",
+      "sha256": "6635cb272f736dc599c8eb0473772368cdd4a7c1f2722f6fa56acd83d98a5c38",
+      "bytes": 43992
+    },
+    "source_protocol": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/SOURCE_PROTOCOL.json",
+      "sha256": "28dd5ff11eabf6ac3bae13da5792de02cace7d74a6a2df8f27a6e4fd94827403",
+      "bytes": 6032
+    },
+    "real_authorization": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/REAL_FEASIBILITY_AUTHORIZATION.json",
+      "sha256": "c654e4ac349f9921e7edc7a19f852ee67b765778db8a6539daf1d67efe525e5e",
+      "bytes": 1053
+    },
+    "prefit_review": {
+      "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/PREFIT_REVIEW.json",
+      "sha256": "d95c682ad21b51ab01236cafcf7e89408fad05dfd2f0cf5272bbd02e8208c69d",
+      "bytes": 28680
+    },
+    "rbf_basis": {
+      "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+      "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+      "bytes": 358575
+    },
+    "basis_protocol": {
+      "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/BASIS_PROTOCOL.json",
+      "sha256": "dab9f2c6685969afdfca0a3671609ee0e62d5c758e1694d40829cbe45711a380",
+      "bytes": 9193
+    }
+  },
+  "codes": [
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_newton_20261001_v1/common.py",
+      "sha256": "5f037848b4f9d2ab178881f8961a5baef16d96eaf30bb4727343312af0a3a765",
+      "bytes": 3525
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_newton_20261001_v1/convex_train.py",
+      "sha256": "02001484dbabe7d07d311695c0512db4793e69335a09e8cac1475cfa73e9db87",
+      "bytes": 47163
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_newton_20261001_v1/evaluate_source.py",
+      "sha256": "1e2fb97e755c43877e53cf2d03060e07ea4e288cace575bb519bba1f7e1dd8b7",
+      "bytes": 46126
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_newton_20261001_v1/evaluate_real.py",
+      "sha256": "e45cd5b9366f089d61a004f0687da10ab5eb97ce3cbf237f2cb1703c4dd8eb98",
+      "bytes": 57645
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_newton_20261001_v1/seal_training.py",
+      "sha256": "fa7a84eeafaab18f6e88feae92f2635ed8b1bcf2d994aed4f1547dfb3eaf029e",
+      "bytes": 4895
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_newton_20261001_v1/prefit_review.py",
+      "sha256": "19c404d1b439d37102c204830ae488d8fa07be401142bedce871564eac755b9b",
+      "bytes": 38093
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_20261001_v1/common.py",
+      "sha256": "2b2cec271c86d9c35f9a8318bc4ebe3a397c7fbc8ee3593ecde095d6d29fe014",
+      "bytes": 3288
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_20261001_v1/convex_train.py",
+      "sha256": "0c2afc33dfba8e4dbeaae3debc3036afea286a5e62beb748ba518330f92000dc",
+      "bytes": 34525
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_20261001_v1/evaluate_source.py",
+      "sha256": "b36913f5e242b4a6809bc6e5b950de1d4443ed5ce04b975863d4010ead1b76f5",
+      "bytes": 37269
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_20261001_v1/evaluate_real.py",
+      "sha256": "bb8ee968a0a4f23991d31dbf19764ac242a095fde26e38b347bbfef5d618522c",
+      "bytes": 56569
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_20261001_v1/seal_training.py",
+      "sha256": "d9c3553c8f7610dcd4536919561279d2a4d1b36d65cfacd595910764ef9f1c5a",
+      "bytes": 6364
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_20261001_v1/prefit_review.py",
+      "sha256": "5ec97332277aca71e673684c6e9deb5cebb00cf601e200dcf7d5d38263721057",
+      "bytes": 26021
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/common.py",
+      "sha256": "2e706cd82731e0fef0e9ecca32229988f70d71f11baf9e18cf95f82712444c7f",
+      "bytes": 3070
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/basis.py",
+      "sha256": "8dacbb611f0f8eeb19962430d2801ba124c2d8347158431667678880a5a34542",
+      "bytes": 14861
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/convex_train.py",
+      "sha256": "f5f3fce0aea97a130b045933fc83270149b18876cef1f3dd4f82b4925e5a0954",
+      "bytes": 39121
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/evaluate_source.py",
+      "sha256": "8c5d0bfd00f32a0570ec69f48e029fb6251ca21fb20207197c337cb3eb4be634",
+      "bytes": 33803
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/evaluate_real.py",
+      "sha256": "54ce965ce90e08673092f099e26a05d10ab63f2faa0a5a4d9891bce7fc9c9bed",
+      "bytes": 53451
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/seal_training.py",
+      "sha256": "5cfdf691bcbbab5f55cced761b775b10a58b597795dc532d40e577b8331f1ca8",
+      "bytes": 5032
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/seal_basis.py",
+      "sha256": "8eb69d6584e304ffef609ec6eb3e1b469f1a92dfca94f4e2ff4a46f470be4f95",
+      "bytes": 3853
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/prefit_review.py",
+      "sha256": "3ccf733dd42ca1c70fbd49868a62470aa25202035d80b23f08cb5dfa3d1f4924",
+      "bytes": 31955
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_risk_20261001_v1/common.py",
+      "sha256": "1e5535c005b968c3d5a1d04a8d01a68f634c2964bcfc4ac13e677370ade9e54c",
+      "bytes": 2854
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_risk_20261001_v1/convex_train.py",
+      "sha256": "2435f1be33658dd3aa6394a7a734187b26e99686096ec2c474ec797aca3f0221",
+      "bytes": 42290
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_risk_20261001_v1/evaluate_source.py",
+      "sha256": "9750b84a9e4a14a881c82388795a06714e1e810637fa34a1eff9f840a3b1179a",
+      "bytes": 32150
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_risk_20261001_v1/evaluate_real.py",
+      "sha256": "e4f6aae23d0eecb90118b3a95ca315ca0cf58193c46565e286ec00fce895e5b2",
+      "bytes": 49724
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_risk_20261001_v1/seal_training.py",
+      "sha256": "7956d819e614df1b0f5b4b78e1dd6c7210b5c7e324560bdf9990025a65e23ea8",
+      "bytes": 5578
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_risk_20261001_v1/prefit_review.py",
+      "sha256": "8fe6cc6df9b215173e7c5c31d6e0ebe9a8a019c8a31710794f143a44a5e6d40c",
+      "bytes": 25506
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_context_20261001_v1/common.py",
+      "sha256": "abc5e8e2b6bd0ac047ca358d48f80df2ef2651b5266a551ec7dc4010f9d593ab",
+      "bytes": 2622
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_context_20261001_v1/convex_train.py",
+      "sha256": "6c932194c96334a00d5e113878dceff30865f2003c15b4ed1d1e5a05f4d35b9e",
+      "bytes": 38825
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_context_20261001_v1/evaluate_source.py",
+      "sha256": "1cab88d9623ebfd91e992613a8b6ce56ce0306afe61f1054315eea2a67d9ae31",
+      "bytes": 31034
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_context_20261001_v1/evaluate_real.py",
+      "sha256": "ff2e9acf43c76ef7469ef39a1a5a8c7844ed0a24243cebc5113309ec39eaa3c5",
+      "bytes": 41596
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_context_20261001_v1/seal_training.py",
+      "sha256": "67df7238060355e740c4557493dd617c30f207390d562cfc0ea9436aa2d644ac",
+      "bytes": 4338
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_context_20261001_v1/prefit_review.py",
+      "sha256": "43cf1c0b03472ae16210a8d50205d45819dae794986088405b1f129ffd41d3b2",
+      "bytes": 21356
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/common.py",
+      "sha256": "b9a90bc4722df4e89b2aeba35fd162ded5fbf4586fda38b212cfd8d7dc86a028",
+      "bytes": 2382
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/convex_train.py",
+      "sha256": "4cdfca8ad4cde6c587d032927aa2ddb61273e9b4b534d3e42aaae35d77887d75",
+      "bytes": 29439
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/evaluate_source.py",
+      "sha256": "5f56458be4b5caf39212692082069b49ceb9e8cdf9ff5f917de01cf72a49e95f",
+      "bytes": 27275
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/seal_training.py",
+      "sha256": "93594ff13b164001b0a87cb37f0c7d278181e5bebe751b1b8521b23a25af39dc",
+      "bytes": 4196
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/convex_train.py",
+      "sha256": "621afb898fe9f47ba03fe2cfbabcc82794f8a41c5a760a04349f4b8abdb5f4c4",
+      "bytes": 19904
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/common.py",
+      "sha256": "4cb1943ee45524d7b546b9c669d666d72efce4c670077bcdfe0b1a517186178c",
+      "bytes": 1130
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/common.py",
+      "sha256": "4efe5b318f56a4b051cba3b9ca62f09aaac777e247558961e071b29effd3eeae",
+      "bytes": 3248
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/source_features.py",
+      "sha256": "f36a26ebeb88e1cd36697c8be92c4080860de437407c67423c848baf03d07cfc",
+      "bytes": 22452
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/train.py",
+      "sha256": "26cf86cd3b2d3ede9c5d9dbe01ecd80508072b8ba36f6a800648f0dbf1b19e30",
+      "bytes": 27873
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/source_feasibility.py",
+      "sha256": "644505593a375878111e8a129f776f7e8c06adc126d070699f4627eaf8bcff29",
+      "bytes": 15753
+    }
+  ],
+  "evidence": {
+    "previous_signed_protocol": {
+      "path": "_docs/experiments/pallet_pose_signed_axes_20261001_v1/TRAIN_PROTOCOL.json",
+      "sha256": "02faf41165092b0a84aa70e8df6d74a6e4b6e60b2ac02fff4c286a9fdf4ca3a8",
+      "bytes": 22209
+    },
+    "previous_rejected_fit": {
+      "path": "_docs/experiments/pallet_pose_signed_axes_20261001_v1/REJECTED_R0_ONLY.json",
+      "sha256": "bfab23e1e63e793480ac9d3df34c8c8a0a52d1f698ce3fc0355deb2a21725a2f",
+      "bytes": 19168
+    },
+    "rejected_fit_verification": {
+      "path": "_docs/experiments/pallet_pose_signed_axes_20261001_v1/REJECTED_FIT_VERIFICATION.json",
+      "sha256": "0915104a53717161d98792fa61f2bff319487a535cd4a9a1121528f03a6793c2",
+      "bytes": 20095
+    },
+    "previous_report": {
+      "path": "_docs/experiments/pallet_pose_signed_axes_20261001_v1/REPORT_KO.md",
+      "sha256": "6d097d3e030509c0bea78126f98bd198107b70ff5c5509230bb1ce3962441f96",
+      "bytes": 10110
+    },
+    "original_goal_protocol": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PROTOCOL_EFFECTIVE.json",
+      "sha256": "bf93ff016806a41182ca435eaafa076ee00e1387688163ff12350a4857f5a639",
+      "bytes": 7194
+    }
+  },
+  "evidence_access": "Only this sealer reads prior rejected-state evidence. Fitting starts from exact zero and opens the sealed inputs/codes; it does not load prior weights, source VAL quality or real-quality evidence.",
+  "stop": "At most4 deterministic final fits from zero; each at most1000 accepted iterations and2000 total objective calls. A failed fit or any failed original source45 condition prevents real routing. Preserve every real stability criterion; do not select iterations/seeds or change thresholds after results.",
+  "method_success": false,
+  "goal_complete": false,
+  "raw_feature_dim": 94,
+  "feature_map": "normalized94_abs_anchor_delta94_identity1_fixed_rbf64",
+  "feature_transform": "Preserve prior normalized94+abs-anchor94+identity1+fixedRBF64. Subtract the same input-only R0 GEO anchor253 from each valid candidate. No extra normalization. Set invalid differences to zero without subtracting invalid placeholders.",
+  "generalization_limit": "Previous signed2D utility regression and global RGB MLP transfer failures remain negative prior evidence. This bounded comparison concerns physical T/R on current whole-pose candidates. Lower TRAIN Huber or source PASS is not stable real improvement. No new RGB information or new real-GT training is introduced.",
+  "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER",
+  "runtime_uses_margin": false,
+  "original_goal_criteria": {
+    "all_three_seeds_joint_gain": "DIVERSE251 each seed has smaller natural99 T and R medians than pairedSINGLE251 and fixedR0/PRIOR1/FULL125. No best-seed reporting.",
+    "joint_uncertainty": "For DIVERSE-SINGLE and DIVERSE-R0, paired recording-and-training-seed bootstrap2000/seed20261001 of mean per-seed population medians has upper95% endpoint<0 for BOTH T and R.",
+    "recording_sensitivity": "Leaving out each of6naturalrecordings retains negative mean-seed median differences for BOTH metrics versus R0 and pairedSINGLE.",
+    "natural_tails": "Mean acrossseed P90 T/R no more than5% above R0 and pairedSINGLE. Full pose failure count must not increase.",
+    "clean_preservation": "Mean acrossseed clean29 median and P90 T/R no more than5% aboveR0; pose failure count notincrease.",
+    "tolerance_status": "The5% guards are provisional engineering non-regression limits, not an empirical noise floor/MDE or evidence of statistical equivalence.",
+    "strong_generalization": "Not claimed from reusedDEV,3seeds and6recordings. Independent new-recording confirmation remains a separate evidentiary limitation."
+  },
+  "real_stability_contract": "matched_intervention_AND_original_SINGLE251_stability",
+  "original_goal_evaluation": "Retain the matched R0_ONLY/paired-DIVERSE intervention comparisons and also run the original frozen SINGLE251/R0/PRIOR1/FULL125 five stability gates on the new UNION poses. Both sets must pass; no old gate, seed, frame, threshold or uncertainty check is removed.",
+  "original_goal_contract_correction": "The preceding risk experiment restored the original SINGLE251 criteria before its first learned-real routing. Retain exactly that restored original-plus-matched contract in this experiment.",
+  "context_dim": 189,
+  "rbf_dim": 64,
+  "basis_SHA_bind": {
+    "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+    "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+    "bytes": 358575
+  },
+  "rbf_definition": "Append exp(-||context189-center_j||^2/(2*bandwidth_squared)) for64 fixed centers. No extra normalization; all253 coordinates zero for invalid candidates. Basis construction is separately sealed and independently reconstructed before fitting.",
+  "output_dim": 2,
+  "input_rule": "RBF253_CANDIDATE_MINUS_R0_ANCHOR",
+  "prediction_rule": "MAX_TWO_SIGNED_LOG1P_AXES",
+  "huber_delta": 1.0,
+  "runtime_uses_reference_errors": false,
+  "runtime_safe_mask": false,
+  "scale_definition": "Reuse TRAIN sT=2.4636887551191258cm and sR=1.113474019956766deg; no refitting, clipping, sign reweighting or axis weight search.",
+  "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+  "solver_accounting": "The initial objective and every line-search trial count toward the same2000-call cap. Only accepted points count toward the1000-iteration cap. Use the last accepted point and its already evaluated gradient. Each direction solves the two253-dimensional SPD generalized Hessian blocks; zero data curvature at |Huber residual|=1, plus unchanged lambda I. No extra damping, tolerance search, restart, rejected-weight warm start, or budget extension.",
+  "solver_success": "Require finite gradient Linf<=1e-8 AND the original strong-convex gradient gap bound<=1e-6 at an accepted point. Stop on nonfinite values, failed solve, non-descent direction, step underflow or an exhausted original budget. Convergence does not certify T/R improvement."
+}
