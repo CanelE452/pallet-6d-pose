@@ -2,9 +2,18 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
-## 2026-10-01 자세 후보 위치의 RGB 특징 검증
+## 2026-10-01 이미지·치수 특징을 추가한 실제 T/R 비교
 
-고정 DINO로 TRAIN 2,598행의 RGB 특징을 만들고 유효 자세 후보 20,776개를 독립 검산했습니다. **새 선택기 학습·T/R 평가는 0회**이며, 직전 성능 판정은 **43/45 실패**로 그대로입니다. 검산 과정에서 원본 영상 밖 반사 padding에도 특징을 읽는 위치가 있음을 확인했습니다. 이를 원본 영상 영역과 구분하는 입력 수정 후 학습을 진행할 계획이며, **안정적인 T·R 공동 개선은 아직 미달성**입니다.
+**RGB 한 장·팔레트 실제 W/H/D·기존 보정 K**를 사용해 고정 DINO 이미지 특징385개를 추가한 656차원 모델 네 개를 학습했습니다. 312회 objective 호출·84회 승인 반복으로 모두 수렴했습니다. 합성 VAL에서 세 seed 모두 T 중앙값은 기준1.674594cm보다 낮은 **1.653925 / 1.658631 / 1.657582cm**가 됐습니다. 다만 seed1의 R 중앙값 **0.613334°**는 기준과 같아 **43/45 통과·전체 실패**입니다. 직전의 seed3 T 미달은 해소됐지만 seed1 R 조건이 미달했습니다. 이번 모델의 실사 평가는 실행하지 않았으며, **안정적인 T·R 공동 개선은 아직 미달성**입니다.
+
+- [상세 결과·그래프·합성 VAL RGB 6장·치수·24개 추정 자세 패널](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/REPORT_KO.md)
+- [전체8,192행 T/R·W/H/D·선택 후보](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/SOURCE_VAL_METRICS.csv) · [고정45조건](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/SOURCE_VAL_CHECKS.csv) · [최종 파라미터4개](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/model_parameters/)
+- [TRAIN 독립 검산](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/TRAIN_CONVERGENCE_KO.md) · [VAL 입력 검산](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/SOURCE_VAL_APPEARANCE_VERIFICATION_KO.md) · [VAL 선택·오차 검산](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/SOURCE_VAL_VERIFICATION_KO.md)
+- [반사 padding 제외 입력 검산](_docs/experiments/pallet_pose_dino_native_inputs_20261001_v1/REPORT_KO.md) · [실행 기록](_docs/experiments/pallet_pose_signed_axes_visual_20261001_v1/EXECUTION_KO.md)
+
+## 2026-10-01 자세 후보 위치의 RGB 특징 검증 (이전 입력 감사)
+
+이 입력 감사 단계에서는 고정 DINO로 TRAIN 2,598행의 RGB 특징을 만들고 유효 자세 후보 20,776개를 독립 검산했으며 **새 선택기 학습·T/R 평가는 0회**였습니다. 원본 영상 밖 반사 padding에도 특징을 읽는 위치가 있음을 확인했습니다. 이후 원본 영역으로 제한한 입력을 검산하고 실제4fits를 수행한 결과는 위 후속 보고서에 있습니다.
 
 - [입력 감사·합성 TRAIN RGB 6장·각 팔레트 치수](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/REPORT_KO.md)
 - [전체 입력 검산](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/INPUT_VERIFICATION_KO.md) · [padding 진단](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/PADDING_SUPPORT_AUDIT.json) · [선행 방법과 한계](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/PRIOR_METHODS_KO.md)
