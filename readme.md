@@ -2,11 +2,19 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 실제 이미지·치수와 후보 개선 가능성
+
+입력은 **RGB 이미지 한 장과 팔레트 치수**이며 기존 카메라 보정 K를 유지합니다. 참조를 이용해 기존 후보를 고르는 진단에서, 현재 학습 비용을 완벽하게 최소화해도 자연 가림 T P90이129.60cm로 원래 허용 한계126.49cm를 넘었습니다. **실제 모델의 안정적인 T·R 동시 개선은 아직 달성하지 못했습니다.**
+
+- [상세 수치·실제 RGB6장·치수·후보 투영 이미지](_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/REPORT_KO.md)
+- [두 진단×3seed×173장 전체 CSV](_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/FRAME_RESULTS.csv)
+- [독립 수치 검증과 판정 한계](_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/VERIFICATION_KO.md)
+
 ## 2026-10-01 후보 쌍별 감독 구조 검증
 
 같은94특징·네 후보에서 W/D 비교와 원본/보정 결과 비교를 함께 학습했습니다. 신규3개 fit은 수렴했지만 합성 검증45개 조건 중16개가 실패했습니다. TRAIN에서도 쌍별 정확도의 작은 개선이 최종 후보 선택으로 이어지지 않았습니다. **실사 T·R의 안정적 동시 개선은 아직 달성하지 못했습니다.**
 
-- [최신 결과·구조도·전체 T/R 그래프](_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/REPORT_KO.md)
+- [직전 학습 결과·구조도·전체 T/R 그래프](_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/REPORT_KO.md)
 - [독립 TRAIN 수렴·최종 선택 검증](_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/TRAIN_CONVERGENCE_KO.md)
 - [source VAL1024장×8모델 전체 CSV](_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/SOURCE_VAL_FRAME_RESULTS.csv)
 

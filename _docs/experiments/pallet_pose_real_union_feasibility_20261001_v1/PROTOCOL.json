@@ -1,0 +1,179 @@
+{
+  "schema": "pallet_pose_real_union_feasibility_v1",
+  "created_at": "2026-10-01T01:20:28.636504+00:00",
+  "objective": "Check whether fixed existing real candidate poses can satisfy the original stable T/R criteria before another learned objective attempt.",
+  "input_contract": "One RGB image + pallet dimensions + existing calibrated K. No temporal information or new runtime input.",
+  "scope": "Post-result diagnostic on reused DEV. Uses existing reference-derived errors only; no new reference scoring, pose solving, learned routing, fit or image forward.",
+  "diagnostics": [
+    "AXIS_LOWER_BOUND",
+    "FIXED_TRAIN_COST_ORACLE"
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "scale": [
+    2.4636887551191258,
+    1.113474019956766
+  ],
+  "candidates": "Per seed, frozen R0 + paired DIVERSE251_sN; exactly two W/D whole poses per model. Never mix coordinates, rotations or translations across candidates.",
+  "compressed_pool_proof": "With exactly two candidates per expert, the union of its T_best/R_best includes every nondominated error pair. If both choose the same pose, it weakly dominates the omitted pose. Positive monotone minmax plus Pareto-first tie handling preserves the selected minimum.",
+  "axis_lower_bound": "For each frame/seed, min T and min R independently; may combine different poses. This is a potentially unattainable optimistic error-pair bound, never exported as a physical pose prediction.",
+  "whole_pose_oracle": "Choose one complete candidate minimizing max(T/sT,R/sR), using only scales fixed by source TRAIN. No real re-scaling or threshold search.",
+  "tie_rule": "Exact floating cost equality; remove Pareto-dominated candidates within that tie; then R0 first, hypothesis lexicographic, expert lexicographic. No epsilon/isclose.",
+  "population": {
+    "all": 173,
+    "NATURAL99": 99,
+    "CLEAN29": 29,
+    "WOOD45": 45,
+    "natural_recordings": 6
+  },
+  "controls": [
+    "paired SINGLE251_sN",
+    "R0",
+    "PRIOR1",
+    "FULL125"
+  ],
+  "stable_gates": "Reuse stable.evaluate.gate_results with only DIVERSE251 error arrays replaced by diagnostic arrays. Preserve all five original gates, seeds, populations, bootstrap draws, strict inequalities and 1.05 guards.",
+  "interpretation": {
+    "axis_FAIL": "If every protected frame has a finite union option and baseline failures are zero, the original failure guards require any admissible selector to retain all frames. A failed mandatory monotone gate then rules out every selector confined to this union and these original gates.",
+    "axis_PASS": "Necessary conditions only. Mixed-axis minima need not be jointly attainable.",
+    "oracle_PASS": "Existence of a whole-pose selection satisfying original gates on reused DEV; does not establish deployable selection or generalization.",
+    "oracle_FAIL": "This fixed cost rule failed; other whole-pose selections are not excluded unless the optimistic bound also failed."
+  },
+  "unmeasured_comparator": "Learned R0_ONLY real routing was never run after source failures. No claim that this diagnostic satisfies the later expanded UNION method contract.",
+  "reference_limitations": "Repeated DEV with geometry-derived reference, not independent measured 6D ground truth. Original teacher lineage includes 38 manual corners/9 images; no new real labels are used for training.",
+  "budgets": {
+    "fits": 0,
+    "optimizer_updates": 0,
+    "image_forwards": 0,
+    "new_PnP": 0,
+    "new_reference_metric_calls": 0,
+    "new_learned_real_routing": 0
+  },
+  "fixed_attempts": 2,
+  "sweep": false,
+  "threshold_changes": false,
+  "method_success": false,
+  "goal_complete": false,
+  "inputs": {
+    "candidate_rows": {
+      "path": "_docs/experiments/pallet_pose_joint_recovery_20261001_v1/CANDIDATE_BOUND_ROWS.csv",
+      "sha256": "510decb81c90a8fc6fe45a1b0755e123029c57965121ea8659fe57c0e6724673",
+      "bytes": 357467
+    },
+    "candidate_bounds": {
+      "path": "_docs/experiments/pallet_pose_joint_recovery_20261001_v1/CANDIDATE_BOUNDS.json",
+      "sha256": "25919c8a3963fb244b71a588c7a2157b76ee3f1617e30b7a164e4131018a0930",
+      "bytes": 374668
+    },
+    "operational_metrics": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/POSE_METRICS.json",
+      "sha256": "a21d5f9bd46dbe962241468c6b3a1c723f910302dd4b0d8a18b799786db13841",
+      "bytes": 749558
+    },
+    "eval_metadata": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/EVAL_METADATA.json",
+      "sha256": "7ba310d9dddefdaed0d9cac52ca0e504c0bbe9e62807350ff4fecfb778af574c",
+      "bytes": 118044
+    },
+    "eval_groups": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/EVAL_GROUPS.json",
+      "sha256": "d93788d464e76763eb588390f8c1b094a69b055dd9af852a19b53bf7e0e76ddf",
+      "bytes": 16779
+    },
+    "stable_pose_candidates": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/POSE_CANDIDATES.json",
+      "sha256": "2e4e7ee0aa1077b0ed0a11b488c95fa9e3a06c8855fc612fc0a69db80de94cda",
+      "bytes": 11917970
+    },
+    "historical_metadata": {
+      "path": "data/pallet/results/pallet_pose_diagnosis_20260930_v1/METADATA.json",
+      "sha256": "2afe95ea05c03f7ab9ad203b4b44cfd51fbf70f89c4117e6ce2b57693cc00fa3",
+      "bytes": 86230
+    },
+    "stable_protocol": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PROTOCOL_EFFECTIVE.json",
+      "sha256": "bf93ff016806a41182ca435eaafa076ee00e1387688163ff12350a4857f5a639",
+      "bytes": 7194
+    },
+    "stable_results": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/RESULTS.json",
+      "sha256": "613ce1254b9f9e9eb128e7ed3ec4a36165344adbae8d56a653366e00e5a3f138",
+      "bytes": 560503
+    },
+    "stable_protocol_sha": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/EFFECTIVE_PROTOCOL_SHA.json",
+      "sha256": "51a6fb04e5651b501f156b2117b54ebdcaef14cac4c0fb4f7fdedfa775a1cce9",
+      "bytes": 198
+    },
+    "stable_pose_lock": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/POSE_PREDICTIONS_LOCK.json",
+      "sha256": "d301577585136ba6fedc15d5f3496c263d986a935db85017b9ee5e4be7647175",
+      "bytes": 5764
+    },
+    "stable_prediction_lock": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PREDICTIONS_LOCK.json",
+      "sha256": "57716353800d8b252ab89f0c2a247b21543c52b717fd9d09b9e9a118262fea19",
+      "bytes": 14653
+    },
+    "source_train_gate": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+      "sha256": "1f666773b7d7ace375ce48dbf3511eb48a60cb690a4812b83e826f78b961fe7c",
+      "bytes": 31625
+    },
+    "parent_publication": {
+      "path": "_docs/experiments/pallet_pose_joint_recovery_20261001_v1/PUBLICATION_MANIFEST.json",
+      "sha256": "526778dbfbc113402e56c0d404d1a609786a545bc5f1f35600efc16866add626",
+      "bytes": 6017
+    },
+    "input_audit": {
+      "path": "_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/INPUT_AUDIT.json",
+      "sha256": "a54ada43c6a4230692bda377f77e18062904d94441bfc91296cc13c3b9f1473f",
+      "bytes": 30597
+    }
+  },
+  "codes": [
+    {
+      "path": "scripts/research/pallet_pose_diagnosis_20260930_v1/run.py",
+      "sha256": "7eb7172e4c4e6f97a5d020f9c53471e2e69ed4d760324a0b2646e7af47a3a735",
+      "bytes": 16700
+    },
+    {
+      "path": "scripts/research/pallet_pose_joint_recovery_20261001_v1/candidate_bounds.py",
+      "sha256": "f9cf1b66abdc7dfa2a49834f5363f8fce8f953f9f3a4454752e289793b195b46",
+      "bytes": 6686
+    },
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/metric_baseline.py",
+      "sha256": "ec5ef4a6cdb10299b806151afcf462be993b873aa0e1d89f4741d2cca75dd22d",
+      "bytes": 29874
+    },
+    {
+      "path": "scripts/research/pallet_pose_real_union_feasibility_20261001_v1/common.py",
+      "sha256": "57ef76a06c54629bcb9e2d0078e0651be844cf01be0b180ff72e1615a2131860",
+      "bytes": 1947
+    },
+    {
+      "path": "scripts/research/pallet_pose_real_union_feasibility_20261001_v1/evaluate.py",
+      "sha256": "80456d0caaa8f4663b6227c33546d38f44eddb0ee167a7e8841db7651af6f664",
+      "bytes": 24834
+    },
+    {
+      "path": "scripts/research/pallet_pose_real_union_feasibility_20261001_v1/seal_protocol.py",
+      "sha256": "945c2f1df0d972e6ec8f7fdbdaa298ddc1c650517374c31a920ca9c722ec7a06",
+      "bytes": 6225
+    },
+    {
+      "path": "scripts/research/pallet_pose_stable_improvement_20261001_v1/common.py",
+      "sha256": "8085b30baeed44ff427585afcd3efd2ceba720095c9810a4bfc624dfcc599ea3",
+      "bytes": 10122
+    },
+    {
+      "path": "scripts/research/pallet_pose_stable_improvement_20261001_v1/evaluate.py",
+      "sha256": "be6451a4cdfcc0759f59d238a3a5615eb48dfaf7bdfda79c61479e296f779150",
+      "bytes": 28730
+    }
+  ]
+}
