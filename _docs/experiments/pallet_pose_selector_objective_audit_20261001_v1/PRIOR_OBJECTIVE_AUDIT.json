@@ -1,0 +1,291 @@
+{
+  "schema": "prior_objective_repository_audit_v1",
+  "complete": true,
+  "created_at": "2026-10-01T00:19:23.390223+00:00",
+  "scope": "read-only existing source code and historical reports; no new fit, forward, reference scoring or real GT access",
+  "execution_counts": {
+    "fits": 0,
+    "image_forwards": 0,
+    "new_quality_scoring": 0,
+    "real_GT_reads": 0
+  },
+  "deployment_input": "single RGB and physical dimensions",
+  "findings": {
+    "generic_candidate_cost_regression_executed": true,
+    "soft_target_candidate_ranking_executed": true,
+    "whole_layout_relative_gain_regression_executed": true,
+    "student_relative_gain_regression_executed": true,
+    "coordinate_regret_preservation_executed": true,
+    "exact_current_physical_TR_cost_gap_weighted_ranking_run_found": false,
+    "no_global_novelty_claim": true
+  },
+  "negative_priors": [
+    {
+      "method": "structured_DHT_v2",
+      "execution": "3arms x seed1 x2000updates",
+      "outcome": "source pilot advanced; real full retains identity319/319; segment improves only one observed frame"
+    },
+    {
+      "method": "point_line_v4",
+      "execution": "4arms x3seeds x2000updates",
+      "outcome": "NO_SYNTHETIC_ADVANCEMENT_SIGNAL; real not run"
+    },
+    {
+      "method": "hough_gain_selector",
+      "execution": "3seeds x2000updates",
+      "outcome": "GAIN_SELECTOR_SYNTHETIC_FAIL; real not run"
+    },
+    {
+      "method": "posefix_utility_selector",
+      "execution": "seed1 x1500updates",
+      "outcome": "source clean damage and GREEN150 PCK10 decrease"
+    },
+    {
+      "method": "student_relative_geometry_TrackD",
+      "execution": "3trustMLP fits x1500updates; studentfits0",
+      "outcome": "D_COMPLEMENTARITY_NOT_PREDICTABLE; all3 abstain on test"
+    },
+    {
+      "method": "full_preservation",
+      "execution": "seed1 x300updates",
+      "outcome": "INCONCLUSIVE; source_clean gate fail"
+    }
+  ],
+  "recommendation": {
+    "count": 1,
+    "name": "deterministic converged ridge-regularized whole-pose CE control",
+    "status": "conceptually reviewed proposal; no follow-up run by this audit",
+    "objective": "mean_all_2598 masked CE plus lambda/2*||w||^2",
+    "lambda_value": 0.0001,
+    "bias_fixed": 0,
+    "models": [
+      "R0_ONLY",
+      "UNION_s1",
+      "UNION_s2",
+      "UNION_s3"
+    ],
+    "max_fits": 4,
+    "initialization": "all zero; no optimizer seed search",
+    "optimizer": "FP64 unconstrained scipy L-BFGS-B",
+    "maxiter": 1000,
+    "maxfun": 2000,
+    "ftol": 1e-15,
+    "gtol": 1e-08,
+    "convergence": "success AND raw full-gradient L2 squared/(2lambda)<=1e-6",
+    "maxfun_caveat": "installed SciPy postpones maxfun stop to iteration completion; enforce strict closure counter if budget requires <=2000",
+    "not_optimizer_only_ablation": "explicit L2 differs from AdamW decoupled decay; FP64 also changes numerics",
+    "preserve": "candidatepool, eligibility, physical cost/scale/target/ties, source normalization statistics, all45 sourceVAL checks and original real stability gates",
+    "additional_regret_loss_recommended": false
+  },
+  "limitations": [
+    "repository-bounded search, not literature novelty",
+    "mean scalar regret does not imply both marginal population medians improve",
+    "current exposed VAL is development reuse",
+    "same candidate pool cannot recover a missed detection",
+    "normalization numerical path must be declared before followup fit"
+  ],
+  "evidence": [
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/train.py",
+      "sha256": "26cf86cd3b2d3ede9c5d9dbe01ecd80508072b8ba36f6a800648f0dbf1b19e30",
+      "bytes": 27873
+    },
+    {
+      "path": "scripts/research/pallet_selector_recovery_v1/models.py",
+      "sha256": "b005e517ed971654621259093a570729034cec0e331963beec9e99696f010ba2",
+      "bytes": 2613
+    },
+    {
+      "path": "scripts/research/pallet_selector_recovery_v1/train_scorer.py",
+      "sha256": "a7d43f54f349480ca8a115f70ad2ea28a630532012b3ba1ae01350dfd84743b8",
+      "bytes": 4546
+    },
+    {
+      "path": "scripts/research/pallet_selector_recovery_v1/build_router_dataset.py",
+      "sha256": "6568dff2fe957c491c02f7c17a02cfa72db59aba3b4833f73eb9404c930ff225",
+      "bytes": 8495
+    },
+    {
+      "path": "_docs/experiments/pallet_selector_recovery_v1/stage2_synth_scorer/STAGE2_REPORT_KO.md",
+      "sha256": "16114624bcf425d1250088e4abc181f8fba01ede84cc8657fdcb0f726a9258ef",
+      "bytes": 2372
+    },
+    {
+      "path": "_docs/experiments/pallet_selector_recovery_v1/stage4_clean_preservation/STAGE4_REPORT_KO.md",
+      "sha256": "55cd76cca49c9611017bc7d322512cfe2ce5d74eb83be396aed687479a3aca9f",
+      "bytes": 4177
+    },
+    {
+      "path": "scripts/research/pallet_dht_structured_v2/data_ops.py",
+      "sha256": "a6196ef619313632be08dcd0f78839eda85323d482cf6c99bf26f9f2bc8a3856",
+      "bytes": 5578
+    },
+    {
+      "path": "data/pallet/results/pallet_dht_structured_v2/PROTOCOL.json",
+      "sha256": "6f49634d9a7162381be1e3d21bd52c02936d6c4ad643352dc54e0c3aed54bd2a",
+      "bytes": 4659
+    },
+    {
+      "path": "data/pallet/results/pallet_dht_structured_v2/TRAINING_COMPLETION.json",
+      "sha256": "c455eada1b8f90acab4bb623cb0551f1d8c81a5a38444e57ad275c6805231258",
+      "bytes": 12248
+    },
+    {
+      "path": "data/pallet/results/pallet_dht_structured_v2/PILOT_RESULTS.json",
+      "sha256": "a23cb32784b32a445c62da0aab7e75f688f2abed0c0301bca2fbed4fbc9d4acc",
+      "bytes": 265361
+    },
+    {
+      "path": "data/pallet/results/pallet_dht_structured_v2/provenance/cost_gap_diagnosis_seed1/README.md",
+      "sha256": "80e8b8a0bf9ac4f1d36fba7c873f0796bb2736761590e8fd10e9477d6b431d26",
+      "bytes": 3106
+    },
+    {
+      "path": "scripts/research/pallet_point_line_v4_bundle/pointline_v4/objective.py",
+      "sha256": "fddb1190531a4501916a64d2790e6cbf2d153eb9969a321351faa8594d81295a",
+      "bytes": 3216
+    },
+    {
+      "path": "data/pallet/results/pallet_point_line_v4/REPORT_KO.md",
+      "sha256": "7f3dce528bb12d3dbcb008966dc7fccedf38ae2ff7b4d3e16cf4d60a833f79d3",
+      "bytes": 14027
+    },
+    {
+      "path": "scripts/research/pallet_hough_gain_selector_v1/core.py",
+      "sha256": "b702e3e700f9d0f9300abdeaa160c283ea7b0608e4a414855b83ed7fe4eb3ffd",
+      "bytes": 7832
+    },
+    {
+      "path": "scripts/research/pallet_hough_gain_selector_v1/experiment.py",
+      "sha256": "d8dec4ab29473daf94436c72ee75f0fcdf9b5ecce6a78c494a73416fc9e80f3f",
+      "bytes": 21633
+    },
+    {
+      "path": "_docs/experiments/pallet_hough_gain_selector_v1/REPORT_KO.md",
+      "sha256": "2106183b1fea61d6fa873a2182be5ccf01db01dd523b938c47fde4807bf2c4a2",
+      "bytes": 3798
+    },
+    {
+      "path": "scripts/research/pallet_posefix_utility_selector_v1/train.py",
+      "sha256": "280abf6fb7b48e9158951935a2c7f4d03e917ae816e98d123517307f1184c59f",
+      "bytes": 8092
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_utility_selector_v1/RESULTS_KO.md",
+      "sha256": "cddb1ec415e3fd2508258067791ad3be5c5c44dd92cb662f5456d33ddad26d5e",
+      "bytes": 12049
+    },
+    {
+      "path": "scripts/research/pallet_paper_contribution_screen_v1/track_d/mechanism.py",
+      "sha256": "894c9bae83459fa69b87c357ab65a2448d29f600e09681ef24d8bddb1d3445aa",
+      "bytes": 13029
+    },
+    {
+      "path": "_docs/experiments/pallet_paper_contribution_screen_v1/D_student_relative_geometry/MECHANISM_RESULT.json",
+      "sha256": "9a488ec8757038548912f2a514a6a46db2b86cea2ae921ca9d1513584c92941f",
+      "bytes": 890
+    },
+    {
+      "path": "_docs/experiments/pallet_paper_contribution_screen_v1/TRACK_D_REPORT.md",
+      "sha256": "e522297401bec95fec86e90794dc0212a8a683a0f889afb32a8c596bdf3b74ab",
+      "bytes": 1213
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/identity_rank.py",
+      "sha256": "4a2c6ac80d8d248a105d8bafa6b16a516ff595687f3ac4096aedf261ed3c3ff0",
+      "bytes": 21501
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/identity_rank_linear.py",
+      "sha256": "afc6352d7175fae71ad38c9c2a3c66046973ff2e9cc36c22dc2d8d746f47b251",
+      "bytes": 9782
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/identity_rank_dimensions.py",
+      "sha256": "c6f7481556d438b39af080df4f574fadb1cd7d9bf3131c173b4b00015a7e99b7",
+      "bytes": 9215
+    },
+    {
+      "path": "_docs/experiments/pallet_type_selftrain_v1/selftrain_recovery_v1/identity_rank_linear/INTERPRETATION_KO.md",
+      "sha256": "68b6c56938d66ced188bd2cf6664edc9fbe9987a19f5409681380b314ebcc600",
+      "bytes": 2008
+    },
+    {
+      "path": "data/pallet/results/pallet_type_selftrain_v1/selftrain_recovery_v1/identity_rank_dimensions/REPORT_KO.md",
+      "sha256": "d1b2fd006d7600db9de5112b3de8fd2dfbaf28e8b6cef258c29690ea42e903e6",
+      "bytes": 1423
+    },
+    {
+      "path": "scripts/research/pallet_direct_dimension_v1/model.py",
+      "sha256": "795464e61ebdc7c4dba579441a2a311937a8fb2100996a024facdbfbd6f887ba",
+      "bytes": 2852
+    },
+    {
+      "path": "scripts/research/pallet_direct_dimension_v1/smooth_pilot.py",
+      "sha256": "0950eae0087843f7c2dc3b24fe1b0366b61dfa11a993b17dfad48fb19fd9a745",
+      "bytes": 3150
+    },
+    {
+      "path": "scripts/research/pallet_direct_dimension_frozen_v1/model.py",
+      "sha256": "760d76372b56bdf7f9c424b6cb549ba3fa3a6891b6cbd0aee38d195256bad4a2",
+      "bytes": 2548
+    },
+    {
+      "path": "_docs/experiments/pallet_direct_dimension_frozen_v1/RESULTS_KO.md",
+      "sha256": "531237a02983e9885e2cb667251bb8542327787634e5c1d39c472d00c256fdbb",
+      "bytes": 2978
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_full_preserve_v1/PRESERVATION_LOSS_SPEC.md",
+      "sha256": "2dc1adfb7ab9da1aecdfa1f20f326350a7b8498fed7f3cdecb7abf5b68174f63",
+      "bytes": 1106
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_full_preserve_v1/DECISION.json",
+      "sha256": "2b1f101652b8035af4171da49e5d62668599b18e8623f43508a70f81b821ba2c",
+      "bytes": 642
+    },
+    {
+      "path": "_docs/experiments/pallet_posefix_full_preserve_v1/RESULTS_KO.md",
+      "sha256": "59ecb0d7fff19ab2d1e4d5e057202b4ed742d1bf30f6923659bd4bb663373924",
+      "bytes": 11460
+    },
+    {
+      "path": "scripts/research/pallet_type_selftrain_v1/large_corner_selector.py",
+      "sha256": "11e36893224db7e12a643f3c70708a7de922d9d72ec66f3dd7e06a6e1cd30626",
+      "bytes": 15942
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/PRIOR_AND_METHOD_AUDIT_KO.md",
+      "sha256": "b0947865741afbe6eba55f177f2fbccfa47181f40119d9294ad598d8372ff129",
+      "bytes": 12799
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/REPORT_KO.md",
+      "sha256": "452cf8c1c5ed04463eab9b5adf34a23b7a692f70f0bd427b20f1179ee86d9bba",
+      "bytes": 12551
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/VAL_ORACLE.json",
+      "sha256": "db8efb7d0a378be066059199277f626a3133342ef74833606d9041ee7cd047e1",
+      "bytes": 29355
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/TRAIN_DIAGNOSTIC.json",
+      "sha256": "b3740e95277ecf0a059acd1e648fb08cc29c6ed486e01421af0bd7ff62d45379",
+      "bytes": 4536716,
+      "scope": "hash only; diagnostics provided by independent training audit"
+    }
+  ],
+  "report": {
+    "path": "_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/PRIOR_OBJECTIVE_AUDIT_KO.md",
+    "sha256": "717837a580aa074bab2a88af4ff0dc8ff5b19fb093cbb55fc3dda1fd2e5641d5",
+    "bytes": 14705
+  },
+  "installed_optimizer_evidence": {
+    "path": "/home/minjae/anaconda3/envs/pallet-yolo26/lib/python3.10/site-packages/scipy/optimize/_lbfgsb_py.py",
+    "sha256": "534f3e6ffcc6e8252cf71d5fd8efcfb2dfd48a1f42c5ee8ddc45063a314065ed",
+    "lines": "363-380",
+    "read_only": true
+  }
+}

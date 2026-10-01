@@ -2,11 +2,20 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 선택기 수렴 통제와 실패 원인 검증
+
+입력은 **이미지 한 장과 팔레트 치수**이며 기존 카메라 보정 정보를 유지합니다. 선택기4개를 실제 학습해 수렴을 확인했지만, 합성 검증45개 조건 중4개가 실패했습니다. **실사 T·R의 안정적 동시 개선은 아직 달성하지 못했습니다.** 아래에 전체 수치·그래프·학습 파라미터와 독립 검증을 공개합니다.
+
+- [최신 실행 결과·수렴 인증·T/R 그래프](_docs/experiments/pallet_pose_selector_convergence_20261001_v1/REPORT_KO.md)
+- [후보 선택·학습 목적함수·검출 데이터의 실패 원인](_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/REPORT_KO.md)
+- [source VAL1024장×8모델 전체 결과 CSV](_docs/experiments/pallet_pose_selector_convergence_20261001_v1/SOURCE_VAL_FRAME_RESULTS.csv)
+- [실제 최종 선택기4개의 파라미터](_docs/experiments/pallet_pose_selector_convergence_20261001_v1/model_parameters/)
+
 ## 2026-10-01 원래 pose와 보정 pose의 공동 선택 검증
 
 **실사 T·R의 안정적 동시 개선은 아직 달성하지 못했습니다.** 원래 R0 후보를 보존하면서 보정 모델의 후보를 함께 고르는 방법을 합성 데이터로 검증합니다. 상세 보고서는 합성 정답으로 고르는 진단적 가능성, 실제 학습한 선택기의 검증 결과, 기존 실사 결과를 구분하고 전체 수치·이미지·실행 기록을 제공합니다.
 
-- [최신 검증 결과·현재 T/R 상태·이미지](_docs/experiments/pallet_pose_union_selection_20261001_v1/REPORT_KO.md)
+- [직전 선택기 검증 결과·현재 T/R 상태·이미지](_docs/experiments/pallet_pose_union_selection_20261001_v1/REPORT_KO.md)
 - [합성 데이터의 좌표계·대칭성·기하 오류 감사](_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT_KO.md)
 - [캐시 재현 검사와 실행 순서 수정 이력](_docs/experiments/pallet_pose_union_selection_20261001_v1/RUNTIME_AND_SOURCE_METHOD_KO.md)
 - [새 선택기 6개의 실제 학습 파라미터 JSON](_docs/experiments/pallet_pose_union_selection_20261001_v1/model_parameters/)
