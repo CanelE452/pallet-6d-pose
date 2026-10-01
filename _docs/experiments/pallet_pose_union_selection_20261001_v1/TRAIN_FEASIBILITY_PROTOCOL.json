@@ -1,0 +1,62 @@
+{
+  "complete": true,
+  "created_at": "2026-09-30T23:41:18.854012+00:00",
+  "scope": "C2_TRAIN_ONLY",
+  "eligible_counts": {
+    "TRAIN": 2598,
+    "VAL": 1024
+  },
+  "source_contract": {
+    "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+    "sha256": "025c67ccbaeb89a840d66e96ef040c2319cbcd2ef6be609716eed6ac0abc9d24",
+    "bytes": 1921959
+  },
+  "source_protocol": {
+    "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PROTOCOL.json",
+    "sha256": "71dc533968c8fa27ee86025049c63233920c357dd635be1fde31f0181aa44ada",
+    "bytes": 25353
+  },
+  "scalar_cost": "max(T/sT,R/sR)",
+  "scale": "median_R0_GEO_C2_TRAIN",
+  "median_strict": true,
+  "failure_no_increase": true,
+  "p90_ratio_max": 1.05,
+  "tie_rule": "exact_cost_then_pareto_then_R0_then_hypothesis",
+  "models": [
+    "R0",
+    "DIVERSE251_s1",
+    "DIVERSE251_s2",
+    "DIVERSE251_s3"
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "gate": "Every seed: one whole-pose min-cost UNION candidate must strictly lower both full-population T/R medians versus paired R0_ONLY min-cost whole-pose oracle; both P90 <=1.05 and failure count no larger. All three must pass before any learned ranker fit.",
+  "finite_scale": "R0 old-GEO eligible TRAIN medians must be finite and positive; else stop.",
+  "failures": "Both T and R +infinity for no usable pose; retain all eligible TRAIN rows in gates.",
+  "target_scope": "Only eligible proper-rigid declared-C2 TRAIN candidate quality is scored. All original5120 source images stay in frozen feature/pose pool. No VAL quality or real GT quality before later dedicated locks.",
+  "inference_ties": "Exact learned score ties: fixed R0 preference then hypothesis name. No GT/Pareto at inference.",
+  "interpretation": "Failure rejects this cost-oracle design, not all possible union selectors. Passing is opportunity only, not learnability or real-data improvement.",
+  "next_fit_plan": {
+    "arms": [
+      "R0_ONLY",
+      "UNION"
+    ],
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "max_fits": 6,
+    "epochs": 30,
+    "batch_size": 256,
+    "updates_per_fit": 330,
+    "feature_dim": 94,
+    "shared_normalization": "R0 eligible TRAIN valid candidates only",
+    "architecture": "one shared linear94 scalar score per pose; no expert ID/image features",
+    "checkpoints": "last only",
+    "real_route_prerequisite": "After six frozen fits, all seeds must pass dedicated source VAL gate fixed before fitting."
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "schema": "pallet_pose_union_train_v1",
+  "created_at": "2026-09-30T23:57:14.423206+00:00",
+  "complete": true,
+  "arms": [
+    "R0_ONLY",
+    "UNION"
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "train_rows": 2598,
+  "feature_dim": 94,
+  "epochs": 30,
+  "batch_size": 256,
+  "updates_per_fit": 330,
+  "device": "cpu",
+  "max_fits": 6,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08
+  },
+  "normalization": {
+    "source": "R0_eligible_train_valid_candidates",
+    "std_floor": 1e-06
+  },
+  "inputs": {
+    "features": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURES.npz",
+      "sha256": "67fd05d744db1e194ec1ac467964ab801777987b962f38b1d53053f6784fbd14",
+      "bytes": 11150709
+    },
+    "train_labels": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_LABELS.npz",
+      "sha256": "8c24101cadae5cef3269670b418844a16466d16684d43c2b878cc978d3045038",
+      "bytes": 501167
+    },
+    "train_gate": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+      "sha256": "1f666773b7d7ace375ce48dbf3511eb48a60cb690a4812b83e826f78b961fe7c",
+      "bytes": 31625
+    },
+    "feasibility_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_FEASIBILITY_PROTOCOL.json",
+      "sha256": "38881f8edb920eb93f9467fcdcf7e78704c0a5b21091c129c0b4f7a2bffff7f1",
+      "bytes": 2490
+    },
+    "source_predictions_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PREDICTIONS_LOCK.json",
+      "sha256": "152026bd966f208f4816a36fd0c5f369ab1a9c917b74b0588ffa2bbca480091f",
+      "bytes": 8407832
+    },
+    "feature_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURE_LOCK.json",
+      "sha256": "0de603ddb46160fd17ea84db7851e986e1643e6ce87fa40ec125b671ea490386",
+      "bytes": 3108824
+    },
+    "source_contract": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+      "sha256": "025c67ccbaeb89a840d66e96ef040c2319cbcd2ef6be609716eed6ac0abc9d24",
+      "bytes": 1921959
+    },
+    "runtime_amendment": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_RUNTIME_AMENDMENT_01.json",
+      "sha256": "e888d51fa27d0df339392e8825eff2d57cccfbb0e53c67d42f08bea69a5c0155",
+      "bytes": 23810
+    }
+  },
+  "codes": [
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/common.py",
+      "sha256": "4efe5b318f56a4b051cba3b9ca62f09aaac777e247558961e071b29effd3eeae",
+      "bytes": 3248
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/source_features.py",
+      "sha256": "f36a26ebeb88e1cd36697c8be92c4080860de437407c67423c848baf03d07cfc",
+      "bytes": 22452
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/train.py",
+      "sha256": "26cf86cd3b2d3ede9c5d9dbe01ecd80508072b8ba36f6a800648f0dbf1b19e30",
+      "bytes": 27873
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/source_val.py",
+      "sha256": "867ac51c6e43808cc5af4661a885b5d5860612a9d7b5be2a1486210555bf0c3b",
+      "bytes": 25883
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/seal_training.py",
+      "sha256": "897a52c84b827fb25e46d34608a88da4af02e6d7ee71c12915988952c55e3f5e",
+      "bytes": 4767
+    }
+  ],
+  "candidate_pool": "R0_ONLY: R0 long/short. UNION seed s: R0 long/short plus frozen DIVERSE251_s long/short. Entire R,t selected together.",
+  "architecture": "Shared linear94 scalar cost; lower score wins. No expert ID or image features. All YOLO/PoseFix weights remain frozen.",
+  "target": "Whole-pose min max(T/sT,R/sR) on eligible source TRAIN; exact target-cost ties Pareto then R0 then hypothesis name.",
+  "objective": "Masked cross entropy of negative scalar scores; no-valid rows have target -1 and zero loss.",
+  "inference_tie": "Exact learned score tie: R0 then hypothesis name, with no reference access.",
+  "no_valid_fallback": "Both arms use the same saved R0 GEO whole pose when zero candidate is usable; if unavailable, mark failed and both errors +infinity.",
+  "paired_controls": "Same seed initial parameters, normalized R0 features, and row batches across arms; all eligible2598 used each epoch. No extra seed or winner selection.",
+  "checkpoint": "Final epoch30 only; no early stopping or VAL/real metric during fit.",
+  "source_val": {
+    "frames": 1024,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "median_strict": true,
+    "p90_ratio_max": 1.05,
+    "failure_no_increase": true,
+    "comparators": [
+      "paired_R0_ONLY",
+      "R0_GEO",
+      "paired_DIVERSE_GEO"
+    ],
+    "all_seeds_required": true,
+    "no_checkpoint_selection": true,
+    "routing_lock_before_source_labels": true,
+    "real_route_requires_gate_pass": true,
+    "zero_valid_fallback": "R0_GEO_if_available_else_failure"
+  },
+  "real_evaluation": {
+    "populations": {
+      "NATURAL99": 99,
+      "CLEAN29": 29,
+      "WOOD45": 45
+    },
+    "all_frames_retained": true,
+    "IoU_filter": false,
+    "metric": "Unchanged center translation cm; full physical C2 rotation degrees; corner8 SQPnP+LM.",
+    "natural_joint_medians": "All3 seeds strictly lower T and R than paired R0_ONLY, paired original DIVERSE251, R0, PRIOR1 and FULL125.",
+    "uncertainty": "2000 crossed paired recording/seed bootstrap, seed20261001; upper95<0 for both T/R versus paired R0_ONLY and R0.",
+    "recording_sensitivity": "Leave each natural recording out: both mean-seed medians lower versus paired R0_ONLY and R0.",
+    "natural_tail": "Mean-seed T/R P90<=1.05 versus paired R0_ONLY and R0; no seed increases failures.",
+    "clean": "Mean-seed T/R median and P90<=1.05 R0; no seed increases failures.",
+    "wood": "All45 retained as separate form-transfer stress, no selection or dropped seed.",
+    "historical_gate_parity": "Same original stability gate structure and tolerances; R0_ONLY is this intervention matched control. No old trained coordinate outputs are changed.",
+    "reference_before_selection": false,
+    "quality_read_after_choices_locked": true,
+    "limitations": "Repeated DEV and source VAL exposure via frozen refiner; not new independent TEST. Passing alone does not prove unseen-recording generalization."
+  },
+  "stop": "Any input/code mismatch or partial unreceipted fit stops. Source VAL failure stops this candidate method before real routing; no retuning.",
+  "goal_complete": false
+}
