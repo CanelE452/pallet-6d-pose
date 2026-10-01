@@ -2,6 +2,15 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 이미지·치수의 방향 입력을 추가한 실제 학습 결과
+
+입력은 **RGB 한 장·팔레트 치수·기존 카메라 보정 K**입니다. 고정된 잔차 방향 18개를 추가한 271차원 모델 네 개를 실제 학습했고, **187회 호출·60회 승인 반복**으로 모두 수렴했습니다. 학습 손실은 줄었지만 합성 VAL은 **43/45 통과**로 전체 실패입니다. seed 3의 T 중앙값 **1.682087cm**가 기준 **1.674594cm**보다 커서 이번 실사 평가는 실행하지 않았습니다. **안정적인 T·R 공동 개선은 아직 달성하지 못했습니다.**
+
+- [상세 결과·그래프·실제 RGB 6장과 물리 치수 110×11×130cm](_docs/experiments/pallet_pose_signed_axes_direction_20261001_v1/REPORT_KO.md)
+- [네 모델 최종 파라미터](_docs/experiments/pallet_pose_signed_axes_direction_20261001_v1/model_parameters/) · [합성 전체 8,192행](_docs/experiments/pallet_pose_signed_axes_direction_20261001_v1/SOURCE_VAL_FRAME_RESULTS.csv)
+- [독립 학습 검산](_docs/experiments/pallet_pose_signed_axes_direction_20261001_v1/TRAIN_CONVERGENCE_KO.md) · [독립 합성 검산](_docs/experiments/pallet_pose_signed_axes_direction_20261001_v1/SOURCE_VAL_VERIFICATION_KO.md)
+- [고정 선택의 변화와 실패 진단](_docs/experiments/pallet_pose_signed_axes_direction_20261001_v1/SOURCE_FIXED_CHOICE_DIAGNOSTIC_KO.md) · [실행 기록](_docs/experiments/pallet_pose_signed_axes_direction_20261001_v1/EXECUTION_KO.md)
+
 ## 2026-10-01 이미지·치수에서 얻는 잔차 방향 입력 진단
 
 입력은 **RGB 이미지 한 장·팔레트 치수·기존 카메라 보정 K**입니다. 기존 점별 오차 크기에 방향 성분 18개를 추가할 근거를 TRAIN 2,598장에서 검사했습니다. 기존 253차원 입력에 18개를 붙였을 때 수치 rank는 R0 **200→218**, 세 UNION 모델 **203→221**로 증가했습니다. 기존 열공간 밖에 남는 방향 성분 비율은 **18.97% / 42.26% / 43.34% / 43.62%**입니다. 이는 입력의 선형 비중복 진단이며, **T·R 개선 결과는 아닙니다. 이번 신규 학습·VAL 성능 평가·실사 평가는 모두 0회**이고 안정적 공동 개선 목표는 미달성입니다.
