@@ -2,6 +2,15 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 과소예측 비용을 높인 후속 검증
+
+입력은 **RGB 한 장·팔레트 치수·기존 카메라 보정 K**로 유지했습니다. 실제보다 오차를 낮게 예측할 때의 회귀 비용을 고정 2배로 높여 네 모델을 학습했고 **160회 호출·57회 승인 반복**으로 모두 수렴했습니다. 합성 검증은 여전히 **43/45 통과·전체 실패**입니다. seed 3의 T 중앙값은 직전 **1.682087cm → 1.679494cm**로 줄었지만 기준 **1.674594cm**에는 못 미쳤습니다. 개선 가능한 선택도 줄었으며, **T·R의 안정적 공동 개선은 미달성**입니다. 이번 실사 평가는 실행하지 않았습니다.
+
+- [상세 결과·전체 그래프·실제 RGB 6장과 치수 110×11×130cm](_docs/experiments/pallet_pose_signed_axes_asymmetric_20261001_v1/REPORT_KO.md)
+- [고정 2:1 비용 설계](_docs/experiments/pallet_pose_signed_axes_asymmetric_20261001_v1/DESIGN_KO.md) · [학습 파라미터 4개](_docs/experiments/pallet_pose_signed_axes_asymmetric_20261001_v1/model_parameters/)
+- [학습 독립 검산](_docs/experiments/pallet_pose_signed_axes_asymmetric_20261001_v1/TRAIN_CONVERGENCE_KO.md) · [합성·선택 변화 검산](_docs/experiments/pallet_pose_signed_axes_asymmetric_20261001_v1/SOURCE_VAL_VERIFICATION_KO.md)
+- [전체 합성 결과 8,192행](_docs/experiments/pallet_pose_signed_axes_asymmetric_20261001_v1/SOURCE_VAL_FRAME_RESULTS.csv) · [실행 및 검산기 형식 오류 수정 기록](_docs/experiments/pallet_pose_signed_axes_asymmetric_20261001_v1/EXECUTION_KO.md)
+
 ## 2026-10-01 이미지·치수의 방향 입력을 추가한 실제 학습 결과
 
 입력은 **RGB 한 장·팔레트 치수·기존 카메라 보정 K**입니다. 고정된 잔차 방향 18개를 추가한 271차원 모델 네 개를 실제 학습했고, **187회 호출·60회 승인 반복**으로 모두 수렴했습니다. 학습 손실은 줄었지만 합성 VAL은 **43/45 통과**로 전체 실패입니다. seed 3의 T 중앙값 **1.682087cm**가 기준 **1.674594cm**보다 커서 이번 실사 평가는 실행하지 않았습니다. **안정적인 T·R 공동 개선은 아직 달성하지 못했습니다.**
