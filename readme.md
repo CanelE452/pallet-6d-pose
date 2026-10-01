@@ -2,6 +2,14 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 R0와의 관계를 입력한 선택기 검증
+
+기존 특징에 R0 기준 후보와의 차이 및 기준 후보 여부를 추가한 189차원 선택기 4개를 실제 학습했습니다. 합성 VAL의 검증은 38/45에서 **43/45 통과**로 나아졌지만, seed 3의 T P90 조건 두 개가 실패했습니다. **실사 T·R의 안정적인 동시 개선은 아직 미달성입니다.**
+
+- [상세 결과·T/R 비교·학습 그래프·이미지와 치수](_docs/experiments/pallet_pose_anchor_context_20261001_v1/REPORT_KO.md)
+- [전체 8192개 source 결과](_docs/experiments/pallet_pose_anchor_context_20261001_v1/SOURCE_VAL_FRAME_RESULTS.csv)
+- [실제 네 모델의 최종 파라미터](_docs/experiments/pallet_pose_anchor_context_20261001_v1/model_parameters/)
+
 ## 2026-10-01 R0 양축 보존 타깃의 실제 학습
 
 R0보다 T와 R을 모두 악화시키지 않는 후보로 학습 정답을 제한했습니다. 참조를 보는 실사 진단은 원래5개 기준을 모두 통과했지만, 새로 학습한 선택기4개는 합성 VAL에서38/45 통과·7개 실패였습니다. **실제 모델의 안정적인 T·R 동시 개선은 아직 미달성입니다.**
