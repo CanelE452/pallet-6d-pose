@@ -1,0 +1,191 @@
+{
+  "schema": "pallet_pose_pareto_anchor_real_feasibility_v1",
+  "created_at": "2026-10-01T01:32:38.227351+00:00",
+  "purpose": "Before fitting, determine whether preserving both R0 errors pointwise still permits original full stable T/R improvement with existing complete poses.",
+  "previous_turn_classification": "PROGRESS: fixed TRAIN-cost oracle failed natural T P90 despite improved joint medians; axis lower bound did not rule out other selections.",
+  "input_contract": "Single RGB image and pallet dimensions, with existing calibrated K. No temporal information or new runtime input.",
+  "scope": "GT-derived cached-error diagnostic only. Does not run a learned selector or make GT available at inference.",
+  "diagnostics": [
+    "PARETO_ANCHOR_ORACLE"
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "scale": [
+    2.4636887551191258,
+    1.113474019956766
+  ],
+  "anchor": "The frozen original R0 operational GEO whole pose on this exact frame; its existing T/R errors and GEO_name define the anchor.",
+  "candidate_pool": "R0 plus paired DIVERSE251_sN, each frozen W/D whole pose. Reuse nondominated candidate error pairs from T_best/R_best and explicitly include operational R0 anchor if omitted by that compression.",
+  "eligibility": "available(c) AND T(c)<=T(anchor) AND R(c)<=R(anchor), exact comparisons with no tolerance. The available anchor itself is always eligible.",
+  "selection": "Among eligible whole poses minimize max(T/sT,R/sR); exact cost tie -> Pareto dominance removal -> R0 first -> hypothesis lexicographic -> expert lexicographic.",
+  "missing": "Keep every frame. If the anchor is unavailable, retain anchor failure; no silent frame exclusion or reference substitution.",
+  "preserved_contract": "All original stable gates, SINGLE251/R0/PRIOR1/FULL125 controls, 3 paired seeds, full173 including natural99/clean29/wood45, recording/seed bootstrap2000 seed20261001, LORO6, natural/clean1.05guards and failure policy unchanged.",
+  "interpretation": {
+    "PASS": "A complete-pose feasibility witness satisfying original reused-DEV gates exists under pointwise R0 nonregression. This is not learned, deployable, or independently generalized improvement.",
+    "FAIL": "This single constrained fixed-cost rule did not satisfy the full criteria. Do not claim every possible union rule is impossible."
+  },
+  "followup": "Only if this diagnostic and a separately locked source TRAIN counterpart pass, consider a bounded matched target-only retraining of the existing converged Linear94 scorer. A source VAL failure still forbids new learned real routing for that method.",
+  "unmeasured_control": "Learned R0_ONLY real routes are absent; no expanded UNION method success claim.",
+  "no_sweep": true,
+  "method_success": false,
+  "goal_complete": false,
+  "budgets": {
+    "fits": 0,
+    "image_forwards": 0,
+    "new_PnP": 0,
+    "new_reference_scoring": 0,
+    "new_learned_real_routing": 0
+  },
+  "inputs": {
+    "candidate_rows": {
+      "path": "_docs/experiments/pallet_pose_joint_recovery_20261001_v1/CANDIDATE_BOUND_ROWS.csv",
+      "sha256": "510decb81c90a8fc6fe45a1b0755e123029c57965121ea8659fe57c0e6724673",
+      "bytes": 357467
+    },
+    "candidate_bounds": {
+      "path": "_docs/experiments/pallet_pose_joint_recovery_20261001_v1/CANDIDATE_BOUNDS.json",
+      "sha256": "25919c8a3963fb244b71a588c7a2157b76ee3f1617e30b7a164e4131018a0930",
+      "bytes": 374668
+    },
+    "operational_metrics": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/POSE_METRICS.json",
+      "sha256": "a21d5f9bd46dbe962241468c6b3a1c723f910302dd4b0d8a18b799786db13841",
+      "bytes": 749558
+    },
+    "eval_metadata": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/EVAL_METADATA.json",
+      "sha256": "7ba310d9dddefdaed0d9cac52ca0e504c0bbe9e62807350ff4fecfb778af574c",
+      "bytes": 118044
+    },
+    "eval_groups": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/EVAL_GROUPS.json",
+      "sha256": "d93788d464e76763eb588390f8c1b094a69b055dd9af852a19b53bf7e0e76ddf",
+      "bytes": 16779
+    },
+    "stable_pose_candidates": {
+      "path": "data/pallet/results/pallet_pose_stable_improvement_20261001_v1/POSE_CANDIDATES.json",
+      "sha256": "2e4e7ee0aa1077b0ed0a11b488c95fa9e3a06c8855fc612fc0a69db80de94cda",
+      "bytes": 11917970
+    },
+    "historical_metadata": {
+      "path": "data/pallet/results/pallet_pose_diagnosis_20260930_v1/METADATA.json",
+      "sha256": "2afe95ea05c03f7ab9ad203b4b44cfd51fbf70f89c4117e6ce2b57693cc00fa3",
+      "bytes": 86230
+    },
+    "stable_protocol": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PROTOCOL_EFFECTIVE.json",
+      "sha256": "bf93ff016806a41182ca435eaafa076ee00e1387688163ff12350a4857f5a639",
+      "bytes": 7194
+    },
+    "stable_results": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/RESULTS.json",
+      "sha256": "613ce1254b9f9e9eb128e7ed3ec4a36165344adbae8d56a653366e00e5a3f138",
+      "bytes": 560503
+    },
+    "stable_protocol_sha": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/EFFECTIVE_PROTOCOL_SHA.json",
+      "sha256": "51a6fb04e5651b501f156b2117b54ebdcaef14cac4c0fb4f7fdedfa775a1cce9",
+      "bytes": 198
+    },
+    "stable_pose_lock": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/POSE_PREDICTIONS_LOCK.json",
+      "sha256": "d301577585136ba6fedc15d5f3496c263d986a935db85017b9ee5e4be7647175",
+      "bytes": 5764
+    },
+    "stable_prediction_lock": {
+      "path": "_docs/experiments/pallet_pose_stable_improvement_20261001_v1/PREDICTIONS_LOCK.json",
+      "sha256": "57716353800d8b252ab89f0c2a247b21543c52b717fd9d09b9e9a118262fea19",
+      "bytes": 14653
+    },
+    "source_train_gate": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+      "sha256": "1f666773b7d7ace375ce48dbf3511eb48a60cb690a4812b83e826f78b961fe7c",
+      "bytes": 31625
+    },
+    "parent_publication": {
+      "path": "_docs/experiments/pallet_pose_joint_recovery_20261001_v1/PUBLICATION_MANIFEST.json",
+      "sha256": "526778dbfbc113402e56c0d404d1a609786a545bc5f1f35600efc16866add626",
+      "bytes": 6017
+    },
+    "input_audit": {
+      "path": "_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/INPUT_AUDIT.json",
+      "sha256": "a54ada43c6a4230692bda377f77e18062904d94441bfc91296cc13c3b9f1473f",
+      "bytes": 30597
+    },
+    "previous_feasibility": {
+      "path": "_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/RESULTS.json",
+      "sha256": "29b8741480db7f6dc0d61508dc27e73d89a64b59ad6254b0f78312f7a88400f9",
+      "bytes": 814979
+    },
+    "previous_protocol": {
+      "path": "_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/PROTOCOL.json",
+      "sha256": "9001f935868adf16c94fbe046b39647d7d72844d1dd3b292ac8f6be4738865fe",
+      "bytes": 8876
+    },
+    "previous_publication": {
+      "path": "_docs/experiments/pallet_pose_real_union_feasibility_20261001_v1/PUBLICATION_MANIFEST.json",
+      "sha256": "7601e817f89071d684bb2fca72e8a43b91af8468ce3167cf8a2c5a7bf82178b9",
+      "bytes": 6438
+    }
+  },
+  "codes": [
+    {
+      "path": "scripts/research/pallet_pose_diagnosis_20260930_v1/run.py",
+      "sha256": "7eb7172e4c4e6f97a5d020f9c53471e2e69ed4d760324a0b2646e7af47a3a735",
+      "bytes": 16700
+    },
+    {
+      "path": "scripts/research/pallet_pose_joint_recovery_20261001_v1/candidate_bounds.py",
+      "sha256": "f9cf1b66abdc7dfa2a49834f5363f8fce8f953f9f3a4454752e289793b195b46",
+      "bytes": 6686
+    },
+    {
+      "path": "scripts/research/pallet_pose_objective_followup_v2/metric_baseline.py",
+      "sha256": "ec5ef4a6cdb10299b806151afcf462be993b873aa0e1d89f4741d2cca75dd22d",
+      "bytes": 29874
+    },
+    {
+      "path": "scripts/research/pallet_pose_real_union_feasibility_20261001_v1/common.py",
+      "sha256": "57ef76a06c54629bcb9e2d0078e0651be844cf01be0b180ff72e1615a2131860",
+      "bytes": 1947
+    },
+    {
+      "path": "scripts/research/pallet_pose_real_union_feasibility_20261001_v1/evaluate.py",
+      "sha256": "80456d0caaa8f4663b6227c33546d38f44eddb0ee167a7e8841db7651af6f664",
+      "bytes": 24834
+    },
+    {
+      "path": "scripts/research/pallet_pose_real_union_feasibility_20261001_v1/seal_protocol.py",
+      "sha256": "945c2f1df0d972e6ec8f7fdbdaa298ddc1c650517374c31a920ca9c722ec7a06",
+      "bytes": 6225
+    },
+    {
+      "path": "scripts/research/pallet_pose_stable_improvement_20261001_v1/common.py",
+      "sha256": "8085b30baeed44ff427585afcd3efd2ceba720095c9810a4bfc624dfcc599ea3",
+      "bytes": 10122
+    },
+    {
+      "path": "scripts/research/pallet_pose_stable_improvement_20261001_v1/evaluate.py",
+      "sha256": "be6451a4cdfcc0759f59d238a3a5615eb48dfaf7bdfda79c61479e296f779150",
+      "bytes": 28730
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/common.py",
+      "sha256": "b9a90bc4722df4e89b2aeba35fd162ded5fbf4586fda38b212cfd8d7dc86a028",
+      "bytes": 2382
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/real_feasibility.py",
+      "sha256": "68434677824ed67919a4b376429199841e4544faa43d076269c75a370d752ad8",
+      "bytes": 13928
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/seal_real_protocol.py",
+      "sha256": "cfa4e67e2e87bb07ffbf374ea3f3b1af4316877bae29494c910c519f864206a9",
+      "bytes": 4183
+    }
+  ]
+}

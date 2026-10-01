@@ -1,0 +1,172 @@
+{
+  "complete": true,
+  "created_at": "2026-10-01T01:38:08.276893+00:00",
+  "audit_scope": "Bounded read-only repository search and implementation review; not an exhaustive novelty claim. Existing report numbers quoted, no quality arrays or new metrics computed.",
+  "exact_precedent_found": false,
+  "exact_method_sought": "Frozen operational R0 GEO as anchor; source candidate admissible iff exact T<=anchorT AND R<=anchorR; fixed TRAIN minmax target among those candidates; learn scores over all original geometrically valid candidates.",
+  "search_terms": [
+    "rollback",
+    "no_harm",
+    "nonincrease",
+    "nonworse",
+    "utility",
+    "Pareto",
+    "confidence",
+    "cap",
+    "physical translation/rotation target",
+    "R0 GEO anchor"
+  ],
+  "prior_methods": [
+    {
+      "name": "Current physical-pose minmax classifiers",
+      "code": {
+        "path": "scripts/research/pallet_pose_union_selection_20261001_v1/train.py",
+        "sha256": "26cf86cd3b2d3ede9c5d9dbe01ecd80508072b8ba36f6a800648f0dbf1b19e30",
+        "bytes": 27873
+      },
+      "report": {
+        "path": "_docs/experiments/pallet_pose_selector_pairwise_20261001_v1/REPORT_KO.md",
+        "sha256": "5f16a9147c0023be6415fd21a7d49c03003a2a3699c1bd4ddf2abc2e3a5f8fbc",
+        "bytes": 10100
+      },
+      "difference": "All geometrically valid candidates compete; whole-pose fixed minmax target. Pareto only handles exact-cost ties. No R0-anchored two-axis admissibility mask.",
+      "existing_negative_evidence": "Converged CE source VAL failed4/45; pairwise source VAL failed16/45. Neither authorized learned real routing."
+    },
+    {
+      "name": "N2/Replay learned utility",
+      "code": {
+        "path": "scripts/research/pallet_posefix_utility_selector_v1/train.py",
+        "sha256": "280abf6fb7b48e9158951935a2c7f4d03e917ae816e98d123517307f1184c59f",
+        "bytes": 8092
+      },
+      "report": {
+        "path": "_docs/experiments/pallet_posefix_utility_selector_v1/RESULTS_KO.md",
+        "sha256": "cddb1ec415e3fd2508258067791ad3be5c5c44dd92cb662f5456d33ddad26d5e",
+        "bytes": 12049
+      },
+      "difference": "Pointwise normalized 2D signed-gain SmoothL1; accept a vertical pair when both predicted endpoint gains are positive. Neither whole-pose T/R labels nor a Pareto admissibility target.",
+      "existing_negative_evidence": "Source clean PCK10 95.233% to93.618%; GREEN PCK10 81.351% to78.267%. Accepted a recorded4.34 to168.30px harmful correction."
+    },
+    {
+      "name": "Geometry/confidence pair rollback",
+      "code": null,
+      "report": {
+        "path": "_docs/experiments/pallet_posefix_corner_gate_v1/RESULTS_KO.md",
+        "sha256": "3cfc1029aef33a1566efc60c9a3b6bb831d36efb8c400b4d7b2409570e00ef96",
+        "bytes": 12784
+      },
+      "difference": "GT-free hand thresholds on confidence, removal stability, flip agreement and heatmap spread; reconstruct paired coordinates and revert failed structure checks. No learned physicalT/R target.",
+      "existing_negative_evidence": "GREEN81.351% to79.736%; DEV59.459% to58.919% for the full pair gate."
+    },
+    {
+      "name": "DHT local one-sided no-harm",
+      "code": {
+        "path": "scripts/research/pallet_symmetry_dht_local_v2/symdht_local_v2/objective.py",
+        "sha256": "5775720663d87c6e08cabfa5afc8c24489bc7aa2eb48d50bc1b69f0d7c2df2a0",
+        "bytes": 4167
+      },
+      "report": {
+        "path": "_docs/experiments/pallet_symmetry_dht_local_v2/REPORT_KO.md",
+        "sha256": "ffeebfb0ec228204dfac866cf6a4b1f0d1a86478482a72b3234ed22e1372e1a3",
+        "bytes": 2887
+      },
+      "difference": "Continuous point correction loss plus normalized ReLU(new2Derror-base2Derror) and utility. No fixed-candidate anchored physicalT/R eligibility.",
+      "existing_negative_evidence": "All three Hough seeds failed primary1% gain and worsened median/P90; track closed without real evaluation."
+    },
+    {
+      "name": "Whole-layout relative-gain regression",
+      "code": {
+        "path": "scripts/research/pallet_hough_gain_selector_v1/core.py",
+        "sha256": "b702e3e700f9d0f9300abdeaa160c283ea7b0608e4a414855b83ed7fe4eb3ffd",
+        "bytes": 7832
+      },
+      "report": {
+        "path": "_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/PRIOR_OBJECTIVE_AUDIT_KO.md",
+        "sha256": "717837a580aa074bab2a88af4ff0dc8ff5b19fb093cbb55fc3dda1fd2e5641d5",
+        "bytes": 14705
+      },
+      "difference": "SmoothL1 signed mean2Dgain for choosing complete P/Q layouts; calibration used aggregate median/P90 and damage guards. Not per-candidate physicalT/R Pareto-safe targets.",
+      "existing_negative_evidence": "Three seeds population mean gain +0.016280/0/-0.019861px; synthetic gate FAIL."
+    },
+    {
+      "name": "Stage4 expert routing",
+      "code": {
+        "path": "scripts/research/pallet_selector_recovery_v1/build_router_dataset.py",
+        "sha256": "6568dff2fe957c491c02f7c17a02cfa72db59aba3b4833f73eb9404c930ff225",
+        "bytes": 8495
+      },
+      "report": {
+        "path": "_docs/experiments/pallet_pose_selector_objective_audit_20261001_v1/PRIOR_OBJECTIVE_AUDIT_KO.md",
+        "sha256": "717837a580aa074bab2a88af4ff0dc8ff5b19fb093cbb55fc3dda1fd2e5641d5",
+        "bytes": 14705
+      },
+      "difference": "Choose smaller C2 ADDnorm between two experts after their W/D decision, then unweighted BCE. No physical T and R nonincrease conjunction.",
+      "existing_negative_evidence": "Synthetic TEST ADDnorm routed0.09768815 worse than S0 0.09621724 despite oracle0.09031495; real verdict CLEAN_RECOVERY_BUT_HARD_LOSS."
+    },
+    {
+      "name": "Displacement cap",
+      "code": null,
+      "report": {
+        "path": "_docs/experiments/pallet_posefix_replay_v1/RESULTS_KO.md",
+        "sha256": "0cf6c2e85552ab1f98211c96f5ac388f26d426bc24a986d153da986cfcc43161",
+        "bytes": 5751
+      },
+      "difference": "Cap2D displacement to1%image diagonal. No trained selector or physical error guarantee; uncapped output remains primary.",
+      "existing_negative_evidence": "At640x480 cap8px cannot recover same-correspondence >20px errors to<=10px. Capped results explicitly cannot replace failed primary."
+    }
+  ],
+  "preserved_data": {
+    "contract": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+      "sha256": "025c67ccbaeb89a840d66e96ef040c2319cbcd2ef6be609716eed6ac0abc9d24",
+      "bytes": 1921959
+    },
+    "overlap_audit": {
+      "path": "_docs/experiments/pallet_pose_joint_recovery_20261001_v1/SELECTOR_FEASIBILITY_KO.md",
+      "sha256": "6e4be0e15fd8919f1cb3c017c16d564cf456a35526bd7a67aaa73cc15b19be1e",
+      "bytes": 11747
+    },
+    "eligible_TRAIN": 2598,
+    "eligible_VAL": 1024,
+    "original_inference_population": 5120,
+    "eligibility": "Pre-existing declared C2 and proper-rigid metadata; no outcome-based frame deletion. C1/improper rows remain diagnostic.",
+    "all_invalid_TRAIN_rows": 1,
+    "TRAIN_candidate_shape_R0_ONLY": [
+      2598,
+      2,
+      94
+    ],
+    "TRAIN_candidate_shape_UNION": [
+      2598,
+      4,
+      94
+    ],
+    "TRAIN_VAL_pairwise_ID_SHA_scenario_group_overlap": 0,
+    "refiner_source_unique1412_overlap_original_selector_TRAIN_VAL_TEST": [
+      105,
+      26,
+      26
+    ],
+    "refiner_overlap_count_scope": "Original selector TRAIN4096/VAL1024/TEST1024; not newly recomputed for eligible TRAIN2598.",
+    "VAL_status": "Repeated development population, one renderer group; not pristine frozen-refiner holdout.",
+    "runtime_inputs": "One RGB image, pallet dimensions, existing calibrated K. No temporal trajectory or new sensor."
+  },
+  "minimal_intervention": {
+    "change": "Only source target admissibility relative to operational R0, retaining existing minmax scales, tie order, candidate94 features, CE+explicitL2, normalization, solver and evaluation gates.",
+    "must_preserve_competitors": "Do not remove unsafe candidates from CE denominators or runtime validity; safe mask defines source targets only.",
+    "no_runtime_safety_guarantee": "GT-derived target safety does not imply the learned model can recognize safe candidates on VAL or real frames.",
+    "R0_control": "If anchored targets are applied to R0_ONLY, train a new control; old weight cannot be claimed to optimize identical targets.",
+    "prerequisites": "Root seals diagnostic protocol, independently verifies real anchored feasibility, then seals SOURCE_PROTOCOL before any actual TRAIN target calculation. PASS permits only separately sealed fitting.",
+    "no_threshold_or_scale_search": true
+  },
+  "actions": {
+    "new_fits": 0,
+    "image_forwards": 0,
+    "new_GT_reads": 0,
+    "new_reference_error_calls": 0,
+    "new_quality_computations": 0,
+    "prior_file_edits": 0
+  },
+  "method_success": false,
+  "goal_complete": false
+}

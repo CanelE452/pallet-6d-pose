@@ -1,0 +1,144 @@
+{
+  "schema": "pallet_pose_pareto_anchor_source_feasibility_v1",
+  "complete": true,
+  "created_at": "2026-10-01T01:39:28.268964+00:00",
+  "models": [
+    "R0_ONLY",
+    "UNION_s1",
+    "UNION_s2",
+    "UNION_s3"
+  ],
+  "frames": 2598,
+  "scope": "C2_TRAIN_ONLY",
+  "source_TRAIN_only": true,
+  "scale": [
+    2.4636887551191258,
+    1.113474019956766
+  ],
+  "target_rule": "R0_GEO_PARETO_NONREGRESSION_FIXED_TRAIN_MINMAX",
+  "anchor": "Frozen R0 GEO index and its corresponding source TRAIN T/R; assert candidate identity/error parity.",
+  "eligibility": "original_valid AND T<=anchor_T AND R<=anchor_R with exact comparisons, no epsilon.",
+  "target": "Existing fixed-scale minmax winner among eligible candidates; exact-cost/Pareto/R0/hypothesis/expert ties unchanged.",
+  "original_valid_preserved": "Anchor-admissible mask selects target only. CE competition and runtime argmin retain all originally valid candidates.",
+  "failed_anchor": "The existing one all-invalid TRAIN row remains target=-1, both errors infinite and zero CE over full2598 denominator.",
+  "median_strict": true,
+  "p90_ratio_max": 1.05,
+  "failure_no_increase": true,
+  "comparisons": [
+    "R0_ONLY constrained oracle",
+    "R0_GEO",
+    "paired DIVERSE251_GEO"
+  ],
+  "all_seeds_required": true,
+  "required_checks": 45,
+  "success": "Every one of45 fixed source TRAIN whole-pose comparisons passes and every finite selected error is no worse than R0 anchor in both axes.",
+  "next_step": "Only a separately sealed TRAIN_PROTOCOL can authorize four bounded fits after this PASS.",
+  "budgets": {
+    "fits": 0,
+    "image_forwards": 0,
+    "new_PnP": 0,
+    "VAL_quality": 0,
+    "real_quality": 0
+  },
+  "inputs": {
+    "features": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURES.npz",
+      "sha256": "67fd05d744db1e194ec1ac467964ab801777987b962f38b1d53053f6784fbd14",
+      "bytes": 11150709
+    },
+    "train_labels": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_LABELS.npz",
+      "sha256": "8c24101cadae5cef3269670b418844a16466d16684d43c2b878cc978d3045038",
+      "bytes": 501167
+    },
+    "train_gate": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+      "sha256": "1f666773b7d7ace375ce48dbf3511eb48a60cb690a4812b83e826f78b961fe7c",
+      "bytes": 31625
+    },
+    "feasibility_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_FEASIBILITY_PROTOCOL.json",
+      "sha256": "38881f8edb920eb93f9467fcdcf7e78704c0a5b21091c129c0b4f7a2bffff7f1",
+      "bytes": 2490
+    },
+    "source_predictions_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PREDICTIONS_LOCK.json",
+      "sha256": "152026bd966f208f4816a36fd0c5f369ab1a9c917b74b0588ffa2bbca480091f",
+      "bytes": 8407832
+    },
+    "feature_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURE_LOCK.json",
+      "sha256": "0de603ddb46160fd17ea84db7851e986e1643e6ce87fa40ec125b671ea490386",
+      "bytes": 3108824
+    },
+    "source_contract": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+      "sha256": "025c67ccbaeb89a840d66e96ef040c2319cbcd2ef6be609716eed6ac0abc9d24",
+      "bytes": 1921959
+    },
+    "runtime_amendment": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_RUNTIME_AMENDMENT_01.json",
+      "sha256": "e888d51fa27d0df339392e8825eff2d57cccfbb0e53c67d42f08bea69a5c0155",
+      "bytes": 23810
+    },
+    "parent_train_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_PROTOCOL.json",
+      "sha256": "6e2425bc63f91888a6df7ddf48cac4d3bde0b1316d1cb70bf10c634be631e1fe",
+      "bytes": 6679
+    },
+    "real_authorization": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/REAL_FEASIBILITY_AUTHORIZATION.json",
+      "sha256": "c654e4ac349f9921e7edc7a19f852ee67b765778db8a6539daf1d67efe525e5e",
+      "bytes": 1053
+    }
+  },
+  "codes": [
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/common.py",
+      "sha256": "b9a90bc4722df4e89b2aeba35fd162ded5fbf4586fda38b212cfd8d7dc86a028",
+      "bytes": 2382
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/source_feasibility.py",
+      "sha256": "644505593a375878111e8a129f776f7e8c06adc126d070699f4627eaf8bcff29",
+      "bytes": 15753
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/convex_train.py",
+      "sha256": "4cdfca8ad4cde6c587d032927aa2ddb61273e9b4b534d3e42aaae35d77887d75",
+      "bytes": 29439
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/seal_source_protocol.py",
+      "sha256": "fc1fd6310ff73c9541181b053e4a2422e71e45786d097713c164bc647bfb7c07",
+      "bytes": 3806
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/convex_train.py",
+      "sha256": "621afb898fe9f47ba03fe2cfbabcc82794f8a41c5a760a04349f4b8abdb5f4c4",
+      "bytes": 19904
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/common.py",
+      "sha256": "4cb1943ee45524d7b546b9c669d666d72efce4c670077bcdfe0b1a517186178c",
+      "bytes": 1130
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/common.py",
+      "sha256": "4efe5b318f56a4b051cba3b9ca62f09aaac777e247558961e071b29effd3eeae",
+      "bytes": 3248
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/source_features.py",
+      "sha256": "f36a26ebeb88e1cd36697c8be92c4080860de437407c67423c848baf03d07cfc",
+      "bytes": 22452
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/train.py",
+      "sha256": "26cf86cd3b2d3ede9c5d9dbe01ecd80508072b8ba36f6a800648f0dbf1b19e30",
+      "bytes": 27873
+    }
+  ],
+  "method_success": false,
+  "goal_complete": false
+}

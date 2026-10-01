@@ -1,0 +1,230 @@
+{
+  "schema": "pallet_pose_pareto_anchor_training_v1",
+  "complete": true,
+  "created_at": "2026-10-01T01:40:03.566819+00:00",
+  "models": [
+    "R0_ONLY",
+    "UNION_s1",
+    "UNION_s2",
+    "UNION_s3"
+  ],
+  "feature_dim": 94,
+  "train_rows": 2598,
+  "max_fits": 4,
+  "device": "cpu",
+  "cpu_threads": 1,
+  "lambda_l2": 0.0001,
+  "bias": 0.0,
+  "normalization": "old_float32_then_float64",
+  "initialization": "All94 weights zero; no optimizer initialization seed search.",
+  "solver": {
+    "method": "L-BFGS-B",
+    "maxiter": 1000,
+    "maxfun": 2000,
+    "ftol": 1e-15,
+    "gtol": 1e-08,
+    "bounds": null
+  },
+  "certificate": {
+    "optimizer_success": true,
+    "gap_upper_bound_max": 1e-06
+  },
+  "certificate_definition": "For full-frame mean CE + lambda/2 ||w94||^2, strong convexity gives objective gap <= ||gradient||^2/(2*lambda). A numerical certificate of this objective, not a T/R or generalization guarantee.",
+  "objective": "Same old masked one-hot CE(-score), divided by all2598 rows; zero/one-valid rows contribute zero CE. Add explicit lambda/2 ||w94||^2.",
+  "target_rule": "R0_GEO_PARETO_NONREGRESSION_FIXED_TRAIN_MINMAX",
+  "changed_factor": "Only source target admissibility: errors in both T and R must be no greater than the frozen operational R0 GEO errors. Same converged CE+ridge, features, normalization, candidates, source rows, scale and solver.",
+  "target": "Use original fixed TRAIN-scale minmax and exact ties within the R0-anchored admissible set. The original geometric-valid mask remains unchanged in CE and inference.",
+  "anchor_rule": "Frozen R0 GEO candidate on the same frame; candidate index/errors parity required. One original all-invalid row remains failure and zero CE over full2598 denominator.",
+  "runtime_safety": "A constrained oracle target gives no guarantee that approximate GT-free predictions satisfy nonregression. Only the original measured source and real gates can establish performance.",
+  "candidate_pool": "R0_ONLY: R0 long/short. UNION seed s: R0 long/short plus frozen DIVERSE251_s long/short. Entire R,t selected together.",
+  "inference_tie": "Exact learned score tie: R0 then hypothesis name, with no reference access.",
+  "no_valid_fallback": "Both arms use the same saved R0 GEO whole pose when zero candidate is usable; if unavailable, mark failed and both errors +infinity.",
+  "architecture": "Shared linear94; no expert ID. Frozen R0 and three frozen DIVERSE251 refiners.",
+  "seed_meaning": "s1/s2/s3 are existing frozen refiner seeds. Deterministic shared R0_ONLY is fitted once and repeated only as a statistical control, not three independent fits.",
+  "runtime_inputs": "One RGB image and pallet physical dimensions, with existing calibrated camera K/geometry contract. No temporal inputs or new real-GT training.",
+  "real_operator_seal": "Source gate PASS is required before any new real routing. Real evaluator code and cached real input bindings will be frozen in a separate REAL_PROTOCOL before routing, using exactly the real_evaluation criteria fixed here.",
+  "checkpoint": "One final solver result per model; no best iteration or best seed selection.",
+  "source_val": {
+    "frames": 1024,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "median_strict": true,
+    "p90_ratio_max": 1.05,
+    "failure_no_increase": true,
+    "comparators": [
+      "R0_ONLY",
+      "R0_GEO",
+      "paired_DIVERSE_GEO"
+    ],
+    "all_seeds_required": true,
+    "no_checkpoint_selection": true,
+    "routing_lock_before_source_labels": true,
+    "real_route_requires_gate_pass": true,
+    "zero_valid_fallback": "R0_GEO_if_available_else_failure"
+  },
+  "real_evaluation": {
+    "populations": {
+      "NATURAL99": 99,
+      "CLEAN29": 29,
+      "WOOD45": 45
+    },
+    "all_frames_retained": true,
+    "IoU_filter": false,
+    "metric": "Unchanged center translation cm; full physical C2 rotation degrees; corner8 SQPnP+LM.",
+    "natural_joint_medians": "All3 seeds strictly lower T and R than shared R0_ONLY, paired original DIVERSE251, R0, PRIOR1 and FULL125.",
+    "uncertainty": "2000 crossed paired recording/seed bootstrap, seed20261001; upper95<0 for both T/R versus shared R0_ONLY and R0.",
+    "recording_sensitivity": "Leave each natural recording out: both mean-seed medians lower versus shared R0_ONLY and R0.",
+    "natural_tail": "Mean-seed T/R P90<=1.05 versus shared R0_ONLY and R0; no seed increases failures.",
+    "clean": "Mean-seed T/R median and P90<=1.05 R0; no seed increases failures.",
+    "wood": "All45 retained as separate form-transfer stress, no selection or dropped seed.",
+    "historical_gate_parity": "Same original stability gate structure and tolerances; R0_ONLY is this intervention matched control. No old trained coordinate outputs are changed.",
+    "reference_before_selection": false,
+    "quality_read_after_choices_locked": true,
+    "limitations": "Repeated DEV and source VAL exposure via frozen refiner; not new independent TEST. Passing alone does not prove unseen-recording generalization."
+  },
+  "input_labels": "Source TRAIN only; no new real reference labels or source VAL qualities in optimization.",
+  "source_VAL_reuse": "Same held-out split reused for several method diagnoses, not a fresh generalization claim. Frozen refiner-training source overlaps remain disclosed.",
+  "inputs": {
+    "features": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURES.npz",
+      "sha256": "67fd05d744db1e194ec1ac467964ab801777987b962f38b1d53053f6784fbd14",
+      "bytes": 11150709
+    },
+    "train_labels": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_LABELS.npz",
+      "sha256": "8c24101cadae5cef3269670b418844a16466d16684d43c2b878cc978d3045038",
+      "bytes": 501167
+    },
+    "train_gate": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+      "sha256": "1f666773b7d7ace375ce48dbf3511eb48a60cb690a4812b83e826f78b961fe7c",
+      "bytes": 31625
+    },
+    "feasibility_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_FEASIBILITY_PROTOCOL.json",
+      "sha256": "38881f8edb920eb93f9467fcdcf7e78704c0a5b21091c129c0b4f7a2bffff7f1",
+      "bytes": 2490
+    },
+    "source_predictions_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PREDICTIONS_LOCK.json",
+      "sha256": "152026bd966f208f4816a36fd0c5f369ab1a9c917b74b0588ffa2bbca480091f",
+      "bytes": 8407832
+    },
+    "feature_lock": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURE_LOCK.json",
+      "sha256": "0de603ddb46160fd17ea84db7851e986e1643e6ce87fa40ec125b671ea490386",
+      "bytes": 3108824
+    },
+    "source_contract": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+      "sha256": "025c67ccbaeb89a840d66e96ef040c2319cbcd2ef6be609716eed6ac0abc9d24",
+      "bytes": 1921959
+    },
+    "runtime_amendment": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_RUNTIME_AMENDMENT_01.json",
+      "sha256": "e888d51fa27d0df339392e8825eff2d57cccfbb0e53c67d42f08bea69a5c0155",
+      "bytes": 23810
+    },
+    "parent_train_protocol": {
+      "path": "_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_PROTOCOL.json",
+      "sha256": "6e2425bc63f91888a6df7ddf48cac4d3bde0b1316d1cb70bf10c634be631e1fe",
+      "bytes": 6679
+    },
+    "source_poses": {
+      "path": "data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_POSES.json",
+      "sha256": "eea0f3cf4b263e59d803236f69758e49edaa4d5f6db6f6f8fde0d655da4d6b0f",
+      "bytes": 171501342
+    },
+    "source_feasibility": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/SOURCE_FEASIBILITY.json",
+      "sha256": "6635cb272f736dc599c8eb0473772368cdd4a7c1f2722f6fa56acd83d98a5c38",
+      "bytes": 43992
+    },
+    "source_protocol": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/SOURCE_PROTOCOL.json",
+      "sha256": "28dd5ff11eabf6ac3bae13da5792de02cace7d74a6a2df8f27a6e4fd94827403",
+      "bytes": 6032
+    },
+    "real_authorization": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/REAL_FEASIBILITY_AUTHORIZATION.json",
+      "sha256": "c654e4ac349f9921e7edc7a19f852ee67b765778db8a6539daf1d67efe525e5e",
+      "bytes": 1053
+    }
+  },
+  "codes": [
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/common.py",
+      "sha256": "b9a90bc4722df4e89b2aeba35fd162ded5fbf4586fda38b212cfd8d7dc86a028",
+      "bytes": 2382
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/convex_train.py",
+      "sha256": "4cdfca8ad4cde6c587d032927aa2ddb61273e9b4b534d3e42aaae35d77887d75",
+      "bytes": 29439
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/evaluate_source.py",
+      "sha256": "5f56458be4b5caf39212692082069b49ceb9e8cdf9ff5f917de01cf72a49e95f",
+      "bytes": 27275
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/seal_training.py",
+      "sha256": "93594ff13b164001b0a87cb37f0c7d278181e5bebe751b1b8521b23a25af39dc",
+      "bytes": 4196
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/convex_train.py",
+      "sha256": "621afb898fe9f47ba03fe2cfbabcc82794f8a41c5a760a04349f4b8abdb5f4c4",
+      "bytes": 19904
+    },
+    {
+      "path": "scripts/research/pallet_pose_selector_convergence_20261001_v1/common.py",
+      "sha256": "4cb1943ee45524d7b546b9c669d666d72efce4c670077bcdfe0b1a517186178c",
+      "bytes": 1130
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/common.py",
+      "sha256": "4efe5b318f56a4b051cba3b9ca62f09aaac777e247558961e071b29effd3eeae",
+      "bytes": 3248
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/source_features.py",
+      "sha256": "f36a26ebeb88e1cd36697c8be92c4080860de437407c67423c848baf03d07cfc",
+      "bytes": 22452
+    },
+    {
+      "path": "scripts/research/pallet_pose_union_selection_20261001_v1/train.py",
+      "sha256": "26cf86cd3b2d3ede9c5d9dbe01ecd80508072b8ba36f6a800648f0dbf1b19e30",
+      "bytes": 27873
+    },
+    {
+      "path": "scripts/research/pallet_pose_pareto_anchor_20261001_v1/source_feasibility.py",
+      "sha256": "644505593a375878111e8a129f776f7e8c06adc126d070699f4627eaf8bcff29",
+      "bytes": 15753
+    }
+  ],
+  "evidence": {
+    "prior_converged_protocol": {
+      "path": "_docs/experiments/pallet_pose_selector_convergence_20261001_v1/PROTOCOL.json",
+      "sha256": "27cfc8c39ff1191358e0a48026b81eca96259aca9fb2e9b810df135baaa492de",
+      "bytes": 10020
+    },
+    "prior_methods": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/PRIOR_METHOD_AUDIT.json",
+      "sha256": "5005f569940ef1bfc7220ff0d8b4fa1d58d83d69797055549de6c08a245b4a20",
+      "bytes": 8828
+    },
+    "real_feasibility": {
+      "path": "_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/REAL_FEASIBILITY.json",
+      "sha256": "ec307328097dcca8b5ebaff2ae7b2779ede46feb9e0e21153f83d9069fc99f8b",
+      "bytes": 435140
+    }
+  },
+  "evidence_access": "Sealer-only rationale; trainer opens its input bindings and codes, never these real-quality evidence contents.",
+  "stop": "Max4 deterministic fits; max1000 iterations/2000 objective calls each; failed solver/certificate or any of45 source VAL checks stops this method before new learned real routing. No sweep/seed extension/threshold changes.",
+  "method_success": false,
+  "goal_complete": false
+}
