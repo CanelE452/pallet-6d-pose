@@ -2,6 +2,13 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 자세 후보 위치의 RGB 특징 검증
+
+고정 DINO로 TRAIN 2,598행의 RGB 특징을 만들고 유효 자세 후보 20,776개를 독립 검산했습니다. **새 선택기 학습·T/R 평가는 0회**이며, 직전 성능 판정은 **43/45 실패**로 그대로입니다. 검산 과정에서 원본 영상 밖 반사 padding에도 특징을 읽는 위치가 있음을 확인했습니다. 이를 원본 영상 영역과 구분하는 입력 수정 후 학습을 진행할 계획이며, **안정적인 T·R 공동 개선은 아직 미달성**입니다.
+
+- [입력 감사·합성 TRAIN RGB 6장·각 팔레트 치수](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/REPORT_KO.md)
+- [전체 입력 검산](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/INPUT_VERIFICATION_KO.md) · [padding 진단](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/PADDING_SUPPORT_AUDIT.json) · [선행 방법과 한계](_docs/experiments/pallet_pose_dino_input_audit_20261001_v1/PRIOR_METHODS_KO.md)
+
 ## 2026-10-01 과소예측 비용을 높인 후속 검증
 
 입력은 **RGB 한 장·팔레트 치수·기존 카메라 보정 K**로 유지했습니다. 실제보다 오차를 낮게 예측할 때의 회귀 비용을 고정 2배로 높여 네 모델을 학습했고 **160회 호출·57회 승인 반복**으로 모두 수렴했습니다. 합성 검증은 여전히 **43/45 통과·전체 실패**입니다. seed 3의 T 중앙값은 직전 **1.682087cm → 1.679494cm**로 줄었지만 기준 **1.674594cm**에는 못 미쳤습니다. 개선 가능한 선택도 줄었으며, **T·R의 안정적 공동 개선은 미달성**입니다. 이번 실사 평가는 실행하지 않았습니다.
