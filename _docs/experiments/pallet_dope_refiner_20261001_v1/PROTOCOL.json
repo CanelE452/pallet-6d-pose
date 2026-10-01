@@ -1,0 +1,211 @@
+{
+  "schema": "dope_local_refiner_protocol_v1",
+  "created_at": "2026-10-01T08:14:38.590023+00:00",
+  "purpose": "Apply the existing P local-distribution refinement principle to frozen DOPE; compare paired DOPE/D/P, including unfavorable outcomes. Existing YOLO results are historical controls.",
+  "authorized_scope": "User 2026-10-01: run experiments to complete IEEE Sensors manuscript; later instruction authorizes new head training beyond the earlier diagnosis-only document.",
+  "status": "LOCKED_BEFORE_NEW_BACKBONE_CACHE_AND_HEAD_TRAINING",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "steps": 6000,
+  "batch": 16,
+  "fits": {
+    "P": 3,
+    "D": 3
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "warmup_steps": 100,
+    "cosine_final_lr_fraction": 0.1,
+    "gradient_clip_norm": 5.0
+  },
+  "model_config": {
+    "c3": 256,
+    "c4": 128,
+    "stride3": 4,
+    "stride4": 8,
+    "hidden": 16,
+    "encoded": 24,
+    "stencil_fraction": 0.1310373991727829
+  },
+  "baseline": {
+    "path": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+    "sha256": "0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f"
+  },
+  "baseline_trainable": false,
+  "input": {
+    "preprocessing": "stage0 reflect100 resizeback to native size, shortest-side400 floor-to-eight raster; exact actual x/y inverse",
+    "source": "Existing prepared images already include reflect100, no second reflection",
+    "real": "Original BGR image reflected100 then same recipe",
+    "decoder": "Existing semantic-channel local peaks, threshold0.3; no affinity object grouping",
+    "features": "Actual VGG post-ReLU layers17/26, 256 channels stride4 /128 channels stride8",
+    "precision": "DOPE FP32, features FP16 roundtrip as in original P; heads FP32, no AMP",
+    "box": "Hull of at least three valid predicted corners, frozen for all methods",
+    "missing": "Preserve missing mask and center8; no target imputation"
+  },
+  "training": {
+    "source_manifest": {
+      "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+      "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789"
+    },
+    "partitions": {
+      "train": 55980,
+      "calibration": 1004,
+      "selection": 1031,
+      "heldout": 1985,
+      "scenario_disjoint": true,
+      "source_manifest": "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json"
+    },
+    "usable": "TRAIN only, predicted hull IoU>=0.5 with sole source GT, at least one jointly valid corner; actual sampled support counted separately at each loss",
+    "order": "Per-seed deterministic shuffled usable rows, 6000x16; D and P same exact row sequence",
+    "source_supervision": "Same source RGB and labels as historical YOLO, new baseline-specific usable mask disclosed",
+    "real_training": 0,
+    "augmentation": "No extra augmentation; identical prepared source images",
+    "feature_storage": "No full spatial feature cache: only prediction metadata cached. Online frozen VGG prefix, no DOPE stage-head recomputation during head training",
+    "checkpoint": "Final step6000 only; resume exact checkpoint state allowed after infrastructure interruption; no outcome-driven restart"
+  },
+  "calibration": {
+    "population": "synthetic calibration",
+    "temperature_grid": [
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "objective": "mean per-frame supported-line CE, individually per arm/seed",
+    "tie": "nearest abs(log(T)) then smaller T",
+    "references": [
+      "https://proceedings.mlr.press/v70/guo17a.html"
+    ]
+  },
+  "selection": {
+    "population": "synth_val",
+    "partition": "selection",
+    "lambda_grid": [
+      0.0,
+      0.0625,
+      0.25,
+      1.0,
+      4.0
+    ],
+    "max_move_image_diagonal_fractions": [
+      null,
+      0.01
+    ],
+    "objective": "mean frame capped original-diagonal-normalized8corner error, then average3seeds; unmatched GT/missing predictions fail with1",
+    "tie": "smaller lambda then stricter cap",
+    "checkpoint": "fixed final6000 only, not best-real/best-val"
+  },
+  "selection_detail": "P calibration: supported-frame point-target CE. D has no temperature. Same source-only lambda/cap grid and ties as YOLO. Decode displacement to original pixels before optional image-diagonal cap (nonuniform scale).",
+  "evaluation": {
+    "population": {
+      "path": "challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json",
+      "sha256": "f87a2d1f4bfc7883bbd0a5562f43ad13711e5ae9aa6586c9a894ec64106437c8"
+    },
+    "n": 319,
+    "role": "reused DEV, not independent TEST",
+    "primary": "Per-estimator paired before/after 2D errors; all-GT PCK and failures plus canonical complete-point conditional medians",
+    "downstream": "Existing canonical geometry-derived reference, K/dimensions/PnP unchanged; coverage and failures retained",
+    "bootstrap_draws": 10000,
+    "bootstrap_seed": 20260914,
+    "unit": "session, same resampled frames and seed mean",
+    "real_based_selection": false,
+    "negative_AP": "Not measured for new DOPE extension; no claim"
+  },
+  "runtime": {
+    "device": "same local desktop GPU",
+    "batch": 1,
+    "warmup": 20,
+    "images": "first two by manifest order per session, 26 total",
+    "repeats": 5,
+    "arms": [
+      "DOPE",
+      "DOPE+D1",
+      "DOPE+P1"
+    ],
+    "scope": "Decoded BGR through canonical pose where available; report keypoints-only separately; exclude file decoding/loading",
+    "timing_not_inferred_from_parameter_count": true
+  },
+  "smoke": "Before main training, two optimizer updates per arm on a fixed first-four-per-source-shape group; discarded fresh smoke heads, separate seed20261001; contracts/finite gradients only, no performance selection",
+  "stopping": "Exactly six fixed-budget fits. Numerical/contract bugs require documented correction. No architecture/seed/real-based threshold search.",
+  "disk_policy": "Keep original artifacts; new compact caches only. Do not delete unrelated files.",
+  "historical_goal": "Stable simultaneous real translation/rotation improvement remains unproven; this experiment cannot retroactively pass its fixed gates.",
+  "bindings": [
+    {
+      "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+      "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789"
+    },
+    {
+      "path": "data/pallet/results/pallet_line_pose_v1/TRAIN_PROTOCOL.json",
+      "sha256": "35ccbb2e198774b33d3f5deda60564a8237c478c772c9bb7a63d5cae79b3bbb3"
+    },
+    {
+      "path": "challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json",
+      "sha256": "f87a2d1f4bfc7883bbd0a5562f43ad13711e5ae9aa6586c9a894ec64106437c8"
+    },
+    {
+      "path": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+      "sha256": "0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f"
+    },
+    {
+      "path": "Deep_Object_Pose/common/models.py",
+      "sha256": "d692ea3b0cabc2c657e0428801d236bba2a1a3564ec6d75ffb26376714a51727"
+    },
+    {
+      "path": "scripts/research/pallet_final_ml_contribution_test_v1/generic_point_refiner.py",
+      "sha256": "ec854fcb51f33f1bcbf0e336135b10b8b121c876b0ae4f7ad4d4065cebe658bd"
+    },
+    {
+      "path": "scripts/research/pallet_sensors_refinement_closeout_v1/direct_residual_control.py",
+      "sha256": "a853007967de913e076974ca3b93ed08264ca94f19acbcd4e872c28e1715cd48"
+    },
+    {
+      "path": "scripts/data_prep/filters/filter_pr_camfacing.py",
+      "sha256": "09603c204b180f07345baa501521dbddfa87695fe8b732996ce1545c7c27e00d"
+    },
+    {
+      "path": "scripts/stage0/eval_harness/eval_pvnet_heads.py",
+      "sha256": "18163d12351af1bba725956386c062c3ba100f2cb2735aa3432fe4456714fefd"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/common.py",
+      "sha256": "8c70c3f13da55007dd27d59755abf3dab313f950093c94d988f58d04873c19fd"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/dope_adapter.py",
+      "sha256": "5b92b3ee88bb30d963ae907154a18c5d6e052b186242286418df4390b6024ced"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/refiner.py",
+      "sha256": "7f17cf78835451b8c0a3b6027452b6082a887128feb59e33d4415ced52038668"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/test_refiner.py",
+      "sha256": "323871ec1bda980f9afd4cee669b3ddfaec40df34db3535d9d2afd9e29775a50"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/data.py",
+      "sha256": "2470f90529b0653a496e1568d8ca0c1e89dea6d8aeace0f40f16a01f6a65aa30"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/train.py",
+      "sha256": "6ebe4963b0088b329efa6730f643001dcc6da03041aff15c6d8c6912ebeb7608"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/selection.py",
+      "sha256": "bdf717078f3df880e00ecdf455021b284dcfaaa8f09735b344a51445ee0a9216"
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/run.py",
+      "sha256": "865f57016fe501f48b37d321f508abad30fa732997e384e64231b781a55dd843"
+    }
+  ]
+}
