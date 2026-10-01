@@ -2,6 +2,16 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-01 T/R 개선 방향 감독을 추가한 결과
+
+입력은 **RGB 이미지 한 장·팔레트 치수·기존 카메라 보정 K**입니다. T/R 변화 회귀에 개선·악화 부호를 학습하는 항을 추가했고, 네 모델 모두 수렴 검산을 통과했습니다. 총 **185회 호출·60회 반복**을 사용했으나 합성 VAL은 여전히 **43/45 통과**입니다. seed 3의 T 중앙값은 기준 **1.674594cm**보다 큰 **1.683872cm**이며 직전 **1.682087cm**보다도 증가했습니다. **안정적인 T·R 공동 개선은 미달성**이고, 사전 기준에 따라 이번 실사 평가는 실행하지 않았습니다.
+
+- [상세 결과·그래프·실제 RGB 6장과 치수 110×11×130cm](_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/REPORT_KO.md)
+- [단일 손실 변경의 사전 설계](_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/DESIGN_KO.md)
+- [독립 학습 검산](_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/TRAIN_CONVERGENCE_KO.md) · [합성 결과 검산](_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/SOURCE_VAL_VERIFICATION_KO.md)
+- [실제 선택의 실패 진단](_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/SOURCE_TRANSFER_DIAGNOSTIC_KO.md) · [네 모델 파라미터](_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/model_parameters/)
+- [이번 실사 평가 미실행 확인](_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/REAL_EVALUATION_NOT_RUN_KO.md)
+
 ## 2026-10-01 Newton으로 수렴 문제 해결, 합성 성능 기준은 미달
 
 동일한 T/R 두 축 회귀에서 최적화 계산만 Newton 방식으로 바꿨습니다. 네 모델 모두 수렴 인증을 받았으며 총 **528회 호출·94회 반복**을 사용했습니다. 합성 VAL은 **43/45 통과**로, seed 3의 T 중앙값이 기준 **1.674594cm → 1.682087cm**로 증가해 전체 조건을 충족하지 못했습니다. 실사 평가는 진행하지 않았고 **안정적 T·R 공동 개선 목표는 아직 미달성**입니다. 입력은 RGB 한 장·팔레트 치수·기존 K로 동일합니다.

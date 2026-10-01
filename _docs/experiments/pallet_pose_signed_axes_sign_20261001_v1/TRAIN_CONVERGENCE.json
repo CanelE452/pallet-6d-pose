@@ -1,0 +1,4535 @@
+{
+  "complete": true,
+  "PASS": true,
+  "independent_check_PASS": true,
+  "created_at": "2026-10-01T04:38:43.805994+00:00",
+  "protocol": {
+    "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/TRAIN_PROTOCOL.json",
+    "sha256": "3063de5cafee2b32f4bf29639596704887c16c2f2eceffb706153f5ab98b810e",
+    "bytes": 26963
+  },
+  "feature_map": "normalized94_abs_anchor_delta94_identity1_fixed_rbf64",
+  "feature_dim": 253,
+  "raw_feature_dim": 94,
+  "context_dim": 189,
+  "rbf_dim": 64,
+  "output_dim": 2,
+  "input_rule": "RBF253_CANDIDATE_MINUS_R0_ANCHOR",
+  "target_rule": "SIGNED_LOG1P_NORMALIZED_TR_ANCHOR_EXCESS",
+  "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER_PLUS_SIGN_LOGISTIC",
+  "sign_rule": "NONZERO_SIGNED_TARGET_AXES",
+  "sign_coefficient": 1.0,
+  "prediction_rule": "MAX_TWO_SIGNED_LOG1P_AXES",
+  "huber_delta": 1.0,
+  "runtime_uses_margin": false,
+  "runtime_uses_reference_errors": false,
+  "runtime_safe_mask": false,
+  "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+  "models": {
+    "R0_ONLY": {
+      "independent_recompute": {
+        "objective": 0.3521239019861265,
+        "Huber": 0.21912901408411345,
+        "Sign_logistic": 0.1270478089276084,
+        "L2_penalty": 0.0059470789744046825,
+        "gradient_l2": 2.084090618273326e-11,
+        "gradient_linf": 4.663178239952765e-12,
+        "certified_gap_upper_bound": 2.1717168525874465e-18,
+        "exact_Huber_kink_scalar_count": 0
+      },
+      "original_certificate": {
+        "PASS": true,
+        "optimizer_success": true,
+        "gradient_l2": 2.0840961566923437e-11,
+        "gradient_linf": 4.663178700738688e-12,
+        "gradient_linf_max": 1e-08,
+        "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+        "gradient_l2_squared_over_2lambda": 2.171728395169899e-18,
+        "max_gap_upper_bound": 1e-06,
+        "lambda_l2": 0.0001,
+        "objective_value": 0.3521239019861265,
+        "Huber": 0.21912901408411345,
+        "L2_penalty": 0.0059470789744046825,
+        "Sign_logistic": 0.12704780892760836,
+        "sign_rule": "NONZERO_SIGNED_TARGET_AXES",
+        "sign_coefficient": 1.0,
+        "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER_PLUS_SIGN_LOGISTIC",
+        "huber_delta": 1.0,
+        "output_dim": 2,
+        "objective_calls": 31,
+        "iterations": 11,
+        "data_loss_definition": "For each frame mean [Huber(delta1)+1{target!=0}softplus(-sign(target)*prediction)] over original valid candidates and2 axes, then mean over all2598 rows. Sign coefficient1; zero-target axes omit even the log2 constant; no-valid row contributes0.",
+        "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+        "scope": "Numerical convergence of this fixed signed two-axis Huber+sign-logistic+ridge objective, not a T/R performance certificate.",
+        "final_accepted_call": 31
+      },
+      "objective_abs_difference": 0.0,
+      "gradient_vector_max_abs_difference": 3.485709984540897e-17,
+      "Hessian_max_abs_difference": 3.3306690738754696e-16,
+      "independent_Hessian_min_eigenvalue": 9.999999999225118e-05,
+      "independent_Hessian_max_eigenvalue": 28.892386097399267,
+      "Hessian_scope": "506x506 block matrix in C-order; only the Huber component has zero generalized curvature at its exact kink. Nonzero-target logistic curvature and ridge remain; gap proof uses C1 strong convexity.",
+      "objective_calls": 31,
+      "iterations": 11,
+      "newton_trace": {
+        "PASS": true,
+        "initial_evaluation_counted": true,
+        "zero_initialization": true,
+        "objective_calls": 31,
+        "accepted_iterations": 11,
+        "rejected_Armijo_trials": 19,
+        "rounded_Armijo_bound_equals_parent": 0,
+        "final_accepted_call": 31,
+        "final_accepted_weight_sha": "2f7d1470d46e4fe51364ba58b61456e8c2b633241bc1d9b7cd953e46367f94d7",
+        "exact_half_steps_and_fixed_c1": true,
+        "all_accepted_rows_match_trial": true,
+        "final_accepted_state_matches_certificate": true,
+        "optimizer_replays": 0,
+        "intermediate_numerical_scope": "Every trace row checked for provenance, order, count, alpha, Armijo arithmetic and accepted-state linkage. Initial/final objectives independently recomputed; intermediate matrices are not stored, so no claim of independent recomputation of every intermediate Newton direction."
+      },
+      "statistics": {
+        "frames": 2598,
+        "available_anchor_rows": 2597,
+        "failed_rows": 1,
+        "denominators": {
+          "full_population": 2598,
+          "available_anchor_rows": 2597
+        },
+        "target_correct": 2462,
+        "target_accuracy_full_population": 0.947652040030793,
+        "target_accuracy_available_rows": 0.948016942626107,
+        "anchor_violations": {
+          "T": {
+            "count": 0,
+            "rate": 0.0,
+            "rate_available_rows": 0.0
+          },
+          "R": {
+            "count": 0,
+            "rate": 0.0,
+            "rate_available_rows": 0.0
+          },
+          "either": {
+            "count": 0,
+            "rate": 0.0,
+            "rate_available_rows": 0.0
+          },
+          "both": {
+            "count": 0,
+            "rate": 0.0,
+            "rate_available_rows": 0.0
+          }
+        },
+        "selected_error_summary": {
+          "frames": 2598,
+          "valid_pose": 2597,
+          "failed_pose": 1,
+          "full_population": {
+            "translation_cm": {
+              "median": 2.4636887551191258,
+              "median_status": "FINITE",
+              "P90": 19.31755320611015,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.113474019956766,
+              "median_status": "FINITE",
+              "P90": 7.5000363038213385,
+              "P90_status": "FINITE"
+            }
+          },
+          "conditional": {
+            "translation_cm": {
+              "median": 2.462831644969504,
+              "median_status": "FINITE",
+              "P90": 19.287040650089033,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.11291533315856,
+              "median_status": "FINITE",
+              "P90": 7.442985573029414,
+              "P90_status": "FINITE"
+            }
+          }
+        },
+        "selected_index_sha": "614e86604eb4cddc8eec8385f0271f410755f283bb25612549fe56e831136901",
+        "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+      },
+      "risk_statistics": {
+        "frames": 2598,
+        "available_rows": 2597,
+        "failed_rows": 1,
+        "classes": {
+          "anchor": {
+            "count": 2589,
+            "fraction_full_population": 0.9965357967667436,
+            "fraction_available_rows": 0.9969195225259915
+          },
+          "safe_improvement": {
+            "count": 8,
+            "fraction_full_population": 0.003079291762894534,
+            "fraction_available_rows": 0.0030804774740084712
+          },
+          "safe_equal": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0
+          },
+          "unsafe": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0
+          },
+          "failed": {
+            "count": 1,
+            "fraction_full_population": 0.00038491147036181676,
+            "fraction_available_rows": null
+          }
+        },
+        "violations": {
+          "T": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0,
+            "normalized_max_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_T_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_R_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            }
+          },
+          "R": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0,
+            "normalized_max_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_T_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_R_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            }
+          },
+          "T_only": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0,
+            "normalized_max_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_T_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_R_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            }
+          },
+          "R_only": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0,
+            "normalized_max_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_T_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_R_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            }
+          },
+          "both": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0,
+            "normalized_max_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_T_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_R_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            }
+          },
+          "either": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0,
+            "normalized_max_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_T_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            },
+            "normalized_R_positive_excess": {
+              "n": 0,
+              "median": null,
+              "P90": null,
+              "maximum": null,
+              "mean": null
+            }
+          }
+        },
+        "normalized_max_excess_all_available": {
+          "n": 2597,
+          "median": 0.0,
+          "P90": 0.0,
+          "maximum": 0.0,
+          "mean": 0.0
+        },
+        "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+        "undefined_failed_severity": 1,
+        "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+      },
+      "regression_statistics": {
+        "all_valid_candidates": {
+          "candidate_pairs": 5194,
+          "scalar_observations": 10388,
+          "axes": {
+            "T": {
+              "MAE": 0.2839638258507301,
+              "RMSE": 0.7201059098904516,
+              "sign_accuracy": 0.9543704274162496,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  58,
+                  0,
+                  235
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  2,
+                  0,
+                  2302
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.4019513045262182,
+              "RMSE": 1.4715684595279217,
+              "sign_accuracy": 0.9647670388910281,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  8,
+                  0,
+                  183
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  2406
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "nonanchor_valid_candidates": {
+          "candidate_pairs": 2597,
+          "scalar_observations": 5194,
+          "axes": {
+            "T": {
+              "MAE": 0.5679276517014602,
+              "RMSE": 1.0183835441120948,
+              "sign_accuracy": 0.908740854832499,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  58,
+                  0,
+                  235
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  2,
+                  0,
+                  2302
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.8039026090524364,
+              "RMSE": 2.08111207342487,
+              "sign_accuracy": 0.9295340777820562,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  8,
+                  0,
+                  183
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  2406
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "actually_selected_candidates": {
+          "candidate_pairs": 2597,
+          "scalar_observations": 5194,
+          "axes": {
+            "T": {
+              "MAE": 0.002399075586697325,
+              "RMSE": 0.056134829667525594,
+              "sign_accuracy": 1.0,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  8,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2589,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.007939976401411529,
+              "RMSE": 0.16466862270231597,
+              "sign_accuracy": 1.0,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  8,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2589,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+        "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+      },
+      "legacy_discrete_target_accuracy_scope": "Secondary comparison to old anchored whole-pose target; not the new regression target or optimization objective.",
+      "previous_fixed_newton": {
+        "checkpoint": {
+          "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/R0_ONLY/final.json",
+          "sha256": "c39013fc593f2338999cb6ee60a416b49d2fa75b03de259d005226f129b10463",
+          "bytes": 336452
+        },
+        "receipt": {
+          "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_R0_ONLY.json",
+          "sha256": "4984fd3450113c633747308e21cf3e55b34c76266be87d2abf3b12470dfa9844",
+          "bytes": 12527
+        },
+        "statistics": {
+          "frames": 2598,
+          "available_anchor_rows": 2597,
+          "failed_rows": 1,
+          "denominators": {
+            "full_population": 2598,
+            "available_anchor_rows": 2597
+          },
+          "target_correct": 2458,
+          "target_accuracy_full_population": 0.9461123941493457,
+          "target_accuracy_available_rows": 0.9464767038891028,
+          "anchor_violations": {
+            "T": {
+              "count": 0,
+              "rate": 0.0,
+              "rate_available_rows": 0.0
+            },
+            "R": {
+              "count": 0,
+              "rate": 0.0,
+              "rate_available_rows": 0.0
+            },
+            "either": {
+              "count": 0,
+              "rate": 0.0,
+              "rate_available_rows": 0.0
+            },
+            "both": {
+              "count": 0,
+              "rate": 0.0,
+              "rate_available_rows": 0.0
+            }
+          },
+          "selected_error_summary": {
+            "frames": 2598,
+            "valid_pose": 2597,
+            "failed_pose": 1,
+            "full_population": {
+              "translation_cm": {
+                "median": 2.4636887551191258,
+                "median_status": "FINITE",
+                "P90": 19.31755320611015,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.113474019956766,
+                "median_status": "FINITE",
+                "P90": 7.609840983679432,
+                "P90_status": "FINITE"
+              }
+            },
+            "conditional": {
+              "translation_cm": {
+                "median": 2.462831644969504,
+                "median_status": "FINITE",
+                "P90": 19.287040650089033,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.11291533315856,
+                "median_status": "FINITE",
+                "P90": 7.6005409863793485,
+                "P90_status": "FINITE"
+              }
+            }
+          },
+          "selected_index_sha": "daa831a374a2441077a7858aedadb64e777d35fa6575a68860d58e984a5d41c5",
+          "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+        },
+        "risk_statistics": {
+          "frames": 2598,
+          "available_rows": 2597,
+          "failed_rows": 1,
+          "classes": {
+            "anchor": {
+              "count": 2593,
+              "fraction_full_population": 0.9980754426481909,
+              "fraction_available_rows": 0.9984597612629957
+            },
+            "safe_improvement": {
+              "count": 4,
+              "fraction_full_population": 0.001539645881447267,
+              "fraction_available_rows": 0.0015402387370042356
+            },
+            "safe_equal": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0
+            },
+            "unsafe": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0
+            },
+            "failed": {
+              "count": 1,
+              "fraction_full_population": 0.00038491147036181676,
+              "fraction_available_rows": null
+            }
+          },
+          "violations": {
+            "T": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0,
+              "normalized_max_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_T_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_R_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              }
+            },
+            "R": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0,
+              "normalized_max_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_T_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_R_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              }
+            },
+            "T_only": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0,
+              "normalized_max_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_T_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_R_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              }
+            },
+            "R_only": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0,
+              "normalized_max_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_T_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_R_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              }
+            },
+            "both": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0,
+              "normalized_max_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_T_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_R_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              }
+            },
+            "either": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0,
+              "normalized_max_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_T_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              },
+              "normalized_R_positive_excess": {
+                "n": 0,
+                "median": null,
+                "P90": null,
+                "maximum": null,
+                "mean": null
+              }
+            }
+          },
+          "normalized_max_excess_all_available": {
+            "n": 2597,
+            "median": 0.0,
+            "P90": 0.0,
+            "maximum": 0.0,
+            "mean": 0.0
+          },
+          "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+          "undefined_failed_severity": 1,
+          "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+        },
+        "original_choice_replay_PASS": true,
+        "same_new_objective": {
+          "objective": 0.3576461530258062,
+          "Huber": 0.21602601859956638,
+          "Sign_logistic": 0.13762357645449877,
+          "L2_penalty": 0.003996557971741068,
+          "gradient_l2": 0.14143391267602373,
+          "gradient_linf": 0.01830106164114951,
+          "certified_gap_upper_bound": 100.01775827424552,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_objective": {
+          "objective": 0.22002257657130744,
+          "Huber": 0.21602601859956638,
+          "Sign_logistic": 0.0,
+          "L2_penalty": 0.003996557971741068,
+          "gradient_l2": 5.703100954377196e-16,
+          "gradient_linf": 1.0895045987353164e-16,
+          "certified_gap_upper_bound": 1.626268024790904e-27,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_certificate": {
+          "PASS": true,
+          "optimizer_success": true,
+          "gradient_l2": 5.190751631021296e-16,
+          "gradient_linf": 1.0589775313162714e-16,
+          "gradient_linf_max": 1e-08,
+          "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+          "gradient_l2_squared_over_2lambda": 1.3471951247475119e-27,
+          "max_gap_upper_bound": 1e-06,
+          "lambda_l2": 0.0001,
+          "objective_value": 0.2200225765713074,
+          "Huber": 0.21602601859956633,
+          "L2_penalty": 0.003996557971741068,
+          "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER",
+          "huber_delta": 1.0,
+          "output_dim": 2,
+          "objective_calls": 103,
+          "iterations": 22,
+          "data_loss_definition": "For each frame mean Huber(delta1) over original valid candidates and2 axes, then mean over all2598 rows; no-valid row contributes0.",
+          "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+          "scope": "Numerical convergence of this signed two-axis Huber+ridge objective, not a T/R performance certificate.",
+          "final_accepted_call": 103
+        },
+        "original_objective_and_gradient_parity": true,
+        "regression_statistics": {
+          "all_valid_candidates": {
+            "candidate_pairs": 5194,
+            "scalar_observations": 10388,
+            "axes": {
+              "T": {
+                "MAE": 0.2778832208163898,
+                "RMSE": 0.7364850433906557,
+                "sign_accuracy": 0.9536003080477474,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    52,
+                    0,
+                    241
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    2304
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.3638719271484212,
+                "RMSE": 1.5416348048627446,
+                "sign_accuracy": 0.963996919522526,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    4,
+                    0,
+                    187
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    2406
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "nonanchor_valid_candidates": {
+            "candidate_pairs": 2597,
+            "scalar_observations": 5194,
+            "axes": {
+              "T": {
+                "MAE": 0.5557664416327796,
+                "RMSE": 1.0415471368480025,
+                "sign_accuracy": 0.9072006160954948,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    52,
+                    0,
+                    241
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    2304
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.7277438542968424,
+                "RMSE": 2.180200849263293,
+                "sign_accuracy": 0.927993839045052,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    4,
+                    0,
+                    187
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    2406
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "actually_selected_candidates": {
+            "candidate_pairs": 2597,
+            "scalar_observations": 5194,
+            "axes": {
+              "T": {
+                "MAE": 0.0011062096646061042,
+                "RMSE": 0.0320217279373226,
+                "sign_accuracy": 1.0,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    4,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2593,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.004442209592892418,
+                "RMSE": 0.12588860426405038,
+                "sign_accuracy": 1.0,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    4,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2593,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+          "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+        },
+        "comparison_scope": "Identical current Huber+sign+ridge evaluated at previous frozen253x2 Newton weights. Original Huber-only certificate is separate provenance, not the comparison objective."
+      },
+      "same_new_objective_decrease": 0.0055222510396797375,
+      "changed_choice_count": 4,
+      "basis_SHA_bind": {
+        "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+        "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+        "bytes": 358575
+      },
+      "hashes": {
+        "signed_target_sha": "13b0d012c836135f58b80494d69deb8a72b8e16de36d3096e85eb8038de9591d",
+        "input_difference_sha": "10d943ac00496ca5d878a29400413c312f375f8a669ad367b43af0b0d2136083",
+        "base_context_sha": "f6d12db0abd08722e0c851470311ab7083ad89f00591cedadcc50758150fe0e5",
+        "errors_sha": "e6b243c9037683ca9d23cb927c149f5ec4eba7a0edee98c08280a1c70f1770af",
+        "scaled_excess_sha": "4c61d84eb8525641ab902f2358dc0daf64402003249a93792ca728fba3a88d77",
+        "original_valid_sha": "0a8f7e55e43a409c2f7afad459fb7f93fc3d17eac827db7c5f38f8b6e5d741f6"
+      },
+      "runtime_axes_sha": "e28d8b6411cc9759029ef60fd83885216a64bed89be95b441e3029be7ee754b8",
+      "runtime_axis_and_selection_parity": true,
+      "all_invalid_frame_retained": true
+    },
+    "UNION_s1": {
+      "independent_recompute": {
+        "objective": 0.6679629779812435,
+        "Huber": 0.3875511638413535,
+        "Sign_logistic": 0.2701818547840772,
+        "L2_penalty": 0.010229959355812872,
+        "gradient_l2": 3.5752365909330377e-13,
+        "gradient_linf": 1.3789628301026874e-13,
+        "certified_gap_upper_bound": 6.391158340573244e-22,
+        "exact_Huber_kink_scalar_count": 0
+      },
+      "original_certificate": {
+        "PASS": true,
+        "optimizer_success": true,
+        "gradient_l2": 3.575202667077163e-13,
+        "gradient_linf": 1.3784900840741658e-13,
+        "gradient_linf_max": 1e-08,
+        "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+        "gradient_l2_squared_over_2lambda": 6.391037055337829e-22,
+        "max_gap_upper_bound": 1e-06,
+        "lambda_l2": 0.0001,
+        "objective_value": 0.6679629779812435,
+        "Huber": 0.38755116384135346,
+        "L2_penalty": 0.01022995935581287,
+        "Sign_logistic": 0.2701818547840772,
+        "sign_rule": "NONZERO_SIGNED_TARGET_AXES",
+        "sign_coefficient": 1.0,
+        "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER_PLUS_SIGN_LOGISTIC",
+        "huber_delta": 1.0,
+        "output_dim": 2,
+        "objective_calls": 39,
+        "iterations": 13,
+        "data_loss_definition": "For each frame mean [Huber(delta1)+1{target!=0}softplus(-sign(target)*prediction)] over original valid candidates and2 axes, then mean over all2598 rows. Sign coefficient1; zero-target axes omit even the log2 constant; no-valid row contributes0.",
+        "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+        "scope": "Numerical convergence of this fixed signed two-axis Huber+sign-logistic+ridge objective, not a T/R performance certificate.",
+        "final_accepted_call": 39
+      },
+      "objective_abs_difference": 0.0,
+      "gradient_vector_max_abs_difference": 5.607358110823468e-17,
+      "Hessian_max_abs_difference": 6.661338147750939e-16,
+      "independent_Hessian_min_eigenvalue": 9.999999999853232e-05,
+      "independent_Hessian_max_eigenvalue": 43.845504371944216,
+      "Hessian_scope": "506x506 block matrix in C-order; only the Huber component has zero generalized curvature at its exact kink. Nonzero-target logistic curvature and ridge remain; gap proof uses C1 strong convexity.",
+      "objective_calls": 39,
+      "iterations": 13,
+      "newton_trace": {
+        "PASS": true,
+        "initial_evaluation_counted": true,
+        "zero_initialization": true,
+        "objective_calls": 39,
+        "accepted_iterations": 13,
+        "rejected_Armijo_trials": 25,
+        "rounded_Armijo_bound_equals_parent": 1,
+        "final_accepted_call": 39,
+        "final_accepted_weight_sha": "55a614a7a7980ef5b3e164713e4f1895b20d1101223e39f26d32a818c700b320",
+        "exact_half_steps_and_fixed_c1": true,
+        "all_accepted_rows_match_trial": true,
+        "final_accepted_state_matches_certificate": true,
+        "optimizer_replays": 0,
+        "intermediate_numerical_scope": "Every trace row checked for provenance, order, count, alpha, Armijo arithmetic and accepted-state linkage. Initial/final objectives independently recomputed; intermediate matrices are not stored, so no claim of independent recomputation of every intermediate Newton direction."
+      },
+      "statistics": {
+        "frames": 2598,
+        "available_anchor_rows": 2597,
+        "failed_rows": 1,
+        "denominators": {
+          "full_population": 2598,
+          "available_anchor_rows": 2597
+        },
+        "target_correct": 1753,
+        "target_accuracy_full_population": 0.6747498075442648,
+        "target_accuracy_available_rows": 0.6750096264921063,
+        "anchor_violations": {
+          "T": {
+            "count": 204,
+            "rate": 0.07852193995381063,
+            "rate_available_rows": 0.07855217558721601
+          },
+          "R": {
+            "count": 151,
+            "rate": 0.058121632024634336,
+            "rate_available_rows": 0.058144012321909896
+          },
+          "either": {
+            "count": 282,
+            "rate": 0.10854503464203233,
+            "rate_available_rows": 0.10858683095879862
+          },
+          "both": {
+            "count": 73,
+            "rate": 0.028098537336412627,
+            "rate_available_rows": 0.0281093569503273
+          }
+        },
+        "selected_error_summary": {
+          "frames": 2598,
+          "valid_pose": 2597,
+          "failed_pose": 1,
+          "full_population": {
+            "translation_cm": {
+              "median": 2.2545783482617034,
+              "median_status": "FINITE",
+              "P90": 19.126231645875446,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.0165346372911785,
+              "median_status": "FINITE",
+              "P90": 7.64601317582812,
+              "P90_status": "FINITE"
+            }
+          },
+          "conditional": {
+            "translation_cm": {
+              "median": 2.2543712778463445,
+              "median_status": "FINITE",
+              "P90": 19.003878713676897,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.0164106667118824,
+              "median_status": "FINITE",
+              "P90": 7.628568694011104,
+              "P90_status": "FINITE"
+            }
+          }
+        },
+        "selected_index_sha": "11689f688e5f16161f95ecd46e011c16e2dfed70b2ca9def8d311aa358d3709c",
+        "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+      },
+      "risk_statistics": {
+        "frames": 2598,
+        "available_rows": 2597,
+        "failed_rows": 1,
+        "classes": {
+          "anchor": {
+            "count": 2104,
+            "fraction_full_population": 0.8098537336412626,
+            "fraction_available_rows": 0.810165575664228
+          },
+          "safe_improvement": {
+            "count": 211,
+            "fraction_full_population": 0.08121632024634334,
+            "fraction_available_rows": 0.08124759337697343
+          },
+          "safe_equal": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0
+          },
+          "unsafe": {
+            "count": 282,
+            "fraction_full_population": 0.10854503464203233,
+            "fraction_available_rows": 0.10858683095879862
+          },
+          "failed": {
+            "count": 1,
+            "fraction_full_population": 0.00038491147036181676,
+            "fraction_available_rows": null
+          }
+        },
+        "violations": {
+          "T": {
+            "count": 204,
+            "fraction_full_population": 0.07852193995381063,
+            "fraction_available_rows": 0.07855217558721601,
+            "normalized_max_excess": {
+              "n": 204,
+              "median": 0.5424199657754356,
+              "P90": 2.286538495980735,
+              "maximum": 7.945769763575213,
+              "mean": 0.9990505043445775
+            },
+            "normalized_T_positive_excess": {
+              "n": 204,
+              "median": 0.48562753686949633,
+              "P90": 2.2257661249675236,
+              "maximum": 7.945769763575213,
+              "mean": 0.9248159766050716
+            },
+            "normalized_R_positive_excess": {
+              "n": 204,
+              "median": 0.0,
+              "P90": 0.8309017207330551,
+              "maximum": 3.557907987342573,
+              "mean": 0.2199069870179504
+            }
+          },
+          "R": {
+            "count": 151,
+            "fraction_full_population": 0.058121632024634336,
+            "fraction_available_rows": 0.058144012321909896,
+            "normalized_max_excess": {
+              "n": 151,
+              "median": 0.44057588710761875,
+              "P90": 1.7794391700155745,
+              "maximum": 78.7835948447877,
+              "mean": 1.2602855219295166
+            },
+            "normalized_T_positive_excess": {
+              "n": 151,
+              "median": 0.0,
+              "P90": 1.2644882168624485,
+              "maximum": 7.945769763575213,
+              "mean": 0.44386312104644193
+            },
+            "normalized_R_positive_excess": {
+              "n": 151,
+              "median": 0.32069031545016147,
+              "P90": 1.0978908319168361,
+              "maximum": 78.7835948447877,
+              "mean": 1.01322492864998
+            }
+          },
+          "T_only": {
+            "count": 131,
+            "fraction_full_population": 0.050423402617398,
+            "fraction_available_rows": 0.050442818636888716,
+            "normalized_max_excess": {
+              "n": 131,
+              "median": 0.4695457142619457,
+              "P90": 2.299255255704463,
+              "maximum": 7.0282501736295595,
+              "mean": 0.9285429614459685
+            },
+            "normalized_T_positive_excess": {
+              "n": 131,
+              "median": 0.4695457142619457,
+              "P90": 2.299255255704463,
+              "maximum": 7.0282501736295595,
+              "mean": 0.9285429614459685
+            },
+            "normalized_R_positive_excess": {
+              "n": 131,
+              "median": 0.0,
+              "P90": 0.0,
+              "maximum": 0.0,
+              "mean": 0.0
+            }
+          },
+          "R_only": {
+            "count": 78,
+            "fraction_full_population": 0.03002309468822171,
+            "fraction_available_rows": 0.030034655371582595,
+            "normalized_max_excess": {
+              "n": 78,
+              "median": 0.2749184878091245,
+              "P90": 0.8882624314289542,
+              "maximum": 78.7835948447877,
+              "mean": 1.386358190698527
+            },
+            "normalized_T_positive_excess": {
+              "n": 78,
+              "median": 0.0,
+              "P90": 0.0,
+              "maximum": 0.0,
+              "mean": 0.0
+            },
+            "normalized_R_positive_excess": {
+              "n": 78,
+              "median": 0.2749184878091245,
+              "P90": 0.8882624314289542,
+              "maximum": 78.7835948447877,
+              "mean": 1.386358190698527
+            }
+          },
+          "both": {
+            "count": 73,
+            "fraction_full_population": 0.028098537336412627,
+            "fraction_available_rows": 0.0281093569503273,
+            "normalized_max_excess": {
+              "n": 73,
+              "median": 0.7795454111276752,
+              "P90": 1.9683668684990228,
+              "maximum": 7.945769763575213,
+              "mean": 1.1255777388612593
+            },
+            "normalized_T_positive_excess": {
+              "n": 73,
+              "median": 0.5184529128685397,
+              "P90": 1.8734231631661749,
+              "maximum": 7.945769763575213,
+              "mean": 0.918127825726202
+            },
+            "normalized_R_positive_excess": {
+              "n": 73,
+              "median": 0.4332468694847041,
+              "P90": 1.453151965547265,
+              "maximum": 3.557907987342573,
+              "mean": 0.6145345938583818
+            }
+          },
+          "either": {
+            "count": 282,
+            "fraction_full_population": 0.10854503464203233,
+            "fraction_available_rows": 0.10858683095879862,
+            "normalized_max_excess": {
+              "n": 282,
+              "median": 0.45079826829203673,
+              "P90": 1.930636741667081,
+              "maximum": 78.7835948447877,
+              "mean": 1.1061781622722657
+            },
+            "normalized_T_positive_excess": {
+              "n": 282,
+              "median": 0.29717160231663214,
+              "P90": 1.8677635507450843,
+              "maximum": 7.945769763575213,
+              "mean": 0.6690158128632433
+            },
+            "normalized_R_positive_excess": {
+              "n": 282,
+              "median": 0.04281895955891696,
+              "P90": 0.8619857024618983,
+              "maximum": 78.7835948447877,
+              "mean": 0.5425424263338544
+            }
+          }
+        },
+        "normalized_max_excess_all_available": {
+          "n": 2597,
+          "median": 0.0,
+          "P90": 0.06388411608633146,
+          "maximum": 78.7835948447877,
+          "mean": 0.120116381116973
+        },
+        "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+        "undefined_failed_severity": 1,
+        "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+      },
+      "regression_statistics": {
+        "all_valid_candidates": {
+          "candidate_pairs": 10388,
+          "scalar_observations": 20776,
+          "axes": {
+            "T": {
+              "MAE": 0.45859540008875543,
+              "RMSE": 0.8571879569930225,
+              "sign_accuracy": 0.8501155179052753,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  468,
+                  0,
+                  1236
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  321,
+                  0,
+                  5766
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.8019051188569682,
+              "RMSE": 1.5084951862568285,
+              "sign_accuracy": 0.8702348864073931,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  394,
+                  0,
+                  1162
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  186,
+                  0,
+                  6049
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "nonanchor_valid_candidates": {
+          "candidate_pairs": 7791,
+          "scalar_observations": 15582,
+          "axes": {
+            "T": {
+              "MAE": 0.611460533451674,
+              "RMSE": 0.9897953954320536,
+              "sign_accuracy": 0.8001540238737004,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  468,
+                  0,
+                  1236
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  321,
+                  0,
+                  5766
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 1.0692068251426243,
+              "RMSE": 1.741860203713269,
+              "sign_accuracy": 0.8269798485431908,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  394,
+                  0,
+                  1162
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  186,
+                  0,
+                  6049
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "actually_selected_candidates": {
+          "candidate_pairs": 2597,
+          "scalar_observations": 5194,
+          "axes": {
+            "T": {
+              "MAE": 0.1142976983914292,
+              "RMSE": 0.3483161335180608,
+              "sign_accuracy": 0.921447824412784,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  289,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2104,
+                  0
+                ],
+                [
+                  204,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.08171235620136166,
+              "RMSE": 0.25948979094722363,
+              "sign_accuracy": 0.9418559876780901,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  342,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2104,
+                  0
+                ],
+                [
+                  151,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+        "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+      },
+      "legacy_discrete_target_accuracy_scope": "Secondary comparison to old anchored whole-pose target; not the new regression target or optimization objective.",
+      "previous_fixed_newton": {
+        "checkpoint": {
+          "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s1/final.json",
+          "sha256": "1076d1db4d1d80d5e22237fa66ef8a998c3ba7c85904a35edf7c63c2857c40b8",
+          "bytes": 336501
+        },
+        "receipt": {
+          "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s1.json",
+          "sha256": "0e6bb1fb62d18f00e2b786f405df309e2d5fdb04f3632493ff44bbfd5c3512ad",
+          "bytes": 13066
+        },
+        "statistics": {
+          "frames": 2598,
+          "available_anchor_rows": 2597,
+          "failed_rows": 1,
+          "denominators": {
+            "full_population": 2598,
+            "available_anchor_rows": 2597
+          },
+          "target_correct": 1784,
+          "target_accuracy_full_population": 0.6866820631254812,
+          "target_accuracy_available_rows": 0.6869464767038891,
+          "anchor_violations": {
+            "T": {
+              "count": 124,
+              "rate": 0.04772902232486528,
+              "rate_available_rows": 0.047747400847131305
+            },
+            "R": {
+              "count": 89,
+              "rate": 0.034257120862201694,
+              "rate_available_rows": 0.034270311898344244
+            },
+            "either": {
+              "count": 171,
+              "rate": 0.06581986143187067,
+              "rate_available_rows": 0.06584520600693107
+            },
+            "both": {
+              "count": 42,
+              "rate": 0.016166281755196306,
+              "rate_available_rows": 0.016172506738544475
+            }
+          },
+          "selected_error_summary": {
+            "frames": 2598,
+            "valid_pose": 2597,
+            "failed_pose": 1,
+            "full_population": {
+              "translation_cm": {
+                "median": 2.301714242223952,
+                "median_status": "FINITE",
+                "P90": 18.96542004808123,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.0491551497120504,
+                "median_status": "FINITE",
+                "P90": 7.64601317582812,
+                "P90_status": "FINITE"
+              }
+            },
+            "conditional": {
+              "translation_cm": {
+                "median": 2.3013327546277584,
+                "median_status": "FINITE",
+                "P90": 18.91001246095359,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.0490020177684056,
+                "median_status": "FINITE",
+                "P90": 7.628568694011104,
+                "P90_status": "FINITE"
+              }
+            }
+          },
+          "selected_index_sha": "a095683ffbe8c53365901d4e5c9f44fe006359d87ad6c87cfe6579bc6a29f190",
+          "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+        },
+        "risk_statistics": {
+          "frames": 2598,
+          "available_rows": 2597,
+          "failed_rows": 1,
+          "classes": {
+            "anchor": {
+              "count": 2291,
+              "fraction_full_population": 0.8818321785989223,
+              "fraction_available_rows": 0.8821717366191759
+            },
+            "safe_improvement": {
+              "count": 135,
+              "fraction_full_population": 0.05196304849884527,
+              "fraction_available_rows": 0.05198305737389295
+            },
+            "safe_equal": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0
+            },
+            "unsafe": {
+              "count": 171,
+              "fraction_full_population": 0.06581986143187067,
+              "fraction_available_rows": 0.06584520600693107
+            },
+            "failed": {
+              "count": 1,
+              "fraction_full_population": 0.00038491147036181676,
+              "fraction_available_rows": null
+            }
+          },
+          "violations": {
+            "T": {
+              "count": 124,
+              "fraction_full_population": 0.04772902232486528,
+              "fraction_available_rows": 0.047747400847131305,
+              "normalized_max_excess": {
+                "n": 124,
+                "median": 0.6059982289430836,
+                "P90": 2.538515309084144,
+                "maximum": 4.93200822318216,
+                "mean": 0.9982925397091316
+              },
+              "normalized_T_positive_excess": {
+                "n": 124,
+                "median": 0.5180709751703871,
+                "P90": 2.2257661249675222,
+                "maximum": 4.93200822318216,
+                "mean": 0.8902216217189686
+              },
+              "normalized_R_positive_excess": {
+                "n": 124,
+                "median": 0.0,
+                "P90": 0.9335614778142272,
+                "maximum": 3.557907987342573,
+                "mean": 0.267070944863582
+              }
+            },
+            "R": {
+              "count": 89,
+              "fraction_full_population": 0.034257120862201694,
+              "fraction_available_rows": 0.034270311898344244,
+              "normalized_max_excess": {
+                "n": 89,
+                "median": 0.5024055248416887,
+                "P90": 1.8639099904884384,
+                "maximum": 78.7835948447877,
+                "mean": 1.6232607813943956
+              },
+              "normalized_T_positive_excess": {
+                "n": 89,
+                "median": 0.0,
+                "P90": 1.1720903602979404,
+                "maximum": 3.865390923927232,
+                "mean": 0.37581411863887376
+              },
+              "normalized_R_positive_excess": {
+                "n": 89,
+                "median": 0.3777883251645517,
+                "P90": 1.4661241593265226,
+                "maximum": 78.7835948447877,
+                "mean": 1.4689747900847796
+              }
+            },
+            "T_only": {
+              "count": 82,
+              "fraction_full_population": 0.03156274056966898,
+              "fraction_available_rows": 0.03157489410858683,
+              "normalized_max_excess": {
+                "n": 82,
+                "median": 0.4541370836889131,
+                "P90": 2.81844131011566,
+                "maximum": 4.93200822318216,
+                "mean": 0.9382929821255163
+              },
+              "normalized_T_positive_excess": {
+                "n": 82,
+                "median": 0.4541370836889131,
+                "P90": 2.81844131011566,
+                "maximum": 4.93200822318216,
+                "mean": 0.9382929821255163
+              },
+              "normalized_R_positive_excess": {
+                "n": 82,
+                "median": 0.0,
+                "P90": 0.0,
+                "maximum": 0.0,
+                "mean": 0.0
+              }
+            },
+            "R_only": {
+              "count": 47,
+              "fraction_full_population": 0.018090839107005388,
+              "fraction_available_rows": 0.01809780515979977,
+              "normalized_max_excess": {
+                "n": 47,
+                "median": 0.29508430024925436,
+                "P90": 0.9999348190877129,
+                "maximum": 78.7835948447877,
+                "mean": 2.0770629607332176
+              },
+              "normalized_T_positive_excess": {
+                "n": 47,
+                "median": 0.0,
+                "P90": 0.0,
+                "maximum": 0.0,
+                "mean": 0.0
+              },
+              "normalized_R_positive_excess": {
+                "n": 47,
+                "median": 0.29508430024925436,
+                "P90": 0.9999348190877129,
+                "maximum": 78.7835948447877,
+                "mean": 2.0770629607332176
+              }
+            },
+            "both": {
+              "count": 42,
+              "fraction_full_population": 0.016166281755196306,
+              "fraction_available_rows": 0.016172506738544475,
+              "normalized_max_excess": {
+                "n": 42,
+                "median": 0.8880519508758447,
+                "P90": 1.9734213201171071,
+                "maximum": 3.865390923927232,
+                "mean": 1.1154345330866664
+              },
+              "normalized_T_positive_excess": {
+                "n": 42,
+                "median": 0.549762264104353,
+                "P90": 1.7800293079674185,
+                "maximum": 3.865390923927232,
+                "mean": 0.7963680133061847
+              },
+              "normalized_R_positive_excess": {
+                "n": 42,
+                "median": 0.5297732262020527,
+                "P90": 1.8352442941385971,
+                "maximum": 3.557907987342573,
+                "mean": 0.7884951705496229
+              }
+            },
+            "either": {
+              "count": 171,
+              "fraction_full_population": 0.06581986143187067,
+              "fraction_available_rows": 0.06584520600693107,
+              "normalized_max_excess": {
+                "n": 171,
+                "median": 0.4695457142619457,
+                "P90": 2.147823095318844,
+                "maximum": 78.7835948447877,
+                "mean": 1.2947966905169215
+              },
+              "normalized_T_positive_excess": {
+                "n": 171,
+                "median": 0.2842649938967796,
+                "P90": 1.8763231188530685,
+                "maximum": 4.93200822318216,
+                "mean": 0.6455408251061526
+              },
+              "normalized_R_positive_excess": {
+                "n": 171,
+                "median": 0.02337913965147849,
+                "P90": 0.9745224931495904,
+                "maximum": 78.7835948447877,
+                "mean": 0.7645541305119614
+              }
+            }
+          },
+          "normalized_max_excess_all_available": {
+            "n": 2597,
+            "median": 0.0,
+            "P90": 0.0,
+            "maximum": 78.7835948447877,
+            "mean": 0.08525615482417927
+          },
+          "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+          "undefined_failed_severity": 1,
+          "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+        },
+        "original_choice_replay_PASS": true,
+        "same_new_objective": {
+          "objective": 0.6717922980761082,
+          "Huber": 0.3860492950090226,
+          "Sign_logistic": 0.27720104359818365,
+          "L2_penalty": 0.00854195946890206,
+          "gradient_l2": 0.15993586014150288,
+          "gradient_linf": 0.02018022796797284,
+          "certified_gap_upper_bound": 127.89739679601183,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_objective": {
+          "objective": 0.39459125447792465,
+          "Huber": 0.3860492950090226,
+          "Sign_logistic": 0.0,
+          "L2_penalty": 0.00854195946890206,
+          "gradient_l2": 7.371660060904096e-16,
+          "gradient_linf": 1.0434768283815177e-16,
+          "certified_gap_upper_bound": 2.7170686026764292e-27,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_certificate": {
+          "PASS": true,
+          "optimizer_success": true,
+          "gradient_l2": 8.857509671677224e-16,
+          "gradient_linf": 1.2264359449884465e-16,
+          "gradient_linf_max": 1e-08,
+          "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+          "gradient_l2_squared_over_2lambda": 3.922773879192778e-27,
+          "max_gap_upper_bound": 1e-06,
+          "lambda_l2": 0.0001,
+          "objective_value": 0.3945912544779246,
+          "Huber": 0.3860492950090225,
+          "L2_penalty": 0.00854195946890206,
+          "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER",
+          "huber_delta": 1.0,
+          "output_dim": 2,
+          "objective_calls": 157,
+          "iterations": 27,
+          "data_loss_definition": "For each frame mean Huber(delta1) over original valid candidates and2 axes, then mean over all2598 rows; no-valid row contributes0.",
+          "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+          "scope": "Numerical convergence of this signed two-axis Huber+ridge objective, not a T/R performance certificate.",
+          "final_accepted_call": 157
+        },
+        "original_objective_and_gradient_parity": true,
+        "regression_statistics": {
+          "all_valid_candidates": {
+            "candidate_pairs": 10388,
+            "scalar_observations": 20776,
+            "axes": {
+              "T": {
+                "MAE": 0.45260754166804684,
+                "RMSE": 0.8655420255599537,
+                "sign_accuracy": 0.8476126299576434,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    388,
+                    0,
+                    1316
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    267,
+                    0,
+                    5820
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.8014179887585554,
+                "RMSE": 1.5283308108355558,
+                "sign_accuracy": 0.8624374278013092,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    254,
+                    0,
+                    1302
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    127,
+                    0,
+                    6108
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "nonanchor_valid_candidates": {
+            "candidate_pairs": 7791,
+            "scalar_observations": 15582,
+            "axes": {
+              "T": {
+                "MAE": 0.6034767222240625,
+                "RMSE": 0.9994418429039464,
+                "sign_accuracy": 0.7968168399435246,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    388,
+                    0,
+                    1316
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    267,
+                    0,
+                    5820
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 1.0685573183447405,
+                "RMSE": 1.7647644100934141,
+                "sign_accuracy": 0.8165832370684123,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    254,
+                    0,
+                    1302
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    127,
+                    0,
+                    6108
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "actually_selected_candidates": {
+            "candidate_pairs": 2597,
+            "scalar_observations": 5194,
+            "axes": {
+              "T": {
+                "MAE": 0.07325519782616252,
+                "RMSE": 0.281016693074759,
+                "sign_accuracy": 0.9522525991528686,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    182,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2291,
+                    0
+                  ],
+                  [
+                    124,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.05084352845540112,
+                "RMSE": 0.21375159335310803,
+                "sign_accuracy": 0.9657296881016557,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    217,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2291,
+                    0
+                  ],
+                  [
+                    89,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+          "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+        },
+        "comparison_scope": "Identical current Huber+sign+ridge evaluated at previous frozen253x2 Newton weights. Original Huber-only certificate is separate provenance, not the comparison objective."
+      },
+      "same_new_objective_decrease": 0.0038293200948646966,
+      "changed_choice_count": 189,
+      "basis_SHA_bind": {
+        "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+        "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+        "bytes": 358575
+      },
+      "hashes": {
+        "signed_target_sha": "3c1dfa6d3d236bb4f6f9539ccb12423f60713b141ee3f0910ebc0bcc17b5780e",
+        "input_difference_sha": "345e2dddeebbe26458acc497e08347d177c6c97fb0e82e21a4e35f072af1b68f",
+        "base_context_sha": "f9c8ce5fae87b49a12a2672864fea6ee8b313b6bacedd943530ffc0029737780",
+        "errors_sha": "ddecf53199904774745ff79c0c9af7eaf2bec86ca5dbc5ee24837a0062ef138d",
+        "scaled_excess_sha": "66be139afbe128d51d2d199940ffab910af112acced8f3661872eaf393b0ce17",
+        "original_valid_sha": "d79b8ca86f686579081e5cd2eed3323321483c5ab06a7de62927ac15ee213ff3"
+      },
+      "runtime_axes_sha": "7bcb73d51145cfc3441e5bb8a48e236045bdd2d4cb799dffcea99128a9eb21ee",
+      "runtime_axis_and_selection_parity": true,
+      "all_invalid_frame_retained": true
+    },
+    "UNION_s2": {
+      "independent_recompute": {
+        "objective": 0.6705873732489264,
+        "Huber": 0.3892826475967808,
+        "Sign_logistic": 0.27057497965423893,
+        "L2_penalty": 0.010729745997906699,
+        "gradient_l2": 1.2306319529449807e-14,
+        "gradient_linf": 2.185168821063066e-15,
+        "certified_gap_upper_bound": 7.572275018045886e-25,
+        "exact_Huber_kink_scalar_count": 0
+      },
+      "original_certificate": {
+        "PASS": true,
+        "optimizer_success": true,
+        "gradient_l2": 1.2266271356387128e-14,
+        "gradient_linf": 2.194994403251216e-15,
+        "gradient_linf_max": 1e-08,
+        "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+        "gradient_l2_squared_over_2lambda": 7.523070649426164e-25,
+        "max_gap_upper_bound": 1e-06,
+        "lambda_l2": 0.0001,
+        "objective_value": 0.6705873732489264,
+        "Huber": 0.38928264759678083,
+        "L2_penalty": 0.010729745997906699,
+        "Sign_logistic": 0.27057497965423893,
+        "sign_rule": "NONZERO_SIGNED_TARGET_AXES",
+        "sign_coefficient": 1.0,
+        "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER_PLUS_SIGN_LOGISTIC",
+        "huber_delta": 1.0,
+        "output_dim": 2,
+        "objective_calls": 57,
+        "iterations": 19,
+        "data_loss_definition": "For each frame mean [Huber(delta1)+1{target!=0}softplus(-sign(target)*prediction)] over original valid candidates and2 axes, then mean over all2598 rows. Sign coefficient1; zero-target axes omit even the log2 constant; no-valid row contributes0.",
+        "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+        "scope": "Numerical convergence of this fixed signed two-axis Huber+sign-logistic+ridge objective, not a T/R performance certificate.",
+        "final_accepted_call": 57
+      },
+      "objective_abs_difference": 0.0,
+      "gradient_vector_max_abs_difference": 1.0562839665440027e-16,
+      "Hessian_max_abs_difference": 6.661338147750939e-16,
+      "independent_Hessian_min_eigenvalue": 9.999999999588104e-05,
+      "independent_Hessian_max_eigenvalue": 44.055796628455354,
+      "Hessian_scope": "506x506 block matrix in C-order; only the Huber component has zero generalized curvature at its exact kink. Nonzero-target logistic curvature and ridge remain; gap proof uses C1 strong convexity.",
+      "objective_calls": 57,
+      "iterations": 19,
+      "newton_trace": {
+        "PASS": true,
+        "initial_evaluation_counted": true,
+        "zero_initialization": true,
+        "objective_calls": 57,
+        "accepted_iterations": 19,
+        "rejected_Armijo_trials": 37,
+        "rounded_Armijo_bound_equals_parent": 1,
+        "final_accepted_call": 57,
+        "final_accepted_weight_sha": "5029f02eae5a539b4769c41a21e5cb40693cdeafa9e3c7cdd2ee223aeb11c10a",
+        "exact_half_steps_and_fixed_c1": true,
+        "all_accepted_rows_match_trial": true,
+        "final_accepted_state_matches_certificate": true,
+        "optimizer_replays": 0,
+        "intermediate_numerical_scope": "Every trace row checked for provenance, order, count, alpha, Armijo arithmetic and accepted-state linkage. Initial/final objectives independently recomputed; intermediate matrices are not stored, so no claim of independent recomputation of every intermediate Newton direction."
+      },
+      "statistics": {
+        "frames": 2598,
+        "available_anchor_rows": 2597,
+        "failed_rows": 1,
+        "denominators": {
+          "full_population": 2598,
+          "available_anchor_rows": 2597
+        },
+        "target_correct": 1742,
+        "target_accuracy_full_population": 0.6705157813702848,
+        "target_accuracy_available_rows": 0.6707739699653447,
+        "anchor_violations": {
+          "T": {
+            "count": 191,
+            "rate": 0.073518090839107,
+            "rate_available_rows": 0.07354639969195226
+          },
+          "R": {
+            "count": 163,
+            "rate": 0.06274056966897613,
+            "rate_available_rows": 0.0627647285329226
+          },
+          "either": {
+            "count": 277,
+            "rate": 0.10662047729022325,
+            "rate_available_rows": 0.10666153253754332
+          },
+          "both": {
+            "count": 77,
+            "rate": 0.029638183217859892,
+            "rate_available_rows": 0.029649595687331536
+          }
+        },
+        "selected_error_summary": {
+          "frames": 2598,
+          "valid_pose": 2597,
+          "failed_pose": 1,
+          "full_population": {
+            "translation_cm": {
+              "median": 2.301714242223952,
+              "median_status": "FINITE",
+              "P90": 18.62642117476139,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.035936402891869,
+              "median_status": "FINITE",
+              "P90": 7.6817544070994765,
+              "P90_status": "FINITE"
+            }
+          },
+          "conditional": {
+            "translation_cm": {
+              "median": 2.3013327546277584,
+              "median_status": "FINITE",
+              "P90": 18.589790835257826,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.0356200259607966,
+              "median_status": "FINITE",
+              "P90": 7.628568694011104,
+              "P90_status": "FINITE"
+            }
+          }
+        },
+        "selected_index_sha": "f5a5f950ced5bf6e7cc55aa35d5acd6ba340f3dbfa464fe2f1d6cfdc277c8d1c",
+        "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+      },
+      "risk_statistics": {
+        "frames": 2598,
+        "available_rows": 2597,
+        "failed_rows": 1,
+        "classes": {
+          "anchor": {
+            "count": 2129,
+            "fraction_full_population": 0.8194765204003079,
+            "fraction_available_rows": 0.8197920677705044
+          },
+          "safe_improvement": {
+            "count": 191,
+            "fraction_full_population": 0.073518090839107,
+            "fraction_available_rows": 0.07354639969195226
+          },
+          "safe_equal": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0
+          },
+          "unsafe": {
+            "count": 277,
+            "fraction_full_population": 0.10662047729022325,
+            "fraction_available_rows": 0.10666153253754332
+          },
+          "failed": {
+            "count": 1,
+            "fraction_full_population": 0.00038491147036181676,
+            "fraction_available_rows": null
+          }
+        },
+        "violations": {
+          "T": {
+            "count": 191,
+            "fraction_full_population": 0.073518090839107,
+            "fraction_available_rows": 0.07354639969195226,
+            "normalized_max_excess": {
+              "n": 191,
+              "median": 0.5057337291207068,
+              "P90": 2.5206954202670935,
+              "maximum": 79.72014181849474,
+              "mean": 1.4079731597660288
+            },
+            "normalized_T_positive_excess": {
+              "n": 191,
+              "median": 0.43702704567978123,
+              "P90": 2.504748106157115,
+              "maximum": 9.826593084785667,
+              "mean": 0.9392652412999062
+            },
+            "normalized_R_positive_excess": {
+              "n": 191,
+              "median": 0.0,
+              "P90": 0.8111391821254968,
+              "maximum": 79.72014181849474,
+              "mean": 0.6252394129656714
+            }
+          },
+          "R": {
+            "count": 163,
+            "fraction_full_population": 0.06274056966897613,
+            "fraction_available_rows": 0.0627647285329226,
+            "normalized_max_excess": {
+              "n": 163,
+              "median": 0.37895229574757205,
+              "P90": 1.6533449301720091,
+              "maximum": 79.72014181849474,
+              "mean": 2.16469816754932
+            },
+            "normalized_T_positive_excess": {
+              "n": 163,
+              "median": 0.0,
+              "P90": 1.5049480944016875,
+              "maximum": 9.826593084785667,
+              "mean": 0.4872280781590776
+            },
+            "normalized_R_positive_excess": {
+              "n": 163,
+              "median": 0.28705189954200533,
+              "P90": 1.0414356922665664,
+              "maximum": 79.72014181849474,
+              "mean": 1.8608904295706958
+            }
+          },
+          "T_only": {
+            "count": 114,
+            "fraction_full_population": 0.04387990762124711,
+            "fraction_available_rows": 0.04389680400462072,
+            "normalized_max_excess": {
+              "n": 114,
+              "median": 0.4475601474186883,
+              "P90": 2.593641444866947,
+              "maximum": 4.5228202018236,
+              "mean": 0.8770305644592318
+            },
+            "normalized_T_positive_excess": {
+              "n": 114,
+              "median": 0.4475601474186883,
+              "P90": 2.593641444866947,
+              "maximum": 4.5228202018236,
+              "mean": 0.8770305644592318
+            },
+            "normalized_R_positive_excess": {
+              "n": 114,
+              "median": 0.0,
+              "P90": 0.0,
+              "maximum": 0.0,
+              "mean": 0.0
+            }
+          },
+          "R_only": {
+            "count": 86,
+            "fraction_full_population": 0.033102386451116246,
+            "fraction_available_rows": 0.03311513284559107,
+            "normalized_max_excess": {
+              "n": 86,
+              "median": 0.26650033272990314,
+              "P90": 0.8178126244082797,
+              "maximum": 79.07061422694628,
+              "mean": 2.1384233970183746
+            },
+            "normalized_T_positive_excess": {
+              "n": 86,
+              "median": 0.0,
+              "P90": 0.0,
+              "maximum": 0.0,
+              "mean": 0.0
+            },
+            "normalized_R_positive_excess": {
+              "n": 86,
+              "median": 0.26650033272990314,
+              "P90": 0.8178126244082797,
+              "maximum": 79.07061422694628,
+              "mean": 2.1384233970183746
+            }
+          },
+          "both": {
+            "count": 77,
+            "fraction_full_population": 0.029638183217859892,
+            "fraction_available_rows": 0.029649595687331536,
+            "normalized_max_excess": {
+              "n": 77,
+              "median": 0.6244115065655436,
+              "P90": 2.3839737128181873,
+              "maximum": 79.72014181849474,
+              "mean": 2.1940440151553133
+            },
+            "normalized_T_positive_excess": {
+              "n": 77,
+              "median": 0.43426174743370843,
+              "P90": 2.355293633977159,
+              "maximum": 9.826593084785667,
+              "mean": 1.031404892726359
+            },
+            "normalized_R_positive_excess": {
+              "n": 77,
+              "median": 0.3328866785614902,
+              "P90": 1.444572372796172,
+              "maximum": 79.72014181849474,
+              "mean": 1.5509185438499118
+            }
+          },
+          "either": {
+            "count": 277,
+            "fraction_full_population": 0.10662047729022325,
+            "fraction_available_rows": 0.10666153253754332,
+            "normalized_max_excess": {
+              "n": 277,
+              "median": 0.40948369863049267,
+              "P90": 2.13388123123765,
+              "maximum": 79.72014181849474,
+              "mean": 1.6347555438949157
+            },
+            "normalized_T_positive_excess": {
+              "n": 277,
+              "median": 0.21620615319842978,
+              "P90": 1.982734657855542,
+              "maximum": 9.826593084785667,
+              "mean": 0.6476522060948812
+            },
+            "normalized_R_positive_excess": {
+              "n": 277,
+              "median": 0.06071768876074855,
+              "P90": 0.821147598033631,
+              "maximum": 79.72014181849474,
+              "mean": 1.0950366065704817
+            }
+          }
+        },
+        "normalized_max_excess_all_available": {
+          "n": 2597,
+          "median": 0.0,
+          "P90": 0.042379967702962394,
+          "maximum": 79.72014181849474,
+          "mean": 0.1743655316360769
+        },
+        "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+        "undefined_failed_severity": 1,
+        "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+      },
+      "regression_statistics": {
+        "all_valid_candidates": {
+          "candidate_pairs": 10388,
+          "scalar_observations": 20776,
+          "axes": {
+            "T": {
+              "MAE": 0.45992754676802694,
+              "RMSE": 0.8647405857758507,
+              "sign_accuracy": 0.8540623796688487,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  413,
+                  0,
+                  1246
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  270,
+                  0,
+                  5862
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.8029536950930172,
+              "RMSE": 1.5114212764481256,
+              "sign_accuracy": 0.8669618790912591,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  380,
+                  0,
+                  1184
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  198,
+                  0,
+                  6029
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "nonanchor_valid_candidates": {
+          "candidate_pairs": 7791,
+          "scalar_observations": 15582,
+          "axes": {
+            "T": {
+              "MAE": 0.613236729024036,
+              "RMSE": 0.9985164199537642,
+              "sign_accuracy": 0.8054165062251316,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  413,
+                  0,
+                  1246
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  270,
+                  0,
+                  5862
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 1.0706049267906896,
+              "RMSE": 1.7452389616325061,
+              "sign_accuracy": 0.8226158387883455,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  380,
+                  0,
+                  1184
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  198,
+                  0,
+                  6029
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "actually_selected_candidates": {
+          "candidate_pairs": 2597,
+          "scalar_observations": 5194,
+          "axes": {
+            "T": {
+              "MAE": 0.11005292431701462,
+              "RMSE": 0.34469118639949176,
+              "sign_accuracy": 0.9264536003080478,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  277,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2129,
+                  0
+                ],
+                [
+                  191,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.08134249967776483,
+              "RMSE": 0.2989949774646127,
+              "sign_accuracy": 0.9372352714670774,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  305,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2129,
+                  0
+                ],
+                [
+                  163,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+        "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+      },
+      "legacy_discrete_target_accuracy_scope": "Secondary comparison to old anchored whole-pose target; not the new regression target or optimization objective.",
+      "previous_fixed_newton": {
+        "checkpoint": {
+          "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s2/final.json",
+          "sha256": "bc6b8ade2af623213f048bf6c79ff4087045f49aedbd281a300dc43f7885b11a",
+          "bytes": 336535
+        },
+        "receipt": {
+          "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s2.json",
+          "sha256": "7aa992566fd0dc619dd85ca625798cfccf84d64ec362a7b5eeca686abd526d00",
+          "bytes": 13606
+        },
+        "statistics": {
+          "frames": 2598,
+          "available_anchor_rows": 2597,
+          "failed_rows": 1,
+          "denominators": {
+            "full_population": 2598,
+            "available_anchor_rows": 2597
+          },
+          "target_correct": 1760,
+          "target_accuracy_full_population": 0.6774441878367975,
+          "target_accuracy_available_rows": 0.6777050442818637,
+          "anchor_violations": {
+            "T": {
+              "count": 131,
+              "rate": 0.050423402617398,
+              "rate_available_rows": 0.050442818636888716
+            },
+            "R": {
+              "count": 107,
+              "rate": 0.041185527328714396,
+              "rate_available_rows": 0.04120138621486331
+            },
+            "either": {
+              "count": 183,
+              "rate": 0.07043879907621248,
+              "rate_available_rows": 0.07046592221794377
+            },
+            "both": {
+              "count": 55,
+              "rate": 0.021170130869899922,
+              "rate_available_rows": 0.02117828263380824
+            }
+          },
+          "selected_error_summary": {
+            "frames": 2598,
+            "valid_pose": 2597,
+            "failed_pose": 1,
+            "full_population": {
+              "translation_cm": {
+                "median": 2.3235729445212012,
+                "median_status": "FINITE",
+                "P90": 18.907747288473235,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.0581538134489574,
+                "median_status": "FINITE",
+                "P90": 7.774837054346445,
+                "P90_status": "FINITE"
+              }
+            },
+            "conditional": {
+              "translation_cm": {
+                "median": 2.3199772566222574,
+                "median_status": "FINITE",
+                "P90": 18.8948414562807,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.0579006193661458,
+                "median_status": "FINITE",
+                "P90": 7.70228329481348,
+                "P90_status": "FINITE"
+              }
+            }
+          },
+          "selected_index_sha": "573ab6a1662ac9ddcf242ba8c833ff5aa8fb1a1b7f49ee44c5ec7b1fa0ccf5e4",
+          "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+        },
+        "risk_statistics": {
+          "frames": 2598,
+          "available_rows": 2597,
+          "failed_rows": 1,
+          "classes": {
+            "anchor": {
+              "count": 2294,
+              "fraction_full_population": 0.8829869130100076,
+              "fraction_available_rows": 0.8833269156719291
+            },
+            "safe_improvement": {
+              "count": 120,
+              "fraction_full_population": 0.046189376443418015,
+              "fraction_available_rows": 0.04620716211012707
+            },
+            "safe_equal": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0
+            },
+            "unsafe": {
+              "count": 183,
+              "fraction_full_population": 0.07043879907621248,
+              "fraction_available_rows": 0.07046592221794377
+            },
+            "failed": {
+              "count": 1,
+              "fraction_full_population": 0.00038491147036181676,
+              "fraction_available_rows": null
+            }
+          },
+          "violations": {
+            "T": {
+              "count": 131,
+              "fraction_full_population": 0.050423402617398,
+              "fraction_available_rows": 0.050442818636888716,
+              "normalized_max_excess": {
+                "n": 131,
+                "median": 0.49463138852954935,
+                "P90": 2.6349875848380786,
+                "maximum": 79.72014181849474,
+                "mean": 1.5761455908630424
+              },
+              "normalized_T_positive_excess": {
+                "n": 131,
+                "median": 0.4294569511533474,
+                "P90": 2.5206954202670935,
+                "maximum": 9.782030802145423,
+                "mean": 0.9059151128480805
+              },
+              "normalized_R_positive_excess": {
+                "n": 131,
+                "median": 0.0,
+                "P90": 0.860797771748718,
+                "maximum": 79.72014181849474,
+                "mean": 0.8302452954283901
+              }
+            },
+            "R": {
+              "count": 107,
+              "fraction_full_population": 0.041185527328714396,
+              "fraction_available_rows": 0.04120138621486331,
+              "normalized_max_excess": {
+                "n": 107,
+                "median": 0.41047853285051045,
+                "P90": 1.5949435865754695,
+                "maximum": 79.72014181849474,
+                "mean": 2.175932759759233
+              },
+              "normalized_T_positive_excess": {
+                "n": 107,
+                "median": 0.03100230696761598,
+                "P90": 1.3876175998883276,
+                "maximum": 9.782030802145423,
+                "mean": 0.4594148749380171
+              },
+              "normalized_R_positive_excess": {
+                "n": 107,
+                "median": 0.28705189954200533,
+                "P90": 1.0948189679541416,
+                "maximum": 79.72014181849474,
+                "mean": 1.9124238762339176
+              }
+            },
+            "T_only": {
+              "count": 76,
+              "fraction_full_population": 0.029253271747498075,
+              "fraction_available_rows": 0.029264536003080478,
+              "normalized_max_excess": {
+                "n": 76,
+                "median": 0.43650075727216026,
+                "P90": 2.7842449159081046,
+                "maximum": 4.5228202018236,
+                "mean": 0.9147037916411938
+              },
+              "normalized_T_positive_excess": {
+                "n": 76,
+                "median": 0.43650075727216026,
+                "P90": 2.7842449159081046,
+                "maximum": 4.5228202018236,
+                "mean": 0.9147037916411938
+              },
+              "normalized_R_positive_excess": {
+                "n": 76,
+                "median": 0.0,
+                "P90": 0.0,
+                "maximum": 0.0,
+                "mean": 0.0
+              }
+            },
+            "R_only": {
+              "count": 52,
+              "fraction_full_population": 0.020015396458814474,
+              "fraction_available_rows": 0.020023103581055062,
+              "normalized_max_excess": {
+                "n": 52,
+                "median": 0.25588244470542765,
+                "P90": 0.868641110327301,
+                "maximum": 77.80730315411445,
+                "mean": 1.8436004049213475
+              },
+              "normalized_T_positive_excess": {
+                "n": 52,
+                "median": 0.0,
+                "P90": 0.0,
+                "maximum": 0.0,
+                "mean": 0.0
+              },
+              "normalized_R_positive_excess": {
+                "n": 52,
+                "median": 0.25588244470542765,
+                "P90": 0.868641110327301,
+                "maximum": 77.80730315411445,
+                "mean": 1.8436004049213475
+              }
+            },
+            "both": {
+              "count": 55,
+              "fraction_full_population": 0.021170130869899922,
+              "fraction_available_rows": 0.02117828263380824,
+              "normalized_max_excess": {
+                "n": 55,
+                "median": 0.6145532160581745,
+                "P90": 2.2663592764538842,
+                "maximum": 79.72014181849474,
+                "mean": 2.4901378952423245
+              },
+              "normalized_T_positive_excess": {
+                "n": 55,
+                "median": 0.4294569511533474,
+                "P90": 1.876781104062609,
+                "maximum": 9.782030802145423,
+                "mean": 0.8937707566975969
+              },
+              "normalized_R_positive_excess": {
+                "n": 55,
+                "median": 0.33712103620927675,
+                "P90": 1.4716522859797727,
+                "maximum": 79.72014181849474,
+                "mean": 1.9774933400203474
+              }
+            },
+            "either": {
+              "count": 183,
+              "fraction_full_population": 0.07043879907621248,
+              "fraction_available_rows": 0.07046592221794377,
+              "normalized_max_excess": {
+                "n": 183,
+                "median": 0.42738555263672984,
+                "P90": 1.9964648199960173,
+                "maximum": 79.72014181849474,
+                "mean": 1.6521436801036538
+              },
+              "normalized_T_positive_excess": {
+                "n": 183,
+                "median": 0.24696735031347253,
+                "P90": 1.8760346591958554,
+                "maximum": 9.782030802145423,
+                "mean": 0.6484966108366041
+              },
+              "normalized_R_positive_excess": {
+                "n": 183,
+                "median": 0.08891835581167003,
+                "P90": 0.8699596326943818,
+                "maximum": 79.72014181849474,
+                "mean": 1.118193195393602
+              }
+            }
+          },
+          "normalized_max_excess_all_available": {
+            "n": 2597,
+            "median": 0.0,
+            "P90": 0.0,
+            "maximum": 79.72014181849474,
+            "mean": 0.11641982805505147
+          },
+          "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+          "undefined_failed_severity": 1,
+          "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+        },
+        "original_choice_replay_PASS": true,
+        "same_new_objective": {
+          "objective": 0.674244712712754,
+          "Huber": 0.3879786284493286,
+          "Sign_logistic": 0.2772658510266629,
+          "L2_penalty": 0.009000233236762458,
+          "gradient_l2": 0.16183370756394916,
+          "gradient_linf": 0.020633508661938554,
+          "certified_gap_upper_bound": 130.95074451946905,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_objective": {
+          "objective": 0.3969788616860911,
+          "Huber": 0.3879786284493286,
+          "Sign_logistic": 0.0,
+          "L2_penalty": 0.009000233236762458,
+          "gradient_l2": 6.08621881808838e-16,
+          "gradient_linf": 1.300974844346825e-16,
+          "certified_gap_upper_bound": 1.852102975082656e-27,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_certificate": {
+          "PASS": true,
+          "optimizer_success": true,
+          "gradient_l2": 4.885024878574418e-16,
+          "gradient_linf": 7.161155349266757e-17,
+          "gradient_linf_max": 1e-08,
+          "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+          "gradient_l2_squared_over_2lambda": 1.1931734032145506e-27,
+          "max_gap_upper_bound": 1e-06,
+          "lambda_l2": 0.0001,
+          "objective_value": 0.3969788616860911,
+          "Huber": 0.3879786284493286,
+          "L2_penalty": 0.009000233236762458,
+          "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER",
+          "huber_delta": 1.0,
+          "output_dim": 2,
+          "objective_calls": 156,
+          "iterations": 26,
+          "data_loss_definition": "For each frame mean Huber(delta1) over original valid candidates and2 axes, then mean over all2598 rows; no-valid row contributes0.",
+          "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+          "scope": "Numerical convergence of this signed two-axis Huber+ridge objective, not a T/R performance certificate.",
+          "final_accepted_call": 156
+        },
+        "original_objective_and_gradient_parity": true,
+        "regression_statistics": {
+          "all_valid_candidates": {
+            "candidate_pairs": 10388,
+            "scalar_observations": 20776,
+            "axes": {
+              "T": {
+                "MAE": 0.4543547669359963,
+                "RMSE": 0.8739830654783373,
+                "sign_accuracy": 0.8498267231420871,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    320,
+                    0,
+                    1339
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    221,
+                    0,
+                    5911
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.8032209958095624,
+                "RMSE": 1.5288099734797267,
+                "sign_accuracy": 0.86003080477474,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    253,
+                    0,
+                    1311
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    143,
+                    0,
+                    6084
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "nonanchor_valid_candidates": {
+            "candidate_pairs": 7791,
+            "scalar_observations": 15582,
+            "axes": {
+              "T": {
+                "MAE": 0.6058063559146617,
+                "RMSE": 1.0091887162421846,
+                "sign_accuracy": 0.7997689641894493,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    320,
+                    0,
+                    1339
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    221,
+                    0,
+                    5911
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 1.0709613277460832,
+                "RMSE": 1.7653176994566095,
+                "sign_accuracy": 0.8133744063663201,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    253,
+                    0,
+                    1311
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    143,
+                    0,
+                    6084
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "actually_selected_candidates": {
+            "candidate_pairs": 2597,
+            "scalar_observations": 5194,
+            "axes": {
+              "T": {
+                "MAE": 0.06933908502947338,
+                "RMSE": 0.2693694511859388,
+                "sign_accuracy": 0.9495571813631113,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    172,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2294,
+                    0
+                  ],
+                  [
+                    131,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.0516164969435003,
+                "RMSE": 0.23243319455486386,
+                "sign_accuracy": 0.9587986137851366,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    196,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2294,
+                    0
+                  ],
+                  [
+                    107,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+          "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+        },
+        "comparison_scope": "Identical current Huber+sign+ridge evaluated at previous frozen253x2 Newton weights. Original Huber-only certificate is separate provenance, not the comparison objective."
+      },
+      "same_new_objective_decrease": 0.0036573394638276246,
+      "changed_choice_count": 167,
+      "basis_SHA_bind": {
+        "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+        "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+        "bytes": 358575
+      },
+      "hashes": {
+        "signed_target_sha": "c9600f465c23dc1b57f5fc9385bac16a2a77667118f49473fcdb7884d14defe3",
+        "input_difference_sha": "7ea966f6cd12b22194994fe0b81aae2970a5ed28547aa108836b19ed8e2613f1",
+        "base_context_sha": "eac2903751d8249db2410e666b90af1cc7922d8e763c7940ff11ba143bae6c13",
+        "errors_sha": "2e866ae316c6f23b19a0ef374564bc47039e727cec82fea346cc5d3ae21a3df5",
+        "scaled_excess_sha": "dfd425f5ff9ed633290a0eeed8398098213879eaf60f34f6078826d35dcbeaaa",
+        "original_valid_sha": "d79b8ca86f686579081e5cd2eed3323321483c5ab06a7de62927ac15ee213ff3"
+      },
+      "runtime_axes_sha": "799ddf40bbc7c1cca07908b05e8ff4effc1be3738b132a3383ada9d21132d8ae",
+      "runtime_axis_and_selection_parity": true,
+      "all_invalid_frame_retained": true
+    },
+    "UNION_s3": {
+      "independent_recompute": {
+        "objective": 0.6704326038947531,
+        "Huber": 0.38811247719015257,
+        "Sign_logistic": 0.27133685956130293,
+        "L2_penalty": 0.010983267143297613,
+        "gradient_l2": 7.22305382733481e-09,
+        "gradient_linf": 2.7626397885829064e-09,
+        "certified_gap_upper_bound": 2.6086253296288017e-13,
+        "exact_Huber_kink_scalar_count": 0
+      },
+      "original_certificate": {
+        "PASS": true,
+        "optimizer_success": true,
+        "gradient_l2": 7.22305382371971e-09,
+        "gradient_linf": 2.762639769988839e-09,
+        "gradient_linf_max": 1e-08,
+        "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+        "gradient_l2_squared_over_2lambda": 2.6086253270175964e-13,
+        "max_gap_upper_bound": 1e-06,
+        "lambda_l2": 0.0001,
+        "objective_value": 0.6704326038947531,
+        "Huber": 0.38811247719015257,
+        "L2_penalty": 0.010983267143297611,
+        "Sign_logistic": 0.27133685956130293,
+        "sign_rule": "NONZERO_SIGNED_TARGET_AXES",
+        "sign_coefficient": 1.0,
+        "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER_PLUS_SIGN_LOGISTIC",
+        "huber_delta": 1.0,
+        "output_dim": 2,
+        "objective_calls": 58,
+        "iterations": 17,
+        "data_loss_definition": "For each frame mean [Huber(delta1)+1{target!=0}softplus(-sign(target)*prediction)] over original valid candidates and2 axes, then mean over all2598 rows. Sign coefficient1; zero-target axes omit even the log2 constant; no-valid row contributes0.",
+        "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+        "scope": "Numerical convergence of this fixed signed two-axis Huber+sign-logistic+ridge objective, not a T/R performance certificate.",
+        "final_accepted_call": 58
+      },
+      "objective_abs_difference": 0.0,
+      "gradient_vector_max_abs_difference": 5.887217796596289e-17,
+      "Hessian_max_abs_difference": 5.551115123125783e-16,
+      "independent_Hessian_min_eigenvalue": 9.99999999985208e-05,
+      "independent_Hessian_max_eigenvalue": 43.71281303973224,
+      "Hessian_scope": "506x506 block matrix in C-order; only the Huber component has zero generalized curvature at its exact kink. Nonzero-target logistic curvature and ridge remain; gap proof uses C1 strong convexity.",
+      "objective_calls": 58,
+      "iterations": 17,
+      "newton_trace": {
+        "PASS": true,
+        "initial_evaluation_counted": true,
+        "zero_initialization": true,
+        "objective_calls": 58,
+        "accepted_iterations": 17,
+        "rejected_Armijo_trials": 40,
+        "rounded_Armijo_bound_equals_parent": 0,
+        "final_accepted_call": 58,
+        "final_accepted_weight_sha": "b52d708f97c83e2e33c75264ae61bec7221638b32c44af52e27bcdd29f1e09be",
+        "exact_half_steps_and_fixed_c1": true,
+        "all_accepted_rows_match_trial": true,
+        "final_accepted_state_matches_certificate": true,
+        "optimizer_replays": 0,
+        "intermediate_numerical_scope": "Every trace row checked for provenance, order, count, alpha, Armijo arithmetic and accepted-state linkage. Initial/final objectives independently recomputed; intermediate matrices are not stored, so no claim of independent recomputation of every intermediate Newton direction."
+      },
+      "statistics": {
+        "frames": 2598,
+        "available_anchor_rows": 2597,
+        "failed_rows": 1,
+        "denominators": {
+          "full_population": 2598,
+          "available_anchor_rows": 2597
+        },
+        "target_correct": 1751,
+        "target_accuracy_full_population": 0.6739799846035411,
+        "target_accuracy_available_rows": 0.6742395071236041,
+        "anchor_violations": {
+          "T": {
+            "count": 164,
+            "rate": 0.06312548113933796,
+            "rate_available_rows": 0.06314978821717367
+          },
+          "R": {
+            "count": 127,
+            "rate": 0.04888375673595073,
+            "rate_available_rows": 0.04890257989988448
+          },
+          "either": {
+            "count": 234,
+            "rate": 0.09006928406466513,
+            "rate_available_rows": 0.09010396611474779
+          },
+          "both": {
+            "count": 57,
+            "rate": 0.021939953810623556,
+            "rate_available_rows": 0.02194840200231036
+          }
+        },
+        "selected_error_summary": {
+          "frames": 2598,
+          "valid_pose": 2597,
+          "failed_pose": 1,
+          "full_population": {
+            "translation_cm": {
+              "median": 2.3279374135978594,
+              "median_status": "FINITE",
+              "P90": 18.893823070488793,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.0364710498684697,
+              "median_status": "FINITE",
+              "P90": 7.64601317582812,
+              "P90_status": "FINITE"
+            }
+          },
+          "conditional": {
+            "translation_cm": {
+              "median": 2.327168632420145,
+              "median_status": "FINITE",
+              "P90": 18.880863179779304,
+              "P90_status": "FINITE"
+            },
+            "rotation_deg": {
+              "median": 1.0362527798229413,
+              "median_status": "FINITE",
+              "P90": 7.628568694011104,
+              "P90_status": "FINITE"
+            }
+          }
+        },
+        "selected_index_sha": "d878b885dbf469eb74b229942e474ee1b4b9a5594e41d74ed95d1b8434cf4939",
+        "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+      },
+      "risk_statistics": {
+        "frames": 2598,
+        "available_rows": 2597,
+        "failed_rows": 1,
+        "classes": {
+          "anchor": {
+            "count": 2219,
+            "fraction_full_population": 0.8541185527328714,
+            "fraction_available_rows": 0.8544474393530997
+          },
+          "safe_improvement": {
+            "count": 144,
+            "fraction_full_population": 0.05542725173210162,
+            "fraction_available_rows": 0.055448594532152486
+          },
+          "safe_equal": {
+            "count": 0,
+            "fraction_full_population": 0.0,
+            "fraction_available_rows": 0.0
+          },
+          "unsafe": {
+            "count": 234,
+            "fraction_full_population": 0.09006928406466513,
+            "fraction_available_rows": 0.09010396611474779
+          },
+          "failed": {
+            "count": 1,
+            "fraction_full_population": 0.00038491147036181676,
+            "fraction_available_rows": null
+          }
+        },
+        "violations": {
+          "T": {
+            "count": 164,
+            "fraction_full_population": 0.06312548113933796,
+            "fraction_available_rows": 0.06314978821717367,
+            "normalized_max_excess": {
+              "n": 164,
+              "median": 0.6087910214368231,
+              "P90": 2.283030101736072,
+              "maximum": 9.320918151720571,
+              "mean": 1.0250702812814572
+            },
+            "normalized_T_positive_excess": {
+              "n": 164,
+              "median": 0.5633272660203583,
+              "P90": 2.283030101736072,
+              "maximum": 8.811014308901054,
+              "mean": 0.9579718222427128
+            },
+            "normalized_R_positive_excess": {
+              "n": 164,
+              "median": 0.0,
+              "P90": 0.7731226101282707,
+              "maximum": 9.320918151720571,
+              "mean": 0.2732864625965496
+            }
+          },
+          "R": {
+            "count": 127,
+            "fraction_full_population": 0.04888375673595073,
+            "fraction_available_rows": 0.04890257989988448,
+            "normalized_max_excess": {
+              "n": 127,
+              "median": 0.489042599438818,
+              "P90": 2.1534513521629184,
+              "maximum": 9.320918151720571,
+              "mean": 0.8795922390714888
+            },
+            "normalized_T_positive_excess": {
+              "n": 127,
+              "median": 0.0,
+              "P90": 1.5421142445071074,
+              "maximum": 8.811014308901054,
+              "mean": 0.5686219135947701
+            },
+            "normalized_R_positive_excess": {
+              "n": 127,
+              "median": 0.34301555086809,
+              "P90": 1.305680025464816,
+              "maximum": 9.320918151720571,
+              "mean": 0.5772288497560895
+            }
+          },
+          "T_only": {
+            "count": 107,
+            "fraction_full_population": 0.041185527328714396,
+            "fraction_available_rows": 0.04120138621486331,
+            "normalized_max_excess": {
+              "n": 107,
+              "median": 0.5232249710744242,
+              "P90": 2.09048505490928,
+              "maximum": 4.204700874913082,
+              "mean": 0.7933868768342909
+            },
+            "normalized_T_positive_excess": {
+              "n": 107,
+              "median": 0.5232249710744242,
+              "P90": 2.09048505490928,
+              "maximum": 4.204700874913082,
+              "mean": 0.7933868768342909
+            },
+            "normalized_R_positive_excess": {
+              "n": 107,
+              "median": 0.0,
+              "P90": 0.0,
+              "maximum": 0.0,
+              "mean": 0.0
+            }
+          },
+          "R_only": {
+            "count": 70,
+            "fraction_full_population": 0.026943802925327175,
+            "fraction_available_rows": 0.026954177897574125,
+            "normalized_max_excess": {
+              "n": 70,
+              "median": 0.25749558523026905,
+              "P90": 0.813972359527903,
+              "maximum": 2.6689740161904423,
+              "mean": 0.40698691504555995
+            },
+            "normalized_T_positive_excess": {
+              "n": 70,
+              "median": 0.0,
+              "P90": 0.0,
+              "maximum": 0.0,
+              "mean": 0.0
+            },
+            "normalized_R_positive_excess": {
+              "n": 70,
+              "median": 0.25749558523026905,
+              "P90": 0.813972359527903,
+              "maximum": 2.6689740161904423,
+              "mean": 0.40698691504555995
+            }
+          },
+          "both": {
+            "count": 57,
+            "fraction_full_population": 0.021939953810623556,
+            "fraction_available_rows": 0.02194840200231036,
+            "normalized_max_excess": {
+              "n": 57,
+              "median": 0.6929303817836612,
+              "P90": 2.601918008397766,
+              "maximum": 9.320918151720571,
+              "mean": 1.4599847422612253
+            },
+            "normalized_T_positive_excess": {
+              "n": 57,
+              "median": 0.6224952688799534,
+              "P90": 2.5727678663857847,
+              "maximum": 8.811014308901054,
+              "mean": 1.2669295267813296
+            },
+            "normalized_R_positive_excess": {
+              "n": 57,
+              "median": 0.4218981891880511,
+              "P90": 1.6494634755535436,
+              "maximum": 9.320918151720571,
+              "mean": 0.786297892383055
+            }
+          },
+          "either": {
+            "count": 234,
+            "fraction_full_population": 0.09006928406466513,
+            "fraction_available_rows": 0.09010396611474779,
+            "normalized_max_excess": {
+              "n": 234,
+              "median": 0.4990900914051243,
+              "P90": 2.169831698806297,
+              "maximum": 9.320918151720571,
+              "mean": 0.8401735477920862
+            },
+            "normalized_T_positive_excess": {
+              "n": 234,
+              "median": 0.24816320716625576,
+              "P90": 1.9235059001900596,
+              "maximum": 8.811014308901054,
+              "mean": 0.6713990549051492
+            },
+            "normalized_R_positive_excess": {
+              "n": 234,
+              "median": 0.04171841649683348,
+              "P90": 0.800743867744899,
+              "maximum": 9.320918151720571,
+              "mean": 0.3132823244402707
+            }
+          }
+        },
+        "normalized_max_excess_all_available": {
+          "n": 2597,
+          "median": 0.0,
+          "P90": 0.0,
+          "maximum": 9.320918151720571,
+          "mean": 0.07570296888076557
+        },
+        "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+        "undefined_failed_severity": 1,
+        "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+      },
+      "regression_statistics": {
+        "all_valid_candidates": {
+          "candidate_pairs": 10388,
+          "scalar_observations": 20776,
+          "axes": {
+            "T": {
+              "MAE": 0.4578295176712822,
+              "RMSE": 0.8581777768366483,
+              "sign_accuracy": 0.8522333461686561,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  338,
+                  0,
+                  1297
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  238,
+                  0,
+                  5918
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.8021564093759048,
+              "RMSE": 1.5141290008427184,
+              "sign_accuracy": 0.8651328455910666,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  378,
+                  0,
+                  1207
+                ],
+                [
+                  0,
+                  2597,
+                  0
+                ],
+                [
+                  194,
+                  0,
+                  6012
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "nonanchor_valid_candidates": {
+          "candidate_pairs": 7791,
+          "scalar_observations": 15582,
+          "axes": {
+            "T": {
+              "MAE": 0.610439356895043,
+              "RMSE": 0.990938340938387,
+              "sign_accuracy": 0.8029777948915415,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  338,
+                  0,
+                  1297
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  238,
+                  0,
+                  5918
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 1.069541879167873,
+              "RMSE": 1.7483655724487253,
+              "sign_accuracy": 0.8201771274547555,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  378,
+                  0,
+                  1207
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  194,
+                  0,
+                  6012
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "actually_selected_candidates": {
+          "candidate_pairs": 2597,
+          "scalar_observations": 5194,
+          "axes": {
+            "T": {
+              "MAE": 0.09012371813324782,
+              "RMSE": 0.3134016267935639,
+              "sign_accuracy": 0.9368502117828263,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  214,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2219,
+                  0
+                ],
+                [
+                  164,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            },
+            "R": {
+              "MAE": 0.06316024964771079,
+              "RMSE": 0.24208865535537885,
+              "sign_accuracy": 0.9510974201001156,
+              "exact_sign_confusion_true_rows_predicted_columns": [
+                [
+                  251,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2219,
+                  0
+                ],
+                [
+                  127,
+                  0,
+                  0
+                ]
+              ],
+              "sign_order": [
+                "negative",
+                "zero",
+                "positive"
+              ]
+            }
+          }
+        },
+        "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+        "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+      },
+      "legacy_discrete_target_accuracy_scope": "Secondary comparison to old anchored whole-pose target; not the new regression target or optimization objective.",
+      "previous_fixed_newton": {
+        "checkpoint": {
+          "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s3/final.json",
+          "sha256": "be4c5226c66745e1439d3fd9a5ba9d3fdb2002db272c8b7f71b877c43d2fb7c9",
+          "bytes": 336478
+        },
+        "receipt": {
+          "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s3.json",
+          "sha256": "1bf52e1740387eb372fbed2c89dbacc9259b9f4cd5e7e89b968c8aff47b4693b",
+          "bytes": 14149
+        },
+        "statistics": {
+          "frames": 2598,
+          "available_anchor_rows": 2597,
+          "failed_rows": 1,
+          "denominators": {
+            "full_population": 2598,
+            "available_anchor_rows": 2597
+          },
+          "target_correct": 1777,
+          "target_accuracy_full_population": 0.6839876828329484,
+          "target_accuracy_available_rows": 0.6842510589141317,
+          "anchor_violations": {
+            "T": {
+              "count": 119,
+              "rate": 0.045804464973056194,
+              "rate_available_rows": 0.04582210242587601
+            },
+            "R": {
+              "count": 94,
+              "rate": 0.036181678214010776,
+              "rate_available_rows": 0.03619561031959954
+            },
+            "either": {
+              "count": 171,
+              "rate": 0.06581986143187067,
+              "rate_available_rows": 0.06584520600693107
+            },
+            "both": {
+              "count": 42,
+              "rate": 0.016166281755196306,
+              "rate_available_rows": 0.016172506738544475
+            }
+          },
+          "selected_error_summary": {
+            "frames": 2598,
+            "valid_pose": 2597,
+            "failed_pose": 1,
+            "full_population": {
+              "translation_cm": {
+                "median": 2.3454718890884747,
+                "median_status": "FINITE",
+                "P90": 18.907747288473235,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.0522526905115255,
+                "median_status": "FINITE",
+                "P90": 7.64601317582812,
+                "P90_status": "FINITE"
+              }
+            },
+            "conditional": {
+              "translation_cm": {
+                "median": 2.3443453940678705,
+                "median_status": "FINITE",
+                "P90": 18.8948414562807,
+                "P90_status": "FINITE"
+              },
+              "rotation_deg": {
+                "median": 1.052000167564705,
+                "median_status": "FINITE",
+                "P90": 7.628568694011104,
+                "P90_status": "FINITE"
+              }
+            }
+          },
+          "selected_index_sha": "76ef8a58418cdb13452558c17ad204e93f7544321a9132ec1b1cf7a3de723558",
+          "denominator": "Primary accuracy/violation fractions retain all2598 TRAIN rows; invalid target-1 is not counted correct. Conditional rates also reported on2597 available anchors; one failure is explicit and retained as+inf in full-frame T/R summaries."
+        },
+        "risk_statistics": {
+          "frames": 2598,
+          "available_rows": 2597,
+          "failed_rows": 1,
+          "classes": {
+            "anchor": {
+              "count": 2320,
+              "fraction_full_population": 0.8929946112394149,
+              "fraction_available_rows": 0.8933384674624567
+            },
+            "safe_improvement": {
+              "count": 106,
+              "fraction_full_population": 0.04080061585835258,
+              "fraction_available_rows": 0.04081632653061224
+            },
+            "safe_equal": {
+              "count": 0,
+              "fraction_full_population": 0.0,
+              "fraction_available_rows": 0.0
+            },
+            "unsafe": {
+              "count": 171,
+              "fraction_full_population": 0.06581986143187067,
+              "fraction_available_rows": 0.06584520600693107
+            },
+            "failed": {
+              "count": 1,
+              "fraction_full_population": 0.00038491147036181676,
+              "fraction_available_rows": null
+            }
+          },
+          "violations": {
+            "T": {
+              "count": 119,
+              "fraction_full_population": 0.045804464973056194,
+              "fraction_available_rows": 0.04582210242587601,
+              "normalized_max_excess": {
+                "n": 119,
+                "median": 0.6097753615326545,
+                "P90": 2.281248562571066,
+                "maximum": 9.320918151720571,
+                "mean": 1.0228200401906986
+              },
+              "normalized_T_positive_excess": {
+                "n": 119,
+                "median": 0.5654334153026883,
+                "P90": 2.281248562571066,
+                "maximum": 8.811014308901054,
+                "mean": 0.9722533296997201
+              },
+              "normalized_R_positive_excess": {
+                "n": 119,
+                "median": 0.0,
+                "P90": 0.7243389908322903,
+                "maximum": 9.320918151720571,
+                "mean": 0.2593684699776415
+              }
+            },
+            "R": {
+              "count": 94,
+              "fraction_full_population": 0.036181678214010776,
+              "fraction_available_rows": 0.03619561031959954,
+              "normalized_max_excess": {
+                "n": 94,
+                "median": 0.5055826381261175,
+                "P90": 1.7986291071986198,
+                "maximum": 9.320918151720571,
+                "mean": 0.8957815947232278
+              },
+              "normalized_T_positive_excess": {
+                "n": 94,
+                "median": 0.0,
+                "P90": 1.289393678523078,
+                "maximum": 8.811014308901054,
+                "mean": 0.6025185459957241
+              },
+              "normalized_R_positive_excess": {
+                "n": 94,
+                "median": 0.34905504814447863,
+                "P90": 1.0836251946442153,
+                "maximum": 9.320918151720571,
+                "mean": 0.5575971910563642
+              }
+            },
+            "T_only": {
+              "count": 77,
+              "fraction_full_population": 0.029638183217859892,
+              "fraction_available_rows": 0.029649595687331536,
+              "normalized_max_excess": {
+                "n": 77,
+                "median": 0.5232249710744242,
+                "P90": 2.09048505490928,
+                "maximum": 4.204700874913082,
+                "mean": 0.7670312066320603
+              },
+              "normalized_T_positive_excess": {
+                "n": 77,
+                "median": 0.5232249710744242,
+                "P90": 2.09048505490928,
+                "maximum": 4.204700874913082,
+                "mean": 0.7670312066320603
+              },
+              "normalized_R_positive_excess": {
+                "n": 77,
+                "median": 0.0,
+                "P90": 0.0,
+                "maximum": 0.0,
+                "mean": 0.0
+              }
+            },
+            "R_only": {
+              "count": 52,
+              "fraction_full_population": 0.020015396458814474,
+              "fraction_available_rows": 0.020023103581055062,
+              "normalized_max_excess": {
+                "n": 52,
+                "median": 0.25749558523026905,
+                "P90": 0.8362712033228288,
+                "maximum": 2.354204706201118,
+                "mean": 0.4144093852299787
+              },
+              "normalized_T_positive_excess": {
+                "n": 52,
+                "median": 0.0,
+                "P90": 0.0,
+                "maximum": 0.0,
+                "mean": 0.0
+              },
+              "normalized_R_positive_excess": {
+                "n": 52,
+                "median": 0.25749558523026905,
+                "P90": 0.8362712033228288,
+                "maximum": 2.354204706201118,
+                "mean": 0.4144093852299787
+              }
+            },
+            "both": {
+              "count": 42,
+              "fraction_full_population": 0.016166281755196306,
+              "fraction_available_rows": 0.016172506738544475,
+              "normalized_max_excess": {
+                "n": 42,
+                "median": 0.6830730994977479,
+                "P90": 2.463025031003173,
+                "maximum": 9.320918151720571,
+                "mean": 1.4917662350482022
+              },
+              "normalized_T_positive_excess": {
+                "n": 42,
+                "median": 0.6204337696507507,
+                "P90": 2.463025031003173,
+                "maximum": 8.811014308901054,
+                "mean": 1.3484938886570967
+              },
+              "normalized_R_positive_excess": {
+                "n": 42,
+                "median": 0.4220360319704005,
+                "P90": 1.3933373113552687,
+                "maximum": 9.320918151720571,
+                "mean": 0.7348773316033176
+              }
+            },
+            "either": {
+              "count": 171,
+              "fraction_full_population": 0.06581986143187067,
+              "fraction_available_rows": 0.06584520600693107,
+              "normalized_max_excess": {
+                "n": 171,
+                "median": 0.5225847462236128,
+                "P90": 2.021831711966219,
+                "maximum": 9.320918151720571,
+                "mean": 0.837806273769895
+              },
+              "normalized_T_positive_excess": {
+                "n": 171,
+                "median": 0.22616464086525592,
+                "P90": 1.9362116419014375,
+                "maximum": 8.811014308901054,
+                "mean": 0.6765973463992204
+              },
+              "normalized_R_positive_excess": {
+                "n": 171,
+                "median": 0.05577781007768336,
+                "P90": 0.7763812163580744,
+                "maximum": 9.320918151720571,
+                "mean": 0.30651541496665635
+              }
+            }
+          },
+          "normalized_max_excess_all_available": {
+            "n": 2597,
+            "median": 0.0,
+            "P90": 0.0,
+            "maximum": 9.320918151720571,
+            "mean": 0.05516552669027802
+          },
+          "normalized_max_excess_definition": "max((T-T_anchor)/sT, (R-R_anchor)/sR, 0)",
+          "undefined_failed_severity": 1,
+          "denominator": "Fractions report both all2598 rows and available2597. Failure severity is undefined, never zero or a safe outcome."
+        },
+        "original_choice_replay_PASS": true,
+        "same_new_objective": {
+          "objective": 0.6740839241871387,
+          "Huber": 0.3868563722579435,
+          "Sign_logistic": 0.2780359416969672,
+          "L2_penalty": 0.009191610232227957,
+          "gradient_l2": 0.1655331594111765,
+          "gradient_linf": 0.02095462073572453,
+          "certified_gap_upper_bound": 137.00613432322984,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_objective": {
+          "objective": 0.3960479824901715,
+          "Huber": 0.3868563722579435,
+          "Sign_logistic": 0.0,
+          "L2_penalty": 0.009191610232227957,
+          "gradient_l2": 1.0433666627865879e-15,
+          "gradient_linf": 2.045923380798037e-16,
+          "certified_gap_upper_bound": 5.443069965072106e-27,
+          "exact_Huber_kink_scalar_count": 0
+        },
+        "original_Huber_only_certificate": {
+          "PASS": true,
+          "optimizer_success": true,
+          "gradient_l2": 9.149584886889886e-16,
+          "gradient_linf": 1.6329439970347304e-16,
+          "gradient_linf_max": 1e-08,
+          "solver_rule": "BLOCK_GENERALIZED_NEWTON_ARMIJO",
+          "gradient_l2_squared_over_2lambda": 4.1857451801201896e-27,
+          "max_gap_upper_bound": 1e-06,
+          "lambda_l2": 0.0001,
+          "objective_value": 0.3960479824901714,
+          "Huber": 0.38685637225794345,
+          "L2_penalty": 0.009191610232227955,
+          "loss_rule": "FULL_FRAME_VALID_CANDIDATE_TWO_AXIS_HUBER",
+          "huber_delta": 1.0,
+          "output_dim": 2,
+          "objective_calls": 112,
+          "iterations": 19,
+          "data_loss_definition": "For each frame mean Huber(delta1) over original valid candidates and2 axes, then mean over all2598 rows; no-valid row contributes0.",
+          "theorem": "For lambda-strongly-convex differentiable J, J(w)-min J <= ||grad J(w)||²/(2lambda). Applies also at C1 Huber kink.",
+          "scope": "Numerical convergence of this signed two-axis Huber+ridge objective, not a T/R performance certificate.",
+          "final_accepted_call": 112
+        },
+        "original_objective_and_gradient_parity": true,
+        "regression_statistics": {
+          "all_valid_candidates": {
+            "candidate_pairs": 10388,
+            "scalar_observations": 20776,
+            "axes": {
+              "T": {
+                "MAE": 0.4520792727000615,
+                "RMSE": 0.8683778769413039,
+                "sign_accuracy": 0.8498267231420871,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    272,
+                    0,
+                    1363
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    197,
+                    0,
+                    5959
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.802720889506536,
+                "RMSE": 1.530963129756792,
+                "sign_accuracy": 0.8586830958798614,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    260,
+                    0,
+                    1325
+                  ],
+                  [
+                    0,
+                    2597,
+                    0
+                  ],
+                  [
+                    143,
+                    0,
+                    6063
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "nonanchor_valid_candidates": {
+            "candidate_pairs": 7791,
+            "scalar_observations": 15582,
+            "axes": {
+              "T": {
+                "MAE": 0.6027723636000821,
+                "RMSE": 1.0027164020207548,
+                "sign_accuracy": 0.7997689641894493,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    272,
+                    0,
+                    1363
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    197,
+                    0,
+                    5959
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 1.070294519342048,
+                "RMSE": 1.7678039501689518,
+                "sign_accuracy": 0.8115774611731486,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    260,
+                    0,
+                    1325
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    143,
+                    0,
+                    6063
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "actually_selected_candidates": {
+            "candidate_pairs": 2597,
+            "scalar_observations": 5194,
+            "axes": {
+              "T": {
+                "MAE": 0.06496816137675995,
+                "RMSE": 0.266701391753295,
+                "sign_accuracy": 0.954177897574124,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    158,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2320,
+                    0
+                  ],
+                  [
+                    119,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              },
+              "R": {
+                "MAE": 0.045925298166300185,
+                "RMSE": 0.2011961302082309,
+                "sign_accuracy": 0.9638043896804005,
+                "exact_sign_confusion_true_rows_predicted_columns": [
+                  [
+                    183,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2320,
+                    0
+                  ],
+                  [
+                    94,
+                    0,
+                    0
+                  ]
+                ],
+                "sign_order": [
+                  "negative",
+                  "zero",
+                  "positive"
+                ]
+              }
+            }
+          },
+          "space": "Signed log1p normalized anchor-excess units; MAE/RMSE are not cm/deg. No clipping or sign threshold.",
+          "anchors_separated": "Anchor target/prediction are identically zero; inspect nonanchor statistics to avoid counting this identity as learned accuracy."
+        },
+        "comparison_scope": "Identical current Huber+sign+ridge evaluated at previous frozen253x2 Newton weights. Original Huber-only certificate is separate provenance, not the comparison objective."
+      },
+      "same_new_objective_decrease": 0.0036513202923855737,
+      "changed_choice_count": 107,
+      "basis_SHA_bind": {
+        "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+        "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+        "bytes": 358575
+      },
+      "hashes": {
+        "signed_target_sha": "6763bf8cf503ec6a17481fc9855d4b161d9c605533ce852eb216ee9d62e105c6",
+        "input_difference_sha": "db2af856129d7fd7f9ef7e86ed25f790064f6cb887afe112918ca106d78fd085",
+        "base_context_sha": "7acc14e40743242e0c17b76e90ec766cd15cb3976aa88e90e12b32a2cad02de2",
+        "errors_sha": "31987b992ec7fbc1878bf2e9b23862c42f4ed48e6707c468000fe97fac3f66b2",
+        "scaled_excess_sha": "95cc6f43ec409e2ad5afa60a3ab2405b6558d6c6085a04b0a259e75c17c9939c",
+        "original_valid_sha": "d79b8ca86f686579081e5cd2eed3323321483c5ab06a7de62927ac15ee213ff3"
+      },
+      "runtime_axes_sha": "c21e35fc4f14d5b080ccf529010ffad36db39b5416b86444acee929e0e1b1d00",
+      "runtime_axis_and_selection_parity": true,
+      "all_invalid_frame_retained": true
+    }
+  },
+  "bindings": [
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/TRAIN_PROTOCOL.json",
+      "sha256": "3063de5cafee2b32f4bf29639596704887c16c2f2eceffb706153f5ab98b810e",
+      "bytes": 26963
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/TRAINING_COMPLETE.json",
+      "sha256": "811689f3a4afd482456f4974d07271ec3e78c68e09069e20bb89ed2e8fa0f70a",
+      "bytes": 4737
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+      "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+      "bytes": 358575
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/PREFIT_REVIEW.json",
+      "sha256": "67fc43dd316d542ea2c2f43f7282633d2222b1a4043628854dc1fb0e1a619f9c",
+      "bytes": 30525
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/TRAIN_CONVERGENCE.json",
+      "sha256": "8751efa456ce653924c9ffca93e12cc838d623efd6288e428aed24fda88b454a",
+      "bytes": 140039
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_sign_20261001_v1/verify_train.py",
+      "sha256": "e681a338a4836f856d72508494be417699f592d0238f5c73d8438d5bfa414572",
+      "bytes": 40158
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_sign_20261001_v1/convex_train.py",
+      "sha256": "5ecbd8e2fa3e8fa3964b963114299e335b09f3be3fc8aed40683e11941a41a22",
+      "bytes": 51234
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_rbf_20261001_v1/verify_train.py",
+      "sha256": "71ec036b308297e2bc1e43fc0a9ef32dd3c68984cbded5335e03ddc35400984f",
+      "bytes": 44415
+    },
+    {
+      "path": "scripts/research/pallet_pose_signed_axes_newton_20261001_v1/convex_train.py",
+      "sha256": "02001484dbabe7d07d311695c0512db4793e69335a09e8cac1475cfa73e9db87",
+      "bytes": 47163
+    },
+    {
+      "path": "scripts/research/pallet_pose_anchor_context_20261001_v1/train_risk_diagnostic.py",
+      "sha256": "c666f932eb6e2f9c7195e7dbf080b557c9aa830e5961d2769a05033a901f2f28",
+      "bytes": 14661
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_R0_ONLY.json",
+      "sha256": "6362e7f667f4588004bac25c5e95baa63ab8795fa366792d98b7547069f108b7",
+      "bytes": 13602
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/R0_ONLY/START.json",
+      "sha256": "79284462acd00f6c695d8107f4ca3b42118f05a2b22ae418b62f0ef8fa8162ea",
+      "bytes": 3687
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/R0_ONLY/TRACE.jsonl",
+      "sha256": "ef56a54c7edc808c175164da2e3cf3a5fb04f07571fea975930a6f54165e773f",
+      "bytes": 90348
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/R0_ONLY/final.json",
+      "sha256": "41e66336308cc8faa2889e43f05e95a0b83cbf7fe12392083fa62423f5d934b5",
+      "bytes": 336823
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_R0_ONLY.json",
+      "sha256": "4984fd3450113c633747308e21cf3e55b34c76266be87d2abf3b12470dfa9844",
+      "bytes": 12527
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/R0_ONLY/final.json",
+      "sha256": "c39013fc593f2338999cb6ee60a416b49d2fa75b03de259d005226f129b10463",
+      "bytes": 336452
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_UNION_s1.json",
+      "sha256": "bda65eb16f5534afadba6b060f55dea4626540b10ca7283fc76db3b2031a3196",
+      "bytes": 14135
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s1/START.json",
+      "sha256": "643b80c0b89630989ea1581c522015559d98c57b51ff355f68e2122a0fbb6966",
+      "bytes": 3764
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s1/TRACE.jsonl",
+      "sha256": "21c6ffd993b56f379c57efb295bcd8ad2add407c936e37d5187481217c1eccd8",
+      "bytes": 111877
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s1/final.json",
+      "sha256": "44cb2ec2bcf2e64f5cd24bf93388f664b344f998589a4cbaf4bb3293ec4c4977",
+      "bytes": 336892
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s1.json",
+      "sha256": "0e6bb1fb62d18f00e2b786f405df309e2d5fdb04f3632493ff44bbfd5c3512ad",
+      "bytes": 13066
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s1/final.json",
+      "sha256": "1076d1db4d1d80d5e22237fa66ef8a998c3ba7c85904a35edf7c63c2857c40b8",
+      "bytes": 336501
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_UNION_s2.json",
+      "sha256": "78e5a8dbd319bedc2572d71b77951ad94cda556eb927e94e9a203058faa8ca28",
+      "bytes": 14668
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s2/START.json",
+      "sha256": "d92fce4ff9034b53f0fd611fe61009cad201b0d2ddb1f23ff0ac63c0fb6ec96d",
+      "bytes": 3764
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s2/TRACE.jsonl",
+      "sha256": "21c9fc070aa15da9a695c4fd03f4bfdd26b8f8726e0ec2975217f36f8ab98b66",
+      "bytes": 163627
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s2/final.json",
+      "sha256": "0970f55252e012868402c1c90e1444a8a4e1a91f30767dc3b6ba6e30db9f53d2",
+      "bytes": 336903
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s2.json",
+      "sha256": "7aa992566fd0dc619dd85ca625798cfccf84d64ec362a7b5eeca686abd526d00",
+      "bytes": 13606
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s2/final.json",
+      "sha256": "bc6b8ade2af623213f048bf6c79ff4087045f49aedbd281a300dc43f7885b11a",
+      "bytes": 336535
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_UNION_s3.json",
+      "sha256": "cff876c9cb55d5700b4a1e9d3d7ada780f4b40c6012839588d10569438362c02",
+      "bytes": 15199
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s3/START.json",
+      "sha256": "560cbfc204e5c04e22c6d2df5a5684b0954cfabc29d12f91d37234b263a469e3",
+      "bytes": 3764
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s3/TRACE.jsonl",
+      "sha256": "bd33b9e84fe8bc14bd9c8c2821ee51c26d20f492fb2e1e9c5b895d8ad9d5b5b8",
+      "bytes": 161581
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s3/final.json",
+      "sha256": "9a82bc886358845ad8fa5bc0a275cef400613f8da71f310d69306deed5578ddd",
+      "bytes": 336881
+    },
+    {
+      "path": "_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s3.json",
+      "sha256": "1bf52e1740387eb372fbed2c89dbacc9259b9f4cd5e7e89b968c8aff47b4693b",
+      "bytes": 14149
+    },
+    {
+      "path": "data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s3/final.json",
+      "sha256": "be4c5226c66745e1439d3fd9a5ba9d3fdb2002db272c8b7f71b877c43d2fb7c9",
+      "bytes": 336478
+    }
+  ],
+  "basis_SHA_bind": {
+    "path": "_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+    "sha256": "a422827e131d87552556d76005973489f4ff5fce9577e890df26ea54081fe52f",
+    "bytes": 358575
+  },
+  "source_TRAIN_only": true,
+  "frames": 2598,
+  "available_anchor_rows": 2597,
+  "failed_rows": 1,
+  "VAL_quality_read": false,
+  "real_targets_read": false,
+  "raw_source_reference_reads": 0,
+  "new_fits": 0,
+  "optimizer_steps": 0,
+  "alternative_policy_probes": 0,
+  "method_success": false,
+  "goal_complete": false,
+  "comparison": "Current final weights and previous frozen Newton253x2 weights evaluated under the same new Huber+sign-logistic+ridge objective and identical TRAIN candidate errors. Previous original Huber-only certificate is retained separately.",
+  "objective_definition": "Per-frame mean of Huber(delta1)+1{target!=0}*softplus(-sign(target)*prediction) over original valid candidates and both axes; mean over all2598 frames; ridge1e-4 over506 weights. No sign-label count renormalization.",
+  "validation": "Independent scalar signed targets/differences, independent253 feature construction, Torch64 exact logaddexp/Huber/autograd and separate weighted-design506 curvature with sign-logistic component.",
+  "read_paths": [
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/BASIS_PROTOCOL.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/FIT_R0_ONLY.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/FIT_UNION_s1.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/FIT_UNION_s2.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/FIT_UNION_s3.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/RBF_BASIS.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_anchor_rbf_20261001_v1/TRAIN_CONVERGENCE.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/REAL_FEASIBILITY_AUTHORIZATION.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/SOURCE_FEASIBILITY.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_pareto_anchor_20261001_v1/SOURCE_PROTOCOL.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_R0_ONLY.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s1.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s2.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/FIT_UNION_s3.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/PREFIT_REVIEW.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/TRAINING_COMPLETE.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/TRAIN_CONVERGENCE.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_newton_20261001_v1/TRAIN_PROTOCOL.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_R0_ONLY.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_UNION_s1.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_UNION_s2.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/FIT_UNION_s3.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/PREFIT_REVIEW.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/TRAINING_COMPLETE.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/TRAIN_PROTOCOL.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_signed_axes_sign_20261001_v1/TRAIN_PROTOCOL_SHA.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_CONTRACT.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURE_LOCK.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PREDICTIONS_LOCK.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_PROTOCOL.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_RUNTIME_AMENDMENT_01.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_RUNTIME_AMENDMENT_01_SHA.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_GATE.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_FEASIBILITY_PROTOCOL.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_FEASIBILITY_PROTOCOL_SHA.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_PROTOCOL.json",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_pose_union_selection_20261001_v1/TRAIN_PROTOCOL_SHA.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_anchor_rbf_20261001_v1/fits/R0_ONLY/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_anchor_rbf_20261001_v1/fits/UNION_s1/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_anchor_rbf_20261001_v1/fits/UNION_s2/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_anchor_rbf_20261001_v1/fits/UNION_s3/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/R0_ONLY/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/R0_ONLY/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/R0_ONLY/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s1/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s1/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s1/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s2/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s2/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s2/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s3/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s3/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_newton_20261001_v1/fits/UNION_s3/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/R0_ONLY/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/R0_ONLY/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/R0_ONLY/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s1/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s1/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s1/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s2/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s2/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s2/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s3/START.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s3/TRACE.jsonl",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_signed_axes_sign_20261001_v1/fits/UNION_s3/final.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_FEATURES.npz",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_POSES.json",
+    "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_pose_union_selection_20261001_v1/SOURCE_TRAIN_LABELS.npz",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_context_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_context_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_context_20261001_v1/evaluate_real.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_context_20261001_v1/evaluate_source.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_context_20261001_v1/prefit_review.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_context_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_context_20261001_v1/train_risk_diagnostic.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/__pycache__/basis.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/__pycache__/convex_train.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/basis.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/evaluate_real.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/evaluate_source.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/prefit_review.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/seal_basis.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_rbf_20261001_v1/verify_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/__pycache__/common.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/__pycache__/convex_train.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/evaluate_real.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/evaluate_source.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/prefit_review.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_anchor_risk_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_pareto_anchor_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_pareto_anchor_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_pareto_anchor_20261001_v1/evaluate_source.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_pareto_anchor_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_pareto_anchor_20261001_v1/source_feasibility.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_selector_convergence_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_selector_convergence_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/__pycache__/common.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/__pycache__/convex_train.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/evaluate_real.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/evaluate_source.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/prefit_review.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/__pycache__/common.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/__pycache__/convex_train.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/evaluate_real.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/evaluate_source.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/prefit_review.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_newton_20261001_v1/verify_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/__pycache__/convex_train.cpython-310.pyc",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/convex_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/evaluate_real.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/evaluate_source.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/prefit_review.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_signed_axes_sign_20261001_v1/verify_train.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_union_selection_20261001_v1/common.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_union_selection_20261001_v1/seal_training.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_union_selection_20261001_v1/source_features.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_union_selection_20261001_v1/source_val.py",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_pose_union_selection_20261001_v1/train.py"
+  ]
+}
