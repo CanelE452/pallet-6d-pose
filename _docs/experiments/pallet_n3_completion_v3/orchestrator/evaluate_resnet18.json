@@ -1,0 +1,87 @@
+{
+  "schema": "pallet_n3_completion_v3_orchestrator_receipt_v1",
+  "complete": true,
+  "status": "COMPLETE",
+  "stage": "evaluate",
+  "backbone": "resnet18",
+  "started_at": "2026-10-02T11:34:20.106333+00:00",
+  "finished_at": "2026-10-02T11:34:30.178464+00:00",
+  "gpu_stage": false,
+  "commands": [
+    [
+      "/home/minjae/anaconda3/envs/pallet-pose/bin/python3.10",
+      "-m",
+      "scripts.research.pallet_n3_completion_v3.evaluation",
+      "resnet18",
+      "--predictions",
+      "data/pallet/results/pallet_n3_completion_v3/predictions/resnet18_DEV319.json"
+    ]
+  ],
+  "accepted_returncodes": [
+    0
+  ],
+  "returncodes": [
+    0
+  ],
+  "config": {
+    "stage": "evaluate",
+    "backbone": "resnet18",
+    "python_executable": "/home/minjae/anaconda3/envs/pallet-pose/bin/python3.10",
+    "dataset": "DEV319",
+    "corners": 8,
+    "pose": true,
+    "bootstrap_sessions": 10000,
+    "bootstrap_seed": 20260917
+  },
+  "config_sha256": "d21968896b2df12298856f1b4a1048d450ef6f310540229e58aaa4aecd686a6f",
+  "inputs": [
+    {
+      "path": "data/pallet/results/pallet_n3_completion_v3/predictions/resnet18_DEV319.json",
+      "sha256": "8a3fa275abdede48ab0b98c98b423d0b6a587e7f163dae0ef685e2b12c927ca1",
+      "bytes": 2807732
+    },
+    {
+      "path": "challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json",
+      "sha256": "f87a2d1f4bfc7883bbd0a5562f43ad13711e5ae9aa6586c9a894ec64106437c8",
+      "bytes": 152723
+    }
+  ],
+  "inputs_sha256": "ff3c4e6d24c37469623ca9b245cc8bace2c237794902388c22b9554104a5b6ab",
+  "code": [
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/evaluation.py",
+      "sha256": "f5bbd6ad8ee76525c63fb3bd3934f3de86ed912b4ff39d0873d2304b45f25cb7",
+      "bytes": 35816
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/metrics.py",
+      "sha256": "6cd3c523962bcc327a15aa40ff6950869813974f2de708d1c0a0944add1a27a0",
+      "bytes": 22974
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/common.py",
+      "sha256": "3f0c05b4ecf9c4bc5acdd33c2d2568c1bfaf24c995ec64b607626f9986ec8267",
+      "bytes": 5475
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/run.py",
+      "sha256": "35ebe0b1418b49d2c97b8291ac64f7488b088ca55b68298efd591d433c9e8198",
+      "bytes": 54570
+    },
+    {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/pose.py",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+      "bytes": 7720
+    }
+  ],
+  "code_sha256": "0f2aeecb169251bef5758b7e05d5940ec3d1b885f0af4e110e7323c6d3cd7302",
+  "outputs": [
+    {
+      "path": "data/pallet/results/pallet_n3_completion_v3/evaluation/resnet18.json",
+      "sha256": "1e35410b73f8bde58d75381d97645a657e7ef6e2bb7e4c4721a2cf53a1ad37e4",
+      "bytes": 2755537
+    }
+  ],
+  "outputs_sha256": "0444ea5a110704b7b14c3124791c6f4a1dd89787d0ef01433afb884daf3ae002",
+  "restart_policy": "skip only when all input/code/config/output hashes match"
+}

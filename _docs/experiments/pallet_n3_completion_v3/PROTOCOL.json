@@ -1,0 +1,465 @@
+{
+  "schema": "pallet_n3_completion_v3_protocol_v1",
+  "contract_package": {
+    "status": "read_and_hash_verified",
+    "instruction": {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/EXECUTE_PALLET_N3_V3_KO.txt",
+      "sha256": "fdd68653ce78cd13e30dc7f0f7f727db67d78f6f2e1c35fab952d1a9c0869de5",
+      "bytes": 44268
+    },
+    "source_context_files": 4
+  },
+  "purpose": "Apply the same dimension-conditioned, symmetry-supervised N3 local correction to frozen DOPE and ResNet-18 estimators; evaluate every fixed seed and retain no-change, worsening, failure, and missing results.",
+  "methods": {
+    "proposal": "N3_DIM_SYM",
+    "base_inputs": [
+      "RGB"
+    ],
+    "n3_inputs": [
+      "frozen feature taps",
+      "frozen initial nine points",
+      "frozen selected box",
+      "registered physical dimensions [W,D,H]"
+    ],
+    "n3_inference_forbidden_inputs": [
+      "ground truth",
+      "visibility",
+      "symmetry branch label",
+      "camera pose",
+      "real-domain supervision"
+    ],
+    "preserved_outputs": [
+      "selected instance",
+      "box",
+      "score",
+      "point ordering",
+      "center8",
+      "missing-point mask"
+    ]
+  },
+  "backbones": {
+    "dope": {
+      "checkpoint": {
+        "path": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+        "sha256": "0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f",
+        "bytes": 201133774
+      },
+      "feature_channels": [
+        256,
+        128
+      ],
+      "feature_strides": [
+        4,
+        8
+      ],
+      "frozen": true,
+      "retrained": false,
+      "base_dimension_input": false
+    },
+    "resnet18": {
+      "source_checkpoint": {
+        "path": "data/pallet/results/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_CONSTANT_epoch10.pt",
+        "sha256": "a94e55f028b704057c77fd045d96dd2dbb2ae6be2a49e945b23c821a30d8e1c4",
+        "bytes": 61663050
+      },
+      "source_checkpoint_expected_sha256": "a94e55f028b704057c77fd045d96dd2dbb2ae6be2a49e945b23c821a30d8e1c4",
+      "feature_channels": [
+        128,
+        256
+      ],
+      "feature_strides": [
+        8,
+        16
+      ],
+      "frozen": true,
+      "retrained": false,
+      "base_dimension_input": false,
+      "adapter": {
+        "schema": "frozen_resnet18_constant_folded_rgb_adapter_v1",
+        "baseline_arm": "CONSTANT",
+        "source_training": "10-epoch synthetic CONSTANT architecture-control arm; this is not the 60-epoch RGB baseline",
+        "external_inputs": [
+          "RGB"
+        ],
+        "runtime_dimension_context": false,
+        "fold": "z=zeros(5); W'=W*(1+gamma); b'=b+sum_c(W_c*beta_c)",
+        "decoder": "bound DSNT spatial-softmax expectation then stride4",
+        "input": {
+          "schema": "resnet18_full_image_input_v1",
+          "input_hw": [
+            384,
+            512
+          ],
+          "heatmap_hw": [
+            96,
+            128
+          ],
+          "stride": 4,
+          "reflect_pad_px": 100,
+          "source_additional_padding": 0,
+          "real_border": "BORDER_REFLECT_101",
+          "resize": "INTER_LINEAR; aspect fit, round actual width/height; exact per-axis inverse",
+          "letterbox": "center, left/top floor, right/bottom remainder",
+          "letterbox_value": 128,
+          "color": "RGB",
+          "normalization_dtype": "float32",
+          "mean": [
+            0.48500001430511475,
+            0.4560000002384186,
+            0.4059999883174896
+          ],
+          "std": [
+            0.2290000021457672,
+            0.2240000069141388,
+            0.22499999403953552
+          ],
+          "sigma_heatmap": 2.0,
+          "gaussian_centers": "continuous network xy / 4, no half-pixel offset",
+          "gaussian_truncation": "square abs(dx),abs(dy) <= 3*sigma",
+          "supervision": "visibility>0, finite non-sentinel xy, and continuous center inside [0,W)x[0,H)",
+          "mse": "mean_frames(sum9(mask * 0.5 * mean_pixels((prediction-target)^2)) / 9)",
+          "decoder": "channel argmax; if both coordinates are interior 1..size-2, add .25*sign(right-left,down-up)",
+          "confidence_threshold": 0.1,
+          "threshold_inclusive": true,
+          "predicted_box": "hull of >=3 finite corner channels0..7; each original-coordinate extent>1",
+          "corner_order": "unchanged source channels0..7 plus center8",
+          "geometric_augmentation": false,
+          "GT_crops": false,
+          "YOLO_inputs": false,
+          "checkpoint_selection": "fixed final epoch60; no real-based threshold selection"
+        },
+        "feature_taps": [
+          "layer2",
+          "layer3"
+        ],
+        "feature_channels": [
+          128,
+          256
+        ],
+        "feature_strides": [
+          8,
+          16
+        ],
+        "checkpoint_sha256": "a94e55f028b704057c77fd045d96dd2dbb2ae6be2a49e945b23c821a30d8e1c4",
+        "rgb_model_source_sha256": "8c25f00b02af7546e199129484ce6a195716020f91ae2e00745becc47c50fcd0",
+        "strict_rgb_load": true,
+        "frozen": true,
+        "GT_inputs": false,
+        "camera_inputs": false,
+        "TF32": false,
+        "AMP": false
+      },
+      "deviation": "Uses the completed 10-epoch synthetic CONSTANT control, with its z=0 FiLM algebraically folded into an image-only RGB final convolution. It is explicitly not the collapsed 60-epoch RGB checkpoint and not a newly trained 60-epoch baseline."
+    }
+  },
+  "n3": {
+    "candidate_directions": 13,
+    "candidate_radii": 17,
+    "move_candidates": 221,
+    "no_move_candidates": 1,
+    "candidates_per_corner": 222,
+    "refined_corners": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "center_index_preserved": 8,
+    "candidate_radius_box_diagonal_fraction": 0.08,
+    "stencil_fraction": 0.1310373991727829,
+    "feature_sampling": "4x8 bilinear grid; two 1x1 projections; shared patch encoder; avg+max",
+    "visual_hidden": 16,
+    "visual_encoding": 24,
+    "dimension_features": [
+      "log(W)",
+      "log(D)",
+      "log(H)",
+      "log(W/D)",
+      "log(H/sqrt(W*D))"
+    ],
+    "dimension_encoder": "5->16->16 SiLU",
+    "metadata_scorer": "[dimension16, role8, displacement2, null1]=27->32->1 SiLU",
+    "metadata_final_layer_initialization": "all zeros",
+    "additive_logits": true,
+    "n4_symmetry_onehot": false,
+    "decode": "softmax expectation",
+    "lambda": 1.0,
+    "max_move_original_image_diagonal_fraction": 0.01,
+    "inverse_transform": "full per-axis affine; translation excluded for displacements"
+  },
+  "symmetry_supervision": {
+    "source": "approved whole-object permutations in bound sidecar",
+    "selection_reference": "raw frozen base predictions",
+    "identity_first_exact_tie": true,
+    "missing_prediction_normalized_penalty": 1.0,
+    "same_permutation_for_points_and_mask": true,
+    "center8_preserved": true,
+    "learned_branch_output": false,
+    "independent_nearest_neighbor_matching": false,
+    "target_sigma": ".08 * predicted_box_diagonal / 17",
+    "objective": "candidate cross entropy",
+    "inference_uses_symmetry_target": false
+  },
+  "data": {
+    "synthetic": {
+      "train": 55980,
+      "calibration": 1004,
+      "selection": 1031,
+      "heldout": 1985
+    },
+    "total": 60000,
+    "train_supervision": "synthetic only",
+    "new_real_training_images": 0,
+    "dimension_axis_order": [
+      "W",
+      "D",
+      "H"
+    ],
+    "dimension_unit": "metre",
+    "normalization": {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    "real_primary": {
+      "name": "DEV319",
+      "frames": 319,
+      "manifest": {
+        "path": "challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json",
+        "sha256": "f87a2d1f4bfc7883bbd0a5562f43ad13711e5ae9aa6586c9a894ec64106437c8",
+        "bytes": 152723
+      }
+    }
+  },
+  "training": {
+    "backbones": [
+      "dope",
+      "resnet18"
+    ],
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "fits": 6,
+    "steps_per_fit": 6000,
+    "batch": 16,
+    "exposures_per_fit": 96000,
+    "total_updates": 36000,
+    "total_exposures": 576000,
+    "initialization": "fresh seed-specific visual N3; zero metadata final layer; no P warm start",
+    "optimizer": {
+      "name": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "warmup_steps": 100,
+      "cosine_final_lr_fraction": 0.1,
+      "gradient_clip_norm": 5.0
+    },
+    "precision": {
+      "model": "FP32",
+      "AMP": false,
+      "TF32": false
+    },
+    "checkpoint_every_updates": 500,
+    "selection": "fixed final step6000 only",
+    "smoke": "one discarded two-update run per backbone; never used as evidence",
+    "outcome_driven_extension": false
+  },
+  "selection": {
+    "source": "synthetic calibration1004 only",
+    "temperature_grid": [
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "fixed_lambda": 1.0,
+    "fixed_cap_fraction": 0.01,
+    "no_real_selection": true,
+    "no_seed_selection": true,
+    "heldout_opened_after_temperature": true
+  },
+  "evaluation": {
+    "corner_set": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "primary_metrics": [
+      "matched pooled median px",
+      "matched pooled P90 px",
+      "PCK@5/10/20 over all GT corners",
+      "E_sym",
+      "full-penalty median/P90",
+      "translation cm",
+      "rotation deg",
+      "yaw deg"
+    ],
+    "seed_aggregation": "evaluate each seed; report mean and spread; no ensemble",
+    "paired_bootstrap": {
+      "unit": "session",
+      "resamples": 10000,
+      "seed": 20260917
+    },
+    "runtime": {
+      "frames": 26,
+      "warmup": 20,
+      "repeats": 5,
+      "seed": 1
+    },
+    "truthfulness": "retain improvement, no-change, worsening, failure, and x"
+  },
+  "excluded": [
+    "new self-training",
+    "actual lifter control",
+    "PDF generation",
+    "new manual annotation",
+    "best-DEV checkpoint selection"
+  ],
+  "bindings": [
+    {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/EXECUTE_PALLET_N3_V3_KO.txt",
+      "sha256": "fdd68653ce78cd13e30dc7f0f7f727db67d78f6f2e1c35fab952d1a9c0869de5",
+      "bytes": 44268
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/README_KO.md",
+      "sha256": "1d76c8a36a4ae16330e4b7815b4e70b24bb04f648c9ab718561f70a0855c8f1b",
+      "bytes": 860
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/source_context/REVISION_NOTES_KO.md",
+      "sha256": "1c0995661b7615472ec6026e6301d8ca4006a74c661280111d47bdd5111eba86",
+      "bytes": 5110
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/source_context/code_contract_v3.json",
+      "sha256": "4b846ed587ce2ae94ea4471d477fc23175ec13ec09c79ee540357df9ab0510c9",
+      "bytes": 2495
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/source_context/manuscript_ko_v3.md",
+      "sha256": "7c71ebfe5c8e7b64cc41fe42bb16309bdb273da25df870f34ad25938b3becd35",
+      "bytes": 106862
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/source_context/number_sources.json",
+      "sha256": "7888e33a8bbe299fe9d45eccd1b10306381c287ccb3b03d8474c9cc628fe9035",
+      "bytes": 6351
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_completion_v3/contract/PACKAGE_SHA256.json",
+      "sha256": "759792f2ddd9e5e832d6fd2b0066dff4a2ba22773baceb5e331b7ba72ef51033",
+      "bytes": 861
+    },
+    {
+      "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+      "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+      "bytes": 69618918
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+      "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+      "bytes": 19921282
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    {
+      "path": "challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json",
+      "sha256": "f87a2d1f4bfc7883bbd0a5562f43ad13711e5ae9aa6586c9a894ec64106437c8",
+      "bytes": 152723
+    },
+    {
+      "path": "weights/backbone_dope_final_v1/run/final_net_epoch_0060.pth",
+      "sha256": "0de80490cb3b4f9b11565db7a4aea6338f64edb8f9614910bfb52bf03ce0dc3f",
+      "bytes": 201133774
+    },
+    {
+      "path": "_docs/experiments/pallet_dope_refiner_20261001_v1/SOURCE_CACHE_COMPLETE.json",
+      "sha256": "5669fbe578d4ab7991fd3a511e837735ca51bc1d9587bf4745c13c540be3b79b",
+      "bytes": 3713
+    },
+    {
+      "path": "scripts/research/pallet_dope_refiner_20261001_v1/dope_adapter.py",
+      "sha256": "5b92b3ee88bb30d963ae907154a18c5d6e052b186242286418df4390b6024ced",
+      "bytes": 17200
+    },
+    {
+      "path": "data/pallet/results/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_CONSTANT_epoch10.pt",
+      "sha256": "a94e55f028b704057c77fd045d96dd2dbb2ae6be2a49e945b23c821a30d8e1c4",
+      "bytes": 61663050
+    },
+    {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_TRAIN_PROTOCOL.json",
+      "sha256": "f24f98082bd8f226968dd01bcf7a7deade339d0bb060601ae546d41c48b8038a",
+      "bytes": 4364
+    },
+    {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_CONSTANT_COMPLETE.json",
+      "sha256": "3ee47b7e284c40792df92ccab9b2535dc0de387f3bd2b9ef4400701e9fabbc9b",
+      "bytes": 33602
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_refiner_20261001_v1/model.py",
+      "sha256": "8c25f00b02af7546e199129484ce6a195716020f91ae2e00745becc47c50fcd0",
+      "bytes": 9035
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/common.py",
+      "sha256": "3f0c05b4ecf9c4bc5acdd33c2d2568c1bfaf24c995ec64b607626f9986ec8267",
+      "bytes": 5475
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/model.py",
+      "sha256": "36708ff74b5c7f83c08fb16a3ada736d852e95aaf34080852e7760d60836d06a",
+      "bytes": 10371
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/resnet_constant_adapter.py",
+      "sha256": "4dabcd4225610f46cc95cba001e9fc10d62ff9381d5f54440ad52cdaeec3fd84",
+      "bytes": 20706
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/adapters.py",
+      "sha256": "bb37463041bba873e98b1bd9ea9b9c289d61f2fe6d0d44e3b63366e941f573e7",
+      "bytes": 1552
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/data.py",
+      "sha256": "a845f65b354c643b2ca2ba1eabfee67e4800d049132d2896a12a55b9b05e13da",
+      "bytes": 14397
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/train.py",
+      "sha256": "3ec1fc7daa7d25df06266bd3ac8e565196f15fa14a5060690b51051a17f6ef22",
+      "bytes": 12356
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/selection.py",
+      "sha256": "8a79661e9e0bf455569257f7882905c890a41d518ebe1925554f8dd249517d42",
+      "bytes": 10747
+    },
+    {
+      "path": "scripts/research/pallet_n3_completion_v3/protocol.py",
+      "sha256": "d94d20579ebf43af9331a091aee0c5b756875e4163e6dd7c1e298fb93a12e993",
+      "bytes": 11150
+    }
+  ]
+}
