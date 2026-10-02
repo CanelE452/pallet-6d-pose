@@ -1,0 +1,354 @@
+{
+  "schema": "resnet18_full_dim_local_refiner_protocol_v1",
+  "purpose": "Frozen FULL ResNet correction transfer with visual D0/P0, dimension P5, and same-architecture zero-context P5_CONSTANT.",
+  "status": "SEALED_BEFORE_SOURCE_CACHE_OR_HEAD_TRAINING",
+  "baseline": {
+    "path": "data/pallet/results/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_FULL_epoch10.pt",
+    "sha256": "0a6b664f126ef72449ed917917177b3c1c03306fdd1a4bd5aa827228b98633ac",
+    "bytes": 61662458
+  },
+  "baseline_protocol": {
+    "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_TRAIN_PROTOCOL.json",
+    "sha256": "f24f98082bd8f226968dd01bcf7a7deade339d0bb060601ae546d41c48b8038a",
+    "bytes": 4364
+  },
+  "baseline_training_complete": {
+    "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_FULL_COMPLETE.json",
+    "sha256": "9e5bbcac6d16a8d432a07a70b63da323303b1dbe7c10cf600c6c79cd0604443d",
+    "bytes": 33289
+  },
+  "baseline_trainable": false,
+  "baseline_arm": "FULL",
+  "baseline_decoder": "Nine-point DSNT spatial-softmax expectation; no argmax confidence threshold.",
+  "feature_taps": {
+    "names": [
+      "layer2",
+      "layer3"
+    ],
+    "channels": [
+      128,
+      256
+    ],
+    "strides": [
+      8,
+      16
+    ],
+    "dimension_context_enters_taps": false
+  },
+  "arms": [
+    "D0",
+    "P0",
+    "P5",
+    "P5_CONSTANT"
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "steps": 6000,
+  "batch": 16,
+  "fits": 12,
+  "head_config": {
+    "c3": 128,
+    "c4": 256,
+    "stride3": 8,
+    "stride4": 16,
+    "hidden": 16,
+    "encoded": 24,
+    "stencil_fraction": 0.1310373991727829
+  },
+  "inputs": {
+    "images": "Frozen FULL RGB preprocessing; no detector or GT crop.",
+    "dimension_features": [
+      "logW",
+      "logD",
+      "logH",
+      "log(W/D)",
+      "log(H/sqrt(WD))"
+    ],
+    "dimension_normalization": {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    "dimension_source": {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+      "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+      "bytes": 19921282
+    },
+    "P5": "Canonical fixed-axis normalized 5D supplied to the head.",
+    "P5_CONSTANT": "Identical P5 architecture with context forced to zero inside forward.",
+    "P0_D0": "No direct dimension vector at the correction head.",
+    "camera_intrinsics_input": false,
+    "GT_pose_input": false,
+    "GT_keypoints_inference_input": false
+  },
+  "training": {
+    "source_manifest": {
+      "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+      "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+      "bytes": 69618918
+    },
+    "partitions": {
+      "train": 55980,
+      "calibration": 1004,
+      "selection": 1031,
+      "heldout": 1985
+    },
+    "real_training_images": 0,
+    "usable_filter": "TRAIN only: frozen base hull IoU>=0.5 with sole source GT and at least one jointly valid corner; all source rows remain audited.",
+    "order": "One deterministic seed order shared by D0/P0/P5/P5_CONSTANT.",
+    "exposures_per_fit": 96000,
+    "optimizer": {
+      "name": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "warmup_steps": 100,
+      "cosine_final_lr_fraction": 0.1,
+      "gradient_clip_norm": 5.0
+    },
+    "final_checkpoint_only": true,
+    "frozen_prefix_online": true,
+    "no_full_spatial_feature_cache": true,
+    "exact_resume": "All four model/optimizer states, Python/NumPy/Torch/CUDA RNG, step, history and protocol/baseline/order hashes are atomically replaced after every completed update; only the rolling final file is retained."
+  },
+  "calibration": {
+    "population": "synthetic calibration only",
+    "temperature_grid": [
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "D_temperature": 1.0,
+    "real_selection": false
+  },
+  "selection": {
+    "population": "synthetic selection only",
+    "lambda_grid": [
+      0.0,
+      0.0625,
+      0.25,
+      1.0,
+      4.0
+    ],
+    "max_move_image_diagonal_fractions": [
+      null,
+      0.01
+    ],
+    "objective": "Mean frame original-diagonal-normalized 8-corner error, mean over seeds.",
+    "heldout_not_opened_until_rules_frozen": true,
+    "real_selection": false
+  },
+  "evaluation": {
+    "DEV319": "Reused DEV: 319 frames, 13 sessions, 2818 supervised landmarks.",
+    "primary": "Within-estimator before/after; full-GT PCK and conditional all9-finite median/P90.",
+    "subgroups": "Plastic194 and wood125 are reported separately as well as together.",
+    "dimension_support": "Canonical real W,D,H and normalized 5D are checked against source TRAIN support.",
+    "pose": "Existing geometry-reconstructed reference; coverage and failures retained; ADD AUC uses per-frame normalized ADD and reports conditional and full-population values.",
+    "bootstrap": {
+      "draws": 10000,
+      "seed": 20260914,
+      "unit": "session",
+      "exploratory": true
+    },
+    "square_sets": "2D transfer only; constant dimensions cannot identify dimension causality.",
+    "independent_TEST": false,
+    "physical_6D_ground_truth": false
+  },
+  "interpretation": {
+    "all_arms_share_dimension_conditioned_FULL_baseline": true,
+    "P5_minus_P5_CONSTANT": "Causal contrast for the incremental five-value head input, conditional on the already dimension-conditioned FULL baseline.",
+    "P5_minus_P0": "Package contrast that also changes head capacity/path; not a pure dimension-input causal estimate.",
+    "FULL_alone_cannot_establish_dimension_benefit": true
+  },
+  "invariants": {
+    "center8_preserved": true,
+    "base_box_preserved": true,
+    "base_score_preserved": true,
+    "instance_preserved": true,
+    "missing_mask_preserved": true,
+    "corners_modified": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "normalization_summary": {
+    "rows": 55980,
+    "input": [
+      "logW",
+      "logD",
+      "logH",
+      "log(W/D)",
+      "log(H/sqrt(WD))"
+    ]
+  },
+  "bindings": [
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/common.py",
+      "sha256": "da9788264cde1a70fe883754df5d5062878a68076ca601dbcf5fb78fd726dca1",
+      "bytes": 4658
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/dimensions.py",
+      "sha256": "252e7552c82bbea2b1c95eb722a7d1ff8992cfabc1a4fd50859265efb263a033",
+      "bytes": 2959
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/refiner.py",
+      "sha256": "af593dcc10c9f32fc56d2c2fe2429abdf5900b3a220c68e99309c26401932af0",
+      "bytes": 14779
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/data.py",
+      "sha256": "98c08e677011313f2c4c034dfd9ca78cc19fe2e0c8ee60905accc212544c7ff3",
+      "bytes": 5180
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/resume.py",
+      "sha256": "cf6cbeeab473293cc40db5aa7b1cdf688f4c5a27fc4d39914302d7af72deba76",
+      "bytes": 4816
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/full_adapter.py",
+      "sha256": "7f2613cdc5e0de653449c61006e8304285a63f9fd4b8637b4e1b63cd6e6b5097",
+      "bytes": 10845
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/source_cache.py",
+      "sha256": "a3c3c8699e98bcba6c69f49d3b2f1879f2f2c2da52c588cda545245c6ff90c6e",
+      "bytes": 17316
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/train.py",
+      "sha256": "f053cf8392578ea182d5b0d1c1c9a50a79f8a75cbfb8d434d20617878d30894c",
+      "bytes": 12830
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/selection.py",
+      "sha256": "a10e9225aec358e00975cb295ce2241355651824a5a72883d258e0e086d57dcd",
+      "bytes": 23399
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/inference.py",
+      "sha256": "57fbe1a3304707c570719c6109fdb64f7f260b9b2c87b5253f4c93c1d3a56e42",
+      "bytes": 16116
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dim_refiner_20261002_v1/evaluation.py",
+      "sha256": "39ae85b03e626c0e246f56671e5afd64ccc55cdee2894a83cf756718e81bac30",
+      "bytes": 35946
+    },
+    {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_TRAIN_PROTOCOL.json",
+      "sha256": "f24f98082bd8f226968dd01bcf7a7deade339d0bb060601ae546d41c48b8038a",
+      "bytes": 4364
+    },
+    {
+      "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+      "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+      "bytes": 69618918
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+      "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+      "bytes": 19921282
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    {
+      "path": "challenge/real_gt_v2/manifests/PAPER_EVAL_ALL_POS.json",
+      "sha256": "f87a2d1f4bfc7883bbd0a5562f43ad13711e5ae9aa6586c9a894ec64106437c8",
+      "bytes": 152723
+    },
+    {
+      "path": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+      "sha256": "9ae991450c384f4fcb82cff74a71fe07d51c5dcc496a5e8fcb28f41b4420ff76",
+      "bytes": 2939
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_refiner_20261001_v1/evaluation.py",
+      "sha256": "0fe7f6f0baac8f785d49857e3dfc130b2852c627f37c1ab5eab39d57e8916392",
+      "bytes": 37796
+    },
+    {
+      "path": "scripts/research/pallet_sensors_refinement_closeout_v1/paired_stats_helper.py",
+      "sha256": "0b2c0cad16aeafbea05da6cd59940a16b73f8a9665bfe279919dca8313db40bb",
+      "bytes": 3193
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py",
+      "sha256": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720",
+      "bytes": 10902
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/evaluate_pose_by_session.py",
+      "sha256": "565d34655dc3a667b5361fc6595da9bb53bb0efb82de467ad7c7e1aa69d98c5a",
+      "bytes": 11974
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/pose_evaluation_paths.py",
+      "sha256": "b20261f110ba95f34cebec3171a75e9f376affc5106b10af1d173319afc369f6",
+      "bytes": 10122
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/symmetry_aware_pose_metrics.py",
+      "sha256": "d1c9e1b36cce62d883de6c621384523732c3a7e1d5927101e3e8fc935a205bac",
+      "bytes": 8250
+    },
+    {
+      "path": "challenge/evaluation_v2/paper_real_eval.py",
+      "sha256": "0d2b4a12ad84e1b46171f70c141bfc8136a7e4bd2205c0cd0f783fcc8dd53676",
+      "bytes": 109691
+    },
+    {
+      "path": "challenge/evaluation_v2/pnp_selector.py",
+      "sha256": "3e89f318c7c4a3396c6e7c2f9280c1755f32d7bd7b3d61e8a56b9bd5d0bd512e",
+      "bytes": 30933
+    },
+    {
+      "path": "challenge/evaluation_v2/oriented_iou3d.py",
+      "sha256": "d4c16729f737e3c1430d2a22bbe1f551790de5029d0518010412531174160789",
+      "bytes": 5942
+    },
+    {
+      "path": "data/pallet/results/paper_pose_metric_closure_v1/AXIS_REVIEW_MANIFEST.json",
+      "sha256": "a436f8e898b9ee050441ee9fb3a4f0eaec731a20563a61d435d66a927d9b80c4",
+      "bytes": 588993
+    },
+    {
+      "path": "data/pallet/results/paper_pose_metric_closure_v1/POSE_EVAL_OBJECT_CONTRACT.json",
+      "sha256": "a4c2918b4b0e9c97f94332d2e7e35132a8cbe0e738db25d92ea55e0d81210dbd",
+      "bytes": 3046
+    },
+    {
+      "path": "data/pallet/results/paper_pose_metric_closure_v1/GEOMETRY_RESOLVED_POSE_GT.json",
+      "sha256": "798959a6b9afc8e8c5d2a058e801a642b02b2462d6c94c67b82608486cf61666",
+      "bytes": 464533
+    },
+    {
+      "path": "challenge/real_gt_v2/manifests/DEV_NEG2689.json",
+      "sha256": "37ac706dd3fef77f110537e1033ae82fb152413ffc166dd6b03388143635f822",
+      "bytes": 377039
+    },
+    {
+      "path": "challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json",
+      "sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+      "bytes": 1766
+    }
+  ]
+}

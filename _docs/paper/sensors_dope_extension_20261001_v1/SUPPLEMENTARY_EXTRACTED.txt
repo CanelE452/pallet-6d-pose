@@ -5,13 +5,15 @@
 
 
 1    Status and reading guide
-Tables and figures copied from the original manuscript describe historical YOLO experiments only. The DOPE
-extension is identified separately below; its unmeasured values are never filled from that panel. This supplement
-preserves the distinction between completed development evidence and independent confirmation. The machine-
-readable status is in FINAL_STATUS.json under the submission experiment directory. All three matched-budget
-fits were completed; the learning curves are diagnostic, not a best-checkpoint selector. Independent real-session
-confirmation is not yet available. No method’s incomplete result is represented by another model or a zero-valued
-measurement.
+Tables and figures copied from the original manuscript describe historical YOLO experiments. The DOPE and
+ResNet18 extensions are identified separately below; no value is filled from another estimator. This supplement
+preserves the distinction between completed reused-development evidence and independent confirmation. All three
+matched-budget fits were completed; the learning curves are diagnostic, not a best-checkpoint selector. Independent
+real-session confirmation is not yet available.
+    The completed ResNet18 FULL estimator uses RGB and five registered-dimension values jointly. Historical
+YOLO/DOPE heads remain image-feature based and use dimensions only in PnP. ResNet P0 is the primary third-
+backbone transfer arm; P5/P5_CONSTANT separately tests a dimension input to the correction head. These roles
+must not be merged into a single dimension-benefit claim.
 
 
 2    Historical YOLO development results
@@ -20,23 +22,23 @@ of matched per-frame errors, not the pooled median. Gross20 and PCK are percenta
 2,818-point ground-truth denominator. Raw prior rows, when available, precede no claim that the selected capped
 wrapper is the original standalone method.
 
-               Model            Med      P90    Mean     Gross20     PCK5    PCK10    PCK20      N
-               R0              6.616   38.670   21.673       17.20   37.19    63.73    80.98   2756
-               P1              5.851   38.025   20.930       15.57   42.26    67.64    82.58   2756
-               P2              5.943   37.728   21.010       15.89   42.16    67.07    82.26   2756
-               P3              5.921   37.546   20.949       15.42   41.66    67.32    82.72   2756
-               L1              6.052   37.204   21.145       16.07   41.23    66.57    82.08   2756
-               L2              6.037   37.302   21.085       15.93   41.06    66.93    82.22   2756
-               L3              6.121   37.453   21.164       16.00   41.02    66.86    82.15   2756
-               D1              6.366   37.479   21.411       16.11   39.14    64.66    82.04   2756
-               D2              6.457   37.810   21.456       16.44   38.75    64.62    81.72   2756
-               D3              6.467   37.410   21.435       16.22   38.96    64.44    81.94   2756
-               PRIOR1          5.569   37.218   20.784       15.49   44.78    68.31    82.65   2756
-               PRIOR1_raw      5.569   36.776   20.655       15.42   44.78    68.28    82.72   2756
-               PRIOR2          5.541   37.373   20.738       15.64   44.75    68.84    82.51   2756
-               PRIOR2_raw      5.541   37.295   20.594       15.53   44.78    68.88    82.61   2756
-               PRIOR3          5.596   37.089   20.830       15.71   43.90    68.06    82.43   2756
-               PRIOR3_raw      5.599   36.721   20.700       15.60   43.90    68.10    82.54   2756
+                Model           Med      P90     Mean    Gross20     PCK5    PCK10    PCK20      N
+                R0             6.616   38.670   21.673       17.20   37.19    63.73    80.98   2756
+                P1             5.851   38.025   20.930       15.57   42.26    67.64    82.58   2756
+                P2             5.943   37.728   21.010       15.89   42.16    67.07    82.26   2756
+                P3             5.921   37.546   20.949       15.42   41.66    67.32    82.72   2756
+                L1             6.052   37.204   21.145       16.07   41.23    66.57    82.08   2756
+                L2             6.037   37.302   21.085       15.93   41.06    66.93    82.22   2756
+                L3             6.121   37.453   21.164       16.00   41.02    66.86    82.15   2756
+                D1             6.366   37.479   21.411       16.11   39.14    64.66    82.04   2756
+                D2             6.457   37.810   21.456       16.44   38.75    64.62    81.72   2756
+                D3             6.467   37.410   21.435       16.22   38.96    64.44    81.94   2756
+                PRIOR1         5.569   37.218   20.784       15.49   44.78    68.31    82.65   2756
+                PRIOR1_raw     5.569   36.776   20.655       15.42   44.78    68.28    82.72   2756
+                PRIOR2         5.541   37.373   20.738       15.64   44.75    68.84    82.51   2756
+                PRIOR2_raw     5.541   37.295   20.594       15.53   44.78    68.88    82.61   2756
+                PRIOR3         5.596   37.089   20.830       15.71   43.90    68.06    82.43   2756
+                PRIOR3_raw     5.599   36.721   20.700       15.60   43.90    68.10    82.54   2756
 
 
 
@@ -45,8 +47,6 @@ Rotation and yaw are degrees; translation is centimeters. These are not independ
 Pose coverage is separate from box matching: the canonical prediction-only selector may return a pose from a top
 detection that does not meet the 2D matching gate. No new symmetry minimization was introduced to excuse
 near-square axis confusion.
-
-
 
 
                                                          1
@@ -330,23 +330,47 @@ obligations are separate from compilation and code checks.
 
 
 10    Three-estimator scope and outstanding evidence
-The third application is specified as a full-image, nine-landmark SimpleBaseline-derived ResNet18 with ImageNet
-initialization. Its baseline training, frozen P/D head fits and measured outcomes remain pending in this revision.
-Completion of DOPE alone does not satisfy the three-estimator evidence requirement. The third-estimator imple-
-mentation and receipt-backed status are described below. No accuracy or latency is inferred from an implemented
-interface or a CPU input check.
+The third application is a completed full-image, nine-landmark Simple-Baselines-derived ResNet18. Its frozen
+FULL estimator receives RGB and registered physical dimensions, and its primary transfer test adds the same
+image-feature local refiner without a second dimension input (P0). D0 is the matched direct-residual control. P5
+and P5_CONSTANT form a separate dimension-input extension. All real-image outcomes are reused-development
+evidence. The completed accuracy and latency receipts are described below. Three measured frozen interfaces
+provide finite application evidence, not a universal model-agnostic theorem or an independent test.
 
 
 
 
                                                                                                 5
-11     DOPE extension: frozen interface and training lineage
-DOPE source training/evaluation results have not been inserted. No DOPE accuracy, coverage, pose benefit, pa-
-rameter count or measured latency is claimed in this draft. The frozen checkpoint is weights/backbone_dope_
-final_v1/run/final_net_epoch_0060.pth; its SHA-256 begins 0de80490cb3b4f9b, with the full digest in the pro-
-tocol. The actual original training loop includes epochs 0 through 60. Original DOPE training uses random crop
-400 and its recorded rotation, color, noise, and Torch FP32 normalization. The fixed inference adapter instead fol-
-lows the existing reflect100–resizeback–short400 path with its existing NumPy-to-FP32 normalization. A historical
+Table 7: DOPE per-seed values; keypoint errors are pixels. Matched frames and pose fits have denominator319;
+used/excluded GT sum to2818. Excluded GT includes finite predictions on unmatched or incomplete frames, not
+only absent points. No failed population row is removed.
+           Arm        Med.      P90    Match    Used GT      Excl. GT      PCK10%      Pose n      T cm      R deg
+           DOPE     12.585    50.609     190         1710         1108        19.872       210    10.046     3.441
+           D1        7.857    47.334     190         1710         1108        35.983       210     8.352     2.920
+           D2        7.840    49.298     190         1710         1108        36.125       210     8.317     3.020
+           D3        7.903    48.831     190         1710         1108        36.054       210     8.300     3.115
+           P1        7.431    50.925     190         1710         1108        36.338       210     8.311     2.889
+           P2        7.422    50.433     190         1710         1108        37.048       210     8.496     2.893
+           P3        7.531    50.782     190         1710         1108        36.941       210     8.781     2.869
+
+
+Table 8: DOPE paired session-bootstrap differences: first arm minus second. Negative values favor the first arm for
+these errors. An unavailable interval denotes incompatible or empty support, not a zero effect. These reused-DEV
+secondary intervals are unadjusted and exploratory.
+                   Contrast    Keypoint px [95% CI]             T cm [95% CI]            R deg [95% CI]
+                   P–DOPE      -5.124 [-6.304, -3.984]   -1.517 [-3.181, -0.407]   -0.558 [-1.082, -0.134]
+                   D–DOPE      -4.718 [-6.035, -3.548]   -1.723 [-2.761, -0.856]   -0.423 [-1.082, -0.054]
+                   P–D         -0.405 [-0.734, -0.061]     0.206 [-1.275, 1.062]    -0.135 [-0.566, 0.221]
+
+
+11     DOPE extension: frozen interface and training lineage
+For frozen DOPE on reused DEV, the conditional keypoint median is 12.585 pixels before refinement and 7.461
+pixels for the mean of three P seed statistics; full-GT PCK10 is 19.872 and 36.775 percent, respectively. The tables
+retain missing predictions and unfavorable outcomes. The frozen checkpoint is weights/backbone_dope_final_
+v1/run/final_net_epoch_0060.pth; its SHA-256 begins 0de80490cb3b4f9b, with the full digest in the protocol.
+The actual original training loop includes epochs 0 through 60. Original DOPE training uses random crop 400
+and its recorded rotation, color, noise, and Torch FP32 normalization. The fixed inference adapter instead follows
+the existing reflect100–resizeback–short400 path with its existing NumPy-to-FP32 normalization. A historical
 header value of 448 does not describe the executed crop. No equal-baseline-epoch or identical-training/inference-
 normalization claim is made.
     The new adapter takes BGR input and returns explicit composed aﬀine matrices, native/canvas/network sizes,
@@ -369,12 +393,36 @@ YOLO rows. Nominal exposures must not be confused with successfully supervised c
 reductions are retained.
 
 
+
+
+                                                            6
+Table 9: DOPE source heldout partition after wrapper freezing (1985 records). This source diagnostic uses its
+declared partial-point support and is not the complete-nine-point DEV statistic or independent TEST.
+                            Arm      Med. px    P90 px     PCK10%       Used GT       Miss GT
+                            DOPE       10.635   20.471         33.200         13167       4523
+                            D1          4.558   16.948         57.614         13167       4523
+                            D2          4.559   16.921         57.631         13167       4523
+                            D3          4.560   16.894         57.513         13167       4523
+                            P1          4.686   17.827         56.326         13167       4523
+                            P2          4.693   17.886         56.490         13167       4523
+                            P3          4.678   17.645         56.427         13167       4523
+
+
+Table 10: Measured DOPE seed-1 desktop panel, 26 prespecified images with five repeats per arm after20 warmups.
+Decoded RGB through real preprocessing/inference and canonical PnP; disk reads, loading and replay checks
+excluded. Each column is its own statistic: medians must not be added. All failure timings remain. This is a
+separate session from historical YOLO timing.
+               Arm          2D med. ms      PnP med. ms        Full med. ms     Full P90 ms      Pose OK/130
+               DOPE                60.786          1.625             62.205           73.310              85
+               DOPE+D1             63.888          1.671             65.038           76.349              85
+               DOPE+P1             63.361          1.678             64.924           76.220              85
+
+
 12     DOPE results, missingness and paired uncertainty
-DOPE per-seed table: pending. Seven rows (DOPE, D1–D3, P1–P3) are reserved; their complete denominator is 319
-images and 2818 supervised landmarks. DOPE paired intervals: pending. The frozen session-bootstrap outputs
-will be inserted without dropping support mismatches or failed resamples.          DOPE source evidence: pending.
-Actual usable rows, head parameter counts, completed updates, calibration temperatures, selected movement rules
-and heldout results require their own receipts. The seven fixed arms are baseline DOPE and D1–D3/P1–P3. The
+The completed DOPE fits use 44063 usable training rows, 22034 learned parameters for P and 22522 for D. Six final
+fits each complete6000 updates with96000 nominal source exposures; no real images train these heads. P selects
+λ = 1.0000 and original-image-diagonal cap none. D selects λ = 1.0000 and original-image-diagonal cap none. P
+temperatures for seeds1–3 are 1.00, 1.00, 1.00. The seven fixed arms are baseline DOPE and D1–D3/P1–P3. The
 complete population contains 319 positive images, 13 sessions and 2818 supervised keypoints. Every arm retains
 every population row, including failed or incomplete predictions. The conditional nine-point statistic requires the
 original box-IoU match and a finite nine-point prediction. Full-GT PCK counts excluded predictions as failures;
@@ -393,16 +441,37 @@ extension.
 
 
 13     DOPE runtime and publication records
-DOPE cost measurements: pending. Historical YOLO latency is not an estimate of this path. The prescribed seed-1
-timing panel must finish before reporting DOPE overhead. The new timing protocol records full DOPE+head RGB
-
-
-                                                         6
-computation; no cached intermediate substitutes for the measured inference path. Seed 1 represents deployment
-without selecting the fastest seed. Keypoint and PnP-inclusive timings remain separate, and unavailable poses stay
-visible. Different timing sessions are not described as the historical thirteen-model session. Actual runtime receipts
-are needed before making any overhead or total-cost claim for DOPE.
+The completed panel contains 390 measured calls; coordinate replay passed at the declared absolute tolerance of
+0.000000000100 pixels. Earlier failed attempts, if any, remain separately recorded and are not mixed into this
+completed summary. This runtime result does not establish accuracy or embedded-device throughput.             The
+DOPE-only timing protocol records full DOPE+head RGB computation; no cached intermediate substitutes for
+the measured inference path. Seed 1 represents deployment without selecting the fastest seed. Keypoint and PnP-
+inclusive timings remain separate, and unavailable poses stay visible. A later integrated same-image panel supplies
+the main-text cross-estimator timing; the two runs are retained as different measurement sessions and their values
+are not interchanged.
     The new experiment scripts are under scripts/research/pallet_dope_refiner_20261001_v1; the numer-
+
+
+                                                           7
+Table 11: Fixed epoch-10 synthetic calibration for the direct ResNet18 input arms. Soft errors decode spatial
+expectations; all arms use identical exposure and initialization.
+                              Input arm         Loss   Med. px     P90 px    Match/1004
+                              CONSTANT       0.43397      1.549      5.593           989
+                              SHAPE          0.43304      1.570      5.516           992
+                              FULL           0.43374      1.525      5.561           992
+
+
+Table 12: Direct ResNet18 input-arm median 2D error (px). Wood is dimension-support extrapolation; GREEN150
+and 0918 have fixed 1.10 x 1.10 x 0.15 m dimensions within each set and therefore do not identify a frame-varying
+dimension effect.
+                            Reused development group     CONSTANT         SHAPE      FULL
+                            DEV319                                8.222      7.908   8.012
+                            Plastic 110 x 130                     7.587      7.483   7.732
+                            Wood 80 x 59                          9.430      8.492   8.234
+                            GREEN150 square                       5.785      5.601   4.826
+                            0918 square (119)                     6.584      6.497   6.298
+
+
 ical records are under the matching _docs/experiments/pallet_dope_refiner_20261001_v1 directory. The
 manuscript update script checks input bindings, population, arms and explicit completion before inserting results.
 DOPE_RESULTS_BINDINGS.json identifies inserted evidence, and HISTORICAL_ASSETS.json binds copied original
@@ -410,63 +479,112 @@ manuscript assets. Pending evidence is stated explicitly rather than replaced by
 Build receipts certify typesetting only, not independent experimental verification or author approval.
 
 
-14     ResNet18 application: implementation and measured status
-ResNet18 baseline completion and before/after measurements remain pending. The third estimator is explicitly a
-SimpleBaseline-derived ResNet18 full-image pallet9 adaptation, not PVNet, PoseFix or a renamed DOPE stage.
-The ImageNet file is resnet18-f37072fd.pth, with full SHA-256 recorded in the baseline protocol. All learned
-body tensors and running statistics must match. The oﬀicial legacy file lacks all 20 BN batch counters; the loader
-initializes only that complete missing counter set to zero, as in torchvision’s legacy migration. Partial missing
-counters or missing learned tensors/running statistics stop loading. The three deconvolution layers and nine-channel
-head receive fresh initialization.
-    The 384 × 512 RGB input uses existing source reflect100 or one native-real reflection, aspect fit and centered
-BGR128 letterbox, followed by ImageNet FP32 normalization. No predicted or GT box is used to crop the baseline
-input. Actual per-axis rounded scales and inverse matrices are retained. Nine 96 × 128 Gaussian heatmaps use
-continuous point/4 centers, sigma 2 and square 3-sigma truncation. Source visibility greater than zero, finite non-
-sentinel coordinates and in-grid centers define supervision. Invalid channels remain in the fixed-nine denominator;
-all-masked frames remain in the batch denominator. The per-frame visibility, finite, outside-support, supervised
-and all-masked counts are recorded, rather than treating a low loss from absent targets as accuracy.
-    The specified 60-epoch baseline performs 3498 full 16-image updates plus one 12-image update each epoch,
-giving 3499 updates per epoch and 209940 total. The source order is a deterministic per-epoch permutation;
-physical batch 16 is the specified default, without a silent memory fallback. Brightness, contrast and saturation
-factors are independently drawn per image from [0.8, 1.2] in that fixed order. There is no geometric augmentation.
-Model and target arithmetic are FP32 with AMP and TF32 disabled. Adam uses betas (0.9, 0.999), learning rate
-0.001, weight decay 0.0001, with drops at the beginning of epochs 40 and 50. No real score chooses the schedule,
-threshold, stopping epoch or checkpoint.
-    Epoch loss is weighted by actual frame counts, including the final 12-frame batch. Training supervision counts
-cover 60 epochs of exposures rather than unique images. The calibration 1004 loss and full mask counts are
-recorded without PnP, heldout or real accuracy selection. Checkpoints carry the in-progress epoch numerator/frame
-count and cumulative mask counts, so an infrastructure resume does not double-count them. Private DataLoader
-generators isolate the saved model/augmentation RNG stream; final export can be completed after interruption
-without replacing a verified final model. The prescribed eight-update GPU smoke is discarded and excluded from
-the main budget; no smoke speed or learned accuracy is reported here.
-    After the independently trained baseline is frozen, its layer2 and layer3 outputs give 128 channels at stride 8 and
-256 at stride 16. New P/D heads use the unchanged local evidence and source-selection principles for three seeds and
-6000 updates of 16 examples per head. The trained baseline checkpoint, baseline protocol and baseline-completion
-SHA are required before that second protocol can be created. An ImageNet-only network is never silently used as
-the trained pallet baseline. The planned ResNet18 baseline is 60 epochs of 55,980 source images: 209,940 updates
-and 3,358,800 exposures, retaining the final 12-image batch. Adam starts at 10−3 with weight decay 10−4 and
-factor-ten drops at the start of epochs 40 and 50. Only calibration loss is monitored and final epoch 60 is fixed.
-Seed 42 and source-only photometric augmentation are prescribed. These are preparation details; actual training
-and outcomes have not been inserted.
+14     ResNet18 direct estimator and dimension inputs
+The ResNet18 FULL estimator and all twelve D0/P0/P5/P5_CONSTANT head fits completed. P0 is the primary
+third-backbone transfer arm; it improves central 2D development error and PCK10, while its translation interval
+includes zero. P5 is reported only as a separate dimension-conditioned-head extension because P5–P5_CONSTANT
+does not establish stable joint 2D/T/R improvement. The third estimator is explicitly a Simple-Baselines-derived
+ResNet18 full-image pallet9 adaptation, not PVNet, PoseFix or a renamed DOPE stage. The ImageNet file is
+resnet18-f37072fd.pth; the protocol records its full SHA-256. The 384 × 512 FP32 input uses aspect fitting
+and centered letterboxing without a predicted or ground-truth crop. Three 256-channel deconvolutions produce
+nine stride-four spatial distributions. Training minimizes 0.1 times normalized Gaussian spatial cross-entropy plus
+smooth-L1 error of the spatial expectation. The earlier 60-epoch masked-MSE pilot failed its fixed usability check
+and supplies none of the reported accuracy values.
+    The dimension vector is computed in fixed object axes and normalized from synthetic TRAIN only. FULL
+receives all five values through decoder FiLM, SHAPE receives the two ratios, and CONSTANT receives zeros
+through the same architecture. Each arm uses the same seed-42 initialization, source order, augmentation and fixed
+10-epoch budget. The completed direct-estimator study trains CONSTANT, SHAPE and FULL arms for a fixed
+10 epochs on 55,980 synthetic TRAIN images (34,990 updates and 559,800 exposures per arm). All share seed 42,
+ImageNet ResNet18 initialization, identical√ source order and photometric augmentation. FULL supplies normalized
+log W , log D, log H, log(W/D) and log(H/ W D) to a decoder FiLM block; SHAPE keeps only the two ratios and
+CONSTANT supplies zeros. Epoch 10 is fixed using no real-image selection.
+    The direct FULL–CONSTANT comparison is mixed: DEV median changes by −0.210 pixels, reconstructed-
+reference translation by +1.269 cm, and rotation by −0.760◦ . Plastic median worsens by 0.145 pixels. Wood
+improves by 1.196 pixels but its depth 0.59 m lies below the synthetic TRAIN minimum 0.818 m. GREEN150 and
+0918 improve in aggregate, but each square set uses one constant dimension vector; the 0918 paired frame count
+is 59 improved versus 60 harmed with median change +0.031 pixels. These observations do not identify a stable
+causal dimension benefit.
+    The two pose summaries use different metric mappings and are intentionally not combined. The direct input
+report calls scripts/research/pallet_dim_conditioned_p_v1/pose.py, applies the fixed physical-frame conver-
+sion Rphysical = Rcf Q, and then minimizes over its declared proper C2 group. The refiner evaluation calls the canon-
+ical MAIN pose_evaluation_paths.score_pose_against_gt, scores Rcf directly against R_gt_representative,
 
 
-15     ResNet18 results and cost
-ResNet18 per-seed table: pending. Seven rows (ResNet18, D1–D3, P1–P3) are reserved; their complete denominator
-is 319 images and 2818 supervised landmarks. ResNet18 paired intervals: pending. The frozen session-bootstrap
+                                                         8
+Figure 4: Separate direct-estimator input ablation. The lower panels use the direct experiment’s earlier proper-
+group pose scorer. They are separate from the canonical refiner before/after pose values reported below.
 
 
-                                                          7
-outputs will be inserted without dropping support mismatches or failed resamples. ResNet18 source evidence:
-pending. Actual usable rows, head parameter counts, completed updates, calibration temperatures, selected move-
-ment rules and heldout results require their own receipts. ResNet18 baseline completion and its full 60-epoch
-training/calibration loss curve remain pending. No simulated curve is shown.      ResNet18 cost measurements:
-pending. Historical YOLO latency is not an estimate of this path. The prescribed seed-1 timing panel must finish
-before reporting ResNet18 overhead. These results reuse DEV and the geometry-derived reference; completion of
-three fixed applications does not create independent TEST or a physical T/R stability guarantee. The ResNet18
-insertion record is RESNET_RESULTS_BINDINGS.json.
+and reports width/depth parity separately as axis accuracy. Both use the same prediction-only width/depth se-
+lector and SQPnP/RefineLM, and both mark 234/319 frames axis-correct; the remaining 85 axis errors interact
+differently with the two rotation conventions. FULL translation consequently agrees to 0.0013 cm, while rotation,
+yaw, IoU and C2-aware corresponding-point ADD differ. For the same FULL checkpoint and numerically matched
+coordinate outputs (maximum point difference 0.001163 pixels), the direct report gives rotation 3.581◦ and C2-aware
+corresponding-point ADD AUC 0.31628; the canonical refiner report gives camera-facing-frame C2 rotation 3.252◦
+and C2-aware corresponding-point ADD AUC 0.31296. This metric is not unrestricted nearest-neighbor ADD-S.
+Main-text before/after claims use only the latter internally consistent evaluator.
 
 
-16    Reproduction and access
+15     ResNet18 primary frozen-refiner transfer
+FULL is frozen before head fitting. D0 and P0 use layer2/layer3 features at strides 8/16, the frozen predicted points
+and hull, and the same source-selection principles as the other estimator applications. Each head has three seeds,
+6,000 updates and batch 16. P0, with 22,034 trainable parameters, is the primary third-backbone transfer arm. D0
+is the 22,522-parameter matched direct residual control. Neither receives a new dimension vector; FULL’s earlier
+dimension conditioning is common to all rows.
+    The frozen FULL baseline yields 55,804 usable synthetic TRAIN rows. D0, P0, P5 and P5_CONSTANT each
+use three seeds of 6,000 AdamW updates at batch 16 (96,000 nominal exposures per fit) and zero real training
+images. Trainable counts are 22,522 for D0, 22,034 for P0, and 23,331 for each P5 arm. Synthetic selection fixes
+λ = 1 for every arm, a 0.01 image-diagonal cap only for D0, no cap for P0/P5, and temperature 1 for all probability
+heads.
+    P0 reduces conditional median and raises complete-denominator PCK10. Its session interval excludes zero for
+2D median and canonical camera-facing-frame C2 rotation, while the translation interval includes zero. P90 changes
+from 52.054 to 52.086 pixels, so no tail-dominance claim is made. All arms retain 299 matched frames and 319/319
+PnP coverage because the forced single-pallet FULL hull and output support are fixed.
+
+
+
+
+                                                         9
+Table 13: Primary ResNet18 arm by seed on reused DEV319. FULL is one frozen baseline; all rows preserve its
+299 matched frames and 319/319 pose coverage. R is the canonical MAIN camera-facing-frame C2 rotation.
+                               Arm          Med. px    P90 px     PCK10%         T cm      R-C2 deg
+                               FULL           8.001    52.054          54.68    11.007         3.252
+                               D0-S1          7.868    52.065          55.18     9.784         3.283
+                               D0-S2          7.809    51.823          55.46     9.927         3.145
+                               D0-S3          7.880    51.897          55.15     9.798         3.227
+                               P0-S1          7.141    51.923          58.23     9.963         3.009
+                               P0-S2          7.157    52.198          58.16     9.884         3.052
+                               P0-S3          7.129    52.139          58.45    10.154         2.994
+
+
+Table 14: Primary ResNet18 paired session-bootstrap differences on reused DEV: head minus FULL. Negative favors
+the head for 2D/T/R; positive favors it for PCK10. Intervals use 10,000 session resamples and are exploratory,
+unadjusted, and do not create an independent test.
+     Contrast    2D change px [95% CI]       PCK10 change pp [95% CI]       T change cm [95% CI]       R-C2 change deg [95% CI]
+     D0–FULL       -0.149 [-0.316,-0.048]             0.580 [0.242,0.983]      -1.171 [-1.388,0.149]         -0.034 [-0.216,0.062]
+     P0–FULL       -0.859 [-1.318,-0.621]             3.596 [2.515,4.986]      -1.007 [-1.668,0.187]        -0.234 [-0.502,-0.022]
+
+
+
+16     Separate ResNet18 correction-head dimension extension
+P5 adds a zero-initialized candidate-logit residual from the normalized five-value vector. P5_CONSTANT has the
+same module and initialization but supplies zeros. This is the incremental dimension-input contrast for the head.
+P5–P0 is only a package comparison because path and capacity also change; FULL is already dimension-conditioned
+in every arm.
+
+
+17     ResNet18 integrated runtime and evidence limits
+The integrated run measures FULL and one fixed seed for each head on the same image bytes used for YOLO and
+DOPE timing. FULL+P0 adds 2.436 ms to paired full-path median latency; P5 adds 3.407 ms. The desktop result
+includes model-specific preprocessing and all pose failures, but not file decoding, loading, Jetson export, concurrent
+throughput or energy.
+    All ResNet real-image panels are reused development data. The T/R reference is reconstructed from 2D an-
+notation, camera intrinsics and registered dimensions rather than an independently instrumented 6D pose. Wood
+is dimension-support extrapolation and square-set dimensions do not vary. These limitations remain even though
+training, selection, evaluation and timing are complete.
+
+
+18     Reproduction and access
 From the repository root, use the recorded environment and run.py status, run.py all, or run.py resume under
 scripts/research/pallet_sensors_submission_v1/. Exact shell commands, downloads, locks and stage receipts
 are in REPRODUCE.md. Completion receipts are checked against actual input/output hashes, not accepted solely on
@@ -479,5 +597,102 @@ reduction, or public-data right is inferred.
 
 
 
-                                                        8
+                                                                 10
+Table 15: Frozen synthetic heldout diagnostic after source-only rule selection (1,985 records). Head rows are means
+of three seed statistics; this reused source partition is not an independent real-image test.
+                                                           Arm                                                 Med. px                         P90 px       PCK10%
+                                                           FULL                                                        2.805                    9.499            89.723
+                                                           D0 mean                                                     2.694                    9.504            89.721
+                                                           P0 mean                                                     2.585                    9.510            89.710
+                                                           P5 mean                                                     2.585                    9.500            89.674
+                                                           P5_CONSTANT mean                                            2.585                    9.506            89.674
+
+
+
+
+                                                                           Frozen FULL ResNet18 and correction heads on reused DEV319
+                                                                          Correction bars are means of three seed statistics, not ensembles
+                     Conditional corner median (px)                                          Conditional corner P90 (px)                                                                  ALL-GT PCK10 (%)
+              8.00       7.85                                                          52.05     51.93              52.09              51.84      51.85     60                                   58.28          58.62       58.45
+    8                                                                                                                                                                               55.26
+                                         7.14                      7.12     50                                                                                     54.68
+                                                7.05
+    7                                                                                                                                                       50
+    6                                                                       40
+                                                                                                                                                            40
+    5
+                                                                            30
+    4                                                                                                                                                       30
+    3                                                                       20
+                                                                                                                                                            20
+    2
+                                                                            10                                                                              10
+    1
+    0                                                                        0                                                                               0
+              FULL       D0              P0         P5             P5-C                FULL       D0                 P0                 P5        P5-C             FULL              D0           P0             P5         P5-C
+
+
+Figure 5: Frozen ResNet18 2D outcomes. Correction bars average three independently trained seed statistics; white
+circles are the seed values. P0 is the primary transfer arm.
+
+
+
+
+Table 16: Separate ResNet18 correction-head dimension extension. P5_CONSTANT has the same P5 structure and
+initialization but replaces its five-value input with zeros. The direct FULL baseline is already dimension-conditioned
+in every row. Intervals are unadjusted reused-DEV session bootstraps.
+              Contrast or arm                                             2D med. px                                      PCK10%                                       T cm                                R-C2 deg
+              P5_CONSTANT mean                                                         7.122                                     58.45                                 9.982                                            3.009
+              P5 mean                                                                  7.048                                     58.62                                 9.911                                            2.982
+              P5–P5-C diff. [95% CI]                       -0.074 [-0.116,0.019]                  0.177 [0.011,0.397]                             -0.071 [-0.115,0.071]                     -0.027 [-0.067,0.025]
+
+
+
+
+                                                                           Reused DEV319 paired session bootstrap (95% CI, unadjusted exploratory)
+                                                                                    Lower is better for 2D/T/R; higher is better for PCK10
+                         2D median px                                           PCK10 pp                                              T median cm                                                      R median deg
+    0.0                                                                                                                                                                       0.1
+                                                           5                                                         0.0
+    0.2                                                                                                                                                                       0.0
+    0.4                                                    4
+                                                                                                                                                                              0.1
+                                                                                                                     0.5
+    0.6                                                    3                                                                                                                  0.2
+    0.8                                                                                                              1.0
+                                                           2                                                                                                                  0.3
+    1.0
+                                                           1                                                                                                                  0.4
+    1.2                                                                                                              1.5
+
+    1.4                                                    0                                                                                                                  0.5
+
+               ULL               5 P
+                                     0               5-C            ULL             5 P
+                                                                                        0                     5-C                ULL                5 P
+                                                                                                                                                        0               5-C               FULL                  P0                   P5-C
+          P5 F                  P               P5 P           P5 F                P                     P5 P               P5 F                   P               P5 P              P5                    P5                   P5
+
+
+
+Figure 6: Exploratory reused-DEV paired intervals for the P5 extension. The P5–P5-C 2D, translation and rotation
+intervals include zero; a favorable PCK10 interval alone does not establish stable joint improvement.
+
+
+
+                                                                                                                11
+Table 17: Integrated desktop timing for the ResNet18 arms. Each arm uses the same 26 decoded BGR images, 20
+warmups, batch one, five repeats, and seed 1 for a learned head. PnP and full columns are separately summarized;
+their medians are not arithmetically additive.
+                               Arm       2D med.    2D P90    Full med.   Full P90
+                               FULL         7.835    10.432      9.453     12.146
+                               D0-S1       10.104    13.410     11.886     14.838
+                               P0-S1       10.520    13.565     12.193     14.982
+                               P5-C-S1     11.442    13.790     13.132     15.228
+                               P5-S1       11.302    13.977     12.963     15.342
+
+
+
+
+                                                      12
 

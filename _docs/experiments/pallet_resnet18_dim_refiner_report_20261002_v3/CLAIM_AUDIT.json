@@ -1,0 +1,164 @@
+{
+  "schema": "resnet18_full_dim_refiner_claim_audit_v1",
+  "complete": true,
+  "primary_incremental_dimension_contrast": "P5_minus_P5_CONSTANT",
+  "architecture_plus_dimension_contrast": "P5_minus_P0",
+  "all_arms_share_dimension_conditioned_FULL_baseline": true,
+  "claims": {
+    "incremental_head_dimension_input_2D_on_reused_DEV": {
+      "contrast": "P5_minus_P5_CONSTANT",
+      "conditional_median_delta_px": {
+        "status": "COMPLETE",
+        "delta": -0.07436306416218279,
+        "low": -0.1163829942772525,
+        "high": 0.019118470218183265,
+        "frames": 319,
+        "units": 13,
+        "seeds": 3,
+        "level": "session",
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(pooled median candidate - pooled median reference)",
+        "scope": "Reused DEV; 13 sessions; unadjusted exploratory intervals; not independent confirmation."
+      },
+      "ALL_GT_PCK10_delta": {
+        "status": "COMPLETE",
+        "delta": 0.0017743080198721801,
+        "low": 0.00010885421874811027,
+        "high": 0.003973028635541436,
+        "level": "session",
+        "frames": 319,
+        "units": 13,
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(full-population rate candidate - rate reference)"
+      },
+      "both_session_intervals_support_benefit": false,
+      "status": "NOT_JOINTLY_SUPPORTED"
+    },
+    "incremental_head_dimension_input_TR_on_reused_DEV": {
+      "contrast": "P5_minus_P5_CONSTANT",
+      "translation_delta_cm": {
+        "status": "COMPLETE",
+        "delta": -0.07051609704108941,
+        "low": -0.11534664296651913,
+        "high": 0.07087288545199817,
+        "frames": 319,
+        "units": 13,
+        "seeds": 3,
+        "level": "session",
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(pooled median candidate - pooled median reference)",
+        "scope": "Reused DEV; 13 sessions; unadjusted exploratory intervals; not independent confirmation."
+      },
+      "rotation_delta_deg": {
+        "status": "COMPLETE",
+        "delta": -0.026874301164304448,
+        "low": -0.06655751546883115,
+        "high": 0.02451515090391652,
+        "frames": 319,
+        "units": 13,
+        "seeds": 3,
+        "level": "session",
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(pooled median candidate - pooled median reference)",
+        "scope": "Reused DEV; 13 sessions; unadjusted exploratory intervals; not independent confirmation."
+      },
+      "point_estimates_both_improve": true,
+      "both_session_intervals_support_benefit": false,
+      "status": "DIRECTION_ONLY"
+    },
+    "incremental_head_dimension_input_pose_coverage": {
+      "contrast": "P5_minus_P5_CONSTANT",
+      "coverage_delta": {
+        "status": "COMPLETE",
+        "delta": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "level": "session",
+        "frames": 319,
+        "units": 13,
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(full-population rate candidate - rate reference)"
+      },
+      "session_interval_supports_increase": false
+    },
+    "P5_correction_effect_vs_frozen_FULL": {
+      "contrast": "P5_minus_FULL",
+      "conditional_median_delta_px": {
+        "status": "COMPLETE",
+        "delta": -0.953919282869499,
+        "low": -1.4032543186575561,
+        "high": -0.6869641944153987,
+        "frames": 319,
+        "units": 13,
+        "seeds": 3,
+        "level": "session",
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(pooled median candidate - pooled median reference)",
+        "scope": "Reused DEV; 13 sessions; unadjusted exploratory intervals; not independent confirmation."
+      },
+      "translation_delta_cm": {
+        "status": "COMPLETE",
+        "delta": -1.096292887990704,
+        "low": -1.813722516735326,
+        "high": 0.1886896042995063,
+        "frames": 319,
+        "units": 13,
+        "seeds": 3,
+        "level": "session",
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(pooled median candidate - pooled median reference)",
+        "scope": "Reused DEV; 13 sessions; unadjusted exploratory intervals; not independent confirmation."
+      },
+      "rotation_delta_deg": {
+        "status": "COMPLETE",
+        "delta": -0.2700483079399307,
+        "low": -0.5199168025302122,
+        "high": -0.0756864088318237,
+        "frames": 319,
+        "units": 13,
+        "seeds": 3,
+        "level": "session",
+        "resamples": 10000,
+        "random_seed": 20260914,
+        "estimand": "mean_seed(pooled median candidate - pooled median reference)",
+        "scope": "Reused DEV; 13 sessions; unadjusted exploratory intervals; not independent confirmation."
+      },
+      "note": "This changes the correction path/capacity and is not a pure dimension-input contrast."
+    }
+  },
+  "broad_claim_gates": {
+    "stable_joint_TR_generalization": false,
+    "independent_TEST_present": false,
+    "physical_pose_GT_present": false,
+    "square_refiner_transfer_evaluated": false,
+    "latency_measured_in_this_run": false,
+    "multiplicity_adjusted": false,
+    "wood_inside_source_TRAIN_axiswise_support": false
+  },
+  "allowed_wording": [
+    "Frozen FULL ResNet18 outputs were evaluated before and after separately trained source-only correction heads on reused DEV319.",
+    "P5 versus P5_CONSTANT isolates the incremental five-value head input within this fixed experiment, conditional on the shared dimension-conditioned FULL baseline.",
+    "Session bootstrap intervals are exploratory and unadjusted; report their numeric deltas and intervals."
+  ],
+  "prohibited_wording": [
+    "Stable T and R improvement on unseen test data.",
+    "Physically measured 6D accuracy improvement.",
+    "Square-pallet correction transfer from this refiner run.",
+    "Backbone-agnostic correction proven by this ResNet run alone.",
+    "Dimensions caused the direct ResNet square-set result."
+  ],
+  "limitations": {
+    "real_role": "REUSED_DEV",
+    "pose_reference": "geometry-reconstructed reference, not independent physical metrology",
+    "statistics": "13-session bootstrap, 10,000 draws, seed 20260914, unadjusted exploratory intervals",
+    "square_context": "linked direct full-image ResNet result only; no correction head inference on GREEN150 or GREEN0918",
+    "dimension_support": "wood D=0.59 m is outside source TRAIN axiswise support"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema": "resnet18_dimension_dsnt_functional_diagnostic_v1",
+  "scope": "SOURCE_TRAIN256_REPEATED_DIAGNOSTIC_ONLY",
+  "arms": [
+    "CONSTANT",
+    "SHAPE",
+    "FULL"
+  ],
+  "arm_context_masks": {
+    "CONSTANT": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "SHAPE": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "FULL": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "same_initialization": true,
+  "same_batch_order": true,
+  "same_photometric_rng": true,
+  "updates_per_arm": 500,
+  "batch": 16,
+  "distinct_train_images": 256,
+  "exposures_per_arm": 8000,
+  "evaluation_steps": [
+    0,
+    100,
+    500
+  ],
+  "evaluation": "Fixed first four TRAIN rows per prepared image shape; 16 rows total.",
+  "objective": "mean valid keypoints of 0.1*spatial Gaussian cross entropy + smooth-L1 softargmax coordinate error",
+  "decoder": "Spatial softmax expectation; all nine keypoints required because each source frame contains one pallet.",
+  "optimizer": {
+    "name": "Adam",
+    "lr": 0.001,
+    "weight_decay": 0.0,
+    "betas": [
+      0.9,
+      0.999
+    ]
+  },
+  "augmentation": "Same brightness/contrast/saturation range and ordering as prior baseline.",
+  "gate": "At step500 each arm must have at least one IoU>=0.5 frame and softargmax median error <=80% of its step0 value.",
+  "real_images": 0,
+  "real_labels": 0,
+  "checkpoint_selection": false,
+  "batch_order": {
+    "path": "data/pallet/results/pallet_resnet18_dimension_20261002_v1/DSNT_DIAGNOSTIC_ORDER.npy",
+    "sha256": "c20eed48f1081d6951498dbbe9ca3a58c0546d836ff3203e1e6abde338d272af",
+    "bytes": 64128
+  },
+  "batch_order_array_sha256": "b50dfc225c09261934b7ac60c0de36f258fa9666178846b05b5257efb07011fe",
+  "bindings": [
+    {
+      "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+      "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+      "bytes": 69618918
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+      "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+      "bytes": 19921282
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    {
+      "path": "data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+      "sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+      "bytes": 46830571
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/model.py",
+      "sha256": "d96ecfea682e4a85880fab86c585f598ee1da5c07580e886ce57bbf838addfe1",
+      "bytes": 9677
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/input_data.py",
+      "sha256": "d7e8a5220482d8ef054af63585902299f10d9c99c0d6eb927391da73172a967f",
+      "bytes": 14177
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/dsnt_diagnostic.py",
+      "sha256": "8aac3479cd18dc06c81db2915815a9b9795d39fcdcbeb37068a164f7c990f875",
+      "bytes": 18282
+    }
+  ]
+}

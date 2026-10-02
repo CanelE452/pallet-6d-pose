@@ -10,537 +10,668 @@ Monocular Pallet Pose Estimation: Frozen Estimator
 
 
 
-   Abstract—Accurate image landmarks are important to               for example through the Euro-pallet study of Knitt et al.
-monocular pallet pose measurement, but improving localization       [1]. We do not claim its invention, a measured reduction in
-need not require changing an established detector. We study         annotation labor, or a universal synthetic-to-real solution.
-a fixed, synthetic-supervised local keypoint refiner that reuses
-two feature scales of a frozen RGB estimator. In the completed      Instead, we ask a narrower question: can a small local
-YOLO application, the 18,962-parameter module predicts a            module improve the residual geometry of a fixed estimator
-distribution over local corner displacements while preserving       while leaving its detection outputs unchanged?
-bounding boxes, confidence scores, instance selection, and             We investigate the already-trained point refiner P.
-the center landmark. For this application, on 319 reused            It reads existing detector features and scores candidate
-development images from 13 sessions, the mean over three
-independently trained seeds of pooled landmark median error         displacements around each predicted corner. The detector
-changes from 6.616 to 5.905 pixels. The paired-session interval     is frozen, but this is not a guarantee that corrected
-for the reduction is [0.411,1.174] pixels. Complete-denominator     geometry is harmless: a wrong displacement can still
-keypoint accuracy, error tails, geometry-reference pose errors,     degrade a keypoint or a pose. Our evaluation therefore
-and desktop latency are reported separately. A matched-             retains tails, individual sessions, and complete ground-
-evidence direct regression control and a source-derived PoseFix
-pallet adaptation test distinct refinement alternatives. The P–     truth denominators alongside the central error statistic.
-prior median difference is 0.336 pixels (paired-session interval    The original application depends on the YOLO feature
-[0.063,0.585]). The interval favors the prior, not P. This is       interface. A second, separately specified DOPE application
-a fixed-budget development comparison. These measurements           tests whether the same local readout principle remains
-establish the scope of the development evidence, not an unseen-     useful with different frozen features and error patterns. It
-session guarantee. Independent real-session confirmation is
-not yet available. The extension applies the same correction        requires a new adapter and new heads, not zero-shot trans-
-principle to a separately frozen DOPE estimator with new            fer of the YOLO weights. A finite set of fixed applications
-source-trained heads and explicit missing-point accounting.         cannot establish universal model-agnostic behavior.
-DOPE results remain pending in this revision. ResNet18                 The third application is specified as a full-image,
-results remain pending in this revision. Neither a universal        nine-landmark SimpleBaseline-derived ResNet18 with Im-
-model-agnostic result, an original expectation operator, nor
-operational handling reliability is claimed.
-                                                                    ageNet initialization. Its baseline training, frozen P/D
-                                                                    head fits and measured outcomes remain pending in this
-   Index Terms—Monocular vision, pallet pose, keypoint re-          revision. Completion of DOPE alone does not satisfy the
-finement, synthetic supervision, feature reuse, measurement
-evaluation.                                                         three-estimator evidence requirement.
-                                                                       The contributions are an explicitly specified feature-
-                                                                    reusing refinement interface, within-estimator compar-
-                       I. Introduction
-                                                                    isons of the local distribution readout with a direct
-   Pallet localization provides geometric input to inspec-          residual control, and an auditable protocol tying original-
-tion, tracking, and material-handling systems. A monoc-             pixel outputs to failure-aware geometry and measured
-ular RGB camera offers a compact sensing interface,                 cost. Historical YOLO line-structured and prior-derived
-but image-level detection is not the same quantity as               comparisons remain visible. The second-estimator claim
-accurate geometric measurement. The same correctly de-              is conditional on the separately reported DOPE results,
-tected instance can have displaced corners; a downstream            including adverse outcomes. These are system and empir-
-perspective-n-point (PnP) solver can amplify some image             ical contributions to be assessed against the evidence. We
-errors depending on geometry and viewing configuration.             do not introduce a new expectation operator, a low-rank
-It is therefore useful to distinguish detection, conditional        adaptation algorithm, or a new safety controller. Figure 1
-landmark precision, and pose measurement when evaluat-              separates the learned correction from the frozen detector
-ing a refinement method.                                            and the geometry inputs.
-   Synthetic training can supply image supervision without
-manually annotating every pallet training image. Syn-                       II. Related Work and Comparison Scope
-thetic RGB pallet pose estimation is already established,           A. Pallet perception and synthetic supervision
-  Not submitted. Independent confirmation and author declarations     DOPE[2] estimates semantic cuboid landmarks from
-remain subject to the evidence status reported in this draft.       RGB. Knitt et al. [1] trained a DOPE-based pallet
+   Abstract—Accurate image landmarks are important to               errors depending on geometry and viewing configuration.
+monocular pallet pose measurement, but improving local-             It is therefore useful to distinguish detection, conditional
+ization need not require changing an established detector.          landmark precision, and pose measurement when evaluat-
+We study a fixed, synthetic-supervised local keypoint refiner
+that reuses two feature scales of a frozen RGB estimator.           ing a refinement method.
+In the completed YOLO application, the 18,962-parameter                Synthetic training can supply image supervision without
+module predicts a distribution over local corner displacements      manually annotating every pallet training image. Syn-
+while preserving bounding boxes, confidence scores, instance        thetic RGB pallet pose estimation is already established,
+selection, and the center landmark. For this application, on        for example through the Euro-pallet study of Knitt et al.
+319 reused development images from 13 sessions, the mean over
+three independently trained seeds of pooled landmark median         [1]. We do not claim its invention, a measured reduction in
+error changes from 6.616 to 5.905 pixels. The paired-session        annotation labor, or a universal synthetic-to-real solution.
+interval for the reduction is [0.411,1.174] pixels. Complete-       Instead, we ask a narrower question: can a small local
+denominator keypoint accuracy, error tails, geometry-reference      module improve the residual geometry of a fixed estimator
+pose errors, and desktop latency are reported separately.           while leaving its detection outputs unchanged?
+A matched-evidence direct regression control and a source-
+derived PoseFix pallet adaptation test distinct refinement             We investigate the already-trained point refiner P.
+alternatives. The P–prior median difference is 0.336 pixels         It reads existing detector features and scores candidate
+(paired-session interval [0.063,0.585]). The interval favors the    displacements around each predicted corner. The detector
+prior, not P. This is a fixed-budget development comparison.        is frozen, but this is not a guarantee that corrected
+These measurements establish the scope of the development           geometry is harmless: a wrong displacement can still
+evidence, not an unseen-session guarantee. Independent real-
+session confirmation is not yet available. The extension applies    degrade a keypoint or a pose. Our evaluation therefore
+the same correction principle to a separately frozen DOPE           retains tails, individual sessions, and complete ground-
+estimator with new source-trained heads and explicit missing-       truth denominators alongside the central error statistic.
+point accounting. For frozen DOPE on reused DEV, the                The original application depends on the YOLO feature
+conditional keypoint median is 12.585 pixels before refinement      interface. A second, separately specified DOPE application
+and 7.461 pixels for the mean of three P seed statistics;
+full-GT PCK10 is 19.872 and 36.775 percent, respectively.           tests whether the same local readout principle remains
+For the third, dimension-conditioned ResNet18 estimator, the        useful with different frozen features and error patterns. It
+primary P0 refiner changes reused-DEV conditional median            requires a new adapter and new heads, not zero-shot trans-
+error from 8.001 to 7.143 pixels and full-denominator PCK10         fer of the YOLO weights. A finite set of fixed applications
+from 54.68% to 58.28%; reconstructed-reference translation          cannot establish universal model-agnostic behavior.
+and canonical camera-facing-frame C2 rotation medians change
+from 11.007 cm/3.252 deg to 10.001 cm/3.018 deg. Neither a             The third application is a completed full-image, nine-
+universal model-agnostic result, an original expectation opera-     landmark Simple-Baselines-derived ResNet18. Its frozen
+tor, nor operational handling reliability is claimed.               FULL estimator receives RGB and registered physical
+   Index Terms—Monocular vision, pallet pose, keypoint re-          dimensions, and its primary transfer test adds the same
+finement, synthetic supervision, feature reuse, measurement         image-feature local refiner without a second dimension
+evaluation.                                                         input (P0). D0 is the matched direct-residual control. P5
+                                                                    and P5_CONSTANT form a separate dimension-input ex-
+                       I. Introduction                              tension. All real-image outcomes are reused-development
+                                                                    evidence.
+   Pallet localization provides geometric input to inspec-
+                                                                       This revision adds a completed ResNet18 estimator
+tion, tracking, and material-handling systems. A monoc-
+                                                                    that receives RGB and registered pallet dimensions during
+ular RGB camera offers a compact sensing interface,
+                                                                    training and inference. The historical YOLO and DOPE
+but image-level detection is not the same quantity as
+                                                                    estimators and their primary P heads remain image-
+accurate geometric measurement. The same correctly de-
+                                                                    feature based; their physical dimensions still enter only
+tected instance can have displaced corners; a downstream
+                                                                    downstream PnP. Within ResNet18, the primary third-
+perspective-n-point (PnP) solver can amplify some image
+                                                                    backbone transfer arm P0 reads frozen image features and
+  Not submitted. Independent confirmation and author declarations   predicted geometry without a second dimension input. A
+remain subject to the evidence status reported in this draft.       separate P5–P5_CONSTANT experiment tests whether
 INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                                               2
 
 
 
-                                                                                                     small learned heads. Their difference therefore cannot be
-                                     Reused P3/P4 features                                           attributed simply to parameter eﬀiciency. Freezing the
-                                                                                                     backbone also does not make inference overhead zero.
-
+                                                                                                     Our purpose adaptation replaces those human assump-
+                                     Reused P3/P4 features                                           tions with frozen source-training predictions from the
+                                                                                                     pallet detector. It is named PoseFix-derived pallet9,
+                                                                                                     matched-exposure adaptation, not a reproduction of the
     RGB image               Frozen R0                         P local                  PnP
-                           points + box                     refinement                 pose
-                                                                                                                  III. Fixed Refinement Method
-                                                                                                     A. Sensor, detector, and coordinates
-                                                      Synthetic supervision           Intrinsics
-                                                         (training only)          known dimensions      The historical baseline R0 is a YOLO26n pose estimator
-                                                                                                     producing a box, confidence, and nine points per candidate
-   Preserved: boxes, scores, selection, center8. Updated: supported corners0 7.                      instance. The selected instance is the highest-confidence
-                                                                                                     prediction under the existing pipeline. Corner indices 0–
-Fig. 1. Information paths of the completed YOLO application;                                         7 retain the registered cuboid convention, and index 8
-the DOPE extension has its separate frozen adapter. P uses image
-features and predicted points/box. Camera intrinsics and registered
+                           points + box                     refinement                 pose          original human benchmark. Integral regression[5] estab-
+                                                                                                     lishes differentiable coordinate expectation as prior art.
+                                                                                                     P applies an expectation to candidate displacements; the
+                                                      Synthetic supervision           Intrinsics     expectation itself is not a claimed invention.
+                                                         (training only)          known dimensions      CRT-6D[6] uses object-surface keypoint features in cas-
+                                                                                                     caded pose refinement. It is relevant to sparse feature-
+   Preserved: boxes, scores, selection, center8. Updated: supported corners0 7.
+                                                                                                     based correction, but has a different object-surface and
+                                                                                                     pose contract. The inspected oﬀicial repository at the
+Fig. 1. Information paths of the YOLO and DOPE applications.
+Their P heads use image features and predicted points/box, while
+                                                                                                     recorded commit contains no executable network; no
+dimensions enter downstream PnP. The ResNet18 FULL estimator                                         substitute transformer is reported as CRT-6D. Our named
+separately injects five normalized dimension values into its decoder;                                prior experiment is limited to the declared PoseFix-derived
+primary P0 then refines frozen image features without an additional
+dimension input. Boxes, scores, selected instance, and center remain
+                                                                                                     family rather than expanding a benchmark after seeing
+fixed within each refiner application.                                                               results.
+
+                                                                                                     C. Feature reuse and small side networks
+adding the same five-value dimension context to the
+correction head contributes beyond the already dimension-                                               Side-tuning[7] relates to adapting a fixed representation
+conditioned FULL estimator.                                                                          through a separate learned path. P shares the general
+                                                                                                     motivation of retaining a backbone and training a smaller
+   The contributions are an explicitly specified feature-
+                                                                                                     addition. Nevertheless, P does not implement LoRA,
+reusing refinement interface, within-estimator compar-
+                                                                                                     and no new parameter-eﬀicient fine-tuning benchmark
+isons of the local distribution readout with a direct residual
+                                                                                                     is established. Both P and the direct control D have
+control, and an auditable protocol tying original-pixel
+                                                                                                     small learned heads. Their difference therefore cannot be
+outputs to failure-aware geometry and measured cost.
+                                                                                                     attributed simply to parameter eﬀiciency. Freezing the
+Historical YOLO line-structured and prior-derived com-
+                                                                                                     backbone also does not make inference overhead zero.
+parisons remain visible. Separate DOPE and ResNet18
+applications test the same correction principle through
+their own adapters and newly trained heads; the ResNet18                                                           III. Fixed Refinement Method
+dimension experiments remain a distinct extension. These                                             A. Sensor, detector, and coordinates
+are system and empirical contributions to be assessed                                                   The historical baseline R0 is a YOLO26n pose estimator
+against the evidence. We do not introduce a new expecta-                                             producing a box, confidence, and nine points per candidate
+tion operator, a low-rank adaptation algorithm, or a new                                             instance. The selected instance is the highest-confidence
+safety controller. Figure 1 separates the historical learned                                         prediction under the existing pipeline. Corner indices 0–
+correction path from downstream geometry inputs.                                                     7 retain the registered cuboid convention, and index 8
                                                                                                      retains the established center definition. The wrapper does
-physical dimensions enter the downstream pose solver, not P. Syn-                                    not use a ground-truth box or pose to select the input
-thetic labels supervise P during training only. Boxes, scores, selected                              instance. Ground truth is used downstream for training
-instance, and center are preserved; corner geometry can change.
-                                                                                                     supervision and evaluation matching only.
-                                                                                                        R0 was initialized from a pretrained YOLO26n
-estimator using synthetic imagery and evaluated RGB                                                  pose checkpoint, and its stored provenance identifies
-Euro-pallet pose. More recently, Miura et al. [3] studied                                            COCO-pose training in that checkpoint. The pallet run
-monocular pallet pose using metric-depth predictions                                                 also records pretrained initialization. Thus, “synthetic-
-and ground-plane information. These works motivate the                                               supervised refinement” refers to the training of the addi-
-application and establish that RGB pallet estimation and                                             tional module, not a claim that no real annotations ever
-synthetic data are not new in themselves. Their datasets                                             contributed to the full estimator. Real labels are also used
-and auxiliary information differ from ours; published                                                in development and evaluation. R0 is not retrained in the
-numbers are not subtracted from the present development                                              present comparison.
-results.                                                                                                The historical image pipeline is preserved: rectangular
-                                                                                                     detector preprocessing at the registered input size, stride-
+             II. Related Work and Comparison Scope                                                   not use a ground-truth box or pose to select the input
+                                                                                                     instance. Ground truth is used downstream for training
+A. Pallet perception and synthetic supervision                                                       supervision and evaluation matching only.
+  DOPE[2] estimates semantic cuboid landmarks from                                                      R0 was initialized from a pretrained YOLO26n
+RGB. Knitt et al. [1] trained a DOPE-based pallet                                                    pose checkpoint, and its stored provenance identifies
+estimator using synthetic imagery and evaluated RGB                                                  COCO-pose training in that checkpoint. The pallet run
+Euro-pallet pose. More recently, Miura et al. [3] studied                                            also records pretrained initialization. Thus, “synthetic-
+monocular pallet pose using metric-depth predictions                                                 supervised refinement” refers to the training of the addi-
+and ground-plane information. These works motivate the                                               tional module, not a claim that no real annotations ever
+application and establish that RGB pallet estimation and                                             contributed to the full estimator. Real labels are also used
+synthetic data are not new in themselves. Their datasets                                             in development and evaluation. R0 is not retrained in the
+and auxiliary information differ from ours; published                                                present comparison.
+numbers are not subtracted from the present development                                                 The historical image pipeline is preserved: rectangular
+results.                                                                                             detector preprocessing at the registered input size, stride-
                                                                                                      aware padding, and original-image restoration. Prepared
-B. Pose and coordinate refinement
                                                                                                      synthetic images already include their recorded reflection
-   PoseFix[4] refines an input pose using the image and                                              padding and are not padded a second time. Let A be the
-a separate backbone. Its human-pose training procedure                                               diagonal image-to-network scaling matrix and o its offset.
-synthesizes pose errors from human-keypoint statistics.                                              Original points p and network-input points p̃ satisfy p̃ =
-Our purpose adaptation replaces those human assump-                                                  Ap+o. YOLO letterboxing gives A = gI; the DOPE raster
-tions with frozen source-training predictions from the                                               can have unequal actual horizontal and vertical scales.
-pallet detector. It is named PoseFix-derived pallet9,                                                Corrections use A−1 on displacements and add them to
-matched-exposure adaptation, not a reproduction of the                                               the retained original points. A zero correction therefore
-original human benchmark. Integral regression[5] estab-                                              preserves the exact baseline coordinates.
-lishes differentiable coordinate expectation as prior art.
-P applies an expectation to candidate displacements; the
-expectation itself is not a claimed invention.                                                       B. Local candidate evidence
-   CRT-6D[6] uses object-surface keypoint features in cas-
-                                                                                                        P adapts P3/P4 features with small learned channel
-caded pose refinement. It is relevant to sparse feature-
-                                                                                                     projections. Around each valid corner, 13 directions and
-based correction, but has a different object-surface and
-                                                                                                     17 radii define 221 displacement candidates within 0.08
-pose contract. The inspected oﬀicial repository at the
-                                                                                                     predicted-box diagonal. A zero-displacement null can-
-recorded commit contains no executable network; no
-                                                                                                     didate completes the 222-way distribution. Each non-
-substitute transformer is reported as CRT-6D. Our named
-                                                                                                     null candidate reads a 4 × 8 stencil from both feature
-prior experiment is limited to the declared PoseFix-derived
-                                                                                                     scales using the registered bilinear sampling geometry.
-family rather than expanding a benchmark after seeing
-                                                                                                     A shared patch encoder and corner-role/context features
-results.
-                                                                                                     feed candidate and null scorers. No explicit edge or Hough
-                                                                                                     representation is required by P.
-C. Feature reuse and small side networks                                                                Let db denote the predicted box diagonal in network-
-   Side-tuning[7] relates to adapting a fixed representation                                         input pixels, vj the normalized candidate offsets, and zkj
-through a separate learned path. P shares the general                                                the score for corner k. For the frozen temperature T and
-motivation of retaining a backbone and training a smaller                                            scale λ, the proposed displacement is
-addition. Nevertheless, P does not implement LoRA,
-                                                                                                                              ∑ exp(zkj /T )
-and no new parameter-eﬀicient fine-tuning benchmark                                                               δ k = λdb     ∑                vj .        (1)
-is established. Both P and the direct control D have                                                                          j   l exp(zkl /T )
-INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                                      3
+B. Pose and coordinate refinement                                                                    padding and are not padded a second time. Let A be the
+  PoseFix[4] refines an input pose using the image and                                               diagonal image-to-network scaling matrix and o its offset.
+a separate backbone. Its human-pose training procedure                                               Original points p and network-input points p̃ satisfy p̃ =
+synthesizes pose errors from human-keypoint statistics.                                              Ap+o. YOLO letterboxing gives A = gI; the DOPE raster
+INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                                         3
 
 
 
-                                                                                             L is the historical line-structured internal control. Its
-                                  0.08       221 candidates                               results are retained to show that explicit line structure has
-                                             input / null
-                                  0.06       one actual 4 x 8 stencil                     not established an all-metric benefit in this configuration.
-  y displacement / box diagonal
-
-                                                                                          Earlier Hough, active-adaptation, and replay investiga-
-                                  0.04                                                    tions are part of the research history, not new primary
-                                                                                          comparisons in this manuscript. No unfavorable historical
-                                  0.02
-                                                                                          outcome was deleted.
-                                  0.00                                                       For a supported corner with target residual rk , P’s
-                                                                                          target mass is
-                                  0.02
-                                  0.04                                                             exp[−∥db vj − rk ∥2 /(2σ 2 )]
-                                                                                            qkj = ∑                              ,   σ = 0.08db /17.
-                                                                                                    l exp[−∥db vl − rk ∥ /(2σ )]
-                                                                                                                        2      2
-                                  0.06                                                                                                             (5)
-                                                                                          Cross-entropy is averaged over supported corners within
-                                  0.08                                                    each frame and then over frames with support. This
-                                         0.075 0.050 0.0250.000 0.025 0.050 0.075         smooth finite-candidate target differs from D’s direct
-                                              x displacement / box diagonal               residual L1 supervision. Its existing settings are retained,
-                                                                                          not newly optimized here.
-Fig. 2. The implemented candidate lattice and one actual sampling
-stencil in box-diagonal units. The blue stencil is shown at a fixed
-candidate index, not selected for performance. The probability                            D. Second fixed estimator: DOPE adapter
-expectation in (1) combines candidate displacements; no illustrative
-weights are presented as measured outputs. Geometry and source                               The second application freezes an existing six-stage
-hashes are recorded in FIGURE_MANIFEST.json.
-                                                                                          pallet DOPE checkpoint and changes the feature adapter
-                                                                                          rather than the correction principle. The checkpoint is
-The null candidate has vnull = 0. Given an original-image                                 identified by SHA-256 in the protocol; no DOPE weight
-diagonal dI and frozen cap fraction α, movement and                                       is updated by the refiner fits. We use the existing
-restoration are                                                                           semantic-channel local-peak decoder at threshold 0.3. This
-                                                                                          implementation does not run aﬀinity-based multi-object
-                                          ∆k = A−1 δ k ,                            (2)   grouping. Its fixed box is the hull of at least three valid
-                                                                 (      )                 predicted corners, and its score is the maximum corner
-                                          ¯ k = ∆k min 1, αdI
-                                          ∆                                 ,       (3)
-                                                           ∥∆k ∥2                         belief. Thus, this is an application to the declared single-
-                                            ′         ¯                                   pallet DOPE pipeline, not a reproduction of every original
-                                          p k = p k + ∆k ,                          (4)
-                                                                                          DOPE inference option or a detector-ranking experiment.
-with unit scaling for a zero movement and no clipping                                        The two frozen VGG taps are post-ReLU layers 17 and
-when the selected cap is absent. Historical YOLO P retains                                26, with 256 channels at stride 4 and 128 at stride 8.
-its selected λ = 1, α = 0.01, and per-seed temperatures.                                  Learned projections map both to the same 16-channel evi-
-DOPE uses the same source-only selection grid; its se-                                    dence interface used by P and D; the shared encoded width
-lected values are supplied with its own result records.                                   is 24. The candidate lattice, stencil geometry, corner order-
-Unsupported points are unchanged; point 8 is copied                                       ing, null candidate, losses, and displacement restoration
-exactly. Detection boxes, confidences, candidate order,                                   remain as specified above. Input-channel counts change
-and nonselected points are preserved. These contracts do                                  the number of learned parameters; the YOLO count is
-not imply unchanged or always improved 6D geometry.                                       not assigned to the DOPE heads. A matched-evidence D
-                                                                                          control is trained for each DOPE seed. L and the separate
-                                                                                          PoseFix-derived comparator are historical YOLO controls
-C. Training and internal controls                                                         and are not silently presented as new DOPE experiments.
-   P learns a soft distribution over candidate displacements                                 The fixed adapter applies reflection padding of 100
-from synthetic corner residuals. The finite target support                                pixels to native real RGB, resizes the padded canvas
-and per-frame reduction are retained from the fixed                                       back to the native size, then uses the recorded shortest-
-implementation. The historical YOLO P, D, and L fits                                      side-400, multiple-of-eight raster. Synthetic source RGB
-each use their recorded three seeds and fixed exposure                                    already contains this reflection preparation and receives
-budget; those models are not retrained. YOLO P has                                        no second padding. The exact composed aﬀine, including
-18,962 learned parameters. D reuses the same sampling                                     actual raster widths and heights, maps predictions back
-and shared feature descriptors, but regresses normalized                                  to the caller’s coordinates. Training retains the source
-corner residuals with an L1 objective. The YOLO D                                         preparation; DEV restores unpadded original pixels before
-instance has 19,450 parameters and an unbounded raw                                       measurement. The inference preprocessing and normaliza-
-output, in contrast to P’s candidate convex hull. This is a                               tion are checked against the selected existing inference
-comparison of readout/supervision packages, not a causal                                  path, not claimed to be byte-identical to the original
-ablation of softmax alone.                                                                augmented DOPE training pipeline.
-INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                               4
-
-
-
-   Predicted missing points stay missing. P and D cannot                                     TABLE I
-create a previously absent corner, change the fixed hull        Historical YOLO comparator contract. All added heads use zero
-                                                                     real-pallet training examples; R0 upstream COCO-pose
-or score, or replace the center landmark. A point without     initialization is shared within this panel. Geometry enters PnP, not
-the required feature support is copied rather than supplied              the heads. DOPE uses its own frozen checkpoint.
-with a target-derived value. These invariants isolate local
-refinement but also bound what it can repair: low coverage        Method      Added inference input      Added pretraining
-cannot be hidden by reporting only an accurate surviving          R0          none                       none
-subset. Camera intrinsics and physical dimensions remain          P/D/L       R0 P3/P4, pose/box         none
-exclusive to downstream PnP.                                      Prior       RGB crop, pose/box         ImageNet classes
-
-
-
-E. Third application: full-image ResNet18                     G. Downstream geometric measurement
-   The third estimator is a full-image pallet adapta-            The unchanged prediction-only selector uses the reg-
-tion of Simple Baselines[8], using an ImageNet-initialized    istered camera intrinsics and physical pallet dimensions
-ResNet18 body, three 256-channel stride-two deconvolu-        to select its dimension hypothesis. The selected cuboid
-tions, and nine stride-four heatmaps. It uses no YOLO         is solved using the canonical SQPnP/RefineLM path.
-detection or ground-truth crop. Prepared RGB is aspect-       Intrinsics and dimensions are not neural inputs to P
-fitted to 384 × 512 with centered letterboxing and Ima-       or D. Ground truth does not choose the prediction’s
-geNet FP32 normalization. Targets are continuous Gaus-        most favorable pose hypothesis. Current reference poses
-sians with output-grid sigma 2; the masked half-MSE           are reconstructed from manual image points and known
-retains all nine channel slots and every frame in its         geometry, rather than obtained from an independent
-denominator. Decoding uses the fixed argmax/interior          physical 6D instrument. Near-square axis confusion is not
-quarter-pixel rule and peak threshold 0.1, with explicit      newly excused by adding a symmetry minimization.
-missingness and exact aﬀine restoration.
-                                                                       IV. Datasets and Measurement Protocol
-   The planned ResNet18 baseline is 60 epochs of 55,980
-source images: 209,940 updates and 3,358,800 exposures,       A. Source exposure and rule selection
-retaining the final 12-image batch. Adam starts at 10−3          For historical YOLO, the source manifest contains
-with weight decay 10−4 and factor-ten drops at the start      55,980 training records, with 55,915 usable matched train-
-of epochs 40 and 50. Only calibration loss is moni-           ing rows, and calibration/selection/heldout partitions of
-tored and final epoch 60 is fixed. Seed 42 and source-        1,004/1,031/1,985 records. Source images, labels, row or-
-only photometric augmentation are prescribed. These are       der, and completed model choices are hash-bound. Actual
-preparation details; actual training and outcomes have        RGB crops, rather than guessed images reconstructed
-not been inserted. After the baseline is frozen, P/D          from cached features, are used for the prior backbone.
-read layer2/layer3 features (128/stride8 and 256/stride16)    Synthetic source subsets are historically reused and are
-under the same fixed three-seed head budget. Each appli-      not described as universally untouched data.
-cation uses independently initialized heads; no YOLO or          The prior shares the existing synthetic-only lambda/cap
-DOPE head is a warm start.                                    grid, objective, and tie rule. Coordinate outputs do not
-                                                              receive a fabricated temperature sweep. Raw prior and
-                                                              capped-wrapper results are reported separately. Heldout
-F. Purpose-adapted prior comparator                           results are computed after selection; DEV does not choose
-   The historical YOLO prior uses the oﬀicial PoseFix         the checkpoint, learning rate, noise model, or wrapper.
-ResNet152 arrangement, an aspect-corrected and 1.25-          The historical model panel is frozen before any indepen-
-expanded predicted-box RGB crop of 384 × 288, and nine        dent confirmation annotations may be opened; the DOPE
-Gaussian input pose maps. It adds ImageNet TF-Slim            extension also freezes source-selected rules before its DEV
-initialization, masks center loss and restores the original   replay.
-center. Human swap/inversion noise is replaced by actual
-frozen source-detector errors. Operator and training parity   B. Fixed DOPE source budget and selection
-checks for the source-based PyTorch port, including the          DOPE uses the same 60,000-record synthetic RGB
-effective fused-BN epsilon and target-boundary handling,      source manifest: 55,980 training, 1,004 calibration, 1,031
-are detailed in the supplement.                               selection, and 1,985 heldout records. A usable training
-   Its declared budget is three seeds of 6,000 Adam           row needs the frozen predicted hull to meet IoU 0.5 with
-updates at batch 16 in the exact historical P sample          the source object and at least one jointly valid corner.
-order, using the final checkpoint. This is a matched-         Its usable count is estimator-specific and must not inherit
-exposure adaptation rather than the original 140-epoch        the historical YOLO count. Each of three seeds trains a
-human-pose protocol or a claim of convergence. All three      fresh P and a fresh D for exactly 6,000 AdamW updates
-matched-budget fits were completed; the learning curves       of nominal batch 16. Within a seed they share the exact
-are diagnostic, not a best-checkpoint selector.               row sequence and frozen feature evidence, giving 96,000
-INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                         5
-
-
-
-nominal source exposures per head. Cross-estimator usable     where missing predictions, unmatched top instances, and
-rows need not coincide. Frozen VGG prefixes run online;       nonfinite points contribute zero hits, not zero error.
-the DOPE stage heads are not rerun inside these training      Matching remains at the registered box IoU threshold.
-steps. Feature maps use the original FP16 roundtrip, with     If any support differs, an intersection-only median cannot
-FP32 heads and no mixed-precision head training.              replace this failure-aware report. In the DOPE extension a
-   The learning-rate, warmup, decay, gradient clipping,       conditional paired interval is not computed when its per-
-and final-checkpoint rule are fixed in advance; no DEV-       frame support differs; the mismatch is reported alongside
-based early stopping or architectural sweep is allowed. A     full-denominator PCK and pose coverage.
-discarded two-update smoke check is a separate implemen-         Registered object sizes and the per-annotation camera
-tation check, not a seventh reported fit or a warm start. P   intrinsics are tabulated in the supplement. They are
-temperature is selected on the calibration partition from     inputs to this geometry-reference evaluation, not newly
-{0.5, 1, 2, 4} using supported-frame target cross-entropy.    certified metrology. The canonical solver uses no distortion
-D has no temperature selection. Each family selects one       coeﬀicients; independent camera calibration uncertainty is
-three-seed mean rule on the selection partition from          not established by these annotation records. The declared
-λ ∈ {0, 0.0625, 0.25, 1, 4} and cap fractions {none, 0.01}.   long-axis benchmark admits a half turn but not a quarter
-The fixed tie rule favors smaller λ and then the stricter     turn. In particular, the wood object’s visual symmetry
-cap. Missing source supervision contributes the declared      under a half turn is unverified. Such conventions do not
-failure penalty; no real image chooses a wrapper. Heldout     establish physical fork-entry interchangeability.
-measurements follow rule freezing and remain historically
-reused source data.                                           D. Uncertainty and pose metrics
-   The baseline-training budgets are not matched: the
-                                                                 We use 10,000 paired session bootstrap draws with seed
-DOPE checkpoint ending in epoch 0060 was produced by
-                                                              20260914, applying each draw’s frame/session multiplic-
-the inclusive 0–60 loop, whereas YOLO uses its selected
-                                                              ities to every model seed. The P–R0 statistic compares
-best.pt. Shared source imagery and matched P/D head
-                                                              against one baseline, not three copies treated as inde-
-exposure do not establish equal baseline optimization,
-                                                              pendent models. P–D and P–prior are secondary develop-
-augmentation, pretraining, or compute. The supplement
-                                                              ment contrasts. Secondary intervals are not multiplicity-
-records this distinction alongside the source and check-
-                                                              adjusted and are not confirmatory superiority, equiva-
-point hashes.
-                                                              lence, or noninferiority tests. The reused development data
-C. Development population and supervision                     cannot be made independent by specifying this protocol
-                                                              after previous analyses.
-   The historical YOLO positive development panel has
-                                                                 Rotation, yaw, translation, 3D IoU, and symmetry-
-319 images in 13 recorded sessions; 2689 negative im-
-                                                              aware ADD AUC are evaluated under the existing
-ages accompany the detection-preservation audit. In that
-                                                              geometry-reference convention. Pose coverage and 2D
-historical panel there are 311 matched positive frames
-                                                              matching are different denominators: a solver can re-
-and 2,756 supervised points for conditional precision,
-                                                              turn a pose from an incorrectly matched top detection.
-versus 2,818 supervised points in the complete ground-
-                                                              Translation-error changes in centimeters can be expressed
-truth denominator. Point supervision is the original label
-                                                              in millimeters, but a pixel reduction cannot be converted
-contract and is not renamed as measured physical vis-
-                                                              to one universal millimeter gain. No insertion trials or
-ibility. Visible boundaries, inferred amodal corners, and
-                                                              independently instrumented physical pose measurements
-unavailable landmarks require distinct interpretation in
-                                                              are included.
-new annotation QA.
-   The DOPE extension reuses the identical 319 positive
-images and 2,818 supervised points, but reports its own       E. Cost and independent confirmation
-matched and missing counts. Canonical conditional preci-        The expanded panel was measured in the same session
-sion requires the fixed box match and all nine predicted      for all comparators.
-points finite; a separate partial-point diagnostic cannot       Desktop latency starts from decoded BGR input and
-replace it. P and D preserve this baseline support within     includes preprocessing, R0, refinement, and restoration.
-DOPE, without requiring equal support across estimators.      Canonical PnP time is recorded separately and added for
-There is no new DOPE negative-image/AP experiment.            the whole estimation path. Loading and image decoding
-   The primary statistic pools supervised original-pixel      are excluded. The protocol uses the historical 26 images, 20
-Euclidean errors within each model seed, computes its         warmups per model, five balanced cyclic/reversed blocks,
-median, and then averages the three seed statistics. It is    batch one, and four Torch intra-operation CPU threads.
-neither an ensemble prediction nor the average of frame       OpenCV/inter-operation observations were saved only for
-medians. Its conditional precision denominator excludes       the subsequent isolated-memory phase, not the timing
-unmatched frames, which is why complete-denominator           phase; four is not a universal process thread limit. Training
-PCK is also required. For threshold t,                        and scoring do not overlap timing. Display/remote desktop
-                             ∑
-                               i,k hik (t)
-                                                              activity is disclosed; no fastest repeat is selected. Prior-
-                    PCKt =                 ,           (6)    specific cropping and its separate backbone are included,
-                                NGT
-INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                                                        6
-
-
-
-                                                                                                           TABLE II
-                               6.6                                   R0        Reused DEV: seed-mean statistics, not an ensemble. Translation is
-                                                                     P          against the geometry reference. NM means not measured in this
-                                                                     D
-DEV pooled median error (px)
-
-                                                                                                             build.
-                               6.4                                   L
-                                                                     PRIOR             Model                Median                 P90          PCK10           Trans.
-                                                                                                                px                  px             %               cm
-                               6.2
-                                                                                       R0                       6.616         38.670                63.73        7.897
-                                                                                       P mean                   5.905         37.766                67.34        7.153
-                               6.0                                                     D mean                   6.430         37.566                64.57        7.597
-                                                                                       L mean                   6.070         37.320                66.78        7.548
-                               5.8                                                     PRIOR mean               5.569         37.227                68.41        6.895
-
-
-                               5.6                                                                        All observed development sessions; negative favors P
-
-                                                                                 wood_night_01
-                                                                                  wood_day_01
-
-                                     12.5 15.0 17.5 20.0 22.5 25.0 27.5 30.0      wood_184309
-
-                                         BGR-to-pose median latency (ms)          wood_183705
-                                                                                plastic_night_01
-                                                                                 plastic_day_01
-                                                                                  eval_pallet09
-                                                                                  eval_pallet07
-Fig. 3. Historical YOLO per-seed DEV median against same-session                   eval_outside
-median full-path latency. Lower is preferable on both axes. Each                    eval_noapril
-
-seed is a point, not a timing-selected winner or ensemble; separate-               eval_night09
-                                                                                   eval_night08
-backbone prior cost is included. Source result/runtime hashes are                      eval_cad
-recorded in FIGURE_MANIFEST.json.
-                                                                                                   −2.0             −1.5              −1.0               −0.5      0.0
-                                                                                                                 P − R0 pooled median error (px), seed mean
+can have unequal actual horizontal and vertical scales.
+Corrections use A−1 on displacements and add them to                                              0.08       221 candidates
+                                                                                                             input / null
+the retained original points. A zero correction therefore                                         0.06       one actual 4 x 8 stencil
 
 
 
 
-while P recomputes detector features instead of reading a                      Fig. 4. P–R0 development median effects by recorded session.
-training cache. The supplement records numerical replay                        Negative values favor P. These are descriptive effects from the
-                                                                               reused panel, not independent confirmation intervals. All sessions
-checks and the recovery of memory measurement after the                        are retained.
-completed timing panel.
-   The DOPE timing protocol separately measures the
-fixed seed-1 DOPE, DOPE+D, and DOPE+P paths on                                 central development residual for P than this fixed direct
-the first two manifest-ordered images per session (26                          control. It does not prove that direct regression as a
-images), after 20 warmups and in five balanced cycles.                         method class is inferior. D has a slightly lower observed
-Its actual times, device observations, coverage, and replay                    P90, and the P–D tail interval includes zero. D also has
-checks must be reported before any cross-estimator cost                        lower measured desktop latency. There is therefore no all-
-claim. Historical YOLO timing is not reused as DOPE                            metric dominance claim. The internal line control also has
-timing.                                                                        a lower observed P90 than P.
-   Independent confirmation is awaiting new data. The                             Figure 4 retains every recorded session. The
-collection plan starts with 12 separate sessions and 15                        eval_noapril session has an adverse P–R0 central
-prespecified frames per session, with at least 30 frames                       effect; the other twelve observed sessions improve. Leave-
-independently double annotated before blind adjudication.                      one-session-out estimates remain favorable in this panel,
-This is not a power guarantee. Predictions are hidden                          but such deletion diagnostics are not new independent
-during annotation and the full panel must be frozen before                     datasets. No unfavorable session is removed from the
-evaluation. Existing FINAL-named manifests have un-                            aggregate.
-available membership and are not treated as independent                           The seed-mean reduction in geometry-reference trans-
-observations.                                                                  lation median is 7.439 mm. This is a change in error
-                                                                               statistics against a reconstructed reference, not mea-
-                                                                               sured insertion improvement. It cannot establish physical
-                                               V. Results
-                                                                               metrology accuracy independently of the image-label and
-A. Completed historical YOLO comparisons                                       reference-construction uncertainty.
-   Table II summarizes the original-pixel and geometry-
-reference measurements. Complete per-seed tables, extra                        B. Prior-derived comparison
-PCK thresholds, coverage, and uncertainty are supplied                            The prior checkpoints were fixed at the final training
-in the supplement. P changes the baseline pooled median                        update; only the wrapper rule was selected on synthetic
-from 6.616 to 5.905 pixels, a reduction of 0.711 pixels.                       data. The selected wrapper has lambda 1.000 and cap
-Its paired-session reduction interval is [0.411,1.174] pixels.                 fraction 0.01. Raw and wrapped outputs are separate
-PCK10 changes from 63.733% to 67.341%. These figures                           supplementary rows. All wrapped prior seeds retain the
-describe the present development panel only.                                   baseline matched supervision support, with no nonfinite
-   The P–D median difference is -0.525 pixels, with paired-                    supervised coordinates. The P–prior paired median differ-
-session interval [-0.980,-0.210]. This supports a lower                        ence is 0.336 px, with session interval [0.063, 0.585] px.
-INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                              7
+                                                                  y displacement / box diagonal
+preserves the exact baseline coordinates.
+                                                                                                  0.04
+B. Local candidate evidence
+                                                                                                  0.02
+   P adapts P3/P4 features with small learned channel
+projections. Around each valid corner, 13 directions and                                          0.00
+17 radii define 221 displacement candidates within 0.08                                           0.02
+predicted-box diagonal. A zero-displacement null can-
+didate completes the 222-way distribution. Each non-                                              0.04
+null candidate reads a 4 × 8 stencil from both feature                                            0.06
+scales using the registered bilinear sampling geometry.
+A shared patch encoder and corner-role/context features                                           0.08
+feed candidate and null scorers. No explicit edge or Hough                                               0.075 0.050 0.0250.000 0.025 0.050 0.075
+representation is required by P.                                                                              x displacement / box diagonal
+   Let db denote the predicted box diagonal in network-
+input pixels, vj the normalized candidate offsets, and zkj
+                                                                Fig. 2. The implemented candidate lattice and one actual sampling
+the score for corner k. For the frozen temperature T and        stencil in box-diagonal units. The blue stencil is shown at a fixed
+scale λ, the proposed displacement is                           candidate index, not selected for performance. The probability
+                                                                expectation in (1) combines candidate displacements; no illustrative
+                        ∑ exp(zkj /T )                          weights are presented as measured outputs. Geometry and source
+              δ k = λdb    ∑                 vj .       (1)     hashes are recorded in FIGURE_MANIFEST.json.
+                         j    l exp(zkl /T )
+
+The null candidate has vnull = 0. Given an original-image
+diagonal dI and frozen cap fraction α, movement and             not established an all-metric benefit in this configuration.
+restoration are                                                 Earlier Hough, active-adaptation, and replay investiga-
+                                                                tions are part of the research history, not new primary
+               ∆k = A−1 δ k ,                            (2)    comparisons in this manuscript. No unfavorable historical
+                                (         )
+               ¯ k = ∆k min 1, αdI
+               ∆                              ,          (3)
+                                                                outcome was deleted.
+                               ∥∆k ∥2                              For a supported corner with target residual rk , P’s
+               p′k = pk + ∆
+                          ¯ k,                           (4)    target mass is
+with unit scaling for a zero movement and no clipping                    exp[−∥db vj − rk ∥2 /(2σ 2 )]
+                                                                  qkj = ∑                              ,                                σ = 0.08db /17.
+                                                                          l exp[−∥db vl − rk ∥ /(2σ )]
+                                                                                              2      2
+when the selected cap is absent. Historical YOLO P retains
+its selected λ = 1, α = 0.01, and per-seed temperatures.                                                                 (5)
+DOPE uses the same source-only selection grid; its se-          Cross-entropy is averaged over supported corners within
+lected values are supplied with its own result records.         each frame and then over frames with support. This
+Unsupported points are unchanged; point 8 is copied             smooth finite-candidate target differs from D’s direct
+exactly. Detection boxes, confidences, candidate order,         residual L1 supervision. Its existing settings are retained,
+and nonselected points are preserved. These contracts do        not newly optimized here.
+not imply unchanged or always improved 6D geometry.
+                                                                D. Second fixed estimator: DOPE adapter
+C. Training and internal controls                                 The second application freezes an existing six-stage
+   P learns a soft distribution over candidate displacements    pallet DOPE checkpoint and changes the feature adapter
+from synthetic corner residuals. The finite target support      rather than the correction principle. The checkpoint is
+and per-frame reduction are retained from the fixed             identified by SHA-256 in the protocol; no DOPE weight
+implementation. The historical YOLO P, D, and L fits            is updated by the refiner fits. We use the existing
+each use their recorded three seeds and fixed exposure          semantic-channel local-peak decoder at threshold 0.3. This
+budget; those models are not retrained. YOLO P has              implementation does not run aﬀinity-based multi-object
+18,962 learned parameters. D reuses the same sampling           grouping. Its fixed box is the hull of at least three valid
+and shared feature descriptors, but regresses normalized        predicted corners, and its score is the maximum corner
+corner residuals with an L1 objective. The YOLO D               belief. Thus, this is an application to the declared single-
+instance has 19,450 parameters and an unbounded raw             pallet DOPE pipeline, not a reproduction of every original
+output, in contrast to P’s candidate convex hull. This is a     DOPE inference option or a detector-ranking experiment.
+comparison of readout/supervision packages, not a causal          The two frozen VGG taps are post-ReLU layers 17 and
+ablation of softmax alone.                                      26, with 256 channels at stride 4 and 128 at stride 8.
+   L is the historical line-structured internal control. Its    Learned projections map both to the same 16-channel evi-
+results are retained to show that explicit line structure has   dence interface used by P and D; the shared encoded width
+INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                         4
 
 
 
-                           TABLE III                              desktop BGR-to-2D and PnP-inclusive median times are
-      Desktop median latency in ms, representative seed1.         13.661 and 15.352 ms, compared with 9.733 and 11.217
-   Training/scoring excluded from timing; all repeats retained.
-                                                                  ms for R0 in the cited timing session. Allocator memory
-                                                                  is reported separately from whole-device memory, which
-          Model        BGR-to-2D        PnP      Total
-                                                                  also includes the display and other software. The tables
-          R0                  9.733    1.422    11.217            do not extrapolate to Jetson, report unmeasured energy
-          P1                 13.661    1.382    15.352
-          D1                 13.231    1.416    14.800            savings, or infer operational throughput from an isolated
-          L1                 18.226    1.399    19.736            cached tensor.
-          PRIOR1             27.537    1.470    29.020               The separate DOPE and ResNet18 seed-1 timing panels,
-                                                                  including all pose failures, full-path timings and coordinate
-                                                                  replay checks, are reported in the supplement. Their
-This interval favors the prior, so P is not the most accurate     baselines and feature extraction paths differ; historical
-comparator under this central-error criterion. A negative         YOLO timing is not a substitute for either measurement.
-contrast favors P; a positive contrast favors the prior.
-The complete-denominator PCK, tail and pose rows must
-be considered alongside the median. Six thousand updates          F. Independent confirmation
-per seed do not certify saturation or reproduce the original         Not yet measured: no independently reviewed cap-
-140-epoch protocol.                                               ture/annotation panel is available. The proposed collec-
-                                                                  tion count is a plan, not a completed experiment. De-
-C. Second-estimator development evidence                          velopment observations are not relabeled as confirmation
-  DOPE source training/evaluation results have not been           results.
-inserted. No DOPE accuracy, coverage, pose benefit, pa-
-rameter count or measured latency is claimed in this draft.                   VI. Limitations and Interpretation
-DOPE measurement status: pending. The reserved result
-table will contain baseline DOPE and three-seed D/P                  First, the primary development improvement is con-
-statistics, with matched counts, all-GT PCK and pose cov-         ditional on matched supervision and on a historically
-erage. No zero or historical YOLO value represents an un-         selected model family. Complete-denominator PCK limits
-measured DOPE result. The supplement reports the full             one failure mode of optimistic reporting, but does not turn
-per-seed table, paired intervals, source-heldout statistics       reused DEV into a confirmation set. The session intervals
-and selected wrappers. Within DOPE, central residuals,            condition on only thirteen observed sessions and three
-complete-denominator accuracy, tails, and pose coverage           trained seeds; they do not quantify every deployment shift.
-are separate outcomes. A lower conditional median alone              Second, the comparison contracts differ in useful ways
-cannot establish a net sensing improvement when missing           that must remain visible. P reads internal R0 features;
-predictions remain. Across estimators, unequal baseline           the PoseFix-derived prior computes a separate RGB
-errors, boxes, features, and upstream training prevent a          representation and adds ImageNet pretraining. D has a
-causal attribution to backbone identity. Any favorable            different output support and loss. Equal source exposure is
-DOPE effect supports this fixed application only; a null          not equal compute or equal optimization diﬀiculty. None
-or adverse result remains part of the same experiment.            of these comparisons identifies a universal architectural
-                                                                  optimum. Bounded prior learning curves diagnose progress
-                                                                  but cannot certify full convergence.
-D. Third-estimator development evidence
-                                                                     Third, current pose errors are measured against a
-  ResNet18 baseline completion and before/after mea-              geometry-reconstructed reference. Annotation ambiguity,
-surements remain pending. ResNet18 measurement status:            calibration, object dimensions, and reference construction
-pending. The reserved result table will contain baseline          can affect interpretation. Independently blinded duplicate
-ResNet18 and three-seed D/P statistics, with matched              labels and reviewed capture lineage are required for
-counts, all-GT PCK and pose coverage. No zero or his-             new confirmation; physical 6D accuracy would require
-torical YOLO value represents an unmeasured ResNet18              additional metrology. Neither preserved detections nor
-result. The supplement retains all seven arms, paired             improved median error guarantees harmless tails, correct
-intervals, source evidence, the complete baseline learning        pallet axes, or safe handling.
-curve and actual timing. Cross-estimator comparisons                 Finally, each application is tied to a declared frozen fea-
-remain descriptive because their baseline training and            ture interface and a desktop environment. The DOPE ap-
-matched supports differ.                                          plication requires its own channel/stride adapter, missing-
-                                                                  point policy, new head fits, and decoder audit; it is
-E. Eﬀiciency and accuracy–cost tradeoffs                          not plug-and-play evidence for an arbitrary estimator.
-  The expanded panel was measured in the same session             Reusing DEV for the second application does not create
-for all comparators.                                              independent confirmation. Embedded export parity and
-  P’s selected seed1 is the prespecified deployment repre-        Jetson latency are not measured. The work provides an
-sentative; it must not be confused with the seed mean. Its        auditable sensing experiment, not a demonstrated control
-INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                        8
+is 24. The candidate lattice, stencil geometry, corner order-   CONSTANT supplies zeros. Epoch 10 is fixed using no
+ing, null candidate, losses, and displacement restoration       real-image selection. After FULL is frozen, D0 and P0 read
+remain as specified above. Input-channel counts change          layer2/layer3 features (128/stride8 and 256/stride16). P0
+the number of learned parameters; the YOLO count is             is the primary third-backbone application of the same
+not assigned to the DOPE heads. A matched-evidence D            222-candidate local distribution readout; D0 is its direct-
+control is trained for each DOPE seed. L and the separate       residual control. P5 adds a zero-initialized dimension-
+PoseFix-derived comparator are historical YOLO controls         conditioned logit residual, while P5_CONSTANT keeps
+and are not silently presented as new DOPE experiments.         the identical structure but zeros that context. Every head
+   The fixed adapter applies reflection padding of 100          is independently initialized; no YOLO or DOPE head is
+pixels to native real RGB, resizes the padded canvas            a warm start.
+back to the native size, then uses the recorded shortest-
+side-400, multiple-of-eight raster. Synthetic source RGB        F. Purpose-adapted prior comparator
+already contains this reflection preparation and receives          The historical YOLO prior uses the oﬀicial PoseFix
+no second padding. The exact composed aﬀine, including          ResNet152 arrangement, an aspect-corrected and 1.25-
+actual raster widths and heights, maps predictions back         expanded predicted-box RGB crop of 384 × 288, and nine
+to the caller’s coordinates. Training retains the source        Gaussian input pose maps. It adds ImageNet TF-Slim
+preparation; DEV restores unpadded original pixels before       initialization, masks center loss and restores the original
+measurement. The inference preprocessing and normaliza-         center. Human swap/inversion noise is replaced by actual
+tion are checked against the selected existing inference        frozen source-detector errors. Operator and training parity
+path, not claimed to be byte-identical to the original          checks for the source-based PyTorch port, including the
+augmented DOPE training pipeline.                               effective fused-BN epsilon and target-boundary handling,
+   Predicted missing points stay missing. P and D cannot        are detailed in the supplement.
+create a previously absent corner, change the fixed hull           Its declared budget is three seeds of 6,000 Adam
+or score, or replace the center landmark. A point without       updates at batch 16 in the exact historical P sample
+the required feature support is copied rather than supplied     order, using the final checkpoint. This is a matched-
+with a target-derived value. These invariants isolate local     exposure adaptation rather than the original 140-epoch
+refinement but also bound what it can repair: low coverage      human-pose protocol or a claim of convergence. All three
+cannot be hidden by reporting only an accurate surviving        matched-budget fits were completed; the learning curves
+subset. Camera intrinsics and physical dimensions remain        are diagnostic, not a best-checkpoint selector.
+exclusive to downstream PnP.
+                                                                G. Downstream geometric measurement
+E. Third application: full-image ResNet18                          The unchanged prediction-only selector uses the reg-
+   The third estimator is a full-image pallet adapta-           istered camera intrinsics and physical pallet dimensions
+tion of Simple Baselines[8], using an ImageNet-initialized      to select its dimension hypothesis. The selected cuboid
+ResNet18 body, three 256-channel stride-two deconvolu-          is solved using the canonical SQPnP/RefineLM path.
+tions, and nine stride-four spatial distributions. It uses      Intrinsics are never neural inputs. Dimensions are not
+no YOLO detection or ground-truth crop. Prepared RGB            neural inputs to the historical YOLO/DOPE P/D heads
+is aspect-fitted to 384 × 512 with centered letterboxing        or ResNet18 P0/D0, but they are inputs to the ResNet18
+and ImageNet FP32 normalization. A spatial softmax              FULL estimator and its separate P5 head extension.
+expectation decodes all nine landmarks. The objective           Ground truth does not choose the prediction’s most
+is normalized Gaussian spatial cross-entropy weighted           favorable pose hypothesis. Current reference poses are
+by 0.1 plus smooth-L1 coordinate loss; this replaces the        reconstructed from manual image points and known geom-
+earlier unusable masked-MSE pilot and is the only ResNet        etry, rather than obtained from an independent physical
+baseline used in the reported results.                          6D instrument. Near-square axis confusion is not newly
+   Canonical (W, D, H) is converted to five TRAIN-              excused by adding a symmetry minimization.
+normalized √  log values: log W , log D, log H, log(W/D)
+                                                                        IV. Datasets and Measurement Protocol
+and log(H/ W D). FULL applies all five through a
+decoder FiLM block, SHAPE keeps the two ratios, and             A. Source exposure and rule selection
+CONSTANT supplies zeros through the same architecture.             For historical YOLO, the source manifest contains
+The completed direct-estimator study trains CONSTANT,           55,980 training records, with 55,915 usable matched train-
+SHAPE and FULL arms for a fixed 10 epochs on                    ing rows, and calibration/selection/heldout partitions of
+55,980 synthetic TRAIN images (34,990 updates and               1,004/1,031/1,985 records. Source images, labels, row or-
+559,800 exposures per arm). All share seed 42, ImageNet         der, and completed model choices are hash-bound. Actual
+ResNet18 initialization, identical source order and photo-      RGB crops, rather than guessed images reconstructed
+metric augmentation. FULL supplies    √ normalized log W ,      from cached features, are used for the prior backbone.
+log D, log H, log(W/D) and log(H/ W D) to a decoder             Synthetic source subsets are historically reused and are
+FiLM block; SHAPE keeps only the two ratios and                 not described as universally untouched data.
+INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                             5
 
 
 
-system. The author team must assess whether the re-                     [7] J.   O.    Zhang,    A.    Sax, A.    Zamir,     L.    Guibas,
-maining independent evidence and scientific contribution                    and J. Malik, “Side-tuning: A baseline for network
-                                                                            adaptation via additive side networks,” in European
-are suﬀicient for submission; compilation and formatting                    Conference on Computer Vision, 2020, pp. 698–714.
-checks are not an acceptance decision.                                      [Online]. Available: https://www.ecva.net/papers/eccv_2020/
-                                                                            papers_ECCV/html/1104_ECCV_2020_paper.php
-                                                                        [8] B. Xiao, H. Wu, and Y. Wei, “Simple baselines for human
-                      VII. Conclusion                                       pose estimation and tracking,” in European Conference on
-   The completed YOLO application of a fixed feature-                       Computer Vision, 2018, pp. 466–481. [Online]. Available: https:
-                                                                            //www.ecva.net/papers/eccv_2018/papers_ECCV/html/Bin_
-reusing point refiner improves the central landmark resid-                  Xiao_Simple_Baselines_for_ECCV_2018_paper.php
-ual on the reused pallet development panel with a mea-
-sured desktop cost. The preserved detection interface,
-failure-aware denominators, internal controls, and source-
-derived prior comparison make the scope of this claim
-explicit. The source-derived prior comparison quantifies a
-fixed-budget tradeoff, not converged-method superiority.
-Independent real-session confirmation remains required.
-The DOPE application remains unresolved; the histor-
-ical YOLO result is not evidence of its outcome. The
-required ResNet18 application remains unresolved; neither
-a completed interface nor results from another estimator
-establish its outcome. Further claims about independent
-generalization, physical sensing accuracy, or operational
-success require the corresponding evidence rather than a
-more favorable presentation of development numbers.
+                            TABLE I                                the inclusive 0–60 loop, whereas YOLO uses its selected
+   Added inference inputs. All added heads use zero real-pallet    best.pt. Shared source imagery and matched P/D head
+    training examples. Dimensions are a neural input only for
+         ResNet18 FULL and the separate P5 extension.              exposure do not establish equal baseline optimization,
+                                                                   augmentation, pretraining, or compute. The supplement
+  Method        Added inference input            Added pretrain-   records this distinction alongside the source and check-
+                                                 ing
+                                                                   point hashes.
+  R0            none                             none
+  P/D/L         R0 P3/P4, pose/box               none
+  Prior         RGB crop, pose/box               ImageNet
+                                                 classes           C. Fixed ResNet18 source budget and selection
+  DOPE P/D    VGG taps, pose/box                 none
+  ResNet FULL RGB, five dimensions               ImageNet            CONSTANT, SHAPE and FULL each train for the fixed
+                                                 classes           10 epochs on all 55,980 synthetic TRAIN images, batch 16,
+  ResNet P0/D0 FULL layer2/3, pose/box           none
+  ResNet P5    P0 evidence, five dimensions      none              for 34,990 updates and 559,800 image exposures. The three
+                                                                   arms share initialization, source order and augmentation;
+                                                                   only the dimension mask changes. Adam starts at 10−3
+  The prior shares the existing synthetic-only lambda/cap          with zero weight decay and factor-ten drops at epochs
+grid, objective, and tie rule. Coordinate outputs do not           7 and 9. Synthetic calibration is monitored after each
+receive a fabricated temperature sweep. Raw prior and              epoch, but epoch 10 is fixed and no real result selects
+capped-wrapper results are reported separately. Heldout            the checkpoint.
+results are computed after selection; DEV does not choose            FULL           is        then        frozen.        Each
+the checkpoint, learning rate, noise model, or wrapper.            D0/P0/P5/P5_CONSTANT head trains for 6,000
+The historical model panel is frozen before any indepen-           AdamW updates at batch 16 in each of three seeds, using
+dent confirmation annotations may be opened; the DOPE              55,804 usable TRAIN rows and identical within-seed
+extension also freezes source-selected rules before its DEV        order. Calibration temperature and movement rules
+replay.                                                            are fixed on synthetic calibration/selection, and source
+                                                                   heldout is opened afterward. P0 is the transfer experiment
+B. Fixed DOPE source budget and selection                          used for the third-backbone claim. P5 is a separate input
+   DOPE uses the same 60,000-record synthetic RGB                  extension; comparing P5 with P5_CONSTANT isolates
+source manifest: 55,980 training, 1,004 calibration, 1,031         the incremental five-value input to that head, while
+selection, and 1,985 heldout records. A usable training            P5–P0 also changes path and capacity.
+row needs the frozen predicted hull to meet IoU 0.5 with
+the source object and at least one jointly valid corner.
+                                                                   D. Development population and supervision
+Its usable count is estimator-specific and must not inherit
+the historical YOLO count. Each of three seeds trains a               The historical YOLO positive development panel has
+fresh P and a fresh D for exactly 6,000 AdamW updates              319 images in 13 recorded sessions; 2689 negative im-
+of nominal batch 16. Within a seed they share the exact            ages accompany the detection-preservation audit. In that
+row sequence and frozen feature evidence, giving 96,000            historical panel there are 311 matched positive frames
+nominal source exposures per head. Cross-estimator usable          and 2,756 supervised points for conditional precision,
+rows need not coincide. Frozen VGG prefixes run online;            versus 2,818 supervised points in the complete ground-
+the DOPE stage heads are not rerun inside these training           truth denominator. Point supervision is the original label
+steps. Feature maps use the original FP16 roundtrip, with          contract and is not renamed as measured physical vis-
+FP32 heads and no mixed-precision head training.                   ibility. Visible boundaries, inferred amodal corners, and
+   The learning-rate, warmup, decay, gradient clipping,            unavailable landmarks require distinct interpretation in
+and final-checkpoint rule are fixed in advance; no DEV-            new annotation QA.
+based early stopping or architectural sweep is allowed. A             The DOPE extension reuses the identical 319 positive
+discarded two-update smoke check is a separate implemen-           images and 2,818 supervised points, but reports its own
+tation check, not a seventh reported fit or a warm start. P        matched and missing counts. Canonical conditional preci-
+temperature is selected on the calibration partition from          sion requires the fixed box match and all nine predicted
+{0.5, 1, 2, 4} using supported-frame target cross-entropy.         points finite; a separate partial-point diagnostic cannot
+D has no temperature selection. Each family selects one            replace it. P and D preserve this baseline support within
+three-seed mean rule on the selection partition from               DOPE, without requiring equal support across estimators.
+λ ∈ {0, 0.0625, 0.25, 1, 4} and cap fractions {none, 0.01}.        There is no new DOPE negative-image/AP experiment.
+The fixed tie rule favors smaller λ and then the stricter             ResNet18 also reuses these 319 images and 2,818 land-
+cap. Missing source supervision contributes the declared           marks. Its full-image direct estimator always emits one
+failure penalty; no real image chooses a wrapper. Heldout          nine-point pallet hypothesis, so predicted-hull matching
+measurements follow rule freezing and remain historically          is not detector recall. The primary refiner evaluation fixes
+reused source data.                                                FULL support at 299 matched frames and retains all 319
+   The baseline-training budgets are not matched: the              rows for PCK and pose coverage. Plastic and wood are
+DOPE checkpoint ending in epoch 0060 was produced by               reported separately. Wood 0.80 × 0.59 × 0.14 m has depth
+INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                             6
+
+
+
+below the synthetic TRAIN minimum and is dimension-
+support extrapolation. GREEN150 and the 0918 set of                                           6.6                                   R0
+119 square pallets are 2D-only development panels whose                                                                             P
+                                                                                                                                    D
+
+
+
+
+                                                               DEV pooled median error (px)
+registered dimensions are fixed at 1.10 × 1.10 × 0.15 m                                       6.4                                   L
+within each set.                                                                                                                    PRIOR
+  The primary statistic pools supervised original-pixel                                       6.2
+Euclidean errors within each model seed, computes its
+median, and then averages the three seed statistics. It is
+neither an ensemble prediction nor the average of frame
+                                                                                              6.0
+medians. Its conditional precision denominator excludes
+unmatched frames, which is why complete-denominator                                           5.8
+PCK is also required. For threshold t,
+                           ∑                                                                  5.6
+                              i,k hik (t)
+                   PCKt =                 ,           (6)
+                               NGT                                                                  12.5 15.0 17.5 20.0 22.5 25.0 27.5 30.0
+                                                                                                        BGR-to-pose median latency (ms)
+where missing predictions, unmatched top instances, and
+nonfinite points contribute zero hits, not zero error.
+                                                               Fig. 3. Historical YOLO per-seed DEV median against same-session
+Matching remains at the registered box IoU threshold.          median full-path latency. Lower is preferable on both axes. Each
+If any support differs, an intersection-only median cannot     seed is a point, not a timing-selected winner or ensemble; separate-
+replace this failure-aware report. In the DOPE extension a     backbone prior cost is included. Source result/runtime hashes are
+                                                               recorded in FIGURE_MANIFEST.json.
+conditional paired interval is not computed when its per-
+frame support differs; the mismatch is reported alongside
+full-denominator PCK and pose coverage.                        F. Cost and independent confirmation
+   Registered object sizes and the per-annotation camera
+                                                                  The expanded panel was measured in the same session
+intrinsics are tabulated in the supplement. They are
+                                                               for all comparators.
+inputs to this geometry-reference evaluation, not newly
+                                                                  The integrated desktop timing starts from the same
+certified metrology. The canonical solver uses no distortion
+                                                               26 native decoded BGR image bytes for every esti-
+coeﬀicients; independent camera calibration uncertainty is
+                                                               mator. It includes each model’s preprocessing, 2D in-
+not established by these annotation records. The declared
+                                                               ference/refinement and restoration; canonical prediction-
+long-axis benchmark admits a half turn but not a quarter
+                                                               only PnP is measured separately and also included in
+turn. In particular, the wood object’s visual symmetry
+                                                               the full path. Loading and file decoding are excluded.
+under a half turn is unverified. Such conventions do not
+                                                               Every arm uses batch one, 20 warmups and five balanced
+establish physical fork-entry interchangeability.
+                                                               cyclic/reversed repeats with Torch intra/inter-op and
+                                                               OpenCV threads fixed to one. Seed 1 is the prespecified
+E. Uncertainty and pose metrics                                learned-head representative. All 1,170 measured rows are
+                                                               retained, including DOPE pose failures; no fastest repeat
+   We use 10,000 paired session bootstrap draws with seed      is selected. Saved coordinate and pose replays bound
+20260914, applying each draw’s frame/session multiplic-        maximum differences to 2.65 × 10−4 pixels and 2 × 10−4
+ities to every model seed. The P–R0 statistic compares         in recorded pose metrics. This desktop RTX 3080 panel
+against one baseline, not three copies treated as inde-        does not estimate Jetson latency, energy, concurrent
+pendent models. P–D and P–prior are secondary develop-         throughput or training cost.
+ment contrasts. Secondary intervals are not multiplicity-         Independent confirmation is awaiting new data. The
+adjusted and are not confirmatory superiority, equiva-         collection plan starts with 12 separate sessions and 15
+lence, or noninferiority tests. The reused development data    prespecified frames per session, with at least 30 frames
+cannot be made independent by specifying this protocol         independently double annotated before blind adjudication.
+after previous analyses.                                       This is not a power guarantee. Predictions are hidden
+   Rotation, yaw, translation, 3D IoU, and proper-group        during annotation and the full panel must be frozen before
+C2-aware corresponding-point ADD AUC are evaluated             evaluation. Existing FINAL-named manifests have un-
+under the existing geometry-reference convention. The          available membership and are not treated as independent
+ADD metric is not unrestricted nearest-neighbor ADD-           observations.
+S. Pose coverage and 2D matching are different denom-
+inators: a solver can return a pose from an incorrectly                                                       V. Results
+matched top detection. Translation-error changes in cen-
+timeters can be expressed in millimeters, but a pixel          A. Completed historical YOLO comparisons
+reduction cannot be converted to one universal millimeter         Table II summarizes the original-pixel and geometry-
+gain. No insertion trials or independently instrumented        reference measurements. Complete per-seed tables, extra
+physical pose measurements are included.                       PCK thresholds, coverage, and uncertainty are supplied
+INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                                     7
+
+
+
+                            TABLE II                                                      B. Prior-derived comparison
+Reused DEV: seed-mean statistics, not an ensemble. Translation is
+ against the geometry reference. NM means not measured in this                               The prior checkpoints were fixed at the final training
+                              build.                                                      update; only the wrapper rule was selected on synthetic
+                                                                                          data. The selected wrapper has lambda 1.000 and cap
+        Model                Median                 P90          PCK10           Trans.   fraction 0.01. Raw and wrapped outputs are separate
+                                 px                  px             %               cm
+                                                                                          supplementary rows. All wrapped prior seeds retain the
+        R0                       6.616         38.670                63.73        7.897   baseline matched supervision support, with no nonfinite
+        P mean                   5.905         37.766                67.34        7.153
+                                                                                          supervised coordinates. The P–prior paired median differ-
+        D mean                   6.430         37.566                64.57        7.597
+        L mean                   6.070         37.320                66.78        7.548   ence is 0.336 px, with session interval [0.063, 0.585] px.
+        PRIOR mean               5.569         37.227                68.41        6.895   This interval favors the prior, so P is not the most accurate
+                                                                                          comparator under this central-error criterion. A negative
+                                                                                          contrast favors P; a positive contrast favors the prior.
+                           All observed development sessions; negative favors P
+                                                                                          The complete-denominator PCK, tail and pose rows must
+  wood_night_01
+                                                                                          be considered alongside the median. Six thousand updates
+   wood_day_01                                                                            per seed do not certify saturation or reproduce the original
+   wood_184309
+   wood_183705                                                                            140-epoch protocol.
+ plastic_night_01
+  plastic_day_01
+   eval_pallet09
+   eval_pallet07                                                                          C. Second-estimator development evidence
+    eval_outside
+     eval_noapril
+    eval_night09
+                                                                                            For frozen DOPE on reused DEV, the conditional
+    eval_night08                                                                          keypoint median is 12.585 pixels before refinement and
+        eval_cad
+                                                                                          7.461 pixels for the mean of three P seed statistics; full-GT
+                    −2.0             −1.5              −1.0               −0.5      0.0
+                                  P − R0 pooled median error (px), seed mean              PCK10 is 19.872 and 36.775 percent, respectively. The ta-
+                                                                                          bles retain missing predictions and unfavorable outcomes.
+Fig. 4. P–R0 development median effects by recorded session.                               The supplement reports the full per-seed table, paired
+Negative values favor P. These are descriptive effects from the
+reused panel, not independent confirmation intervals. All sessions
+                                                                                          intervals, source-heldout statistics and selected wrappers.
+are retained.                                                                             Within DOPE, central residuals, complete-denominator
+                                                                                          accuracy, tails, and pose coverage are separate outcomes.
+                                                                                          A lower conditional median alone cannot establish a net
+                                                                                          sensing improvement when missing predictions remain.
+in the supplement. P changes the baseline pooled median                                   Across estimators, unequal baseline errors, boxes, features,
+from 6.616 to 5.905 pixels, a reduction of 0.711 pixels.                                  and upstream training prevent a causal attribution to
+Its paired-session reduction interval is [0.411,1.174] pixels.                            backbone identity. Any favorable DOPE effect supports
+PCK10 changes from 63.733% to 67.341%. These figures                                      this fixed application only; a null or adverse result remains
+describe the present development panel only.                                              part of the same experiment.
+  The P–D median difference is -0.525 pixels, with paired-
+session interval [-0.980,-0.210]. This supports a lower                                   D. Third-estimator development evidence
+central development residual for P than this fixed direct
+control. It does not prove that direct regression as a                                      The ResNet18 FULL estimator and all twelve
+method class is inferior. D has a slightly lower observed                                 D0/P0/P5/P5_CONSTANT head fits completed. P0 is
+P90, and the P–D tail interval includes zero. D also has                                  the primary third-backbone transfer arm; it improves
+lower measured desktop latency. There is therefore no all-                                central 2D development error and PCK10, while its
+metric dominance claim. The internal line control also has                                translation interval includes zero. P5 is reported only
+a lower observed P90 than P.                                                              as a separate dimension-conditioned-head extension be-
+                                                                                          cause P5–P5_CONSTANT does not establish stable joint
+   Figure 4 retains every recorded session. The                                           2D/T/R improvement. For primary P0–FULL, the paired
+eval_noapril session has an adverse P–R0 central                                          session-bootstrap change in conditional median is −0.859
+effect; the other twelve observed sessions improve. Leave-                                pixels [95% CI −1.318, −0.621] and PCK10 changes by
+one-session-out estimates remain favorable in this panel,                                 +3.596 percentage points [2.515, 4.986]. Canonical MAIN
+but such deletion diagnostics are not new independent                                     camera-facing-frame C2 rotation changes by −0.234◦
+datasets. No unfavorable session is removed from the                                      [−0.502, −0.022], while translation changes by −1.007 cm
+aggregate.                                                                                [−1.668, 0.187] and therefore retains zero in its interval.
+   The seed-mean reduction in geometry-reference trans-                                   Figure 5 shows all three primary and dimension-extension
+lation median is 7.439 mm. This is a change in error                                      point estimates; individual seeds and intervals are in the
+statistics against a reconstructed reference, not mea-                                    supplement.
+sured insertion improvement. It cannot establish physical                                   The separate direct-input ablation, scored in its
+metrology accuracy independently of the image-label and                                   physical-frame proper-group convention, does not show
+reference-construction uncertainty.                                                       stable dimension benefit: FULL versus CONSTANT
+INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                                                                                                                   8
+
+
+
+                                                               TABLE III
+      New fixed DOPE application on reused DEV. D/P rows average three per-seed statistics, not predictions. Keypoint medians are
+    conditional; PCK retains 2818 GT points. Pose medians are geometry-reference errors on available fits; coverage uses319 frames. No
+                                        cross-estimator equality of matched support is assumed.
+
+                                             Arm                                                      Med. px                   P90 px                        PCK10 %           Match/319     T cm     R deg     Pose %
+                                             DOPE                                                        12.585                   50.609                              19.872          190.0   10.046     3.441   65.831
+                                             DOPE+D mean                                                  7.867                   48.487                              36.054          190.0    8.323     3.018   65.831
+                                             DOPE+P mean                                                  7.461                   50.713                              36.775          190.0    8.529     2.884   65.831
+
+
+                                                                   TABLE IV
+     Primary ResNet18 frozen-estimator transfer on reused DEV319. FULL is the dimension-conditioned direct estimator; D0 and P0 are
+     means of three per-seed statistics, not prediction ensembles. P0 is the primary local-refinement arm and has no additional dimension
+    input. Conditional 2D errors require the fixed baseline hull match; PCK10 retains all 2,818 supervised landmarks. Pose errors use the
+     reconstructed geometry reference, R is canonical MAIN camera-facing-frame C2 rotation, and all arms have 319/319 solver coverage.
+
+                       Arm                                              Med. px                         P90 px                   PCK10 %                              Match/319      T cm     R-C2 deg     C2-aware ADD AUC
+                       FULL baseline                                             8.001                     52.054                                 54.68                        299   11.007      3.252                    0.31296
+                       D0 mean                                                   7.852                     51.928                                 55.26                        299    9.837      3.218                    0.32604
+                       P0 mean                                                   7.143                     52.086                                 58.28                        299   10.001      3.018                    0.34219
+
+
+                                                     Frozen FULL ResNet18 and correction heads on reused DEV319
+            Conditional corner median (px)
+                                                    Correction bars are means of three seed statistics, not ensembles
+                                                                       Conditional corner P90 (px)                                 ALL-GT PCK10 (%)
+                                                                                                                                                                         F. Independent confirmation
+     8.00       7.85                                          52.05      51.93     52.09      51.84     51.85     60                      58.28       58.62   58.45
+8
+7
+                          7.14      7.05     7.12     50
+                                                                                                                  50
+                                                                                                                        54.68   55.26
+                                                                                                                                                                            Not yet measured: no independently reviewed cap-
+6
+5
+                                                      40
+                                                                                                                  40                                                     ture/annotation panel is available. The proposed collec-
+                                                      30
+4
+                                                      20
+                                                                                                                  30
+                                                                                                                                                                         tion count is a plan, not a completed experiment. De-
+3                                                                                                                 20
+2
+                                                      10                                                          10
+                                                                                                                                                                         velopment observations are not relabeled as confirmation
+1
+0
+                D0
+                                                       0
+                                                                          D0
+                                                                                                                   0
+                                                                                                                                 D0
+                                                                                                                                                                         results.
+     FULL                  P0        P5      P5-C             FULL                  P0         P5        P5-C           FULL               P0          P5     P5-C
+
+
+
+
+Fig. 5. ResNet18 FULL and correction-head results on reused                                                                                                                            VI. Limitations and Interpretation
+DEV319. D0/P0/P5/P5-C bars are means of three seed statistics;
+circles show individual seeds. P0 is the primary third-backbone trans-                                                                                                      First, the primary development improvement is con-
+fer arm, while P5/P5-C are the separate dimension-input extension.                                                                                                       ditional on matched supervision and on a historically
+                                                                                                                                                                         selected model family. Complete-denominator PCK limits
+                                                                                                                                                                         one failure mode of optimistic reporting, but does not turn
+changes DEV median by −0.210 pixels, reconstructed-                                                                                                                      reused DEV into a confirmation set. The session intervals
+reference translation by +1.269 cm and rotation by                                                                                                                       condition on only thirteen observed sessions and three
+−0.760◦ . The canonical correction-head comparison                                                                                                                       trained seeds; they do not quantify every deployment shift.
+P5–P5_CONSTANT is likewise small: −0.074 pixels                                                                                                                             Second, the comparison contracts differ in useful ways
+[−0.116, 0.019], −0.071 cm [−0.115, 0.071] and −0.027◦                                                                                                                   that must remain visible. P reads internal R0 features;
+[−0.067, 0.025]. Square-set improvements are transfer ob-                                                                                                                the PoseFix-derived prior computes a separate RGB
+servations under a constant dimension vector, not evidence                                                                                                               representation and adds ImageNet pretraining. D has a
+that frame-varying dimensions caused the change. Direct                                                                                                                  different output support and loss. Equal source exposure is
+physical-frame pose values and canonical refiner pose                                                                                                                    not equal compute or equal optimization diﬀiculty. None
+values are not cross-copied. Cross-estimator comparisons                                                                                                                 of these comparisons identifies a universal architectural
+remain descriptive because baseline training, boxes and                                                                                                                  optimum. Bounded prior learning curves diagnose progress
+support differ.                                                                                                                                                          but cannot certify full convergence.
+                                                                                                                                                                            Third, current pose errors are measured against a
+E. Eﬀiciency and accuracy–cost tradeoffs                                                                                                                                 geometry-reconstructed reference. Annotation ambiguity,
+  The expanded panel was measured in the same session                                                                                                                    calibration, object dimensions, and reference construction
+for all comparators.                                                                                                                                                     can affect interpretation. Independently blinded duplicate
+  Seed 1 is the prespecified deployment representative                                                                                                                   labels and reviewed capture lineage are required for
+and must not be confused with the three-seed accuracy                                                                                                                    new confirmation; physical 6D accuracy would require
+means. In the integrated panel, median full-path time                                                                                                                    additional metrology. Neither preserved detections nor
+changes from 11.092 to 14.779 ms for YOLO, 64.585 to                                                                                                                     improved median error guarantees harmless tails, correct
+67.411 ms for DOPE, and 9.453 to 12.193 ms for ResNet18                                                                                                                  pallet axes, or safe handling.
+FULL+P0. These are measured within-estimator costs.                                                                                                                         Finally, each application is tied to a declared frozen
+Baseline rankings also reflect different architectures, pre-                                                                                                             feature interface and a desktop environment. DOPE and
+processing and training; they do not causally rank back-                                                                                                                 ResNet18 require their own channel/stride adapters, de-
+bone quality or extrapolate to embedded hardware.                                                                                                                        coders, support rules and new head fits; three completed
+INTERNAL REVISION FOR AUTHOR REVIEW, OCTOBER 2026                                                                                      9
+
+
+
+                                                              TABLE V
+Integrated same-image desktop latency (ms), representative seed 1 for learned heads. All methods use the same 26 decoded BGR images,
+   batch one, 20 warmups and five retained repeats. Loading and decoding are excluded; model-specific preprocessing, 2D output and
+                                             canonical prediction-only PnP are included.
+
+                                 Method               2D med.     2D P90     Full med.     Full P90
+                                 YOLO R0                 9.554     11.594       11.092       13.184
+                                 YOLO+P1                13.174     15.468       14.779       16.959
+                                 DOPE                   62.894     76.766       64.585       78.870
+                                 DOPE+P1                66.291     80.003       67.411       81.361
+                                 ResNet18 FULL           7.835     10.432        9.453       12.146
+                                 ResNet18+P0-S1         10.520     13.565       12.193       14.982
+
+
+
+applications still do not prove arbitrary-backbone transfer.       procedure is documented separately. Author names, aﬀili-
+The ResNet dimension results are also bounded: wood                ations, ORCID identifiers, funding, conflicts, related prior
+is outside source dimension support, both square sets              publications, AI-use disclosure, and submission consent
+hold dimensions constant, and neither direct FULL–                 remain for the actual author team to confirm. This internal
+CONSTANT nor P5–P5_CONSTANT establishes stable                     draft has not been submitted.
+joint 2D/T/R improvement. Reusing DEV for all three
+applications does not create independent confirmation.                                         References
+Embedded export parity and Jetson latency are not mea-             [1] M. Knitt, J. Schyga, A. Adamanov, J. Hinckeldeyn, and
+sured. The work provides an auditable sensing experiment,              J. Kreutzfeldt, “Estimating the pose of a euro pallet with an RGB
+not a demonstrated control system. The author team                     camera based on synthetic training data,” Logistics Journal:
+                                                                       Proceedings, no. 18, 2022.
+must assess whether the remaining independent evidence             [2] J. Tremblay, T. To, B. Sundaralingam, Y. Xiang, D. Fox, and
+and scientific contribution are suﬀicient for submission;              S. Birchfield, “Deep object pose estimation for semantic robotic
+compilation and formatting checks are not an acceptance                grasping of household objects,” in Conference on Robot Learning,
+                                                                       2018. [Online]. Available: https://arxiv.org/abs/1809.10790
+decision.                                                          [3] A. Miura, H. Uchiyama, M. Yamaguchi, N. Kai, T. Shiroshima,
+                                                                       and H. Saito, “Real-time 6DoF pallet pose estimation with
+                      VII. Conclusion                                  monocular metric depth,” in International Conference on
+                                                                       Computer Vision Theory and Applications, vol. 2, 2026,
+   The completed YOLO application of a fixed feature-                  pp. 149–161. [Online]. Available: https://www.scitepress.org/
+reusing point refiner improves the central landmark resid-             PublishedPapers/2026/146268/
+                                                                   [4] G. Moon, J. Y. Chang, and K. M. Lee, “PoseFix: Model-
+ual on the reused pallet development panel with a mea-                 agnostic general human pose refinement network,” in IEEE/CVF
+sured desktop cost. The preserved detection interface,                 Conference on Computer Vision and Pattern Recognition, 2019,
+failure-aware denominators, internal controls, and source-             pp. 7773–7781.
+                                                                   [5] X. Sun, B. Xiao, F. Wei, S. Liang, and Y. Wei, “Integral human
+derived prior comparison make the scope of this claim                  pose regression,” in European Conference on Computer Vision,
+explicit. The source-derived prior comparison quantifies a             2018, pp. 536–553.
+fixed-budget tradeoff, not converged-method superiority.           [6] P. Castro and T.-K. Kim, “CRT-6D: Fast 6D object
+                                                                       pose estimation with cascaded refinement transformers,” in
+Independent real-session confirmation remains required.                IEEE/CVF Winter Conference on Applications of Computer
+The DOPE measurements describe one additional fixed                    Vision, 2023, pp. 5735–5744. [Online]. Available: https:
+application; they do not establish arbitrary-backbone                  //arxiv.org/abs/2210.11718
+                                                                   [7] J.   O.     Zhang,    A.    Sax,    A.     Zamir,     L.   Guibas,
+transfer, independent TEST generalization or stable phys-              and J. Malik, “Side-tuning: A baseline for network
+ical T/R improvement. A third frozen feature interface                 adaptation via additive side networks,” in European
+supports the primary P0 refinement result on reused DEV,               Conference on Computer Vision, 2020, pp. 698–714.
+                                                                       [Online]. Available: https://www.ecva.net/papers/eccv_2020/
+but the separate P5–P5_CONSTANT comparison does                        papers_ECCV/html/1104_ECCV_2020_paper.php
+not establish a robust incremental benefit from dimensions         [8] B. Xiao, H. Wu, and Y. Wei, “Simple baselines for human
+or stable physical T/R improvement. Further claims about               pose estimation and tracking,” in European Conference on
+                                                                       Computer Vision, 2018, pp. 466–481. [Online]. Available: https:
+independent generalization, physical sensing accuracy, or              //www.ecva.net/papers/eccv_2018/papers_ECCV/html/Bin_
+operational success require the corresponding evidence                 Xiao_Simple_Baselines_for_ECCV_2018_paper.php
+rather than a more favorable presentation of development
+numbers.
 
           Data, Code, and Author Declarations
   Scripts, small numerical artifacts, coordinate checks,
@@ -549,37 +680,4 @@ assembled in the companion repository paths identified
 in the supplement. Raw images, videos, and large exter-
 nal/model weights are not publicly redistributed without
 permission. The source ImageNet checkpoint retrieval
-procedure is documented separately. Author names, aﬀili-
-ations, ORCID identifiers, funding, conflicts, related prior
-publications, AI-use disclosure, and submission consent
-remain for the actual author team to confirm. This internal
-draft has not been submitted.
-
-                            References
-[1] M. Knitt, J. Schyga, A. Adamanov, J. Hinckeldeyn, and
-    J. Kreutzfeldt, “Estimating the pose of a euro pallet with an RGB
-    camera based on synthetic training data,” Logistics Journal:
-    Proceedings, no. 18, 2022.
-[2] J. Tremblay, T. To, B. Sundaralingam, Y. Xiang, D. Fox, and
-    S. Birchfield, “Deep object pose estimation for semantic robotic
-    grasping of household objects,” in Conference on Robot Learning,
-    2018. [Online]. Available: https://arxiv.org/abs/1809.10790
-[3] A. Miura, H. Uchiyama, M. Yamaguchi, N. Kai, T. Shiroshima,
-    and H. Saito, “Real-time 6DoF pallet pose estimation with
-    monocular metric depth,” in International Conference on
-    Computer Vision Theory and Applications, vol. 2, 2026,
-    pp. 149–161. [Online]. Available: https://www.scitepress.org/
-    PublishedPapers/2026/146268/
-[4] G. Moon, J. Y. Chang, and K. M. Lee, “PoseFix: Model-
-    agnostic general human pose refinement network,” in IEEE/CVF
-    Conference on Computer Vision and Pattern Recognition, 2019,
-    pp. 7773–7781.
-[5] X. Sun, B. Xiao, F. Wei, S. Liang, and Y. Wei, “Integral human
-    pose regression,” in European Conference on Computer Vision,
-    2018, pp. 536–553.
-[6] P. Castro and T.-K. Kim, “CRT-6D: Fast 6D object
-    pose estimation with cascaded refinement transformers,” in
-    IEEE/CVF Winter Conference on Applications of Computer
-    Vision, 2023, pp. 5735–5744. [Online]. Available: https:
-    //arxiv.org/abs/2210.11718
 

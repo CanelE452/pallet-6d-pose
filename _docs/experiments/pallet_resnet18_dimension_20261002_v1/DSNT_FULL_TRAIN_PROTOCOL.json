@@ -1,0 +1,123 @@
+{
+  "schema": "resnet18_dimension_dsnt_full_source_train_v1",
+  "purpose": "Third RGB backbone requested for IEEE Sensors; controlled dimension-input comparison.",
+  "arms": [
+    "CONSTANT",
+    "SHAPE",
+    "FULL"
+  ],
+  "arm_context_masks": {
+    "CONSTANT": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "SHAPE": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "FULL": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "source": {
+    "train": 55980,
+    "calibration": 1004,
+    "selection": 1031,
+    "heldout": 1985
+  },
+  "real_training_images": 0,
+  "epochs": 10,
+  "batch": 16,
+  "total_updates_per_arm": 34990,
+  "model": "ImageNet ResNet18 plus three deconvolutions, nine spatial-distribution heatmaps and final decoder FiLM.",
+  "objective": "0.1*normalized Gaussian spatial cross entropy + smooth-L1 spatial-expectation coordinate loss.",
+  "optimizer": {
+    "name": "Adam",
+    "lr": 0.001,
+    "weight_decay": 0.0,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "schedule": "x0.1 at epochs7 and9"
+  },
+  "initialization": "Same seed42 ImageNet body and randomly initialized decoder/FiLM for each arm.",
+  "order": "Per-epoch TRAIN permutation numpy seed42+epoch; same order all arms.",
+  "augmentation": "Same GPU brightness/contrast/saturation RNG reset at arm initialization.",
+  "validation": "Synthetic calibration1004 after every epoch; fixed epoch10 checkpoint, no real metric selection.",
+  "checkpoint": "Exact model/optimizer/CPU+CUDA RNG/epoch/batch resume every500 updates and epoch finalization.",
+  "decoder": "Spatial softmax expectation for all nine keypoints; single-pallet source contract.",
+  "interpretation": "CONSTANT controls architecture; SHAPE uses only two ratios; FULL uses absolute W,D,H plus ratios.",
+  "diagnostic": {
+    "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_DIAGNOSTIC_RESULTS.json",
+    "sha256": "f926f28e257b2495dd9ef898226a998a78e46e956d317694e59e09bea3940e2a",
+    "bytes": 206494
+  },
+  "smoke": {
+    "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_GPU_SMOKE.json",
+    "sha256": "0f2e56cbbc484b1c57f9ae4e60bab2b20c23f7e4cc00a8ddd7ab5fe1b1f0a8a0",
+    "bytes": 125273
+  },
+  "bindings": [
+    {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_DIAGNOSTIC_RESULTS.json",
+      "sha256": "f926f28e257b2495dd9ef898226a998a78e46e956d317694e59e09bea3940e2a",
+      "bytes": 206494
+    },
+    {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_GPU_SMOKE.json",
+      "sha256": "0f2e56cbbc484b1c57f9ae4e60bab2b20c23f7e4cc00a8ddd7ab5fe1b1f0a8a0",
+      "bytes": 125273
+    },
+    {
+      "path": "data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+      "sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+      "bytes": 46830571
+    },
+    {
+      "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+      "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+      "bytes": 69618918
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+      "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+      "bytes": 19921282
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/model.py",
+      "sha256": "d96ecfea682e4a85880fab86c585f598ee1da5c07580e886ce57bbf838addfe1",
+      "bytes": 9677
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/input_data.py",
+      "sha256": "d7e8a5220482d8ef054af63585902299f10d9c99c0d6eb927391da73172a967f",
+      "bytes": 14177
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/dsnt_diagnostic.py",
+      "sha256": "8aac3479cd18dc06c81db2915815a9b9795d39fcdcbeb37068a164f7c990f875",
+      "bytes": 18282
+    },
+    {
+      "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/dsnt_train.py",
+      "sha256": "69126028d51883fd8e271a2f25eca4b3eaf0e3da9d085f61cbda716666331ba0",
+      "bytes": 14937
+    }
+  ]
+}

@@ -10,7 +10,9 @@
 \date{October 2026}
 \begin{document}\maketitle
 \section{Status and reading guide}
-Tables and figures copied from the original manuscript describe historical YOLO experiments only. The DOPE extension is identified separately below; its unmeasured values are never filled from that panel. This supplement preserves the distinction between completed development evidence and independent confirmation. The machine-readable status is in \texttt{FINAL\_STATUS.json} under the submission experiment directory. \PriorTrainingStatus{} \ConfirmationAbstract{} No method's incomplete result is represented by another model or a zero-valued measurement.
+Tables and figures copied from the original manuscript describe historical YOLO experiments. The DOPE and ResNet18 extensions are identified separately below; no value is filled from another estimator. This supplement preserves the distinction between completed reused-development evidence and independent confirmation. \PriorTrainingStatus{} \ConfirmationAbstract{}
+
+The completed ResNet18 FULL estimator uses RGB and five registered-dimension values jointly. Historical YOLO/DOPE heads remain image-feature based and use dimensions only in PnP. ResNet P0 is the primary third-backbone transfer arm; P5/P5\_CONSTANT separately tests a dimension input to the correction head. These roles must not be merged into a single dimension-benefit claim.
 \section{Historical YOLO development results}
 Original-pixel medians and P90 are pooled over each model's supervised matched points. Frame mean is the mean of matched per-frame errors, not the pooled median. Gross20 and PCK are percentages; PCK retains the full \AllPoints{}-point ground-truth denominator. Raw prior rows, when available, precede no claim that the selected capped wrapper is the original standalone method.
 \small\input{generated_tables/full_accuracy.tex}\normalsize
@@ -52,7 +54,7 @@ The actual collection and schema are in \texttt{HUMAN\_INPUTS\_REQUIRED.txt} and
 Unreviewed provenance and an unfrozen comparator panel block confirmation only, not the completed development experiment. New-frame reference geometry must be bound to its camera/dimensions/index convention before a 6D claim. Human annotation, author identities, funding and consent cannot be fabricated by the CLI. These obligations are separate from compilation and code checks.
 \section{Three-estimator scope and outstanding evidence}
 \ThirdEstimatorStatus{}
-The third-estimator implementation and receipt-backed status are described below. No accuracy or latency is inferred from an implemented interface or a CPU input check.
+The completed accuracy and latency receipts are described below. Three measured frozen interfaces provide finite application evidence, not a universal model-agnostic theorem or an independent test.
 
 \section{DOPE extension: frozen interface and training lineage}
 \DopeMainStatus{}
@@ -76,29 +78,52 @@ Paired session and frame bootstrap reuse the existing seed 20260914 and 10000 dr
 
 \section{DOPE runtime and publication records}
 \input{generated_tables/dope_runtime.tex}
-The new timing protocol records full DOPE+head RGB computation; no cached intermediate substitutes for the measured inference path. Seed 1 represents deployment without selecting the fastest seed. Keypoint and PnP-inclusive timings remain separate, and unavailable poses stay visible. Different timing sessions are not described as the historical thirteen-model session. Actual runtime receipts are needed before making any overhead or total-cost claim for DOPE.
+The DOPE-only timing protocol records full DOPE+head RGB computation; no cached intermediate substitutes for the measured inference path. Seed 1 represents deployment without selecting the fastest seed. Keypoint and PnP-inclusive timings remain separate, and unavailable poses stay visible. A later integrated same-image panel supplies the main-text cross-estimator timing; the two runs are retained as different measurement sessions and their values are not interchanged.
 
 The new experiment scripts are under \path{scripts/research/pallet_dope_refiner_20261001_v1}; the numerical records are under the matching \path{_docs/experiments/pallet_dope_refiner_20261001_v1} directory. The manuscript update script checks input bindings, population, arms and explicit completion before inserting results. \path{DOPE_RESULTS_BINDINGS.json} identifies inserted evidence, and \path{HISTORICAL_ASSETS.json} binds copied original manuscript assets. Pending evidence is stated explicitly rather than replaced by historical YOLO measurements. Build receipts certify typesetting only, not independent experimental verification or author approval.
 
-\section{ResNet18 application: implementation and measured status}
+\section{ResNet18 direct estimator and dimension inputs}
 \ResnetMainStatus{}
-The third estimator is explicitly a SimpleBaseline-derived ResNet18 full-image pallet9 adaptation, not PVNet, PoseFix or a renamed DOPE stage. The ImageNet file is \path{resnet18-f37072fd.pth}, with full SHA-256 recorded in the baseline protocol. All learned body tensors and running statistics must match. The official legacy file lacks all 20 BN batch counters; the loader initializes only that complete missing counter set to zero, as in torchvision's legacy migration. Partial missing counters or missing learned tensors/running statistics stop loading. The three deconvolution layers and nine-channel head receive fresh initialization.
+The third estimator is explicitly a Simple-Baselines-derived ResNet18 full-image pallet9 adaptation, not PVNet, PoseFix or a renamed DOPE stage. The ImageNet file is \path{resnet18-f37072fd.pth}; the protocol records its full SHA-256. The $384\times512$ FP32 input uses aspect fitting and centered letterboxing without a predicted or ground-truth crop. Three 256-channel deconvolutions produce nine stride-four spatial distributions. Training minimizes $0.1$ times normalized Gaussian spatial cross-entropy plus smooth-L1 error of the spatial expectation. The earlier 60-epoch masked-MSE pilot failed its fixed usability check and supplies none of the reported accuracy values.
 
-The $384\times512$ RGB input uses existing source reflect100 or one native-real reflection, aspect fit and centered BGR128 letterbox, followed by ImageNet FP32 normalization. No predicted or GT box is used to crop the baseline input. Actual per-axis rounded scales and inverse matrices are retained. Nine $96\times128$ Gaussian heatmaps use continuous point/4 centers, sigma 2 and square 3-sigma truncation. Source visibility greater than zero, finite non-sentinel coordinates and in-grid centers define supervision. Invalid channels remain in the fixed-nine denominator; all-masked frames remain in the batch denominator. The per-frame visibility, finite, outside-support, supervised and all-masked counts are recorded, rather than treating a low loss from absent targets as accuracy.
+The dimension vector is computed in fixed object axes and normalized from synthetic TRAIN only. FULL receives all five values through decoder FiLM, SHAPE receives the two ratios, and CONSTANT receives zeros through the same architecture. Each arm uses the same seed-42 initialization, source order, augmentation and fixed 10-epoch budget. \ResnetBaselineStatus{}
+\input{generated_tables/resnet_baseline.tex}
+\input{generated_tables/resnet_dimension_direct.tex}
+\begin{figure}[h]\centering
+\includegraphics[width=.92\linewidth]{figures/resnet_dimension_transfer.png}
+\caption{Separate direct-estimator input ablation. The lower panels use the direct experiment's earlier proper-group pose scorer. They are separate from the canonical refiner before/after pose values reported below.}
+\label{fig:resnetdimdirect}\end{figure}
 
-The specified 60-epoch baseline performs 3498 full 16-image updates plus one 12-image update each epoch, giving 3499 updates per epoch and 209940 total. The source order is a deterministic per-epoch permutation; physical batch 16 is the specified default, without a silent memory fallback. Brightness, contrast and saturation factors are independently drawn per image from $[0.8,1.2]$ in that fixed order. There is no geometric augmentation. Model and target arithmetic are FP32 with AMP and TF32 disabled. Adam uses betas $(0.9,0.999)$, learning rate $0.001$, weight decay $0.0001$, with drops at the beginning of epochs 40 and 50. No real score chooses the schedule, threshold, stopping epoch or checkpoint.
+The direct FULL--CONSTANT comparison is mixed: DEV median changes by $-0.210$ pixels, reconstructed-reference translation by $+1.269$~cm, and rotation by $-0.760^\circ$. Plastic median worsens by 0.145 pixels. Wood improves by 1.196 pixels but its depth 0.59~m lies below the synthetic TRAIN minimum 0.818~m. GREEN150 and 0918 improve in aggregate, but each square set uses one constant dimension vector; the 0918 paired frame count is 59 improved versus 60 harmed with median change $+0.031$ pixels. These observations do not identify a stable causal dimension benefit.
 
-Epoch loss is weighted by actual frame counts, including the final 12-frame batch. Training supervision counts cover 60 epochs of exposures rather than unique images. The calibration 1004 loss and full mask counts are recorded without PnP, heldout or real accuracy selection. Checkpoints carry the in-progress epoch numerator/frame count and cumulative mask counts, so an infrastructure resume does not double-count them. Private DataLoader generators isolate the saved model/augmentation RNG stream; final export can be completed after interruption without replacing a verified final model. The prescribed eight-update GPU smoke is discarded and excluded from the main budget; no smoke speed or learned accuracy is reported here.
+The two pose summaries use different metric mappings and are intentionally not combined. The direct input report calls \path{scripts/research/pallet_dim_conditioned_p_v1/pose.py}, applies the fixed physical-frame conversion $R_{\rm physical}=R_{\rm cf}Q$, and then minimizes over its declared proper C2 group. The refiner evaluation calls the canonical MAIN \path{pose_evaluation_paths.score_pose_against_gt}, scores $R_{\rm cf}$ directly against \path{R_gt_representative}, and reports width/depth parity separately as axis accuracy. Both use the same prediction-only width/depth selector and SQPnP/RefineLM, and both mark 234/319 frames axis-correct; the remaining 85 axis errors interact differently with the two rotation conventions. FULL translation consequently agrees to 0.0013~cm, while rotation, yaw, IoU and C2-aware corresponding-point ADD differ. For the same FULL checkpoint and numerically matched coordinate outputs (maximum point difference 0.001163 pixels), the direct report gives rotation 3.581$^\circ$ and C2-aware corresponding-point ADD AUC 0.31628; the canonical refiner report gives camera-facing-frame C2 rotation 3.252$^\circ$ and C2-aware corresponding-point ADD AUC 0.31296. This metric is not unrestricted nearest-neighbor ADD-S. Main-text before/after claims use only the latter internally consistent evaluator.
 
-After the independently trained baseline is frozen, its layer2 and layer3 outputs give 128 channels at stride 8 and 256 at stride 16. New P/D heads use the unchanged local evidence and source-selection principles for three seeds and 6000 updates of 16 examples per head. The trained baseline checkpoint, baseline protocol and baseline-completion SHA are required before that second protocol can be created. An ImageNet-only network is never silently used as the trained pallet baseline. \ResnetBaselineStatus{}
+\section{ResNet18 primary frozen-refiner transfer}
+FULL is frozen before head fitting. D0 and P0 use layer2/layer3 features at strides 8/16, the frozen predicted points and hull, and the same source-selection principles as the other estimator applications. Each head has three seeds, 6,000 updates and batch 16. P0, with 22,034 trainable parameters, is the primary third-backbone transfer arm. D0 is the 22,522-parameter matched direct residual control. Neither receives a new dimension vector; FULL's earlier dimension conditioning is common to all rows.
 
-\section{ResNet18 results and cost}
 \input{generated_tables/resnet_full.tex}
 \input{generated_tables/resnet_paired.tex}
 \input{generated_tables/resnet_source.tex}
-\input{generated_tables/resnet_baseline.tex}
+\begin{figure}[h]\centering
+\includegraphics[width=.94\linewidth]{figures/resnet_refiner_2d.pdf}
+\caption{Frozen ResNet18 2D outcomes. Correction bars average three independently trained seed statistics; white circles are the seed values. P0 is the primary transfer arm.}
+\end{figure}
+
+P0 reduces conditional median and raises complete-denominator PCK10. Its session interval excludes zero for 2D median and canonical camera-facing-frame C2 rotation, while the translation interval includes zero. P90 changes from 52.054 to 52.086 pixels, so no tail-dominance claim is made. All arms retain 299 matched frames and 319/319 PnP coverage because the forced single-pallet FULL hull and output support are fixed.
+
+\section{Separate ResNet18 correction-head dimension extension}
+P5 adds a zero-initialized candidate-logit residual from the normalized five-value vector. P5\_CONSTANT has the same module and initialization but supplies zeros. This is the incremental dimension-input contrast for the head. P5--P0 is only a package comparison because path and capacity also change; FULL is already dimension-conditioned in every arm.
+\input{generated_tables/resnet_dimension_head.tex}
+\begin{figure}[h]\centering
+\includegraphics[width=.94\linewidth]{figures/resnet_dimension_paired.pdf}
+\caption{Exploratory reused-DEV paired intervals for the P5 extension. The P5--P5-C 2D, translation and rotation intervals include zero; a favorable PCK10 interval alone does not establish stable joint improvement.}
+\end{figure}
+
+\section{ResNet18 integrated runtime and evidence limits}
 \input{generated_tables/resnet_runtime.tex}
-These results reuse DEV and the geometry-derived reference; completion of three fixed applications does not create independent TEST or a physical T/R stability guarantee. The ResNet18 insertion record is \path{RESNET_RESULTS_BINDINGS.json}.
+The integrated run measures FULL and one fixed seed for each head on the same image bytes used for YOLO and DOPE timing. FULL+P0 adds 2.436~ms to paired full-path median latency; P5 adds 3.407~ms. The desktop result includes model-specific preprocessing and all pose failures, but not file decoding, loading, Jetson export, concurrent throughput or energy.
+
+All ResNet real-image panels are reused development data. The T/R reference is reconstructed from 2D annotation, camera intrinsics and registered dimensions rather than an independently instrumented 6D pose. Wood is dimension-support extrapolation and square-set dimensions do not vary. These limitations remain even though training, selection, evaluation and timing are complete.
 
 \section{Reproduction and access}
 From the repository root, use the recorded environment and \texttt{run.py status}, \texttt{run.py all}, or \texttt{run.py resume} under \texttt{scripts/research/pallet\_sensors\_submission\_v1/}. Exact shell commands, downloads, locks and stage receipts are in \texttt{REPRODUCE.md}. Completion receipts are checked against actual input/output hashes, not accepted solely on a status string. Main uses no branch rewrite, force push or deletion of unrelated user changes.

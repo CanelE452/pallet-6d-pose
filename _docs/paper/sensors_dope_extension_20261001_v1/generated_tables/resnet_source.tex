@@ -1,1 +1,12 @@
-\noindent ResNet18 source evidence: pending. Actual usable rows, head parameter counts, completed updates, calibration temperatures, selected movement rules and heldout results require their own receipts.
+The frozen FULL baseline yields 55,804 usable synthetic TRAIN rows. D0, P0, P5 and P5\_CONSTANT each use three seeds of 6,000 AdamW updates at batch 16 (96,000 nominal exposures per fit) and zero real training images. Trainable counts are 22,522 for D0, 22,034 for P0, and 23,331 for each P5 arm. Synthetic selection fixes $\lambda=1$ for every arm, a 0.01 image-diagonal cap only for D0, no cap for P0/P5, and temperature 1 for all probability heads.
+\begin{table}[t]\centering\small
+\caption{Frozen synthetic heldout diagnostic after source-only rule selection (1,985 records). Head rows are means of three seed statistics; this reused source partition is not an independent real-image test.}\label{tab:resnetsource}
+\begin{tabular}{lrrr}\toprule
+Arm & Med. px & P90 px & PCK10\%\\\midrule
+FULL & 2.805 & 9.499 & 89.723\\
+D0 mean & 2.694 & 9.504 & 89.721\\
+P0 mean & 2.585 & 9.510 & 89.710\\
+P5 mean & 2.585 & 9.500 & 89.674\\
+P5\_CONSTANT mean & 2.585 & 9.506 & 89.674\\
+\bottomrule\end{tabular}
+\end{table}
