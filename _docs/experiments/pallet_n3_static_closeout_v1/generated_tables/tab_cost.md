@@ -1,0 +1,10 @@
+| Backbone | Environment | Path | Added params | CUDA med ms | CUDA P90 ms | Wall med ms | N3 only med ms | Peak allocated MiB |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| dope | pallet-pose | Base | 0 | 62.736 | 77.585 | 62.779 | NA | 342.393 |
+| dope | pallet-pose | N3 | 23331 | 65.807 | 80.927 | 65.838 | 2.838 | 342.393 |
+| resnet18 | pallet-pose | Base | 0 | 8.890 | 9.573 | 8.933 | NA | 98.846 |
+| resnet18 | pallet-pose | N3 | 23331 | 11.592 | 12.747 | 11.632 | 2.632 | 98.846 |
+| yolo | pallet-yolo26 | Base | 0 | 11.195 | 13.712 | 11.237 | NA | 62.237 |
+| yolo | pallet-yolo26 | N3 | 20259 | 15.138 | 17.212 | 15.179 | 3.432 | 64.522 |
+
+Same physical RTX3080, fixed26 frames, seed1, warmup20/path,5 repeats (130/path), batch1, FP32, threads4/OpenCV1. RAM RGB through PnP; feature-resident correction separately. YOLO environment and feature-capture base overhead differ: no cross-environment absolute speed ranking. DOPE/ResNet measurements reused.

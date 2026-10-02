@@ -1,0 +1,46 @@
+| Backbone | Contrast | Metric (PCK fraction) | Mean delta | CI95 low | CI95 high | Seed min | Seed max |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| yolo | N3_minus_base | matched_pooled_corner8_median_px | -0.943 | -1.555 | -0.589 | -0.976 | -0.898 |
+| yolo | N3_minus_base | matched_pooled_corner8_P90_px | -1.756 | -3.330 | 0.567 | -2.018 | -1.570 |
+| yolo | N3_minus_base | full_PCK10_fraction | 0.051621 | 0.026990 | 0.089329 | 0.048419 | 0.054022 |
+| yolo | N3_minus_base | E_sym | -0.001105 | -0.001649 | -0.000714 | -0.001151 | -0.001069 |
+| yolo | N3_minus_base | full_penalty_median_px | -1.047 | -1.605 | -0.603 | -1.078 | -1.017 |
+| yolo | N3_minus_base | full_penalty_P90_px | 0.005641 | -3.084 | 0.973 | -1.049 | 1.210 |
+| yolo | N2_minus_N0 | matched_pooled_corner8_median_px | -0.166 | -0.326 | -0.090656 | -0.188 | -0.124 |
+| yolo | N2_minus_N0 | matched_pooled_corner8_P90_px | -0.413 | -1.644 | 0.534 | -1.045 | 0.108 |
+| yolo | N2_minus_N0 | full_PCK10_fraction | 0.010538 | 0.006103 | 0.016365 | 0.007603 | 0.014006 |
+| yolo | N2_minus_N0 | E_sym | -0.000261 | -0.000393 | -0.000166 | -0.000284 | -0.000221 |
+| yolo | N2_minus_N0 | full_penalty_median_px | -0.186 | -0.342 | -0.091505 | -0.247 | -0.107 |
+| yolo | N2_minus_N0 | full_penalty_P90_px | 0.199 | -1.487 | 0.562 | -2.324 | 2.991 |
+| yolo | N1_minus_N0 | matched_pooled_corner8_median_px | -0.022846 | -0.081432 | 0.054822 | -0.083600 | 0.041531 |
+| yolo | N1_minus_N0 | matched_pooled_corner8_P90_px | -0.359 | -0.648 | 0.799 | -0.614 | -0.000741 |
+| yolo | N1_minus_N0 | full_PCK10_fraction | 0.000267 | -0.002975 | 0.002676 | -0.001601 | 0.002001 |
+| yolo | N1_minus_N0 | E_sym | -0.000009 | -0.000024 | 0.000005 | -0.000016 | -0.000004 |
+| yolo | N1_minus_N0 | full_penalty_median_px | -0.026855 | -0.080944 | 0.055382 | -0.042556 | -0.005562 |
+| yolo | N1_minus_N0 | full_penalty_P90_px | -0.109 | -0.667 | 0.803 | -0.596 | 0.209 |
+| yolo | N3_minus_N2 | matched_pooled_corner8_median_px | 0.000488 | -0.073456 | 0.055688 | -0.036838 | 0.046206 |
+| yolo | N3_minus_N2 | matched_pooled_corner8_P90_px | -0.326 | -0.507 | 0.602 | -0.471 | -0.105 |
+| yolo | N3_minus_N2 | full_PCK10_fraction | 0.000000 | -0.001813 | 0.002319 | -0.001200 | 0.001601 |
+| yolo | N3_minus_N2 | E_sym | -0.000003 | -0.000029 | 0.000016 | -0.000014 | 0.000004 |
+| yolo | N3_minus_N2 | full_penalty_median_px | -0.004523 | -0.078332 | 0.055960 | -0.045868 | 0.073419 |
+| yolo | N3_minus_N2 | full_penalty_P90_px | -0.197 | -0.483 | 0.637 | -0.997 | 0.471 |
+| yolo | N3_minus_N1 | matched_pooled_corner8_median_px | -0.143 | -0.330 | -0.067347 | -0.181 | -0.106 |
+| yolo | N3_minus_N1 | matched_pooled_corner8_P90_px | -0.380 | -1.695 | 0.466 | -0.902 | 0.169 |
+| yolo | N3_minus_N1 | full_PCK10_fraction | 0.010271 | 0.004911 | 0.017737 | 0.008804 | 0.011204 |
+| yolo | N3_minus_N1 | E_sym | -0.000254 | -0.000396 | -0.000153 | -0.000275 | -0.000219 |
+| yolo | N3_minus_N1 | full_penalty_median_px | -0.163 | -0.340 | -0.068050 | -0.238 | -0.121 |
+| yolo | N3_minus_N1 | full_penalty_P90_px | 0.111 | -1.534 | 0.547 | -2.062 | 2.866 |
+| dope | N3_minus_base | matched_pooled_corner8_median_px | -5.101 | -5.828 | -4.308 | -5.162 | -5.001 |
+| dope | N3_minus_base | matched_pooled_corner8_P90_px | 2.289 | -4.747 | 3.301 | 1.617 | 3.396 |
+| dope | N3_minus_base | full_PCK10_fraction | 0.202 | 0.149 | 0.251 | 0.200 | 0.203 |
+| dope | N3_minus_base | E_sym | -0.003234 | -0.004057 | -0.002366 | -0.003270 | -0.003172 |
+| dope | N3_minus_base | full_penalty_median_px | -4.832 | -6.092 | -2.747 | -4.945 | -4.699 |
+| dope | N3_minus_base | full_penalty_P90_px | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |
+| resnet18 | N3_minus_base | matched_pooled_corner8_median_px | -1.138 | -1.936 | -0.912 | -1.209 | -1.073 |
+| resnet18 | N3_minus_base | matched_pooled_corner8_P90_px | -0.268 | -1.601 | 1.941 | -0.498 | -0.063856 |
+| resnet18 | N3_minus_base | full_PCK10_fraction | 0.049620 | 0.032205 | 0.070662 | 0.047619 | 0.052421 |
+| resnet18 | N3_minus_base | E_sym | -0.000824 | -0.001141 | -0.000570 | -0.000931 | -0.000766 |
+| resnet18 | N3_minus_base | full_penalty_median_px | -1.294 | -2.151 | -0.925 | -1.419 | -1.167 |
+| resnet18 | N3_minus_base | full_penalty_P90_px | 1.197 | -2.310 | 5.439 | 0.052542 | 1.968 |
+
+Existing 2D bootstrap definitions, same session resamples as pose; full PCK is fraction here. Seed mean formed inside each draw.

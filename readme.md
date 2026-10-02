@@ -2,6 +2,15 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+
+## 2026-10-03 N3 비리프터 결과·이미지·원고 반영
+
+**[YOLO·DOPE·ResNet 결과와 실제 영상 보기](_docs/experiments/pallet_n3_static_closeout_v1/README.md)** — 세 기반 N3의 이미지 특징+치수 입력·대칭 감독, 3 seed 결과, N0/N1 6D 보완, 불확실성, 가림·정사각형 평가, 비용을 정리했습니다. 테스트43개·표 숫자1,676개 검산을 통과했습니다. 개선·악화와 남은 사람 검수/독립 참조를 함께 공개합니다.
+
+- [상세 보고서](_docs/experiments/pallet_n3_static_closeout_v1/FINAL_REPORT_KO.md) · [결과 반영 국문 v3](_docs/experiments/pallet_n3_static_closeout_v1/manuscript_ko_v3_static_closeout.md)
+- [표·LaTeX 조각](_docs/experiments/pallet_n3_static_closeout_v1/generated_tables/) · [원시 수치·해시](_docs/experiments/pallet_n3_static_closeout_v1/evidence/README.md) · [남은 x](_docs/experiments/pallet_n3_static_closeout_v1/REMAINING_X.md)
+
+
 ## 2026-10-01 이미지·치수 특징을 추가한 실제 T/R 비교
 
 **RGB 한 장·팔레트 실제 W/H/D·기존 보정 K**를 사용해 고정 DINO 이미지 특징385개를 추가한 656차원 모델 네 개를 학습했습니다. 312회 objective 호출·84회 승인 반복으로 모두 수렴했습니다. 합성 VAL에서 세 seed 모두 T 중앙값은 기준1.674594cm보다 낮은 **1.653925 / 1.658631 / 1.657582cm**가 됐습니다. 다만 seed1의 R 중앙값 **0.613334°**는 기준과 같아 **43/45 통과·전체 실패**입니다. 직전의 seed3 T 미달은 해소됐지만 seed1 R 조건이 미달했습니다. 이번 모델의 실사 평가는 실행하지 않았으며, **안정적인 T·R 공동 개선은 아직 미달성**입니다.

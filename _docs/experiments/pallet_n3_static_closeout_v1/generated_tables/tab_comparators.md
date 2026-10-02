@@ -1,0 +1,10 @@
+| Method | Median px | P90 px | PCK10 % | T med cm | R med deg |
+| --- | --- | --- | --- | --- | --- |
+| R0 | 6.721 | 43.890 | 63.425 | 7.897 | 2.539 |
+| P | 5.938 | 42.631 | 67.494 | 7.153 | 2.154 |
+| D | 6.504 | 42.992 | 64.372 | 7.597 | 2.274 |
+| L | 6.146 | 42.984 | 66.867 | 7.548 | 2.233 |
+| PoseFix | 5.561 | 43.907 | 68.707 | 6.951 | 2.028 |
+| N3 | 5.778 | 42.134 | 68.587 | 7.068 | 2.070 |
+
+Same DEV319/8-corner contract. D/L/PoseFix are full-method comparisons with different architectures/losses/input budgets. PoseFix synthetic-only PRIOR last6000, raw first pass; not later real Replay. No same-boundary comparator runtime claim.

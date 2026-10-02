@@ -1,0 +1,8 @@
+| Method | Median px | P90 px | PCK10 % | E_sym |
+| --- | --- | --- | --- | --- |
+| R0 | 6.721 | 43.890 | 63.425 | 0.049524 |
+| P | 5.938 | 42.631 | 67.494 | 0.048684 |
+| N2 dimensions | 5.778 | 42.459 | 68.587 | 0.048422 |
+| N3 dimensions + symmetry | 5.778 | 42.134 | 68.587 | 0.048419 |
+
+DEV319; conditional 2445 observed corners, full PCK 2499 reference corners. Mean of three seed statistics; R0 single frozen model.

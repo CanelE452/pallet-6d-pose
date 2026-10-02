@@ -1,0 +1,12 @@
+| Backbone | Method | Frames | Full corners | Observed corners | Median px | P90 px | PCK10 % | T cm | R deg |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| YOLO | R0 | 119 | 602 | 597 | 5.526 | 11.439 | 85.216 | x | x |
+| YOLO | P | 119 | 602 | 597.000 | 4.991 | 10.088 | 89.037 | x | x |
+| YOLO | N2 dimensions | 119 | 602 | 597.000 | 4.949 | 9.882 | 89.590 | x | x |
+| YOLO | N3 dimensions + symmetry | 119 | 602 | 597.000 | 5.004 | 9.932 | 89.258 | x | x |
+| dope | Base | 119 | 602 | 549 | 11.748 | 30.226 | 36.711 | x | x |
+| dope | N3 | 119 | 602 | 549 | 7.037 | 28.244 | 64.618 | x | x |
+| resnet18 | Base | 119 | 602 | 592 | 6.584 | 17.073 | 72.425 | x | x |
+| resnet18 | N3 | 119 | 602 | 592 | 5.891 | 15.872 | 78.350 | x | x |
+
+GREEN0918_119, manual_declared, one capture session, WDH=1.10/1.10/0.15 m. Same mode across methods. T/R x: no independent canonical pose reference. Generalization CI NA.
