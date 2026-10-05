@@ -1,0 +1,21 @@
+\begin{table*}[t]
+\centering\footnotesize
+\caption{세 기반 추정기에 적용한 동일 N3 계약과 실행 상태. 네트워크 입력과 보정기 입력을 구분한다.}
+\label{tab:backbone_contract}
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{p{0.18\textwidth}YYY}
+\toprule
+항목 & YOLO26n & DOPE / VGG & ResNet-18 10-epoch RGB 변형 \\
+\midrule
+기본 신경망 입력 & RGB만 & RGB만 & RGB만 \\
+연결부 특징 채널 / 간격 & (64,128) / (8,16) & (256,128) / (4,8) & (128,256) / (8,16) \\
+N3 시각 정보 & 해당 특징·초기 코너·박스 & 해당 특징·초기 코너·박스 & 해당 특징·초기 코너·박스 \\
+N3 물리적 치수 & 가로·깊이·높이 사용 & 가로·깊이·높이 사용 & 가로·깊이·높이 사용 \\
+N3 학습 감독 & 전체 순열 선택 + 분포 손실 & 전체 순열 선택 + 분포 손실 & 전체 순열 선택 + 분포 손실 \\
+보정 전후 PnP 정보 & 동일 카메라·치수 & 동일 카메라·치수 & 동일 카메라·치수 \\
+학습하는 대상 & 연결부의 학습층·N3 헤드 & 기반별 연결 학습층·N3 헤드 & 기반별 연결 학습층·N3 헤드 \\
+N3 학습·평가 완료 & 3 seed & 3 seed & 3 seed \\
+\bottomrule
+\end{tabularx}
+\tabnote{세 기반의 N3 학습·평가는 완료되었으며 기본 신경망은 RGB만 사용한다. ResNet은 10-epoch 합성 CONSTANT 가중치의 고정 변환을 접은 RGB 모델이며 60-epoch 모델이 아니다. 기반별 디코더·박스·점수 정의와 초기 학습 이력은 서로 다르므로 보정 전후 효과와 기본 추정기 사이의 절대 순위를 구분한다.}
+\end{table*}

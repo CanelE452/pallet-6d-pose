@@ -1,0 +1,270 @@
+{
+  "model_name": "ResNet-18 RGB (10-epoch CONSTANT-fold)",
+  "verified_contract": {
+    "checkpoint": {
+      "path": "data/pallet/results/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_CONSTANT_epoch10.pt",
+      "sha256": "a94e55f028b704057c77fd045d96dd2dbb2ae6be2a49e945b23c821a30d8e1c4",
+      "bytes": 61663050
+    },
+    "protocol": {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_TRAIN_PROTOCOL.json",
+      "sha256": "f24f98082bd8f226968dd01bcf7a7deade339d0bb060601ae546d41c48b8038a",
+      "bytes": 4364
+    },
+    "completion": {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_CONSTANT_COMPLETE.json",
+      "sha256": "3ee47b7e284c40792df92ccab9b2535dc0de387f3bd2b9ef4400701e9fabbc9b",
+      "bytes": 33602
+    },
+    "checkpoint_identity": {
+      "arm": "CONSTANT",
+      "epoch": 10,
+      "step": 34990
+    },
+    "constant_context_mask": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "runtime_dimension_context": false,
+    "source_training_epochs": 10,
+    "source_training_images": "synthetic only"
+  },
+  "recipe": {
+    "schema": "frozen_resnet18_constant_folded_rgb_adapter_v1",
+    "baseline_arm": "CONSTANT",
+    "source_training": "10-epoch synthetic CONSTANT architecture-control arm; this is not the 60-epoch RGB baseline",
+    "external_inputs": [
+      "RGB"
+    ],
+    "runtime_dimension_context": false,
+    "fold": "z=zeros(5); W'=W*(1+gamma); b'=b+sum_c(W_c*beta_c)",
+    "decoder": "bound DSNT spatial-softmax expectation then stride4",
+    "input": {
+      "schema": "resnet18_full_image_input_v1",
+      "input_hw": [
+        384,
+        512
+      ],
+      "heatmap_hw": [
+        96,
+        128
+      ],
+      "stride": 4,
+      "reflect_pad_px": 100,
+      "source_additional_padding": 0,
+      "real_border": "BORDER_REFLECT_101",
+      "resize": "INTER_LINEAR; aspect fit, round actual width/height; exact per-axis inverse",
+      "letterbox": "center, left/top floor, right/bottom remainder",
+      "letterbox_value": 128,
+      "color": "RGB",
+      "normalization_dtype": "float32",
+      "mean": [
+        0.48500001430511475,
+        0.4560000002384186,
+        0.4059999883174896
+      ],
+      "std": [
+        0.2290000021457672,
+        0.2240000069141388,
+        0.22499999403953552
+      ],
+      "sigma_heatmap": 2.0,
+      "gaussian_centers": "continuous network xy / 4, no half-pixel offset",
+      "gaussian_truncation": "square abs(dx),abs(dy) <= 3*sigma",
+      "supervision": "visibility>0, finite non-sentinel xy, and continuous center inside [0,W)x[0,H)",
+      "decoder": "Spatial softmax expectation for all nine keypoints; single-pallet source contract.",
+      "confidence_threshold": null,
+      "threshold_inclusive": "NA: DSNT expectation decoder does not gate channels by peak confidence",
+      "predicted_box": "hull of >=3 finite corner channels0..7; each original-coordinate extent>1",
+      "corner_order": "unchanged source channels0..7 plus center8",
+      "geometric_augmentation": false,
+      "GT_crops": false,
+      "YOLO_inputs": false,
+      "checkpoint_selection": "fixed final epoch10; step34990 within CONSTANT arm",
+      "objective": "0.1*normalized Gaussian spatial cross entropy + smooth-L1 spatial-expectation coordinate loss.",
+      "runtime_validity": "All nine finite spatial expectations; box hull of corner0..7"
+    },
+    "feature_taps": [
+      "layer2",
+      "layer3"
+    ],
+    "feature_channels": [
+      128,
+      256
+    ],
+    "feature_strides": [
+      8,
+      16
+    ],
+    "checkpoint_sha256": "a94e55f028b704057c77fd045d96dd2dbb2ae6be2a49e945b23c821a30d8e1c4",
+    "rgb_model_source_sha256": "8c25f00b02af7546e199129484ce6a195716020f91ae2e00745becc47c50fcd0",
+    "strict_rgb_load": true,
+    "frozen": true,
+    "GT_inputs": false,
+    "camera_inputs": false,
+    "TF32": false,
+    "AMP": false
+  },
+  "actual_training": {
+    "schema": "resnet18_dimension_dsnt_full_source_train_v1",
+    "purpose": "Third RGB backbone requested for IEEE Sensors; controlled dimension-input comparison.",
+    "arms": [
+      "CONSTANT",
+      "SHAPE",
+      "FULL"
+    ],
+    "arm_context_masks": {
+      "CONSTANT": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "SHAPE": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "FULL": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "source": {
+      "train": 55980,
+      "calibration": 1004,
+      "selection": 1031,
+      "heldout": 1985
+    },
+    "real_training_images": 0,
+    "epochs": 10,
+    "batch": 16,
+    "total_updates_per_arm": 34990,
+    "model": "ImageNet ResNet18 plus three deconvolutions, nine spatial-distribution heatmaps and final decoder FiLM.",
+    "objective": "0.1*normalized Gaussian spatial cross entropy + smooth-L1 spatial-expectation coordinate loss.",
+    "optimizer": {
+      "name": "Adam",
+      "lr": 0.001,
+      "weight_decay": 0.0,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "schedule": "x0.1 at epochs7 and9"
+    },
+    "initialization": "Same seed42 ImageNet body and randomly initialized decoder/FiLM for each arm.",
+    "order": "Per-epoch TRAIN permutation numpy seed42+epoch; same order all arms.",
+    "augmentation": "Same GPU brightness/contrast/saturation RNG reset at arm initialization.",
+    "validation": "Synthetic calibration1004 after every epoch; fixed epoch10 checkpoint, no real metric selection.",
+    "checkpoint": "Exact model/optimizer/CPU+CUDA RNG/epoch/batch resume every500 updates and epoch finalization.",
+    "decoder": "Spatial softmax expectation for all nine keypoints; single-pallet source contract.",
+    "interpretation": "CONSTANT controls architecture; SHAPE uses only two ratios; FULL uses absolute W,D,H plus ratios.",
+    "diagnostic": {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_DIAGNOSTIC_RESULTS.json",
+      "sha256": "f926f28e257b2495dd9ef898226a998a78e46e956d317694e59e09bea3940e2a",
+      "bytes": 206494
+    },
+    "smoke": {
+      "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_GPU_SMOKE.json",
+      "sha256": "0f2e56cbbc484b1c57f9ae4e60bab2b20c23f7e4cc00a8ddd7ab5fe1b1f0a8a0",
+      "bytes": 125273
+    },
+    "bindings": [
+      {
+        "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_DIAGNOSTIC_RESULTS.json",
+        "sha256": "f926f28e257b2495dd9ef898226a998a78e46e956d317694e59e09bea3940e2a",
+        "bytes": 206494
+      },
+      {
+        "path": "_docs/experiments/pallet_resnet18_dimension_20261002_v1/DSNT_FULL_GPU_SMOKE.json",
+        "sha256": "0f2e56cbbc484b1c57f9ae4e60bab2b20c23f7e4cc00a8ddd7ab5fe1b1f0a8a0",
+        "bytes": 125273
+      },
+      {
+        "path": "data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+        "sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+        "bytes": 46830571
+      },
+      {
+        "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+        "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+        "bytes": 69618918
+      },
+      {
+        "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+        "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+        "bytes": 19921282
+      },
+      {
+        "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+        "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+        "bytes": 852
+      },
+      {
+        "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/model.py",
+        "sha256": "d96ecfea682e4a85880fab86c585f598ee1da5c07580e886ce57bbf838addfe1",
+        "bytes": 9677
+      },
+      {
+        "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/input_data.py",
+        "sha256": "d7e8a5220482d8ef054af63585902299f10d9c99c0d6eb927391da73172a967f",
+        "bytes": 14177
+      },
+      {
+        "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/dsnt_diagnostic.py",
+        "sha256": "8aac3479cd18dc06c81db2915815a9b9795d39fcdcbeb37068a164f7c990f875",
+        "bytes": 18282
+      },
+      {
+        "path": "scripts/research/pallet_resnet18_dimension_20261002_v1/dsnt_train.py",
+        "sha256": "69126028d51883fd8e271a2f25eca4b3eaf0e3da9d085f61cbda716666331ba0",
+        "bytes": 14937
+      }
+    ]
+  },
+  "corrections": {
+    "checkpoint_selection": {
+      "stale": "fixed final epoch60; no real-based threshold selection",
+      "actual": "fixed final epoch10; step34990; synthetic calibration only"
+    },
+    "decoder": {
+      "stale": "channel argmax; if both coordinates are interior 1..size-2, add .25*sign(right-left,down-up)",
+      "actual": "Spatial softmax expectation for all nine keypoints; single-pallet source contract."
+    },
+    "mse": {
+      "stale": "mean_frames(sum9(mask * 0.5 * mean_pixels((prediction-target)^2)) / 9)",
+      "actual": "0.1*normalized Gaussian spatial cross entropy + smooth-L1 spatial-expectation coordinate loss."
+    },
+    "confidence_threshold": {
+      "stale": 0.1,
+      "actual": "not used in DSNT decoder; nine finite expectations; validity all nine"
+    }
+  },
+  "original_N3_protocol": {
+    "path": "/tmp/pallet-pose-n3-v3/_docs/experiments/pallet_n3_completion_v3/PROTOCOL.json",
+    "sha256": "d2fe9348bc7e2e29fdb6f613468c100bfb4794916b0c313342524072f57a1d04",
+    "bytes": 15393
+  },
+  "decoder_source": {
+    "path": "/tmp/pallet-pose-n3-v3/scripts/research/pallet_resnet18_dim_refiner_20261002_v1/full_adapter.py",
+    "sha256": "7f2613cdc5e0de653449c61006e8304285a63f9fd4b8637b4e1b63cd6e6b5097",
+    "bytes": 10845
+  },
+  "strict_fold_load_pass": true,
+  "folded_parameters": 15374665,
+  "new_training": 0,
+  "new_optimizer_updates": 0,
+  "weights_or_predictions_changed": false,
+  "interpretation": "CONSTANT fixes conditioning at zero, not image output. RGB base plus image-feature/WDH-conditioned N3. Backbone total training budgets differ.",
+  "base_choice_history": "Epoch10 was fixed within CONSTANT arm. Existing N3 protocol documents substitution for collapsed60epoch RGB. No independent prospective proof that the choice of baseline family was blind to all DEV observations; do not claim independent test selection.",
+  "folding_equivalence": "Existing actual-checkpoint unit test rerun: zero-context conditioned vs folded RGB logits rtol2e-5/atol2e-6, features exactly equal; PASS in initial40 passed tests."
+}

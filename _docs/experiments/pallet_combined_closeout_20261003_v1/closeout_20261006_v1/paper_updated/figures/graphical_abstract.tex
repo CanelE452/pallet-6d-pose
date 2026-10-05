@@ -1,0 +1,14 @@
+\begin{tikzpicture}[x=1pt,y=1pt,font=\sffamily\fontsize{9}{10.5}\selectfont,
+box/.style={draw=subsectioncolor,fill=white,rounded corners=2pt,align=center,inner sep=4pt,line width=.6pt},
+arr/.style={-{Latex[length=4pt]},draw=subsectioncolor,line width=.8pt}]
+\path[use as bounding box] (0,0) rectangle (211,139);
+\node[font=\sffamily\bfseries\fontsize{10}{11}\selectfont,text=subsectioncolor] at (105.5,131) {Image Features + Dimensions};
+\node[box,text width=95pt] (rgb) at (61,109) {RGB image};
+\node[box,text width=95pt] (base) at (61,82) {Initial pose estimator};
+\node[box,text width=104pt,fill=abstractbg] (ref) at (64,43) {Learned local refinement\\Features + corners + $\mathbf d$};
+\node[box,text width=63pt] (dim) at (175,68) {Known dimensions\\$\mathbf d=(W,D,H)$};
+\node[box,text width=194pt] (pose) at (105.5,10) {Refined corners $\to$ PnP ($\mathbf K,\mathbf d$) $\to$ 6D pose};
+\draw[arr](rgb.south)--(base.north);\draw[arr](base.south)--(ref.north);
+\draw[arr](dim.south west)--(ref.north east);
+\draw[arr](ref.south)--(64,21);\draw[arr](dim.south)--(175,21);
+\end{tikzpicture}

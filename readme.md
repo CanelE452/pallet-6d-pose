@@ -2,6 +2,15 @@
 
 팔레트 6D 포즈 추정을 위한 기하학적 제약 기반 준지도 도메인 적응 프레임워크.
 
+## 2026-10-06 최신 검수·원고 결과와 전체 비교 이미지
+
+**[완료 결과·표·이미지·원시 근거 확인](_docs/experiments/pallet_paper_review_20261006_v1/README_KO.md)** — YOLO·DOPE·ResNet N3의 검산된 결과, 최신 가림·가시성·정사각형 집계, 기존 비교군과 비용, 리프터 8,910프레임 출력 및 12장 PnP 보조 참조 결과를 연결했습니다.
+
+- [현재 결과가 반영된 원고 Markdown](_docs/experiments/pallet_combined_closeout_20261003_v1/pnp_assisted_lifter_20261006_v1/paper_updated/manuscript_ko.md) · [보충 자료와 전체 12장 이미지](_docs/experiments/pallet_combined_closeout_20261003_v1/pnp_assisted_lifter_20261006_v1/paper_updated/supplement_ko.md)
+- [리프터 12장·96점 상세 결과](_docs/experiments/pallet_combined_closeout_20261003_v1/pnp_assisted_lifter_20261006_v1/CLOSEOUT_KO.md) · [원고 반영과 검산 영수증](_docs/experiments/pallet_combined_closeout_20261003_v1/pnp_assisted_lifter_20261006_v1/PAPER_INTEGRATION_RECEIPT.json)
+
+Base는 RGB 입력이며 N3 보정기가 이미지 특징·초기 코너·박스·치수를 받고 대칭 감독을 사용합니다. 리프터 소규모 패널은 중앙값 소폭 악화, P90·PCK 개선의 혼합 결과입니다. 원래 120장/반복24장 전체 평가, 정지 잡음, 독립 물리 위치·회전 참조는 이번 완료 결과로 처리하지 않았습니다. 아래 이전 날짜의 보고서는 각 당시의 상태를 보존한 기록입니다.
+
 
 ## 2026-10-03 N3 비리프터 결과·이미지·원고 반영
 

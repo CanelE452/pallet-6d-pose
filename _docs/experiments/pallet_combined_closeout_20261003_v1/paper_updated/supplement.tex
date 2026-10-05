@@ -1,0 +1,91 @@
+% !TeX program = xelatex
+% Optional supplementary document. main.tex is the manuscript.
+\RequirePackage[T1]{fontenc}
+\RequirePackage{xcolor}
+\documentclass[journal,twoside,web]{ieeecolor}
+\usepackage{xcolor}\usepackage{jsen}
+\input{preamble}
+\hypersetup{pdftitle={팔레트 국소 키포인트 보정: 보충자료}}
+\begin{document}
+\renewcommand{\thetable}{S\Roman{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\title{영상 특징과 치수 정보를 활용한\\단안 팔레트 자세 추정용 국소 키포인트 보정\\보충자료}
+\author{\mbox{저자 정보 확정 전}}
+\markboth{\journalname, SUPPLEMENTARY MATERIAL}{PALLET KEYPOINT REFINEMENT: SUPPLEMENT}
+\IEEEtitleabstractindextext{%
+\fcolorbox{abstractbg}{abstractbg}{\begin{minipage}{\textwidth}
+\begin{abstract}
+본문의 중복을 줄이기 위해 이동한 상세 설정과 결과를 제시한다. 자료·평가 규칙·원수치는 본문과 같으며, 다른 평가 집합이나 새 실험을 추가한 문서가 아니다. 기본 추정기는 RGB만 받고 치수는 보정기와 자세 계산에서 사용한다. Base는 보정 없음, P는 별도 영상 보정 가중치, N0--N3는 통제 구성이다. 미확인 코너 가시성과 정사각형 가림 등급을 직접 가시 또는 clean으로 대체하지 않는다.
+\end{abstract}
+\begin{IEEEkeywords}보충 결과, 실험 설정, 팔레트 키포인트 보정.\end{IEEEkeywords}
+\end{minipage}}}
+\maketitle
+\section{기반 추정기와 추가 보정 설정}
+표~\ref{sup:backbone_contract}는 기반별 특징 채널·간격과 학습 대상을 정리한다. 모든 N3가 같은 물리적 치수 특징과 회전 대응 감독을 사용하지만 내부 특징 연결층과 보정 가중치는 별도로 학습한다. ResNet은 치수 문맥을 영벡터로 고정해 10 epoch 학습한 CONSTANT의 고정 특징 변환을 마지막 합성곱에 합친 RGB 모델이다. 별도 실제 치수 입력 FULL 모델을 본문의 Base로 사용하지 않았다.
+\input{supplement_tables/backbone_contract}
+
+\section{상세 자세와 정규화 영상 오차}
+표~\ref{sup:pose}는 위치·전체 회전·방향각의 중앙값과 P90, 3차원 상자 겹침 및 전체 실패를 포함한 AUC를 보존한다. 방향각과 전체 회전은 다른 물리량이다. 3차원 IoU는 방향을 고려한 상자의 교집합/합집합 비율이다. $\mathrm{ADD}_{\rm sym}$은 8코너에 객체 전체 회전 동등성을 적용한 평균 3차원 거리이며, 자유로운 최근접 표면 대응인 ADD-S와 다르다. AUC는 객체 대각선으로 정규화한 오차의 0--0.1 임계 범위에서 적분·정규화한다. 자세 실패는 전체 영상 분모에 유지한다.
+\input{supplement_tables/pose_results}
+
+추가 영상 지표 $E_{\rm sym}$은 영상별 평균 코너 오차를 해당 영상 대각선으로 나눈 뒤 영상 간 평균한 값이다. 결측·매칭 실패에는 영상 대각선 길이의 벌점을 적용한다. 이 프로젝트 정의를 표준 BOP 지표와 동일시하지 않는다. 표~\ref{sup:esym}은 원래 정의와 수치를 보존하지만 본문의 주요 결론은 코너 오차·\pckten·자세 오차·실패율에 근거한다. N2−N3에서 약 $2.8\times10^{-6}$의 차이만으로 회전 대응 감독의 유효성을 주장하지 않는다.
+\input{supplement_tables/esym_results}
+
+\section{재질과 정사각형 평가의 전체 행}
+표~\ref{sup:type_results}는 플라스틱 194장과 목재 125장에서 Base·P·N2·N3의 전후 결과이다. 재질에 따른 서로 다른 시점·가림 구성은 통제되지 않았으므로 재질의 인과 효과로 해석하지 않는다. 완료된 사람 분류는 목재를 포함하지만, 집단 크기가 불균형하고 severe 목재가 0장인 개발자료의 사후 분석이다.
+\input{supplement_tables/type_results}
+
+표~\ref{sup:square_results}는 영상 보정 P를 포함한 정사각형 전체 행이다. 두 모드는 같은 119장의 전체 수동 참조 602점과 영상 내부 600점으로, 화면 밖 좌표 2개 포함 여부만 다르다. 전자는 가능한 952개 코너 자리 전체가 아니라 실제 수동 참조가 존재하는 부분이며, 참조가 없는 350자리를 가시·비가시로 임의 지정하지 않았다. 독립 자세 참조가 없어 위치·회전은 x이다. 한 세션으로 세션 간 일반화의 신뢰구간을 얻었다고 주장하지 않는다.
+\input{supplement_tables/square_results}
+
+\section{가림과 코너 가시성의 상세 결과}
+표~\ref{sup:occlusion_results}는 본문에서 축약한 P·N2의 행을 포함한다. 완료 제출된 사람 직접 분류 319장을 clean 151장·moderate 87장·severe 81장으로 나누며, 전체의 P90은 원래 전체 코너에서 계산한 값으로 집단별 P90의 평균이 아니다. 이 집단은 사후 개발 분석이며 새 독립 시험이 아니다.
+\input{supplement_tables/occlusion_results}
+
+표~\ref{sup:visibility}는 기존 수동 검수의 가시성 상태만 연결한 결과이다. 직접 가시 66점·외부 가림 5점의 좌표를 새로 클릭한 값으로 바꾸지 않았으며, 나머지 2,428점은 상태 미확인이다. 이전 검수의 PnP 보조와 사전 예측 노출 이력이 완전히 분리되지 않았으므로 독립 블라인드 검수의 정확도로 해석할 수 없다. 외부 가림 5점의 PCK가 0인 것은 실제 관측값이나, 일반적인 가림 복원 능력을 평가하기에는 표본이 매우 작다.
+\input{supplement_tables/visibility_results}
+
+\section{큰 오류·손상·복구의 모든 집계}
+표~\ref{sup:tail}은 본문에서 축약한 이동 상한 안팎의 개선·무차이·악화 개수를 보존한다. seed 1·2·3 각각의 개수이며 평균 개수를 실제 정수 표본처럼 표시하지 않는다. 유효 평가 코너는 2,445개, 공동 자세 변화의 영상은 311장이다. 초기의 전체 참조 대응을 고정하고 같은 코너의 오차를 비교한다. 큰 오류를 줄이는 것과 10픽셀 미만으로 복구하는 것은 다른 관측이다.
+\input{supplement_tables/tail_results}
+
+\section{세션 구간과 seed 편차}
+표~\ref{sup:pose_uncertainty}의 변화는 통계량(N3)−통계량(Base)이며 프레임별 차이의 중앙값이 아니다. 13세션을 단위로 동일한 10,000개 재표집을 만들고 각 재표집 안에서 세 seed의 통계 차이를 평균한다. 2.5·97.5백분위 구간과 seed 표준편차·최솟값·최댓값을 함께 제시한다. P90에서 악화하거나 0을 포함하는 구간도 보존한다. 이 구간은 반복 개발자료의 사후 분석으로 선택 편향·다중비교를 모두 보정한 독립 확증이 아니다.
+\input{supplement_tables/pose_uncertainty}
+
+\section{처리 시간의 상세 계측}
+표~\ref{sup:cost}는 전체 CUDA event 중앙값·P90, 동기화 벽시계 중앙값, 보정 단독 시간과 최대 할당 메모리이다. 전체 중앙값 차이와 보정 단독 중앙값은 다른 계측량이다. 26프레임·batch 1·seed 1·준비 20회·프레임당 5반복을 사용하며 파일 읽기는 제외한다. DOPE·ResNet과 YOLO는 같은 GPU지만 실행환경이 달라 별도 패널로 표시한다. 다른 보정기 전체를 동일 환경에서 측정한 효율 순위를 뜻하지 않는다.
+\input{supplement_tables/cost_results}
+
+\section{비교군의 정보와 확인되지 않은 항목}
+표~\ref{sup:comparator_contract}는 결과 차이 해석에 필요한 입력·학습 범위를 정리한다. 확인되지 않은 사전학습·선택 이력을 동일하다고 가정하지 않는다. 보정 의사 레이블 학생의 교사는 별도 실사 감독과 구조를 사용하므로 N3 교사로 부르지 않는다. 원 논문의 결과와 팔레트에 적용한 변형의 결과도 구분한다.
+\begin{table*}[t]\centering\footnotesize
+\caption{보정 비교군의 입력·학습 범위와 남은 확인.}\label{sup:comparator_contract}
+\begin{tabularx}{\textwidth}{lYYY}\toprule
+방법 & 입력·변화하는 부분 & 확인된 추가 학습 & 해석상 제한 \\\midrule
+N3 & 내부 특징·초기 코너·박스·치수; 국소 코너 이동 & 3 seed, 6,000 updates, 96,000 노출/seed; 합성 calibration 온도 & 기반별 초기 학습·유효 표본은 다름 \\
+P / D / L & 내부 특징 기반 보정; 분포/회귀/선 구조의 출력·손실 차이 & 동결된 기존 체크포인트, 3 seed 평가 & 각 방법의 전체 감독·사전학습·튜닝 명세 추가 확인; 같은 예산이라고 소급 가정하지 않음 \\
+PoseFix 기반 & 영상·초기 자세; 팔레트 9점용 목표·지원 영역 변형 & 공식 네트워크 연산 대조; 3 seed, 6,000 updates, 96,000 노출/seed & 원 논문 전체 수렴 학습과 다름; 사전학습·자료·선택 경로의 완전한 동등성 미확인 \\
+업데이트 학생 & 초기 추정기의 가중치 갱신 & 완료된 기존 학생을 공통 128장에 평가 & 별도 교사·감독 예산; 독립 TEST 아님 \\
+\bottomrule\end{tabularx}
+\end{table*}
+
+\section{기록 영상의 시계열 출력}
+본문의 사례는 같은 네 기록 영상 8,910프레임에 대한 고정 모델 오프라인 비교이다. 두 방법의 frame ID와 결측 마스크는 전수 일치했고, 각각 8,772개의 새 자세와 138개의 no-pose를 냈으며 held 출력은 없었다. 표~\ref{sup:lifter_sessions}는 세션별 저장 분모와 가용성을 보인다. 이 수치는 사람 참조가 없는 출력 연속성이다. 운용 모델의 출력이나 제어 명령을 정답으로 사용하지 않으며, 사람 코너·대상 대응·정지·독립 물리 참조가 필요한 값은 x로 보존한다.
+\begin{table}[t]\centering\footnotesize
+\caption{기록 영상 세션별 고정 출력 가용성. Base와 N3의 분모와 상태는 같다.}\label{sup:lifter_sessions}
+\begin{tabularx}{\columnwidth}{Yrrrr}\toprule
+세션 & 저장 & fresh/no-pose & 산출률(\%) & 최장 완료 결측(s) \\\midrule
+173507 & 3,729 & 3,678/51 & 98.632 & 0.534 \\
+174126 & 757 & 717/40 & 94.716 & 2.268 \\
+174342 & 2,501 & 2,501/0 & 100.000 & NA \\
+174925 & 1,923 & 1,876/47 & 97.556 & 2.535 \\
+\bottomrule\end{tabularx}
+\tabnote{최장 결측은 첫 no-pose 저장 프레임에서 다음 fresh 프레임까지의 센서 시간이다. 저장되지 않은 카메라 프레임은 모델 실패로 세지 않는다.}
+\end{table}
+\begin{figure}[t]\centering
+\includegraphics[width=\columnwidth]{figures/lifter_prediction_timeseries.png}
+\caption{네 기록 영상의 Base와 Base+N3 자세 출력. 유한 출력만 연결하고 no-pose는 공백으로 남겼다. 정답 또는 실제 물리 궤적은 포함하지 않으므로 곡선의 근접성은 정확도 근거가 아니다.}\label{sup:case_slots}
+\end{figure}
+\FloatBarrier
+\end{document}

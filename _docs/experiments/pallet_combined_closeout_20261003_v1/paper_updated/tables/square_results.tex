@@ -1,0 +1,29 @@
+\begin{table*}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{정사각형 119장에 대한 고정 모델 평가. 동일 예측의 두 참조 포함 규칙을 함께 제시한다.}\label{tab:square_results}
+\begin{tabularx}{\textwidth}{lYrrrrrrr}
+\toprule
+기반 & 방법 & \shortstack{코너 중앙값\\(px)} & \shortstack{코너 P90\\(px)} & \shortstack{\pckten\\(\%)} & \shortstack{유효 예측\\코너} & \shortstack{참조\\코너} & \shortstack{위치\\(cm)} & \shortstack{회전\\(도)} \\
+\midrule
+\multicolumn{9}{l}{\textbf{(a) 전체 수동 참조 602코너}} \\
+YOLO & Base & 5.526 & 11.439 & 85.216 & 597 & 602 & \notrun & \notrun \\
+YOLO & N2: 영상+치수 & 4.949 & 9.882 & 89.590 & 597 & 602 & \notrun & \notrun \\
+YOLO & N3: 제안 보정 & 5.004 & 9.932 & 89.258 & 597 & 602 & \notrun & \notrun \\
+DOPE & Base & 11.748 & 30.226 & 36.711 & 549 & 602 & \notrun & \notrun \\
+DOPE & 제안 보정 N3 & 7.037 & 28.244 & 64.618 & 549 & 602 & \notrun & \notrun \\
+ResNet-18$^\dagger$ & Base & 6.584 & 17.073 & 72.425 & 592 & 602 & \notrun & \notrun \\
+ResNet-18$^\dagger$ & 제안 보정 N3 & 5.891 & 15.872 & 78.350 & 592 & 602 & \notrun & \notrun \\
+\midrule
+\multicolumn{9}{l}{\textbf{(b) 영상 내부 수동 참조 600코너}} \\
+YOLO & Base & 5.521 & 11.473 & 85.333 & 595 & 600 & \notrun & \notrun \\
+YOLO & N2: 영상+치수 & 4.940 & 9.867 & 89.667 & 595 & 600 & \notrun & \notrun \\
+YOLO & N3: 제안 보정 & 4.980 & 9.919 & 89.333 & 595 & 600 & \notrun & \notrun \\
+DOPE & Base & 11.748 & 30.226 & 36.833 & 549 & 600 & \notrun & \notrun \\
+DOPE & 제안 보정 N3 & 7.037 & 28.244 & 64.833 & 549 & 600 & \notrun & \notrun \\
+ResNet-18$^\dagger$ & Base & 6.595 & 17.078 & 72.333 & 590 & 600 & \notrun & \notrun \\
+ResNet-18$^\dagger$ & 제안 보정 N3 & 5.898 & 15.891 & 78.278 & 590 & 600 & \notrun & \notrun \\
+\bottomrule
+\end{tabularx}
+\tabnote{한 세션·한 등록 치수 [1.1, 1.1, 0.15]m. 두 모드는 영상 밖 참조 2개 포함 여부만 다르며 어느 쪽도 결과에 따라 선택하지 않았다. 위치·회전은 독립 표준 자세 참조 부재로 x이다. $^\dagger$ResNet은 10-epoch CONSTANT-fold RGB 모델. 영상 보정 P의 두 모드는 보충자료에 보존한다.}
+\end{table*}

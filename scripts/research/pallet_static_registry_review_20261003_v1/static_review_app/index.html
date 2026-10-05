@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Static pallet blind review</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">PREDICTION-BLIND · LOCAL ONLY</p>
+      <h1>정적 팔레트 가림·코너 가시성 검수</h1>
+      <p class="lede">원본 RGB로 먼저 판정하세요. 참조 오버레이에는 모델 예측과 오차가 없습니다.</p>
+    </div>
+    <div class="reviewer-block">
+      <label for="reviewer">검수자</label>
+      <input id="reviewer" autocomplete="name" placeholder="제출 전에 이름 입력">
+      <span id="saveStatus" role="status">불러오는 중…</span>
+    </div>
+  </header>
+
+  <nav aria-label="검수 진행">
+    <button id="prev" type="button">← 이전</button>
+    <div>
+      <strong id="position">0 / 0</strong>
+      <span id="caseId"></span>
+    </div>
+    <button id="next" type="button">다음 →</button>
+  </nav>
+
+  <main>
+    <section class="viewer" aria-label="검수 영상">
+      <div class="image-frame"><img id="frame" alt="검수 원본 프레임"></div>
+      <div class="viewer-actions">
+        <button id="showOverlay" type="button">참조 오버레이 열기</button>
+        <button id="zoom" type="button">확대</button>
+        <span id="exposure">아직 참조 오버레이를 열지 않음</span>
+      </div>
+      <dl id="metadata"></dl>
+    </section>
+
+    <section class="form-panel">
+      <fieldset id="severityField">
+        <legend>프레임 가림 등급</legend>
+        <p id="severityHint"></p>
+        <div id="severityButtons" class="choice-grid"></div>
+        <label id="unknownWrap" class="hidden">UNKNOWN 근거
+          <textarea id="unknownReason" rows="2" placeholder="판정할 수 없는 구체적 이유"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>코너 가시성</legend>
+        <p>좌표 존재 여부를 가시성으로 추정하지 마세요. 잠긴 값은 기존 승인 주석입니다.</p>
+        <div id="corners"></div>
+      </fieldset>
+
+      <div class="case-actions">
+        <button id="save" class="primary" type="button">초안 저장</button>
+        <button id="nextPending" type="button">다음 미검수 항목</button>
+      </div>
+    </section>
+  </main>
+
+  <aside class="progress-panel">
+    <div><span>정사각형 가림</span><strong id="severityProgress">0 / 119</strong></div>
+    <div><span>평가 코너 가시성</span><strong id="visibilityProgress">0 / 0</strong></div>
+    <div class="transfer">
+      <button id="export" type="button">JSON 내보내기</button>
+      <label class="file-button">JSON 가져오기<input id="importFile" type="file" accept="application/json,.json"></label>
+      <button id="submit" class="danger" type="button">사람 검수 제출본 확정</button>
+    </div>
+    <p>‘제출본 확정’은 119개 정사각형 가림 등급과 검수자 이름을 요구합니다. 가시성은 부분 제출할 수 있으며 상태가 별도로 기록됩니다.</p>
+  </aside>
+
+  <dialog id="dialog"><p id="dialogText"></p><button id="dialogClose" type="button">확인</button></dialog>
+  <script src="/app.js"></script>
+</body>
+</html>

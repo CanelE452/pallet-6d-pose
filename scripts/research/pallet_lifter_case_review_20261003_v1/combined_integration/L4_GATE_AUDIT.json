@@ -1,0 +1,95 @@
+{
+  "schema_version": "lifter_l4_gate_audit_v1",
+  "status": "FROZEN_INFERENCE_AND_CONTINUITY_VERIFIED_HUMAN_BRANCHES_WAITING",
+  "frozen_sources_modified": false,
+  "model_inference_executed_by_this_audit": false,
+  "human_values_created": false,
+  "inputs": {
+    "run_pipeline_sha256": "0257c65eeddc5c64823c92224e0e98c1b70694e38cf9caedd40b52772c32c883",
+    "resume_sha256": "a852063ff8fdc175d6630ab19f27145bd4e7a66a8b1177c49e93b4b9584fc6f4",
+    "metrics_evaluator_sha256": "ff4b9fbb8b383a8cc6072860a31d746bcd90cf4fadd648d3b4d733b6883571c8",
+    "frozen_features_sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab",
+    "frozen_lifter_run_sha256": "6c659332e6b02381d2a6c358daf69d305a38c8d1ffb0b3964563b50d19f67932",
+    "ultralytics_version": "8.4.60",
+    "ultralytics_results_py_sha256": "fcab65a93a060771be49b5b2e2e602cf15db5a83970612bf2695e6a3bc5b2625"
+  },
+  "checkpoint_observation": {
+    "yolo_r0": {
+      "bytes": 6552807,
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7"
+    },
+    "n3_seed1": {
+      "bytes": 305470,
+      "sha256": "ceea743b7b8467cf43eef66582b923dd980e5b2fb27f5575af5df185109f22dd"
+    }
+  },
+  "gates": {
+    "L4_1_keypoint_validity": {
+      "status": "PASS_WITH_DERIVED_GUARD",
+      "finding": "The exact frozen extractor reads Ultralytics Keypoints.xy and stores confidence separately. Ultralytics 8.4.60 Keypoints.xy returns data[..., :2] without a sentinel transform; the frozen branch point_valid is finite(x,y). No confidence threshold or prediction sentinel is approved by the frozen inference contract.",
+      "bridge": "None/NaN and optional explicitly declared exact sentinels are distinct from finite off-image points; Base/N3 masks and selection must be identical.",
+      "negative_coordinate_blanket_rule": false,
+      "confidence_threshold_invented": false
+    },
+    "L4_2_object_correspondence": {
+      "status": "READY_WAITING_HUMAN",
+      "finding": "The frozen normalizer intentionally starts object_id/object_match as null while the evaluator blocks visible-corner accuracy until independent correspondence is supplied.",
+      "bridge": "A second localhost UI shows only the raw image and the one frozen selected box after corner-reference submission. It saves same/different/undetermined with reviewer/time/exposure provenance to a hash-bound sidecar, then derives a new evaluator JSONL without overwriting raw predictions.",
+      "method_specific_reselection": false,
+      "machine_decisions_promoted": false
+    },
+    "L4_3_partial_status": {
+      "status": "PASS_WITH_SEPARATE_STATUS_WRAPPER",
+      "finding": "The original resume status can collapse inference and human-reference exit codes.",
+      "bridge": "model bindings, 8910-frame inference, corner reference, object correspondence, stop intervals, and independent physical reference are reported independently; completed inference remains complete while human branches wait."
+    },
+    "L4_4_sample_coordinates_permutation": {
+      "status": "UNCHANGED",
+      "finding": "The bridge reuses the frozen 120/24 manifest and original-image coordinates. It does not alter canonical evaluation or enable the optional whole-object permutation mode."
+    }
+  },
+  "post_inference_observation": {
+    "inference_status": "VERIFIED_COMPLETE",
+    "stored_prediction_rows": 8910,
+    "raw_predictions_sha256": "42afc8214b4e13561831f5edd4d9736eb11aed430b3413abe366b3e6823f22a5",
+    "l4_predictions_sha256": "b80f4d2362f7ff04cb6851b1ec899e804fd7282c802efc633a5f163144c3f067",
+    "whole_stored_frame_continuity": "VERIFIED_COMPLETE",
+    "fresh_each_method": 8772,
+    "held_each_method": 0,
+    "no_pose_each_method": 138,
+    "same_frame_both_finite_pose_count": 8772,
+    "both_methods_valid_same_adjacent_pair_count": 8737,
+    "visible_corner_accuracy": null,
+    "object_correspondence": null,
+    "reviewed_stop_variation": null,
+    "independent_physical_accuracy": null,
+    "derived_output_directory": "combined_integration/output",
+    "method_improvement_claimed": false
+  },
+  "tests": {
+    "combined_integration": {
+      "passed": 6,
+      "failed": 0,
+      "includes": [
+        "None/NaN/exact sentinel/off-image/partial-mask fixtures",
+        "Base/N3 mask identity failure",
+        "localhost page/image/start/save/export",
+        "sidecar hash and selection binding",
+        "same/different/undetermined through existing metrics",
+        "machine decision rejection and separated partial status"
+      ]
+    },
+    "existing_metrics_regression": {
+      "passed": 16,
+      "failed": 0
+    },
+    "actual_derived_reporting": {
+      "passed": 7,
+      "failed": 0,
+      "evaluator_value_regression_checks": 197,
+      "review_overlay_frame_count": 120
+    },
+    "python_compile": "PASS",
+    "javascript_syntax": "PASS"
+  }
+}
