@@ -1,0 +1,114 @@
+% !TeX program = xelatex
+% Optional supplementary document. main.tex is the manuscript.
+\RequirePackage[T1]{fontenc}
+\RequirePackage{xcolor}
+\documentclass[journal,twoside,web]{ieeecolor}
+\usepackage{xcolor}\usepackage{jsen}
+\input{preamble}
+\hypersetup{pdftitle={팔레트 국소 키포인트 보정: 보충자료}}
+\begin{document}
+\renewcommand{\thetable}{S\Roman{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\title{영상 특징과 치수 정보를 활용한\\단안 팔레트 자세 추정용 국소 키포인트 보정\\보충자료}
+\author{\mbox{저자 정보 확정 전}}
+\markboth{\journalname, SUPPLEMENTARY MATERIAL}{PALLET KEYPOINT REFINEMENT: SUPPLEMENT}
+\IEEEtitleabstractindextext{%
+\fcolorbox{abstractbg}{abstractbg}{\begin{minipage}{\textwidth}
+\begin{abstract}
+본문의 중복을 줄이기 위해 이동한 상세 설정과 결과를 제시한다. 자료·평가 규칙·원수치는 본문과 같으며, 본문의 고정 자료를 사용하며, 별도 12장 PnP 보조 기하 참조의 탐색 패널은 공식 가시 코너 평가와 분리해 제시한다. 기본 추정기는 RGB만 받고 치수는 보정기와 자세 계산에서 사용한다. Base는 보정 없음, P는 별도 영상 보정 가중치, N0--N3는 통제 구성이다. 미확인 코너 가시성과 정사각형 가림 등급을 직접 가시 또는 clean으로 대체하지 않는다.
+\end{abstract}
+\begin{IEEEkeywords}보충 결과, 실험 설정, 팔레트 키포인트 보정.\end{IEEEkeywords}
+\end{minipage}}}
+\maketitle
+\section{기반 추정기와 추가 보정 설정}
+표~\ref{sup:backbone_contract}는 기반별 특징 채널·간격과 학습 대상을 정리한다. 모든 N3가 같은 물리적 치수 특징과 회전 대응 감독을 사용하지만 내부 특징 연결층과 보정 가중치는 별도로 학습한다. ResNet은 치수 문맥을 영벡터로 고정해 10 epoch 학습한 CONSTANT의 고정 특징 변환을 마지막 합성곱에 합친 RGB 모델이다. 별도 실제 치수 입력 FULL 모델을 본문의 Base로 사용하지 않았다.
+\input{supplement_tables/backbone_contract}
+
+\section{상세 자세와 정규화 영상 오차}
+표~\ref{sup:pose}는 위치·전체 회전·방향각의 중앙값과 P90, 3차원 상자 겹침 및 전체 실패를 포함한 AUC를 보존한다. 방향각과 전체 회전은 다른 물리량이다. 3차원 IoU는 방향을 고려한 상자의 교집합/합집합 비율이다. $\mathrm{ADD}_{\rm sym}$은 8코너에 객체 전체 회전 동등성을 적용한 평균 3차원 거리이며, 자유로운 최근접 표면 대응인 ADD-S와 다르다. AUC는 객체 대각선으로 정규화한 오차의 0--0.1 임계 범위에서 적분·정규화한다. 자세 실패는 전체 영상 분모에 유지한다.
+\input{supplement_tables/pose_results}
+
+추가 영상 지표 $E_{\rm sym}$은 영상별 평균 코너 오차를 해당 영상 대각선으로 나눈 뒤 영상 간 평균한 값이다. 결측·매칭 실패에는 영상 대각선 길이의 벌점을 적용한다. 이 프로젝트 정의를 표준 BOP 지표와 동일시하지 않는다. 표~\ref{sup:esym}은 원래 정의와 수치를 보존하지만 본문의 주요 결론은 코너 오차·\pckten·자세 오차·실패율에 근거한다. N2−N3에서 약 $2.8\times10^{-6}$의 차이만으로 회전 대응 감독의 유효성을 주장하지 않는다.
+\input{supplement_tables/esym_results}
+
+\section{재질과 정사각형 평가의 전체 행}
+표~\ref{sup:type_results}는 플라스틱 194장과 목재 125장에서 Base·P·N2·N3의 전후 결과이다. 재질에 따른 서로 다른 시점·가림 구성은 통제되지 않았으므로 재질의 인과 효과로 해석하지 않는다. 최신 사람 입력 등급은 목재를 포함하되 판정 기준은 미확인이고 집단 크기도 불균형하다. 재질별 전체 결과는 기존194/125장 분모로 유지한다.
+\input{supplement_tables/type_results}
+
+표~\ref{sup:square_results}는 영상 보정 P를 포함한 정사각형 전체 행이다. 두 모드는 같은 119장의 전체 수동 참조 602점과 영상 내부 600점으로, 화면 밖 좌표 2개 포함 여부만 다르다. 전자는 가능한 952개 코너 자리 전체가 아니라 실제 수동 참조가 존재하는 부분이며, 참조가 없는 350자리를 가시·비가시로 임의 지정하지 않았다. 독립 자세 참조가 없어 위치·회전은 x이다. 한 세션으로 세션 간 일반화의 신뢰구간을 얻었다고 주장하지 않는다.
+\input{supplement_tables/square_results}
+
+\section{가림과 코너 가시성의 상세 결과}
+표~\ref{sup:occlusion_results}는 사람 입력 등급(기준 미확인)에 따른 세 기반의 Base와N3 쌍이다. 없음153장·중간92장·어려움74장의 사후 집단만 갱신했으며 전체319장의 원래 코너·자세·실패 통계는 유지했다. 조건부 코너·자세 오차와 전체 참조·자세 산출 분모를 함께 보고한다. YOLO의 P·N2 전체 행, 각seed 및 과거 외부 가림128장의 원시 레이블과 결과는 별도CSV·분석 조각에 보존한다.
+\input{supplement_tables/occlusion_results}
+
+표~\ref{sup:visibility}는 잠금71점과 새3030개 상태를 중복 없이 연결한 직사각형2499점의 가시성별 결과이다. 원래 참조 좌표를 유지했고, 없는 좌표를 생성하거나 기계 제안을 사람 승인으로 승격하지 않았다. 정사각형602/600점 모드와 모든 기반의 상세 행은 동봉 CSV·JSON에 별도 보존한다. 노출 이력과 참조 생성 경로의 제한 때문에 독립 블라인드 가림 복원 정확도를 주장하지 않는다.
+\input{supplement_tables/visibility_results}
+\input{figures/current_review_summary}
+
+\section{큰 오류·손상·복구의 모든 집계}
+표~\ref{sup:tail}은 본문에서 축약한 이동 상한 안팎의 개선·무차이·악화 개수를 보존한다. seed 1·2·3 각각의 개수이며 평균 개수를 실제 정수 표본처럼 표시하지 않는다. 유효 평가 코너는 2,445개, 공동 자세 변화의 영상은 311장이다. 초기의 전체 참조 대응을 고정하고 같은 코너의 오차를 비교한다. 큰 오류를 줄이는 것과 10픽셀 미만으로 복구하는 것은 다른 관측이다.
+\input{supplement_tables/tail_results}
+
+\section{세션 구간과 seed 편차}
+표~\ref{sup:pose_uncertainty}의 변화는 통계량(N3)−통계량(Base)이며 프레임별 차이의 중앙값이 아니다. 13세션을 단위로 동일한 10,000개 재표집을 만들고 각 재표집 안에서 세 seed의 통계 차이를 평균한다. 2.5·97.5백분위 구간과 seed 표준편차·최솟값·최댓값을 함께 제시한다. P90에서 악화하거나 0을 포함하는 구간도 보존한다. 이 구간은 반복 개발자료의 사후 분석으로 선택 편향·다중비교를 모두 보정한 독립 확증이 아니다.
+\input{supplement_tables/pose_uncertainty}
+
+\section{처리 시간의 상세 계측}
+표~\ref{sup:cost}는 전체 CUDA event 중앙값·P90, 동기화 벽시계 중앙값, 보정 단독 시간과 최대 할당 메모리이다. 전체 중앙값 차이와 보정 단독 중앙값은 다른 계측량이다. 26프레임·batch 1·seed 1·준비 20회·프레임당 5반복을 사용하며 파일 읽기는 제외한다. DOPE·ResNet과 YOLO는 같은 GPU지만 실행환경이 달라 별도 패널로 표시한다. 다른 보정기 전체를 동일 환경에서 측정한 효율 순위를 뜻하지 않는다.
+\input{supplement_tables/cost_results}
+
+\section{비교군의 정보와 확인되지 않은 항목}
+표~\ref{sup:comparator_contract}는 결과 차이 해석에 필요한 입력·학습 범위를 정리한다. 확인되지 않은 사전학습·선택 이력을 동일하다고 가정하지 않는다. 보정 의사 레이블 학생의 교사는 별도 실사 감독과 구조를 사용하므로 N3 교사로 부르지 않는다. 원 논문의 결과와 팔레트에 적용한 변형의 결과도 구분한다.
+\begin{table*}[t]\centering\footnotesize
+\caption{보정 비교군의 입력·학습 범위와 남은 확인.}\label{sup:comparator_contract}
+\begin{tabularx}{\textwidth}{lYYY}\toprule
+방법 & 입력·변화하는 부분 & 확인된 추가 학습 & 해석상 제한 \\\midrule
+N3 & 내부 특징·초기 코너·박스·치수; 국소 코너 이동 & 3 seed, 6,000 updates, 96,000 노출/seed; 합성 calibration 온도 & 기반별 초기 학습·유효 표본은 다름 \\
+P / D / L & 내부 특징 기반 보정; 분포/회귀/선 구조의 출력·손실 차이 & 동결된 기존 체크포인트, 3 seed 평가 & 각 방법의 전체 감독·사전학습·튜닝 명세 추가 확인; 같은 예산이라고 소급 가정하지 않음 \\
+PoseFix 기반 & 영상·초기 자세; 팔레트 9점용 목표·지원 영역 변형 & 공식 네트워크 연산 대조; 3 seed, 6,000 updates, 96,000 노출/seed & 원 논문 전체 수렴 학습과 다름; 사전학습·자료·선택 경로의 완전한 동등성 미확인 \\
+업데이트 학생 & 초기 추정기의 가중치 갱신 & 완료된 기존 학생을 공통 128장에 평가 & 별도 교사·감독 예산; 독립 TEST 아님 \\
+\bottomrule\end{tabularx}
+\end{table*}
+
+\section{기록 영상의 시계열 출력}
+본문의 사례는 같은 네 기록 영상 8,910프레임에 대한 고정 모델 오프라인 비교이다. 두 방법의 frame ID와 결측 마스크는 전수 일치했고, 각각 8,772개의 새 자세와 138개의 no-pose를 냈으며 held 출력은 없었다. 표~\ref{sup:lifter_sessions}는 세션별 저장 분모와 가용성을 보인다. 이 수치는 사람 참조가 없는 출력 연속성이다. 운용 모델의 출력이나 제어 명령을 정답으로 사용하지 않는다. 별도 12장의 원래 G 기하 참조 96좌표(직접 클릭 66점·PnP 투영 30점)와 이후 직접 클릭 72점·자체 가림 24상태의 버전을 구분하고, 실제 대상 대응 12건을 확보하였다. 원래 공식 120/24장 직접 가시 참조 계약과 정지·독립 물리 참조가 필요한 값은 x로 보존하며, 별도 기하 참조 오차는 다음 절에 제시한다.
+\begin{table}[t]\centering\footnotesize
+\caption{기록 영상 세션별 고정 출력 가용성. Base와 N3의 분모와 상태는 같다.}\label{sup:lifter_sessions}
+\begin{tabularx}{\columnwidth}{Yrrrr}\toprule
+세션 & 저장 & fresh/no-pose & 산출률(\%) & 최장 완료 결측(s) \\\midrule
+173507 & 3,729 & 3,678/51 & 98.632 & 0.534 \\
+174126 & 757 & 717/40 & 94.716 & 2.268 \\
+174342 & 2,501 & 2,501/0 & 100.000 & NA \\
+174925 & 1,923 & 1,876/47 & 97.556 & 2.535 \\
+\bottomrule\end{tabularx}
+\tabnote{최장 결측은 첫 no-pose 저장 프레임에서 다음 fresh 프레임까지의 센서 시간이다. 저장되지 않은 카메라 프레임은 모델 실패로 세지 않는다.}
+\end{table}
+\begin{figure}[t]\centering
+\includegraphics[width=\columnwidth]{figures/lifter_prediction_timeseries.png}
+\caption{네 기록 영상의 Base와 Base+N3 자세 출력. 유한 출력만 연결하고 no-pose는 공백으로 남겼다. 정답 또는 실제 물리 궤적은 포함하지 않으므로 곡선의 근접성은 정확도 근거가 아니다.}\label{sup:case_slots}
+\end{figure}
+
+\section{PnP 보조 기하 참조의 별도 12장 탐색 패널}
+별도 탐색 패널은 네 세션에서 사전에 고정한 12장의 원래 G 저장본 96좌표를 사용한다. 직접 클릭 66점과 알려진 기하·클릭을 이용한 PnP 투영 30점을 동일한 0–7 코너 대응으로 평가한다. 이후 가시성 재검수의 직접 클릭 72점·자체 가림 24상태는 별도 버전으로 보존하고 혼합하지 않는다. 사람이 고정 선택 박스를 검수한 12장 모두 실제 주석 대상과 같았으며, 두 방법에 같은 frame ID·코너·선택 인덱스·결측 마스크를 적용했다. 참조 좌표를 모델 출력으로 교체하지 않고 재-PnP·점별 최근접 대응·튜닝·추가 학습 없이 원시 예측만 재집계했다. 이 패널은 공식 120장/24장 반복 가시 코너 검수나 독립 물리 T/R 측정을 완료한 결과가 아니다.
+\input{supplement_tables/lifter_assisted_sessions}
+
+같은 코너 96점에서 통계량 차이 median(N3)−median(Base)는 0.210px, P90(N3)−P90(Base)는 −0.666px이고, 점별 차이의 중앙값 median(N3−Base)는 0.090px다. 서로 다른 통계량을 혼동하지 않았다. 점별 개선/악화/동일은 46/50/0점이며, 프레임별 코너 중앙값의 변화는 개선 5장·악화 7장이다. PCK 적중은 88→91점으로 3.125\%p 증가했다. 원래 G 참조 생성 시점의 독립 블라인드 이력은 확인되지 않았으며, 현재 선택 박스 확인 이력은 실제 사람 검수 기록에 구분해 저장했다. 직접 클릭과 투영은 참조의 출처 정보이며 그 구분만으로 투영점을 배제하거나 수동 클릭의 우월성을 가정하지 않았다.
+\input{figures/lifter_assisted_all_frames}
+\FloatBarrier
+
+\section{추가 인계 자료와 기존 결과의 연결 검산}
+원래 검수 계획은 주 120건과 같은 사진의 반복 24건으로, 고유 사진 120장이다. 실제 사용자 제외 기록은 주 5건·반복 1건이며 제외 사진을 재투입하지 않았다. 기존 12장의 탐색적 기하 참조를 주 기록에 재사용할 수 있고, 미확보 주 참조 103건·실제 반복 기록 23건은 따로 남긴다. 이 원장 집계는 공식 전체 가시 코너 정확도나 반복 품질의 완료가 아니다. 원계획의 분모를 소급 변경하거나 주 좌표를 반복 주석으로 복사하지 않았다. 추가 클릭을 새로 요구하지 않았으며, 승인 미제출인 후속 좌표 저장본의 버전 민감도는 아래에 별도로 제시한다.
+\input{supplement_tables/remaining_connection}
+\subsection{중립 명령 조건의 저장 출력}
+모델 출력을 보지 않고 명령 기록에서 정의한 모든 32개 중립 CAN 구간을 재사용하였다. 센서 시각으로 연결한 저장 프레임은 8,263개이며 Base와 N3 각각 fresh 8,125개, no-pose 138개, held 0개이다. 동일 구간 안에서 x/z의 모집단 표준편차와 360도 wrapping만 제거한 yaw 표준편차를 계산했고 90/180도 가지 변화와 결측을 남겼다. 이는 명령 조건의 출력 분산이며 물리 정지·정착·잡음·정확도를 증명하지 않는다. 구간을 낮은 분산 순으로 고르거나 이동 구간을 제거하지 않았다. 실제 상대 정지 승인과 사전 선정 이력의 근거가 없어 원래 정지 evaluator의 x는 유지한다.
+\input{supplement_tables/neutral_command_coverage}
+\begin{figure}[t]\centering
+\includegraphics[width=\columnwidth]{figures/all_32_command_spreads.png}
+\caption{모든 중립 명령 후보의 구간별 출력 분산. 실제 상대 정지 미확인으로 정지 잡음이 아니다.}\label{sup:neutral_command_spread}
+\end{figure}
+\subsection{후속 좌표 저장본의 참조 버전 민감도}
+후속 저장본의 같은 12장·72좌표만을 고정하여 참조 버전 민감도를 확인하였다. 기존 직접 클릭 66좌표는 정확히 같고 원래 PnP였던 6자리에는 실제 나중 저장 좌표가 존재한다. 나머지 자체 가림 24자리는 좌표를 새로 생성하지 않았다. 저장본은 승인 미제출 초안이며 evaluation\_use=false이므로 이 결과를 공식 직접 가시 참조 정확도라고 주장하지 않는다. 원래 96점 결과를 교체하거나 오차를 보고 참조 버전을 선택하지 않았으며 각 표의 분모를 구분하였다.
+\input{supplement_tables/later_reference_sensitivity}
+\FloatBarrier
+\end{document}
