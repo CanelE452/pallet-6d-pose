@@ -1,0 +1,36 @@
+{
+  "schema": "quick_pose_loss_actual_execution_time_v1",
+  "training_seconds": {
+    "SOFT6D": 378.5579443501774,
+    "EXPECT6D": 375.9289554608986
+  },
+  "training_total_seconds": 754.486899811076,
+  "setup_seconds": 7.659721503034234,
+  "evaluation_loop_total_seconds": 31.535100801382214,
+  "probe_loop_total_seconds": 1.4571039320435375,
+  "report_seconds": 3.742268375819549,
+  "verification_seconds": 23.255386099917814,
+  "time_scope": "actual individual execution wall receipts; excludes implementation, coordination, Git publication and model deployment latency",
+  "completed_commands": [
+    "python -B -m scripts.research.pallet_quick_pose_loss_20261006_v1.setup --source-root /home/minjae/Documents/github/pallet-pose --bank-cache /tmp/pallet-joint-action-cache --cost-cache /tmp/pallet-pose-target-6d-cache --output-cache /tmp/pallet-quick-pose-loss-20261006-cache",
+    "python -B -m scripts.research.pallet_quick_pose_loss_20261006_v1.run --stage train",
+    "python -B -m scripts.research.pallet_quick_pose_loss_20261006_v1.run --stage evaluate",
+    "OPENBLAS_NUM_THREADS=4 OMP_NUM_THREADS=4 python -B -m scripts.research.pallet_quick_pose_loss_20261006_v1.run --stage report",
+    "python -B -m scripts.research.pallet_quick_pose_loss_20261006_v1.verification"
+  ],
+  "interpreter": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+  "cost_regeneration": 0,
+  "backbone_forwards": 0,
+  "formal_updates": 12000,
+  "formal_exposures": 192000,
+  "final_F_calls": 4608,
+  "private_checkpoint_paths": {
+    "SOFT6D": "/tmp/pallet-quick-pose-loss-20261006-cache/fits/SOFT6D_seed1/last.pt",
+    "EXPECT6D": "/tmp/pallet-quick-pose-loss-20261006-cache/fits/EXPECT6D_seed1/last.pt"
+  },
+  "publication": {
+    "branch": "main",
+    "mode": "normal fast-forward push; no force",
+    "post_push_SHA_receipt": "/tmp/pallet-quick-pose-loss-20261006-cache/PUSH_VERIFICATION.json"
+  }
+}

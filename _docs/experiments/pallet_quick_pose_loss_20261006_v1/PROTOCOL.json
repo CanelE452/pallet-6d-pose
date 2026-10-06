@@ -1,0 +1,158 @@
+{
+  "schema": "quick_fixed_soft_expected_6d_v1",
+  "status": "LOCKED_BEFORE_FIRST_FORMAL_UPDATE",
+  "instruction": {
+    "path": "/home/minjae/Downloads/pallet_cli_quick_soft_expected_6d_20261006.txt",
+    "sha256": "7ace1d8448221fd353bfa25cf86626fffffc934c224a776ebb504d9f36b63421",
+    "lines": 382,
+    "read_scope": "entire"
+  },
+  "baseline_commit": "a22fb14beb5e8df08076385000e0d53503c1ae29",
+  "base_results_commit": "e8e219ab111bc121235c49078459c679d6dc656e",
+  "publication_branch": "main",
+  "source_root": "/home/minjae/Documents/github/pallet-pose",
+  "candidate_bank_cache": "/tmp/pallet-joint-action-cache",
+  "pose_cost_cache": "/tmp/pallet-pose-target-6d-cache",
+  "output_cache": "/tmp/pallet-quick-pose-loss-20261006-cache",
+  "methods": [
+    "SOFT6D",
+    "EXPECT6D"
+  ],
+  "execution_order": [
+    "SOFT6D",
+    "EXPECT6D"
+  ],
+  "seed": 1,
+  "training_initialization": "same original random seed1 initialization; no warmstart",
+  "config": {
+    "c3": 64,
+    "c4": 128,
+    "hidden": 16,
+    "encoded": 24,
+    "stencil_fraction": 0.1310373991727829
+  },
+  "parameter_count": 20259,
+  "action_count": 201,
+  "NoOp_index": 0,
+  "changed_component": "only fixed training loss; native GEO bank/scorer/hardJ/prediction-only finalF unchanged",
+  "losses": {
+    "SOFT6D": "mean eligible -sum y log softmax(original scores), model temperature1",
+    "EXPECT6D": "mean eligible sum softmax(original scores)*r_effective, model temperature1"
+  },
+  "scale_m": 0.028436525629748143,
+  "tau": 0.18626943685048647,
+  "loss_setup_sha256": "4622afaaef37f0eb4003c6f611be496dd5376fbe5cd1eb6b027985b7ccb8436d",
+  "cost": "proper-rotation symmetry minimum corresponding canonical8corner ADDsym finalF against SYNTH GT, meters",
+  "failure": "original +inf cache preserved; SOFT target0 but model denominator retains candidate; EXPECT max valid scaled regret+1 approximation",
+  "code_bindings": {
+    "__init__.py": "3dc58c7ed57cea21f4056aa3e7442fd20c07f548caf8bd514f8c4edf35555c47",
+    "common.py": "a6d64277bb0b5d9fa56b77e688cea6dd968131a08a48a3a0d53375eed1ea43f9",
+    "losses.py": "566fa6a93f6f213d41fe2790e71ea4fc7bf9f77416117487aa47f28490beb9e6",
+    "setup.py": "dd6958089b44e6c1eec3f38e9b66790e235c059f49c7ef406c10726edb347736",
+    "training.py": "5f0bbbc73ec18231d4f0a9e78bbee52051bf272b77b8a79199367485e5fc5480"
+  },
+  "code_binding_scope": "all formal-training dependencies sealed; evaluation/reporting separately hashed before execution",
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "warmup": 100,
+    "cosine_steps": 5900,
+    "final_lr": 0.0001,
+    "clip_norm": 5
+  },
+  "numeric": {
+    "dtype": "FP32",
+    "TF32_matmul": false,
+    "TF32_cudnn": true,
+    "cudnn_benchmark": false
+  },
+  "budgets": {
+    "max_fits": 2,
+    "updates_per_fit": 6000,
+    "batch": 16,
+    "max_updates": 12000,
+    "max_train_exposures": 192000,
+    "max_probe_examples": 512,
+    "max_final_F_calls": 4608,
+    "cost_regeneration": 0,
+    "backbone_forwards": 0,
+    "new_seeds": 0
+  },
+  "checkpoint": {
+    "every_updates": 500,
+    "atomic": true,
+    "log_every_updates": 100,
+    "selection": "final6000 only"
+  },
+  "identities": {
+    "train": {
+      "count": 55915,
+      "sha256": "31ae62f900bdf034193735bdcfd8d9c96709b653684d86c776a11d12f0b58873"
+    },
+    "source_oracle": {
+      "count": 1031,
+      "sha256": "409e315465e6dcb0bd447bf7d28268e036ac2d32e386d3b341794ad7b07c586e"
+    },
+    "synthetic_evaluation": {
+      "count": 1985,
+      "sha256": "69e2482b231334d244f9c3bdf473ed1e7f213ca85316d4176757ea6c017a7448"
+    },
+    "real_evaluation": {
+      "count": 319,
+      "sha256": "3b929aa096d315b13046491930aa2da8f6a35200069122d573501f05e3fe0101"
+    }
+  },
+  "evaluation": {
+    "SYNTH_HELDOUT": 1985,
+    "REAL_DEV": 319,
+    "REAL_sessions": 13,
+    "independent_real_6d_pairs": 0,
+    "uncertainty": "single training seed and repeatedly reused DEV; intervals are frame/session uncertainty, not training-seed variability or independent confirmation"
+  },
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": 20260917,
+    "REAL_primary": "session",
+    "SYNTH_primary": "frame",
+    "SYNTH_secondary": "scenario",
+    "shared_draws": true
+  },
+  "decision": {
+    "ADD_direction_tolerance_m": 1e-07,
+    "comparison": "NEW-minus-baseline paired sameID mean",
+    "N3_6d_conditions": "REAL session ADD mean CI upper<0; REAL T/R medians nonworse; both splits pose failures nonincrease; SYNTH ADD mean nonworse",
+    "preservation_C": "each split failures, RAW canonical good5bad10, fullreference gross20, PCK10, conditional2D pooled median/P90 each nonworse",
+    "pose_P90": "separate B-tail flags, not additional C decision requirements",
+    "labels": [
+      "N3_BEAT_SIGNAL",
+      "N3_BEAT_WITH_TRADEOFF",
+      "POSE_TRADEOFF_SIGNAL",
+      "OLD_ONLY_GAIN",
+      "NO_CLEAR_GAIN",
+      "BLOCKED_DATA",
+      "BLOCKED_INTEGRITY",
+      "RUN_FAILED"
+    ],
+    "strict_T_and_R_medians_both_lower": "separate explicit boolean"
+  },
+  "secondary_analyses": [
+    "oracle gap and RAW recovery/headroom ratio >1e-7m, unclamped",
+    "oracle final W/D hypothesis SWITCH recovery"
+  ],
+  "forbidden": [
+    "paper/LaTeX/PDF/bibliography edits or builds",
+    "cost regeneration",
+    "backbone/detector forwards",
+    "architecture/candidates/F changes",
+    "temperature/LR/epoch search",
+    "extra fits or seeds",
+    "GT input/mask at inference",
+    "old output overwrite"
+  ],
+  "current_user_state_receipt": "/tmp/pallet-quick-pose-loss-20261006-cache/INITIAL_USER_STATE.json"
+}

@@ -1,0 +1,77 @@
+{
+  "schema": "quick_pose_loss_implementation_review_v1",
+  "status": "PASS_SCIENTIFIC_CONTRACT_WITH_CLI_FAIL_CLOSED_RESUME",
+  "review_time_utc": "2026-10-06T08:57:36.260448+00:00",
+  "scope": "read-only code/receipt review plus this new metadata receipt; no formal model/F/test execution",
+  "scientific_checks": {
+    "initialization": "actual FIRST_STEP digest equals original seed1; seed reset before scorer construction",
+    "architecture_and_parameters": "unchanged original JointActionScorer,20259",
+    "order_and_optimizer": "original order_seed1/6000x16/AdamW/schedule/clip5",
+    "numeric": "FP32, matmul TF32off, cuDNN TF32on, benchmarkoff",
+    "native_bank": "exact native201 actions/RAW NoOp/center, full TRAIN setup parity",
+    "loss": "SOFT6D CE or EXPECT6D exact201 finite effective cost sum; no extra regularizers",
+    "failed_candidates": "9 retain model softmax denominator; soft target0/EXPECT max finite relative+1",
+    "GT": "prediction forward batch has noGT; first-step teacher parity runs after forward/backward",
+    "execution_order": "SOFT6D6000 then EXPECT6D6000 independent of performance"
+  },
+  "sealed_training_code_sha256": {
+    "__init__.py": "3dc58c7ed57cea21f4056aa3e7442fd20c07f548caf8bd514f8c4edf35555c47",
+    "common.py": "a6d64277bb0b5d9fa56b77e688cea6dd968131a08a48a3a0d53375eed1ea43f9",
+    "losses.py": "566fa6a93f6f213d41fe2790e71ea4fc7bf9f77416117487aa47f28490beb9e6",
+    "setup.py": "dd6958089b44e6c1eec3f38e9b66790e235c059f49c7ef406c10726edb347736",
+    "training.py": "5f0bbbc73ec18231d4f0a9e78bbee52051bf272b77b8a79199367485e5fc5480"
+  },
+  "protocol_sha256": "7163c0a10d7a27b8a077a9342229304f513b0accdd7546df2224343cd883da1d",
+  "loss_setup_sha256": "4622afaaef37f0eb4003c6f611be496dd5376fbe5cd1eb6b027985b7ccb8436d",
+  "known_low_level_resume_ambiguity": {
+    "location": "training.fit ATTEMPT_STATE checkpoint500-to-next100-progress window",
+    "reason": "CHECKPOINTED remains visible while following updates may have started; incomplete low-level fit resumption can duplicate unknown updates",
+    "policy": "do not call training.fit or training CLI to resume any incomplete prior attempt"
+  },
+  "wrapper_resolution": {
+    "location": "run.py --stage train/all",
+    "status": "ENFORCED_BY_REVIEWED_CODE_NOT_A_RUNTIME_REJECTION_TEST",
+    "rule": "existing ATTEMPT_STATE without complete TRAIN_RECEIPTS method entry raises before any fits; complete outputs may be reused",
+    "current_runner_sha256": "93f5279cf386e496abe0e59ba910ebaec5eb745b56a6ed69ef083ae4b603a7f3",
+    "recommended_resume_scope": "completed output reuse only; incomplete attempt BLOCKED/RUN_FAILED"
+  },
+  "current_uninterrupted_run": {
+    "pid": 93965,
+    "process_start_ticks": 192178314,
+    "process_state": "R",
+    "executed_runner_sha256": "bf1678eb5b8a461239b37278dc044c1deb80ad7c8eb1cf1d59d83158c0502311",
+    "executed_runner_artifact": "/tmp/pallet-quick-pose-loss-20261006-cache/TRAIN_RUNNER_EXECUTED.py",
+    "statement": "original producer remains alive; its already loaded runner is preserved separately; sealed five fit dependency files unchanged",
+    "observed_SOFT6D_step": 3000,
+    "observed_SOFT6D_exposures": 48000
+  },
+  "toy_accounting": {
+    "actual_helper_invocations": 4,
+    "actual_toy_backpropagations": 32,
+    "agent_preprepare": [
+      {
+        "checks": 6,
+        "backpropagations": 5
+      },
+      {
+        "checks": 8,
+        "backpropagations": 9
+      }
+    ],
+    "prepare": {
+      "checks": 8,
+      "backpropagations": 9
+    },
+    "root_review": {
+      "checks": 8,
+      "backpropagations": 9
+    },
+    "formal_model_optimizer_updates": 0
+  },
+  "additional_review_model_forwards": 0,
+  "additional_review_F_calls": 0,
+  "additional_review_PnP_calls": 0,
+  "additional_review_optimizer_updates": 0,
+  "additional_review_test_reruns": 0,
+  "existing_code_or_manuscript_writes": 0
+}
