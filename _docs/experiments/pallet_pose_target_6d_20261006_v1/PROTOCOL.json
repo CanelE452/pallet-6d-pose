@@ -1,0 +1,150 @@
+{
+  "schema": "pose_target_6d_matched_protocol_v1",
+  "baseline_commit": "a22fb14beb5e8df08076385000e0d53503c1ae29",
+  "publication_branch": "main",
+  "branch_override": "Latest direct user instruction overrides attached suggested new branch; isolated baseline worktree detached; publish only this experiment on main",
+  "instruction": {
+    "path": "/home/minjae/.codex/attachments/71ba7103-71b7-4b0f-8c45-886200fa8b67/Pasted text.txt",
+    "sha256": "0c23442ef8db699c81c8b7bcb32b2ff4ccfeffdadc0633a6c4c31e3ec1c6ab39",
+    "lines": 1074,
+    "read_scope": "entire"
+  },
+  "method": "POSE_TARGET_GEO_J",
+  "only_changed_component": "training supervision: inherited soft squared2D teacher CE replaced by hard firstargmin exact final-F ADDsym CE",
+  "target": {
+    "cost": "Unchanged proper-rotation minimum mean corresponding canonical8corner3D distance(m), same existing oracle; not surface ADD-S",
+    "hard_index": "first lowest bank index among finite F costs; ties NoOp0 first; allFinvalid target=-1 explicitly excluded",
+    "F": "Unchanged prediction-only W/D hypothesis selection, SQPnP, existing nonlinear/refinement; original native float64 q; centerRAW; no GT hypothesis choice",
+    "failure_cost": "+inf, preserve each index; no fallback",
+    "loss": "torch.nn.functional.cross_entropy(inherited action_scores(output), hard target); identical scorer inference",
+    "GT_roles": "TRAIN target and offline saved-row diagnostics only; never bank generation, frozen features, inference scorer/readout/F choice"
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "max_fits": 3,
+  "steps_per_fit": 6000,
+  "max_optimizer_updates": 18000,
+  "batch": 16,
+  "smoke_optimizer_updates": 0,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "warmup_steps": 100,
+    "cosine_final_lr_fraction": 0.1,
+    "gradient_clip_norm": 5.0
+  },
+  "config": {
+    "c3": 64,
+    "c4": 128,
+    "hidden": 16,
+    "encoded": 24,
+    "stencil_fraction": 0.1310373991727829
+  },
+  "numeric": {
+    "axis_difference_rotation_rad": 1e-05,
+    "axis_difference_translation_m": 1e-05,
+    "sensitivity_min_px_per_unit": 1e-08,
+    "depth_epsilon_m": 1e-06,
+    "root_iterations": 24,
+    "bracket_iterations": 12,
+    "cap_tolerance_px": 1e-06,
+    "coordinate_duplicate_tolerance_px": 1e-07,
+    "headroom_ADDsym_m": 1e-07
+  },
+  "max_actions": 201,
+  "NoOp_index": 0,
+  "cap_image_diagonal_fraction": 0.01,
+  "candidate_bank": "Exact existing source GEO arrays read-only; no regeneration or PERM fits",
+  "candidate_bank_cache": "/tmp/pallet-joint-action-cache",
+  "pose_cost_cache": "/tmp/pallet-pose-target-6d-cache",
+  "source_root": "/home/minjae/Documents/github/pallet-pose",
+  "identity_registry": {
+    "train": {
+      "count": 55915,
+      "sha256": "31ae62f900bdf034193735bdcfd8d9c96709b653684d86c776a11d12f0b58873"
+    },
+    "source_oracle": {
+      "count": 1031,
+      "sha256": "409e315465e6dcb0bd447bf7d28268e036ac2d32e386d3b341794ad7b07c586e"
+    },
+    "synthetic_evaluation": {
+      "count": 1985,
+      "sha256": "69e2482b231334d244f9c3bdf473ed1e7f213ca85316d4176757ea6c017a7448"
+    },
+    "real_evaluation": {
+      "count": 319,
+      "sha256": "3b929aa096d315b13046491930aa2da8f6a35200069122d573501f05e3fe0101"
+    }
+  },
+  "feature_source": "Existing frozen source p3/p4 and unchanged realDEV captured features; no backbone/detector calls",
+  "training_order": "Existing order_seed1/2/3.npy exact; no DEV-selected checkpoint; last6000only",
+  "initialization": "same torch.manual_seed and cuda.manual_seed_all, same inherited scorer config; require each FIRST_STEP initial digest parity",
+  "inference": "inherited action_scores/output -> hard joint J firstargmax; noGT; identical native candidate then identical F",
+  "evaluation_sets": {
+    "synthetic": "All original1985 SYNTH_HELDOUT reusedDEV",
+    "real": "All319 REAL_DEV,13sessions,exploratory only; same2D+dimensions reconstructedreference not independenttest"
+  },
+  "screening": {
+    "before_first_new_metric": true,
+    "population": "SYNTH_HELDOUT only; no REAL gate",
+    "paired_signs": "SameID frame arithmetic mean NEWminusOLD for Tcm/Rdeg/ADDm; report med/P90 and paired95%bootstrap as well",
+    "tolerances": {
+      "ADDsym_m": 1e-07,
+      "translation_cm": 1e-09,
+      "rotation_deg": 1e-09
+    },
+    "STOP": "all three paired means worse than numeric tolerance AND RAWgood5->bad10 canonicalcorner damage count > OLD",
+    "CONTINUE": "at least one negative pairedmean with frame95%CIupper<0 AND Ffailure no increase AND RAWcanonicaldamagecount/gross20 no increase",
+    "MIXED": "if posepairedsignsmixed and at leastone negative mean beyond numeric tolerance AND all same failure/damage controls nonincrease, run fixedseeds2/3 to assess directional reproducibility; otherwise stopseed1 and record tradeoff/uncertainty",
+    "no_posthoc_tuning": true
+  },
+  "bootstrap": {
+    "seed": 20260917,
+    "resamples": 10000,
+    "real_unit": "session",
+    "synthetic_unit": "frame plus scenario secondary"
+  },
+  "recovery": {
+    "headroom": "RAW_ADDsym minus oracle_ADDsym",
+    "new_improvement": "RAW_ADDsym minus NEW_ADDsym",
+    "ratio": "newimprovement/headroom only headroom>1e-7m; no clamp; record excluded/alloutliers"
+  },
+  "integrity_gates": [
+    "full source/cache/checkpoint SHA match",
+    "bank generation/F byte equality",
+    "NoOp actual F parity",
+    "existing oracle reproduction",
+    "GT isolated from inference",
+    "index/failure/tie contract",
+    "allFfail exclusion accounting",
+    "initial state+order SHA parity",
+    "zero paper/manuscript/PDF/bib diff",
+    "if inherited action_scores cannot represent any finite target, BLOCKED_INTEGRITY before fit"
+  ],
+  "forbidden": [
+    "paper/manuscript/TeX/PDF/bibliography edits or build",
+    "original experiment writes",
+    "LR/epoch/cap/seed/temp/candidate sweeps",
+    "new backbone/features/geometry",
+    "real GT training",
+    "DEV checkpoint/model/hyperparameter selection",
+    "new followup experiment execution"
+  ],
+  "final_verdict_operationalization": {
+    "fixed_before_first_F_forward_fit": true,
+    "POSE_TARGET_SUPPORTED": "3 fixedseedfits and matchedPASS; NEWminusOLD at least1 paired seedmeanpose frame95%CIupper<0 and >=2/3 same metric perseedpairedmeansnegative; all3pose seedmeanpointmeans nonworse beyond inheritedtol; Ffailure/RAWgood5bad10/gross20 noincrease",
+    "POSE_TARGET_TRADEOFF": "Any pose improvement pointestimate beyond inheritedtol with opposingposemetric or2Ddamage/coveragetradeoff; reportCIuncertainty",
+    "POSE_TARGET_NOT_SUPPORTED": "No stable improvement/safety evidence underfixedrule; no3seedstableclaim fromseed1alone",
+    "BLOCKED_INTEGRITY": "Bank/cache/index/F/init/order/GT contractfailure invalidates matchedcomparison",
+    "N3_question": "SeparateN3_6D_question flag applying same frozenpairwise criteria; OLDtargetimprovementalone never impliesN3beat",
+    "N3_primary_baseline": "seed matched N3; report PoseFix/RAW/oracle separately withoutmodelselection"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "schema": "actual_execution_time_scope_v1",
+  "status": "PASS",
+  "receipt_inner_wall_seconds": {
+    "CPU_pose_cost_wall_seconds": 4890.596119888127,
+    "CPU_pose_cost_worker_seconds_sum": 74524.12222577282,
+    "CPU_parity_wall_seconds": 14.327230076072738,
+    "TRAIN_auxiliary_wall_seconds": 52.138198104919866,
+    "fit_wall_seconds": 386.74860430299304,
+    "evaluation_wall_seconds": 17.545598553027958
+  },
+  "pipeline_subprocesses": [
+    {
+      "module": "training",
+      "arguments": [
+        "aux",
+        "--source-root",
+        "/home/minjae/Documents/github/pallet-pose",
+        "--bank-cache",
+        "/tmp/pallet-joint-action-cache",
+        "--cost-cache",
+        "/tmp/pallet-pose-target-6d-cache"
+      ],
+      "subprocess_wall_seconds": 55.93484902381897,
+      "exit_code": 0
+    },
+    {
+      "module": "training",
+      "arguments": [
+        "fit",
+        "--seed",
+        "1",
+        "--source-root",
+        "/home/minjae/Documents/github/pallet-pose",
+        "--bank-cache",
+        "/tmp/pallet-joint-action-cache",
+        "--cost-cache",
+        "/tmp/pallet-pose-target-6d-cache"
+      ],
+      "subprocess_wall_seconds": 391.54499197006226,
+      "exit_code": 0
+    },
+    {
+      "module": "evaluation",
+      "arguments": [
+        "1",
+        "--split",
+        "all",
+        "--source-root",
+        "/home/minjae/Documents/github/pallet-pose",
+        "--bank-cache",
+        "/tmp/pallet-joint-action-cache",
+        "--cost-cache",
+        "/tmp/pallet-pose-target-6d-cache"
+      ],
+      "subprocess_wall_seconds": 33.46768069267273,
+      "exit_code": 0
+    },
+    {
+      "module": "reporting",
+      "arguments": [
+        "screen",
+        "--repo-root",
+        "/home/minjae/Documents/github/pallet-pose-target-6d-20261006"
+      ],
+      "subprocess_wall_seconds": 3.083190679550171,
+      "exit_code": 0
+    },
+    {
+      "module": "contract_tests",
+      "arguments": [],
+      "subprocess_wall_seconds": 2.0051257610321045,
+      "exit_code": 0
+    },
+    {
+      "module": "reporting",
+      "arguments": [
+        "final",
+        "--seeds",
+        "1",
+        "--repo-root",
+        "/home/minjae/Documents/github/pallet-pose-target-6d-20261006"
+      ],
+      "subprocess_wall_seconds": 4.457162380218506,
+      "exit_code": 0
+    }
+  ],
+  "scope": "fit/eval/aux receipt seconds are inner intervals after initialization/binding/input setup; pipeline seconds cover whole subprocess. GPU work mixes CPU/I/O; no isolated CUDA kernel timing measured. Cost wall includes native audit; parallel worker seconds are task wall sums, not CPU core time.",
+  "noncomputing_IO_transition_gap_seconds": 421.89740347862244,
+  "additional_F_calls": 0,
+  "additional_model_calls": 0,
+  "additional_optimizer_updates": 0
+}
