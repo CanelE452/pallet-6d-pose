@@ -1,0 +1,182 @@
+{
+  "schema": "quick_capacity_matched_joint_scorer_v1",
+  "status": "LOCKED_BEFORE_MODEL_CREATION",
+  "instruction": {
+    "path": "/home/minjae/Downloads/pallet_cli_quick_joint_scorer_20261006.txt",
+    "sha256": "14b91a96f34fc087d33b3dc1c589ae2b23ddcca1cd1673d95145d3c0ffc9ee63",
+    "lines": 324,
+    "read_scope": "entire"
+  },
+  "source_root": "/home/minjae/Documents/github/pallet-pose",
+  "candidate_bank_cache": "/tmp/pallet-joint-action-cache",
+  "pose_cost_cache": "/tmp/pallet-pose-target-6d-cache",
+  "output_cache": "/tmp/pallet-quick-joint-scorer-20261006-cache",
+  "baseline_root": "/home/minjae/Documents/github/pallet-pose-handoff-20261006",
+  "publication_branch": "main",
+  "base_results_commit": "2848501039859d618b6fae2c111e1d9a0ce5a1e3",
+  "methods": [
+    "LOCAL_CAP",
+    "JOINT8"
+  ],
+  "execution_order": [
+    "LOCAL_CAP",
+    "JOINT8"
+  ],
+  "seed": 1,
+  "config": {
+    "c3": 64,
+    "c4": 128,
+    "hidden": 16,
+    "encoded": 24,
+    "stencil_fraction": 0.1310373991727829
+  },
+  "shared_descriptor": {
+    "pooled": "existing motion pooled; NoOp existing null_pool",
+    "raw_context": "existing location/box/role",
+    "displacement": "existing normalized; NoOp zero",
+    "coverage": "existing inside fraction; NoOp valid-motion average",
+    "embedding": "existing metadata_encoder",
+    "NoOp_flag": true,
+    "channel_count": 81,
+    "channel_calculation": "48 pooled +13 raw_context +2 displacement +1 coverage +16 metadata +1 NoOp",
+    "shape": "B,M,8,D"
+  },
+  "phi": {
+    "input": 81,
+    "output": 15,
+    "bias": true,
+    "activation": "ReLU",
+    "seed": 101
+  },
+  "token": "concat(mask*phi(desc),maskbit); B,M,8,16; support0 all-zero via torch.where",
+  "LOCAL_CAP": {
+    "hidden": 260,
+    "input": 16,
+    "activation": "ReLU",
+    "output": 1,
+    "output_bias": false,
+    "shared_corners": true,
+    "aggregation": "supported corner mean",
+    "head_params": 4680
+  },
+  "JOINT8": {
+    "hidden": 36,
+    "input": 128,
+    "activation": "ReLU",
+    "output": 1,
+    "output_bias": false,
+    "ordered_roles": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "head_params": 4680
+  },
+  "initialization": {
+    "inherited_seed": 1,
+    "phi_seed": 101,
+    "head_first_layer_seed": 102,
+    "head_last_weight": 0,
+    "warmstart": false
+  },
+  "parameter_count": {
+    "inherited": 20259,
+    "phi": 1230,
+    "head": 4680,
+    "total": 26169,
+    "dummy": 0
+  },
+  "delta_coefficient": 1,
+  "loss": "unchanged existing losses.pose_loss(SOFT6D), exact saved FP32 targets; no new loss/temperature",
+  "loss_setup_sha256": "4622afaaef37f0eb4003c6f611be496dd5376fbe5cd1eb6b027985b7ccb8436d",
+  "target_paths": {
+    "soft_targets": "/tmp/pallet-quick-pose-loss-20261006-cache/soft_targets.npy",
+    "r_effective": "/tmp/pallet-quick-pose-loss-20261006-cache/r_effective.npy",
+    "eligible": "/tmp/pallet-quick-pose-loss-20261006-cache/eligible.npy",
+    "train_rows": "/tmp/pallet-quick-pose-loss-20261006-cache/train_rows.npy",
+    "calibration_rows": "/tmp/pallet-quick-pose-loss-20261006-cache/calibration_rows.npy",
+    "calibration_probabilities_2d": "/tmp/pallet-quick-pose-loss-20261006-cache/calibration_probabilities_2d.npy",
+    "calibration_support": "/tmp/pallet-quick-pose-loss-20261006-cache/calibration_support.npy",
+    "calibration_counts": "/tmp/pallet-quick-pose-loss-20261006-cache/calibration_counts.npy",
+    "calibration_branches": "/tmp/pallet-quick-pose-loss-20261006-cache/calibration_branches.npy"
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "warmup": 100,
+    "cosine_steps": 5900,
+    "final_lr": 0.0001,
+    "clip_norm": 5
+  },
+  "numeric": {
+    "dtype": "FP32",
+    "TF32_matmul": false,
+    "TF32_cudnn": true,
+    "cudnn_benchmark": false
+  },
+  "budgets": {
+    "fits": 2,
+    "updates": 12000,
+    "exposures": 192000,
+    "batch": 16,
+    "updates_per_fit": 6000,
+    "initial_parity_batches": 3,
+    "final_eval_examples": 4608,
+    "final_F_max": 4608,
+    "probe_examples": 512,
+    "probe_F": 0
+  },
+  "inference": "unchanged hard joint firstargmax; native float64 candidate and RAWcenter; unchanged prediction-only WD/SQPnP/refinementF",
+  "decisions": {
+    "N3_GAIN_SIGNAL": "REAL T/Rmed both strictly lower and REAL ADDmed/P90,T/RP90,failure,all corner preservation nonworse; no extra SYNTH gate",
+    "CONTROL_ONLY_GAIN": "JOINT8 same directional+preservation criteria versus LOCAL_CAP while N3 criteria fail",
+    "TRADEOFF": "any pose mean/median decrease with another pose/tail/corner/failure increase; retain individual flags",
+    "NOOP_COLLAPSE": "all2304 evaluated native indices0 means RAW retention, no correction gain",
+    "CI_zero": "directional unconfirmed; single training seed, reusedDEV; no multiple comparison correction",
+    "labels": [
+      "N3_GAIN_SIGNAL",
+      "TRADEOFF",
+      "CONTROL_ONLY_GAIN",
+      "NO_N3_GAIN",
+      "NOOP_COLLAPSE",
+      "BLOCKED_INTEGRITY",
+      "RUN_FAILED"
+    ]
+  },
+  "tolerances": {
+    "ADDsym_m": 1e-07,
+    "translation_cm": 1e-09,
+    "rotation_deg": 1e-09
+  },
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": 20260917,
+    "REAL_primary": "session",
+    "SYNTH_primary": "frame",
+    "SYNTH_secondary": "scenario",
+    "shared": true
+  },
+  "forbidden": [
+    "new cost/targets/banks/features",
+    "model/width/loss/temperature/epoch/seed search",
+    "extra fits",
+    "GT/oracle/filename/index/session head input",
+    "paper/LaTeX/PDF/bibliography changes"
+  ],
+  "external_dependency_scope": "private feature/checkpoint/cache and unchanged a22 worktree required; public checkout alone incomplete",
+  "training_code_bindings": {
+    "common.py": "156bc49b847ee7d3243f4d631b3a84ac37e4f566160b0066d5256f8cb53324c9",
+    "model.py": "cea5a080b38f33d9999da68ce55dbbcec33a2d389a2b8ae7facf52619ae4e9c3",
+    "training.py": "90e294e17029e7892ab509e8c1f64b35fc215ab9f0135150f2aa167c34e19821"
+  }
+}
