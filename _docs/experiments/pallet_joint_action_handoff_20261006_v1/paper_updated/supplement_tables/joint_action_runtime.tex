@@ -1,0 +1,19 @@
+\subsection{추가 후보 방법의 실제 배포 경계 비용}
+
+표~\ref{sup:joint_action_runtime}는 위 정확도 평가와 같은 seed1 가중치·hard J 경로를 새로운 조용한 계측 패널에서 비교한다. 본문의 Base/N3/PoseFix 패널과 같은 장치·경계지만 별도의 실행이므로 Base/N3도 이 패널의 원값을 따로 보인다. 모든 A 호출은 RAM의 native BGR 영상에서 시작하여 전처리·검출·공유 특징, 초기 prediction-only W/D 가설·민감도와 실제 투영 root search 후보 생성, 새로운 RGB 특징 patch 점수·hard J, 선택된 점의 실제 최종 W/D+PnP $F(q)$를 포함한다. 파일 decoding/loading과 oracle의 모든 후보 최종 $F$ 탐색은 포함하지 않는다.
+
+\begin{table}[t]\centering\small\caption{같은 RTX3080/pallet-yolo26 환경에서 새 A 계측 패널의 전체 벽시계 시간(ms). 13세션/26프레임, arm별 준비20회·프레임당5반복, batch1·사전 고정 seed1이다. 후보 arm은 각201후보를 실제 생성·채점하며 메모리는 모든 모델이 상주한 process여서 방법별 독립 메모리 순위가 아니다.}\label{sup:joint_action_runtime}\begin{tabular}{lrrr}\toprule 방법 & 중앙값(ms) & P90(ms) & 자세 산출 \\\midrule
+
+Base & 11.080 & 13.428 & 130/130\\
+
+N3 & 14.433 & 16.636 & 130/130\\
+
+동결 GEO--J & 56.663 & 59.235 & 130/130\\
+
+학습 GEO--J & 56.541 & 59.174 & 130/130\\
+
+학습 PERM--J & 56.667 & 59.837 & 130/130\\
+
+\bottomrule\end{tabular}\end{table}
+
+측정650회와 준비100회 총750호출의 원출력 검산에서 모든 arm의 최대 좌표 차이는 0px였고, J action·최종 W/D 가지·자세 산출도 정확히 일치했다. 기존 YOLO/N3의 cuDNN TF32 on·matmul TF32 off 수치 계약을 유지했으며 추가 학습은 없다. 먼저 CPU 집계와 겹쳤던750호출은 비용 비교에서 전부 폐기하고 조용한 재측정만 표에 사용했다. 이 실제 비용에서는 새 후보 방법이 N3보다 느리고 앞의 실제 DEV 정확도·손상도 실용 기준 대비 이득을 지지하지 않으므로 배포 개선으로 주장하지 않는다. 후보 oracle의 오프라인 호출량과 배포 비용을 합산하지 않는다.

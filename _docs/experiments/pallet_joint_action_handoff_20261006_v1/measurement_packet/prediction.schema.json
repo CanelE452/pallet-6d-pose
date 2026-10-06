@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pallet:final-pose-output:20261006:v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "coordinate_contract",
+    "method",
+    "frame_id",
+    "image_sha256",
+    "state",
+    "reference_access",
+    "weights_sha256",
+    "code_sha256",
+    "pose_contract_sha256",
+    "selection_rule_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pallet_final_pose_outputs_20261006_v1"
+    },
+    "coordinate_contract": {
+      "const": "opencv_optical__canonical_object_xyz_WHD__metre"
+    },
+    "method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "frame_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "image_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "state": {
+      "enum": [
+        "invalid_pose",
+        "no_detection",
+        "pnp_failure",
+        "success"
+      ]
+    },
+    "reference_access": {
+      "const": false
+    },
+    "weights_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "code_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "pose_contract_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "selection_rule_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "success"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "R_physical",
+          "centroid_m"
+        ],
+        "properties": {
+          "R_physical": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "centroid_m": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

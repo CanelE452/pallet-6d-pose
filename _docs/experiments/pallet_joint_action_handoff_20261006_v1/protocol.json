@@ -1,0 +1,166 @@
+{
+  "schema": "joint_action_handoff_protocol_v1",
+  "base_commit": "88ee557e09e32ee2c7dd11b17309e05a325cb3c2",
+  "plan": "EXECUTION_PLAN_KO.md",
+  "A": {
+    "schema": "newly_defined_handoff_A_v1",
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "max_fits": 6,
+    "steps_per_fit": 6000,
+    "batch": 16,
+    "max_updates": 36000,
+    "smoke_updates_max": 4,
+    "optimizer": {
+      "name": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "warmup_steps": 100,
+      "cosine_final_lr_fraction": 0.1,
+      "gradient_clip_norm": 5.0
+    },
+    "config": {
+      "c3": 64,
+      "c4": 128,
+      "hidden": 16,
+      "encoded": 24,
+      "stencil_fraction": 0.1310373991727829
+    },
+    "temperature": 1,
+    "lambda_value": 1,
+    "NoOp_index": 0,
+    "max_actions": 201,
+    "cap_image_diagonal_fraction": 0.01,
+    "numeric": {
+      "axis_difference_rotation_rad": 1e-05,
+      "axis_difference_translation_m": 1e-05,
+      "sensitivity_min_px_per_unit": 1e-08,
+      "depth_epsilon_m": 1e-06,
+      "root_iterations": 24,
+      "bracket_iterations": 12,
+      "cap_tolerance_px": 1e-06,
+      "coordinate_duplicate_tolerance_px": 1e-07,
+      "headroom_ADDsym_m": 1e-07
+    },
+    "directions": "12 signed single axes x radii {.25,.5,1}=36;64 six-axis sign directions x .5=64 per prediction-only W/D hypothesis",
+    "normalization": "finite-difference maximum valid-corner projected sensitivity per radian/metre, then bounded actual nonlinear projection root search; no corner clipping",
+    "motion": "left camera-axis Exp(delta_r) R_cf about object centre, t0+delta_t, not Exp(delta_r)t0",
+    "distortion": "unchanged legacy zero-distortion project/PnP contract; raw images inherit legacy pinhole assumption; not newly verified lens distortion",
+    "metadata": "fixed canonical dimensions [W,D,H] from renderer TRAIN sidetable (synthetic privileged operational geometry) or deployment registry (real known object type); no hypothesis embedding",
+    "permutation": {
+      "seed": 20261006,
+      "rule": "sha256(seed:frame_id) first8 little-endian -> numpy.default_rng;8 independent permutations of sorted valid action indices1..M-1;NoOp0 fixed;no re-filter"
+    },
+    "target": "single raw-prediction-selected approved GT symmetry tuple; mean supervised valid corner squared error;softmax(-e/(2*(boxdiag*.08/17)^2));mean common inference-support logits;frame mean on nonempty target support",
+    "readouts": {
+      "I": "per-corner hard argmax (larger product combination space)",
+      "J": "one-action common-support mean logits hard argmax;NoOp first tie"
+    },
+    "gate": "source_oracle only: any raw->oracle ADDsym_m improvement >1e-7m; numeric tie threshold fixed before first metric; not practical acceptance threshold",
+    "exposure_roles": {
+      "train": "synthetic supervised TRAIN eligible55915 of55980;65 excluded by prior matched/target rules",
+      "source_oracle": "all preexisting source selection1031;new development entry gate",
+      "synthetic_evaluation": "all1985 prior SYNTH_HELDOUT consumed by previous model comparisons;development diagnostic, no independent confirmation",
+      "real_evaluation": "319 frames/13 sessions repeatedly used DEV;reference reconstructed from same2D annotation and known dimensions, no independent metrology"
+    },
+    "IDs": {
+      "train": {
+        "count": 55915,
+        "sha256": "31ae62f900bdf034193735bdcfd8d9c96709b653684d86c776a11d12f0b58873"
+      },
+      "source_oracle": {
+        "count": 1031,
+        "sha256": "409e315465e6dcb0bd447bf7d28268e036ac2d32e386d3b341794ad7b07c586e"
+      },
+      "synthetic_evaluation": {
+        "count": 1985,
+        "sha256": "69e2482b231334d244f9c3bdf473ed1e7f213ca85316d4176757ea6c017a7448"
+      },
+      "real_evaluation": {
+        "count": 319,
+        "sha256": "3b929aa096d315b13046491930aa2da8f6a35200069122d573501f05e3fe0101"
+      }
+    },
+    "bootstrap": {
+      "seed": 20260917,
+      "resamples": 10000,
+      "real_unit": "session",
+      "synthetic_unit": "frame plus scenario secondary"
+    },
+    "safety": "No severe damage: proposed-minus-control good5_to_bad10 count <=0 and gross20 delta <=0; canonical GT identity aligned. Otherwise UNRESOLVED even if CI supports improvement.",
+    "verdict": "CI lower>0 WORSENED; CI upper<0 plus >=2/3 better and preservation+safety SUPPORTED; otherwise UNRESOLVED; integrity failure stops execution",
+    "selection": "no arm/readout/seed/cap/model selection from DEV;all fits last6000",
+    "input_bindings": [
+      {
+        "path": "data/pallet/results/pallet_line_pose_v1/SOURCE_MANIFEST.json",
+        "sha256": "feaa24075d31c4227e3397b7450a19a0f1d3a73dc0203d12a8ca5b927eb59789",
+        "bytes": 69618918
+      },
+      {
+        "path": "data/pallet/results/pallet_line_pose_v1/cache/CACHE_MANIFEST.json",
+        "sha256": "83458fbca3446f351b694617242641e35d108cc25f56fcdf85cc6397cbc6dc1b",
+        "bytes": 2054757
+      },
+      {
+        "path": "data/pallet/results/pallet_line_pose_v1/cache/CACHE_COMPLETE.json",
+        "sha256": "4ff2f69999ffa69abecb6f020e0db5c18bd8e7611ec70d5fdc6fda50ec3e81ad",
+        "bytes": 47496
+      },
+      {
+        "path": "data/pallet/results/pallet_dim_conditioned_p_v1/DIMENSION_SIDECAR.npz",
+        "sha256": "4746bbf40db027fbf34d8b33d3d6e8b0b9dbf5ddc69a73ba6a3f8934d01ace82",
+        "bytes": 19921282
+      },
+      {
+        "path": "challenge/yolo_pose_one_model/pallet_translation_loss_v1/GEOMETRY_SIDETABLE.npz",
+        "sha256": "6b76ef2882e2d829a77f3fcc80dfed331a9073a9fa954f8ee034fd406e11877b",
+        "bytes": 9140213
+      },
+      {
+        "path": "data/pallet/results/paper_pose_metric_closure_v1/AXIS_REVIEW_MANIFEST.json",
+        "sha256": "a436f8e898b9ee050441ee9fb3a4f0eaec731a20563a61d435d66a927d9b80c4",
+        "bytes": 588993
+      },
+      {
+        "path": "data/pallet/results/paper_pose_metric_closure_v1/GEOMETRY_RESOLVED_POSE_GT.json",
+        "sha256": "798959a6b9afc8e8c5d2a058e801a642b02b2462d6c94c67b82608486cf61666",
+        "bytes": 464533
+      },
+      {
+        "path": "challenge/config/CHALLENGE_OBJECT_GEOMETRY_REGISTRY.json",
+        "sha256": "9ae991450c384f4fcb82cff74a71fe07d51c5dcc496a5e8fcb28f41b4420ff76",
+        "bytes": 2939
+      },
+      {
+        "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N3_DIM_SYM_seed1/last.pt",
+        "sha256": "ceea743b7b8467cf43eef66582b923dd980e5b2fb27f5575af5df185109f22dd",
+        "bytes": 305470
+      },
+      {
+        "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N3_DIM_SYM_seed2/last.pt",
+        "sha256": "9731a0d269799c28e54a9a7c7c9de3a06cd05f75e7c0786e62f5eea65f8b953d",
+        "bytes": 303742
+      },
+      {
+        "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N3_DIM_SYM_seed3/last.pt",
+        "sha256": "4b04cae793c9a74fd346b84501eed1bac2e689fac257727ff1489e1235c208e3",
+        "bytes": 305534
+      }
+    ]
+  },
+  "B": "measurement_packet/SCHEMA_KO.md",
+  "C": "C_report_KO.md",
+  "maximum_new_formal_fits": 6,
+  "maximum_formal_updates": 36000,
+  "maximum_smoke_updates": 4,
+  "real_training_images": 0,
+  "new_hyperparameter_search": false,
+  "new_schemas": "Defined in component modules/documents; they are not assumed historical columns"
+}

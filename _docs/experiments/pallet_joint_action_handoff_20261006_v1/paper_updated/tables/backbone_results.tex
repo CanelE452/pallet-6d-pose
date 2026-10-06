@@ -1,0 +1,18 @@
+\begin{table*}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{세 기반 추정기의 보정 전후. 같은 기반 안의 동일 초기 출력에 N3를 적용한다. 조건부 자세 통계의 분모가 기반별로 달라 기반 간 순위표가 아니다.}\label{tab:backbones}
+\begin{tabularx}{\textwidth}{Ylrrrrrrrr}
+\toprule
+기반 & 경로 & \shortstack{코너 중앙값\\(px)} & \shortstack{코너 P90\\(px)} & \shortstack{\pckten\\(\%)} & \shortstack{위치 중앙값\\(cm)} & \shortstack{회전 중앙값\\(도)} & \shortstack{2D 매칭\\영상} & \shortstack{유효 예측\\코너} & \shortstack{자세 산출\\(\%)} \\
+\midrule
+YOLO & Base & 6.721 & 43.890 & 63.425 & 7.897 & 2.539 & 311/319 & 2,445 & 100.00 \\
+YOLO & N3 & 5.778 & 42.134 & 68.587 & 7.068 & 2.070 & 311/319 & 2,445 & 100.00 \\
+DOPE & Base & 12.570 & 51.282 & 24.170 & 10.046 & 3.530 & 233/319 & 1,797 & 65.83 \\
+DOPE & N3 & 7.469 & 53.570 & 44.338 & 8.356 & 3.051 & 233/319 & 1,797 & 65.83 \\
+ResNet-18$^\dagger$ & Base & 8.223 & 62.638 & 52.261 & 9.739 & 4.342 & 292/319 & 2,291 & 100.00 \\
+ResNet-18$^\dagger$ & N3 & 7.085 & 62.371 & 57.223 & 9.134 & 3.832 & 292/319 & 2,291 & 100.00 \\
+\bottomrule
+\end{tabularx}
+\tabnote{전체 319장·참조 2,499코너. 코너 중앙값·P90은 유효 매칭 코너에, 위치·회전은 산출된 자세에 조건부이다. YOLO Base/N3 자세는 전체 319/319장이며 2D 매칭 311/319장과 구분한다. N3는 세 seed의 통계 평균이며 앙상블이 아니다. $^\dagger$10-epoch CONSTANT-fold RGB 모델. 기반별 매칭·자세 산출 집합은 다르므로 조건부 오차만으로 기반의 절대 순위를 정하지 않는다.}
+\end{table*}

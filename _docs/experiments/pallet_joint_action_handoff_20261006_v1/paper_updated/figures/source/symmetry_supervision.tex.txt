@@ -1,0 +1,52 @@
+\documentclass[border=2mm]{standalone}
+\usepackage{fontspec,kotex,amsmath,amssymb,bm,tikz}
+\setmainfont{Liberation Sans}
+\setmainhangulfont{Noto Sans CJK KR}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\definecolor{Blue}{HTML}{00589C}
+\definecolor{Teal}{HTML}{277B78}
+\definecolor{Light}{HTML}{F0F6F5}
+\definecolor{Grey}{HTML}{56616B}
+\definecolor{Pale}{HTML}{F4F5F6}
+\begin{document}
+\begin{tikzpicture}[font=\fontsize{9}{11}\selectfont,
+ b/.style={draw=Teal,fill=Light,rounded corners=1mm,align=center,text width=2.5cm,minimum height=1.0cm,inner sep=4pt},
+ w/.style={draw=Grey,fill=white,rounded corners=.6mm,align=center,text width=2.5cm,minimum height=.8cm,inner sep=3pt},
+ arr/.style={-{Latex[length=2.2mm]},line width=.8pt,draw=Teal},
+ train/.style={-{Latex[length=2.2mm]},line width=.8pt,dashed,draw=Grey}]
+
+\node[anchor=west,font=\bfseries\fontsize{10}{12}\selectfont,text=Blue] at (-.1,1.8) {(a) 객체 구조·주석 규칙에서 허용하는 전체 회전 대응};
+\node[font=\bfseries,text=Grey] at (2.75,1.2) {직사각형: 180도 회전 대응};
+\node[font=\bfseries,text=Grey] at (12.05,1.2) {정사각형: 90도 간격 회전 대응};
+\foreach \cx/\angle/\aa/\bb/\cc/\dd in {1.3/0/a/b/c/d,4.3/180/c/d/a/b}{
+ \draw[Teal,fill=Light,thick] (\cx-1,-.3) rectangle (\cx+1,.65);
+ \node[above left,font=\footnotesize] at (\cx-1,.65) {\aa};
+ \node[above right,font=\footnotesize] at (\cx+1,.65) {\bb};
+ \node[below right,font=\footnotesize] at (\cx+1,-.3) {\cc};
+ \node[below left,font=\footnotesize] at (\cx-1,-.3) {\dd};
+ \node[font=\scriptsize,text=Grey] at (\cx,.17) {중심 8};
+ \node at (\cx,-.9) {$\angle^\circ$};
+}
+\foreach \cx/\angle/\aa/\bb/\cc/\dd in {7.4/0/a/b/c/d,10.45/90/b/c/d/a,13.5/180/c/d/a/b,16.55/270/d/a/b/c}{
+ \draw[Teal,fill=Light,thick] (\cx-.62,-.45) rectangle (\cx+.62,.79);
+ \node[above left,font=\footnotesize] at (\cx-.62,.79) {\aa};
+ \node[above right,font=\footnotesize] at (\cx+.62,.79) {\bb};
+ \node[below right,font=\footnotesize] at (\cx+.62,-.45) {\cc};
+ \node[below left,font=\footnotesize] at (\cx-.62,-.45) {\dd};
+ \node[font=\scriptsize,text=Grey] at (\cx,.17) {중심 8};
+ \node at (\cx,-.9) {$\angle^\circ$};
+}
+\draw[Grey!40] (-.1,-1.48)--(17.8,-1.48);
+\node[anchor=west,font=\bfseries\fontsize{10}{12}\selectfont,text=Blue] at (-.1,-1.93) {(b) 학습 전용: 하나의 전체 순열과 마스크를 함께 선택};
+\node[w,text width=3.35cm] (input) at (1.7,-3.0) {고정 초기 코너 $\mathbf u$\\허용된 정답 배열·마스크};
+\node[w,text width=3.25cm] (assign) at (6.2,-3.0) {초기 코너 기준\\평균거리 최소인\\전체 순열 선택};
+\node[w,text width=3.1cm] (tuple) at (10.6,-3.0) {선택된 전체 정답\\동일 순열의\\유효성 마스크};
+\node[w,text width=3.0cm] (target) at (15,-3.0) {목표 이동량\\목표 후보 분포 $q$};
+\draw[train](input)--(assign);\draw[train](assign)--(tuple);\draw[train](tuple)--(target);
+\node[b,text width=3.1cm] (prob) at (10.6,-4.8) {보정기 후보 확률 $p^{(1)}$};
+\node[w,text width=3.0cm] (loss) at (15,-4.8) {교차엔트로피 손실\\유효 코너·영상별 평균};
+\draw[train](target)--(loss);\draw[train](prob)--(loss);
+\node[align=left,text width=8cm,anchor=west,text=Grey,font=\fontsize{8}{10}\selectfont] at (-.1,-4.7) {각 코너를 자유롭게 섞는 대응이 아님. 실제 학습은 8개 코너에 동일한 순열을 적용함.\\지지면 형상만으로 네 방향 동등성을 자동 부여하지 않음.\\위 대응 선택과 정답 분포는 배포 추론에 존재하지 않음.};
+
+\end{tikzpicture}
+\end{document}

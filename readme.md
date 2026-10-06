@@ -1,3 +1,9 @@
+## 2026-10-06 공동 후보 A/B/C 실행과 실제 개정 원고
+
+[전체 결과·행별 근거·재개 명령](_docs/experiments/pallet_joint_action_handoff_20261006_v1/README_KO.md) · [주장과 증거 범위](_docs/experiments/pallet_joint_action_handoff_20261006_v1/CLAIM_EVIDENCE_KO.md) · [개정 본문 PDF](_docs/experiments/pallet_joint_action_handoff_20261006_v1/paper_updated/main.pdf) · [탐색적 A 결과를 포함한 보충 PDF](_docs/experiments/pallet_joint_action_handoff_20261006_v1/paper_updated/supplement.pdf).
+
+[확인] 원시 YOLO 점에서 시작하는 고정 기하 후보의 oracle 여지, 세 seed의 독립/공동 선택과 같은 예산의 GEO/PERM 학습을 구분해 보고해. 기존 N3 수치와 반복 사용 DEV319의 한계를 유지하고, 전체 참고문헌·원고와 동일 장치의 최종 PnP 포함 runtime을 실제 검산해. B 취득 패킷과 평가 CLI는 완성했지만 실제 독립 물리 가림 pair는 0개라 `BLOCKED_DATA`야. 별도 작업 branch의 결과이며 main 반영을 의미하지 않아.
+
 ## 2026-10-06 잔여 근거 인계 연결·재집계·원고 반영
 
 [최신 연결 검산·결과·이미지](_docs/experiments/pallet_remaining_evidence_connection_20261006_v1/README_KO.md) · [최신 전체 원고](_docs/experiments/pallet_remaining_evidence_connection_20261006_v1/paper_updated/manuscript_ko.md) · [보충 원고](_docs/experiments/pallet_remaining_evidence_connection_20261006_v1/paper_updated/supplement_ko.md). 원영상8,910프레임·정사각형119주석을 검산하고 기존12장·제외5ID를 연결했습니다. 명령32구간·후속72좌표의 별도 기술/민감도 표를 추가했으며, 원120/24·정지 잡음·독립 실측T/R의 미완료x는 유지합니다.

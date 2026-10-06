@@ -1,0 +1,102 @@
+% No geometry/titlesec/fancyhdr overrides: layout is owned by ieeecolor + jsen.
+\usepackage{iftex}
+\ifPDFTeX
+  % Compatibility path: pdfLaTeX must never load fontspec.
+  \usepackage[T1]{fontenc}
+  \usepackage{kotex}
+  \DeclareUnicodeCharacter{2212}{\ensuremath{-}}
+  \DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+  \DeclareUnicodeCharacter{2194}{\ensuremath{\leftrightarrow}}
+  \DeclareUnicodeCharacter{2264}{\ensuremath{\leq}}
+  \DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
+  \DeclareUnicodeCharacter{00D7}{\ensuremath{\times}}
+\else
+  \usepackage{fontspec}
+  \usepackage{kotex}
+  \IfFontExistsTF{TeX Gyre Termes}{\setmainfont{TeX Gyre Termes}}{\setmainfont{Liberation Serif}}
+  \IfFontExistsTF{TeX Gyre Heros}{\setsansfont{TeX Gyre Heros}[SmallCapsFont={TeX Gyre Heros}]}{\setsansfont{Liberation Sans}[SmallCapsFont={Liberation Sans}]}
+  \IfFontExistsTF{TeX Gyre Cursor}{\setmonofont{TeX Gyre Cursor}[Scale=MatchLowercase]}{\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]}
+  \IfFontExistsTF{UnBatang}{%
+    \setmainhangulfont{UnBatang}[AutoFakeSlant=.15,SmallCapsFont=UnBatang]
+  }{\setmainhangulfont{Noto Serif CJK KR}[AutoFakeSlant=.15,SmallCapsFont={Noto Serif CJK KR}]}
+  \IfFontExistsTF{UnDotum}{%
+    \setsanshangulfont{UnDotum}[AutoFakeSlant=.15,SmallCapsFont=UnDotum]
+  }{\setsanshangulfont{Noto Sans CJK KR}[AutoFakeSlant=.15,SmallCapsFont={Noto Sans CJK KR}]}
+  \IfFontExistsTF{UnDotum}{\setmonohangulfont{UnDotum}}{}
+\fi
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts,bm}
+\usepackage{graphicx,booktabs,array,tabularx,multirow}
+\usepackage{xcolor,wrapfig}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\usepackage{url}
+\usepackage{placeins,needspace}
+\usepackage{etoolbox}
+\usepackage[unicode,hidelinks]{hyperref}
+
+% The unmodified class explicitly asks for LOGO-jsen-web.eps four times.
+% Replace only that asset extension in memory; preserve all class geometry.
+\makeatletter
+\newcommand{\sensorslogopatch}{%
+  \patchcmd{\ps@titlepagestyle}{\logoname.eps}{\logoname.pdf}{}%
+    {\PackageError{sensors-compat}{Logo patch failed}{Use the supplied ieeecolor.cls.}}}
+\sensorslogopatch\sensorslogopatch\sensorslogopatch\sensorslogopatch
+
+% Korean-only compatibility: the legacy class hard-codes T1/Helvetica in
+% section/table/figure headings. Keep its sizes/spacing/colors unchanged,
+% but let Unicode engines select the configured Latin/Hangul sans families.
+\ifPDFTeX\else
+  \patchcmd{\section}{\fontencoding{T1}}{\normalfont\sffamily}{}{}
+  \patchcmd{\section}{\fontfamily{phv}}{}{}{}
+  \let\@IEEEappendixsavesection\section
+  \patchcmd{\@makecaption}{\fontencoding{T1}}{\normalfont\sffamily}{}{}
+  \patchcmd{\@makecaption}{\fontfamily{phv}}{}{}{}
+  \patchcmd{\tablefont}{\fontencoding{T1}}{\normalfont\sffamily}{}{}
+  \patchcmd{\tablefont}{\fontfamily{phv}}{}{}{}
+  \patchcmd{\figfont}{\fontencoding{T1}}{\normalfont\sffamily}{}{}
+  \patchcmd{\figfont}{\fontfamily{phv}}{}{}{}
+\fi
+
+
+\patchcmd{\@maketitle}{\sublargesize\sf\@author\centerline}{\sublargesize\sf\@author\par\centerline}{}{}
+% Correct an author-line break and empty-caption tests in the supplied legacy
+% class, without changing sizes, margins, column widths, or caption positions.
+\patchcmd{\@makecaption}{\if #2}{\if\relax\detokenize{#2}\relax}{}{}
+\patchcmd{\@makecaption}{\if #2}{\if\relax\detokenize{#2}\relax}{}{}
+\patchcmd{\@makecaption}{\if #2}{\if\relax\detokenize{#2}\relax}{}{}
+\patchcmd{\@makecaption}{\if #2}{\if\relax\detokenize{#2}\relax}{}{}
+
+% Use LaTeX's color-aware savebox wrapper in figure captions.
+% The legacy raw hbox loses color-stack scope when it is unboxed.
+\patchcmd{\@makecaption}{\setbox\@tempboxa\hbox}{\sbox\@tempboxa}{}{}
+\patchcmd{\@makecaption}{\setbox\@tempboxa\hbox}{\sbox\@tempboxa}{}{}
+\makeatother
+
+\definecolor{abstractbg}{rgb}{0.89804,0.94510,0.83137}
+\definecolor{PendingBG}{HTML}{F2F3F5}
+\definecolor{Muted}{HTML}{4D5962}
+\setlength{\fboxrule}{0pt}
+\setlength{\fboxsep}{0pt}
+\setlength{\emergencystretch}{2em}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\pending}[1]{\par\smallskip\noindent\colorbox{PendingBG}{\parbox{\dimexpr\columnwidth-2\fboxsep\relax}{\small\textbf{[추정·미검증: 추가 검증]} #1}}\par\smallskip}
+\newcommand{\draftnote}[1]{\par\smallskip\noindent{\small\color{Muted}\textbf{[확인 범위]} #1}\par\smallskip}
+\newcommand{\R}{\mathbf R}
+\newcommand{\tvec}{\mathbf t}
+\newcommand{\pvec}{\mathbf p}
+\newcommand{\uvec}{\mathbf u}
+\newcommand{\K}{\mathbf K}
+\newcommand{\dvec}{\mathbf d}
+\newcommand{\vvec}{\mathbf v}
+\newcommand{\notrun}{\textnormal{\sffamily x}}
+\newcommand{\NA}{\textnormal{해당 없음}}
+\newcommand{\tabnote}[1]{\par\vspace{3pt}\begin{minipage}{\linewidth}\footnotesize #1\end{minipage}}
+\newcommand{\figpending}[2]{\fcolorbox{Muted}{PendingBG}{\parbox[c][#1][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\centering{\sffamily\Large x}\par\medskip{\footnotesize #2}}}}
+\hypersetup{pdftitle={영상 특징과 치수 정보를 활용한 단안 팔레트 자세 추정용 국소 키포인트 보정},pdfauthor={Author information pending},pdfsubject={Korean manuscript revision 2026-10-06; original N3 snapshot preserved; independent metrology incomplete}}
+
+% Vector assets use PDF 1.7; no raster conversion or shell-escape is needed.
+
+
+\newcommand{\pckten}{\ensuremath{\mathrm{PCK}@10\mathrm{px}}}
+\newcommand{\base}{\textnormal{Base}}

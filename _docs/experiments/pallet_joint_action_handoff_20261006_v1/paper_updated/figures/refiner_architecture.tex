@@ -1,0 +1,49 @@
+\documentclass[border=2mm]{standalone}
+\usepackage{fontspec,kotex,amsmath,amssymb,bm,tikz}
+\setmainfont{Liberation Sans}
+\setmainhangulfont{Noto Sans CJK KR}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\definecolor{Blue}{HTML}{00589C}
+\definecolor{Teal}{HTML}{277B78}
+\definecolor{Light}{HTML}{F0F6F5}
+\definecolor{Grey}{HTML}{56616B}
+\definecolor{Pale}{HTML}{F4F5F6}
+
+\begin{document}
+\begin{tikzpicture}[font=\fontsize{10}{12}\selectfont,
+ b/.style={draw=Teal,fill=Light,rounded corners=1mm,align=center,text width=2.5cm,minimum height=1.0cm,inner sep=4pt},
+ w/.style={draw=Grey,fill=white,rounded corners=.6mm,align=center,text width=2.5cm,minimum height=.8cm,inner sep=3pt},
+ arr/.style={-{Latex[length=2.2mm]},line width=.8pt,draw=Teal},
+ train/.style={-{Latex[length=2.2mm]},line width=.8pt,dashed,draw=Grey}]
+
+\node[anchor=west,font=\bfseries\fontsize{11}{13}\selectfont,text=Blue] at (-1.5,3.15) {(a) 기반별 연결과 시각 증거: 221개 이동 후보 + 별도의 무이동 점수};
+\node[b,text width=2.8cm] (features) at (0,.7) {기반별 연결부 $a_\beta$\\두 수준 특징\\좌표·채널 규약};
+\node[b,text width=2.55cm] (adapt) at (3.9,.7) {$1\times1$ 채널 변환\\공통 표현};
+\node[b,text width=2.7cm] (sample) at (7.9,.7) {221개 후보별\\$4\times8$ 격자 보간};
+\node[b,text width=2.75cm] (patch) at (12,.7) {공유 패치 인코더\\평균·최대 집계};
+\node[b,text width=2.75cm] (vis) at (17,.7) {이동 후보 점수\\+ 무이동 점수\\$z^{\rm vis}_{kj}$ (222개)};
+\foreach \a/\b in {features/adapt,adapt/sample,sample/patch,patch/vis}{\draw[arr](\a)--(\b);}
+\node[w,text width=5.5cm,minimum height=.7cm] (cand) at (7.9,2.15) {초기 코너\quad 13방향 $\times$ 17반경\\네트워크 좌표 기준 $\ell_\beta^N\mathbf v_j$};
+\draw[arr](cand)--(sample);
+\node[w,text width=3.5cm,minimum height=.7cm] (null) at (12,-1.0) {후보 특징 집계\\코너 맥락 결합\\무이동 점수 분기};
+\draw[arr](patch.south)--(null.north);\draw[arr](null.east)--(17,-1)--(vis.south);
+\node[anchor=west,font=\bfseries\fontsize{11}{13}\selectfont,text=Blue] at (-1.5,-2.1) {(b) 치수 분기: 후보 위치가 아니라 모든 후보의 점수를 조정};
+\node[b,text width=2.7cm] (dims) at (0,-3.3) {객체 축 치수\\$(W,D,H)$};
+\node[b,text width=2.6cm] (df) at (3.9,-3.3) {로그 길이·비율\\5차원 표준화};
+\node[b,text width=2.6cm] (enc) at (7.9,-3.3) {치수 인코더\\$5\to16\to16$};
+\node[b,text width=2.8cm] (ctx) at (12,-3.3) {치수·역할·변위·0표시\\$16+8+2+1=27$};
+\node[b,text width=2.75cm] (meta) at (17,-3.3) {점수망 $27\to32\to1$\\$z^{\rm dim}_{kj}$ (222개)};
+\foreach \a/\b in {dims/df,df/enc,enc/ctx,ctx/meta}{\draw[arr](\a)--(\b);}
+\node[anchor=east,text=Grey,font=\fontsize{9}{11}\selectfont] at (16.8,-4.35) {마지막 층 0 초기화};
+\node[circle,draw=Teal,fill=Light,minimum size=.7cm] (plus) at (17,-5.55) {$+$};
+\draw[arr](vis.east)--(19,.7)--(19,-5.55)--(plus.east);
+\draw[arr](meta.south)--(plus.north);
+\node[b,text width=2.05cm] (soft) at (13.95,-5.55) {softmax\\추론 온도 $\tau$};
+\node[b,text width=2.6cm] (mean) at (10.6,-5.55) {변위 확률 가중평균\\$\bm\delta^{N,\beta}$};
+\node[b,text width=2.6cm] (inv) at (6.75,-5.55) {원본 이동 역변환\\$\bm\delta^I=A_\beta^{-1}\bm\delta^{N,\beta}$};
+\node[b,text width=2.85cm] (cap) at (3,-5.55) {원본 이동 제한\\대각선의 1\%\\초기점에 더함};
+\foreach \a/\b in {plus/soft,soft/mean,mean/inv,inv/cap}{\draw[arr](\a)--(\b);}
+\node[anchor=west,align=left,text=Grey,font=\fontsize{9}{11}\selectfont] at (-1.5,-7.10) {학습 손실은 $p^{(1)}$ 사용; 추론 온도 선택과 분리. N3 추론에는 별도 대칭 종류 코드 없음.\\각 기반은 축별 역변환 뒤 원본 좌표에서 동일한 1\% 이동 상한을 적용함.};
+
+\end{tikzpicture}
+\end{document}
