@@ -1,0 +1,13 @@
+--- student_score_executed.py
++++ student_score.py
+@@ -163,6 +163,10 @@
+            'GLOBAL_SUFFICIENT' if not(improves(depth,primary['GLOBAL_TARGET']) and improves(depth,primary['GLOBAL_POST_RGB_ONLY'])) else 'DEPTH_TO_RGB_SIGNAL')
+     if follows and label=='STUDENT_FOLLOWS_NO_DEV_GAIN' and fixed_gain:
+         label='FIXED_BRANCH_GAIN_ONLY'
++    if label=='GLOBAL_SUFFICIENT':
++        dominates=lambda a,b:all(a[k]['median']<=b[k]['median'] for k in ('z_abs_cm','translation_cm'))
++        label=('GLOBAL_SUFFICIENT_ON_POINT_ESTIMATES' if any(dominates(primary[a],depth) for a in ('GLOBAL_TARGET','GLOBAL_POST_RGB_ONLY'))
++               else 'GLOBAL_COMPARISON_UNRESOLVED')
+     damage={arm:sum(e['good5_to_bad10'] for r in eval_rows for e in r['damage'][arm]) for arm in RGB_ARMS}
+     C.save(C.DOC/'STUDENT_EVAL_ROWS.jsonl',''.join(json.dumps(C.clean(r),ensure_ascii=False,allow_nan=False)+'\n' for r in eval_rows))
+     C.save(C.DOC/'SOURCE_EVAL_ROWS.jsonl',''.join(json.dumps(C.clean(r),ensure_ascii=False,allow_nan=False)+'\n' for r in source_rows))

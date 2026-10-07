@@ -1,0 +1,197 @@
+{
+  "locked_at": "2026-10-07T15:37:59.847518+00:00",
+  "base_commit": "477e827cb50458bdd8144150bf7579053222a280",
+  "branch": "main",
+  "branch_instruction_resolution": "Direct user main-only/no-new-branch instruction overrides attached plan branch suggestion.",
+  "plan": {
+    "path": "/home/minjae/Downloads/pallet_depth_signal_pilot_plan_20261007.txt",
+    "sha256": "6940bd11d5a7308ed6fa2262722540b2d82190005df1cf9482c934639c0843b8",
+    "bytes": 22939
+  },
+  "teacher": {
+    "schema": "depth_signal_pilot_teacher_v1",
+    "face_shrink_fraction": 0.15,
+    "minimum_absolute_ray_normal_cosine": 0.3,
+    "grid_shape": [
+      32,
+      32
+    ],
+    "grid": "prediction-only visible shrunk-face union bounding rectangle; cell centers rounded to native pixels; raster-order deduplication",
+    "tile_shape": [
+      4,
+      4
+    ],
+    "split": "checkerboard (tile_x+tile_y)%2: fit A=0, heldout B=1",
+    "location_estimator": "median of nonempty tile medians; fit A supplies zD; B independently checks direction",
+    "minimum_nonempty_blocks_per_half": 1,
+    "directional_rule": "both independently bootstrapped half 95% intervals exclude z0 and half corrections have the same sign",
+    "bootstrap_replicates": 200,
+    "bootstrap_seed": 20261007,
+    "bootstrap_interval": [
+      0.025,
+      0.975
+    ],
+    "bootstrap_unit": "nonempty spatial tile, stratified by spatial half; A/B/pooled use the same 200 replicate IDs, not individual depth pixels",
+    "center_z_range_factors": [
+      0.8,
+      1.2
+    ],
+    "range_rule": "both half estimates must lie in range; no clipping or filtering pixel z estimates by range",
+    "no_change_numerical_tolerance_m": 1e-12,
+    "heldout_check": "median of B-tile median absolute optical-Z residuals on unchanged initial face/ray correspondences; no worsening",
+    "depth_units": "input depth_m is optical-axis Z in metres; pairing/unit/registration verification is caller responsibility",
+    "invalid": "nonfinite/nonpositive depth plus caller supplied previously known invalid codes in metres",
+    "projection": "existing OpenCV undistorted pinhole/no-distortion contract; selected R_cf/cf_extents, camera-facing corners0..7",
+    "transfer": "add projection delta only on existing supported finite non-sentinel corners0..7; center8 and unsupported slots unchanged",
+    "GT_inputs": false,
+    "model_calls": 0,
+    "F_calls": 0,
+    "parameter_search": 0
+  },
+  "private_inputs": {
+    "path": "/dev/shm/pallet-depth-signal-pilot-20261007/INPUTS_PRIVATE.json",
+    "sha256": "1919d63449fb9db94b7f4a8345cf0addb3f59333bd5fa5e33fcffbf89dbb4402",
+    "bytes": 2498042
+  },
+  "input_audit": {
+    "path": "_docs/experiments/pallet_depth_signal_pilot_20261007_v1/INPUTS.json",
+    "sha256": "c9ca183f3a711cd1ad6580cf6f28e222a0ad74a0004b7c8280d9b0338ba8395e",
+    "bytes": 774430
+  },
+  "sources": [
+    {
+      "path": "scripts/research/pallet_depth_signal_pilot_20261007_v1/pilot.py",
+      "sha256": "19d2e036e7aba8ec497b4aadc12c43550729b09f0af3f33c5df006ab0e513e9b",
+      "bytes": 21987
+    },
+    {
+      "path": "scripts/research/pallet_depth_signal_pilot_20261007_v1/teacher.py",
+      "sha256": "b5cd880338ffaf7bd28a8047fe9afe103bf47283b11c74088ca76587a03e2f80",
+      "bytes": 13444
+    },
+    {
+      "path": "scripts/research/pallet_depth_signal_pilot_20261007_v1/prepare_inputs.py",
+      "sha256": "ad0ce5311492510c3c832b9ff3134ad3a63ebe91f81b5f654c8d7e8fe66b5687",
+      "bytes": 18575
+    },
+    {
+      "path": "scripts/research/pallet_depth_signal_pilot_20261007_v1/common.py",
+      "sha256": "0ec0025186bd75661577eed2bc993b1e94fbd08ac7233fd297c6c5fda05b233e",
+      "bytes": 1984
+    },
+    {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/pose.py",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+      "bytes": 7720
+    },
+    {
+      "path": "challenge/evaluation_v2/pnp_selector.py",
+      "sha256": "3e89f318c7c4a3396c6e7c2f9280c1755f32d7bd7b3d61e8a56b9bd5d0bd512e",
+      "bytes": 30933
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py",
+      "sha256": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720",
+      "bytes": 10902
+    },
+    {
+      "path": "scripts/self_training_yolo/depth_corrected/audit_sensor_geometry_validation.py",
+      "sha256": "438054e87435f1db1d684fe1c826085d21abd6f9406d255831db37def77f50c4",
+      "bytes": 19548
+    },
+    {
+      "path": "data/pallet/results/pallet_clean_to_pose_transfer_v1/evaluation/S42/METADATA.json",
+      "sha256": "2afe95ea05c03f7ab9ad203b4b44cfd51fbf70f89c4117e6ce2b57693cc00fa3",
+      "bytes": 86230
+    },
+    {
+      "path": "data/pallet/results/pallet_clean_to_pose_transfer_v1/evaluation/S42/PREDICTIONS.json",
+      "sha256": "72c96a2ede741dc1dbcb583913980db92f5f2a400c0d7a9cedabe5dc0acdd62c",
+      "bytes": 2454656
+    },
+    {
+      "path": "data/pallet/results/pallet_clean_to_pose_transfer_v1/evaluation/S42/POSES.json",
+      "sha256": "944042105d564e6dc802d47ca30d73be25bb076b4bed390ce821a165abcc7a9f",
+      "bytes": 831128
+    },
+    {
+      "path": "data/pallet/results/pallet_clean_to_pose_transfer_v1/evaluation/S42/PREDICTIONS_LOCK.json",
+      "sha256": "ab4ca190983dc61956f31db4589d557cd6822fd4c98f2794610943868f4ea3f9",
+      "bytes": 7411
+    },
+    {
+      "path": "_docs/experiments/pallet_depth_signal_pilot_20261007_v1/SOURCE_EVAL_MANIFEST.json",
+      "sha256": "82b0c2d543863d440062d422986b82a58f66e9287ac593c27145c76e3da0efcb",
+      "bytes": 240779
+    },
+    {
+      "path": "_docs/experiments/pallet_depth_signal_pilot_20261007_v1/UNIT_CHECKS.json",
+      "sha256": "a47413f57c4d592dd53ff5ba70610caa83d912eb7eada522208e1d12d610c79c",
+      "bytes": 3013
+    },
+    {
+      "path": "scripts/research/pallet_depth_signal_pilot_20261007_v1/test_pilot.py",
+      "sha256": "dcc6e06e5ef485f25ec235a8320abb72a486d065ad6813f457aba0d3f57ca2fd",
+      "bytes": 7275
+    },
+    {
+      "path": "scripts/research/pallet_depth_signal_pilot_20261007_v1/test_teacher.py",
+      "sha256": "3c72b3c863e6b2a75c851d05ebe25280bb82aabcaf849ae7d92ef2a9c7bf5503",
+      "bytes": 8636
+    }
+  ],
+  "initialization": {
+    "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "bytes": 6552807
+  },
+  "reference": "Existing geometric reconstruction; repeated DEV, not physical ground truth or independent test.",
+  "gate": {
+    "depth_reference_minimum": 16,
+    "accepted_train_minimum": 32,
+    "train_recording_minimum": 2,
+    "full128_z_median_and_translation_median": "both strictly lower",
+    "mean_z_change": "nonworse",
+    "new_numeric_failures": 0,
+    "extreme_correction_count": "0 or 1",
+    "accepted_eval_recordings_minimum": 2,
+    "recording_dominance": "GO must retain z/T median improvement when omitting each accepted recording"
+  },
+  "budget": {
+    "teacher_train_max": 256,
+    "teacher_eval_max": 128,
+    "source_eval": 256,
+    "student_fits_max": 3,
+    "optimizer_updates_per_fit": 320,
+    "student_forward_max": 1248,
+    "missing_R0_forward_max": 384,
+    "GPU_fit_seconds_max": 1200,
+    "preparation_seconds_report_limit": 1800
+  },
+  "conditional_training": {
+    "arms": [
+      "RAW_TARGET",
+      "GLOBAL_TARGET",
+      "DEPTH_TARGET"
+    ],
+    "seed": 42,
+    "epochs": 5,
+    "batch": 16,
+    "updates": 320,
+    "real_slots_per_epoch": 512,
+    "source_slots_per_epoch": 512,
+    "optimizer": "AdamW",
+    "lr0": 1e-05,
+    "lrf": 0.1,
+    "weight_decay": 0.0001,
+    "warmup_epochs": 0,
+    "cosine": true,
+    "augmentation": "Existing CLEAR affine/HSV, shared samples and common support; no new occlusion augmentation",
+    "initialization": "Exact same R0, last checkpoint only",
+    "trainable": "Protected pose/flow only; backbone/detection/buffers frozen"
+  },
+  "operational_concretization": "Grid/tile layout and 95% block spread intervals instantiate the attached fixed rules; no DEV-driven setting search.",
+  "training_reference_coordinates_used": false,
+  "tuning": 0,
+  "new_annotations": 0
+}
