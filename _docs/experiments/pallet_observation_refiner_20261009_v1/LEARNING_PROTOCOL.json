@@ -1,0 +1,86 @@
+{
+  "schema": "new_source_learning_protocol_v1",
+  "arms": [
+    "GEOMETRY_ONLY",
+    "IMAGE_NO_ROLE",
+    "IMAGE_ROLE"
+  ],
+  "model": {
+    "channels": 28,
+    "width": 32,
+    "convolution_blocks": 2,
+    "kernel_size": 3,
+    "queries_per_edge": 7,
+    "edges": 12,
+    "candidates": 65,
+    "no_match_index": 65,
+    "search_original_pixels": 32,
+    "image_channels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "role_channels": [
+      25,
+      26,
+      27
+    ],
+    "detector_channels": "fixed mean groups: 8 P3 + 8 P4; frozen FP16 neck",
+    "image_stencil": "brightness and tangent/normal Sobel derivatives at each of 65 centers",
+    "feature_stencil": "bilinear at each candidate; zero padding; align_corners=False",
+    "decoding": "argmax 65+none, integer1px bin; no cross-basin averaging",
+    "geometry": "normal offset/32, normalized center x/y, tangent x/y, edge length/diagonal",
+    "role": "predicted projected convex-hull boundary / internal / unavailable"
+  },
+  "parameters": 5890,
+  "seed": 1,
+  "updates": 3000,
+  "batch": 16,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "warmup": 100,
+    "decay": "cosine to zero",
+    "gradient_clip_norm": 10
+  },
+  "checkpoint": "last only",
+  "initial_state_sha256": "d40067b3ca409a216ba6f6e874ff64c29cf16b90f444c76196b422997e26d231",
+  "batch_order_sha256": "016ad8829614a9b9691954fff030b1d63648a1fd1bd149bf55558188d2df0b31",
+  "supervised_fields_separate": true,
+  "source_test_scores_cannot_change_configuration": true,
+  "no_real_GT_read": true,
+  "no_model_reselection": true,
+  "shared_total_parameters": true,
+  "physical_distance_tolerance_relative_diagonal": 1e-05,
+  "depth_visibility_tolerance_relative_diagonal": 0.001,
+  "external_mask_support_radius_px": 1.5,
+  "variants": [
+    "existing_P0_original"
+  ],
+  "new_RGB_generation": 0,
+  "four_controlled_variants": "unrepresented: existing valid supervision takes precedence over new RGB creation",
+  "family_split": {
+    "path": "_docs/experiments/pallet_observation_refiner_20261009_v1/SOURCE_FAMILY_SPLIT.json",
+    "origin": "experiment",
+    "sha256": "3d5b08cc8e8b0d4b5920aeb713278a3069e6b7551b7bc3e03baefc90625c74b0",
+    "bytes": 632760
+  },
+  "normalization": "fixed physical units: brightness[-1,1], Sobel/4, pixel offsets/32, xy/width-height, length/diagonal; frozen neck raw FP16 grouped means; no estimated normalization"
+}

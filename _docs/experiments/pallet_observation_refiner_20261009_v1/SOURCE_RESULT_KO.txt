@@ -1,0 +1,17 @@
+기존 합성 RGB에서 유효한 경계 감독을 복구했고, 세 소형 모델의 지정 학습을 실제로 완료했다. 새 RGB 생성은 0장이다.
+
+현재 G38 40,000장, P0 10,000장, TEX 10,000장의 원천을 직접 확인했다. G38/P0에는 프레임별 visible/amodal PNG가 있고 TEX에는 같은 부가 PNG 10,000쌍이 현재 zip에 있다. 이 보유 상태를 과거 별도 모집단의 마스크 부재로 대체하지 않았다. 세 원천에는 저장된 depth/normal/face-ID가 없다.
+
+실제 scene.usd 메시는 현재 환경의 pxr로 읽을 수 있다. USD의 실제 삼각형과 변환을 사용한 CPU raycasting으로, 고정 128개 P0 기본장면 및 G38 추가 32장 중 동일 자산 9장의 amodal 마스크를 확인했다. 128개 P0는 모두 기준 IoU 0.995 이상과 좌표/이미지 계약을 통과했다. 직육면체 hull을 마스크로 사용하지 않았다. 수직 bbox 변 네 개는 둥근 실제 형상 밖에 있으므로 손실에서 IGNORE했다. 실제 footprint 경계의 대응 위치와 깊이 가시성을 감독으로 사용했다.
+
+scene.usd를 사용하는 기존 P0 기본장면 1,024개를 해시로 고정하고 768 train / 128 calibration / 128 source-test 가족으로 나눴다. 초기 detector를 각 기존 RGB에서 다시 한 번 실행한 1,024회 특징 준비는 144.98초였고 작은 후보 캐시는 313.9 MB였다. 타깃은 positive 17,825개, no-match 35,281개, ignore 32,910개다. RGB를 생성하거나 원본 영상/가중치를 수정하지 않았다.
+
+같은 5,890개 파라미터의 모델을 GEOMETRY_ONLY / IMAGE_NO_ROLE / IMAGE_ROLE 세 입력 조건으로 각각 3,000 update, batch16, seed1로 학습했다. 같은 초기 tensor와 배치 순서 및 AdamW 설정을 사용했다. 정식 업데이트는 9,000회와 144,000 RGB 노출이며 별도의 버림용 수치 preflight 100 update도 기록했다. 실제 세 fit은 총 64.35초였다. positive/no-match의 실제 gradient는 양수이고 IGNORE의 gradient는 0이다. 차단된 입력의 gradient 0과 모든 no-match가 관측 부족이 되는 경로도 확인했다.
+
+고정 source-test 128가족에서 positive 채택률과 채택된 대응의 조건부 위치 오차는 GEOMETRY_ONLY 33.78% / 1.137 px, IMAGE_NO_ROLE 50.36% / 0.917 px, IMAGE_ROLE 53.28% / 0.878 px다. no-match 오채택률은 각각 1.246%, 2.130%, 0.974%다. 이 값은 실제 자세 개선이 아니다. source 점수로 설정이나 후보 모델을 바꾸지 않았다.
+
+GT를 열지 않은 상태에서 실사 319장 × 3모델의 관측 957행을 봉인했다. 실제 두 경계의 교차점이 4개 이상인 영상은 GEOMETRY_ONLY 0장, IMAGE_NO_ROLE 6장, IMAGE_ROLE 0장이다. 일부 유효 query 채택이 늘어도 충분한 서로 다른 코너의 배치로 이어지지 않았다. 이 부족은 분류 정확도 게이트로 평가를 생략할 이유가 아니며, 부모 실행의 전체 319장 fallback·실제 자세 평가와 같은 IMAGE_ROLE 선 관측 절제로 연결한다.
+
+선택한 기존 P0에는 동일 장면의 외부 가림 / 비가리는 방해물 / 저대비 네 변형이 없다. 정확한 감독이 기존 자료에서 가능하면 새 RGB를 만들지 말라는 사용자 조건을 우선하여 새 변형을 만들지 않았다. E6 네 변형 검사는 미실행인 source coverage 공백이다. Windows 원본 renderer/background와 두 pallet GLB도 없으므로 전체 G38의 mesh ownership을 복구했다고 주장하지 않는다. 유효한 P0 부분집합은 이 자산 공백 때문에 중단하지 않았다.
+
+라이브 feature dtype 오류 1회와 이미 존재하던 고정 경계 OBSERVATIONS 파일의 안전한 저장 거부 후 추가 319장 실행을 모두 별도 기록했다. 기존 원행은 보존했고 체크포인트 재학습이나 결과 기반 설정 변경은 없었다. 최종 학습 관측은 LEARNED_OBSERVATIONS.jsonl.gz이며 부모 실행의 lossless 압축을 통해 모든 float32 후보 점수를 복원할 수 있다.
