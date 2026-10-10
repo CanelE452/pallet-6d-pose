@@ -1,0 +1,187 @@
+{
+  "schema": "actual_cornerwise_execution_and_preservation_ledger_v3",
+  "scope": "newv3 only; historical corrected9000 updates and earlier audits separately recorded",
+  "complete": true,
+  "new_training_updates": 0,
+  "new_RGB": 0,
+  "new_seed": 0,
+  "phases": {
+    "CPU_checks": {
+      "invocations": 1,
+      "checks": 13,
+      "passed": true,
+      "actual_OpenCV": {
+        "solvePnPGeneric": 1687,
+        "solvePnPRefineLM": 56,
+        "solvePnP": 0
+      }
+    },
+    "original_inference": {
+      "invocations": 1,
+      "terminal_exit": 1,
+      "complete_frames": 160,
+      "resource_guard_interruption": true,
+      "specific_failed_resource_snapshot": null
+    },
+    "continuation": {
+      "invocations": 1,
+      "terminal_exit": 0,
+      "fresh_remaining_frames": 85,
+      "recomputed_prefix_frames": 0,
+      "compressed_prefix_bytes_preserved": true
+    },
+    "accuracy": {
+      "unique_fresh_frames": 245,
+      "method_rows": 980,
+      "fixed_rows": 490,
+      "methods": [
+        "N3_CORNERWISE_ROLE",
+        "N3_VALIDATED_ROLE",
+        "N3_BASIN_ROBUST",
+        "N3_BASIN_NO_MASK_ROBUST"
+      ],
+      "actual_paths": {
+        "detector_calls": 245,
+        "N3_route_calls": 245,
+        "initial_pose_calls": 245,
+        "base_control_pose_calls": 245,
+        "ROLE_head_calls": 245,
+        "feature_initial_pose_calls": 245,
+        "LOO_pose_paths": 423,
+        "final_pose_paths": 980
+      },
+      "actual_models": {
+        "detector": 247,
+        "N3": 245,
+        "ROLE": 245
+      },
+      "actual_OpenCV": {
+        "cornerSubPix": 1885,
+        "solvePnP": 1470,
+        "solvePnPRefineLM": 5373,
+        "solvePnPGeneric": 66140
+      },
+      "GT_before_geometry_seal": false,
+      "prefix_per_frame_bank_records": null
+    },
+    "score": {
+      "invocations": 1,
+      "terminal_exit": 0,
+      "rows": 1470,
+      "model_calls": 0,
+      "new_pose_fits": 0
+    },
+    "statistics": {
+      "invocations": 1,
+      "terminal_exit": 0,
+      "requested_CI_slots": 189,
+      "new_bootstrap_draws": 0
+    },
+    "timing": {
+      "invocations": 1,
+      "terminal_exit": 0,
+      "complete": true,
+      "fresh_complete_paths": 600,
+      "warmup_paths": 80,
+      "measured_paths": 520,
+      "actual_paths": {
+        "detector_calls": 600,
+        "initial_pose_calls": 600,
+        "N3_route_calls": 450,
+        "final_pose_paths": 300,
+        "ROLE_head_calls": 150,
+        "feature_initial_pose_calls": 150,
+        "LOO_pose_paths": 197
+      },
+      "actual_models": {
+        "detector": 601,
+        "N3": 450,
+        "ROLE": 150,
+        "detector_internal_initialization_calls": 1
+      },
+      "actual_OpenCV": {
+        "solvePnP": 1800,
+        "solvePnPRefineLM": 3357,
+        "cornerSubPix": 3513,
+        "solvePnPGeneric": 47787
+      },
+      "cache_replay": false
+    },
+    "independent_verification": {
+      "invocations": 1,
+      "terminal_exit": 0,
+      "passed": true,
+      "counts": {
+        "raw_scored_rows_loaded": 1470,
+        "posthoc_rows_loaded": 980,
+        "pair_groups_checked": 63,
+        "resample_denominators_computed": 630000,
+        "metric_CI_slots_checked": 189,
+        "paired_delta_values_computed": 23394,
+        "nonempty_resampled_means_computed": 1530000
+      }
+    },
+    "public_verification": {
+      "invocations": 1,
+      "terminal_exit": 0,
+      "passed": true,
+      "moment_checks": 972,
+      "private_dependencies_required": false
+    },
+    "render": {
+      "invocations": 1,
+      "terminal_exit": 0,
+      "plots": 2,
+      "fixed_cases": 6,
+      "panels": 18,
+      "new_model_PnP_calls": 0
+    }
+  },
+  "code_freezes": {
+    "original": "one_shot_cornerwise_refiner_protocol_v3",
+    "continuation": "cornerwise_data_only_continuation_protocol_v3",
+    "original_freeze_invocations": 1,
+    "continuation_freeze_invocations": 1
+  },
+  "protection": {
+    "previous_tracked_sparse_files": 16584,
+    "source_checkout_unchanged": true,
+    "completed_local_audits_protected": true
+  },
+  "publication": {
+    "target_branch": "research/observation-refiner-robust-pnp-20261009",
+    "parent_commit": "fb4ded61cb8003b3094ee2ea1a2fe4597089fa1f",
+    "observed_remote_main_before": "7eed4e031561578abb79337d9df4aa5bdc3b07cf",
+    "main_actions": 0,
+    "force_push": false,
+    "remote_commit_parity": "verify after normalcommit/push; final receipt outside self-referential commit"
+  },
+  "objective": {
+    "primary_T_and_R_improvement": false,
+    "method_runnable": true,
+    "configuration_sweep": false,
+    "physical_GT_independently_validated": false
+  },
+  "argv_environment": {
+    "PALLET_SOURCE_ROOT": "original source checkout (external readonly)",
+    "PALLET_BASELINE_ROOT": "immutable a22 baseline checkout (external readonly)",
+    "OMP_NUM_THREADS": 4,
+    "OPENBLAS_NUM_THREADS": 4,
+    "MKL_NUM_THREADS": 4,
+    "python": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+    "bytecode": false
+  },
+  "argv": {
+    "selection_checks": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.test_selection",
+    "freeze": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.run freeze --output <newv3DOC>",
+    "infer": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.run infer --output <newv3DOC>",
+    "resume_freeze": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.resume freeze",
+    "resume": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.resume resume",
+    "score": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.evaluate score --output <newv3DOC>",
+    "statistics": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.statistics --input <newv3DOC> --output <newv3DOC>",
+    "timing": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.runtime measure",
+    "verification": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.verify --input <newv3DOC> --output <newv3DOC>",
+    "public_review": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.public_review --output <newv3DOC>/PUBLIC_REVIEW_CHECKS.json --export-csv <newv3DOC>/PER_FRAME.csv",
+    "render": "-B -m scripts.research.pallet_cornerwise_refiner_20261010_v3.render --output <newv3DOC>"
+  }
+}
