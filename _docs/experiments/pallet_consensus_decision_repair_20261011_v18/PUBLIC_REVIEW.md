@@ -1,6 +1,6 @@
 # 공개 원행 복원과 저장 결과 검산 안내
 
-이 문서는 앞선 byte bundle에서 명시적으로 제외한 후기 안내다. 보호된 V17 보고서와 V18 실험 코드는 수정하지 않는다. **공개 복사본 reader 4개는 실제 PASS이며, V16–18 게시 확인은 아직 진행 중이다.** [공개 reader 증거](PUBLIC_READER_CHECKS.json)와 아래 실제 출력 12개가 권위다. 문서의 명령 작성 자체를 새 실험 실행으로 세지 않는다.
+이 문서는 앞선 byte bundle에서 명시적으로 제외한 후기 안내다. 보호된 V17 보고서와 V18 실험 코드는 수정하지 않는다. **공개 복사본 reader 4개는 실제 PASS이며, V16–18 payload를 커밋 `8a863c0044a74378fe5688ad3896654dcab495f6`으로 정상 게시하고 원격 SHA 일치를 확인했다.** [실제 게시 영수증](../pallet_observation_refiner_status_20261011/PUSH_V16_V18_RECEIPT.json)은 명시한 UTC의 payload 검사이며 후기 metadata commit의 자기 hash라고 주장하지 않는다. 고정 생성 보고서의 게시 대기는 생성 당시 상태다. [공개 reader 증거](PUBLIC_READER_CHECKS.json)와 아래 실제 출력 12개가 권위다. 문서의 명령 작성 자체를 새 실험 실행으로 세지 않는다.
 
 [실제 byte bundle](PUBLIC_BUNDLE_CHECKS.json)은 처음 없던 공개 복사본에 529파일·5,073,312,474B를 만들었다. 직접 복사 518개와 공개 ordered parts에서 복원한 원 gzip 11개를 구분하며 [manifest](PUBLIC_BUNDLE_MANIFEST.json)에 SHA/bytes를 보존했다. Git clone이나 private 원 RGB·weights·annotation GT의 복사라고 주장하지 않는다.
 
@@ -70,4 +70,4 @@ Root는 복사본에서 reader 4개를 실제 실행한 뒤 출력 3개씩, 총 
 
 [방법 진단](METHOD_DIAGNOSIS_KO.md), [대응 audit](CORRESPONDENCE_AUDIT_CHECKS.json), [저장 readout](CORRESPONDENCE_AUDIT_READOUT.json)은 같은 q의 conditional LOO 잔차·pose-fit residual과 알려진 proxy quality를 구분한다. H∪k 제외는 구현되어 있고, 승인 NEW에서는 초기 H XY를 fit에서 빼고 최종 projection으로 교체한다. fallback은 원 all8 N3다. N3 이미지의 `H(pred)=[]`는 fixed metadata 기본값이며 실제 가림 없음 인증이 아니다. 물리 edge ownership·독립적인 실제 pose GT·전역 유일성은 아직 인증하지 못했다.
 
-공개 byte bundle은 Git clone이라고 부르지 않는다. 저장 score의 reference는 보존하지만 private 원 RGB·weights·원 annotation GT를 복사하지 않는다. 저장 tick·계수 검산은 하드웨어 지연의 새 측정이나 절대적 하드웨어 진실성 인증이 아니다. V16의 full 564 FAIL은 유지하고 V18의 좁은 point-only 결정 검사를 구분한다. 후기 문서·reader proof는 앞선 frozen byte bundle에 포함됐다고 주장하지 않는다. 전용 브랜치 게시 commit과 원격 SHA 일치는 Root의 실제 후속 게시 영수증에서 확인해야 한다.
+공개 byte bundle은 Git clone이라고 부르지 않는다. 저장 score의 reference는 보존하지만 private 원 RGB·weights·원 annotation GT를 복사하지 않는다. 저장 tick·계수 검산은 하드웨어 지연의 새 측정이나 절대적 하드웨어 진실성 인증이 아니다. V16의 full 564 FAIL은 유지하고 V18의 좁은 point-only 결정 검사를 구분한다. 후기 문서·reader proof는 앞선 frozen byte bundle에 포함됐다고 주장하지 않는다. 전용 브랜치 payload commit과 당시 원격 SHA 일치는 [실제 게시 영수증](../pallet_observation_refiner_status_20261011/PUSH_V16_V18_RECEIPT.json)에서 확인한다. [후기13 query 인덱스](../pallet_observation_refiner_status_20261011/REMAINING_THIRTEEN_QUERIES.json)는 저장 literal·ID·LOO/fit·support만 연결하며 independent physical ownership을 인증하지 않는다. [기존 원주석 source 태그13 확인](../pallet_observation_refiner_status_20261011/REMAINING_THIRTEEN_SOURCE_TAGS.json)은 현재 원주석 bytes/SHA 보존과 unknown6/manual_click6/pnp_projected1을 기록하며 기존 phase를 물리적 ID 승인으로 취급하지 않는다. [남은 문제](../pallet_observation_refiner_status_20261011/REMAINING_PROBLEM_KO.md)는 두 수정 완료와 정확도 미해결·최소 독립 확인을 구분한다. 이 후기 metadata는 앞선529 byte bundle과 payload의 원행·수치·실험 code를 바꾸지 않는다.
