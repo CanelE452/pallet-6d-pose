@@ -1,0 +1,54 @@
+{
+  "status": "SEALED_BEFORE_NEW_DEV_ERROR_EVALUATION",
+  "created_at": "2026-10-10T14:07:53.818797+09:00",
+  "base_main_sha": "60ed085ae2f79f5a8641c1800fec0c9bb7d70b78",
+  "methods": [
+    "FG_JOINT_POSTERIOR",
+    "JOINT_FIXED_ISOTROPIC"
+  ],
+  "primary_comparison": "FG_JOINT_POSTERIOR minus N3_THEN_SUBPIX",
+  "window_radius_px": 5,
+  "window_shape": [
+    11,
+    11
+  ],
+  "spatial_sigma_px": 2.5,
+  "gray_dtype": "float32",
+  "gray_range": [
+    0,
+    1
+  ],
+  "gradient": "cv2.Sobel ksize3 x/y; native pixel units",
+  "gradient_border": "BORDER_REFLECT_101",
+  "sampling": "cv2.remap bilinear INTER_LINEAR; native integer coordinates denote pixel centers; BORDER_REFLECT_101",
+  "fixed_window_center": "frozen parity-checked N3 final native qN",
+  "flat_S_min": 0.0001,
+  "prior_covariance": "all222 native candidates weighted covariance C + 1px^2 I, eigenvalues clipped [1px^2,c^2]",
+  "prior_center": "frozen N3 qN, not uncapped posterior mean",
+  "candidate_count": 222,
+  "include_last_null": true,
+  "prior_floor_px2": 1.0,
+  "prior_eigenvalue_max": "c^2",
+  "image_scale_px": 4.0,
+  "isotropic_covariance_px2": 16.0,
+  "cap_fraction_raw_diagonal": 0.01,
+  "final_cap_center": "original BASE q0; once, after joint solve",
+  "solver": "numpy.linalg.solve, 2x2 SPD; solve against identity for precision, no explicit inverse",
+  "solver_max_condition": 1000000000000.0,
+  "fallback": "N3 output for invalid covariance/image/SPD; original input for unsupported/sentinel/nonfinite corners; center8 unchanged",
+  "temperature": "read frozen per-seed existing calibration, never select using DEV",
+  "new_training": 0,
+  "new_synthetic_RGB": 0,
+  "hyperparameter_search": false,
+  "new_backbones": 0,
+  "evaluation_runs": 1,
+  "sample_scope": "all319; clean153/moderate92/severe74; subgroup only",
+  "qualitative_selection_rules": {
+    "good": "minimum FG_JOINT_POSTERIOR minus N3_THEN_SUBPIX translation_cm, seed1",
+    "bad": "maximum same difference, seed1",
+    "unchanged": "minimum abs(deltaT_cm)+abs(deltaR_deg), seed1",
+    "gross": "maximum FG_JOINT_POSTERIOR translation_cm, seed1"
+  },
+  "runtime": "record capture and joint/F wall times; no new whole detector->pose deployment latency benchmark; do not reuse historical sequential latency as joint latency",
+  "RGB_publication": "rights unconfirmed; coordinate-only figures"
+}
