@@ -1,0 +1,3036 @@
+{
+  "schema": "fixed_source_test128_actual_mesh_query_ray_protocol_v1",
+  "created_before_first_cast": true,
+  "split": "unchanged source_test indices896..1023",
+  "families": 128,
+  "query_count": 10752,
+  "max_rays": 32256,
+  "ray_shifts_original_pixels": [
+    0.0,
+    0.05,
+    -0.05
+  ],
+  "offset_definition": "exact projected actual physical segment / initial query normal; plus and minus 0.05 raw image pixel along that same normal",
+  "original_query_guards": "unchanged query valid; abs determinant>=1e-8; projected segment fraction in[0,1]; abs normal offset<=32px",
+  "perspective_correct_segment": "u3d=(fraction/z_b)/((1-fraction)/z_a+fraction/z_b)",
+  "physical_tolerance": "closest point distance <=1e-5 * physical diagonal; float32 mesh and closest query as original",
+  "depth_tolerance": "abs t_hit minus source edge camera Z <=0.001 * physical diagonal, as original",
+  "depth_units": "Ray camera Z direction is1; t_hit is camera Z, not Euclidean range",
+  "supplied_visible_mask_test": "unchanged 3x3 any>127 around round(x-.5),round(y-.5)",
+  "actual_mesh": "already composed scene.usd triangle mesh, same normalized axes and dimensions as original targets; no cuboid/hull replaces physical geometry",
+  "ray_precision": "Open3D CPU float32 mesh/rays reproduces original; fixed +/-0.05px diagnostic first surfaces, no claim of double precision",
+  "max_closest_query_points": 10752,
+  "max_physical_edge_closest_points": 10752,
+  "expected_scene_builds": 128,
+  "source_target_labels_unchanged": true,
+  "diagnostic_offsets_not_supervision": true,
+  "new_RGB": 0,
+  "new_training_updates": 0,
+  "new_head_forwards": 0,
+  "new_detector_forwards": 0,
+  "new_PnP_calls": 0,
+  "no_full_image_mask_or_depth_render": true,
+  "no_threshold_sweep": true,
+  "bindings": {
+    "mesh_cache": {
+      "path": "scene.usd.npz",
+      "origin": "external_readonly_dependency",
+      "sha256": "1213ba7e45492f3b5a81e68343d5ef167010028abcc568b7da2dcac7659dcf58",
+      "bytes": 15041824
+    },
+    "mesh_cache_metadata": {
+      "path": "scene.usd.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "bd328a6602187d9671b9b82bb67d3431fca710ec5a25157a59652e9e82cc67da",
+      "bytes": 630
+    },
+    "actual_asset": {
+      "path": "data/pallet/raw_data/models_usd/scene.usd",
+      "origin": "source",
+      "sha256": "6d4094a1d3188f9c9a9f1803baf7cceacbff62166635b132ebc0b492d299066e",
+      "bytes": 20860994
+    },
+    "source_ceiling": {
+      "path": "_docs/experiments/pallet_kp_difficulty_20261010_v1/SOURCE_CEILING_ROWS.jsonl.gz",
+      "origin": "experiment",
+      "sha256": "f3627e18c4e62430d349b0a3998dc76d28ddb3cd15852259c794d71cb57c45b6",
+      "bytes": 1188887
+    },
+    "source_no_ray_geometry": {
+      "path": "_docs/experiments/pallet_kp_difficulty_20261010_v1/SOURCE_NO_RAY_GEOMETRY_ROWS.jsonl.gz",
+      "origin": "experiment",
+      "sha256": "2dbcd78045c58b3df881b89f7f9ff7043ccac1f5bb4bebdc87a5b8c46afde1ea",
+      "bytes": 612646
+    },
+    "original_target_code": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/training.py",
+      "origin": "experiment",
+      "sha256": "7027d60265bd5a8d39a6ebdce90926b2576830a655a255b0ad19188c5e39706e",
+      "bytes": 17625
+    },
+    "source_geometry_code": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/source_audit.py",
+      "origin": "experiment",
+      "sha256": "5dae5dbdeeed97f51a15585f31566ece26779fcc50caeda6a78371fa8afbb7f7",
+      "bytes": 14019
+    },
+    "original_query_code": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/model.py",
+      "origin": "experiment",
+      "sha256": "4e4856abdc3a1c11a920560f1b110d76787975a15ddd637c93c2ec210dbefa3a",
+      "bytes": 6054
+    },
+    "audit_code": {
+      "path": "scripts/research/pallet_kp_difficulty_20261010_v1/source_ray_validation.py",
+      "origin": "experiment",
+      "sha256": "0e1a18599acdcff60b7ffa812d5cd8bcd68c9a8603b3ced1f00c44f34f3796dd",
+      "bytes": 13754
+    }
+  },
+  "inputs": [
+    {
+      "id": "P0__shard_00_f0717",
+      "index": 896,
+      "source_ceiling_semantic_sha256": "d4d62da11052b2aff467eeec0c0d5767a2084e63ef7be3987ee4dae90846a1f2",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0717_label.json",
+        "origin": "source",
+        "sha256": "ee8fc1c948a731e0d53c0068aadf8d3961fc0b80784e36694d71db9ada1d0c56",
+        "bytes": 21449
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0717.png",
+        "origin": "source",
+        "sha256": "599b4a666cb5a65fd2eacd2c72fda16eec4f38aa66c193b60ffbe15ef83a3731",
+        "bytes": 80015
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0717_rgb.png",
+        "origin": "source",
+        "sha256": "38cc606a7e74c5f0767f85db39047416d406d509f956795dd257837420c70f81",
+        "bytes": 591875
+      }
+    },
+    {
+      "id": "P0__shard_04_f0942",
+      "index": 897,
+      "source_ceiling_semantic_sha256": "c02923d44c6abe9ceff92b60698799f826a6a2293833588147731fdb4d375938",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0942_label.json",
+        "origin": "source",
+        "sha256": "88edb991bcc592a9cf4a7f93605345c72fdebc038ba66418ad4abee478a45f72",
+        "bytes": 21415
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0942.png",
+        "origin": "source",
+        "sha256": "7d1f4dca62a127db7d1344df5e47702d338b65fedd756acec81986072f41a36e",
+        "bytes": 78498
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0942_rgb.png",
+        "origin": "source",
+        "sha256": "dbebb7940d12b7fc9600e9689faf5705c855fcb2e29f6ce9f4a778a5938c28d9",
+        "bytes": 609000
+      }
+    },
+    {
+      "id": "P0__shard_05_f0142",
+      "index": 898,
+      "source_ceiling_semantic_sha256": "5a14318a75985219e0902b4a2e5627c0f940a032bcc2c7e095d0ea93895162c9",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0142_label.json",
+        "origin": "source",
+        "sha256": "53c473599ef13dbc33235da25458e365d8573142d4c7d989abf7922d1c465356",
+        "bytes": 21229
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0142.png",
+        "origin": "source",
+        "sha256": "30c4eeb572cb495a6173e2785bbd706c64a9448112dc1f306e334160f966339c",
+        "bytes": 130100
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0142_rgb.png",
+        "origin": "source",
+        "sha256": "69a438f913fc5857242952f8f46b80dc3722db648d340027904cdc15a5eebf5b",
+        "bytes": 1027037
+      }
+    },
+    {
+      "id": "P0__shard_00_f0861",
+      "index": 899,
+      "source_ceiling_semantic_sha256": "47c51b3aaaf5195fd1243d5a3d4baea110346a721e139fb713aeec04928a3431",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0861_label.json",
+        "origin": "source",
+        "sha256": "c2925f50b66b105f5105292bc3287e07e51ee0ef591b7300713b3d821f03ab94",
+        "bytes": 21438
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0861.png",
+        "origin": "source",
+        "sha256": "9c0482fe2051969b3ae79a3723da77b0c5061bc883c5ad61a5c39dceca154018",
+        "bytes": 80211
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0861_rgb.png",
+        "origin": "source",
+        "sha256": "465f3945e71e4320674ad66d4c5711abf12c40a133db741caffa215d20cb598c",
+        "bytes": 382991
+      }
+    },
+    {
+      "id": "P0__shard_01_f0806",
+      "index": 900,
+      "source_ceiling_semantic_sha256": "ebcee0386c30158cbe1d2cb6bd130d0b01fe713cdcb56b2e45f7a4f6a51b40cb",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0806_label.json",
+        "origin": "source",
+        "sha256": "aace49374393e6da2f2773d8d906097a61fe424491734d6c9cdcc7ee300701d4",
+        "bytes": 21446
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0806.png",
+        "origin": "source",
+        "sha256": "a9dd9da7d54e7f09ede9e7b15cfe3c44366676f10a00381776d4fece2437a1c0",
+        "bytes": 74119
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0806_rgb.png",
+        "origin": "source",
+        "sha256": "56328134731c6ace2f395efb722feb1f7757e065060140bd36ccbe11166fe47d",
+        "bytes": 373481
+      }
+    },
+    {
+      "id": "P0__shard_04_f0729",
+      "index": 901,
+      "source_ceiling_semantic_sha256": "f9f2182c3b6525d0ea09062dabbfde7184b66138538c9694b46fb55620d08840",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0729_label.json",
+        "origin": "source",
+        "sha256": "6d8e9746d056a6ef3a3c243b7df09756a7dc6e11258f394edc2ccf02b32d490b",
+        "bytes": 21430
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0729.png",
+        "origin": "source",
+        "sha256": "876b0192083a529fe4cd88b1b364efe27b6a140ba55613827c25a41deb3cbeb9",
+        "bytes": 89741
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0729_rgb.png",
+        "origin": "source",
+        "sha256": "20c1a3b68b1c88d6a7cd8deed08e3c07abcefbb70cdb139749567dd14a6e2540",
+        "bytes": 388465
+      }
+    },
+    {
+      "id": "P0__shard_06_f1032",
+      "index": 902,
+      "source_ceiling_semantic_sha256": "6e7744cb09b4976a958f90ebf41969f7b5069fd76428a5f6b2ce4cfa6bb26220",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f1032_label.json",
+        "origin": "source",
+        "sha256": "ae4615af6f3bb7b2a584358350c17529aed7b0d3cb5bd2a6a1cbe360e08aa30f",
+        "bytes": 21341
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f1032.png",
+        "origin": "source",
+        "sha256": "90b1aa4124b105ab84d1c6fde6f9263bf9c3f9d458123fd5b36317aa548ebc1d",
+        "bytes": 89607
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f1032_rgb.png",
+        "origin": "source",
+        "sha256": "70d2b24f3d65cb824f154f44e2e68e4ffd702a39f8fe6a499ef7454b79f7dbe6",
+        "bytes": 560609
+      }
+    },
+    {
+      "id": "P0__shard_04_f0743",
+      "index": 903,
+      "source_ceiling_semantic_sha256": "f7bdb5cdf233087c17f5b721391971120b7d7cdc235fe9d4b627628fd07902f1",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0743_label.json",
+        "origin": "source",
+        "sha256": "08ab12dcb27d80ff1f99a2192a3c3746014ef649d5f3deabbd5568bf03105633",
+        "bytes": 21440
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0743.png",
+        "origin": "source",
+        "sha256": "c3dd701673780650ecf4395051dacb9f0e18da485290f9cebb3d46c131057d4f",
+        "bytes": 79876
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0743_rgb.png",
+        "origin": "source",
+        "sha256": "4d86676c0a4c083b17fa136756d6240f0262d9102d7de8227cbdc32d8413a3f0",
+        "bytes": 294413
+      }
+    },
+    {
+      "id": "P0__shard_06_f1077",
+      "index": 904,
+      "source_ceiling_semantic_sha256": "7d20b7fb4d556e8f65d8c779d7bba19ab8918b3359ea8f04b8df9530df0feccb",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f1077_label.json",
+        "origin": "source",
+        "sha256": "261daa338d79b2eda080c8ec61b4cf084da6edf43ed54ee4d352db6125b6c6ac",
+        "bytes": 21440
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f1077.png",
+        "origin": "source",
+        "sha256": "839e6feddfae3056af83406b6ead5e5eb1c5dc206eee5837d113a9e132f4d18a",
+        "bytes": 80171
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f1077_rgb.png",
+        "origin": "source",
+        "sha256": "ab319509b7862020bccc951919dcc715804591265e4c13cc42efd013cd8dd59d",
+        "bytes": 322791
+      }
+    },
+    {
+      "id": "P0__shard_02_f0911",
+      "index": 905,
+      "source_ceiling_semantic_sha256": "338ace9bb03c227719f27bea2a27f9f2423274153359d823cebb0deec2a8e3ba",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0911_label.json",
+        "origin": "source",
+        "sha256": "e19379768ccbd96fd3812e688fbc94fea0a98c165c755a4eadb0094d40d92e47",
+        "bytes": 21429
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0911.png",
+        "origin": "source",
+        "sha256": "a4496bc700a05deb4afe929952ba84863d6a5f2f9ab5ea22cbc50f82e7176665",
+        "bytes": 133230
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0911_rgb.png",
+        "origin": "source",
+        "sha256": "81e8f3d7f202db4eda1c6e2be14307f0f218604178442e74105ae98fed67588c",
+        "bytes": 464641
+      }
+    },
+    {
+      "id": "P0__shard_02_f1009",
+      "index": 906,
+      "source_ceiling_semantic_sha256": "6d71190dca62239adcf69e6914033dcee10606653d852a0003fdd41604e4d019",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f1009_label.json",
+        "origin": "source",
+        "sha256": "6c85768a5d2d2be39b1d579eecd41b1ce0b9988b34be950802e9b096b0d112e8",
+        "bytes": 21382
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f1009.png",
+        "origin": "source",
+        "sha256": "f3736dc992df8b177fe26b6e67f6e7e2b8d184e388cd911fe7579bbc46b389bb",
+        "bytes": 79917
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f1009_rgb.png",
+        "origin": "source",
+        "sha256": "cd3c06d8a4dbc56ce21977e4aeb019a8e1f42dce7e8c1f6ddf71774fd077c274",
+        "bytes": 505584
+      }
+    },
+    {
+      "id": "P0__shard_06_f1151",
+      "index": 907,
+      "source_ceiling_semantic_sha256": "4b016fbeafcfb4fcdf493cc9c2532500df40e6a44716deb9becdb3b230bd2e37",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f1151_label.json",
+        "origin": "source",
+        "sha256": "fee8b5388914a5eb5cb1ea0231e837b1db5cf4ee25ba48ca8214395799b47955",
+        "bytes": 21452
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f1151.png",
+        "origin": "source",
+        "sha256": "3b233642e75a761dff755211e89147b59267e74b40734224f72be8fb198d2a29",
+        "bytes": 77644
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f1151_rgb.png",
+        "origin": "source",
+        "sha256": "a738902feb129b4c620aba118df456615c4efb82f25eab7f2e4a4156c6b9e0e9",
+        "bytes": 544051
+      }
+    },
+    {
+      "id": "P0__shard_01_f1126",
+      "index": 908,
+      "source_ceiling_semantic_sha256": "23ad16a4ea5aa2b83f81a99a589415d4a0625f4cd535c8b13ceb0e72196d288b",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f1126_label.json",
+        "origin": "source",
+        "sha256": "3f86c4484ffe20e5a8bd90a8a546d55b659e519a81e38b6431c1f3ec27c0509d",
+        "bytes": 21316
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f1126.png",
+        "origin": "source",
+        "sha256": "669913c2e51cc6fc7ab14b68c7d2695a2e940f9a90405d856518d52c4b332d71",
+        "bytes": 85909
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f1126_rgb.png",
+        "origin": "source",
+        "sha256": "5c12584d71e87005c29487f8d37baf15b9ac12a5a9f599dee7d6a5703fd1c662",
+        "bytes": 461885
+      }
+    },
+    {
+      "id": "P0__shard_05_f0459",
+      "index": 909,
+      "source_ceiling_semantic_sha256": "76b64d2346883ac1eb22745efd9ca83ec6e7bc670711dc0738666305cb4c925c",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0459_label.json",
+        "origin": "source",
+        "sha256": "c211bb14e049f7e657636bb89fd0d620971a430b77946fe57985ba05b822e670",
+        "bytes": 21434
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0459.png",
+        "origin": "source",
+        "sha256": "ff92f52ded9c817f7949e1ac998cebc4d5d45e244e832a697059aab0a1c6834d",
+        "bytes": 89972
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0459_rgb.png",
+        "origin": "source",
+        "sha256": "faaa3877dcb5cb69a56a889a3baf42434f79556f45c5c39a95ec8f1a6ed8e008",
+        "bytes": 589199
+      }
+    },
+    {
+      "id": "P0__shard_06_f0289",
+      "index": 910,
+      "source_ceiling_semantic_sha256": "6da821b85ee45a2aff06d8e91632780f95ae7a28094b91208cd4520b215a5189",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0289_label.json",
+        "origin": "source",
+        "sha256": "5d81a145f9092fc7a6ed100bb3d2d5b5945ff43ff6623b5593819c0de2991107",
+        "bytes": 21433
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0289.png",
+        "origin": "source",
+        "sha256": "38b7144282bb9c392304a088dcc833ec2a2d23b02731d7aa5eb4ab465e284d83",
+        "bytes": 132995
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0289_rgb.png",
+        "origin": "source",
+        "sha256": "5bde37b196fce8081efb72f9239fd54812c91f0d2e15cc3144aea49b7c3ff53e",
+        "bytes": 855655
+      }
+    },
+    {
+      "id": "P0__shard_02_f0693",
+      "index": 911,
+      "source_ceiling_semantic_sha256": "95329eacf963bb4f801b8d15dbb0f61eb54aa81bf8e87eb099356bd7934a20db",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0693_label.json",
+        "origin": "source",
+        "sha256": "cd4d8488a8078cae42df49d18c0fe74277930fc959375a5d3ada15efd4483c78",
+        "bytes": 21321
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0693.png",
+        "origin": "source",
+        "sha256": "053b7bc8b6e750793c1530450104a88961e862508ae2454e3285207f570b86f6",
+        "bytes": 129059
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0693_rgb.png",
+        "origin": "source",
+        "sha256": "c28814db195242c331f52154e6b0b5430032f569af80155400c14173712a2da7",
+        "bytes": 699619
+      }
+    },
+    {
+      "id": "P0__shard_02_f0454",
+      "index": 912,
+      "source_ceiling_semantic_sha256": "86bc3880c8a78a4ce7c1bb051de26b2ac0dbcf3d248566c444cfe2529994e112",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0454_label.json",
+        "origin": "source",
+        "sha256": "66a30e5d3ca943a565f557de9857c90929c1ee886fbcfe98ca23b8313cb26375",
+        "bytes": 21512
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0454.png",
+        "origin": "source",
+        "sha256": "083b8ea0f4f3661fba4521c2d20d609db7b06ae71b5469215157d60c0bb9c26f",
+        "bytes": 79961
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0454_rgb.png",
+        "origin": "source",
+        "sha256": "f8fa6905acad789be8529b148dc458ae058641d0d22b34db8600039bc74efa0b",
+        "bytes": 363027
+      }
+    },
+    {
+      "id": "P0__shard_05_f0919",
+      "index": 913,
+      "source_ceiling_semantic_sha256": "02841c7c1b134edd547b4efcdaff18ef842ba5c4d4f84f0e0ad1cd2e04f7691a",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0919_label.json",
+        "origin": "source",
+        "sha256": "446d4c05fa7bd77926ef48d7f91e8ad7cf1a72f8fa19d9ef2f01d486e649fb7b",
+        "bytes": 21403
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0919.png",
+        "origin": "source",
+        "sha256": "e948b78a6918a983bd6e8529fe4853e98b18d9801f5a60cd668e886607a43977",
+        "bytes": 120685
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0919_rgb.png",
+        "origin": "source",
+        "sha256": "4337bfaf27d0cb62ab668821c3aee8b7aca5afd4966c9859fc49e3649db2c940",
+        "bytes": 755038
+      }
+    },
+    {
+      "id": "P0__shard_05_f0040",
+      "index": 914,
+      "source_ceiling_semantic_sha256": "c21115121b1d3c0edeb15ce017fea66ee8cfb0866e20cb657584d6fec9999af7",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0040_label.json",
+        "origin": "source",
+        "sha256": "21283af50d2bf85135940435838d6c70662862c7281eb59dcb98bd242c92ee5d",
+        "bytes": 21330
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0040.png",
+        "origin": "source",
+        "sha256": "b3af763c2c9d5d8a132ae20f1d97dbdb55a0a3b5c0f5255dc0818fc56921243d",
+        "bytes": 78899
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0040_rgb.png",
+        "origin": "source",
+        "sha256": "34c5c03f3fdf2528bd9eee356d55b714d8ac9ba7e4ebda1f03dc819b1ae95682",
+        "bytes": 399592
+      }
+    },
+    {
+      "id": "P0__shard_03_f0474",
+      "index": 915,
+      "source_ceiling_semantic_sha256": "0750239874efe8267c4f512f4cefeffbe57e72ca76996bab2f8feda01f12ca4c",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0474_label.json",
+        "origin": "source",
+        "sha256": "7f136b95e9a9c62a42f4119491e6c5981449133cd2777e25d122c7212b8e27ca",
+        "bytes": 21562
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0474.png",
+        "origin": "source",
+        "sha256": "a86cd48e7a2d62101ba6b1e909882f67cee021bc8ad6a70e2a3f1f6b5ac57d20",
+        "bytes": 122508
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0474_rgb.png",
+        "origin": "source",
+        "sha256": "9f3edc7c7d70a30ca46f2150c8c851cfaab7cbf6dcd327e629c72d3392c02880",
+        "bytes": 564862
+      }
+    },
+    {
+      "id": "P0__shard_06_f0072",
+      "index": 916,
+      "source_ceiling_semantic_sha256": "da506f9566ace85ce152ffd9d108cd2de63a6fa80a8534aecd0965609308089a",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0072_label.json",
+        "origin": "source",
+        "sha256": "879247528822f83076d1f69dda67c2358213488e2c0b3d095a5d3ec0fb9ee8b2",
+        "bytes": 21555
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0072.png",
+        "origin": "source",
+        "sha256": "f46271e4821b0fc399c317d09d2f0c230306600735771d7a3eeb58c3495ebbf5",
+        "bytes": 130636
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0072_rgb.png",
+        "origin": "source",
+        "sha256": "2adea6ac74e1e10dd1e72bcac1e6032e53bbe07b38cdc2370202ebe16de3feeb",
+        "bytes": 486584
+      }
+    },
+    {
+      "id": "P0__shard_06_f0189",
+      "index": 917,
+      "source_ceiling_semantic_sha256": "86939b2731f77674860e1b6f088dbdc2382c09c99c42539718c3641a858fa7c1",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0189_label.json",
+        "origin": "source",
+        "sha256": "934538efc805e8659e9c85f2d70da100461ccf6db221088d458d11c5bc9d6459",
+        "bytes": 21306
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0189.png",
+        "origin": "source",
+        "sha256": "210dd5d9c176edc3dab65b624a30b7e2f1d6db80559f22547984d91f379ab49a",
+        "bytes": 88798
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0189_rgb.png",
+        "origin": "source",
+        "sha256": "d3b7872db634ef0b992a61532148d009cb97b84f3b003da89eb6f43a4edd9f31",
+        "bytes": 354109
+      }
+    },
+    {
+      "id": "P0__shard_07_f0741",
+      "index": 918,
+      "source_ceiling_semantic_sha256": "b60fea8586dd086e558c59e26828af4bc39af47d7b34bef4d5c9cc9c6adf1f4f",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0741_label.json",
+        "origin": "source",
+        "sha256": "2e661377d033b9e3b1040515ce32fa4b40cc5ef8ca1dcbf0c776cabacf6e5ae0",
+        "bytes": 21422
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0741.png",
+        "origin": "source",
+        "sha256": "77c99457625f812a6b537e170fbbd52a96c9347958ebc02ff6bfc36f497ea794",
+        "bytes": 79237
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0741_rgb.png",
+        "origin": "source",
+        "sha256": "a0085f61a41d9c62f680d6c0dd528ce55364cff7967fcb1459e378b13a8956e9",
+        "bytes": 376264
+      }
+    },
+    {
+      "id": "P0__shard_06_f0930",
+      "index": 919,
+      "source_ceiling_semantic_sha256": "d8faebcd015a781330ff335869db436d1ee1228bf8fd67ae348fe88d83f70bec",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0930_label.json",
+        "origin": "source",
+        "sha256": "98ebf71ad7ffd5decbe646fc606c35613062fad9b279ae9d4a67ae5a72602c30",
+        "bytes": 21417
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0930.png",
+        "origin": "source",
+        "sha256": "8d19a614289c87d32b1becce66e0e579b38fd164c97b8837c0b1dbb121b99b5b",
+        "bytes": 80127
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0930_rgb.png",
+        "origin": "source",
+        "sha256": "d8de96cc3a58faab8a256791c323ed71652ebcc86162f86718ec6c9fb7322a42",
+        "bytes": 264476
+      }
+    },
+    {
+      "id": "P0__shard_04_f0311",
+      "index": 920,
+      "source_ceiling_semantic_sha256": "49ea7e12a3c550a30ac1bc0978bb46eb09998e49905d757fa97c149c0d304f15",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0311_label.json",
+        "origin": "source",
+        "sha256": "7f1cfdf320066d2a7b28a1f9618785a0babfd48244d115b6881205bdbb481ccf",
+        "bytes": 21309
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0311.png",
+        "origin": "source",
+        "sha256": "59c354531c65f99f63c4945cedf198831c5189d2ae3ccca8b1dffe841f79067d",
+        "bytes": 131323
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0311_rgb.png",
+        "origin": "source",
+        "sha256": "9f4cd468ce4c7622830ba42646f65885c78af6f8eafc17dce00e0faf82bebb4d",
+        "bytes": 492442
+      }
+    },
+    {
+      "id": "P0__shard_05_f0217",
+      "index": 921,
+      "source_ceiling_semantic_sha256": "30dfaf959628de7476cf7f8d775414de58b7ee43da8da432113c7ed4eb03717e",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0217_label.json",
+        "origin": "source",
+        "sha256": "f421b46cf4ef5eb9a61a44bdaa5c92c69ef5027d69f4c2e419d830d84fdf5700",
+        "bytes": 21403
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0217.png",
+        "origin": "source",
+        "sha256": "f12d621ce924d9ca15431a9a88c5a6b34a0f40f6a93b2be32cef58066c68c140",
+        "bytes": 89576
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0217_rgb.png",
+        "origin": "source",
+        "sha256": "ca072d27f98445204ecd65dda02099bae3b3ba209c9f08f991ddaef2e1232d65",
+        "bytes": 501212
+      }
+    },
+    {
+      "id": "P0__shard_07_f0378",
+      "index": 922,
+      "source_ceiling_semantic_sha256": "0f3f63e6d67e2b0ad2fd464203104699f4890ba196e84cc296081a70e5719eaa",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0378_label.json",
+        "origin": "source",
+        "sha256": "ab7794982a9c202673db9905fa5577f7123ee9806c92f420ece44b5aead526d4",
+        "bytes": 21284
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0378.png",
+        "origin": "source",
+        "sha256": "c7cb9648f636012d3f4b3b43e4b2c687752c51230ced8ae7102455b37a047e10",
+        "bytes": 133275
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0378_rgb.png",
+        "origin": "source",
+        "sha256": "5f02f0c4c13446f4b7694e5cbcac31a75decc92049a66318c18e1a5ab645cb1b",
+        "bytes": 547866
+      }
+    },
+    {
+      "id": "P0__shard_01_f0252",
+      "index": 923,
+      "source_ceiling_semantic_sha256": "9a0e17d0b39ad032fc36ce89d4d80eb875cf95ef19f4950fc2e97d50fe332b77",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0252_label.json",
+        "origin": "source",
+        "sha256": "bad3865ae9d1cf14dbd7b9ebbbe690ed5b432acc6e42648a39a38ff3bb904669",
+        "bytes": 21441
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0252.png",
+        "origin": "source",
+        "sha256": "ed8861589159e6358010b79a4f90a30b27b0834aa48122efd97c5bf6d628f943",
+        "bytes": 76398
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0252_rgb.png",
+        "origin": "source",
+        "sha256": "c2ee8662a8b6cc02bf222dcabc4bbb44310f26e468eb26e24b4badec863088a4",
+        "bytes": 244684
+      }
+    },
+    {
+      "id": "P0__shard_04_f0897",
+      "index": 924,
+      "source_ceiling_semantic_sha256": "e2df1fbb78a31e9014bd566a5cc418221d684806beec7eba7b1b0ea3023cb85e",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0897_label.json",
+        "origin": "source",
+        "sha256": "4240093de1b5e5c8a7af21415995d20cb4534e3c1da0a174acbfbc88020c8258",
+        "bytes": 21407
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0897.png",
+        "origin": "source",
+        "sha256": "33f2fcf4da70826913723319db3a2d43d9b4c4ea90abe232510a7d690b80fa3d",
+        "bytes": 78425
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0897_rgb.png",
+        "origin": "source",
+        "sha256": "c8c1528ca21c879f82646b313600ceb0e4b958deb6a778a4a3776c2219844434",
+        "bytes": 601005
+      }
+    },
+    {
+      "id": "P0__shard_05_f0793",
+      "index": 925,
+      "source_ceiling_semantic_sha256": "ce59f1466e7eb61cc6c66d53690653e66e9cdbb96f194eab1a77aa9277088fbf",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0793_label.json",
+        "origin": "source",
+        "sha256": "d1602eae79e3b70cc84791ee684ad357d8310cf7847c52ba800aa4c53714e2f2",
+        "bytes": 21446
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0793.png",
+        "origin": "source",
+        "sha256": "fd5f62f2e461c30e3ff1d2e129f2953ad8bf10111b651d21f3ed02eba9ca0b56",
+        "bytes": 119175
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0793_rgb.png",
+        "origin": "source",
+        "sha256": "299bb2bf85d55a1949a3df7ae67513f074a255952e21012be6ac217e610bae0f",
+        "bytes": 1011954
+      }
+    },
+    {
+      "id": "P0__shard_07_f0042",
+      "index": 926,
+      "source_ceiling_semantic_sha256": "3cb291ce92f392d32f3bd4717413c781916cf1d1fc8efac5af6ada1db66001c6",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0042_label.json",
+        "origin": "source",
+        "sha256": "9ca7129cd72f018050c1b4d223ea8aaa4d840d3cf7827ff4deafb16ceb917954",
+        "bytes": 21370
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0042.png",
+        "origin": "source",
+        "sha256": "506e08df0a0e7fc7b3f2fe0d9503df2e3b94b5ba53a302ab5261bd60df07c033",
+        "bytes": 133225
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0042_rgb.png",
+        "origin": "source",
+        "sha256": "7e6888638f95b331f86cabd65707bb2e96e98c1f8a158f30ca68b5b97f51c26c",
+        "bytes": 613518
+      }
+    },
+    {
+      "id": "P0__shard_00_f0568",
+      "index": 927,
+      "source_ceiling_semantic_sha256": "74f06561398e1e27a5825db9fa4984cb4e80456767fd87c8d1c97e2f3a41be0b",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0568_label.json",
+        "origin": "source",
+        "sha256": "f0c6fa327412f6c398490c39cb01f3b914850ee2f08c25bad024e98dd91e4c86",
+        "bytes": 21549
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0568.png",
+        "origin": "source",
+        "sha256": "8425d71eb08db1d48cad8f1c4bc56783840a8aab6c687efc803a9b76457ed225",
+        "bytes": 79881
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0568_rgb.png",
+        "origin": "source",
+        "sha256": "be9257cd4a8206af167c8d9e8c9a57e88a128847ea8c9256eaa99fec426efc03",
+        "bytes": 510089
+      }
+    },
+    {
+      "id": "P0__shard_03_f1107",
+      "index": 928,
+      "source_ceiling_semantic_sha256": "78995f2741c992d2d8823858b7114662ea000fe9a60dfe59614c9959c01d635c",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f1107_label.json",
+        "origin": "source",
+        "sha256": "87de589b5838c8172fa9ae564b78542051dfc546684e82821eab7302e6cc3f23",
+        "bytes": 21384
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f1107.png",
+        "origin": "source",
+        "sha256": "b084d8ae968e355b423759088b7122b4513231e5bf3e3d7c8ea7387a8e5d92a4",
+        "bytes": 79322
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f1107_rgb.png",
+        "origin": "source",
+        "sha256": "14b2ab373ae0d1b46d550c6a5d138728b0d695bd6ae248d5ae343407f3170ebc",
+        "bytes": 200002
+      }
+    },
+    {
+      "id": "P0__shard_06_f0405",
+      "index": 929,
+      "source_ceiling_semantic_sha256": "a7f4751e72571bcd8707e0ff3a99393174c01c37a0129c5b52d518f8385cfca2",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0405_label.json",
+        "origin": "source",
+        "sha256": "788cadfc70a44a768da5999d47c7336749e5a61846470cae7cf3b7cc8a59f47a",
+        "bytes": 21436
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0405.png",
+        "origin": "source",
+        "sha256": "f1fd16c54990e7c0d4013b1b13db7aa1fcd9176e50f22e822b700f70ebf69d93",
+        "bytes": 79356
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0405_rgb.png",
+        "origin": "source",
+        "sha256": "6580b8606294e8f559a3b23d6a2b78b0022cf71d26a913529472bffe76466ede",
+        "bytes": 522252
+      }
+    },
+    {
+      "id": "P0__shard_07_f0781",
+      "index": 930,
+      "source_ceiling_semantic_sha256": "98d025fc75293ba622fcd67480cd5470e171d2ddbd0bdc44aee6f73ccb461bae",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0781_label.json",
+        "origin": "source",
+        "sha256": "1f95506764e3c2ba44c980d61743da4c754698aa597d981f419a6c14dea7885e",
+        "bytes": 21364
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0781.png",
+        "origin": "source",
+        "sha256": "917aca965ba07be760157b1d2f4576098584d8725a79ef8a7f6fb658e1d097d2",
+        "bytes": 79977
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0781_rgb.png",
+        "origin": "source",
+        "sha256": "78dbf9ddbf5f90f219d2fcfe896d663bea49ab090c447f29416e27b50c91a106",
+        "bytes": 461380
+      }
+    },
+    {
+      "id": "P0__shard_05_f0503",
+      "index": 931,
+      "source_ceiling_semantic_sha256": "ee64fdb9a09836f2266666ea8b5ac0a0bf8090952ede0bc0488d5558006abb5d",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0503_label.json",
+        "origin": "source",
+        "sha256": "7b6321c78c461859a862553151bac3c22f6fc43a3b8262a372559f17b4e83d77",
+        "bytes": 21458
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0503.png",
+        "origin": "source",
+        "sha256": "f4e2b4a082c488a1679bf4d8bf6d0456339d06fd1ef950edadc93ea2c5c2613d",
+        "bytes": 79863
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0503_rgb.png",
+        "origin": "source",
+        "sha256": "9f9eb736a5263236cfb11a67f5b24ee72094c6c4d15ed6cb65ace4820ac43cd7",
+        "bytes": 435672
+      }
+    },
+    {
+      "id": "P0__shard_05_f0597",
+      "index": 932,
+      "source_ceiling_semantic_sha256": "88340e1916642b8e966df7e1f1d7868a82b143ecffcc2a6e6e2f3b4682d423be",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0597_label.json",
+        "origin": "source",
+        "sha256": "7495ec937d22ef4a8b83df043f9dd630cb1ff5d7453ec53294ebc282983631b2",
+        "bytes": 21386
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0597.png",
+        "origin": "source",
+        "sha256": "9e1e81279303ae3f7a8cd801c77597502a1ab9512dea100e7d3f82dc24603d3a",
+        "bytes": 130890
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0597_rgb.png",
+        "origin": "source",
+        "sha256": "796acba2817de95df757b288e124d7d964a941dbaa16dcae1695695900275db5",
+        "bytes": 641593
+      }
+    },
+    {
+      "id": "P0__shard_01_f0651",
+      "index": 933,
+      "source_ceiling_semantic_sha256": "39f76f0e9c77b36af00ec53ad59ea16390cdac1a8d091c6fd43de0b4892886c8",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0651_label.json",
+        "origin": "source",
+        "sha256": "ae672568a420ddbe0169f035fd1db3b464953ba20d8dd3461c515900d182d58d",
+        "bytes": 21465
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0651.png",
+        "origin": "source",
+        "sha256": "1718d67d90a770126e42f90718e3efc631cbd16e3eb6906c87da8b2a9f134c5c",
+        "bytes": 89740
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0651_rgb.png",
+        "origin": "source",
+        "sha256": "f27b7335328f086bb0abcf1281cb12b135cb1a27b922afae49fe53b7e73d9fec",
+        "bytes": 686599
+      }
+    },
+    {
+      "id": "P0__shard_07_f0858",
+      "index": 934,
+      "source_ceiling_semantic_sha256": "eb98bf88f9465b9ba08b75e78eca838a0c4f64c0c3b7c7bfd5c5a126b4b98c81",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0858_label.json",
+        "origin": "source",
+        "sha256": "ce7dc487668a3d77a9e0ad3560aebd700c9c68ddddec54acc8462c92b3f2a7e3",
+        "bytes": 21579
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0858.png",
+        "origin": "source",
+        "sha256": "03b3d144b53c1edd39d1ae2a63ffa911a377e63088426deecf864643ec8ce620",
+        "bytes": 79266
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0858_rgb.png",
+        "origin": "source",
+        "sha256": "a9e891740a81752aa07ee77bd1d48e874cfeb6a595f862b444bbe3f767687e61",
+        "bytes": 371745
+      }
+    },
+    {
+      "id": "P0__shard_07_f0642",
+      "index": 935,
+      "source_ceiling_semantic_sha256": "8a1599f5b442b6cfa27a97b6334d10679a37bfe6464d622fd3e7dc3db73a659c",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0642_label.json",
+        "origin": "source",
+        "sha256": "a629c8279518d7d1a3546496dd64dbefa6843d83e791952909d7ac527cef4826",
+        "bytes": 21506
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0642.png",
+        "origin": "source",
+        "sha256": "c187f4e4ab2f54c2146da2b802de064f581cd7557994476aa0e07e46d471265b",
+        "bytes": 79398
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0642_rgb.png",
+        "origin": "source",
+        "sha256": "fa2c0a045eeb5b9ca762665bdd3cd8cecb365c1f84516c3bd040117cb16b808b",
+        "bytes": 378909
+      }
+    },
+    {
+      "id": "P0__shard_05_f1061",
+      "index": 936,
+      "source_ceiling_semantic_sha256": "83d2def376989cd16e648b4157a146f976628b8228d98af6feabc5d9eae9f2d1",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f1061_label.json",
+        "origin": "source",
+        "sha256": "6221bc32d66f5aff964bf8a3b07c3374df08c2f5ad5885562c9cfc3882e7db01",
+        "bytes": 21406
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f1061.png",
+        "origin": "source",
+        "sha256": "567411b409632ba6d17207778d9239fad45c54e0389e55775b9ec12732910523",
+        "bytes": 88899
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f1061_rgb.png",
+        "origin": "source",
+        "sha256": "1356fac37ee2bfed8abde72af0fdfc2538659f9070fa99227a38710bab203761",
+        "bytes": 424838
+      }
+    },
+    {
+      "id": "P0__shard_07_f0798",
+      "index": 937,
+      "source_ceiling_semantic_sha256": "c1a8082b38e2ac3e4443777a025316607169f4356e9593c835bab7685f313c21",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0798_label.json",
+        "origin": "source",
+        "sha256": "bf603ae527a7d5b7dbf73c16f9276202d1a325950c0f29504eb0005f80337782",
+        "bytes": 21301
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0798.png",
+        "origin": "source",
+        "sha256": "1cd2ffbbc7848bfb5c36b810bf25ebb4e3517221cdb9d5e45a20b4a5bf1d784e",
+        "bytes": 80172
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0798_rgb.png",
+        "origin": "source",
+        "sha256": "becbae95ea19c3a0c443578f807f40497c20480daf3454ceff5126cbcf612649",
+        "bytes": 301751
+      }
+    },
+    {
+      "id": "P0__shard_01_f0016",
+      "index": 938,
+      "source_ceiling_semantic_sha256": "633f2c716dfd276387608a0890b32c8697ee6faf95452433d263c84e3c65e0fd",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0016_label.json",
+        "origin": "source",
+        "sha256": "9fd8f73839450315b02385634f2eb57e510c77166a20ef1b5a76e15a8afb817e",
+        "bytes": 21395
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0016.png",
+        "origin": "source",
+        "sha256": "ff5a7a8ee86ed36acf09801618686db8d1b769039b20135b1a3759baf091fb60",
+        "bytes": 81434
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0016_rgb.png",
+        "origin": "source",
+        "sha256": "b233cad17ac9df4e05a543800c4f37296986d2eda2b0fa7bb92a131c622e1c17",
+        "bytes": 386657
+      }
+    },
+    {
+      "id": "P0__shard_05_f0419",
+      "index": 939,
+      "source_ceiling_semantic_sha256": "f8c280a33a6662e7b4af70a43efbe957bcc6d406d80925292f5ade6c5a93fa23",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0419_label.json",
+        "origin": "source",
+        "sha256": "ef7f75d16b3e7cc757dc2618d9c6ab381df33b07b9207b3751554329b08261db",
+        "bytes": 21450
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0419.png",
+        "origin": "source",
+        "sha256": "b695578985f3b9b6aa664660517c82ed49011e80cfa0f153a9558a1d152e55e9",
+        "bytes": 130131
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0419_rgb.png",
+        "origin": "source",
+        "sha256": "de7ef2f236001380c9e43af88eebf590dd8c901f0295ad8d82b799c685ab1a4e",
+        "bytes": 669773
+      }
+    },
+    {
+      "id": "P0__shard_01_f0068",
+      "index": 940,
+      "source_ceiling_semantic_sha256": "300ac0eb947d357da25dc94b9ebc6eaf57fc28e64ccda5164cc68d43fb4b8858",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0068_label.json",
+        "origin": "source",
+        "sha256": "343e3d1f5646910e7ed1865b299c68adc93a78414db8f35783eeec0b4179c469",
+        "bytes": 21415
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0068.png",
+        "origin": "source",
+        "sha256": "7fbb63b8d7d839d9c1b7299f819e33b6f1da72d0e2691e9be07110411ee9507c",
+        "bytes": 80447
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0068_rgb.png",
+        "origin": "source",
+        "sha256": "4c9d7a886cef5f501fc91390728a55060693f0980225b8b940a47fce88cb6b4b",
+        "bytes": 388112
+      }
+    },
+    {
+      "id": "P0__shard_02_f1139",
+      "index": 941,
+      "source_ceiling_semantic_sha256": "49b5561d382ba7a46f7874698f3d7bf49b66c0ac9e11789d2ef5971fe8435761",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f1139_label.json",
+        "origin": "source",
+        "sha256": "b3d40c94f4b73c6a6dbfc9f2a10f2b603b4b8af0b23549e4dbf4abff0320ec88",
+        "bytes": 21440
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f1139.png",
+        "origin": "source",
+        "sha256": "49e9c9bada48c29ae43c47e6fa98498dcf8f04f04a47735679c5bfaddfb46fb3",
+        "bytes": 131212
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f1139_rgb.png",
+        "origin": "source",
+        "sha256": "a43cee069fb5612a3405e3b9a8e3b0825efcd72518c3e447447a77f63644dc2b",
+        "bytes": 729539
+      }
+    },
+    {
+      "id": "P0__shard_03_f0055",
+      "index": 942,
+      "source_ceiling_semantic_sha256": "a213e9b2c61445f3cc6f47972b366ae99680aa0cf8b279254fa916ad31bd70e3",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0055_label.json",
+        "origin": "source",
+        "sha256": "f6004244aa43dfd1e3d8125587d6b513e4988e5d074342a32f020911fb65f3b5",
+        "bytes": 147176
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0055.png",
+        "origin": "source",
+        "sha256": "d2b8b2ff9616b09810c780ffa1020e8ffd8d5930d3b6baf7d0cd3c73c6661d7b",
+        "bytes": 78819
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0055_rgb.png",
+        "origin": "source",
+        "sha256": "fff249fd352f8e9c003565a1dd1e13f7990a37fa3226095fc4f7eed205119c03",
+        "bytes": 341121
+      }
+    },
+    {
+      "id": "P0__shard_05_f0238",
+      "index": 943,
+      "source_ceiling_semantic_sha256": "759db31cc72e23fde5582889097e5014feb5b88b9c020558e892b8447379cd5b",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0238_label.json",
+        "origin": "source",
+        "sha256": "9cacbb260d208744a4d305a2aec195f594bdecc4717ae50a2b302728b31403cd",
+        "bytes": 21447
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0238.png",
+        "origin": "source",
+        "sha256": "afb5c33f5d026181fb701f45e2528c61e625fedc9f2b214fb89f46ac968715c4",
+        "bytes": 81064
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0238_rgb.png",
+        "origin": "source",
+        "sha256": "b27ba8378a80b534dfaeee357ba753a159072b48767f655fce84c30a438f90ea",
+        "bytes": 524490
+      }
+    },
+    {
+      "id": "P0__shard_04_f0955",
+      "index": 944,
+      "source_ceiling_semantic_sha256": "c06a9efb5147e980dfecedc9ff5927d77711d4ddcfbd186c7f6f9537b59428e9",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0955_label.json",
+        "origin": "source",
+        "sha256": "2885ca9c39f455e4eeffaf00fecd45726dee14b15c9abdde6c2c351844a4670c",
+        "bytes": 21383
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0955.png",
+        "origin": "source",
+        "sha256": "e1efeb1d16fe1075b1dc2615000615856d197c86df8e40ee8a01c86a082fd313",
+        "bytes": 117610
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0955_rgb.png",
+        "origin": "source",
+        "sha256": "6e27a11e7b3dd80d4e1813f387dc68b901f27eff698a008b652b28a2671f32ef",
+        "bytes": 852577
+      }
+    },
+    {
+      "id": "P0__shard_05_f1185",
+      "index": 945,
+      "source_ceiling_semantic_sha256": "1e934cf537652b49f659293844f054250863f51b3043b4eff3801b92cd360182",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f1185_label.json",
+        "origin": "source",
+        "sha256": "237dcb0bbab463f78d8c2688b7c768e7e7dda5e1e0919c987b1fc6cfeacf1b1d",
+        "bytes": 21404
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f1185.png",
+        "origin": "source",
+        "sha256": "56f75aca838d865ef36252ae36c646404baf8d7defec42aff12375d4a8516bd0",
+        "bytes": 79956
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f1185_rgb.png",
+        "origin": "source",
+        "sha256": "9fc3aebe776d890334d950ff7e643933b9fb1e054597effe7457b1c474777314",
+        "bytes": 391429
+      }
+    },
+    {
+      "id": "P0__shard_05_f1161",
+      "index": 946,
+      "source_ceiling_semantic_sha256": "1569e7712366f07e942d80494803f6d1d3c9c27de1618d405b02ba1297ec751b",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f1161_label.json",
+        "origin": "source",
+        "sha256": "2817085a2ca2119f5eb6c66c8694466716a15305121f7952aebf142f54cf9da7",
+        "bytes": 21371
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f1161.png",
+        "origin": "source",
+        "sha256": "ee984cce9cda38a78335cc565baee1e20fef4266fa3f887061821268afd07c35",
+        "bytes": 133752
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f1161_rgb.png",
+        "origin": "source",
+        "sha256": "6c97df7fbe7f9d4e9be7db54d2dae74c42c832f8a7ca6f8dc56c921552e13f73",
+        "bytes": 532693
+      }
+    },
+    {
+      "id": "P0__shard_03_f1178",
+      "index": 947,
+      "source_ceiling_semantic_sha256": "21470b16b8a98a4b6788c650552f04aad6a4984cc1b572f44ec08a2f983896c3",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f1178_label.json",
+        "origin": "source",
+        "sha256": "d02cf94ded4e66766210904b236208229c5f4f1a12570784d6720a9c4b4b6718",
+        "bytes": 21446
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f1178.png",
+        "origin": "source",
+        "sha256": "0b86e7a5b2f0f1e9d051d610f4540c81aac47b8922980018a67e7119a533a4d9",
+        "bytes": 79297
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f1178_rgb.png",
+        "origin": "source",
+        "sha256": "96c16edc93f181590d4489e767658cbe55b7edc2c81a929852b151dac59125f0",
+        "bytes": 545058
+      }
+    },
+    {
+      "id": "P0__shard_05_f0098",
+      "index": 948,
+      "source_ceiling_semantic_sha256": "347db86b226e270e80279d5b13ed918752cd96fc520114bb0e8f54d2561cd585",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0098_label.json",
+        "origin": "source",
+        "sha256": "a31297e241e60d6dd5f997db0651343c7c4b93760539e570207f5b8e6170c2f1",
+        "bytes": 21283
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0098.png",
+        "origin": "source",
+        "sha256": "8c03d13db91190ef242cea7cbd11c66ab52a894ed871ed66448716b28b259c08",
+        "bytes": 78084
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0098_rgb.png",
+        "origin": "source",
+        "sha256": "b84cc082c2a500f2327272ca7599fc6020f1296d767affd96a7ebffe6ca5a40d",
+        "bytes": 329997
+      }
+    },
+    {
+      "id": "P0__shard_05_f0944",
+      "index": 949,
+      "source_ceiling_semantic_sha256": "fd717cda9cff5b38578bdab674a6cf49fd9f146e1f556aa5d8e63048181185d9",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0944_label.json",
+        "origin": "source",
+        "sha256": "001112fed889684e9bc3e2e52c705f5a12cebd447c5c8abf6554bd296413ad45",
+        "bytes": 21363
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0944.png",
+        "origin": "source",
+        "sha256": "5532ad8f4a8c621053c1b0813005ed7234c559b4b740448df2647fbea6acb770",
+        "bytes": 133385
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0944_rgb.png",
+        "origin": "source",
+        "sha256": "7772435d36f72ad6dac5314c3c0975dffa7b3ec8c9d6c531ea3acc177866b7a8",
+        "bytes": 545167
+      }
+    },
+    {
+      "id": "P0__shard_02_f0608",
+      "index": 950,
+      "source_ceiling_semantic_sha256": "be1a36ae9790dc7d26c082b030ae507bc35eb0a37c7a8401f7d7526636841fc5",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0608_label.json",
+        "origin": "source",
+        "sha256": "81d3b12de3899338ada1280a88eea0ef1bbc4a954cb45a018c1191ca05cb94ac",
+        "bytes": 21611
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0608.png",
+        "origin": "source",
+        "sha256": "01ae9c3823be3af617c5508019eaf1250aa6a0d8c9d606828837f7fdbdd459a8",
+        "bytes": 76911
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0608_rgb.png",
+        "origin": "source",
+        "sha256": "c837195d09caf24abfa506c5b5f7bf1caae84df551b630d055594960ba22e702",
+        "bytes": 488169
+      }
+    },
+    {
+      "id": "P0__shard_06_f1008",
+      "index": 951,
+      "source_ceiling_semantic_sha256": "e2a3e4c25de126cfc08f249f687415f3e6e61627be02189b06a1bfcff6c98b09",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f1008_label.json",
+        "origin": "source",
+        "sha256": "e487e5a77241f2d033eb8d6806ea1ce723d72727ec6124a8f7012a39bdd484ba",
+        "bytes": 21242
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f1008.png",
+        "origin": "source",
+        "sha256": "9537015b2b9211e26dc6935c47f41275949a720ea15551920bcc326917dd968c",
+        "bytes": 87984
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f1008_rgb.png",
+        "origin": "source",
+        "sha256": "5fd1728be6f1395f9852d59be30e4767b0b856dd9e6cf771140f1e64038e3552",
+        "bytes": 366592
+      }
+    },
+    {
+      "id": "P0__shard_06_f0321",
+      "index": 952,
+      "source_ceiling_semantic_sha256": "bbe1f06d5ddd67aac96fe89625c3c149d4088736c493991e33b39d0bf1b8685d",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0321_label.json",
+        "origin": "source",
+        "sha256": "a9db7cfeaac15bff3a23193b996f606db3f79e0af3e6b0d9705a2edcd63e5f18",
+        "bytes": 21276
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0321.png",
+        "origin": "source",
+        "sha256": "65ee28c30ed6a72f2b692d1a01ea36d55b71f9b2e8892d1817b3c148121430cf",
+        "bytes": 134127
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0321_rgb.png",
+        "origin": "source",
+        "sha256": "aeebf82d4392dcefa73a62cc93e8a1baec83d77ac1914325e2dd3845c4f81d12",
+        "bytes": 565089
+      }
+    },
+    {
+      "id": "P0__shard_03_f0893",
+      "index": 953,
+      "source_ceiling_semantic_sha256": "0003c15038141218873ef60168930a82613f97b392ef8860239feed682852dc5",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0893_label.json",
+        "origin": "source",
+        "sha256": "92457c9dce0b86e0c5c0986cc97bf93c7da3c5bf5d5bf245ef86dbab9b980ddd",
+        "bytes": 21372
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0893.png",
+        "origin": "source",
+        "sha256": "e4cfe92c0f25ff44e7eaf6d79ba1b6dafc2001fd7c0a9099becde970fc13ab77",
+        "bytes": 87522
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0893_rgb.png",
+        "origin": "source",
+        "sha256": "80cf79c66fbb32a63dd6a25435c5f4660837fad1fa6c99f43cb1376e8413f48e",
+        "bytes": 477805
+      }
+    },
+    {
+      "id": "P0__shard_06_f0720",
+      "index": 954,
+      "source_ceiling_semantic_sha256": "bc24cd749fe3dc926d123abf86a00104b896014a2c7eb7665acdb2b8ff4d89a0",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0720_label.json",
+        "origin": "source",
+        "sha256": "6ffbb91532911bc34e130671e306636df53f5cae53c7b073db0b1c27c7dece8b",
+        "bytes": 21401
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0720.png",
+        "origin": "source",
+        "sha256": "5080b0bcb914667ca617a875896410f3ff6bb082b74e9a84a34c59219b937c3a",
+        "bytes": 134082
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0720_rgb.png",
+        "origin": "source",
+        "sha256": "76e3682ac850a358c7273a196f8b151f786532e0d3eb5d83b5a6013dbeafc25f",
+        "bytes": 894985
+      }
+    },
+    {
+      "id": "P0__shard_03_f0620",
+      "index": 955,
+      "source_ceiling_semantic_sha256": "cd3b2c6c3c45e25df7272f4ffc93dbea5c73467d73cb7e125c612fdea3ab588a",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0620_label.json",
+        "origin": "source",
+        "sha256": "801d3c52b6c9e393cf6bdbe7cf5af7504308c8db18cdf0f81fcd7081bba40a40",
+        "bytes": 21446
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0620.png",
+        "origin": "source",
+        "sha256": "8f2dace40d9dd6a169a8ec8e4a3185e0983918bb6965ba7facacc74697080d99",
+        "bytes": 89617
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0620_rgb.png",
+        "origin": "source",
+        "sha256": "f029a8ee56b3ea82d00f4ac3c4e3df9653b6e321f5b0356ca1260b3b45e8d583",
+        "bytes": 422634
+      }
+    },
+    {
+      "id": "P0__shard_01_f0708",
+      "index": 956,
+      "source_ceiling_semantic_sha256": "219d8efac680d2f4d6a13caae1f06fbd92497eeea40066eb449fb536b870aafc",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0708_label.json",
+        "origin": "source",
+        "sha256": "379fe7b4ae567883e865bfb990e06a371c0888295465204a0e213da48f649e3f",
+        "bytes": 21527
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0708.png",
+        "origin": "source",
+        "sha256": "628410640c174c8da59254f92f69dfeb67f1edf60761365c505b3f0506004cbb",
+        "bytes": 79966
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0708_rgb.png",
+        "origin": "source",
+        "sha256": "aa02b706e0c80ac96133ba12060d5a94f48b83f0a55e4392205701450a7fbe9a",
+        "bytes": 323056
+      }
+    },
+    {
+      "id": "P0__shard_01_f0828",
+      "index": 957,
+      "source_ceiling_semantic_sha256": "0c7539831ca22e6f4de344438f32d7445af7c0fa37b642d7fc76af314b0e5599",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0828_label.json",
+        "origin": "source",
+        "sha256": "037d0d267dc45b58b5ba1715913c27ed9d601929059708b2e1be53e239283d0b",
+        "bytes": 21271
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0828.png",
+        "origin": "source",
+        "sha256": "4a664ff03dbe08042e562de9726bcdcee5cbc4e4be5a590f8d5f708bd7a78827",
+        "bytes": 81790
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0828_rgb.png",
+        "origin": "source",
+        "sha256": "7bb4c478bc744b605513c8b7e98b37a4b266d094eb84297547ab8378fdd8d470",
+        "bytes": 362024
+      }
+    },
+    {
+      "id": "P0__shard_07_f1073",
+      "index": 958,
+      "source_ceiling_semantic_sha256": "c3b9941e28b79499f264e785d2d3543f97d8c4baf6139c6ef5ecb3f69d4c87d1",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f1073_label.json",
+        "origin": "source",
+        "sha256": "e319b4df9c4ba86aac7399b31b7e10155c37a26552881f91c135d5196df40b98",
+        "bytes": 21324
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f1073.png",
+        "origin": "source",
+        "sha256": "e96949723835be25c2787b3ae0d0b4cf0855c150ab99de0cf595908611fc7862",
+        "bytes": 133458
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f1073_rgb.png",
+        "origin": "source",
+        "sha256": "28d1a30b4005f54112d48924cf186204d5fa8aa26a9a493cd23709c744862b60",
+        "bytes": 775189
+      }
+    },
+    {
+      "id": "P0__shard_01_f0866",
+      "index": 959,
+      "source_ceiling_semantic_sha256": "a6e8074cd1f015be175a6a3649183aceaf4b198928e89fa0dbc8702b39c4a3f8",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0866_label.json",
+        "origin": "source",
+        "sha256": "1ad52d071fa0de5ec6626db41be5cbaced24f40cdc11afd7c5bad2c9010d5940",
+        "bytes": 21407
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0866.png",
+        "origin": "source",
+        "sha256": "b75779527ec06c60bab17fa47d261003b56734c6babfbfc02862ea9873892c17",
+        "bytes": 80031
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0866_rgb.png",
+        "origin": "source",
+        "sha256": "1ce2ad2b438a92c1a008a1b690c93b8cad68df45c5c723b07d3f4efd8d83468b",
+        "bytes": 415519
+      }
+    },
+    {
+      "id": "P0__shard_01_f0134",
+      "index": 960,
+      "source_ceiling_semantic_sha256": "c84dba2ac1a8c3a3a8968083c333cdcfd4cc36abc6811cc0c2f189179458b9c5",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0134_label.json",
+        "origin": "source",
+        "sha256": "ad925545e02f6abc312f9d19938b18a8c4e3eb031ddc511a91b710ff4c9adc81",
+        "bytes": 21475
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0134.png",
+        "origin": "source",
+        "sha256": "c051291ac27c3c4d63d993177a42a49e4ecdc25cc3462d075c917506e4888018",
+        "bytes": 79540
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0134_rgb.png",
+        "origin": "source",
+        "sha256": "782463556de6955eb1c61a33a32152cecbb3bacfe9040665bc54a84883f2008b",
+        "bytes": 372623
+      }
+    },
+    {
+      "id": "P0__shard_07_f1086",
+      "index": 961,
+      "source_ceiling_semantic_sha256": "bead4c8f9efcd7ff4cde1342b9dcda6410d6b3606fcc24cd82f484930df5a637",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f1086_label.json",
+        "origin": "source",
+        "sha256": "88c695ec01f53ce6d76b47ea7fc31a38d2eb99ba6ca52f9a1a9086257e4c371c",
+        "bytes": 21427
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f1086.png",
+        "origin": "source",
+        "sha256": "25587eb9caeef561a9b52a8bd09261b765a980de5758a8815548f39015e3b3a6",
+        "bytes": 118453
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f1086_rgb.png",
+        "origin": "source",
+        "sha256": "96d0c5baf52ebde005b4d1c59cbbee63017280d7b63a52108b2f41c1bd9957ee",
+        "bytes": 639292
+      }
+    },
+    {
+      "id": "P0__shard_03_f0271",
+      "index": 962,
+      "source_ceiling_semantic_sha256": "30a171ae6004db30d9a76b429129309b94c7556d4216cea2086b7a4e67b783fd",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0271_label.json",
+        "origin": "source",
+        "sha256": "e511dd2ab67230d5815e267717bf6ab17881c592076f8e1b7201b345a35ffd3d",
+        "bytes": 21400
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0271.png",
+        "origin": "source",
+        "sha256": "ec6510aaa07e65458d7342077b450525df8cb11a28242a7e3abce725cdc2f1cd",
+        "bytes": 79298
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0271_rgb.png",
+        "origin": "source",
+        "sha256": "da34fcab180d515a01d23d8a02f2452672dfaa2b5f3b86ea31b4dfcfb2df4ce7",
+        "bytes": 503145
+      }
+    },
+    {
+      "id": "P0__shard_07_f0766",
+      "index": 963,
+      "source_ceiling_semantic_sha256": "71246ff1a8fff50673cf37369aa7198a6f686d4e2c0ceb7630a57ac2f51256c7",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0766_label.json",
+        "origin": "source",
+        "sha256": "6387f0ad8eb23edc6390073e8f51abfef124417462e9a99021aedfc0a3fd2a90",
+        "bytes": 21438
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0766.png",
+        "origin": "source",
+        "sha256": "f0370ba82eb6cfa53d5954e7aaaa39f539455c33fe108866436aa771d18bceca",
+        "bytes": 79197
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0766_rgb.png",
+        "origin": "source",
+        "sha256": "5ba444ca43b7db3f33bae7c022f4344d2f804d13fb1c058ddf032c1bb002f072",
+        "bytes": 513350
+      }
+    },
+    {
+      "id": "P0__shard_00_f0136",
+      "index": 964,
+      "source_ceiling_semantic_sha256": "9b5e40fb84981b398191d272626d696cd581aad4ec4ab16372f0fdf8165427c2",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0136_label.json",
+        "origin": "source",
+        "sha256": "85f3967abbdc5216f13ec3f41d9bfdbcfdf61f96381f00e409acaa6a4d71f8f1",
+        "bytes": 21281
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0136.png",
+        "origin": "source",
+        "sha256": "4fa339d204885a168b88a270a40e77efe832e047824507b129d3943f747f66c0",
+        "bytes": 130737
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0136_rgb.png",
+        "origin": "source",
+        "sha256": "cbec7e54eed1d1aa95dbb01329f40c9025ccffe28d787d7856d1440e5f6e7ff6",
+        "bytes": 605632
+      }
+    },
+    {
+      "id": "P0__shard_04_f0029",
+      "index": 965,
+      "source_ceiling_semantic_sha256": "4fca7c479eea0edabf507f82f55d45ad99f235d93312efb80f449419a970f130",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0029_label.json",
+        "origin": "source",
+        "sha256": "c7ec94d43648c3a4a3f4a744ea0486f643ddb8c52bd6947ef423d1bdeee3c7c5",
+        "bytes": 84355
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0029.png",
+        "origin": "source",
+        "sha256": "066349931fdbcd96396cc202d4d212d79a81a3b2be253dd8a26e85ccae5b1f8b",
+        "bytes": 90074
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0029_rgb.png",
+        "origin": "source",
+        "sha256": "c9c588ea2c18b39d0307b46b26ff6c1d13f94825f2284737c0ecfb8a31ee1639",
+        "bytes": 512126
+      }
+    },
+    {
+      "id": "P0__shard_02_f0545",
+      "index": 966,
+      "source_ceiling_semantic_sha256": "7ecf60b7b9be33a26b54e449381fc62ce12cd94d56a2c2b6da42fa6dd5c4a70e",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0545_label.json",
+        "origin": "source",
+        "sha256": "195ee4d59147604a66e50a2b7b5137ecfc1a23eeae14c7d95ccc1df85437decb",
+        "bytes": 21423
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0545.png",
+        "origin": "source",
+        "sha256": "6edba0d9fcb832d7f20f55b750c6b3cdcf46593f01a00386326e0f10edd946fc",
+        "bytes": 79998
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0545_rgb.png",
+        "origin": "source",
+        "sha256": "c1f060ac53afd0b3bd03f6d3b57c2137602423f522c73e78fe2678a12ff422d4",
+        "bytes": 355805
+      }
+    },
+    {
+      "id": "P0__shard_07_f1247",
+      "index": 967,
+      "source_ceiling_semantic_sha256": "25ff5fe9d1960f6b0308885ad329376256bc5ae7f2c189430ba117b92afb1b08",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f1247_label.json",
+        "origin": "source",
+        "sha256": "800e513a3b64e3f5b0adaeeed8bf53fa6f034adaa3c50b32e15f704828c01666",
+        "bytes": 21426
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f1247.png",
+        "origin": "source",
+        "sha256": "b0ba687ff984368fa5907a8da1224a10e8e20581ce4a3a0318593538a8a2c5f4",
+        "bytes": 77926
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f1247_rgb.png",
+        "origin": "source",
+        "sha256": "4517d42971dd3845f0eb41d0eaa51a36bbc9d37a5a224d513fa5e1a14359afcb",
+        "bytes": 400423
+      }
+    },
+    {
+      "id": "P0__shard_01_f0785",
+      "index": 968,
+      "source_ceiling_semantic_sha256": "2262e567366e681671476c8169699e96b36c306ee9a725142011ec917c8e4ca3",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0785_label.json",
+        "origin": "source",
+        "sha256": "3e8d5b3269074f65553b30c9879fdcdc0a389236301cfa12f17f412cebd134db",
+        "bytes": 21190
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0785.png",
+        "origin": "source",
+        "sha256": "47a68a83c829686b90a49ebb06bbd0a37797c6f80beb3288d7c7f4293e0d0cd2",
+        "bytes": 132223
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0785_rgb.png",
+        "origin": "source",
+        "sha256": "f9635be7a16834c27155e2e90d5bbb0602628e3f9ec25fe7626e68f7cdedb76f",
+        "bytes": 532577
+      }
+    },
+    {
+      "id": "P0__shard_01_f0303",
+      "index": 969,
+      "source_ceiling_semantic_sha256": "2ff25aee6247cc79fd30bdd7e4016833e5e58fad2b8976c41925aacef4c744fa",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0303_label.json",
+        "origin": "source",
+        "sha256": "bfc098531d17a1c5ac2f709596ed937f64eecbd727e000c4a21953e4e0b6f21c",
+        "bytes": 21443
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0303.png",
+        "origin": "source",
+        "sha256": "7a76aee845a8d96e3793f2334fdbfe69a4826ccf2247d23e2c6dcc85b89f6e84",
+        "bytes": 74929
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0303_rgb.png",
+        "origin": "source",
+        "sha256": "f70a19130b379351ea8736cf7e67ba146ce3865a159dbc9e43d83cbd87c3c303",
+        "bytes": 388022
+      }
+    },
+    {
+      "id": "P0__shard_05_f0061",
+      "index": 970,
+      "source_ceiling_semantic_sha256": "a6c07ea28d4acfb3019b25ec9bc0d264ebefaaabcdcd143a9047e835e8bbb101",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0061_label.json",
+        "origin": "source",
+        "sha256": "490ceca8980a35e164a7a19f9038ac627ccef675697416777ea82a3d284f20a4",
+        "bytes": 21425
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0061.png",
+        "origin": "source",
+        "sha256": "bdf31d91203336d1034197a94d5ee635153d5d246497568501ec0af98ae52761",
+        "bytes": 90017
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0061_rgb.png",
+        "origin": "source",
+        "sha256": "443ea5931ebc7c7e1dc1a8aafba23b3bb3733bd89e7ba21da7e7d1b4417073a6",
+        "bytes": 466242
+      }
+    },
+    {
+      "id": "P0__shard_03_f0024",
+      "index": 971,
+      "source_ceiling_semantic_sha256": "ef0627d9b516dd9592878167c42981b15d727e7d9c25b74d27cce1c250664317",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0024_label.json",
+        "origin": "source",
+        "sha256": "e0fc472fe777f72bd0aede7cec2b739212021181154819fe792dbd7856ca17c0",
+        "bytes": 21546
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0024.png",
+        "origin": "source",
+        "sha256": "d6a2d7e1d3ce8c9157efdcbf5a284648c02c896878485d9ddc7df9888530ea1c",
+        "bytes": 130949
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0024_rgb.png",
+        "origin": "source",
+        "sha256": "760e2a60cd50296ba51f675786ebcd69be0a605a8251f898a595baa017d95c0a",
+        "bytes": 666639
+      }
+    },
+    {
+      "id": "P0__shard_02_f0514",
+      "index": 972,
+      "source_ceiling_semantic_sha256": "ab26d03489d26251daaceb0b1df7e6f7c65a4139f5b73e4d7baa6a6f3bae1d17",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0514_label.json",
+        "origin": "source",
+        "sha256": "f420e98d08ccab0002a99b7f859eb6bec2b4a00597b853591bbf07c9b4245698",
+        "bytes": 21377
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0514.png",
+        "origin": "source",
+        "sha256": "f2ecf7f70b94642854f1fd9d899400d77f3c930933f95196285b5905b943d24b",
+        "bytes": 132888
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0514_rgb.png",
+        "origin": "source",
+        "sha256": "7a98008bda9c2dba0326968c92f9c2ef9274bf7408aac774bffdb272067b5184",
+        "bytes": 534737
+      }
+    },
+    {
+      "id": "P0__shard_07_f1003",
+      "index": 973,
+      "source_ceiling_semantic_sha256": "d442fd6440662dc10dd2594e778b9ec77ddfb5155816debafd4daacdf76e5dbc",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f1003_label.json",
+        "origin": "source",
+        "sha256": "ecde0215f60f7451eb85086dec73a73007632d4d5113dab7c28625fbcc1f1128",
+        "bytes": 21442
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f1003.png",
+        "origin": "source",
+        "sha256": "38b90b356416438b268eb7e1d589880e63a0083cb78908181cc6b63d609550b5",
+        "bytes": 128024
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f1003_rgb.png",
+        "origin": "source",
+        "sha256": "20270689447a823381182090b149ad64948e86764bb6edc898a39258eb0999e9",
+        "bytes": 888681
+      }
+    },
+    {
+      "id": "P0__shard_03_f0758",
+      "index": 974,
+      "source_ceiling_semantic_sha256": "c464f0aedc459424fcc7779482cb3fb2e88415773b5b5209cb8afedf2fd4f940",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0758_label.json",
+        "origin": "source",
+        "sha256": "803e3e29bdf89966e7570a564abb36bc2ade8bd6c6b5bbdcff06e893fc24a4b0",
+        "bytes": 21582
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0758.png",
+        "origin": "source",
+        "sha256": "0b958c65d8d7a4fbcb9f34e27725dcc459c05e50acb1d0483670047d690000f0",
+        "bytes": 134106
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0758_rgb.png",
+        "origin": "source",
+        "sha256": "2f669b1b3dbe3177037a34ae82ef0a7883c587d4ed3f797217df4b4446e706d1",
+        "bytes": 588004
+      }
+    },
+    {
+      "id": "P0__shard_06_f0158",
+      "index": 975,
+      "source_ceiling_semantic_sha256": "eb4adc32e68bcce0f559b74164e455c79f407cdda44eb60bcb00e4ebc026f089",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0158_label.json",
+        "origin": "source",
+        "sha256": "3515f806b8abbc50a4dda33477f49552ac53a56f107628c684eafcd445037099",
+        "bytes": 21543
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0158.png",
+        "origin": "source",
+        "sha256": "09a1b560cec453c7ba0e600f645e0a7fbbb7dd9379980e09fa6ead496f70a627",
+        "bytes": 79986
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0158_rgb.png",
+        "origin": "source",
+        "sha256": "3ba3659c721ecd417401a735701d83a086203523d855c46f003460cfe8e12118",
+        "bytes": 344871
+      }
+    },
+    {
+      "id": "P0__shard_04_f0599",
+      "index": 976,
+      "source_ceiling_semantic_sha256": "f158398965221775b0b62a719be642836db064f422946b7a3d6ad61432253ac0",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0599_label.json",
+        "origin": "source",
+        "sha256": "320a929abf03dfcaf59ba4c2de06876d4447ede7762bfe615d3b0959235f23da",
+        "bytes": 21182
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0599.png",
+        "origin": "source",
+        "sha256": "3eb6c2cbe6a40407e9e16bac5dba125cc4f26abd9912ed432cc1726fef2a0265",
+        "bytes": 134235
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0599_rgb.png",
+        "origin": "source",
+        "sha256": "ec76d527b94f03ac6b8ee8bb2a8b0aadcd08ee054649f304d706612691f39112",
+        "bytes": 567934
+      }
+    },
+    {
+      "id": "P0__shard_03_f0188",
+      "index": 977,
+      "source_ceiling_semantic_sha256": "28a9cc484666e8f3e4f80f25da87dd6215f90efa138634ad0d8ecaf9aa924aa7",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0188_label.json",
+        "origin": "source",
+        "sha256": "08f1f55bde3e1fd7d0a4fd2d2c752d630a1e30acbd9191147f2a4f831971cc88",
+        "bytes": 21430
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0188.png",
+        "origin": "source",
+        "sha256": "be02225f54da89af8e25c4a654d5fc1790593c8681012d3864be3a9d521aea22",
+        "bytes": 79857
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0188_rgb.png",
+        "origin": "source",
+        "sha256": "60a9bdd1277335804d7008dcb73f2443d25c54c99e03c37d639200b82ca3e871",
+        "bytes": 367818
+      }
+    },
+    {
+      "id": "P0__shard_05_f0913",
+      "index": 978,
+      "source_ceiling_semantic_sha256": "458dad77175901d220f40c1d99366185110cab2e8360a28e065ffde7f68a49d0",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0913_label.json",
+        "origin": "source",
+        "sha256": "59c47ed79d28815e451b35503afed3a65c42a3beea8e4714c295ca8a14233417",
+        "bytes": 21265
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0913.png",
+        "origin": "source",
+        "sha256": "d711db6626d29685249fcc626006cd724621ab9772f65eb967c4558e81a234d1",
+        "bytes": 132116
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0913_rgb.png",
+        "origin": "source",
+        "sha256": "82216e80583db769c8bda0e234e087483d3cfc49fc0f36bcb4cc16bfcee78da8",
+        "bytes": 899541
+      }
+    },
+    {
+      "id": "P0__shard_02_f0344",
+      "index": 979,
+      "source_ceiling_semantic_sha256": "bb049f8aafe9ef8ae891f531dfc6ff4d24f501c9a017868e17cf7b789db8f817",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0344_label.json",
+        "origin": "source",
+        "sha256": "8da85a5dc1f2d008434310e7332f61df01b2ccdbcfd67ede1f2efbcdb5e2cd1e",
+        "bytes": 21540
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0344.png",
+        "origin": "source",
+        "sha256": "88db77329d6c4548ae6516bef09fd4e40ffb8bde2bf32103b5d76d7eeab985d0",
+        "bytes": 132593
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0344_rgb.png",
+        "origin": "source",
+        "sha256": "21254c5dd3c824c3b5ea3621237087c15c53df3eae6155b1439c8c125f630bac",
+        "bytes": 578515
+      }
+    },
+    {
+      "id": "P0__shard_05_f1075",
+      "index": 980,
+      "source_ceiling_semantic_sha256": "93d168f3f0ab56052de658180ecb1476c2f8247ca830e47c52f5c41a1c08ac35",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f1075_label.json",
+        "origin": "source",
+        "sha256": "27dc3a3a7bef2f4d366eb523fa68950365b04aa898767955d36c1e975b30856a",
+        "bytes": 21455
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f1075.png",
+        "origin": "source",
+        "sha256": "15da0d08c64feac104bab3605feef1e77572b9efa2cc910c4fcbe5bc02de62ba",
+        "bytes": 124881
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f1075_rgb.png",
+        "origin": "source",
+        "sha256": "2d4eb49e01dbaf8f409a4bc82ed7b57775b3aaf8fa79430ef14649cae815b879",
+        "bytes": 566440
+      }
+    },
+    {
+      "id": "P0__shard_05_f1084",
+      "index": 981,
+      "source_ceiling_semantic_sha256": "99ee07e7f4cf96c2b0f99328aec8590154575d9f69dd1a9f724618aa358ff729",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f1084_label.json",
+        "origin": "source",
+        "sha256": "e97080a135590a8fd3abbe5ef82ac6c94c431f9f95c45149d7d7195ee20d7287",
+        "bytes": 21293
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f1084.png",
+        "origin": "source",
+        "sha256": "b6fe0c01161233514ff27e53142ac511f693d686b80a9c26a8a4dc246bde7664",
+        "bytes": 127018
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f1084_rgb.png",
+        "origin": "source",
+        "sha256": "762fa57a6f6b32ccfcbedf6b7b47cf1d7050bb8324b657ba77af7c71a4be3074",
+        "bytes": 589766
+      }
+    },
+    {
+      "id": "P0__shard_02_f0477",
+      "index": 982,
+      "source_ceiling_semantic_sha256": "f020edab266de5e4b171f4acd8c19c9d97de93c676a209bf537a0622bf6d9ec7",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0477_label.json",
+        "origin": "source",
+        "sha256": "cf1a71e83dd9c8af8a6727e0fa3ddb3288f5608b814e242d8ee2c6d18a4929bf",
+        "bytes": 21337
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0477.png",
+        "origin": "source",
+        "sha256": "d73de87b6ee9c9a796a6e424998cdfe753a691c27fdf3e31b9141f9453ae0508",
+        "bytes": 132799
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0477_rgb.png",
+        "origin": "source",
+        "sha256": "0123e95372e1a821dff68f0d613696c7c7fa7c054ace23068eb33655dce18d88",
+        "bytes": 832946
+      }
+    },
+    {
+      "id": "P0__shard_05_f1195",
+      "index": 983,
+      "source_ceiling_semantic_sha256": "16ba84438c4f66b487b0681651aa409bcf371bf6ca9cbf9ca73568ee228706f2",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f1195_label.json",
+        "origin": "source",
+        "sha256": "16e942af546c87667ffe15011d4175bcbb3be24dfd0429edc7f76cc52a09c9f9",
+        "bytes": 21344
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f1195.png",
+        "origin": "source",
+        "sha256": "7ebe857e0a0fc93d054494fa7a37c889936730f2d883aa7d4dab5eaf2cda05d5",
+        "bytes": 131616
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f1195_rgb.png",
+        "origin": "source",
+        "sha256": "231f706161862f2045f52b0d0d239e14d4759e4bdee2acdda7775b865fe3955a",
+        "bytes": 567082
+      }
+    },
+    {
+      "id": "P0__shard_04_f0060",
+      "index": 984,
+      "source_ceiling_semantic_sha256": "bd57f13b9b5ccfb5e4272e542fc41fe1fe85719102d3434b243d8710ab05e95c",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0060_label.json",
+        "origin": "source",
+        "sha256": "4033dcd9bcc7d986f6a9fa177b1f03f45fd8788a6694c3133964cfe82a88fea9",
+        "bytes": 21454
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0060.png",
+        "origin": "source",
+        "sha256": "06ea108571938d70dc28ff237c5981cad0e29c340be2615c270229084a4d1e7e",
+        "bytes": 78370
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0060_rgb.png",
+        "origin": "source",
+        "sha256": "17b880d28ecf3fdae139ac222215c752dbce51ca7d2bef36f3ca84cba8281608",
+        "bytes": 429843
+      }
+    },
+    {
+      "id": "P0__shard_05_f0848",
+      "index": 985,
+      "source_ceiling_semantic_sha256": "83827812c88e34f8de907cb09588d601a639fd1a80f767513535e55ea42896f6",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0848_label.json",
+        "origin": "source",
+        "sha256": "11a88c6e3bdf21a5abb46478e66574458880a01b67f6dbd0c8dab9be8aec6357",
+        "bytes": 21522
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0848.png",
+        "origin": "source",
+        "sha256": "a80355428319ed60b8a86d0d0c8fc22ff14ee2bf57396d54bab9884aa20cde2c",
+        "bytes": 133842
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0848_rgb.png",
+        "origin": "source",
+        "sha256": "c896e08edce7c11aa4c663576b435543edef82371fcd2c50d0e985aa632218e3",
+        "bytes": 704894
+      }
+    },
+    {
+      "id": "P0__shard_03_f0722",
+      "index": 986,
+      "source_ceiling_semantic_sha256": "40c334f454876193b78aa4c1b15efc0f7c467cc78b6a3332419db10c94397d58",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0722_label.json",
+        "origin": "source",
+        "sha256": "8cc4ffdc80d8ff3ba23dc1a7404e2c0132df31488a1dd7b77e717e2d0b5f23b0",
+        "bytes": 21573
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0722.png",
+        "origin": "source",
+        "sha256": "af2b6fecf888daf46e1d4aa71d3737592dd7aced164cd90d6c69f5f204314145",
+        "bytes": 89846
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0722_rgb.png",
+        "origin": "source",
+        "sha256": "2eda9afc52266d3b2cbb9df72e2d3cbec3a40ef904c27062c946fd6721578ca4",
+        "bytes": 624196
+      }
+    },
+    {
+      "id": "P0__shard_07_f0007",
+      "index": 987,
+      "source_ceiling_semantic_sha256": "98c4a2d12a3aee75d2c8136b4a8e554f1011852bf38220ffcdd4a4d0832f40b3",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0007_label.json",
+        "origin": "source",
+        "sha256": "84b2fb4d8b3154acaa77781e6a711db095d251be58b81503326588a9c909cfe0",
+        "bytes": 21465
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0007.png",
+        "origin": "source",
+        "sha256": "3aabcb68b64bb3d83a58c458f25a2b59d643243a0d84595cf6f51b2b3f55406d",
+        "bytes": 81527
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0007_rgb.png",
+        "origin": "source",
+        "sha256": "d6ba3f23d0dfbc57cd1c6dfd0d17f185e9c3969446cd5e75dfc365516de150c8",
+        "bytes": 569843
+      }
+    },
+    {
+      "id": "P0__shard_06_f0349",
+      "index": 988,
+      "source_ceiling_semantic_sha256": "807c9ee907d96d0e39470423217d22eb19cde3252aa6c7967cc6036cf00cbbf1",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0349_label.json",
+        "origin": "source",
+        "sha256": "ab6f30a47b62185ad51e0363d7c8cd6b206041b4b539a6ad2466acb290f2874c",
+        "bytes": 21157
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0349.png",
+        "origin": "source",
+        "sha256": "54d8c198f394129a240f987ca8f31fe397f66074e36a69803d794793ac1b31de",
+        "bytes": 133036
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0349_rgb.png",
+        "origin": "source",
+        "sha256": "97ff82217813c6340097748d4ca12f46466d925f8662b3cdc84f8bf02619c211",
+        "bytes": 811929
+      }
+    },
+    {
+      "id": "P0__shard_04_f0865",
+      "index": 989,
+      "source_ceiling_semantic_sha256": "c77982aae3d6e7ade67a418d32a51b7045e4628ce9fa156dc6a8d127cc62f951",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0865_label.json",
+        "origin": "source",
+        "sha256": "c094740cf6e4db4dd461aa1584856f812f80a71e6701b5873aed58a99b646981",
+        "bytes": 21405
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0865.png",
+        "origin": "source",
+        "sha256": "79c811c91e795215e58e8695bab80c26319fabb9c9e0d059740c5b5735cd431b",
+        "bytes": 89267
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0865_rgb.png",
+        "origin": "source",
+        "sha256": "29bd317dc0b94c8a6d9dcc7e410a574ebcbdb620c2c88e6727f473066e7e34f4",
+        "bytes": 490258
+      }
+    },
+    {
+      "id": "P0__shard_01_f0550",
+      "index": 990,
+      "source_ceiling_semantic_sha256": "b36fdb20772bfadb69e7a09faac8290b63b180d417eef139613f33b873ac3722",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0550_label.json",
+        "origin": "source",
+        "sha256": "a6ef7d6c9b4d29ab19c6b415fdee67db94b9f28ff3e80aa96b1abeb80e615543",
+        "bytes": 21392
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0550.png",
+        "origin": "source",
+        "sha256": "81005c8b82f71ee8366aea4e465292908de1711f5de90b1039e294adb4677a05",
+        "bytes": 89356
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0550_rgb.png",
+        "origin": "source",
+        "sha256": "fd236a3fd46002c4384f5401d60b7be029a705fda8e436f1397f717746d0c49b",
+        "bytes": 382758
+      }
+    },
+    {
+      "id": "P0__shard_00_f0362",
+      "index": 991,
+      "source_ceiling_semantic_sha256": "967a808390780b98af7c25180b4c85926fcff3cd282b3ee43900a5848ebb638f",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0362_label.json",
+        "origin": "source",
+        "sha256": "853c24c3cf5a8bf4ce9a588ae368a6bbdfa59792cc30feba6738ae83a8dceb76",
+        "bytes": 21583
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0362.png",
+        "origin": "source",
+        "sha256": "b47c0b4dca3547366e533dc9f76b9d25f3418cb510eb0321bef78d5cba23a774",
+        "bytes": 79908
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0362_rgb.png",
+        "origin": "source",
+        "sha256": "fb6059cedf203c5587c7161bb54dc8915db1be95906bf24b61377469806f9475",
+        "bytes": 384770
+      }
+    },
+    {
+      "id": "P0__shard_02_f0896",
+      "index": 992,
+      "source_ceiling_semantic_sha256": "48ffe3cc5ebc994c65dc151176f3fde71bab052e56c791d64d9e8dc3f0da49c5",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0896_label.json",
+        "origin": "source",
+        "sha256": "1446475338f6b26b0573a85ae42f28b9916abb8d6128ac04f29a792466bf0da6",
+        "bytes": 21396
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0896.png",
+        "origin": "source",
+        "sha256": "040c56815cb103d89faf21b090c0dd572b62f3c51ccb44a5b72bbbfca14b086c",
+        "bytes": 76014
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0896_rgb.png",
+        "origin": "source",
+        "sha256": "cdc00ce6f7f04107b4cb6b0b9de062d9a82bc6c34b231bdd7ff897c8aa073d00",
+        "bytes": 570071
+      }
+    },
+    {
+      "id": "P0__shard_00_f0985",
+      "index": 993,
+      "source_ceiling_semantic_sha256": "b23a1248b7f5744ee9fe74fc86687724f85a22ee5e1b45e7b344a80c76134f2c",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0985_label.json",
+        "origin": "source",
+        "sha256": "53f81eb3803f62d84ed9b0519410ddf183671cc8bfef5fbaeb1d8bd4d242f285",
+        "bytes": 21341
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0985.png",
+        "origin": "source",
+        "sha256": "d02ae2f00cff86d562ae31192ed319fc0254c6b86ee8ab5d3df54ab1feb3cfbd",
+        "bytes": 79392
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0985_rgb.png",
+        "origin": "source",
+        "sha256": "77e28351f122caf5866b3b3311964768a47d767b95e3c4d01dfee3ffe4935f8b",
+        "bytes": 542319
+      }
+    },
+    {
+      "id": "P0__shard_07_f1083",
+      "index": 994,
+      "source_ceiling_semantic_sha256": "a615fd4eda08a8f91509c0a7b3f560de1f5569e29dc8a5744ccb8da77516b5be",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f1083_label.json",
+        "origin": "source",
+        "sha256": "3af5d34c85817cbd050e5570116511384165805c4e55a3a3f427e20c928c7d09",
+        "bytes": 21405
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f1083.png",
+        "origin": "source",
+        "sha256": "c9c583c4df86fb819503064e60d252c921e3bdd42f9a9819d7c909f8d563b605",
+        "bytes": 79908
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f1083_rgb.png",
+        "origin": "source",
+        "sha256": "722cad51bcc668053ec5a433bcceed32ff3a6945ef1d40755e1d73cff2e319a5",
+        "bytes": 290091
+      }
+    },
+    {
+      "id": "P0__shard_04_f0572",
+      "index": 995,
+      "source_ceiling_semantic_sha256": "ddbaa67c8752c2b6b02245c768f7a80486c428582c4966ef944b045ce0e63d44",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0572_label.json",
+        "origin": "source",
+        "sha256": "d087bdd12ebd1242f13db7c39900d2519d89783952cc252d2f4ad05faec6069d",
+        "bytes": 21304
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0572.png",
+        "origin": "source",
+        "sha256": "c3e1c6a92bdffb4fef7ab6a698e8f664fdbfc0596d5e9a576e019bb53f609088",
+        "bytes": 80890
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0572_rgb.png",
+        "origin": "source",
+        "sha256": "ae2ba8fb2083374bd655564930a664e1ce5f9ca7b685bcbf4abdc24e8adad4e4",
+        "bytes": 194522
+      }
+    },
+    {
+      "id": "P0__shard_05_f0757",
+      "index": 996,
+      "source_ceiling_semantic_sha256": "b7241a95a073943fa78c085d3e7ec8aff46f5f0061ad6d9e5a660deb0ac98a7b",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0757_label.json",
+        "origin": "source",
+        "sha256": "ded4cccd821c971a362108ce3bb5ca4bae4f716c77fbe15a076221626b712f44",
+        "bytes": 21348
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0757.png",
+        "origin": "source",
+        "sha256": "859dcf83ef66acc17ae441d006eaaf40eaac19fb201d5e6eb12b7bd86bff5ef4",
+        "bytes": 130018
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0757_rgb.png",
+        "origin": "source",
+        "sha256": "903d875c9a7ca59814d9476b0f2f26413ea72f7950a8409e14f9155e0eb75e81",
+        "bytes": 722492
+      }
+    },
+    {
+      "id": "P0__shard_02_f0447",
+      "index": 997,
+      "source_ceiling_semantic_sha256": "e0d857c7677830477cf7c85f3ad03b245ac9eb8fc9d4ee4c8c25f4f320b4f2b6",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0447_label.json",
+        "origin": "source",
+        "sha256": "8d235104fb51a235eed9e3d2227c52515eba59238789308b68943b6740084dc8",
+        "bytes": 21179
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0447.png",
+        "origin": "source",
+        "sha256": "b934be1caabdbfce4e1569d45870511adfce33a937c6ff7b1e76db88f01c8393",
+        "bytes": 81680
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0447_rgb.png",
+        "origin": "source",
+        "sha256": "6a1ebc92c0d75c34a1f492d1c4bf23ede474dddb3763136c0b246f93872082a3",
+        "bytes": 245814
+      }
+    },
+    {
+      "id": "P0__shard_06_f0444",
+      "index": 998,
+      "source_ceiling_semantic_sha256": "969ed028c7f016619376ac968e2f2e5517b900294f2b741612a9840d9ea68b92",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0444_label.json",
+        "origin": "source",
+        "sha256": "ec1215d6301c8dd72791444805b26e66b13add1513553c6f3d7892af29ea1b0c",
+        "bytes": 21500
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0444.png",
+        "origin": "source",
+        "sha256": "e8ce140a3d9fb56a56ad29c520394407cd686d43521842750f1b48f66706de3e",
+        "bytes": 134229
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0444_rgb.png",
+        "origin": "source",
+        "sha256": "53ddb1cb61a3aaa15186d3fb171958f48877152ce591d33ffb29b299801fa2ab",
+        "bytes": 605070
+      }
+    },
+    {
+      "id": "P0__shard_06_f1082",
+      "index": 999,
+      "source_ceiling_semantic_sha256": "a240c550a30dc38035d65abb69022c33ac296704c611743f6176ae7248ce6574",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f1082_label.json",
+        "origin": "source",
+        "sha256": "e4e5d2e0862f146be24e480a980ae5ba4f354a5bb74cacddda1ba76240797e8c",
+        "bytes": 21462
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f1082.png",
+        "origin": "source",
+        "sha256": "5b77ccb6fcf0fa8968937199a7bd4de58bf9953b13c61e3824b2be3e544eb5d2",
+        "bytes": 79641
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f1082_rgb.png",
+        "origin": "source",
+        "sha256": "9a62089ad31a66f02bc86365ee8e8f05a160e24e3f5b5ea085c2e180d3fb12e2",
+        "bytes": 445206
+      }
+    },
+    {
+      "id": "P0__shard_00_f1145",
+      "index": 1000,
+      "source_ceiling_semantic_sha256": "a3f7ad4ee1a2cf9cbce1177773dbb0dfa99a4d7df699a655a2a3e9f654727c5b",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f1145_label.json",
+        "origin": "source",
+        "sha256": "4c643a3d52b7380e5c35956789132aeafcf30d79135ed9deb05a2dcb4f6b97c9",
+        "bytes": 21370
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f1145.png",
+        "origin": "source",
+        "sha256": "9bcd1d8544ee4457908f49935f0690e9d48d30716930ae92e42616ac980323d2",
+        "bytes": 131759
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f1145_rgb.png",
+        "origin": "source",
+        "sha256": "8e0e1eb71ad3cfbca5d0e21cc61e90cee50d4b571af32bbe955ab717522ea88f",
+        "bytes": 539461
+      }
+    },
+    {
+      "id": "P0__shard_04_f0846",
+      "index": 1001,
+      "source_ceiling_semantic_sha256": "ff20b57cc3e9d266d7b67a14861a346d2a4acbbbbb60d83ddfda872617030616",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0846_label.json",
+        "origin": "source",
+        "sha256": "85150b0372469c658ad70dcea645b3ff02f808c0540fac14add699eed2f12200",
+        "bytes": 21381
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0846.png",
+        "origin": "source",
+        "sha256": "9ad7de449f5397cfdd9644aa499909e659ccb8cc0c27fe1eb36141516901ad4c",
+        "bytes": 89598
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0846_rgb.png",
+        "origin": "source",
+        "sha256": "f692754437e9f35feb776365c5745ddf7a5337df0629e4969f26fdba807a4dfd",
+        "bytes": 411309
+      }
+    },
+    {
+      "id": "P0__shard_03_f0803",
+      "index": 1002,
+      "source_ceiling_semantic_sha256": "23c402a708f8f9effcbb77da2e8a3c221cbc356166a646f1b2a39cf79b081e5d",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/labels/f0803_label.json",
+        "origin": "source",
+        "sha256": "eef6cb51e965c932357980135e5ac46170ea41e1cd7eb823720981ab724b472b",
+        "bytes": 21430
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/mask_visible/f0803.png",
+        "origin": "source",
+        "sha256": "f7d489bd7739b480a40c8969c61f2bf6195b6ec8bebe555a56f11d138a8ac982",
+        "bytes": 79414
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_03/rgb/f0803_rgb.png",
+        "origin": "source",
+        "sha256": "e81d0ed5211a3cf3caf271aec7a8ef67dd6f27fdb6be15b6fd6591950824a0f2",
+        "bytes": 308070
+      }
+    },
+    {
+      "id": "P0__shard_02_f0859",
+      "index": 1003,
+      "source_ceiling_semantic_sha256": "d6a0479a5296f74899054e26384ea7a0f6cf43ee20491555de4c4140d46c988a",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0859_label.json",
+        "origin": "source",
+        "sha256": "7cc5d18dff2eacb44b19a9604c491b5d6ecd6741f5aae0cef7a809a12f2a8a88",
+        "bytes": 21157
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0859.png",
+        "origin": "source",
+        "sha256": "b1c355c0cf59571ae19af0dc07bd9f14faaf7a714340fce0f47abbca1ced8648",
+        "bytes": 80130
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0859_rgb.png",
+        "origin": "source",
+        "sha256": "c832be7ba7ffdc137e899b47eec4638d7071e62f6977e4d7603eac02f1a2a453",
+        "bytes": 370661
+      }
+    },
+    {
+      "id": "P0__shard_04_f0346",
+      "index": 1004,
+      "source_ceiling_semantic_sha256": "757edf9693ec99ac53e8d3df2ad459a87ecadcff816a4cd86723ce34962de70a",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0346_label.json",
+        "origin": "source",
+        "sha256": "b22407d30e3da9d314df85c2d2acf96ab5669d216e5e18b6e0e1641166a354d1",
+        "bytes": 21359
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0346.png",
+        "origin": "source",
+        "sha256": "e54edf5225a6ae9de025725119ff127666fe328e282b6381483db8a854488e22",
+        "bytes": 81501
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0346_rgb.png",
+        "origin": "source",
+        "sha256": "2f823edb265353b6a75cb4f3a8dec7883a3172d75523567d1e79922684c84135",
+        "bytes": 186527
+      }
+    },
+    {
+      "id": "P0__shard_05_f0538",
+      "index": 1005,
+      "source_ceiling_semantic_sha256": "288b1153026cba2f1731d618ee5fdd6a0738882cc164d21fe749dd7412bfeda8",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0538_label.json",
+        "origin": "source",
+        "sha256": "bdc4a6e9a6ae35f356ed39b8091cd69cc6c302fc1c7824de6dd9f03f5de2b7e2",
+        "bytes": 21395
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0538.png",
+        "origin": "source",
+        "sha256": "689622ea70d223acd8ebd9bcd25d0c3a2033272734776e81d1fba0242e24811f",
+        "bytes": 90029
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0538_rgb.png",
+        "origin": "source",
+        "sha256": "26fc976fc3f6f22a21897d6f98e3360f4411d67ff56654129f53df3bd6ea0d15",
+        "bytes": 362853
+      }
+    },
+    {
+      "id": "P0__shard_01_f0886",
+      "index": 1006,
+      "source_ceiling_semantic_sha256": "604105c1946a0ade67747165b45ab573c4ac92ba6cd7bda57378c7425c89ee4a",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/labels/f0886_label.json",
+        "origin": "source",
+        "sha256": "63c4eac422a7012086372155b79f7bdcd928d26e3479fd1b2b6acd1068446e0a",
+        "bytes": 21413
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/mask_visible/f0886.png",
+        "origin": "source",
+        "sha256": "8e546c1983d7a15a9b9502e03ba6c2018c8857028b684f02736ab9888f145b55",
+        "bytes": 72132
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_01/rgb/f0886_rgb.png",
+        "origin": "source",
+        "sha256": "cbceb0e91a88da44e3a6dcef044be15c42154e7481a62c378cffd4fe85fc1a75",
+        "bytes": 402616
+      }
+    },
+    {
+      "id": "P0__shard_07_f1228",
+      "index": 1007,
+      "source_ceiling_semantic_sha256": "56909bbb47e82cb9365f9cd515e461bdbf1bd4d7f6fa73d62b665bdd2a6978fe",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f1228_label.json",
+        "origin": "source",
+        "sha256": "3b84a2e5733d04c5f1204a745abecfc4371613fb8d776280978bd3231150616c",
+        "bytes": 21427
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f1228.png",
+        "origin": "source",
+        "sha256": "b1524005b3335448e8f71320fb308c581e34f03b92e15ac8bd40ee8af4a6ab83",
+        "bytes": 88024
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f1228_rgb.png",
+        "origin": "source",
+        "sha256": "aa21dc3a3b7803571d3ccf7d6bf47ea5ff7aecb32570d627c6af91edcf0a6fbf",
+        "bytes": 381103
+      }
+    },
+    {
+      "id": "P0__shard_06_f0478",
+      "index": 1008,
+      "source_ceiling_semantic_sha256": "fbfa75f052069b8cf5a2afedf6caed7a15e178525e455a8e1e269909981fd223",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0478_label.json",
+        "origin": "source",
+        "sha256": "0188b914a5df73fa030be7be2c82c209af7bd31ce942b6994c17e556abe28696",
+        "bytes": 21506
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0478.png",
+        "origin": "source",
+        "sha256": "719885fd6da2b4e68900c419898e2c23b8a782e45e238e13b41bcac626f5504c",
+        "bytes": 133803
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0478_rgb.png",
+        "origin": "source",
+        "sha256": "0c9bf4430371e2f361748d070c0fa949b52d4f1e6abc9c5ff21ac593b19412ce",
+        "bytes": 893815
+      }
+    },
+    {
+      "id": "P0__shard_07_f1244",
+      "index": 1009,
+      "source_ceiling_semantic_sha256": "0bae52a2cdeefb5983026fc26bfae22651f9714a6a00bfb9cfbf94f973dfe7f0",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f1244_label.json",
+        "origin": "source",
+        "sha256": "48c4d0709e0ecf469a7cbbea811d7d5cc00d6ad7f80fb8041dc65535ae1b9a15",
+        "bytes": 21424
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f1244.png",
+        "origin": "source",
+        "sha256": "3dc47131e26784ba98f0acb29049feaddba4a9ebea3f0307ccfa6fc8eafa174b",
+        "bytes": 80185
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f1244_rgb.png",
+        "origin": "source",
+        "sha256": "46243c0663a96722ac57fe14cb2a399d59ed759e57b7cec51ff1567583eaad19",
+        "bytes": 516360
+      }
+    },
+    {
+      "id": "P0__shard_07_f0463",
+      "index": 1010,
+      "source_ceiling_semantic_sha256": "63467fbcc9269cee99ad3f367fef7c327d2addbe4db5b8d7b3cd784b383f0c0f",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0463_label.json",
+        "origin": "source",
+        "sha256": "10d526ce2867029b248d3c5ecedefccbbfb6f230fa4a50a2c750e4d2c1db7546",
+        "bytes": 21312
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0463.png",
+        "origin": "source",
+        "sha256": "b78f701687558b8aecb54e358a13fe4d4f72e9c862f8051609fd8d57e73b93a0",
+        "bytes": 126692
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0463_rgb.png",
+        "origin": "source",
+        "sha256": "2745c9f63de48f5691ae39d4af295e7fd3329dda2ef42633c33db890f02f6bd4",
+        "bytes": 642232
+      }
+    },
+    {
+      "id": "P0__shard_06_f0292",
+      "index": 1011,
+      "source_ceiling_semantic_sha256": "95132c3ce26e2613390714026a2986ff154d0196757e661cce8a2913ececed5c",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0292_label.json",
+        "origin": "source",
+        "sha256": "2d032dd2f7b6c3f764517ef243b1695668bb2d617402cf8e02b36f80fbb0125d",
+        "bytes": 21487
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0292.png",
+        "origin": "source",
+        "sha256": "93c3c4eabfbe075525cda3f1fbb7b465d0511c24f001ab69b22cc4858e839170",
+        "bytes": 77431
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0292_rgb.png",
+        "origin": "source",
+        "sha256": "1a82645b3b7fae7957bf031776458fcb2d297bf35d8a42447a77e2cacc5a5f8d",
+        "bytes": 415053
+      }
+    },
+    {
+      "id": "P0__shard_06_f0888",
+      "index": 1012,
+      "source_ceiling_semantic_sha256": "432822e9bccea51ffe80c34995bc50a51548ccaf7b0b25271c978ea18dd5ba62",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0888_label.json",
+        "origin": "source",
+        "sha256": "8d85e26d04a6d0cb74603fbe587da3f7928859d7349dd6c43e46edbf8c250a99",
+        "bytes": 21470
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0888.png",
+        "origin": "source",
+        "sha256": "74e95e08dda04afba1f27b48c9e5d4a7a289f6f9e04861c4a16b9a1be642e4f2",
+        "bytes": 89037
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0888_rgb.png",
+        "origin": "source",
+        "sha256": "21af251d13b77fea6587c4203cbcff9c167ff8ef0cac34234bb13de2ca40abb7",
+        "bytes": 339023
+      }
+    },
+    {
+      "id": "P0__shard_05_f0653",
+      "index": 1013,
+      "source_ceiling_semantic_sha256": "cf6d7fa7234235c8deb72bdc1fa0403971000055dc1a2d8440eee9554b7ce28d",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0653_label.json",
+        "origin": "source",
+        "sha256": "65c0f23c885f08b76c918f15ed941bec6ed3af02cdfc6fe351b301d184943428",
+        "bytes": 21417
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0653.png",
+        "origin": "source",
+        "sha256": "a5b3baf5d11f0b1f45f21afb059dded08d0ea4e2900955b0960ab50c902f746d",
+        "bytes": 79740
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0653_rgb.png",
+        "origin": "source",
+        "sha256": "ba69f03df8a425aa8daeaaf1b53b6030c39558374710e9cd66cc66ea6ad67844",
+        "bytes": 533373
+      }
+    },
+    {
+      "id": "P0__shard_06_f0397",
+      "index": 1014,
+      "source_ceiling_semantic_sha256": "e49a27fa7988e1955a3f43166a9131ce22fffca8da54add170d9d101bea572f6",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/labels/f0397_label.json",
+        "origin": "source",
+        "sha256": "e14edddeddda587dcbd5762eda3f400fa5eba946fb381de10f06d8f5e7998900",
+        "bytes": 21218
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/mask_visible/f0397.png",
+        "origin": "source",
+        "sha256": "654852236881b8bb5ef329a66f44239f2416edff23275e29a038bef32397e343",
+        "bytes": 81920
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_06/rgb/f0397_rgb.png",
+        "origin": "source",
+        "sha256": "f129a4de6014925e8e05251fe09a2ec3d21b4d41934975031feb3b8137bce321",
+        "bytes": 575312
+      }
+    },
+    {
+      "id": "P0__shard_02_f0866",
+      "index": 1015,
+      "source_ceiling_semantic_sha256": "69aa27805c5266a7d4520432a91d15942c1637ea3e6210d850183467bd15f6f2",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0866_label.json",
+        "origin": "source",
+        "sha256": "5eaaf7972ef3c717882343827c0a168458a6a5bdc77d6e6e43f3038cd5077485",
+        "bytes": 21401
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0866.png",
+        "origin": "source",
+        "sha256": "b3aa4431620fdd01e018d8964783cc607c8023426e8d7b1d6c8c1775c131f59c",
+        "bytes": 75134
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0866_rgb.png",
+        "origin": "source",
+        "sha256": "b4a32abb4e5fbfa4d351fa6ba637dfd79b2aaad63ed1778a24551fef2da44f8a",
+        "bytes": 350841
+      }
+    },
+    {
+      "id": "P0__shard_00_f0862",
+      "index": 1016,
+      "source_ceiling_semantic_sha256": "30697cf11719089b576b85977fe884e06fda9139d0afd7916e81d40ed2cbfac1",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0862_label.json",
+        "origin": "source",
+        "sha256": "19a9a8d07b52e9cf67b810873b36e5605baa7dbdf4ffcf82f60852ed09569df4",
+        "bytes": 21523
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0862.png",
+        "origin": "source",
+        "sha256": "7028fb5d807bef92b0f2f7092f948bf468ae3e4cc002684a121340606011cc04",
+        "bytes": 133386
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0862_rgb.png",
+        "origin": "source",
+        "sha256": "40f247c76a6cdc8bf73c4b26c4aaa36f28b4e77ebdaed0ea559f57cc8c365513",
+        "bytes": 787546
+      }
+    },
+    {
+      "id": "P0__shard_02_f0245",
+      "index": 1017,
+      "source_ceiling_semantic_sha256": "4feb7cc7e5763a5d1d6e4d47144ef36ffb18cd5337d5b2c9cc2eb8942ebbf0a0",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0245_label.json",
+        "origin": "source",
+        "sha256": "509d51aba79dd72de88c9106b7e552fd838aad4f295af6d933a1355a5bf46023",
+        "bytes": 21484
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0245.png",
+        "origin": "source",
+        "sha256": "f4d146a3351a1fa8a39b17d7bb945a271665fab62e5c9c9c507687d0e1578c20",
+        "bytes": 132032
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0245_rgb.png",
+        "origin": "source",
+        "sha256": "b68c63cd0b2fb68db61bb6a97e1942bdb9c4a82e14ff767282e88888c0a24877",
+        "bytes": 617087
+      }
+    },
+    {
+      "id": "P0__shard_07_f0927",
+      "index": 1018,
+      "source_ceiling_semantic_sha256": "7279da62bf6032eed34328b56589b7e0b5addecf429f5d7fb59643f8b2e38db1",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/labels/f0927_label.json",
+        "origin": "source",
+        "sha256": "432064ba8da75a04866805d373a23474036337fa2fcbb685759e3ff8e32ccd2c",
+        "bytes": 21214
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/mask_visible/f0927.png",
+        "origin": "source",
+        "sha256": "7255b7c300ebf6696da1982e5d7cc18fd7c24d046fd3f5837a2dd0695385208a",
+        "bytes": 133877
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_07/rgb/f0927_rgb.png",
+        "origin": "source",
+        "sha256": "876feaa235d7d8e384554f0cbb7e1fb39ee638e72e0971277cb9feba6eb83fe2",
+        "bytes": 536926
+      }
+    },
+    {
+      "id": "P0__shard_00_f0912",
+      "index": 1019,
+      "source_ceiling_semantic_sha256": "451c6f2c60096478f106b3fafc51899f65d1bba5d920a1b73c85cee2009979c4",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/labels/f0912_label.json",
+        "origin": "source",
+        "sha256": "90c14a1af156fa55c06e3c3371e36ff4ae2bf7f6643a6f09661b75929001bf70",
+        "bytes": 21424
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/mask_visible/f0912.png",
+        "origin": "source",
+        "sha256": "07ed044828ad459c4b9985d669354bc49720115cd6371033e3157802dce02466",
+        "bytes": 80158
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_00/rgb/f0912_rgb.png",
+        "origin": "source",
+        "sha256": "e9c1989246e5f96c12b4eef766837623ec3228f736efd650161827802602aef3",
+        "bytes": 381193
+      }
+    },
+    {
+      "id": "P0__shard_02_f0983",
+      "index": 1020,
+      "source_ceiling_semantic_sha256": "d33d67c464619c65e40d54987f563a84fe1dbc48a6eaba138443ffe4bb0ee546",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0983_label.json",
+        "origin": "source",
+        "sha256": "e7cbda2b3cccd2e1de7d59e70483d963280f80ac6844861baa11d779e6507e4c",
+        "bytes": 21460
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0983.png",
+        "origin": "source",
+        "sha256": "3052911952c9b4ea5589f2d168172956a8aab29a90da4877ef880dc9882de665",
+        "bytes": 132049
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0983_rgb.png",
+        "origin": "source",
+        "sha256": "1c116bea517da4cb3c8dfcbf5ef8a364d41fae6e790f7386d5d14ab561ae51ed",
+        "bytes": 754969
+      }
+    },
+    {
+      "id": "P0__shard_04_f0731",
+      "index": 1021,
+      "source_ceiling_semantic_sha256": "2b875923fbdffaf015cad96cdd79636e4aa43d5c90e0553f690a01077dc91d00",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/labels/f0731_label.json",
+        "origin": "source",
+        "sha256": "db69c5044de85be04b0068529221b4498448c22128057bee2135e99fb4cecda7",
+        "bytes": 21321
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/mask_visible/f0731.png",
+        "origin": "source",
+        "sha256": "6adf2623f23ed91ed444087cbb7f3d0644f7561804fecd1739be0d3276df951f",
+        "bytes": 134124
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_04/rgb/f0731_rgb.png",
+        "origin": "source",
+        "sha256": "509c90a1bf4f635862db50146dee0640af62cc0b218580f91057518d587c5f67",
+        "bytes": 499413
+      }
+    },
+    {
+      "id": "P0__shard_05_f0489",
+      "index": 1022,
+      "source_ceiling_semantic_sha256": "015302df33c0ca080eee179c71e851496a24ab3a13154561aa674836723cc49e",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/labels/f0489_label.json",
+        "origin": "source",
+        "sha256": "2cd713f3950be0887e358f80d39fafcb1ae48e3e6c135be1a42fc527255a24e2",
+        "bytes": 21346
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/mask_visible/f0489.png",
+        "origin": "source",
+        "sha256": "ac0415897c4c15110814a56c26b5702d58ef07252fd04c92a9f6f9c53a34348c",
+        "bytes": 89883
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_05/rgb/f0489_rgb.png",
+        "origin": "source",
+        "sha256": "1875da294995531e01c638361ea6fe974751279cec0925743f9a51cf38e0e337",
+        "bytes": 621706
+      }
+    },
+    {
+      "id": "P0__shard_02_f0733",
+      "index": 1023,
+      "source_ceiling_semantic_sha256": "4d69f93821e984a64c1169c31f634a07e163f7abda140a3556a6f1d5295504e0",
+      "source_annotation": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/labels/f0733_label.json",
+        "origin": "source",
+        "sha256": "909191fdd0ca6981710e125cd919d9b8eff1b9f6bb3c9434c934764cf18b3986",
+        "bytes": 21152
+      },
+      "visible_mask": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/mask_visible/f0733.png",
+        "origin": "source",
+        "sha256": "4de229a5db321417db5e6eb821956301efa7403f5b6c9d59fdfe6fa5ac3261b9",
+        "bytes": 79682
+      },
+      "source_RGB": {
+        "path": "challenge/yolo_pose_one_model/datasets/_raw_legacy_v1v2_p0_10k/shard_02/rgb/f0733_rgb.png",
+        "origin": "source",
+        "sha256": "203405a54ba23893adc25b806b22df0ac10e01fabb1856160ec5feedc512c2e4",
+        "bytes": 265353
+      }
+    }
+  ]
+}

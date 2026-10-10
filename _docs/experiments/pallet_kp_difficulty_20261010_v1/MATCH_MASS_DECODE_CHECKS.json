@@ -1,0 +1,169 @@
+{
+  "schema": "match_mass_decode_checks_v1",
+  "complete": true,
+  "passed": true,
+  "generated_utc": "2026-10-10T01:43:25.369560+00:00",
+  "policy": {
+    "existence": "logsumexp(scores[:65]) > scores[65]",
+    "match_posterior_threshold": 0.5,
+    "equality": "reject",
+    "location": "argmax(scores[:65]); first maximum; one original1px bin",
+    "query_validity": "finite non-sentinel seed endpoints and length>1e-6, unchanged",
+    "line": "TLS with>=2 selected valid queries; first singular value>1e-6, unchanged",
+    "corner": "most orthogonal incident line pair; abs normal determinant>1e-6, unchanged",
+    "coordinate_averaging": false,
+    "initial_coordinate_fill": false,
+    "parameter_tuning": false
+  },
+  "method_mapping": {
+    "GEOMETRY_ONLY": "GEOMETRY_ONLY_MATCH_MASS",
+    "IMAGE_NO_ROLE": "IMAGE_NO_ROLE_MATCH_MASS",
+    "IMAGE_ROLE": "IMAGE_ROLE_MATCH_MASS"
+  },
+  "units": [
+    {
+      "case": "split_match_mass_0.6_none_0.4",
+      "none_probability": 0.4,
+      "nonzero_spatial_probabilities": [
+        0.3,
+        0.3
+      ],
+      "match_probability": 0.6,
+      "old_66way_choice": 65,
+      "new_mass_choice": 0,
+      "recovered_match_posterior": 0.5999999999999999,
+      "passed": true
+    },
+    {
+      "case": "match_mass_0.3_none_0.7",
+      "none_probability": 0.7,
+      "nonzero_spatial_probabilities": [
+        0.15,
+        0.15
+      ],
+      "match_probability": 0.3,
+      "old_66way_choice": 65,
+      "new_mass_choice": 65,
+      "recovered_match_posterior": 0.30000000000000004,
+      "passed": true
+    }
+  ],
+  "original_66way_decoder_replay": {
+    "rows": 957,
+    "exact_query_line_corner_identities": true,
+    "query_support_corner_max_absolute_difference": 2.637534635141492e-11,
+    "tolerance": 1e-07,
+    "TLS_normal_sign_equivalences": 0
+  },
+  "original_logits_and_semantic_hash_verified_rows": 957,
+  "counts": {
+    "GEOMETRY_ONLY": {
+      "old": {
+        "frames": 319,
+        "accepted_queries": 2160,
+        "lines": 329,
+        "corners": 28,
+        "four_raw_corner_frames": 0,
+        "four_in_image_corner_frames": 0,
+        "accepted_internal_queries": 2160,
+        "accepted_boundary_queries": 0
+      },
+      "new": {
+        "frames": 319,
+        "accepted_queries": 6419,
+        "lines": 950,
+        "corners": 457,
+        "four_raw_corner_frames": 43,
+        "four_in_image_corner_frames": 43,
+        "accepted_internal_queries": 4232,
+        "accepted_boundary_queries": 2187
+      }
+    },
+    "IMAGE_NO_ROLE": {
+      "old": {
+        "frames": 319,
+        "accepted_queries": 3092,
+        "lines": 648,
+        "corners": 288,
+        "four_raw_corner_frames": 6,
+        "four_in_image_corner_frames": 5,
+        "accepted_internal_queries": 2463,
+        "accepted_boundary_queries": 629
+      },
+      "new": {
+        "frames": 319,
+        "accepted_queries": 5823,
+        "lines": 1133,
+        "corners": 692,
+        "four_raw_corner_frames": 74,
+        "four_in_image_corner_frames": 64,
+        "accepted_internal_queries": 3610,
+        "accepted_boundary_queries": 2213
+      }
+    },
+    "IMAGE_ROLE": {
+      "old": {
+        "frames": 319,
+        "accepted_queries": 3490,
+        "lines": 639,
+        "corners": 187,
+        "four_raw_corner_frames": 0,
+        "four_in_image_corner_frames": 0,
+        "accepted_internal_queries": 3489,
+        "accepted_boundary_queries": 1
+      },
+      "new": {
+        "frames": 319,
+        "accepted_queries": 4990,
+        "lines": 906,
+        "corners": 420,
+        "four_raw_corner_frames": 16,
+        "four_in_image_corner_frames": 13,
+        "accepted_internal_queries": 4253,
+        "accepted_boundary_queries": 737
+      }
+    }
+  },
+  "input_bindings": [
+    {
+      "path": "_docs/experiments/pallet_observation_refiner_20261009_v1/LEARNED_OBSERVATIONS.jsonl.gz",
+      "bytes": 26582485,
+      "sha256": "e419b9b466552a2eacf2ef6fe69229e7f8a8b66ace03d587a3b2bad0f7cb39b1"
+    },
+    {
+      "path": "_docs/experiments/pallet_observation_refiner_20261009_v1/INPUTS.json",
+      "bytes": 974891,
+      "sha256": "92624116024e2d2263a7a7545c3b0e41cda68b450bc809ae79d588d5b505b6a7"
+    }
+  ],
+  "observation_binding": {
+    "path": "_docs/experiments/pallet_kp_difficulty_20261010_v1/MATCH_MASS_OBSERVATIONS.jsonl.gz",
+    "sha256": "47a36a8de6f3740bfe1dc505cb4dca6886754615d0e0639572e5e50ae391eb33",
+    "bytes": 30578614,
+    "rows": 957
+  },
+  "implementation": {
+    "path": "scripts/research/pallet_kp_difficulty_20261010_v1/match_mass.py",
+    "sha256": "c05327ecfb878d2853c4385edfc3ce710297ecc9c3e89ebcc669c867173f050a",
+    "dependencies": "Python>=3.9 and NumPy; no experiment module imports"
+  },
+  "execution": {
+    "new_detector_forwards": 0,
+    "new_head_forwards": 0,
+    "GPU_calls": 0,
+    "new_pose_solves": 0,
+    "new_training_updates": 0,
+    "image_reads": 0,
+    "private_GT_reads": 0,
+    "old_decoder_replays": 957,
+    "new_decoder_calls": 957,
+    "wall_seconds_through_observation_write": 13.198451110161841
+  },
+  "limits": [
+    "This is a predeclared decoder intervention on previously sealed logits, not an independently trained model.",
+    "More accepted queries/corners do not establish correct physical boundaries, consensus or pose improvement.",
+    "Location remains one spatial argmax bin; accepted modes are not averaged.",
+    "Physical visibility, initial-mask accuracy and posterior calibration are not established by this decoder check.",
+    "Final masks and pose evaluation occur separately; no hidden reprojection or Base fill is performed here."
+  ]
+}
