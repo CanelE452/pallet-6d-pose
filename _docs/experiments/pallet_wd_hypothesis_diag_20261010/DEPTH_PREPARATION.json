@@ -1,0 +1,86 @@
+{
+  "status": "PREPARED_SOURCE_WEIGHT_IMPORT_PREPROCESS_ONLY",
+  "model": "Metric3D-v2 ViT-Small RAFT-4",
+  "source_commit": "eb5b6fac0dc155e4e52f576e304fbf11655ff339",
+  "source_archive_sha256": "6859f6024544916afe44adcbbcf7e5837032db732e406a5129df44240c2dc223",
+  "source_hubconf_sha256": "b29ffc0530109bd55ce4067afd5dffd87fb2567416afb145e2cfdd0a1a0c8119",
+  "hf_revision": "80d2d1410afb4b23cd9d18c6be9144483d4b70b6",
+  "verified_extracted_source_files": 49,
+  "checkpoint": "metric_depth_vit_small_800k.pth",
+  "checkpoint_bytes": 150120967,
+  "checkpoint_sha256": "b34b2a2be9148054991cef7e417930e1320602ba7bc503b0ee4e7888543728f6",
+  "input_hw": [
+    616,
+    1064
+  ],
+  "models_constructed": 0,
+  "model_forwards": 0,
+  "training_updates": 0,
+  "official_attention_fallback": "Torch Attention when xformers is absent; official source unchanged",
+  "adapter_source_sha256": "2478c18d765645e7a376293c9661b83c90ce2b683d6d0b5a7120f55a26266d30",
+  "adapter_checks": "PASS",
+  "dependency_private_additions": {
+    "mmcv": "1.7.2",
+    "addict": "2.4.0",
+    "yapf": "0.40.1"
+  },
+  "existing_runtime_versions": {
+    "torch": "2.1.1+cu118",
+    "torchvision": "0.16.1+cu118",
+    "numpy": "1.26.4",
+    "opencv-python": "4.9.0.80",
+    "timm": "0.9.16"
+  },
+  "requirements_exact_match": false,
+  "existing_environment_modified": false,
+  "RGB_read_for_inference": 0,
+  "raw_RGB_public": false,
+  "depth_maps_public": false,
+  "official_minimum_VRAM": "NOT_SPECIFIED",
+  "hardware_at_preparation": {
+    "GPU": "NVIDIA GeForce RTX 3080",
+    "total_MiB": 10240
+  },
+  "research_use_basis": {
+    "code_license": "BSD-2-Clause",
+    "license_url": "https://github.com/YvanYin/Metric3D/blob/eb5b6fac0dc155e4e52f576e304fbf11655ff339/LICENSE",
+    "author_removed_noncommercial_restriction_url": "https://github.com/YvanYin/Metric3D/issues/115#issuecomment-2245665482",
+    "checkpoint_specific_license": "NOT_EXPLICITLY_MARKED",
+    "checkpoint_model_card": "NO_CARD_DATA_OR_LICENSE_TAG_AT_OFFICIAL_HF_API",
+    "official_checkpoint_repo": "https://huggingface.co/JUGGHM/Metric3D",
+    "commercial_scope": "NOT_AUDITED; separate owner comment recommends contacting authors for commercial use"
+  },
+  "paper_publication_correction": {
+    "title": "Metric3D v2: A Versatile Monocular Geometric Foundation Model for Zero-shot Metric Depth and Surface Normal Estimation",
+    "arxiv": "https://arxiv.org/abs/2404.15506",
+    "journal": "IEEE Transactions on Pattern Analysis and Machine Intelligence,2024",
+    "DOI": "10.1109/TPAMI.2024.3444912",
+    "publication_not_unknown": true
+  },
+  "intrinsics_support": {
+    "contract": "fx/fy/cx/cy scaled in official resize pipeline; scaled fx/1000 de-canonicalizes depth; model.inference receives RGB only",
+    "official_source": "https://github.com/YvanYin/Metric3D/blob/eb5b6fac0dc155e4e52f576e304fbf11655ff339/hubconf.py#L148-L201"
+  },
+  "model_choice_basis": "Official hubconf minimal example uses ViT-Small; fixed before depth outcomes; no data-based model comparison",
+  "actual_inference_authorization": "WAITING_FOR_STAGE2_REPORT_AND_ROOT_TRIGGER",
+  "accuracy_gate": {
+    "primary_method": "N3_THEN_SUBPIX",
+    "REAL_non_final_test_frames": 231,
+    "per_frame_value": "mean of THREE seed ABS(relative depth errors), no signed cancellation",
+    "gate_value": "median of all231 per-frame values",
+    "missing_any_primary_seed": "FAIL_NO_S4",
+    "pass_complete_coverage_median_max": 0.05,
+    "all4methods_all3seeds_reporting": [
+      "coverage",
+      "abs_median",
+      "P90",
+      "signed_bias"
+    ],
+    "m_grid_px": [
+      1,
+      2,
+      3
+    ],
+    "m_selection": "SYNTH primary confusion seed mean minimum; smallest m tie"
+  }
+}

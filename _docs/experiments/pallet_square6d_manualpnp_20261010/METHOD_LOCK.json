@@ -1,0 +1,90 @@
+{
+  "status": "LOCKED_BEFORE_REFERENCE_AND_6D",
+  "frames": 119,
+  "primary_eligible_frames": 118,
+  "reference_input_fields": [
+    "manual_click corner0..7 in frame",
+    "K",
+    "registered WH_D"
+  ],
+  "reference_predicted_inputs": false,
+  "manual_minimum": 4,
+  "reference_solver": "unchanged SQPnP -> RefineLM",
+  "dimensions_pnp_WH_D_m": [
+    1.1,
+    0.15,
+    1.1
+  ],
+  "residual_gate": {
+    "median_mean_residual_px_max": 3.0,
+    "fraction_mean_over5_px_max": 0.1
+  },
+  "LOO": "record only for >=5 manual points; C4 minimum rotation and centroid cm; no filtering",
+  "subpix": {
+    "winSize": [
+      5,
+      5
+    ],
+    "zeroZone": [
+      -1,
+      -1
+    ],
+    "maxCount": 40,
+    "epsilon": 0.001
+  },
+  "final_cap": {
+    "fraction_raw_diagonal": 0.01,
+    "reference": "original Base",
+    "applied_once_at_end": true,
+    "center8_preserved": true
+  },
+  "paths": [
+    "BASE",
+    "N3_DIM_SYM",
+    "SUBPIX",
+    "N3_THEN_SUBPIX"
+  ],
+  "backbones": [
+    "yolo",
+    "dope",
+    "resnet18"
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "scopes": [
+    "ALL118",
+    "reference_residual_mean_le5",
+    "manual4",
+    "manual_ge5"
+  ],
+  "bootstrap": {
+    "level": "paired frame",
+    "resamples": 10000,
+    "seed": 20260917,
+    "descriptive_only": true,
+    "cluster_bootstrap": false
+  },
+  "success": "translation_cm < 5 and rotation_deg < 5",
+  "symmetry": "proper C4; center8 fixed",
+  "fixed_F_sources": [
+    {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/pose.py",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7"
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py",
+      "sha256": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720"
+    },
+    {
+      "path": "challenge/evaluation_v2/pnp_selector.py",
+      "sha256": "3e89f318c7c4a3396c6e7c2f9280c1755f32d7bd7b3d61e8a56b9bd5d0bd512e"
+    }
+  ],
+  "new_training_updates": 0,
+  "new_model_forwards": 0,
+  "new_synthetic_images": 0,
+  "raw_RGB_public": false
+}
