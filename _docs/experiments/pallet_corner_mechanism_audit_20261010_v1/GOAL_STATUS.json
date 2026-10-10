@@ -1,0 +1,46 @@
+{
+  "schema": "corner_refinement_goal_status_v1",
+  "objective": "문제 해결할수있게 만들어줘 이 방법론 쓸수있게",
+  "accuracy_goal_achieved": false,
+  "api_usage_verified": true,
+  "api_verification_limit": "One preselected original image, two sequential create/predict/close lifecycles; no new accuracy scoring.",
+  "current_evidence": {
+    "cohort": "Clean153+Moderate92=245",
+    "reference": "GEOMETRIC_PROXY DEV; not independent physically measured GT",
+    "fixed_N3_mean_T_cm": 9.75455,
+    "fixed_N3_mean_R_deg": 10.91484,
+    "v2_primary_mean_T_cm": 10.34259,
+    "v2_primary_mean_R_deg": 10.95633,
+    "selected_corner_improved_vs_N3": 186,
+    "selected_corner_worsened_vs_N3": 237,
+    "worsened_direct_visible": 233,
+    "source_CAL_radius_coverage": "331/348",
+    "real_selected_radius_coverage": "188/423"
+  },
+  "confirmed_old_bug": {
+    "description": "Numerical nonfinite actual boundary ray hit was supervised as valid no_match in the separate boundary selector.",
+    "queries": 2164,
+    "repaired": true,
+    "corrected_retraining_formal_updates_completed": 9000,
+    "historical_original_IMAGE_ROLE_zero_new_pose_319": "This is the old pre-correction model result; not the corrected model result."
+  },
+  "remaining_problem": "The selected line consensus and calibrated corner radius do not reliably identify a more accurate real corner than fixed N3.",
+  "unresolved_causes": [
+    "Physical ownership of selected real boundaries",
+    "Appearance/feature transfer and systematic line offset",
+    "Reference uncertainty and their respective causal contributions"
+  ],
+  "confirmed_implementation_contracts": [
+    "Source positive ID/query/edge/bin/physical wire/geometry mismatch counts zero",
+    "Native CAL corner and virtual CAL reference differ at most0.000246px",
+    "Three source RGB stencil channels match2,096,640 FP16 values bit-exactly",
+    "Recorded intersection algebra checked independently"
+  ],
+  "unchanged_constraints": [
+    "Fixed Base/N3 and final pose policy",
+    "H excluded from final fit, replaced by new pose projection, no pseudo-point refit",
+    "Mask disagreement alone never vetoes a frame",
+    "No performance-driven setting loop, new training/RGB generation, or main write"
+  ],
+  "completion_statement": "Audit and limited API usage verification completed; the scientific accuracy improvement goal remains unmet."
+}

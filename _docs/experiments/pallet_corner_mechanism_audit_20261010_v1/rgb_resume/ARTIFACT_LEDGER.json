@@ -1,0 +1,145 @@
+{
+  "schema": "source_CAL_RGB_contract_attempt_ledger_v1",
+  "passed_numerical_audit": true,
+  "artifacts": {
+    "failed_code": {
+      "path": "scripts/research/pallet_corner_mechanism_audit_20261010_v1/rgb_contract.py",
+      "sha256": "64da17583cc0fe452487ca781cada3f4e390cfb7e5a6f2f27a1d2b5c260554c5",
+      "bytes": 19429
+    },
+    "failed_protocol": {
+      "path": "_docs/experiments/pallet_corner_mechanism_audit_20261010_v1/RGB_CONTRACT_PROTOCOL.json",
+      "sha256": "2c7329be9756fe5c90902ba9ab0e4625d4e70cc858d51770068869f5675a2348",
+      "bytes": 138825
+    },
+    "failed_checks": {
+      "path": "_docs/experiments/pallet_corner_mechanism_audit_20261010_v1/RGB_CONTRACT_CHECKS.json",
+      "sha256": "8b63d39470b71848659d18cd15d0acc3e373d626d46e635cda6e309e2f39fa84",
+      "bytes": 4336
+    },
+    "resume_code": {
+      "path": "scripts/research/pallet_corner_mechanism_audit_20261010_v1/rgb_contract_resume.py",
+      "sha256": "4429b32f331607f0b02b81b73165a2ca90bcb4bcddba98297829babdfc7f8ea3",
+      "bytes": 19453
+    },
+    "resume_protocol": {
+      "path": "_docs/experiments/pallet_corner_mechanism_audit_20261010_v1/rgb_resume/RGB_CONTRACT_PROTOCOL.json",
+      "sha256": "1c28965ac7bf6660a876dfe783f6c73a5bffb0b38520a6bcdbc8616e26b17b80",
+      "bytes": 138833
+    },
+    "resume_checks": {
+      "path": "_docs/experiments/pallet_corner_mechanism_audit_20261010_v1/rgb_resume/RGB_CONTRACT_CHECKS.json",
+      "sha256": "2e6391a452e5252ce67c425012acdfb11ec6287e98680499c9a30cb1679b2077",
+      "bytes": 61751
+    }
+  },
+  "attempts": [
+    {
+      "name": "original_precheck_failure",
+      "freeze_calls": 1,
+      "check_function_entries": 1,
+      "exit_code": 1,
+      "stage": "AST scope comparison before RGB bindings or loop",
+      "failed_line": 228,
+      "reason": "Python list of edge tuples compared directly with JSON list of edge lists",
+      "query_geometry_function_entries": 0,
+      "RGB_stencil_function_entries": 0,
+      "original_RGB_decodes": 0,
+      "compared_FP16_values": 0,
+      "failure_artifacts_preserved_byte_exact": true
+    },
+    {
+      "name": "resume",
+      "freeze_calls": 1,
+      "check_function_entries": 1,
+      "exit_code": 0,
+      "query_geometry_function_entries": 128,
+      "RGB_stencil_function_entries": 128,
+      "original_RGB_decodes": 128,
+      "recomputed_RGB_stencils": 128,
+      "compared_FP16_values": 2096640,
+      "new_detector_forwards": 0,
+      "new_neck_forwards": 0,
+      "new_head_forwards": 0,
+      "initial_pose_calls": 0,
+      "new_PnP": 0,
+      "new_rays": 0,
+      "optimizer_updates": 0,
+      "new_or_modified_RGB": 0,
+      "feature_cache_writes": 0,
+      "arithmetic_audit_runs": 1
+    }
+  ],
+  "change": {
+    "original_line": 228,
+    "resume_line": 228,
+    "before": "assert spec == protocol['compiled_scope'] and versions() == protocol['runtime_versions']",
+    "after": "assert json.loads(json.dumps(spec)) == protocol['compiled_scope'] and versions() == protocol['runtime_versions']",
+    "entire_resume_code_equals_original_plus_this_single_replacement": true,
+    "RGB_stencil_query_geometry_rounding_or_threshold_changes": false
+  },
+  "static_failure_diagnosis": {
+    "runs": 1,
+    "AST_fields_equal_except_tuple_list_edges": true,
+    "canonical_JSON_equal": true,
+    "original_RGB_decodes": 0,
+    "query_geometry_function_entries": 0,
+    "RGB_stencil_function_entries": 0
+  },
+  "input_guards": {
+    "original_failed_code_protocol_checks_SHA_unchanged": true,
+    "all_noncode_inputs_original_vs_resume_identical": true,
+    "source_population_manifest_splits_originalPNG_bindings_unchanged": true,
+    "source_data_cache_weights_or_other_modules_modified": false,
+    "resume_before_after_all_protected_inputs_equal": true,
+    "resume_original_RGB_before_after_equal": true
+  },
+  "total_actual_execution": {
+    "protocol_freeze_calls": 2,
+    "failed_prechecks": 1,
+    "completed_numerical_checks": 1,
+    "check_function_entries": 2,
+    "query_geometry_function_entries": 128,
+    "RGB_stencil_function_entries": 128,
+    "original_RGB_decodes": 128,
+    "compared_FP16_values": 2096640,
+    "cv2_cvtColor_calls": 128,
+    "cv2_Sobel_calls": 256,
+    "cv2_remap_calls": 384,
+    "original_PNG_byte_hash_reads": 512,
+    "new_detector_forwards": 0,
+    "new_neck_forwards": 0,
+    "new_head_forwards": 0,
+    "initial_pose_calls": 0,
+    "new_PnP": 0,
+    "new_rays": 0,
+    "optimizer_updates": 0,
+    "new_or_modified_RGB": 0,
+    "feature_cache_writes": 0
+  },
+  "runtime_versions": {
+    "python": "3.10.20",
+    "numpy": "1.26.4",
+    "opencv": "4.9.0",
+    "historical_preparation_versions": "not recorded in the original preparation receipt",
+    "opencv_optimized": true,
+    "opencv_threads": 1
+  },
+  "scope": "Existing CAL128 first3 image stencil channels only,84queries/frame and65bins/query",
+  "result": {
+    "bit_mismatch": 0,
+    "numeric_mismatch": 0,
+    "signed_zero_only_mismatch": 0,
+    "max_abs_diff": 0.0,
+    "original_png_declared_SHA_and_decoded_BGR_SHA_verified_frames": 128,
+    "source_CAL_selected_Base_READY_split_and_raw_hw_verified_frames": 128
+  },
+  "limits": [
+    "16 frozen neck channels3..18 were not regenerated or numerically certified",
+    "All19 image/neck-channel parity is not claimed",
+    "No detector/head/source-test or real245 evaluation occurred",
+    "Source metadata audit does not certify real boundary or physical corner ownership",
+    "Historical preparation versions are not recorded; exact parity was observed under the explicitly recorded current versions"
+  ],
+  "independent_math_only_ledger_writer_calls": 1
+}
