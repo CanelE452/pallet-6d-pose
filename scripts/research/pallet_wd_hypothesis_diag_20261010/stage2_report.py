@@ -1,8 +1,10 @@
 """Accumulate Stage-2 fixed-rule outcomes without changing Stage-1 evidence."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 
 import numpy as np
 
@@ -25,8 +27,22 @@ def freeze_stage1(doc,commit):
     """Keep the exact first-published texts/figure and their original SHA."""
     receipt=doc/"STAGE1_PUBLISHED_SNAPSHOT.json"
     if receipt.exists():
-        return R.load(receipt)
+        value=R.load(receipt)
+        assert value["publication_commit"]==commit
+        for b in value["files"]:assert C.sha(doc/b["preserved"])==b["sha256"]
+        return value
     assert len(commit)==40 and all(c in "0123456789abcdef" for c in commit)
+    published=C.ROOT/"_docs/experiments/pallet_wd_hypothesis_diag_20261010"
+    old=published/"STAGE1_PUBLISHED_SNAPSHOT.json"
+    if doc != published and old.exists():
+        value=R.load(old)
+        assert value["publication_commit"]==commit
+        for b in value["files"]:
+            src=published/b["preserved"]
+            assert C.sha(src)==b["sha256"]
+            shutil.copyfile(src,doc/b["preserved"])
+        shutil.copyfile(old,receipt)
+        return value
     sources=("REPORT_KO.md","METHOD_KO.md","REPRODUCE.md","STAGE1_table.md","PAPER_SNIPPET_EN.md","STAGE1_figure.png","STAGE1_FIGURE_INDEX.json")
     bindings=[]
     for name in sources:
@@ -34,8 +50,13 @@ def freeze_stage1(doc,commit):
         copyname="STAGE1_"+name if not name.startswith("STAGE1_") else "FIRST_PUBLISHED_"+name
         target=doc/copyname
         assert not target.exists()
-        shutil.copyfile(src,target)
-        bindings.append(dict(original=name,preserved=copyname,sha256=C.sha(src),bytes=src.stat().st_size))
+        relative=src.relative_to(C.ROOT).as_posix()
+        content=subprocess.run(["git","show",f"{commit}:{relative}"],cwd=C.ROOT,
+            check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout
+        target.write_bytes(content)
+        digest=hashlib.sha256(content).hexdigest()
+        bindings.append(dict(original=name,preserved=copyname,sha256=digest,bytes=len(content),
+                             current_matches_first_publication=C.sha(src)==digest))
     value=dict(status="FIRST_STAGE1_PUBLICATION_PRESERVED",publication_commit=commit,files=bindings,
         original_phase="STAGE1_DIAGNOSTIC_ONLY",description="Exact first-publication text/image snapshots; later reports are cumulative")
     R.write(receipt,json.dumps(value,ensure_ascii=False,indent=2))
@@ -69,7 +90,7 @@ def paired_table(results):
             for key,value in result["paired"][method]["seed_mean"].items():
                 scale=100 if key.endswith("_rate") else 1
                 unit=" pp" if scale==100 else ""
-                lines.append(f'| {rule} / {pop} | {method} | {key} | {R.number(value["delta"]*scale)}{unit} | {R.interval(value["CI95"],scale)} | '
+                lines.append(f'| {rule} / {pop} | {method} | {key} | {R.number(value["delta"]*scale if value["delta"] is not None else None)}{unit} | {R.interval(value["CI95"],scale)} | '
                     f'{" / ".join(R.number(x*scale) if x is not None else "NA" for x in value["per_seed_delta"])} | {value["paired_frames"]} | '
                     f'{R.interval(value.get("scenario_cluster_secondary_CI95"),scale)} |')
     return "\n".join(lines)
@@ -101,12 +122,16 @@ def performance_figure(results,doc):
     for column,pop in enumerate(("SYNTH_HELDOUT","REAL_DEV")):
         for row,key in enumerate(("confusion_rate","success_rate")):
             ax=axes[row,column];ax.axvline(0,color="#777",linewidth=1)
+            row_labels=[]
             for j,rule in enumerate(("S1","S2","S3")):
                 found=results.get((rule,pop))
                 if found is None:
+                    row_labels.append(f"{rule} 미실행")
                     ax.text(.5,j,"미실행 / gate 상태 확인",transform=ax.get_yaxis_transform(),ha="center",color="#777",fontsize=9)
                     continue
                 path,result=found
+                count=result.get("metrics",{}).get(V.PRIMARY_METHOD,{}).get("frames","NA")
+                row_labels.append(("S3 GT oracle" if pop=="SYNTH_HELDOUT" else "S3 사후 feasibility")+f"\nn={count}" if rule=="S3" else f"{rule}\nn={count}")
                 if not result.get("primary") or result["primary"][key].get("delta") is None:
                     ax.text(.5,j,"산출 불가 / 근거 확인",transform=ax.get_yaxis_transform(),ha="center",color="#777",fontsize=9)
                     continue
@@ -116,13 +141,13 @@ def performance_figure(results,doc):
                 error=None if ci is None else [[max(0,mean-100*ci[0])],[max(0,100*ci[1]-mean)]]
                 ax.errorbar(mean,j,xerr=error,fmt="o",color=color,capsize=4)
                 ax.annotate(f'{R.number(mean,3)} pp',xy=(mean,j),xytext=(0,13),textcoords="offset points",ha="center",fontsize=9)
-            ax.set_yticks(range(3),["S1 VIS","S2 full+LOO","S3 사후 feasibility"])
+            ax.set_yticks(range(3),row_labels)
             ax.set_ylim(2.5,-.6);ax.grid(axis="x",alpha=.2)
             ax.set_xlabel("규칙−S0 변화 (percentage points)")
             ax.set_title(pop+": "+("혼동률 (음수 개선)" if key=="confusion_rate" else "성공률 (양수 개선)"))
     fig.suptitle("Stage2 — 고정 주 경로 N3_THEN_SUBPIX의 paired 변화",fontsize=15,y=.985)
     fig.text(.04,.02,"점=seed 평균, 선=95% CI. S3는 GT 사후 session 선택·target 제외 plane이며 FEASIBILITY_ONLY.\n"
-        "REAL full319: session cluster; SYNTH: frame bootstrap. SYNTH S3는 oracle 상한, REAL S3는 사후 subset의 기술 CI다.",fontsize=9)
+        "REAL full319: session cluster; SYNTH: frame bootstrap. REAL S3의≤3 session은 frame 기술 CI, SYNTH S3는 GT oracle 상한이다.",fontsize=9)
     fig.subplots_adjust(left=.19,right=.97,top=.91,bottom=.14,hspace=.43,wspace=.5)
     path=doc/"STAGE2_figure.png";fig.savefig(path,dpi=145,pil_kwargs={"compress_level":9});plt.close(fig)
     R.write(doc/"STAGE2_FIGURE_INDEX.json",json.dumps(dict(figures=[dict(path=path.name,sha256=C.sha(path),bytes=path.stat().st_size)],
@@ -137,6 +162,7 @@ def main():
     parser.add_argument("--documents-only",action="store_true")
     args=parser.parse_args()
     doc=args.doc.resolve()
+    method_sha=C.sha(doc/"METHOD_KO.md")
     verdict=R.load(doc/"VERDICT_STAGE2.json")
     assert set(verdict["rules"])=={"S1","S2","S3"} and verdict["no_combined_method_verdict"]
     results=read_results(doc)
@@ -162,7 +188,7 @@ def main():
         if skipped.exists():lines += ["",f"[확인] {rule} REAL은 SYNTH gate로 미실행입니다. [{skipped.name}]({skipped.name})에 전체 예정 ID와 실제 F=0을 보존했습니다."]
     lines += ["", "## 주 경로의 실제 paired 변화", "", "![Stage2 혼동·성공 paired CI](STAGE2_figure.png)", ""]
     for (rule,pop),(path,result) in sorted(results.items()):
-        if not result.get("primary"):continue
+        if not result.get("primary") or result["primary"]["confusion_rate"].get("delta") is None:continue
         primary=result["primary"];conf,success=primary["confusion_rate"],primary["success_rate"]
         methods=result["metrics"].get(V.PRIMARY_METHOD,{})
         frames=methods.get("frames","NA")
@@ -181,11 +207,13 @@ def main():
         f'[확인] 최초 Stage1 게시 commit `{snapshot["publication_commit"]}`의 문서·그림은 [원문 snapshot/hash](STAGE1_PUBLISHED_SNAPSHOT.json)로 보존합니다. [원래 보고서](STAGE1_REPORT_KO.md), [원래 방법](STAGE1_METHOD_KO.md), [원래 재현](STAGE1_REPRODUCE.md), [원래 표](FIRST_PUBLISHED_STAGE1_table.md), [원래 그림](FIRST_PUBLISHED_STAGE1_figure.png).',
         "", "첨부의 oracle 혼동0%/R4.17°/성공49.8% 기대는 실제 GT-parity 정의에서 재현되지 않았습니다. 실제 Stage1 주 경로 REAL oracle은 혼동6.583%/R9.199°/성공47.753%이며, S0 parity는 T/R 최대 차이0입니다. 아래는 최초 원문이며 이후 단계의 판정과 구분합니다.",
         "",(doc/"STAGE1_REPORT_KO.md").read_text()]
+    R.write(doc/"REPORT_STAGE2_KO.md","\n".join(lines))
     R.write(doc/"REPORT_KO.md","\n".join(lines))
     reproduce=(doc/"STAGE1_REPRODUCE.md").read_text()
     reproduce += f'''\n\n# Stage2 재현\n\n원래1단계의 fresh 출력에서 source/방법 lock을 유지하고 아래 driver를 사용합니다. 네 경로의 SYNTH를 먼저 계산하고 사전 gate로 REAL 실행을 결정합니다. 첫 Stage1 실제 게시 commit을 보고서 snapshot에 연결합니다.\n\n```bash\n"$PALLET_PYTHON" -B -m {R.PREFIX}.run_stage2\n"$PALLET_PYTHON" -B -m {R.PREFIX}.stage2_report --doc "$PALLET_WD_OUTPUT" --stage1-commit {args.stage1_commit}\n```\n\n공개 산출물만으로 Stage2 문서를 재생성할 때는 두 번째 명령을 사용합니다. --documents-only는 PNG/index를 보존합니다. METHOD_KO는 Stage2 전에 고정된 사전 계약이므로 이 생성기는 수정하지 않습니다. 실제 Stage3는 Stage2 보고 완료 receipt 이후 root driver가 실행하며 학습은 없습니다.\n'''
     R.write(doc/"REPRODUCE.md",reproduce)
-    hashes={name:C.sha(doc/name) for name in ("REPORT_KO.md","METHOD_KO.md","REPRODUCE.md","STAGE2_table.md","STAGE2_figure.png","STAGE2_FIGURE_INDEX.json")}
+    assert C.sha(doc/"METHOD_KO.md")==method_sha, "Preserve preregistered method text exactly"
+    hashes={name:C.sha(doc/name) for name in ("REPORT_KO.md","REPORT_STAGE2_KO.md","METHOD_KO.md","REPRODUCE.md","STAGE2_table.md","STAGE2_figure.png","STAGE2_FIGURE_INDEX.json")}
     receipt=dict(status="COMPLETE",phase="STAGE2_REPORT",stage1_publication_commit=args.stage1_commit,
         report_generator_sha256=C.sha(__file__),artifacts_sha256=hashes,
         results_sha256={p.name:C.sha(p) for p,result in results.values()},verdict_sha256=C.sha(doc/"VERDICT_STAGE2.json"),

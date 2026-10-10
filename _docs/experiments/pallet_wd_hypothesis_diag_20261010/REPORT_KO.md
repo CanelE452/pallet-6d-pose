@@ -1,3 +1,11 @@
+[확인] 최종 단계 요약: S1=UNRESOLVED, S2=WORSENED, S3=FEASIBILITY_ONLY; REAL231 깊이 절대 상대오차 중앙값 17.179%, depth gate=FAIL_STOP_S4, S4=NOT_EXECUTED_DEPTH_GATE_FAIL.
+
+[확인] 방법 전체의 단일 우열 판정은 만들지 않습니다. 최초 Stage1 진단, 고정 S1/S2, 사후 S3, 깊이 gate/S4를 아래 순서로 구분합니다. 나쁜 결과와 미실행도 유지합니다.
+
+# 최초 게시한 Stage1 진단
+
+아래 Stage1 원문은 첫 게시 시점의 상태입니다. 이후 실행 상태는 다음 Stage2·Stage3 절을 확인합니다. [원문 commit/hash](STAGE1_PUBLISHED_SNAPSHOT.json), [Stage1 독립 검산](STAGE1_VERIFICATION.json).
+
 [확인] 판정 = STAGE1_DIAGNOSTIC_ONLY. 현재 산출물은 W/D 가설 진단이며 S1–S4의 효과 판정은 하지 않았습니다.
 [확인] 주 경로 N3_THEN_SUBPIX의 REAL_DEV R 평균은 S0 18.792° / GT-parity oracle 9.199°이며, 혼동률은 18.495% / 6.583%입니다.
 [확인] 첨부 기획의 oracle 혼동률 0%·R 약 4.17°·성공률 약 49.8%는 이번 고정 절차에서 재현되지 않았습니다. 실제 주 경로 oracle 혼동률은 6.583%, R 평균은 9.199°, 성공률은 47.753%입니다. S0의 원래 가설과 T/R은 최대 차이 0으로 재현되므로 OpenCV 버전 차이를 불일치 원인으로 주장할 근거가 없습니다.
@@ -318,3 +326,390 @@
 ## 코드와 재현
 
 [방법](METHOD_KO.md), [실제 재현 명령](REPRODUCE.md), [영어 3문장](PAPER_SNIPPET_EN.md), [그림 SHA와 근거](STAGE1_FIGURE_INDEX.json). 공개 산출물은 숫자와 직접 생성한 그래프만 포함하며 원본 RGB·개인 경로·검토자 정보는 포함하지 않습니다.
+
+
+# Stage2 실제 결과
+
+[확인] Stage2 규칙별 판정: S1=UNRESOLVED, S2=WORSENED, S3=FEASIBILITY_ONLY. 합친 방법 전체의 단일 우열 판정은 하지 않습니다.
+[확인] 코너·support·K·치수·모델·SubPix·cap·proper metric은 고정하고 가설 선택과 PnP fit 부분집합만 바꿨습니다. 나쁜 결과와 중단 gate도 아래에 남깁니다.
+[확인] REAL GT는 수동 2D 기반 기하 참조이며 독립적인 실제 6D 계측보다 신뢰도가 낮습니다. 기존 319 CONFIRMED와 재검토40의4 UNCLEAR를 구분합니다.
+
+# W/D 선택 규칙의 2단계 결과
+
+## 규칙별 판정과 실행 gate
+
+| 규칙 | 실제 판정 | 해석 |
+|---|---|---|
+| S1 | UNRESOLVED | 사전 고정 주 경로·혼동/성공 CI 및 SYNTH gate |
+| S2 | WORSENED | 사전 고정 주 경로·혼동/성공 CI 및 SYNTH gate |
+| S3 | FEASIBILITY_ONLY | 사후 session GT·target 제외 plane의 FEASIBILITY_ONLY; 일반화나 배포 성능 판정 아님 |
+
+[확인] 주 경로는 N3_THEN_SUBPIX이고 변화는 규칙−S0입니다. 혼동은 R>45°·|yaw|≥60°, 성공은 T<5 cm·proper R<5°입니다. SYNTH의 주 경로가 WORSENED이면 REAL 평가를 실행하지 않고 모든319 ID를 skip receipt에 남깁니다. SUPPORTED 조건을 충족하지 않은 결과를 성능 향상으로 단정하지 않습니다. 세 규칙×두 지표의 다중 비교 보정은 하지 않았습니다. [VERDICT_STAGE2.json](VERDICT_STAGE2.json)
+
+[확인] S2 REAL은 SYNTH gate로 미실행입니다. [SKIPPED_S2_REAL.json](SKIPPED_S2_REAL.json)에 전체 예정 ID와 실제 F=0을 보존했습니다.
+
+## 주 경로의 실제 paired 변화
+
+![Stage2 혼동·성공 paired CI](STAGE2_figure.png)
+
+[확인] S1/REAL_DEV, 주 경로 n=319: 혼동 변화 -0.836 pp, CI [-2.381, 0.660]; 성공 변화 1.672 pp, CI [-0.185, 3.928]. 혼동 seed별 0.313 / -2.508 / -0.313 pp, 성공 seed별 0.627 / 1.881 / 2.508 pp. [RESULTS_S1_REAL.json](RESULTS_S1_REAL.json)
+
+[확인] S1/SYNTH_HELDOUT, 주 경로 n=1985: 혼동 변화 -0.319 pp, CI [-0.857, 0.202]; 성공 변화 -0.369 pp, CI [-1.125, 0.403]. 혼동 seed별 -0.504 / -0.101 / -0.353 pp, 성공 seed별 0.151 / -0.453 / -0.806 pp. [RESULTS_S1_SYNTH.json](RESULTS_S1_SYNTH.json)
+
+[확인] S2/SYNTH_HELDOUT, 주 경로 n=1985: 혼동 변화 -0.470 pp, CI [-1.092, 0.134]; 성공 변화 -1.562 pp, CI [-2.704, -0.437]. 혼동 seed별 -0.504 / -0.504 / -0.403 pp, 성공 seed별 -0.856 / -1.763 / -2.065 pp. [RESULTS_S2_SYNTH.json](RESULTS_S2_SYNTH.json)
+
+[확인] S3/REAL_DEV, 주 경로 n=61: 혼동 변화 -7.104 pp, CI [-20.219, 5.464]; 성공 변화 2.732 pp, CI [-3.825, 9.836]. 혼동 seed별 -4.918 / -11.475 / -4.918 pp, 성공 seed별 0.000 / 6.557 / 1.639 pp. [RESULTS_S3_REAL.json](RESULTS_S3_REAL.json)
+
+[확인] S3/SYNTH_HELDOUT, 주 경로 n=1985: 혼동 변화 -2.704 pp, CI [-4.047, -1.343]; 성공 변화 1.579 pp, CI [0.806, 2.368]. 혼동 seed별 -2.922 / -2.469 / -2.720 pp, 성공 seed별 1.713 / 1.461 / 1.562 pp. [RESULTS_S3_SYNTH.json](RESULTS_S3_SYNTH.json)
+
+## 모든 경로·seed의 정확도
+
+[전체 정확도 표](STAGE2_table.md)는 네 경로의 S0/규칙별 seed1·2·3 및 seed mean을 모두 포함합니다. 평균·표본 분산·SD·중앙값·P90·95% CI·자세 산출 수를 제시하며, 큰 오차를 잘라내지 않습니다. 미산출은 수치 평균에서 제외하고 전체 비율 분모에 false로 남깁니다.
+
+## 모든 paired 차이
+
+| 규칙 / 모집단 | 경로 | 지표 | seed mean 변화 (규칙−S0) | 95% CI | seed1 / 2 / 3 변화 | paired 영상 수 | SYNTH scenario cluster 보조 CI |
+|---|---|---|---:|---|---|---:|---|
+| S1 / REAL_DEV | BASE | T_cm | 0.244 | [-0.362, 1.118] | 0.244 / 0.244 / 0.244 | 319 | NA |
+| S1 / REAL_DEV | BASE | R_deg | -0.672 | [-1.703, 0.464] | -0.672 / -0.672 / -0.672 | 319 | NA |
+| S1 / REAL_DEV | BASE | ADDsym_m | -0.004 | [-0.016, 0.011] | -0.004 / -0.004 / -0.004 | 319 | NA |
+| S1 / REAL_DEV | BASE | IoU3D | -0.000 | [-0.012, 0.011] | -0.000 / -0.000 / -0.000 | 319 | NA |
+| S1 / REAL_DEV | BASE | confusion_rate | -0.627 pp | [-1.987, 0.949] | -0.627 / -0.627 / -0.627 | 319 | NA |
+| S1 / REAL_DEV | BASE | success_rate | -0.940 pp | [-3.344, 1.240] | -0.940 / -0.940 / -0.940 | 319 | NA |
+| S1 / REAL_DEV | N3_DIM_SYM | T_cm | 0.435 | [-0.076, 1.436] | 0.360 / -0.006 / 0.951 | 319 | NA |
+| S1 / REAL_DEV | N3_DIM_SYM | R_deg | -0.867 | [-1.586, -0.311] | -0.712 / -1.324 / -0.563 | 319 | NA |
+| S1 / REAL_DEV | N3_DIM_SYM | ADDsym_m | -0.004 | [-0.014, 0.004] | -0.004 / -0.013 / 0.004 | 319 | NA |
+| S1 / REAL_DEV | N3_DIM_SYM | IoU3D | -0.001 | [-0.011, 0.009] | -0.000 / -0.000 / -0.002 | 319 | NA |
+| S1 / REAL_DEV | N3_DIM_SYM | confusion_rate | -0.940 pp | [-1.726, -0.335] | -0.627 / -1.567 / -0.627 | 319 | NA |
+| S1 / REAL_DEV | N3_DIM_SYM | success_rate | -0.104 pp | [-2.091, 1.211] | 0.000 / -0.940 / 0.627 | 319 | NA |
+| S1 / REAL_DEV | SUBPIX | T_cm | -0.481 | [-1.828, 0.730] | -0.481 / -0.481 / -0.481 | 319 | NA |
+| S1 / REAL_DEV | SUBPIX | R_deg | 0.132 | [-0.726, 1.167] | 0.132 / 0.132 / 0.132 | 319 | NA |
+| S1 / REAL_DEV | SUBPIX | ADDsym_m | 0.000 | [-0.015, 0.019] | 0.000 / 0.000 / 0.000 | 319 | NA |
+| S1 / REAL_DEV | SUBPIX | IoU3D | 0.008 | [-0.000, 0.014] | 0.008 / 0.008 / 0.008 | 319 | NA |
+| S1 / REAL_DEV | SUBPIX | confusion_rate | 0.313 pp | [-0.741, 1.455] | 0.313 / 0.313 / 0.313 | 319 | NA |
+| S1 / REAL_DEV | SUBPIX | success_rate | -3.448 pp | [-6.306, -1.282] | -3.448 / -3.448 / -3.448 | 319 | NA |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | T_cm | -0.303 | [-1.132, 0.550] | -0.398 / -0.596 / 0.085 | 319 | NA |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | R_deg | -0.477 | [-1.702, 0.744] | 0.510 / -1.878 / -0.062 | 319 | NA |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | ADDsym_m | -0.007 | [-0.023, 0.008] | 0.004 / -0.025 / -0.001 | 319 | NA |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | IoU3D | 0.004 | [-0.005, 0.013] | 0.001 / 0.008 / 0.003 | 319 | NA |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | confusion_rate | -0.836 pp | [-2.381, 0.660] | 0.313 / -2.508 / -0.313 | 319 | NA |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | success_rate | 1.672 pp | [-0.185, 3.928] | 0.627 / 1.881 / 2.508 | 319 | NA |
+| S1 / SYNTH_HELDOUT | BASE | T_cm | -0.116 | [-0.228, -0.003] | -0.116 / -0.116 / -0.116 | 1985 | [-0.229, -0.004] |
+| S1 / SYNTH_HELDOUT | BASE | R_deg | -0.142 | [-0.472, 0.191] | -0.142 / -0.142 / -0.142 | 1985 | [-0.479, 0.186] |
+| S1 / SYNTH_HELDOUT | BASE | ADDsym_m | -0.003 | [-0.007, 0.001] | -0.003 / -0.003 / -0.003 | 1985 | [-0.007, 0.001] |
+| S1 / SYNTH_HELDOUT | BASE | IoU3D | 0.006 | [0.004, 0.008] | 0.006 / 0.006 / 0.006 | 1985 | [0.004, 0.008] |
+| S1 / SYNTH_HELDOUT | BASE | confusion_rate | -0.302 pp | [-0.705, 0.050] | -0.302 / -0.302 / -0.302 | 1985 | [-0.695, 0.051] |
+| S1 / SYNTH_HELDOUT | BASE | success_rate | 0.353 pp | [-0.302, 1.008] | 0.353 / 0.353 / 0.353 | 1985 | [-0.305, 1.027] |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | T_cm | -0.174 | [-0.300, -0.062] | -0.139 / -0.233 / -0.148 | 1985 | [-0.301, -0.059] |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | R_deg | -0.389 | [-0.722, -0.073] | -0.346 / -0.392 / -0.430 | 1985 | [-0.726, -0.080] |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | ADDsym_m | -0.005 | [-0.009, -0.002] | -0.005 / -0.005 / -0.006 | 1985 | [-0.009, -0.002] |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | IoU3D | 0.008 | [0.006, 0.010] | 0.008 / 0.008 / 0.007 | 1985 | [0.005, 0.010] |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | confusion_rate | -0.537 pp | [-0.924, -0.185] | -0.504 / -0.504 / -0.605 | 1985 | [-0.922, -0.185] |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | success_rate | 0.202 pp | [-0.302, 0.722] | 0.252 / -0.151 / 0.504 | 1985 | [-0.318, 0.720] |
+| S1 / SYNTH_HELDOUT | SUBPIX | T_cm | -0.403 | [-1.157, 0.282] | -0.403 / -0.403 / -0.403 | 1985 | [-1.147, 0.306] |
+| S1 / SYNTH_HELDOUT | SUBPIX | R_deg | -0.506 | [-1.055, 0.033] | -0.506 / -0.506 / -0.506 | 1985 | [-1.070, 0.044] |
+| S1 / SYNTH_HELDOUT | SUBPIX | ADDsym_m | -0.008 | [-0.016, -0.000] | -0.008 / -0.008 / -0.008 | 1985 | [-0.016, -0.000] |
+| S1 / SYNTH_HELDOUT | SUBPIX | IoU3D | 0.001 | [-0.002, 0.005] | 0.001 / 0.001 / 0.001 | 1985 | [-0.002, 0.005] |
+| S1 / SYNTH_HELDOUT | SUBPIX | confusion_rate | -0.605 pp | [-1.209, 0.000] | -0.605 / -0.605 / -0.605 | 1985 | [-1.218, 0.000] |
+| S1 / SYNTH_HELDOUT | SUBPIX | success_rate | -0.907 pp | [-1.864, 0.050] | -0.907 / -0.907 / -0.907 | 1985 | [-1.851, 0.000] |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | T_cm | -0.180 | [-0.577, 0.159] | -0.270 / -0.113 / -0.156 | 1985 | [-0.572, 0.166] |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | R_deg | -0.161 | [-0.645, 0.309] | -0.394 / 0.058 / -0.146 | 1985 | [-0.625, 0.294] |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | ADDsym_m | -0.004 | [-0.010, 0.002] | -0.007 / -0.001 / -0.003 | 1985 | [-0.010, 0.002] |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | IoU3D | 0.001 | [-0.002, 0.004] | 0.002 / 0.001 / 0.001 | 1985 | [-0.002, 0.004] |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | confusion_rate | -0.319 pp | [-0.857, 0.202] | -0.504 / -0.101 / -0.353 | 1985 | [-0.856, 0.200] |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | success_rate | -0.369 pp | [-1.125, 0.403] | 0.151 / -0.453 / -0.806 | 1985 | [-1.126, 0.383] |
+| S2 / SYNTH_HELDOUT | BASE | T_cm | 0.110 | [-0.158, 0.302] | 0.110 / 0.110 / 0.110 | 1985 | [-0.154, 0.305] |
+| S2 / SYNTH_HELDOUT | BASE | R_deg | -0.356 | [-0.704, -0.043] | -0.356 / -0.356 / -0.356 | 1985 | [-0.706, -0.048] |
+| S2 / SYNTH_HELDOUT | BASE | ADDsym_m | -0.003 | [-0.008, 0.000] | -0.003 / -0.003 / -0.003 | 1985 | [-0.008, 0.001] |
+| S2 / SYNTH_HELDOUT | BASE | IoU3D | -0.006 | [-0.009, -0.003] | -0.006 / -0.006 / -0.006 | 1985 | [-0.009, -0.002] |
+| S2 / SYNTH_HELDOUT | BASE | confusion_rate | -0.504 pp | [-0.907, -0.151] | -0.504 / -0.504 / -0.504 | 1985 | [-0.902, -0.151] |
+| S2 / SYNTH_HELDOUT | BASE | success_rate | -0.403 pp | [-1.511, 0.655] | -0.403 / -0.403 / -0.403 | 1985 | [-1.499, 0.670] |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | T_cm | -0.132 | [-0.387, 0.077] | -0.146 / -0.276 / 0.026 | 1985 | [-0.389, 0.079] |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | R_deg | -0.108 | [-0.437, 0.217] | -0.310 / 0.159 / -0.173 | 1985 | [-0.439, 0.212] |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | ADDsym_m | -0.003 | [-0.007, 0.001] | -0.005 / -0.001 / -0.002 | 1985 | [-0.007, 0.001] |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | IoU3D | 0.000 | [-0.003, 0.004] | 0.003 / 0.001 / -0.003 | 1985 | [-0.003, 0.004] |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | confusion_rate | -0.319 pp | [-0.688, 0.034] | -0.554 / -0.050 / -0.353 | 1985 | [-0.691, 0.034] |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | success_rate | 0.285 pp | [-0.521, 1.108] | 0.655 / 0.252 / -0.050 | 1985 | [-0.549, 1.103] |
+| S2 / SYNTH_HELDOUT | SUBPIX | T_cm | -0.125 | [-0.815, 0.490] | -0.125 / -0.125 / -0.125 | 1985 | [-0.822, 0.500] |
+| S2 / SYNTH_HELDOUT | SUBPIX | R_deg | 0.451 | [-0.199, 1.117] | 0.451 / 0.451 / 0.451 | 1985 | [-0.213, 1.125] |
+| S2 / SYNTH_HELDOUT | SUBPIX | ADDsym_m | 0.001 | [-0.008, 0.009] | 0.001 / 0.001 / 0.001 | 1985 | [-0.008, 0.009] |
+| S2 / SYNTH_HELDOUT | SUBPIX | IoU3D | -0.005 | [-0.010, 0.000] | -0.005 / -0.005 / -0.005 | 1985 | [-0.010, 0.000] |
+| S2 / SYNTH_HELDOUT | SUBPIX | confusion_rate | 0.151 pp | [-0.605, 0.907] | 0.151 / 0.151 / 0.151 | 1985 | [-0.605, 0.905] |
+| S2 / SYNTH_HELDOUT | SUBPIX | success_rate | -2.065 pp | [-3.476, -0.654] | -2.065 / -2.065 / -2.065 | 1985 | [-3.469, -0.663] |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | T_cm | -0.300 | [-0.765, 0.111] | -0.461 / -0.124 / -0.313 | 1985 | [-0.772, 0.113] |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | R_deg | -0.249 | [-0.798, 0.292] | -0.264 / -0.231 / -0.252 | 1985 | [-0.811, 0.288] |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | ADDsym_m | -0.005 | [-0.012, 0.002] | -0.006 / -0.004 / -0.005 | 1985 | [-0.012, 0.002] |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | IoU3D | -0.001 | [-0.006, 0.003] | 0.001 / -0.003 / -0.002 | 1985 | [-0.006, 0.003] |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | confusion_rate | -0.470 pp | [-1.092, 0.134] | -0.504 / -0.504 / -0.403 | 1985 | [-1.095, 0.135] |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | success_rate | -1.562 pp | [-2.704, -0.437] | -0.856 / -1.763 / -2.065 | 1985 | [-2.703, -0.437] |
+| S3 / REAL_DEV | BASE | T_cm | -9.103 | [-18.261, -2.081] | -9.103 / -9.103 / -9.103 | 61 | NA |
+| S3 / REAL_DEV | BASE | R_deg | -10.982 | [-21.344, -0.861] | -10.982 / -10.982 / -10.982 | 61 | NA |
+| S3 / REAL_DEV | BASE | ADDsym_m | -0.206 | [-0.351, -0.069] | -0.206 / -0.206 / -0.206 | 61 | NA |
+| S3 / REAL_DEV | BASE | IoU3D | 0.021 | [0.001, 0.040] | 0.021 / 0.021 / 0.021 | 61 | NA |
+| S3 / REAL_DEV | BASE | confusion_rate | -13.115 pp | [-26.230, -1.639] | -13.115 / -13.115 / -13.115 | 61 | NA |
+| S3 / REAL_DEV | BASE | success_rate | 1.639 pp | [0.000, 4.918] | 1.639 / 1.639 / 1.639 | 61 | NA |
+| S3 / REAL_DEV | N3_DIM_SYM | T_cm | -12.298 | [-23.133, -3.480] | -13.718 / -13.636 / -9.539 | 61 | NA |
+| S3 / REAL_DEV | N3_DIM_SYM | R_deg | -7.120 | [-18.515, 4.050] | -6.482 / -6.662 / -8.217 | 61 | NA |
+| S3 / REAL_DEV | N3_DIM_SYM | ADDsym_m | -0.203 | [-0.372, -0.039] | -0.212 / -0.211 / -0.186 | 61 | NA |
+| S3 / REAL_DEV | N3_DIM_SYM | IoU3D | 0.027 | [0.001, 0.054] | 0.027 / 0.025 / 0.028 | 61 | NA |
+| S3 / REAL_DEV | N3_DIM_SYM | confusion_rate | -8.743 pp | [-22.404, 4.918] | -8.197 / -8.197 / -9.836 | 61 | NA |
+| S3 / REAL_DEV | N3_DIM_SYM | success_rate | 3.825 pp | [-1.639, 10.383] | 1.639 / 3.279 / 6.557 | 61 | NA |
+| S3 / REAL_DEV | SUBPIX | T_cm | -11.992 | [-24.229, -2.217] | -11.992 / -11.992 / -11.992 | 61 | NA |
+| S3 / REAL_DEV | SUBPIX | R_deg | -7.986 | [-18.509, 2.344] | -7.986 / -7.986 / -7.986 | 61 | NA |
+| S3 / REAL_DEV | SUBPIX | ADDsym_m | -0.215 | [-0.380, -0.058] | -0.215 / -0.215 / -0.215 | 61 | NA |
+| S3 / REAL_DEV | SUBPIX | IoU3D | 0.015 | [-0.004, 0.034] | 0.015 / 0.015 / 0.015 | 61 | NA |
+| S3 / REAL_DEV | SUBPIX | confusion_rate | -9.836 pp | [-22.951, 3.279] | -9.836 / -9.836 / -9.836 | 61 | NA |
+| S3 / REAL_DEV | SUBPIX | success_rate | 1.639 pp | [0.000, 4.918] | 1.639 / 1.639 / 1.639 | 61 | NA |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | T_cm | -13.088 | [-25.268, -3.336] | -13.076 / -13.418 / -12.769 | 61 | NA |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | R_deg | -5.741 | [-16.394, 4.629] | -3.834 / -9.385 / -4.004 | 61 | NA |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | ADDsym_m | -0.193 | [-0.361, -0.029] | -0.173 / -0.241 / -0.163 | 61 | NA |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | IoU3D | 0.020 | [-0.005, 0.047] | 0.021 / 0.030 / 0.011 | 61 | NA |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | confusion_rate | -7.104 pp | [-20.219, 5.464] | -4.918 / -11.475 / -4.918 | 61 | NA |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | success_rate | 2.732 pp | [-3.825, 9.836] | 0.000 / 6.557 / 1.639 | 61 | NA |
+| S3 / SYNTH_HELDOUT | BASE | T_cm | -1.715 | [-2.180, -1.309] | -1.715 / -1.715 / -1.715 | 1985 | [-2.166, -1.293] |
+| S3 / SYNTH_HELDOUT | BASE | R_deg | -2.461 | [-3.606, -1.342] | -2.461 / -2.461 / -2.461 | 1985 | [-3.593, -1.353] |
+| S3 / SYNTH_HELDOUT | BASE | ADDsym_m | -0.030 | [-0.042, -0.019] | -0.030 / -0.030 / -0.030 | 1985 | [-0.042, -0.018] |
+| S3 / SYNTH_HELDOUT | BASE | IoU3D | 0.019 | [0.015, 0.024] | 0.019 / 0.019 / 0.019 | 1985 | [0.015, 0.023] |
+| S3 / SYNTH_HELDOUT | BASE | confusion_rate | -2.166 pp | [-3.426, -0.957] | -2.166 / -2.166 / -2.166 | 1985 | [-3.431, -0.949] |
+| S3 / SYNTH_HELDOUT | BASE | success_rate | 1.864 pp | [1.108, 2.670] | 1.864 / 1.864 / 1.864 | 1985 | [1.103, 2.657] |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | T_cm | -1.825 | [-2.336, -1.375] | -1.867 / -1.766 / -1.843 | 1985 | [-2.319, -1.368] |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | R_deg | -2.612 | [-3.685, -1.537] | -2.677 / -2.428 / -2.731 | 1985 | [-3.676, -1.524] |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | ADDsym_m | -0.033 | [-0.045, -0.022] | -0.034 / -0.031 / -0.035 | 1985 | [-0.045, -0.022] |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | IoU3D | 0.019 | [0.015, 0.023] | 0.019 / 0.019 / 0.018 | 1985 | [0.015, 0.023] |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | confusion_rate | -2.502 pp | [-3.728, -1.293] | -2.569 / -2.267 / -2.670 | 1985 | [-3.711, -1.291] |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | success_rate | 1.612 pp | [0.924, 2.301] | 1.662 / 1.411 / 1.763 | 1985 | [0.940, 2.315] |
+| S3 / SYNTH_HELDOUT | SUBPIX | T_cm | -3.380 | [-4.259, -2.592] | -3.380 / -3.380 / -3.380 | 1985 | [-4.247, -2.573] |
+| S3 / SYNTH_HELDOUT | SUBPIX | R_deg | -3.053 | [-4.316, -1.788] | -3.053 / -3.053 / -3.053 | 1985 | [-4.308, -1.807] |
+| S3 / SYNTH_HELDOUT | SUBPIX | ADDsym_m | -0.047 | [-0.062, -0.033] | -0.047 / -0.047 / -0.047 | 1985 | [-0.062, -0.033] |
+| S3 / SYNTH_HELDOUT | SUBPIX | IoU3D | 0.028 | [0.023, 0.033] | 0.028 / 0.028 / 0.028 | 1985 | [0.023, 0.033] |
+| S3 / SYNTH_HELDOUT | SUBPIX | confusion_rate | -3.224 pp | [-4.635, -1.763] | -3.224 / -3.224 / -3.224 | 1985 | [-4.642, -1.830] |
+| S3 / SYNTH_HELDOUT | SUBPIX | success_rate | 2.015 pp | [1.159, 2.922] | 2.015 / 2.015 / 2.015 | 1985 | [1.176, 2.872] |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | T_cm | -2.704 | [-3.372, -2.112] | -2.791 / -2.558 / -2.763 | 1985 | [-3.376, -2.102] |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | R_deg | -2.658 | [-3.841, -1.474] | -2.905 / -2.476 / -2.594 | 1985 | [-3.848, -1.484] |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | ADDsym_m | -0.038 | [-0.052, -0.025] | -0.041 / -0.035 / -0.038 | 1985 | [-0.051, -0.025] |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | IoU3D | 0.025 | [0.021, 0.029] | 0.026 / 0.024 / 0.025 | 1985 | [0.021, 0.029] |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | confusion_rate | -2.704 pp | [-4.047, -1.343] | -2.922 / -2.469 / -2.720 | 1985 | [-4.044, -1.377] |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | success_rate | 1.579 pp | [0.806, 2.368] | 1.713 / 1.461 / 1.562 | 1985 | [0.821, 2.317] |
+
+## 실패·손상·가설 변경·fallback
+
+| 규칙 / 모집단 | 경로 | seed | 성공→실패 | 실패→성공 | 혼동 회복 | 혼동 손상 | 가설 변경 | fallback | 미산출 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| S1 / REAL_DEV | BASE | 1 | 6 | 3 | 5 | 3 | 8 | 0 | 0 |
+| S1 / REAL_DEV | BASE | 2 | 6 | 3 | 5 | 3 | 8 | 0 | 0 |
+| S1 / REAL_DEV | BASE | 3 | 6 | 3 | 5 | 3 | 8 | 0 | 0 |
+| S1 / REAL_DEV | N3_DIM_SYM | 1 | 5 | 5 | 3 | 1 | 4 | 0 | 0 |
+| S1 / REAL_DEV | N3_DIM_SYM | 2 | 7 | 4 | 6 | 1 | 7 | 0 | 0 |
+| S1 / REAL_DEV | N3_DIM_SYM | 3 | 3 | 5 | 2 | 0 | 3 | 0 | 0 |
+| S1 / REAL_DEV | SUBPIX | 1 | 14 | 3 | 5 | 6 | 11 | 4 | 0 |
+| S1 / REAL_DEV | SUBPIX | 2 | 14 | 3 | 5 | 6 | 11 | 4 | 0 |
+| S1 / REAL_DEV | SUBPIX | 3 | 14 | 3 | 5 | 6 | 11 | 4 | 0 |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | 1 | 6 | 8 | 4 | 5 | 9 | 2 | 0 |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | 2 | 3 | 9 | 9 | 1 | 10 | 0 | 0 |
+| S1 / REAL_DEV | N3_THEN_SUBPIX | 3 | 3 | 11 | 2 | 1 | 3 | 0 | 0 |
+| S1 / SYNTH_HELDOUT | BASE | 1 | 19 | 26 | 10 | 4 | 17 | 2 | 0 |
+| S1 / SYNTH_HELDOUT | BASE | 2 | 19 | 26 | 10 | 4 | 17 | 2 | 0 |
+| S1 / SYNTH_HELDOUT | BASE | 3 | 19 | 26 | 10 | 4 | 17 | 2 | 0 |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | 1 | 20 | 25 | 15 | 5 | 22 | 0 | 0 |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | 2 | 28 | 25 | 15 | 5 | 23 | 0 | 0 |
+| S1 / SYNTH_HELDOUT | N3_DIM_SYM | 3 | 21 | 31 | 16 | 4 | 22 | 0 | 0 |
+| S1 / SYNTH_HELDOUT | SUBPIX | 1 | 55 | 37 | 25 | 13 | 45 | 6 | 0 |
+| S1 / SYNTH_HELDOUT | SUBPIX | 2 | 55 | 37 | 25 | 13 | 45 | 6 | 0 |
+| S1 / SYNTH_HELDOUT | SUBPIX | 3 | 55 | 37 | 25 | 13 | 45 | 6 | 0 |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 1 | 41 | 44 | 25 | 15 | 44 | 5 | 0 |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 2 | 54 | 45 | 23 | 21 | 47 | 7 | 0 |
+| S1 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 3 | 50 | 34 | 22 | 15 | 42 | 7 | 0 |
+| S2 / SYNTH_HELDOUT | BASE | 1 | 63 | 55 | 12 | 2 | 16 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | BASE | 2 | 63 | 55 | 12 | 2 | 16 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | BASE | 3 | 63 | 55 | 12 | 2 | 16 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | 1 | 51 | 64 | 18 | 7 | 28 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | 2 | 53 | 58 | 10 | 9 | 21 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | N3_DIM_SYM | 3 | 65 | 64 | 14 | 7 | 25 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | SUBPIX | 1 | 122 | 81 | 28 | 31 | 66 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | SUBPIX | 2 | 122 | 81 | 28 | 31 | 66 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | SUBPIX | 3 | 122 | 81 | 28 | 31 | 66 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 1 | 109 | 92 | 32 | 22 | 60 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 2 | 119 | 84 | 31 | 21 | 59 | 0 | 0 |
+| S2 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 3 | 123 | 82 | 30 | 22 | 59 | 0 | 0 |
+| S3 / REAL_DEV | BASE | 1 | 0 | 1 | 12 | 4 | 19 | 0 | 0 |
+| S3 / REAL_DEV | BASE | 2 | 0 | 1 | 12 | 4 | 19 | 0 | 0 |
+| S3 / REAL_DEV | BASE | 3 | 0 | 1 | 12 | 4 | 19 | 0 | 0 |
+| S3 / REAL_DEV | N3_DIM_SYM | 1 | 2 | 3 | 13 | 8 | 25 | 0 | 0 |
+| S3 / REAL_DEV | N3_DIM_SYM | 2 | 1 | 3 | 12 | 7 | 23 | 0 | 0 |
+| S3 / REAL_DEV | N3_DIM_SYM | 3 | 0 | 4 | 12 | 6 | 21 | 0 | 0 |
+| S3 / REAL_DEV | SUBPIX | 1 | 0 | 1 | 11 | 5 | 20 | 0 | 0 |
+| S3 / REAL_DEV | SUBPIX | 2 | 0 | 1 | 11 | 5 | 20 | 0 | 0 |
+| S3 / REAL_DEV | SUBPIX | 3 | 0 | 1 | 11 | 5 | 20 | 0 | 0 |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | 1 | 3 | 3 | 11 | 8 | 23 | 0 | 0 |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | 2 | 1 | 5 | 12 | 5 | 21 | 0 | 0 |
+| S3 / REAL_DEV | N3_THEN_SUBPIX | 3 | 2 | 3 | 10 | 7 | 21 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | BASE | 1 | 13 | 50 | 102 | 59 | 185 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | BASE | 2 | 13 | 50 | 102 | 59 | 185 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | BASE | 3 | 13 | 50 | 102 | 59 | 185 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | 1 | 14 | 47 | 109 | 58 | 190 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | 2 | 15 | 43 | 104 | 59 | 185 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | N3_DIM_SYM | 3 | 10 | 45 | 108 | 55 | 185 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | SUBPIX | 1 | 18 | 58 | 137 | 73 | 236 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | SUBPIX | 2 | 18 | 58 | 137 | 73 | 236 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | SUBPIX | 3 | 18 | 58 | 137 | 73 | 236 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 1 | 17 | 51 | 136 | 78 | 235 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 2 | 22 | 51 | 125 | 76 | 227 | 0 | 0 |
+| S3 / SYNTH_HELDOUT | N3_THEN_SUBPIX | 3 | 20 | 51 | 130 | 76 | 228 | 0 | 0 |
+
+모든 ID와 가설 변경 전후는 각 RESULTS JSON의 failures에 보존됩니다. 성공→실패와 혼동 손상 사례도 제외하지 않습니다.
+
+## S3의 범위와 제한
+
+[확인] session별 camera-world 외부 자세가 고정됐다는 기존 기록은 확인되지 않았습니다. 높이 SD≤5 cm·normal RMS≤2°로 고른 session은 GT를 이용한 사후 선택입니다. 해당 target frame의 GT는 plane 계산에서 제외하지만 다른 frame GT를 쓰므로 일반적인 GT-free 선택기라고 부르지 않습니다. SYNTH S3는 GT plane oracle 상한입니다. 세 개 이하 session의 REAL S3는 frame bootstrap 기술 CI만 사용하고 언제나 FEASIBILITY_ONLY입니다. [S3_ELIGIBILITY_REAL.json](S3_ELIGIBILITY_REAL.json)
+
+## 코드 봉인·재현·이후 깊이 gate
+
+[확인] 각 규칙의 새 선택/부분집합을 참조값 scoring 전에 봉인했습니다. 결과·실패 ID는 위 RESULTS 파일, 규칙별 최종 판정은 VERDICT_STAGE2에 보존됩니다. [고정 사전 방법](METHOD_KO.md), [재현](REPRODUCE.md). 별도 Square 연구 결과와 이 W/D 연구의 판정을 합치지 않습니다.
+
+[확인] Stage3는 공식 Metric3D-v2 Small로 고정합니다. REAL231의 주 경로 per-frame 세 seed 절대 상대오차 평균→231 median≤5% 및 누락0을 먼저 요구합니다. 누락이나 gate 악화이면 S4 미실행을 기록합니다. 깊이 정확도와 S4 결과를 아직 평가하지 않은 Stage2 보고서에서 성공을 주장하지 않습니다. [DEPTH_PREPARATION.json](DEPTH_PREPARATION.json)
+
+
+
+# Stage3 실제 결과
+
+[확인] Stage3: depth gate=FAIL_STOP_S4; S4=NOT_EXECUTED_DEPTH_GATE_FAIL. S4의 방법 판정은 없으며 m 선택·REAL S4 평가를 실행하지 않았습니다.
+
+# Stage3 깊이 정확도와 S4 gate
+
+[확인] REAL231 주 경로의 per-frame 세 seed 절대 상대오차 평균에 대한 median은 17.179%입니다. 기준은 ≤5%, 완전한 세 seed coverage는 231/231입니다. signed error를 먼저 평균하여 상쇄하지 않았고, 누락이 있으면 subset median으로 gate를 통과시키지 않습니다. [DEPTH_GATE.json](DEPTH_GATE.json)
+
+[확인] 실제 모델 생성 총 3회, depth forward 총 2216회, 새 F 0회, 새 PnP 0회, 학습 0회입니다. 정확도 gate와 m 선택에 final-test 4 session을 사용하지 않았습니다. [STAGE3_EXECUTION.json](STAGE3_EXECUTION.json), [SOURCE_LOCK_STAGE3.json](SOURCE_LOCK_STAGE3.json), [DEPTH_INFERENCE_RECEIPT.json](DEPTH_INFERENCE_RECEIPT.json)
+
+[확인] 총 생성 횟수에는 사용자 설정과 관계없는 loader 검사 실패 1회와 읽기 전용 checkpoint 진단 1회가 포함됩니다. 두 단계 forward는 합계 0회였습니다. 그 후 공식 strict=False 경로에서 누락된 유일한 `depth_model.encoder.mask_token`을 공식 초기값 0 그대로 허용했습니다. 이 값은 masks를 받지 않는 RGB 추론에 사용되지 않습니다. checkpoint·모델·전처리·임계는 바꾸지 않았고, 실패 lock과 원래 source lock을 보존했습니다. [실행 총계](STAGE3_RECOVERY_EXECUTION.json), [실행 전 수정 봉인](STAGE3_RUNTIME_AMENDMENT.json)
+
+
+![Metric3D 실제 depth gate](STAGE3_depth_figure.png)
+
+## 네 경로·모든 seed의 오차와 coverage
+
+단위는 %이고 분산은 %²입니다. ±는 표본 SD(ddof=1), P90은 linear quantile입니다. abs와 signed를 구분하고 양·음 bias를 숨기지 않습니다. depth gate는 사전에 고정된 median 기준이며 별도의 bootstrap CI를 계산하지 않았습니다. 수치 분포는 유효 depth만 사용하고 coverage·누락 ID를 따로 표시합니다. [REAL](DEPTH_ACCURACY_REAL.json), [SYNTH](DEPTH_ACCURACY_SYNTH.json), [REAL 원행](DEPTH_ACCURACY_ROWS_REAL.jsonl.gz), [SYNTH 원행](DEPTH_ACCURACY_ROWS_SYNTH.jsonl.gz)
+
+[확인] RGB 한 장의 depth map은 네 경로·세 seed가 공유합니다. 경로별 기존 qFinal만으로 ROI를 각각 정하므로 2,216개의 depth forward로 26,592행의 정확도를 계산했습니다. 코너 보정이나 N3 모델을 다시 실행하지 않았습니다. [REAL 측정 봉인](DEPTH_MEASUREMENT_SEAL_REAL.json), [SYNTH 측정 봉인](DEPTH_MEASUREMENT_SEAL_SYNTH.json)
+
+| 모집단 | 경로 | 집계 | 깊이 산출/전체 | 절대 상대오차 %: 평균±SD·분산·중앙값/P90/최대 | signed bias % |
+|---|---|---|---:|---|---:|
+| REAL | BASE | seed mean(abs 후 평균) | 231/231 | 34.446 ± 55.354<br>분산 3064.095<br>중앙값 17.202 / P90 75.329 / 최대 441.583 | 25.001 |
+| REAL | BASE | seed 1 | 231/231 | 34.446 ± 55.354<br>분산 3064.095<br>중앙값 17.202 / P90 75.329 / 최대 441.583 | 25.001 |
+| REAL | BASE | seed 2 | 231/231 | 34.446 ± 55.354<br>분산 3064.095<br>중앙값 17.202 / P90 75.329 / 최대 441.583 | 25.001 |
+| REAL | BASE | seed 3 | 231/231 | 34.446 ± 55.354<br>분산 3064.095<br>중앙값 17.202 / P90 75.329 / 최대 441.583 | 25.001 |
+| REAL | N3_DIM_SYM | seed mean(abs 후 평균) | 231/231 | 34.445 ± 55.425<br>분산 3071.896<br>중앙값 17.148 / P90 75.735 / 최대 442.557 | 24.970 |
+| REAL | N3_DIM_SYM | seed 1 | 231/231 | 34.402 ± 55.422<br>분산 3071.575<br>중앙값 17.225 / P90 75.910 / 최대 442.646 | 24.933 |
+| REAL | N3_DIM_SYM | seed 2 | 231/231 | 34.487 ± 55.430<br>분산 3072.535<br>중앙값 17.111 / P90 76.073 / 최대 442.618 | 25.018 |
+| REAL | N3_DIM_SYM | seed 3 | 231/231 | 34.447 ± 55.426<br>분산 3071.999<br>중앙값 17.107 / P90 75.222 / 최대 442.408 | 24.959 |
+| REAL | SUBPIX | seed mean(abs 후 평균) | 231/231 | 34.468 ± 55.372<br>분산 3066.021<br>중앙값 17.309 / P90 75.978 / 최대 441.583 | 25.031 |
+| REAL | SUBPIX | seed 1 | 231/231 | 34.468 ± 55.372<br>분산 3066.021<br>중앙값 17.309 / P90 75.978 / 최대 441.583 | 25.031 |
+| REAL | SUBPIX | seed 2 | 231/231 | 34.468 ± 55.372<br>분산 3066.021<br>중앙값 17.309 / P90 75.978 / 최대 441.583 | 25.031 |
+| REAL | SUBPIX | seed 3 | 231/231 | 34.468 ± 55.372<br>분산 3066.021<br>중앙값 17.309 / P90 75.978 / 최대 441.583 | 25.031 |
+| REAL | N3_THEN_SUBPIX | seed mean(abs 후 평균) | 231/231 | 34.461 ± 55.439<br>분산 3073.470<br>중앙값 17.179 / P90 76.091 / 최대 442.557 | 24.978 |
+| REAL | N3_THEN_SUBPIX | seed 1 | 231/231 | 34.439 ± 55.446<br>분산 3074.216<br>중앙값 17.282 / P90 75.985 / 최대 442.646 | 24.971 |
+| REAL | N3_THEN_SUBPIX | seed 2 | 231/231 | 34.492 ± 55.444<br>분산 3074.088<br>중앙값 17.147 / P90 76.302 / 최대 442.618 | 25.023 |
+| REAL | N3_THEN_SUBPIX | seed 3 | 231/231 | 34.452 ± 55.428<br>분산 3072.275<br>중앙값 17.107 / P90 75.985 / 최대 442.408 | 24.941 |
+| SYNTH | BASE | seed mean(abs 후 평균) | 1982/1985 | 78.340 ± 87.015<br>분산 7571.629<br>중앙값 56.150 / P90 170.967 / 최대 893.334 | 24.368 |
+| SYNTH | BASE | seed 1 | 1982/1985 | 78.340 ± 87.015<br>분산 7571.629<br>중앙값 56.150 / P90 170.967 / 최대 893.334 | 24.368 |
+| SYNTH | BASE | seed 2 | 1982/1985 | 78.340 ± 87.015<br>분산 7571.629<br>중앙값 56.150 / P90 170.967 / 최대 893.334 | 24.368 |
+| SYNTH | BASE | seed 3 | 1982/1985 | 78.340 ± 87.015<br>분산 7571.629<br>중앙값 56.150 / P90 170.967 / 최대 893.334 | 24.368 |
+| SYNTH | N3_DIM_SYM | seed mean(abs 후 평균) | 1982/1985 | 78.319 ± 87.005<br>분산 7569.930<br>중앙값 56.222 / P90 170.756 / 최대 894.822 | 24.342 |
+| SYNTH | N3_DIM_SYM | seed 1 | 1982/1985 | 78.325 ± 87.013<br>분산 7571.196<br>중앙값 56.182 / P90 170.941 / 최대 895.490 | 24.348 |
+| SYNTH | N3_DIM_SYM | seed 2 | 1982/1985 | 78.339 ± 87.045<br>분산 7576.889<br>중앙값 56.189 / P90 170.638 / 최대 897.327 | 24.355 |
+| SYNTH | N3_DIM_SYM | seed 3 | 1982/1985 | 78.292 ± 86.959<br>분산 7561.894<br>중앙값 56.233 / P90 170.689 / 최대 891.647 | 24.323 |
+| SYNTH | SUBPIX | seed mean(abs 후 평균) | 1981/1985 | 78.315 ± 87.017<br>분산 7572.017<br>중앙값 56.185 / P90 170.782 / 최대 895.524 | 24.279 |
+| SYNTH | SUBPIX | seed 1 | 1981/1985 | 78.315 ± 87.017<br>분산 7572.017<br>중앙값 56.185 / P90 170.782 / 최대 895.524 | 24.279 |
+| SYNTH | SUBPIX | seed 2 | 1981/1985 | 78.315 ± 87.017<br>분산 7572.017<br>중앙값 56.185 / P90 170.782 / 최대 895.524 | 24.279 |
+| SYNTH | SUBPIX | seed 3 | 1981/1985 | 78.315 ± 87.017<br>분산 7572.017<br>중앙값 56.185 / P90 170.782 / 최대 895.524 | 24.279 |
+| SYNTH | N3_THEN_SUBPIX | seed mean(abs 후 평균) | 1981/1985 | 78.302 ± 87.018<br>분산 7572.184<br>중앙값 56.249 / P90 170.702 / 최대 896.308 | 24.239 |
+| SYNTH | N3_THEN_SUBPIX | seed 1 | 1981/1985 | 78.306 ± 87.010<br>분산 7570.788<br>중앙값 56.206 / P90 170.996 / 최대 896.222 | 24.233 |
+| SYNTH | N3_THEN_SUBPIX | seed 2 | 1982/1985 | 78.325 ± 87.034<br>분산 7574.971<br>중앙값 56.244 / P90 170.540 / 최대 900.601 | 24.281 |
+| SYNTH | N3_THEN_SUBPIX | seed 3 | 1982/1985 | 78.286 ± 86.968<br>분산 7563.501<br>중앙값 56.197 / P90 170.566 / 최대 892.102 | 24.267 |
+
+## 고정 주 경로의 깊이 오차 요약
+
+| 모집단 | 완전 세 seed 영상/전체 | 절대 상대오차 중앙값 % | P90 % | 최대 % | signed bias % | signed 중앙값 % |
+|---|---:|---:|---:|---:|---:|---:|
+| REAL | 231/231 | 17.179 | 76.091 | 442.557 | 24.978 | 9.027 |
+| SYNTH | 1981/1985 | 56.249 | 170.702 | 896.308 | 24.239 | -14.431 |
+
+[확인] 작은 상대오차를 가정한 계획자의 시뮬레이션과 달리 실제 고정 모델의 주 경로는 위와 같은 큰 오차·누락을 보였습니다. 이를 숨기거나 scale을 보정해 gate를 다시 실행하지 않았습니다. signed bias는 outlier의 영향을 받는 평균이며 부호 중앙값도 함께 표시했습니다.
+
+## 누락과 실패
+
+[확인] REAL/BASE: 완전 세 seed 영상 231/231, 누락 ID 없음.
+
+[확인] REAL/N3_DIM_SYM: 완전 세 seed 영상 231/231, 누락 ID 없음.
+
+[확인] REAL/SUBPIX: 완전 세 seed 영상 231/231, 누락 ID 없음.
+
+[확인] REAL/N3_THEN_SUBPIX: 완전 세 seed 영상 231/231, 누락 ID 없음.
+
+[확인] SYNTH/BASE: 완전 세 seed 영상 1982/1985, 누락 ID `G38__G__f18405`, `G38__G__f27392`, `TEX__shard_02_f1088`.
+
+[확인] SYNTH/N3_DIM_SYM: 완전 세 seed 영상 1982/1985, 누락 ID `G38__G__f18405`, `G38__G__f27392`, `TEX__shard_02_f1088`.
+
+[확인] SYNTH/SUBPIX: 완전 세 seed 영상 1981/1985, 누락 ID `G38__G__f18405`, `G38__G__f27392`, `TEX__shard_02_f1088`, `TEX__shard_07_f0478`.
+
+[확인] SYNTH/N3_THEN_SUBPIX: 완전 세 seed 영상 1981/1985, 누락 ID `G38__G__f18405`, `G38__G__f27392`, `TEX__shard_02_f1088`, `TEX__shard_07_f0478`.
+
+## 가장 큰 오차의 ID
+
+[확인] 모집단·경로마다 완전한 세 seed가 있는 영상을 절대 상대오차 내림차순으로 정렬해 상위 5개를 표시합니다. 같은 오차는 ID 순서로 정렬했습니다. 좋은 사례를 선택하지 않았으며 나머지 ID·seed도 위 원행에 모두 남겼습니다.
+
+| 모집단 | 경로 | ID | 세 seed 절대 상대오차 평균 % |
+|---|---|---|---:|
+| REAL | BASE | `eval_outside:1778653367706938112` | 441.583 |
+| REAL | BASE | `eval_outside:1778653545299653120` | 388.570 |
+| REAL | BASE | `eval_outside:1778653526955536896` | 281.220 |
+| REAL | BASE | `eval_outside:1778653540259983104` | 242.897 |
+| REAL | BASE | `wood_184309:000674` | 226.936 |
+| REAL | N3_DIM_SYM | `eval_outside:1778653367706938112` | 442.557 |
+| REAL | N3_DIM_SYM | `eval_outside:1778653545299653120` | 388.683 |
+| REAL | N3_DIM_SYM | `eval_outside:1778653526955536896` | 281.913 |
+| REAL | N3_DIM_SYM | `eval_outside:1778653540259983104` | 243.159 |
+| REAL | N3_DIM_SYM | `wood_184309:000674` | 226.821 |
+| REAL | SUBPIX | `eval_outside:1778653367706938112` | 441.583 |
+| REAL | SUBPIX | `eval_outside:1778653545299653120` | 388.328 |
+| REAL | SUBPIX | `eval_outside:1778653526955536896` | 281.908 |
+| REAL | SUBPIX | `eval_outside:1778653540259983104` | 242.799 |
+| REAL | SUBPIX | `wood_184309:000674` | 226.870 |
+| REAL | N3_THEN_SUBPIX | `eval_outside:1778653367706938112` | 442.557 |
+| REAL | N3_THEN_SUBPIX | `eval_outside:1778653545299653120` | 388.330 |
+| REAL | N3_THEN_SUBPIX | `eval_outside:1778653526955536896` | 282.105 |
+| REAL | N3_THEN_SUBPIX | `eval_outside:1778653540259983104` | 243.143 |
+| REAL | N3_THEN_SUBPIX | `wood_184309:000674` | 226.805 |
+| SYNTH | BASE | `P0__shard_00_f0200` | 893.334 |
+| SYNTH | BASE | `P0__shard_07_f0879` | 767.338 |
+| SYNTH | BASE | `TEX__shard_06_f0840` | 765.348 |
+| SYNTH | BASE | `TEX__shard_00_f0576` | 682.409 |
+| SYNTH | BASE | `P0__shard_00_f0398` | 645.946 |
+| SYNTH | N3_DIM_SYM | `P0__shard_00_f0200` | 894.822 |
+| SYNTH | N3_DIM_SYM | `P0__shard_07_f0879` | 767.689 |
+| SYNTH | N3_DIM_SYM | `TEX__shard_06_f0840` | 764.137 |
+| SYNTH | N3_DIM_SYM | `TEX__shard_00_f0576` | 679.352 |
+| SYNTH | N3_DIM_SYM | `P0__shard_00_f0398` | 646.270 |
+| SYNTH | SUBPIX | `P0__shard_00_f0200` | 895.524 |
+| SYNTH | SUBPIX | `P0__shard_07_f0879` | 767.727 |
+| SYNTH | SUBPIX | `TEX__shard_06_f0840` | 760.255 |
+| SYNTH | SUBPIX | `TEX__shard_00_f0576` | 682.409 |
+| SYNTH | SUBPIX | `P0__shard_00_f0398` | 646.271 |
+| SYNTH | N3_THEN_SUBPIX | `P0__shard_00_f0200` | 896.308 |
+| SYNTH | N3_THEN_SUBPIX | `P0__shard_07_f0879` | 767.728 |
+| SYNTH | N3_THEN_SUBPIX | `TEX__shard_06_f0840` | 761.080 |
+| SYNTH | N3_THEN_SUBPIX | `TEX__shard_00_f0576` | 679.130 |
+| SYNTH | N3_THEN_SUBPIX | `P0__shard_00_f0398` | 646.601 |
+
+[확인] 고정 gate에 따라 m={1,2,3} grid 선택과 S4 6D 평가를 실행하지 않았습니다. 이를 WORSENED/UNRESOLVED 등 S4 방법 판정으로 바꾸지 않습니다. 깊이 모델 자체의 성능 일반화 결론도 내리지 않습니다.
+
+## 해석의 범위
+
+[확인] ROI는 기존 예측 quad 0–3을 중심에서 0.85배로 줄인 영역입니다. native RGB와 그 좌표계의 K를 고정했습니다. K는 공식 resize·depth 역정규화 과정에서 사용하며 network.inference API에 직접 들어가는 값은 RGB tensor입니다. GT는 depth 측정 봉인 뒤 accuracy scoring에만 사용했습니다. REAL reference front meanZ 역시 수동 2D 기하 복원의 영향을 받아 독립적인 센서 depth 참조로 해석하지 않습니다. 공식 Small 모델·전처리·threshold는 결과를 보고 바꾸지 않았습니다. [공식 K 처리 코드](https://github.com/YvanYin/Metric3D/blob/eb5b6fac0dc155e4e52f576e304fbf11655ff339/hubconf.py#L148-L201)
+
+[확인] 공식 최소 예제의 ViT-Small/RAFT-4를 결과 확인 전에 고정했고 float32·eval·no_grad·batch 1로 추론했습니다. 공식 전처리의 native 해상도 복원, focal-length 역정규화와 depth [0,300] m 제한을 그대로 사용했습니다. 보고 그래프에서는 큰 상대오차를 추가로 자르지 않았습니다. 새로운 모델 비교나 scale 보정을 실행하지 않았습니다. [실제 준비 근거](DEPTH_PREPARATION.json), [어댑터 코드](../../../scripts/research/pallet_wd_hypothesis_diag_20261010/depth.py)
+
+[확인] checkpoint별 별도 license 표시는 확인되지 않았습니다. 공식 BSD 코드와 저자의 비상업 제한 제거 안내를 근거로 승인된 연구 사용을 수행했고, commercial permission을 주장하지 않습니다. xformers 없이 공식 Torch Attention fallback을 사용했으며 기존 환경을 바꾸지 않았습니다. [공식 코드 license](https://github.com/YvanYin/Metric3D/blob/eb5b6fac0dc155e4e52f576e304fbf11655ff339/LICENSE), [저자 안내](https://github.com/YvanYin/Metric3D/issues/115#issuecomment-2245665482), [고정 방법](METHOD_KO.md). 원 RGB와 depth map은 private에 남고 공개에는 숫자·SHA·자체 그래프만 있습니다.
+
+[확인] 지시문의 ‘출판처 미확인’ 전제는 수정합니다. Metric3D v2는 IEEE TPAMI 2024에 출판되었으며 DOI는 10.1109/TPAMI.2024.3444912입니다. [논문](https://arxiv.org/abs/2404.15506), [DOI](https://doi.org/10.1109/TPAMI.2024.3444912)
+
+[확인] 저장한 깊이 결과의 독립 검산 상태는 PASS입니다. [DEPTH_VERIFICATION.json](DEPTH_VERIFICATION.json)에 입력 SHA·gate 계산·오차 집계를 기록했습니다. 검산은 모델이나 PnP를 다시 실행하지 않습니다.

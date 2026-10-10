@@ -229,6 +229,11 @@ def documents(metrics,doc):
     if amendment:
         report.insert(15,"[확인] SYNTH 참조 준비에서 NPZ 배열을 ID마다 다시 압축 해제하고 큰 backing array를 보존하는 메모리 문제가 발생해 중단했습니다. 이미 봉인한 REAL/SYNTH 선택과 원래 source는 보존했고, 배열을 한 번 읽는 별도 scoring recovery로 이어갔습니다. 완료한 F 선택의 재실행은 0회입니다. 복구 참조 margin fit은 3,970회이며, 중단 전 참조 fit 횟수는 NOT_MEASURED로 남겨 총 호출 수를 꾸미지 않습니다. [STAGE1_POSTSEAL_AMENDMENT.json](STAGE1_POSTSEAL_AMENDMENT.json), [stage1_resume.py]("+SOURCE_LINK+"stage1_resume.py)")
         report.insert(15,"")
+    if (doc/"STAGE1_VERIFICATION.json").exists():
+        verification=load(doc/"STAGE1_VERIFICATION.json")
+        assert verification["status"]=="PASS"
+        where=report.index("## 모든 방법의 정확도와 oracle 차이")
+        report[where:where]=[f'[확인] 독립 수치 검산 PASS: {verification["independent_numeric_comparisons"]:,}개 비교, 최대 절대 차이 {verification["max_absolute_difference"]:.3e}입니다. 저장 R/t로 T·proper R·yaw·ADD를 별도로 재계산하고 평균·분산·SD·중앙값·P90·CI·AUC를 검산했습니다. IoU3D는 저장된 값의 통계를 검산했으며 기하 IoU 자체의 독립 재계산은 하지 않았습니다. [STAGE1_VERIFICATION.json](STAGE1_VERIFICATION.json)',""]
     for field,title in (("elevation_deg","고도"),("reference_margin_px","참조 margin"),("distance_m","카메라 거리"),("material","재질"),("grade","가림 등급")):
         report += ["",f"### {title}","",subgroup_table(metrics,field)]
     report += ["", "## 공식 점수 gap의 경고 진단", "",
@@ -272,7 +277,10 @@ S4 정확도 gate의 주 경로는 N3_THEN_SUBPIX입니다. REAL 231의 각 영�
 
 통과하면 margin m={{1,2,3}} px 중 **SYNTH 주 경로 혼동률의 seed 평균** 최소값을 택하고 동률은 작은 m으로 고정하여 REAL에 한 번 적용합니다. final-test 4 session은 모델·threshold 선택에서 제외하며 과거 개발 용도를 새 test로 재봉인하지 않습니다. 이 기준은 실제 깊이 추론 전에 고정했습니다.
 '''
-    write(doc/"METHOD_KO.md",method)
+    method_path=doc/"METHOD_KO.md"
+    if method_path.exists():
+        assert method_path.read_text().rstrip()==method.rstrip(), "Preserve the fixed preregistration method text"
+    else:write(method_path,method)
     reproduce = f'''[확인] 아래 명령은 기존 학습·코너 보정 결과를 입력으로 1단계 계산만 재현합니다. 새 학습·데이터 생성은 없습니다.
 
 # 재현
