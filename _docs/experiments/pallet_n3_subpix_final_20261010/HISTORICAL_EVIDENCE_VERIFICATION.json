@@ -1,0 +1,412 @@
+{
+  "schema": "historical_evidence_independent_verification_v1",
+  "status": "PASS",
+  "implementation": "NumPy raw-row timing calculation; reverse branch evidence read at immutable commit only; no experiment statistics/evaluator imports",
+  "runtime": {
+    "source_files": [
+      {
+        "path": "_docs/experiments/pallet_n3_subpix_20261008_v1/RESULT_KO.md",
+        "sha256": "ca26261e52624ebb1be3116c4f87f4b67c20eb761ea9292bbaa1afc2af1b8b41",
+        "bytes": 10265
+      },
+      {
+        "path": "_docs/experiments/pallet_n3_subpix_20261008_v1/RUNTIME.json",
+        "sha256": "b3fa7c10aecc809b9ae19d73e042874072093d8f01f86feecc3ef79c33998e28",
+        "bytes": 54944
+      },
+      {
+        "path": "_docs/experiments/pallet_n3_subpix_20261008_v1/RUNTIME_ROWS.jsonl.gz",
+        "sha256": "41aff44e78681ed93038fa2c4388fd4b3c2cb6a05992d7bd0a9155ced28a642c",
+        "bytes": 239025
+      },
+      {
+        "path": "_docs/experiments/pallet_n3_subpix_20261008_v1/VERIFICATION.json",
+        "sha256": "c1caaf89aa9db7dd33c32b4e09333b05dd75d223b4b6443ff810b4d86ef9110e",
+        "bytes": 11201
+      }
+    ],
+    "runtime_evidence_commit": "5a498f070566e4161b3d74a43c69b569ee30f07d",
+    "attribution": "existing seed1 timing from 2026-10-08; reused evidence; no seed2/3 timing result",
+    "external_status": "DONE",
+    "statistics_official": true,
+    "frames": 26,
+    "sessions": 13,
+    "warmup_per_arm": 20,
+    "measured_repeats": 5,
+    "measured_rows": 520,
+    "all_rows": 600,
+    "independent_statistics": {
+      "BASE": {
+        "n": 130,
+        "mean_ms": 11.713326876923077,
+        "sample_variance_ms2": 1.5383186240933029,
+        "sample_std_ms": 1.2402897339304646,
+        "median_ms": 11.3970065,
+        "p90_ms": 13.3986052,
+        "max_ms": 16.702463
+      },
+      "N3": {
+        "n": 130,
+        "mean_ms": 15.277830300000002,
+        "sample_variance_ms2": 1.7103030554092349,
+        "sample_std_ms": 1.307785554060464,
+        "median_ms": 15.1376065,
+        "p90_ms": 16.9643401,
+        "max_ms": 19.512234
+      },
+      "SUBPIX": {
+        "n": 130,
+        "mean_ms": 12.296341761538462,
+        "sample_variance_ms2": 1.7859680396816404,
+        "sample_std_ms": 1.3364011522299883,
+        "median_ms": 11.964044999999999,
+        "p90_ms": 14.033496900000001,
+        "max_ms": 17.562837
+      },
+      "N3_SUBPIX": {
+        "n": 130,
+        "mean_ms": 15.830345207692307,
+        "sample_variance_ms2": 2.014665228716786,
+        "sample_std_ms": 1.4193890336045245,
+        "median_ms": 15.684535,
+        "p90_ms": 17.6869763,
+        "max_ms": 21.084309
+      }
+    },
+    "verification": {
+      "raw_sha256_matches": true,
+      "all_reported_mean_variance_std_median_P90_match": true,
+      "absolute_tolerance": 1e-12,
+      "ddof": 1,
+      "quantile_method": "linear"
+    },
+    "full_pipeline_boundary": "native uint8 BGR already in RAM -> YOLO preprocess/detector + FP16-rounded neck capture -> correction (including gray, transfers, and BASE-anchor total cap) -> original prediction-only F exactly once; synchronized wall",
+    "excluded": [
+      "file read/decode",
+      "model initialization/checkpoint load",
+      "GT metrics",
+      "parity checks",
+      "receipt writes",
+      "interference snapshots"
+    ],
+    "device": "NVIDIA GeForce RTX 3080",
+    "packages": {
+      "torch": "2.1.1+cu118",
+      "torchvision": "0.16.1+cu118",
+      "ultralytics": "8.4.60",
+      "numpy": "1.26.4",
+      "opencv-python": "4.9.0.80",
+      "threadpoolctl": "3.6.0"
+    },
+    "threads": {
+      "torch": 4,
+      "opencv": 1
+    },
+    "numeric_parity": {
+      "checked_after_timing": true,
+      "new_detector_head_or_F_for_parity": 0,
+      "RAW_bitexact_calls": 600,
+      "arms": {
+        "BASE": {
+          "checked_calls": 150,
+          "unique_frames": 26,
+          "max_abs_final_px": 0.0
+        },
+        "N3": {
+          "checked_calls": 150,
+          "unique_frames": 26,
+          "max_abs_final_px": 0.0
+        },
+        "SUBPIX": {
+          "checked_calls": 150,
+          "unique_frames": 26,
+          "max_abs_final_px": 0.0
+        },
+        "N3_SUBPIX": {
+          "checked_calls": 150,
+          "unique_frames": 26,
+          "max_abs_final_px": 0.0
+        }
+      }
+    },
+    "warmup_accounting": {
+      "BASE": {
+        "valid": 20,
+        "configured": 20
+      },
+      "N3": {
+        "valid": 20,
+        "configured": 20
+      },
+      "SUBPIX": {
+        "valid": 20,
+        "configured": 20
+      },
+      "N3_SUBPIX": {
+        "valid": 20,
+        "configured": 20
+      }
+    }
+  },
+  "reverse": {
+    "branch": "research/subpix-n3-order-20261009",
+    "commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80",
+    "source_files": [
+      {
+        "path": "_docs/experiments/pallet_subpix_order_20261009_v1/RESULT_KO.md",
+        "sha256": "b979be00fa37bdaa171852dc7d4af003ec6a4686259cf09a4e0d687da28dc5ed",
+        "bytes": 19020,
+        "git_commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80"
+      },
+      {
+        "path": "_docs/experiments/pallet_subpix_order_20261009_v1/PROTOCOL.json",
+        "sha256": "e882bad5509a262cf51d0bac3807d59ff14ca9e18c72677c3bfe800f949c4ccb",
+        "bytes": 342501,
+        "git_commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80"
+      },
+      {
+        "path": "_docs/experiments/pallet_subpix_order_20261009_v1/PREDICTIONS.jsonl.gz",
+        "sha256": "ab1c49ce3b970a7e2d0ef4300e42959d95485aa971f63ba016a8f96b1d718201",
+        "bytes": 649156,
+        "git_commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80"
+      },
+      {
+        "path": "_docs/experiments/pallet_subpix_order_20261009_v1/SUMMARY.json",
+        "sha256": "c057c7b9546df0077a91089af232f40f93e5b4be5b1c8acf2f685d36a9198120",
+        "bytes": 1245913,
+        "git_commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80"
+      },
+      {
+        "path": "_docs/experiments/pallet_subpix_order_20261009_v1/PAIRED_COMPARISON.json",
+        "sha256": "150941e9e125a3a9010002d6bc8d6dbb9394af31a697178f341752d079f0b14e",
+        "bytes": 928606,
+        "git_commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80"
+      },
+      {
+        "path": "_docs/experiments/pallet_subpix_order_20261009_v1/VERIFICATION.json",
+        "sha256": "da0fe207fbf6b583493f5962bdc3d6aaceb13010b06ec1770eb2f1586d636a1c",
+        "bytes": 89417,
+        "git_commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80"
+      },
+      {
+        "path": "_docs/experiments/pallet_subpix_order_20261009_v1/RUNTIME.json",
+        "sha256": "b51f5c437fac1ab401d2b24e4c6ad8e02eb783dc64c046e7991543ba8479bbc3",
+        "bytes": 71876,
+        "git_commit": "d2ecb51c11886e45e8752226d3a2d33c65daed80"
+      }
+    ],
+    "seed": 1,
+    "temperature": 1.0,
+    "attribution": "previous exploratory same-seed order comparison only; no direct comparison with three-seed means",
+    "existing_verification_status": "PASS",
+    "independent_reexecution": false,
+    "metrics": {
+      "corner_px": {
+        "n": 2445,
+        "mean": 21.450453465389725,
+        "sample_variance": 2991.3325474559247,
+        "sample_std": 54.693075863914665,
+        "median": 5.744586270381797,
+        "P90": 42.59469714783092,
+        "min": 0.041346334406902545,
+        "max": 498.8323176909764,
+        "ddof": 1,
+        "unit": "px"
+      },
+      "translation_cm": {
+        "n": 319,
+        "mean": 39.40830265818346,
+        "sample_variance": 37862.63611299243,
+        "sample_std": 194.58323697840066,
+        "median": 6.477034896100685,
+        "P90": 35.99089734984497,
+        "min": 0.2093857572273799,
+        "max": 2480.715152678657,
+        "ddof": 1,
+        "unit": "cm"
+      },
+      "rotation_deg": {
+        "n": 319,
+        "mean": 18.505476684633503,
+        "sample_variance": 1065.0608907153085,
+        "sample_std": 32.63527065484992,
+        "median": 2.186961973030772,
+        "P90": 85.91916208166776,
+        "min": 0.2250852170758729,
+        "max": 99.35937577405956,
+        "ddof": 1,
+        "unit": "degree"
+      },
+      "ADDsym_cm": {
+        "n": 319,
+        "mean": 53.20039610333439,
+        "sample_variance": 38502.07049509961,
+        "sample_std": 196.21944474261363,
+        "median": 7.379698897922343,
+        "P90": 119.69697814629822,
+        "min": 0.8757097010183558,
+        "max": 2482.390014968815,
+        "ddof": 1,
+        "unit": "cm"
+      }
+    },
+    "paired_reverse_minus_forward": {
+      "corner_px": {
+        "mean_paired_difference": 0.03516272321577558,
+        "median_paired_difference": 1.1640486263786443e-07,
+        "CI95": [
+          -0.06238351933751159,
+          0.14113038736625436
+        ],
+        "common_eligible_observations": 2445,
+        "common_eligible_frames": 311,
+        "excluded_frames": 8,
+        "full_master_frames": 319,
+        "eligible_sessions": 13,
+        "valid_resamples": 10000,
+        "empty_resamples": 0,
+        "unit": "px",
+        "observation_weighting": "original observed canonical corners",
+        "auxiliary_session_equal_weight_mean": 0.0030856570823235034,
+        "draw_sha256": "63e288a51d7b0612616beefac28fcc625e76e8c5d7b5a0ecc5e8b85c73048fa5",
+        "seed": 20260917,
+        "resamples": 10000,
+        "group_frames": 319,
+        "outside_group_frames": 0,
+        "inference": "none; existing grade is used only after prediction",
+        "bootstrap_definition": "shared original13-session draws; retain only this grade after drawing; original corner/frame pooling",
+        "group_reference_corners": 2499,
+        "excluded_reference_corners": 54
+      },
+      "translation_cm": {
+        "mean_paired_difference": 0.5133493834271461,
+        "median_paired_difference": 0.0847992942605229,
+        "CI95": [
+          -0.5967527277817837,
+          1.5616914790646226
+        ],
+        "common_eligible_observations": 319,
+        "common_eligible_frames": 319,
+        "excluded_frames": 0,
+        "full_master_frames": 319,
+        "eligible_sessions": 13,
+        "valid_resamples": 10000,
+        "empty_resamples": 0,
+        "unit": "cm",
+        "observation_weighting": "original common successful frames",
+        "auxiliary_session_equal_weight_mean": -0.0509413901134761,
+        "draw_sha256": "63e288a51d7b0612616beefac28fcc625e76e8c5d7b5a0ecc5e8b85c73048fa5",
+        "seed": 20260917,
+        "resamples": 10000,
+        "group_frames": 319,
+        "outside_group_frames": 0,
+        "inference": "none; existing grade is used only after prediction",
+        "bootstrap_definition": "shared original13-session draws; retain only this grade after drawing; original corner/frame pooling"
+      },
+      "rotation_deg": {
+        "mean_paired_difference": 0.253151582704561,
+        "median_paired_difference": -0.018485547548571013,
+        "CI95": [
+          -0.6460891053277292,
+          1.0150583807303182
+        ],
+        "common_eligible_observations": 319,
+        "common_eligible_frames": 319,
+        "excluded_frames": 0,
+        "full_master_frames": 319,
+        "eligible_sessions": 13,
+        "valid_resamples": 10000,
+        "empty_resamples": 0,
+        "unit": "degree",
+        "observation_weighting": "original common successful frames",
+        "auxiliary_session_equal_weight_mean": -0.1910461607382511,
+        "draw_sha256": "63e288a51d7b0612616beefac28fcc625e76e8c5d7b5a0ecc5e8b85c73048fa5",
+        "seed": 20260917,
+        "resamples": 10000,
+        "group_frames": 319,
+        "outside_group_frames": 0,
+        "inference": "none; existing grade is used only after prediction",
+        "bootstrap_definition": "shared original13-session draws; retain only this grade after drawing; original corner/frame pooling"
+      },
+      "ADDsym_cm": {
+        "mean_paired_difference": 0.7769657917775687,
+        "median_paired_difference": 0.0632073964065609,
+        "CI95": [
+          -0.9679621204359679,
+          2.5910310119391498
+        ],
+        "common_eligible_observations": 319,
+        "common_eligible_frames": 319,
+        "excluded_frames": 0,
+        "full_master_frames": 319,
+        "eligible_sessions": 13,
+        "valid_resamples": 10000,
+        "empty_resamples": 0,
+        "unit": "cm",
+        "observation_weighting": "original common successful frames",
+        "auxiliary_session_equal_weight_mean": -0.04186989156166416,
+        "draw_sha256": "63e288a51d7b0612616beefac28fcc625e76e8c5d7b5a0ecc5e8b85c73048fa5",
+        "seed": 20260917,
+        "resamples": 10000,
+        "group_frames": 319,
+        "outside_group_frames": 0,
+        "inference": "none; existing grade is used only after prediction",
+        "bootstrap_definition": "shared original13-session draws; retain only this grade after drawing; original corner/frame pooling"
+      }
+    },
+    "denominator": {
+      "images": 319,
+      "sessions": 13
+    },
+    "limitations": [
+      "single learned seed",
+      "same repeatedly used REAL_DEV",
+      "reconstructed geometry reference, not independent physical GT",
+      "no multiplicity correction"
+    ]
+  },
+  "execution": {
+    "new_model_calls": 0,
+    "new_F_calls": 0,
+    "new_optimizer_updates": 0,
+    "new_runtime_calls": 0,
+    "new_reverse_experiments": 0,
+    "original_input_writes": 0
+  },
+  "input_audit_amendment": {
+    "status": "EXACT_ORIGINAL_RECOVERED",
+    "original": {
+      "path": "INPUT_AUDIT_AT_EVALUATION_START.json",
+      "sha256": "9614340961d3f72425ef541688a9bb1286d18637f4e2e1457b0cfa08c5190e7f",
+      "bytes": 753808
+    },
+    "supplement": {
+      "path": "INPUT_AUDIT_SUPPLEMENT.json",
+      "sha256": "d2b78e76cc9993176abd67149b67edaaad2a16d8fa2105057bfb6af8d52fa28c"
+    },
+    "disclosure": "Input auditor added historical runtime checks and immutable-a22 baseline checksum evidence after evaluation had sealed original audit SHA. Exact original bytes recovered independently and hash equals sealed SHA; evaluation lock is preserved. Supplement contains no changed inference data, methods or accuracy results.",
+    "semantic_equal_keys": [
+      "population",
+      "models",
+      "fixed_rule",
+      "inputs",
+      "input_manifest_sha256",
+      "grades",
+      "prediction_schema",
+      "numeric",
+      "checks",
+      "original_checkout_snapshot_hashes",
+      "environment"
+    ],
+    "extra_evidence": [
+      "runtime_reuse independent statistics block",
+      "immutable_a22 baseline source binding",
+      "historical runtime raw-row source binding"
+    ],
+    "elapsed_change_seconds": [
+      7.0503692058846354,
+      7.071553777903318
+    ],
+    "new_F_calls_for_amendment": 0
+  }
+}
