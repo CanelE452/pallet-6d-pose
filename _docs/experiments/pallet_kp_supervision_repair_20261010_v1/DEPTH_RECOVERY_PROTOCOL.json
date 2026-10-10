@@ -1,0 +1,76 @@
+{
+  "schema": "fixed_missing_front_surface_depth_recovery_protocol_v1",
+  "created_before_first_cast": true,
+  "inputs": {
+    "recover_front_none.py": {
+      "sha256": "6b68f178edfec1a3a32b0ecc6c4349957e157678efc57e0c69ebd5353ea7b842",
+      "bytes": 11453
+    },
+    "FULL_SOURCE_PREPARATION_PROTOCOL.json": {
+      "sha256": "4793b20dad530aecafcf0605b20a3d354d2fc69d63933d0306efdc771c516038",
+      "bytes": 3444
+    },
+    "FULL_SOURCE_PREPARATION.json": {
+      "sha256": "56b95782164232045cfda198b764cfe9fade81071f13621fb30a470f188259a3",
+      "bytes": 2631
+    },
+    "FULL_SOURCE_TARGET_ROWS.jsonl.gz": {
+      "sha256": "0d45363e80462ccc1320e2e3a697e2a09c9189cd1fd9bf7797716c12334916de",
+      "bytes": 4835104
+    },
+    "PREPARED_TARGETS.npz": {
+      "sha256": "7025a3f998906da60bb8eaf32d77ec65e52545ee2d25536bb90dc641369abdb3",
+      "bytes": 176504
+    },
+    "SOURCE_CEILING_ROWS.jsonl.gz": {
+      "sha256": "f3627e18c4e62430d349b0a3998dc76d28ddb3cd15852259c794d71cb57c45b6",
+      "bytes": 1188887
+    },
+    "scene.usd.npz": {
+      "sha256": "1213ba7e45492f3b5a81e68343d5ef167010028abcc568b7da2dcac7659dcf58",
+      "bytes": 15041824
+    },
+    "training.py": {
+      "sha256": "7027d60265bd5a8d39a6ebdce90926b2576830a655a255b0ad19188c5e39706e",
+      "bytes": 17625
+    },
+    "DEPTH_RECOVERY_PLAN_ROWS.jsonl.gz": {
+      "sha256": "2c6ead58243eb7d9a9ce3c73d6ff28c7a7fb587784c231925668e5d114ab62a1",
+      "bytes": 1388818
+    }
+  },
+  "population": "Only original train/cal valid NONE currently conservative IGNORE, physical source edge, original query/segment/search/in-image/unchanged supplied-mask support. Source-test and existing proposed POSITIVE untouched.",
+  "counts": {
+    "residual_original_NONE": 15844,
+    "planned_rays": 13757,
+    "supplied_mask_absence_unchanged_IGNORE": 1791,
+    "outside_segment_search_unchanged_IGNORE": 296
+  },
+  "planned_split_rays": {
+    "train": 11783,
+    "calibration": 1974
+  },
+  "max_rays": 13757,
+  "max_scene_builds": 896,
+  "closest_points": 0,
+  "exact_ray": "Reproduce original float32 ray from original normal/semantic-segment intersection, origin=-R.T*t and inverse-K direction@R; one ray per planned query; no normal offsets or sweep.",
+  "first_surface_evidence": "Actual scene.usd mesh, primitive ID and barycentric hit retained. Finite t_hit-source_camera_Z < -0.001*physical_diagonal confirms genuine front-surface NONE under the unchanged original depth policy.",
+  "numerical_infinity": "Infinity, finite non-front, invalid primitive, and other ambiguity remain IGNORE; never infinity -> NONE. Already geometrically certified owned-wire positives take precedence and are not recast.",
+  "no_match_limits": "Own-mesh first-surface absence at the intended physical point under the original policy; no claim that mesh/mask alone certifies every photometric boundary. Mask absence/out-of-search remain conservative IGNORE in this protocol.",
+  "unchanged_source_features": true,
+  "source_cache_mutated": false,
+  "family_order_unchanged": true,
+  "split_counts": {
+    "train": 768,
+    "calibration": 128,
+    "source_test": 128
+  },
+  "source_test_arrays_unchanged": true,
+  "outputs": "Recovered raw finite/front-depth evidence plus separate new lo/hi/weight/valid target arrays and rows; no original overwrite.",
+  "new_RGB": 0,
+  "new_heads": 0,
+  "new_detector": 0,
+  "new_PnP": 0,
+  "new_training_updates": 0,
+  "freeze_seconds": 5.12223979877308
+}

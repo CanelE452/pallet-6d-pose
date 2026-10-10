@@ -1,0 +1,30 @@
+{
+  "schema": "stored_actual_triangle_front_depth_check_protocol_v1",
+  "created_before_arithmetic": true,
+  "inputs": {
+    "RECOVERED_DEPTH_ROWS.jsonl.gz": {
+      "sha256": "29695bb79b40d003ddae0b9cb6aac5f2ff416c730f50cef583d30632c77a755a",
+      "bytes": 3798416
+    },
+    "RECOVERED_FRONT_FACE_WITNESSES.json": {
+      "sha256": "9b6a61efedce057db61f3b8a74e49826ed1e3b5e90f640e817d0d7c566312557",
+      "bytes": 2590926
+    },
+    "check_front_triangle_depth.py": {
+      "sha256": "be9a8a890fc76d2b7d1660a25e4637fd0ab2d25c965abc6ce864a2dc37b267dd",
+      "bytes": 4596
+    }
+  },
+  "population": "All13,754retained finite front witnesses; no selection",
+  "actual_surface_point": "Use exported actual normalized triangle, multiply by source dimensions and cast float32 exactly as original ray scene; then float64 barycentric point weights(1-u-v,u,v).",
+  "depth": "Recompute source-camera Z=(source_R@actual_triangle_point+source_t)[2]. Qualification requires this Z\u2212originalsourceZ<\u2212original .001*diagonal, strictly unchanged.",
+  "margin": "positive_margin=originalsourceZ\u2212triangle_point_cameraZ\u2212originaldepth_tolerance. Nonpositive/nonfinite is transparent ambiguity, never hidden or relabeled here.",
+  "source_targets_mutated": false,
+  "no_new_tolerance": true,
+  "new_rays": 0,
+  "new_closest_points": 0,
+  "new_models": 0,
+  "new_RGB": 0,
+  "new_training": 0,
+  "new_PnP": 0
+}

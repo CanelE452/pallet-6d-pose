@@ -1,0 +1,78 @@
+{
+  "schema": "public_source_repair_review_validation_v1",
+  "verifier_sha256": "3035f16094b963664b4ed3846523b227403cee74bed0f5cf5aa59e7368fd0562",
+  "isolated_public_only": true,
+  "private_environment_variables_removed": true,
+  "protected257_unchanged": true,
+  "controls": [
+    {
+      "name": "isolated-positive",
+      "command": [
+        "/home/minjae/anaconda3/bin/python3",
+        "/dev/shm/pallet-repair-public-review-20261010/scripts/research/pallet_kp_supervision_repair_20261010_v1/review_verify.py",
+        "--root",
+        "/dev/shm/pallet-repair-public-review-20261010",
+        "--output",
+        "/dev/shm/pallet-repair-isolated-positive.json"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "failed_checks": [],
+      "receipt_sha256": "36541cd8b284326b86274823d3c6d85486d52319710560936f688a523fe42313"
+    },
+    {
+      "name": "negative-camera-depth",
+      "command": [
+        "/home/minjae/anaconda3/bin/python3",
+        "/dev/shm/pallet-repair-public-review-20261010/scripts/research/pallet_kp_supervision_repair_20261010_v1/review_verify.py",
+        "--root",
+        "/dev/shm/pallet-repair-public-review-20261010",
+        "--output",
+        "/dev/shm/pallet-repair-negative-camera-depth.json"
+      ],
+      "exit_code": 1,
+      "passed": false,
+      "failed_checks": [
+        {
+          "name": "protected_prior_publication",
+          "error": "AssertionError: binding mismatch: _docs/experiments/pallet_kp_supervision_repair_20261010_v1/RECOVERED_DEPTH_ROWS.jsonl.gz"
+        },
+        {
+          "name": "fixed_plan_and_recorded_input_bindings",
+          "error": "AssertionError: RECOVERED_DEPTH_ROWS.jsonl.gz hash"
+        },
+        {
+          "name": "front_surface_witness_arithmetic",
+          "error": "AssertionError: recomputed hit camera_Z: numeric mismatch (3.668608134576017, 3.648608134576017)"
+        },
+        {
+          "name": "actual_face_surface_and_front_depth_arithmetic",
+          "error": "AssertionError: actual face raw depth binding"
+        },
+        {
+          "name": "full_target_transitions_and_mixed_loss_readiness",
+          "error": "AssertionError: non-recovered target bytes valid"
+        }
+      ],
+      "receipt_sha256": "9f3577f4ca46d4cb2ec96e3c271084e1399fb970bde7acd42cdd67dbd8b1c275"
+    }
+  ],
+  "negative_mutation": {
+    "file": "RECOVERED_DEPTH_ROWS.jsonl.gz",
+    "frame_index": 0,
+    "query": 42,
+    "field": "recomputed_hit_source_camera_Z",
+    "added_m": 0.02,
+    "original_public_files_mutated": false,
+    "isolated_file_restored": true
+  },
+  "scope": "One public-only positive and one targeted semantic-negative replay; no model/loss/optimizer/ray/pose execution. Optional manifest absent so the numerical arithmetic check is exercised independently of manifest binding.",
+  "historical_verifier_code": {
+    "path": "scripts/research/pallet_kp_supervision_repair_20261010_v1/review_verify_initial.py",
+    "sha256": "3035f16094b963664b4ed3846523b227403cee74bed0f5cf5aa59e7368fd0562",
+    "bytes": 36479,
+    "byte_exact_source": "isolated public-only positive copy",
+    "historical_numeric_invocations": 3,
+    "limits": "The two recorded isolated controls and preceding root positive used this code. The final verifier adds the later public CPU receipt join and is verified separately."
+  }
+}
