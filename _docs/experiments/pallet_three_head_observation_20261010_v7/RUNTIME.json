@@ -1,0 +1,1862 @@
+{
+  "schema": "fixed_three_head_point_observation_complete_runtime_v7",
+  "complete": true,
+  "status": "DONE",
+  "arms": [
+    "BASE",
+    "N3_SUBPIX",
+    "IMAGE_ROLE_BOUNDARY_ONLY",
+    "GEOMETRY_ONLY_BOUNDARY_ONLY",
+    "IMAGE_NO_ROLE_BOUNDARY_ONLY",
+    "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+    "IMAGE_NO_ROLE_CORNERWISE_HYBRID",
+    "IMAGE_ROLE_CORNERWISE_HYBRID",
+    "N3_INDEPENDENT_ROBUST_H",
+    "N3_INDEPENDENT_ROBUST_NO_MASK"
+  ],
+  "frames": 26,
+  "panel_sessions": 13,
+  "panel": [
+    {
+      "id": "eval_cad:1778653003088339968",
+      "session": "eval_cad"
+    },
+    {
+      "id": "eval_night08:1779449499143611648",
+      "session": "eval_night08"
+    },
+    {
+      "id": "eval_night09:1779449649655479552",
+      "session": "eval_night09"
+    },
+    {
+      "id": "eval_noapril:1775201414728017664",
+      "session": "eval_noapril"
+    },
+    {
+      "id": "eval_outside:1778651519235162880",
+      "session": "eval_outside"
+    },
+    {
+      "id": "eval_pallet07:1778652128369383168",
+      "session": "eval_pallet07"
+    },
+    {
+      "id": "eval_pallet09:1778653661653195264",
+      "session": "eval_pallet09"
+    },
+    {
+      "id": "plastic_day_01:005516",
+      "session": "plastic_day_01"
+    },
+    {
+      "id": "plastic_night_01:034035",
+      "session": "plastic_night_01"
+    },
+    {
+      "id": "wood_183705:000000",
+      "session": "wood_183705"
+    },
+    {
+      "id": "wood_184309:000012",
+      "session": "wood_184309"
+    },
+    {
+      "id": "wood_day_01:002010",
+      "session": "wood_day_01"
+    },
+    {
+      "id": "wood_night_01:029028",
+      "session": "wood_night_01"
+    },
+    {
+      "id": "eval_cad:1778653006783606016",
+      "session": "eval_cad"
+    },
+    {
+      "id": "eval_night08:1779449501478488320",
+      "session": "eval_night08"
+    },
+    {
+      "id": "eval_night09:1779449656527024896",
+      "session": "eval_night09"
+    },
+    {
+      "id": "eval_noapril:1775201415399297536",
+      "session": "eval_noapril"
+    },
+    {
+      "id": "eval_outside:1778651530691638016",
+      "session": "eval_outside"
+    },
+    {
+      "id": "eval_pallet07:1778652130452698368",
+      "session": "eval_pallet07"
+    },
+    {
+      "id": "eval_pallet09:1778653664407620608",
+      "session": "eval_pallet09"
+    },
+    {
+      "id": "plastic_day_01:005838",
+      "session": "plastic_day_01"
+    },
+    {
+      "id": "plastic_night_01:034193",
+      "session": "plastic_night_01"
+    },
+    {
+      "id": "wood_183705:000088",
+      "session": "wood_183705"
+    },
+    {
+      "id": "wood_184309:000072",
+      "session": "wood_184309"
+    },
+    {
+      "id": "wood_day_01:002141",
+      "session": "wood_day_01"
+    },
+    {
+      "id": "wood_night_01:029246",
+      "session": "wood_night_01"
+    }
+  ],
+  "protocol": {
+    "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/PROTOCOL.json",
+    "origin": "public_repository",
+    "sha256": "f02830c4e6fe60dce31c12fa3026218ba1cc9df8c6a500fff2b3bd9fceb50f58",
+    "bytes": 28700
+  },
+  "accuracy_seal": {
+    "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/GEOMETRY_SEAL.json",
+    "origin": "public_repository",
+    "sha256": "fc77206214437300fda0f9f6ab6d7be5e95fbdb36cd9f6938a0ad264f03e7fd9",
+    "bytes": 643723
+  },
+  "runtime_code": {
+    "path": "scripts/research/pallet_three_head_observation_20261010_v7/runtime.py",
+    "origin": "public_repository",
+    "sha256": "ad6c185622816af38d29454c3cf430aef3efb2aabc6311b7da2d63fc497934d6",
+    "bytes": 23194
+  },
+  "warmup_per_arm": 20,
+  "repeats": 5,
+  "measured_per_arm": 130,
+  "configured_pipeline_calls": 1500,
+  "schedule": "same cyclic route rotation/odd-block reversal as original benchmark",
+  "boundaries": {
+    "full_pipeline": "RAM native BGR,K,physical W,H,D -> fresh YOLO -> fixed N3 -> fresh initial N3 pose -> optional single requested-head Base-query feature -> unchanged source-calibrated evidence/admission -> boundary-only sparse points or unchanged observation-only heldout solves with no all-eight pose prior -> fresh final observation-only finite PnP -> H reprojection -> output metadata",
+    "all_initial_and_final_PnP_included": true,
+    "all_observation_and_admission_work_included": true,
+    "all_cornerwise_LOO_PnP_and_selection_included": true,
+    "excluded": [
+      "model/checkpoint load",
+      "RGB file/decode",
+      "GT scoring",
+      "parity checks",
+      "durable journal",
+      "resource snapshots"
+    ]
+  },
+  "cached_coordinate_replay_used_for_timing": false,
+  "GT_inference_access": false,
+  "other_benchmarks_parallel": false,
+  "actual_image_decode_calls": 26,
+  "image_decode_outside_intervals": true,
+  "actual_OpenCV_entry_calls": {
+    "solvePnP": 4500,
+    "solvePnPRefineLM": 8622,
+    "cornerSubPix": 10539,
+    "solvePnPGeneric": 107178
+  },
+  "OpenCV_entry_counter_scope": "NA before counter entry; actual recorded counter on complete or interrupted loops",
+  "actual_head_forward_entries": {
+    "GEOMETRY_ONLY": {
+      "attempted": 300,
+      "completed": 300
+    },
+    "IMAGE_NO_ROLE": {
+      "attempted": 300,
+      "completed": 300
+    },
+    "IMAGE_ROLE": {
+      "attempted": 300,
+      "completed": 300
+    }
+  },
+  "head_forward_counter_scope": "Independent head pre/post hooks attached before every timed call; attempted forwards are not inferred from completed decoder paths.",
+  "head_hook_cleanup_errors": [],
+  "actual_pipeline_calls": {
+    "detector_calls": 1500,
+    "initial_pose_calls": 1500,
+    "N3_route_calls": 1350,
+    "feature_initial_pose_calls": 900,
+    "shared_feature_tensors": 900,
+    "IMAGE_ROLE_head_calls": 300,
+    "head_calls": 900,
+    "final_pose_paths": 1200,
+    "IMAGE_ROLE_BOUNDARY_ONLY_final_pose_paths": 150,
+    "GEOMETRY_ONLY_head_calls": 300,
+    "GEOMETRY_ONLY_BOUNDARY_ONLY_final_pose_paths": 150,
+    "IMAGE_NO_ROLE_head_calls": 300,
+    "IMAGE_NO_ROLE_BOUNDARY_ONLY_final_pose_paths": 150,
+    "LOO_pose_paths": 338,
+    "GEOMETRY_ONLY_LOO_pose_paths": 90,
+    "GEOMETRY_ONLY_CORNERWISE_HYBRID_final_pose_paths": 150,
+    "IMAGE_NO_ROLE_LOO_pose_paths": 51,
+    "IMAGE_NO_ROLE_CORNERWISE_HYBRID_final_pose_paths": 150,
+    "IMAGE_ROLE_LOO_pose_paths": 197,
+    "IMAGE_ROLE_CORNERWISE_HYBRID_final_pose_paths": 150
+  },
+  "model_forwards": {
+    "detector": 1501,
+    "N3": 1350,
+    "heads": {
+      "GEOMETRY_ONLY": 300,
+      "IMAGE_NO_ROLE": 300,
+      "IMAGE_ROLE": 300
+    },
+    "detector_internal_initialization_calls": 1
+  },
+  "model_bindings": [
+    {
+      "path": "challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+      "origin": "experiment",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "bytes": 6552807
+    },
+    {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N3_DIM_SYM_seed1/last.pt",
+      "origin": "experiment",
+      "sha256": "ceea743b7b8467cf43eef66582b923dd980e5b2fb27f5575af5df185109f22dd",
+      "bytes": 305470
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/CALIBRATION_AND_SELECTION.json",
+      "origin": "experiment",
+      "sha256": "6ff554de489758fd4a8836fab3242266b54f83fd38c2ac64b4c81e5981d0030c",
+      "bytes": 11571
+    },
+    {
+      "path": "_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "origin": "experiment",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    {
+      "path": "square_yolo.py",
+      "origin": "immutable_baseline_dependency",
+      "sha256": "d54c6b8c50e81760207723ad4bd53df1c32b1644c67ac2c1e5dba70b956575ee",
+      "bytes": 35664
+    },
+    {
+      "path": "inference.py",
+      "origin": "immutable_baseline_dependency",
+      "sha256": "15621cbdc946b762aa36cddc4001972778df24f4925ff1473f7cb940856b4f0a",
+      "bytes": 3399
+    },
+    {
+      "path": "features.py",
+      "origin": "immutable_baseline_dependency",
+      "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab",
+      "bytes": 6641
+    },
+    {
+      "path": "pose.py",
+      "origin": "immutable_baseline_dependency",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+      "bytes": 7720
+    },
+    {
+      "path": "refiner.py",
+      "origin": "immutable_baseline_dependency",
+      "sha256": "d6ec32c7c31e1c4716873460cb4d5a1985260cdfebae27067acb72bcac3a2164",
+      "bytes": 4526
+    },
+    {
+      "path": "generic_point_refiner.py",
+      "origin": "immutable_baseline_dependency",
+      "sha256": "ec854fcb51f33f1bcbf0e336135b10b8b121c876b0ae4f7ad4d4065cebe658bd",
+      "bytes": 6153
+    },
+    {
+      "path": "TRAINING_COMPLETION.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "7196b60469c85f5456a2370f03843447d42d16190910d9f37f0349f3d42c85f1",
+      "bytes": 5092
+    },
+    {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/pipeline.py",
+      "origin": "public_repository",
+      "sha256": "55c4cef4f106ab71da283e3d2b646fd698976385e871488701017ad58997a21f",
+      "bytes": 21858
+    },
+    {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/observations.py",
+      "origin": "public_repository",
+      "sha256": "11e3af07dd2e9b92f33810dd54710426688bd9bb2028ffefbeb56fbfb4168c3e",
+      "bytes": 11832
+    },
+    {
+      "path": "GEOMETRY_ONLY.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "d188dcc68bd8795c88232d5bf1b85259d684695723b96809017abd47d6ac009b",
+      "bytes": 28104
+    },
+    {
+      "path": "IMAGE_NO_ROLE.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "9c52a2e2036ee8f65ba2e191bdcbebe93ac3ecde60a6aa31e71a4ffbadc0f835",
+      "bytes": 28104
+    },
+    {
+      "path": "IMAGE_ROLE.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "882a6eddc964258abfbc1ad3baeee380ab9fac42b3b90c7f64166bd98d777d5d",
+      "bytes": 28068
+    },
+    {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/GEOMETRY_ONLY/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "c5b7aee5b9ca2734b396e9b47a332044bfc304d1336fae495b126b64a7ff7c81",
+      "bytes": 3086
+    },
+    {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/IMAGE_NO_ROLE/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "6c09a0d1b64e7f095f2aa0d386dad6815a53d9bbbde04c39d15a7fd6fa606104",
+      "bytes": 3084
+    },
+    {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/IMAGE_ROLE/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "7d83f23e0c080ea561c0c453aa7c59fcae7d2954a89feb00516cb3ec58fb077d",
+      "bytes": 2323
+    }
+  ],
+  "pipeline_close_complete": true,
+  "model_initialization_complete": true,
+  "environment": {
+    "interference_snapshots": [
+      {
+        "phase": "before_models",
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 410 MiB, 10240 MiB, 43, 37 %, 28.42 W, 370.00 W, 225 MHz, 405 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "warmup",
+          "arm": "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+          "warmup_index": 7,
+          "arm_position": 1,
+          "image_index": 7
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 46, 6 %, 100.83 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "warmup",
+          "arm": "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+          "warmup_index": 13,
+          "arm_position": 7,
+          "image_index": 13
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1055 MiB, 10240 MiB, 46, 8 %, 101.38 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "BASE",
+          "repeat": 0,
+          "arm_position": 0,
+          "image_index": 0
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1055 MiB, 10240 MiB, 46, 9 %, 99.57 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "N3_INDEPENDENT_ROBUST_H",
+          "repeat": 0,
+          "arm_position": 8,
+          "image_index": 7
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 47, 12 %, 101.68 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_ROLE_CORNERWISE_HYBRID",
+          "repeat": 0,
+          "arm_position": 7,
+          "image_index": 15
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 47, 24 %, 102.01 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "N3_INDEPENDENT_ROBUST_NO_MASK",
+          "repeat": 0,
+          "arm_position": 9,
+          "image_index": 22
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 47, 6 %, 100.87 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "BASE",
+          "repeat": 1,
+          "arm_position": 0,
+          "image_index": 0
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 47, 17 %, 103.22 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_NO_ROLE_BOUNDARY_ONLY",
+          "repeat": 1,
+          "arm_position": 6,
+          "image_index": 7
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 47, 15 %, 99.66 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_NO_ROLE_CORNERWISE_HYBRID",
+          "repeat": 1,
+          "arm_position": 4,
+          "image_index": 15
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 48, 11 %, 103.46 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_ROLE_BOUNDARY_ONLY",
+          "repeat": 1,
+          "arm_position": 8,
+          "image_index": 22
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1055 MiB, 10240 MiB, 49, 7 %, 100.82 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_ROLE_BOUNDARY_ONLY",
+          "repeat": 2,
+          "arm_position": 0,
+          "image_index": 0
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 49, 10 %, 101.68 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "N3_INDEPENDENT_ROBUST_NO_MASK",
+          "repeat": 2,
+          "arm_position": 7,
+          "image_index": 7
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1055 MiB, 10240 MiB, 50, 9 %, 101.67 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_NO_ROLE_CORNERWISE_HYBRID",
+          "repeat": 2,
+          "arm_position": 4,
+          "image_index": 15
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 50, 13 %, 102.39 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "N3_INDEPENDENT_ROBUST_NO_MASK",
+          "repeat": 2,
+          "arm_position": 7,
+          "image_index": 22
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 51, 8 %, 103.70 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_ROLE_BOUNDARY_ONLY",
+          "repeat": 3,
+          "arm_position": 0,
+          "image_index": 0
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1055 MiB, 10240 MiB, 51, 9 %, 102.99 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+          "repeat": 3,
+          "arm_position": 7,
+          "image_index": 7
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 52, 5 %, 101.85 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "N3_INDEPENDENT_ROBUST_H",
+          "repeat": 3,
+          "arm_position": 4,
+          "image_index": 15
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 52, 17 %, 104.97 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+          "repeat": 3,
+          "arm_position": 7,
+          "image_index": 22
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1056 MiB, 10240 MiB, 53, 11 %, 101.71 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "IMAGE_NO_ROLE_BOUNDARY_ONLY",
+          "repeat": 4,
+          "arm_position": 0,
+          "image_index": 0
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1074 MiB, 10240 MiB, 53, 12 %, 105.76 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "BASE",
+          "repeat": 4,
+          "arm_position": 6,
+          "image_index": 7
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1073 MiB, 10240 MiB, 53, 14 %, 100.42 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "N3_INDEPENDENT_ROBUST_H",
+          "repeat": 4,
+          "arm_position": 4,
+          "image_index": 15
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1066 MiB, 10240 MiB, 54, 10 %, 104.09 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "job": {
+          "phase": "measured",
+          "arm": "BASE",
+          "repeat": 4,
+          "arm_position": 6,
+          "image_index": 22
+        },
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1066 MiB, 10240 MiB, 54, 10 %, 102.69 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      },
+      {
+        "phase": "after_complete",
+        "gpu": "NVIDIA GeForce RTX 3080, GPU-8e902e93-41c0-df35-240a-e53c17a21542, 580.178.04, 1066 MiB, 10240 MiB, 54, 15 %, 103.71 W, 370.00 W, 1830 MHz, 9251 MHz",
+        "fields": "name,uuid,driver_version,memory.used,memory.total,temperature.gpu,utilization.gpu,power.draw,power.limit,clocks.sm,clocks.mem",
+        "compute_apps": [
+          {
+            "pid": 858776,
+            "process": "python",
+            "used_memory": "638 MiB"
+          }
+        ],
+        "foreign_gpu_pids": [],
+        "foreign_cpu_workloads": [],
+        "quiet": true,
+        "gpu_temperature_under_80": true,
+        "desktop_process_exception": "rustdesk",
+        "system_changes": false,
+        "limits": "process snapshots detect declared research jobs; transient interference between snapshots may escape detection"
+      }
+    ],
+    "python": "3.10.20",
+    "torch": "2.1.1+cu118",
+    "numpy": "1.26.4",
+    "opencv": "4.9.0",
+    "ultralytics": "8.4.60",
+    "batch": 1,
+    "actual_torch_threads": 4,
+    "actual_opencv_threads": 1,
+    "numeric": {
+      "matmul_tf32": false,
+      "cudnn_tf32": true,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": false,
+      "CUDA_version": "11.8",
+      "cuDNN_version": 8700
+    },
+    "device": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "capability": [
+        8,
+        6
+      ]
+    },
+    "threadpools": [
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 4,
+        "prefix": "libopenblas",
+        "version": "0.3.23.dev",
+        "threading_layer": "pthreads",
+        "architecture": "SkylakeX"
+      },
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 1,
+        "prefix": "libopenblas",
+        "version": null,
+        "threading_layer": "disabled",
+        "architecture": "Prescott"
+      },
+      {
+        "user_api": "openmp",
+        "internal_api": "openmp",
+        "num_threads": 4,
+        "prefix": "libgomp",
+        "version": null
+      },
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 4,
+        "prefix": "libopenblas",
+        "version": "0.3.21.dev",
+        "threading_layer": "pthreads",
+        "architecture": "SkylakeX"
+      }
+    ],
+    "peak_allocated_bytes": 201894400
+  },
+  "execution": {
+    "pipeline_calls_started": 1500,
+    "pipeline_calls_complete": 1500
+  },
+  "elapsed_seconds": 101.83828943502158,
+  "statistics_official": true,
+  "new_training_updates": 0,
+  "new_GT_evaluations": 0,
+  "summaries": {
+    "BASE": {
+      "full": {
+        "n": 130,
+        "mean": 11.466754507692308,
+        "sample_variance": 2.411070420446981,
+        "sample_std": 1.5527621905646019,
+        "median": 11.1009765,
+        "P90": 12.0913145,
+        "maximum": 23.06819,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.886835407692308,
+        "sample_variance": 1.8313079294628476,
+        "sample_std": 1.3532582641398676,
+        "median": 9.556286499999999,
+        "P90": 10.459065500000001,
+        "maximum": 19.321775,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 0.020827946153846155,
+        "sample_variance": 2.4137217942814552e-05,
+        "sample_std": 0.004912964272495227,
+        "median": 0.0193655,
+        "P90": 0.024591500000000002,
+        "maximum": 0.060017,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.4178863999999998,
+        "sample_variance": 0.05772636361304806,
+        "sample_std": 0.24026311330091446,
+        "median": 1.3783855,
+        "P90": 1.4781257,
+        "maximum": 3.392737,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 0.006255276923076924,
+        "sample_variance": 1.5095744188431722e-06,
+        "sample_std": 0.0012286473940244908,
+        "median": 0.0060615,
+        "P90": 0.0064128,
+        "maximum": 0.017651,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 0.11688604615384615,
+        "sample_variance": 0.002236078268059869,
+        "sample_std": 0.047287189259458726,
+        "median": 0.097177,
+        "P90": 0.16233070000000002,
+        "maximum": 0.342386,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.01806343076923077,
+        "sample_variance": 1.5242931301371501e-05,
+        "sample_std": 0.003904219678933487,
+        "median": 0.017647,
+        "P90": 0.0203127,
+        "maximum": 0.043984,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "N3_SUBPIX": {
+      "full": {
+        "n": 130,
+        "mean": 15.006689807692307,
+        "sample_variance": 2.0818664770249318,
+        "sample_std": 1.4428674495687162,
+        "median": 14.722934,
+        "P90": 15.8923378,
+        "maximum": 29.013493,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.509257723076923,
+        "sample_variance": 0.9584722099839074,
+        "sample_std": 0.9790159395964436,
+        "median": 9.302209999999999,
+        "P90": 10.077187,
+        "maximum": 18.481794,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.997932284615385,
+        "sample_variance": 0.22344295217324392,
+        "sample_std": 0.47269752714949115,
+        "median": 3.8674615,
+        "P90": 4.4262403,
+        "maximum": 7.673456,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3316334461538462,
+        "sample_variance": 0.015502002242140487,
+        "sample_std": 0.12450703691816173,
+        "median": 1.3017135,
+        "P90": 1.4104711,
+        "maximum": 2.526309,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 0.006229515384615384,
+        "sample_variance": 9.58502871854502e-07,
+        "sample_std": 0.0009790315990071527,
+        "median": 0.0060184999999999995,
+        "P90": 0.0064468,
+        "maximum": 0.013185,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 0.10596269999999999,
+        "sample_variance": 0.002016743913405426,
+        "sample_std": 0.04490817201139929,
+        "median": 0.086661,
+        "P90": 0.1508563,
+        "maximum": 0.291011,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.055674138461538465,
+        "sample_variance": 0.0019902517074845555,
+        "sample_std": 0.04461223719434563,
+        "median": 0.0220575,
+        "P90": 0.1114627,
+        "maximum": 0.129587,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "IMAGE_ROLE_BOUNDARY_ONLY": {
+      "full": {
+        "n": 130,
+        "mean": 23.456182392307692,
+        "sample_variance": 5.152444786521606,
+        "sample_std": 2.269899730499479,
+        "median": 22.7406905,
+        "P90": 25.380512400000004,
+        "maximum": 35.688135,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.48867489230769,
+        "sample_variance": 0.32641461335696503,
+        "sample_std": 0.5713270633857327,
+        "median": 9.381556,
+        "P90": 10.0289318,
+        "maximum": 13.768163,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.9433849999999997,
+        "sample_variance": 0.2193624544899845,
+        "sample_std": 0.4683614570926866,
+        "median": 3.80945,
+        "P90": 4.2525008,
+        "maximum": 7.845489,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.333112953846154,
+        "sample_variance": 0.03051953399423041,
+        "sample_std": 0.1746984086768692,
+        "median": 1.2996349999999999,
+        "P90": 1.4134683000000001,
+        "maximum": 3.177535,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 7.583945123076923,
+        "sample_variance": 1.14707977239676,
+        "sample_std": 1.0710181008726043,
+        "median": 7.3146885,
+        "P90": 8.960842000000001,
+        "maximum": 10.40836,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 1.060038076923077,
+        "sample_variance": 1.1358382511960405,
+        "sample_std": 1.0657571258012026,
+        "median": 0.7173080000000001,
+        "P90": 2.4074835000000006,
+        "maximum": 6.074979,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.04702634615384615,
+        "sample_variance": 0.001370543405452892,
+        "sample_std": 0.03702085095527778,
+        "median": 0.020304,
+        "P90": 0.0977581,
+        "maximum": 0.109356,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "GEOMETRY_ONLY_BOUNDARY_ONLY": {
+      "full": {
+        "n": 130,
+        "mean": 22.7440855,
+        "sample_variance": 2.786443470092423,
+        "sample_std": 1.6692643499734914,
+        "median": 22.706739499999998,
+        "P90": 24.8724204,
+        "maximum": 28.147549,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.564019292307693,
+        "sample_variance": 0.2514809379139139,
+        "sample_std": 0.5014787512087765,
+        "median": 9.423953000000001,
+        "P90": 10.0947311,
+        "maximum": 12.554686,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.944388461538462,
+        "sample_variance": 0.06768592511533571,
+        "sample_std": 0.2601651881311866,
+        "median": 3.84735,
+        "P90": 4.313790200000001,
+        "maximum": 4.794365,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3387594615384617,
+        "sample_variance": 0.010640767877025639,
+        "sample_std": 0.10315409772290017,
+        "median": 1.3118835,
+        "P90": 1.4244822000000001,
+        "maximum": 2.013549,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 7.147458753846154,
+        "sample_variance": 1.790124740379846,
+        "sample_std": 1.3379554328825178,
+        "median": 7.140794,
+        "P90": 8.770715200000003,
+        "maximum": 10.23541,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 0.6524502307692306,
+        "sample_variance": 0.011038051853357187,
+        "sample_std": 0.1050621332990968,
+        "median": 0.6536435,
+        "P90": 0.7790824000000001,
+        "maximum": 1.040005,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.09700930000000002,
+        "sample_variance": 0.00033848270328139534,
+        "sample_std": 0.01839789942578759,
+        "median": 0.097224,
+        "P90": 0.1111133,
+        "maximum": 0.197742,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "IMAGE_NO_ROLE_BOUNDARY_ONLY": {
+      "full": {
+        "n": 130,
+        "mean": 21.38298303076923,
+        "sample_variance": 2.2792348368119995,
+        "sample_std": 1.509713494942666,
+        "median": 21.130341,
+        "P90": 23.4284673,
+        "maximum": 29.431211,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.689208107692307,
+        "sample_variance": 0.44830117402865494,
+        "sample_std": 0.669552965812754,
+        "median": 9.5106565,
+        "P90": 10.104027000000002,
+        "maximum": 13.318688,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.989636169230769,
+        "sample_variance": 0.18667080791087037,
+        "sample_std": 0.43205417242617894,
+        "median": 3.862841,
+        "P90": 4.3302668,
+        "maximum": 6.332966,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3424529461538461,
+        "sample_variance": 0.016729838402686995,
+        "sample_std": 0.12934387655659232,
+        "median": 1.3111899999999999,
+        "P90": 1.416277,
+        "maximum": 2.42866,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 5.674285261538461,
+        "sample_variance": 0.7401765732775125,
+        "sample_std": 0.8603351517156047,
+        "median": 5.628931,
+        "P90": 6.585850100000002,
+        "maximum": 8.837175,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 0.589748123076923,
+        "sample_variance": 0.007292717651054502,
+        "sample_std": 0.08539741009570784,
+        "median": 0.581264,
+        "P90": 0.7021972,
+        "maximum": 0.942437,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.0976524230769231,
+        "sample_variance": 0.0003133756801684556,
+        "sample_std": 0.017702420178282278,
+        "median": 0.096524,
+        "P90": 0.11514860000000002,
+        "maximum": 0.172297,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "GEOMETRY_ONLY_CORNERWISE_HYBRID": {
+      "full": {
+        "n": 130,
+        "mean": 70.87783399230769,
+        "sample_variance": 1049.2798608677424,
+        "sample_std": 32.3925895980507,
+        "median": 60.880526,
+        "P90": 95.87054530000003,
+        "maximum": 237.02467,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.7383799,
+        "sample_variance": 0.7398976832356878,
+        "sample_std": 0.8601730542371621,
+        "median": 9.529235499999999,
+        "P90": 10.320403200000001,
+        "maximum": 16.098215,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.9757477153846157,
+        "sample_variance": 0.07726722252133696,
+        "sample_std": 0.2779698230408059,
+        "median": 3.8997265,
+        "P90": 4.2612895,
+        "maximum": 5.618041,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3288981692307693,
+        "sample_variance": 0.0038884993560796663,
+        "sample_std": 0.062357833157348136,
+        "median": 1.3137595,
+        "P90": 1.4077646000000001,
+        "maximum": 1.641166,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 7.187893707692307,
+        "sample_variance": 1.8524015269377745,
+        "sample_std": 1.3610295834175592,
+        "median": 7.218411,
+        "P90": 8.885924300000003,
+        "maximum": 10.703871,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 48.54735577692308,
+        "sample_variance": 992.7827140457638,
+        "sample_std": 31.508454643885088,
+        "median": 38.377364,
+        "P90": 71.46427890000005,
+        "maximum": 212.848798,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.09955872307692308,
+        "sample_variance": 0.0004185253181552773,
+        "sample_std": 0.020457891341858214,
+        "median": 0.10063549999999999,
+        "P90": 0.12145490000000002,
+        "maximum": 0.17296,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "IMAGE_NO_ROLE_CORNERWISE_HYBRID": {
+      "full": {
+        "n": 130,
+        "mean": 60.116527315384616,
+        "sample_variance": 498.11909310760905,
+        "sample_std": 22.318581789791416,
+        "median": 57.458605000000006,
+        "P90": 76.3491218,
+        "maximum": 213.063036,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.662906215384615,
+        "sample_variance": 0.13403973685748818,
+        "sample_std": 0.36611437674241665,
+        "median": 9.571105,
+        "P90": 10.0907894,
+        "maximum": 12.236931,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.9460459076923073,
+        "sample_variance": 0.10208718408008442,
+        "sample_std": 0.3195108512712587,
+        "median": 3.8504519999999998,
+        "P90": 4.2886166,
+        "maximum": 6.039046,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3259325,
+        "sample_variance": 0.004925720581833333,
+        "sample_std": 0.07018347798330696,
+        "median": 1.3056545000000002,
+        "P90": 1.4281172,
+        "maximum": 1.694574,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 5.722571161538461,
+        "sample_variance": 1.3792929130006018,
+        "sample_std": 1.1744330176730395,
+        "median": 5.624168,
+        "P90": 6.799116300000001,
+        "maximum": 14.674853,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 39.35139620769231,
+        "sample_variance": 473.70731515301355,
+        "sample_std": 21.764818288995972,
+        "median": 37.0495755,
+        "P90": 54.0743921,
+        "maximum": 191.505668,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.10767532307692307,
+        "sample_variance": 0.0002805467041893858,
+        "sample_std": 0.016749528476628403,
+        "median": 0.1059375,
+        "P90": 0.1251471,
+        "maximum": 0.1825,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "IMAGE_ROLE_CORNERWISE_HYBRID": {
+      "full": {
+        "n": 130,
+        "mean": 89.17206766923077,
+        "sample_variance": 2618.045334023775,
+        "sample_std": 51.166838225786194,
+        "median": 76.1474465,
+        "P90": 149.4566941,
+        "maximum": 291.692559,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.685683923076924,
+        "sample_variance": 0.3160609807963196,
+        "sample_std": 0.5621930102698891,
+        "median": 9.540224,
+        "P90": 10.1953683,
+        "maximum": 14.072751,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.9454781538461536,
+        "sample_variance": 0.08555457850116996,
+        "sample_std": 0.2924971427230871,
+        "median": 3.8671065000000002,
+        "P90": 4.2235342000000005,
+        "maximum": 5.664007,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3371048230769231,
+        "sample_variance": 0.010885569908658382,
+        "sample_std": 0.1043339345978018,
+        "median": 1.3085390000000001,
+        "P90": 1.4563907,
+        "maximum": 2.022711,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 7.466300030769231,
+        "sample_variance": 1.0422135762983091,
+        "sample_std": 1.020888620907447,
+        "median": 7.288292,
+        "P90": 8.735802699999999,
+        "maximum": 10.609384,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 66.66714856923078,
+        "sample_variance": 2578.0989903117847,
+        "sample_std": 50.77498390262458,
+        "median": 52.8037655,
+        "P90": 125.81019100000002,
+        "maximum": 266.763863,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.07035216923076922,
+        "sample_variance": 0.001599694782172689,
+        "sample_std": 0.03999618459519219,
+        "median": 0.093063,
+        "P90": 0.10754090000000001,
+        "maximum": 0.200701,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "N3_INDEPENDENT_ROBUST_H": {
+      "full": {
+        "n": 130,
+        "mean": 49.3997986,
+        "sample_variance": 306.1028995502748,
+        "sample_std": 17.495796625197574,
+        "median": 50.48709,
+        "P90": 52.485641799999996,
+        "maximum": 174.524753,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.738781007692308,
+        "sample_variance": 0.6702886856052324,
+        "sample_std": 0.8187116009958771,
+        "median": 9.542910500000001,
+        "P90": 10.1929032,
+        "maximum": 17.062188,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.973974984615385,
+        "sample_variance": 0.07706682229903852,
+        "sample_std": 0.27760911782403425,
+        "median": 3.9083680000000003,
+        "P90": 4.324732099999999,
+        "maximum": 5.548277,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3157644923076923,
+        "sample_variance": 0.002911194782887537,
+        "sample_std": 0.0539554889041656,
+        "median": 1.305258,
+        "P90": 1.3853544,
+        "maximum": 1.561374,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 0.006138823076923076,
+        "sample_variance": 4.0395802271914124e-07,
+        "sample_std": 0.0006355769211662277,
+        "median": 0.0060355,
+        "P90": 0.0063733,
+        "maximum": 0.011038,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 34.29063558461539,
+        "sample_variance": 302.0502039848383,
+        "sample_std": 17.379591594305037,
+        "median": 35.6764575,
+        "P90": 36.8397045,
+        "maximum": 158.224314,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.0745037076923077,
+        "sample_variance": 0.0020125098407511033,
+        "sample_std": 0.04486100579290553,
+        "median": 0.09812850000000001,
+        "P90": 0.12156600000000001,
+        "maximum": 0.16342,
+        "unit": "ms",
+        "ddof": 1
+      }
+    },
+    "N3_INDEPENDENT_ROBUST_NO_MASK": {
+      "full": {
+        "n": 130,
+        "mean": 61.156529323076924,
+        "sample_variance": 444.209661451314,
+        "sample_std": 21.07628196459978,
+        "median": 61.5041365,
+        "P90": 63.7788648,
+        "maximum": 182.231496,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "detector": {
+        "n": 130,
+        "mean": 9.653655492307692,
+        "sample_variance": 0.29123795054574025,
+        "sample_std": 0.5396646649038088,
+        "median": 9.47349,
+        "P90": 10.485067800000001,
+        "maximum": 11.87705,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "N3_correction": {
+        "n": 130,
+        "mean": 3.993662323076922,
+        "sample_variance": 0.13445410089604987,
+        "sample_std": 0.3666798343187826,
+        "median": 3.9029575,
+        "P90": 4.367676100000001,
+        "maximum": 7.05679,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "initial_pose": {
+        "n": 130,
+        "mean": 1.3337417,
+        "sample_variance": 0.023039215730940314,
+        "sample_std": 0.15178674425304836,
+        "median": 1.3058395,
+        "P90": 1.4014352,
+        "maximum": 2.934191,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "boundary_observation": {
+        "n": 130,
+        "mean": 0.006212723076923077,
+        "sample_variance": 1.0308611475253427e-06,
+        "sample_std": 0.001015313324804389,
+        "median": 0.0060165,
+        "P90": 0.0064251,
+        "maximum": 0.014586,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "final_pose_reprojection_and_metadata": {
+        "n": 130,
+        "mean": 46.14787916923077,
+        "sample_variance": 443.86247394730265,
+        "sample_std": 21.068043904152628,
+        "median": 46.70333,
+        "P90": 48.2745226,
+        "maximum": 167.240561,
+        "unit": "ms",
+        "ddof": 1
+      },
+      "return": {
+        "n": 130,
+        "mean": 0.021377915384615385,
+        "sample_variance": 2.0694858791234346e-05,
+        "sample_std": 0.004549160229232902,
+        "median": 0.0200925,
+        "P90": 0.0245341,
+        "maximum": 0.051051,
+        "unit": "ms",
+        "ddof": 1
+      }
+    }
+  },
+  "warmup_accounting": {
+    "BASE": {
+      "configured": 20,
+      "completed": 20
+    },
+    "N3_SUBPIX": {
+      "configured": 20,
+      "completed": 20
+    },
+    "IMAGE_ROLE_BOUNDARY_ONLY": {
+      "configured": 20,
+      "completed": 20
+    },
+    "GEOMETRY_ONLY_BOUNDARY_ONLY": {
+      "configured": 20,
+      "completed": 20
+    },
+    "IMAGE_NO_ROLE_BOUNDARY_ONLY": {
+      "configured": 20,
+      "completed": 20
+    },
+    "GEOMETRY_ONLY_CORNERWISE_HYBRID": {
+      "configured": 20,
+      "completed": 20
+    },
+    "IMAGE_NO_ROLE_CORNERWISE_HYBRID": {
+      "configured": 20,
+      "completed": 20
+    },
+    "IMAGE_ROLE_CORNERWISE_HYBRID": {
+      "configured": 20,
+      "completed": 20
+    },
+    "N3_INDEPENDENT_ROBUST_H": {
+      "configured": 20,
+      "completed": 20
+    },
+    "N3_INDEPENDENT_ROBUST_NO_MASK": {
+      "configured": 20,
+      "completed": 20
+    }
+  },
+  "prior_protection_after": {
+    "schema": "boundary_refiner_protection_check_v2",
+    "passed": true,
+    "protected_repository_files": 17017,
+    "changed_protected_paths": [],
+    "source_checkout_unchanged": true,
+    "current_source_checkout": {
+      "head": "7e92fdcefb0a37bdee0aef95d3e86c572e23b967",
+      "branch": "main",
+      "status_sha256": "caf8dc47583c8f187a30ddb4c8ab05c587d80156a0d194d33e12ea39f56cc17d",
+      "tracked_diff_sha256": "e586720716294c72b18c70bd18a67d0af8b64311db2e1f7ddcad0bdc50a4f5ed",
+      "status_entries": 449,
+      "changed_tracked_sha256": {
+        ".gitignore": "eafc71fb72a3a1a0f1826bbbc098cdd6a148a44320452f4ae3d5d03179b23731",
+        "_docs/experiments/pallet_resnet18_refiner_20261001_v1/README_KO.md": "ef4368bebde404c6d7235ec29939a2e3f323cd9ac093c9a70abefe6c5bc1b583",
+        "_docs/experiments/pallet_three_estimator_20261001_v1/README_KO.md": "ab2b45a1906c741936236e81a595f781431529e1ad3ed18c6d41217ed107d5b1",
+        "_docs/experiments/pallet_three_estimator_20261001_v1/STATUS_KO.md": "274494e7c504aecff20f21f11610b7cf525da7b84efc91eaf73768b0ba861280",
+        "data/evaluation/pallet_eval_v1/reports/ANNOTATION_PROGRESS.md": "22c638972c445f145b1638e4639c24464e3998958ac59f9d80a4502e5146e3b5",
+        "readme.md": "919ff361d84eebe36e1f6b88a1878a83c1fc9ab9e0539b9be647214844ab038b"
+      }
+    }
+  },
+  "runtime_rows_streamed_after_timed_interval": true,
+  "only_timing_summary_fields_retained_in_memory": true,
+  "full_original_candidate_witnesses_preserved": true,
+  "serialized_raw_rows": 1500,
+  "row_writer_close_errors": [],
+  "row_writer_preservation_errors": [],
+  "raw_rows": {
+    "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/RUNTIME_ROWS.jsonl.gz",
+    "origin": "public_repository",
+    "sha256": "c5d4e5492fe6ec99d3d8b3e9c9a262bf88093f5270e53030e2aa2eae742ad033",
+    "bytes": 129257057
+  }
+}
