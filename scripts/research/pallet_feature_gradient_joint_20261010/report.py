@@ -284,6 +284,8 @@ def main():
 원본 RGB의 유통 권한이 확인되지 않아 좌표와 집계 그림을 공개했다. 좋지 않은 seed, 큰 오류, 좋은 코너의 손상, CI의 0 포함을 보고서에 유지했다. 논문, LaTeX, PDF는 수정하지 않았다.
 
 '''+table(['PNG','내용'],[[f"[{v['path']}]({v['path']})",v['title']] for v in index.get('figures',[])])+f'\n\n[새코드]({CODE}/) · [실제joint]({CODE}/fusion.py) · [단위검사]({CODE}/test_fusion.py) · [그림생성]({CODE}/figures.py) · [보고서생성]({CODE}/report.py)\n'
+    if (doc/'PUBLICATION_VERIFIED.json').exists():
+        readme += '\n[원격 게시 검증 영수증](PUBLICATION_VERIFIED.json)\n'
     (doc/'README.md').write_text(readme);print(json.dumps(dict(status='COMPLETE' if complete else 'PARTIAL',verdict=verdict)))
 
 

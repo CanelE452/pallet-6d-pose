@@ -20,3 +20,5 @@
 | [figures/06_covariance_vs_gradient.png](figures/06_covariance_vs_gradient.png) | Actual prior/gradient axes and output movements |
 
 [새코드](../../../scripts/research/pallet_feature_gradient_joint_20261010/) · [실제joint](../../../scripts/research/pallet_feature_gradient_joint_20261010/fusion.py) · [단위검사](../../../scripts/research/pallet_feature_gradient_joint_20261010/test_fusion.py) · [그림생성](../../../scripts/research/pallet_feature_gradient_joint_20261010/figures.py) · [보고서생성](../../../scripts/research/pallet_feature_gradient_joint_20261010/report.py)
+
+[원격 게시 검증 영수증](PUBLICATION_VERIFIED.json)
