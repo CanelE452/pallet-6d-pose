@@ -1,0 +1,97 @@
+{
+  "status": "LOCKED_BEFORE_ANY_NEW_RESULT",
+  "namespace": "20261011",
+  "execution_client_date": "2026-10-10",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "methods": [
+    "BASE",
+    "N3_DIM_SYM",
+    "SUBPIX",
+    "N3_THEN_SUBPIX"
+  ],
+  "primary": "N3_THEN_SUBPIX_VIS minus N3_THEN_SUBPIX",
+  "primary_definitions": {
+    "confusion": "rotation_deg > 45 and abs(yaw_deg) >= 60",
+    "success": "translation_cm < 5 and rotation_deg < 5",
+    "seed_aggregation": "threshold each seed, then average binary outcomes per original ID",
+    "no_pose": "success false; observed confusion/full denominator descriptive only; any primary missing pose makes verdict NOT_ESTIMABLE"
+  },
+  "verdict_rules": {
+    "WORSENED": "confusion CI lower > 0 or success CI upper < 0",
+    "SUPPORTED": "one improvement CI excludes zero, neither harmful CI excludes zero, >=2 seeds improve that metric",
+    "UNRESOLVED": "otherwise"
+  },
+  "A1_gate": "stop before REAL if either primary frame-bootstrap CI excludes zero in harmful direction",
+  "bootstrap": {
+    "draws": 10000,
+    "seed": 20260917,
+    "real": "13-session cluster, frame-pooled mean; retain 319 IDs",
+    "synthetic_primary": "1985-frame paired",
+    "synthetic_secondary": "1505-scenario cluster"
+  },
+  "settings": {
+    "subpix_win": [
+      5,
+      5
+    ],
+    "subpix_zeroZone": [
+      -1,
+      -1
+    ],
+    "criteria_count": 40,
+    "epsilon": 0.001,
+    "final_cap": 0.01,
+    "cap_reference": "original BASE once after final combination",
+    "selector_score": "original full nine-point score unchanged; mask only solver correspondences"
+  },
+  "case_selection": "seed1; biggest primary success recovery, biggest damage, biggest T gain and loss; ties ID ascending; no RGB publication",
+  "no_multiple_comparison_correction": true,
+  "no_training": true,
+  "no_tuning": true,
+  "no_new_annotations": true,
+  "square_gate": "B4 explicit human axis approval required; B2/B3 procedural mismatch stops square work",
+  "historical_bindings": [
+    {
+      "path": "_docs/experiments/pallet_feature_gradient_joint_20261010/PREDICTIONS.jsonl.gz",
+      "sha256": "bfb002e063c4b114edb6653ef6fecb55c2a116a762e71c239b941f4975a544ac"
+    },
+    {
+      "path": "_docs/experiments/pallet_feature_gradient_joint_20261010/VISIBILITY_LABELS.json",
+      "sha256": "d388f43dbe48a7982d5bab5ff7d448251722b90168c633b453cb9ad9a0b0b237"
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_subpix_final_20261010/INPUT_AUDIT.json",
+      "sha256": "9614340961d3f72425ef541688a9bb1286d18637f4e2e1457b0cfa08c5190e7f"
+    },
+    {
+      "path": "_docs/experiments/pallet_n3_subpix_final_20261010/INPUT_AND_METHOD_LOCK.json",
+      "sha256": "6ae51dbb21be9987a8a616bffab116b8949d6167e544f14b5e3ed5963d70bc0d"
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/pose.py",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7"
+    },
+    {
+      "path": "scripts/research/pallet_dim_conditioned_p_v1/eval_math.py",
+      "sha256": "4e3111f108e689d03ddac80387dc6492d1a6b180b7b8d7f5d98fe4722c43ea7b"
+    },
+    {
+      "path": "challenge/evaluation_v2/pnp_selector.py",
+      "sha256": "3e89f318c7c4a3396c6e7c2f9280c1755f32d7bd7b3d61e8a56b9bd5d0bd512e"
+    },
+    {
+      "path": "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py",
+      "sha256": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720"
+    },
+    {
+      "path": "data/pallet/results/paper_pose_metric_closure_v1/GEOMETRY_RESOLVED_POSE_GT.json",
+      "sha256": "798959a6b9afc8e8c5d2a058e801a642b02b2462d6c94c67b82608486cf61666"
+    }
+  ]
+}

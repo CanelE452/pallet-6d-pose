@@ -1,0 +1,145 @@
+{
+  "schema": "pallet_vispnp_preregistered_verdict_v1",
+  "phase": "A2",
+  "verdict": "SUPPORTED",
+  "primary": {
+    "coverage_complete": true,
+    "bootstrap": {
+      "level": "cluster",
+      "units": 13,
+      "resamples": 10000,
+      "seed": 20260917,
+      "draws_sha256_uint16_le": "63e288a51d7b0612616beefac28fcc625e76e8c5d7b5a0ecc5e8b85c73048fa5",
+      "algorithm": "default_rng.multinomial; 100 batches of100; uniformly sample units",
+      "interval": "numpy linear quantile at0.025 and0.975",
+      "multiplicity_adjusted": false,
+      "scope_frames": 319,
+      "master_frames": 319,
+      "nonempty_resamples": 10000,
+      "scope_rule": "same full-population draws; absent units contribute zero count"
+    },
+    "metrics": {
+      "T_cm": {
+        "delta": -0.662507832411803,
+        "CI95": [
+          -2.2551437785136725,
+          0.09358789159110245
+        ],
+        "per_seed_delta": [
+          -0.9072064414689386,
+          -0.002939339551337443,
+          -1.0773777162151335
+        ],
+        "improved_seeds": 3,
+        "paired_frames": 319,
+        "lower_is_better": true,
+        "coverage_complete": true,
+        "multiplicity_adjusted": false
+      },
+      "R_deg": {
+        "delta": 0.14693123242028833,
+        "CI95": [
+          -0.3203872899490288,
+          0.6806705015344043
+        ],
+        "per_seed_delta": [
+          0.30219248106999624,
+          0.3010512441975232,
+          -0.16245002800665442
+        ],
+        "improved_seeds": 1,
+        "paired_frames": 319,
+        "lower_is_better": true,
+        "coverage_complete": true,
+        "multiplicity_adjusted": false
+      },
+      "ADDsym_m": {
+        "delta": -0.006352823619036501,
+        "CI95": [
+          -0.022414985228193376,
+          0.004077608681061589
+        ],
+        "per_seed_delta": [
+          -0.009107053412419968,
+          -0.0006735646104877908,
+          -0.009277852834201749
+        ],
+        "improved_seeds": 3,
+        "paired_frames": 319,
+        "lower_is_better": true,
+        "coverage_complete": true,
+        "multiplicity_adjusted": false
+      },
+      "IoU3D": {
+        "delta": 0.00024812379961815744,
+        "CI95": [
+          -0.008227378408167299,
+          0.008544933048799618
+        ],
+        "per_seed_delta": [
+          -0.0014232928630909468,
+          -0.0007985890914426852,
+          0.002966253353388105
+        ],
+        "improved_seeds": 1,
+        "paired_frames": 319,
+        "lower_is_better": false,
+        "coverage_complete": true,
+        "multiplicity_adjusted": false
+      }
+    },
+    "confusion_rate": {
+      "delta": 0.0,
+      "CI95": [
+        -0.004930966469428007,
+        0.005420054200542005
+      ],
+      "per_seed_delta": [
+        0.0,
+        0.003134796238244514,
+        -0.003134796238244514
+      ],
+      "improved_seeds": 1,
+      "paired_frames": 319,
+      "lower_is_better": true,
+      "coverage_complete": true,
+      "multiplicity_adjusted": false
+    },
+    "success_rate": {
+      "delta": 0.01567398119122257,
+      "CI95": [
+        0.0011415525114155248,
+        0.02968994267847837
+      ],
+      "per_seed_delta": [
+        0.012539184952978056,
+        0.012539184952978056,
+        0.0219435736677116
+      ],
+      "improved_seeds": 3,
+      "paired_frames": 319,
+      "lower_is_better": false,
+      "coverage_complete": true,
+      "multiplicity_adjusted": false
+    }
+  },
+  "rules": {
+    "primary_contrast": "N3_THEN_SUBPIX_VIS__minus__N3_THEN_SUBPIX",
+    "confusion": "rotation_deg > 45 and abs(yaw_deg) >= 60",
+    "success": "translation_cm < 5 and rotation_deg < 5",
+    "seed_mean": "calculate each seed binary indicator before per-ID arithmetic mean",
+    "supported": "at least one improving CI excludes zero; neither harms; at least two seeds improve that metric",
+    "worsened": "confusion CI lower > 0 or success CI upper < 0",
+    "missing": "descriptive indicators false; any missing primary ALL/VIS pose => NOT_ESTIMABLE",
+    "A1_guard": "primary frame-bootstrap WORSENED or NOT_ESTIMABLE => stop before A2",
+    "A2_bootstrap": "13-session paired cluster bootstrap",
+    "draws": 10000,
+    "seed": 20260917,
+    "multiplicity_adjusted": false,
+    "thresholds_changed_after_results": false
+  },
+  "continue_to_A2": null,
+  "coverage_complete": true,
+  "results_are_independent_confirmation": false,
+  "multiple_comparisons_corrected": false
+}
