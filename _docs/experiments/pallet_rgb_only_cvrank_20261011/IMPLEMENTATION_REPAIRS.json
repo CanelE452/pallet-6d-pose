@@ -1,0 +1,54 @@
+{
+  "status": "RECORDED",
+  "repairs": [
+    {
+      "stage": "preservation_snapshot",
+      "failure": "The prior private original-manuscript-hashes.json does not exist; read stopped with FileNotFoundError",
+      "resolution": "Use the actual published prior SOURCE_PRESERVATION.json tracked manuscript inventory as baseline; reverified341 current source hashes before continuing",
+      "input_or_coordinate_changes": 0,
+      "optimizer_updates": 0,
+      "detector_forwards": 0,
+      "PnP_calls": 0,
+      "model_config_changes": 0,
+      "private_old_namespace_snapshot_preserved": true
+    },
+    {
+      "stage": "rgb_accuracy",
+      "failure": "Serialized detector candidate box is a JSON list; unchanged branch_inputs requires an ndarray, so the first input preparation raised TypeError before any new corrector forward or PnP.",
+      "resolution": "Restore box_xyxy as float64 ndarray while reconstructing captured detector inputs; retry under a new stage name with unchanged trained checkpoint and settings.",
+      "input_or_coordinate_changes": 0,
+      "optimizer_updates": 0,
+      "detector_forwards": 0,
+      "corrector_forwards_before_failure": 0,
+      "PnP_calls": 0,
+      "model_config_changes": 0,
+      "failure_receipt": "STAGE_rgb_accuracy.json",
+      "retry_receipt": "STAGE_rgb_accuracy_serialization_retry.json",
+      "source_file": "inference_new.py",
+      "source_before_sha256": "495b84ea3c4919ee69377901853a0dfffaf6e7711ef5c09b0fedc939aaacbdfd",
+      "source_after_sha256": "bccaa88511a4138165f95ca1903570a000946f7871ce7d033a37bdf943d1e6b8",
+      "before_hash_provenance": "Exact inverse of the recorded one-hunk patch, reconstructed in memory; no original source file was rewritten",
+      "common_q0_support_box_anchor_verification": "RGB_ONLY_EVALUATION_RECEIPT.json"
+    },
+    {
+      "stage": "latency_CVRANK_NATIVE",
+      "failure": "COMMON_INPUTS has no sessions column required by the prior panel helper; setup stopped with KeyError before detector, corrector or PnP calls.",
+      "resolution": "Use the exact locked 18 panel_ids from the prior LATENCY_BASE receipt and map each ID to COMMON_INPUTS; no panel or scientific configuration changes.",
+      "input_or_coordinate_changes": 0,
+      "optimizer_updates": 0,
+      "detector_forwards": 0,
+      "PnP_calls": 0,
+      "model_config_changes": 0,
+      "failure_receipt": "STAGE_latency_CVRANK_NATIVE.json",
+      "retry_receipt": "STAGE_latency_CVRANK_NATIVE_panel_retry.json",
+      "source_file": "latency_new.py",
+      "source_before_sha256": "474ff2749e9ee807f57cafc40397f7f5a1db318f4aee77f9f8e7186d046cf51b",
+      "source_after_sha256": "d525ee85105aecb04b9ffec8d05e0dbcf706eeec9bbcb8afb42b46a29d203c12",
+      "before_hash_provenance": "Exact inverse of the recorded panel reconstruction patch, reconstructed in memory",
+      "same_18_panel_verification": "LATENCY.json",
+      "CV_native_runtime_coordinate_max_delta_px": 0.0
+    }
+  ],
+  "preparation_failure_wall_seconds_not_instrumented": true,
+  "scientific_failed_runs": 2
+}
