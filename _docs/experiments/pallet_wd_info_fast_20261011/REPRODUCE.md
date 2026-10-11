@@ -84,3 +84,44 @@ git ls-remote origin refs/heads/main
 원격과 로컬 SHA, 실제 HTTP 링크 검사 결과는 게시 후 생성한 `PUBLICATION_VERIFICATION.json`에 기록한다. 원격이 전진하면 자동 merge나 force push로 덮지 않는다.
 
 [확인] 마지막 독립 검산은 동일 CLI의 `--output-name FINAL_AGGREGATE_VERIFICATION_APPROVED.json`으로 실행했으며 최신 판정은 PASS다. 앞선 검산 파일은 그대로 보존했다. 게시 직전에는 `python -B -m scripts.research.pallet_wd_info_fast_20261011.publication_audit`로 상대 링크·PNG·privacy·원래 변경 보존을 검증한다.
+
+## 요구사항 대조 후 실행한 보완
+
+[확인] 봉인된 원행만 사용해 물체유형 표, 지정 Stage1 family, 전체 C/D 전환과 별도 그림을 만들었다. 기존 결과·lock·그림을 보존했다. 원 family는 D SubPix였으므로 지정 Stage1 family를 사전 등록 분석이라고 부르지 않는다. OLD_P의 미보존 양 후보 값과 크기 구간 미고정은 NA로 남겼다. 아래는 실제 실행한 명령이다.
+
+```bash
+"$PALLET_PYTHON" -B scripts/research/pallet_wd_info_fast_20261011/subgroup_supplement.py
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.comparison_supplement
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.primary_supplement_figure
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.projection_axis_correction
+"$PALLET_PYTHON" -B scripts/research/pallet_wd_info_fast_20261011/permutation_repair.py
+"$PALLET_PYTHON" -B scripts/research/pallet_wd_info_fast_20261011/prepare_c_replay_locks.py --fresh-root "$PALLET_FAST_PRIVATE/C_CLEAN_REPLAY_PREFLIGHT"
+```
+
+[확인] `comparison_supplement` 최초 실행에서 재사용 baseline에 후보 상세가 있다고 가정한 KeyError가 발생했다. CSV 쓰기 전 중단됐고 추가 PnP0이었다. cache별 adapter를 수정한 뒤 같은 primary JSON의 완전 일치를 확인하며 재개했다. 잘못된 row를 성능 결과로 대신 집계하지 않았다. C/D 전역 공통 split은 **FAIL**이므로 양 분기의 합성 TEST 상대 우위 해석을 차단한다.
+
+[확인] B1 최초 hash donor는 중복172/173으로 순열이 아니었다. `permutation_repair`는 seed20261011의 고정 TRAIN 순열만1회 평가하는 계약 복구이며 결과를 보고 seed·조건을 바꾸지 않았다. 실행 전 신규lock과1,038회 예약, 실행 후 실제 호출receipt·예측봉인·허용ID만 GT decode를 남겼다. 이전 hash donor 결과와 최초48,277회 receipt를 그대로 보존한다. 순열 이후 누적은49,315회이며 새학습0이다.
+
+[확인] C의 기존 phase별 lock은 실제 과거 코드SHA에 대한 기록이다. 최종 `classifier.py`로 빈 공간을 재현할 때에는 새 helper로 같은 codeSHA의 extraction/fit 잠금을 준비한다. 실제로 해당 PLAN·extract·fit source guards를 통과시켰으며 전체 fitting을 다시 실행하지 않았다. 자세한 빈 snapshot 구성과 원행 재사용 조건, 실행/미실행 범위는 [B_C_COMPLETION_SUPPLEMENT_KO.md](B_C_COMPLETION_SUPPLEMENT_KO.md), [C_CLEAN_REPLAY_PREPARATION.json](C_CLEAN_REPLAY_PREPARATION.json)에 있다.
+
+[확인] 후보 값이 미보존됐던 모든 B1전환14건과 OLD_P전환15행/12ID는 봉인된 q만으로 같은 F를 재생했다. 두 새 lock이 ID와 각각84/72호출을 실행 전에 고정했다. 원 선택과 q·최종pose 일치 및 원 결과SHA 불변을 검사했으며 GT·RGB·checkpoint 추론을 읽지 않았다. 최종누적49,471calls/예약49,910이다. 아래 추가 명령을 실제 실행했다.
+
+```bash
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.changed_b1_candidates
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.changed_oldp_candidates
+```
+
+[CHANGED_B1_CANDIDATES_LOCK.json](CHANGED_B1_CANDIDATES_LOCK.json), [CHANGED_B1_CANDIDATES_RECEIPT.json](CHANGED_B1_CANDIDATES_RECEIPT.json), [OLD_P_CHANGED_CANDIDATES_LOCK.json](OLD_P_CHANGED_CANDIDATES_LOCK.json), [OLD_P_CHANGED_CANDIDATES_RECEIPT.json](OLD_P_CHANGED_CANDIDATES_RECEIPT.json)에 재생 대상·코드SHA·실제 counter를 연결했다.
+
+[확인] 보완 독립 검산의 실제 명령은 다음과 같다. 검산은 pallet-yolo26 Python에서 CPU thread1로 실행했고 `--output-name`을 생략하여 기본 `SUPPLEMENT_INDEPENDENT_VERIFICATION.json`을 생성했다. 신규fit/CNN/PnP0이며 최대 산술 차이1.46e−11이었다.
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 "$PALLET_GPU_PYTHON" -B scripts/research/pallet_wd_info_fast_20261011/supplement_verify.py --public-dir _docs/experiments/pallet_wd_info_fast_20261011 --source-root "$PALLET_SOURCE_ROOT" --published-root "$PALLET_PUBLIC_ROOT" --private-dir "$PALLET_FAST_PRIVATE"
+```
+
+[확인] 최종 보완 게시 감사도 실제 실행했다. 최초 [COMPLETION_PREPUBLICATION_AUDIT.json](COMPLETION_PREPUBLICATION_AUDIT.json)을 보존한 뒤 이 재현 명령 설명을 추가했고, 문서 변경에 대한 최종 파일 바인딩은 별도 [FINAL_COMPLETION_PREPUBLICATION_AUDIT.json](FINAL_COMPLETION_PREPUBLICATION_AUDIT.json)에 기록했다. 같은 compute 숫자를 유지하며 원 산술 검산을 반복 fitting하지 않았다.
+
+```bash
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.completion_publication_audit
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.completion_publication_audit --output-name FINAL_COMPLETION_PREPUBLICATION_AUDIT.json
+```

@@ -11,7 +11,7 @@
 - [확인] 원 공식 YOLO N3→SubPix의 REAL173 평균 위치 오차는 **59.54 cm**, 중앙값·P90과 매우 다른 큰 꼬리를 포함한다. 가장 큰 원행은 `eval_night09:1779449575470221824`, seed3 **2484.86 cm**다. 나쁜 영상·seed를 제거하지 않았다([A2_ORACLE_ROWS.jsonl.gz](A2_ORACLE_ROWS.jsonl.gz), [A2_ORACLE_METRICS.json](A2_ORACLE_METRICS.json)).
 - [확인] D의 동일 seed1 국소 보정은 SubPix 뒤 성공률이 **86/173→85/173**으로 감소했다. 코너 평균 오차가 감소한 영상은 107장, 증가한 영상은 58장이고, `eval_cad:1778653055801377280` corner3은 **4.554→10.882 px**로 손상됐다([D_REPAIRED_RESULTS.json](D_REPAIRED_RESULTS.json), [D_VERIFICATION.json](D_VERIFICATION.json)).
 - [확인] D 최초 자세 평가의 `K` list→OpenCV adapter 오류는 그대로 보존했다. 동일 checkpoint·동일 코너를 유지하고 array 변환만 복구한 `D_REPAIRED_*`가 과학적 결과다. 최초 모든 미산출을 방법 성능 악화로 세지 않는다([D_REPAIR_LOCK.json](D_REPAIR_LOCK.json), [D_VERIFICATION.json](D_VERIFICATION.json)).
-- [확인] C와 D의 합성 split은 같지 않다. D TRAIN 16,000장 중 C VAL 253장·TEST 271장에 노출됐다. **각 작업 내부의 고정 짝 대조**를 해석하고, C/D 합성 TEST를 합쳐 독립 비교하지 않는다. REAL173은 두 작업 모두 fitting·선택에 쓰지 않았다([D_CROSS_TASK_EXPOSURE.json](D_CROSS_TASK_EXPOSURE.json)).
+- [확인] C와 D의 합성 split은 같지 않다. D TRAIN 16,000장 중 C VAL 253장·TEST 271장에 노출됐다. **사용자가 요구한 모든 모델의 공통 분할 조건은 FAIL**이며 `IMPLEMENTATION_OR_CONTRACT_ISSUE`다. C/D 통합 TEST와 동등 학습 모집단을 전제하는 상대 우위 해석은 `BLOCKED_CONTRACT`로 중단한다. 작업 내부의 고정 짝 기술 결과는 보존하지만 전역 분할 검사를 통과했다고 하지 않는다. REAL173은 두 작업 모두 fitting·선택에 쓰지 않았다([D_CROSS_TASK_EXPOSURE.json](D_CROSS_TASK_EXPOSURE.json)).
 
 - [확인] V_LOGISTIC은 합성 TEST 정확도84.961%에서 실사 직접 정확도45.882%로 전이 실패했다. 기하에 V를 추가한 주대비도 기존 W/D confusion이+4.239pp 악화했다. 작은 GVD 성공 증분만 남겨 영상 효과가 확인됐다고 주장하지 않는다([C_RESULTS.json](C_RESULTS.json), [PAIRED.json](PAIRED.json)).
 
@@ -23,7 +23,7 @@
 
 [확인] 주분모는 REAL173이며 long/short 참조가 UNCLEAR인 3장은 직접 분류 정확도에서만 제외해 170장을 쓴다. **기존 W/D confusion은 `R>45° AND |yaw|≥60°`이며 전체173장 분모**다. 직접 축 선택 오류율과 서로 바꾸어 쓰지 않는다. 성공은 산출된 자세가 `T<5 cm AND R<5°`인 비율이며 미산출을 성공으로 세지 않는다. 회전·ADDsym은 기존 proper 대칭만 쓴다. 정사각형 C4에서는 long/short가 NA이고 90°가 허용되며, 직사각형 W/D 90°는 대칭이 아니다([geometry_analysis.py](../../../scripts/research/pallet_wd_info_fast_20261011/geometry_analysis.py), [paired.py](../../../scripts/research/pallet_wd_info_fast_20261011/paired.py)).
 
-[확인] 주 불확실성은 같은 영상의 모든 seed와 후보를 묶은 **9개 실제 세션 paired cluster bootstrap 10,000회, seed20260917**로 계산한다. 영상 가중 효과와 세션 동일 가중 효과를 분리한다. 4개의 사전 대비×2개 지표=8개 가설의 원 p와 Holm p를 보고한다. 기존 원고의 통계 family를 바꾸지 않는다. 반복 사용된 개발 참조라 독립 확증이 아니다([PLAN_LOCK.json](PLAN_LOCK.json), [paired.py](../../../scripts/research/pallet_wd_info_fast_20261011/paired.py)).
+[확인] 주 불확실성은 같은 영상의 모든 seed와 후보를 묶은 **9개 실제 세션 paired cluster bootstrap 10,000회, seed20260917**로 계산한다. 영상 가중 효과와 세션 동일 가중 효과를 분리한다. 원 실행 lock의 D 대비는 SubPix였지만 지시문 §10.1은 Stage1 대비를 지정했다. 이를 동일한 것으로 대체했다고 하지 않는다. 원 8가설 family와 결과를 보존하고, 사용자가 지정한 Stage1을 포함하는 별도 8가설 family를 실행 후 정렬한 탐색 분석으로 공개한다. 기존 원고의 통계 family를 바꾸지 않는다([PLAN_LOCK.json](PLAN_LOCK.json), [REQUESTED_PRIMARY_PAIRED.json](REQUESTED_PRIMARY_PAIRED.json)).
 
 ## A: 선택 오류만 해결하면 충분한가
 
@@ -51,6 +51,8 @@
 
 [확인] A3는 고정 hash SYNTH16, correlated residual α={0,.25,.5,1}와 Gaussian σ={0,.5,1,2,4}px×8draw를 사전 설정대로 실행했다. 새 RGB를 생성하지 않았다. Gaussian4px에서 직접 축 오류15.625%, raw 성공54.688%이며 정확 코너에서도 raw 성공87.5%에 그친다. **정확 코너의 2개 C1 복원 실패가 있으므로 raw R/성공을 노이즈의 유일 원인이나 이론적 상한으로 해석하는 단계는 중단**한다. width/depth의 절대 축 이름은 yaw180°에 불변이므로 직접 long/short label 검산과 구분한다([A3_GEOMETRY_DIAGNOSTIC.json](A3_GEOMETRY_DIAGNOSTIC.json): 실제 OpenCV solve2960+LM2960=5,920; [A3_PHYSICAL_ROUNDTRIP_AUDIT.json](A3_PHYSICAL_ROUNDTRIP_AUDIT.json): 추가 PnP0).
 
+[확인] 원 ratio 진단은 두 조건 모두 canonical D를 긴 축으로 만들었다. 플라스틱은 등록 W/D=1.1/1.3과 같지만 나무는 등록 W/D=.8/.59를 뒤집은 `.59/.8` 조건이었다. 원 48행 자세 결과를 **두 실제 canonical W/D 재현으로 해석하는 단계는 중단**한다. 새 사전 lock 후 동일 K/R/t/H/footprint area에서 등록 방향의 projection-only 48행을 계산했다. 플라스틱·정사각형은 기존과 동일하고, 나무는16/16의 long/short parity가 뒤집히며 평균9점 이동의 영상 평균28.449px다. 양의 축 scaling만 사용했으며 reflection·인덱스 재배치가 없다. 새 조건의 6D는 `NOT_EVALUATED_NO_NEW_PNP`이며 C1 signed-front 오류를 복구했다고 주장하지 않는다([A3_RATIO_AXIS_CORRECTION_LOCK.json](A3_RATIO_AXIS_CORRECTION_LOCK.json), [A3_RATIO_AXIS_CORRECTION.json](A3_RATIO_AXIS_CORRECTION.json)).
+
 ## B: 치수 반응과 대칭 감독
 
 [확인] 기존 symmetry 정답 선택 함수를 그대로 재생했다. 고유 usable TRAIN에서 nonidentity 정답 선택은 YOLO **125/55,915=0.224%**, DOPE **134/44,063=0.304%**, ResNet18 **0/55,806=0%**다. C2 내부 비율도 각각125/36,664=0.341%,134/29,017=0.462%,0/36,571=0%에 그쳤고 C4 TRAIN은0이다. identity-first exact tie가 부풀린 빈도는0이다([B2_SYMMETRY.json](B2_SYMMETRY.json)).
@@ -58,7 +60,7 @@
 [확인] YOLO seed1·2·3의 96,000 optimizer 노출 중 nonidentity는 각각217·218·208회였다. 이 감독은 주로 허용 C2의180° relabel이며, 직사각형90° W/D 선택 자체를 가르치는 target 변경과 동일하지 않다. [추정] 작은 변경 빈도가 기존 N3의 W/D 약한 증분을 설명할 후보지만, 이것만으로 인과 효과를 확정할 수 없다.
 
 <!-- FINAL_B1_RESULTS -->
-[확인] B1은 기존 N3 seed1의 입력 치수만 correct/mean/normalized-zero/TRAIN-shuffle로 바꾸고, 모든 조건에서 PnP 치수는 올바른 등록값으로 고정했다. 새로운 fitting이나 backbone 추론은0이며 OpenCV solve/refine 실제3,114회다. normalized-zero는 TRAIN-mean과 동일하다고 가정하지 않았다([B1_RESULTS.json](B1_RESULTS.json)).
+[확인] 최초 B1은 기존 N3 seed1의 입력 치수만 correct/mean/normalized-zero/해시 donor로 바꾸고, 모든 조건에서 PnP 치수는 올바른 등록값으로 고정했다. 당시 `TRAIN_SHUFFLE`은 해시 나머지로 donor를 정했으며 173개 중 고유 donor는172개여서 **요구한 고정 순열이 아니다**. 아래 원 결과와 이름은 보존하며 순열 실험이라고 해석하지 않는다. 새로운 fitting이나 backbone 추론은0이며 최초 OpenCV solve/refine 실제3,114회다. normalized-zero는 TRAIN-mean과 동일하다고 가정하지 않았다([B1_CODE_LOCK.json](B1_CODE_LOCK.json), [B1_RESULTS.json](B1_RESULTS.json)).
 
 | 기존 N3 입력 치수, REAL173 | 평균 코너 이동 px | 확률 L1 평균 | 후보 argmax 변경/1384 | W/D 선택 변경 | 5cm·5° % |
 |---|---:|---:|---:|---:|---:|
@@ -68,6 +70,14 @@
 | TRAIN_SHUFFLE | 1.078834 | 0.15551 | 435 | 0 | 42.775 |
 
 [확인] 기존 N3는 치수에 **반응한다**. 그러나 네 조건의 직접 축 오류는 모두43/170이고 W/D 선택 변경0이다. correct 성공77/173와 mean75/173,zero76/173,shuffle74/173의 차이는 작으며 치수의 안정적인 6D 이득으로 확정하지 않는다. 상태는 `SENSITIVE_BUT_BENEFIT_UNRESOLVED`다.
+
+[확인] 고정 순열 요구를 실제로 보완했다. 원 TRAIN 55,980개 index에 seed20261011의 순열을1회 생성해 sorted REAL173에 첫173 donor를1:1 할당했다. **고유173/중복0**이며 mapping·코드·추가 호출 예산을 먼저 잠그고 좌표/확률 봉인 뒤 허용 참조만 채점했다. 새 fitting·CNN·RGB 읽기0, 동일 N3 checkpoint와 기존222 logits를 재사용했다. downstream 치수는 등록값 그대로다([B1_PERMUTATION_REPAIR_LOCK.json](B1_PERMUTATION_REPAIR_LOCK.json), [B1_PERMUTATION_REPAIR_DONOR_SEAL.json](B1_PERMUTATION_REPAIR_DONOR_SEAL.json)).
+
+| 실제 고정 TRAIN 순열, REAL173 | 평균 이동 px | 이동 중앙값/P90 px | 확률 L1 평균 | argmax 변경/1384 | 선택 변경 | 성공/173 |
+|---|---:|---:|---:|---:|---:|---:|
+| TRAIN_PERMUTATION_REPAIR | 1.07813 | .54410/2.72547 | .157918 | 418 | 0 | 75 |
+
+[확인] 직접 축 오류43/170은 그대로이며 correct77→순열75의 성공 차이는−1.156pp [−3.209,+1.258], 기술용 원 p=.34517다. 기존8가설 Holm family에 이 분석을 추가하지 않았다. 회복1·손상3의4건 전체 ID를 [B1_PERMUTATION_REPAIR_TRANSITIONS.csv](B1_PERMUTATION_REPAIR_TRANSITIONS.csv)에 남겼다. 추가 solve519+LM519=**1,038회**, 누적49,315/50,000이고 기존 B1 결과·checkpoint를 보존했다([B1_PERMUTATION_REPAIR_RESULTS.json](B1_PERMUTATION_REPAIR_RESULTS.json), [B1_PERMUTATION_REPAIR_COMPUTE_RECEIPT.json](B1_PERMUTATION_REPAIR_COMPUTE_RECEIPT.json)).
 <!-- END_FINAL_B1_RESULTS -->
 
 ## C: 동결 영상 특징이 실제로 추가 정보를 주는가
@@ -94,7 +104,7 @@
 
 [확인] 동일 크기의 G+V+D는 G+V 대비 성공+.963pp와 기존W/D−.578pp의 작은 개선 방향이지만, 공식 선택 대비 성공+.963pp와 기존W/D+3.276pp의 **TRADEOFF**다. 치수의 연결 위치에 따라 반응·방향은 다르며 운영 우위를 확정할 증거가 없다. 전체8개 Holm p는 모두.3536 이상이고 임의 practical 합격선을 만들지 않았다.
 
-[확인] C 합성 TEST1024는 이번 C 분류기 fitting과 group 분리됐지만, 원 N3 TRAIN 노출926장과 겹치며 실제 renderer group은1개다. 전체 파이프라인의 독립 최종 test나 다양한 환경 일반화로 부르지 않는다. A3 signed-front 복원 이슈의 영향을 별도 명시한 채 raw 합성 결과를 보존한다([BC_INPUT_CONTRACT.json](BC_INPUT_CONTRACT.json), [C_SYNTH_TEST_RESULTS.json](C_SYNTH_TEST_RESULTS.json): `independent_final_test=false`).
+[확인] C 합성 TEST1024는 이번 C 분류기 fitting과 group 분리됐지만, 원 N3 TRAIN 노출926장과 겹치며 실제 renderer group은1개다. TEST에서 고도≥30° 표본은0이다. 전체 파이프라인의 독립 최종 test나 다양한 환경 일반화로 부르지 않는다. A3 signed-front 복원 이슈의 영향을 별도 명시한 채 raw 합성 결과를 보존한다([BC_INPUT_CONTRACT.json](BC_INPUT_CONTRACT.json), [C_LABEL_AUDIT.json](C_LABEL_AUDIT.json), [C_SYNTH_TEST_RESULTS.json](C_SYNTH_TEST_RESULTS.json): `independent_final_test=false`).
 
 | Selector | Clean68 성공 % | Moderate42 성공 % | Severe63 성공 % |
 |---|---:|---:|---:|
@@ -110,6 +120,8 @@
 | V_SHUFFLED_LOGISTIC | 40.686 | 28.571 | 7.937 |
 
 [확인] Severe를 포함한 모든 grade를 동일 방법으로 남겼다. material·session·reference-margin·고도 하위군은 [C_RESULTS.json](C_RESULTS.json)의 descriptive 수치이며 실사로 모델이나 threshold를 다시 고르지 않았다.
+
+[확인] 물체유형은 등록 `plastic_standard_110x130x11` 128장, `wood_small_80x59x14` 45장으로 나눠 전체10방법을 재집계했다. 크기 구간은 PLAN/기존 feature 계약에 고정 경계가 없어 **NA**로 명시한다. 실제 예측 bbox 면적 비율 min/median/max는0.00454/0.16226/1.01219이며 범위 밖 값도 자르지 않았다. 결과를 본 뒤 크기 threshold를 정해 하위군을 만들지 않았다([C5_SUBGROUPS_SUPPLEMENT.json](C5_SUBGROUPS_SUPPLEMENT.json)).
 
 ![실제 성공·손상·큰 꼬리 사례](FIGURES/08_real_recovery_damage_and_tail_cases.png)
 
@@ -133,11 +145,15 @@
 
 [확인] mean/shuffle 치수에 대한 probability·coordinate·선택 변화는 모든346원행을 남겼다. 최종 개입 비교는 올바른 PnP 치수를 고정한 채 scorer 입력만 바꾼 것이다. 반응은 실제 성공 개선과 별개다([D_REPAIRED_SENSITIVITY.json](D_REPAIRED_SENSITIVITY.json), [D_ALL_PAIRED_TRANSITIONS.csv](D_ALL_PAIRED_TRANSITIONS.csv)).
 
+[확인] mean은2장, shuffle은3장에서 correct의 올바른 축을 잘못된 축으로 바꿨다. ID와 양 후보는 [COMPARISON_TRANSITIONS_COMPLETE.csv](COMPARISON_TRANSITIONS_COMPLETE.csv)에 모두 남겼다. 이 새 파일은 C 지정11대비×519행, D 지정14대비×173행, 합계8,131행이며 변화 없는 영상도 포함한다. 최초 [CHANGED_SELECTIONS.csv](CHANGED_SELECTIONS.csv)의 D `*_front_depth_m`는 실제 후보 중심의 `t_z`였으므로 **centroid Z**로 정정 해석한다. 새 CSV는 정확한 의미를 기록했다. 기존 OLD_P 캐시의 양 후보 미보존은 처음 NA로 명시했고, 실제 전환15행/고유12ID에 대해서는 봉인된 과거 q를 같은 F에 다시 넣어 양 후보를 복구했다. 과거 q·선택·최종 R_cf·centroid와 GT 없이 일치하는 gate를 통과했다. 변화 없는 OLD_P의 미보존 값은 그대로 NA다([COMPARISON_COMPLETION_RECEIPT.json](COMPARISON_COMPLETION_RECEIPT.json), [OLD_P_CHANGED_CANDIDATES_COMPLETE.csv](OLD_P_CHANGED_CANDIDATES_COMPLETE.csv), [OLD_P_CHANGED_CANDIDATES_RECEIPT.json](OLD_P_CHANGED_CANDIDATES_RECEIPT.json)).
+
 ## E: 보류가 위험과 처리율을 어떻게 바꾸는가
 
 ![risk coverage](FIGURES/04_risk_coverage.png)
 
 [확인] 두 기존 후보를 유지하고, score gap과 **예측 box diagonal**로 정규화한 gap의 전체 threshold 곡선을 계산했다. 낮은 confidence에서 재투영 winner로 fallback하지 않고 보류한다. 원영상/GT 크기나 GT margin은 confidence 입력이 아니다. 그림의 파선은 균일 random rejection의 기대 risk이며 새로운 seed 실험이나 안전 보장이 아니다([E_RISK_COVERAGE.json](E_RISK_COVERAGE.json):4경로×3seed×2confidence=24곡선).
+
+[확인] 분석한 YOLO4경로×3seed의173장마다 양 후보2개가 유효해 후보 출력2개, 미산출0이며 단일 후보만 유효한 fallback 사례는0이다. UNCLEAR3장은 전체분모에 유지했다. 이 수치는 원 [AE_CANDIDATE_METRICS.jsonl.gz](AE_CANDIDATE_METRICS.jsonl.gz)의 양 후보 available 필드에서 확인한다.
 
 | N3→SubPix raw gap, seed | 전체173의 실패율 % | 139장/80.35% 처리 때 accepted 실패율 % | 87장/50.29% 처리 때 accepted 실패율 % | 87장 처리 때 성공/전체173 % | AURC |
 |---|---:|---:|---:|---:|---:|
@@ -203,7 +219,7 @@
 <!-- FINAL_PRIMARY_RESULTS -->
 ![전체 방법과8개 주대비](FIGURES/07_models_and_primary_paired_effects.png)
 
-[확인] 그림(c)의1=GV−G,2=GVD−GV,3=D_JOINT_DIM→SubPix−CONTROL→SubPix,4=GVD−공식 선택이다. D의 **SubPix 경로는 실행 전 주대비로 고정**됐으며 Stage1은 별도 descriptive다. effect는 after−before(pp), W/D는 감소가 개선이고 성공은 증가가 개선이다. 동일9세션의10000draw를 모든 주대비에 사용했다([PAIRED.json](PAIRED.json), [BOOTSTRAP_LOCK.json](BOOTSTRAP_LOCK.json)).
+[확인] 원 그림(c)의1=GV−G,2=GVD−GV,3=D_JOINT_DIM→SubPix−CONTROL→SubPix,4=GVD−공식 선택이다. D의 SubPix는 원 lock에 고정됐지만 **사용자가 지정한 Stage1과 다르다**. 아래 표는 그 원 family를 보존한 것으로, 사용자가 지정한 family는 뒤의 별도 보완 표/JSON에 있다. effect는 after−before(pp), W/D는 감소가 개선이고 성공은 증가가 개선이다. 동일9세션의10000draw를 썼다([PAIRED.json](PAIRED.json), [BOOTSTRAP_LOCK.json](BOOTSTRAP_LOCK.json)).
 
 | 사전 대비 | 지표 | 영상 가중 Δpp [95%CI] | 세션 동일 가중 Δpp | 원 p | Holm p |
 |---|---|---:|---:|---:|---:|
@@ -218,6 +234,23 @@
 
 [확인] 이 p는 중심을 맞춘 paired bootstrap의 정확 integer tie/plus-one 정의이며, percentile CI를 역산해 p를 만들지 않았다. 양방향 CI와 p는 완전히 동일한 반전검정이 아니므로 CI의 끝점만 보고 확증 판정을 내리지 않는다. corrected family에서는 확증할 유의성이 없고, 이것을 효과0이라고 단정하지 않는다.
 
+[확인] 다음은 지시문 §10.1의 정확한 이름에 맞춰 **Stage1을 포함한 별도8가설 family**다. 원 SubPix lock/family를 바꾸거나 이 표를 실행 전 등록한 것처럼 소급하지 않는다. fitting·PnP 추가0, 같은 원행·같은10000draw로 계산했으며 전체 family의 Holm을 다시 적용했다([REQUESTED_PRIMARY_PAIRED.json](REQUESTED_PRIMARY_PAIRED.json)).
+
+![사용자가 지정한 Stage1 대비](FIGURES/09_requested_stage1_paired_effects.png)
+
+| 지정 대비 | 지표 | 영상 가중 Δpp [95%CI] | 원 p | 새8가설 Holm p |
+|---|---|---:|---:|---:|
+| G_V_MLP − G_MLP | W/D confusion | +4.239 [+1.035,+9.226] | .04420 | .30937 |
+| G_V_MLP − G_MLP | 5cm·5° | −.578 [−3.425,+1.720] | .68303 | 1.00000 |
+| G_V_D_MLP − G_V_MLP | W/D confusion | −.578 [−2.024,+.958] | .48015 | 1.00000 |
+| G_V_D_MLP − G_V_MLP | 5cm·5° | +.963 [.000,+2.299] | .18308 | .85441 |
+| D_JOINT_DIM − D_CONTROL (Stage1) | W/D confusion | −1.156 [−3.158,.000] | .45515 | 1.00000 |
+| D_JOINT_DIM − D_CONTROL (Stage1) | 5cm·5° | **−2.312 [−4.795,−.524]** | .03770 | .30157 |
+| G_V_D_MLP − OFFICIAL | W/D confusion | +3.276 [+.165,+6.742] | .05629 | .33777 |
+| G_V_D_MLP − OFFICIAL | 5cm·5° | +.963 [.000,+2.292] | .17088 | .85441 |
+
+[확인] Stage1의 기존 W/D confusion은2/173 줄지만 strict는4/173 줄었다. 새 두 arm은 같은 파라미터 수·학습량이고 OLD_P 성공78→CONTROL81/JOINT77, SubPix 뒤OLD_P85→CONTROL86/JOINT85다. 추가 파라미터·학습 효과와 치수 슬롯의 증분을 구분하며, JOINT의 일관된 이득으로 해석하지 않는다. 최초 표기에서 누락된 D mean/shuffle의 선택 손상5건도 완전 전환 파일에 포함했다.
+
 [확인] 최종 독립 검산은10,726중복 제거 원행·52집계·8주가설을 다시 계산했다. 3,276통계 비교 최대 차이는1.455e−11, CI차이5.684e−14, ADDsym AUC차이2.220e−16이었다. 원행 join34,600건, 보호 FINAL 채점0, Severe63 보존, 최초D adapter 실패행 집계 제외를 확인했다([FINAL_AGGREGATE_VERIFICATION_APPROVED.json](FINAL_AGGREGATE_VERIFICATION_APPROVED.json): PASS).
 
 [확인] 총 실제 OpenCV solve/refine는**48,277/50,000**(A3 5,920/B1 3,114/C 30,748/D 8,495; 실패 호출 포함), classifier8fit, corrector2fit×1000updates다. 동결 YOLO 합성 재추론6144장과 N3cachedfeature6144forward를 기록했다. measured GPU active phase 합계4.401분/45분, peak allocated373,743,616bytes이며 새 REAL 고비용 RGB특징은0이다. CPU peak memory 미계측 범위도 그대로 명시한다([COMPUTE_RECEIPT.json](COMPUTE_RECEIPT.json)).
@@ -229,6 +262,8 @@
 
 
 [확인] 최신 source·privacy 검산은 [FINAL_AGGREGATE_VERIFICATION_APPROVED.json](FINAL_AGGREGATE_VERIFICATION_APPROVED.json)이며, 이전 검산 시도의 경고 기록도 보존했다. C의 실제 학습 코드 SHA는 [C_IO_PREFIT_LOCK.json](C_IO_PREFIT_LOCK.json)의 `c706a276…`이다. 구버전→최신 버전의 전체 AST 비교, 후보 이름을 보존한 순서 교환, C4/C2 90° 차이와 probability 재계산은 [C_B1_VERIFICATION.json](C_B1_VERIFICATION.json), [C_B1_EXECUTION_SOURCE_VERIFICATION.json](C_B1_EXECUTION_SOURCE_VERIFICATION.json)에 있다.
+
+[확인] 후보 이름을 유지한 container 교환은 fixed long/short 직렬화 후 물리 선택 변화0이다. 이름 없이94차원 G 슬롯을 바꿀 경우 G_LOGISTIC/G_MLP/GV/GVD는 각각446/453/364/381행의 선택이 바뀐다. 따라서 네트워크 자체에 후보 교환 대칭이 내장됐다고 주장하지 않으며, runtime에는 이름에 따른 canonical 직렬화 계약이 필요하다([C_B1_VERIFICATION.json](C_B1_VERIFICATION.json): `candidate_order_tests`, 519행).
 
 | 자료 | 새 작업에서의 범위·역할 | 참조·과거 노출과 해석 |
 |---|---|---|
@@ -251,3 +286,13 @@
 | N3−N2 | .42281 | 1.07163 |
 
 [확인] N3의 seed 쌍 차이 중앙값은1.2024/1.2056/1.2615px였다. 이것은 학습 checkpoint 간 차이이며 동일 N3 checkpoint의 metadata 개입 효과와 구분한다. 모집단·집계가 다른 legacy319의 seed차이 USER_CLAIM을 이 값으로 검증했다고 하지 않는다. 그 크기 비교만으로 치수나 대칭의 효과가0이라고 결론 내리지 않는다. 이 재사용은 좌표 분석만 수행했으며 새6D 절제는 실행하지 않았다.
+
+## 완료 대조·최종 보완과 게시 검증
+
+[확인] 지시문 각 항목을 [COMPLETION_AUDIT.md](COMPLETION_AUDIT.md)에서 원행·실행 코드와 대조했다. 최신46개 작업 상태는 [EXPERIMENT_STATUS_COMPLETION.csv](EXPERIMENT_STATUS_COMPLETION.csv), 산술·source 보존 검산은 [SUPPLEMENT_INDEPENDENT_VERIFICATION.json](SUPPLEMENT_INDEPENDENT_VERIFICATION.json)이다. **산술 PASS는 공통 split·C1 물리복원·Stage1 사전등록 FAIL을 통과로 바꾸지 않는다.** C/D 통합 독립 TEST의 상대 우위는 차단하고 결과가 나쁜 모든 seed·영상·조건은 유지했다.
+
+[확인] B1 original개입10건+고정순열4건의 모든 전환에서도 양 후보를 봉인 q만으로 복구했다. 추가84calls이며 [CHANGED_B1_CANDIDATES_COMPLETE.csv](CHANGED_B1_CANDIDATES_COMPLETE.csv)에 원·변경 후보를 남겼다. OLD_P 관련15비교행/12ID 복구72calls를 합쳐 최종 실제 solve/refine는 **49,471/50,000회**다. 예약 합계49,910, 실패 호출 포함이다. 최초48,277receipt, 순열1,038receipt, B1trace84, OLD_Ptrace72를 모두 보존하며 학습8fit+2fit·2000updates 및 GPU4.401분은 추가하지 않았다([COMPLETION_COMPUTE_RECEIPT.json](COMPLETION_COMPUTE_RECEIPT.json)).
+
+[확인] 기존 PNG9개에 지정 Stage1의 실제 paired CI 그림1개를 추가해 PNG10개다. 공개 그림은 파생 수치만 쓰며 RGB·원참조·대형 checkpoint/특징은 공개하지 않는다. 원 사용자449개 변경과 기존 데이터·코드·과거 실험을 보존했다. 게시 전 상대 링크·PNG·privacy·SHA 검증은 [COMPLETION_PREPUBLICATION_AUDIT.json](COMPLETION_PREPUBLICATION_AUDIT.json), 재현과 빈 실행공간의 lock 준비는 [REPRODUCE.md](REPRODUCE.md), [B_C_COMPLETION_SUPPLEMENT_KO.md](B_C_COMPLETION_SUPPLEMENT_KO.md)에 있다.
+
+[확인] 독립 검산은108,485개 산술 비교 최대 차이1.46e−11로 PASS였다. 이후 실제 검산 CLI 설명을 추가한 문서의 최신 바인딩·221개 이상 상대 링크·PNG10개·원449변경 보존은 [FINAL_COMPLETION_PREPUBLICATION_AUDIT.json](FINAL_COMPLETION_PREPUBLICATION_AUDIT.json)에 별도 기록한다. 이전 검산 파일을 덮어쓰지 않았다.
