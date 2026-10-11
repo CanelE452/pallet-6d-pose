@@ -41,3 +41,5 @@ LOO는 초기 self-occlusion 집합 H와 검사 코너 k를 함께 제외한다.
 추가 원인 감사: [59장 4점 가설→재적합→선택 추적과 전체24장 그림](../pallet_consensus_cause_audit_20261011_v23/RESULT_KO.md). 저장 결과만 대조했으며 새 학습·PnP·자세 성능 실험은0이다. 성능 목표는 아직 미달이다.
 
 추가 코너 승인 검산: [합성 573후보 → 고정 decoder 검산과 실사 선택 문제](../pallet_source_corner_admission_20261011_v24/RESULT_KO.md). 미확정이었던 source 4개가 실제로 선택됨을 확인했다. 새 학습·모델 추론·PnP·자세 성능 실험은 0이며, 기존 선·교점 계산을 검산했다. 최종 self-occ fit 제외·재투영 계약은 유지하고 정확도 목표는 아직 미달이다.
+
+추가 실제 관측 승인 검산: [기존 radius gate의 3/4 제외와 실사 133점 LOO·최종 inlier 추적](../pallet_point_admission_mechanism_20261011_v25/RESULT_KO.md). 잘못된 실사 채택점 13개가 모두 최종 fit/inlier에 남은 기록을 검산했다. 공개 파생 reader와 원 saved join의 경로만 옮긴 reader를 실제 실행했다. 새 학습·LOO/PnP·자세 성능 재실험·설정 변경은 0이며 정확도 목표는 아직 미달이다.
