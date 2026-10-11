@@ -45,3 +45,5 @@ LOO는 초기 self-occlusion 집합 H와 검사 코너 k를 함께 제외한다.
 추가 실제 관측 승인 검산: [기존 radius gate의 3/4 제외와 실사 133점 LOO·최종 inlier 추적](../pallet_point_admission_mechanism_20261011_v25/RESULT_KO.md). 잘못된 실사 채택점 13개가 모두 최종 fit/inlier에 남은 기록을 검산했다. 공개 파생 reader와 원 saved join의 경로만 옮긴 reader를 실제 실행했다. 새 학습·LOO/PnP·자세 성능 재실험·설정 변경은 0이며 정확도 목표는 아직 미달이다.
 
 추가 source 의미 검산: [573개 actual-wire virtual reference와 같은 canonical corner ID의 기존 합성 투영 비교](../pallet_source_corner_semantics_20261011_v26/RESULT_KO.md). 검사한 source에서 참조 정의 차이는 최대0.000033px로8~19px 예측 오차를 설명하지 못했다. 새 학습·PnP·실사 성능 재평가는0이며 source 기존자세 순방향 투영128프레임/1024 scalar 호출은 별도로 기록했다. 정확도 목표는 아직 미달이다.
+
+추가 LOO/불확실성 감사: [전체133점 저장 LOO 참조오차·gain 분해 및573 source pair 반경 진단](../pallet_observation_uncertainty_20261011_v27/RESULT_KO.md). 악화53점도 LOO 양수 gain으로 통과했고 BAD13점 중10점은 LOO 참조오차도8px 초과였다. 자기 가림 제외 계약은 유지됐으며 후보 반경을 LOO 자세 불확실성으로 취급할 수 없다. 실제 raw 재검산과2개 전체 사례 그림을 포함했다. 새 PnP·투영·학습·실사 자세 재평가0, 정확도 목표는 미달이다.
