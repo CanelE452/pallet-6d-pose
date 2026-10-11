@@ -1,30 +1,39 @@
-# 최신 확인: 관측 선택·LOO·강건 PnP와 재투영
+# 현재 결과와 남은 문제
 
 “가림 판단이 일부 틀려도 다른 유효 대응점으로 자세를 구하고 자기 가림 코너를 재투영했을 때, 기존 단순 대조보다 실제 위치·회전이 좋아졌는가?”
 
-**현재 알려진 DEV proxy의 쉬움153·중간92, 전체245장에서는 최종 point-consensus 복원의 위치·회전 평균이 모두 개선됐다고 확인하지 못했다. 정확도 목표는 미해결이다.** Severe74는 이번 실행에서 제외했다. 과거 branch/main의 319장 평가 기록과 이번245장 결과를 혼용하지 않는다.
+현재 Clean 153장·Moderate 92장, 총 245장 평가에서는 **N3 또는 일반 PnP보다 위치·회전을 함께 개선했다는 결론을 얻지 못했다.** 수정한 강건 점 경로는 이전 강건 점 경로보다 두 평균을 낮췄다. 새 자세 240장·기본 N3 출력 반환 5장·완전 실패 0장을 모두 포함한 운용 결과다. Severe 74장을 포함한 과거 319장 원행과 결과는 별도로 보존했다.
 
-| 전체245 운용 방법 | 새 자세 / fallback | 위치 평균 cm | 회전 평균 deg | ADDsym 평균 cm |
-|---|---|---|---|---|
-| 고정 N3→cornerSubPix | 고정 대조 | 9.754548028679153 | 10.914841863166323 | 17.028646667097725 |
-| N3 관측 ordinary PnP | 244 / 1 | 8.951574173959987 | 10.61763914609911 | 16.21154786029048 |
-| 같은 hybrid q의 ordinary PnP | 244 / 1 | 9.207153885736464 | 10.613463948751368 | 16.43968649819084 |
-| 같은 hybrid q의 원 point consensus | 79 / 166 | 10.05503053164391 | 11.715323669869344 | 17.868503089664262 |
-| 같은 hybrid q의 결정 복원 | 240 / 5 | 10.19473418899381 | 13.639332540977922 | 19.646391027436795 |
+| 전체 245장 방법 | 위치 평균 cm | 회전 평균 deg | ADDsym 평균 cm |
+|---|---:|---:|---:|
+| 고정 N3 | 9.754548 | 10.914842 | 17.028647 |
+| 원 N3 좌표의 일반 PnP | 8.951574 | 10.617639 | 16.211548 |
+| 동일 hybrid 좌표의 일반 PnP | 9.207154 | 10.613464 | 16.439686 |
+| 이전 강건 점 경로 | 10.194734 | 13.639333 | 19.646391 |
+| 수정 강건 점 경로 | 9.745696 | 12.622492 | 18.580216 |
 
-수치 산출 NEW는 정확한 물리 자세의 인증이 아니다. 전체 운용245장을 유지하고 fallback의 큰 오차를 삭제하지 않았다. 모든 분산·표준편차·중앙값·P90, 공통 산출/NEW의 paired 비교와 고정 session bootstrap CI는 [V18 결과](../pallet_consensus_decision_repair_20261011_v18/RESULT_KO.md)와 원행·검산 파일에 연결한다. 해당 보고서는 실제 공개 복사본 검산4개가 끝난 뒤 생성됐으며 이미지8개와 실행 증거를 포함한다.
+이 수치는 기존 annotation·K·등록 cuboid로 구성한 **known DEV GEOMETRIC_PROXY**에 대한 오차다. 독립 실측 R,t, 실제 물리 경계의 의미나 unseen 성능을 인증하지 않는다. 평균만으로 성공을 선언하지 않으며 분산·표준편차·중앙값·P90, 공통 산출집합, paired CI, 원행을 아래 보고서에 제공한다.
 
-## 실제 고친 것과 남은 문제
+실제 수정한 부분은 세 가지다. 별도 경계 선택기 학습에서 수치 광선 교차 실패를 no_match로 처리했던 2,164 query의 감독을 실제 메쉬·깊이 증거로 고쳤다. 선 관측 목적함수의 유한 지지구간을 관측 선 방향으로 고쳤다. 강건 점 솔버에는 기존 합의 검사에서 도달하지 못했던 전체 관측집합의 표준 PnP 후보를 제한적으로 추가했다. 마지막 추가는 합의의 정확도를 보장하지 않는다. 코너 정의가 전부 틀렸거나 마스크 오판 때문에 모든 프레임이 실패했다는 증거는 없다.
 
-- 별도 branch `training.targets()`에서 수치 ray miss를 NONE으로 감독한 2,164 query는 실제 mesh/wire/depth의 POSITIVE/NONE/IGNORE로 수정했다. main N3 문제가 아니다. 최초 읽기 전용 인수인계 당시 재학습은 없었고, 이후 승인된 수정 감독3조건×3,000 update는 별도의 완료된 역사 실험이다. 이번 새 학습·RGB·seed는 0이다. 수정 전 IMAGE_ROLE의 0/319를 수정 후 결과로 주장하지 않는다.
-- 같은 support의 다른 비용 해도 거부하던 추가 ambiguity veto161 frame을 원 inlier 수→같은 전체 관측집합의 truncated SSE 결정으로 복원했다. 관측·후보·refit·수치 threshold는 그대로이며 실제 tie1/관측·기하 부족4는 fallback으로 남는다. 이는 산출률을 복원했지만 정확도 개선은 아니다.
-- H는 고정 초기 N3의 self-occ 집합이다. LOO는 H∪{시험 corner}를 제외한 다른 관측만 사용한다. 최종 NEW fit에서 H 초기 좌표를 빼고 새 R,t로 한 번 재투영해 교체한다. 그 재투영을 독립 관측처럼 다시 PnP에 넣지 않는다. 마스크 불일치/변경만으로 frame을 거부하지 않는다.
-- [방법 진단](../pallet_consensus_decision_repair_20261011_v18/METHOD_DIAGNOSIS_KO.md)과 [대응 원행 검산](../pallet_consensus_decision_repair_20261011_v18/CORRESPONDENCE_AUDIT_CHECKS.json), [저장 readout](../pallet_consensus_decision_repair_20261011_v18/CORRESPONDENCE_AUDIT_READOUT.json)을 구분해서 본다. adopted q133개 중 proxy error 개선80/악화53, >8px인13개는 두 backend의 최종 inlier에 남았다. NEW240 frame 중 known proxy correct FIT<4인75는 독립적인 실제 물리 대응 부족의 인증이 아니다. 실제 edge/corner ownership을 기존 자료만으로 인증하지 못했다.
+수정 감독 준비와 CPU gradient 검사만 있던 원 감사 시점과, 이후 실제 수행한 세 모델 각 3,000 업데이트를 구분한다. 이후 9,000 업데이트와 저장 가중치는 보존했으며 이번 기하 수정·검산·게시 단계의 추가 학습은 0이다. 수정 전 IMAGE_ROLE의 0/319 새 자세 산출을 수정 후 결과로 주장하지 않는다. 기존 P0의 네 통제 변형은 여전히 미검증이다.
 
-## 검산·비용·공개 상태
+LOO는 초기 self-occlusion 집합 H와 검사 코너 k를 함께 제외한다. endpoint LOO는 H와 두 끝점을 제외한다. 승인된 새 자세의 최종 fit에는 H의 초기 좌표와 center를 넣지 않는다. 최종 R,t가 나오면 H 좌표를 한 번 재투영으로 대체하고 다시 fit하지 않는다. 마스크가 일부 틀려도 남은 유효 대응의 수와 배치가 충분하면 자세를 구할 수 있다. 실제 합성 BOTH2 사례는 올바른 점 두 개를 제외하고 틀린 점 두 개를 남겨도 최종 올바른 inlier 네 개로 산출했다. 관측 3개 부족과 영상상 일직선 4개는 서로 다른 실패 사유로 기록했다.
 
-V18 point decision/output 검산626,482 PASS, 정확도1470 saved score/972 moment 수치/45 paired 집합/135 CI 독립 PASS, 실제 fresh 전체 경로150회(20 warmup+130 measured)의 평균798.319045ms와 저장 시간677,122 predicates 독립 PASS를 완료했다. 계산된 mean·variance·sd·median·P90을 원행에서 검산했다. 캐시 replay를 지연으로 쓰지 않았다. 원 V16 full scalar198,134,007 중564 FAIL은 모두 line 경로이며 그대로 보존하고, 이 좁은 point 검사를 전체 V16 PASS로 확대하지 않는다.
+저장 원행 진단에서 전체집합 후보를 선택한 185장 집단은 N3 대비 위치·회전 평균이 낮았다. 모든 추가 후보를 거절한 59장 집단은 위치 +2.086 cm·회전 +8.494 deg로 나빴다. 나머지 1장은 추가 후보를 시도하지 않았다. 집단 평균이며 각 장의 개선이나 물리적 ownership을 인증하지 않는다. rank6·작은 재투영 잔차가 잘못된 대응점의 자세 정확성을 보장하지 않는 구간이 남아 있다. 마스크가 틀렸지만 두 오차가 개선된 12장과 마스크가 맞았지만 두 오차가 악화된 52장을 분리해 기록했다.
 
-[공개 복원 안내](../pallet_consensus_decision_repair_20261011_v18/PUBLIC_REVIEW.md)는 버전별 ordered parts 복원과 네 저장 reader 명령을 제공한다. 공개 byte bundle529개/5,073,312,474B(518 직접 복사+11 ordered parts 복원)와 실제 복사본 reader4 검산이 모두 PASS다. 원 통계 CLI의 상대 경로 오류2개도 계산 전 실패로 보존하고 절대 경로 안내로 바로잡았다. V16–18 payload의 정상 commit/push를 완료했고 커밋 `8a863c0044a74378fe5688ad3896654dcab495f6`과 당시 원격 SHA의 일치를 [실제 게시 영수증](PUSH_V16_V18_RECEIPT.json)에서 확인했다. 공개 manifest의 672개 경로가 커밋 바이트와 일치하며 새 payload337개와 manifest1개를 게시했다. 앞선 V10–15 게시 SHA691a4ece4e719ddfda2aa69a6afb6578f8923511은 [당시 영수증](PUSH_V10_V15_RECEIPT.json)에 있다. 이 후기 안내·영수증·사례 인덱스의 별도 metadata commit은 해당 검증된 payload를 유지하며, 영수증 안의 SHA는 명시한 검사 시각의 payload SHA다. V18 고정 보고서의 publication_complete=false는 보고서 생성 당시 상태이며 이 후기 실제 게시 확인과 구분한다. main 수정·push·자동 병합·force push는 하지 않는다.
+## 코드·원행·이미지·검산
 
-현재 GT는 기존 주석8점+K+등록 cuboid로 만든 GEOMETRIC_PROXY이고 독립 물리 실측/전점 독립 클릭을 보증하지 않는다. [문제13 query 인덱스](REMAINING_THIRTEEN_QUERIES.json)는 frame ID·corner ID·저장 q/N3/proxy XY·LOO/fit 잔차·inlier/fit ID·mask·자세 오차를 그대로 연결한다. 새 자세 계산이나 새 통계가 아니다. 13개 모두 기존 사람 라벨에서 DIRECT_VISIBLE이며, 첫 사례 eval_cad:1778653029965134592/corner4의 저장 proxy 오차14.306876px·LOO2.957661px·fit1.409801px는 작은 conditional LOO/fit 잔차가 proxy 대응 정확성을 보증하지 않음을 보여준다. 이 값이 실제 물리적 오차를 확정하지는 않는다. 최소 남은 증거는 문제가 된13개 q의 실제 corner와 incident physical edge ownership을 독립적으로 인증하는 것이다. [기존 원주석 출처 확인](REMAINING_THIRTEEN_SOURCE_TAGS.json)을 실제 수행했다. 공개 ID→source cache ID→고정 AXIS manifest 경로→저장 phase permutation→원주석 point를 연결하고, 원주석13개는 읽기 전후 SHA를 보존했다. 해당 태그는 unknown6/manual_click6/pnp_projected1이며13개 axis review는 모두 None이다. unknown은 틀린 좌표의 증명이 아니며 manual_click은 물리 corner·incident edge 인증이 아니다. 이 확인은 현재 원주석 바이트의 provenance이고 과거 학습/GT builder가 태그를 사용했다는 증명이나 새 GT 산출이 아니다. [남은 문제와 최소 확인](REMAINING_PROBLEM_KO.md)에 기능 오류 수정과 정확도 미해결을 분리했다. 기존 source-test와 실사 관측 trace는 그 인증을 대신하지 않는다. 새 수동 주석·촬영·RGB·추가 학습·성능에 맞춘 설정 반복을 하지 않고도 확인 가능한 코드·원행·실패·검산은 모두 보존한다.
+- [현재 상세 결과와 9개 그림](../pallet_whole_u_closure_20261011_v21/RESULT_KO.md): 고정 실사 사례 6개와 18개 패널, 오차·산출률·후퇴 결과·실행량·전체 경로 시간을 설명한다.
+- [전체 검산 부록](../pallet_whole_u_closure_20261011_v21/FULL_AUDIT_KO.md): 783분포, 6,264 통계 항목, 63 paired groups·189 CI, 245장 대응·fit·inlier 자료다. 약 9.6MB이므로 Raw 다운로드나 clone에서 읽는다.
+- [무엇을 고쳤고 무엇이 남았는가](../pallet_whole_u_closure_20261011_v21/ROOT_DECISION_KO.md): 코드 위치와 최소 후속 확인 범위, 185/59/1 분기와 정의·예측·솔버의 차이를 설명한다.
+- [이전 유한 선 지지구간 감사](../pallet_finite_support_orthogonal_audit_20261011_v19/RESULT_KO.md), [기존 후보 도달성 진단](../pallet_pnp_refit_closure_20261011_v20/RESULT_KO.md), [현재 분기 원행](../pallet_consensus_routing_20261011_v22/audit_labels_ready/ROWS.jsonl.gz): 버려진 방법과 실패한 도구 실행도 보존한다.
+- [독자의 원행 복원·통계 검산 명령](../pallet_whole_u_closure_20261011_v21/PUBLIC_READER_KO.md): 공개 ordered parts와 명시적 relocation manifest를 사용한다. 새 성능 실험이나 private 원본 탐색으로 검산을 대신하지 않는다.
+
+새 전체 경로의 실제 RGB 실행은 20 warmup·130 measured, 평균 565.082 ms·표준편차 261.052 ms·중앙값 631.876 ms·P90 891.444 ms다. 초기 자세 계산·관측 선택·강건 PnP까지 포함한 실제 측정이며 캐시 재생이나 단계 시간 합산이 아니다. 독립 검사는 기하 26,418,452항목, 실제 시간 원행 17,174,917항목을 통과했다. 이전 V19 시간 실행은 종료 정리 실패로 공식 시간 결과가 아니며, 원행 수치 검산 성공과 종료 정리 실패를 모두 유지했다. 과거 V16의 564개 검산 실패도 성공으로 덮어쓰지 않았다.
+
+공개용 재사용 복사본의 753개 파일을 바이트 검증했고, 그 복사본만 사용한 [실제 통계 검산](../pallet_whole_u_closure_20261011_v21/public_statistics_check/STATISTICS_CHECKS.json)도 통과했다. 3,035개 exact 검사·6,831개 numeric 검사, 최대 차이 6.8212e−13이다. 새 Git clone에서 실행한 증거로 주장하지 않는다. 기존 V19 archive 복원 증거는 9개 중 ledger 한 개를 실제 복원하고 나머지 8개를 동일 바이트로 재사용한 기록이며, 독자의 새 clone에서는 안내 명령으로 누락 원본을 복원할 수 있다.
+
+가림 분류기나 새 학습기가 꼭 필요하다는 결론은 얻지 못했다. 과거 no-mask 강건 PnP와 현재 일반 PnP 대조를 함께 제공한다. 재투영된 숨은 코너의 일부 오차 개선은 최종 자세 개선의 증거로 사용하지 않는다. 남은 최소 확인은 기존 59장 저장자료의 실제 지지 경계 의미와 예측 좌표 오류를 구분하는 것이며, 독립 물리 정답이 없는 점을 UNKNOWN으로 유지해야 한다.
+
+게시 대상은 `research/observation-refiner-robust-pnp-20261009` 전용 브랜치다. 실제 게시 SHA와 원격 일치 여부는 별도 게시 receipt에서 확인한다. `main`, 원본 영상·가중치·사용자 변경을 보존하며 자동 병합이나 force push를 사용하지 않는다.
