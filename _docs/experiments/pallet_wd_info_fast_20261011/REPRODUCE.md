@@ -125,3 +125,9 @@ PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 "$PALLET_GPU_
 "$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.completion_publication_audit
 "$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.completion_publication_audit --output-name FINAL_COMPLETION_PREPUBLICATION_AUDIT.json
 ```
+
+[확인] 보완 과학·코드 커밋 `9f3e2d985a01599cf9d055a2040fab356d708b8e`를 실제 main에 정상 push한 뒤 다음 명령을 실행했다. 최초 GitHub 표시 페이지의 일시적인 HTTP503에서 중단됐고, 같은 명령을 그대로 재실행해 원격SHA·25개 raw 파일SHA·4개 표시 링크·원449개 변경 보존 검사를 통과했다. 과학 실험을 다시 실행한 것이 아니다. [PUBLICATION_COMPLETION_VERIFICATION.json](PUBLICATION_COMPLETION_VERIFICATION.json)은 이 과학 커밋의 실제 검증 기록이며 후속 검증·재현 문서 커밋은 자신의 SHA를 파일 안에 포함할 수 없어 마지막 main SHA를 별도로 다시 확인한다.
+
+```bash
+"$PALLET_PYTHON" -B -m scripts.research.pallet_wd_info_fast_20261011.verify_completion_remote --sha 9f3e2d985a01599cf9d055a2040fab356d708b8e
+```
