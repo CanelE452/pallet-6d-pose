@@ -47,3 +47,5 @@ LOO는 초기 self-occlusion 집합 H와 검사 코너 k를 함께 제외한다.
 추가 source 의미 검산: [573개 actual-wire virtual reference와 같은 canonical corner ID의 기존 합성 투영 비교](../pallet_source_corner_semantics_20261011_v26/RESULT_KO.md). 검사한 source에서 참조 정의 차이는 최대0.000033px로8~19px 예측 오차를 설명하지 못했다. 새 학습·PnP·실사 성능 재평가는0이며 source 기존자세 순방향 투영128프레임/1024 scalar 호출은 별도로 기록했다. 정확도 목표는 아직 미달이다.
 
 추가 LOO/불확실성 감사: [전체133점 저장 LOO 참조오차·gain 분해 및573 source pair 반경 진단](../pallet_observation_uncertainty_20261011_v27/RESULT_KO.md). 악화53점도 LOO 양수 gain으로 통과했고 BAD13점 중10점은 LOO 참조오차도8px 초과였다. 자기 가림 제외 계약은 유지됐으며 후보 반경을 LOO 자세 불확실성으로 취급할 수 없다. 실제 raw 재검산과2개 전체 사례 그림을 포함했다. 새 PnP·투영·학습·실사 자세 재평가0, 정확도 목표는 미달이다.
+
+추가 저장 LOO 다중해 감사: [전체423결정·12178 root의 GT-free 선호 범위](../pallet_loo_root_envelope_20261011_v28/RESULT_KO.md). 채택133점 중69점은 최대 inlier 수의 다른 해가 N3를 선호했으며, 그 해들이 모두 후보를 선호한64점 중22점도 실제 코너 좌표가 악화됐다. 여러 해의 동의만으로 해결했다고 표시하지 않았다. 전체 원행·독립 raw 검산·그림·최초 감사기 실패 기록까지 보존했다. 새 PnP·투영·학습·성능 재실험0, 정확도 목표는 미달이다.
