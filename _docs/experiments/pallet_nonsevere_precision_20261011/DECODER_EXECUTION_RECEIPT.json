@@ -1,0 +1,50 @@
+{
+  "status": "COMPLETED_WITH_REPORTED_IMPLEMENTATION_REPAIRS",
+  "geometry_completed_wall_seconds": 17.548336477950215,
+  "geometry_contract_completed_wall_seconds": 3.223546664696187,
+  "decoder_finalizer_wall_seconds": 2.243377468083054,
+  "figure_wall_seconds": 1.8111897138878703,
+  "conservative_extra_draft_cpu_wall_seconds": 300,
+  "extra_draft_time_type": "conservative upper allowance, not an exact stopwatch; includes interrupted geometry, decoder drafts, and full target arithmetic before ramp-rank failure",
+  "implementation_failures": [
+    {
+      "stage": "geometry initial",
+      "cause": "same IDs, different source row order",
+      "action": "assertion stopped; checked stem join"
+    },
+    {
+      "stage": "geometry draft",
+      "cause": "default stencil differs from checkpoint; NPZ repeatedly read",
+      "action": "own subprocess interrupted; actual config restored, eager small-field load"
+    },
+    {
+      "stage": "decoder first",
+      "cause": "0 times NaN in covariance scalar",
+      "action": "stopped strict JSON; masked ineligible residual before multiplication"
+    },
+    {
+      "stage": "decoder second/third",
+      "cause": "repeated full expected decode and NPZ coefficient reads",
+      "action": "own subprocess interrupted; per-batch reuse and eager cache"
+    },
+    {
+      "stage": "decoder complete arithmetic",
+      "cause": "diagnostic sampler ramp input rank",
+      "action": "all60000 arithmetic retained; separately corrected ramp and actual TRAIN logit audit"
+    }
+  ],
+  "source_changes": 0,
+  "optimizer_updates": 0,
+  "new_network_inferences": 0,
+  "new_pose_solver_calls": 0,
+  "actual_train_forward_capture_reused": 512,
+  "actual_validation_forward_cache_rows_reused": 8040,
+  "publication_selection": "PUBLIC_ARTIFACT_SELECTION.json",
+  "clean_replay_commands": [
+    "geometry.py --build [source/private/public arguments]",
+    "train.py calibrate [source/private/public arguments; ROOT GPU owner]",
+    "decoder_replay.py [source/private/public arguments]",
+    "decoder_completion.py [source/private/public arguments]"
+  ],
+  "new_condition_or_hyperparameter_search": false
+}

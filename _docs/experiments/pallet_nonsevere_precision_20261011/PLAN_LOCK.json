@@ -1,0 +1,140 @@
+{
+  "status": "LOCKED_BEFORE_FITS",
+  "created_utc": "2026-10-11T11:32:55Z",
+  "source_main_sha": "47b5eb4b1a381f6ac0c066f2038b839b40b94c29",
+  "arms": {
+    "M0": "REPLAY CE",
+    "M1": "CE+native SmoothL1 expectedcoordinate",
+    "M2": "M1+fixed E_cov",
+    "M3": "M1+native RGB candidate evidence",
+    "M4": "M3+fixed E_cov"
+  },
+  "seeds": [
+    1,
+    2
+  ],
+  "planned_updates_per_arm_seed": 3000,
+  "maximum_updates": 30000,
+  "batch": 16,
+  "backbone_training": false,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 5.0,
+    "warmup_steps": 100,
+    "cosine_final_lr_fraction": 0.1,
+    "cosine_horizon": 3000
+  },
+  "common_source_split": {
+    "train": 55980,
+    "calibration": 1004,
+    "selection": 1031,
+    "heldout": 1985
+  },
+  "real": {
+    "frames": 110,
+    "clean": 68,
+    "moderate": 42,
+    "severe": 0,
+    "sessions": 9,
+    "primary_seeds": [
+      1,
+      2
+    ],
+    "historical_existing_seeds": [
+      1,
+      2,
+      3
+    ]
+  },
+  "selection": {
+    "criterion": "finalSubPix5cm5deg maximum; tieTmedian thenactiveRGBcost thenarmname",
+    "C2_fixed_rows": 782,
+    "C1_physical_rotation_excluded": 249,
+    "never_REAL_selection": true
+  },
+  "finalcap": "allSP: uncapped expectation→cornerSubPix→one Base-anchored1%native diagonal cap; allstandalone originalcap exceptcanonicalPoseFix RAW uncapped",
+  "training_aux": {
+    "temperature": 1.0,
+    "lambda": 1.0,
+    "coordinate_beta_native_px": 1.0,
+    "eligibility": "valid/support,13-directionconvexhull,native1%capreachability; commonM0..M4",
+    "geometry_rank": 6,
+    "rcond": 1e-06,
+    "damping": 0.0,
+    "centroid_excluded": true,
+    "aux_weights": "one-time32TRAINminibatches logitsgradientnorm0.25CE; zero/nonfinite explicitlyblocked"
+  },
+  "RGB": {
+    "stride": 1,
+    "convs": "3→16→16,3x3SiLU",
+    "native_tile_context_pixels": 4,
+    "resize": false,
+    "align_corners": false,
+    "pixel_index_grid_offset": 0.5,
+    "padding": "mean-zeroRGB outsideoriginalimage; batchmaxpad preservespixelpitch",
+    "GT_crop": false,
+    "final_residual_zero_init": true,
+    "all_arm_parameter_slots_identical": true
+  },
+  "precision": {
+    "FP32": true,
+    "AMP": false,
+    "TF32_matmul": false,
+    "TF32_cudnn": false,
+    "accuracy": "freshfrozenYOLOsinglepass+canonicalOLD_P/N3/PoseFix seeds1/2/3 allcommon110, originalcachedhistoricalpreserved"
+  },
+  "augmentation": {
+    "geometry": false,
+    "color": false,
+    "source_precomputed_neck_fixed": true
+  },
+  "checkpoint": "lastcommonstep only; noREALstopping, no replacementseeds",
+  "budgets": {
+    "device_seconds": 7200,
+    "training_reserved_seconds": 6200,
+    "CPU_analysis_wall_seconds": 3600,
+    "first200": "actualupdates includeall5arms; commonstep floor100(min3000 capacity safety15%) noreset/noreshuffle/noreschedule",
+    "runtime_gpu_jobs": 1
+  },
+  "bootstrap": {
+    "unit": "session",
+    "draws": 10000,
+    "seed": 20260917,
+    "seed_bound_within_frame": true,
+    "primary_family": "fiveM0..M4_SUBPIX minusPOSEFIX_SUBPIX strict5cm5deg",
+    "primary_holm_family_size": 5,
+    "mechanism_family": [
+      "M1-M0",
+      "M2-M1",
+      "M3-M1",
+      "M4-M3"
+    ],
+    "mechanism_holm_family_size": 4,
+    "exposed_development_only": true
+  },
+  "training_code_sha256": {
+    "precision_model.py": "f97a980eeac5fcce81c4ddbbe946a8fa20f0d6f4ec9d144222b205068464c0fc",
+    "train.py": "018e97e2ead9d3fc09e2d90a1f5fc9ddc7aaea80cc1ceed90118efe005ab199c"
+  },
+  "geometry_cache_sha256": "5ca2957fd5166624000c71c3de629503b47133d8f779708cf441d09126dd6956",
+  "data_contract_sha256": "08fefaee06ea74bbfdd43775eab473208461c28adf98148243f949d88755469b",
+  "geometry_audit_sha256": "bf530308ada6e5b7471ef1c2d7446a09a4ff9bbff85513ed62a90b40d9d1a2f9",
+  "synthetic_selection_lock_sha256": "587fd82e4749b559960a5ca7d08061cbeb25cdf4c56ae46694977301cb210270",
+  "prohibitions": [
+    "FINAL/scoring or protectedRGB",
+    "Severe REAL",
+    "backbonetrain",
+    "newsyntheticgeneration",
+    "hyperparametersearch",
+    "manuscript/LaTeX/PDF modifications",
+    "reset/stash/forcepush",
+    "externalprocesskill",
+    "packageupgrade"
+  ]
+}
