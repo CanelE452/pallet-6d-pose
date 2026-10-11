@@ -1,0 +1,292 @@
+{
+  "status": "LOCKED_BEFORE_NEW_FITS_AND_SOLVERS",
+  "locked_at": "2026-10-11T09:10:09.834084+00:00",
+  "publication_base_sha": "1a2d9bbf0947d15c0cd9fe8c770f2522f022292e",
+  "objective": "Separate usable frozen-feature information, dimension decision location, candidate abstention and extra-observation feasibility; preserve negative outcomes",
+  "real": {
+    "frames": 173,
+    "sessions": 9,
+    "ids_sha256": "36332a8c04a32d7273ba67ceac6333283240afb0f75f58dd97a7f5e21b9cfdce",
+    "rect245_intersection": 110,
+    "grades": {
+      "clean": 68,
+      "moderate": 42,
+      "severe": 63
+    },
+    "physical_FINAL_excluded": 146,
+    "axis_accuracy_N": 170,
+    "unclear_N": 3,
+    "all_pose_binary_denominator": 173
+  },
+  "square": {
+    "N": 118,
+    "sessions": 1,
+    "reference": "manual-keypoint SQPnP; C4",
+    "WD_labels": "NOT_APPLICABLE",
+    "merged": false
+  },
+  "synthetic": {
+    "counts": {
+      "TRAIN": 4096,
+      "VAL": 1024,
+      "TEST": 1024
+    },
+    "train_rule": "Original paper TRAIN and historical classifier TRAIN-assigned renderer groups only; SHA256('20261011|'+frame ID) ascending first4096, budget fixed before fitting",
+    "group_split_source": {
+      "path": "_docs/experiments/pallet_selector_recovery_v1/stage2_synth_scorer/SYNTHETIC_SPLIT_LOCK.json",
+      "sha256": "0bec449f775f11fb8ad740447beafa8969de928da98a9bdb8f3a24222f9c393a",
+      "bytes": 211989
+    },
+    "historical_exposure": {
+      "TRAIN|train": 4096,
+      "VAL|train": 923,
+      "VAL|heldout": 49,
+      "VAL|calibration": 29,
+      "VAL|selection": 23,
+      "TEST|train": 926,
+      "TEST|calibration": 22,
+      "TEST|heldout": 46,
+      "TEST|selection": 30
+    },
+    "not_independent_final": true
+  },
+  "budgets": {
+    "GPU_device_minutes": 45,
+    "CPU_analysis_and_fit_wall_minutes": 60,
+    "CPU_workers": 2,
+    "threads_per_worker": 2,
+    "classifier_fits": 8,
+    "corrector_fits": 2,
+    "corrector_updates_per_fit": 1000,
+    "corrector_batch": 16,
+    "new_OpenCV_PnP_and_refinement_calls": 50000,
+    "new_raw_RGB_expensive_features": 0
+  },
+  "pnp_reservations": {
+    "A3": 6016,
+    "B1": 3200,
+    "C": 31000,
+    "D": 8500
+  },
+  "classifier_arms": [
+    "D_LOGISTIC",
+    "G_LOGISTIC",
+    "V_LOGISTIC",
+    "V_MLP",
+    "G_MLP",
+    "G_V_MLP",
+    "G_V_D_MLP",
+    "V_SHUFFLED_LOGISTIC"
+  ],
+  "classifier_hyperparameters": {
+    "logistic": {
+      "C": 1,
+      "max_iter": 1000,
+      "intercept": true,
+      "class_weight": null,
+      "normalization": "TRAIN only"
+    },
+    "MLP": {
+      "hidden": 32,
+      "activation": "ReLU",
+      "loss": "binary cross entropy",
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "batch": 256,
+      "epochs": 30,
+      "patience": 5,
+      "earliest_best": true,
+      "seed": 42
+    },
+    "primary_selector": "G_V_D_MLP",
+    "threshold": 0.5,
+    "tie": "official selector",
+    "matched_MLP_input_slots": true
+  },
+  "D": {
+    "arms": [
+      "D_CONTROL",
+      "D_JOINT_DIM"
+    ],
+    "params_each": 2305,
+    "seed": 1,
+    "steps": 1000,
+    "batch": 16,
+    "supervision": "unchanged whole-object local_phase and original Gaussian candidate CE",
+    "schedule": "100-step linear warmup, cosine over remaining 900 steps, final LR fraction 0.1",
+    "calibration": "fixed-index original CE on all synthetic calibration frames; T in [0.5,1,2,4]; nearest |logT| then smaller T",
+    "main_route": "same cornerSubPix after each head; stage1 also descriptive",
+    "metadata": "canonical TRAIN-normalized logW/logD/logH/log(W/D)/log(H/sqrt(WD)); control all zeros",
+    "frozen_cp": {
+      "path": "data/pallet/results/pallet_final_ml_contribution_test_v1/B_line_vs_point/runs/seed1/last.pt",
+      "sha256": "bfbc2c9e8d2c8dfae4937d5ad7b4a7e10dcaab7180db106ae135895a5b08b033"
+    }
+  },
+  "B1": {
+    "checkpoint": "N3_DIM_SYM seed1 fixed",
+    "conditions": [
+      "correct canonical",
+      "TRAIN arithmetic mean dimensions",
+      "normalized zero",
+      "fixed TRAIN-supported permutation"
+    ],
+    "downstream_PnP_dims": "always correct",
+    "cross_checkpoint_seed_ablations": "cached separately"
+  },
+  "A3": {
+    "hash_sample_frames": 16,
+    "base": "current N3_THEN_SUBPIX seed1",
+    "correlated_alpha": [
+      0,
+      0.25,
+      0.5,
+      1
+    ],
+    "gaussian_sigma": [
+      0,
+      0.5,
+      1,
+      2,
+      4
+    ],
+    "draws_per_sigma": 8,
+    "projection_ratios": 3,
+    "no_new_RGB": true
+  },
+  "G2": {
+    "hash_synthetic_sample": 64,
+    "real": "eligible173 intersection only; GT-derived feasibility",
+    "offset_cm": [
+      -5,
+      -2,
+      0,
+      2,
+      5
+    ],
+    "normal_deg": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "axes": [
+      "camera X",
+      "camera Y",
+      "camera Z"
+    ],
+    "design": "one factor at a time; existing score fixed"
+  },
+  "E": {
+    "confidence": [
+      "official weighted score gap",
+      "gap / predicted box diagonal",
+      "abs(2p-1) for each fitted classifier"
+    ],
+    "coverage_points": [
+      1,
+      0.95,
+      0.9,
+      0.8,
+      0.5
+    ],
+    "runtime_threshold_source": "synthetic VAL only",
+    "no_best_real_threshold": true
+  },
+  "F": {
+    "windows": [
+      1,
+      3,
+      5
+    ],
+    "requires": "actual sequence association + lawful camera transform or independent no-face-switch evidence",
+    "no_future_or_GT_motion": true
+  },
+  "primary_contrasts": [
+    [
+      "G_V_MLP",
+      "G_MLP"
+    ],
+    [
+      "G_V_D_MLP",
+      "G_V_MLP"
+    ],
+    [
+      "D_JOINT_DIM_SUBPIX",
+      "D_CONTROL_SUBPIX"
+    ],
+    [
+      "G_V_D_MLP",
+      "OFFICIAL"
+    ]
+  ],
+  "primary_metrics": [
+    "wd_confusion: proper-group R>45 deg AND abs(yaw)>=60 deg",
+    "pose_success: strict T<5 cm AND R<5 deg"
+  ],
+  "holm_family": 8,
+  "bootstrap": {
+    "seed": 20260917,
+    "draws": 10000,
+    "unit": "9 allowed sessions; all seeds/candidates within frame",
+    "estimand": "frame-weighted main; session-equal separate",
+    "single_square": "descriptive frame bootstrap only"
+  },
+  "new_code_bindings": [
+    {
+      "owner": "new_worktree",
+      "path": "scripts/research/pallet_wd_info_fast_20261011/common.py",
+      "sha256": "353b30d7e0f22d334a01709a3e55a6a98d4b4fa141a3f5e6a2689129f9dad377",
+      "bytes": 3889
+    },
+    {
+      "owner": "new_worktree",
+      "path": "scripts/research/pallet_wd_info_fast_20261011/paired.py",
+      "sha256": "997b647fec07e793e0c2fb6ec7906857b372c298cf857a37546a22ea131e6eec",
+      "bytes": 3259
+    },
+    {
+      "owner": "new_worktree",
+      "path": "scripts/research/pallet_wd_info_fast_20261011/contract_audit.py",
+      "sha256": "b097476129d27eec27d6ac74afa8de8094db0965beb1e700460596f4b3469a95",
+      "bytes": 11568
+    },
+    {
+      "owner": "new_worktree",
+      "path": "scripts/research/pallet_wd_info_fast_20261011/d_local.py",
+      "sha256": "50dd39f45138bdc4badafb2ef07d5a8921931eb16b531d599a30363b2ee9be00",
+      "bytes": 16592
+    }
+  ],
+  "input_contract_bindings": [
+    {
+      "owner": "new_worktree",
+      "path": "_docs/experiments/pallet_wd_info_fast_20261011/INPUT_CONTRACT.json",
+      "sha256": "69302ac745ff50766de2619ec2a214edd251d05863d240678c6af7d6f07b38ef",
+      "bytes": 134256
+    },
+    {
+      "owner": "new_worktree",
+      "path": "_docs/experiments/pallet_wd_info_fast_20261011/BC_INPUT_CONTRACT.json",
+      "sha256": "f57a85702fc9fd96658432cf54d0371de3148705ac637250c62352f2d90181fc",
+      "bytes": 6274
+    },
+    {
+      "owner": "new_worktree",
+      "path": "_docs/experiments/pallet_wd_info_fast_20261011/D_CONTRACT.json",
+      "sha256": "50663d57d68be513858716267d6d1c90b62aacd0368639f9d7be38f3fdfc9807",
+      "bytes": 3803
+    },
+    {
+      "owner": "new_worktree",
+      "path": "_docs/experiments/pallet_wd_info_fast_20261011/D_THROUGHPUT.json",
+      "sha256": "960970279c8cecbd4b75dac34dc1c1bff6ce6f49fcfc5ffbf2d9e1f5b17c41e8",
+      "bytes": 892
+    }
+  ],
+  "executor_source_policy": "Additional C/A3/D-evaluation scripts have immutable per-job source locks before their first new solve/fit; this plan is not rewritten",
+  "protected_outputs": "existing manuscripts/LaTeX/PDF/models/source/evaluators/datasets/results unchanged",
+  "publication": "only new experiment code+aggregates, normal fast-forward push without force/automatic merge",
+  "verdict": "exploratory, include damage/uncertainty; no repeated tuning after bad real result"
+}

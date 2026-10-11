@@ -1,0 +1,238 @@
+{
+  "status": "SOURCE_CONTRACT_VERIFIED_CURRENT_N3_FEATURES_PENDING",
+  "frozen_detector_sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+  "counts": {
+    "TRAIN": 4096,
+    "VAL": 1024,
+    "TEST": 1024
+  },
+  "source_split": {
+    "path": "_docs/experiments/pallet_selector_recovery_v1/stage2_synth_scorer/SYNTHETIC_SPLIT_LOCK.json",
+    "sha256": "0bec449f775f11fb8ad740447beafa8969de928da98a9bdb8f3a24222f9c393a",
+    "bytes": 211989
+  },
+  "TRAIN_rule": "Original paper TRAIN and historical classifier TRAIN-assigned renderer groups only; SHA256('20261011|'+frame ID) ascending first4096, budget fixed before fitting",
+  "TRAIN_original_nontrain_removed": 246,
+  "TRAIN_original_partition_only": true,
+  "VAL_TEST_original_group_assignment_preserved": true,
+  "original_partition_exposure_counts": {
+    "TRAIN|train": 4096,
+    "VAL|train": 923,
+    "VAL|heldout": 49,
+    "VAL|calibration": 29,
+    "VAL|selection": 23,
+    "TEST|train": 926,
+    "TEST|calibration": 22,
+    "TEST|heldout": 46,
+    "TEST|selection": 30
+  },
+  "no_renderer_group_or_scenario_or_image_sha_crossing": true,
+  "old_feature_cache_reusable": false,
+  "old_feature_reason": "Old S0/S1 checkpoint hashes 1dae620f../1f018068.. differ from current frozen R0; old448dim global average is not predicted-ROI2x2 spatial pooling",
+  "current_cache": {
+    "path": "data/pallet/results/pallet_line_pose_v1/cache",
+    "arrays": {
+      "p3": {
+        "file": "p3.npy",
+        "dtype": "float16",
+        "shape": [
+          60000,
+          64,
+          80,
+          80
+        ]
+      },
+      "p4": {
+        "file": "p4.npy",
+        "dtype": "float16",
+        "shape": [
+          60000,
+          128,
+          40,
+          40
+        ]
+      },
+      "points": {
+        "file": "points.npy",
+        "dtype": "float32",
+        "shape": [
+          60000,
+          9,
+          2
+        ]
+      },
+      "boxes": {
+        "file": "boxes.npy",
+        "dtype": "float32",
+        "shape": [
+          60000,
+          4
+        ]
+      },
+      "point_valid": {
+        "file": "point_valid.npy",
+        "dtype": "bool",
+        "shape": [
+          60000,
+          9
+        ]
+      },
+      "gt_points": {
+        "file": "gt_points.npy",
+        "dtype": "float32",
+        "shape": [
+          60000,
+          9,
+          2
+        ]
+      },
+      "gt_valid": {
+        "file": "gt_valid.npy",
+        "dtype": "bool",
+        "shape": [
+          60000,
+          9
+        ]
+      },
+      "gt_support": {
+        "file": "gt_support.npy",
+        "dtype": "bool",
+        "shape": [
+          60000,
+          8
+        ]
+      },
+      "input_shape": {
+        "file": "input_shape.npy",
+        "dtype": "int16",
+        "shape": [
+          60000,
+          2
+        ]
+      },
+      "matched": {
+        "file": "matched.npy",
+        "dtype": "bool",
+        "shape": [
+          60000
+        ]
+      },
+      "detected": {
+        "file": "detected.npy",
+        "dtype": "bool",
+        "shape": [
+          60000
+        ]
+      },
+      "score": {
+        "file": "score.npy",
+        "dtype": "float32",
+        "shape": [
+          60000
+        ]
+      },
+      "gain": {
+        "file": "gain.npy",
+        "dtype": "float64",
+        "shape": [
+          60000
+        ]
+      },
+      "record_index": {
+        "file": "record_index.npy",
+        "dtype": "int32",
+        "shape": [
+          60000
+        ]
+      },
+      "matched_gt_index": {
+        "file": "matched_gt_index.npy",
+        "dtype": "int32",
+        "shape": [
+          60000
+        ]
+      },
+      "matched_iou": {
+        "file": "matched_iou.npy",
+        "dtype": "float32",
+        "shape": [
+          60000
+        ]
+      },
+      "selected_candidate_index": {
+        "file": "selected_candidate_index.npy",
+        "dtype": "int32",
+        "shape": [
+          60000
+        ]
+      }
+    },
+    "feature_recipe": "Actual frozen neck P3/P4, FP16 rounded; zero-pad only right/bottom to80x80/40x40. Actual input_shape must mask spatial padding.",
+    "input_recipe": {
+      "add_reflect_padding": false,
+      "auto": true,
+      "center": true,
+      "color": "RGB",
+      "dimensions_pose_parity_as_input": false,
+      "dtype": "float32",
+      "imgsz": 640,
+      "inference_batch": 1,
+      "letterbox_value": 114,
+      "normalization": "divide255",
+      "prediction_selection": "highest predicted score, no GT",
+      "prepared_reflect101_pad_px": 100,
+      "rect": true,
+      "scaleup": true,
+      "stride": 32
+    }
+  },
+  "V": {
+    "P3": {
+      "channels": 64,
+      "stride": 8
+    },
+    "P4": {
+      "channels": 128,
+      "stride": 16
+    },
+    "pool": "2x2 equal-area spatial means inside predicted box and actual input bounds",
+    "dimensions": 768
+  },
+  "D": {
+    "input_order": "canonical W,D,H = fixed XYZ[0,2,1]",
+    "features": [
+      "logW",
+      "logD",
+      "logH",
+      "log(W/D)",
+      "log(H/sqrt(WD))"
+    ],
+    "normalization": "existing original TRAIN-only DIM_NORMALIZATION_LOCK",
+    "mean_dimensions_WDH_m": [
+      0.9631634336723389,
+      1.1933150702632098,
+      0.14586330753891422
+    ],
+    "mean_dimension_features_minus_mean_log_features": [
+      0.007126400310332098,
+      0.005837505424083678,
+      0.020931979630921527,
+      0.0012888948862497807,
+      0.014450026763717982
+    ],
+    "mean_dimensions_is_normalized_zero": false
+  },
+  "label": "y_long = norm(Xcf[1]-Xcf[0]) > norm(Xcf[4]-Xcf[0]); exact renderer only; squares/unclear remain excluded from fitting",
+  "candidate_order": [
+    "long-face-front",
+    "short-face-front"
+  ],
+  "existing_label_conversion": "old SYNTH_LABELS.parity==0 means y_long==1; never infer label from binary field name",
+  "camera_facing_dimensions_correction": "19345/40000 G38 rows changed; corrected before any main dimension-conditioned optimizer update",
+  "new_high_cost_raw_RGB_features_required": 0,
+  "GPU_head_forward_needed": 6144,
+  "G_new_solver_call_upper_bound": 24576,
+  "G_note": "Use current Two-stage seed1 points for geometry; old S0/S1/PoseFix geometry cannot be renamed. Official two-candidate selector only; each hypothesis one SQPnP+RefineLM",
+  "fitting_started": false,
+  "real_evaluation_started": false
+}

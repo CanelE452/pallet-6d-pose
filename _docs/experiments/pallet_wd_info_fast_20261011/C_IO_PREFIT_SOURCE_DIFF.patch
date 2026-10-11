@@ -1,0 +1,68 @@
+--- classifier_pre_io_source.py (54db)
++++ classifier.py (c706)
+@@ -312,9 +312,15 @@
+     return result
+ 
+ 
++def loaded_npz(path):
++    """Decompress each requested input array once before any row loop."""
++    with np.load(path, allow_pickle=False) as packet:
++        return {key: packet[key] for key in packet.files}
++
++
+ def label_link():
+-    pred = np.load(C.PRIVATE / "C_SYNTH_PREDICTIONS_SEALED.npz", allow_pickle=False)
+-    geometry = np.load(C.SOURCE / "challenge/yolo_pose_one_model/pallet_translation_loss_v1/GEOMETRY_SIDETABLE.npz", allow_pickle=False)
++    pred = loaded_npz(C.PRIVATE / "C_SYNTH_PREDICTIONS_SEALED.npz")
++    geometry = loaded_npz(C.SOURCE / "challenge/yolo_pose_one_model/pallet_translation_loss_v1/GEOMETRY_SIDETABLE.npz")
+     ix = {str(s): i for i, s in enumerate(geometry["stems"])}
+     Xcf = geometry["Xcf"]
+     labels = np.full(len(pred["ids"]), -1, int); elevations = np.full(len(labels), np.nan)
+@@ -365,16 +371,16 @@
+ 
+ def fit():
+     C.lock_ready()
+-    assert C.sha(Path(__file__)) == C.read(C.DOC / "C_CODE_FINAL_LOCK.json")["code"]["sha256"]
++    assert C.sha(Path(__file__)) == C.read(C.DOC / "C_IO_PREFIT_LOCK.json")["code"]["sha256"]
+     from sklearn.linear_model import LogisticRegression
+     from sklearn.exceptions import ConvergenceWarning
+     from threadpoolctl import threadpool_limits
+     torch.set_num_threads(2)
+     threadpool_limits(2)
+-    base = dict(np.load(C.PRIVATE / "C_SYNTH_PREDICTIONS_SEALED.npz", allow_pickle=False))
+-    geom = np.load(C.PRIVATE / "C_SYNTH_GEOMETRY.npz", allow_pickle=False)
+-    labels = np.load(C.PRIVATE / "C_SYNTH_LABELS.npz", allow_pickle=False)
+-    real = dict(np.load(C.PRIVATE / "C_REAL_FEATURES.npz", allow_pickle=False))
++    base = dict(loaded_npz(C.PRIVATE / "C_SYNTH_PREDICTIONS_SEALED.npz"))
++    geom = loaded_npz(C.PRIVATE / "C_SYNTH_GEOMETRY.npz")
++    labels = loaded_npz(C.PRIVATE / "C_SYNTH_LABELS.npz")
++    real = dict(loaded_npz(C.PRIVATE / "C_REAL_FEATURES.npz"))
+     assert np.array_equal(base["ids"], geom["ids"]) and np.array_equal(base["ids"], labels["ids"])
+     base["G"] = geom["G"]
+     valid = geom["valid"] & base["visual_valid"] & (labels["y"] >= 0)
+@@ -493,7 +499,7 @@
+ 
+ def evaluate():
+     C.lock_ready()
+-    probs = np.load(C.PRIVATE / "C_REAL_PROBABILITIES_SEALED.npz", allow_pickle=False)
++    probs = loaded_npz(C.PRIVATE / "C_REAL_PROBABILITIES_SEALED.npz")
+     # All predictor states/choices are sealed before reference-containing rows.
+     metrics = list(C.rows(C.DOC / "AE_CANDIDATE_METRICS.jsonl.gz"))
+     by = {(int(r["seed"]), r["id"]): r for r in metrics if r["method"] == "N3_THEN_SUBPIX"}
+@@ -571,11 +577,11 @@
+     from scripts.research.pallet_wd_info_fast_20261011.geometry_analysis import pose_api
+     from scripts.research.pallet_wd_hypothesis_diag_20261010 import solver
+     pose = pose_api(C.SOURCE); solver.configure(pose)
+-    pred = np.load(C.PRIVATE / "C_SYNTH_PREDICTIONS_SEALED.npz", allow_pickle=False)
+-    geo = np.load(C.PRIVATE / "C_SYNTH_GEOMETRY.npz", allow_pickle=False)
+-    probs = np.load(C.PRIVATE / "C_SYNTH_PROBABILITIES_SEALED.npz", allow_pickle=False)
+-    labels = np.load(C.PRIVATE / "C_SYNTH_LABELS.npz", allow_pickle=False)
+-    exact = np.load(C.SOURCE / "challenge/yolo_pose_one_model/pallet_translation_loss_v1/GEOMETRY_SIDETABLE.npz")
++    pred = loaded_npz(C.PRIVATE / "C_SYNTH_PREDICTIONS_SEALED.npz")
++    geo = loaded_npz(C.PRIVATE / "C_SYNTH_GEOMETRY.npz")
++    probs = loaded_npz(C.PRIVATE / "C_SYNTH_PROBABILITIES_SEALED.npz")
++    labels = loaded_npz(C.PRIVATE / "C_SYNTH_LABELS.npz")
++    exact = loaded_npz(C.SOURCE / "challenge/yolo_pose_one_model/pallet_translation_loss_v1/GEOMETRY_SIDETABLE.npz")
+     ix = {str(fid): i for i, fid in enumerate(exact["stems"])}
+     test = np.flatnonzero(pred["split"] == "TEST")
+     rows = []
