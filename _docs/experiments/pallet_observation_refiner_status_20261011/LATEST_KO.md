@@ -36,4 +36,4 @@ LOO는 초기 self-occlusion 집합 H와 검사 코너 k를 함께 제외한다.
 
 가림 분류기나 새 학습기가 꼭 필요하다는 결론은 얻지 못했다. 과거 no-mask 강건 PnP와 현재 일반 PnP 대조를 함께 제공한다. 재투영된 숨은 코너의 일부 오차 개선은 최종 자세 개선의 증거로 사용하지 않는다. 남은 최소 확인은 기존 59장 저장자료의 실제 지지 경계 의미와 예측 좌표 오류를 구분하는 것이며, 독립 물리 정답이 없는 점을 UNKNOWN으로 유지해야 한다.
 
-게시 대상은 `research/observation-refiner-robust-pnp-20261009` 전용 브랜치다. 실제 게시 SHA와 원격 일치 여부는 별도 게시 receipt에서 확인한다. `main`, 원본 영상·가중치·사용자 변경을 보존하며 자동 병합이나 force push를 사용하지 않는다.
+게시 대상은 `research/observation-refiner-robust-pnp-20261009` 전용 브랜치다. 실제 게시 SHA와 원격 일치 여부는 [게시 receipt](REMOTE_PUBLICATION_VERIFIED.json)에서 확인한다. `main`, 원본 영상·가중치·사용자 변경을 보존하며 자동 병합이나 force push를 사용하지 않는다.
