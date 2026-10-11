@@ -1,0 +1,185 @@
+{
+  "status": "LOCKED_BEFORE_NEW_COORDINATES_F_AND_TABLE_AGGREGATION",
+  "date_KST": "2026-10-11",
+  "instruction_sha256": "10c0911b9451df1afb0092af9957aaddbaa4fce1e3f577575d7b8b1ea7ea8f2c",
+  "user_clarification": {
+    "request": "해결할수있게 해줘",
+    "resolution": "Compare rounded planner table at declared display precision; do not change actual F parity tolerance",
+    "planner_T_R_decimals": 3,
+    "planner_percent_variance_decimals": 1,
+    "original_literal_1e6_gate_failed_cells": 24,
+    "full_precision_saved_values_tolerance": 1e-06,
+    "F_translation_tolerance_cm": 0.01,
+    "F_rotation_tolerance_deg": 0.01
+  },
+  "known_results_before_lock": "Existing six-method rounded YOLO table and precision audit known; no new correction/evaluation/table/timing results observed. Selection245 was made after examining developer data.",
+  "scope": {
+    "RECT_primary": 245,
+    "grades": {
+      "clean": 153,
+      "moderate": 92
+    },
+    "excluded_severe": 74,
+    "RECT_supplement": 319,
+    "SQUARE": 118,
+    "sessions_RECT": 13,
+    "sessions_SQUARE": 1,
+    "independent_test": false,
+    "grade_is_physical_occlusion_fraction": false
+  },
+  "inference": {
+    "cornerSubPix": {
+      "winSize": [
+        5,
+        5
+      ],
+      "zeroZone": [
+        -1,
+        -1
+      ],
+      "criteria": [
+        "EPS|COUNT",
+        40,
+        0.001
+      ]
+    },
+    "cap": "one final cap from ORIGINAL BASE;1% raw image diagonal; center8/missing support preserved",
+    "new_coordinates": "DOPE/ResNet Base+SubPix and N3+SubPix; PoseFix+SubPix; all319",
+    "coordinates_sealed_before_reference_access": true,
+    "F": "original prediction-only infer(SQPnP->LM), original metric",
+    "PoseFix": "NPZ points[:,0,1]; original RAW first pass uncapped H; no pass/checkpoint choice",
+    "new_training": 0,
+    "new_models": 0,
+    "new_configuration_selection": 0
+  },
+  "metrics": {
+    "continuous": "per-frame arithmetic mean across available seeds with available seed/frame counts; errors available only",
+    "binary": "per-seed T<5cm AND proper-sym R<5deg or R>45 AND abs(yaw)>=60 before per-frame seed mean; unavailable false",
+    "PCK10": "original symmetry-aware full-reference corner denominator; seed hit counts mean perframe then pool numerator/denominator; pose unavailable=0 hits peruser; raw2D hits retained separately",
+    "SD": "sample ddof1 across frames",
+    "P90": "linear quantile",
+    "ADDsym_AUC": "original pose_auc(normalized ADDsym,diameter1), thresholds0..0.1 with1001trapezoid; per-seed threshold indicator first then frame-seedmean; misses zero full-population AUC",
+    "IoU3D": "original geometry; per-frame seedmean; availableonly",
+    "square_WD_confusion": "NA because properC4 makes90deg swap equivalent"
+  },
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": 20260917,
+    "RECT": "full319/13-session existing master draw restrictedto245 IDsubset; no redraw",
+    "RECT_draw_sha256": "63e288a51d7b0612616beefac28fcc625e76e8c5d7b5a0ecc5e8b85c73048fa5",
+    "SQUARE": "reuse original118 frame master draw",
+    "CI": "percentile2.5,97.5 descriptive/exploratory; missingcontinuous common-pair mask",
+    "p_t_RECT": "equal-weight13session per-session pairedframe mean differences; df12; two-sided t distribution",
+    "p_t_SQUARE": "paired118frame differences; commonavailable n metric; df n-1; descriptive single-session",
+    "p_boot_RECT": "sameframeweighted paired-effect CI target; nullcenter bootstrap delta-minus-observed; (1+count(abs(null)>=abs(observed)))/(validB+1)",
+    "p_boot_SQUARE": null,
+    "Holm": "separate t/bootstrap families per original TABLE; table1 combines RECT+SQUARE declaredtests, Square WD NA excluded; table3 duplicates retained conservative"
+  },
+  "paired_metric_list": [
+    "PCK10",
+    "translation_cm",
+    "rotation_deg",
+    "success_rate",
+    "confusion_rate",
+    "ADDsym_AUC",
+    "IoU3D"
+  ],
+  "TABLE_1": {
+    "groups": [
+      "RECT/YOLO",
+      "RECT/DOPE",
+      "RECT/ResNet-18",
+      "SQUARE/YOLO",
+      "SQUARE/DOPE",
+      "SQUARE/ResNet-18"
+    ],
+    "rows": [
+      "BASE",
+      "N3_THEN_SUBPIX"
+    ],
+    "comparisons": [
+      "N3_THEN_SUBPIX-BASE"
+    ],
+    "Holm_t_tests": 39,
+    "Holm_boot_tests": 21
+  },
+  "TABLE_2": {
+    "population": "RECT",
+    "backbone": "YOLO",
+    "rows": [
+      "BASE",
+      "SUBPIX",
+      "POSEFIX",
+      "POSEFIX_SUBPIX",
+      "N3_THEN_SUBPIX"
+    ],
+    "comparisons": [
+      "N3_THEN_SUBPIX-BASE",
+      "N3_THEN_SUBPIX-SUBPIX",
+      "N3_THEN_SUBPIX-POSEFIX",
+      "N3_THEN_SUBPIX-POSEFIX_SUBPIX"
+    ],
+    "latency": true,
+    "Holm_tests": 28
+  },
+  "TABLE_3": {
+    "population": "RECT",
+    "backbone": "YOLO",
+    "rows": [
+      "N0",
+      "N1",
+      "N2",
+      "N3_DIM_SYM",
+      "SUBPIX",
+      "N3_THEN_SUBPIX",
+      "JOINT_FIXED_ISOTROPIC",
+      "FG_JOINT_POSTERIOR"
+    ],
+    "comparisons": "seven adjacentrownext-minusprevious plus Two-stage-minus eachJointvariant; repeated inverse contrast retained",
+    "Holm_tests": 63
+  },
+  "SUPP": {
+    "comparators": [
+      "P",
+      "D",
+      "L"
+    ],
+    "grades": [
+      "clean",
+      "moderate"
+    ],
+    "seed_tables": "allavailable1,2,3; do notpool seeds as independentframes",
+    "RECT319": "TABLE1rectangle andTABLE2 unchanged definitions"
+  },
+  "figures": {
+    "A": "log y boxplots fullfiniteavailable perframeseedmeans; alloutlierpoints;RECT245separatefromSQUARE118; zeros counted and annotated no epsilon replacement",
+    "B": "RECT245YOLO N3_THEN_SUBPIX S0 and GT-parityoracle altbins[5,10,20,30], counts andmean seedbinary",
+    "C": "seed1 eligibleRECT245 excludingfinal4 ->218; each3backbones median-nearest improvingdeltaT andmaximumworseningdeltaT, exacttieIDlex; SquareYOLO same118 pool",
+    "D": "plastic/wood withineligibleRECT218, square118; nearestform-specific median palletdiag; exacttieIDlex",
+    "pallet_diagonal_px": "bboxhypot(ptpX,ptpY) ALL8finite referencecorners0..7 in nativepixel coords; independentprediction; noclip; diagnosis only AFTERcoordinate seal; rawIMAGEdiagonal usedonlycap",
+    "RGB": "privateonly; publiccoordinate-onlyC/D sameIDs"
+  },
+  "latency": {
+    "arms": [
+      "BASE",
+      "N3",
+      "SUBPIX",
+      "N3_SUBPIX",
+      "POSEFIX",
+      "POSEFIX_SUBPIX"
+    ],
+    "batch": 1,
+    "warmup_per_arm": 20,
+    "frames": 26,
+    "sessions": 13,
+    "frames_per_session": 2,
+    "repeats": 5,
+    "measurement_calls_per_arm": 130,
+    "total_calls": 900,
+    "panel": "existing RUNTIME_PROTOCOL.json exactordered keys",
+    "seed": 1,
+    "clock": "GPU synchronize walltime preprocessing through finalPnP;decode/load/scoring/receipts excluded",
+    "fixed_order": "inherited cyclic rotations and oddblockreverse extendedsixarms",
+    "model_selection": "same existing YOLO/N3seed1/PoseFixPRIOR1; no result-dependent choice"
+  }
+}
