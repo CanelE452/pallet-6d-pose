@@ -1,0 +1,96 @@
+{
+  "schema": "INDEPENDENT_PARALLEL_EXACT_DERIVATIVE_REVIEW_V2",
+  "reviewed_at_UTC": "2026-10-13T17:06:47.333744+00:00",
+  "verdict": "no blocking implementation finding in the independent-frame orchestration; original frozen models/inputs retained",
+  "reviewed_source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py": "94976039980a502d698d8fa30c2cccaf7cfc02ba5a102e50dceb91ef3aea0721",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v2.py": "1b5fa26d5b0813042c82d22ae23c4e9d688961b04f5944d9e72eadc3f13f8206",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_masks_v2.py": "98e10011e5d6f87ca27f063719edda359eab4d850187c66d5bfcea5252cd2a75",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v2.py": "7d35bb57ac963e77b8ffd41b13cef90d73aa0b4f1f1a5823ad56dbe86b219993",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_pnp.py": "6b07a7005e2f149c95df316471f3869d718b83d3d629cf0d8f179d2ba7d3e009",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/ot_domains_v2.py": "62618db156608b9590866d9bcada00348ae4c891fd97f29f5c963ca601ba9eee",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_jacobian_v2.py": "6b24af5bb4667dc3e98e4bf7154af0301488fb89765a1242792a8695e359a082",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_parallel_v2.py": "5a47c6725028fb72d468a98370a70993dbd4348668b1e89c3eede7b12ca6c10f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/common.py": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/appearance.py": "dbb37fc3fdce1a0049d37cf5083643af8b9ecc26ce17d2a20a855b75b8b7b81b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_refine.py": "0483b0e309eff5b7ee918e6be2e3a059e6e653f4458b1262b34f630c5a963209",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/interior_observation.py": "91dd637b07caf6d3f5d8f36c5888594a22a525da40346eed4552bab12da1f5a7",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_observation.py": "b60e2a89a82eba8eb8c6a9b07397a4affaf3b2e4ba3457f7309589b9485ba480",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/segmentation.py": "02e861f4e030174fc94406657c5f56e82f4c2af6362cc326c36630edbf9297b5",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/scoring.py": "d91c0d64d7e63a72033752017c41afd983599d7a61f71f6ee70b06e17256edaf",
+    "scripts/research/pallet_foundation_mask_20261013_v1/uncertainty.py": "6679cc00697d4af654c1aa3074fec5c0f8cd700ecabc79763c67e03f4a12e58b",
+    "scripts/research/pallet_foundation_mask_20261013_v1/foundation.py": "6745d37cc95d2562ccc2a1f5b639a6cfc74ee9dc815c04e1cf836a51b4b9218a"
+  },
+  "read_only_peer_source_review": true,
+  "root_or_peer_source_modified": false,
+  "checks": [
+    {
+      "id": "SPAWN_CONTEXT",
+      "status": "verified",
+      "detail": "Each spawned process loads frozen model, OT uncertainty and mask provider in its own worker context. There is no shared mutable SAM image cache across processes; each process executes one frame call at a time."
+    },
+    {
+      "id": "FRAME_BINDING",
+      "status": "verified",
+      "detail": "Master binds each future to its submitted frame ID, rejects changed or duplicate returned IDs, and reconstructs results in the complete original _frames order."
+    },
+    {
+      "id": "POPULATION",
+      "status": "verified",
+      "detail": "_frames requires primary CAL46/TEST49 nonsevere95 and appends the3 preregistered real RGB crops. A failed future prevents prediction sealing; partial successful rows cannot become a scored population."
+    },
+    {
+      "id": "NO_PREDICTION_GT",
+      "status": "verified",
+      "detail": "Worker/initializer/predict never invoke score or open annotation targets. Frames carry explicit prediction fields only. Current RGB, q, K, native dimensions/coarse pose and frozen CAL-trained models enter runtime; source label transforms remain in separate postseal score."
+    },
+    {
+      "id": "SEAL_SOURCE",
+      "status": "verified",
+      "detail": "Protocol records primary input hash, frozen model descriptor/checkpoint bindings, crop file/input/preregistration bindings and complete ordered IDs. Source binding includes both new parallel runner and Jacobian module, and source snapshots are copied with digest verification. Master rechecks source/crop bindings before writing one complete predictions file/seal."
+    },
+    {
+      "id": "SAME_PROBLEM",
+      "status": "verified",
+      "detail": "56 P3P triple cap,24 global rotations,160 seed nfev,250 joint iterations,256 T union cap,3 Mahalanobis budget and every O/T constraint are preserved. Exact derivative flag changes numerical derivatives, not pose freedom, domain definitions, observations, objective or hard constraints."
+    },
+    {
+      "id": "ANALYTIC_VALUES",
+      "status": "source_verified",
+      "detail": "Jacobian module uses the same rotation-vector/translation-scale projection, radial pseudo-Huber values, positive-depth constraints, per-BI seed/absolute guards and every ellipse/box/halfplane/T inequality in the same order. Clipped denominator derivatives match the finite extension away from its nondifferentiable boundaries."
+    }
+  ],
+  "open_material_findings": [],
+  "assumptions": [
+    "Frozen v3 descriptor, parameter arrays, checkpoints and original prediction input stay immutable throughout this run, as instructed. Workers revalidate immutable checkpoint/array bindings when loading."
+  ],
+  "limitations": [
+    "Independent-frame execution shares the physical GPU, but models, masks and pose optimization state are process-local.",
+    "The same mathematical problem can converge differently with more accurate derivatives; preserve the separate evaluation_v2 protocol rather than relabeling the aborted numeric attempt.",
+    "Exact derivative source review and parent-reported31 focused tests do not establish pose accuracy, O generalization or true physical T.",
+    "Historical TEST remains reused exploratory evidence; full49 metrics and crop physicalT require the complete ordered prediction seal and separate score."
+  ],
+  "evidence_paths": {
+    "aborted_numeric_attempt": "../evaluation_v1/ABORTED_BEFORE_SCORING.json",
+    "guarded_real_rgb_contract": "../runtime_smoke_guarded_v2/CONTRACT_CHECKS.json",
+    "new_parallel_source": "../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_parallel_v2.py",
+    "anticipated_main_protocol": "../evaluation_v2/PROTOCOL.json",
+    "anticipated_main_prediction_seal": "../evaluation_v2/PREDICTION_SEAL.json",
+    "anticipated_postseal_score": "../evaluation_v2/POSTSEAL_SCORING.json"
+  },
+  "status": {
+    "structural_contract": "verified",
+    "parallel_orchestration": "verified",
+    "numeric_attempt": "aborted before any scoring; preserved",
+    "new_full98_predictions": "pending_complete_seal",
+    "full_TEST49_state_pose_scoring": "pending",
+    "real_crop_physicalT_check": "pending"
+  },
+  "verification": {
+    "parent_reported_focused_tests_passed": 31,
+    "TEST_GT_targets_read_by_reviewer": false,
+    "severe_FINAL_rows_inspected": false,
+    "derivative_tests_rerun_by_reviewer": false
+  }
+}

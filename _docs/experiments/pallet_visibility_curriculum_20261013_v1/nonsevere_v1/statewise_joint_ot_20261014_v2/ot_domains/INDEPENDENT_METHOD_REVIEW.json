@@ -1,0 +1,181 @@
+{
+  "schema": "INDEPENDENT_STATEWISE_OT_REVIEW_V2",
+  "reviewed_at_UTC": "2026-10-13T16:53:11.553037+00:00",
+  "reviewer": "independent domain-producer agent; read-only review of peer/root code",
+  "verdict": "continuous_joint_constraint_structure_verified; empirical O/state/pose performance requires sealed full-cohort scoring",
+  "review_scope": [
+    "method contract",
+    "joint SE3 solver",
+    "B/I correction and immutable observations",
+    "S gating and current RGB state inference",
+    "mask ownership",
+    "runtime/API",
+    "primary95+crop driver and postseal scorer"
+  ],
+  "reviewed_source_sha256": {
+    "joint_ot_pnp.py": "e6375744b26cc8f2cb4fb68ffed98920d9b660c3bc9f7333715ac607af886d2d",
+    "visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799",
+    "state_visibility_v2.py": "7d35bb57ac963e77b8ffd41b13cef90d73aa0b4f1f1a5823ad56dbe86b219993",
+    "statewise_joint_api_v2.py": "1b5fa26d5b0813042c82d22ae23c4e9d688961b04f5944d9e72eadc3f13f8206",
+    "statewise_masks_v2.py": "98e10011e5d6f87ca27f063719edda359eab4d850187c66d5bfcea5252cd2a75",
+    "statewise_joint_experiment_v2.py": "fe931c9524e93b54dbc50ad354e66e450c4b2cfae358215ed29aa0760d674624",
+    "ot_domains_v2.py": "62618db156608b9590866d9bcada00348ae4c891fd97f29f5c963ca601ba9eee"
+  },
+  "verified_contracts": [
+    {
+      "id": "S_ZERO",
+      "finding": "Initial geometric S raw carriers are replaced with missing sentinels before mask prompts, state features, B/I correction and O/T domain creation; no S image or region term enters PnP. Registered geometry and final rigid S projection are permitted geometry operations."
+    },
+    {
+      "id": "BI_PIXEL",
+      "finding": "B measures target/background transitions; I measures current RGB gradient lines. Initial registered model supplies guide directions only. Unsupported intersections preserve the original visible prediction and are not counted as corrections."
+    },
+    {
+      "id": "BI_FREEZE",
+      "finding": "Corrected B/I xy and covariance are deep-copied before solving and preserved as observed readouts. The rigid projection readout is separate and the mixed corner readout is explicitly nonrigid."
+    },
+    {
+      "id": "JOINT_CONTINUOUS",
+      "finding": "Corrected-only P3P/SQPNP roots and global rotations are initializations; SLSQP changes all six SE3 parameters with every O/T inequality present in each branch. This is not scoring only a fixed old pose list."
+    },
+    {
+      "id": "OT_INDIVIDUAL",
+      "finding": "Per-corner ellipse/box/halfplane constraints are checked individually; O/T centers are never precise point correspondences and constraint violations are not averaged away."
+    },
+    {
+      "id": "FALLBACK",
+      "finding": "Failed joint solving preserves B/I observations and may project only S from an explicitly named seed/coarse fallback. Unresolved O/T/U are not reported as joint solved output."
+    },
+    {
+      "id": "MODEL_PHASE",
+      "finding": "Row-coordinate physical conversion X_native @ Q with Q=R_cf.T @ R_physical is correct; the reference uses X_reference @ Qref and the preexisting native-to-reference mapping. No pose candidate is selected with GT during prediction."
+    },
+    {
+      "id": "SEAL_POPULATION",
+      "finding": "Driver includes all95 primary frames (CAL46/TEST49) and3 separately marked real RGB crops. Postseal primary pose metrics include every primary row and fallbacks; compatible visible pixel metrics are explicitly a conditional subset. Coordinate label access in the study begins after prediction/protocol/source/crop seals."
+    },
+    {
+      "id": "PREDICTION_GT_ISOLATION",
+      "finding": "Runtime and study predict take current RGB, raw native image predictions, registered K/model/coarse pose and frozen CAL-trained models only. They do not receive per-image coordinate targets or human state labels. Crop expected-state metadata is not passed as oracle states; source GT transforms occur only in postseal score. CAL target use for O uncertainty training is separate and declared."
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "SEED_NONE",
+      "status": "confirmed_fixed",
+      "finding": "BI-only arm now handles None seed with `or {}` and checks R/t rather than a nonexistent available field."
+    },
+    {
+      "id": "REJECTED_OT_COUNT",
+      "status": "confirmed_fixed",
+      "finding": "Rejected-result OT count now uses the domain bundle length rather than the number of nested T-branch audit records."
+    },
+    {
+      "id": "CROP_SOURCE_SEAL",
+      "status": "confirmed_fixed",
+      "finding": "Preregistration, crop prediction inputs and actual crop files are explicitly bound in the study protocol and checked before scoring."
+    },
+    {
+      "id": "MASK_FAMILY",
+      "status": "selected_path_compatible",
+      "finding": "Study binds Tiny/SAM ownership separately using the original mask descriptor. New geometry-spatial descriptor also binds Tiny/backbone device; NON_S_RGB26 generic fallback still requires an explicit mask/provider contract."
+    },
+    {
+      "id": "PROJECTED_RGB_PROVENANCE",
+      "status": "confirmed_fixed",
+      "finding": "GEOMETRY family now reports projected_points_sampled=True, gated projected_RGB_queried_ids, and projected_coordinates_used_as_observations=False; initial conditional RGB guidance is separated from observations and final pose sampling."
+    },
+    {
+      "id": "BI_PROTECTION",
+      "status": "confirmed_fixed_in_solver_and_API_source",
+      "finding": "Every B/I now carries both the seed-projection movement guard and an individual absolute Mahalanobis measurement norm<=3 guard in every SLSQP constraint evaluation. Final/candidate/seed audits report both guards and explicitly disclaim calibrated probability. API rejects inconsistent B/I seeds for S fallback and names the coarse fallback instead.",
+      "required_reporting": [
+        "measurement_residual_px",
+        "whitened_measurement_residual",
+        "seed_projection_shift_px",
+        "assumed uncertainty guard",
+        "failure/fallback count"
+      ]
+    }
+  ],
+  "material_findings": [],
+  "limitations": [
+    "S is fixed from the coarse registered geometry. A wrong initial pose/phase can exclude a genuinely visible point; S RGB-zero is a structural guarantee about this fixed mask, not a guarantee of correct physical visibility.",
+    "Only7 RGB-eligible CAL external-O errors across2 recordings fit the empirical max radius;2 more actual CAL O raw predictions are outside and receive broad fallback. No95% joint or image-conditional probability guarantee is claimed.",
+    "Actual O state generalization remains unverified until full sealed TEST49 state-confusion/pose scoring. Earlier families failed useful O inference; the third CAL-only bounded head has encouraging crossfit results but only7 O labels.",
+    "Only3 natural CAL records have >=2 real external O, and TEST has no natural multi-O records. Natural human T labels are absent.",
+    "Three actual RGB crops were chosen from raw image queries before coordinate-GT access; expected T is not physical T proof. The crop pipeline translates frozen upstream q/K/pose and does not rerun the backbone. Physical T is checked only after prediction sealing.",
+    "Unknown-side T enumerates an outside-canvas union. The256 branch cap returns explicit unresolved failure rather than silently solving a partial set. Finite multistart local optimization is not a global feasibility or uniqueness proof.",
+    "Historical TEST has been reused and historical pose targets are derived references, so this study cannot establish unseen-test or SOTA performance.",
+    "B/I covariance and the per-point Mahalanobis norm<=3 budget are declared heuristic noise assumptions, not a calibrated 3-sigma coverage guarantee. Report measurement residual and guard failure/fallback counts."
+  ],
+  "verification": {
+    "own_domain_tests_passed": 25,
+    "actual_crop_pixel_and_domain_binding_smokes": 3,
+    "peer_core_review_is_source_inspection": true,
+    "study_runtime_metrics_not_inspected": true,
+    "TEST_coordinate_targets_read_by_reviewer": false,
+    "severe_or_FINAL_rows_inspected": false,
+    "peer_reported_solver_API_tests_passed": 18,
+    "BI_measurement_guard_source_verified": true,
+    "main_frozen_protocol_matches_reviewed_source_SHA": true,
+    "main_frozen_primary_population": {
+      "CAL": 46,
+      "TEST": 49,
+      "severe": 0,
+      "separate_real_crops": 3
+    },
+    "main_frozen_prediction_id_count": 98
+  },
+  "review_status": "source_review_complete; full empirical evaluation remains pending",
+  "goal_completion_status": {
+    "S_RGB_zero_and_S_rigid_completion": "verified_source_and_sealed_real_RGB_smoke",
+    "state_specific_BI_measurements_frozen": "verified_source_and_sealed_real_RGB_smoke",
+    "continuous_SE3_all_OT_individual_constraints": "verified_source_and_sealed_real_two_O_smoke",
+    "absolute_BI_assumed_uncertainty_guard_plus_seed_movement": "verified_source_and_sealed_real_RGB_smoke",
+    "invalid_BI_seed_rejected_without_fabricated_OT": "verified_solver_API_source_and_peer_tests",
+    "primary95_plus3_crop_prediction_population": "frozen_protocol_verified; main prediction running",
+    "full_TEST49_pose_and_state_performance": "pending_main_postseal_scoring",
+    "actual_T_from_real_crops": "expectedT preregistered; physicalT pending_postseal_scoring",
+    "unseen_or_SOTA_or_95percent_coverage_claim": "not_established_and_not_claimed"
+  },
+  "evidence_paths": {
+    "method_contract": "../METHOD_CONTRACT_KO.md",
+    "guarded_runtime_contract": "../runtime_smoke_guarded_v2/CONTRACT_CHECKS.json",
+    "guarded_runtime_prediction_seal": "../runtime_smoke_guarded_v2/PREDICTION_SEAL.json",
+    "main_frozen_protocol": "../evaluation_v1/PROTOCOL.json",
+    "expected_main_postseal_scoring": "../evaluation_v1/POSTSEAL_SCORING.json",
+    "actual_O_CAL_model": "EXTERNAL_O_CAL_MAX_MODEL_N3_SUBPIX.json",
+    "metadata_inventory": "OT_METADATA_INVENTORY.json",
+    "real_crop_preregistration": "REAL_CROP_PREREGISTRATION.json",
+    "own_crop_domain_smoke": "CROP_DOMAIN_INPUT_SMOKE.json"
+  },
+  "guarded_real_RGB_evidence": {
+    "scope": "seen first CAL natural multi-O case, first state head; executable-contract smoke, not generalization",
+    "GT_reads": 0,
+    "states": [
+      "O",
+      "B",
+      "B",
+      "O",
+      "B",
+      "B",
+      "S",
+      "S"
+    ],
+    "actual_external_O_domain_ids": [
+      0,
+      3
+    ],
+    "joint_accepted": true,
+    "all_joint_OT_constraints_pass": true,
+    "both_Tiny_SAM_masks_exact_S_perturb_invariance": true,
+    "state_BI_domains_pose_exact_S_perturb_invariance": true,
+    "BI_q_covariance_frozen": true,
+    "max_visible_measurement_residual_px": 4.6011716544001935,
+    "max_visible_seed_projection_shift_px": 0.20290264984630935,
+    "all_visible_Mahalanobis_budgets_pass": true,
+    "all_visible_seed_movement_budgets_pass": true,
+    "solver_joint_method": "SLSQP_continuous_SE3_all_OT_inequalities"
+  }
+}

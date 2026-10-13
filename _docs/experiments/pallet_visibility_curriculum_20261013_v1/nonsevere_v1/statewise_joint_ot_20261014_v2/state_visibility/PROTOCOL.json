@@ -1,0 +1,180 @@
+{
+  "schema": "ACTUAL_VISIBILITY_CAL46_PREREGISTERED_V2",
+  "frames": 46,
+  "target": "human_states_native DIRECT_VISIBLE versus EXTERNAL_OCCLUDED",
+  "initial_state_order": "S first, conditional/certified T next, invalid/OOB RGB query U, then B/I/O",
+  "S_pixel_queries": 0,
+  "initial_S_excluded_before_any_RGB_feature_extraction": true,
+  "feature_radius_uses_only_nonS_RGB_eligible_queries": true,
+  "feature_names": [
+    "lab_mean_L",
+    "lab_mean_a",
+    "lab_mean_b",
+    "lab_std_L",
+    "lab_std_a",
+    "lab_std_b",
+    "lab_center_minus_context_L",
+    "lab_center_minus_context_a",
+    "lab_center_minus_context_b",
+    "gradient_mean",
+    "gradient_std",
+    "gradient_q90",
+    "corner_eigen_ratio",
+    "gradient_orientation_bin_0",
+    "gradient_orientation_bin_1",
+    "gradient_orientation_bin_2",
+    "gradient_orientation_bin_3",
+    "gradient_orientation_bin_4",
+    "gradient_orientation_bin_5",
+    "gradient_orientation_bin_6",
+    "gradient_orientation_bin_7",
+    "mask_center_mean",
+    "mask_context_mean",
+    "mask_context_std",
+    "mask_grid_0",
+    "mask_grid_1",
+    "mask_grid_2",
+    "mask_grid_3",
+    "mask_grid_4",
+    "mask_grid_5",
+    "mask_grid_6",
+    "mask_grid_7",
+    "mask_grid_8",
+    "mask_grid_9",
+    "mask_grid_10",
+    "mask_grid_11",
+    "mask_grid_12",
+    "mask_grid_13",
+    "mask_grid_14",
+    "mask_grid_15"
+  ],
+  "spatial_features": 2560,
+  "PCA_components": 16,
+  "backbone": {
+    "architecture": "ImageNet ResNet18 frozen stem+layer1+layer2",
+    "weights_repo_relative": "data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+    "weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+    "trainable_parameters": 0,
+    "normalization": {
+      "mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    },
+    "crop": "4r/8r floororigins reflect101 padding linear128 resize",
+    "pooling": {
+      "F4": "layer2avg4x4flatten2048",
+      "F8": "layer2avg2x2flatten512"
+    }
+  },
+  "backbone_trainable_parameters": 0,
+  "source_segmenter": {
+    "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/clean_source_segmentation_v1/best_source_CAL.pt",
+    "sha256": "032c4afb3800528b8c619453f7e2e024f8c6038f1c82ac27a91d25f11d2b2d65",
+    "bytes": 130710
+  },
+  "mask_is_feature_not_label": true,
+  "known_CAL_audit": {
+    "DIRECT": 268,
+    "EXTERNAL": 9,
+    "SELF": 82,
+    "UNANNOTATED": 9,
+    "expected_eligible_DIRECT": 263,
+    "expected_eligible_EXTERNAL": 7,
+    "expected_human_SELF_initial_geometry_disagreements_loss_ignored": 15
+  },
+  "previous_CAL_label_scope_audit_performed": true,
+  "feature_cache_precedes_training_label_join": true,
+  "basis_rule": "All scalers/PCA/classifier use only geometric nonS inframe human DIRECT/EXTERNAL training rows, fold training subset only",
+  "folds": "LeaveOneGroupOut over four CAL sessions; no TEST or FINAL label reads",
+  "C_candidates": [
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "fixed_threshold_grid": [
+    0.1,
+    0.125,
+    0.15,
+    0.175,
+    0.2,
+    0.225,
+    0.25,
+    0.275,
+    0.3,
+    0.325,
+    0.35,
+    0.375,
+    0.4,
+    0.425,
+    0.45,
+    0.475,
+    0.5,
+    0.525,
+    0.55,
+    0.575,
+    0.6,
+    0.625,
+    0.65,
+    0.675,
+    0.7,
+    0.725,
+    0.75,
+    0.775,
+    0.8,
+    0.825,
+    0.85,
+    0.875,
+    0.9
+  ],
+  "selection": "Highest pooled CAL LOGO AUC; tie by LOGO balanced accuracy then smaller C. Threshold maximizes pooled LOGO balanced accuracy; tie nearest 0.5 then smaller threshold",
+  "abstention_margin": 0.05,
+  "abstention_margin_fixed_before_fit": true,
+  "seed": 20261014,
+  "model_produces_coordinates": false,
+  "coordinate_error_not_a_training_target": true,
+  "initial_geometry_label_disagreements_not_overwritten": true,
+  "TEST_rows_for_training_or_selection": 0,
+  "FINAL_rows_used": 0,
+  "severe_rows_for_any_fit": 0,
+  "limits": [
+    "Only seven RGB-eligible EXTERNAL labels in two CAL sessions",
+    "Conditional T is a hypothesis of the frozen initial pose, not independently certified truncation",
+    "Human SELF/UNANNOTATED are loss-ignored; U is internal abstention",
+    "CAL LOGO selection is development evidence, not an independent test claim"
+  ],
+  "inputs": {
+    "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/PREDICTION_INPUTS.json",
+    "sha256": "5317cf5f2160b05cdd1cabb0babf4ead297a3181885fa1d5df766bd949b6c2ec",
+    "bytes": 542046
+  },
+  "cohort": {
+    "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/COHORT_PROTOCOL.json",
+    "sha256": "6c666b9284054709a776d254098197a87e85c8339dd96fd912fc9fefa3e551ad",
+    "bytes": 4995
+  },
+  "isolated_CAL_labels": {
+    "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/OOF_pose_v1/ISOLATED_CAL_SCORING.json",
+    "sha256": "265b13b54224650675bac163894e1a184527fce9f778bfbfb2ab9c72094d328f",
+    "bytes": 195412
+  },
+  "code": [
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/train_state_visibility_v2.py",
+      "sha256": "fd9918d28ee0fbaf1ea7c4a09f6cbf7e911ec217b484509c4bbed184e8644a30",
+      "bytes": 14772
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v2.py",
+      "sha256": "070cfed212e71775140eb9c6708d4d73a33bf97a4bd576aa73f6022cc797462d",
+      "bytes": 14553
+    }
+  ]
+}

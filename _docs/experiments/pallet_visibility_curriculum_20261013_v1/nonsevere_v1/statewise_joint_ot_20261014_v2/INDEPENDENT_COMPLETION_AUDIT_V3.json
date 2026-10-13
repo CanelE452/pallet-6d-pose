@@ -1,0 +1,378 @@
+{
+  "schema": "INDEPENDENT_REQUIREMENT_COMPLETION_AUDIT_V3",
+  "reviewer": "visual_explanation_review",
+  "reviewed_at_UTC": "2026-10-13T18:29:45.504704+00:00",
+  "conclusion": "Declared conditional method implementation and current output contract verified; no unresolved material source/output inconsistency found. Physical state accuracy, all physical T resolution, unique pose, performance superiority are not established.",
+  "read_only_core_review": true,
+  "core_source_mutations": 0,
+  "previous_reviews_superseded_for_current_v3": true,
+  "requirements": [
+    {
+      "id": "S01",
+      "status": "PASS_CONDITIONAL_ON_INITIAL_GEOMETRY",
+      "requirement": "초기 S는 image/mask/특징/보정/영역/PnP 점 대응에서 제외한다.",
+      "finding": "104 runtime 출력 모두 S query/term=0, 초기 S raw=-1,-1, fresh3 사례 S perturb 정확 불변. 실제 물리 S 전체의 판정 정확성을 뜻하지 않는다."
+    },
+    {
+      "id": "BI01",
+      "status": "PASS",
+      "requirement": "현재 RGB의 B/I 보정 후 q와 covariance를 고정한다.",
+      "finding": "98건 v2→v3 모든 BI 관측·공분산 정확 동일; 104 runtime q readout 동일. 원 측정 fallback은 출처를 따로 기록한다."
+    },
+    {
+      "id": "BI02",
+      "status": "PASS_HEURISTIC_UNCERTAINTY",
+      "requirement": "최종 BI는 각 관측의 오차 한도와 모델 면 가시성·현재 canvas를 만족한다.",
+      "finding": "seed projection clamp는 off; 각 whitening norm≤3, model nonself 2deg 및 closed canvas. independent scalar 검산 283개 BI pass. covariance는 보정 확률이 아니다."
+    },
+    {
+      "id": "O01",
+      "status": "PASS_EMPIRICAL_CAL_ONLY",
+      "requirement": "실제 외부 가림 O의 CAL 오차 모델과 현재 image query로 영역을 만든다.",
+      "finding": "실제 eligible CAL O7/2sessions, raw-centered empirical maximum; S와 TEST 학습 제외. 95% coverage 및 통계적 독립성 보장 없음."
+    },
+    {
+      "id": "T01",
+      "status": "PASS_CONDITIONAL_SPATIAL_CONSTRAINT",
+      "requirement": "T는 실제 current canvas 밖 제약이며 finite location을 꾸며내지 않는다.",
+      "finding": "독립 side 근거 없으면 4-side union; localization_available=False, O-model 사용 없음. cap256 초과는 명시 unresolved, 부분 가지 검색 없음."
+    },
+    {
+      "id": "OT01",
+      "status": "PASS",
+      "requirement": "모든 O/T의 각 영역을 공동 SE3 연속 최적화에 동시에 넣는다.",
+      "finding": "SLSQP 6DOF callback마다 all individual inequalities; 영역 중심 precise correspondence 아님. accepted main48개 O/T 제약 + fresh12개 독립 수치 검산 pass."
+    },
+    {
+      "id": "POSE01",
+      "status": "PASS_LOCAL_FEASIBILITY_ONLY",
+      "requirement": "BI2+OT는 가능 자세 가족으로 보고하고 정밀 유일성을 주장하지 않는다.",
+      "finding": "main3개 2BI family 모두 ambiguous, OT_solved=False, uniqueFalse; finite samples는 전체 possible pose 수·confidence bound 아님."
+    },
+    {
+      "id": "FAIL01",
+      "status": "PASS",
+      "requirement": "공동 실패하면 OT 미해결, fallback 출처와 유효 BI seed 조건을 밝힌다.",
+      "finding": "실패49건 OT readout None/UNRESOLVED. all guards valid & nonfamily seed만 fallback 허용; 현재98건의 실패49건은 original coarse S-only fallback. invalid/pair seed 테스트 포함."
+    },
+    {
+      "id": "READ01",
+      "status": "PASS",
+      "requirement": "S는 선택된 accepted/fallback 자세에서 모델 투영만 사용한다.",
+      "finding": "104 runtime 모두 S readout이 해당 actual pose 원 native 모델 투영과 일치. BI는 q 관측 그대로, U는 None, 혼합 readout은 하나의 강체 pose가 아님."
+    },
+    {
+      "id": "NATIVE01",
+      "status": "PASS",
+      "requirement": "원 native 순서·치수·물리 Q·9번째 중심 metadata를 보존한다.",
+      "finding": "Q=R_cf_original.T@R_physical_original; R_physical_final=R_cf_final@Q. nativeXYZ extents 및 ninth original q를 104 runtime 독립 확인."
+    },
+    {
+      "id": "DATA01",
+      "status": "PASS",
+      "requirement": "좌표 GT는 prediction/candidate generation에 쓰지 않고 complete population을 먼저 봉인한다.",
+      "finding": "replay prediction은 v2 prediction-only sealed cache를 사용; GT scoring call/coordinate file read 없음. 98 ordered ids, CAL46/TEST49/crop3; predseal 후 별도 score binding 확인."
+    },
+    {
+      "id": "FRESH01",
+      "status": "PASS_CAL_EXECUTION_ONLY",
+      "requirement": "현재 전체 API를 실제 RGB에서 실행해 상태/BI/영역/solver 연결을 확인한다.",
+      "finding": "새 CAL3 사례 Tiny/SAM/current API forward. upstream cache field parity 및 S perturb 정확 불변. 9 sealed rows는 원/교란6 runtime + cached solver3; 98건 전체 새 backbone 실행으로 표현하지 않음."
+    },
+    {
+      "id": "TEST01",
+      "status": "PASS_RECEIPT_VERIFIED",
+      "requirement": "관련 regression과 physical/analytic derivative tests를 현재 source에 대해 검증한다.",
+      "finding": "현재 core19 및 test7/log2 SHA 모두 receipt와 일치. distinct95pass=기본90+physical5. 독립 리뷰는 기존 실행 로그/receipt 확인이며 새 pytest 실행을 추가하지 않음."
+    },
+    {
+      "id": "DOC01",
+      "status": "PASS_WITH_EXPLICIT_LIMITATIONS",
+      "requirement": "현재 결과와 방법 정의·실패/모호성/조건부 T를 문서에 정확히 기록한다.",
+      "finding": "README/METHOD_DETAILS/RESULTS/current figures를 검토. CAL2/TEST7 accepted change와 allpop fallback 지표 구분. earlier oracle physically inconsistent mechanism 결과를 성공 증거로 사용하지 않음."
+    },
+    {
+      "id": "PERF01",
+      "status": "NO_SUPERIORITY_ESTABLISHED",
+      "requirement": "기존 PnP를 넘는 성능 주장과 처리 방법 구현 완료를 구분한다.",
+      "finding": "TEST49 baseline3.363cm/6.527deg/40 vs v3 3.514cm/6.568deg/39; reused exploratory TEST 및 derived pose reference. 독립 unseen 우월성 없음."
+    }
+  ],
+  "material_open_implementation_findings": [],
+  "known_material_limitations": [
+    {
+      "id": "L_STATE_S",
+      "material": true,
+      "status": "KNOWN_LIMITATION_NOT_A_CURRENT_SOURCE_BLOCKER",
+      "text": "영상 배제는 초기 모델 S ID에 대해 보장된다. 후평가 actual HUMAN SELF 중 CAL13/TEST13점이 B/I로 판정되어 실제 S 전부를 배제했다는 물리 보장은 없다. fixed initial S는 final model visibility 변경에도 재라벨하지 않는다."
+    },
+    {
+      "id": "L_STATE_OT",
+      "material": true,
+      "status": "KNOWN_LIMITATION",
+      "text": "TEST actual O12 중 O11/B1, actual DIRECT286 중 false O11. 자연 human T0. topcrop325 true T4/T5 중 T4→O4, topcrop334 true T5→U5, topcrop340 false T0/T3 및 true T5→U5. conditional feasibility는 실제 상태 성공이 아니다."
+    },
+    {
+      "id": "L_FAMILY",
+      "material": true,
+      "status": "KNOWN_LIMITATION",
+      "text": "BI2 family의 finite feasible samples는 연속 가능집합 전체·pose 개수·불확실성 경계가 아니다. thirdcrop의 sample projection abs max111098409.9466px를 precision success로 주장하지 않는다."
+    },
+    {
+      "id": "L_UNCERTAINTY",
+      "material": true,
+      "status": "KNOWN_LIMITATION",
+      "text": "CAL O7/2sessions empirical max radius와 BI covariance whitening3은 확률 보장 없음. O source는 candidate pose independent source지만 visible source와 통계적 독립성은 보장되지 않는다."
+    },
+    {
+      "id": "L_GEOMETRY",
+      "material": true,
+      "status": "KNOWN_LIMITATION",
+      "text": "최종 BI model nonself2deg/canvas 검사는 RGB physical visibility certificate가 아니다. 초기 S conditional 분류와 등록 모델 오차는 남는다."
+    },
+    {
+      "id": "L_SEARCH",
+      "material": true,
+      "status": "KNOWN_LIMITATION",
+      "text": "유한 multi-start local continuous solve의 성공은 feasible hypothesis이며, 실패는 globally infeasible proof가 아니다. unknown T side cap은 명시 unresolved."
+    },
+    {
+      "id": "L_REUSE",
+      "material": true,
+      "status": "KNOWN_LIMITATION",
+      "text": "full98 v3는 sealed v2 RGB cache의 solver replay다. 새 fullAPI proof는 CAL3 사례. TEST는 이미 재사용된 탐색 평가이며 v3는 method definition repair 이후 평가로 new independent postselection test 아님."
+    },
+    {
+      "id": "L_CHANGE_COUNT",
+      "material": false,
+      "status": "AUDIT_PRECISION_NOTE",
+      "text": "accepted change CAL2/TEST7은 score의 matrix norm>1e-6 OR translation>1e-7m 기준이다. TEST7 중 eval_pallet07:1778652140531310080의 Δt=3.7405789685e-7m는 수치적 차이 수준이므로 7을 모두 실질적 개선 사례 수로 해석하지 않는다."
+    }
+  ],
+  "automated_audit": {
+    "groups": 33,
+    "checks": 4137,
+    "failed": 0,
+    "runtime_outputs_checked": 104,
+    "main_rows": 98,
+    "fresh_actual_RGB_cases": 3
+  },
+  "observed_counts": {
+    "rows": 98,
+    "partition_population_including_crops": {
+      "CAL": 49,
+      "TEST": 49
+    },
+    "primary_population": {
+      "CAL": 46,
+      "TEST": 49,
+      "severe": 0
+    },
+    "separate_real_crops": 3,
+    "accepted": 49,
+    "ambiguous_accepted": 3,
+    "accepted_OT_individual_constraints": 48,
+    "status_counts": {
+      "no_joint_feasible_pose_found": 47,
+      "joint_feasible": 46,
+      "joint_feasible_pose_family": 3,
+      "unresolved": 2
+    },
+    "pose_source_counts": {
+      "explicit_registered_coarse_pose_fallback_S_output_only": 49,
+      "all_joint_OT_feasible_corrected_BI_SE3": 46,
+      "all_joint_OT_feasible_pose_family_representative": 3
+    },
+    "BI_source_counts": {
+      "VISIBLE_BACKBONE_FALLBACK": 198,
+      "B_TARGET_BACKGROUND_LINES": 328,
+      "I_INTERNAL_RGB_JUNCTION": 12
+    },
+    "accepted_pose_changes_vs_BI_only": {
+      "CAL": 2,
+      "TEST": 7
+    },
+    "max_accepted_BI_mahalanobis": 3.0000000701345857,
+    "max_accepted_BI_residual_px": 9.000000000003864,
+    "family_sample_max_abs_px": 111098409.9466169,
+    "initial_final_geometric_S_changes": [
+      {
+        "id": "eval_pallet09:1778653661653195264",
+        "S_now_nonself": [
+          6
+        ],
+        "nonS_now_self": []
+      },
+      {
+        "id": "eval_night08:1779449501478488320|topcrop340",
+        "S_now_nonself": [
+          6,
+          7
+        ],
+        "nonS_now_self": [
+          4,
+          5
+        ]
+      }
+    ],
+    "physical_label_errors": {
+      "CAL": {
+        "actual_S_classified_as_BI": 13,
+        "actual_O_missed_as_BI": 0,
+        "actual_direct_false_O": 2
+      },
+      "TEST": {
+        "actual_S_classified_as_BI": 13,
+        "actual_O_missed_as_BI": 1,
+        "actual_direct_false_O": 11
+      }
+    },
+    "crop_T": [
+      {
+        "id": "eval_night08:1779449488068910592|topcrop325",
+        "actual_transformed_visible_T_ids": [
+          4,
+          5
+        ],
+        "predicted_T_ids": [
+          5
+        ],
+        "states": [
+          "O",
+          "B",
+          "B",
+          "O",
+          "O",
+          "T",
+          "S",
+          "S"
+        ],
+        "joint_accepted": true
+      },
+      {
+        "id": "eval_night08:1779449499143611648|topcrop334",
+        "actual_transformed_visible_T_ids": [
+          5
+        ],
+        "predicted_T_ids": [],
+        "states": [
+          "O",
+          "U",
+          "B",
+          "O",
+          "O",
+          "U",
+          "S",
+          "S"
+        ],
+        "joint_accepted": false
+      },
+      {
+        "id": "eval_night08:1779449501478488320|topcrop340",
+        "actual_transformed_visible_T_ids": [
+          5
+        ],
+        "predicted_T_ids": [
+          0,
+          3
+        ],
+        "states": [
+          "T",
+          "B",
+          "B",
+          "T",
+          "U",
+          "U",
+          "S",
+          "S"
+        ],
+        "joint_accepted": true
+      }
+    ],
+    "pose_metrics": {
+      "CAL": {
+        "ORIGINAL_PNP": {
+          "n": 46,
+          "mean_translation_cm": 3.9820519988819556,
+          "mean_rotation_deg": 7.8049231300954,
+          "success_count": 34
+        },
+        "FROZEN_BI_ONLY_PNP": {
+          "n": 46,
+          "mean_translation_cm": 5.181145341247745,
+          "mean_rotation_deg": 9.701754877942111,
+          "success_count": 34
+        },
+        "ALL_OT_JOINT_SE3": {
+          "n": 46,
+          "mean_translation_cm": 4.756049273536276,
+          "mean_rotation_deg": 8.224244018274018,
+          "success_count": 35
+        }
+      },
+      "TEST": {
+        "ORIGINAL_PNP": {
+          "n": 49,
+          "mean_translation_cm": 3.3630339739650164,
+          "mean_rotation_deg": 6.527091926831804,
+          "success_count": 40
+        },
+        "FROZEN_BI_ONLY_PNP": {
+          "n": 49,
+          "mean_translation_cm": 4.6923767369368035,
+          "mean_rotation_deg": 8.285309674414318,
+          "success_count": 38
+        },
+        "ALL_OT_JOINT_SE3": {
+          "n": 49,
+          "mean_translation_cm": 3.5139306913047417,
+          "mean_rotation_deg": 6.567534860517136,
+          "success_count": 39
+        }
+      }
+    }
+  },
+  "test_receipt": {
+    "distinct_passed": 95,
+    "core19_and_test7_and_log2_hashes_verified": true
+  },
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py": "0955b3b471eba69b55282d65b7d6dff84652c943f8bbf9ec52cbead4c317de46",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v2.py": "b0879c330afe94eccfca646362cc4cbd9a366813e8f85cb5979037ee7870097d",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_masks_v2.py": "98e10011e5d6f87ca27f063719edda359eab4d850187c66d5bfcea5252cd2a75",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v2.py": "7d35bb57ac963e77b8ffd41b13cef90d73aa0b4f1f1a5823ad56dbe86b219993",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_pnp.py": "0c0b1291155dd32829d533e85c434f098f22e4dee506178c8781468984285a39",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/ot_domains_v2.py": "62618db156608b9590866d9bcada00348ae4c891fd97f29f5c963ca601ba9eee",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_jacobian_v2.py": "32a67dcc3af8d250008c8a6bbfef51a5de485b660ffc2ba7cb3d8c215a846a2c",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_parallel_v2.py": "5a47c6725028fb72d468a98370a70993dbd4348668b1e89c3eede7b12ca6c10f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_solver_replay_v3.py": "8943c4e462534227d348233f34cc8fad5b03639a8985737edcc30983e4ffd2f0",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/common.py": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/appearance.py": "dbb37fc3fdce1a0049d37cf5083643af8b9ecc26ce17d2a20a855b75b8b7b81b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_refine.py": "0483b0e309eff5b7ee918e6be2e3a059e6e653f4458b1262b34f630c5a963209",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/interior_observation.py": "91dd637b07caf6d3f5d8f36c5888594a22a525da40346eed4552bab12da1f5a7",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_observation.py": "b60e2a89a82eba8eb8c6a9b07397a4affaf3b2e4ba3457f7309589b9485ba480",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/segmentation.py": "02e861f4e030174fc94406657c5f56e82f4c2af6362cc326c36630edbf9297b5",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/scoring.py": "d91c0d64d7e63a72033752017c41afd983599d7a61f71f6ee70b06e17256edaf",
+    "scripts/research/pallet_foundation_mask_20261013_v1/uncertainty.py": "6679cc00697d4af654c1aa3074fec5c0f8cd700ecabc79763c67e03f4a12e58b",
+    "scripts/research/pallet_foundation_mask_20261013_v1/foundation.py": "6745d37cc95d2562ccc2a1f5b639a6cfc74ee9dc815c04e1cf836a51b4b9218a"
+  },
+  "evidence_sha256": {
+    "INDEPENDENT_COMPLETION_EVIDENCE_V3.json": "0e0682dd7bc80c17e3dfe04cba240e2a0244fc1f520da6ad0353d6d3af185c59",
+    "evaluation_v3/PROTOCOL.json": "f84ca153ea0a0ee00d718f80667ab241131161dc48dc5bdf91f4f8bce8c58bbb",
+    "evaluation_v3/PREDICTION_SEAL.json": "4ea1af814606bc8f794f1f004ded86e87795b3cbad4fc737f8e1a25e0dfcd164",
+    "evaluation_v3/PREDICTIONS.jsonl.gz": "4031254cc34ec10d3b2dfaf996ae1862772f9884cc8d2bec4b3c78931b68e7d9",
+    "evaluation_v3/POSTSEAL_SCORING.json": "dd9829e14882a26d7f2385dbbf7c88d7b203f641164beca64d4a895ff8356c74",
+    "runtime_smoke_current_v3/PROTOCOL.json": "e46b5c726e1577316ace285c04cc0c6c8d3b713a993c579dba95d621bd6c037b",
+    "runtime_smoke_current_v3/PREDICTION_SEAL.json": "6081fc06af600dc8dbc8d0c6c36bed110d4c9197b25a65100f2d09402867c3a8",
+    "runtime_smoke_current_v3/CONTRACT_CHECKS.json": "903c6f11a2ebc010223fb0dba985c587bce8fb96476444159fa775f6b4b567b5",
+    "TEST_RECEIPT_V3.json": "d009c0cb65a9b132971633f85d286fd17ef8219ad81292ab93fd799bbb583a2f",
+    "RUNTIME_CONFIG_V3.json": "ead4dd2b9d7dd679da715e6631b4e661217bc10c6227ea587e58061cf1040577",
+    "METHOD_CONTRACT_KO.md": "81e57fcae9fae8e48a317d1a25d0440e5edcd19f9d8a22827e0be80004596744",
+    "METHOD_DETAILS_KO.md": "2c2ef0e38ebc948f2662d99aa0b60bd15b4935848899013c1cfe13f0222407e4",
+    "README_KO.md": "cbbd25e1fc48b745181c84a393e57b969620844d56a861260270e8d12899b711",
+    "RESULTS_V3.json": "e9599b1f37ee23a127a3deb2aa60fe71a505dd906a9d53841060185c31aeb737",
+    "current_figures_v3/FIGURE_PROVENANCE.json": "75aa28127ba8704819f15ff8a3bd91c277150e104ada6964d2ead70b44381c31",
+    "current_figures_v3/VALIDATION.json": "f6b21e79d9f437259a97248c05b2f2f9d12bc44cef22b1422813b551f8fc5507"
+  }
+}

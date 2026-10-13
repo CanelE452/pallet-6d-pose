@@ -1,5 +1,9 @@
 # Published research snapshot
 
+The current implementation is [statewise joint PnP v3](nonsevere_v1/statewise_joint_ot_20261014_v2/README_KO.md), using `RUNTIME_CONFIG_V3.json`. It excludes S before image queries, freezes separate B/I image measurements, and applies every O/T region simultaneously in continuous SE(3). S is projected only from the resulting registered pose. Two B/I plus O/T produce an explicitly ambiguous pose family; infeasible O/T remain unresolved. Prior completion claims about `anchored_completion_v1/region_completion_v1` are withdrawn: those historical studies compared finite candidates and included S in image regions.
+
+The corrected implementation passed 95 focused checks and fresh-RGB contract tests. The solver-only 98-record replay uses immutable prior RGB measurements and separate post-seal scoring. Reused clean/moderate TEST49 results remain exploratory: mean translation is 3.514cm versus original PnP 3.363cm, and 5cm/5deg success is 39/49 versus 40/49. Overall superiority and independent natural truncation recovery are not established. Current results, source snapshots, conditional-T failures and real-image pose-family figures are preserved; the earlier descriptions below refer to historical methods.
+
 The optional refiner and clean/moderate experiment records are published on
 `research/visibility-curriculum-20261013`. The main workspace and its unrelated
 uncommitted changes are preserved.

@@ -1,5 +1,9 @@
 # Severe를 제외한 가시성·좌표 신뢰도 curriculum
 
+최신 구현·전체 결과·실제 사진은 [상태별 공동 PnP v3](statewise_joint_ot_20261014_v2/README_KO.md)에 있다. B/I 관측을 고정하고 모든 O/T 영역을 동시에 적용하며 S는 PnP 투영만 사용한다. 관련 95개 검사와 실제 RGB 검증을 통과했지만, 재사용 TEST49의 원 PnP 대비 위치 평균 3.363→3.514cm, 성공 40→39/49로 성능 우위는 확인하지 못했다. 아래는 이전 방법의 기록이다.
+
+**현재 방법 정정:** 기존 curriculum/anchored/region 결과는 사용자가 지정한 전체 S/B/I/O/T 방법의 검증이 아니다. S 영상 처리 제외, B/I 별도 보정·고정, 모든 O/T의 공동 연속 PnP, S의 투영 전용 출력을 새 [statewise_joint_ot_20261014_v2](statewise_joint_ot_20261014_v2/METHOD_CONTRACT_KO.md)에서 구현·검증한다. 과거 전체 방법 완성 보고를 철회하며 아래 수치는 이전 구현의 연구 기록으로 보존한다.
+
 현재 범위는 사용자 요청에 따라 **신규 학습과 주 평가에서 severe를 제외**한다. 완료된 사람의 CLEAN/MODERATE/SEVERE 분류를 이미지 SHA로 결합했다. 기존 세션 분할을 유지하면서 CAL 46장(CLEAN 37/MODERATE 9), TEST 49장(CLEAN 30/MODERATE 19)만 남겼다. severe 78장은 새 모델의 표준화, PCA, 분류, 좌표 회귀와 주 평가에 들어가지 않는다.
 
 RGB 가시성 모델은 실제 CAL 46장에서 새로 추출한 특징으로 학습했다. 좌표 신뢰도·보정 모델도 CAL 46개의 특징 285점/회귀 234점만으로 모든 계수를 새로 계산했다. 파렛트 mask CNN은 외부 가림·cargo·context가 없는 clean-static source TRAIN 426/source CAL 72장으로 처음부터 학습했다. 이전 mixed 모델은 이 설정에 연결하지 않았다. 기존 detector/N3 및 최초 자세 cache는 고정 입력이며 그 과거 학습 범위를 다시 인증하거나 학습한 것은 아니다.
