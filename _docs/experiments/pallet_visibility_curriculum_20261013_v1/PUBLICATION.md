@@ -29,3 +29,19 @@ ordering advantage over matched all-visible optimization was not established.
 
 `PUBLICATION_MANIFEST_V1.json` identifies the prior completed work. New count
 rules and the literal PoseFix-plus-SubPix comparison are subsequent work.
+
+The subsequent count-rule implementation is documented in
+[nonsevere_v1/SELECTION_RULES_KO.md](nonsevere_v1/SELECTION_RULES_KO.md).
+Its explicit optional configuration is
+`nonsevere_v1/BOUNDARY_RULE_CONFIG.json`; the API is
+`boundary_rule_api.BoundaryRuleCorrector`. The fixed 5+/4/3/2 rules were checked
+on CAL46, attached to both existing upstream pipelines on reused TEST49,
+and verified with 161 software tests plus 190 subtests. The count means
+image-supported boundary measurements, rather than initial geometric points.
+The new API does not generate another-instance or depth evidence itself.
+
+`PUBLICATION_MANIFEST_V2.json` records the additional source, comparison,
+frozen count-study records, independent audits, and current selection guide.
+The earlier snapshots and protocols retain their original hashes; validation
+amendments are recorded separately. The observed tradeoffs do not establish
+a universal winner, and the existing default model has not been promoted.
