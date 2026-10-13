@@ -45,3 +45,28 @@ frozen count-study records, independent audits, and current selection guide.
 The earlier snapshots and protocols retain their original hashes; validation
 amendments are recorded separately. The observed tradeoffs do not establish
 a universal winner, and the existing default model has not been promoted.
+
+The subsequent statewise method is documented in
+[the completed method and results](nonsevere_v1/region_completion_v1/README_KO.md)
+and [the paper draft](nonsevere_v1/region_completion_v1/PAPER_DRAFT_EN.md).
+Its explicit optional configuration is `nonsevere_v1/PROTECTED_COMPLETION_CONFIG.json`.
+The implementation preserves image measurements in a mixed 2D readout, keeps
+rigid projections separate, and compares finite pose proposals with empirical
+coarse image regions. The soft region term changed zero poses relative to the
+identical candidate pool without that term. Measurement preservation improved
+the reported outline coordinates; superior hidden recovery is not established.
+
+The new method passed 255 tests and 199 subtests, a 720-output independent
+inference audit, and fresh-RGB parity on the predeclared CAL example. Paper
+figures are available as PDF, SVG and PNG. `PUBLICATION_MANIFEST_V3.json` records
+the added method sources, all frozen outcomes, paper artifacts, and the small
+352KB fitted joint-head parameter archive. Restore its public backbone with:
+
+```bash
+python -m scripts.research.pallet_visibility_curriculum_20261013_v1.bootstrap_joint
+```
+
+The backbone is restored from the official PyTorch model endpoint and checked
+against its full recorded SHA256. Input RGB datasets and upstream detector
+weights remain external dependencies. Existing initial/native correspondences
+must be supplied in the exact model basis expected by the selected configuration.
