@@ -1,0 +1,148 @@
+{
+  "schema": "joint_spatial_OOF_WD_branch_CAL_v1",
+  "frames": 76,
+  "arms": {
+    "RGB26_F4F8_PCA32_CORRECTED_WD_M0.5": {
+      "source_joint_arm": "RGB26_F4F8_PCA32_CORRECTED",
+      "selection_margin_px2": 0.5
+    },
+    "RGB26_F4F8_PCA32_CORRECTED_WD_M1": {
+      "source_joint_arm": "RGB26_F4F8_PCA32_CORRECTED",
+      "selection_margin_px2": 1.0
+    },
+    "RGB26_F4F8_PCA32_CORRECTED_WD_M2": {
+      "source_joint_arm": "RGB26_F4F8_PCA32_CORRECTED",
+      "selection_margin_px2": 2.0
+    },
+    "RGB26_F4F8_PCA64_CORRECTED_WD_M0.5": {
+      "source_joint_arm": "RGB26_F4F8_PCA64_CORRECTED",
+      "selection_margin_px2": 0.5
+    },
+    "RGB26_F4F8_PCA64_CORRECTED_WD_M1": {
+      "source_joint_arm": "RGB26_F4F8_PCA64_CORRECTED",
+      "selection_margin_px2": 1.0
+    },
+    "RGB26_F4F8_PCA64_CORRECTED_WD_M2": {
+      "source_joint_arm": "RGB26_F4F8_PCA64_CORRECTED",
+      "selection_margin_px2": 2.0
+    }
+  },
+  "source_joint_arms": {
+    "RGB26_F4F8_PCA32_CORRECTED": {
+      "name": "RGB26_F4F8_PCA32_CORRECTED",
+      "family": "RGB26_F4F8_PCA32",
+      "RGB_coordinate_correction": true,
+      "threshold": 0.45
+    },
+    "RGB26_F4F8_PCA64_CORRECTED": {
+      "name": "RGB26_F4F8_PCA64_CORRECTED",
+      "family": "RGB26_F4F8_PCA64",
+      "RGB_coordinate_correction": true,
+      "threshold": 0.45
+    }
+  },
+  "registered_dimensions": "frame.xyz from isolated prediction inputs only",
+  "observations": "Existing sealed fitted_measurements from joint-spatial OOF RGB coordinate regressor; original native channels",
+  "original_H_fixed": true,
+  "head_usable_probability_frozen": true,
+  "usable_threshold": 0.45,
+  "common_support": "Same q, same H-excluded visible pool, same confidence/accuracy weights for both W/D models",
+  "alternate_initializer": "Unchanged predecessor all finite predicted q SQPnP+LM, including self-hidden/out-of-frame predictions if finite; only initialization, never projections",
+  "final_fit_and_branch_cost_exclude_known_self_hidden": true,
+  "minimum_shared_visible_support": 4,
+  "source_algorithm": "Previous branch_curriculum.py unchanged except frozen local import adapter",
+  "source_branch_algorithm_binding": {
+    "original_path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/staged_code/branch_curriculum.py",
+    "original_sha256": "26989727835b609950445cace4d22b97699bc0f2d5a2a1772f17964d1acae35c",
+    "changes": "Only imports adapted to frozen local common/curriculum snapshot; original algorithm and defaults unchanged."
+  },
+  "margin_grid_px2": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "threshold_or_regressor_retuning": 0,
+  "initial_pose_physical_Q": "Original R_cf.T@R_physical preserved if original family retained; alternate registered proper Q from predecessor",
+  "original_branch_expected": "Exact parity with each source joint-spatial single-family solver",
+  "no_projected_corners_as_observations": true,
+  "no_GT_for_selection": true,
+  "labels_only_after456_predictions_sealed": true,
+  "scoring_reference": "Postseal native physical model phase audit against isolated CAL76 annotation; expected initial63consistent/13inconsistent",
+  "current_default_API_unchanged": true,
+  "TEST_reads": 0,
+  "FINAL_reads": 0,
+  "limitations": [
+    "Joint heads/regressors selected on reused CAL LOGO; this combination is exploratory development.",
+    "The alternate initializer retains the predecessor all-finite detector observation contract.",
+    "Fixed initial H can itself be inaccurate; no oracle hidden-state replacement.",
+    "Branch common cost can prefer a false family when corrected observed coordinates are still inaccurate.",
+    "Reference pose is geometric reconstruction, not an independently measured sensor pose."
+  ],
+  "bindings": [
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/joint_spatial_branch_v1/runner.py",
+      "bytes": 15117,
+      "sha256": "2e0af24817c7ed23955bb9cf975017190b03fa088f5f71e8b5917fa2dfa3fc4d"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/CAL_INPUTS.json",
+      "bytes": 230301,
+      "sha256": "bf6f204bb9f8a78b8a61b9c4571a74ced41360f2dc39033e795848de8ed8959b"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/pose_probe_v1/PREDICTIONS.jsonl.gz",
+      "bytes": 1165948,
+      "sha256": "c05d26a92295c52305cf3c1bb9b5b0a67ae06d8040109940fa0b0b8ac7ce22e7"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/pose_probe_v1/PREDICTION_SEAL.json",
+      "bytes": 529,
+      "sha256": "a9c1c50f46cf3efcd2bb0d8f4dcb3694d4c1c3e727b66052ae59da6b4c97a7f4"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/pose_probe_v1/PROTOCOL.json",
+      "bytes": 5382,
+      "sha256": "17f6c4a2cf6c08a238f95b0ca80888c126df430be9bde306d1b498174df9444e"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_segmentation_v2/PREDICTIONS.jsonl.gz",
+      "bytes": 1755369,
+      "sha256": "1d5e77787b9413c5f6e7ab2e3d2a6dbd75b8a16473471f7c247925e4185bed73"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_segmentation_v2/PREDICTION_SEAL.json",
+      "bytes": 570,
+      "sha256": "e94756f8a908212905371ea4a24e1a6e0a95b60ba0b052611f3c53b52b12d536"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/joint_spatial_branch_v1/code_snapshot/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/joint_spatial_branch_v1/code_snapshot/branch_curriculum.py",
+      "bytes": 9269,
+      "sha256": "bbd9d11ca9f31d748c47006ba203d1725c6b4b8ce30ee008b815698e7dbdd3e8"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/joint_spatial_branch_v1/code_snapshot/common.py",
+      "bytes": 2942,
+      "sha256": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/joint_spatial_branch_v1/code_snapshot/curriculum.py",
+      "bytes": 20244,
+      "sha256": "a3a2e64c881d66bfc00ff7a5e6b8f55ca59828d40bf0dff5750d592789b2bcc2"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/joint_spatial_branch_v1/code_snapshot/run.py",
+      "bytes": 12497,
+      "sha256": "78aa879ffa96931ea75934ae367006f2cf7061ae0e0a19c56a6fef4a8dc857ac"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/joint_spatial_branch_v1/code_snapshot/scoring.py",
+      "bytes": 8077,
+      "sha256": "d91c0d64d7e63a72033752017c41afd983599d7a61f71f6ee70b06e17256edaf"
+    }
+  ]
+}

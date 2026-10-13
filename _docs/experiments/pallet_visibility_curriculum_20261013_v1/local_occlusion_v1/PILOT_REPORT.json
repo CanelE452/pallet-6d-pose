@@ -1,0 +1,750 @@
+{
+  "schema": "source_local_RGB_occlusion_pilot_report_v1",
+  "complete": true,
+  "interpretation": "Source-only learned local RGB support can detect synthetic opacity and transfers partly to real CAL daytime occlusion; real human visibility remains unverified for deployment.",
+  "physical_semantic_source_blocker": "Virtual cuboid corners are not guaranteed to be actual mesh points. Actual mask adjacency supplies LOCAL_BODY_SUPPORT_PROXY only, never certified3D keypoint visibility.",
+  "source_protocol": {
+    "train_images": 768,
+    "CAL_images": 128,
+    "source_TEST_reads": 0,
+    "real_TEST_reads": 0,
+    "FINAL_reads": 0,
+    "steps": 1024,
+    "batch": 32,
+    "eligible_train_queries": 4193,
+    "eligible_CAL_queries": 720,
+    "source_counts": {
+      "train": 4193,
+      "calibration": 720
+    },
+    "excluded": {
+      "train:self_hidden": 1005,
+      "train:ambiguous_or_no_local_body_support": 946,
+      "calibration:self_hidden": 165,
+      "calibration:ambiguous_or_no_local_body_support": 139
+    },
+    "label_scope": "natural local rendered-body support versus known memory-only opaque intervention"
+  },
+  "source_CAL": {
+    "AUC": 0.9568320794753085,
+    "balanced_accuracy_at0p5": 0.8791666666666667,
+    "groups": {
+      "NATURAL_LOCAL_BODY_PROXY": {
+        "n": 720,
+        "mean_support_score": 0.9046544039208028,
+        "direct_recall_at0p5": 0.95,
+        "false_visible_at0p5": null,
+        "unknown_high_entropy_fraction": 0.11527777777777778,
+        "visually_ambiguous_cases": 0,
+        "certain_visible_fraction": 0.8652777777777778,
+        "certain_absence_fraction": 0.019444444444444445,
+        "abstention_fraction": 0.11527777777777778
+      },
+      "FLAT_RANDOM": {
+        "n": 720,
+        "mean_support_score": 0.11974525271040067,
+        "direct_recall_at0p5": null,
+        "false_visible_at0p5": 0.07361111111111111,
+        "unknown_high_entropy_fraction": 0.13194444444444445,
+        "visually_ambiguous_cases": 0,
+        "certain_visible_fraction": 0.02361111111111111,
+        "certain_absence_fraction": 0.8444444444444444,
+        "abstention_fraction": 0.13194444444444445
+      },
+      "BACKGROUND_TEXTURE": {
+        "n": 720,
+        "mean_support_score": 0.2772958547023235,
+        "direct_recall_at0p5": null,
+        "false_visible_at0p5": 0.23055555555555557,
+        "unknown_high_entropy_fraction": 0.2777777777777778,
+        "visually_ambiguous_cases": 0,
+        "certain_visible_fraction": 0.11666666666666667,
+        "certain_absence_fraction": 0.6055555555555555,
+        "abstention_fraction": 0.2777777777777778
+      },
+      "MATCH_LOCAL_MATERIAL": {
+        "n": 720,
+        "mean_support_score": 0.2205415308419712,
+        "direct_recall_at0p5": null,
+        "false_visible_at0p5": 0.15,
+        "unknown_high_entropy_fraction": 0.25833333333333336,
+        "visually_ambiguous_cases": 0,
+        "certain_visible_fraction": 0.05694444444444444,
+        "certain_absence_fraction": 0.6847222222222222,
+        "abstention_fraction": 0.25833333333333336
+      },
+      "OTHER_FOREGROUND_TEXTURE": {
+        "n": 720,
+        "mean_support_score": 0.3513735478043802,
+        "direct_recall_at0p5": null,
+        "false_visible_at0p5": 0.3125,
+        "unknown_high_entropy_fraction": 0.275,
+        "visually_ambiguous_cases": 0,
+        "certain_visible_fraction": 0.19166666666666668,
+        "certain_absence_fraction": 0.5333333333333333,
+        "abstention_fraction": 0.275
+      },
+      "IDENTICAL_PIXEL_OWNERSHIP_CONTROL": {
+        "n": 720,
+        "mean_support_score": 0.9046544039208028,
+        "direct_recall_at0p5": null,
+        "false_visible_at0p5": 0.95,
+        "unknown_high_entropy_fraction": 0.11527777777777778,
+        "visually_ambiguous_cases": 720,
+        "certain_visible_fraction": 0.8652777777777778,
+        "certain_absence_fraction": 0.019444444444444445,
+        "abstention_fraction": 0.11527777777777778
+      }
+    },
+    "identical_RGB_ownership_probability_maxdiff": 0.0,
+    "selection_note": "SourceCAL selects best fixed-budget checkpoint; this is not source-test performance."
+  },
+  "real_CAL": {
+    "frames": 76,
+    "eligible_points": 441,
+    "visible": 367,
+    "external": 74,
+    "raw_source_frozen_head": {
+      "AUC": 0.8284483393475218,
+      "confusion_at0p5": {
+        "direct_visible": 367,
+        "external_occluded": 74,
+        "direct_pred_visible": 304,
+        "direct_pred_nonvisible": 63,
+        "external_pred_visible": 20,
+        "external_pred_nonvisible": 54,
+        "direct_recall": 0.8283378746594006,
+        "external_recall": 0.7297297297297297,
+        "balanced_accuracy": 0.7790338021945651
+      },
+      "fixed_threshold_curve": [
+        {
+          "threshold": 0.2,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 352,
+          "direct_pred_nonvisible": 15,
+          "external_pred_visible": 43,
+          "external_pred_nonvisible": 31,
+          "direct_recall": 0.9591280653950953,
+          "external_recall": 0.4189189189189189,
+          "balanced_accuracy": 0.6890234921570071
+        },
+        {
+          "threshold": 0.25,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 349,
+          "direct_pred_nonvisible": 18,
+          "external_pred_visible": 40,
+          "external_pred_nonvisible": 34,
+          "direct_recall": 0.9509536784741145,
+          "external_recall": 0.4594594594594595,
+          "balanced_accuracy": 0.705206568966787
+        },
+        {
+          "threshold": 0.3,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 343,
+          "direct_pred_nonvisible": 24,
+          "external_pred_visible": 36,
+          "external_pred_nonvisible": 38,
+          "direct_recall": 0.9346049046321526,
+          "external_recall": 0.5135135135135135,
+          "balanced_accuracy": 0.724059209072833
+        },
+        {
+          "threshold": 0.35,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 333,
+          "direct_pred_nonvisible": 34,
+          "external_pred_visible": 30,
+          "external_pred_nonvisible": 44,
+          "direct_recall": 0.9073569482288828,
+          "external_recall": 0.5945945945945946,
+          "balanced_accuracy": 0.7509757714117387
+        },
+        {
+          "threshold": 0.4,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 327,
+          "direct_pred_nonvisible": 40,
+          "external_pred_visible": 26,
+          "external_pred_nonvisible": 48,
+          "direct_recall": 0.8910081743869209,
+          "external_recall": 0.6486486486486487,
+          "balanced_accuracy": 0.7698284115177848
+        },
+        {
+          "threshold": 0.45,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 317,
+          "direct_pred_nonvisible": 50,
+          "external_pred_visible": 22,
+          "external_pred_nonvisible": 52,
+          "direct_recall": 0.8637602179836512,
+          "external_recall": 0.7027027027027027,
+          "balanced_accuracy": 0.7832314603431769
+        },
+        {
+          "threshold": 0.5,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 304,
+          "direct_pred_nonvisible": 63,
+          "external_pred_visible": 20,
+          "external_pred_nonvisible": 54,
+          "direct_recall": 0.8283378746594006,
+          "external_recall": 0.7297297297297297,
+          "balanced_accuracy": 0.7790338021945651
+        },
+        {
+          "threshold": 0.55,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 291,
+          "direct_pred_nonvisible": 76,
+          "external_pred_visible": 20,
+          "external_pred_nonvisible": 54,
+          "direct_recall": 0.7929155313351499,
+          "external_recall": 0.7297297297297297,
+          "balanced_accuracy": 0.7613226305324399
+        },
+        {
+          "threshold": 0.6,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 278,
+          "direct_pred_nonvisible": 89,
+          "external_pred_visible": 18,
+          "external_pred_nonvisible": 56,
+          "direct_recall": 0.7574931880108992,
+          "external_recall": 0.7567567567567568,
+          "balanced_accuracy": 0.757124972383828
+        },
+        {
+          "threshold": 0.65,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 266,
+          "direct_pred_nonvisible": 101,
+          "external_pred_visible": 16,
+          "external_pred_nonvisible": 58,
+          "direct_recall": 0.7247956403269755,
+          "external_recall": 0.7837837837837838,
+          "balanced_accuracy": 0.7542897120553796
+        },
+        {
+          "threshold": 0.7,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 258,
+          "direct_pred_nonvisible": 109,
+          "external_pred_visible": 14,
+          "external_pred_nonvisible": 60,
+          "direct_recall": 0.7029972752043597,
+          "external_recall": 0.8108108108108109,
+          "balanced_accuracy": 0.7569040430075853
+        },
+        {
+          "threshold": 0.75,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 241,
+          "direct_pred_nonvisible": 126,
+          "external_pred_visible": 14,
+          "external_pred_nonvisible": 60,
+          "direct_recall": 0.6566757493188011,
+          "external_recall": 0.8108108108108109,
+          "balanced_accuracy": 0.733743280064806
+        },
+        {
+          "threshold": 0.8,
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 223,
+          "direct_pred_nonvisible": 144,
+          "external_pred_visible": 13,
+          "external_pred_nonvisible": 61,
+          "direct_recall": 0.6076294277929155,
+          "external_recall": 0.8243243243243243,
+          "balanced_accuracy": 0.7159768760586199
+        }
+      ],
+      "sessions": [
+        {
+          "session": "eval_cad",
+          "AUC": null,
+          "direct_visible": 96,
+          "external_occluded": 0,
+          "direct_pred_visible": 87,
+          "direct_pred_nonvisible": 9,
+          "external_pred_visible": 0,
+          "external_pred_nonvisible": 0,
+          "direct_recall": 0.90625,
+          "external_recall": null,
+          "balanced_accuracy": 0.90625
+        },
+        {
+          "session": "eval_night08",
+          "AUC": 0.7216796875,
+          "direct_visible": 32,
+          "external_occluded": 32,
+          "direct_pred_visible": 23,
+          "direct_pred_nonvisible": 9,
+          "external_pred_visible": 10,
+          "external_pred_nonvisible": 22,
+          "direct_recall": 0.71875,
+          "external_recall": 0.6875,
+          "balanced_accuracy": 0.703125
+        },
+        {
+          "session": "eval_night09",
+          "AUC": 0.845766129032258,
+          "direct_visible": 62,
+          "external_occluded": 32,
+          "direct_pred_visible": 54,
+          "direct_pred_nonvisible": 8,
+          "external_pred_visible": 8,
+          "external_pred_nonvisible": 24,
+          "direct_recall": 0.8709677419354839,
+          "external_recall": 0.75,
+          "balanced_accuracy": 0.810483870967742
+        },
+        {
+          "session": "eval_outside",
+          "AUC": 0.9098039215686274,
+          "direct_visible": 51,
+          "external_occluded": 10,
+          "direct_pred_visible": 47,
+          "direct_pred_nonvisible": 4,
+          "external_pred_visible": 2,
+          "external_pred_nonvisible": 8,
+          "direct_recall": 0.9215686274509803,
+          "external_recall": 0.8,
+          "balanced_accuracy": 0.8607843137254902
+        },
+        {
+          "session": "wood_184309",
+          "AUC": null,
+          "direct_visible": 126,
+          "external_occluded": 0,
+          "direct_pred_visible": 93,
+          "direct_pred_nonvisible": 33,
+          "external_pred_visible": 0,
+          "external_pred_nonvisible": 0,
+          "direct_recall": 0.7380952380952381,
+          "external_recall": null,
+          "balanced_accuracy": 0.7380952380952381
+        }
+      ],
+      "unknown_high_entropy_fraction": 0.3129251700680272,
+      "unknown_fraction_by_label": {
+        "DIRECT_VISIBLE": 0.3024523160762943,
+        "EXTERNAL_OCCLUDED": 0.36486486486486486
+      },
+      "caveat": "Raw score was trained on a source local support proxy, not real semantic keypoint visibility"
+    },
+    "calibrated_LOGO": {
+      "RGB26": {
+        "C": 0.01,
+        "AUC": 0.8774946608734076,
+        "threshold": 0.35,
+        "confusion": {
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 348,
+          "direct_pred_nonvisible": 19,
+          "external_pred_visible": 19,
+          "external_pred_nonvisible": 55,
+          "direct_recall": 0.9482288828337875,
+          "external_recall": 0.7432432432432432,
+          "balanced_accuracy": 0.8457360630385153
+        },
+        "folds": [
+          {
+            "session": "eval_cad",
+            "points": 96,
+            "train_points": 345,
+            "train_visible": 271,
+            "train_external": 74,
+            "AUC": null,
+            "direct_visible": 96,
+            "external_occluded": 0,
+            "direct_pred_visible": 96,
+            "direct_pred_nonvisible": 0,
+            "external_pred_visible": 0,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 1.0,
+            "external_recall": null,
+            "balanced_accuracy": 1.0
+          },
+          {
+            "session": "eval_night08",
+            "points": 64,
+            "train_points": 377,
+            "train_visible": 335,
+            "train_external": 42,
+            "AUC": 0.806640625,
+            "direct_visible": 32,
+            "external_occluded": 32,
+            "direct_pred_visible": 24,
+            "direct_pred_nonvisible": 8,
+            "external_pred_visible": 6,
+            "external_pred_nonvisible": 26,
+            "direct_recall": 0.75,
+            "external_recall": 0.8125,
+            "balanced_accuracy": 0.78125
+          },
+          {
+            "session": "eval_night09",
+            "points": 94,
+            "train_points": 347,
+            "train_visible": 305,
+            "train_external": 42,
+            "AUC": 0.8921370967741936,
+            "direct_visible": 62,
+            "external_occluded": 32,
+            "direct_pred_visible": 51,
+            "direct_pred_nonvisible": 11,
+            "external_pred_visible": 3,
+            "external_pred_nonvisible": 29,
+            "direct_recall": 0.8225806451612904,
+            "external_recall": 0.90625,
+            "balanced_accuracy": 0.8644153225806452
+          },
+          {
+            "session": "eval_outside",
+            "points": 61,
+            "train_points": 380,
+            "train_visible": 316,
+            "train_external": 64,
+            "AUC": 0.7823529411764706,
+            "direct_visible": 51,
+            "external_occluded": 10,
+            "direct_pred_visible": 51,
+            "direct_pred_nonvisible": 0,
+            "external_pred_visible": 10,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 1.0,
+            "external_recall": 0.0,
+            "balanced_accuracy": 0.5
+          },
+          {
+            "session": "wood_184309",
+            "points": 126,
+            "train_points": 315,
+            "train_visible": 241,
+            "train_external": 74,
+            "AUC": null,
+            "direct_visible": 126,
+            "external_occluded": 0,
+            "direct_pred_visible": 126,
+            "direct_pred_nonvisible": 0,
+            "external_pred_visible": 0,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 1.0,
+            "external_recall": null,
+            "balanced_accuracy": 1.0
+          }
+        ],
+        "model": {
+          "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/local_occlusion_real_cal_v1/RGB26_MODEL.json",
+          "bytes": 3749,
+          "sha256": "f06a32d5b50d54abe63f2665205929d7294c986d2a20f69c6f7231beff97b838"
+        }
+      },
+      "RGB26_SOURCE_LOCAL2": {
+        "C": 0.01,
+        "AUC": 0.8900139921938287,
+        "threshold": 0.4,
+        "confusion": {
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 347,
+          "direct_pred_nonvisible": 20,
+          "external_pred_visible": 19,
+          "external_pred_nonvisible": 55,
+          "direct_recall": 0.9455040871934605,
+          "external_recall": 0.7432432432432432,
+          "balanced_accuracy": 0.8443736652183518
+        },
+        "folds": [
+          {
+            "session": "eval_cad",
+            "points": 96,
+            "train_points": 345,
+            "train_visible": 271,
+            "train_external": 74,
+            "AUC": null,
+            "direct_visible": 96,
+            "external_occluded": 0,
+            "direct_pred_visible": 96,
+            "direct_pred_nonvisible": 0,
+            "external_pred_visible": 0,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 1.0,
+            "external_recall": null,
+            "balanced_accuracy": 1.0
+          },
+          {
+            "session": "eval_night08",
+            "points": 64,
+            "train_points": 377,
+            "train_visible": 335,
+            "train_external": 42,
+            "AUC": 0.8125,
+            "direct_visible": 32,
+            "external_occluded": 32,
+            "direct_pred_visible": 24,
+            "direct_pred_nonvisible": 8,
+            "external_pred_visible": 6,
+            "external_pred_nonvisible": 26,
+            "direct_recall": 0.75,
+            "external_recall": 0.8125,
+            "balanced_accuracy": 0.78125
+          },
+          {
+            "session": "eval_night09",
+            "points": 94,
+            "train_points": 347,
+            "train_visible": 305,
+            "train_external": 42,
+            "AUC": 0.9047379032258065,
+            "direct_visible": 62,
+            "external_occluded": 32,
+            "direct_pred_visible": 51,
+            "direct_pred_nonvisible": 11,
+            "external_pred_visible": 3,
+            "external_pred_nonvisible": 29,
+            "direct_recall": 0.8225806451612904,
+            "external_recall": 0.90625,
+            "balanced_accuracy": 0.8644153225806452
+          },
+          {
+            "session": "eval_outside",
+            "points": 61,
+            "train_points": 380,
+            "train_visible": 316,
+            "train_external": 64,
+            "AUC": 0.8490196078431372,
+            "direct_visible": 51,
+            "external_occluded": 10,
+            "direct_pred_visible": 51,
+            "direct_pred_nonvisible": 0,
+            "external_pred_visible": 10,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 1.0,
+            "external_recall": 0.0,
+            "balanced_accuracy": 0.5
+          },
+          {
+            "session": "wood_184309",
+            "points": 126,
+            "train_points": 315,
+            "train_visible": 241,
+            "train_external": 74,
+            "AUC": null,
+            "direct_visible": 126,
+            "external_occluded": 0,
+            "direct_pred_visible": 125,
+            "direct_pred_nonvisible": 1,
+            "external_pred_visible": 0,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 0.9920634920634921,
+            "external_recall": null,
+            "balanced_accuracy": 0.9920634920634921
+          }
+        ],
+        "model": {
+          "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/local_occlusion_real_cal_v1/RGB26_SOURCE_LOCAL2_MODEL.json",
+          "bytes": 3981,
+          "sha256": "801f7f5e51376ea3b1c61952e059e97c52e477d08ca1a79fd8487024f9d68bf1"
+        }
+      },
+      "RGB26_SOURCE_LOCAL_PROBE6": {
+        "C": 0.01,
+        "AUC": 0.8965314087929891,
+        "threshold": 0.45,
+        "confusion": {
+          "direct_visible": 367,
+          "external_occluded": 74,
+          "direct_pred_visible": 336,
+          "direct_pred_nonvisible": 31,
+          "external_pred_visible": 17,
+          "external_pred_nonvisible": 57,
+          "direct_recall": 0.9155313351498637,
+          "external_recall": 0.7702702702702703,
+          "balanced_accuracy": 0.8429008027100671
+        },
+        "folds": [
+          {
+            "session": "eval_cad",
+            "points": 96,
+            "train_points": 345,
+            "train_visible": 271,
+            "train_external": 74,
+            "AUC": null,
+            "direct_visible": 96,
+            "external_occluded": 0,
+            "direct_pred_visible": 96,
+            "direct_pred_nonvisible": 0,
+            "external_pred_visible": 0,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 1.0,
+            "external_recall": null,
+            "balanced_accuracy": 1.0
+          },
+          {
+            "session": "eval_night08",
+            "points": 64,
+            "train_points": 377,
+            "train_visible": 335,
+            "train_external": 42,
+            "AUC": 0.8154296875,
+            "direct_visible": 32,
+            "external_occluded": 32,
+            "direct_pred_visible": 23,
+            "direct_pred_nonvisible": 9,
+            "external_pred_visible": 4,
+            "external_pred_nonvisible": 28,
+            "direct_recall": 0.71875,
+            "external_recall": 0.875,
+            "balanced_accuracy": 0.796875
+          },
+          {
+            "session": "eval_night09",
+            "points": 94,
+            "train_points": 347,
+            "train_visible": 305,
+            "train_external": 42,
+            "AUC": 0.9173387096774194,
+            "direct_visible": 62,
+            "external_occluded": 32,
+            "direct_pred_visible": 48,
+            "direct_pred_nonvisible": 14,
+            "external_pred_visible": 3,
+            "external_pred_nonvisible": 29,
+            "direct_recall": 0.7741935483870968,
+            "external_recall": 0.90625,
+            "balanced_accuracy": 0.8402217741935484
+          },
+          {
+            "session": "eval_outside",
+            "points": 61,
+            "train_points": 380,
+            "train_visible": 316,
+            "train_external": 64,
+            "AUC": 0.8843137254901962,
+            "direct_visible": 51,
+            "external_occluded": 10,
+            "direct_pred_visible": 51,
+            "direct_pred_nonvisible": 0,
+            "external_pred_visible": 10,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 1.0,
+            "external_recall": 0.0,
+            "balanced_accuracy": 0.5
+          },
+          {
+            "session": "wood_184309",
+            "points": 126,
+            "train_points": 315,
+            "train_visible": 241,
+            "train_external": 74,
+            "AUC": null,
+            "direct_visible": 126,
+            "external_occluded": 0,
+            "direct_pred_visible": 118,
+            "direct_pred_nonvisible": 8,
+            "external_pred_visible": 0,
+            "external_pred_nonvisible": 0,
+            "direct_recall": 0.9365079365079365,
+            "external_recall": null,
+            "balanced_accuracy": 0.9365079365079365
+          }
+        ],
+        "model": {
+          "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/local_occlusion_real_cal_v1/RGB26_SOURCE_LOCAL_PROBE6_MODEL.json",
+          "bytes": 4451,
+          "sha256": "de86928ebf02c8028dfb891f4b2b98a43b12736e73cae3982903e777abf5c391"
+        }
+      }
+    },
+    "gates": {
+      "RGB26_SOURCE_LOCAL2": {
+        "pooled_AUC_gain": 0.012519331320421156,
+        "session_bootstrap_95CI": [
+          -0.003944174757281593,
+          0.09357142857142864
+        ],
+        "bootstrap_valid_draws": 1972,
+        "bootstrap_invalid_one_class_draws": 28,
+        "clear_crossfit_gate": false,
+        "integration_performed": false,
+        "CI_is_development_diagnostic_not_confirmatory": true
+      },
+      "RGB26_SOURCE_LOCAL_PROBE6": {
+        "pooled_AUC_gain": 0.019036747919581543,
+        "session_bootstrap_95CI": [
+          -0.008798543689320315,
+          0.12428571428571433
+        ],
+        "bootstrap_valid_draws": 1972,
+        "bootstrap_invalid_one_class_draws": 28,
+        "clear_crossfit_gate": false,
+        "integration_performed": false,
+        "CI_is_development_diagnostic_not_confirmatory": true
+      }
+    },
+    "integration_performed": false
+  },
+  "audit": {
+    "weights": {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/local_occlusion_v1/best_source_CAL.pt",
+      "bytes": 557047,
+      "sha256": "7cadefe24488ab2de9f016e36a62704e28beb291e5faa4c85e5e9a8f3d834fd2"
+    },
+    "protocol_sha256": "6bb0bb33a93a932028aaed52e4f1b1cc0a181ea3911789ae4bba6cdcb85cea63",
+    "feature_seal_sha256": "587607e96eeee4781cfd542dfd14561cd9a4358efe158306b0e2f10cd74f117b",
+    "pure_API_validation": {
+      "pass_": true,
+      "checkpoint_sha256": "7cadefe24488ab2de9f016e36a62704e28beb291e5faa4c85e5e9a8f3d834fd2",
+      "original_RGB_sha256": "42538673f59293fa6f942dde65e4524236d4e8b6c98ec40db3ef9c58e591beb3",
+      "same_image_alternative_ownership_gives_identical_output": true,
+      "original_arrays_unchanged": true,
+      "read_only_arrays_supported": true,
+      "outframe_self_invalid_priorities": [
+        "OUT_OF_FRAME",
+        "SELF_OCCLUDED",
+        "UNKNOWN"
+      ],
+      "prediction_input_only": true,
+      "physical3D_certification": false,
+      "TEST_reads": 0,
+      "FINAL_reads": 0
+    },
+    "frozen_H_unchanged": true,
+    "original_RGB_unchanged": true,
+    "observations_unchanged": true
+  },
+  "resources": {
+    "parameters": 138073,
+    "weight_bytes": 557047,
+    "CUDA_peak_bytes": 83492352,
+    "train_and_validation_seconds": 9.424398425035179
+  },
+  "limitations": [
+    "One graphite source object, although wholepatch gain/exposure/saturation augmentation varied colors; wood and other real materials are unvalidated source domains.",
+    "Mask support near a source virtual corner is not proof that its intended physical3D corner is observable.",
+    "Synthetic rectangle cutout artifacts may transfer poorly to natural occluders; no natural source external-occlusion negative labels were fabricated.",
+    "Background tiles are picked by minimum rendered-body mask area among four image corners; non-pallet contents are textures, not independently certified occluder objects.",
+    "A same-RGB different-ownership control gives exactly equal model scores. Entropy cannot certify physical ownership or catch all confident errors.",
+    "Both realCAL calibration augmentation families fail the preregistered improvement gate. More real visibility label variety and session-separated evaluation are needed.",
+    "Prior CAL and root TEST summaries motivated this pilot; future reuse of the same TEST is non-independent. This pilot never read TEST/FINAL files."
+  ]
+}

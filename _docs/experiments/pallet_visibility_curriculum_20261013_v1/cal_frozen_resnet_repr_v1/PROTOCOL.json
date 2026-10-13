@@ -1,0 +1,107 @@
+{
+  "schema": "CAL_FROZEN_RESNET_REPR_V1",
+  "CAL_only": true,
+  "TEST_accessed": false,
+  "FINAL_accessed": false,
+  "preregistered_before_feature_extraction_and_current_CV": true,
+  "cached_predictions": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_segmentation_v2/PREDICTIONS.jsonl.gz",
+  "cached_predictions_sha256": "1d5e77787b9413c5f6e7ab2e3d2a6dbd75b8a16473471f7c247925e4185bed73",
+  "image_inputs": "/dev/shm/pallet-visibility-curriculum-20261013-v1/CAL_INPUTS.json",
+  "image_inputs_sha256": "bf6f204bb9f8a78b8a61b9c4571a74ced41360f2dc39033e795848de8ed8959b",
+  "pretrained_weights": "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+  "pretrained_weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+  "backbone": "torchvision.resnet18(weights=None), load local ImageNet state; discard FC, eval frozen GAP512",
+  "pretrained_download": false,
+  "backbone_finetuning": false,
+  "eligibility": "finite predicted corner in raw image and not initial H self-hidden; no CAL label filter during extraction",
+  "patch_widths": [
+    "4*appearance_patch_radius",
+    "8*appearance_patch_radius"
+  ],
+  "patch_center": "original cached detector KP",
+  "crop_rounding": "integer floor(center - width/2), integer width 4r/8r; reflect101 pad on image boundaries",
+  "resize": [
+    128,
+    128
+  ],
+  "resize_interpolation": "cv2.INTER_LINEAR",
+  "input_order": "RGB",
+  "normalization": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "GAP_dimensions_per_scale": 512,
+  "feature_families": [
+    "RGB26_BASELINE",
+    "RGB26_PLUS_F4_PCA32",
+    "RGB26_PLUS_F4F8_PCA32"
+  ],
+  "excluded_features": [
+    "KP ID",
+    "coordinates",
+    "global position",
+    "session ID",
+    "patch radius/size",
+    "initial pose or dimensions"
+  ],
+  "annotation_read_after_feature_seal": true,
+  "labels_for_CV": "CAL human DIRECT_VISIBLE=1 vs EXTERNAL_OCCLUDED=0 only",
+  "folds": "LeaveOneGroupOut, five whole sessions, exact feature eligibility shared across families",
+  "frozen_feature_preprocessing": "within each training fold only: StandardScaler on F4 or F4+F8, PCA32 svd_solver full whitenFalse; RGB26 concatenated afterward; final StandardScaler fit trainfold only",
+  "logistic": {
+    "C_grid": [
+      0.0001,
+      0.001,
+      0.01,
+      0.1
+    ],
+    "class_weight": "balanced",
+    "max_iter": 3000,
+    "random_state": 20261013
+  },
+  "hyperparameter_selection": "maximum pooled out-of-fold AUC, tie smaller C, selected on CAL only",
+  "threshold_grid": [
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8
+  ],
+  "threshold_selection": "maximum pooled OOF balanced accuracy, tie closest .5 then smaller value",
+  "required_metrics": [
+    "pooled OOF AUC",
+    "each session AUC and DIRECT/external recall",
+    "pooled crossfit-selected-threshold confusion matrix",
+    "macro AUC among two-class sessions"
+  ],
+  "declared_limitations": [
+    "CAL hyperparameter/threshold selection is exploratory, not unbiased validation",
+    "same-frame overlapping KP patches are correlated; whole-session fold grouping prevents cross-session train/test overlap",
+    "pretrained classification representation may lack corner ownership specificity",
+    "GT corner coordinates not used",
+    "PCA/scalers must never see heldout fold features during fitting",
+    "missing legacy soft-color fields remain imputed as in frozen RGB26 baseline"
+  ],
+  "code_sha256": {
+    "run.py": "78aa879ffa96931ea75934ae367006f2cf7061ae0e0a19c56a6fef4a8dc857ac",
+    "common.py": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095",
+    "calibration.py": "4c4def040593a37cdc720924ad4b82ba57e30e965edb4bdded9d1cb6db49ff9f",
+    "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
