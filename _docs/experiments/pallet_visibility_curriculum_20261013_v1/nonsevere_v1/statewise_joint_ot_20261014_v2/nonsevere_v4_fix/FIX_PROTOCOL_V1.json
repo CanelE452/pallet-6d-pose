@@ -1,0 +1,66 @@
+{
+  "schema": "STATEWISE_UNCERTAINTY_FIX_PROTOCOL_V1",
+  "created_UTC": "2026-10-13T22:57:05.385464+00:00",
+  "goal": "Fix real-observation uncertainty, sparse-BI branch choice and initial-T suppression while preserving joint OT and S projection-only completion",
+  "post_diagnosis_research": true,
+  "before_new_pose_selection_and_TEST_scores": true,
+  "primary_population": {
+    "CAL": 46,
+    "TEST": 49,
+    "severe": 0
+  },
+  "primary_crops": false,
+  "fixed_changes": [
+    "soft radial robust BI likelihood with CAL total-error covariance distinct from observed covariance",
+    "finite coarse pose regularizer in camera SO3 tangent and normalized ray/logdepth",
+    "all per-native OT regions simultaneous hard constraints",
+    "initial S permanent pre-RGB exclusion and final PnP projection only",
+    "conditional coarse T cannot suppress an available in-canvas nonS query",
+    "missing projected-location RGB feature block zeroed; no border extrapolation"
+  ],
+  "prior_weight_candidates": [
+    0.0,
+    0.25,
+    1.0,
+    4.0
+  ],
+  "covariance_recipe": "statewise_uncertainty_calibration_v4.RECIPE fixed before fresh-observation pose runs",
+  "candidate_selection": {
+    "population": "CAL46 only, leave one session out uncertainty/prior fit",
+    "ordering": [
+      "maximize pooled held-session success_5cm_5deg count",
+      "minimize pooled held-session mean translation_cm",
+      "minimize pooled held-session mean rotation_deg"
+    ],
+    "all_fallbacks_kept": true,
+    "upstream_condition": "state head, RGB correction and OT radius are frozen allCAL fitted; this is conditional subsystem LOGO, not full-pipeline OOF"
+  },
+  "required_primary_target": {
+    "TEST_translation_cm_mean_at_most": 2.6186275761747178,
+    "TEST_success_5cm_5deg_at_least": 43,
+    "TEST_rotation_deg_mean_at_most": 6.6,
+    "no_GT_input_or_TEST_parameter_choice": true
+  },
+  "controls": [
+    "ORIGINAL_N3_PNP",
+    "OLD_RGB_SINGLE_FAMILY",
+    "BOUNDARY_PROGRESSIVE",
+    "FROZEN_STATEWISE_V3",
+    "SELECTED_V4_NO_OT_same_BI_cov_prior",
+    "SELECTED_V4_NO_PRIOR_same_BI_cov_OT"
+  ],
+  "fresh_RGB_evaluation": "actual current RGB state/masks/B-I observations on95 primary+3 real crops; frozen upstream N3 predictions, no new backbone inference claimed",
+  "OT_information_audit": "compare same BI>=3 with/withoutOT; BI2 admission/family cases separate; all individual slacks and actual pose changes reported",
+  "evaluation_reference": "historical annotation-derived physical/C2 reference, not independent physical metrology",
+  "TEST_status": "reused exploratory; no new holdout claim",
+  "old_sources_models_predictions_immutable": true,
+  "protected_user_sha256": {
+    ".gitignore": "eafc71fb72a3a1a0f1826bbbc098cdd6a148a44320452f4ae3d5d03179b23731",
+    "readme.md": "919ff361d84eebe36e1f6b88a1878a83c1fc9ab9e0539b9be647214844ab038b",
+    "_docs/experiments/pallet_resnet18_refiner_20261001_v1/README_KO.md": "ef4368bebde404c6d7235ec29939a2e3f323cd9ac093c9a70abefe6c5bc1b583",
+    "_docs/experiments/pallet_three_estimator_20261001_v1/README_KO.md": "ab2b45a1906c741936236e81a595f781431529e1ad3ed18c6d41217ed107d5b1",
+    "_docs/experiments/pallet_three_estimator_20261001_v1/STATUS_KO.md": "274494e7c504aecff20f21f11610b7cf525da7b84efc91eaf73768b0ba861280",
+    "data/evaluation/pallet_eval_v1/reports/ANNOTATION_PROGRESS.md": "22c638972c445f145b1638e4639c24464e3998958ac59f9d80a4502e5146e3b5"
+  },
+  "completion_requires_actual_target_and_all_contracts": true
+}
