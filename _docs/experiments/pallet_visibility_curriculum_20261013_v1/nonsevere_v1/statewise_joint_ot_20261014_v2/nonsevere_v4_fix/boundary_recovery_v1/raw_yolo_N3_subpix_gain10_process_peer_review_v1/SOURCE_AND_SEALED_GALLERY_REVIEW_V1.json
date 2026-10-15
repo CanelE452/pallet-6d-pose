@@ -1,0 +1,62 @@
+{
+  "schema": "GAIN10_SAVED_RAW_YOLO_N3_SUBPIX_PROCESS_ESSENTIAL_PEER_V1",
+  "status": "PASS",
+  "reviewer": "/root/visual_explanation_review",
+  "UTC": "2026-10-15T14:16:04.439864+00:00",
+  "essential_blockers": [],
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/render_raw_yolo_N3_subpix_gain10_process_v1.py": "a5d2433c983f14bb9cbd6fe5ca675937805ded6df24b148935a7648e3d329525",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/common.py": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/remainder_native_inputs_v1.py": "55d8bc10a7c89ae547a997dafe146f0a7123bc4f117c736d7ab60fa8d4efd9a1",
+    "scripts/research/pallet_dim_conditioned_p_v1/pose.py": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+    "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_render_raw_yolo_N3_subpix_gain10_process_v1.py": "5f6884a7d31ff61cccbd6de8f15fa9803d7cfa46824e66125a6856b71c32a818"
+  },
+  "input_sha256": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/raw_yolo_N3_subpix_gain10_process_v1/ANALYSIS_PLAN.json": "bb36e6ca7a2d3408a97331b2ad58b550447a3adec75957e95c7a831a6e55e3a5",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/raw_yolo_N3_subpix_gain10_process_v1/PLAN_SEAL.json": "98e27bca40e02cea5d9138a3c6c98c80651dc5a36df8b0671cef6e252d8d439a",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/raw_yolo_N3_subpix_gain10_process_v1/RENDER_SEAL.json": "a764de2117c02c7b6e84b95f547a183c8cfeb077c2dfafdb2b053b0916e72469",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/raw_yolo_N3_subpix_gain10_process_v1/OWNER_EXECUTION_AND_QA_V1.json": "34eefe81c3e50bc0e80ec986aa5b7fd6b2c8f1ba6f3529b159a5c3b190f19333",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/yolo_N3_subpix_stage_provenance_review_v1/SOURCE_AND_CACHE_REVIEW_V1.json": "3bb4c7d74470d3fed873bcd3f6e8768373a471c96f3f6b4e89c2153c51966a0c"
+  },
+  "external_environment_binding": {
+    "font": {
+      "path": "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+      "sha256": "48a28e97b34fc8e5b157657633670cd1b7de126cfc414da65ce9c3d5bc8be733"
+    }
+  },
+  "review_scope": [
+    "Full final renderer and test source, earlier independently reviewed predictor-cache stage identities and F coordinate convention.",
+    "q0/qN/qS/qFinal are exact stored native9 stage arrays; q0/qFinal and two actual F poses join sealed canonical/comparison inputs. qN has original head cap, qS has no standalone F pose.",
+    "Projection uses saved camera-facing dimensions and R_cf over the native cuboid; checks R_cf@Q=R_physical with source=False I/properRy90 and does not project a native model with R_physical.",
+    "Only historical predicted points are plotted, including hidden corner channels. No new visibility or S/U observation is introduced. Coordinate arrows are stage deltas rather than an LM trajectory.",
+    "All mixed prediction corner/GT/metrics values are textually skipped by predictor whitelist. Scalar metrics come from prior exact sealed paired receipt. No reference wire or reference-based ROI.",
+    "ROOT saved-render GO before dependent IO; fixed gain10/zero-loss and strict historical T<5cm and R<5deg rule; font outside repo has explicit file/SHA environment binding.",
+    "Actual plan, render seal and owner QA receipt hashes agree; every34 opaque asset SHA and current source/font bytes match."
+  ],
+  "tests": {
+    "passed": 10,
+    "failed": 0,
+    "elapsed_seconds": 1.05,
+    "command": "PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/minjae/anaconda3/envs/pallet-yolo26/bin/python -m pytest -q -p no:cacheprovider scripts/research/pallet_visibility_curriculum_20261013_v1/test_render_raw_yolo_N3_subpix_gain10_process_v1.py"
+  },
+  "actual_small_asset_checks": {
+    "cases": 10,
+    "stage_arrays": 40,
+    "stored_F_poses": 20,
+    "opaque_asset_hashes_verified": 34,
+    "font_and_plan_source_hashes_current": true,
+    "owner_reported_checks": 276,
+    "owner_reported_failures": 0,
+    "owner_276_not_reexecuted_or_added_to_independent_count": true
+  },
+  "limitations": [
+    "Historical TEST49 posthoc gain illustrations; no unseen-test, isolated SubPix causal effect or new method adoption proof.",
+    "Existing derived evaluation metrics are re-displayed, not independently rescored here.",
+    "ROOT and owner completed actual visual review; this narrow peer did not repeat image decoding or claim independent visual inspection."
+  ],
+  "newGT_ref_RGB_or_mask_decodes": 0,
+  "new_NN_SubPix_PnP_LM_or_optimizer_calls": 0,
+  "renderer_reexecutions": 0,
+  "existing_source_gallery_runtime_or_protected_file_mutations": 0
+}

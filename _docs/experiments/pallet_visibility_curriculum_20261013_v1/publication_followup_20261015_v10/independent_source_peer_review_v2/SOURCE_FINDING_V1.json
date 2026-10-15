@@ -1,0 +1,48 @@
+{
+  "schema": "V10_PUBLICATION_PLANNING_SOURCE_PEER_FINDING_V1",
+  "status": "PLANNING_AND_PURE_PASS_FINAL_BUILD_BLOCKED_PENDING_CLOSED_ASSET_SELECTION",
+  "created_utc": "2026-10-15T13:44:41.149100+00:00",
+  "reviewer": "/root/visual_explanation_review",
+  "source_sha256": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_followup_20261015_v10/prepare_closed_payload_v2.py": "828ab2779defecbdc36be661a093ea5ff240c7417c38344791323c10dc7f7af6",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_followup_20261015_v10/test_prepare_closed_payload_v2.py": "46c89063c02312e29065e4d811672821e53ac48301a950c65a5fde7eafeda1ce"
+  },
+  "input_sha256": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_followup_20261015_v10/PACKAGING_PLAN_V2.json": "ef3df07a5652879209db157c9ce8ee1b01a2dcde05ace051f3b74ff3f51634ec",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_followup_20261015_v10/REPORT_KO_DRAFT_V1.md": "219b2402afa36eec9643ffe4809e482dbfe707f6c7d8d2939dc781f58b9690eb",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_followup_20261015_v10/SOURCE_AND_DRAFT_OWNER_V2.json": "5f0cdc0da19890078ab3b005633819150133043d843e7303fd7d8605b06a1bda"
+  },
+  "tests": {
+    "targeted_passed": 15,
+    "targeted_failed": 0,
+    "elapsed_seconds": 0.05,
+    "extra_fake_reproduction_runs": 1
+  },
+  "finding": {
+    "scope": "Final build selection only; no actual artifact error claimed.",
+    "description": "candidates() includes incomplete process PNG and PROCESS_DATA.json without a completion seal. _full_result_gate checks only explicitly supplied extra_closed_bindings; build() still unions all automatically discovered candidates. Thus an empty extra binding map can publish unfinished render/probe files after score closure.",
+    "fake_fixture": {
+      "parent": "B/largest_component_incomplete_process_v4_33",
+      "completion_seal_present": false,
+      "automatically_selected": [
+        "PROCESS_DATA.json",
+        "incomplete.png"
+      ]
+    },
+    "recommended_closure": "Keep planning discovery separate from final publication allowlist. Require exact completed artifact/asset binding for newly discovered dynamic process/image/compact/probe payload, otherwise reject or exclude before any final manifest/list is written."
+  },
+  "planning_review_passes": [
+    "GO gates before dependent IO and separate draft/build authority",
+    "raw INPUTS/E/PRED/OBS/mask NPZ and active spool/frame paths excluded",
+    "current source SHA verification and HEAD exact reuse recorded without Git mutation",
+    "unique historical source classified by full repository path and SHA instead of basename",
+    "draft retains pending V33 accuracy and default e; historical results and evaluation caveats labelled"
+  ],
+  "limitations": [
+    "No final payload build or validation executed.",
+    "No new V33 score/prediction/positive packet/mask/reference/model dataset decoded.",
+    "Historical baseline numbers were reviewed as report statements from ROOT-authorized prior recount, not independently recomputed here.",
+    "Final actual file/hash/local-link/PNG review remains separate after ROOT GO."
+  ],
+  "git_or_existing_artifact_mutations": 0
+}

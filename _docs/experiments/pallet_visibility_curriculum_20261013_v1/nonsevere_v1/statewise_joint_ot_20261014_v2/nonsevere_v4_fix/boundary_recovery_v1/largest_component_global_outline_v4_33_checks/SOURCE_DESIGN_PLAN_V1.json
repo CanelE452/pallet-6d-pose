@@ -1,0 +1,66 @@
+{
+  "schema": "SOURCE_ONLY_LCC8_FOREGROUND_CONTAINMENT_DESIGN_V33",
+  "selection_profile": "LCC8_MAX_AREA_LOWEST_LABEL_FROZEN_V13_OUTLINE_V33",
+  "baseline_profile": "ORIGINAL_UNION_FROZEN_V13_OUTLINE",
+  "recipe": {
+    "selection_profile": "LCC8_MAX_AREA_LOWEST_LABEL_FROZEN_V13_OUTLINE_V33",
+    "mask_threshold": 0.5,
+    "connectivity": 8,
+    "component_selection": "maximum foreground pixel area; smallest OpenCV label on exact area tie",
+    "labels": "cv2.connectedComponentsWithStats, CV_32S, connectivity=8; label0 is background",
+    "output": "binary float32 mask containing exactly the selected foreground component",
+    "empty_foreground": "all-zero mask, selected label None, unsupported observation retained",
+    "holes_filled": false,
+    "morphology": false,
+    "threshold_search": false,
+    "outline_sampling": "unchanged frozen V13 observe_global_outline",
+    "C_numerical_function": "unchanged frozen V25 outline_value_and_gradient",
+    "original_union_baseline_retained": true,
+    "component_semantic_identity_or_visibility_certified": false,
+    "state_O_S_U_or_GT_or_E_pose_or_frame_ID_routing": false
+  },
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/largest_component_global_outline_v4_33.py": "112e9035d522c4487a816e3612218d44a5fe53470c75a9da4371ec700a276c46",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_largest_component_global_outline_v4_33.py": "7da6eb0cff8d5b8a37494ec6bf6be087d41c61c1f2d58d484728bba8619cec05",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py": "946e4901d19451b26b3043f6e0d0b8e6dcf518819e6c835ed15723a781f40f9b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_foreground_containment_v4_25.py": "1b106c62c159a8dcca9598dedeb5d187e534a5a46de23117afb283f9605b4afe",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py": "0d08b1339261705f5e1873fbf6df1b0e0d62d0fec315708c74a57839bdebb0f6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_jacobian_v2.py": "32a67dcc3af8d250008c8a6bbfef51a5de485b660ffc2ba7cb3d8c215a846a2c",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py": "34cca867999278ea7f7d3ebeba4dd4ce3663d26badefdc1a5af7117dd005962f"
+  },
+  "population_contract": {
+    "total": 238,
+    "CAL": 46,
+    "TEST": 49,
+    "REMAINDER": 143,
+    "PRIMARY": 192,
+    "severe": 0,
+    "ordered_all_rows_retained": true,
+    "empty_or_unsupported_rows_retained": true,
+    "frame_ID_GT_error_or_E_numeric_routing": false
+  },
+  "future_stage_contract": [
+    "ROOT source/plan review before any cached-mask array decode",
+    "ROOT actual declaration GO required before uniform CAL46 or primary LCC application",
+    "Use each frame original cached target mask for union and LCC separately; never overwrite it",
+    "Freeze one rule and identical V13 sampling/C numerical code; do not fit or tune on closed diagnostic cases",
+    "CAL46 held separately; retain complete TEST49 and REMAINDER143 with no missing/empty-frame deletion",
+    "Keep all existing V32 observations/models/results and default e unchanged"
+  ],
+  "scope": {
+    "actual_cached_mask_or_RGB_array_decodes": 0,
+    "new_NN_SAM_or_checkpoint_loads": 0,
+    "new_GT_reference_or_row_decodes": 0,
+    "new_fit_or_pose_calls": 0,
+    "source_and_synthetic_only": true,
+    "actual_run_permission": false
+  },
+  "limits": [
+    "LCC can discard real pallet fragments split by occlusion",
+    "Largest component is not proof of target identity; it can preserve a wrong dominant component",
+    "Holes survive preprocessing but frozen convex-envelope observation still ignores holes",
+    "Equal area ties use lowest returned OpenCV label under the pinned runtime, not semantic preference",
+    "C remains a soft one-sided foreground containment cost without full silhouette or depth uniqueness proof",
+    "No current full-cohort accuracy or adoption claim"
+  ]
+}

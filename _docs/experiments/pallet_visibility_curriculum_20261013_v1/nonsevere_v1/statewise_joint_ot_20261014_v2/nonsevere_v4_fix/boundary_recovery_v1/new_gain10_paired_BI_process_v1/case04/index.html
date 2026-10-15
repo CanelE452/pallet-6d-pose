@@ -1,0 +1,40 @@
+<!doctype html><meta charset="utf-8"><style>body{font-family:sans-serif;max-width:1800px;margin:24px auto;padding:18px;background:#f1f4f7;color:#172633}h1{font-size:30px}h2{padding-top:25px}h3{margin-top:34px}p{line-height:1.7}.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}article,section{background:white;border-radius:12px;padding:15px}img{display:block;width:100%;height:auto}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left;overflow-wrap:anywhere}.metric{font-weight:bold}.zoom{font-size:13px;color:#556}nav a{display:inline-block;margin:7px}@media(max-width:900px){.pair{grid-template-columns:1fr}}</style><h2>5. eval_noapril:1775201421043401984</h2><p><a href="source_rgb.png" target="_blank">원본 전체 사진</a> · <a href="PROCESS_DATA.json">저장 값·출처</a> · <a href="../index.html#c4">전체 목록</a></p><h3>① 각 경로의 입력과 초기 F</h3><p>원래 입력 좌표와 각 경로의 초기 F 자세입니다. 점은 역사적 예측이며, 뒤에 S/O/T/U로 판정되는 채널도 이 초기 예측 표시에는 포함될 수 있습니다. 그 점을 새 RGB 관측으로 쓰지는 않습니다.</p><div class="pair">
+<article><h4>N3+SubPix 없이</h4>
+<a href="RAW_YOLO_01_initial.png" target="_blank"><img loading="lazy" src="RAW_YOLO_01_initial.png" alt="eval_noapril:1775201421043401984RAW_YOLOinitial"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+</article>
+<article><h4>N3+SubPix 사용</h4>
+<a href="N3_SUBPIX_01_initial.png" target="_blank"><img loading="lazy" src="N3_SUBPIX_01_initial.png" alt="eval_noapril:1775201421043401984N3_SUBPIXinitial"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+</article>
+</div>
+<h3>② 각 경로에서 새로 판정한 상태</h3><p>각 경로의 자체 초기 자세·좌표로 새로 판정했습니다. B/I만 점으로 표시합니다. S는 모델 자기 차폐, O는 외부 가림 분류, T는 화면 밖 추정, U는 미확정입니다. 분류 상태는 정답이 아닙니다.</p><div class="pair">
+<article><h4>N3+SubPix 없이</h4>
+<a href="RAW_YOLO_02_states.png" target="_blank"><img loading="lazy" src="RAW_YOLO_02_states.png" alt="eval_noapril:1775201421043401984RAW_YOLOstates"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+<table><thead><tr><th>번호</th><th>상태</th><th>새 p_visible</th><th>원 YOLO conf</th></tr></thead><tbody><tr><td>0</td><td>B</td><td>0.990</td><td>0.999</td></tr><tr><td>1</td><td>T</td><td>—</td><td>0.999</td></tr><tr><td>2</td><td>B</td><td>0.994</td><td>0.999</td></tr><tr><td>3</td><td>B</td><td>0.991</td><td>0.999</td></tr><tr><td>4</td><td>B</td><td>0.994</td><td>1.000</td></tr><tr><td>5</td><td>B</td><td>0.985</td><td>1.000</td></tr><tr><td>6</td><td>S</td><td>—</td><td>1.000</td></tr><tr><td>7</td><td>I</td><td>0.993</td><td>1.000</td></tr></tbody></table>
+</article>
+<article><h4>N3+SubPix 사용</h4>
+<a href="N3_SUBPIX_02_states.png" target="_blank"><img loading="lazy" src="N3_SUBPIX_02_states.png" alt="eval_noapril:1775201421043401984N3_SUBPIXstates"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+<table><thead><tr><th>번호</th><th>상태</th><th>새 p_visible</th><th>원 YOLO conf</th></tr></thead><tbody><tr><td>0</td><td>B</td><td>0.992</td><td>0.999</td></tr><tr><td>1</td><td>T</td><td>—</td><td>0.999</td></tr><tr><td>2</td><td>B</td><td>0.994</td><td>0.999</td></tr><tr><td>3</td><td>B</td><td>0.991</td><td>0.999</td></tr><tr><td>4</td><td>B</td><td>0.993</td><td>1.000</td></tr><tr><td>5</td><td>B</td><td>0.986</td><td>1.000</td></tr><tr><td>6</td><td>S</td><td>—</td><td>1.000</td></tr><tr><td>7</td><td>I</td><td>0.992</td><td>1.000</td></tr></tbody></table>
+</article>
+</div>
+<h3>③ B/I 실제 영상 보정</h3><p>회색 ×는 그 경로의 이전 좌표, 색 ○는 실제 B/I 보정 결과입니다. 이동이 없으면 원래 좌표를 유지한 것입니다. 노란 작은 점은 보관된 실제 영상 선 지지입니다. 얇은 파란 영역은 그 경로의 저장 target mask이며 가림 정답은 아닙니다.</p><div class="pair">
+<article><h4>N3+SubPix 없이</h4>
+<a href="RAW_YOLO_03_measurements.png" target="_blank"><img loading="lazy" src="RAW_YOLO_03_measurements.png" alt="eval_noapril:1775201421043401984RAW_YOLOmeasurements"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+<table><thead><tr><th>점</th><th>이동 px</th><th>실제 이동</th><th>유지·채택 근거</th></tr></thead><tbody><tr><td>B0</td><td>0.000</td><td>원좌표 유지</td><td>두 선의 안정적인 교차 근거 부족</td></tr><tr><td>B2</td><td>4.038</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>B3</td><td>0.506</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>B4</td><td>0.422</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>B5</td><td>1.037</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>I7</td><td>0.000</td><td>원좌표 유지</td><td>두 선의 안정적인 교차 근거 부족</td></tr></tbody></table>
+</article>
+<article><h4>N3+SubPix 사용</h4>
+<a href="N3_SUBPIX_03_measurements.png" target="_blank"><img loading="lazy" src="N3_SUBPIX_03_measurements.png" alt="eval_noapril:1775201421043401984N3_SUBPIXmeasurements"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+<table><thead><tr><th>점</th><th>이동 px</th><th>실제 이동</th><th>유지·채택 근거</th></tr></thead><tbody><tr><td>B0</td><td>0.000</td><td>원좌표 유지</td><td>두 선의 안정적인 교차 근거 부족</td></tr><tr><td>B2</td><td>3.604</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>B3</td><td>0.090</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>B4</td><td>0.206</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>B5</td><td>0.663</td><td>이동</td><td>영상의 두 선 교점 채택</td></tr><tr><td>I7</td><td>0.000</td><td>원좌표 유지</td><td>두 선의 안정적인 교차 근거 부족</td></tr></tbody></table>
+</article>
+</div>
+<h3>④ 같은 B/I-only PnP의 최종 모델</h3><p>동일 B/I-only PnP의 저장 결과입니다. 선은 강체 모델 투영이며 새 측정점이 아닙니다. O/T/U는 정밀 영상점으로 피팅하지 않았고 S도 영상 관측으로 쓰지 않았습니다.</p><div class="pair">
+<article><h4>N3+SubPix 없이</h4>
+<a href="RAW_YOLO_04_final.png" target="_blank"><img loading="lazy" src="RAW_YOLO_04_final.png" alt="eval_noapril:1775201421043401984RAW_YOLOfinal"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+<p>PnP 제약: <b>통과</b></p>
+<p class="metric">저장 사후 평가: T 0.842 cm · R 0.633°<br>평가 기준: 통과 (T &lt; 5cm · R &lt; 5°)</p>
+</article>
+<article><h4>N3+SubPix 사용</h4>
+<a href="N3_SUBPIX_04_final.png" target="_blank"><img loading="lazy" src="N3_SUBPIX_04_final.png" alt="eval_noapril:1775201421043401984N3_SUBPIXfinal"></a><p class="zoom">그림을 누르면 원본 크기로 확대합니다.</p>
+<p>PnP 제약: <b>통과</b></p>
+<p class="metric">저장 사후 평가: T 0.561 cm · R 0.898°<br>평가 기준: 통과 (T &lt; 5cm · R &lt; 5°)</p>
+</article>
+</div>

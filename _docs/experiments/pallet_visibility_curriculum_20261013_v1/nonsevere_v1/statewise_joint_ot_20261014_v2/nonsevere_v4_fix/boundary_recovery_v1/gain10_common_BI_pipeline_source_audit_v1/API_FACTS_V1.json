@@ -1,0 +1,78 @@
+{
+  "schema": "GAIN10_COMMON_BI_RUNTIME_SOURCE_FACTS_V1",
+  "status": "SOURCE_METADATA_ONLY_COMPLETE",
+  "reviewer": "/root/visual_explanation_review",
+  "UTC": "2026-10-15T14:27:06.778306+00:00",
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v2.py": "b0879c330afe94eccfca646362cc4cbd9a366813e8f85cb5979037ee7870097d",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v4.py": "19b88972bd24e14d1151b7493df16c80f0a48e4151f1bc66019d20b4f3bc4309",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v2.py": "7d35bb57ac963e77b8ffd41b13cef90d73aa0b4f1f1a5823ad56dbe86b219993",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v4.py": "5e3a3c9ca4a816496c702deef470cc4dc69262323adb025817e2ce806a7d69fe",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_masks_v2.py": "98e10011e5d6f87ca27f063719edda359eab4d850187c66d5bfcea5252cd2a75",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_observations_v4.py": "c004d99575ffcc4211fd4b2785cc9a882ebd86ee6c2f8d85c0833424d999383d",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_evaluation_v4.py": "6e423f56cd6785a11d4df1252f821b1bd465682fd8bb5d419bf3e959809578e6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_interval_api_v4_2.py": "9c56d1238b0b94147b9257df573b6b10e8779bb46756dea27cedc76cd8555804",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/ot_domains_v2.py": "62618db156608b9590866d9bcada00348ae4c891fd97f29f5c963ca601ba9eee"
+  },
+  "input_sha256": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/RUNTIME_CONFIG_V3.json": "ead4dd2b9d7dd679da715e6631b4e661217bc10c6227ea587e58061cf1040577",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/state_visibility/bounded_ownership_spatial_v3/MODEL.json": "32f1683e9b43dca9731795d061a12bef30253a978f375511b7f98d5cb2291042",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/state_visibility/MODEL.json": "d28aaa6d130717f206960da81f4298fa199322e260555d4dda4bc18fb3792972",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/BOUNDARY_OBSERVATION_CONFIG.json": "0ccfc5db7cd1177311123d8776baa91ebe349cd317e9ca1ff19f5f4f3f489c75",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/ot_domains/EXTERNAL_O_CAL_MAX_MODEL_N3_SUBPIX.json": "a4865047098782ebd8e27c0176979f5ca09553bf06e33d008585e434eca911a7"
+  },
+  "direct_API": {
+    "module": "statewise_joint_api_v4.StatewiseJointV4",
+    "operation": "observe(image_bgr, raw_points, K, native_xyz, coarse_pose, *, pallet_mask=None, state_pallet_mask=None, independent_truncation=None, crop_transform=None)",
+    "inputs": "original uint8 BGR, branch q8/q9, original K, native_xyz=C.cuboid(*branch_own_Fpose.cf_extents), branch own F R_cf/centroid/R_physical and extents",
+    "returns": "initial_geometry, state_observation, mask_audit, visible_correction and frozen_visible_measurements; observe does not optimize a pose",
+    "common_BI_only_usage": "Use state_model and mask_provider with ot_model=None and branch-accurate prediction_source; domains then remain broad metadata and are not passed as calibrated source evidence to a new common BI-only pose solver. Do not call solve_observations for the simpler common BI+PnP experiment."
+  },
+  "state_contract": {
+    "S": "recompute separately from each own registered coarse pose by outward-face visibility; fixed before mask prompts/local queries",
+    "BI": "coarse model projected convex-hull membership fixes boundary/interior role, not actual visibility",
+    "query_gate": "initial S erased; invalid/missing/OOB raw nonS query abstains U unless independent truncation evidence or explicit conditional geometric rule; in-canvas q overrides uncertain coarse T in v4",
+    "O": "frozen actual RGB classifier at each branch own gated query, not target-mask complement or detector confidence",
+    "T": "independently certified truncation optional; coarse-only truncation is conditional, not a physical certificate; interval_v4_2 requires its separate source-specific CAL artifact",
+    "state_descriptor_feature_family": "NON_S_RGB26_GEOMETRY_RAW_SPATIAL",
+    "visible_threshold": 0.97,
+    "abstention_margin": 0.01,
+    "decision": "p>=.98 retains branch initial B/I; p<.96 gives O when enabled; middle U",
+    "raw_YOLO_confidence_argument_present": false,
+    "raw_confidence_note": "Preserve raw confidence as source metadata. Do not treat it as actual visibility probability or replace frozen RGB classifier."
+  },
+  "mask_contract": {
+    "Tiny": "full-frame image-only frozen segmentation; exact same image/model/canvas output may be shared by value when bindings are verified, but existing provider recomputes it on every call",
+    "MobileSAM": "same frozen vit_t weights, box-only with multimask_output=True and maximal SAM quality selected; box is min/max of each branch finite in-canvas nonS raw queries, index8 excluded",
+    "initial_projection_prompt": false,
+    "per_branch_fresh_prompt_required": "Unless original q eligible IDs and box are exactly identical with current image/model/canvas, replaying N3 mask as raw mask is not the same pipeline. Own pose can change S, hence prompt subset. Encoder could be shared only as a separately verified computational reuse, not by reusing a mismatched selected mask.",
+    "mask_semantic_or_occlusion_certificate": false,
+    "mask_inputs_GT_free": true
+  },
+  "correction_contract": {
+    "function": "visible_bi_correction_v2.correct_visible_bi",
+    "gated_to": "states B/I only",
+    "guidance": "branch own projected physical edges; actual target-mask boundary for B and RGB junction for I",
+    "saved_fields": "actual rays/support and intersection, corrected/fallback reason, blend alpha, measured xy/covariance, source, queried IDs",
+    "O_T_S_U_precise_correction_queries": 0,
+    "confidence": "line contrast/RMS and bootstrap intersection conditional covariance; this is not raw YOLO keypoint confidence or guaranteed CAL coverage",
+    "fallback": "original branch point and configured fallback covariance"
+  },
+  "source_policy_caveat": {
+    "existing_external_O_model_prediction_source": "N3_SUBPIX",
+    "raw_source_mismatch_is_rejected": true,
+    "do_not_relabel_N3_model_for_RAW": true,
+    "state_model_same_frozen_parameters_for_two_branches": "valid controlled engineering reuse; raw-domain visibility accuracy/coverage is not newly calibrated",
+    "old_states_or_old_masks_are_not_uniformly_shared": true,
+    "changed_registered_WD_basis_requires_own_xyz_and_Q": true
+  },
+  "execution_scope": {
+    "actual_RGB_or_mask_or_packet_arrays_decoded": 0,
+    "checkpoint_or_classifier_arrays_loaded": 0,
+    "new_NN_SubPix_PnP_optimizer_or_training_calls": 0,
+    "GT_or_reference_reads": 0,
+    "existing_source_results_changed": 0
+  },
+  "next_renderer_contract": "Same fixed10 cases, two columns with matched input/state/mask+actualBI/measurement displacement/common-solver-final rows. All intermediate values must be saved by the new runner; no invented optimizer trajectory. Postseal numeric metric display only with ROOT GO."
+}
