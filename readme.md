@@ -522,3 +522,6 @@ paper contract나 keypoint convention을 정의하지 않는다:
 - `method/step2_geometric_filter.md` — Geometric Filter 설계
 - `preprocessing/keypoint_definition.md` — legacy Y=UP 키포인트 기록
 - `survey/survey-6d-pose-estimation.md` — 6D Pose 분야 서베이
+
+
+2026-10-15 후속 기록: [실제 경계선과 native 변의 잘못된 연결 원인, 보정 전·후 사진](./_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_followup_20261015_v2/REPORT_KO.md). CAL 세 사례 진단과 진행 중인 전체 평가를 구분해 기록했습니다.
