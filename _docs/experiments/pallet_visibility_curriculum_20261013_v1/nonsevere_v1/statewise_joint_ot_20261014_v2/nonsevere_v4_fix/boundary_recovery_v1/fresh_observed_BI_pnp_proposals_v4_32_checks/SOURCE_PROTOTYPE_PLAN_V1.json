@@ -1,0 +1,62 @@
+{
+  "schema": "FRESH_OBSERVED_BI_PNP_SOURCE_ONLY_PROTOTYPE_V32",
+  "generated_UTC": "2026-10-15T09:51:46.455658+00:00",
+  "source": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/fresh_observed_BI_pnp_proposals_v4_32.py",
+    "sha256": "8d0fe5d6e71f19591d9e438573f54b05cb7c218dbaaca7d4f64baf63997e3ecf",
+    "bytes": 13096
+  },
+  "tests": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/test_fresh_observed_BI_pnp_proposals_v4_32.py",
+    "sha256": "db79dbea538696b29a6f4340bba73f622d2260aec16fe9592ba0584860f5d45e",
+    "bytes": 8173
+  },
+  "public_API": "generate_fresh_observed_BI_pnp_proposals(native_xyz,K,states,initial_self_hidden,visible_measurements,initial_coarse_pose,physical_registration_Q)",
+  "cached_bank_baseline_method_error_ID_partition_or_reference_arguments": false,
+  "source_policy": {
+    "BI_gate_before_xy_covariance_source": true,
+    "initial_S_gate_before_any_payload": true,
+    "S_U_O_T_measurement_payload_reads": 0,
+    "covariance_reliability_and_source_archived_unchanged": true,
+    "PnP_covariance_weighting": false,
+    "caller_coarse_source": "INDEPENDENT_INITIAL_COARSE_PREDICTOR",
+    "caller_explicit_independent_of_cached_pose_bank": true,
+    "caller_attestation_not_proof_of_upstream_ancestry": true
+  },
+  "recipe": {
+    "full_BI_set_then_fixed_3_and_4_subsets": true,
+    "maximum_subset_calls_per_family": 127,
+    "solver": "cv2.solvePnPGeneric SOLVEPNP_SQPNP",
+    "local_OpenCV_version": "4.9.0",
+    "all_returned_solutions_examined": true,
+    "full_K_inverse_normalization_handles_skew": true,
+    "proper_rotation_and_all8_cheirality_required": true,
+    "physical_R": "R_native @ Q",
+    "model_center": "R_native @ native_xyz.mean(axis=0) + t_native",
+    "dedup": "numeric equality of physical R and model center only",
+    "reprojection_error_ranking": false,
+    "diverse_native_start_selection": false,
+    "all_current_downstream_hardguards_still_required": true
+  },
+  "synthetic_validation": {
+    "passed": 14,
+    "failed": 0,
+    "elapsed_seconds": 0.32,
+    "actual_dataset_inputs_or_labels_images_models_metrics": 0,
+    "synthetic_PnP_solves": true
+  },
+  "tests_cover": [
+    "fullskewK and noncentered cube",
+    "exact3BI localSQPNP",
+    "S/U/O/T+initialS poison beforepayload",
+    "fewer3 owncoarse only",
+    "degenerate2D and solverexception abstention",
+    "invaliddepth/nonfinite and exactduplicates",
+    "consistent physicalQ and basis reexpression",
+    "SPD/source/Q/K/nativeID failclosed",
+    "no cachedbank parameter"
+  ],
+  "current_V29_V30_V31_sources_models_inputs_outputs_changed": false,
+  "actual_V32_input_decode_NN_fitting_or_evaluation_calls": 0,
+  "wait_for_root_peer_before_runtime_connection": true
+}

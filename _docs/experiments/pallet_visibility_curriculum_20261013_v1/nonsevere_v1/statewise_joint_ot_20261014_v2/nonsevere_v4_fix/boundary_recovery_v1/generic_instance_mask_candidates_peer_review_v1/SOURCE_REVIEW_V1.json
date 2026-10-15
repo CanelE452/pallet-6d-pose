@@ -1,0 +1,46 @@
+{
+  "schema": "STANDALONE_GENERIC_INSTANCE_CANDIDATE_SOURCE_REVIEW_V1",
+  "verdict": "PASS",
+  "created_utc": "2026-10-15T09:58:46.258641+00:00",
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/capture_generic_instance_mask_candidates_v1.py": "4297612b2be8b1d3dfd78614efa31afe4c8b37d00496a2162b302a30c99993a3",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_capture_generic_instance_mask_candidates_v1.py": "55f4d39ee2e017f04e223d88c18603b9575696a779d7ca027ca434c2791b57fc",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/foundation_mask_v1/vendor/MobileSAM/mobile_sam/predictor.py": "6dafa1d20430f6c4e0d37c53bfa80a8241619abb4264d26ca30d843991b760ff"
+  },
+  "tests": {
+    "independent": true,
+    "passed": 19,
+    "failed": 0,
+    "seconds": 0.12,
+    "exit_code": 0
+  },
+  "plan_binding": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/generic_instance_mask_candidates_plan_v1/PREDECLARATION.json",
+    "sha256": "ee361f21e6bfb921da1c6fb4f2bec6705cd861e9f542de0f8a636819c44f152f",
+    "plan_seal_sha256": "ba6d2ffaf9de0fbc4d04b51b11fd450347cc6312c16a3aa660db49663a3ce8c9",
+    "owner_receipt_sha256": "366ab301967aafb202167dbdab9c1e5ceaaa67809210e122a521198a38000f71",
+    "metadata_only": true,
+    "source_input_protected_counts": [
+      30,
+      13,
+      6
+    ]
+  },
+  "essential_findings_ko": [
+    "supplier API에 nativeKP/state/pose/Odomain/S/U prompt 입력이 없다. unmodified wholeRGB를 generic detector에 주고 SAM에는 검출 box만 전달한다.",
+    "conf.25/imgsz640/max_det20 및 고정 NMS config이며 detector가 반환한 모든 box 순서/class/conf와 empty/low/invalid/unknown 상태를 보존한다. threshold/NMS 이전 dense detector 전체를 보존한다는 뜻은 아니다.",
+    "frame 최초 유효box에서 SAM.set_image를 한번 호출하고 각box에 predict(box,multimask_output=True). 3개 masks/quality/픽셀SHA/NPZ binding 모두 저장; first argmax display selection 외 삭제X.",
+    "vendor set_torch_image의 image_encoder(features)와 predict_torch mask_decoder(self.features) 경로가 encoder 공유 주장과 일치한다. 실제 NN/API compatibility를 실행검증했다는 뜻은 아니다.",
+    "targetmask는 예측후 overlap/status 진단에만 사용. target complement·O circle·기존 같은target multialt로 otherobject mask를 만들지 않으며 CANDIDATE/UNKNOWN/suspected_target만 선언한다.",
+    "metadataGO/actualGO는 IO 전에 검사하고 explicit planSHA/source/input/protected 후 local pinned weights를 load한다. 실제 checkpoints/이미지/NPZ를 이 peer에서 열거나 NN 실행하지 않았다.",
+    "fixed CAL3 metadata 선언과 현재pipeline 미공급/other-depth확정0/pose-noisefit0 경계가 일치한다."
+  ],
+  "material_blockers": [],
+  "actual_NN_image_NPZ_label_model_data_reads": 0,
+  "synthetic_fake_arrays_only": true,
+  "existing_source_or_runtime_changes": 0,
+  "scope_caveats": [
+    "No accuracy, object ownership, occlusion order, physical O or depth validation.",
+    "Model-weight/image/NPZ input bytes were not independently opened by this source-only peer; owner preparation records their opaque hashes."
+  ]
+}
