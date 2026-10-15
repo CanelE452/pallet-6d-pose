@@ -1,0 +1,12 @@
+{
+  "측정정의": "관측마스크 convexhull의 실제 noncanvas 선분 샘플과 CAL bodyXYZ/bodyR/t GTderived투영 실루엣 사이 signed거리다. 관측마스크가reference밖이면양수,안이면음수다. 초기S/U localKP/raw/patch는사용하지않는다.",
+  "대응번호영향제거": "모든46개 등록모델/GTbody의 unordered3D점집합 최대매칭오차2.60e-16m. 기존native-incompatible2와wood372phase1도shape로는일치한다. mask오차에nativecorner번호/phase를사용하지않았다.",
+  "유보사례": "첫CAD 1778653003088339968은 maskhull이canvas테두리에만있어 noncanvas실제선분없음. all46기록에남기고fit은45supported만썼다. 실패를성공/정밀선관측으로 바꾸지않았다.",
+  "편향관측": "CAD frame-median중앙값+2.435px,night+1.888px,outside+.568px,wood-.404px. 전데이터에2~4px같은외향편향이있다는전제는불성립한다.",
+  "전역후보": "frameequal global bias ratio.00122234958,전CAL중앙값환산+.813px. empiricaltotalnormal σratio.00489727394,중앙값환산3.257px. 기존1pxconditional-engineering분산과구별한다.",
+  "검증한계": "전역bias LOGO meanabsolute거리2.9687→3.4279px로악화했다. Woodheld에서plastic기준bias를전달하는것이좋지않다. wood세션1개이므로material별모델의독립일반화검증은불가하다.",
+  "coverage": "frame별비율을평균하면기존1px거리범위는25.3%만덮는다. LOGO empiricalσ1은55.8%,2σ86.5%지만실루엣샘플이독립관측은아니고물리적확률보장이아니다. arc-normalized한개shapefactor로사용해야한다.",
+  "원인해석": "고정크기물체에관측mask가외향으로부풀면공간자세가더큰투영/작은깊이를택할수있다. 근사uniformscale에서 Δz/z≈2μ/투영폭이다. 전역CALμ약.8px는수cm수준shape오차의일부만설명할수있고native의미대응/회전/클러터와혼합돼실제원인의인과증명은아니다.",
+  "runtimeAPI": "outline_noise_parameters(model,mask_diagonal_px)로관측-minus-modelsignedresidual기준outward_mask_bias_px와total_normal_sigma_px를반환한다. GT/runtimeKP인수없다. 최소σ는기존1px이며새GT모델/신규GT선택을runtime에서하지않는다.",
+  "현재상태": "모델은CAL-only고정후보이며기본solver/모델/weights변경0,pose실험0,TESTlabel읽기0. genericbias채택을추천하지않으며noise-only/μ0대조를근거에맞게별도로평가할수있다."
+}

@@ -1,0 +1,372 @@
+{
+  "schema": "INDEPENDENT_FINAL_DIAGNOSTIC_RESULT_REVIEW_V1",
+  "reviewed_at_UTC": "2026-10-13T19:49:33.035427+00:00",
+  "status": "PASS_BOUNDED_SCIENTIFIC_INTERPRETATION",
+  "material_open_findings": [],
+  "review_scope": "Read-only completed result/source/doc interpretation; no original sealed artifacts edited, no solver/model/RGB rerun.",
+  "claims": [
+    {
+      "id": "C1",
+      "status": "SUPPORTED_ON_THIS_REUSED_COHORT",
+      "claim": "Current implementation has worse mean translation and simultaneous success than old RGB and boundary competitors on the matched TEST49.",
+      "evidence": {
+        "ORIGINAL_N3_PNP": {
+          "label": "원 N3+SubPix PnP",
+          "translation_cm": 3.3630339739650164,
+          "rotation_deg": 6.527091926831804,
+          "ADDsym_cm": 9.830920604275295,
+          "success_count": 40,
+          "frames": 49
+        },
+        "CURRENT_BI_ONLY": {
+          "label": "현재 보정 B/I만 PnP",
+          "translation_cm": 4.6923767369368035,
+          "rotation_deg": 8.285309674414318,
+          "ADDsym_cm": 10.57206790901127,
+          "success_count": 38,
+          "frames": 49
+        },
+        "CURRENT_JOINT_STATEWISE_V3": {
+          "label": "현재 모든 O/T 공동 v3",
+          "translation_cm": 3.5139306913047417,
+          "rotation_deg": 6.567534860517136,
+          "ADDsym_cm": 9.756425491379433,
+          "success_count": 39,
+          "frames": 49
+        },
+        "OLD_RGB_SINGLE_FAMILY": {
+          "label": "기존 RGB 신뢰도·보정, family 유지",
+          "translation_cm": 2.6186275761747178,
+          "rotation_deg": 6.592330323247539,
+          "ADDsym_cm": 9.249204158368636,
+          "success_count": 42,
+          "frames": 49
+        },
+        "BOUNDARY_PROGRESSIVE": {
+          "label": "기존 경계 융합·진행 보정",
+          "translation_cm": 3.0040049583741717,
+          "rotation_deg": 6.524339747825558,
+          "ADDsym_cm": 9.291883550492429,
+          "success_count": 43,
+          "frames": 49
+        },
+        "COUNT_FUSED": {
+          "label": "N3 count rule, fused",
+          "translation_cm": 3.0654942745818667,
+          "rotation_deg": 6.498007034780687,
+          "ADDsym_cm": 9.544689928550602,
+          "success_count": 40,
+          "frames": 49
+        }
+      },
+      "limit": "Same stored inputs/physical metric, exploratory reusedTEST; no externalSOTA or unseen population claim."
+    },
+    {
+      "id": "C2",
+      "status": "SUPPORTED_CONDITIONAL_EFFECT",
+      "claim": "O/T helps current correctedBI estimator relative to exactly same BI-only control.",
+      "evidence": {
+        "current": {
+          "translation_cm": 3.5139306913047417,
+          "rotation_deg": 6.567534860517136,
+          "ADDsym_cm": 9.756425491379433,
+          "success": 39,
+          "accepted": 29
+        },
+        "BI_only": {
+          "translation_cm": 4.6923767369368035,
+          "rotation_deg": 8.285309674414318,
+          "ADDsym_cm": 10.57206790901127,
+          "success": 38,
+          "accepted": 30
+        },
+        "mean_translation_gain_cm": 1.1784460456320618,
+        "pallet09_outlier_contribution_cm": 1.0569146496453719,
+        "outlier_share": 0.8968714805084638
+      },
+      "limit": "89.7% of mean translation gain is one pallet09 image; not evidence of broad OT superiority."
+    },
+    {
+      "id": "C3",
+      "status": "SUPPORTED_CONDITIONAL_NOT_UNIVERSAL",
+      "claim": "With OT on, corrected BI beats raw BI under held corrected covariance on observed mean metrics; correction effects interact with OT.",
+      "evidence": {
+        "corrected_OT": {
+          "translation_cm": 3.5139306913047417,
+          "rotation_deg": 6.567534860517136,
+          "ADDsym_cm": 9.756425491379433,
+          "success": 39,
+          "accepted": 29
+        },
+        "raw_OT": {
+          "translation_cm": 3.7973536715170835,
+          "rotation_deg": 6.702560153633453,
+          "ADDsym_cm": 10.057884381987783,
+          "success": 38,
+          "accepted": 28
+        },
+        "raw_noOT": {
+          "translation_cm": 4.623359915731663,
+          "rotation_deg": 6.42771060616157,
+          "ADDsym_cm": 9.935602517040536,
+          "success": 38,
+          "accepted": 29
+        },
+        "factorial": {
+          "translation_cm": {
+            "corrected_OT_minus_noOT_mean": -1.1784460456320622,
+            "raw_OT_minus_noOT_mean": -0.8260062442145805,
+            "correction_by_OT_interaction_mean": -0.35243980141748155
+          },
+          "rotation_deg": {
+            "corrected_OT_minus_noOT_mean": -1.7177748138971842,
+            "raw_OT_minus_noOT_mean": 0.2748495474718816,
+            "correction_by_OT_interaction_mean": -1.9926243613690662
+          },
+          "ADDsym_cm": {
+            "corrected_OT_minus_noOT_mean": -0.8156424176318382,
+            "raw_OT_minus_noOT_mean": 0.12228186494724702,
+            "correction_by_OT_interaction_mean": -0.9379242825790853
+          },
+          "success_5cm_5deg": {
+            "corrected_OT_minus_noOT_mean": 0.02040816326530612,
+            "raw_OT_minus_noOT_mean": 0.0,
+            "correction_by_OT_interaction_mean": 0.02040816326530612
+          }
+        }
+      },
+      "limit": "Correction without OT is worse in meanT/rotation. HeldSigma is artificial q-only control; no global quality guarantee."
+    },
+    {
+      "id": "C4",
+      "status": "SUPPORTED_ADMISSION_NOT_SUFFICIENT",
+      "claim": "Hard support budgets often exclude the evaluation reference, but admitting more references/poses does not ensure more accurate selected poses.",
+      "evidence": {
+        "budget3_reference_feasible_TEST": 8,
+        "budget6_reference_feasible_TEST": 23,
+        "compatible_TEST": 42,
+        "current": {
+          "translation_cm": 3.5139306913047417,
+          "rotation_deg": 6.567534860517136,
+          "ADDsym_cm": 9.756425491379433,
+          "success": 39,
+          "accepted": 29
+        },
+        "budget6": {
+          "translation_cm": 3.5302281851667643,
+          "rotation_deg": 6.761618474957707,
+          "ADDsym_cm": 9.779279352918213,
+          "success": 37,
+          "accepted": 44
+        }
+      },
+      "limit": "Historical derivedreference is not independentphysicalGT; undercalibration vs semantic/model/camera/annotation bias not separately identified. Budget6 is not a demonstrated fix."
+    },
+    {
+      "id": "C5",
+      "status": "NOT_SUPPORTED_AS_SINGLE_CAUSE_FIX",
+      "claim": "Dropping falseOT, moving O centers to reference projections or replacing states with human labels does not by itself close the whole gap.",
+      "evidence": {
+        "raw_standard_control": {
+          "translation_cm": 3.7896569665936206,
+          "rotation_deg": 6.706740829674879,
+          "ADDsym_cm": 10.042242328319798,
+          "success": 39,
+          "accepted": 29
+        },
+        "binary_selection_oracle": {
+          "translation_cm": 3.8539362780546695,
+          "rotation_deg": 6.593437749663428,
+          "ADDsym_cm": 10.077124931041254,
+          "success": 38,
+          "accepted": 26
+        },
+        "full_human_raw": {
+          "translation_cm": 3.8380155866401062,
+          "rotation_deg": 6.591040487934133,
+          "ADDsym_cm": 10.061609456663213,
+          "success": 38,
+          "accepted": 27
+        },
+        "full_human_budget6": {
+          "translation_cm": 3.7069284440355412,
+          "rotation_deg": 6.5832496077943246,
+          "ADDsym_cm": 9.94602677257233,
+          "success": 38,
+          "accepted": 39
+        },
+        "falseOT_drop": {
+          "translation_cm": 3.537058973609451,
+          "rotation_deg": 6.709581263909307,
+          "ADDsym_cm": 9.799284035348336,
+          "success": 38,
+          "accepted": 30
+        },
+        "reference_O_center": {
+          "translation_cm": 3.6048245692731484,
+          "rotation_deg": 6.704400192094717,
+          "ADDsym_cm": 9.861245663379894,
+          "success": 38,
+          "accepted": 30
+        }
+      },
+      "limit": "State comparisons require rawstandard control, and binary also abstains humanSELF/UNANNOTATED. A negative intervention cannot show that state/domain errors are irrelevant when other errors remain."
+    },
+    {
+      "id": "C6",
+      "status": "REFERENCE_START_RESCUE_NOT_OBSERVED",
+      "claim": "Adding all allowed reference starts did not change current actual R/t for any of the95 images.",
+      "evidence": {
+        "exact_R_t_equal": {
+          "CAL": 46,
+          "TEST": 49
+        },
+        "reference_init": {
+          "translation_cm": 3.5139306913047417,
+          "rotation_deg": 6.567534860517136,
+          "ADDsym_cm": 9.756425491379433,
+          "success": 39,
+          "accepted": 29
+        }
+      },
+      "limit": "Not global search completeness proof; many reference poses remain excluded, and objective can move an accurate initialization away."
+    },
+    {
+      "id": "C7",
+      "status": "INTERNAL_CONSISTENCY_POSITIVE_CONTROL",
+      "claim": "Ideal model-projected observations+reference construction start are recovered in all95 under the declared model.",
+      "evidence": {
+        "construction_feasible": 95,
+        "accepted": 95,
+        "ambiguous": 0,
+        "construction_found": 95
+      },
+      "limit": "Multiple inputs become ideal atonce. Not realRGB localization, independent physical visibility, O/T superiority, or proof that every real-input case is bugfree."
+    },
+    {
+      "id": "C8",
+      "status": "FINITE_FOUND_POOL_SELECTOR_LIMIT",
+      "claim": "Changing selection within the fixed current feasible sample pool has limited recoverable accuracy.",
+      "evidence": {
+        "nearest_coarse": {
+          "translation_cm": 3.3255671178443214,
+          "rotation_deg": 6.646657304382771,
+          "ADDsym_cm": 9.856677561983872,
+          "success": 39,
+          "accepted": 29
+        },
+        "GT_min_translation": {
+          "translation_cm": 3.092044318530501,
+          "rotation_deg": 6.987046060192408,
+          "ADDsym_cm": 9.865295015071352,
+          "success": 39,
+          "accepted": 29
+        },
+        "current": {
+          "translation_cm": 3.5139306913047417,
+          "rotation_deg": 6.567534860517136,
+          "ADDsym_cm": 9.756425491379433,
+          "success": 39,
+          "accepted": 29
+        },
+        "min_translation_by_partition": {
+          "CAL": 3.94968598443489,
+          "TEST": 3.092044318530501
+        },
+        "any_candidate_simultaneous_success_with_current_fallback": {
+          "CAL": 35,
+          "TEST": 39
+        },
+        "old_RGB_translation_cm": 2.6186275761747178
+      },
+      "limit": "The translation floor3.092 cannot reach oldRGB2.619 within this savedpool; maxjointsuccess39 cannot reach oldRGB42/boundary43. Does not bound the full continuous feasible set or prove no other feasible pose exists."
+    },
+    {
+      "id": "C9",
+      "status": "SUPPORTED_REFERENCE_OBSERVATION_MODEL_MISMATCH",
+      "claim": "Sparse current BI observations, uncalibrated assumed uncertainty, and objective/physical metric mismatch are concrete diagnosed bottlenecks.",
+      "evidence": {
+        "primary_success_to_failure_four_BI_count": 3,
+        "compatible_reference_all_constraint_pass": 12,
+        "compatible_reference_n": 86,
+        "reference_BI_support_pass": 14,
+        "nearest_improvement_outlier_dominated": true
+      },
+      "limit": "Bottlenecks are supported, but the full gap is not uniquely apportioned among measurement noise, physicalmodel mismatch, state support, covariance and selection; proposed calibration/priors remain untested future hypotheses."
+    }
+  ],
+  "root_document_review": {
+    "matched_raw_standard_control_explicit": true,
+    "pallet09_89_7percent_outlier_explicit": true,
+    "binary_not_pure_classifier_only_explicit": true,
+    "ideal_not_OT_superiority_explicit": true,
+    "reference_init_not_global_proof_explicit": true,
+    "single_negative_intervention_not_factor_irrelevance_explicit": true,
+    "future_calibration_priors_labelled_untested": true,
+    "independent_physical_GT_not_claimed": true,
+    "reused_TEST_not_newholdout": true
+  },
+  "checks": {
+    "rows1520": true,
+    "all16arms95": true,
+    "source_snapshot_pairs21_unchanged": true,
+    "reference_init_exact_R_t_CAL46_TEST49": {
+      "CAL": 46,
+      "TEST": 49
+    },
+    "ideal95_constraint_acceptance_construction_found": {
+      "construction_feasible": 95,
+      "accepted": 95,
+      "ambiguous": 0,
+      "construction_found": 95
+    },
+    "cached_pool_max_success": {
+      "CAL": 35,
+      "TEST": 39
+    }
+  },
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py": "0955b3b471eba69b55282d65b7d6dff84652c943f8bbf9ec52cbead4c317de46",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v2.py": "b0879c330afe94eccfca646362cc4cbd9a366813e8f85cb5979037ee7870097d",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_masks_v2.py": "98e10011e5d6f87ca27f063719edda359eab4d850187c66d5bfcea5252cd2a75",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v2.py": "7d35bb57ac963e77b8ffd41b13cef90d73aa0b4f1f1a5823ad56dbe86b219993",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_pnp.py": "0c0b1291155dd32829d533e85c434f098f22e4dee506178c8781468984285a39",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/ot_domains_v2.py": "62618db156608b9590866d9bcada00348ae4c891fd97f29f5c963ca601ba9eee",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_jacobian_v2.py": "32a67dcc3af8d250008c8a6bbfef51a5de485b660ffc2ba7cb3d8c215a846a2c",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_parallel_v2.py": "5a47c6725028fb72d468a98370a70993dbd4348668b1e89c3eede7b12ca6c10f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_solver_replay_v3.py": "8943c4e462534227d348233f34cc8fad5b03639a8985737edcc30983e4ffd2f0",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/common.py": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/appearance.py": "dbb37fc3fdce1a0049d37cf5083643af8b9ecc26ce17d2a20a855b75b8b7b81b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_refine.py": "0483b0e309eff5b7ee918e6be2e3a059e6e653f4458b1262b34f630c5a963209",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/interior_observation.py": "91dd637b07caf6d3f5d8f36c5888594a22a525da40346eed4552bab12da1f5a7",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_observation.py": "b60e2a89a82eba8eb8c6a9b07397a4affaf3b2e4ba3457f7309589b9485ba480",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/segmentation.py": "02e861f4e030174fc94406657c5f56e82f4c2af6362cc326c36630edbf9297b5",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/scoring.py": "d91c0d64d7e63a72033752017c41afd983599d7a61f71f6ee70b06e17256edaf",
+    "scripts/research/pallet_foundation_mask_20261013_v1/uncertainty.py": "6679cc00697d4af654c1aa3074fec5c0f8cd700ecabc79763c67e03f4a12e58b",
+    "scripts/research/pallet_foundation_mask_20261013_v1/foundation.py": "6745d37cc95d2562ccc2a1f5b639a6cfc74ee9dc815c04e1cf836a51b4b9218a",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_causal_diagnostics_v1.py": "9572f383d3947dffdef7ae0554346e9038e1fa2a81fe9ab90d88a885226e10d3",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_statewise_causal_diagnostics_v1.py": "a80d343bd47e083632bbab1b7ff3cd35aaf49114455be8ecf9330035f9465ff0"
+  },
+  "evidence_sha256": {
+    "counterfactual/README_KO.md": "1d2daf44e226471023e64318db1d77f888ad65c3ded0e1e3ce8576ad5538b867",
+    "counterfactual/POSTSEAL_DIAGNOSTIC_ANALYSIS.json": "f753e23ec85afdf1cfa9f5baa186de921abdb8b34e7b36edf0bf3d43c06eeec7",
+    "counterfactual/INDEPENDENT_CONTRACT_CHECK.json": "1bf4329380e00b2718b9392173f75091b167c076f69fcc6edaab31e1a52b0c27",
+    "counterfactual/POSTSEAL_SCORING.json": "5157861d60a169e0af6abef40bf375b433f0858149fa13766bcddde26a8a8188",
+    "counterfactual/COMPLETION_RECEIPT.json": "d11016690cc69f986f92b1cf62229c5ef00affd0813e30dd18ba20f3ea4489c8",
+    "counterfactual/PROTOCOL.json": "1043a6425843fcc229a42673c765c3a277a9ddf6ec582902281168405cd61a82",
+    "counterfactual/PREDICTION_SEAL.json": "889926cda2aa945c32373468ed2389061bcc50b18c6864e5ba68fbb2e86ba337",
+    "counterfactual/CACHED_SELECTOR_POOLS.jsonl.gz": "7e35426ae91aac6355e022a25badb5af0e8ea8fc85c433fa20368c14b6a000d4",
+    "README_KO.md": "7961664dd9129133b0676aafe42fa9354698fb5259bf31cb1ef73952c136b5b5",
+    "FINAL_FINDINGS.json": "3015a9c0bd697dacc574feba279d571e5bc4793081338f3c5731c1da2ee0b2cb",
+    "BUILD_SUMMARY.py": "009961ab686c8b461656f3f4633f9655057ad21ec5b032b7e987fbc620f1a963",
+    "comparator/BENCHMARK.json": "32d7fe5a257bb7e25fd6bbda465c8266e015d87e81ded397723fd8c319b6195b"
+  },
+  "limits": [
+    "Cluster bootstrap intervals describe four already seenTESTsessions; many paired location differences span0 and outliers dominate some gains.",
+    "Do not label measured reference exclusion as verified independent physicalGT exclusion.",
+    "Do not claim oracle-best-translation error is attainable by a deployable selector or that finitepool bounds the full feasibleSE3 set.",
+    "Do not claim human-state raw intervention isolates pureD/E classifier errors or measures correctedRGB oracle performance.",
+    "The named most concrete problem is an evidence-supported observation/model/uncertainty bottleneck, not a unique complete causal decomposition."
+  ]
+}

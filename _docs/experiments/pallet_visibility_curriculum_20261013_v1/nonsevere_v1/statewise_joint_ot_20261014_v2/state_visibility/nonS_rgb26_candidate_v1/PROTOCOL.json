@@ -1,0 +1,168 @@
+{
+  "schema": "NONS_RGB26_ACTUAL_VISIBILITY_CAL46_PREREGISTERED_V1",
+  "scope": "CAL46 CLEAN/MODERATE only; old first model and its diagnostics preserved",
+  "previous_CAL_findings": "First spatial16+local40 model LOGO AUC .5144, EXTERNAL recall0; local40/mask/gradient explorations did not solve O",
+  "feature_family": "NON_S_RGB26",
+  "versions": [
+    "legacy_zero_soft",
+    "soft_support"
+  ],
+  "feature_names": [
+    "inward_material_fraction",
+    "outward_material_fraction",
+    "patch_material_fraction",
+    "nearby_inward_material_fraction",
+    "soft_inward_material_support",
+    "soft_nearby_inward_material_support",
+    "corner_structure",
+    "edge_energy",
+    "patch_chroma_mean",
+    "patch_chroma_std",
+    "patch_lab_mean_L",
+    "patch_lab_mean_a",
+    "patch_lab_mean_b",
+    "patch_lab_median_L",
+    "patch_lab_median_a",
+    "patch_lab_median_b",
+    "patch_lab_std_L",
+    "patch_lab_std_a",
+    "patch_lab_std_b",
+    "inward_lab_mean_L",
+    "inward_lab_mean_a",
+    "inward_lab_mean_b",
+    "inward_lab_std_L",
+    "inward_lab_std_a",
+    "inward_lab_std_b",
+    "edge_distance_over_patch_radius"
+  ],
+  "appearance_config": {
+    "patch_radius_fraction": 0.025,
+    "patch_radius_min": 6,
+    "patch_radius_max": 24,
+    "face_shrink": 0.65,
+    "minimum_palette_samples": 32,
+    "maximum_palette_samples": 12000,
+    "palette_modes": 3,
+    "minimum_material_fraction": 0.06,
+    "minimum_ring_contrast": 0.12,
+    "lab_tolerance": [
+      48.0,
+      20.0,
+      20.0
+    ],
+    "palette_match_radius": 1.0,
+    "visible_support_threshold": 0.4,
+    "boundary_threshold": 0.35,
+    "suspected_occlusion_threshold": 0.25,
+    "visibility_support_weights": [
+      0.2,
+      0.55,
+      0.25
+    ],
+    "edge_proximity_radius_fraction": 0.5
+  },
+  "pure_helpers": [
+    "appearance._scene",
+    "appearance._local"
+  ],
+  "old_infer_appearance_called": false,
+  "helper_rule": "Erase all noneligible coordinates to NaN BEFORE image helpers; S cannot affect global hull/radius/palette or local pixel queries",
+  "coordinates_sampled": "Original eligible nonS native query only; no projected-coordinate RGB patches",
+  "label_target": "native human DIRECT_VISIBLE versus EXTERNAL_OCCLUDED; palette mismatch never a label",
+  "expected_DIRECT": 263,
+  "expected_EXTERNAL": 7,
+  "expected_loss_ignored_human_SELF": 15,
+  "C_candidates": [
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "threshold_grid": [
+    0.05,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.175,
+    0.2,
+    0.225,
+    0.25,
+    0.275,
+    0.3,
+    0.325,
+    0.35,
+    0.375,
+    0.4,
+    0.425,
+    0.45,
+    0.475,
+    0.5,
+    0.525,
+    0.55,
+    0.575,
+    0.6,
+    0.625,
+    0.65,
+    0.675,
+    0.7,
+    0.725,
+    0.75,
+    0.775,
+    0.8,
+    0.825,
+    0.85,
+    0.875,
+    0.9,
+    0.925,
+    0.95
+  ],
+  "abstention_margin": 0.025,
+  "selection": "Best pooled CAL four-session LOGO AUC; tie balanced accuracy, smaller C, legacy version. Threshold maximizes binary balanced accuracy; tie nearest0.5 then lower threshold",
+  "basis_rule": "Fit scaler/classifier only on fold-train known DIRECT/EXTERNAL; loss-ignore humanSELF/UNANNOTATED, geometricS never extracted",
+  "external_O_enabled_gate": {
+    "min_LOGO_AUC": 0.6,
+    "min_LOGO_EXTERNAL_recall": 0.5,
+    "max_LOGO_DIRECT_false_O_fraction": 0.1
+  },
+  "failed_gate_behavior": "Low visible probability becomes U rather than O; report unresolved",
+  "gallery": "All9 actual CAL O query crops with same-frameDIRECT controls; nativeGT mapping diagnostic overlays only, never training features",
+  "human_CAL_scope_audit_already_performed": true,
+  "training_label_join_after_feature_seal": true,
+  "TEST_label_reads": 0,
+  "TEST_feature_choice_reads": 0,
+  "FINAL_reads": 0,
+  "severe_rows_for_any_fit": 0,
+  "inputs": {
+    "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/PREDICTION_INPUTS.json",
+    "sha256": "5317cf5f2160b05cdd1cabb0babf4ead297a3181885fa1d5df766bd949b6c2ec",
+    "bytes": 542046
+  },
+  "isolated_CAL_scoring": {
+    "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/OOF_pose_v1/ISOLATED_CAL_SCORING.json",
+    "sha256": "265b13b54224650675bac163894e1a184527fce9f778bfbfb2ab9c72094d328f",
+    "bytes": 195412
+  },
+  "cohort": {
+    "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/COHORT_PROTOCOL.json",
+    "sha256": "6c666b9284054709a776d254098197a87e85c8339dd96fd912fc9fefa3e551ad",
+    "bytes": 4995
+  },
+  "code": [
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/train_state_visibility_v2.py",
+      "sha256": "5dc90bcf8b08bd3e36236a427b98ffbef9da9579fe8cf79ba6a0791e61028f93",
+      "bytes": 31629
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v2.py",
+      "sha256": "7c517b4c91f5ca91a51012dff9a8163aa5cf25131665fa4fe8f4e2377ee911ed",
+      "bytes": 17916
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/appearance.py",
+      "sha256": "dbb37fc3fdce1a0049d37cf5083643af8b9ecc26ce17d2a20a855b75b8b7b81b",
+      "bytes": 18806
+    }
+  ]
+}

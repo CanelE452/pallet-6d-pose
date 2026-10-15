@@ -1,0 +1,76 @@
+{
+  "schema": "LOCAL_MATH_COUNTEREXAMPLES_V1",
+  "examples": [
+    {
+      "id": "CORRECT_CONVEX_REGION_DIFFERENT_METRIC",
+      "truth": [
+        0,
+        0
+      ],
+      "observation": [
+        1,
+        0
+      ],
+      "objective": "100*(x-1)^2 + y^2",
+      "base_feasible_set": "R^2",
+      "region": "x<=y",
+      "truth_inside_region": true,
+      "baseline": [
+        1,
+        0
+      ],
+      "restricted_optimum": [
+        0.9900990099009901,
+        0.9900990099009901
+      ],
+      "baseline_physical_Euclidean_error": 1.0,
+      "restricted_physical_Euclidean_error": 1.4002114478941536,
+      "baseline_objective": 0.0,
+      "restricted_objective": 0.9900990099009901,
+      "baseline_W_truth_error_squared": 100.0,
+      "restricted_W_truth_error_squared": 99.00990099009901,
+      "derivation": "Constraint active: x=y; derivative 200*(x-1)+2*x=0 gives x=y=100/101.",
+      "meaning": "A correct convex region can worsen a different evaluation metric while improving error in the W metric."
+    },
+    {
+      "id": "CORRECT_NONCONVEX_REGION",
+      "truth": 0.0,
+      "observation": 1.0,
+      "objective": "(theta-1)^2",
+      "base_feasible_set": "R",
+      "region": [
+        0.0,
+        1.9
+      ],
+      "truth_inside_region": true,
+      "baseline": 1.0,
+      "restricted_optimum": 1.9,
+      "baseline_error": 1.0,
+      "restricted_error": 1.9,
+      "restricted_objective": 0.81,
+      "truth_objective": 1.0,
+      "meaning": "Even Euclidean projection onto a correct nonconvex feasible set can worsen truth error. Pose-space constraints are nonlinear/nonconvex."
+    },
+    {
+      "id": "INCORRECT_REGION_EXCLUDES_TRUTH",
+      "truth": 0.0,
+      "observation": 0.1,
+      "objective": "(theta-.1)^2",
+      "region": "theta>=.5",
+      "truth_inside_region": false,
+      "baseline": 0.1,
+      "restricted_optimum": 0.5,
+      "baseline_error": 0.1,
+      "restricted_error": 0.5,
+      "meaning": "False state/domain/model assumptions can remove the desired reference before search begins."
+    },
+    {
+      "id": "EMPIRICAL_MAX_SMALL_CAL",
+      "n": 7,
+      "assumptions": "Hypothetical exchangeable continuous independent residuals; not asserted for current two-session CAL",
+      "probability_next_error_below_CAL_max": 0.875,
+      "rank_argument": "The next score has uniformly one of n+1 ranks; it is the maximum with probability1/(n+1).",
+      "meaning": "An empirical max of seven scores alone is not a 95% guarantee; current selected/correlated data satisfy fewer assumptions, and simultaneous multi-OT coverage needs additional care."
+    }
+  ]
+}

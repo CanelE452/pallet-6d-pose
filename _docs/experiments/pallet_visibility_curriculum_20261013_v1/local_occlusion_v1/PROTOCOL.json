@@ -1,0 +1,69 @@
+{
+  "schema": "source_local_RGB_opacity_fixed1024_v1",
+  "steps": 1024,
+  "batch": 32,
+  "seed": 20261013,
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001
+  },
+  "AMP": false,
+  "TF32": false,
+  "deterministic": true,
+  "source_train": 768,
+  "source_CAL": 128,
+  "source_TEST_reads": 0,
+  "real_CAL_training_reads": 0,
+  "real_TEST_reads": 0,
+  "FINAL_reads": 0,
+  "target": "LOCAL_BODY_SUPPORT_PROXY plus known memory-only opaque coverage",
+  "semantic_label_blocker": "Cuboid virtual corners need not be mesh vertices; masks alone cannot certify3D point observability",
+  "conservative_proxy_guard": "nonself source/predictedH, q/gtinframe, q-versusgt<=8px, actual object pixels within3px at both and query foreground fraction>=.10",
+  "no_match_not_a_training_label": true,
+  "synthetic_kinds": [
+    "FLAT_RANDOM",
+    "BACKGROUND_TEXTURE",
+    "MATCH_LOCAL_MATERIAL",
+    "OTHER_FOREGROUND_TEXTURE"
+  ],
+  "opacity": 1.0,
+  "rotated_rectangles": true,
+  "identity_control": "Same pixels, different ownership: loss-ignore/heldout diagnostic, not a learnable external label",
+  "visual_delta_gradient_gate": 0.00784313725490196,
+  "model": "RGB64+predhull+centerheatmap Conv8/16/32+FC64",
+  "augmentation": "wholepatch RGBchannelgain.5..1.7, exposure±.25, saturation.2..1.8, RGBnoiseσ3/255; geom unchanged",
+  "validation_steps": [
+    256,
+    512,
+    768,
+    1024
+  ],
+  "selection": "best identifiable sourceCAL AUC; fixed updates unchanged",
+  "observation_points_changed": false,
+  "predicted_selfH_frozen": true,
+  "original_source_RGB_changes": 0,
+  "entropy_unknown_rule": "normalized binaryentropy>=.8; not an error or ownership certificate",
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/train_local_occlusion.py",
+      "bytes": 15741,
+      "sha256": "531fdb6751ca9033ca676fc57d65444ebfe804b68525a00bc1787a8155d5e5a3"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/local_occlusion.py",
+      "bytes": 4709,
+      "sha256": "c3eac67ca1b99346a89b694c14b4c5c16f3cfc62c595ae3a83b4d4655461fcbb"
+    },
+    {
+      "path": "/dev/shm/pallet-observation-worktree-20261009/_docs/experiments/pallet_observation_refiner_20261009_v1/SOURCE_FAMILY_SPLIT.json",
+      "bytes": 632760,
+      "sha256": "3d5b08cc8e8b0d4b5920aeb713278a3069e6b7551b7bc3e03baefc90625c74b0"
+    },
+    {
+      "path": "/dev/shm/pallet-observation-private-20261009/learned_cache/CACHE_MANIFEST.json",
+      "bytes": 1540952,
+      "sha256": "6bcb29e8184d0ca8240b95cff53a92c56ec987c3cf58396a87c25a0a27756316"
+    }
+  ]
+}

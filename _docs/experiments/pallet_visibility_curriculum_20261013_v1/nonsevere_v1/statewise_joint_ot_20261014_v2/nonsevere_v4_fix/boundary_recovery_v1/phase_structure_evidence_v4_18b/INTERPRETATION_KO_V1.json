@@ -1,0 +1,108 @@
+{
+  "schema": "PHASE_STRUCTURE_READONLY_INTERPRETATION_KO_V1",
+  "diagnostic_sha256": "e5c1a171515302f7f99ea9c5abd78adfb022f27beb0d8a8fc8920cab3d4c224b",
+  "diagnostic_seal_sha256": "9c1602976c6fc2fd83ab45d8939f1f5503abeabfc236cada05af2d4b5bed57bc",
+  "direct_visual_review": [
+    "available_asset_layouts.png",
+    "wood_night_01__031426.png",
+    "wood_night_01__031344.png",
+    "eval_noapril__1775201428535961600.png"
+  ],
+  "available_geometry": [
+    {
+      "file": "data/pallet/raw_data/models_usd/scene.usd",
+      "smallest_actual_world_axis": "Z",
+      "raw_extent": [
+        1200.0000395774841,
+        999.9999841534457,
+        150.00003458616882
+      ],
+      "footprint_short_to_long_ratio": 0.8333332926435087,
+      "height_to_long_ratio": 0.12500002469915195,
+      "physical_registration_verified": false,
+      "real_design_match_verified": false
+    },
+    {
+      "file": "data/pallet/raw_data/models_usd/scene_1.usd",
+      "smallest_actual_world_axis": "Y",
+      "raw_extent": [
+        101.7889175415039,
+        13.999999999999998,
+        122.4626007080078
+      ],
+      "footprint_short_to_long_ratio": 0.8311836997827856,
+      "height_to_long_ratio": 0.11432061640909233,
+      "physical_registration_verified": false,
+      "real_design_match_verified": false
+    },
+    {
+      "file": "data/pallet/raw_data/models_usd/scene_2.usd",
+      "smallest_actual_world_axis": "Y",
+      "raw_extent": [
+        1.441276975841589,
+        0.26308575042145493,
+        1.449212614091948
+      ],
+      "footprint_short_to_long_ratio": 0.9945241725243117,
+      "height_to_long_ratio": 0.18153702766815896,
+      "physical_registration_verified": false,
+      "real_design_match_verified": false
+    },
+    {
+      "file": "data/pallet/raw_data/models_usd/scene_3.usd",
+      "smallest_actual_world_axis": "Y",
+      "raw_extent": [
+        11.96507648360434,
+        1.4440614601340713,
+        9.886617657473852
+      ],
+      "footprint_short_to_long_ratio": 0.82628954950864,
+      "height_to_long_ratio": 0.12068969739665755,
+      "physical_registration_verified": false,
+      "real_design_match_verified": false
+    },
+    {
+      "file": "data/pallet/scan_cleanup/pallet_full.obj",
+      "smallest_actual_world_axis": "Y",
+      "raw_extent": [
+        1.1,
+        0.12,
+        1.3
+      ],
+      "footprint_short_to_long_ratio": 0.8461538461538461,
+      "height_to_long_ratio": 0.0923076923076923,
+      "physical_registration_verified": false,
+      "real_design_match_verified": false
+    }
+  ],
+  "fixed_known_registry": {
+    "plastic_footprint_short_to_long": 0.8461538461538461,
+    "wood_footprint_short_to_long": 0.7374999999999999,
+    "structure_or_asset_identity_in_registry": false
+  },
+  "observed_findings_KO": [
+    "현재 목적함수의 cuboid는 윗판·격자·측면 구멍의 배치를 포함하지 않는다. 사진에서 보이는 내부 구조가 맞는 물체 모델에 등록된다면 추가 방향 단서가 될 수 있다.",
+    "세 사례의 두 저장 G10 후보 투영 외곽 IoU는 0.895/0.932/0.965다. 이는 후보 모델끼리의 겹침이며 실제 마스크 정확도나 참조 자세 오차가 아니다.",
+    "직사각형 외곽만으로 언제나 폭·깊이를 식별할 수 없다는 불가능성 증명은 아니다. 실제 관점과 자세 자유도·관측 불확실성 때문에 이 세 후보가 유사 외곽을 만드는 사례다.",
+    "031426/031344 실제 원본은 야간의 작은 목재 대상이다. 판재/개구부 방향이 보이지만 흐림과 어둠이 있어 일반 목재 CAD의 선을 정확한 이미지 대응으로 가정할 수 없다.",
+    "scene2/3에는 목재 판재/블록 구조가 있지만, 기존 두 GLB 학습 자산과의 동일성 및 실제 80×59×14cm 물체의 설계 일치는 검증되지 않았다.",
+    "plastic scan OBJ의 footprint 비는 알려진 110×130cm와 가깝고 격자/측면 개구부가 보인다. 그러나 기존 quarter-mirror/boolean/스캔 정리 provenance와 표면 잡음 때문에 정확한 내부 선 CAD로 즉시 채택할 근거는 부족하다.",
+    "scene.usd는 stage upAxis=Y이지만 composed world에서 가장 얇은 축이 Z이다. 파일 upAxis나 저장된 후보 Q만으로 실제 물체 구조의 정준 축을 정하면 안 된다.",
+    "이번 도식은 실제 mesh triangles의 CPU 근사 가림 렌더이며, 치수 정규화 후 별도 제시했다. 실제 사진 위에 검증되지 않은 CAD를 강제로 등록하지 않았다."
+  ],
+  "minimal_next_requirements_KO": [
+    "먼저 실제 물체 종류/설계와 일치하는 구조 모델, 또는 독립적으로 알려진 판재·개구부 방향의 물리 축 정의를 고정한다.",
+    "asset→고정 physical XYZ의 변환은 물체 기하/출처로 고정하고, per-frame PnP의 Q나 참조오차로 선택하지 않는다.",
+    "보이는 표면의 실제 영상 지지와 가림·반사·그림자 불확실성을 확인한다. S 지역의 키포인트를 새 관측으로 만들지 않고 U도 정확한 코너로 바꾸지 않는다.",
+    "구조 모델의 설계 일치가 확인된 뒤에만 CAL에서 구조 잔차/관측범위를 검토한다. 현재 진단 자체는 새 포즈 적합이나 전수 배치를 허가/채택하는 결과가 아니다."
+  ],
+  "scope": {
+    "stored_pose_source": "oldG10 per-family predictions, not newly selected v18 outputs",
+    "GT_decodes": 0,
+    "new_pose_fits": 0,
+    "NN_calls": 0,
+    "training": 0,
+    "default_or_observation_changes": 0
+  },
+  "preserved_failed_render": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/phase_structure_evidence_v4_18/RENDER_FAILURE.json"
+}

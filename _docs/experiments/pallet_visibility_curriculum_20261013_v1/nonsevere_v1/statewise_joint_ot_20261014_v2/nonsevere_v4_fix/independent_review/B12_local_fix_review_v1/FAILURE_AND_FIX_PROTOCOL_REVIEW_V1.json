@@ -1,0 +1,136 @@
+{
+  "schema": "INDEPENDENT_B1_B2_LOCAL_IMAGE_CORRECTION_FAILURE_AND_PROTOCOL_REVIEW_V1",
+  "created_UTC": "2026-10-14T02:51:14.113749+00:00",
+  "frame": "eval_pallet09:1778653661653195264",
+  "scope": "Read-only existing actual-image ray/measurement/native-geometry review. New local candidates must use actual RGB/mask evidence only; old sources/results immutable. No new fit, provider/model/pose inference or S image query.",
+  "findings": [
+    {
+      "corner": 1,
+      "state": "B",
+      "human_state": "DIRECT_VISIBLE",
+      "corrected": false,
+      "raw_fallback_xy": [
+        507.255859375,
+        246.5746612548828
+      ],
+      "failure": "Top1→5line supported10/15; vertical1→2line0/15 actual transitions; therefore no pair/intersection.",
+      "vertical_search_grid_xyxy": [
+        495.29189987956073,
+        250.46780471643567,
+        519.4016902320233,
+        263.13514902969587
+      ]
+    },
+    {
+      "corner": 2,
+      "state": "B",
+      "human_state": "DIRECT_VISIBLE",
+      "corrected": false,
+      "raw_fallback_xy": [
+        510.81988525390625,
+        272.9199523925781
+      ],
+      "failure": "Vertical2→1line0/15; bottom2→3line8/15 with fraction.533<.6 and span.50<.55, rejected despite RMS.322<1.25 and angle4.19<12deg. No pair/intersection.",
+      "vertical_search_grid_xyxy": [
+        498.674054396883,
+        256.35946461776507,
+        522.7838447493456,
+        269.0268089310253
+      ]
+    }
+  ],
+  "inactive_later_stages": {
+    "maximum_corner_shift12_gate_reached": false,
+    "blend_alpha_max0_5_reached": false,
+    "meaning": "Neither a cap-only nor blend-only change can alter current B1/B2. Diagnose candidate/line availability first."
+  },
+  "guide_context": {
+    "model_vertical_edge_length_px": 20.568049762637347,
+    "along_interval_px": [
+      4.0,
+      16.45443981010988
+    ],
+    "normal_radius_px": 12.0,
+    "grid_samples_per_vertical_ray": 735,
+    "initial_S_ids": [
+      6
+    ],
+    "raw_S_or_projection_coordinates_not_usable_as_new_image_measurements": true,
+    "inference_from_existing_observed_points": "Supported top/bottom transitions startnearx491.823/490.490, left of narrowverticalstrip minimumx495.292/498.674; actual RGB zoom likewise suggests raw corners to the right of the actual side. This motivates a radius/location-support diagnosis, not proof the SAM mask or guide polarity is correct."
+  },
+  "native_reference_caveat": {
+    "compatible": false,
+    "fixed_3D_corner_registration_gap_m": 1.2999999999999998,
+    "current_cf_extents": [
+      1.1,
+      0.11,
+      1.3
+    ],
+    "current_physical_Q": [
+      [
+        0.9999999999999998,
+        1.6719587260733847e-18,
+        5.693295189565039e-17
+      ],
+      [
+        1.6719587260733847e-18,
+        1.0,
+        -9.836873904006695e-19
+      ],
+      [
+        5.693295189565039e-17,
+        -9.836873904006695e-19,
+        0.9999999999999999
+      ]
+    ],
+    "interpretation": "Incompatibility does not alone prove the local projected guide/B role wrong. It may be production/native convention or reference registration. Verify known registry dimensions/native numbering/Q independently of GT branch choice. Better2D localization cannot be claimed to fix77–79degree physical error while this remains unresolved."
+  },
+  "recommended_small_controls": [
+    {
+      "arm": "BASE",
+      "change": "Frozen mask/model guide/radius12/line tests/cap12/blend0.5. Reproduce saved ray counts before interpreting changes."
+    },
+    {
+      "arm": "RADIUS_ONLY",
+      "change": "Same mask/guide/polarity/quality thresholds, widen normal search using a fixed CAL-directed uncertainty/locality rule. Save every boundary sample and pre-cap pair. No caseGT-derived searchcenter or globalthresholdrelaxation."
+    },
+    {
+      "arm": "GUIDE_ONLY",
+      "change": "Radius12+same mask/line quality; directions from actual local contour/RGB gradients or bounded orientation alternatives. Initial model may guide, never supply candidate xy. Validate target/background polarity from pixel evidence."
+    },
+    {
+      "arm": "MASK_ONLY",
+      "change": "Same oldguide/radius12/quality, compare a predeclared frozenactualmask alternative. Separate true mask failure from failure to search the actual contour."
+    },
+    {
+      "arm": "RADIUS_PLUS_GUIDE",
+      "change": "Combined same image-only changes to detect interaction; remaining quality guards retained. Parameters/choice determined on CAL, knownTEST case reported posthoc."
+    },
+    {
+      "arm": "CAP_THEN_BLEND_ON_FIXED_CANDIDATES",
+      "change": "Only after valid nonparallel line pairs exist, isolate acceptance cap vs blending using identical stored image candidates. Recalibrate detector/line total uncertainty on CAL; bootstrap line covariance alone is not calibrated corner accuracy."
+    }
+  ],
+  "acceptance_guards": [
+    "S exclusion before every local feature/prompt/guide-image coordinate lookup; initialS6 and sourcehashes audited.",
+    "Actual image-only line locations; finite inframe sampling/probes, foreground/background or explicit alternative evidence, minimum count/span/contrast, line residuals and nonparallel conditioning preserved.",
+    "Sharedside B1/B2 geometry consistency and native identity/order prevent selecting a neighboring corner merely closer to raw. Reject conflicting pairs or retain multiple hypotheses.",
+    "Do not silently loosen minimumfraction/span/RMS/angle/cap/alpha together. Record each failed gate; coverage-only relaxation still cannot replace the currentlymissing vertical line.",
+    "Single supported line can supply honest partial normal evidence with tangential uncertainty/abstention, not a fabricated precise 2D intersection.",
+    "Modelregistration fix, if needed, must follow authoritative known size/native/Q convention without choosing GT-minimum phase. Label its effect separately from imagecorrection.",
+    "CAL-directed model/threshold/covariance choice then seal before reusing TEST; this requested frame is already seen posthoc, no unseen-generalization claim.",
+    "Report2D candidate correctness, source support/uncertainty/fallback, and3D pose separately. Preserve all cases/fallbacks, same remaining observations/prior/OT for controlled effect."
+  ],
+  "bounds": [
+    "No exact true-side coordinate or groundtruth-based candidate was generated by this review.",
+    "No source/gate revision approved merely because this single knownTEST case scoresbetter.",
+    "Known current misclassification DIRECT0→O and DIRECT3→U are separate from B1/B2 line-correction mechanics."
+  ],
+  "bindings": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/evaluation_interval_v4_2b/PREDICTION_SEAL.json": "98ac5fe2edc3181c41c02dc6e95761d13ed74f58cbda5e85cd32429e4446142f",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/evaluation_interval_v4_2b/PREDICTIONS.jsonl.gz": "28ccebbbef4f8b1776522a17bbd833e1bcb3473a6cd52d198df742f2b02974c8",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/evaluation_interval_v4_2b/POSTSEAL_SCORING.json": "f29db55226e6d16092b83fe3149a872ada47c5e04c0e6a40a28ed0960c8099f6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/process_gallery_20261014_v1/eval_pallet09__1778653661653195264/keypoints.png": "575ad5267d10afa5fcd1f5654d2dccb7923ace347207de30cca2a938d84184b2"
+  }
+}

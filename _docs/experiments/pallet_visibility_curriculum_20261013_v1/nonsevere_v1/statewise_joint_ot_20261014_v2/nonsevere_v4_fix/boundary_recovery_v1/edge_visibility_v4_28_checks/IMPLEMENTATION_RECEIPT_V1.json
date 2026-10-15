@@ -1,0 +1,39 @@
+{
+  "schema": "V28_CONDITIONAL_EDGE_VISIBILITY_IMPLEMENTATION_V1",
+  "UTC": "2026-10-15T03:27:48.518620+00:00",
+  "passed": true,
+  "source": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/edge_visibility_v4_28.py",
+    "sha256": "c211376719d886617a6e7b156a529b4269aadbadea12a7745fac4ce8fb3192f4"
+  },
+  "test": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/test_edge_visibility_v4_28.py",
+    "sha256": "23cb658a767f3217e3676902c118b90e136e2612b14d55a580414cd4a9f88daa"
+  },
+  "focused_tests_passed": 19,
+  "combined_visibility_and_geometry_tests_passed": 30,
+  "combined_test_seconds": 0.35,
+  "initial_pre_freeze_test_failure": "One extreme1e9 endpoint canvas-clipping cancellation; sampling endpoints now analytically clamped, original model geometry unchanged.",
+  "API": [
+    "prepare_edge_visibility(target_mask,geometry,states,visible_measurements,*,image_binding,occluder_mask=None,occluder_binding=None)",
+    "context.query_allowed(k,mate,xy,context_radius_px=7) pre-RGB/mask gate",
+    "context.gated_sampling_inputs() unmodified read-only targetmask plus mandatory querypredicate",
+    "context.classify_expected_edge(k,mate,observed_chain_points=None,mask_context_kind=None)",
+    "mask_pixel_sha256(mask) canonicalfloat64 occupancy binding"
+  ],
+  "fixed_semantics": [
+    "observed_support requires actualchain proximity plus targetcontext; maskalone is not observed RGBedge",
+    "occluder_supported_gap only from separately bound independent non-target mask; conditional on expected modelsegment",
+    "targetmask0 or no independentoccluder always unsupported_unknown unless actualchain+targetcontext supports",
+    "knownoccluder has priority; probes excluded by expanded context beforetargetmask/RGB remap; originaltargetmask not cut/complemented",
+    "original U/O/T modelendpoint14px protected for entireprobefootprint via14+radius center gate",
+    "eligible BI anchor/nonS mate gates precede candidatexy/chains; noS/U observation coords; S modelslots notindexed",
+    "independent mask image/fileSHA and actualarray mask_pixel_sha256 binding required",
+    "no new preciseBI/Ucorner, no state/q/Sigma/costfactor/pose adoption"
+  ],
+  "production_sources_models_predictions_or_reports_changed": false,
+  "new_actual_images_NN_GT_fits_or_primary_metrics_read": 0,
+  "actual_two_case_occluder_None_execution": "Owned by fixed v28 runner after source reviews; not executed by this receipt.",
+  "helper_alone_does_not_make_historical_ungated_basechains_safe": true,
+  "integration_requirement": "Apply identicalpredicate beforefresh base+guided queries; withhold unsafe historical actualsupport from graph whilepreservingarchive."
+}

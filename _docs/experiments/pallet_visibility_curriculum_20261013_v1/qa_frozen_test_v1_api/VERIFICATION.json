@@ -1,0 +1,184 @@
+{
+  "schema": "FROZEN_FIRST_TEST_V1_READ_ONLY_QA",
+  "purpose": "Post-validation claim/invariant review, never retuning",
+  "checks": {
+    "seal_hash_match": true,
+    "rows": 1067,
+    "methods": {
+      "INITIAL": 97,
+      "ALL_STANDARD": 97,
+      "SELF_STANDARD": 97,
+      "RGB_CURRICULUM": 97,
+      "RGB_ONE_STAGE": 97,
+      "RGB_BOUNDARY_CURRICULUM": 97,
+      "BOUNDARY_ALL_STANDARD": 97,
+      "SEGMENTED_RGB_CURRICULUM": 97,
+      "SEGMENTED_RGB_ONE_STAGE": 97,
+      "SEGMENTED_RGB_BOUNDARY_CURRICULUM": 97,
+      "SEGMENTED_BOUNDARY_ALL_STANDARD": 97
+    },
+    "all_methods_have97": true,
+    "no_duplicate_id_method_pairs": true,
+    "source_codes": {
+      "appearance.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      },
+      "curriculum.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      },
+      "common.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      },
+      "run.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      },
+      "calibration.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      },
+      "boundary_refine.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      },
+      "segmentation.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      },
+      "segmented_appearance.py": {
+        "snapshot_matches": true,
+        "current_matches": true
+      }
+    },
+    "visibility_model_bound": true,
+    "segmentation_weights_bound": true,
+    "data_contract_bound": true,
+    "input_prediction_data_bound": true,
+    "hidden_fit_violations": []
+  },
+  "claimed_aggregate_recomputed": {
+    "INITIAL": {
+      "translation_cm": {
+        "mean": 15.012262358050513,
+        "median": 5.077482656221402,
+        "P90": 28.38562252238582
+      },
+      "rotation_deg": {
+        "mean": 26.137417736099152,
+        "median": 2.3892766681839603,
+        "P90": 88.18975222625247
+      },
+      "ADDsym_cm": {
+        "mean": 43.28018359820596,
+        "median": 5.976578929592638,
+        "P90": 120.686733898974
+      },
+      "success_count": 46
+    },
+    "SEGMENTED_RGB_CURRICULUM": {
+      "translation_cm": {
+        "mean": 15.001711997092334,
+        "median": 4.837101682935584,
+        "P90": 29.03464685051642
+      },
+      "rotation_deg": {
+        "mean": 26.0933738790672,
+        "median": 2.2175889313679846,
+        "P90": 88.36909612959779
+      },
+      "ADDsym_cm": {
+        "mean": 43.121891375807266,
+        "median": 6.033265818804956,
+        "P90": 120.56324012112283
+      },
+      "success_count": 48
+    }
+  },
+  "paired_recomputed": {
+    "translation_cm": {
+      "mean": -0.01055036095817754,
+      "improved": 62,
+      "worsened": 29,
+      "unchanged": 6
+    },
+    "rotation_deg": {
+      "mean": -0.04404385703195124,
+      "improved": 46,
+      "worsened": 45,
+      "unchanged": 6
+    },
+    "ADDsym_cm": {
+      "mean": -0.158292222398699,
+      "improved": 55,
+      "worsened": 36,
+      "unchanged": 6
+    }
+  },
+  "reported_cluster_bootstrap": {
+    "frames": 97,
+    "sessions": 4,
+    "repeats": 5000,
+    "by_metric": {
+      "translation_cm": {
+        "mean_difference": -0.01055036095817754,
+        "CI95": [
+          -0.4901627500279767,
+          0.687875618743967
+        ],
+        "improved": 62,
+        "worsened": 29
+      },
+      "rotation_deg": {
+        "mean_difference": -0.04404385703195124,
+        "CI95": [
+          -0.10855542651455674,
+          -0.0077104032932497155
+        ],
+        "improved": 46,
+        "worsened": 45
+      },
+      "ADDsym_cm": {
+        "mean_difference": -0.158292222398699,
+        "CI95": [
+          -0.4765304624885997,
+          0.197395785858378
+        ],
+        "improved": 55,
+        "worsened": 36
+      },
+      "success_5cm_5deg": {
+        "mean_difference": 0.020618556701030927,
+        "CI95": [
+          0.0,
+          0.05405405405405406
+        ],
+        "improved": 3,
+        "worsened": 1
+      }
+    }
+  },
+  "appearance": {
+    "TP": 474,
+    "FP": 66,
+    "FN": 25,
+    "TN": 29,
+    "visible_precision": 0.8777777777777778,
+    "visible_recall": 0.9498997995991983,
+    "external_recall": 0.30526315789473685,
+    "visibility_AUC": 0.8500896529901909
+  },
+  "api_tests": "2 unit tests PASS, 5 CAL images reproduce frozen inference",
+  "annotation_files_read": false,
+  "TEST_scores_read": true,
+  "TEST_retuning": false,
+  "code_modified": false,
+  "interpretation": [
+    "Rotation mean change CI excludes zero for the four session bootstrap, but effect is small and reference is label-derived",
+    "Translation mean change CI includes zero, so stable translation improvement is not proved",
+    "High visible recall is compatible with 66/95 externally occluded corners falsely called visible",
+    "No hidden coordinate or pose projection was used as a fitting observation"
+  ]
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>숨은 KP 영역과 자세 후보</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#18304a;font-family:system-ui,"NanumGothic",sans-serif;line-height:1.6}main{max-width:900px;margin:auto;padding:28px}h1{font-size:25px;margin:0 0 8px}.sub{color:#586b81}.card{background:white;border:1px solid #dfe7f0;border-radius:16px;padding:20px;margin-top:20px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:22px}input[type=range]{width:100%;accent-color:#397ebb}button{cursor:pointer;border:1px solid #cbd8e7;border-radius:9px;background:white;padding:8px 14px;font:inherit;color:inherit;margin:8px 8px 0 0}button:hover{background:#edf4fc}svg{width:100%;height:auto}#result{font-size:18px;font-weight:650;padding:16px;border-radius:10px;background:#e9f1fa}.note{font-size:13px;color:#68798d}label{display:block}strong{color:#17476f}text{font-family:system-ui,"NanumGothic",sans-serif}@media(max-width:600px){main{padding:16px}.controls{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+<main>
+<h1>같은 숨은 KP, 서로 다른 자세 후보</h1>
+<div class="sub">B의 투영 위치를 움직여 보세요. 초록 영역 안에서는 영역 벌점이 0이고, 밖에서는 벌점이 생깁니다.</div>
+<div class="card controls">
+<div><label for="position">자세 B에서 숨은 KP의 위치: <strong id="positionValue"></strong></label><input id="position" type="range" min="80" max="200" step="1" value="120"></div>
+<div><label for="radius">예상 영역: <strong id="rangeValue"></strong></label><input id="radius" type="range" min="10" max="35" step="1" value="15"></div>
+<div><label><input type="checkbox" id="pass" checked> B가 보이는 점·기존 검사를 통과함</label></div>
+</div>
+<div><button id="left">① 구별 못 하는 예시</button><button id="right">② 벌점이 생기는 예시</button></div>
+<div class="card">
+<svg viewBox="0 0 820 365" role="img" aria-label="자세별 숨은 키포인트 투영 위치와 예상 영역">
+<rect id="region" y="40" height="265" fill="#d2efdf" rx="5"/>
+<text id="regionTitle" y="26" text-anchor="middle" fill="#236a4d" font-size="16">숨은 KP 예상 영역</text>
+<g stroke="#dde5ef"><path d="M120 100H750 M120 190H750 M120 280H750"/></g>
+<g font-size="20" fill="#233f5d"><text x="20" y="107">자세 A</text><text x="20" y="197">자세 B</text><text x="20" y="287">자세 C</text></g>
+<circle id="pointA" cy="100" r="12" fill="#327cc1"/><circle id="pointB" cy="190" r="12" fill="#7966bc"/>
+<path id="pointC" stroke="#98a6b6" stroke-width="6"/>
+<g font-size="14"><text id="labelA" x="120" y="135" fill="#327cc1"/><text id="labelB" x="120" y="225"/><text x="120" y="315" fill="#708094">C: 180px · 기존 검사에서 이미 탈락</text></g>
+<path d="M120 335H750" stroke="#a7b6c8"/>
+<g id="ticks" font-size="12" fill="#61768e"/>
+</svg>
+<div id="result" aria-live="polite"></div>
+<p class="note">A·B·C는 각각 다른 파렛트 자세입니다. 점은 각 자세에서 <strong>같은 숨은 KP</strong>를 이미지에 투영한 위치입니다.</p>
+</div>
+<p class="note">원리를 보여주는 가상 예시입니다. 실제 실험은 영역 밖 후보에 약한 벌점을 주었습니다. 최종 선택은 다른 점수와 검사도 함께 사용하므로, 영역 밖이라는 이유만으로 자동 탈락하지 않습니다.</p>
+</main>
+<script>
+const byId=id=>document.getElementById(id),mapX=x=>120+(x-80)/120*630;
+const position=byId('position'),radius=byId('radius'),pass=byId('pass');
+const ticks=byId('ticks');for(const x of [80,100,130,160,180,200]){const e=document.createElementNS('http://www.w3.org/2000/svg','text');e.setAttribute('x',mapX(x));e.setAttribute('y',356);e.setAttribute('text-anchor','middle');e.textContent=x+'px';ticks.appendChild(e)}
+function update(){const b=+position.value,r=+radius.value,lo=115-r,hi=115+r;const inside=b>=lo&&b<=hi;
+ byId('positionValue').textContent=b+'px';byId('rangeValue').textContent=lo+'~'+hi+'px';
+ byId('region').setAttribute('x',mapX(lo));byId('region').setAttribute('width',mapX(hi)-mapX(lo));byId('regionTitle').setAttribute('x',mapX(115));
+ byId('pointA').setAttribute('cx',mapX(110));byId('pointB').setAttribute('cx',mapX(b));byId('pointB').setAttribute('fill',!pass.checked?'#98a6b6':inside?'#7966bc':'#d8883e');
+ const c=mapX(180);byId('pointC').setAttribute('d',`M${c-8} 272L${c+8} 288M${c-8} 288L${c+8} 272`);
+ byId('labelA').textContent='A: 110px · 기존 검사 통과 / 영역 안 → 벌점 0';
+ byId('labelB').setAttribute('fill',!pass.checked?'#708094':inside?'#7966bc':'#b96b29');
+ byId('labelB').textContent='B: '+b+'px · '+(!pass.checked?'기존 검사에서 이미 탈락':inside?'검사 통과 / 영역 안 → 벌점 0':'검사 통과 / 영역 밖 → 추가 벌점');
+ byId('result').textContent=!pass.checked?'B는 기존 검사에서 이미 탈락했으므로, 영역 정보가 B와의 선택을 바꾸지 않습니다.':inside?'A·B가 모두 영역 안입니다. 영역 벌점으로 두 자세를 구별할 수 없습니다.':'A는 영역 안, B는 영역 밖입니다. B를 더 낮게 평가할 근거가 생겼습니다.';
+ byId('result').style.background=pass.checked&&!inside?'#fcebd9':'#e9f1fa';
+}
+for(const element of [position,radius,pass])element.addEventListener('input',update);
+byId('left').onclick=()=>{position.value=120;radius.value=15;pass.checked=true;update()};byId('right').onclick=()=>{position.value=150;radius.value=15;pass.checked=true;update()};update();
+</script>
+</html>

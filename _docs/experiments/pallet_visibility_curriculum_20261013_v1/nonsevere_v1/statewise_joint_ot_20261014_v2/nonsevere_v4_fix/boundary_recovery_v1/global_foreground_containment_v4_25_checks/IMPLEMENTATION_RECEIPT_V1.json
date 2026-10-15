@@ -1,0 +1,81 @@
+{
+  "schema": "GLOBAL_FOREGROUND_CONTAINMENT_IMPLEMENTATION_RECEIPT_V4_25",
+  "created_utc": "2026-10-15T01:41:27.563905+00:00",
+  "source": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_foreground_containment_v4_25.py",
+    "sha256": "1b106c62c159a8dcca9598dedeb5d187e534a5a46de23117afb283f9605b4afe"
+  },
+  "test": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/test_global_foreground_containment_v4_25.py",
+    "sha256": "a0b67815c0bea78946932e2241ff291c96a9ec0fefd5281b9582c3779a7a6c19"
+  },
+  "public_API": "outline_value_and_gradient(p, xyz, K, scale, observation, configuration=None) -> (value, gradient[6], audit)",
+  "formula": ".5/N * sum_i[inside_full_model_hull ? 0 : pseudoHuber(norm(observed_i-nearest_finite_model_segment)/sigma;delta)]",
+  "defaults": {
+    "normal_sigma_px": 1.0,
+    "huber_delta": 1.25,
+    "reverse_coefficient": 0.5,
+    "forward_coefficient": 0.0,
+    "factor_weight_owned_by_caller": 1.0
+  },
+  "test_command": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python -m pytest -q scripts/research/pallet_visibility_curriculum_20261013_v1/test_global_foreground_containment_v4_25.py",
+  "tests_passed": 13,
+  "tests_failed": 0,
+  "test_seconds": 0.36,
+  "meaningful_checks": [
+    "full foreground/subset/holes/occluded-notch/disconnected-hull bridge exact zero when contained",
+    "no model-to-observed cost; oversized model remains zero and no uniqueness claim",
+    "full K and SO3 chart >pi analytic finite differences, including frame-clipped observation",
+    "vertex nearest endpoint derivative and exact old reverse coefficient",
+    "inside zero samples retained in mean denominator",
+    "no raw/S/U/state/observed-polygon/segment access",
+    "unsupported zero without projection and invalid depth rejected",
+    "input observations/geometry/pose unchanged"
+  ],
+  "dependency_current24_binding_checks": [
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+      "expected": "0d08b1339261705f5e1873fbf6df1b0e0d62d0fec315708c74a57839bdebb0f6",
+      "actual": "0d08b1339261705f5e1873fbf6df1b0e0d62d0fec315708c74a57839bdebb0f6",
+      "passed": true
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_jacobian_v2.py",
+      "expected": "32a67dcc3af8d250008c8a6bbfef51a5de485b660ffc2ba7cb3d8c215a846a2c",
+      "actual": "32a67dcc3af8d250008c8a6bbfef51a5de485b660ffc2ba7cb3d8c215a846a2c",
+      "passed": true
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py",
+      "expected": "34cca867999278ea7f7d3ebeba4dd4ce3663d26badefdc1a5af7117dd005962f",
+      "actual": "34cca867999278ea7f7d3ebeba4dd4ce3663d26badefdc1a5af7117dd005962f",
+      "passed": true
+    }
+  ],
+  "protected_user_sha256": {
+    ".gitignore": "eafc71fb72a3a1a0f1826bbbc098cdd6a148a44320452f4ae3d5d03179b23731",
+    "readme.md": "919ff361d84eebe36e1f6b88a1878a83c1fc9ab9e0539b9be647214844ab038b",
+    "_docs/experiments/pallet_resnet18_refiner_20261001_v1/README_KO.md": "ef4368bebde404c6d7235ec29939a2e3f323cd9ac093c9a70abefe6c5bc1b583",
+    "_docs/experiments/pallet_three_estimator_20261001_v1/README_KO.md": "ab2b45a1906c741936236e81a595f781431529e1ad3ed18c6d41217ed107d5b1",
+    "_docs/experiments/pallet_three_estimator_20261001_v1/STATUS_KO.md": "274494e7c504aecff20f21f11610b7cf525da7b84efc91eaf73768b0ba861280",
+    "data/evaluation/pallet_eval_v1/reports/ANNOTATION_PROGRESS.md": "22c638972c445f145b1638e4639c24464e3998958ac59f9d80a4502e5146e3b5"
+  },
+  "source_audit_binding": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_occlusion_source_audit_v4_25/AUDIT_V1.json",
+    "sha256": "35f03712ffccec4abbaf865c0abc50e65b26a6456881f776e184b90bb9aa1ea5"
+  },
+  "scope": {
+    "new_pose_fits": 0,
+    "new_data_or_image_reads": 0,
+    "new_reference_annotation_decode": 0,
+    "new_neural_forward": 0,
+    "old_sources_changed": false,
+    "new_default_adopted": false
+  },
+  "limitations_ko": [
+    "관측 foreground가 true projected convex model의 subset이라는 조건부 soft 가정이며 SAM 오염을 제거하지 않는다.",
+    "model 확대/깊이 ambiguity를 해결하거나 native correspondence/uniqueness를 인증하지 않는다.",
+    "all8 model geometry는 허용하지만 S/U local/raw coordinate query는0이다.",
+    "기존 clipping이 적용된 fixed observed sample을 재사용하며 모델은 canvas로 clip하지 않는다."
+  ]
+}

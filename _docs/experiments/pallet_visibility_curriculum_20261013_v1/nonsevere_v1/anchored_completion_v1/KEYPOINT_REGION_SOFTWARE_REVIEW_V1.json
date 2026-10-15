@@ -1,0 +1,69 @@
+{
+  "schema": "keypoint_region_software_review_v1",
+  "status": "PASS_FOR_DECLARED_SOFT_REGION_EXPERIMENT",
+  "scope": {
+    "new_modules_owned": ["keypoint_regions.py", "test_keypoint_regions.py"],
+    "selector_review": "read-only region_completion.py and protected_completion_api.py",
+    "data_access": "pure synthetic fixtures only; no CAL/TEST/FINAL labels or real images read",
+    "frozen_V1_modified": false,
+    "parameter_selection_or_performance_claim": false
+  },
+  "source_sha256": {
+    "keypoint_regions.py": "f63f5ab257315a7c0bc92b3cfed594a59eb8ddc2c0280c74861e416e64699467",
+    "test_keypoint_regions.py": "f6deb0015277b8fde4b5f2a18399e3e5c3a86333678a4e88979048cf66e17b7b",
+    "region_completion.py": "1250788a953b3880b8ad8df4bf3cb416e7b64870682204068720ecf26554c0a8",
+    "protected_completion_api.py": "5aa4e8135c59a158d0e29c1fb973f00beddd55400ec75409ab89c2ec2b653909",
+    "HIDDEN_REGION_DESIGN_V1.md": "67a503885a142bf442dcd6524b9bfb14c19aff56e3391aed7941c50009beddaa"
+  },
+  "verification": {
+    "command": "python -m pytest -q scripts/research/pallet_visibility_curriculum_20261013_v1/test_keypoint_regions.py scripts/research/pallet_visibility_curriculum_20261013_v1/test_region_completion.py scripts/research/pallet_visibility_curriculum_20261013_v1/test_protected_completion_api.py",
+    "result": "31 passed in 0.32s",
+    "region_cases": 21,
+    "selector_cases": 5,
+    "protected_runtime_cases": 5,
+    "canaries": [
+      "circle exact outside pixel/normalized loss and preserved candidate order",
+      "anisotropic ellipse nearest Euclidean gap versus dense analytic curve",
+      "axis-aligned box normalized gap and native-ID weights",
+      "POSE_PRIOR nonzero diagnostic distance but zero likelihood/pruning/support",
+      "missing/nonfinite/native centre exclusion and raw OOB not true truncation",
+      "query centre/native permutation/image/K/XYZ/record tamper rejection",
+      "decoded-pixel versus sealed-file SHA namespaces and fractional canvas rejection",
+      "mixed frame/query bundle rejection without caller image override",
+      "empirical confidence cannot authorize hard pruning",
+      "joint-calibrated hard metadata explicitly caller asserted, not statistically verified",
+      "occluder mask alone or initial projection cannot authorize semantic hard regions",
+      "immutable inputs, JSON compatibility, zero weights and R_cf/centroid aliases",
+      "positive half-axis validation, duplicate shared-evidence rejection and proper pose validation"
+    ]
+  },
+  "contracts": {
+    "factory_returns": "list of available native IMAGE_REGRESSED records, never a ninth centre region",
+    "image_source": "raw image-regressed query; shared upstream RGB/query evidence is not statistically independent",
+    "pose_prior_source": "diagnostic only; never contributes normalized or pixel candidate penalty, hard pruning, or support",
+    "default_score": "weighted mean normalized outside-region loss; pixel penalty is weighted mean squared Euclidean nearest-region distance",
+    "ellipse_normalized_loss": "max(norm(delta/half_axes)-1,0)^2",
+    "independent_precise_support_count": 0,
+    "coverage_guarantee_default": false,
+    "candidate_pose_contained_in_pool_guarantee": false,
+    "actual_pixel_SHA_helper": "keypoint_regions.image_pixel_sha256; distinct versioned algorithm from interior_observation helper",
+    "cached_SHA_binding": "SEALED_FILE_SHA256 with supplied canvas, explicitly not fresh decoded-pixel verification"
+  },
+  "selector_findings_resolved_before_inference": [
+    "External proposals bind ORIGINAL_NATIVE_CF, native order, and fixed model extents",
+    "Current raw native query and optional current image SHA passed to region evaluation",
+    "V1 fallback without accepted anchor reference now uses explicit fixed initial reference so 2px/1px2 protection applies",
+    "Strict initial-pool objective gain reported separately from the declared 0.10px2 visible tolerance",
+    "P3P changed used_ids updates omitted_pool_ids and final supplemental IDs; rejected/deferred IDs explicitly historical V1",
+    "P3P solves normalized full-K rays, including skew, and checks local rank without a global uniqueness claim"
+  ],
+  "remaining_limitations": [
+    "Software verification is not empirical efficacy or calibrated spatial coverage",
+    "Caller-supplied hard-region scientific contracts are metadata checks, not proof of exchangeability, semantic correctness, or calibration",
+    "The selector deliberately retains BASE even if a future hard region labels it invalid; present study is SOFT-only and must not advertise hard-valid fallback",
+    "Three precise points generate a finite full-pose ambiguity; the opt-in P3P policy differs explicitly from V1 translation-only handling",
+    "Rounded/virtual cuboid corners, dimension error, native correspondence and predicted self-occlusion remain conditional",
+    "Regions derived from initial-pose propagation cannot supply new image evidence or self-validation",
+    "No 95 percent region coverage, hidden-KP localization performance, or unseen-test superiority is established here"
+  ]
+}

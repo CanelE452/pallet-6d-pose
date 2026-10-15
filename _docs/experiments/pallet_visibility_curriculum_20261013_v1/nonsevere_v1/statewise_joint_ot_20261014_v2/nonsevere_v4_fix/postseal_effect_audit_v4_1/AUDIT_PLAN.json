@@ -1,0 +1,83 @@
+{
+  "schema": "PREDECLARED_POSTSEAL_EFFECT_AUDIT_V4_1",
+  "no_parameter_or_hypothesis_selection": true,
+  "no_GT_target_or_RGB_reads": true,
+  "trigger": "Final complete98/all3arms prediction seal AND POSTSEAL_SCORING exist and validate before metric reads",
+  "primary": {
+    "CAL": 46,
+    "TEST": 49,
+    "severe": 0
+  },
+  "crops_separate": 3,
+  "same49_references": [
+    "ORIGINAL_N3_PNP",
+    "FROZEN_STATEWISE_V3",
+    "OLD_RGB_SINGLE_FAMILY",
+    "BOUNDARY_PROGRESSIVE",
+    "BASE_V4_ZERO_MEAN",
+    "NO_OT",
+    "NO_PRIOR",
+    "COARSE_MEAN_ONLY"
+  ],
+  "metrics": [
+    "translation_cm",
+    "rotation_deg",
+    "ADDsym_cm",
+    "success_5cm_5deg"
+  ],
+  "cluster_interval": {
+    "method": "Exact ordered session resampling with replacement",
+    "draws": "n_sessions ** n_sessions; expected TEST4^4=256",
+    "quantiles": [
+      0.025,
+      0.975
+    ],
+    "quantile_method": "linear",
+    "weights": "Each draw duplicates all paired frames of each sampled session; report frame-weighted mean",
+    "scope": "Exploratory interval from four reused sessions; no external generalization or significance claim"
+  },
+  "fixed_case_ids": [
+    "eval_pallet07:1778652170735118080",
+    "wood_183705:000706",
+    "eval_pallet09:1778653661653195264"
+  ],
+  "case_addition": "All original-success to final-failure primary cases; both CAL and TEST",
+  "OT_active_slack_threshold": 1e-05,
+  "OT_activity_scope": "Selected accepted pose only; inequalities normalized by frozen solver",
+  "pose_change_threshold": {
+    "translation_m": 1e-07,
+    "rotation_matrix_norm": 1e-06
+  },
+  "attribution": {
+    "NO_PRIOR_vs_ORIGINAL": "Compound B/I correction/state/soft fitting/search/OT; not isolated BI effect",
+    "BASE_V4_vs_NO_PRIOR": "Zero-mean prior effect conditional on same observations",
+    "FINAL_vs_BASE_V4": "CAL median bias effect conditional on verified fresh-observation parity",
+    "FINAL_vs_NO_OT": "All OT constraints effect with same frozen measurements/calibrated covariance/prior/bias",
+    "MEAN_ONLY_vs_ORIGINAL": "CAL global mean shift without B/I fit or O/T",
+    "FINAL_vs_MEAN_ONLY": "Statewise fit/constraints relative to mean-only baseline; not isolated component"
+  },
+  "selected_config": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/bias_selection_v4_1/SELECTED_CONFIG.json",
+    "sha256": "b32d4c9c4f84c55bb8d700effb05d379135632a12e127933834df0c5646e7cbf",
+    "bytes": 13984
+  },
+  "selection_seal": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/bias_selection_v4_1/SELECTION_SEAL.json",
+    "sha256": "bd165283c88999d9fbace83979123dc8bf32a19bcec2edd4a669b2da51368604",
+    "bytes": 5438
+  },
+  "preexisting_final_protocol": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/evaluation_bias_v4_1/PROTOCOL.json",
+    "sha256": "3c9baa5b066e7feeab09d8da4b54db136e5f8088fd277c5f81b1757019691137",
+    "bytes": 24497
+  },
+  "target_failure_policy": "If any fixed target fails, report target_achieved false; hypotheses only, no new TEST tuning",
+  "limitations": [
+    "Historical annotation-derived physical C2 reference",
+    "TEST is reused exploratory",
+    "Native-incompatible and fallback frames remain included",
+    "CAL full-model audit is not the conditional LOGO selection score",
+    "Initial S is geometry-conditional, so human SELF disagreements are diagnosed separately",
+    "Accepted ambiguous pose families do not prove unique pose or exact O/T coordinates"
+  ]
+}

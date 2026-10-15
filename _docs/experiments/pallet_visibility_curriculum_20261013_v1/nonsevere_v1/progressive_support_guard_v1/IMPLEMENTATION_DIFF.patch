@@ -1,0 +1,181 @@
+--- _docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/progressive_support_guard_v1/BASE_OUTLINE_CURRICULUM.py	2026-10-13 18:47:02.960347298 +0900
++++ _docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/progressive_support_guard_v1/progressive_curriculum.py	2026-10-13 18:49:14.136259794 +0900
+@@ -48,6 +48,7 @@
+     # original finite differences for reproducibility with cached first runs.
+     analytic_jacobian: bool = False
+     geometric_outline_priority: bool = False
++    progressive_active_support: bool = False
+ 
+ 
+ def project(xyz, R, t, K):
+@@ -102,6 +103,34 @@
+     return float(np.sum(losses * weights) / max(np.sum(weights), 1e-12))
+ 
+ 
++def _initial_prior_cost(R, t, xyz, initial_R, initial_t, cfg):
++    """Same squared fixed-initial prior used by _fit, in pixel-loss units."""
++    depth_scale = max(np.linalg.norm(initial_t), np.linalg.norm(np.ptp(xyz, axis=0)), 1e-6)
++    delta_rotation = cv2.Rodrigues(R @ initial_R.T)[0].reshape(3)
++    delta_translation = (t-initial_t)/depth_scale
++    return float(cfg.prior_strength_px**2 * (
++        np.sum((delta_rotation/np.deg2rad(cfg.rotation_prior_deg))**2)
++        + np.sum((delta_translation/cfg.translation_prior_fraction)**2)))
++
++
++def _aggregate_objective(xyz, points, K, R, t, initial_R, initial_t, ids, weights, cfg):
++    """Frozen-weight SUM Huber plus fixed prior, normalised by weight SUM.
++
++    IRLS's temporary optimiser weights are never validation weights. The same
++    prior and depth scale apply to every intermediate and final checkpoint.
++    """
++    ids = np.asarray(ids, dtype=int)
++    residuals = np.linalg.norm(project(xyz, R, t, K)[ids]-points[ids],axis=1)
++    losses = np.where(residuals <= cfg.robust_px,residuals**2,
++                      2*cfg.robust_px*residuals-cfg.robust_px**2)
++    data_sum = float(np.sum(losses*weights[ids]))
++    prior = _initial_prior_cost(R,t,xyz,initial_R,initial_t,cfg)
++    total_weight = max(float(np.sum(weights[ids])),1e-12)
++    return dict(objective=(data_sum+prior)/total_weight,
++                data_objective=data_sum/total_weight,prior_cost_sum=prior,
++                frozen_weight_sum=total_weight)
++
++
+ def _finite_list(value):
+     value = np.asarray(value)
+     if value.ndim == 1:
+@@ -249,6 +278,7 @@
+     stages = [stage0]
+     accepted_count = 0
+     final_used = []
++    checkpoints = []
+     visible_geometry = _geometry(xyz, points, visible_ids, R, t, K, cfg)
+ 
+     def residual_for(pose_R, pose_t, ids):
+@@ -259,6 +289,7 @@
+         ids = sorted(ids)
+         heldout = sorted(set(visible_ids) - set(ids))
+         protected = sorted(set(final_used) & set(visible_ids))
++        active_validation = cfg.progressive_active_support and not name.startswith("add_consistent_unknown_")
+         stage = {"name": name, "used_ids": ids, "added_ids": sorted(set(ids) - set(final_used)),
+                  "heldout_ids": heldout, "protected_visible_ids": protected,
+                  "weights": weights[ids].tolist(), "accepted": False,
+@@ -278,6 +309,10 @@
+         stage.update(visible_score_before=score_before, residual_fit_before=residual_for(R, t, ids).tolist(),
+                      residual_visible_before=before.tolist(), residual_heldout_before=residual_for(R, t, heldout).tolist(),
+                      fit_score_before=fit_score_before, protected_score_before=protected_before)
++        if cfg.progressive_active_support:
++            stage["validation_policy"] = "progressive_active_support" if active_validation else "legacy_unknown_visible_guards"
++            stage["active_objective_before"] = _aggregate_objective(
++                xyz,points,K,R,t,initial_R,initial_t,ids,weights,cfg)
+         try:
+             candidate_R, candidate_t, optimizer = _fit(xyz, points, K, initial_R, initial_t, R, t,
+                                                         ids, weights[ids], cfg)
+@@ -299,12 +334,17 @@
+         candidate_geometry = _geometry(xyz, points, ids, candidate_R, candidate_t, K, cfg)
+         depth = ((candidate_R @ xyz.T).T + candidate_t)[:, 2]
+         reason = "accepted"
++        active_after = _aggregate_objective(xyz,points,K,candidate_R,candidate_t,
++            initial_R,initial_t,ids,weights,cfg) if cfg.progressive_active_support else None
+         if not np.isfinite(projected).all() or not np.isfinite(candidate_t).all() or (depth <= 1e-6).any():
+             reason = "invalid_camera_pose"
+         elif rot_change > cfg.maximum_rotation_deg or translation_change > cfg.maximum_translation_fraction or shift > cfg.maximum_projection_shift_px:
+             reason = "exceeds_initial_pose_motion_limit"
+         elif not candidate_geometry["usable"]:
+             reason = "unstable_candidate_geometry"
++        elif active_validation:
++            if stage["active_objective_before"]["objective"]-active_after["objective"] <= cfg.minimum_gain_px2:
++                reason = "no_active_aggregate_objective_gain"
+         elif score_after > score_before + cfg.validation_tolerance_px2:
+             reason = "independent_visible_evidence_worsened"
+         elif protected and protected_after > protected_before + cfg.validation_tolerance_px2:
+@@ -321,11 +361,16 @@
+                      rotation_change_deg=rot_change, translation_fraction=translation_change,
+                      maximum_projection_shift_px=shift, candidate_geometry=candidate_geometry,
+                      candidate_R=candidate_R.tolist(), candidate_t=candidate_t.tolist())
++        if cfg.progressive_active_support:
++            stage["active_objective_after"] = active_after
++            stage["heldout_and_protected_used_as_visible_veto"] = not active_validation
+         if reason == "accepted":
+             R, t = candidate_R, candidate_t
+             accepted_count += 1
+             final_used = ids
+             stage["accepted"] = True
++            if cfg.progressive_active_support:
++                checkpoints.append(dict(stage_index=len(stages),name=name,R=R.copy(),t=t.copy(),used_ids=ids.copy()))
+         stage.update(R=R.tolist(), t=t.tolist(), projected=project(xyz, R, t, K).tolist())
+         stages.append(stage)
+ 
+@@ -400,12 +445,63 @@
+         for index, corner in enumerate(sorted(unknown_ids, key=lambda i:(unknown_residual[i], -accuracy[i], i)), 1):
+             if np.linalg.norm(project(xyz, R, t, K)[corner] - points[corner]) <= gate:
+                 attempt(f"add_consistent_unknown_{index}", sorted(set(final_used) | {corner}))
++    intermediate_accepted_count = accepted_count
++    final_guard = None
++    if cfg.progressive_active_support:
++        reference = _aggregate_objective(xyz,points,K,initial_R,initial_t,
++            initial_R,initial_t,visible_ids,weights,cfg)
++        checkpoint_records = []
++        selected = None
++        for checkpoint in checkpoints:
++            measured = _aggregate_objective(xyz,points,K,checkpoint["R"],checkpoint["t"],
++                initial_R,initial_t,visible_ids,weights,cfg)
++            gain = reference["objective"]-measured["objective"]
++            passes = gain > cfg.minimum_gain_px2
++            checkpoint_records.append(dict(stage_index=checkpoint["stage_index"],name=checkpoint["name"],
++                active_ids=checkpoint["used_ids"],full_visible=measured,initial_objective_gain=gain,
++                passes_initial_all_visible_guard=passes))
++            if passes:
++                selected = checkpoint  # Latest temporally passing, never minimum/GT-selected.
++        rejected_ids = sorted({k for stage in stages[1:] if not stage["accepted"]
++            for k in stage.get("added_ids",[]) if k in visible_ids})
++        rejected_single_add_ids = sorted({k for stage in stages[1:]
++            if not stage["accepted"] and stage["name"].startswith("add_visible_")
++            for k in stage.get("added_ids",[]) if k in visible_ids})
++        if selected is None:
++            R,t = initial_R.copy(),initial_t.copy()
++            final_used = []
++            accepted_count = 0
++            reason = "no_accepted_independent_checkpoint" if not checkpoints else "final_all_visible_initial_objective_no_gain"
++            fallback_source = "supplied_initial_pose"
++        else:
++            R,t = selected["R"].copy(),selected["t"].copy()
++            final_used = selected["used_ids"].copy()
++            reason = "latest_checkpoint_passes_initial_all_visible_guard"
++            fallback_source = "latest_accepted_checkpoint" if selected is checkpoints[-1] else "earlier_passing_checkpoint"
++        chosen_index = selected["stage_index"] if selected is not None else None
++        for stage_index,stage in enumerate(stages):
++            stage["retained_pose_checkpoint"] = stage_index==chosen_index
++            stage["intermediate_accept_discarded_by_final_guard"] = bool(stage_index and stage["accepted"]
++                and (chosen_index is None or stage_index>chosen_index))
++        final_guard = dict(policy="immutable_all_visible_initial_objective",all_visible_ids=visible_ids,
++            initial=reference,checkpoints=checkpoint_records,retained_checkpoint_index=chosen_index,
++            retained_active_ids=final_used,all_omitted_visible_ids=sorted(set(visible_ids)-set(final_used)),
++            attempted_rejected_visible_ids=rejected_ids,rejected_single_add_ids=rejected_single_add_ids,
++            rejected_additions_still_omitted_ids=sorted(set(rejected_single_add_ids)-set(final_used)),
++            intermediate_accepted_count=intermediate_accepted_count,
++            discarded_accepted_checkpoint_indices=[s["stage_index"] for s in checkpoint_records
++                if chosen_index is None or s["stage_index"]>chosen_index],fallback_source=fallback_source,
++            output_objective=_aggregate_objective(xyz,points,K,R,t,initial_R,initial_t,visible_ids,weights,cfg),
++            final_batch_refit_performed=False,GT_stage_selection=False)
++        stages.append(dict(name="final_all_visible_initial_guard",accepted=selected is not None,reason=reason,
++            used_ids=final_used,fit_performed=False,R=R.tolist(),t=t.tolist(),projected=project(xyz,R,t,K).tolist(),
++            fallback_source=fallback_source,full_visible_ids=visible_ids,retained_checkpoint_index=chosen_index))
+     projected = project(xyz, R, t, K)
+     diagnostic_ids = visible_ids or np.flatnonzero(eligible).tolist()
+     before = residual_for(initial_R, initial_t, diagnostic_ids)
+     after = residual_for(R, t, diagnostic_ids)
+     fallback_reason = None if accepted_count else stages[-1]["reason"]
+-    return {"available": True, "accepted": bool(accepted_count), "new_pose_estimated": bool(accepted_count),
++    output = {"available": True, "accepted": bool(accepted_count), "new_pose_estimated": bool(accepted_count),
+             "R": R.tolist(), "t": t.tolist(), "R_cf": R.tolist(), "centroid": t.tolist(),
+             "projected": projected.tolist(), "observed_points": _finite_list(points),
+             "used_ids": final_used, "visible_ids": visible_ids, "easy_ids": np.flatnonzero(easy).tolist(),
+@@ -419,3 +515,8 @@
+             "unknown_gate_px": gate, "hidden_projected": projected[hidden].tolist(),
+             "configuration": asdict(cfg), "independent_observations_only": True,
+             "reprojected_points_reused_as_observations": False, "corner_order_and_model_preserved": True}
++    if cfg.progressive_active_support:
++        output.update(final_guard=final_guard,nominal_visible_order=list(easy_ids)+remaining,
++            frozen_weights_by_id=weights.tolist(),intermediate_accepted_count=intermediate_accepted_count,
++            final_omitted_visible_ids=final_guard["all_omitted_visible_ids"])
++    return output

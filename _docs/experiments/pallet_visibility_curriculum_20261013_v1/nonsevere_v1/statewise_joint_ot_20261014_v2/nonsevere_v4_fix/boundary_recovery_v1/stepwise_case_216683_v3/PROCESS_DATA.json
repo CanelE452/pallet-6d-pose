@@ -1,0 +1,1900 @@
+{
+  "id": "eval_pallet07:1778652166837872128",
+  "image": "data/evaluation/pallet_eval_v1/dev_existing/sessions/eval_pallet07/rgb/1778652166837872128.png",
+  "image_sha256": "1bf4a688441d5ad5c6062dac3851661eb8dd262cdd925efaf106e0a5c1ddbfb3",
+  "steps": [
+    {
+      "number": 1,
+      "title": "1. 처음 YOLO 키포인트",
+      "caption": "저장된 YOLO 좌표입니다. ×는 영상 예측점입니다. 뒤에서 S로 분류되는 7번의 원좌표는 표시에서 제외했습니다. 9번째 중심점은 이번 B/I 자세 입력에 포함하지 않습니다.",
+      "kind": "yolo",
+      "image": "assets/01_yolo.png",
+      "keyfacts": [
+        "실제 640×480 영상",
+        "초기 S7의 원좌표 표시 제외"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 2,
+      "title": "2. N3 모델을 거친 좌표",
+      "caption": "같은 영상의 저장된 N3_DIM_SYM 출력입니다. 노란 화살표는 YOLO → N3 이동입니다. PoseFix가 이 단계에 들어가는 것은 아닙니다.",
+      "kind": "n3",
+      "image": "assets/02_n3.png",
+      "keyfacts": [],
+      "GT_overlay": false
+    },
+    {
+      "number": 3,
+      "title": "3. SubPix와 이동한도를 적용한 초기 좌표",
+      "caption": "N3 좌표에 SubPix와 YOLO 기준 총이동 제한을 적용한 실제 N3_SUBPIX 캐시입니다. 이후 현재 방법의 상태 판정과 보정은 이 좌표에서 시작합니다.",
+      "kind": "subpix",
+      "image": "assets/03_subpix.png",
+      "keyfacts": [],
+      "GT_overlay": false
+    },
+    {
+      "number": 4,
+      "title": "4. 초기 PnP로 대략적인 자세",
+      "caption": "주황 박스는 N3+SubPix의 저장된 초기 PnP입니다. 파란 ×는 영상 좌표이고, 주황 사각형은 3D 모델을 투영한 좌표입니다. 이때부터 팔레트 모델·등록축은 현재 보정 과정에서 고정됩니다.",
+      "kind": "initial_pnp",
+      "image": "assets/04_initial_pnp.png",
+      "keyfacts": [
+        "사후 초기 오차 9.18cm / 4.81°",
+        "native 모델 X×Y×Z = 1.1×0.11×1.3m"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 5,
+      "title": "5. 기하로 S와 B/I 역할 정의",
+      "caption": "S7은 초기 모델의 면 방향으로 정합니다. S7에는 RGB 가림 판정·경계보정을 하지 않습니다. B/I 역할은 아직 실제 가림 여부를 뜻하지 않습니다.",
+      "kind": "geometric_roles",
+      "image": "assets/05_geometric_roles.png",
+      "keyfacts": [
+        "S7: 모델 투영만 사용",
+        "B: 경계 역할 / I: 내부 역할"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 6,
+      "title": "6. 가림 판정·경계 보정에 사용한 마스크",
+      "caption": "당시 저장된 실제 마스크입니다. Tiny mask는 가림 분류의 특징, MobileSAM mask는 B 경계 보정에 사용했습니다. SAM의 파란 사각형은 당시 프롬프트입니다. 이 시각화를 위해 모델을 다시 실행하지 않았습니다.",
+      "kind": "mask_sources",
+      "image": "assets/06_mask_sources.png",
+      "keyfacts": [
+        "마스크가 보임 여부의 정답은 아님",
+        "S7 프롬프트 없음"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 7,
+      "title": "7. S를 제외한 점의 가림 판단",
+      "caption": "B0·I1·B3·B5·B6은 보이는 점으로, 4는 O로 판정했습니다. U2는 y=486.73px로 영상 높이 480 밖이어서 RGB 판정을 하지 않았습니다. T로 확정한 점은 없습니다.",
+      "kind": "rgb_states",
+      "image": "assets/07_rgb_states.png",
+      "keyfacts": [
+        "최종 상태 B, I, U, B, O, B, B, S",
+        "O4 보임 점수 0.386",
+        "U2: 영상 밖 / RGB 미조회"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 8,
+      "title": "8. B/I 영상 보정과 추가 B 복구 시도",
+      "caption": "다섯 점 모두 두 개의 지지된 선을 얻지 못해 원좌표를 유지했습니다. B5→4 선 하나는 15/15 표본으로 지지됐지만 B5→6은 5/15에 그쳤습니다. 관측 선으로 탐색 기준을 옮겨 다시 검사한 선도 방향차 54.52°로 보류됐습니다. 노란 탐색 기준은 확정 KP가 아닙니다.",
+      "kind": "bi_correction",
+      "image": "assets/08_bi_correction.png",
+      "keyfacts": [
+        "B0·I1·B3·B5·B6 좌표 변경 0개",
+        "B0/B3/B6: 표본 부족",
+        "I1: 방향차 20.57° / 13.25°"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 9,
+      "title": "9. 보이는 B/I 점으로 PnP 자세 최적화",
+      "caption": "저장된 BI_prior_seed 자세입니다. B/I 관측은 고정된 다섯 점이고, PnP가 모델 자세를 움직였습니다. 보정 좌표가 없더라도 초기 PnP와는 사용하는 점·가중치·prior가 달라 자세는 바뀔 수 있습니다.",
+      "kind": "bi_prior_pnp",
+      "image": "assets/09_bi_prior_pnp.png",
+      "keyfacts": [
+        "사후 BI/prior 오차 10.11cm / 4.73°",
+        "S7은 자세에서 투영"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 10,
+      "title": "10. O/U 영역을 포함한 최종 제약",
+      "caption": "O4 반경은 49.44px, U2 반경은 311.54px입니다. U 영역은 영상 밖까지 그대로 유지합니다. 두 점의 최종 모델 투영이 이미 원 안에 있으므로 이 사례의 선택 자세는 NO_OT·NO_U와 같습니다.",
+      "kind": "region_constraints",
+      "image": "assets/10_region_constraints.png",
+      "keyfacts": [
+        "T 없음",
+        "O4 중심→최종 투영 약 9.67px",
+        "U2 중심→최종 투영 약 12.75px",
+        "U는 정밀 좌표로 보정하지 않음"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 11,
+      "title": "11. 현재 방법의 최종 자세",
+      "caption": "주황 박스는 하나의 최종 rigid pose입니다. 원형 B/I 표시는 영상 관측이므로 박스의 모델 투영과 정확히 겹치지 않을 수 있습니다. S7은 PnP 투영만 사용하고, U2는 보고 좌표에서 미확정으로 남습니다.",
+      "kind": "final_pnp",
+      "image": "assets/11_final_pnp.png",
+      "keyfacts": [
+        "최종 오차 10.11cm / 4.73°",
+        "초기→최종 깊이 +1.18cm"
+      ],
+      "GT_overlay": false
+    },
+    {
+      "number": 12,
+      "title": "12. 사후 PoseFix / 현재 / GT 비교",
+      "caption": "이 단계의 초록 G 박스·축·번호는 기존 정답 모델입니다. 추론에는 사용하지 않았습니다. 현재 중심은 기준 대비 x=-6.04cm, y=+2.04cm, z=+7.85cm 차이이며, 전체 위치 차이는 10.11cm입니다. 카메라 x는 오른쪽, y는 아래쪽, z는 깊이입니다.",
+      "kind": "pose_comparison",
+      "image": "assets/12_pose_comparison.png",
+      "keyfacts": [
+        "PoseFix RAW 9.42cm / 4.15°",
+        "실제 영상 위치·크기 차이와 번호 문제를 분리"
+      ],
+      "GT_overlay": true
+    },
+    {
+      "number": 13,
+      "title": "13. G/P 번호가 다른 이유",
+      "caption": "현재 모델과 기준 모델의 3D 크기·형상은 같지만 코너 순서가 다릅니다. 기존 identity 대응은 번호가 어긋납니다. 오른쪽 그림은 기하만으로 같은 3D 위치를 연결한 진단입니다. 이 대응을 추론이나 기존 평가에 새로 적용하지 않았으며, 10.11cm 중심 오차도 그대로입니다.",
+      "kind": "corner_numbering",
+      "image": "assets/13_corner_numbering.png",
+      "keyfacts": [
+        "같은 3D 위치 대응: P0→G4, P1→G0, P2→G3, P3→G7",
+        "P4→G5, P5→G1, P6→G2, P7→G6",
+        "번호 문제 ≠ 중심 위치 오차"
+      ],
+      "GT_overlay": false
+    }
+  ],
+  "state_records": [
+    {
+      "native_id": 0,
+      "state": "B",
+      "initial_role": "B",
+      "initial_self_occluded": false,
+      "rgb_evaluated": true,
+      "p_visible": 0.9975946130134705,
+      "raw_query_out_of_frame": false,
+      "conditional_truncation": false,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": false,
+      "reason": "human_DIRECT_vs_EXTERNAL_RGB_classifier",
+      "external_O_enabled": true
+    },
+    {
+      "native_id": 1,
+      "state": "I",
+      "initial_role": "I",
+      "initial_self_occluded": false,
+      "rgb_evaluated": true,
+      "p_visible": 0.9963236809096769,
+      "raw_query_out_of_frame": false,
+      "conditional_truncation": false,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": false,
+      "reason": "human_DIRECT_vs_EXTERNAL_RGB_classifier",
+      "external_O_enabled": true
+    },
+    {
+      "native_id": 2,
+      "state": "U",
+      "initial_role": "B",
+      "initial_self_occluded": false,
+      "rgb_evaluated": false,
+      "p_visible": null,
+      "raw_query_out_of_frame": true,
+      "conditional_truncation": false,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": true,
+      "reason": "RGB_query_missing_or_OOB_not_physical_T"
+    },
+    {
+      "native_id": 3,
+      "state": "B",
+      "initial_role": "B",
+      "initial_self_occluded": false,
+      "rgb_evaluated": true,
+      "p_visible": 0.9950907578587161,
+      "raw_query_out_of_frame": false,
+      "conditional_truncation": false,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": false,
+      "reason": "human_DIRECT_vs_EXTERNAL_RGB_classifier",
+      "external_O_enabled": true
+    },
+    {
+      "native_id": 4,
+      "state": "O",
+      "initial_role": "B",
+      "initial_self_occluded": false,
+      "rgb_evaluated": true,
+      "p_visible": 0.385598881096546,
+      "raw_query_out_of_frame": false,
+      "conditional_truncation": false,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": false,
+      "reason": "human_DIRECT_vs_EXTERNAL_RGB_classifier",
+      "external_O_enabled": true
+    },
+    {
+      "native_id": 5,
+      "state": "B",
+      "initial_role": "B",
+      "initial_self_occluded": false,
+      "rgb_evaluated": true,
+      "p_visible": 0.9929278557270939,
+      "raw_query_out_of_frame": false,
+      "conditional_truncation": false,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": false,
+      "reason": "human_DIRECT_vs_EXTERNAL_RGB_classifier",
+      "external_O_enabled": true
+    },
+    {
+      "native_id": 6,
+      "state": "B",
+      "initial_role": "B",
+      "initial_self_occluded": false,
+      "rgb_evaluated": true,
+      "p_visible": 0.9889095978949123,
+      "raw_query_out_of_frame": false,
+      "conditional_truncation": false,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": false,
+      "reason": "human_DIRECT_vs_EXTERNAL_RGB_classifier",
+      "external_O_enabled": true
+    },
+    {
+      "native_id": 7,
+      "state": "S",
+      "initial_role": null,
+      "initial_self_occluded": true,
+      "rgb_evaluated": false,
+      "p_visible": null,
+      "raw_query_out_of_frame": null,
+      "conditional_truncation": null,
+      "physical_truncation_certified": false,
+      "outside_canvas_side": [],
+      "truncation_source": null,
+      "abstained": false,
+      "reason": "fixed_initial_geometric_self_occlusion"
+    }
+  ],
+  "initial_roles": [
+    "B",
+    "I",
+    "B",
+    "B",
+    "B",
+    "B",
+    "B",
+    "I"
+  ],
+  "initial_S_ids": [
+    7
+  ],
+  "input_points_nonS": {
+    "YOLO": {
+      "0": [
+        8.576271057128906,
+        344.67822265625
+      ],
+      "1": [
+        324.93701171875,
+        413.76947021484375
+      ],
+      "2": [
+        324.1954345703125,
+        488.6671142578125
+      ],
+      "3": [
+        13.982177734375,
+        396.3020935058594
+      ],
+      "4": [
+        286.61541748046875,
+        288.9264221191406
+      ],
+      "5": [
+        537.5227661132812,
+        315.4087829589844
+      ],
+      "6": [
+        534.0054931640625,
+        360.06915283203125
+      ]
+    },
+    "N3": {
+      "0": [
+        2.1213669776916504,
+        349.4041519165039
+      ],
+      "1": [
+        323.46685791015625,
+        408.45606422424316
+      ],
+      "2": [
+        328.0837879180908,
+        486.72932624816895
+      ],
+      "3": [
+        11.554184913635254,
+        392.42687797546387
+      ],
+      "4": [
+        285.9468307495117,
+        291.356237411499
+      ],
+      "5": [
+        538.3228912353516,
+        309.13499450683594
+      ],
+      "6": [
+        527.417558670044,
+        355.530517578125
+      ]
+    },
+    "N3_SubPix": {
+      "0": [
+        2.121373126773773,
+        349.40413978509355
+      ],
+      "1": [
+        323.46685791015625,
+        408.4560546875
+      ],
+      "2": [
+        328.0837879180908,
+        486.72932624816895
+      ],
+      "3": [
+        9.070072668031965,
+        389.98772704379786
+      ],
+      "4": [
+        289.3721618652344,
+        286.68994140625
+      ],
+      "5": [
+        537.8893432617188,
+        311.5373229980469
+      ],
+      "6": [
+        528.2420050158283,
+        354.5209815688884
+      ]
+    }
+  },
+  "initial_pose": {
+    "available": true,
+    "R_cf": [
+      [
+        0.8257934205947793,
+        0.011300499641957486,
+        0.5638594906625374
+      ],
+      [
+        0.010177206263478317,
+        0.9993378367993749,
+        -0.03493297029764964
+      ],
+      [
+        -0.5638808836758387,
+        0.03458593137372439,
+        0.8251316030646065
+      ]
+    ],
+    "R_physical": [
+      [
+        0.8257934205947793,
+        0.011300499641957486,
+        0.5638594906625374
+      ],
+      [
+        0.010177206263478317,
+        0.9993378367993749,
+        -0.03493297029764964
+      ],
+      [
+        -0.5638808836758387,
+        0.03458593137372439,
+        0.8251316030646065
+      ]
+    ],
+    "centroid": [
+      -0.09373331651389219,
+      0.3584416577619637,
+      1.9556956468516047
+    ],
+    "cf_extents": [
+      1.1,
+      0.11,
+      1.3
+    ],
+    "selected_hypothesis": "short-face-front",
+    "reprojection_px": 6.3767962687545054
+  },
+  "stored_BI_prior_pose": {
+    "available": true,
+    "R_cf": [
+      [
+        0.8253815010065187,
+        0.013117691261183053,
+        0.5644229832069231
+      ],
+      [
+        0.004849121662436366,
+        0.9995284496832404,
+        -0.030321020644449057
+      ],
+      [
+        -0.5645545711579433,
+        0.02776336524621065,
+        0.8249286828174158
+      ]
+    ],
+    "centroid": [
+      -0.09380729051581453,
+      0.3604198515818326,
+      1.967483663692965
+    ],
+    "R_physical": [
+      [
+        0.825381501006519,
+        0.013117691261183053,
+        0.564422983206923
+      ],
+      [
+        0.004849121662436368,
+        0.9995284496832404,
+        -0.030321020644449054
+      ],
+      [
+        -0.5645545711579434,
+        0.02776336524621065,
+        0.8249286828174157
+      ]
+    ],
+    "cf_extents": [
+      1.1,
+      0.11,
+      1.3
+    ]
+  },
+  "final_pose": {
+    "available": true,
+    "R_cf": [
+      [
+        0.8253815012410131,
+        0.01311769015017463,
+        0.5644229828898322
+      ],
+      [
+        0.004849122531756936,
+        0.9995284496995537,
+        -0.03032101996765556
+      ],
+      [
+        -0.5645545708076445,
+        0.027763365183834824,
+        0.824928683059248
+      ]
+    ],
+    "centroid": [
+      -0.09380729990409052,
+      0.36041985128871823,
+      1.9674836668659588
+    ],
+    "R_physical": [
+      [
+        0.8253815012410133,
+        0.01311769015017463,
+        0.5644229828898321
+      ],
+      [
+        0.004849122531756939,
+        0.9995284496995537,
+        -0.030321019967655558
+      ],
+      [
+        -0.5645545708076446,
+        0.027763365183834824,
+        0.8249286830592479
+      ]
+    ],
+    "physical_registration_Q": [
+      [
+        1.0000000000000002,
+        9.398845257801328e-20,
+        -5.3808946219590865e-17
+      ],
+      [
+        9.398845257801328e-20,
+        1.0,
+        -7.755952986330317e-19
+      ],
+      [
+        -5.3808946219590865e-17,
+        -7.755952986330317e-19,
+        0.9999999999999999
+      ]
+    ],
+    "cf_extents": [
+      1.1,
+      0.11,
+      1.3
+    ],
+    "source": "SOFT_BI_PRIOR_ALL_OT_U_REGION_JOINT_SE3",
+    "joint_feasible": true,
+    "fallback": false,
+    "fallback_pose_does_not_solve_OT": false,
+    "fallback_pose_does_not_solve_U_regions": false
+  },
+  "fixed_BI_measurements": [
+    {
+      "native_corner": 0,
+      "state": "B",
+      "xy": [
+        2.121373126773773,
+        349.40413978509355
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ],
+      "protection_px": 2.0,
+      "source": "VISIBLE_BACKBONE_FALLBACK",
+      "image_measurement": true,
+      "measurement_is_pose_projection": false,
+      "fit_covariance_px2": [
+        [
+          60.94482781705277,
+          0.0
+        ],
+        [
+          0.0,
+          60.94482781705277
+        ]
+      ],
+      "fit_reliability_weight": 0.9614759051625089,
+      "fixed_original_fit_scale": true
+    },
+    {
+      "native_corner": 1,
+      "state": "I",
+      "xy": [
+        323.46685791015625,
+        408.4560546875
+      ],
+      "covariance_px2": [
+        [
+          9.0,
+          0.0
+        ],
+        [
+          0.0,
+          9.0
+        ]
+      ],
+      "protection_px": 2.0,
+      "source": "VISIBLE_BACKBONE_FALLBACK",
+      "image_measurement": true,
+      "measurement_is_pose_projection": false,
+      "fit_covariance_px2": [
+        [
+          48.400851603184286,
+          0.0
+        ],
+        [
+          0.0,
+          48.400851603184286
+        ]
+      ],
+      "fit_reliability_weight": 0.8084574957765271,
+      "fixed_original_fit_scale": true
+    },
+    {
+      "native_corner": 3,
+      "state": "B",
+      "xy": [
+        9.070072668031965,
+        389.98772704379786
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ],
+      "protection_px": 2.0,
+      "source": "VISIBLE_BACKBONE_FALLBACK",
+      "image_measurement": true,
+      "measurement_is_pose_projection": false,
+      "fit_covariance_px2": [
+        [
+          60.94482781705277,
+          0.0
+        ],
+        [
+          0.0,
+          60.94482781705277
+        ]
+      ],
+      "fit_reliability_weight": 0.9614759051625089,
+      "fixed_original_fit_scale": true
+    },
+    {
+      "native_corner": 5,
+      "state": "B",
+      "xy": [
+        537.8893432617188,
+        311.5373229980469
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ],
+      "protection_px": 2.0,
+      "source": "VISIBLE_BACKBONE_FALLBACK",
+      "image_measurement": true,
+      "measurement_is_pose_projection": false,
+      "fit_covariance_px2": [
+        [
+          60.94482781705277,
+          0.0
+        ],
+        [
+          0.0,
+          60.94482781705277
+        ]
+      ],
+      "fit_reliability_weight": 0.9614759051625089,
+      "fixed_original_fit_scale": true
+    },
+    {
+      "native_corner": 6,
+      "state": "B",
+      "xy": [
+        528.2420050158283,
+        354.5209815688884
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ],
+      "protection_px": 2.0,
+      "source": "VISIBLE_BACKBONE_FALLBACK",
+      "image_measurement": true,
+      "measurement_is_pose_projection": false,
+      "fit_covariance_px2": [
+        [
+          60.94482781705277,
+          0.0
+        ],
+        [
+          0.0,
+          60.94482781705277
+        ]
+      ],
+      "fit_reliability_weight": 0.9614759051625089,
+      "fixed_original_fit_scale": true
+    }
+  ],
+  "BI_correction_records": [
+    {
+      "native_corner": 0,
+      "state": "B",
+      "pixel_queried": true,
+      "corrected": false,
+      "method": "B_TARGET_BACKGROUND_LINES",
+      "rays": [
+        {
+          "edge": 3,
+          "endpoints": [
+            0,
+            3
+          ],
+          "native_corner": 0,
+          "native_neighbor": 3,
+          "samples": 15,
+          "transition_sample_count": 0,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples"
+        },
+        {
+          "edge": 4,
+          "endpoints": [
+            0,
+            4
+          ],
+          "native_corner": 0,
+          "native_neighbor": 4,
+          "samples": 15,
+          "transition_sample_count": 2,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples"
+        }
+      ],
+      "raw_xy": [
+        2.121373126773773,
+        349.40413978509355
+      ],
+      "reason": "no_two_supported_nonparallel_lines",
+      "measured_xy": [
+        2.121373126773773,
+        349.40413978509355
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ]
+    },
+    {
+      "native_corner": 1,
+      "state": "I",
+      "pixel_queried": true,
+      "corrected": false,
+      "method": "I_INTERNAL_RGB_JUNCTION",
+      "rays": [
+        {
+          "edge": 8,
+          "endpoints": [
+            1,
+            0
+          ],
+          "native_corner": 1,
+          "native_neighbor": 0,
+          "samples": 15,
+          "transition_sample_count": 15,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_INTERNAL_RGB_GRADIENT",
+          "reason": "image_line_direction_inconsistent",
+          "angle_change_deg": 20.565984339550607
+        },
+        {
+          "edge": 10,
+          "endpoints": [
+            1,
+            2
+          ],
+          "native_corner": 1,
+          "native_neighbor": 2,
+          "samples": 15,
+          "transition_sample_count": 0,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_INTERNAL_RGB_GRADIENT",
+          "reason": "insufficient_actual_image_samples"
+        },
+        {
+          "edge": 13,
+          "endpoints": [
+            1,
+            5
+          ],
+          "native_corner": 1,
+          "native_neighbor": 5,
+          "samples": 15,
+          "transition_sample_count": 15,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_INTERNAL_RGB_GRADIENT",
+          "reason": "image_line_direction_inconsistent",
+          "angle_change_deg": 13.250811933564451
+        }
+      ],
+      "raw_xy": [
+        323.46685791015625,
+        408.4560546875
+      ],
+      "reason": "no_two_supported_nonparallel_lines",
+      "measured_xy": [
+        323.46685791015625,
+        408.4560546875
+      ],
+      "covariance_px2": [
+        [
+          9.0,
+          0.0
+        ],
+        [
+          0.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "native_corner": 2,
+      "state": "U",
+      "pixel_queried": false,
+      "corrected": false,
+      "reason": "excluded_before_image_query"
+    },
+    {
+      "native_corner": 3,
+      "state": "B",
+      "pixel_queried": true,
+      "corrected": false,
+      "method": "B_TARGET_BACKGROUND_LINES",
+      "rays": [
+        {
+          "edge": 26,
+          "endpoints": [
+            3,
+            2
+          ],
+          "native_corner": 3,
+          "native_neighbor": 2,
+          "samples": 15,
+          "transition_sample_count": 1,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples"
+        },
+        {
+          "edge": 24,
+          "endpoints": [
+            3,
+            0
+          ],
+          "native_corner": 3,
+          "native_neighbor": 0,
+          "samples": 15,
+          "transition_sample_count": 2,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples"
+        }
+      ],
+      "raw_xy": [
+        9.070072668031965,
+        389.98772704379786
+      ],
+      "reason": "no_two_supported_nonparallel_lines",
+      "measured_xy": [
+        9.070072668031965,
+        389.98772704379786
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ]
+    },
+    {
+      "native_corner": 4,
+      "state": "O",
+      "pixel_queried": false,
+      "corrected": false,
+      "reason": "excluded_before_image_query"
+    },
+    {
+      "native_corner": 5,
+      "state": "B",
+      "pixel_queried": true,
+      "corrected": false,
+      "method": "B_TARGET_BACKGROUND_LINES",
+      "rays": [
+        {
+          "edge": 44,
+          "endpoints": [
+            5,
+            4
+          ],
+          "native_corner": 5,
+          "native_neighbor": 4,
+          "samples": 15,
+          "transition_sample_count": 15,
+          "supported": true,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "normal": [
+            -0.004032862130892477,
+            0.9999918679784517
+          ],
+          "offset": -305.7285069078696,
+          "inlier_count": 15,
+          "inlier_fraction": 1.0,
+          "inlier_span_fraction": 1.0,
+          "inlier_rms_px": 0.4326494960031346,
+          "angle_change_deg": 4.521077219387204,
+          "observed_points": [
+            [
+              534.1930528833341,
+              307.71797260319426
+            ],
+            [
+              531.8737732134423,
+              308.0268926717318
+            ],
+            [
+              529.5959162914278,
+              307.8375315385787
+            ],
+            [
+              527.2766366215361,
+              308.14645160711626
+            ],
+            [
+              524.9987796995216,
+              307.9570904739632
+            ],
+            [
+              522.6795000296299,
+              308.26601054250074
+            ],
+            [
+              520.4016431076154,
+              308.0766494093476
+            ],
+            [
+              518.1237861856009,
+              307.8872882761945
+            ],
+            [
+              515.8873520114636,
+              307.19964594135075
+            ],
+            [
+              513.6094950894491,
+              307.01028480819764
+            ],
+            [
+              511.3316381674347,
+              306.8209236750446
+            ],
+            [
+              508.92951300178845,
+              308.12640614696346
+            ],
+            [
+              506.651656079774,
+              307.93704501381035
+            ],
+            [
+              504.3323764098822,
+              308.24596508234794
+            ],
+            [
+              502.0545194878677,
+              308.0566039491948
+            ]
+          ],
+          "observation_confidence": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.9895833333333334,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "inlier_mask": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "reason": "supported_rgb_transition_line"
+        },
+        {
+          "edge": 46,
+          "endpoints": [
+            5,
+            6
+          ],
+          "native_corner": 5,
+          "native_neighbor": 6,
+          "samples": 15,
+          "transition_sample_count": 5,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples"
+        }
+      ],
+      "raw_xy": [
+        537.8893432617188,
+        311.5373229980469
+      ],
+      "reason": "no_two_supported_nonparallel_lines",
+      "measured_xy": [
+        537.8893432617188,
+        311.5373229980469
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ]
+    },
+    {
+      "native_corner": 6,
+      "state": "B",
+      "pixel_queried": true,
+      "corrected": false,
+      "method": "B_TARGET_BACKGROUND_LINES",
+      "rays": [
+        {
+          "edge": 53,
+          "endpoints": [
+            6,
+            5
+          ],
+          "native_corner": 6,
+          "native_neighbor": 5,
+          "samples": 15,
+          "transition_sample_count": 1,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples"
+        },
+        {
+          "edge": 50,
+          "endpoints": [
+            6,
+            2
+          ],
+          "native_corner": 6,
+          "native_neighbor": 2,
+          "samples": 15,
+          "transition_sample_count": 0,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples"
+        }
+      ],
+      "raw_xy": [
+        528.2420050158283,
+        354.5209815688884
+      ],
+      "reason": "no_two_supported_nonparallel_lines",
+      "measured_xy": [
+        528.2420050158283,
+        354.5209815688884
+      ],
+      "covariance_px2": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ]
+    },
+    {
+      "native_corner": 7,
+      "state": "S",
+      "pixel_queried": false,
+      "corrected": false,
+      "reason": "excluded_before_image_query"
+    }
+  ],
+  "B_recovery_records": [
+    {
+      "native_corner": 0,
+      "state": "B",
+      "pixel_queried": true,
+      "recovered": false,
+      "raw_xy": [
+        2.121373126773773,
+        349.40413978509355
+      ],
+      "exterior_distance_px": 18.945958466191215,
+      "image_derived_reach_px": 25.945958466191215,
+      "reach_rule": "max(original_radius, exterior_distance+original_context)",
+      "expanded_rays": [
+        {
+          "edge": 3,
+          "endpoints": [
+            0,
+            3
+          ],
+          "native_corner": 0,
+          "native_neighbor": 3,
+          "samples": 15,
+          "transition_sample_count": 1,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples",
+          "search_anchor_xy": [
+            2.121373126773773,
+            349.40413978509355
+          ],
+          "normal_search_radius_px": 25.945958466191215,
+          "shared_native_edge": [
+            0,
+            3
+          ]
+        },
+        {
+          "edge": 4,
+          "endpoints": [
+            0,
+            4
+          ],
+          "native_corner": 0,
+          "native_neighbor": 4,
+          "samples": 15,
+          "transition_sample_count": 3,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples",
+          "search_anchor_xy": [
+            2.121373126773773,
+            349.40413978509355
+          ],
+          "normal_search_radius_px": 25.945958466191215,
+          "shared_native_edge": [
+            0,
+            4
+          ]
+        }
+      ],
+      "observed_line_recentering": [],
+      "reason": "no_two_supported_nonparallel_actual_boundary_lines"
+    },
+    {
+      "native_corner": 1,
+      "state": "I",
+      "pixel_queried": false,
+      "recovered": false,
+      "reason": "excluded_before_recovery_image_query"
+    },
+    {
+      "native_corner": 2,
+      "state": "U",
+      "pixel_queried": false,
+      "recovered": false,
+      "reason": "excluded_before_recovery_image_query"
+    },
+    {
+      "native_corner": 3,
+      "state": "B",
+      "pixel_queried": true,
+      "recovered": false,
+      "raw_xy": [
+        9.070072668031965,
+        389.98772704379786
+      ],
+      "exterior_distance_px": 13.348261642846703,
+      "image_derived_reach_px": 20.3482616428467,
+      "reach_rule": "max(original_radius, exterior_distance+original_context)",
+      "expanded_rays": [
+        {
+          "edge": 26,
+          "endpoints": [
+            3,
+            2
+          ],
+          "native_corner": 3,
+          "native_neighbor": 2,
+          "samples": 15,
+          "transition_sample_count": 0,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples",
+          "search_anchor_xy": [
+            9.070072668031965,
+            389.98772704379786
+          ],
+          "normal_search_radius_px": 20.3482616428467,
+          "shared_native_edge": [
+            2,
+            3
+          ]
+        },
+        {
+          "edge": 24,
+          "endpoints": [
+            3,
+            0
+          ],
+          "native_corner": 3,
+          "native_neighbor": 0,
+          "samples": 15,
+          "transition_sample_count": 2,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples",
+          "search_anchor_xy": [
+            9.070072668031965,
+            389.98772704379786
+          ],
+          "normal_search_radius_px": 20.3482616428467,
+          "shared_native_edge": [
+            0,
+            3
+          ]
+        }
+      ],
+      "observed_line_recentering": [],
+      "reason": "no_two_supported_nonparallel_actual_boundary_lines"
+    },
+    {
+      "native_corner": 4,
+      "state": "O",
+      "pixel_queried": false,
+      "recovered": false,
+      "reason": "excluded_before_recovery_image_query"
+    },
+    {
+      "native_corner": 5,
+      "state": "B",
+      "pixel_queried": true,
+      "recovered": false,
+      "raw_xy": [
+        537.8893432617188,
+        311.5373229980469
+      ],
+      "exterior_distance_px": 0.3016986055837744,
+      "image_derived_reach_px": 12.0,
+      "reach_rule": "max(original_radius, exterior_distance+original_context)",
+      "expanded_rays": [
+        {
+          "edge": 44,
+          "endpoints": [
+            5,
+            4
+          ],
+          "native_corner": 5,
+          "native_neighbor": 4,
+          "samples": 15,
+          "transition_sample_count": 15,
+          "supported": true,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_EXTERIOR_MASK_AND_RGB_TRANSITION",
+          "normal": [
+            -0.004032862130892477,
+            0.9999918679784517
+          ],
+          "offset": -305.7285069078696,
+          "inlier_count": 15,
+          "inlier_fraction": 1.0,
+          "inlier_span_fraction": 1.0000000000000007,
+          "inlier_rms_px": 0.4326494960031346,
+          "angle_change_deg": 4.521077219387204,
+          "observed_points": [
+            [
+              534.1930528833341,
+              307.71797260319426
+            ],
+            [
+              531.8737732134423,
+              308.0268926717318
+            ],
+            [
+              529.5959162914278,
+              307.8375315385787
+            ],
+            [
+              527.2766366215361,
+              308.14645160711626
+            ],
+            [
+              524.9987796995216,
+              307.9570904739632
+            ],
+            [
+              522.6795000296299,
+              308.26601054250074
+            ],
+            [
+              520.4016431076154,
+              308.0766494093476
+            ],
+            [
+              518.1237861856009,
+              307.8872882761945
+            ],
+            [
+              515.8873520114636,
+              307.19964594135075
+            ],
+            [
+              513.6094950894491,
+              307.01028480819764
+            ],
+            [
+              511.3316381674347,
+              306.8209236750446
+            ],
+            [
+              508.92951300178845,
+              308.12640614696346
+            ],
+            [
+              506.651656079774,
+              307.93704501381035
+            ],
+            [
+              504.3323764098822,
+              308.24596508234794
+            ],
+            [
+              502.0545194878677,
+              308.0566039491948
+            ]
+          ],
+          "observation_confidence": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.9895833333333334,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "inlier_mask": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "reason": "supported_rgb_transition_line",
+          "search_anchor_xy": [
+            537.8893432617188,
+            311.5373229980469
+          ],
+          "normal_search_radius_px": 12.0,
+          "shared_native_edge": [
+            4,
+            5
+          ],
+          "rgb_supported_sample_count": 15,
+          "mask_supported_sample_count": 15,
+          "rgb_support_thresholds": {
+            "minimum_gradient": 4.0,
+            "minimum_gradient_alignment": 0.8,
+            "minimum_color_transition": 10.0
+          }
+        },
+        {
+          "edge": 46,
+          "endpoints": [
+            5,
+            6
+          ],
+          "native_corner": 5,
+          "native_neighbor": 6,
+          "samples": 15,
+          "transition_sample_count": 5,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples",
+          "search_anchor_xy": [
+            537.8893432617188,
+            311.5373229980469
+          ],
+          "normal_search_radius_px": 12.0,
+          "shared_native_edge": [
+            5,
+            6
+          ]
+        }
+      ],
+      "observed_line_recentering": [
+        {
+          "seed_native_neighbor": 4,
+          "observed_anchor_xy": [
+            537.9040109792979,
+            307.90030347570575
+          ],
+          "anchor_source": "orthogonal_projection_on_observed_RGB_mask_line",
+          "remeasured_ray": {
+            "edge": 46,
+            "endpoints": [
+              5,
+              6
+            ],
+            "native_corner": 5,
+            "native_neighbor": 6,
+            "samples": 15,
+            "transition_sample_count": 7,
+            "supported": false,
+            "guide_source": "initial_registered_model_direction_only",
+            "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+            "reason": "image_line_direction_inconsistent",
+            "angle_change_deg": 54.51908759616803,
+            "search_anchor_xy": [
+              537.9040109792979,
+              307.90030347570575
+            ],
+            "normal_search_radius_px": 12.0,
+            "shared_native_edge": [
+              5,
+              6
+            ]
+          }
+        }
+      ],
+      "reason": "no_two_supported_nonparallel_actual_boundary_lines"
+    },
+    {
+      "native_corner": 6,
+      "state": "B",
+      "pixel_queried": true,
+      "recovered": false,
+      "raw_xy": [
+        528.2420050158283,
+        354.5209815688884
+      ],
+      "exterior_distance_px": 9.889997913080553,
+      "image_derived_reach_px": 16.889997913080553,
+      "reach_rule": "max(original_radius, exterior_distance+original_context)",
+      "expanded_rays": [
+        {
+          "edge": 53,
+          "endpoints": [
+            6,
+            5
+          ],
+          "native_corner": 6,
+          "native_neighbor": 5,
+          "samples": 15,
+          "transition_sample_count": 1,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples",
+          "search_anchor_xy": [
+            528.2420050158283,
+            354.5209815688884
+          ],
+          "normal_search_radius_px": 16.889997913080553,
+          "shared_native_edge": [
+            5,
+            6
+          ]
+        },
+        {
+          "edge": 50,
+          "endpoints": [
+            6,
+            2
+          ],
+          "native_corner": 6,
+          "native_neighbor": 2,
+          "samples": 15,
+          "transition_sample_count": 0,
+          "supported": false,
+          "guide_source": "initial_registered_model_direction_only",
+          "measurement_source": "OBSERVED_TARGET_BACKGROUND_TRANSITION",
+          "reason": "insufficient_actual_image_samples",
+          "search_anchor_xy": [
+            528.2420050158283,
+            354.5209815688884
+          ],
+          "normal_search_radius_px": 16.889997913080553,
+          "shared_native_edge": [
+            2,
+            6
+          ]
+        }
+      ],
+      "observed_line_recentering": [],
+      "reason": "no_two_supported_nonparallel_actual_boundary_lines"
+    },
+    {
+      "native_corner": 7,
+      "state": "S",
+      "pixel_queried": false,
+      "recovered": false,
+      "reason": "excluded_before_recovery_image_query"
+    }
+  ],
+  "measured_BI_changed_count": 0,
+  "domain_observations": {
+    "O_T": [
+      {
+        "native_corner": 4,
+        "native_id": 4,
+        "state": "O",
+        "canvas_hw": [
+          480,
+          640
+        ],
+        "binding": {
+          "record_id": "eval_pallet07:1778652166837872128",
+          "image_sha256": "43c9c6aa6db6d9f39c652eeccb402d994730b4376783e6e842c500a247512530",
+          "image_hw": [
+            480,
+            640
+          ],
+          "K_sha256": "7baf9baf334b0b945b029a5c99392d0864126e35d3856b1020c60a304e424c5e",
+          "native_ids": [
+            4
+          ],
+          "native_xyz_sha256": "cae8928c82f5fa96c94b07b98621dd320e588be36a774595078981c6c411c5ef",
+          "original_queries_sha256": "a9759cf3353dcefadc5c2ed477bef5495e7fbe89512175ce1eb37b0e9cd17bdc",
+          "prediction_source": "N3_SUBPIX",
+          "states": [
+            "V",
+            "V",
+            "U",
+            "V",
+            "O",
+            "V",
+            "V",
+            "S"
+          ],
+          "calibration_model_sha256": "6548c6046776a7a8cefae2b2d9a676685e75bfcf0c974940e95ba984eb8e5cf7"
+        },
+        "independent_precise_support": false,
+        "candidate_pose_inputs_used": false,
+        "GT_coordinates_used": false,
+        "image_source_statistically_independent_of_visible_source": false,
+        "shape": "ellipse",
+        "center_xy": [
+          289.3721618652344,
+          286.68994140625
+        ],
+        "half_axes_px": [
+          49.443651297859766,
+          49.443651297859766
+        ],
+        "angle_deg": 0.0,
+        "halfplanes": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            640.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            480.0
+          ]
+        ],
+        "localization_available": true,
+        "source": "current_RGB_raw_image_predictor_plus_actual_external_O_CAL_uncertainty"
+      }
+    ],
+    "U": [
+      {
+        "schema": "UNCERTAIN_U_REGIONS_BORROWED_CAL_MAX_V4_5",
+        "native_corner": 2,
+        "native_id": 2,
+        "state": "U",
+        "shape": "ellipse",
+        "center_xy": [
+          328.0837879180908,
+          486.72932624816895
+        ],
+        "half_axes_px": [
+          311.53984313410643,
+          311.53984313410643
+        ],
+        "angle_deg": 0.0,
+        "halfplanes": [],
+        "independent_precise_support": false,
+        "source": "raw_U_prediction_plus_borrowed_CAL_nonS_untrimmed_max",
+        "candidate_pose_inputs_used": false,
+        "GT_coordinates_used": false,
+        "canvas_clipped": false,
+        "U_state_preserved": true,
+        "provenance": {
+          "borrowed_model_schema": "TRUNCATION_LOCALIZATION_INTERVAL_CAL_V4_2",
+          "borrowed_model_sha256": "aaf006ae08cc59422b1a7df48c66a7a4fc07319cc85f303883f6554bce50f7fe",
+          "borrowed_model_fit_partition": "CAL",
+          "borrowed_model_fit_recipe": "ALL_VALID_INITIAL_NON_S_DIRECT_AND_EXTERNAL_UNTRIMMED_MAX",
+          "borrowed_model_eligible_points": 264,
+          "borrowed_model_native_compatible_frames": 44,
+          "U_specific_coverage_calibrated": false,
+          "simultaneous_U_coverage_calibrated": false,
+          "future_coverage_guaranteed": false,
+          "physical_visibility_or_truncation_certificate": false,
+          "radius_rule": "provided_frozen_CAL_radius_ratio * immutable_nonS_prediction_scale_px",
+          "scale_recomputed": false,
+          "center_source": "immutable_original_raw_nonS_image_prediction",
+          "candidate_pose_used_as_center": false,
+          "precise_image_point_objective": false,
+          "canvas_clipping_or_halfplanes_added": false,
+          "runtime_GT_inputs": false,
+          "image_reads": 0,
+          "original_U_states_preserved": true
+        }
+      }
+    ]
+  },
+  "O_audit": [
+    {
+      "native_corner": 4,
+      "state": "O",
+      "domain_index": 0,
+      "shape": "ellipse",
+      "projected_xy": [
+        289.6225720130627,
+        296.3540555414409
+      ],
+      "outside_canvas_side": null,
+      "inequalities": [
+        {
+          "name": "ellipse_inside",
+          "slack": 0.9617708609527867,
+          "passes": true
+        },
+        {
+          "name": "halfplane_0",
+          "slack": 289.6225720130627,
+          "passes": true
+        },
+        {
+          "name": "halfplane_1",
+          "slack": 350.3774279869373,
+          "passes": true
+        },
+        {
+          "name": "halfplane_2",
+          "slack": 296.3540555414409,
+          "passes": true
+        },
+        {
+          "name": "halfplane_3",
+          "slack": 183.6459444585591,
+          "passes": true
+        }
+      ],
+      "feasible": true,
+      "minimum_slack": 0.9617708609527867
+    }
+  ],
+  "U_audit": [
+    {
+      "native_corner": 2,
+      "state": "U",
+      "u_region_index": 0,
+      "shape": "ellipse",
+      "center_xy": [
+        328.0837879180908,
+        486.72932624816895
+      ],
+      "half_axes_px": [
+        311.53984313410643,
+        311.53984313410643
+      ],
+      "angle_deg": 0.0,
+      "ellipse_matrix_px2": [
+        [
+          97057.07386002365,
+          0.0
+        ],
+        [
+          0.0,
+          97057.07386002365
+        ]
+      ],
+      "projected_xy": [
+        325.99635891777547,
+        474.15030438477675
+      ],
+      "normalized_ellipse_quadratic": 0.001675191146866262,
+      "slack": 0.9983248088531337,
+      "feasible": true,
+      "U_visibility_or_canvas_guard": false,
+      "U_point_cost": false,
+      "U_used_as_PnP_correspondence": false,
+      "shape_matrix_is_calibrated_probability_covariance": false,
+      "provenance": {
+        "borrowed_model_schema": "TRUNCATION_LOCALIZATION_INTERVAL_CAL_V4_2",
+        "borrowed_model_sha256": "aaf006ae08cc59422b1a7df48c66a7a4fc07319cc85f303883f6554bce50f7fe",
+        "borrowed_model_fit_partition": "CAL",
+        "borrowed_model_fit_recipe": "ALL_VALID_INITIAL_NON_S_DIRECT_AND_EXTERNAL_UNTRIMMED_MAX",
+        "borrowed_model_eligible_points": 264,
+        "borrowed_model_native_compatible_frames": 44,
+        "U_specific_coverage_calibrated": false,
+        "simultaneous_U_coverage_calibrated": false,
+        "future_coverage_guaranteed": false,
+        "physical_visibility_or_truncation_certificate": false,
+        "radius_rule": "provided_frozen_CAL_radius_ratio * immutable_nonS_prediction_scale_px",
+        "scale_recomputed": false,
+        "center_source": "immutable_original_raw_nonS_image_prediction",
+        "candidate_pose_used_as_center": false,
+        "precise_image_point_objective": false,
+        "canvas_clipping_or_halfplanes_added": false,
+        "runtime_GT_inputs": false,
+        "image_reads": 0,
+        "original_U_states_preserved": true
+      }
+    }
+  ],
+  "U_changed_selected_pose": false,
+  "metrics": {
+    "initial": {
+      "translation_cm": 9.18128008595039,
+      "rotation_deg": 4.807546216994989,
+      "ADDsym_cm": 10.50192100772341,
+      "success_5cm_5deg": false
+    },
+    "BI_prior": {
+      "translation_cm": 10.11245067014981,
+      "rotation_deg": 4.734438463479791,
+      "ADDsym_cm": 11.210688823307105,
+      "success_5cm_5deg": false
+    },
+    "final": {
+      "translation_cm": 10.112451471615854,
+      "rotation_deg": 4.73443850698895,
+      "ADDsym_cm": 11.210689560839215,
+      "success_5cm_5deg": false
+    },
+    "PoseFix": {
+      "translation_cm": 9.421756548437354,
+      "rotation_deg": 4.14988519973602,
+      "ADDsym_cm": 10.298108270174696,
+      "success_5cm_5deg": false
+    }
+  },
+  "reference_center_error_cm": [
+    -6.044770990044096,
+    2.039723835289636,
+    7.846142053229621
+  ],
+  "initial_to_final_center_change_cm": [
+    -0.007398339019833167,
+    0.19781935267545459,
+    1.1788020014354084
+  ],
+  "numbering_diagnostic": {
+    "source_mapping": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "geometry_only_correspondence": [
+      4,
+      0,
+      3,
+      7,
+      5,
+      1,
+      2,
+      6
+    ],
+    "unordered_shape_max_gap_m": 1.5838319836915702e-16,
+    "source_identity_max_gap_m": 1.2999999999999998,
+    "not_applied_to_prediction_or_existing_scoring": true
+  },
+  "stage_sources_are_stored_actual_data": true,
+  "new_backbone_or_mask_forwards": 0,
+  "new_PnP_fits": 0,
+  "S_raw_coordinate_reads_for_render": 0,
+  "S_current_RGB_queries": 0,
+  "GT_used_for_runtime": false,
+  "GT_posthoc_metrics": true,
+  "GT_overlay_only_in_stage12": true
+}

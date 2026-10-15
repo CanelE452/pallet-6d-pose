@@ -1,0 +1,111 @@
+{
+  "schema": "CAL_JOINT_SPATIAL_OBSERVATION_V1",
+  "CAL_only": true,
+  "TEST_accessed": false,
+  "FINAL_accessed": false,
+  "preregistered_before_spatial_extraction_and_joint_training": true,
+  "image_inputs": "/dev/shm/pallet-visibility-curriculum-20261013-v1/CAL_INPUTS.json",
+  "image_inputs_sha256": "bf6f204bb9f8a78b8a61b9c4571a74ced41360f2dc39033e795848de8ed8959b",
+  "cached_predictions": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_segmentation_v2/PREDICTIONS.jsonl.gz",
+  "cached_predictions_sha256": "1d5e77787b9413c5f6e7ab2e3d2a6dbd75b8a16473471f7c247925e4185bed73",
+  "pretrained_weights": "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+  "pretrained_weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+  "backbone": "Frozen ImageNet resnet18 stem+layer1+layer2; native128 RGB input -> [128,16,16]",
+  "spatial_features": {
+    "F4": "4r crop, adaptive_average_pool4x4 ->2048",
+    "F8": "8r crop, adaptive_average_pool2x2 ->512"
+  },
+  "input_normalization": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "crop": "integer floor(center - width/2), integer width 4r/8r; reflect101 pad on image boundaries",
+  "resize": [
+    128,
+    128
+  ],
+  "interpolation": "cv2.INTER_LINEAR",
+  "download": false,
+  "finetune": false,
+  "eligible": "initial H nonself and finite q inside image; no labels used during extraction",
+  "class_feature_families": [
+    "RGB26",
+    "RGB26_RESIDUAL3",
+    "RGB26_F4_PCA32",
+    "RGB26_F4_PCA64",
+    "RGB26_F4F8_PCA32",
+    "RGB26_F4F8_PCA64"
+  ],
+  "spatial_2x2": "F4/F4+F8 times PCA32/PCA64",
+  "residual3": "initial projection-minus-q dx/r,dy/r clipped[-8,8],norm/r clipped[0,8]; classifier baseline only",
+  "excluded_features": [
+    "KP ID",
+    "global coordinates",
+    "session ID",
+    "image/patchsize as numeric input"
+  ],
+  "representation_preprocess": "training-session eligible images only StandardScaler frozenfeatures thenPCA; concatenateRGB26 then trainfold StandardScaler",
+  "joint_label": "DIRECT_VISIBLE and Euclidean gt_native-q error<=8px =>positive; known DIRECT(inaccurate)/EXTERNAL/SELF =>negative; UNANNOTATED excluded",
+  "GT_native_phase": "target.gt indexed by CAL-only scoring_metadata.native_to_reference_corner_ids",
+  "classification_C_grid": [
+    0.0001,
+    0.001,
+    0.01,
+    0.1
+  ],
+  "class_weight": "balanced",
+  "threshold_grid": [
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8
+  ],
+  "classification_selection": "best pooled LOGO AUC then smallest C; cutoff best OOF balanced accuracy thenclosest.5",
+  "regression_targets": "DIRECT_VISIBLE with finite nativeGT and Euclidean qerror<=16px only; target=(gt_native-q)/patchradius",
+  "regression_features": "independent RGB26+spatial PCA only; never residual3 or initial projectedpoint as correctioninput",
+  "ridge_alpha_grid": [
+    0.1,
+    1.0,
+    10.0,
+    100.0,
+    1000.0
+  ],
+  "regression_selection": "minimum pooled LOGO Euclidean correctederror on prespecified DIRECT<=16 subset thenlarger alpha",
+  "inverse_transform": "predict normalizeddelta*originalpatchradius; component clamp\u00b116px and radialnorm cap16px",
+  "corrected_coordinate_application": "modelusabilityconfidence>=selectedOOFcutoff; preserve hidden/OOB/missing; reject newcoordinateoutside image; leave othersraw",
+  "evaluation": "LOGO5sessions; all76 pose failures preserveinitial; evaluate originalq vs gatedCVRGBcorrection separately",
+  "no_annotation_access_before_feature_seal": true,
+  "no_GT_coordinates_as_model_inputs": true,
+  "code_sha256": {
+    "scoring.py": "d91c0d64d7e63a72033752017c41afd983599d7a61f71f6ee70b06e17256edaf",
+    "curriculum.py": "a3a2e64c881d66bfc00ff7a5e6b8f55ca59828d40bf0dff5750d592789b2bcc2",
+    "run.py": "78aa879ffa96931ea75934ae367006f2cf7061ae0e0a19c56a6fef4a8dc857ac",
+    "common.py": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095",
+    "calibration.py": "4c4def040593a37cdc720924ad4b82ba57e30e965edb4bdded9d1cb6db49ff9f",
+    "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limits": [
+    "CAL-selected C/alpha/cutoff gives exploratory selection optimism",
+    "bbox virtual/roundedcorner annotations may not be physical pixelpoints",
+    "known self labels with wrong initial H can be visually ambiguous",
+    "regression limited to inrange DIRECT queries; outside16 nevertrained forcorrection",
+    "frozenCNN representation may lack precise corner geometry"
+  ]
+}

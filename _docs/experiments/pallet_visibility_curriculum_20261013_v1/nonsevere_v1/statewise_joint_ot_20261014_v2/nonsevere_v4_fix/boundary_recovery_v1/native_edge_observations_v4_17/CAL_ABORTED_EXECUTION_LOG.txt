@@ -1,0 +1,38 @@
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/minjae/anaconda3/envs/pallet-yolo26/lib/python3.10/concurrent/futures/process.py", line 246, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/observe_native_edge_chains_v4_17.py", line 172, in observe_one
+    observation=NMS.observe_image_supported_edge_chains(image,mask,task['initial_geometry'],task['states'],
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/image_supported_edge_chains_v4_17b.py", line 348, in observe_image_supported_edge_chains
+    record = _edge_chains(image,mask,lab,gradients,k,mate,points[k]['record'],
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/image_supported_edge_chains_v4_17b.py", line 203, in _edge_chains
+    gx, gy = (_sample(g, xy) for g in gradients)
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/image_supported_edge_chains_v4_17b.py", line 203, in <genexpr>
+    gx, gy = (_sample(g, xy) for g in gradients)
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/image_supported_edge_chains_v4_17b.py", line 33, in _sample
+    return G._sample(array, np.asarray(xy)[:, None, :])[:, 0]
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_global_edge_correction_v4_9c.py", line 73, in _sample
+    return cv2.remap(array,xy[...,0].astype(np.float32),xy[...,1].astype(np.float32),
+cv2.error: OpenCV(4.9.0) /io/opencv/modules/imgproc/src/imgwarp.cpp:1744: error: (-215:Assertion failed) dst.cols < SHRT_MAX && dst.rows < SHRT_MAX && src.cols < SHRT_MAX && src.rows < SHRT_MAX in function 'remap'
+
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/minjae/anaconda3/envs/pallet-yolo26/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/minjae/anaconda3/envs/pallet-yolo26/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/observe_native_edge_chains_v4_17.py", line 321, in <module>
+    elif args.stage=='observe':observe(args.output,args.partition,args.workers)
+  File "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/observe_native_edge_chains_v4_17.py", line 251, in observe
+    try:row=future.result()
+  File "/home/minjae/anaconda3/envs/pallet-yolo26/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/home/minjae/anaconda3/envs/pallet-yolo26/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+cv2.error: OpenCV(4.9.0) /io/opencv/modules/imgproc/src/imgwarp.cpp:1744: error: (-215:Assertion failed) dst.cols < SHRT_MAX && dst.rows < SHRT_MAX && src.cols < SHRT_MAX && src.rows < SHRT_MAX in function 'remap'
+

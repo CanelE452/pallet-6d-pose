@@ -1,0 +1,96 @@
+{
+  "schema": "BOUNDED_CONDITIONAL_COARSE_VISIBILITY_PRIOR_PROPOSAL_V1",
+  "status": "PROPOSAL_ONLY_AWAITING_ROOT_REVIEW_NO_FIT_MODEL_OR_RUN",
+  "hypothesis": "A bounded model-derived consistency preference can discourage large departures from coarse hidden-face topology while allowing the initial topology to be wrong.",
+  "hard_pruning_adoption": false,
+  "negative_evidence": {
+    "id": "wood_184309:000372",
+    "fixed_native_alignment_compatible": true,
+    "fixed_native_phase": 1,
+    "initial_S_native_id": 6,
+    "initial_angle_deg": -27.145187324927733,
+    "reference_angle_deg": 20.228965872380652
+  },
+  "model_only_equations": {
+    "camera_object": "c=-R.T@t",
+    "ray": "d_k=c-X_k",
+    "unit": "u_k=d_k/||d_k||",
+    "cosine": "a_kj=n_kj.T@u_k",
+    "fixed_scale": "s=sin(existing 2 degrees)",
+    "corner_hidden_score": "h_k=1/(1+sum_j exp(a_kj/s))",
+    "frame_hidden_score": "H=product_k h_k",
+    "bounded_energy": "L=-2 log(epsilon+(1-epsilon)*H)",
+    "bound": "0 <= L <= -2 log(epsilon)",
+    "stable_implementation": "log(h_k)=-logsumexp([0,a_k1/s,a_k2/s,a_k3/s]); logH=sum log(h_k); logmix=logaddexp(log(epsilon),log1p(-epsilon)+logH)",
+    "camera_jacobian": "Dc/Dp=[skew(c) @ SO3_right_jacobian(phi), -scale*R.T]",
+    "cosine_gradient": "Da_kj/Dp=n_kj.T@(I-u_k@u_k.T)/||d_k|| @ Dc/Dp",
+    "logH_gradient": "DlogH/Dp=-(1/s)*sum_kj [exp(a_kj/s)/(1+sum_l exp(a_kl/s))]*Da_kj/Dp",
+    "energy_gradient": "DL/Dp=-2*r*DlogH/Dp, r=exp(log1p(-epsilon)+logH-logmix)",
+    "empty_or_zero_weight": "no confident initial S or factor_weight0 => exact value0/gradient0 and unchanged constraints"
+  },
+  "CAL_only_recipe": {
+    "all_CAL_inventory": 46,
+    "fixed_native_compatible_population": 44,
+    "incompatible2_diagnostic_only": true,
+    "phase": "existing geometry-only _reference_alignment, never error-minimum phase",
+    "frame_is_unit": true,
+    "pseudo_independent_S_corner_counts": false,
+    "wrong_event": "any confidently hidden initial S has fixed-native reference maxangle > +2 degrees",
+    "consistent_event": "nonempty confident initial S set and every reference maxangle < -2 degrees",
+    "uninformative": "no confident initial S or remaining reference-grazing case; export separately, do not hide",
+    "fixed_pseudocounts": {
+      "wrong": 1,
+      "consistent": 1,
+      "interpretation": "fixed Beta(1,1) Laplace engineering shrinkage"
+    },
+    "epsilon_formula": "(wrong_frames+1)/(wrong_frames+consistent_frames+2)",
+    "conditioning": "Frozen original coarse states/geometry and upstream all-CAL-trained models; conditional subsystem LOGO only",
+    "LOGO": "same four sessions; epsilon event counts/pseudocount model fit on training sessions only",
+    "full_CAL_model": "fit once only after recipe/source protocol frozen and root review",
+    "trim_or_frameID_or_TEST_or_REMAINDER_fit": false,
+    "future_probability_or_physical_visibility_calibration_claim": false
+  },
+  "proposed_API": {
+    "prepare": "prepare_bounded_coarse_visibility_prior(xyz,initial_R,initial_t,initial_self_hidden,model,*,factor_weight=1.0)",
+    "value": "coarse_visibility_prior_value_and_gradient(p,xyz,scale,prepared)->value,gradient6,audit",
+    "fit": "fit_CAL_coarse_visibility_floor(CAL_geometry_records,*,heldout_session=None,bindings=None)->descriptor",
+    "only_new_versioned_files": true,
+    "existing_solver_default_unchanged": true
+  },
+  "contract": {
+    "S_raw_2D_feature_or_image_queries": 0,
+    "S_regions": 0,
+    "S_states_relabelled": false,
+    "S_final_coordinates": "pose projection only",
+    "U_range_only": true,
+    "all_BI_OT_U_constraints_unchanged": true,
+    "metadata_must_declare_model_visibility_prior": true,
+    "do_not_claim_all_S_model_terms_zero_or_S_excluded_from_every_pose_energy": true,
+    "correlated_coarse_backbone_prior_not_independent_new_image_information": true,
+    "no_hard_guard_or_reference_as_runtime_input": true
+  },
+  "next_checks_after_review": [
+    "pure finite-difference gradient including near-zero and large rotation charts",
+    "energy bounds/outlier saturation",
+    "no-S and weight0 exact zero",
+    "CAL wrong/grazing event accounting and held-session exclusion",
+    "only after separate authorization: uniform full population prediction seals before diagnostic scores"
+  ],
+  "reference_bindings": [
+    {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/conditional_initial_S_diagnosis_v4_20/INITIAL_S_SELECTED_AND_CAL_REFERENCE_V1.json",
+      "sha256": "c01beaa937da1d93fe1005db101054e0c475257eebaa26606267f1de98de8db3",
+      "bytes": 668398
+    },
+    {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/conditional_initial_S_diagnosis_v4_20/CAL_FIXED_NATIVE_REFERENCE_ADDENDUM_V1.json",
+      "sha256": "2a25499afbf0fb9edf12bed1b358f6826c85b0cc2829960965ae73fe2cd70754",
+      "bytes": 68019
+    },
+    {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/conditional_initial_S_diagnosis_v4_20/SAVED_BANK_INITIAL_S_COMPATIBILITY_V1.json",
+      "sha256": "8b818b3ed7b75bc0f5ca4a8996aaab76588b4b92d56248b4bfdf179eb53f9545",
+      "bytes": 947112
+    }
+  ]
+}

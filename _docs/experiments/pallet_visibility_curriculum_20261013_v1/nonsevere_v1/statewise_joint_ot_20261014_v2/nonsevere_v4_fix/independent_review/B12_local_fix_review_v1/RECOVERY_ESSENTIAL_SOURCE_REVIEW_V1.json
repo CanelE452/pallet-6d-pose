@@ -1,0 +1,106 @@
+{
+  "schema": "BOUNDARY_RECOVERY_INDEPENDENT_ESSENTIAL_SOURCE_REVIEW_V1",
+  "timestamp_UTC": "2026-10-14T02:59:26.108410+00:00",
+  "status": "ESSENTIAL_STATIC_PASS_RUNTIME_PENDING",
+  "passed": true,
+  "scope": "Read-only producer source and existing uncertainty group contract; no inference, fitting, target coordinate read or TEST parameter selection. Reviewed source may still receive owner edits; final execution SHA needs binding.",
+  "source_binding": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_boundary_recovery_v4_3.py",
+    "sha256": "8f9e664c838c89d0190333c0d2c77a29eca42d29067b2eeff3998ebab802cf32"
+  },
+  "calibrator_binding": {
+    "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertainty_calibration_v4.py",
+    "sha256": "46466bccd948c9fda68eb8eacc1b905a4dc45f2031461ec1608f4a16e255a37a"
+  },
+  "model_binding": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/calibration/final_adapter_CAL46/MODEL.json",
+    "sha256": "e3fe7030ab90d7bcf0b4821137792d4914a6cb0a13f1858e73715ec634f2ff6e"
+  },
+  "requirements": [
+    {
+      "requirement": "Initial S excluded before local recovery query",
+      "finding": "Loop rejects every state other than B before raw-coordinate, contour-distance or line sampling; source reports excluded_before_recovery_image_query."
+    },
+    {
+      "requirement": "Existing corrected B/I untouched",
+      "finding": "Deepcopy of matching frozen base; corrected B skipped; I skipped. Only original fallback B proposals may update xy/cov/source."
+    },
+    {
+      "requirement": "Actual image line measurement",
+      "finding": "Exterior SAM contour determines reach, not coordinates. Incident lines retain mask/material context and additionally RGB gradient/alignment/color support. Observed-line normal recentering anchors the second search. Final measurement is two supported image-line intersection, never model projection."
+    },
+    {
+      "requirement": "Keep line reliability guards",
+      "finding": "Original count/fraction/span/RMS/direction/conditioning thresholds retained; RGB-filtered samples refit and passed into uncertainty resampling."
+    },
+    {
+      "requirement": "Handle competing/shared-edge evidence",
+      "finding": "Reject candidate disagreement >3px, out-of-canvas intersection, and independently observed shared-edge disagreement >3px or original angle limit."
+    },
+    {
+      "requirement": "Honest uncertainty scope",
+      "finding": "alpha1 uses conditional intersection covariance, explicitly not total localization error or calibrated semantic probability. It cannot cover mask selection/native semantic mistakes or correlated edge errors."
+    },
+    {
+      "requirement": "Production bindings",
+      "finding": "Module validates image pixel hash/raw/state/native model order. Caller must freeze/verify K/coarse/native/Q and selected SAM mask binding, because old base schema has no K/coarse input fields."
+    },
+    {
+      "requirement": "O/T/pose/prior not changed by observation producer",
+      "finding": "Only visible B measurements changed; module has no pose optimization, annotation/target I/O, calibration fit or classifier call."
+    }
+  ],
+  "material_open_source_findings": [],
+  "effect_attribution_requirements": [
+    "Frozen original corrected B/I equality, including covariance/source, and fixed states/O/T/domains/scale/Q/prior.",
+    "Old-frozen vs reexecuted-legacy replay differences must not count as recovery effect.",
+    "Compare radius-only vs radius+observed-line recentering; compare same recovered candidate cap12/on vs uncapped and alpha.5 vs alpha1.",
+    "Separate new xy effect with old fitCov/reliability from source/covariance reweighting; combined deployment-style output remains exploratory until CAL evaluation.",
+    "CAL actual DIRECT annotation and compatible fixed-reference diagnostics separate; known TEST posthoc case is not heldout selection.",
+    "Report 2D candidate/correction and physical pose metrics separately, retaining native-reference incompatible rows."
+  ],
+  "calibration_coupling": {
+    "current_group_rule": "All non-VISIBLE_BACKBONE_FALLBACK B records are B:corrected, including new recovery source.",
+    "old_B_fallback": {
+      "count": 88,
+      "session_count": 4,
+      "raw_floor_px2": 86.5085926201752,
+      "floor_px2": 83.98621829314234,
+      "shrinkage_weight": 0.8148148148148148,
+      "reliability_weight": 0.9614759051625089,
+      "human_state_counts": {
+        "DIRECT_VISIBLE": 83,
+        "SELF_OCCLUDED": 5
+      }
+    },
+    "old_B_corrected": {
+      "count": 145,
+      "session_count": 4,
+      "raw_floor_px2": 35.29355284775715,
+      "floor_px2": 39.85042780611359,
+      "shrinkage_weight": 0.8787878787878788,
+      "reliability_weight": 0.9815023188742336,
+      "human_state_counts": {
+        "DIRECT_VISIBLE": 143,
+        "SELF_OCCLUDED": 2
+      }
+    },
+    "new_recovery_family_calibrated": false,
+    "explanation": "Original corrected calibration was fit on capped/blended legacy measurements, while new readout alpha1 and expanded/observed-line search define a different error family. Reuse of frozen CAL floor is an explicitly transferred assumption; do not claim new recovery coverage calibration."
+  },
+  "case_registration_limit": "eval_pallet09:1778653661653195264 is physical_native_compatible=false under fixed historical annotation correspondence. This is not evidence that production guide/native identity is wrong. Image improvement cannot establish physical 3D error reduction by itself.",
+  "historical_capture_v1": {
+    "binding": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/image_evidence_v1/SEAL.json",
+      "sha256": "6eef84e0ee5a3aaed299c24e16ef516c5094a09b1ad39bdf4834559871bcbbe4"
+    },
+    "legacy_checks_binding": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/evaluation_v1/LEGACY_REPLAY_CHECKS.json",
+      "sha256": "954201bbd0bf74f6697a207670a835f6007e9f0d54878060eab592faf9ba19bc"
+    },
+    "all_exact": false,
+    "max_xy_difference_px": 0.18428274620558227,
+    "max_cov_difference_px2": 0.12493755939175921,
+    "status": "Preserved; replacement capture with main execution flags pending independent parity."
+  }
+}

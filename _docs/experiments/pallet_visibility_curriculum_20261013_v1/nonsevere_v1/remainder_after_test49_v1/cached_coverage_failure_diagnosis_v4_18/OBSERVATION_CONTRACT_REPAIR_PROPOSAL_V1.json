@@ -1,0 +1,137 @@
+{
+  "schema": "O_LOCALIZATION_OBSERVATION_CONTRACT_REPAIR_PROPOSAL_V1",
+  "status": "PROPOSAL_ONLY_NO_IMPLEMENTATION_OR_RUN",
+  "problem": "Current O hard circle is a raw-N3 localization tolerance fitted to7 plastic external-O points in2sessions, intersected with canvas. It is not segmented physical occluder support and does not have guaranteed future coverage.",
+  "frozen_models": {
+    "old_O": {
+      "schema": "OT_EXTERNAL_CAL_ERROR_V2",
+      "normalized_radius": 0.08645592828523323,
+      "minimum_radius_px": 8.0,
+      "sample_count": 7,
+      "recording_count": 2,
+      "model_sha256": "6548c6046776a7a8cefae2b2d9a676685e75bfcf0c974940e95ba984eb8e5cf7"
+    },
+    "old_O_known_registered_shapes_in_CAL": {
+      "plastic_standard_110x130x11_frames": 5,
+      "wood_frames": 0,
+      "verified_fixed_XYZ_m": [
+        1.1,
+        0.11,
+        1.3
+      ]
+    },
+    "borrowed_all_nonS_CAL": {
+      "schema": "TRUNCATION_LOCALIZATION_INTERVAL_CAL_V4_2",
+      "recipe": "ALL_VALID_INITIAL_NON_S_DIRECT_AND_EXTERNAL_UNTRIMMED_MAX",
+      "radius_ratio": 0.544750754221928,
+      "eligible_point_count": 264,
+      "excluded_native_incompatible_ids": [
+        "wood_184309:000432",
+        "wood_184309:000492"
+      ],
+      "max_error_point": {
+        "id": "wood_184309:000372",
+        "session": "wood_184309",
+        "native_corner": 0,
+        "human_state": "DIRECT_VISIBLE",
+        "raw_error_px": 445.23623618558383,
+        "nonself_prediction_scale_px": 817.3210091677954,
+        "normalized_error": 0.544750754221928
+      },
+      "model_sha256": "aaf006ae08cc59422b1a7df48c66a7a4fc07319cc85f303883f6554bce50f7fe",
+      "future_coverage_guarantee": false
+    },
+    "borrowed_CAL_LOGO_existing_coverage": {
+      "eval_cad": {
+        "eligible_points": 100,
+        "covered_points": 100
+      },
+      "eval_night08": {
+        "eligible_points": 18,
+        "covered_points": 18
+      },
+      "eval_outside": {
+        "eligible_points": 32,
+        "covered_points": 32
+      },
+      "wood_184309": {
+        "eligible_points": 114,
+        "covered_points": 105
+      }
+    },
+    "limits": "CAL264 spans DIRECT+EXTERNAL initial-nonS compatible44, not an O-only or per-image occluder model. Max includes wood372 native/semantic tail and is not trimmed. Two incompatibleCAL frames remain in scoring. Fold heldout misses and upstream allCAL exposure remain explicit."
+  },
+  "option_A_broader_frozen_localization_envelope": {
+    "recommended_first_control": true,
+    "new_fit": false,
+    "new_radius_or_quantile_search": false,
+    "eligible": "Same original finite in-frame nonS O predictions for which old producer emits an ellipse.",
+    "rule": "center stays raw N3; radius=max(old8px floor, frozen nonSscale * existing CAL264 radius_ratio .544750754221928); intersect with same closed canvas.",
+    "missing_or_raw_outside": "Preserve existing broad-canvas box. Do not introduce an outside-centered finite bound that would accidentally tighten the current broad domain.",
+    "set_relation": "Each old O domain is a subset of its proposed domain; all retained O regions remain simultaneous hard localization hypotheses.",
+    "semantics": "Borrowed conservative localization envelope conditional on source model/channel assumptions; not actual occluder support, calibrated O probability or future physical coverage.",
+    "tradeoff": "May stop unsupported narrow-circle rejection, but often contributes little location information and cannot repair false O, native identity, missing B/I or biased likelihoods. Broader feasibility can admit worse candidates too."
+  },
+  "option_B_soft_or_abstained_localization": {
+    "rule": "Separate external-O state evidence from localization availability. Keep a range membership term with zero cost inside the chosen old circle and robust penalty only for outside violation; create no O point-center residual. Or flag localization unavailable and keep only justified existing canvas condition.",
+    "hard_conditions": "Actual known image/crop canvas geometry and all certified T, S/depth, retained B/I/U constraints stay explicit. A predicted O label makes in-frame membership conditional; it is not independent physical proof.",
+    "state_semantics": "Do not silently relabel every O to U just because no independent occluder mask exists. Region-level abstention is an internal flag; state confidence decisions remain the separately frozen producer.",
+    "important_change": "This changes an old hard localization requirement into soft/absent localization. Report O localization violation and do not claim that every original hard O circle was solved.",
+    "new_hyperparameter": "Soft penalty scale/weight needs a declared source/CAL-only recipe before implementation. Do not infer Gaussian variance from empirical max7 or tune weight on TEST/R errors.",
+    "tradeoff": "Avoids excluding poses solely for uncertain predicted location but may provide weak depth/correspondence information. Same-backbone BI/O correlation remains."
+  },
+  "prohibited_shortcuts": [
+    "No radius chosen from five failing frame errors, frame IDs, target crops, or oracle best poses.",
+    "No pallet-mask complement is called a physical occluder mask: it includes ordinary background.",
+    "No O or U exact corner/crossing is fabricated; no S raw/local RGB query, no new NN/training.",
+    "No partition routing, hidden dropped frames, ref-native compatibility gate at inference or old-best-pose fallback."
+  ],
+  "uniform_validation_proposal": {
+    "not_executed": true,
+    "population": "All238 same records and fixed physical proposal banks, or separately declared continuous generation; CAL46 reported as calibration, TEST49+R143 reused exploratory.",
+    "comparison": "Frozen current semantics versus A; B only after its own fixed objective/noise recipe. Same q/Sigma/reliability/partial/geometry/Q/initialS and existing U rules; changed O domains/source binding separately audited.",
+    "seal_order": "Prepare source/model/input protocol, whole238 predictions, prediction seal, then reference scoring. Keep all four own-coarse fallbacks.",
+    "adoption": "Preserve current e default until a single uniform new method passes original49 and improves additional data under the unchanged goals. No performance promise from this proposal."
+  },
+  "source_lines": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/ot_domains_v2.py": {
+      "CAL_eligibility": [
+        100,
+        108,
+        114,
+        145
+      ],
+      "empirical_radius_and_no_coverage_guarantee": [
+        149,
+        160
+      ],
+      "nonS_query_scale": [
+        66,
+        76
+      ],
+      "image_used_for_pixel_binding_only": [
+        91,
+        97,
+        234,
+        253
+      ],
+      "O_localization_circle_and_canvas": [
+        261,
+        273
+      ]
+    },
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v4.py": {
+      "frozen_observe_passes_raw_queries_not_occluder_mask_to_domains": [
+        76,
+        94
+      ]
+    }
+  },
+  "bindings": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/ot_domains/EXTERNAL_O_CAL_MAX_MODEL_N3_SUBPIX.json": "a4865047098782ebd8e27c0176979f5ca09553bf06e33d008585e434eca911a7",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/truncation_interval_model_CAL_v4_2/MODEL.json": "8e8862437157314e78e7db54a3fd1cac21f4cc5dc116b16ea37ef00d4d3c2479",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/truncation_interval_model_CAL_v4_2/CAL_LOGO_REPORT.json": "5f64b3b6055c3946076909089e94e654173b7e1e4825b5784d0cbd769244c36e",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/remainder_after_test49_v1/cached_coverage_failure_diagnosis_v4_18/O_DOMAIN_AND_EMPTY_BANK_DETAILS_V1.json": "b3a311ddf9b6c6995da4f11922ba2f842b2e0718f77246c2bdaa6a34ec97352c",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/remainder_after_test49_v1/cached_coverage_failure_diagnosis_v4_18/finish_packet.py": "7a0b9a949cfcfaecc7c22dcbb8502f7c8c67bdcbf967df5aa425f44fa536c95a"
+  }
+}

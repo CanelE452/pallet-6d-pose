@@ -1,0 +1,34 @@
+{
+  "schema": "ESSENTIAL_COMMON_PHYSICAL_COARSE_PRIOR_REVIEW_V25",
+  "passed": true,
+  "UTC": "2026-10-15T01:43:43.076774+00:00",
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/coarse_pose_prior_v4_25.py": "5518d4cf33f4a9643a947b2e234ee291fc5aed1c8b16dba278c6a9d05235acd0",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_coarse_pose_prior_v4_25.py": "809e9bdccff567737b8c51ab66929bd387a86aa75c248ca941870d19c83833de",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertain_solver_v4_bias.py": "b30d87face8cf2c912a4dac9c9d2720276c788ed489b1ac9ba986a38b21bc865"
+  },
+  "earlier_source_audit": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/coarse_pose_prior_source_audit_v4_25/SOURCE_AUDIT_V1.json",
+    "sha256": "9635290e5e01b76492a1bea28cbe01ce28b0dc2e1b7e4ec29f0e6af5f2aa49bc"
+  },
+  "checks": [
+    "Original first physical rotation/model-center fixed in source binding; trial native Q rebinding preserves common physical gauge",
+    "Original basis preserves bitwise old P1 R0; FULL calls original residual/J with same Cholesky whitening and bias subtracted once",
+    "TRANSLATION takes last3 unwhitened residual/J and Cholesky of marginal Sigma6[3:,3:], no conditional precision/fullwhitening rows",
+    "Nonzero registered model centers handled using R@mean+t in both bases; centered cuboid TP has no direct R penalty",
+    "Covariance finite symmetric SPD, proper rotations/Q, fixed positive-depth original center and immutable parameter digest validated",
+    "CoarsePosePriorProblem now binds both base.xyz and base.Q to bound trial geometry/Q; mismatch fixture added before freeze",
+    "Exactly one third regularizer appended outside native and bounded O/S; no duplicate wrapping, no q/noise/source mutation, original hard constraints delegated",
+    "Unbounded Gaussian correlated regularizer, not new image/rank/posterior/coverage or unique-pose certificate"
+  ],
+  "owner_tests": {
+    "passed": 22,
+    "seconds": 0.26,
+    "independently_rerun": false,
+    "coverage": "exact P1 residual/J/value/gradient, FD small/>pi pose charts, twoQ/nonzero center gauge, cross-cov marginal counterexample, bias-once/no mutation, SPD/source guards, Q mismatch/ledger/constraints"
+  },
+  "new_fit_image_NN_or_numeric_reference_decodes": 0,
+  "whole238_rows_read": 0,
+  "original_sources_modified": false,
+  "maincaller_not_yet_runtime_reviewed": true
+}

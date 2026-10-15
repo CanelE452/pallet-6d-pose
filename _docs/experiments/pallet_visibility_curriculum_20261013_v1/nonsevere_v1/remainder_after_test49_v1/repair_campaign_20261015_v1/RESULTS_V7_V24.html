@@ -1,0 +1,77 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>v24 전체192 비교</title>
+<style>body{font:16px/1.6 sans-serif;max-width:1500px;margin:32px auto;padding:0 20px;color:#192536}table{border-collapse:collapse;width:100%;margin:20px 0 40px}th,td{border-bottom:1px solid #ccd4df;padding:8px;text-align:right}th:first-child,td:first-child{text-align:left}th{background:#eef4fa}.scroll{overflow-x:auto}</style>
+<p>기본 e는 그대로입니다. 각 행은 TEST49와 추가143장에 동일하게 적용한 하나의 방법입니다. 모든 실패·fallback을 포함했고 사진별 최선 방법을 섞지 않았습니다. severe 제외, CAL46 별도입니다.</p>
+<p>v24는 기존 실제 영상선·마스크를 재사용합니다. 전체 B/I 교체안과 RGB complete q 보존안을 분리했고, 접선 분산은 별도 CAL의 1+γ·tΣt를 사용합니다. RGB 보존안은 적용 집합에 맞는 별도 CAL 모서리 잡음 모델도 사용하므로 두 안의 차이가 단일 요소 효과는 아닙니다.</p>
+<p>공통 접선 계수 γ는 CAL 14프레임의 30접선(RGB 28·fallback 2)으로 추정했습니다. SOURCE의 두 fallback 접선만을 별도로 검증한 신뢰구간이 아닙니다. RGB q 보존은 현재 complete인 관측에 적용하며, 앞 단계에서 이미 partial로 바뀐 옛 RGB q를 복구하지 않습니다.</p>
+<p>마스크 선택은 고정 후보의 순위를 바꿉니다. 연속 마스크 최적화는 같은 마스크 비용을 자세 미분에 한 번 포함하며, RGB 보존안의 모든 후보와 새 endpoint를 함께 검사합니다. 마지막 행은 같은 전체 후보은행에서 기존 e가 예측한 WD family로 제한합니다. 기존 e의 수치 자세를 fallback으로 사용하지 않습니다.</p>
+<p>S는 모델/PnP 투영만 출력합니다. S 영상·2D·영역 관측은 0이며 초기 모델 가시성에 대한 제한된 prior만 사용합니다. U는 영역만 사용하고, 기존 hard guard·원래 q·공분산·물리 크기·v19 시작점 정책을 유지합니다.</p>
+<p><b>전체192</b> — T≤5cm: 위치 오차, 공동: 5cm·5° 모두 만족.</p><div class="scroll"><table><tr><th>방법</th><th>수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>192</td><td>115</td><td>114</td><td>14.112</td><td>260.412</td><td>13.001</td><td>159.137</td><td>0</td><td>4</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>192</td><td>111</td><td>109</td><td>13.562</td><td>182.500</td><td>13.679</td><td>154.127</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>192</td><td>113</td><td>108</td><td>13.136</td><td>176.989</td><td>12.991</td><td>89.576</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>192</td><td>116</td><td>116</td><td>12.257</td><td>189.263</td><td>13.231</td><td>89.845</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>192</td><td>116</td><td>116</td><td>12.354</td><td>189.263</td><td>13.263</td><td>164.209</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>192</td><td>113</td><td>111</td><td>12.611</td><td>200.058</td><td>11.872</td><td>89.952</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>192</td><td>113</td><td>110</td><td>12.467</td><td>196.870</td><td>13.516</td><td>93.821</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>192</td><td>113</td><td>113</td><td>13.344</td><td>200.058</td><td>13.632</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>192</td><td>115</td><td>115</td><td>13.672</td><td>196.870</td><td>13.591</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>192</td><td>110</td><td>108</td><td>12.897</td><td>219.432</td><td>13.416</td><td>89.840</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>192</td><td>112</td><td>112</td><td>14.102</td><td>219.432</td><td>13.261</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>192</td><td>113</td><td>108</td><td>13.216</td><td>201.880</td><td>12.570</td><td>89.720</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>192</td><td>115</td><td>115</td><td>13.313</td><td>201.880</td><td>13.740</td><td>164.209</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>192</td><td>117</td><td>115</td><td>14.636</td><td>185.524</td><td>13.838</td><td>90.121</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>192</td><td>118</td><td>114</td><td>13.890</td><td>176.535</td><td>12.890</td><td>90.596</td><td>0</td><td>0</td></tr>
+</table></div>
+<p><b>기존 TEST49</b> — T≤5cm: 위치 오차, 공동: 5cm·5° 모두 만족.</p><div class="scroll"><table><tr><th>방법</th><th>수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>49</td><td>49</td><td>49</td><td>1.299</td><td>4.339</td><td>1.110</td><td>3.950</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>49</td><td>41</td><td>40</td><td>4.337</td><td>40.358</td><td>13.896</td><td>89.580</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>49</td><td>41</td><td>40</td><td>4.320</td><td>40.355</td><td>13.915</td><td>89.559</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>49</td><td>43</td><td>43</td><td>3.066</td><td>40.398</td><td>9.982</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>49</td><td>44</td><td>44</td><td>2.788</td><td>40.398</td><td>8.190</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>49</td><td>40</td><td>39</td><td>4.230</td><td>40.257</td><td>13.900</td><td>89.561</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>49</td><td>40</td><td>39</td><td>4.209</td><td>40.253</td><td>13.914</td><td>89.542</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>49</td><td>42</td><td>42</td><td>2.979</td><td>40.398</td><td>10.040</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>49</td><td>43</td><td>43</td><td>2.689</td><td>40.398</td><td>8.240</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>49</td><td>40</td><td>39</td><td>4.258</td><td>40.253</td><td>13.892</td><td>89.542</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>49</td><td>43</td><td>43</td><td>2.746</td><td>40.398</td><td>8.285</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>49</td><td>41</td><td>40</td><td>4.344</td><td>40.358</td><td>13.923</td><td>89.608</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>49</td><td>44</td><td>44</td><td>2.807</td><td>40.398</td><td>8.189</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>49</td><td>44</td><td>44</td><td>2.894</td><td>40.181</td><td>8.264</td><td>89.687</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>49</td><td>46</td><td>46</td><td>1.797</td><td>7.444</td><td>1.138</td><td>4.516</td><td>0</td><td>0</td></tr>
+</table></div>
+<p><b>추가143</b> — T≤5cm: 위치 오차, 공동: 5cm·5° 모두 만족.</p><div class="scroll"><table><tr><th>방법</th><th>수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>143</td><td>66</td><td>65</td><td>18.502</td><td>260.412</td><td>17.076</td><td>159.137</td><td>0</td><td>4</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>143</td><td>70</td><td>69</td><td>16.723</td><td>182.500</td><td>13.605</td><td>154.127</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>143</td><td>72</td><td>68</td><td>16.156</td><td>176.989</td><td>12.675</td><td>89.576</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>143</td><td>73</td><td>73</td><td>15.406</td><td>189.263</td><td>14.344</td><td>89.845</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>143</td><td>72</td><td>72</td><td>15.631</td><td>189.263</td><td>15.001</td><td>164.209</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>143</td><td>73</td><td>72</td><td>15.482</td><td>200.058</td><td>11.177</td><td>89.952</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>143</td><td>73</td><td>71</td><td>15.296</td><td>196.870</td><td>13.379</td><td>93.821</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>143</td><td>71</td><td>71</td><td>16.896</td><td>200.058</td><td>14.862</td><td>89.091</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>143</td><td>72</td><td>72</td><td>17.436</td><td>196.870</td><td>15.424</td><td>89.091</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>143</td><td>70</td><td>69</td><td>15.857</td><td>219.432</td><td>13.253</td><td>89.840</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>143</td><td>69</td><td>69</td><td>17.994</td><td>219.432</td><td>14.967</td><td>88.946</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>143</td><td>72</td><td>68</td><td>16.256</td><td>201.880</td><td>12.106</td><td>89.720</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>143</td><td>71</td><td>71</td><td>16.913</td><td>201.880</td><td>15.642</td><td>164.209</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>143</td><td>73</td><td>71</td><td>18.660</td><td>185.524</td><td>15.749</td><td>90.121</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>143</td><td>72</td><td>68</td><td>18.034</td><td>176.535</td><td>16.917</td><td>90.596</td><td>0</td><td>0</td></tr>
+</table></div>
+<p><b>별도 CAL46</b> — T≤5cm: 위치 오차, 공동: 5cm·5° 모두 만족.</p><div class="scroll"><table><tr><th>방법</th><th>수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>46</td><td>38</td><td>37</td><td>5.379</td><td>51.978</td><td>10.599</td><td>89.658</td><td>0</td><td>1</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>46</td><td>36</td><td>35</td><td>5.737</td><td>62.704</td><td>9.885</td><td>86.793</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>46</td><td>37</td><td>36</td><td>4.565</td><td>55.702</td><td>8.075</td><td>86.793</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>46</td><td>38</td><td>37</td><td>5.405</td><td>52.009</td><td>8.873</td><td>89.626</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.595</td><td>52.009</td><td>6.941</td><td>88.822</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>46</td><td>36</td><td>35</td><td>5.595</td><td>63.086</td><td>9.922</td><td>86.797</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>46</td><td>37</td><td>36</td><td>4.422</td><td>53.658</td><td>8.150</td><td>86.797</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.580</td><td>52.009</td><td>7.061</td><td>88.880</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.578</td><td>51.981</td><td>7.061</td><td>88.880</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>46</td><td>37</td><td>36</td><td>4.604</td><td>54.596</td><td>8.189</td><td>86.797</td><td>0</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>46</td><td>39</td><td>38</td><td>4.565</td><td>51.970</td><td>7.038</td><td>88.902</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>46</td><td>37</td><td>36</td><td>4.582</td><td>55.702</td><td>8.120</td><td>86.784</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>46</td><td>39</td><td>38</td><td>4.601</td><td>52.009</td><td>6.983</td><td>88.827</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>46</td><td>39</td><td>38</td><td>4.500</td><td>52.009</td><td>6.969</td><td>88.840</td><td>0</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>46</td><td>38</td><td>37</td><td>5.375</td><td>52.009</td><td>10.583</td><td>89.628</td><td>0</td><td>0</td></tr>
+</table></div>
+<p>추가143장의 참조는 annotation/PnP 유도값이며 독립 물리 계측이 아닙니다. 반복 사용한 TEST의 탐색 결과입니다. 비용 감소·accepted·WD 유지가 정확도나 유일성을 보장하지 않습니다. 전체 목표 완료와 기본 방법 변경을 선언하지 않았습니다.</p>
+<p><a href="PROGRESS_V7_V24.json">전체 수치·대응별 변화·검산 근거</a></p></html>

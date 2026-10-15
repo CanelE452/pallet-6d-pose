@@ -1,0 +1,22 @@
+<!doctype html><html lang="ko"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KP1·KP2 B 경계보정 확인</title>
+<style>body{font:16px/1.65 system-ui,sans-serif;color:#162330;background:#f4f6f8;margin:0}
+main{max-width:1140px;margin:28px auto;padding:0 22px 40px}h1{font-size:28px;line-height:1.35}
+p{margin:16px 0}.card{background:white;border:1px solid #d5dde5;border-radius:12px;padding:20px;margin:18px 0}
+img{max-width:100%;height:auto;display:block}table{border-collapse:collapse;width:100%;text-align:left}
+th,td{padding:10px;border-bottom:1px solid #dce3e9}strong{color:#a74700}a{color:#1768af;margin-right:18px}
+.small{font-size:14px;color:#435260}@media(max-width:600px){main{padding:0 12px}h1{font-size:23px}.card{padding:12px}th,td{padding:6px;font-size:14px}}
+</style><main><h1>왜 KP1·KP2가 B인데 보정되지 않았나</h1>
+<p>기존 코드는 원예측점에서 법선 방향으로 ±12px만 탐색했습니다. 오른쪽 세로 경계가 그 범위 밖에 있어 두 점 모두 세로선 표본이 0/15였습니다. 교점을 만들 두 선을 찾지 못해 원좌표를 유지한 것입니다.</p>
+<div class="card"><a href="before_after_context.png"><img src="before_after_context.png" alt="실제 영상에서 원예측 KP1·KP2와 경계로 보정한 좌표 비교"></a></div>
+<div class="card"><table><tr><th>점</th><th>기존 오차</th><th>수정 후 오차</th><th>영상으로 정한 탐색 범위</th></tr><tr><td>KP1</td><td>13.50px</td><td><strong>2.68px</strong></td><td>±22.32px</td></tr><tr><td>KP2</td><td>16.80px</td><td><strong>4.18px</strong></td><td>±27.05px</td></tr></table>
+<p class="small">오차는 사후 주석과의 2D 거리입니다. 주석 좌표는 보정 입력에 사용하지 않았습니다.</p></div>
+<p>실제 SAM 외곽선까지의 거리와 기존 7px 문맥 여유로 탐색 범위를 계산합니다. 관측한 세로선에 원예측점을 수직으로 옮겨 탐색 기준을 잡고, 위·아래 선을 다시 측정합니다. 영상과 마스크가 함께 지지하는 두 선의 교점을 보정 좌표로 사용합니다.</p>
+<p>KP2는 탐색 범위를 넓히기만 해서는 아래쪽 선의 표본이 8/15로 부족했습니다. 관측한 세로선을 기준으로 다시 탐색하니 15/15로 늘었습니다. 기존 선의 방향·표본 수·잔차 검사와 두 점이 공유하는 경계의 일치 검사를 통과한 경우만 보정합니다.</p>
+<p>교점이 두 선의 실제 관측 구간 가까이에 있는지도 검사합니다. 관측 구간에서 멀리 떨어진 교점은 보정을 보류합니다. 야간 사진에서 서로 떨어진 경계선을 길게 연장해 잘못 보정하던 사례를 이 검사로 차단했습니다.</p>
+<div class="card"><a href="before_after.png"><img src="before_after.png" alt="기존 12px 탐색 범위, 실제 마스크 경계, 새 영상 선과 교점의 확대 비교"></a><p class="small">이미지를 누르면 원본 크기로 볼 수 있습니다.</p></div>
+<p>기존에 보정된 KP4·KP7은 그대로 보존했습니다. Self-occlusion 점은 보정에 조회하지 않으며, 최종 위치는 기존 방식대로 PnP를 통해 계산합니다.</p>
+<div class="card"><p>다른 사진에서도 오차를 비교했습니다.</p><table><tr><th>사진 집합</th><th>평가한 점</th><th>평균 오차</th><th>90% 지점 오차</th></tr><tr><td>CAL 46장</td><td>242</td><td>17.36 → 17.12px</td><td>14.22 → 14.14px</td></tr><tr><td>TEST 49장</td><td>224</td><td>5.45 → 5.26px</td><td>11.65 → 10.32px</td></tr></table><p class="small">사람이 실제로 보인다고 주석한 B/I 중 축·코너 대응이 일치하는 사진의 점입니다. Severe 가림은 제외했습니다. Self-occlusion 및 대응 불일치 사진은 평가 JSON에서 따로 보고했습니다.</p></div><p class="small">관측 구간 검사는 악화되던 교점 1개를 차단했고, 개선되던 교점 6개도 보류했습니다. 남긴 추가 보정은 CAL 6점, TEST 5점으로 이번 데이터에서는 모두 오차가 줄었습니다. 이 결과는 재사용한 TEST의 탐색적 검증이며 새로운 독립 평가가 아닙니다.</p>
+<p class="small">이번 비교는 B 키포인트 좌표의 복구 실험입니다. 새 관측의 조건부 공분산은 전체 오차를 보장하지 않습니다. 이 사진의 별도 축·코너 등록 불일치와 최종 PnP 정확도는 이 그림으로 해결됐다고 판단할 수 없습니다.</p>
+<p class="small">eval_pallet09:1778653661653195264 · <a href="../evaluation_v3/CAL_2D_REPORT.json">CAL 오차 평가 JSON</a><a href="../evaluation_v3/TEST_2D_REPORT.json">TEST 오차 평가 JSON</a><a href="CASE_REVIEW.json">이미지·좌표 근거 JSON</a></p></main></html>

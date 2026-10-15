@@ -1,0 +1,805 @@
+{
+  "schema": "GLOBAL_OUTLINE_OCCLUSION_SOURCE_AUDIT_V4_25",
+  "created_utc": "2026-10-15T01:38:18.381811+00:00",
+  "owner": "actual_example_review",
+  "scope": {
+    "source_only": true,
+    "existing_diagnostic_JSONs_only": true,
+    "new_pose_fits": 0,
+    "new_numeric_evaluation": 0,
+    "new_reference_annotation_decode": 0,
+    "new_RGB_search": 0,
+    "new_NN_forward": 0,
+    "new_image_decodes": 0,
+    "S_raw_coordinate_reads": 0,
+    "U_raw_coordinate_reads": 0,
+    "frozen_sources_changed": false,
+    "default_adoption": false
+  },
+  "headline_ko": "현재 전체윤곽 요인은 state/occlusion-aware가 아니며 full cuboid hull과 mask convex envelope의 대칭 일치를 선호한다. 국소 가림/구멍 제거와 실제 외곽 증거를 구분하는 조건부 containment control이 필요하다.",
+  "current_call_chain": [
+    "v24._run: native + bounded O/S + optional ContinuousOutlineProblem",
+    "ContinuousOutlineProblem -> partial_BI_outline_v13.outline_value_and_gradient",
+    "partial13 imported analytic11: .5*(model_to_observed + observed_to_model)"
+  ],
+  "static_functions": [
+    {
+      "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+      "function": "observe_global_outline",
+      "line": 85,
+      "end_line": 109,
+      "arguments": [
+        "pallet_mask",
+        "image_hw",
+        "image_binding",
+        "configuration"
+      ],
+      "direct_observation_subscript_keys": []
+    },
+    {
+      "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+      "function": "outline_value_and_gradient",
+      "line": 60,
+      "end_line": 107,
+      "arguments": [
+        "p",
+        "xyz",
+        "K",
+        "scale",
+        "observation",
+        "configuration"
+      ],
+      "direct_observation_subscript_keys": [
+        "image_hw",
+        "observed_boundary_samples_xy",
+        "observed_boundary_segments_xy"
+      ]
+    },
+    {
+      "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_calibrated_factor_v4_12b.py",
+      "function": "outline_value_and_gradient",
+      "line": 99,
+      "end_line": 153,
+      "arguments": [
+        "p",
+        "xyz",
+        "K",
+        "scale",
+        "observation",
+        "configuration"
+      ],
+      "direct_observation_subscript_keys": [
+        "image_hw",
+        "observed_boundary_samples_xy",
+        "observed_boundary_segments_xy",
+        "polygon_xy"
+      ]
+    },
+    {
+      "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_pallet_silhouette_v4_9.py",
+      "function": "observe_mask_outline",
+      "line": 57,
+      "end_line": 79,
+      "arguments": [
+        "pallet_mask",
+        "image_hw",
+        "frame_margin_px"
+      ],
+      "direct_observation_subscript_keys": []
+    },
+    {
+      "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_pallet_silhouette_v4_9.py",
+      "function": "score_projected_outline",
+      "line": 82,
+      "end_line": 131,
+      "arguments": [
+        "observation",
+        "xyz",
+        "K",
+        "R",
+        "t"
+      ],
+      "direct_observation_subscript_keys": [
+        "frame_margin_px",
+        "hull_area_px",
+        "hull_mask",
+        "image_hw",
+        "interior_contour_xy",
+        "reference_diagonal_px"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "CURRENT_MASK_FACTOR_HAS_NO_OCCLUSION_STATE_INPUT",
+      "status": "source_verified",
+      "detail_ko": "현재24는 native+bounded O/S 위에 mask를 1회 더한다. O/S 상태와 local B/I eligibility는 mask residual의 포함/제외를 바꾸지 않는다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_source_preserving_tangent_mask_v4_24.py",
+          "line": 118,
+          "end_line": 144
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/continuous_outline_problem_v4_24.py",
+          "line": 23,
+          "end_line": 45
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py",
+          "line": 44,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "OBSERVED_HULL_IS_NOT_ALL_ACTUAL_EDGE",
+      "status": "source_verified",
+      "detail_ko": "mask>=.5 전체 foreground의 convex hull을 만든다. 실제 RGB support, 원 외곽 component/loop, 가림 영역, corner state는 이 관측 생성에 사용하지 않는다. 큰 분리 component나 외부 가림 notch 사이 hull bridge도 비캔버스 선분이면 표본이 된다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+          "line": 85,
+          "end_line": 109
+        }
+      ]
+    },
+    {
+      "id": "INTERNAL_HOLES_ARE_REMOVED_NOT_DIRECT_TARGETS",
+      "status": "source_verified",
+      "detail_ko": "내부구멍·concavity는 convex hull로 제거된다. 현재 factor가 fork-slot 내부 경계를 직접 맞춘다는 설명은 틀리다. 반대로 hole/occlusion support의 차이는 이미 사라지므로 hull 경계를 실제 관측선으로 보장할 수도 없다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+          "line": 90,
+          "end_line": 108
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_pallet_silhouette_v4_9.py",
+          "line": 57,
+          "end_line": 79
+        }
+      ]
+    },
+    {
+      "id": "SYMMETRIC_COMPLETE_ENVELOPE_MATCH_IS_NOT_CENSORING",
+      "status": "source_verified",
+      "detail_ko": "관측→모델뿐 아니라 모델→관측 항도 .5 가중으로 모두 적용한다. 가려져 실제 mask가 사라진 model hull 구간도 nearest observed hull로 당긴다. observation extent가 전체 cuboid extent와 같다는 강한 조건부 가정이다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+          "line": 60,
+          "end_line": 107
+        }
+      ]
+    },
+    {
+      "id": "NEAREST_SEGMENT_HAS_NO_SEMANTIC_OWNERSHIP",
+      "status": "source_verified",
+      "detail_ko": "어느 관측 hull 선분이든 가장 가까우면 대응한다. named physical edge, B 외곽/I 내부, 위 deck/아래 측면 높이, occluder boundary 여부는 nearest association에 없다. 상단면만 남은 mask나 그림자/이웃 물체 foreground가 잘못 포함되면 scale/depth/tilt/WD family를 잘못 선호할 수 있다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+          "line": 66,
+          "end_line": 95
+        }
+      ]
+    },
+    {
+      "id": "ROBUST_LOSS_DOES_NOT_EXCLUDE_OCCLUSIONS",
+      "status": "source_verified",
+      "detail_ko": "pseudo-Huber는 큰 잔차를 약하게 하지만 유한 큰 잔차의 force는 0이 아니다. 별도 outlier/visibility latent, foreground-containment censoring, missing-model-edge exemption은 없다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+          "line": 52,
+          "end_line": 57
+        }
+      ]
+    },
+    {
+      "id": "FRAME_BORDER_CLOSING_EDGE_ALREADY_EXCLUDED",
+      "status": "source_verified",
+      "detail_ko": "현재 forward target은 observed_boundary_segments_xy이며 margin7 안으로 clip된 실제 hull 선분만 쓴다. x=0/y=0로 새로 닫는 선분을 넣던 과거 문제는 닫혀 있다. 현 문제와 혼동하지 않는다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+          "line": 99,
+          "end_line": 109
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+          "line": 71,
+          "end_line": 95
+        }
+      ]
+    },
+    {
+      "id": "FULL_MODEL_EIGHT_VERTEX_HULL_IS_ALLOWED_GEOMETRY",
+      "status": "source_verified",
+      "detail_ko": "모든 native8 투영의 convex hull은 convex cuboid의 완전 silhouette라는 기하 모형이다. S model vertex를 포함하는 것 자체는 S raw/image query가 아니다. 상태에 따라 model S vertex를 임의 제거하는 수정은 권하지 않는다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+          "line": 63,
+          "end_line": 70
+        }
+      ]
+    },
+    {
+      "id": "SIGNED_BIAS_AND_SIGMA_ARE_NOT_OCCLUSION_MODELS",
+      "status": "source_verified",
+      "detail_ko": "12/12b는 같은 전체 hull에 observed-minus-model signed residual의 CAL 평균/분산을 적용한다. global/known-size 평균·분산은 segment별 가림/ownership을 인증하지 않는다. 현재24는12b가 아닌13→11의 비보정 factor를 사용한다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_calibrated_factor_v4_12b.py",
+          "line": 99,
+          "end_line": 153
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_12b.py",
+          "line": 137,
+          "end_line": 143
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_outline_noise_calibration_v4_10.py",
+          "line": 29,
+          "end_line": 43
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/geometry_conditioned_outline_calibration_v4_12.py",
+          "line": 24,
+          "end_line": 45
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+          "line": 141,
+          "end_line": 141
+        }
+      ]
+    },
+    {
+      "id": "LOCAL_FACE_AWARE_LAYERS_ARE_SEPARATE",
+      "status": "source_verified",
+      "detail_ko": "13d local producer와17b/20d는 state·face role·target/background 또는 target/target context·일부 실제 외곽 topology를 사용한다. 이 정보는 local native line 요인이며 전체 mask factor의 segment eligibility로 전달되지 않는다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/face_aware_partial_bi_observations_v4_13d.py",
+          "line": 55,
+          "end_line": 73
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/face_aware_partial_bi_observations_v4_13d.py",
+          "line": 274,
+          "end_line": 357
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/native_edge_topology_junctions_v4_17b.py",
+          "line": 107,
+          "end_line": 155
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/complete_bi_image_chain_evidence_v4_20d.py",
+          "line": 260,
+          "end_line": 325
+        }
+      ]
+    },
+    {
+      "id": "MASK_CLEANUP_IS_NOT_OCCLUDER_SEGMENTATION",
+      "status": "source_verified",
+      "detail_ko": "capture46은 raw 보존, dominant area1% component cleanup만 한다. hole fill/convex hull/morphology는 capture에서 하지 않는다. 이 후처리는 retained component의 pallet ownership 또는 실제 side surface를 보장하지 않는다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/capture_boundary_recovery_masks_v4_6.py",
+          "line": 119,
+          "end_line": 142
+        }
+      ]
+    },
+    {
+      "id": "LOCAL_O_STATE_DOES_NOT_GIVE_OCCLUDER_EXTENT",
+      "status": "source_verified",
+      "detail_ko": "O는 native corner의 외부가림/위치 prior 역할이다. bounded O/S wrapper는 point correspondence 없이 별도 regularizer를 계산한다. 어떤 전체 silhouette 구간이 가려졌는지 알 occluder mask나 range가 아니다.",
+      "locations": [
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py",
+          "line": 1,
+          "end_line": 5
+        },
+        {
+          "source": "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py",
+          "line": 25,
+          "end_line": 58
+        }
+      ]
+    },
+    {
+      "id": "NO_EXISTING_STATE_AWARE_GLOBAL_FACTOR_FOUND_IN_REVIEWED_CHAIN",
+      "status": "scoped_source_search",
+      "detail_ko": "검토한9/10/11/12/12b/13/24 global 경로에서 별도 state/occlusion-aware silhouette factor를 찾지 못했다. anchored/state-aware 및 face-aware 명칭은 local completion/line 계층이다. 전체 저장소의 모든 가능 구현이 없다는 보편 주장은 아니다."
+    }
+  ],
+  "existing_bound_diagnostics": {
+    "outline_prediction_only": [
+      {
+        "id": "eval_pallet07:1778652140531310080",
+        "cleanup_changed_pixels": 0,
+        "observed_raw": {
+          "mask_area_px": 37447,
+          "hull_area_px": 44433,
+          "reference_diagonal_px": 510.10783173756505,
+          "frame_margin_px": 7.0
+        },
+        "observed_clean": {
+          "mask_area_px": 37447,
+          "hull_area_px": 44433,
+          "reference_diagonal_px": 510.10783173756505,
+          "frame_margin_px": 7.0
+        },
+        "candidates": [
+          {
+            "name": "INITIAL_REGULARIZED",
+            "image_objective": 1.9422985647358644,
+            "IoU": 0.944912985274431,
+            "symmetric_median_distance_px": 2.0
+          },
+          {
+            "name": "ORIGINAL_NO_PRIOR",
+            "image_objective": 0.06952379811415756,
+            "IoU": 0.7738970235467961,
+            "symmetric_median_distance_px": 10.770329475402832
+          },
+          {
+            "name": "SWAPPED_WD_NO_PRIOR",
+            "image_objective": 0.1915091135536976,
+            "IoU": 0.8573344336703115,
+            "symmetric_median_distance_px": 7.0
+          }
+        ]
+      },
+      {
+        "id": "eval_pallet07:1778652142480077056",
+        "cleanup_changed_pixels": 0,
+        "observed_raw": {
+          "mask_area_px": 40358,
+          "hull_area_px": 48498,
+          "reference_diagonal_px": 517.9980694944721,
+          "frame_margin_px": 7.0
+        },
+        "observed_clean": {
+          "mask_area_px": 40358,
+          "hull_area_px": 48498,
+          "reference_diagonal_px": 517.9980694944721,
+          "frame_margin_px": 7.0
+        },
+        "candidates": [
+          {
+            "name": "INITIAL_REGULARIZED",
+            "image_objective": 1.5051568664498305,
+            "IoU": 0.9322447373598268,
+            "symmetric_median_distance_px": 2.532247543334961
+          },
+          {
+            "name": "ORIGINAL_NO_PRIOR",
+            "image_objective": 0.32403923709887905,
+            "IoU": 0.7812279725468373,
+            "symmetric_median_distance_px": 11.0
+          },
+          {
+            "name": "SWAPPED_WD_NO_PRIOR",
+            "image_objective": 0.3671941213176181,
+            "IoU": 0.7462013044244667,
+            "symmetric_median_distance_px": 14.088901996612549
+          }
+        ]
+      },
+      {
+        "id": "eval_pallet09:1778653661653195264",
+        "cleanup_changed_pixels": 0,
+        "observed_raw": {
+          "mask_area_px": 7129,
+          "hull_area_px": 7982,
+          "reference_diagonal_px": 277.8488797889961,
+          "frame_margin_px": 7.0
+        },
+        "observed_clean": {
+          "mask_area_px": 7129,
+          "hull_area_px": 7982,
+          "reference_diagonal_px": 277.8488797889961,
+          "frame_margin_px": 7.0
+        },
+        "candidates": [
+          {
+            "name": "INITIAL_REGULARIZED",
+            "image_objective": 9.761280372019739,
+            "IoU": 0.9075774268576325,
+            "symmetric_median_distance_px": 1.0
+          },
+          {
+            "name": "ORIGINAL_NO_PRIOR",
+            "image_objective": 1.996800145965878,
+            "IoU": 0.7081880485752075,
+            "symmetric_median_distance_px": 3.0
+          },
+          {
+            "name": "SWAPPED_WD_NO_PRIOR",
+            "image_objective": 1.3331392364766472,
+            "IoU": 0.9045477261369316,
+            "symmetric_median_distance_px": 1.0
+          }
+        ]
+      }
+    ],
+    "reference_integrity_postseal_only": [
+      {
+        "id": "eval_pallet07:1778652140531310080",
+        "unordered_registered_reference_gap_m": 1.1188630228279524e-16,
+        "centering_origin_gap_m": 2.7755575615628914e-17,
+        "unordered_projection_gap_px": 0.0,
+        "reference_mask_hull_IoU": 0.9588123030491323,
+        "reference_mask_symmetric_median_distance_px": 1.5606601536273956
+      },
+      {
+        "id": "eval_pallet07:1778652142480077056",
+        "unordered_registered_reference_gap_m": 1.576213700060856e-16,
+        "centering_origin_gap_m": 2.7755575615628914e-17,
+        "unordered_projection_gap_px": 5.684341886080802e-14,
+        "reference_mask_hull_IoU": 0.9179881749481186,
+        "reference_mask_symmetric_median_distance_px": 3.0
+      },
+      {
+        "id": "eval_pallet09:1778653661653195264",
+        "unordered_registered_reference_gap_m": 1.5700924586837752e-16,
+        "centering_origin_gap_m": 1.3877787807814457e-17,
+        "unordered_projection_gap_px": 5.684341886080802e-14,
+        "reference_mask_hull_IoU": 0.8342407042742963,
+        "reference_mask_symmetric_median_distance_px": 2.532247543334961
+      }
+    ],
+    "residual_depth": {
+      "id": "eval_pallet07:1778652140531310080",
+      "centroid_error_xyz_cm": [
+        0.5600385910862787,
+        -1.2648726489160045,
+        -5.990110412917371
+      ],
+      "candidate_outline": {
+        "valid_projection": true,
+        "model_to_observed": {
+          "mean_px": 1.4708777118594907,
+          "median_px": 1.2248985568215183,
+          "P90_px": 2.935373898894679,
+          "count": 75
+        },
+        "observed_to_model": {
+          "mean_px": 1.246355038114384,
+          "median_px": 0.9646150850107618,
+          "P90_px": 2.721324841795194,
+          "count": 1045
+        },
+        "model_to_observed_robust_mean": 0.7843859023409491,
+        "observed_to_model_robust_mean": 0.8019266016286207,
+        "normalized_by_arc_length_not_duplicated_pixel_count": true
+      },
+      "reference_outline": {
+        "valid_projection": true,
+        "model_to_observed": {
+          "mean_px": 1.9758691760787088,
+          "median_px": 1.9083818516723874,
+          "P90_px": 3.7634736699205695,
+          "count": 75
+        },
+        "observed_to_model": {
+          "mean_px": 1.8579310106780562,
+          "median_px": 1.7874428489207832,
+          "P90_px": 3.7616347043170784,
+          "count": 1045
+        },
+        "model_to_observed_robust_mean": 1.3839330359942472,
+        "observed_to_model_robust_mean": 1.3953806855751607,
+        "normalized_by_arc_length_not_duplicated_pixel_count": true
+      },
+      "candidate_joint_feasible": true,
+      "reference_joint_feasible": true,
+      "interpretation_ko": "이 기존 사례의 약6cm 깊이차에도 양쪽 모델은 hardguard feasible. 작은 silhouette residual/낮은 cost가 물리정확성의 증명은 아니다. 이 사례만으로 외부가림이 단독 원인이라고 단정하지 않는다."
+    },
+    "CAL_noise": {
+      "inventory": 46,
+      "supported": 45,
+      "unsupported": [
+        {
+          "id": "eval_cad:1778653003088339968",
+          "reason": "no_non_canvas_outline"
+        }
+      ],
+      "old_mean_abs_px": 2.968710346207137,
+      "LOGO_shared_bias_mean_abs_px": 3.4278874027739166,
+      "one_wood_session_independent_validation": false,
+      "interpretation_ko": "보정은 관측 envelope의 총오차를 통계적으로 완화하려는 이전 후보였고 visibility 인증이 아니다. 현재24에 채택되었다고 주장하지 않는다."
+    }
+  },
+  "recommendations": [
+    {
+      "priority": 1,
+      "proposal": "conditional_foreground_containment",
+      "detail_ko": "새 pure control: 관측 foreground/envelope는 완전 projected convex cuboid의 subset이라는 조건만 사용. 관측표본이 model hull 안이면0, 밖이면 기존 finite-segment robust residual. model→observed coverage 항은 제거한다. foreground 전체가 true convex model 안이면 그 hull bridge도 포함되므로 외부가림/구멍에 full silhouette 일치를 강제하지 않는다.",
+      "limitations_ko": "falsepositive SAM은 여전히 오염되고, model 확장/깊이 모호성은 이 요인만으로 제어되지 않는다. CAL regularizer·실제 BI evidence와 별도로 검증하며 새 정확도/uniqueness 주장은 하지 않는다."
+    },
+    {
+      "priority": 2,
+      "proposal": "separate_observed_external_chain_and_model_hull",
+      "detail_ko": "향후 더 강한 outline factor는 실제 RGB-supported B exterior chain만 관측후보로 분리하고 model hull/named physical edge와 대응시킨다. I 내부선은 global exterior와 섞지 않는다. target/background context만으로 hole edge를 외곽으로 인정하지 말고 실제 external component/loop 검사를 함께 사용한다."
+    },
+    {
+      "priority": 3,
+      "proposal": "censor_unknown_visibility_without_new_local_queries",
+      "detail_ko": "O flag 하나로 전체 edge를 삭제하거나 missingness를 판정하지 않는다. 이미 보관된 actual chains/topology를 재사용하고 unknown/occluded model 구간은 observation support가 없다는 이유만으로 끌지 않는다. S/U raw·local image query는0, model8 geometry는 허용한다."
+    },
+    {
+      "priority": 4,
+      "proposal": "factor_ledger_and_CAL_generation",
+      "detail_ko": "shared physical edge/동일 pixel 지원은1회만 반영하고 기존 complete q·local lines와 상관을 명시한다. 새 population/관측 family가 바뀌면 별도 CAL-only noise·coverage 검토, 원본 결과와 모든 fallback/population을 유지한다."
+    }
+  ],
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_source_preserving_tangent_mask_v4_24.py": "22598dc71b6a71c469a61ec27793ead150c9ef57dc0266d6259ba4605482a5c8",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/continuous_outline_problem_v4_24.py": "c0c8da5abe6100ce3fa5d0ac869e8d5c8c1b52fd94da6b51700e199ac6fb5467",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py": "086c19b4f00c1706004587a44cf9a113fec4d9fcd61a92efab226479fdfebac1",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py": "946e4901d19451b26b3043f6e0d0b8e6dcf518819e6c835ed15723a781f40f9b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py": "0d08b1339261705f5e1873fbf6df1b0e0d62d0fec315708c74a57839bdebb0f6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py": "34cca867999278ea7f7d3ebeba4dd4ce3663d26badefdc1a5af7117dd005962f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_11.py": "1131e3936bb6f4f4a1d9d05dae89103f48e56a95cd0e82e9a1e24a709e32b927",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_calibrated_factor_v4_12.py": "e98f66cedd675ddd1db41076cffefcdd79c46f6c5dc8b6556838083de702fe90",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_calibrated_factor_v4_12b.py": "c5f83dafbe99c8949c898e3f9c3cf9799104c3045e279db6abdebf8fc087fe2f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_12.py": "a742e9ac6b141ff2d3ccadcf041234a06c72f493e7c0027d639873f9f3a325fe",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_12b.py": "2707d89128634472d47bfe05ba84ebe3386c796a8c7bfb9a9d8362a6af278ec8",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_outline_noise_calibration_v4_10.py": "20965513454ade0a286c0af01be32126e730c6ba1ae2307649bf0410a77af112",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/geometry_conditioned_outline_calibration_v4_12.py": "5ce8cab36259b1563d5c025a562804533f868b679389fa09cbb3c8316044053c",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_pallet_silhouette_v4_9.py": "20e4cb67f1dffde7dfd28634fcd551fd85f27ad734b2bef8287696652925799a",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/capture_boundary_recovery_masks_v4_6.py": "5ec6288054225f769285392b69bfe6909b30108f9639cd5397b9eb4e50af3de1",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/face_aware_partial_bi_observations_v4_13d.py": "60aa9de43967d81fe7e9606595aaa0b00e7c8340c2775a7f6ed13a525b5b5cd3",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/native_edge_topology_junctions_v4_17b.py": "72c64d175b9cd992cf787ca17d1b37e42eef7e3c7593a10efb3af5891bf19f17",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/complete_bi_image_chain_evidence_v4_20d.py": "0dc6ab0a19fcfbde82224e2b2c9069c99b691b22875c3dd4b5ba39f85321dc11",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/anchored_completion_api.py": "f44d4c78225d99a4dc61afb69fa1e685a53b7855a1058e3eb6953c3733250cd0"
+  },
+  "current24_archived_source_matches": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_source_preserving_tangent_mask_v4_24.py": "22598dc71b6a71c469a61ec27793ead150c9ef57dc0266d6259ba4605482a5c8",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/continuous_outline_problem_v4_24.py": "c0c8da5abe6100ce3fa5d0ac869e8d5c8c1b52fd94da6b51700e199ac6fb5467",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py": "086c19b4f00c1706004587a44cf9a113fec4d9fcd61a92efab226479fdfebac1",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py": "946e4901d19451b26b3043f6e0d0b8e6dcf518819e6c835ed15723a781f40f9b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py": "0d08b1339261705f5e1873fbf6df1b0e0d62d0fec315708c74a57839bdebb0f6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py": "34cca867999278ea7f7d3ebeba4dd4ce3663d26badefdc1a5af7117dd005962f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_11.py": "1131e3936bb6f4f4a1d9d05dae89103f48e56a95cd0e82e9a1e24a709e32b927",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/capture_boundary_recovery_masks_v4_6.py": "5ec6288054225f769285392b69bfe6909b30108f9639cd5397b9eb4e50af3de1",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/face_aware_partial_bi_observations_v4_13d.py": "60aa9de43967d81fe7e9606595aaa0b00e7c8340c2775a7f6ed13a525b5b5cd3",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/native_edge_topology_junctions_v4_17b.py": "72c64d175b9cd992cf787ca17d1b37e42eef7e3c7593a10efb3af5891bf19f17",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/complete_bi_image_chain_evidence_v4_20d.py": "0dc6ab0a19fcfbde82224e2b2c9069c99b691b22875c3dd4b5ba39f85321dc11",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/anchored_completion_api.py": "f44d4c78225d99a4dc61afb69fa1e685a53b7855a1058e3eb6953c3733250cd0"
+  },
+  "source_files_not_in_current24_union": [
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_calibrated_factor_v4_12.py",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_calibrated_factor_v4_12b.py",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_12.py",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_12b.py",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_outline_noise_calibration_v4_10.py",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/geometry_conditioned_outline_calibration_v4_12.py",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_pallet_silhouette_v4_9.py"
+  ],
+  "protected_user_sha256": {
+    ".gitignore": "eafc71fb72a3a1a0f1826bbbc098cdd6a148a44320452f4ae3d5d03179b23731",
+    "readme.md": "919ff361d84eebe36e1f6b88a1878a83c1fc9ab9e0539b9be647214844ab038b",
+    "_docs/experiments/pallet_resnet18_refiner_20261001_v1/README_KO.md": "ef4368bebde404c6d7235ec29939a2e3f323cd9ac093c9a70abefe6c5bc1b583",
+    "_docs/experiments/pallet_three_estimator_20261001_v1/README_KO.md": "ab2b45a1906c741936236e81a595f781431529e1ad3ed18c6d41217ed107d5b1",
+    "_docs/experiments/pallet_three_estimator_20261001_v1/STATUS_KO.md": "274494e7c504aecff20f21f11610b7cf525da7b84efc91eaf73768b0ba861280",
+    "data/evaluation/pallet_eval_v1/reports/ANNOTATION_PROGRESS.md": "22c638972c445f145b1638e4639c24464e3998958ac59f9d80a4502e5146e3b5"
+  },
+  "evidence_bindings": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/source_preserving_tangent_mask_eval_v4_24/PROTOCOL.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/source_preserving_tangent_mask_eval_v4_24/PROTOCOL.json",
+      "sha256": "aa1b145dc0aa13fd52fb6e2c3b9521abbad316cc85ecdf19fb063f256987b9e3",
+      "bytes": 247457
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_global_outline_noise_v4_10/EVIDENCE_REPORT.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_global_outline_noise_v4_10/EVIDENCE_REPORT.json",
+      "sha256": "682dc3704e513bf5ee0483caf211a91fb0e740ed2b883beb36aa9d129c0a5916",
+      "bytes": 37580
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_global_outline_noise_v4_10/MODEL_SEAL.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_global_outline_noise_v4_10/MODEL_SEAL.json",
+      "sha256": "60121847b4f51293e8d8662d89f5f032bf5f9662c2af0ea656d6ef08fb67ece3",
+      "bytes": 14662
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_global_outline_noise_v4_10/COMPLETION_RECEIPT_V1.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_global_outline_noise_v4_10/COMPLETION_RECEIPT_V1.json",
+      "sha256": "fb099a64803995d659b3ed55dad06fd70a8ff7f25c7b3c7f0a10ec89cb55024e",
+      "bytes": 1923
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_geometry_outline_noise_v4_12/MODEL_SEAL.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_geometry_outline_noise_v4_12/MODEL_SEAL.json",
+      "sha256": "41d76a7d834467b953a10ec226649da017857d1372c5fc1130552dd1e6088e91",
+      "bytes": 5737
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_geometry_outline_noise_v4_12/COMPLETION_RECEIPT_V1.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/CAL_geometry_outline_noise_v4_12/COMPLETION_RECEIPT_V1.json",
+      "sha256": "7418c4ee1dddb1c427a6df424130e5156d08349eab75ca6d13919fc4b41f258e",
+      "bytes": 1300
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/outline_diagnosis_v1/DIAGNOSIS.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/outline_diagnosis_v1/DIAGNOSIS.json",
+      "sha256": "69fa53af6bfd2e83ff896218cfa4f878e9cb233c772ac4ee9a8c1f1945244904",
+      "bytes": 86942
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/outline_diagnosis_v1/PROTOCOL.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/outline_diagnosis_v1/PROTOCOL.json",
+      "sha256": "4e1cdaa45427c7b0965b283abdd4e24987d7464dccf26420c70f19862fc5cfbc",
+      "bytes": 939
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/reference_silhouette_diagnosis_v1/DIAGNOSIS.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/reference_silhouette_diagnosis_v1/DIAGNOSIS.json",
+      "sha256": "9bab3c0a593f6267f3c0fd967fddbba3f17dec32aa2eed22158174e55ad78089",
+      "bytes": 18301
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/reference_silhouette_diagnosis_v1/PROTOCOL.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/two_wd_family_eval_v4_9/reference_silhouette_diagnosis_v1/PROTOCOL.json",
+      "sha256": "770f8bcc0b476b1023f24a99472a5de8061ce9e42698065d8bc99d7c09b8ebb7",
+      "bytes": 731
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_target_eval_v4_10/RESIDUAL_DEPTH_AUDIT_V1.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_target_eval_v4_10/RESIDUAL_DEPTH_AUDIT_V1.json",
+      "sha256": "a6d7d64e4d0997518db7bd9cbfd9cdf4fa7e0640717b525f4dd1f48929d8000b",
+      "bytes": 8680
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_target_eval_v4_10/PREDICTION_SEAL.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_target_eval_v4_10/PREDICTION_SEAL.json",
+      "sha256": "1173909b985dca76b38bef0e29bd4380feed58406286dd7ecc707e87b4fd518b",
+      "bytes": 89761
+    },
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_target_eval_v4_10/SCORE_SEAL.json": {
+      "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_target_eval_v4_10/SCORE_SEAL.json",
+      "sha256": "ad04996447c734d4dc27f24b40f6c613fcf3a260382dd89ef358cb2f6e47fe0f",
+      "bytes": 509
+    }
+  },
+  "historical_diagnostic_binding_scope_ko": "기존 JSON과 그 자체의 protocol/source/figure 또는 prediction/score seal 포인터를 확인하였다. 과거 diagnostic JSON에 별도 외부 seal이 없으면 이번 additive seal이 읽은 bytes를 고정할 뿐 과거 생성시각 증명을 새로 만들지 않는다.",
+  "checks": [
+    {
+      "name": "protected_current:.gitignore",
+      "passed": true
+    },
+    {
+      "name": "protected_current:readme.md",
+      "passed": true
+    },
+    {
+      "name": "protected_current:_docs/experiments/pallet_resnet18_refiner_20261001_v1/README_KO.md",
+      "passed": true
+    },
+    {
+      "name": "protected_current:_docs/experiments/pallet_three_estimator_20261001_v1/README_KO.md",
+      "passed": true
+    },
+    {
+      "name": "protected_current:_docs/experiments/pallet_three_estimator_20261001_v1/STATUS_KO.md",
+      "passed": true
+    },
+    {
+      "name": "protected_current:data/evaluation/pallet_eval_v1/reports/ANNOTATION_PROGRESS.md",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_source_preserving_tangent_mask_v4_24.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/continuous_outline_problem_v4_24.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/global_outline_analytic_factor_v4_11.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_11.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/capture_boundary_recovery_masks_v4_6.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/face_aware_partial_bi_observations_v4_13d.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/native_edge_topology_junctions_v4_17b.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/complete_bi_image_chain_evidence_v4_20d.py",
+      "passed": true
+    },
+    {
+      "name": "current24_archived_source:scripts/research/pallet_visibility_curriculum_20261013_v1/anchored_completion_api.py",
+      "passed": true
+    },
+    {
+      "name": "CAL report seal",
+      "passed": true
+    },
+    {
+      "name": "CAL receipt seal",
+      "passed": true
+    },
+    {
+      "name": "geometry CAL receipt seal",
+      "passed": true
+    },
+    {
+      "name": "geometry CAL output:MODEL.json",
+      "passed": true
+    },
+    {
+      "name": "geometry CAL output:CAL_LOGO_REPORT.json",
+      "passed": true
+    },
+    {
+      "name": "geometry CAL output:FULL_CAL_FIT_DIAGNOSTICS.json",
+      "passed": true
+    },
+    {
+      "name": "old outline diagnostic prediction seal",
+      "passed": true
+    },
+    {
+      "name": "old outline diagnostic figure",
+      "passed": true
+    },
+    {
+      "name": "outline diagnostic source:scripts/research/pallet_visibility_curriculum_20261013_v1/diagnose_wd_outline_v4_9.py",
+      "passed": true
+    },
+    {
+      "name": "outline diagnostic source:scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_two_wd_families_v4_9.py",
+      "passed": true
+    },
+    {
+      "name": "outline diagnostic source:scripts/research/pallet_visibility_curriculum_20261013_v1/global_pallet_silhouette_v4_9.py",
+      "passed": true
+    },
+    {
+      "name": "reference diagnostic protocol",
+      "passed": true
+    },
+    {
+      "name": "reference diagnostic score seal",
+      "passed": true
+    },
+    {
+      "name": "reference diagnostic figure",
+      "passed": true
+    },
+    {
+      "name": "depth diagnostic prediction seal",
+      "passed": true
+    },
+    {
+      "name": "depth diagnostic score seal",
+      "passed": true
+    }
+  ],
+  "checks_passed": 34,
+  "checks_failed": 0
+}

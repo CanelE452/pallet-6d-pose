@@ -1,0 +1,112 @@
+{
+  "schema": "CAL46_PROGRESSIVE_ACTIVE_SUPPORT_GUARD_V1",
+  "preregistered_before_prediction_and_scoring": true,
+  "population": "Same fixed46clean/moderate CAL frames, including fallbacks and ambiguous initial families",
+  "arms": [
+    {
+      "name": "RAW_BASELINE_GEOMETRY_STAGED",
+      "coordinates": "RAW",
+      "policy": "legacy"
+    },
+    {
+      "name": "RAW_PROGRESSIVE_ACTIVE_SUPPORT",
+      "coordinates": "RAW",
+      "policy": "progressive_active_support"
+    },
+    {
+      "name": "RAW_VISIBLE_TOGETHER",
+      "coordinates": "RAW",
+      "policy": "sealed_matched_control"
+    },
+    {
+      "name": "FUSED_SIGMA2_BASELINE_GEOMETRY_STAGED",
+      "coordinates": "FUSED_SIGMA2",
+      "policy": "legacy"
+    },
+    {
+      "name": "FUSED_SIGMA2_PROGRESSIVE_ACTIVE_SUPPORT",
+      "coordinates": "FUSED_SIGMA2",
+      "policy": "progressive_active_support"
+    },
+    {
+      "name": "FUSED_SIGMA2_VISIBLE_TOGETHER",
+      "coordinates": "FUSED_SIGMA2",
+      "policy": "sealed_matched_control"
+    },
+    {
+      "name": "INITIAL",
+      "coordinates": "RAW",
+      "policy": "supplied_initial"
+    }
+  ],
+  "source_bindings": {
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/SAM_boundary_uncertainty_v1/PREDICTIONS.jsonl.gz": "23771e662d9cc3b13a34b98ef0650abdc5acc713aed5cffb2fd034ad4f633569",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/SAM_boundary_uncertainty_v1/PREDICTION_SEAL.json": "9d60ac9b9746e04c624955e2951e41dae8c396302ef37e99f81419bf7d13ac36",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/geometric_outline_fusion_v1/PREDICTIONS.jsonl.gz": "92767bd957e9a4c3642964280a777e128189d84b1083f8025d839ce7eff58b5f",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/geometric_outline_fusion_v1/PREDICTION_SEAL.json": "17032b96547f551f6bec297f589f287cdfb1055033567f6c87928d581852b8ee",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/geometric_outline_fusion_v1/outline_curriculum.py": "2d62c9c62405cd2faf3064a385137489366694315b1e01c6af4b6bb9220ad495",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/CAL_INPUTS.json": "31f7b8bd040134cf6dc82f5504d2fe125f3669c2a2c19454290b3972df0fdf2d",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/progressive_support_guard_v1/BASE_OUTLINE_CURRICULUM.py": "2d62c9c62405cd2faf3064a385137489366694315b1e01c6af4b6bb9220ad495"
+  },
+  "source": "Exactly sealed RAW_STAGED/FUSED_SIGMA2_STAGED observations, same fresh FULLCAL46 RGB visibility evidence and cleanTiny support, original frozen weights/gates, geometric-outline seed/order from prior study",
+  "intermediate_visible_gate": {
+    "objective": "J(S,R,t)=[sum_i_in_S w_i Huber(||project_i-q_i||;8px)+P_initial(R,t)]/sum_i_in_S w_i",
+    "prior": "P_initial=prior_strength_px^2*(||Rodrigues(R@R0.T)||^2/rotation_prior_radians^2+||(t-t0)/depth_scale||^2/translation_prior_fraction^2); depth_scale=max(||t0||,||ptp(xyz)||,1e-6)",
+    "acceptance": "On exact attempted active IDs, J(before)-J(candidate)>existing minimum_gain_px2=1e-7; original rank/spread/depth/initial-motion gates must pass",
+    "heldout_global_visible_and_strict_protected_history_veto": false,
+    "fit": "Same original IRLS _fit from current pose with fixed initial prior; no PnP reseeding; no projected observations",
+    "rationale": "Independent measurements excluded from a seed should not veto that seed. Subsequent true observations can improve aggregate active fit while sacrificing residual on previously admitted observations; fixed initial prior keeps the same trust reference."
+  },
+  "final_guard": {
+    "reference": "Initial pose evaluated on the immutable full-visible eligible pool with the same frozen weights and fixed initial prior",
+    "candidate": "Latest temporally accepted checkpoint with J(initial,full_visible)-J(checkpoint,full_visible)>1e-7",
+    "fallback": "Walk accepted checkpoints newest to oldest; select latest passing checkpoint. If none passes, preserve exact supplied initial R/t and return accepted=False/used_ids=[]",
+    "all_visible_pool_never_redefined": true,
+    "no_final_batch_refit": true,
+    "no_best_GT_stage_selection": true,
+    "log_fields": [
+      "all_visible_ids",
+      "checkpoint_active_ids",
+      "full_visible_scores",
+      "all_omitted_visible_ids",
+      "attempted_rejected_visible_ids",
+      "retained_checkpoint_index",
+      "fallback_source",
+      "intermediate_accepted_but_discarded_ids"
+    ],
+    "rationale": "Final output must improve the initial aggregate robust objective over all independently classified visible observations; local progress cannot escape this final safeguard. Most recent passing checkpoint preserves progression without selecting a minimum by ground truth."
+  },
+  "unknowns": "Exactly existing residual admission gate and legacy active fit gain/global-visible/protected/heldout validation from current pose. Unknown coordinates remain independent raw/fused observations, never visibility proof. Every accepted unknown checkpoint must also pass final all-visible initial guard to be returned.",
+  "order_and_rejected_points": "Initial hull flags/seed and nominal remaining order exactly match prior study for each RAW/FUSED. Existing one-pass additions retained: a rejected newly added corner is not silently retried or fabricated; logs explicitly identify skipped/omitted visible IDs.",
+  "invariants": [
+    "Original initial pose/H/model orderedxyz/cf extents/physicalQ/native8channel IDs/center fixed",
+    "Frozen raw/fused observations and appearance states/visibility/boundary/accuracy/weights exactly unchanged",
+    "Original eligibility/rank/spread/motion/depth/minimum4/unknown admission unchanged",
+    "No SAM/CNN forward calls or model training",
+    "No pose branch swap or remapping",
+    "No final all-visible batch refit"
+  ],
+  "scoring": "Seal code/protocol/all46x7 predictions before isolatedCAL46 labels; report allframe means/medians/P90, success, stage/seed/omitted/fallback support diagnostics, paired4session clustered bootstrap10000 vs matched legacy/together/initial controls",
+  "contrasts": [
+    "RAW_PROGRESSIVE_ACTIVE_SUPPORT-RAW_BASELINE_GEOMETRY_STAGED",
+    "RAW_PROGRESSIVE_ACTIVE_SUPPORT-RAW_VISIBLE_TOGETHER",
+    "FUSED_SIGMA2_PROGRESSIVE_ACTIVE_SUPPORT-FUSED_SIGMA2_BASELINE_GEOMETRY_STAGED",
+    "FUSED_SIGMA2_PROGRESSIVE_ACTIVE_SUPPORT-FUSED_SIGMA2_VISIBLE_TOGETHER",
+    "FUSED_SIGMA2_PROGRESSIVE_ACTIVE_SUPPORT-RAW_PROGRESSIVE_ACTIVE_SUPPORT"
+  ],
+  "CAL_only": true,
+  "severe_rows": 0,
+  "TEST_reads": 0,
+  "FINAL_reads": 0,
+  "GT_in_fit_or_admission": 0,
+  "model_or_parameter_retuning": 0,
+  "main_solver_API_config_edits": 0,
+  "no_automatic_promotion": true,
+  "limitations": [
+    "Exploratory CAL causal policy study after earlier CAL observations",
+    "FullCAL46 visibility head is in-sample; no new unseen accuracy claim",
+    "Original H/model may miss human self-occlusion or point semantics; guard does not repair that",
+    "Robust RGB-weighted residual improvement is not physical pose or requested-corner correctness",
+    "SAM line covariance is incomplete for semantic/systematic error; no new confidence interpretation"
+  ]
+}

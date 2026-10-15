@@ -1,0 +1,756 @@
+{
+  "schema": "STATEWISE_JOINT_METHOD_RESULTS_V3",
+  "method_contract": "B/I image observations and covariances frozen before simultaneous individual O/T constrained SE3; S output only from registered PnP projection",
+  "status": "implementation_and_contract_validation_complete; no_overall_superiority_demonstrated",
+  "primary_population": {
+    "CAL": 46,
+    "TEST": 49,
+    "severe": 0
+  },
+  "test_status": "REUSED_EXPLORATORY_NOT_NEW_UNSEEN",
+  "current_solver_revision": "immutable_BI_joint_OT_v3",
+  "solver_configuration": {
+    "max_p3p_triples": 56,
+    "global_rotation_starts": 24,
+    "max_seed_nfev": 160,
+    "max_joint_iterations": 250,
+    "maximum_union_branches": 256,
+    "maximum_visible_mahalanobis": 3.0,
+    "analytic_jacobian": true,
+    "protect_seed_projection": false,
+    "enforce_visible_geometry": true,
+    "geometry_tolerance_deg": 2.0,
+    "enforce_visible_canvas": true
+  },
+  "evaluation_execution": "Exact sealed v2 RGB/state/B-I measurements/O-T domains reused; solver-only correction, no classifier or region refit",
+  "fresh_current_RGB_validation": {
+    "cases": 3,
+    "GT_read_for_prediction": false,
+    "S_raw_coordinate_perturb_invariance": "exact masks/prompt/state/B-I/domains/pose/readout",
+    "cached_stage_parity": "exact states/B-I/domain/correction",
+    "path": "runtime_smoke_current_v3/CONTRACT_CHECKS.json"
+  },
+  "focused_validation": {
+    "passed": 95,
+    "receipt": "TEST_RECEIPT_V3.json",
+    "suites": [
+      {
+        "passed": 90,
+        "log": "FOCUSED_TEST_V3_FINAL.log"
+      },
+      {
+        "passed": 5,
+        "log": "PHYSICAL_TEST_V3_FINAL.log"
+      }
+    ]
+  },
+  "summary": {
+    "CAL": {
+      "frames": 46,
+      "joint_accepted": 18,
+      "with_OT": 12,
+      "joint_changes_BI_only_pose": 2,
+      "fallback_status_counts": {
+        "no_joint_feasible_pose_found": 27,
+        "joint_feasible": 17,
+        "joint_feasible_pose_family": 1,
+        "unresolved": 1
+      },
+      "material_ambiguity": 1,
+      "BI_corrections": 152,
+      "pose": {
+        "ORIGINAL_PNP": {
+          "translation_cm": {
+            "n": 46,
+            "mean": 3.9820519988819556,
+            "median": 2.1195140451809973,
+            "P90": 9.975434181612897,
+            "std": 4.302344919436426,
+            "max": 17.766490026358543
+          },
+          "rotation_deg": {
+            "n": 46,
+            "mean": 7.8049231300954,
+            "median": 1.8048953515227204,
+            "P90": 8.729031745147912,
+            "std": 20.905149280160888,
+            "max": 87.86784399177732
+          },
+          "ADDsym_cm": {
+            "n": 46,
+            "mean": 8.124409405338225,
+            "median": 2.733845445404385,
+            "P90": 12.446479265477299,
+            "std": 16.31579588494505,
+            "max": 69.19111350655429
+          },
+          "success_5cm_5deg": {
+            "n": 46,
+            "mean": 0.7391304347826086,
+            "median": 1.0,
+            "P90": 1.0,
+            "std": 0.44396108982135163,
+            "max": 1.0
+          }
+        },
+        "FROZEN_BI_ONLY_PNP": {
+          "translation_cm": {
+            "n": 46,
+            "mean": 5.181145341247745,
+            "median": 1.8172245681791415,
+            "P90": 14.151857135017018,
+            "std": 8.135131935786266,
+            "max": 42.18687354638667
+          },
+          "rotation_deg": {
+            "n": 46,
+            "mean": 9.701754877942111,
+            "median": 1.75360136215533,
+            "P90": 11.73052118528297,
+            "std": 23.994840535933857,
+            "max": 87.86784399177732
+          },
+          "ADDsym_cm": {
+            "n": 46,
+            "mean": 10.22985598771915,
+            "median": 2.55138039412007,
+            "P90": 25.6943323072328,
+            "std": 20.16299547793441,
+            "max": 84.38626516350098
+          },
+          "success_5cm_5deg": {
+            "n": 46,
+            "mean": 0.7391304347826086,
+            "median": 1.0,
+            "P90": 1.0,
+            "std": 0.44396108982135163,
+            "max": 1.0
+          }
+        },
+        "ALL_OT_JOINT_SE3": {
+          "translation_cm": {
+            "n": 46,
+            "mean": 4.756049273536276,
+            "median": 1.8172245681791415,
+            "P90": 12.472736005090281,
+            "std": 7.528437643452704,
+            "max": 38.32944905900446
+          },
+          "rotation_deg": {
+            "n": 46,
+            "mean": 8.224244018274018,
+            "median": 1.75360136215533,
+            "P90": 11.73052118528297,
+            "std": 20.990156694519772,
+            "max": 87.86784399177732
+          },
+          "ADDsym_cm": {
+            "n": 46,
+            "mean": 9.055937208342664,
+            "median": 2.55138039412007,
+            "P90": 23.469841942868804,
+            "std": 17.5588484426211,
+            "max": 69.19111350655429
+          },
+          "success_5cm_5deg": {
+            "n": 46,
+            "mean": 0.7608695652173914,
+            "median": 1.0,
+            "P90": 1.0,
+            "std": 0.43126597148888435,
+            "max": 1.0
+          }
+        }
+      },
+      "state_confusion": [
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "B",
+          "n": 238
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "I",
+          "n": 16
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "O",
+          "n": 2
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "S",
+          "n": 1
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "T",
+          "n": 2
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "U",
+          "n": 9
+        },
+        {
+          "actual": "EXTERNAL_OCCLUDED",
+          "predicted": "O",
+          "n": 7
+        },
+        {
+          "actual": "EXTERNAL_OCCLUDED",
+          "predicted": "T",
+          "n": 2
+        },
+        {
+          "actual": "SELF_OCCLUDED",
+          "predicted": "B",
+          "n": 7
+        },
+        {
+          "actual": "SELF_OCCLUDED",
+          "predicted": "I",
+          "n": 6
+        },
+        {
+          "actual": "SELF_OCCLUDED",
+          "predicted": "S",
+          "n": 67
+        },
+        {
+          "actual": "SELF_OCCLUDED",
+          "predicted": "U",
+          "n": 2
+        },
+        {
+          "actual": "UNANNOTATED",
+          "predicted": "T",
+          "n": 9
+        }
+      ],
+      "compatible_visible_pixel_metrics": {
+        "BACKBONE": {
+          "n": 242,
+          "mean": 18.377041406486274,
+          "median": 7.4028651787677,
+          "P90": 14.619600311003468,
+          "std": 59.44888829415207,
+          "max": 445.23623618558383
+        },
+        "FROZEN_BI": {
+          "n": 242,
+          "mean": 17.361305575875527,
+          "median": 5.352614854842904,
+          "P90": 14.21684693887008,
+          "std": 59.648816567982315,
+          "max": 445.23623618558383
+        },
+        "FINAL_RIGID": {
+          "n": 242,
+          "mean": 17.254287375777487,
+          "median": 6.523501199079966,
+          "P90": 14.154953814880754,
+          "std": 58.85443164892232,
+          "max": 447.94977734934065
+        }
+      }
+    },
+    "TEST": {
+      "frames": 49,
+      "joint_accepted": 29,
+      "with_OT": 28,
+      "joint_changes_BI_only_pose": 8,
+      "fallback_status_counts": {
+        "joint_feasible": 29,
+        "no_joint_feasible_pose_found": 20
+      },
+      "material_ambiguity": 0,
+      "BI_corrections": 185,
+      "pose": {
+        "ORIGINAL_PNP": {
+          "translation_cm": {
+            "n": 49,
+            "mean": 3.3630339739650164,
+            "median": 2.407504865235759,
+            "P90": 7.021278434158655,
+            "std": 3.4874642190261826,
+            "max": 19.956926183071612
+          },
+          "rotation_deg": {
+            "n": 49,
+            "mean": 6.527091926831804,
+            "median": 1.2200072099025525,
+            "P90": 4.180632420148181,
+            "std": 20.00342096664281,
+            "max": 88.16360274814775
+          },
+          "ADDsym_cm": {
+            "n": 49,
+            "mean": 9.830920604275295,
+            "median": 2.639319701947962,
+            "P90": 7.73732058637003,
+            "std": 27.02091890098126,
+            "max": 118.85041884464789
+          },
+          "success_5cm_5deg": {
+            "n": 49,
+            "mean": 0.8163265306122449,
+            "median": 1.0,
+            "P90": 1.0,
+            "std": 0.39123039821797584,
+            "max": 1.0
+          }
+        },
+        "FROZEN_BI_ONLY_PNP": {
+          "translation_cm": {
+            "n": 49,
+            "mean": 4.6923767369368035,
+            "median": 1.906182561179487,
+            "P90": 9.229827069771343,
+            "std": 11.428759685294297,
+            "max": 79.18450061009916
+          },
+          "rotation_deg": {
+            "n": 49,
+            "mean": 8.285309674414318,
+            "median": 1.23791516051968,
+            "P90": 6.568546784792301,
+            "std": 23.27317787113671,
+            "max": 102.04733992046738
+          },
+          "ADDsym_cm": {
+            "n": 49,
+            "mean": 10.57206790901127,
+            "median": 1.9499276252496538,
+            "P90": 11.789379523094254,
+            "std": 27.581881282742,
+            "max": 119.61417908558754
+          },
+          "success_5cm_5deg": {
+            "n": 49,
+            "mean": 0.7755102040816326,
+            "median": 1.0,
+            "P90": 1.0,
+            "std": 0.42156979070537554,
+            "max": 1.0
+          }
+        },
+        "ALL_OT_JOINT_SE3": {
+          "translation_cm": {
+            "n": 49,
+            "mean": 3.5139306913047417,
+            "median": 1.9341254362949596,
+            "P90": 7.421852400120611,
+            "std": 4.871427288359571,
+            "max": 27.395682777475937
+          },
+          "rotation_deg": {
+            "n": 49,
+            "mean": 6.567534860517136,
+            "median": 1.178112324407753,
+            "P90": 5.155866439843944,
+            "std": 19.997275304757473,
+            "max": 88.89768761077
+          },
+          "ADDsym_cm": {
+            "n": 49,
+            "mean": 9.756425491379433,
+            "median": 2.2530154634862045,
+            "P90": 8.10694723047977,
+            "std": 27.15233420655178,
+            "max": 119.60643492973534
+          },
+          "success_5cm_5deg": {
+            "n": 49,
+            "mean": 0.7959183673469388,
+            "median": 1.0,
+            "P90": 1.0,
+            "std": 0.4072055089639778,
+            "max": 1.0
+          }
+        }
+      },
+      "state_confusion": [
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "B",
+          "n": 229
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "I",
+          "n": 18
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "O",
+          "n": 11
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "S",
+          "n": 5
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "T",
+          "n": 8
+        },
+        {
+          "actual": "DIRECT_VISIBLE",
+          "predicted": "U",
+          "n": 15
+        },
+        {
+          "actual": "EXTERNAL_OCCLUDED",
+          "predicted": "B",
+          "n": 1
+        },
+        {
+          "actual": "EXTERNAL_OCCLUDED",
+          "predicted": "O",
+          "n": 11
+        },
+        {
+          "actual": "SELF_OCCLUDED",
+          "predicted": "B",
+          "n": 6
+        },
+        {
+          "actual": "SELF_OCCLUDED",
+          "predicted": "I",
+          "n": 7
+        },
+        {
+          "actual": "SELF_OCCLUDED",
+          "predicted": "S",
+          "n": 59
+        },
+        {
+          "actual": "UNANNOTATED",
+          "predicted": "B",
+          "n": 5
+        },
+        {
+          "actual": "UNANNOTATED",
+          "predicted": "T",
+          "n": 17
+        }
+      ],
+      "compatible_visible_pixel_metrics": {
+        "BACKBONE": {
+          "n": 224,
+          "mean": 6.159424753018318,
+          "median": 4.500435559191088,
+          "P90": 12.001272740255583,
+          "std": 5.440359581689878,
+          "max": 37.297669443510706
+        },
+        "FROZEN_BI": {
+          "n": 224,
+          "mean": 5.449283056945878,
+          "median": 3.7165646128053336,
+          "P90": 11.649907602283909,
+          "std": 5.39010266681447,
+          "max": 37.297669443510706
+        },
+        "FINAL_RIGID": {
+          "n": 224,
+          "mean": 5.385664447263872,
+          "median": 4.314023563257958,
+          "P90": 11.068798187514597,
+          "std": 4.472532899071945,
+          "max": 22.57027957699757
+        }
+      }
+    }
+  },
+  "accepted_joint_pose_changes_vs_same_BI_only": {
+    "CAL": {
+      "count": 2,
+      "ids": [
+        "eval_cad:1778653017736058368",
+        "eval_night08:1779449488068910592"
+      ],
+      "delta_threshold": {
+        "rotation_matrix_norm": 1e-06,
+        "translation_m": 1e-07
+      }
+    },
+    "TEST": {
+      "count": 7,
+      "ids": [
+        "eval_noapril:1775201421043401984",
+        "eval_noapril:1775201436800711168",
+        "eval_pallet07:1778652140531310080",
+        "eval_pallet07:1778652142480077056",
+        "eval_pallet07:1778652172717607680",
+        "eval_pallet09:1778653661653195264",
+        "wood_183705:000706"
+      ],
+      "delta_threshold": {
+        "rotation_matrix_norm": 1e-06,
+        "translation_m": 1e-07
+      }
+    },
+    "interpretation": "Numeric difference threshold, not improvement count; one TEST case delta_t=3.74e-7m is a small numerical difference"
+  },
+  "crops": [
+    {
+      "id": "eval_night08:1779449488068910592|topcrop325",
+      "actual_transformed_visible_T_ids": [
+        4,
+        5
+      ],
+      "predicted_T_ids": [
+        5
+      ],
+      "states": [
+        "O",
+        "B",
+        "B",
+        "O",
+        "O",
+        "T",
+        "S",
+        "S"
+      ],
+      "native_gt": [
+        [
+          151.0,
+          20.0
+        ],
+        [
+          486.0,
+          12.0
+        ],
+        [
+          487.0,
+          41.0
+        ],
+        [
+          153.0,
+          47.0
+        ],
+        [
+          170.0,
+          -4.0
+        ],
+        [
+          405.0,
+          -1.0
+        ],
+        [
+          402.6058431413543,
+          15.676372455415503
+        ],
+        [
+          171.8787082699432,
+          18.63046120919381
+        ]
+      ],
+      "native_gt_valid": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "joint_accepted": true,
+      "source_visible_annotation_not_independent_pose_certificate": true
+    },
+    {
+      "id": "eval_night08:1779449499143611648|topcrop334",
+      "actual_transformed_visible_T_ids": [
+        5
+      ],
+      "predicted_T_ids": [],
+      "states": [
+        "O",
+        "U",
+        "B",
+        "O",
+        "O",
+        "U",
+        "S",
+        "S"
+      ],
+      "native_gt": [
+        [
+          154.0,
+          33.0
+        ],
+        [
+          609.0,
+          23.0
+        ],
+        [
+          615.0,
+          62.0
+        ],
+        [
+          150.0,
+          73.0
+        ],
+        [
+          195.0,
+          1.0
+        ],
+        [
+          485.0,
+          -2.0
+        ],
+        [
+          480.99754529506663,
+          21.114398052581578
+        ],
+        [
+          199.24384825636378,
+          26.375098532694835
+        ]
+      ],
+      "native_gt_valid": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "joint_accepted": false,
+      "source_visible_annotation_not_independent_pose_certificate": true
+    },
+    {
+      "id": "eval_night08:1779449501478488320|topcrop340",
+      "actual_transformed_visible_T_ids": [
+        5
+      ],
+      "predicted_T_ids": [
+        0,
+        3
+      ],
+      "states": [
+        "T",
+        "B",
+        "B",
+        "T",
+        "U",
+        "U",
+        "S",
+        "S"
+      ],
+      "native_gt": [
+        [
+          5.0,
+          59.0
+        ],
+        [
+          594.0,
+          31.0
+        ],
+        [
+          596.0,
+          85.0
+        ],
+        [
+          3.0,
+          120.0
+        ],
+        [
+          88.0,
+          8.0
+        ],
+        [
+          421.0,
+          -2.0
+        ],
+        [
+          419.8729918813294,
+          25.272218641192808
+        ],
+        [
+          88.83935903908124,
+          37.6736962202653
+        ]
+      ],
+      "native_gt_valid": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "joint_accepted": true,
+      "source_visible_annotation_not_independent_pose_certificate": true
+    }
+  ],
+  "limitations": [
+    "TEST already reused; exploratory only",
+    "Pose targets are historical derived reference poses",
+    "Pixel comparison limited to preexisting physically compatible native mapping; no GT reindex or branch choice",
+    "Natural T absent; crops replay frozen upstream predictions rather than retrain/rerun backbone",
+    "No automatic O success claimed when CAL O gate disables output",
+    "Finite multi-start local solve is not global proof",
+    "Initial S and B/I roles are conditional on coarse geometry; no direct physical self-occlusion certificate",
+    "O regions calibrated from seven eligible external-O CAL points, not probabilistic simultaneous coverage",
+    "2-degree model grazing tolerance and covariance budgets are assumed support policy",
+    "False O, false/missed conditional T, and physically rounded corner observation bias remain",
+    "Finite found pose samples do not enumerate the complete continuous pose family"
+  ],
+  "evidence_sha256": {
+    "evaluation_v3/PROTOCOL.json": "f84ca153ea0a0ee00d718f80667ab241131161dc48dc5bdf91f4f8bce8c58bbb",
+    "evaluation_v3/PREDICTION_SEAL.json": "4ea1af814606bc8f794f1f004ded86e87795b3cbad4fc737f8e1a25e0dfcd164",
+    "evaluation_v3/PREDICTIONS.jsonl.gz": "4031254cc34ec10d3b2dfaf996ae1862772f9884cc8d2bec4b3c78931b68e7d9",
+    "evaluation_v3/POSTSEAL_SCORING.json": "dd9829e14882a26d7f2385dbbf7c88d7b203f641164beca64d4a895ff8356c74",
+    "runtime_smoke_current_v3/PROTOCOL.json": "e46b5c726e1577316ace285c04cc0c6c8d3b713a993c579dba95d621bd6c037b",
+    "runtime_smoke_current_v3/PREDICTION_SEAL.json": "6081fc06af600dc8dbc8d0c6c36bed110d4c9197b25a65100f2d09402867c3a8",
+    "runtime_smoke_current_v3/CONTRACT_CHECKS.json": "903c6f11a2ebc010223fb0dba985c587bce8fb96476444159fa775f6b4b567b5",
+    "runtime_smoke_current_v3/PREDICTIONS.jsonl.gz": "04c822289e041cd196051d77bd7250fefa3857550032738c83e09783f6b8e441",
+    "FOCUSED_TEST_V3_FINAL.log": "d8f3585f57b3c5b35e4b8b79a7ef0cc1b24ec56da78c12ed9ae9818f48bf9779",
+    "RUNTIME_CONFIG_V3.json": "ead4dd2b9d7dd679da715e6631b4e661217bc10c6227ea587e58061cf1040577",
+    "state_visibility/bounded_ownership_spatial_v3/MODEL.json": "32f1683e9b43dca9731795d061a12bef30253a978f375511b7f98d5cb2291042",
+    "ot_domains/EXTERNAL_O_CAL_MAX_MODEL_N3_SUBPIX.json": "a4865047098782ebd8e27c0176979f5ca09553bf06e33d008585e434eca911a7",
+    "TEST_RECEIPT_V3.json": "d009c0cb65a9b132971633f85d286fd17ef8219ad81292ab93fd799bbb583a2f",
+    "PHYSICAL_TEST_V3_FINAL.log": "cc2e46fd2405a8196dc76e7bdaa6c7ae9eb4007a9904d18b23d88cb601a1d0ec",
+    "current_figures_v3/VALIDATION.json": "f6b21e79d9f437259a97248c05b2f2f9d12bc44cef22b1422813b551f8fc5507",
+    "current_figures_v3/FIGURE_PROVENANCE.json": "75aa28127ba8704819f15ff8a3bd91c277150e104ada6964d2ead70b44381c31",
+    "PACKAGING_REPRODUCIBILITY_REVIEW_V3.json": "5294fc98e870ef507cb8808c10f5b7f1b1b83757450deadd3d65a613de63c850"
+  },
+  "actual_image_figures": {
+    "index": "current_figures_v3/index.html",
+    "cases": 5,
+    "PNG_count": 6,
+    "SVG_count": 6,
+    "pose_family_found_finite_samples": [
+      5,
+      4,
+      495
+    ],
+    "S_raw_and_GT_not_plotted": true,
+    "T_failures_and_ambiguity_explicit": true,
+    "validation": "current_figures_v3/VALIDATION.json"
+  },
+  "independent_completion_audit": {
+    "path": "INDEPENDENT_COMPLETION_AUDIT_V3.json",
+    "check_groups": 33,
+    "checks": 4137,
+    "failures": 0,
+    "note": "Evidence digests are recorded by the audit, rather than mutually hashing this summary and the audit"
+  },
+  "conditional_initial_S_limit": {
+    "physical_human_SELF_misclassified_as_BI": {
+      "CAL": 13,
+      "TEST": 13
+    },
+    "guarantee": "No per-keypoint image query for IDs initially classified S; not every physically self-hidden point is necessarily initially classified S"
+  }
+}

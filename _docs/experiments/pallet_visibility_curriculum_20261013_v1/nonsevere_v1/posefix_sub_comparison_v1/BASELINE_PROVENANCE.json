@@ -1,0 +1,136 @@
+{
+  "schema": "POSEFIX_SUB_BASELINE_PROVENANCE_V1",
+  "status": "N3_INITIAL_IDENTITY_PROVED_LITERAL_POSEFIX_SUB_NEW_COMBINATIONS_RECOMPUTED",
+  "population": {
+    "CAL46": true,
+    "TEST49": true,
+    "severe_frames": 0,
+    "FINAL_labels_or_metrics_used": 0
+  },
+  "initial_identity": {
+    "name": "N3_DIM_SYM seed1 + raw-resolution cornerSubPix + originalYOLO1%totalcap + prediction-only F",
+    "is_literal_PoseFix_ResNet152": false,
+    "source_pose_cache": "/dev/shm/pallet-observation-worktree-20261009/_docs/experiments/pallet_observation_refiner_20261009_v1/OBSERVATIONS.jsonl.gz",
+    "source_cache_sha256": "49193a1bad2d425098a11fac038ef980d2b140706e541d0c78802f6dde19ddaa",
+    "row_method": "N3_SUBPIX_NO_MASK_STANDARD",
+    "field": "initial_pose",
+    "not_field": "actual_pose",
+    "cached_pose_and_q_mapping_frames": 95,
+    "maximum_pose_mapping_difference": 0.0,
+    "recomputed_F_parity": {
+      "BASE": 0.0,
+      "N3_SUBPIX": 0.0
+    },
+    "order": [
+      "Original YOLO26N detector/selected object/native9 q0",
+      "N3_DIM_SYM learned shared-neck head seed1 step6000, dimensions/symmetry conditioning",
+      "cornerSubPix onN3 q atoriginalgraypixels",
+      "Float64 radial totalcap1%rawdiagonal relativeoriginalYOLOq0",
+      "Prediction-onlyWDselector thenSQPnP+LM"
+    ],
+    "N3_checkpoint": {
+      "path": "data/pallet/results/pallet_dim_conditioned_p_v1/runs/N3_DIM_SYM_seed1/last.pt",
+      "sha256": "ceea743b7b8467cf43eef66582b923dd980e5b2fb27f5575af5df185109f22dd",
+      "bytes": 305470
+    },
+    "N3_temperature": 1.0
+  },
+  "literal_PoseFix": {
+    "model": "PoseFix-derived pallet9 RGB ResNet152 official-operation port; separate head from N3 and not original human benchmark",
+    "checkpoint": "data/pallet/results/pallet_sensors_submission_v1/runs/PRIOR1/last.pt",
+    "checkpoint_sha256": "b9670d1a42db8d4e80ae1efe55eb237f05f81f7bd089cefe4051bbedd7d0a581",
+    "cache": "data/pallet/results/pallet_posefix_replay_diagnosis_v1/predictions/seed1_REAL_DEV.npz",
+    "cache_sha256": "683b7395860865f7e10cba5e1dfb7c04e84234dd296340416c4759b671c95f06",
+    "seed": 1,
+    "step": 6000,
+    "training": "Historical synthetic-only PRIOR1, no new training in thiscomparison",
+    "tensor": "points[selected95,0,1] = RAWtrajectory firstuncappedpass",
+    "cache_RAW_PASS0_equals_sameYOLO_q0_all95": true,
+    "crop": "Originalpredictedbbox\u2192288x384 RGBcrop; pretrainedRGBmean subtraction; nativecoordinateinversewarp; originalcenter/missing retained"
+  },
+  "literal_PoseFix_Sub_identity": {
+    "historical_combined_recipe_or_cache_found": false,
+    "search_scope": "ExistingPoseFix/train-free/N3 source recipes and result namespaces; no authoritative preexisting literalPoseFix\u2192Sub cache located",
+    "new_recomputed_combinations": true,
+    "SUBPIX": {
+      "winSize": [
+        5,
+        5
+      ],
+      "zeroZone": [
+        -1,
+        -1
+      ],
+      "criteria": {
+        "type": 3,
+        "maxCount": 40,
+        "epsilon": 0.001
+      },
+      "initial_and_refined_arithmetic": "OpenCV float32; returned native array float64",
+      "minimum_image_extent": 15,
+      "initial_inside_required": true,
+      "fallback": "unsupported/missing/outside initial, too-small image, OpenCV exception, nonfinite or outside refined output"
+    },
+    "anchors": {
+      "POSEFIX_SUBPIX_PF_ANCHOR": "SubPixincrement capped at1%rawdiagonal relativeuncappedPoseFix q",
+      "POSEFIX_SUBPIX_YOLO_ANCHOR": "TotalPoseFix+Sub displacement capped at1%rawdiagonal relativeoriginalYOLOq0"
+    },
+    "both_predeclared": true,
+    "no_anchor_or_seed_selection_from_metrics": true,
+    "reverse_SubPix_then_PoseFix_experiment": false
+  },
+  "final_pose_recipe": {
+    "function": "Unchanged scripts/research/pallet_dim_conditioned_p_v1/pose.py::infer",
+    "source_AST_functions_compiled": [
+      "infer",
+      "rotations"
+    ],
+    "GT_loaders_not_executed": true,
+    "solver": "Forrectangularregistry try prediction-onlylong/shortW/D families; fixedscore selectsfamily; then SQPnP+solvePnPRefineLM overfinite8corners",
+    "minimum_finite_corners": 6,
+    "center8_fit_support": false,
+    "H_or_RGBvisibility_exclusion": false,
+    "existing_initial_pose_used_as_optimizer_initializer": false,
+    "physical_axis": "R_physical=R_cf@I whenCFwidth=registryX, elseR_cf@properRy90; source=False (no sourcebasisflip)",
+    "no_GT_family_selection": true,
+    "point_numbering_native": true
+  },
+  "comparison_confound": {
+    "new_method": "FUSED_ACTIVE retainsN3initialH/family, uses currentRGB/SAM lines and progressiveweightedlocalfit withfixedinitialprior",
+    "baseline": "PoseFix/Sub retains originaldetectedobject but recomputesWDfamilyfromitsownq andunweighted8cornerF",
+    "interpretation": "This is a matched fullpipeline comparison onidenticalimages/GT. It doesnot isolatepostprocessor alone because upstreamheadcoordinates/H/initialfamily differ."
+  },
+  "controls": {
+    "current_joint_CAL": "FrozenFULL-CAL fit cache+sourceTinyRGBappearance, in-sample notOOF; pureproductionwrapperparity46 verified",
+    "current_joint_TEST": "AlreadysealedJOINT_SINGLE_FAMILY49",
+    "native_BASE": "RecomputedF(originalYOLOq0), exactcachedBASEposeparity95"
+  },
+  "provenance_bindings": {
+    "source_code": {
+      "scripts/research/pallet_n3_subpix_20261008_v1/runtime.py": "e1c5afaa7a39ec7cc3b99deec4529442207bd17139b06a3560f07a85f16b96b2",
+      "scripts/research/pallet_n3_subpix_20261008_v1/common.py": "5f770eba1985a627409241eb7125152b006c9e3d94b038febd2651f93523c044",
+      "scripts/research/pallet_training_free_compare_20261007_v1/runtime.py": "b0d11171be2c862f6314830d6613b95ab2ca48c5e5f6f37267110118505558f3",
+      "scripts/research/pallet_training_free_compare_20261007_v1/methods.py": "d1b45186965866810130768bd504af8eefb2abdf8dd15fa3038fac76a92b37f0",
+      "scripts/research/pallet_dim_conditioned_p_v1/pose.py": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+      "scripts/paper/pose_metric_closure_v1/run_pose_evaluation.py": "312aef156b6b099f6518a17290b7f86256d94ec22c73b1fc40ff924e4aaf9720",
+      "challenge/evaluation_v2/pnp_selector.py": "3e89f318c7c4a3396c6e7c2f9280c1755f32d7bd7b3d61e8a56b9bd5d0bd512e",
+      "scripts/research/pallet_sensors_submission_v1/prior_model.py": "83e96d5071c1bd4903e429fefa23c9b965e48d0ece2bdca2314e1dad2938014e"
+    },
+    "N3_protocol_sha256": "91167ab626a6c02b3d5f425b51d483bd57ef5a46cc73341a827335d1a2a1b197",
+    "comparison_protocol_sha256": "b457bf3070f43378fb1489d7950b25390fabe24cea7e96d83b6c8bbad41be795",
+    "prediction_seal_sha256": "2b9128e93c6e92efcd4668af68aa3183d9c5f4836e0306f53eb49b545d8325fe",
+    "joint_CAL_wrapper_QA_sha256": "b40499e9819e1ae4901def35bdf4ea56945900d219d11ef5bbbe53f5823b2691"
+  },
+  "execution": {
+    "new_training": 0,
+    "model_forwards": 0,
+    "new_SAM_forwards": 0,
+    "new_sourceCNN_forwards": 0,
+    "new_F475": true,
+    "new_SubPix95_images": true,
+    "isolatedCAL_TEST_truth_after665_prediction_seal": true,
+    "FINAL_truth_reads": 0,
+    "main_solver_API_git_edits": 0
+  },
+  "namespace_repair": "PRE_INFERENCE_REPAIR preserves prereg protocol/originalsource; missingMETHODSconstant repairedbeforefirstSub/F0; no outcome/parameterchange"
+}

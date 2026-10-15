@@ -1,0 +1,105 @@
+{
+  "schema": "CAL46_BOUNDARY_COUNT_RULES_V1",
+  "preregistered_before_prediction_and_scoring": true,
+  "source_bindings": {
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/SAM_boundary_uncertainty_v1/PREDICTIONS.jsonl.gz": "23771e662d9cc3b13a34b98ef0650abdc5acc713aed5cffb2fd034ad4f633569",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/SAM_boundary_uncertainty_v1/PREDICTION_SEAL.json": "9d60ac9b9746e04c624955e2951e41dae8c396302ef37e99f81419bf7d13ac36",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/SAM_boundary_uncertainty_v1/OBSERVED_LINE_UNCERTAINTY.json": "b9c22918a09c309e93e12718ce29b2345e017ad2fc675907b299eb7e3b42cc7d",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/SAM_boundary_uncertainty_v1/MASK_BINDINGS.json": "9878c6a981ff480f9222cddc538aa193d80f193af491a2fff3175491eb8ac223",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/progressive_support_guard_v1/PREDICTIONS.jsonl.gz": "2eb8c2f2691346d5ca245ffd057ab392570c32bf537051b57de3cf1d3294ea03",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/progressive_support_guard_v1/PREDICTION_SEAL.json": "539ff34106dc1780a9ed694f96a05a14c2af76050f84bd7d242b18811368ab79",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/CAL_INPUTS.json": "31f7b8bd040134cf6dc82f5504d2fe125f3669c2a2c19454290b3972df0fdf2d",
+    "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/BOUNDARY_OBSERVATION_CONFIG.json": "0ccfc5db7cd1177311123d8776baa91ebe349cd317e9ca1ff19f5f4f3f489c75",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/curriculum.py": "e6716edb9c3bbd60136f67026125e738f4423bdd250f9dff089ae34038d18672",
+    "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_evidence.py": "5687fd1174d7da52cf4e94a5d8fad5fff61fb4e243f08b4193fe1d42c05ccd9c"
+  },
+  "population": "Fixed46clean/moderate CAL only; all fallback/ambiguity cases retained; no literal ResNet152 baseline substitution",
+  "finite_arms": [
+    {
+      "name": "RAW_BOUNDARY_COUNT_RULE",
+      "coordinates": "RAW",
+      "policy": "count_rule"
+    },
+    {
+      "name": "FUSED_SIGMA2_BOUNDARY_COUNT_RULE",
+      "coordinates": "FUSED_SIGMA2",
+      "policy": "count_rule"
+    },
+    {
+      "name": "RAW_PROGRESSIVE_ACTIVE_SUPPORT",
+      "coordinates": "RAW",
+      "policy": "copied_sealed_control"
+    },
+    {
+      "name": "RAW_VISIBLE_TOGETHER",
+      "coordinates": "RAW",
+      "policy": "copied_sealed_control"
+    },
+    {
+      "name": "FUSED_SIGMA2_PROGRESSIVE_ACTIVE_SUPPORT",
+      "coordinates": "FUSED_SIGMA2",
+      "policy": "copied_sealed_control"
+    },
+    {
+      "name": "FUSED_SIGMA2_VISIBLE_TOGETHER",
+      "coordinates": "FUSED_SIGMA2",
+      "policy": "copied_sealed_control"
+    },
+    {
+      "name": "INITIAL",
+      "policy": "supplied_initial"
+    }
+  ],
+  "count_source": "Shared pure summarize_boundary_evidence over unchanged freshCAL46 RGBvisibility, originalH/initialprojectedhull/nativeq/canvas, independent SAM line sample payload and covariance; actualmodelhull alone never qualifies",
+  "two_levels": [
+    "geometric_boundary_count conditional on originalpose/model andactualinframe queries",
+    "strong_count: P_visible>=.65, two distinct adjacent observed supportedlinefamilies/intersectionwithin12px; fixedinlier5/fraction.4/span.5/RMS1.5/angle15/sine.25; existingcovvalidity>=16pairedresamples whenprovided"
+  ],
+  "weights": "Exactly original P_visible*local_accuracy, each floored.05; original.6factor forRGB_INTERIOR retained even whenindependentSAMlineevidence upgrades observationalsupport. Covariance never treatedascalibratedkeypointprecision or usedtochooseweight.",
+  "rules": {
+    "5_plus": "One6DOF localrobustIRLSinitialisedfromsuppliedpose, originalweighted reprojection andfixedinitialprior; onlystrongraw/fused independentobservations fit.",
+    "4": "Same6DOF localfit plus6fixed\u00b1rotation_prior_deg(8deg) camera-axis initialisationprobes, allwithsameinitialposeprior. Rank/spread/conditioning andmotion/depth/projectionguards unchanged. Rejectnear-equal valid minima withinexistingvalidation_tolerance_px2(.10) that differ by>halfrotationprior(4deg) or>halftranslationprior(.04*depth_scale); choosebestrobustselectedobjectiveonlyifnotambiguous. Thisisfiniteambiguityprobe, notproofofglobaluniqueness.",
+    "3": "Translation-only3parameters, holdexactinitialRbitwise. Samefixedinitialtranslationprior/depthscale,4IRLS steps and80nfev. RequiretranslationprojectionJacobianrank3 andcolumnnormalisedcondition<=15, existingimagespreadratio>=.01/secondsv>=3px. Sameinitialtransfraction<=.15/maxprojectshift<=64/allmodeldepthpositive. No missingrotations/coordinates created.",
+    "0_to_2": "PreserveexactinitialR/t; acceptedFalse/usedIDs[]; reportinsufficientimage-supportedboundarypoints."
+  },
+  "aggregate_guard": "Everyacceptedoutputmustgain>1e-7 onthe immutable selectedstrong-ID weightedSUMHuber+samefixedinitialprior, normalisedbyfrozenweightSUM, comparedwithINITIAL. Excludedinterior/unknown points do notfit orveto thisboundary-onlyrule. Existingall-visibleTogether remainscontrol. No finalbatchrefit/reprojectionobservation/GTbeststage.",
+  "geometry_and_trust": "Sameexistingfull6normalisedJrank6/condition15 andimagespread3px/.01; poseinitialrotationcap15deg/trans.15/projection64/depth1e-6. If>=4geometrybad,fallbackinitial; nointeriororunknownsupplement, noalternativeDOFrescue.",
+  "pose_prior": "prior_strength1px, rotation8deg, translation.08fraction, depth_scale=max(norm(initialt),norm(ptp(xyz)),1e-6); robustHuberradius8px; frozenweights validation, notIRLSupdatedweights",
+  "coordinate_invariants": "SameRAW/FUSEDq9 fromsealedSAMsigma2study; samecounts/states/weights acrosscoordinatearms; originalH/xyz/nativeID/cfextents/physicalQ/center fixed; maximumexistingfusion6px; no pointorphase remap",
+  "calibration_or_masks": "No newRGB/CNN/SAM forwards ortraining. AdaptexistingfreshCAL46observationrecords tosharedobserverdict; allsourcehashes frozen.",
+  "scoring": "Sealall46x7predictions/code/protocol beforeisolatedCAL46labels. Reportallframesmean/median/P90T/R,success, supportcounts/branches/fitrank/fallback, percountoutcomes, paired4sessionclusterbootstrap10000seed20261013 vsprogressive/Together/INITIAL. NumericalequalityQA separatefromaccuracy.",
+  "main_files_owned": [
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_rules.py",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_boundary_rules.py"
+  ],
+  "existing_API_solver_config_model_edits": 0,
+  "CAL_only": true,
+  "severe_rows": 0,
+  "TEST_prediction_or_label_inputs_for_study": 0,
+  "FINAL_reads": 0,
+  "GT_in_fit_or_selection": 0,
+  "hyperparameter_or_policy_retuning": 0,
+  "no_automatic_promotion": true,
+  "limitations": [
+    "SameCAL reusedafterearlierresearch; FULLCAL46visibility evidenceisin-sample.",
+    "Strongcount isoperationalimage-line support, notpose-rank/semantic3Dcorner certainty.",
+    "InitialH/outline/model/coordinatequery maybewrong; classagnosticmaskdoesnotcertifycornerownership.",
+    "Linecovarianceomitssemantic/virtualroundedcorner/systematicbias.",
+    "Threepointtranslationcannotrepairinitialrotation; <=2 deliberatelyfallback.",
+    "Pose truthreconstructedfromannotation, notindependentphysicalmeasurement."
+  ],
+  "pre_inference_source_binding_amendment": {
+    "reason": "Shared helper finalised its semantic/status tests before any count-rule prediction; no rule, threshold or parameter change",
+    "old_helper_sha256": "025f9c32f36a95cefbd7766d9f998e1efb102b3717eb7439fe3a88e2472a0f68",
+    "new_helper_sha256": "0724b8af1f8368a565fcae428859f0c9fd69df168bbb78fd31c06c261b617180",
+    "original_protocol_sha256": "304e2162f929e49769b11f04afed6da7d823602e80ee4e157258cd9a36ad2a2e",
+    "before_any_count_rule_predictions": true
+  },
+  "pre_inference_optional_region_source_binding_amendment": {
+    "reason": "Trusted independent point-bound different-instance region excludes strong even with highRGBscore; suspected until independentphysicaldepth/order. ActualCAL inputs have no externalproducer, no count/grid/threshold/policy change.",
+    "old_helper_sha256": "0724b8af1f8368a565fcae428859f0c9fd69df168bbb78fd31c06c261b617180",
+    "new_helper_sha256": "5687fd1174d7da52cf4e94a5d8fad5fff61fb4e243f08b4193fe1d42c05ccd9c",
+    "previous_protocol_sha256": "bf368d131889671434e0139f45bddcda5122f9748bd38d5aacfa5a30f704c4be",
+    "before_any_count_rule_predictions": true
+  }
+}

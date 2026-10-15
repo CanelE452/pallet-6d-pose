@@ -1,0 +1,66 @@
+{
+  "schema": "INDEPENDENT_ACTUAL_PROCESS_VISUALIZATION_SEMANTICS_PLAN_V1",
+  "created_UTC": "2026-10-14T02:05:21.022278+00:00",
+  "no_newfit_RGBprovider_or_pose_inference": true,
+  "source_population": "Same immutable TEST49; fixed additional O example labeled outside that filter population if CAL.",
+  "stages": [
+    {
+      "stage": 1,
+      "title": "동결 N3_SUBPIX 입력",
+      "source": "runtime.original_raw_points, initial_geometry.initial_self_hidden",
+      "semantics": "Frozen N3_SUBPIX upstream predictions, not rawYOLO/PoseFix. OOB remains OOB; ninth center metadata is separate from PnP correspondences. InitialS raw is not drawn as image evidence."
+    },
+    {
+      "stage": 2,
+      "title": "초기 자세의 기하 S/B/I",
+      "source": "initial_geometry.initial_projection_xy/initial_roles/initial_self_hidden",
+      "semantics": "Conditional coarse/model geometry only, no actual RGB visibility certificate. A shown S marker here is explicitly a geometry projection, not observed S coordinate."
+    },
+    {
+      "stage": 3,
+      "title": "영상 상태 예측, 구간 보류 전",
+      "source": "state_observation.records with original_T_hypothesis restored for originally T",
+      "semantics": "Current records are already interval-gated. Restore original_T_hypothesis.state for preinterval view, never derive from reason text. Trained DIRECT-vs-EXTERNAL predictor is not the historical human label. Compare human_states_native separately."
+    },
+    {
+      "stage": 4,
+      "title": "B/I 영상 보정과 원예측 fallback",
+      "source": "frozen_visible_measurements and visible_correction.records",
+      "semantics": "source==VISIBLE_BACKBONE_FALLBACK remains raw; draw actual correction arrows only for supported image correction, keep fixed q/observedSigma. Observation xy and final model projection are separate. Optional covariance contours distinguish observedSigma vs effectivefitSigma without probabilistic coverage claims."
+    },
+    {
+      "stage": 5,
+      "title": "CAL 구간 T 보류와 O/T 개별 영역",
+      "source": "truncation_interval_guard, state records.original_T_hypothesis, ot_domains.domains",
+      "semantics": "Explicit T→U transition. O raw-centered empirical CAL disk/ellipse intersected with actual canvas, not an occluder outline/95% confidence/precise visible point. All original38 natural primaryT becomeU; currentT0 must be visible. IndependentcertT preserved by method but not claimed present in these natural cases."
+    },
+    {
+      "stage": 6,
+      "title": "최종 강체 PnP와 S 투영",
+      "source": "actual_pose, keypoint_readout, joint_pose, ambiguity_audit",
+      "semantics": "FrozenBI observations stay fixed while model projections may differ. S is only final pose projection. O/T projected coordinates are hypotheses, not direct measurements; family/ambiguous/fallback and U remain explicitly unresolved. Stored feasible samples are finite samples, not all possible poses or a probability region."
+    }
+  ],
+  "other_method_semantics": [
+    "Each archived method uses its own saved pose/model/observations. Current statewise stages cannot be attributed to original/oldRGB/boundary/v3. Unavailable intermediate is labeled unavailable.",
+    "Project archived method using saved R_cf/centroid/cf_extents/native convention. Never reselect GT phase for nicer image alignment. Metric remains fixed physical C2 same49 score.",
+    "GT markers only use valid native-mapped annotations; all-corner reference pose projection is labeled separately as model reference, not an observed hidden point."
+  ],
+  "failure_filter": "Exact per-method per-frame success=(translation_cm<5 AND rotation_deg<5), including fallback. Separate translation-only/rotation-only/both failure. All49 retained; union detail set is set union of failed frame IDs, no score-selected frame removal.",
+  "pending_renderer_checks": [
+    "Input/score/PREDseal/table/image hashes",
+    "All49 identical method populations and exact metric flags",
+    "Stage source IDs/state counts including preintervalT restoration",
+    "No S input image dots or manufactured O/T/unknown measurements",
+    "Corrected vs fallback and observation vs final model distinction",
+    "Exact saved pose/native projection and ambiguity/fallback claims",
+    "HTML failure filters/counts/detail links/physical units",
+    "No new fit/inference/parameter choice and immutable existing artifacts"
+  ],
+  "bindings": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/evaluation_interval_v4_2b/PREDICTION_SEAL.json": "98ac5fe2edc3181c41c02dc6e95761d13ed74f58cbda5e85cd32429e4446142f",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/evaluation_interval_v4_2b/POSTSEAL_SCORING.json": "f29db55226e6d16092b83fe3149a872ada47c5e04c0e6a40a28ed0960c8099f6",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/FINAL_RESULTS_V4_2.json": "eeca5350ab16da7050f42ab567fe1ade181203cf0a51e716f945fc60add172df",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/independent_review/FINAL_REPORT_REVIEW_V4_2.json": "767fc0debc80951cb6b1e9773f2ce9bf23825ac5c50329af7882918e05c3c45d"
+  }
+}

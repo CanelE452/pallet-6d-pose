@@ -1,0 +1,172 @@
+{
+  "schema": "INDEPENDENT_CONTROLLED_DIAGNOSIS_REVIEW_V1",
+  "reviewed_at_UTC": "2026-10-13T18:48:05.930643+00:00",
+  "status": "PROPOSED_ARMS_REVIEW_NOT_A_COMPLETED_CAUSAL_RESULT",
+  "write_scope": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/diagnosis_compare_v1/theory_review",
+  "frozen_current_sources_modified": false,
+  "new_model_fit": false,
+  "new_inference_executed_by_reviewer": false,
+  "severe_FINAL_data_used": false,
+  "principle": "Reducing feasible set F does not guarantee lower physical pose metric error; current objective is frozen visible covariance pseudo-Huber loss, while evaluation uses physical translation/rotation/ADDsym.",
+  "core_source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_ot_pnp.py": "0c0b1291155dd32829d533e85c434f098f22e4dee506178c8781468984285a39",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v2.py": "b0879c330afe94eccfca646362cc4cbd9a366813e8f85cb5979037ee7870097d",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v2.py": "7d35bb57ac963e77b8ffd41b13cef90d73aa0b4f1f1a5823ad56dbe86b219993",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/ot_domains_v2.py": "62618db156608b9590866d9bcada00348ae4c891fd97f29f5c963ca601ba9eee",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py": "0955b3b471eba69b55282d65b7d6dff84652c943f8bbf9ec52cbead4c317de46",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_solver_replay_v3.py": "8943c4e462534227d348233f34cc8fad5b03639a8985737edcc30983e4ffd2f0",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/scoring.py": "d91c0d64d7e63a72033752017c41afd983599d7a61f71f6ee70b06e17256edaf"
+  },
+  "external_primary_references": [
+    {
+      "title": "SciPy minimize SLSQP official reference",
+      "url": "https://docs.scipy.org/doc/scipy/reference/optimize.minimize-slsqp.html",
+      "supports": "SLSQP minimizes a scalar function with constraints; ftol/termination and KKT approximation details are optimization diagnostics, not pose accuracy or global feasibility certification.",
+      "use": "API semantics only; current executed library/source versions remain bound by experiment protocol."
+    },
+    {
+      "title": "OpenCV PnP official reference",
+      "url": "https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html",
+      "supports": "PnP solves 3D-2D reprojection geometry; P3P can have multiple roots and generic PnP can expose alternative solutions.",
+      "use": "Explains objective/branch structure, not a claim that the current joint OT problem inherits global optimality from a PnP initializer."
+    }
+  ],
+  "prerequisite_checks": [
+    "Freeze complete primary CAL46/TEST49 IDs and current cache/model/core hashes; preserve prior metrics and current default implementation.",
+    "Define native phase and Q before oracle scoring. R_ref_cf=R_ref_physical@Q_original.T. Evaluate allowed physical symmetry branches or fixed compatible phase, never an outcome-chosen native permutation.",
+    "Use existing _model_compatible gap<1e-6 rule: CAL44+TEST42=86 for native annotation/reference-region oracle interpretation; primary pose metrics retain all95 with eligibility/N-A explicit.",
+    "For every reference candidate, save each BI Maha/nonself/canvas/depth and individual O/T slack. Report which constraint family excludes every valid reference representative.",
+    "Separate actual annotation q from model-projected reference q; latter is model-consistency oracle, not independent image evidence.",
+    "Seal diagnostic inputs/protocol before new runs, label all coordinate/state/reference-input arms ORACLE_DIAGNOSTIC, preserve complete runs before separate metric evaluation."
+  ],
+  "arms": [
+    {
+      "id": "CURRENT_CORRECTED_OT",
+      "control": "existing sealed evaluation_v3",
+      "isolation": "current outcome"
+    },
+    {
+      "id": "CORRECTED_NO_OT",
+      "control": "same corrected BI/covariance/current state/model guards; O/T setU",
+      "isolation": "OT feasible-set effect with corrected BI; twoBI remains explicit underconstrained fallback"
+    },
+    {
+      "id": "RAW_BI_OT_AND_NO_OT",
+      "control": "same current state and frozen corrected covariance; change only BI q to current raw query; same starts/guards/selection",
+      "isolation": "2x2 raw/corrected x OT/noOT q-correction and interaction; this is sensitivity with held covariance, not natural raw noise calibration"
+    },
+    {
+      "id": "DROP_KNOWN_FALSE_OT",
+      "control": "keep all BI and retained domains exact; remove only known-false domain and set native stateU; do not add new BI",
+      "isolation": "harm from incorrect hard constraints; UNANNOTATED stays unknown, proof of falseT needs compatible valid physical inframe evidence"
+    },
+    {
+      "id": "CURRENT_RAW_STANDARD_COV",
+      "control": "raw current BI; predeclared covariance B sigma2/I sigma3; same OT/gates",
+      "isolation": "mandatory matched control for oracle state raw arms; separates q/state from covariance weighting"
+    },
+    {
+      "id": "ORACLE_BINARY_RAW",
+      "control": "same initialS/T gates, raw q and same standardcov; replace eligible DIRECT/EXTERNAL decisions using human labels",
+      "isolation": "InitialS/T-preserving human-known DIRECT/EXTERNAL replacement plus remaining humanSELF/UNANNOTATED abstention; controlled support-selection oracle, not pureD/E classifier-only effect"
+    },
+    {
+      "id": "FULL_HUMAN_RAW",
+      "control": "humanS/D/O/U; initial geometry B/I role retained, rawq, same standardcov, no manufacturedT; OOB direct becomesU",
+      "isolation": "physical initial-gate/state-set structural oracle, not a recomputedRGB correction deployment"
+    },
+    {
+      "id": "REF_CENTER_O",
+      "control": "current BI/T widths/shape and objective; shift only eligible O center to explicitly reference-projected native location",
+      "isolation": "domain-center error sensitivity; reference oracle, not independently measured current image location"
+    },
+    {
+      "id": "CURRENT_BI_BUDGET6",
+      "control": "same q/covariance/objective; maximum Maha3->6 only, prespecified without TEST tuning",
+      "isolation": "overrestrictive assumed hard budget; expanded acceptance does not validate covariance calibration"
+    },
+    {
+      "id": "CURRENT_REF_INIT",
+      "control": "same F and loss and current starts, add only eligible fixed-phase reference start(s)",
+      "isolation": "local search if feasible reference-start path produces better objective solution; cannot rescue an excluded reference; reference attraction under optimization and metric separate"
+    },
+    {
+      "id": "MODEL_IDEAL",
+      "control": "declared model projections and reference geometry state, BI sigma1, reference-center domains with current widths",
+      "isolation": "internally consistent physical-model positive control; synthetic/model diagnostic cannot prove image recognition or real physical T success"
+    },
+    {
+      "id": "NEAREST_INITIAL_SELECTOR",
+      "control": "reuse exact current saved feasible candidates, fixed dimensionless SO3-distance and t/modelscale distance; retain ambiguity",
+      "isolation": "selection sensitivity only, no new search; different diagnostic estimator, not current method or calibrated prior"
+    }
+  ],
+  "testable_hypotheses": [
+    {
+      "id": "H_BI_BIAS",
+      "prediction": "raw q with same covariance has lower physical error while corrected q may reduce annotation-pixel error; reference BI Maha violations fall in raw arm",
+      "counterevidence": "corrected q improves physical and reference residuals with OT both on/off"
+    },
+    {
+      "id": "H_BAD_OT",
+      "prediction": "known-false constraint removal or reference-center O makes previously excluded reference feasible and improves paired pose metric",
+      "counterevidence": "reference already satisfies OT or remains excluded by BI/model/canvas; no independent region causal proof"
+    },
+    {
+      "id": "H_BUDGET_MODEL",
+      "prediction": "reference is rejected by BI Maha3/model geometry/canvas before O/T; budget6 can repair only Maha causes",
+      "counterevidence": "reference passes allBI support but newregion/selector/search causes errors"
+    },
+    {
+      "id": "H_STATE",
+      "prediction": "same raw-standardcov oracle state improves after handling geometric initial gates separately",
+      "counterevidence": "different covariance or recomputed BI set makes attribution ambiguous; perfect binary labels may still leave wrong initialS/T or biased raw q"
+    },
+    {
+      "id": "H_SEARCH",
+      "prediction": "reference is feasible and reference-start optimization returns a lower current objective feasible solution missed by original multistart",
+      "counterevidence": "reference infeasible or reference-start converges to same objective/worse metric; no global proof from finite starts"
+    },
+    {
+      "id": "H_SELECTOR_OBJECTIVE",
+      "prediction": "saved feasible candidates contain physically nearer reference/initial alternatives but current smallest-visible-loss winner is worse; nearest-initial sensitivity exposes this",
+      "counterevidence": "no better candidate found is absence of evidence, not proof that objective or search is correct"
+    },
+    {
+      "id": "H_MODEL_MAPPING",
+      "prediction": "annotation-visible-q ideal fit retains significant residual while model-projected-q ideal fits; incompatible native phase cases concentrate contradictions",
+      "counterevidence": "both internally consistent and annotation q arms fit and recover reference under same constraints"
+    },
+    {
+      "id": "H_INFORMATION",
+      "prediction": "BI2 rank at most4 and broad O/T inactive yields pose family; original all8 forecast estimator may retain learned/global prior information",
+      "counterevidence": "do not restore forbidden S point evidence as a fix; any separate pose prior is an explicit different diagnostic method"
+    }
+  ],
+  "required_outputs": [
+    "all-frame paired physical metrics with fallback/ambiguity counts",
+    "per-reference every-constraint family slack and exclusionIDs",
+    "BI objective at baseline/current/reference/final, direct residual vectors and whitening norms",
+    "original and final BI q/cov hashes and exact unchanged domains for each control",
+    "OT active slack/candidate provenance/domain miss rate by true state and eligible mapping",
+    "all finite feasible candidate metrics postseal plus current/alternate selector index; not possible-pose count",
+    "per-session paired differences and compatible86/full95 subgroup counts",
+    "separate true feasible/solver accepted/reference recovered/ambiguous states; no accuracy inferred from feasibility alone"
+  ],
+  "confounds": [
+    "true/reference pose is historical derived target, not independently measured physical ground truth",
+    "corrected covariance reused on raw q is an explicit controlled artificial condition",
+    "oracle human states can change support count, masks or q availability; full and binary oracle are distinct mechanisms",
+    "falseO removes valuable truevisible measurements and wrongT may exclude truth; shared RGB/raw predictions create correlated errors",
+    "rounded/beveled real pallet edges need not equal virtual registered cuboid corners",
+    "each pixel ellipse can be convex while inverse image projection gives nonconvex F inSE3",
+    "optimization weightedpixel objective is not physical metric",
+    "twoBI plus broad/inactive O/T cannot be called unique; covariance-expanded guards or reference samples do not fix ambiguity",
+    "literalPoseFix and N3 upstream heads and reselected W/D families differ; match images/metrics but not postprocessor-only causal control"
+  ],
+  "interpretation_limits_after_fixed_plan": [
+    "Same providedcoarse/config/search strategy, not identical data-dependent P3P roots after qintervention",
+    "Final fixed rootplan has11arms with fullhuman+budget6 eligible86-only",
+    "PureD/E classifier-only causal effect is not established by ORACLE_BINARY_RAW support selection"
+  ]
+}

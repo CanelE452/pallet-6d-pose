@@ -1,0 +1,109 @@
+{
+  "schema": "INDEPENDENT_DESIGN_REVIEW_V4_1",
+  "status": "DESIGN_SUPPORTED_INTEGRATION_AND_RESULTS_PENDING",
+  "created_utc": "2026-10-13T22:57:21.282601+00:00",
+  "scope": "read-only new design/source review; own evidence writes only",
+  "upstream_LOGO_scope": "conditional v4 calibration/prior LOGO on frozen all-CAL-fitted upstream, not full-pipeline OOF",
+  "source_and_evidence_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertain_solver_v4.py": "0ea8a009d8fde9dd75f993df2d80db0b25a24a338321fc1a37436ec8658cbb6f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_statewise_uncertain_solver_v4.py": "a5050ae6203c5f6c186a49d3b276380e6f116377b948909997d1b067685713cf",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertainty_calibration_v4.py": "46466bccd948c9fda68eb8eacc1b905a4dc45f2031461ec1608f4a16e255a37a",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/state_visibility_v4.py": "5e3a3c9ca4a816496c702deef470cc4dc69262323adb025817e2ce806a7d69fe",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v4.py": "c187ff748c1e20f77c4f985de31e50ea4b4f014d0257e679219b93cfe45e6141",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_observations_v4.py": "c004d99575ffcc4211fd4b2785cc9a882ebd86ee6c2f8d85c0833424d999383d",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/fresh_observations_v1/PROTOCOL.json": "7ceb20633c0dc83a06e986855bff3700607a5671ef9d72c6d4621a553dcf6dc3",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/fresh_observations_v1/OBSERVATION_SEAL.json": "544bb504ee7e7c07f9c1b044fad89cff290b9cda0886860d0de8bc9fd126e58a",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/fresh_observations_v1/CAL_OBSERVATIONS.jsonl.gz": "9c9086b4207d813f2bd45ba39822e79bd2b8a28681fe540caaa92cc84f7e8558"
+  },
+  "primary_target": {
+    "population": "same reused TEST49, all failures/fallback retained",
+    "mean_translation_cm_lte": 2.6186276,
+    "simultaneous_5cm_5deg_success_count_gte": 43,
+    "mean_rotation_deg_lte": 6.6,
+    "all_three_required": true,
+    "if_not_met": "user improvement objective remains incomplete"
+  },
+  "reviewed_method": {
+    "full_continuous_SE3": true,
+    "soft_BI_robust_objective": true,
+    "original_BI_xy_and_covariance_frozen": true,
+    "separate_effective_fit_covariance": true,
+    "hard_BI_residual_caps": false,
+    "hard_seed_projection_clamp": false,
+    "finite_coarse_pose_prior": true,
+    "all_OT_individual_hard_inequalities": true,
+    "all_vertex_positive_depth": true,
+    "final_visible_model_geometry_and_canvas": true,
+    "two_BI_OT_always_family": true,
+    "prior_rank_not_counted_as_image_information": true,
+    "failed_OT_output_unresolved": true
+  },
+  "initial_integration_findings": [
+    {
+      "id": "SCALAR_FLOOR_CONFIG",
+      "material": true,
+      "reported_to": "state calibration owner",
+      "finding": "model scalar B/I floors copied into solver config expecting 2x2 matrices",
+      "reproduced_error": "CAL covariance floor must be finite with shape (2, 2)",
+      "status_at_initial_read": "OPEN_PENDING_OWNER_FIX"
+    },
+    {
+      "id": "RUNTIME_IMAGE_SCALE",
+      "material": true,
+      "reported_to": "root API owner",
+      "finding": "API apply_calibrated_measurements omits current nonself_scale_px while CAL fit/evaluation uses image-specific ratio squared",
+      "status_at_initial_read": "OPEN_PENDING_OWNER_FIX"
+    },
+    {
+      "id": "SOLVER_Q_BINDING",
+      "material": false,
+      "reported_to": "root API owner",
+      "finding": "API corrects actual R_physical but omits physical_registration_Q from pure solver coarse_pose, so internal Q and R_physical audit differ",
+      "status_at_initial_read": "OPEN_PENDING_OWNER_FIX"
+    }
+  ],
+  "CAL_prediction_only_inventory": {
+    "frames": 46,
+    "states": {
+      "B": 245,
+      "I": 22,
+      "O": 9,
+      "T": 13,
+      "S": 68,
+      "U": 11
+    },
+    "coarse_T_overridden_RGB_ids": 0,
+    "conditional_T_uncertified": 13,
+    "actual_image_corrections": {
+      "B": 146,
+      "I": 6
+    },
+    "raw_backbone_fallbacks": {
+      "B": 99,
+      "I": 16
+    }
+  },
+  "known_limitations": [
+    "conditional initial S can misclassify actual human SELF; zero S queries applies to fixed initial S",
+    "uncertified conditional T remains a model hypothesis, not independent physical evidence",
+    "projected-OOB eligibility may use extrapolated border features outside frozen training support",
+    "empirical CAL reference residual covariance includes model/camera/reference mismatch",
+    "correlated B/I and uncertain state errors remain",
+    "all-CAL upstream makes v4 LOGO conditional",
+    "TEST cohort already seen; no new unseen-generalization claim",
+    "finite multistart SLSQP is not global optimum/feasibility/uniqueness proof"
+  ],
+  "completion_evidence_pending": [
+    "CAL held-session physical metric-based model choice with predeclared selection/tie rule",
+    "frozen final CAL model, lambda and source before TEST prediction",
+    "current fullfresh RGB API integration and S perturbation proof",
+    "all49 prediction seal before coordinate GT scoring",
+    "matched oldRGB/boundary plus prior/coarse and same-input NO_OT controls",
+    "backbone-specific support/failure/correction status",
+    "target metrics and all individual OT scalar recheck",
+    "old source/model/artifact/user six unchanged receipts"
+  ],
+  "core_edits_by_reviewer": false,
+  "TEST_coordinate_GT_read_by_this_review": false,
+  "severe_or_FINAL_data_read": false
+}

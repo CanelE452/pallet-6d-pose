@@ -1,0 +1,54 @@
+{
+  "schema": "JOINT_OBSERVATION_DEPLOY_EXPORT_V1",
+  "preregistered_before_FULL_CAL_fit_or_score": true,
+  "CAL_only": true,
+  "TEST_reads": 0,
+  "FINAL_reads": 0,
+  "selected_family": "RGB26_F4F8_PCA32",
+  "selected_C": 0.01,
+  "selected_usable_threshold": 0.45,
+  "selected_ridge_alpha": 100.0,
+  "selection_source": "Existing CAL LOGO joint usability/results and post-grid CAL branch choice; no new hyperparameter search",
+  "feature_basis": "485 prediction-eligible image feature rows; spatial2560 StandardScaler then PCA32(full,notwhiten), RGB26 concat; no geometric residual",
+  "class_basis": "Known usable/unusable labels475; DIRECT_VISIBLE and qerr<=8 positive188; known inaccurateDIRECT/EXTERNAL/SELF negative287; UNANNOTATED excluded",
+  "class_transform": "Separate StandardScaler fitted on475known only then balanced LogisticRegression(C=.01,maxiter3000,randomstate20261013)",
+  "ridge_basis": "DIRECT_VISIBLE finite nativeGT-q error<=16 only302; separate StandardScaler onthese302; Ridge(alpha100) predicts (gt_native-q)/patchradius",
+  "feature_version": "legacy_v1 RGB26 with intended-but-missing softcolor fields slots4/5 zero; preserve existing study exact semantics",
+  "infer": "currentRGB+q+supplied immutableH only; initial_pose/K accepted but unused by selected spatial head; reflect101 crops4r/8r resize128; frozenImageNetstem-layer2 spatial pools4x4/2x2",
+  "decode": "delta*radius,component clamp+-16 then radial cap16; onlyp>=.45/eligible/inframe candidate applied; center unchanged",
+  "files": {
+    "PROTOCOL.json": {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/PROTOCOL.json",
+      "sha256": "caabb25af3ad704204804690b9eb7ef06245d2ccca0bbfbbfbce8ea691cd0b8e"
+    },
+    "FEATURES.npz": {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/FEATURES.npz",
+      "sha256": "fdb01bcc92f3fb85a3a46e8dd4326ab2145e294485b446c6ee93b127dfd6d353"
+    },
+    "FEATURE_KEYS.json": {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/FEATURE_KEYS.json",
+      "sha256": "6627c0a6020975c345843f3e8cf9a810eb95dc267c331df44eef20884136f94f"
+    },
+    "FEATURE_SEAL.json": {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/FEATURE_SEAL.json",
+      "sha256": "04cb42649b93b1803e94d8cf4782cbc0d547db73e094a4c85ad04cf2ad6ef07e"
+    },
+    "LABEL_AUDIT.json": {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/LABEL_AUDIT.json",
+      "sha256": "280362af45ee61e093df75ba2018651c6b9dc05bdec8e757849e27331d84f65f"
+    },
+    "RESULTS.json": {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/RESULTS.json",
+      "sha256": "163d385893e00052d925ffb5b7336285e13e8f248804db745868b4171a2fdd60"
+    }
+  },
+  "backbone_weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+  "export": "Separate class and ridge standardizers/coefficients/intercepts, shared feature scaler/PCA in immutable NPZ, portable JSON descriptor and code snapshot; freeze before root new reusedTEST",
+  "validation": "Pure parameter forward parity with sklearn fullfit; current-image wrapper/cache feature parity and center/H/native-order immutability under annotation-read canary; no FULLCAL pose/metric selection",
+  "caveats": [
+    "FULLCAL fit is deploymentstyle; CV selection is exploratory, not nested",
+    "Cuboid virtual/roundedcorner target ambiguous",
+    "InitialH can be wrong and remainsfixed",
+    "Coordinate delta is image-based, no pose projected observation"
+  ]
+}

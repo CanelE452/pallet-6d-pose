@@ -1,3 +1,9 @@
+## 2026-10-15 가시성 상태·실제 선·PnP 실험 기록
+
+[최신 Markdown 보고서](_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_20261015_v1/REPORT_KO.md) · [자료 다운로드·검증](_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_20261015_v1/DOWNLOADS.md)
+
+S/B/I/O/T/U 정의, 전체 192장 비교, 실제 이미지와 선 보정 과정, 새 v29 구현 및 미완료 평가를 정리했습니다. 기본 e는 유지하며, v29는 CAL 관측 32/46장 이후 재개 대기 상태의 기록입니다. 큰 원시 결과와 입력·코드 스냅샷은 같은 저장소 Release 자료로 연결합니다.
+
 ## 2026-10-06 잔여 근거 인계 연결·재집계·원고 반영
 
 [최신 연결 검산·결과·이미지](_docs/experiments/pallet_remaining_evidence_connection_20261006_v1/README_KO.md) · [최신 전체 원고](_docs/experiments/pallet_remaining_evidence_connection_20261006_v1/paper_updated/manuscript_ko.md) · [보충 원고](_docs/experiments/pallet_remaining_evidence_connection_20261006_v1/paper_updated/supplement_ko.md). 원영상8,910프레임·정사각형119주석을 검산하고 기존12장·제외5ID를 연결했습니다. 명령32구간·후속72좌표의 별도 기술/민감도 표를 추가했으며, 원120/24·정지 잡음·독립 실측T/R의 미완료x는 유지합니다.

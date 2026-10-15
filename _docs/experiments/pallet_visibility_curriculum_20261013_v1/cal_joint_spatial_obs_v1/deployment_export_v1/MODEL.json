@@ -1,0 +1,76 @@
+{
+  "schema": "JOINT_OBSERVATION_FROZEN_V1",
+  "family": "RGB26_F4F8_PCA32",
+  "usable_threshold": 0.45,
+  "C": 0.01,
+  "ridge_alpha": 100.0,
+  "arrays_file": "PARAMETERS.npz",
+  "arrays_sha256": "6b4c6180fbb6ef31fe74dcb5ee87252a1e9bdb116d115afee9d148b2acd55fe9",
+  "feature_version": "legacy_v1",
+  "legacy_zero_columns": [
+    4,
+    5
+  ],
+  "feature_transform": "spatial2560 float32 trainbasis StandardScaler -> PCA32 -> concatenate RGB26 -> head-specific float64 StandardScaler",
+  "classifier_target": "DIRECT_VISIBLE and raw Euclidean coordinate error<=8 pixels",
+  "regression_target": "(gt_native-q)/raw_appearance_patch_radius; DIRECT_VISIBLE original_error<=16 pixels only",
+  "correction_bound_px": 16.0,
+  "geometry_features": false,
+  "train_scope": {
+    "partition": "CAL",
+    "feature_rows": 485,
+    "class_known": 475,
+    "class_positive": 188,
+    "class_negative": 287,
+    "class_unknown_excluded": 10,
+    "ridge_DIRECT_in16": 302,
+    "native_phase": "CAL native_to_reference_corner_ids used only for training targets",
+    "PCA_train_basis": "all485 prediction-eligible",
+    "classifier_scaler_train_basis": "known475",
+    "ridge_scaler_train_basis": "DIRECT_in16_302"
+  },
+  "backbone": {
+    "architecture": "ImageNet ResNet18 frozen stem+layer1+layer2",
+    "weights_repo_relative": "data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+    "weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+    "trainable_parameters": 0,
+    "normalization": {
+      "mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    },
+    "crop": "4r and8r integer floor origins; reflect101 padding; cv2 linear128 resize",
+    "pooling": {
+      "F4": "layer2[128,16,16] average4x4 flatten2048",
+      "F8": "layer2 average2x2 flatten512"
+    }
+  },
+  "provenance": {
+    "export_protocol_sha256": "775b3bff398d2dee000f6652a703b1c131e83fc82f01032fe614b3f698ada025",
+    "feature_seal_sha256": "04cb42649b93b1803e94d8cf4782cbc0d547db73e094a4c85ad04cf2ad6ef07e",
+    "export_runner_sha256": "cc5c54f15d15c3229bf7997aa6f9c91efa84d99894b906c28ef58eaa9171a045",
+    "source_sha256": {
+      "legacy_calibration.py": "4c4def040593a37cdc720924ad4b82ba57e30e965edb4bdded9d1cb6db49ff9f",
+      "appearance.py": "dbb37fc3fdce1a0049d37cf5083643af8b9ecc26ce17d2a20a855b75b8b7b81b",
+      "joint_observation.py": "05cc6e2dca90126be55f1820c2e1fdcc8455c1eba589d07fec8820105029e80a"
+    },
+    "classifier_geometry_features": false,
+    "regression_geometry_features": false,
+    "GT_in_inference": false,
+    "TEST_reads": 0,
+    "FINAL_reads": 0
+  },
+  "limitations": [
+    "FULLCAL fit is deploymentstyle; CV selection is exploratory, not nested",
+    "Cuboid virtual/roundedcorner target ambiguous",
+    "InitialH can be wrong and remainsfixed",
+    "Coordinate delta is image-based, no pose projected observation"
+  ]
+}

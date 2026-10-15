@@ -1,0 +1,18 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>좌우 경계 직선과 교점 영역 확인</title><style>body{font:16px/1.7 system-ui,sans-serif;margin:0;background:#f3f5f7;color:#172638}
+main{max-width:1160px;margin:24px auto;padding:0 20px 36px}h1{font-size:27px}.card{background:white;border:1px solid #d6dee6;border-radius:12px;padding:18px;margin:18px 0}
+img{max-width:100%;height:auto}table{width:100%;border-collapse:collapse}td,th{text-align:left;border-bottom:1px solid #d9e1e8;padding:10px}
+.small{font-size:14px;color:#4b5967}a{color:#176aab}@media(max-width:600px){main{padding:0 12px}h1{font-size:22px}.card{padding:10px}td,th{font-size:14px;padding:6px}}</style>
+<main><h1>좌우 경계 직선과 교점 영역 확인</h1><p>표시하신 점은 KP의 위치로 사용하지 않았습니다. 이미 보정된 양 끝 B7·B2로 아래 윤곽 구간을 선택하고, 좌우를 나누는 위치도 실제 영상 표본에서 검색했습니다.</p>
+<div class="card"><a href="LEFT_RIGHT_INTERSECTION_KO.png"><img src="LEFT_RIGHT_INTERSECTION_KO.png" alt="실제 하단 윤곽을 왼쪽과 오른쪽 직선으로 맞춘 결과와 교점 감도 영역"></a><p class="small">이미지를 누르면 원본 크기로 볼 수 있습니다. 주황·보라=관측 직선, 초록=SAM 윤곽, 회색=교점 후보, 빨강=선 오차 감도.</p></div>
+<div class="card"><table><tr><th>계산</th><th>원본 이미지 좌표</th></tr>
+<tr><td>대표 교점</td><td>(371.69, 279.44)</td></tr>
+<tr><td>허용 분할들의 교점</td><td>x 367.39–381.68px</td></tr>
+<tr><td>선 위치 1px 감도 포함</td><td>x 354.96–397.31px</td></tr></table>
+<p class="small">276개 RGB·마스크 표본, 분할 후보 204개 중 관측 품질과 구간 검사를 통과한 35개. 1px 감도 범위는 실제 위치의 보장 구간이 아닙니다.</p></div>
+<p>아래 윤곽은 하나의 직선보다 좌우 두 직선으로 잘 설명됩니다. 다만 완만하고 둥근 외곽을 직선으로 근사한 교점이므로, 이것만으로 실제 KP3와의 대응을 확정하지 않습니다.</p>
+<div class="card"><p>두 선을 실제 PnP에 부분 관측으로 연결했습니다. 각 선에 수직인 오차를 soft하게 추가하고, 좌우 위치는 다른 보정된 KP·파렛트 크기·기존 자세 prior와 함께 정합니다. 전체 관측 윤곽의 유한 범위·모델 가시성·화면 범위 조건도 적용합니다.</p>
+<p>모델의 3번 점 투영: (353.92, 278.99) → (354.48, 279.33), 이동 0.655px.</p>
+<p class="small">파랑 원은 PnP 모델 점이며 영상에서 검출한 KP로 취급하지 않습니다. U는 그대로이고, 완전한 2D 관측을 만들지 않았습니다. 기존 B/I와 가중치·O/T 영역·native/Q는 유지했으며 S는 PnP 투영으로만 계산합니다. 선을 따르는 범위는 관측한 아래 윤곽 전체로 넓게 남겼습니다. 가중치 0은 기존 솔버와 정확히 같은 결과입니다.</p></div>
+<p class="small">현재 데이터의 CAL 46장에서는 이 새 관측 조건에 맞는 사례가 0개였습니다. 따라서 오차 예산은 기존 CAL의 fallback-B 예산을 보수적으로 빌린 가정이며, 새 관측의 오차 모델을 학습·검증한 결과가 아닙니다. 같은 윤곽을 재사용하므로 독립 정보나 정확한 자세 확률을 보장하지 않습니다. 이 사례는 재사용 TEST이며 별도 축·코너 등록 불일치를 해결한 결과도 아닙니다.</p>
+<p><a href="CASE.json">좌표·이미지 근거 JSON</a> · <a href="../partial_pose_v4_4/TARGET_POSE_RESULTS.json">PnP 비교 결과</a> · <a href="../kp3_bottom_piecewise_v1/DIAGNOSTIC.json">전체 분할·표본 재추출 결과</a></p></main></html>

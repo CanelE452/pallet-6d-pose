@@ -1,0 +1,56 @@
+<!doctype html><html lang="ko"><meta charset="utf-8">
+<title>v22·v23 전체 비교</title>
+<style>body{font:16px/1.6 sans-serif;max-width:1440px;margin:32px auto;padding:0 20px;color:#192536}table{border-collapse:collapse;width:100%;margin:20px 0 40px}th,td{border-bottom:1px solid #ccd4df;padding:8px;text-align:right}th:first-child,td:first-child{text-align:left}th{background:#eef4fa}p{max-width:1150px}.scroll{overflow-x:auto}</style>
+<p>기본 방법 e는 변경하지 않았습니다. 각 행은 기존 TEST49와 추가143장 모두에 동일하게 적용한 하나의 방법입니다. 사진별·집합별 최선 방법을 섞지 않았고 모든 실패와 fallback을 포함했습니다. CAL46은 보정용 집합으로 별도 표시합니다.</p>
+<p>v22는 기존 B/I 관측과 제한된 O/S 기하 벌점을 사용합니다. v23은 같은 영상선 기록에서 적용 가능한 B/I의 완전한 2D 비용을 영상선·불확실한 접선 비용으로 교체하고 별도 CAL 잡음 모델을 사용합니다. 두 세대의 O/OS 프로필과 native/고정 마스크 선택기를 각각 대응 비교했습니다. 이는 단일 요소만 바꾼 실험이 아닙니다.</p>
+<p>S는 계속 자세 투영으로 출력하며 S 영상·2D·영역 관측은 없습니다. S 벌점은 상관된 초기 모델 가시성 prior입니다. U는 영역으로만 사용합니다. O 타원은 hard 조건 대신 제한된 벌점이며 닫힌 영상 범위 조건을 유지합니다. 기존 hard guard와 v19 시작점 이름 정책을 유지했습니다.</p>
+<p><b>전체192 = TEST49 + 추가143</b> — T≤5cm는 위치 오차, 공동은 5cm·5° 모두 만족한 수입니다.</p>
+<div class="scroll"><table><tr><th>방법</th><th>전체 수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>192</td><td>115</td><td>114</td><td>14.112</td><td>260.412</td><td>13.001</td><td>159.137</td><td>0</td><td>4</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>192</td><td>111</td><td>109</td><td>13.562</td><td>182.500</td><td>13.679</td><td>154.127</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>192</td><td>113</td><td>108</td><td>13.136</td><td>176.989</td><td>12.991</td><td>89.576</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>192</td><td>116</td><td>116</td><td>12.257</td><td>189.263</td><td>13.231</td><td>89.845</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>192</td><td>116</td><td>116</td><td>12.354</td><td>189.263</td><td>13.263</td><td>164.209</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>192</td><td>113</td><td>111</td><td>12.611</td><td>200.058</td><td>11.872</td><td>89.952</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>192</td><td>113</td><td>110</td><td>12.467</td><td>196.870</td><td>13.516</td><td>93.821</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>192</td><td>113</td><td>113</td><td>13.344</td><td>200.058</td><td>13.632</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>192</td><td>115</td><td>115</td><td>13.672</td><td>196.870</td><td>13.591</td><td>89.575</td><td>0</td><td>0</td></tr>
+</table></div>
+<p><b>기존 TEST49</b> — T≤5cm는 위치 오차, 공동은 5cm·5° 모두 만족한 수입니다.</p>
+<div class="scroll"><table><tr><th>방법</th><th>전체 수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>49</td><td>49</td><td>49</td><td>1.299</td><td>4.339</td><td>1.110</td><td>3.950</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>49</td><td>41</td><td>40</td><td>4.337</td><td>40.358</td><td>13.896</td><td>89.580</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>49</td><td>41</td><td>40</td><td>4.320</td><td>40.355</td><td>13.915</td><td>89.559</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>49</td><td>43</td><td>43</td><td>3.066</td><td>40.398</td><td>9.982</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>49</td><td>44</td><td>44</td><td>2.788</td><td>40.398</td><td>8.190</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>49</td><td>40</td><td>39</td><td>4.230</td><td>40.257</td><td>13.900</td><td>89.561</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>49</td><td>40</td><td>39</td><td>4.209</td><td>40.253</td><td>13.914</td><td>89.542</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>49</td><td>42</td><td>42</td><td>2.979</td><td>40.398</td><td>10.040</td><td>89.575</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>49</td><td>43</td><td>43</td><td>2.689</td><td>40.398</td><td>8.240</td><td>89.575</td><td>0</td><td>0</td></tr>
+</table></div>
+<p><b>추가143</b> — T≤5cm는 위치 오차, 공동은 5cm·5° 모두 만족한 수입니다.</p>
+<div class="scroll"><table><tr><th>방법</th><th>전체 수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>143</td><td>66</td><td>65</td><td>18.502</td><td>260.412</td><td>17.076</td><td>159.137</td><td>0</td><td>4</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>143</td><td>70</td><td>69</td><td>16.723</td><td>182.500</td><td>13.605</td><td>154.127</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>143</td><td>72</td><td>68</td><td>16.156</td><td>176.989</td><td>12.675</td><td>89.576</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>143</td><td>73</td><td>73</td><td>15.406</td><td>189.263</td><td>14.344</td><td>89.845</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>143</td><td>72</td><td>72</td><td>15.631</td><td>189.263</td><td>15.001</td><td>164.209</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>143</td><td>73</td><td>72</td><td>15.482</td><td>200.058</td><td>11.177</td><td>89.952</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>143</td><td>73</td><td>71</td><td>15.296</td><td>196.870</td><td>13.379</td><td>93.821</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>143</td><td>71</td><td>71</td><td>16.896</td><td>200.058</td><td>14.862</td><td>89.091</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>143</td><td>72</td><td>72</td><td>17.436</td><td>196.870</td><td>15.424</td><td>89.091</td><td>0</td><td>0</td></tr>
+</table></div>
+<p><b>별도 CAL46</b> — T≤5cm는 위치 오차, 공동은 5cm·5° 모두 만족한 수입니다.</p>
+<div class="scroll"><table><tr><th>방법</th><th>전체 수</th><th>T≤5cm</th><th>공동</th><th>평균 T(cm)</th><th>최대 T(cm)</th><th>평균 R(°)</th><th>최대 R(°)</th><th>R 미확정</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>46</td><td>38</td><td>37</td><td>5.379</td><td>51.978</td><td>10.599</td><td>89.658</td><td>0</td><td>1</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>46</td><td>36</td><td>35</td><td>5.737</td><td>62.704</td><td>9.885</td><td>86.793</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>46</td><td>37</td><td>36</td><td>4.565</td><td>55.702</td><td>8.075</td><td>86.793</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>46</td><td>38</td><td>37</td><td>5.405</td><td>52.009</td><td>8.873</td><td>89.626</td><td>0</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.595</td><td>52.009</td><td>6.941</td><td>88.822</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>46</td><td>36</td><td>35</td><td>5.595</td><td>63.086</td><td>9.922</td><td>86.797</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>46</td><td>37</td><td>36</td><td>4.422</td><td>53.658</td><td>8.150</td><td>86.797</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.580</td><td>52.009</td><td>7.061</td><td>88.880</td><td>0</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.578</td><td>51.981</td><td>7.061</td><td>88.880</td><td>0</td><td>0</td></tr>
+</table></div>
+<p>severe는 제외했습니다. 추가143장의 참조는 annotation/PnP 유도값이며 독립적인 물리 계측이 아닙니다. 반복 사용한 TEST의 탐색 결과이며 새로운 holdout 일반화나 기본 방법 채택을 주장하지 않습니다. 분포·최대 사례·대응별 증가/감소·회전·검산·봉인은 JSON에 보존했습니다.</p>
+<p><a href="PROGRESS_V6_V23.json">전체 수치와 검산 근거</a></p></html>

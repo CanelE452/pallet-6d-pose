@@ -1,0 +1,161 @@
+{
+  "schema": "CAL_internal_face_RGB_coordinate_grid_v1",
+  "frames": 76,
+  "partition": "CAL",
+  "arms": {
+    "FACE_C8_R12_S6": {
+      "minimum_face_contrast": 8.0,
+      "normal_search_radius_px": 12.0,
+      "maximum_corner_shift_px": 6.0
+    },
+    "FACE_C8_R12_S12": {
+      "minimum_face_contrast": 8.0,
+      "normal_search_radius_px": 12.0,
+      "maximum_corner_shift_px": 12.0
+    },
+    "FACE_C8_R20_S6": {
+      "minimum_face_contrast": 8.0,
+      "normal_search_radius_px": 20.0,
+      "maximum_corner_shift_px": 6.0
+    },
+    "FACE_C8_R20_S12": {
+      "minimum_face_contrast": 8.0,
+      "normal_search_radius_px": 20.0,
+      "maximum_corner_shift_px": 12.0
+    },
+    "FACE_C12_R12_S6": {
+      "minimum_face_contrast": 12.0,
+      "normal_search_radius_px": 12.0,
+      "maximum_corner_shift_px": 6.0
+    },
+    "FACE_C12_R12_S12": {
+      "minimum_face_contrast": 12.0,
+      "normal_search_radius_px": 12.0,
+      "maximum_corner_shift_px": 12.0
+    },
+    "FACE_C12_R20_S6": {
+      "minimum_face_contrast": 12.0,
+      "normal_search_radius_px": 20.0,
+      "maximum_corner_shift_px": 6.0
+    },
+    "FACE_C12_R20_S12": {
+      "minimum_face_contrast": 12.0,
+      "normal_search_radius_px": 20.0,
+      "maximum_corner_shift_px": 12.0
+    }
+  },
+  "fixed_configuration": {
+    "minimum_face_contrast": 8.0,
+    "normal_search_radius_px": 12.0,
+    "maximum_corner_shift_px": 6.0,
+    "face_seed_scale": 0.6,
+    "minimum_face_seed_area": 64,
+    "minimum_material_seed_purity": 0.55,
+    "minimum_palette_mode_purity": 0.55,
+    "palette_mode_radius_Lab": 16.0,
+    "maximum_seed_samples": 4000,
+    "face_front_margin_deg": 2.0,
+    "maximum_pose_median_reprojection_px": 20.0,
+    "maximum_pose_P90_reprojection_px": 40.0,
+    "minimum_face_area_px": 100.0,
+    "face_likelihood_confidence": 0.65,
+    "likelihood_sigma_floor": 4.0,
+    "likelihood_sigma_ceiling": 12.0,
+    "maximum_absolute_face_distance_sigma": 3.0,
+    "minimum_material_probe_support": 0.55,
+    "normal_step_px": 0.5,
+    "transition_probe_px": 2.5,
+    "context_probe_px": 5.0,
+    "sample_spacing_px": 4.0,
+    "minimum_samples": 9,
+    "maximum_samples": 49,
+    "along_interval": [
+      0.15,
+      0.85
+    ],
+    "minimum_edge_length_px": 20.0,
+    "minimum_inlier_count": 6,
+    "minimum_inlier_fraction": 0.6,
+    "minimum_inlier_span_fraction": 0.55,
+    "huber_delta_px": 1.25,
+    "maximum_line_rms_px": 1.25,
+    "maximum_angle_change_deg": 10.0,
+    "minimum_intersection_sine": 0.25,
+    "maximum_intersection_disagreement_px": 3.0
+  },
+  "primary_method": "SEGMENTED_RGB_CURRICULUM",
+  "primary_upstream": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_segmentation_v2",
+  "primary_expected": {
+    "translation_cm": 116.29147334738165,
+    "rotation_deg": 19.290009317834865,
+    "success_count": 37
+  },
+  "source": "Current original RGB, original predicted q8, frozen initial H, initial pose, registered xyz and K",
+  "target": "Non-hull visible three-face cuboid junction; two face-palette transition lines produce an independent image intersection",
+  "face_visibility": "Initial outward normal toward camera, margin2degrees, all face vertices nonself-hidden",
+  "face_palette": "q polygon shrunk by scale.6 (20% per side); robust mode of RGB material-supported encoded-Lab pixels",
+  "face_centroid_contrast_unit": "Euclidean OpenCV encoded-Lab distance8/12, not CIE DeltaE",
+  "edge_sampling": "15..85% of original predicted cube edge; normal radius12/20; two visible faces occupy opposite sides",
+  "transition_evidence": "Both sides must match their own face palette at relative likelihood>=.65 AND current RGB pallet-material support>=.55",
+  "line_fitting": "Reuse outer-boundary robust line mathematics only; no material/background edge observations",
+  "intersection": "At least2 incident supported line families, sine>=.25; reject third-line disagreement>3px",
+  "geometry_or_palette_failure": "Retain original q; initial projection is only geometry/coherence prior, never a fit observation",
+  "pose": "Frozen initial actual body family, H, original SEG appearance; same curriculum visible_threshold=.35 and other defaults; corrected independent RGB points only",
+  "current_initial_wrong_family_cases_preserved": true,
+  "all76_frames_preserved": true,
+  "GT_inputs": false,
+  "new_TEST_reads": 0,
+  "FINAL_reads": 0,
+  "declared_before_new_coordinate_or_pose_scoring": true,
+  "historical_CAL_reused": true,
+  "prior_failed_source_head_not_integrated": true,
+  "limitations": [
+    "Face brightness may not separate, holes/texture/occluders may dominate face seeds.",
+    "Palette likelihood and material support do not prove physical depth ownership.",
+    "RGB line intersection can still be a virtual cuboid vertex on rounded/nonconvex pallets.",
+    "Face identities come from supplied initial pose/order and can be wrong; coherence gates only reject detectable inconsistency.",
+    "Shared edge observations are correlated; this is finite CAL development, not independent confirmation."
+  ],
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/internal_face_cal.py",
+      "bytes": 14489,
+      "sha256": "9fb7ae51a35b6f506b83217f121a75e7e342e9561efa9ebe68fb3e83ede6c488"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/CAL_INPUTS.json",
+      "bytes": 230301,
+      "sha256": "bf6f204bb9f8a78b8a61b9c4571a74ced41360f2dc39033e795848de8ed8959b"
+    },
+    {
+      "path": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_segmentation_v2/PREDICTIONS.jsonl.gz",
+      "bytes": 1755369,
+      "sha256": "1d5e77787b9413c5f6e7ab2e3d2a6dbd75b8a16473471f7c247925e4185bed73"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/internal_face_refine.py",
+      "bytes": 17644,
+      "sha256": "d93e8c7268202f55fe78357ea2bd8944555023af32cb374b6200b78639ec46db"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_refine.py",
+      "bytes": 15556,
+      "sha256": "0483b0e309eff5b7ee918e6be2e3a059e6e653f4458b1262b34f630c5a963209"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/appearance.py",
+      "bytes": 18806,
+      "sha256": "dbb37fc3fdce1a0049d37cf5083643af8b9ecc26ce17d2a20a855b75b8b7b81b"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/curriculum.py",
+      "bytes": 22144,
+      "sha256": "a00331dda0ed3985095719625ad3b601686de82927919e4ff438c83685fc8f62"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_visibility_curriculum_20261013_v1/common.py",
+      "bytes": 2942,
+      "sha256": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095"
+    }
+  ]
+}

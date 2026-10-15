@@ -1,0 +1,92 @@
+{
+  "schema": "BOUNDARY_CURRICULUM_REVIEW_V1",
+  "status": "PASS_FOR_REVIEWED_OPTIONAL_API",
+  "date": "2026-10-13",
+  "scope": "Independent read-only main API/provider/core review; added isolated synthetic trust-boundary tests only. No real CAL/TEST/FINAL labels or real image forwards.",
+  "source_bindings": {
+    "boundary_curriculum_api.py": "5bcd0a92fda15464609fa043d5a3dc81698649f901a4de3ff8f22af74c367ca7",
+    "boundary_observation.py": "d5129076bb90bee97993a888698de0ca57f212bb0165c02a85534c53c636b25c",
+    "boundary_visibility.py": "20fcbaaa79142543783c03d468f20da1cb1930bdf38b642a7b729408f7bc6322",
+    "curriculum.py": "e6716edb9c3bbd60136f67026125e738f4423bdd250f9dff089ae34038d18672",
+    "boundary_refine.py": "0483b0e309eff5b7ee918e6be2e3a059e6e653f4458b1262b34f630c5a963209",
+    "joint_api.py": "741e5de07ecaa4b2d5ced21bf13e941ae31f4e6bcfa235c8d40b96936207ea68",
+    "test_boundary_curriculum_review.py": "e64239ae09ee9f5d1d439806af77e140622b9851a97da67b0d689ac6aed359d7",
+    "test_boundary_curriculum_api.py": "138df069459a7602640a5af7165e15ff22d08986c16db42df961216ea4321153",
+    "test_boundary_observation.py": "6cb5ccedaaf9155b02786c5b7443223dd0e99ac1d8811bb9be0e810fa9df4bde"
+  },
+  "tests": {
+    "command": "python -m pytest -q test_boundary_curriculum_review.py test_boundary_curriculum_api.py test_boundary_observation.py",
+    "new_independent_review_cases": 10,
+    "all_cases": 22,
+    "passed": 22,
+    "failed": 0,
+    "seconds": 0.57,
+    "real_image_or_label_reads": 0
+  },
+  "concrete_findings_fixed_by_owner": [
+    {
+      "issue": "Provider could mutate raw query/camera/initial in place and evade validation against same buffer",
+      "resolution": "Detached provider query/camera/initial; compare to immutable reference after assess. Four mutation canaries including pixel-image mutation now reject."
+    },
+    {
+      "issue": "Provider could modify caller image through shared view",
+      "resolution": "Readonly image view supplied to provider; mutation rejects before caller pixels change."
+    },
+    {
+      "issue": "Wrapper did not verify finite in-frame bounded applied correction",
+      "resolution": "Wrapper enforces configured maximum_corner_shift * maximum_alpha (12*.5=6px), finite corrected in-frame queries, fixed excluded queries/center."
+    },
+    {
+      "issue": "A provider appearance could incorrectly classify raw OOB asvisible and solver lacks image dimensions",
+      "resolution": "Fit-only independent mask intersected with original actual-image inside & ~H. Pure visibility assessment remains unchanged; no OOB query enters anyfit."
+    },
+    {
+      "issue": "Provider originally returned fixed_H but combined API consumes self_hidden",
+      "resolution": "Self-hidden alias and proper finite positive-dimension/front-camera initial validation now supplied by provider owner."
+    }
+  ],
+  "semantic_assessment": {
+    "visibility": "Frozen cleanSourceTiny/rawRGB head queried at original native points; SAM does not alter visibility probabilities, states, boundary or accuracy features.",
+    "difficulty": "Initial projected cuboid hull determines conditional outline priority only. Minimum-four information selection uses fixed initial projection Jacobian with actual observed image spread; it does not assert coordinate correctness.",
+    "coordinate_measurement": "Full-frame BOX_ONLY MobileSAM mask supplies sampled transitions/two fitted incident lines. Intersection covariance controls bounded sigma2 blend only, not solver visibility/accuracy weights.",
+    "independence": "Observations originate from actual image evidence; local line search and box still depend on detector q. Image-origin evidence is not statistical independence, and adjacent corrected corners share fitted edges.",
+    "excluded_support": "Hidden, missing, original OOB and center preserved by wrapper; exact original eligibility copied into fit-independent mask. Hidden projections are output completion only.",
+    "physical_basis": "Nonidentity Q=R_cf0.T@R_physical0 retained with asymmetric registered dimensions; output R_physical=R_cf_final@Q, cf_extents/order unchanged.",
+    "fallback": "Below four credible actual observations retains exact original pose and raw completion; corrected measurements may remain diagnostic output but do not imply a refined pose.",
+    "format": "Native8/9 points supported; center never fit or changed; missing nonfinite points serialize as null and stayexcluded.",
+    "default": "Optional new class/config; original main visibility model and default numeric solver setting remainunchanged."
+  },
+  "meaningful_test_coverage": [
+    "Injected image/raw/K/physical-pose mutations reject without altering caller inputs.",
+    "7px applied shift rejected under6pxconfiguredbound; offcanvas and NaN correction rejected.",
+    "Readonly native8 and9 input arrays accepted; caller flags/data and initial dict unchanged.",
+    "Nonidentity proper physical Q and rectangular registered dimensions preserved after successful refinement.",
+    "Four excluded raw corners (sentinel, NaN, rightedgeOOB, leftOOB) never enter stage fits, leaving insufficient independent support and exact initialfallback.",
+    "Existing observation cases establish actual line intersections, no maskprojectionprompt/center contamination, uniform-mask no invented coordinates, shared-edge deterministic covariance, conditionalH and center protection."
+  ],
+  "existing_cached_geometry_parity": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/GEOMETRIC_OUTLINE_SOLVER_API_PARITY_V1.json",
+    "sha256": "956359177d00976c83d7a37ae4a08a6ed183cd7bed6c3017e00eef5aec8227b4",
+    "records": 230,
+    "maximum_R_or_t_error": 0.0,
+    "recorded_solver_SHA_matches_reviewed_solver": false,
+    "no_new_replay_in_this_audit": true
+  },
+  "remaining_explicit_limits": [
+    "Geometric outline does not prove actual visible material corner, especially rounded/virtual bbox/holes/nonconvex shapes.",
+    "SAMforeground and line covariance do not certify semantic requested-corner ownership; source covariance coverage31.8% cannot justify calibratedconfidence.",
+    "InitialH/initialfamily errors remainconditional; this fixed-family method does not repairW/Dambiguity.",
+    "easy_ids top-level remains legacyRGB easy group; actual geometryseed is stages[0].geometric_outline_seed.seed. UI shouldlabel them distinctly.",
+    "Root will recheck current API numerical parity on frozen46 observer results after optionalactiveguard core integration; this review doesnot certify future source edits.",
+    "Any subsequently reusedTEST49 replay remains exploratory, originalfixednonseverepopulation and sameevidence controlsrequired."
+  ],
+  "files_changed_by_reviewer": [
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/test_boundary_curriculum_review.py",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/BOUNDARY_CURRICULUM_REVIEW_V1.json"
+  ],
+  "main_or_other_agent_code_edits_by_reviewer": 0,
+  "models_changed": 0,
+  "CAL_labels_read": 0,
+  "TEST_labels_read": 0,
+  "FINAL_labels_read": 0
+}

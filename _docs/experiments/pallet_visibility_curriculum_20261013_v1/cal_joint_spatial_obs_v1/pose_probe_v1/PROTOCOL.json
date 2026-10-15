@@ -1,0 +1,133 @@
+{
+  "schema": "CAL_JOINT_SPATIAL_POSE_V1",
+  "CAL_only": true,
+  "TEST_accessed": false,
+  "FINAL_accessed": false,
+  "preregistered_before_new_pose_inference_and_scoring": true,
+  "post_CAL_LOGO_model_selection_exploratory": true,
+  "arms": [
+    {
+      "name": "RGB26_RAW",
+      "family": "RGB26",
+      "RGB_coordinate_correction": false,
+      "threshold": 0.45
+    },
+    {
+      "name": "RGB26_RESIDUAL3_RAW",
+      "family": "RGB26_RESIDUAL3",
+      "RGB_coordinate_correction": false,
+      "threshold": 0.5
+    },
+    {
+      "name": "RGB26_F4_PCA32_RAW",
+      "family": "RGB26_F4_PCA32",
+      "RGB_coordinate_correction": false,
+      "threshold": 0.5
+    },
+    {
+      "name": "RGB26_F4_PCA32_CORRECTED",
+      "family": "RGB26_F4_PCA32",
+      "RGB_coordinate_correction": true,
+      "threshold": 0.5
+    },
+    {
+      "name": "RGB26_F4_PCA64_RAW",
+      "family": "RGB26_F4_PCA64",
+      "RGB_coordinate_correction": false,
+      "threshold": 0.5
+    },
+    {
+      "name": "RGB26_F4_PCA64_CORRECTED",
+      "family": "RGB26_F4_PCA64",
+      "RGB_coordinate_correction": true,
+      "threshold": 0.5
+    },
+    {
+      "name": "RGB26_F4F8_PCA32_RAW",
+      "family": "RGB26_F4F8_PCA32",
+      "RGB_coordinate_correction": false,
+      "threshold": 0.45
+    },
+    {
+      "name": "RGB26_F4F8_PCA32_CORRECTED",
+      "family": "RGB26_F4F8_PCA32",
+      "RGB_coordinate_correction": true,
+      "threshold": 0.45
+    },
+    {
+      "name": "RGB26_F4F8_PCA64_RAW",
+      "family": "RGB26_F4F8_PCA64",
+      "RGB_coordinate_correction": false,
+      "threshold": 0.45
+    },
+    {
+      "name": "RGB26_F4F8_PCA64_CORRECTED",
+      "family": "RGB26_F4F8_PCA64",
+      "RGB_coordinate_correction": true,
+      "threshold": 0.45
+    }
+  ],
+  "selected_model_parameters": {
+    "RGB26": {
+      "C": 0.001,
+      "threshold": 0.45
+    },
+    "RGB26_RESIDUAL3": {
+      "C": 0.001,
+      "threshold": 0.5
+    },
+    "RGB26_F4_PCA32": {
+      "C": 0.01,
+      "threshold": 0.5,
+      "ridge_alpha": 100.0
+    },
+    "RGB26_F4_PCA64": {
+      "C": 0.001,
+      "threshold": 0.5,
+      "ridge_alpha": 100.0
+    },
+    "RGB26_F4F8_PCA32": {
+      "C": 0.01,
+      "threshold": 0.45,
+      "ridge_alpha": 100.0
+    },
+    "RGB26_F4F8_PCA64": {
+      "C": 0.001,
+      "threshold": 0.45,
+      "ridge_alpha": 100.0
+    }
+  },
+  "prediction_observations": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_joint_spatial_obs_v1/PREDICTED_OBSERVATIONS.json",
+  "prediction_observations_sha256": "1638903d1391a248d8cec3e03fd8e92d44b4b2b21354026f6d6a491faa46758f",
+  "observation_seal_sha256": "b79bda01ae2022b6d778c5b40130fe7455718bf9f394d614908f8910ca48c414",
+  "features_seal_sha256": "04cb42649b93b1803e94d8cf4782cbc0d547db73e094a4c85ad04cf2ad6ef07e",
+  "inputs": "/dev/shm/pallet-visibility-curriculum-20261013-v1/CAL_INPUTS.json",
+  "inputs_sha256": "bf6f204bb9f8a78b8a61b9c4571a74ced41360f2dc39033e795848de8ed8959b",
+  "baseline_predictions": "/dev/shm/pallet-visibility-curriculum-20261013-v1/cal_segmentation_v2/PREDICTIONS.jsonl.gz",
+  "baseline_predictions_sha256": "1d5e77787b9413c5f6e7ab2e3d2a6dbd75b8a16473471f7c247925e4185bed73",
+  "source_sha256": {
+    "scoring.py": "d91c0d64d7e63a72033752017c41afd983599d7a61f71f6ee70b06e17256edaf",
+    "curriculum.py": "a3a2e64c881d66bfc00ff7a5e6b8f55ca59828d40bf0dff5750d592789b2bcc2",
+    "run.py": "78aa879ffa96931ea75934ae367006f2cf7061ae0e0a19c56a6fef4a8dc857ac",
+    "common.py": "9ada493f271551ec3ca189fa854bbadafd4b403175beb748254a850504e61095",
+    "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "appearance_intervention": "Replace eligible KP visibility with OOF usability probability. p>=familyselectedcutoff is visible boundary when frozenSEG boundary>=.35 else interior; accuracy=max(frozenSEG,.12). p<cutoff becomes UNKNOWN. H/OOB/missing fixed.",
+  "geometry_contract": "Initial cuboid dimensions, native corner phase, physical Q and initial self_hidden immutable. Center slot never corrected. Projected point coordinates never fitted.",
+  "correction_contract": "OOF independent RGB spatial ridge delta only. Apply when p>=familyselectedcutoff and model available; Euclidean delta<=16 pixels, finite and still inside image. Otherwise retain raw q. No initial geometric residual features in coordinate models.",
+  "curriculum_base": {
+    "visible_threshold": 0.35
+  },
+  "curriculum_overrides": "visible_threshold=family selected OOF cutoff, easy_visibility=max(.45,cutoff), all other stages frozen",
+  "scoring_population": "All CAL76 frames, all DIRECT_VISIBLE finite native corners for corrected error; compare changed DIRECT, changed nonDIRECT, in16/out16 and session. Rejected solve returns original pose and stays in population.",
+  "pose_labels_opened_only_after_seal": true,
+  "limits": [
+    "CAL selected C/PCA/alpha/threshold is not nested outer cross-validation",
+    "Five correlated sessions only",
+    "Coordinate regression trained only DIRECT with GT error<=16px; inference does not know true error",
+    "Cuboid virtual/rounded corners may lack a pixel-defined RGB target",
+    "No sourceCNN boundary correction in these arms",
+    "No TEST or FINAL validation; no production promotion"
+  ],
+  "before_inference_amendment": "Bind already-selected ridge alpha explicitly; arm definitions/thresholds unchanged; no pose inference/scoring run yet."
+}

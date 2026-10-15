@@ -1,0 +1,133 @@
+{
+  "schema": "INDEPENDENT_E_VS_NATIVE_SELECTOR_STRUCTURE_AND_MASK_CONTRACT_V24",
+  "passed": true,
+  "created_utc": "2026-10-15T00:59:06.932250+00:00",
+  "scope": "source-only comparison, old mask protocol metadata; no new cohort parsing/GT decode/fits",
+  "source_bindings": [
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/select_frozen_wd_partial_refinement_v4_13e.py",
+      "sha256": "e5db469e871762bdd994d6c379a400e878271acad69ca1d18f350f7621e86f86"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_global_outline_pose_v4_10.py",
+      "sha256": "507723db2fe4c5294d451537771ff478bb7893800c18ec195f08c39fca2d9c4c"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py",
+      "sha256": "34cca867999278ea7f7d3ebeba4dd4ce3663d26badefdc1a5af7117dd005962f"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_face_partial_BI_outline_v4_13d.py",
+      "sha256": "c53f5f10965e61811778b2fdfa6ff30167c012e7e066f8679073d53ce19ba440"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+      "sha256": "946e4901d19451b26b3043f6e0d0b8e6dcf518819e6c835ed15723a781f40f9b"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_two_wd_family_v4_9.py",
+      "sha256": "2dc9b4d185ccec7f1da5ebfe20b36c1262d1b20154c8a401957441946f96018b"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/refine_native_edge_pose_v4_17.py",
+      "sha256": "cec0c5029960837d730b4174e6ab666416c66526687e159e2a05c648881e7723"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_bounded_geometric_priors_v4_22.py",
+      "sha256": "a2cba3523fe9504534bae0745893ef71db98668b5ce78297b8aa006ad38a20e9"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py",
+      "sha256": "086c19b4f00c1706004587a44cf9a113fec4d9fcd61a92efab226479fdfebac1"
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_complete_bi_bounded_priors_v4_23.py",
+      "sha256": "de8dfc4927b3fa21b1072e5889e87260cec75d15ac36214a86e9fe691df71443"
+    }
+  ],
+  "old_e_mask_configuration": {
+    "normal_sigma_px": 1.0,
+    "huber_delta": 1.25,
+    "frame_margin_px": 7.0,
+    "model_samples_per_segment": 15,
+    "observed_sample_spacing_px": 1.0,
+    "outline_factor_weight": 1.0,
+    "numeric_derivative_step": 1e-05
+  },
+  "old_e_mask_protocol": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/global_outline_all95_eval_v4_10/PROTOCOL.json",
+    "sha256": "5ad4b3951d727eeafd5786284fa04cfa79b6281f353ed26312d1564121e7ed60"
+  },
+  "facts": [
+    {
+      "aspect": "W/D를 정하는 단계",
+      "e": "OLD G10 complete B/I + 기존 legacy partial + continuous whole-outline의 최소 joint-feasible family를 먼저 예측하고 고정한다. initial ORIGINAL_WD를 진실로 고정하지 않는다.",
+      "v22_23": "두 WD family의 current native + bounded O/S 비용으로 마지막에 다시 family와 pose를 함께 선택한다.",
+      "e_code": "select_same_family: name=old[selected_family]; selected=deepcopy(new[arms][name])"
+    },
+    {
+      "aspect": "full coarse pose prior",
+      "e": "G10과 typed D backend는 prior_weight를0으로 강제한다. 과거 P1/prior1 winner/samples는 시작점으로만 추가되며 ORIGINAL/SWAP의 물리 R/Q를 맞춰 운반한다.",
+      "v22_23": "full6D prior는0이고 own coarse는 시작점. O/S는 별도로 명시한 bounded coarse-correlated regularizer이며 fullR/t prior와 다르다.",
+      "e_code": "G10._run solve; G10._prepare; G13._prepare; FAMILY.solve_two_wd_families"
+    },
+    {
+      "aspect": "mask의 역할",
+      "e": "같은 robust whole-outline 값과 gradient가 양WD continuous fit 및 family minimum 비용에 들어간다. D same-family fit에도 유지된다.",
+      "v22_23": "continuous fitting에는 mask objective/gradient가 없다. native selector는 machine numeric ties에서만 mask를 보며, +mask selector는 saved/new-native-endpoint pool에 fixed lambda*M을 더해 순위를 정한다. mask를 전혀 버린 것은 아니다."
+    },
+    {
+      "aspect": "complete q의 역할",
+      "e": "family를 고르는 G10에는 complete B/I가 더 남아 있다. 그 뒤 D가 일부 complete q를 partial normal+넓은 tangent interval로 대체해도 early family는 바꾸지 않는다.",
+      "v22_23": "현재 grazing states·NMS/partial likelihood와 새 source population에서 family를 다시 고른다. v23은 일부 좋은 RGB complete q까지 대체했다. source/state/domain/noise 차이도 있어 selector 하나의 인과 효과라고 단정할 수 없다."
+    },
+    {
+      "aspect": "탐색과 후보 보존",
+      "e": "saved full-WD-search winners/samples와 prior-derived seeds를 연속 outline fit의 starts로 사용한다. e selector 자체는 재적합하지 않고 exact D same-family 수치해를 고른다.",
+      "v22_23": "51539 physical cached proposals는 재평가해 모두 후보로 남기지만 continuous fitting starts는 원 v19-native 상위6 diverse+own coarse로 제한된다. v23은 새 likelihood와 별도의 old reference ranker로 그 start names를 유지한다. 모든 cached pose 보존은 e family/pose 선택 보존이 아니다."
+    },
+    {
+      "aspect": "fallback·모호성",
+      "e": "같은 family D의 자체 fallback도 그대로 유지하며 OLD pose로 돌아가지 않는다. initial-family ambiguity와 D within-family ambiguity를 전파하고 OT unique/solved를 승격하지 않는다.",
+      "v22_23": "선택 후보가 없으면 own ORIGINAL coarse acceptedFalse fallback. 두 WD/priors/mask 최소 대표 선택은 정보 rank나 전역 유일성 증거가 아니다."
+    }
+  ],
+  "mask_formula": "M=0.5*(arc-weighted mean pseudoHuber(model-to-actual-segments)+mean pseudoHuber(actual-boundary-to-projected-hull)); loss=delta^2*(sqrt(1+(distance/(sigma*delta))^2)-1); lambda=outline_factor_weight",
+  "mask_optimizer_constraints": {
+    "continuous_SE3": true,
+    "coarse_full_pose_prior": 0,
+    "all_original_OT_U_and_partial_tangent_hard_guards_retained": true,
+    "canvas_margin_px": 7,
+    "positive_depth_required": true,
+    "maxiter_and_ftol": "frozen input config; no value changed by this review",
+    "whole_mask_is_convex_shape_cue_not_KP_or_visibility_certificate": true,
+    "engineering_sigma_not_CAL_coverage": true
+  },
+  "v24_integration_requirements": [
+    "새 masked optimizer와 fixed-mask selector가 동일 J=N_native+O_prior+S_prior+lambda*M을 사용해야 한다. native_costs 및 O/S regularizer_costs에 M을 넣지 않고 별도 global_mask ledger로 단 한 번 더한다.",
+    "기존 native observation objective, O/S regularizer total, mask objective/weight, 전체 optimization objective를 별도로 저장한다. 새 objective를 기존 native energy로 오인하거나 selector에서 mask를 두 번 더하지 않는다.",
+    "마스크는 기존 실제 samples/허용 segments·configuration을 그대로 사용한다. canvas clipping으로 새 closing edge를 만들지 않고, final scalar hard guard와 valid mask projection을 모두 재확인한다.",
+    "C common bank는 동일 수학으로 재검산한 모든 cached+B-native feasible endpoints+새 masked feasible endpoints를 보존한다. C fixed-mask minimum이 B minimum보다 나쁘지 않다는 것은 동일 J의 비용 보장이고 pose오차 보장이 아니다.",
+    "원 v19-native start names/coarse와 모든 T-union·max_joint_iterations/optimizer_ftol/물리 hardguards를 유지한다. unsupported wholemask는 base exact 결과로 위임하고, optimizer.success와 별도로 fresh endpoint의 feasibility/objective를 검사한다.",
+    "새 predicted-family selector는 모든 authenticated C 후보에서 먼저 allowedfamily를 필터한 뒤 같은 J 최소를 고른다. global Pareto prefilter로 그 family 후보를 지우지 않는다. e의 numeric R/t로 후보를 고르거나 fallback하지 않는다.",
+    "allowedfamily0 후보이면 선언된 OWN_ORIGINAL_COARSE acceptedFalse를 유지하되 requested lockedfamily, actualWD, lockedfamily_constraint_satisfied=False를 구분한다. 이는 e의 exact same-family fallback 복제 arm이 아니라 common-bank family-gating 진단이다.",
+    "저장 예측 family의 source/Q/geometry binding을 확인하고 initial family의 unresolved/material ambiguity를 보존한다. pred-family label은 참조/GT native identity나 독립적인 구조 관측이 아니다.",
+    "새 source policy는 현재complete RGB/unknown q를 유지하며 exact backbone fallback만 새로 revoke한다. 이미 D에서 partial이 된 과거 RGB q를 복원하는 것으로 기술하지 않는다.",
+    "CAL-only coarse prior를 새로 고려한다면 physical R/t 또는 invariant normal의 frozen CAL 잔차/bias/covariance를 사용하고 두 family에 동일physicalcoarse/Q transport를 적용한다. ORIGINAL label 자체나 TEST pose error로 routing하지 않는다.",
+    "prior 강도/scale/selector 선택은 CAL LOGO physical metrics로만 결정하며 fit CAL44와 all-CAL46 evaluation inventory를 구분한다. detector-derived prior와 O/S/NMS는 상관될 수 있고 rank·독립정보로 추가하지 않는다. 기존 full/normal prior 실패 때문에 coarse yaw/t를 hard clamp하는 것은 정당화되지 않는다."
+  ],
+  "existing_WD_convention_conclusion": "기존 감사를 재조사하지 않고 참조: 채널 X/Z 혼합, Q는 prediction-only이며 cuboid mask는 독립 native-phase 인증이 아니다.",
+  "existing_WD_audit_path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/remainder_after_test49_v1/wd_convention_source_audit_v4_18",
+  "new_control_plan": {
+    "path": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/source_preserving_tangent_mask_plan_v4_24/PREDECLARATION.json",
+    "sha256": "3497e92b380e47c284da4ce4ad31a24c338e2d4b1b8e7b6c149b050dde101451"
+  },
+  "causal_limit": "Source structure identifies differing mechanisms, not which one causes an individual metric regression. Multiple observation/state/domain/noise changes remain.",
+  "material_open_findings": [],
+  "reviewer_execution": {
+    "full238_prediction_or_observation_parsing": 0,
+    "new_GT_or_score_reads": 0,
+    "new_image_NN_line_or_pose_fits": 0,
+    "existing_source_edits": 0
+  }
+}
