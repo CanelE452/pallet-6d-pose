@@ -1,0 +1,149 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>v29 전체192 비교</title>
+<style>body{font:16px/1.6 sans-serif;max-width:1600px;margin:30px auto;padding:0 20px}table{border-collapse:collapse;width:100%}th,td{padding:8px;border-bottom:1px solid #ccd4df;text-align:right}th:first-child,td:first-child{text-align:left}th{background:#eef4fa}.new{background:#eff8ef}.scroll{overflow:auto}</style>
+<p>기본 e는 유지합니다. 기존 29개 방법을 그대로 보존하고 기하 유도 실제 선을 쓰는 4개 균일 방법을 추가했습니다. TEST49와 추가143 모두에 같은 방법을 적용하며 실패와 fallback도 포함합니다. severe는 제외하고 CAL46은 별도입니다.</p>
+<p>초기 키포인트와 기존 native 시작 자세에서 예상 선 방향을 만들고, 그 주변 실제 RGB 경계를 찾습니다. 파렛트 전역 외곽과 내부 구멍을 구분하고, 관측된 짧은 선과 인접 선의 진행 방향을 검사합니다. 모델 선 자체를 영상 관측으로 넣거나 가려진 지점을 새 픽셀 좌표로 만들지 않습니다.</p>
+<p>확실한 선 한 방향은 해당 키포인트의 법선 정보를 교체하고 보관된 q의 실제 선 접선 정보만 남깁니다. 비평행인 두 실제 선 방향의 유한·순서 조건이 맞으면 q의 2D 비용을 교체합니다. RGB q 보존 정책에서는 정확한 fallback 소스만 교체합니다. 정책별 선 잡음과 접선 γ는 별도 CAL 대상으로 두고, 표본이 없어 모델이 준비되지 않은 정책은 새 선을 일괄 미사용합니다. 한 세션만 지지하는 척도는 제한된 기술 통계입니다.</p>
+<p>이번 실제 데이터에는 별도 다른 물체 가림 마스크가 없습니다. 파렛트 마스크가 없는 것만으로 O를 판정하지 않으며 미관측 구간은 unknown입니다. 별도 가림 마스크 입력이 있을 때만 해당 구간을 샘플링에서 제외하는 연결을 지원합니다. S는 모델/PnP 투영만, U는 대략적인 영역만 사용합니다.</p>
+<p>새 방법의 full pose·translation prior 가중치는 0이며 기존 제한된 O/S 항만 유지합니다. 포함 제약은 관측 전역 외곽이 투영 모델 hull 밖에 있을 때만 주는 고정 λ1 항입니다. 옛 전체 대칭 마스크 동률 처리는 쓰지 않습니다.</p>
+<p><b>전체192</b> — 공동은 위치 5cm 및 회전 5°를 모두 만족한 수입니다.</p><div class="scroll"><table><tr><th>고정 방법</th><th>수</th><th>위치≤5cm</th><th>공동</th><th>평균 위치 cm</th><th>최대 위치 cm</th><th>최대 사례</th><th>평균 회전 °</th><th>최대 회전 °</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>192</td><td>115</td><td>114</td><td>14.112</td><td>260.412</td><td>wood_night_01:031344</td><td>13.001</td><td>159.137</td><td>4</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>192</td><td>111</td><td>109</td><td>13.562</td><td>182.500</td><td>wood_night_01:031671</td><td>13.679</td><td>154.127</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>192</td><td>113</td><td>108</td><td>13.136</td><td>176.989</td><td>wood_night_01:031671</td><td>12.991</td><td>89.576</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>192</td><td>116</td><td>116</td><td>12.257</td><td>189.263</td><td>wood_night_01:031426</td><td>13.231</td><td>89.845</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>192</td><td>116</td><td>116</td><td>12.354</td><td>189.263</td><td>wood_night_01:031426</td><td>13.263</td><td>164.209</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>192</td><td>113</td><td>111</td><td>12.611</td><td>200.058</td><td>wood_night_01:031344</td><td>11.872</td><td>89.952</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>192</td><td>113</td><td>110</td><td>12.467</td><td>196.870</td><td>wood_night_01:031344</td><td>13.516</td><td>93.821</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>192</td><td>113</td><td>113</td><td>13.344</td><td>200.058</td><td>wood_night_01:031344</td><td>13.632</td><td>89.575</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>192</td><td>115</td><td>115</td><td>13.672</td><td>196.870</td><td>wood_night_01:031344</td><td>13.591</td><td>89.575</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>192</td><td>110</td><td>108</td><td>12.897</td><td>219.432</td><td>wood_night_01:031344</td><td>13.416</td><td>89.840</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>192</td><td>112</td><td>112</td><td>14.102</td><td>219.432</td><td>wood_night_01:031344</td><td>13.261</td><td>89.575</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>192</td><td>113</td><td>108</td><td>13.216</td><td>201.880</td><td>wood_night_01:031344</td><td>12.570</td><td>89.720</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>192</td><td>115</td><td>115</td><td>13.313</td><td>201.880</td><td>wood_night_01:031344</td><td>13.740</td><td>164.209</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>192</td><td>117</td><td>115</td><td>14.636</td><td>185.524</td><td>wood_night_01:031344</td><td>13.838</td><td>90.121</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>192</td><td>118</td><td>114</td><td>13.890</td><td>176.535</td><td>wood_night_01:031426</td><td>12.890</td><td>90.596</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선</td><td>192</td><td>120</td><td>114</td><td>11.031</td><td>178.971</td><td>wood_night_01:031671</td><td>11.694</td><td>165.189</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선 · e WD 유지</td><td>192</td><td>116</td><td>111</td><td>11.258</td><td>170.116</td><td>wood_night_01:031671</td><td>13.438</td><td>165.189</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약</td><td>192</td><td>121</td><td>118</td><td>10.851</td><td>177.097</td><td>wood_night_01:031671</td><td>10.993</td><td>90.034</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약 · e WD 유지</td><td>192</td><td>117</td><td>114</td><td>11.222</td><td>167.169</td><td>wood_night_01:031671</td><td>12.600</td><td>89.344</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선</td><td>192</td><td>116</td><td>112</td><td>11.099</td><td>181.402</td><td>wood_night_01:031344</td><td>10.587</td><td>88.755</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선 · e WD 유지</td><td>192</td><td>108</td><td>106</td><td>13.412</td><td>175.404</td><td>wood_night_01:031344</td><td>12.828</td><td>88.755</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약</td><td>192</td><td>123</td><td>120</td><td>10.904</td><td>179.675</td><td>wood_night_01:031344</td><td>10.567</td><td>88.869</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약 · e WD 유지</td><td>192</td><td>116</td><td>112</td><td>13.216</td><td>173.830</td><td>wood_night_01:031344</td><td>12.799</td><td>88.869</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선</td><td>192</td><td>115</td><td>109</td><td>13.388</td><td>202.077</td><td>wood_night_01:031344</td><td>12.235</td><td>89.720</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선 · e WD 유지</td><td>192</td><td>114</td><td>107</td><td>12.469</td><td>159.269</td><td>wood_day_01:005249</td><td>12.820</td><td>90.052</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선</td><td>192</td><td>120</td><td>115</td><td>11.029</td><td>178.963</td><td>wood_night_01:031671</td><td>11.684</td><td>165.189</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선 · e WD 유지</td><td>192</td><td>115</td><td>111</td><td>11.219</td><td>170.107</td><td>wood_night_01:031671</td><td>13.382</td><td>165.189</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약</td><td>192</td><td>120</td><td>114</td><td>10.873</td><td>177.094</td><td>wood_night_01:031671</td><td>11.096</td><td>90.031</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약 · e WD 유지</td><td>192</td><td>116</td><td>111</td><td>11.195</td><td>167.167</td><td>wood_night_01:031671</td><td>12.593</td><td>89.346</td><td>0</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체</td><td>192</td><td>90</td><td>84</td><td>23.724</td><td>556.581</td><td>wood_night_01:032167</td><td>22.709</td><td>122.843</td><td>9</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체 + 포함 제약</td><td>192</td><td>87</td><td>85</td><td>27.778</td><td>251.698</td><td>wood_day_01:005286</td><td>21.351</td><td>123.216</td><td>8</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존</td><td>192</td><td>111</td><td>106</td><td>18.485</td><td>372.283</td><td>plastic_night_01:038630</td><td>15.818</td><td>125.986</td><td>2</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존 + 포함 제약</td><td>192</td><td>116</td><td>111</td><td>21.993</td><td>377.780</td><td>plastic_night_01:038630</td><td>15.054</td><td>123.216</td><td>1</td></tr>
+</table></div>
+<p><b>기존 TEST49</b> — 공동은 위치 5cm 및 회전 5°를 모두 만족한 수입니다.</p><div class="scroll"><table><tr><th>고정 방법</th><th>수</th><th>위치≤5cm</th><th>공동</th><th>평균 위치 cm</th><th>최대 위치 cm</th><th>최대 사례</th><th>평균 회전 °</th><th>최대 회전 °</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>49</td><td>49</td><td>49</td><td>1.299</td><td>4.339</td><td>eval_pallet07:1778652142480077056</td><td>1.110</td><td>3.950</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>49</td><td>41</td><td>40</td><td>4.337</td><td>40.358</td><td>eval_noapril:1775201428535961600</td><td>13.896</td><td>89.580</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>49</td><td>41</td><td>40</td><td>4.320</td><td>40.355</td><td>eval_noapril:1775201428535961600</td><td>13.915</td><td>89.559</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>49</td><td>43</td><td>43</td><td>3.066</td><td>40.398</td><td>eval_noapril:1775201428535961600</td><td>9.982</td><td>89.575</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>49</td><td>44</td><td>44</td><td>2.788</td><td>40.398</td><td>eval_noapril:1775201428535961600</td><td>8.190</td><td>89.575</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>49</td><td>40</td><td>39</td><td>4.230</td><td>40.257</td><td>eval_noapril:1775201428535961600</td><td>13.900</td><td>89.561</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>49</td><td>40</td><td>39</td><td>4.209</td><td>40.253</td><td>eval_noapril:1775201428535961600</td><td>13.914</td><td>89.542</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>49</td><td>42</td><td>42</td><td>2.979</td><td>40.398</td><td>eval_noapril:1775201428535961600</td><td>10.040</td><td>89.575</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>49</td><td>43</td><td>43</td><td>2.689</td><td>40.398</td><td>eval_noapril:1775201428535961600</td><td>8.240</td><td>89.575</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>49</td><td>40</td><td>39</td><td>4.258</td><td>40.253</td><td>eval_noapril:1775201428535961600</td><td>13.892</td><td>89.542</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>49</td><td>43</td><td>43</td><td>2.746</td><td>40.398</td><td>eval_noapril:1775201428535961600</td><td>8.285</td><td>89.575</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>49</td><td>41</td><td>40</td><td>4.344</td><td>40.358</td><td>eval_noapril:1775201428535961600</td><td>13.923</td><td>89.608</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>49</td><td>44</td><td>44</td><td>2.807</td><td>40.398</td><td>eval_noapril:1775201428535961600</td><td>8.189</td><td>89.575</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>49</td><td>44</td><td>44</td><td>2.894</td><td>40.181</td><td>eval_noapril:1775201428535961600</td><td>8.264</td><td>89.687</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>49</td><td>46</td><td>46</td><td>1.797</td><td>7.444</td><td>eval_pallet07:1778652142480077056</td><td>1.138</td><td>4.516</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선</td><td>49</td><td>45</td><td>44</td><td>2.057</td><td>12.981</td><td>eval_pallet07:1778652142480077056</td><td>6.796</td><td>89.471</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선 · e WD 유지</td><td>49</td><td>45</td><td>44</td><td>2.056</td><td>12.277</td><td>eval_pallet07:1778652142480077056</td><td>1.562</td><td>7.385</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약</td><td>49</td><td>45</td><td>45</td><td>2.061</td><td>13.149</td><td>eval_pallet07:1778652142480077056</td><td>6.574</td><td>89.481</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약 · e WD 유지</td><td>49</td><td>45</td><td>45</td><td>2.047</td><td>11.966</td><td>eval_pallet07:1778652140531310080</td><td>1.334</td><td>5.376</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선</td><td>49</td><td>43</td><td>43</td><td>2.193</td><td>12.897</td><td>eval_pallet07:1778652142480077056</td><td>6.568</td><td>88.649</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선 · e WD 유지</td><td>49</td><td>43</td><td>43</td><td>4.852</td><td>67.036</td><td>eval_pallet09:1778653661653195264</td><td>4.750</td><td>65.103</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약</td><td>49</td><td>44</td><td>44</td><td>2.144</td><td>13.083</td><td>eval_pallet07:1778652142480077056</td><td>6.497</td><td>88.637</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약 · e WD 유지</td><td>49</td><td>44</td><td>44</td><td>4.804</td><td>67.371</td><td>eval_pallet09:1778653661653195264</td><td>4.676</td><td>65.138</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선</td><td>49</td><td>41</td><td>39</td><td>4.228</td><td>40.735</td><td>eval_noapril:1775201428535961600</td><td>13.951</td><td>89.457</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선 · e WD 유지</td><td>49</td><td>45</td><td>42</td><td>2.277</td><td>13.317</td><td>eval_pallet07:1778652170735118080</td><td>1.801</td><td>6.264</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선</td><td>49</td><td>45</td><td>44</td><td>2.037</td><td>12.853</td><td>eval_pallet07:1778652142480077056</td><td>6.847</td><td>89.455</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선 · e WD 유지</td><td>49</td><td>45</td><td>44</td><td>2.080</td><td>13.717</td><td>eval_pallet07:1778652142480077056</td><td>1.636</td><td>7.385</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약</td><td>49</td><td>45</td><td>44</td><td>2.036</td><td>13.044</td><td>eval_pallet07:1778652142480077056</td><td>6.629</td><td>89.482</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약 · e WD 유지</td><td>49</td><td>45</td><td>44</td><td>2.063</td><td>13.296</td><td>eval_pallet07:1778652142480077056</td><td>1.408</td><td>5.367</td><td>0</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체</td><td>49</td><td>31</td><td>27</td><td>8.613</td><td>83.962</td><td>eval_noapril:1775201429879521792</td><td>19.951</td><td>88.840</td><td>3</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체 + 포함 제약</td><td>49</td><td>31</td><td>30</td><td>9.412</td><td>85.874</td><td>eval_noapril:1775201429879521792</td><td>19.347</td><td>89.314</td><td>3</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존</td><td>49</td><td>39</td><td>37</td><td>6.468</td><td>65.362</td><td>eval_pallet07:1778652142480077056</td><td>13.420</td><td>88.538</td><td>1</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존 + 포함 제약</td><td>49</td><td>39</td><td>38</td><td>6.308</td><td>65.431</td><td>eval_pallet07:1778652142480077056</td><td>10.594</td><td>90.025</td><td>1</td></tr>
+</table></div>
+<p><b>추가143</b> — 공동은 위치 5cm 및 회전 5°를 모두 만족한 수입니다.</p><div class="scroll"><table><tr><th>고정 방법</th><th>수</th><th>위치≤5cm</th><th>공동</th><th>평균 위치 cm</th><th>최대 위치 cm</th><th>최대 사례</th><th>평균 회전 °</th><th>최대 회전 °</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>143</td><td>66</td><td>65</td><td>18.502</td><td>260.412</td><td>wood_night_01:031344</td><td>17.076</td><td>159.137</td><td>4</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>143</td><td>70</td><td>69</td><td>16.723</td><td>182.500</td><td>wood_night_01:031671</td><td>13.605</td><td>154.127</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>143</td><td>72</td><td>68</td><td>16.156</td><td>176.989</td><td>wood_night_01:031671</td><td>12.675</td><td>89.576</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>143</td><td>73</td><td>73</td><td>15.406</td><td>189.263</td><td>wood_night_01:031426</td><td>14.344</td><td>89.845</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>143</td><td>72</td><td>72</td><td>15.631</td><td>189.263</td><td>wood_night_01:031426</td><td>15.001</td><td>164.209</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>143</td><td>73</td><td>72</td><td>15.482</td><td>200.058</td><td>wood_night_01:031344</td><td>11.177</td><td>89.952</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>143</td><td>73</td><td>71</td><td>15.296</td><td>196.870</td><td>wood_night_01:031344</td><td>13.379</td><td>93.821</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>143</td><td>71</td><td>71</td><td>16.896</td><td>200.058</td><td>wood_night_01:031344</td><td>14.862</td><td>89.091</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>143</td><td>72</td><td>72</td><td>17.436</td><td>196.870</td><td>wood_night_01:031344</td><td>15.424</td><td>89.091</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>143</td><td>70</td><td>69</td><td>15.857</td><td>219.432</td><td>wood_night_01:031344</td><td>13.253</td><td>89.840</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>143</td><td>69</td><td>69</td><td>17.994</td><td>219.432</td><td>wood_night_01:031344</td><td>14.967</td><td>88.946</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>143</td><td>72</td><td>68</td><td>16.256</td><td>201.880</td><td>wood_night_01:031344</td><td>12.106</td><td>89.720</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>143</td><td>71</td><td>71</td><td>16.913</td><td>201.880</td><td>wood_night_01:031344</td><td>15.642</td><td>164.209</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>143</td><td>73</td><td>71</td><td>18.660</td><td>185.524</td><td>wood_night_01:031344</td><td>15.749</td><td>90.121</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>143</td><td>72</td><td>68</td><td>18.034</td><td>176.535</td><td>wood_night_01:031426</td><td>16.917</td><td>90.596</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선</td><td>143</td><td>75</td><td>70</td><td>14.106</td><td>178.971</td><td>wood_night_01:031671</td><td>13.373</td><td>165.189</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선 · e WD 유지</td><td>143</td><td>71</td><td>67</td><td>14.412</td><td>170.116</td><td>wood_night_01:031671</td><td>17.508</td><td>165.189</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약</td><td>143</td><td>76</td><td>73</td><td>13.863</td><td>177.097</td><td>wood_night_01:031671</td><td>12.507</td><td>90.034</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약 · e WD 유지</td><td>143</td><td>72</td><td>69</td><td>14.366</td><td>167.169</td><td>wood_night_01:031671</td><td>16.461</td><td>89.344</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선</td><td>143</td><td>73</td><td>69</td><td>14.151</td><td>181.402</td><td>wood_night_01:031344</td><td>11.964</td><td>88.755</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선 · e WD 유지</td><td>143</td><td>65</td><td>63</td><td>16.345</td><td>175.404</td><td>wood_night_01:031344</td><td>15.596</td><td>88.755</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약</td><td>143</td><td>79</td><td>76</td><td>13.906</td><td>179.675</td><td>wood_night_01:031344</td><td>11.962</td><td>88.869</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약 · e WD 유지</td><td>143</td><td>72</td><td>68</td><td>16.099</td><td>173.830</td><td>wood_night_01:031344</td><td>15.583</td><td>88.869</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선</td><td>143</td><td>74</td><td>70</td><td>16.527</td><td>202.077</td><td>wood_night_01:031344</td><td>11.647</td><td>89.720</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선 · e WD 유지</td><td>143</td><td>69</td><td>65</td><td>15.961</td><td>159.269</td><td>wood_day_01:005249</td><td>16.596</td><td>90.052</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선</td><td>143</td><td>75</td><td>71</td><td>14.110</td><td>178.963</td><td>wood_night_01:031671</td><td>13.341</td><td>165.189</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선 · e WD 유지</td><td>143</td><td>70</td><td>67</td><td>14.351</td><td>170.107</td><td>wood_night_01:031671</td><td>17.407</td><td>165.189</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약</td><td>143</td><td>75</td><td>70</td><td>13.901</td><td>177.094</td><td>wood_night_01:031671</td><td>12.627</td><td>90.031</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약 · e WD 유지</td><td>143</td><td>71</td><td>67</td><td>14.324</td><td>167.167</td><td>wood_night_01:031671</td><td>16.426</td><td>89.346</td><td>0</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체</td><td>143</td><td>59</td><td>57</td><td>28.901</td><td>556.581</td><td>wood_night_01:032167</td><td>23.654</td><td>122.843</td><td>6</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체 + 포함 제약</td><td>143</td><td>56</td><td>55</td><td>34.071</td><td>251.698</td><td>wood_day_01:005286</td><td>22.038</td><td>123.216</td><td>5</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존</td><td>143</td><td>72</td><td>69</td><td>22.603</td><td>372.283</td><td>plastic_night_01:038630</td><td>16.639</td><td>125.986</td><td>1</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존 + 포함 제약</td><td>143</td><td>77</td><td>73</td><td>27.368</td><td>377.780</td><td>plastic_night_01:038630</td><td>16.582</td><td>123.216</td><td>0</td></tr>
+</table></div>
+<p><b>별도 CAL46</b> — 공동은 위치 5cm 및 회전 5°를 모두 만족한 수입니다.</p><div class="scroll"><table><tr><th>고정 방법</th><th>수</th><th>위치≤5cm</th><th>공동</th><th>평균 위치 cm</th><th>최대 위치 cm</th><th>최대 사례</th><th>평균 회전 °</th><th>최대 회전 °</th><th>fallback</th></tr>
+<tr><td>기본 e (변경 없음)</td><td>46</td><td>38</td><td>37</td><td>5.379</td><td>51.978</td><td>eval_night08:1779449501478488320</td><td>10.599</td><td>89.658</td><td>1</td></tr>
+<tr><td>v22 기존 B/I · O 벌점</td><td>46</td><td>36</td><td>35</td><td>5.737</td><td>62.704</td><td>eval_outside:1778653540259983104</td><td>9.885</td><td>86.793</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점</td><td>46</td><td>37</td><td>36</td><td>4.565</td><td>55.702</td><td>eval_night08:1779449488068910592</td><td>8.075</td><td>86.793</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O 벌점 + 마스크</td><td>46</td><td>38</td><td>37</td><td>5.405</td><td>52.009</td><td>eval_night08:1779449501478488320</td><td>8.873</td><td>89.626</td><td>0</td></tr>
+<tr><td>v22 기존 B/I · O/S 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.595</td><td>52.009</td><td>eval_night08:1779449501478488320</td><td>6.941</td><td>88.822</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점</td><td>46</td><td>36</td><td>35</td><td>5.595</td><td>63.086</td><td>eval_outside:1778653540259983104</td><td>9.922</td><td>86.797</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점</td><td>46</td><td>37</td><td>36</td><td>4.422</td><td>53.658</td><td>eval_night08:1779449488068910592</td><td>8.150</td><td>86.797</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.580</td><td>52.009</td><td>eval_night08:1779449501478488320</td><td>7.061</td><td>88.880</td><td>0</td></tr>
+<tr><td>v23 B/I 영상선 · O/S 벌점 + 마스크</td><td>46</td><td>39</td><td>38</td><td>4.578</td><td>51.981</td><td>eval_night08:1779449501478488320</td><td>7.061</td><td>88.880</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선</td><td>46</td><td>37</td><td>36</td><td>4.604</td><td>54.596</td><td>eval_night08:1779449488068910592</td><td>8.189</td><td>86.797</td><td>0</td></tr>
+<tr><td>v24 전체 B/I 교체 · CAL 접선 + 마스크 선택</td><td>46</td><td>39</td><td>38</td><td>4.565</td><td>51.970</td><td>eval_night08:1779449501478488320</td><td>7.038</td><td>88.902</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선</td><td>46</td><td>37</td><td>36</td><td>4.582</td><td>55.702</td><td>eval_night08:1779449488068910592</td><td>8.120</td><td>86.784</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · CAL 접선 + 마스크 선택</td><td>46</td><td>39</td><td>38</td><td>4.601</td><td>52.009</td><td>eval_night08:1779449501478488320</td><td>6.983</td><td>88.827</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 최적화</td><td>46</td><td>39</td><td>38</td><td>4.500</td><td>52.009</td><td>eval_night08:1779449501478488320</td><td>6.969</td><td>88.840</td><td>0</td></tr>
+<tr><td>v24 RGB q 보존 · 연속 마스크 · e 예측 WD 유지</td><td>46</td><td>38</td><td>37</td><td>5.375</td><td>52.009</td><td>eval_night08:1779449501478488320</td><td>10.583</td><td>89.628</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선</td><td>46</td><td>38</td><td>37</td><td>2.963</td><td>17.441</td><td>eval_night08:1779449488068910592</td><td>7.834</td><td>87.079</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 영상선 · e WD 유지</td><td>46</td><td>36</td><td>35</td><td>4.336</td><td>34.041</td><td>eval_outside:1778651519235162880</td><td>11.683</td><td>89.833</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약</td><td>46</td><td>38</td><td>38</td><td>2.911</td><td>17.565</td><td>eval_night08:1779449488068910592</td><td>7.598</td><td>87.089</td><td>0</td></tr>
+<tr><td>v25 위치 prior · 포함 제약 · e WD 유지</td><td>46</td><td>36</td><td>36</td><td>4.328</td><td>34.115</td><td>eval_outside:1778651519235162880</td><td>11.416</td><td>89.861</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선</td><td>46</td><td>38</td><td>38</td><td>2.968</td><td>17.219</td><td>wood_184309:000492</td><td>7.304</td><td>87.487</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 영상선 · e WD 유지</td><td>46</td><td>35</td><td>35</td><td>6.680</td><td>48.687</td><td>eval_outside:1778651579029250816</td><td>11.241</td><td>84.316</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약</td><td>46</td><td>38</td><td>38</td><td>2.951</td><td>16.317</td><td>wood_184309:000492</td><td>7.282</td><td>87.427</td><td>0</td></tr>
+<tr><td>v25 위치·회전 prior · 포함 제약 · e WD 유지</td><td>46</td><td>35</td><td>35</td><td>6.596</td><td>49.271</td><td>eval_outside:1778651579029250816</td><td>11.214</td><td>84.263</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선</td><td>46</td><td>37</td><td>36</td><td>5.413</td><td>56.581</td><td>eval_outside:1778653540259983104</td><td>8.173</td><td>86.793</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · noP 영상선 · e WD 유지</td><td>46</td><td>35</td><td>34</td><td>6.798</td><td>56.581</td><td>eval_outside:1778653540259983104</td><td>11.838</td><td>89.483</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선</td><td>46</td><td>38</td><td>37</td><td>3.002</td><td>17.441</td><td>eval_night08:1779449488068910592</td><td>7.843</td><td>87.073</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 영상선 · e WD 유지</td><td>46</td><td>36</td><td>35</td><td>4.422</td><td>35.406</td><td>eval_outside:1778651579029250816</td><td>11.697</td><td>89.833</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약</td><td>46</td><td>38</td><td>38</td><td>2.947</td><td>17.565</td><td>eval_night08:1779449488068910592</td><td>7.605</td><td>87.085</td><td>0</td></tr>
+<tr><td>v26 partial 이전 RGB q 복구 · 위치 prior · 포함 제약 · e WD 유지</td><td>46</td><td>36</td><td>36</td><td>4.411</td><td>35.498</td><td>eval_outside:1778651579029250816</td><td>11.428</td><td>89.861</td><td>0</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체</td><td>46</td><td>25</td><td>25</td><td>10.369</td><td>65.274</td><td>eval_cad:1778653017736058368</td><td>23.082</td><td>107.361</td><td>2</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · B/I 방향 교체 + 포함 제약</td><td>46</td><td>24</td><td>23</td><td>17.524</td><td>264.592</td><td>eval_cad:1778653030166875904</td><td>22.871</td><td>107.361</td><td>0</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존</td><td>46</td><td>30</td><td>29</td><td>9.703</td><td>84.070</td><td>eval_cad:1778653017736058368</td><td>19.395</td><td>119.338</td><td>1</td></tr>
+<tr class="new"><td>v29 기하 유도 실제 선 · 기존 RGB q 보존 + 포함 제약</td><td>46</td><td>29</td><td>28</td><td>10.662</td><td>72.892</td><td>eval_cad:1778653017736058368</td><td>17.209</td><td>121.333</td><td>0</td></tr>
+</table></div>
+<p>동일한 TEST를 반복 사용한 탐색 결과이며 추가143 참조는 annotation/PnP 유도값입니다. 독립 물리 계측이나 새 holdout 성능으로 해석하지 않습니다. 영상선과 q의 통계적 독립, 전역 최적해, 자세의 유일성을 주장하지 않습니다.</p>
+<p><a href="PROGRESS_V10_V29.json">전체 수치와 대응 비교</a> · <a href="RESULTS_V9_V26.html">이전 결과</a></p></html>

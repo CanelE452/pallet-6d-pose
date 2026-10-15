@@ -26,6 +26,7 @@ POLICY_ARMS = dict(zip(G.SOURCE_POLICIES, (ARMS[1:3], ARMS[3:5])))
 PLAN = DECLARE.PLAN
 DECLARATION_SHA256 = '1598f5ac0a4308ce758f792656f05bfba7f351adcfd2fc1b4000f564a33d22b1'
 OUTPUT = DECLARE.B / 'geometry_guided_edge_eval_v4_30'
+OBSERVATION_PROTOCOL = 'FINAL_PROTOCOL.json'
 
 
 def _modules():
@@ -108,6 +109,27 @@ def _run(task, models):
     return result
 
 
+def _full_observation_metadata(folder, ordered_ids):
+    """The immutable CAL protocol and new all238 closure have distinct roles."""
+    folder = Path(folder)
+    protocol = C.read(folder / OBSERVATION_PROTOCOL)
+    seal = C.read(folder / 'OBSERVATION_SEAL.json')
+    if (len(ordered_ids) != 238 or len(set(ordered_ids)) != 238
+            or protocol['ids'] != ordered_ids
+            or protocol['selection_profile'] != G.SELECTION_PROFILE
+            or protocol['raw_observation_generation'] != G.RAW_OBSERVATION_GENERATION
+            or seal['rows'] != 238 or seal['ordered_ids'] != ordered_ids
+            or seal['protocol_sha256'] != C.sha(folder / OBSERVATION_PROTOCOL)):
+        raise ValueError('Separate complete V30 all238 protocol/selection seal required')
+    for name, count, ids in (('CAL', 46, ordered_ids[:46]), ('REST', 192, ordered_ids[46:])):
+        path = folder / (name + '_OBSERVATION_SEAL.json')
+        partition = C.read(path)
+        if (partition['rows'] != count or partition['ordered_ids'] != ids
+                or seal['partition_seals'][name] != C.sha(path)):
+            raise ValueError('Exact CAL46 + REST192 observation closure required')
+    return protocol, seal
+
+
 def prepare(output=OUTPUT):
     output = Path(output).resolve()
     if output.exists():
@@ -117,13 +139,12 @@ def prepare(output=OUTPUT):
     _models()
     parent = C.read(prep.TASKS / 'PROTOCOL.json')
     taskseal = C.read(prep.TASKS / 'INPUT_SEAL.json')
-    obsprotocol = C.read(prep.OBS / 'PROTOCOL.json')
-    obsseal = C.read(prep.OBS / 'OBSERVATION_SEAL.json')
+    obsprotocol, obsseal = _full_observation_metadata(prep.OBS, parent['ids'])
     if (taskseal['rows'] != 238 or obsseal['rows'] != 238
             or obsseal['ordered_ids'] != parent['ids']
             or C.sha(prep.TASKS / 'INPUTS.jsonl.gz') != taskseal['input_sha256']
             or C.sha(prep.OBS / 'OBSERVATIONS.jsonl.gz') != obsseal['observations_sha256']
-            or C.sha(prep.OBS / 'PROTOCOL.json') != obsseal['protocol_sha256']
+            or C.sha(prep.OBS / OBSERVATION_PROTOCOL) != obsseal['protocol_sha256']
             or obsprotocol['selection_profile'] != G.SELECTION_PROFILE
             or obsprotocol['protected_user_sha256'] != parent['protected_user_sha256']):
         raise ValueError('Complete uniform V30 observations and original all238 physics required')
@@ -138,7 +159,7 @@ def prepare(output=OUTPUT):
         path = Path(module.__file__).resolve()
         sources[str(path.relative_to(C.ROOT))] = C.sha(path)
     paths = [PLAN, prep.TASKS / 'PROTOCOL.json', prep.TASKS / 'INPUT_SEAL.json',
-        prep.TASKS / 'INPUTS.jsonl.gz', prep.OBS / 'PROTOCOL.json',
+        prep.TASKS / 'INPUTS.jsonl.gz', prep.OBS / OBSERVATION_PROTOCOL,
         prep.OBS / 'PREPARATION_SEAL.json', prep.OBS / 'OBSERVATION_SEAL.json',
         prep.OBS / 'OBSERVATIONS.jsonl.gz', cal.OUTPUT / 'MODEL_SEAL.json',
         cal.OUTPUT / 'PREPARATION_SEAL.json']

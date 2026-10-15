@@ -81,3 +81,39 @@ def test_predict_rejects_wrong_profile_before_private_runtime(monkeypatch, tmp_p
     M.C.write(tmp_path / 'PROTOCOL.json', dict(selection_profile='OLD_WINNER'))
     with pytest.raises(ValueError, match='V30 full238'):
         M.predict(tmp_path)
+
+
+def complete_observation_metadata(folder):
+    ids = ['CAL:' + str(i) for i in range(46)] + ['TEST:' + str(i) for i in range(49)] \
+        + ['REMAINDER:' + str(i) for i in range(143)]
+    protocol = dict(ids=ids, selection_profile=M.G.SELECTION_PROFILE,
+        raw_observation_generation=M.G.RAW_OBSERVATION_GENERATION)
+    M.C.write(folder / M.OBSERVATION_PROTOCOL, protocol)
+    seals = {}
+    for name, part in (('CAL', ids[:46]), ('REST', ids[46:])):
+        p = folder / (name + '_OBSERVATION_SEAL.json')
+        M.C.write(p, dict(rows=len(part), ordered_ids=part))
+        seals[name] = M.C.sha(p)
+    M.C.write(folder / 'OBSERVATION_SEAL.json', dict(rows=238, ordered_ids=ids,
+        protocol_sha256=M.C.sha(folder / M.OBSERVATION_PROTOCOL), partition_seals=seals))
+    return ids
+
+
+def test_full_observation_requires_separate_final_protocol_and_both_partition_seals(tmp_path):
+    ids = complete_observation_metadata(tmp_path)
+    protocol, seal = M._full_observation_metadata(tmp_path, ids)
+    assert protocol['ids'] == seal['ordered_ids'] == ids
+    M.C.write(tmp_path / 'CAL_OBSERVATION_SEAL.json', dict(rows=45, ordered_ids=ids[:45]))
+    with pytest.raises(ValueError, match='CAL46'):
+        M._full_observation_metadata(tmp_path, ids)
+
+
+def test_old_CAL_protocol_cannot_stand_in_for_uniform_all238_closure(tmp_path):
+    ids = complete_observation_metadata(tmp_path)
+    # The original CAL protocol is preserved even when a valid final closure
+    # exists. Changing only that original file does not rebind the final seal.
+    M.C.write(tmp_path / 'PROTOCOL.json', dict(selection_profile='PARENT_CAL_ONLY'))
+    assert M._full_observation_metadata(tmp_path, ids)[1]['rows'] == 238
+    (tmp_path / M.OBSERVATION_PROTOCOL).unlink()
+    with pytest.raises(FileNotFoundError):
+        M._full_observation_metadata(tmp_path, ids)
