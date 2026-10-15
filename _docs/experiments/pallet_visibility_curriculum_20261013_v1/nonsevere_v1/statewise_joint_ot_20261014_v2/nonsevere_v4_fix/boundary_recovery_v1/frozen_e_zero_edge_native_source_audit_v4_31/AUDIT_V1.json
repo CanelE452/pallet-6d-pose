@@ -1,0 +1,586 @@
+{
+  "schema": "FROZEN_E_VS_ZERO_NEW_EDGE_NATIVE_SOURCE_AUDIT_V31",
+  "created_utc": "2026-10-15T09:39:41.997093+00:00",
+  "source_only": true,
+  "conclusion_ko": "활성 actual edge가 0이라는 조건은 G31 추가 line/tangent 항이 0이라는 뜻뿐이다. e를 생성했던 관측 상태·partial 비용·hard domains·wholemask·단계별 WD·start schedule과 동일하다는 뜻이 아니다.",
+  "equations": {
+    "e_family": "f_e = argmin_f min_searched_pose J_G10_f(complete_except_legacy + legacy_normal + symmetric_wholemask); stable ORIGINAL exact ties",
+    "e_pose": "same f_e: D typed partial normal + remaining complete q + symmetric_wholemask, original OT/U/partial guards; no T4 point cost; typed0 delegates G10",
+    "new_native_zero": "J = J_V26_complete_restoration_and_remaining_fallback_normal_T4 + bounded_O + bounded_S",
+    "new_containment_zero": "J = J_new_native_zero + lambda_C*C_outside_only; lambda_C=1 when supported else0",
+    "new_active_edge_additions": "zero active_groups => zero new_owner_ids => no new line factor or new actual-axis tangent; new CAL line sigma/gamma do not by themselves contribute"
+  },
+  "comparison": [
+    {
+      "key": "identity",
+      "topic_ko": "수치의 정체",
+      "frozen_e_ko": "e는 v13e가 보존한 D same-family 결과; 현재 arm에서 재계산하지 않음.",
+      "zero_new_edge_native_ko": "현재 입력/현재 비용/현재 guard로 새로 선택한 native 결과.",
+      "evidence": [
+        "cached_e_origin",
+        "e_two_stage",
+        "new_run"
+      ]
+    },
+    {
+      "key": "q",
+      "topic_ko": "q·source·공분산",
+      "frozen_e_ko": "V47 RGB 보정 q + 원 CAL fit covariance/reliability. D가 typed partial로 바꾼 q는 archive만 남고 비용에서 제거.",
+      "zero_new_edge_native_ko": "남아 있는 nonfallback partial q를 V26이 exact 2D 비용으로 복구; fallback partial은 normal+T4. 저장 q/Σ 자체를 새로 보정하지 않음.",
+      "evidence": [
+        "fixed_cov",
+        "e_d",
+        "d_loss",
+        "restore",
+        "restore_proxy"
+      ]
+    },
+    {
+      "key": "state",
+      "topic_ko": "상태·가시점 집합",
+      "frozen_e_ko": "원 e의 고정 state/BI 집합.",
+      "zero_new_edge_native_ko": "v18 grazing BI→U 후 filtered visible/partial+추가 U region. S는 최초 gate 고정.",
+      "evidence": [
+        "grazing",
+        "new_native"
+      ]
+    },
+    {
+      "key": "partial",
+      "topic_ko": "old partial 비용",
+      "frozen_e_ko": "full q 대신 normal만 soft 비용; tangent는 hard interval, archived tangent point cost0.",
+      "zero_new_edge_native_ko": "exact fallback partial에는 normal과 archived tangent variance4 비용이 함께 남음. nonfallback restored에는 둘 다 비용 제거.",
+      "evidence": [
+        "d_loss",
+        "native_old_parts",
+        "restore_proxy"
+      ]
+    },
+    {
+      "key": "guards",
+      "topic_ko": "hard guards",
+      "frozen_e_ko": "원 OT hard domains/U/visible geometry·canvas/depth/partial tangent range. soft BI 경로는 residual-budget row를 제거.",
+      "zero_new_edge_native_ko": "current grazing/U·O box domain과 original partial bounds. active0이면 new support guard는0이지만 모든 legacy guard가 사라지는 것은 아님.",
+      "evidence": [
+        "d_guards",
+        "soft_guard",
+        "o_domain",
+        "new_guards"
+      ]
+    },
+    {
+      "key": "o",
+      "topic_ko": "O 항",
+      "frozen_e_ko": "원 localized O ellipse 등 hard localization. 별도 bounded O soft term 없음.",
+      "zero_new_edge_native_ko": "v19 O hard ellipse 제거 후 canvas/extra planes 유지 + bounded O soft regularizer.",
+      "evidence": [
+        "o_domain",
+        "priors_input",
+        "os"
+      ]
+    },
+    {
+      "key": "s",
+      "topic_ko": "S 항",
+      "frozen_e_ko": "S local image/point0, 별도 bounded S model regularizer 없음.",
+      "zero_new_edge_native_ko": "S local image/point0 유지, first coarse에 대한 bounded S visibility model regularizer는 남음.",
+      "evidence": [
+        "old_mask",
+        "priors_input",
+        "os"
+      ]
+    },
+    {
+      "key": "prior",
+      "topic_ko": "coarse/TP/full/top-normal prior",
+      "frozen_e_ko": "G10/D 최종 prior_weight0. 이전 P1 posture는 search seed로만 이용.",
+      "zero_new_edge_native_ko": "FULL/TP/top-normal0; bounded O/S는 별도 dependent regularizer. first coarse도 start로 남음.",
+      "evidence": [
+        "e_g10",
+        "d_solver",
+        "new_run"
+      ]
+    },
+    {
+      "key": "shape",
+      "topic_ko": "wholemask 대 C1",
+      "frozen_e_ko": "지원되는 mask: 양방향 hull↔boundary symmetric loss를 λ1로 연속 최적화.",
+      "zero_new_edge_native_ko": "native arm: wholemask/C0. C arm: outside-only observed⊂full-model C1, inside0/forward0. active edge0과 C0은 다른 조건.",
+      "evidence": [
+        "old_mask",
+        "containment",
+        "new_run"
+      ]
+    },
+    {
+      "key": "starts",
+      "topic_ko": "탐색·초기값",
+      "frozen_e_ko": "WD0/P1/G10 saved winners/samples에서 G10/D 연속 refinement; typed없음은 G10 cache exact alias.",
+      "zero_new_edge_native_ko": "고정 v17 bank의 모든 feasible cached 후보 유지 + frozen v19 native 최대6 diverse starts와 own coarse. C는 같은 policy native endpoints도 보존.",
+      "evidence": [
+        "e_g10",
+        "e_d",
+        "d_solver",
+        "starts",
+        "new_run",
+        "legacy_bank"
+      ]
+    },
+    {
+      "key": "wd",
+      "topic_ko": "WD 선택",
+      "frozen_e_ko": "G10 complete/legacy+wholemask 목적함수로 family 고정 후 D의 그 family 결과를 읽음.",
+      "zero_new_edge_native_ko": "양 WD의 현재 native+O/S(+C)로 직접 재선택. e-family lock arm은 현재5arm 정의에 없음.",
+      "evidence": [
+        "e_two_stage",
+        "new_run",
+        "new_selector",
+        "wd"
+      ]
+    },
+    {
+      "key": "fallback",
+      "topic_ko": "실패·fallback",
+      "frozen_e_ko": "D same-family fallback과 ambiguity를 그대로 보존; 다른 family나 old pose로 성능 선택하지 않음.",
+      "zero_new_edge_native_ko": "새 현재-feasible 후보가 없으면 own ORIGINAL initial coarse를 accepted=False로 반환. e의 숫자를 fallback으로 새로 삽입하지 않음.",
+      "evidence": [
+        "e_two_stage",
+        "new_run"
+      ]
+    }
+  ],
+  "evidence": {
+    "cached_e_origin": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_fixed_wd_archived_tangent_v4_15.py",
+      "symbol": "_load",
+      "first_line": 102,
+      "last_line": 140,
+      "fact_ko": "CAL46/TEST49 e는 SELECTOR.ARMS[2], REMAINDER143 e는 R.ARMS[SELECTOR.ARMS[2]]에서 task.baseline으로 보관한다."
+    },
+    "e_two_stage": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/select_frozen_wd_partial_refinement_v4_13e.py",
+      "symbol": "select_same_family",
+      "first_line": 27,
+      "last_line": 79,
+      "fact_ko": "old G10.selected_family를 먼저 고정하고 D의 같은 family arm을 deepcopy한다. e는 OLD pose가 아니라 D의 같은-family pose이며 새 fit/GT 선택은 없다."
+    },
+    "e_g10": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_global_outline_pose_v4_10.py",
+      "symbol": "_run",
+      "first_line": 56,
+      "last_line": 94,
+      "fact_ko": "같은 V47 frozen q/partial/U와 전체 mask를 사용한다. 각 WD는 이전 WD solution 및 P1 solution/운반 seed에서 G10 연속 refinement하고 joint objective로 family를 고른다."
+    },
+    "e_d": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_face_partial_BI_outline_v4_13d.py",
+      "symbol": "_run",
+      "first_line": 92,
+      "last_line": 132,
+      "fact_ko": "legacy boundary와 typed B/I boundary를 corner ID로 병합한다. typed가 없으면 old G10 전체를 그대로 재사용하고 있으면 G13으로 같은 G10 caller를 실행한다."
+    },
+    "e_d_observe": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_face_partial_BI_outline_v4_13d.py",
+      "symbol": "_observe",
+      "first_line": 69,
+      "last_line": 89,
+      "fact_ko": "이미 보정된 frozen_BI_fit과 최초 gated raw prediction/initial geometry로 typed partial 관측을 만든다. q/cov archives를 변경하지 않는다."
+    },
+    "e_remainder": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_remainder_frozen_wd_v4_14.py",
+      "symbol": "_run",
+      "first_line": 61,
+      "last_line": 110,
+      "fact_ko": "추가143은 fresh P1 seed→WD prior0 search→G10→D→같은-family e 규칙을 직접 실행한다. 원95 pose를 대체 재사용하지 않는다."
+    },
+    "upstream": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py",
+      "symbol": "_frames",
+      "first_line": 62,
+      "last_line": 83,
+      "fact_ko": "주 코호트 raw_points/initial_pose는 PREDICTION_INPUTS의 points.N3_SUBPIX / initial_poses.N3_SUBPIX를 그대로 받는다. 이것은 YOLO head raw와 동일하다는 뜻이 아니다."
+    },
+    "observe": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v4.py",
+      "symbol": "observe",
+      "first_line": 29,
+      "last_line": 106,
+      "fact_ko": "registered initial geometry/S gate→mask/state→nonS B/I image correction→고정 visible measurement→OT domains 순서이다. 최초 geometry를 보정 후 재분류하지 않는다."
+    },
+    "fixed_cov": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_partial_observations_v4_4.py",
+      "symbol": "fixed_fit_measurements",
+      "first_line": 128,
+      "last_line": 139,
+      "fact_ko": "recovered q와 source/conditional covariance는 correction에서 받고 fit_covariance/fit_reliability는 original calibrated measurement에서 그대로 덮어쓴다."
+    },
+    "recover_v47": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_shared_edge_partial_b_v4_7.py",
+      "symbol": "_run",
+      "first_line": 63,
+      "last_line": 136,
+      "fact_ko": "old correction의 실패 B만 다시 recovery하며 이미 성공한 B와 모든 I는 그대로 둔다. fixed CAL fit scales와 shared legacy B normals/U를 만든다."
+    },
+    "recover_reach": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_corner_reach_v4_7.py",
+      "symbol": "_working_configuration",
+      "first_line": 49,
+      "last_line": 58,
+      "fact_ko": "기존 normal search radius의 하한을 along_end+boundary_context로 넓힌다. 새 PnP나 보정성공 증명은 아니다."
+    },
+    "raw_bi": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_correction_v2.py",
+      "symbol": "correct_visible_bi",
+      "first_line": 101,
+      "last_line": 182,
+      "fact_ko": "B/I만 실제 image line/intersection을 측정하며 성공 source와 VISIBLE_BACKBONE_FALLBACK을 구분한다. S/O/T/U는 per-point correction을 받지 않는다."
+    },
+    "remainder_q": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_remainder_rgb_v4_14.py",
+      "symbol": "observe_remainder_native_frame_v4_14",
+      "first_line": 115,
+      "last_line": 192,
+      "fact_ko": "fresh143도 N3_SUBPIX geometry/state→tight/full targetmask→CAL measurement scales→동일 recovery→fixed_fit_measurements→legacy partial/U 순서를 따른다."
+    },
+    "d_loss": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_u_solver_v4_13.py",
+      "symbol": "_joint_objective_pair",
+      "first_line": 149,
+      "last_line": 164,
+      "fact_ko": "boundary ID의 full2D q비용을 제거하고 fixed reliability partial normal 비용을 더한다. e 단계에는 archived tangent point cost가 없고 tangent는 hard range뿐이다."
+    },
+    "d_guards": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_u_solver_v4_13.py",
+      "symbol": "_joint_constraint_pair",
+      "first_line": 167,
+      "last_line": 171,
+      "fact_ko": "전체 measurements와 OT/U, original boundary tangent bounds를 함께 검사한다. 비용에서 q를 없애도 measurement guard metadata는 보존된다."
+    },
+    "soft_guard": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertain_solver_v4_bias.py",
+      "symbol": "_constraints",
+      "first_line": 114,
+      "last_line": 125,
+      "fact_ko": "generic constraint의 visible residual-budget rows를 명시 제거한다. maximum_visible_mahalanobis 설정명만 보고 이 경로에 hard q residual cap이 있다고 주장하면 안 된다."
+    },
+    "old_mask": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py",
+      "symbol": "_outline_value",
+      "first_line": 102,
+      "last_line": 128,
+      "fact_ko": "projected convex hull↔observed convex-envelope segments 양방향 robust distance를 .5씩 평균한다. mask가 지원되면 lambda1로 연속 최적화하며 states/occluder eligibility 입력은 없다."
+    },
+    "d_solver": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py",
+      "symbol": "refine_global_outline_joint_pose",
+      "first_line": 182,
+      "last_line": 362,
+      "fact_ko": "typed revocation이 없으면 G10으로 exact delegate한다. typed가 있으면 partial normal+동일 wholemask를 optimize한다. prior_weight는0, old full-BI/WD/P1은 seed뿐이다."
+    },
+    "new_native": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/prepare_geometry_guided_native_evidence_v4_30.py",
+      "symbol": "native_baseline",
+      "first_line": 31,
+      "last_line": 40,
+      "fact_ko": "current task spec/grazing states/filtered visible/merged boundary/U/domains로 empty edge NativeEdgeProblem(prior0)을 만든 뒤 V26 prepartial proxy를 붙인다."
+    },
+    "new_clone": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/prepare_geometry_guided_native_evidence_v4_31.py",
+      "symbol": "_parent_function",
+      "first_line": 21,
+      "last_line": 25,
+      "fact_ko": "V31 native_baseline은 위 V30 함수를 G31에만 private binding한 복사이며 새로운 e evaluator가 아니다."
+    },
+    "native_old_parts": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/native_edge_problem_v4_17.py",
+      "symbol": "objective",
+      "first_line": 98,
+      "last_line": 138,
+      "fact_ko": "complete BI+remaining old partial normals+native edges+archived tangent T4이다. empty edge에서도 old normal/T4는 남고 wholemask/coarse prior는0이다."
+    },
+    "restore": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/prepartial_RGB_point_preservation_v4_26.py",
+      "symbol": "prepare_prepartial_native_problem",
+      "first_line": 91,
+      "last_line": 118,
+      "fact_ko": "partial ID 중 exact VISIBLE_BACKBONE_FALLBACK 이외의 RGB/unknown archive만 exact complete2D로 복구한다. fallback partial은 기존 normal+T4로 남긴다."
+    },
+    "restore_proxy": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/prepartial_RGB_point_preservation_v4_26.py",
+      "symbol": "PrepartialRGBPointPreservingNativeProblem",
+      "first_line": 31,
+      "last_line": 88,
+      "fact_ko": "복구한 q는 original q/source/observedSigma/effectiveSigma/reliability를 유지하고 그 owner의 old normal/T4 비용만 제거한다. 원래 boundary guard는 delegate한다."
+    },
+    "grazing": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_grazing_native_candidates_v4_18.py",
+      "symbol": "adapt_cached_task",
+      "first_line": 29,
+      "last_line": 62,
+      "fact_ko": "최초 model geometry grazing band의 B/I를 U로 바꾸고 visible/partial을 filter하며 U region을 추가한다. task.baseline은 바꾸지 않아 e와 current states/eligible q가 다를 수 있다."
+    },
+    "o_domain": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/o_localization_abstention_v4_19.py",
+      "symbol": "abstain_external_o_localization",
+      "first_line": 20,
+      "last_line": 96,
+      "fact_ko": "current O ellipse hard localization을 closed-canvas box+원 extra halfplanes로 바꾸며 O state/T domains는 유지한다. e의 원 hard O ellipse와 같지 않다."
+    },
+    "new_policy": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/geometry_guided_edge_problem_v4_29.py",
+      "symbol": "plan_geometry_guided_replacement",
+      "first_line": 76,
+      "last_line": 168,
+      "fact_ko": "active0이면 owners0이고 no-new-owner V26 measurement state를 보존한다. 새 gamma/line noise가 이 경우 비용을 다시 e로 만들지 않는다."
+    },
+    "new_parts": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/geometry_guided_edge_problem_v4_29.py",
+      "symbol": "objective",
+      "first_line": 197,
+      "last_line": 223,
+      "fact_ko": "base.objective에 활성 actual edge와 owner actual-line-axis tangent만 더한다. 그룹/owner0이면 이 추가항은0이다."
+    },
+    "new_guards": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/geometry_guided_edge_problem_v4_29.py",
+      "symbol": "constraints",
+      "first_line": 262,
+      "last_line": 266,
+      "fact_ko": "owner 없는 original boundary guards와 actual-support guards를 더한다. active0이면 actual-support 추가행이 없으며 source baseline의 OT/U/depth/geometry/canvas/partial guards는 남는다."
+    },
+    "new_g31": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_geometry_guided_edges_v4_31.py",
+      "symbol": "_problem",
+      "first_line": 75,
+      "last_line": 95,
+      "fact_ko": "typed G31 model 또는 explicit unavailable empty evidence를 사용한다. reference_start_problem은 frozen old native start ranking 전용이며 objective 대체가 아니다."
+    },
+    "priors_input": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_bounded_geometric_priors_v4_22.py",
+      "symbol": "_prior_inputs",
+      "first_line": 61,
+      "last_line": 78,
+      "fact_ko": "archived original O domain으로 bounded O regularizer를 준비하고 ORIGINAL first coarse geometry/S로 bounded S model prior를 준비한다. e numeric pose는 target으로 쓰지 않는다."
+    },
+    "os": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py",
+      "symbol": "BoundedGeometricPriorsProblem",
+      "first_line": 21,
+      "last_line": 78,
+      "fact_ko": "native에 dependent bounded O/S model regularizers를 별도 장부로 더한다. 새 S image point는 없고 hardguard를 새로 추가하지 않는다."
+    },
+    "containment": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/global_foreground_containment_v4_25.py",
+      "symbol": "outline_value_and_gradient",
+      "first_line": 48,
+      "last_line": 112,
+      "fact_ko": "C=.5 mean rho(outside distance), observed sample이 full model hull 내부면0/model→observed항0이다. 옛 symmetric wholemask와 다른 함수이다."
+    },
+    "new_run": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_geometry_guided_edges_v4_29.py",
+      "symbol": "_run",
+      "first_line": 142,
+      "last_line": 209,
+      "fact_ko": "baseline e는 deepcopy만 한다. 각 새 policy는 양 WD에서 native+boundedO/S 또는 +C를 refine/재평가하고 현재 총비용으로 WD/pose를 새로 고른다. full/TP/topnormal prior는0이다."
+    },
+    "new_selector": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_geometry_guided_edges_v4_29.py",
+      "symbol": "select_candidates",
+      "first_line": 100,
+      "last_line": 125,
+      "fact_ko": "fresh-feasible 후보를 전부 인증한 뒤 native+O/S+lambdaC scalar minimum, arithmetic ties는 입력순서. old wholemask/tie score를 쓰지 않는다."
+    },
+    "starts": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/refine_native_edge_pose_v4_17.py",
+      "symbol": "choose_native_starts",
+      "first_line": 44,
+      "last_line": 84,
+      "fact_ko": "고정 native start problem에서 fresh feasible objective와 pose diversity로 최대6개+own coarse를 선택한다. 이 유한 탐색은 e의 단계별 full-search seed schedule과 같지 않다."
+    },
+    "legacy_bank": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_cached_native_edges_v4_17.py",
+      "symbol": "collect_proposal_bank",
+      "first_line": 103,
+      "last_line": 125,
+      "fact_ko": "고정 bank는 seed/G10/D/normal/tangent의 선언된 saved solutions를 전부 수집한다. tangent의 SAME_FROZEN_E arm도 반복문 범위에 들어가므로 historical e-equivalent pose가 bank에 없다고 단정할 수 없다. 현재 e를 새로 주입하는 규칙은 없다."
+    },
+    "wd": {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_two_wd_family_v4_9.py",
+      "symbol": "make_wd_families",
+      "first_line": 30,
+      "last_line": 82,
+      "fact_ko": "ORIGINAL/SWAPPED는 같은 unordered physical box를 유지하지만 native channel별対応가 다르다. physical R과 Q를 운반해야 하며 t/rvec만 바꿔 끼우면 같은 관측가설이 아니다."
+    },
+    "backbone": {
+      "path": "scripts/research/pallet_n3_subpix_20261008_v1/runtime.py",
+      "symbol": "Pipeline",
+      "first_line": 150,
+      "last_line": 213,
+      "fact_ko": "upstream runtime는 YOLO26 pose checkpoint→공유 neck의 frozen N3_DIM_SYM seed1 step6000→SubPix→BASE q0 기준 image diagonal1% total cap→original prediction-only F를 사용한다. visibility 단계의 N3_SUBPIX는 순수 최초 head q가 아니다."
+    }
+  },
+  "ancestry_ko": [
+    "frozen upstream YOLO→N3_DIM_SYM→SubPix/cap→stored initial PnP/known geometry",
+    "initial geometry and S gate→targetmask/state→B/I actual RGB correction→CAL effective covariance/reliability",
+    "fallback B recovery v4.3/v4.3b/v4.7; legacy B partial/U→prior1 search seeds→WD prior0 search",
+    "G10 wholemask continuous two-WD search/family selection→D typed partial normal refinement→e freezes G10 family and reads D same-family pose",
+    "e copied as immutable task.baseline→v15/v17 bank→v18 grazing→v19 O hard-domain abstention→v22 boundedO/S→v25 inputs→G31 native baseline V26 nonfallback q restoration"
+  ],
+  "objective_reuse": {
+    "feasible": true,
+    "implemented": false,
+    "numeric_e_pose_insertion_permitted": false,
+    "closest_reusable_primitives": [
+      "statewise_partial_BI_u_solver_v4_13._joint_objective_pair",
+      "statewise_partial_BI_u_solver_v4_13._joint_constraint_pair",
+      "statewise_partial_BI_outline_solver_v4_13._prepare",
+      "statewise_partial_BI_outline_solver_v4_13.outline_value_and_gradient",
+      "statewise_global_outline_solver_v4_10._prepare",
+      "statewise_global_outline_solver_v4_10.outline_value_and_gradient"
+    ],
+    "explanation_ko": "예측숫자 e를 사용하지 않고 원 D loss/guard builder와 wholemask 함수를 새 uniform evaluator에서 재사용할 수 있다. 단 현 V26 q복원·grazing·O box·T4·boundedO/S/C를 유지하면 같은 함수 호출이더라도 e와 같은 objective가 아니다. 원 input profile로 명시 복귀하거나 차이를 별도 대조로 선언해야 한다.",
+    "staged_WD_caveat_ko": "e는 하나의 최종 scalar objective로 두 WD를 동시에 최소화한 방법이 아니다. D objective만 양WD에 적용하면 다른 방법이다. e 절차 자체를 재현하려면 G10 family selection→D within-family의 두 단계를 동일하게 계산해야 한다.",
+    "search_parity_caveat_ko": "목적함수 재사용만으로 e 숫자 자세의 exact 재현/좋은 성능/전역최적이 보장되지 않는다. 동일 q/source/Σ/weights/state/domain/boundary/mask/profile, same Q/native association와 optimizer/start/ties/fallback까지 고정해야 결과 parity를 논할 수 있다.",
+    "inherited_bank_caveat_ko": "현재 선언된 v17 bank는 이미 역사적 e arm solution도 일반 수집 대상으로 포함한다. 이번 감사는 e를 새 prior/start/candidate/fallback으로 삽입하지 않았고, future uniform comparison도 별도의 numeric-e injection을 추가하면 안 된다."
+  },
+  "reused_source_audits": {
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/prepartial_RGB_source_audit_v4_26/AUDIT.json": "c001955aa1d003fd0453d6c493593d99deffe7b770987f0828a224409587447f",
+    "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/nonsevere_v4_fix/boundary_recovery_v1/prepartial_RGB_source_audit_v4_26/PATH_CLOSURE_V1.json": "0d9e7bff7afd7ed0fc84be4b39d5b937e6d86391693c78c45e2ae9e4dc8981fe"
+  },
+  "reused_source_findings": [
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/face_aware_partial_bi_observations_v4_13d.py",
+      "lines": [
+        338,
+        342,
+        359,
+        394
+      ],
+      "fact_ko": "typed转환 이전 m의 q/source/observedΣ/effectiveΣ/reliability를 association_provenance에 그대로 보관. grazing/ambiguous이면 corrected RGB도 partial로 전환 가능."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_u_solver_v4_13.py",
+      "lines": [
+        100,
+        146,
+        149,
+        164,
+        167,
+        171
+      ],
+      "fact_ko": "archive 정확성 검증 뒤 boundary IDs의 full2D 비용을 모두 제거. hardguard는 모든 measurements와 boundary를 그대로 사용."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_archived_BI_tangent_solver_v4_15.py",
+      "lines": [
+        20,
+        52,
+        68,
+        119
+      ],
+      "fact_ko": "legacy fallback B만 별도 exact archive. typed/non-typed tangents를 추가하되 full2D q 비용은 복구하지 않음."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/native_edge_problem_v4_17.py",
+      "lines": [
+        89,
+        90,
+        98,
+        138,
+        140,
+        143
+      ],
+      "fact_ko": "self.complete에서 모든 boundary native IDs를 제외; self.measurements/self.boundary는 hardguard용 유지. complete·remainingnormal·newedge·archivedT4가 별도 native 비용."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/complete_bi_image_chain_evidence_v4_20.py",
+      "lines": [
+        315,
+        337,
+        365,
+        388
+      ],
+      "fact_ko": "새 complete 대체 계획도 base.complete만 대상으로 함. 이미 oldpartial인 RGB q는 이 새 complete 후보집합에 없음."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/source_preserving_complete_bi_evidence_v4_24.py",
+      "lines": [
+        91,
+        186
+      ],
+      "fact_ko": "original corner_plans의 nonfallback complete q는 보존하지만 pre-existing partial IDs를 complete로 되돌리는 코드 없음. 기존partial owner는 유지함."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_coarse_prior_containment_v4_25.py",
+      "lines": [
+        61,
+        72
+      ],
+      "fact_ko": "SOURCE24 problem을 그대로 사용하므로 v25도 이전partial RGB q는 미복구."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_remainder_rgb_v4_14.py",
+      "lines": [
+        159,
+        181
+      ],
+      "fact_ko": "추가143의 최초RGB correction 전체ray/point provenance는 fresh OBSERVATIONS correction에 보관; frozen_BI_fit은 같은q와CAL유효Σ/weight. compact current INPUTS에는 원 q 생성ray가 포함되지 않음."
+    }
+  ],
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_fixed_wd_archived_tangent_v4_15.py": "7419979c94cbab5a7b36def236edb541b597d2a72faae8cbd275aaf5efc39865",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/select_frozen_wd_partial_refinement_v4_13e.py": "e5db469e871762bdd994d6c379a400e878271acad69ca1d18f350f7621e86f86",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_global_outline_pose_v4_10.py": "507723db2fe4c5294d451537771ff478bb7893800c18ec195f08c39fca2d9c4c",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_face_partial_BI_outline_v4_13d.py": "c53f5f10965e61811778b2fdfa6ff30167c012e7e066f8679073d53ce19ba440",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_remainder_frozen_wd_v4_14.py": "059fc77c23a90f4d233d874c37093e2734d1f63a57ff4c47eff7a9fc1d1f2375",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py": "0955b3b471eba69b55282d65b7d6dff84652c943f8bbf9ec52cbead4c317de46",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v4.py": "19b88972bd24e14d1151b7493df16c80f0a48e4151f1bc66019d20b4f3bc4309",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_partial_observations_v4_4.py": "d8e2d83bba91d11f58493f17798c14f4bbc3d88c0ee83a944ac26962d6178de8",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_shared_edge_partial_b_v4_7.py": "98c49e20529eca0e4e36890ae58bb18dd45511c60e0445b63d8cdbaa4432275f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_corner_reach_v4_7.py": "0d79a9b98e77b312ab673ae6640dcf3e4747790fe12ca8b6049bfc2a2aba9e04",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_remainder_rgb_v4_14.py": "43ffa13e262f71db118ca7f435fc06a60bc139eb4dee440e5a901478fffdd287",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_u_solver_v4_13.py": "93412e3b0a7eeac5d8e7f443cb9397c35b02705165dc017ef40a63fc786b9cbf",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertain_solver_v4_bias.py": "b30d87face8cf2c912a4dac9c9d2720276c788ed489b1ac9ba986a38b21bc865",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py": "34cca867999278ea7f7d3ebeba4dd4ce3663d26badefdc1a5af7117dd005962f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_partial_BI_outline_solver_v4_13.py": "946e4901d19451b26b3043f6e0d0b8e6dcf518819e6c835ed15723a781f40f9b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/prepare_geometry_guided_native_evidence_v4_30.py": "cd069c22e9838118ec588c18ec43deef89b5bac388691b4df896215e5d58e351",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/prepare_geometry_guided_native_evidence_v4_31.py": "dd7326e4ad9033f776200d536c025b53de7be86bd0d9aa2304ba22e21219051d",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/native_edge_problem_v4_17.py": "93378edf88d21a2e64e98b9180c0196163857cc85e282b8374d290561ca1ef76",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/prepartial_RGB_point_preservation_v4_26.py": "5cde45c005baf7d376790393b81247b751d5d2a73100321551d57acde81d939f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_grazing_native_candidates_v4_18.py": "8b878eae2f29c70da76fdb2116eabb045ca7837f054c997c8f8e6dbe3b01d8e6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/o_localization_abstention_v4_19.py": "b7b780bd28b4292f63bd474b08652f4040b61a2cde6b9198e7c2995129b45adf",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/geometry_guided_edge_problem_v4_29.py": "12002e9e302bebba84ddf35a78c49b392108b45d25fbe164bd1fac9d553f47aa",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_geometry_guided_edges_v4_31.py": "659a3fe50b7a5a59f7b5c664833815364150eaf2b2e9f8927c91f1318e126164",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_bounded_geometric_priors_v4_22.py": "a2cba3523fe9504534bae0745893ef71db98668b5ce78297b8aa006ad38a20e9",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_geometric_priors_problem_v4_22.py": "086c19b4f00c1706004587a44cf9a113fec4d9fcd61a92efab226479fdfebac1",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/global_foreground_containment_v4_25.py": "1b106c62c159a8dcca9598dedeb5d187e534a5a46de23117afb283f9605b4afe",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_geometry_guided_edges_v4_29.py": "5aff5081b54bee36966c5d2de5d6b140369c301a63d40b586d6232310433b1df",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/refine_native_edge_pose_v4_17.py": "cec0c5029960837d730b4174e6ab666416c66526687e159e2a05c648881e7723",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_cached_native_edges_v4_17.py": "5d705c9967ff1425716a9d363382fe4b388b6b08071ba80d0208a35b159c87d8",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_two_wd_family_v4_9.py": "2dc9b4d185ccec7f1da5ebfe20b36c1262d1b20154c8a401957441946f96018b",
+    "scripts/research/pallet_n3_subpix_20261008_v1/runtime.py": "e1c5afaa7a39ec7cc3b99deec4529442207bd17139b06a3560f07a85f16b96b2",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/audit_frozen_e_zero_edge_sources_v4_31.py": "efd47d45e1ec3f9cc21460fc2de365b7919a500fd752abe15b2d9142f28006e7"
+  },
+  "limitations_ko": [
+    "소스 경로·수식·입력 정책 감사이며 새 V31 frame의 active0 수/실제 비용/성능을 계산하지 않았다.",
+    "개별 frame에서 어떤 차이가 주원인인지 또는 이 함수 복귀가 정확도를 회복할지는 소스만으로 결정할 수 없다.",
+    "line 지원0 또는 불확실성은 full q/자세 유일성의 증거가 아니다.",
+    "S/U 원좌표·새 RGB·GT/annotation·CAL 숫자·primary rows·prediction/score journal/model numeric decode0; optimizer/evaluate/posefit0."
+  ],
+  "reads": {
+    "Python_source_only": true,
+    "reused_existing_source_audit_fields_only": true,
+    "actual_rows": 0,
+    "score_or_prediction_journals": 0,
+    "numeric_models": 0,
+    "labels": 0,
+    "RGB_or_mask_arrays": 0,
+    "source_edits_to_frozen_modules": 0
+  },
+  "checks": {
+    "referenced_symbols": 38,
+    "source_files": 33,
+    "comparison_rows": 12,
+    "reused_reports": 2,
+    "all_sources_unchanged_after_write": true
+  }
+}

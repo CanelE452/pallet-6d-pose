@@ -1,0 +1,301 @@
+{
+  "schema": "CURRENT_COARSE_Q_AND_CLEAN_QUERY_SOURCE_CLOSURE_V31",
+  "created_utc": "2026-10-15T09:45:45.293100+00:00",
+  "source_only": true,
+  "source_paths": {
+    "original_coarse": "N3_SUBPIX cached initial pose→registered initial_geometry→E._physics_spec→make_wd_families.ORIGINAL coarse; downstream e numeric path not found",
+    "swapped_coarse": "original R@RY90.T; Q=RY90@Qoriginal; same t. Unordered physical body preserved, image native channels remain hypothesis-specific",
+    "current_visible": "actual B/I correction/recovery→frozen_BI_fit→spec.visible→grazing eligibility filter; no posterior e modelprojection→q rewrite",
+    "covariances": "observed conditional Sigma from image correction; effective fitSigma/reliability fixed from CAL; V26 restoration exact archived q/source/Sigma/weight",
+    "S_model_prior": "task.families.ORIGINAL_WD.coarse_pose→bounded S eligibility/prepared model; no downstream e numeric center",
+    "ORIGINAL_INITIAL": "v15 finish_input._original_source.initial_geometry→observer geometry→base G28 ORIGINAL_INITIAL",
+    "OWN_INITIAL_COARSE": "both fixed family.coarse_pose reexpressed in ORIGINAL XYZ/Q",
+    "extra_CACHED_guides": "E-inclusive v17 proposals→native-ranked6→UNIFORM_INITIAL_PROPOSAL_BANK additional guide; direct E source not explicitly excluded"
+  },
+  "verdicts": {
+    "original_coarse_q_S_and_originalguide": "NO_DOWNSTREAM_E_POSE_COPY_FOUND_IN_TRACED_SOURCE",
+    "extra_CACHED_guides": "NOT_CLEAN_UNDER_STRICT_NO_E_SOURCE_INTENT",
+    "inherited_candidate_bank": "FAIL_CONFIRMED_FIRST_CAL",
+    "actual_E_origin_guide_selected": "NOT_EVALUATED",
+    "statistical_independence_claimed": false
+  },
+  "nuances_ko": [
+    "v15 task.spec.xyz/coarse는 frozen family로 덮어쓸 수 있으나 task.families 양family coarse는 보존된다. G31 native_baseline은 해당 family xyz/coarse를 직접 사용하고 S/observer는 ORIGINAL_WD를 명시한다.",
+    "q는 raw YOLO head 자체가 아니라 frozen N3/SubPix와 actual BI 보정/recovery 이후 source별 archive이다. raw source로 rename하거나 e-projection이라고 부르면 둘 다 부정확하다.",
+    "현재 q/initialcoarse가 e의 입력에도 쓰였으므로 통계적으로 독립된 관측이라고 주장하지 않는다. downstream e 숫자를 복사하는지라는 실행 ancestry만 구분한다.",
+    "원 task.proposals 중 E-origin을 소스gate 없이 후보/guide로 사용한 문제는 단순 numeric coincidence가 아니다. Etag만 지워도 다른 D/seedbank alias로 같은 posterior가 남는다."
+  ],
+  "clean_cached_measurement_candidate_design": {
+    "implemented": false,
+    "actual32_runs": 0,
+    "allow_guide_kinds": [
+      "FROZEN17C_ORIGINAL_MODEL_SEED",
+      "MEASURED_BI_ENDPOINT_DIRECTION"
+    ],
+    "reject_all_other_guide_kinds": true,
+    "frozen17c": {
+      "source": "P29._chain_reference proposal is None; raw base17c actual queries",
+      "seed_direction": "unit(original_initial_projection[mate] - original_initial_projection[k])",
+      "actual_anchor": "immutable observed B/I q[k]",
+      "actual_direction": "bothBI:unit(q[m]-q[k]); unknownmate: original model direction",
+      "orientation_context": "original initial geometry face association/seed normal; S excluded, O/T/U observed coordinates unavailable"
+    },
+    "measured_endpoint": {
+      "source": "G28.prepare_joint_geometry_guides MEASURED_BI_ENDPOINTS",
+      "actual_anchor": "q[k]",
+      "actual_direction": "unit(q[m]-q[k])",
+      "minimum_endpoint_separation_px": 10,
+      "other_inputs": "initial geometry face-role and physical-axis metadata only; no extra poseguide direction"
+    },
+    "remove_physical_VP_kind": "PHYSICAL_VP_THROUGH_OBSERVED_BI_ANCHOR: reject both ORIGINAL_INITIAL and extra CACHED origins; guide_id does not exempt it",
+    "source_gate_placement": "raw ray/chain after state gates, before exact-fit dedup; validate raw guide dict/selfID + actual anchor/direction aliases; preserve raw indices/pixels/TLS/provenance",
+    "scoring_caveat": "Set rank pose_guides=None or explicit independent owncoarse only. Merely filtering candidate guide_kind while passing old cached pose_guides leaves E-origin weakguide and ordered-compatibility score influence.",
+    "unchanged_storage": "No moving model anchor to q, no ref/name relabel, no fabricated fresh NMS. Canonical raw archive remains exact; separate selection ledger/profile/noise calibration required.",
+    "remaining_limitations": "These query-source gates do not establish finite native-edge identity/occluder semantics/fullKP or pose uniqueness. Fresh observed-BI PnP and separately declared population remain needed."
+  },
+  "evidence": [
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py",
+      "symbol": "_frames",
+      "line": 62,
+      "end_line": 83,
+      "fact_ko": "원95 raw q/initial pose는 frozen N3_SUBPIX input 필드. 후속 G10/e 입력 아님."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v4.py",
+      "symbol": "observe",
+      "line": 29,
+      "end_line": 106,
+      "fact_ko": "geometry를 correction/최종 solution 전에 원 coarse로 고정. S gate와 geometry를 후속 q/solution으로 갱신하지 않음."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_evaluation_v4.py",
+      "symbol": "_physics_spec",
+      "line": 263,
+      "end_line": 268,
+      "fact_ko": "coarse R/t/Q는 observation.initial_geometry, visible은 deepcopy(fit). e pose argument 없음."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_visibility_pose_v4_8.py",
+      "symbol": "_spec",
+      "line": 100,
+      "end_line": 105,
+      "fact_ko": "같은 geometry/fit에 legacy boundary/U만 추가."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_two_wd_family_v4_9.py",
+      "symbol": "make_wd_families",
+      "line": 30,
+      "end_line": 82,
+      "fact_ko": "ORIGINAL coarse=initial R/t/Q. SWAPPED=R@RY90.T,Q=RY90@Q,t동일. posterior solution으로 대체X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_two_wd_family_v4_9.py",
+      "symbol": "solve_two_wd_families",
+      "line": 92,
+      "end_line": 174,
+      "fact_ko": "model coarse를 먼저 생성; posterior solution은 별도 필드에 추가."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_global_outline_pose_v4_10.py",
+      "symbol": "_run",
+      "line": 56,
+      "end_line": 94,
+      "fact_ko": "family geometry metadata와 G10 solution R/t는 별도. saved P1/G10 winner를 coarse로 저장하지 않음."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_face_partial_BI_outline_v4_13d.py",
+      "symbol": "_run",
+      "line": 92,
+      "end_line": 132,
+      "fact_ko": "D는 같은 G10 caller의 G13 facade. frozen_BI_fit equality 검증. e/G10 pose→q 복사X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_fixed_wd_archived_tangent_v4_15.py",
+      "symbol": "_task",
+      "line": 50,
+      "end_line": 99,
+      "fact_ko": "family metadata와 solutions/initializations를 별도 보관. spec.visible=original frozen_BI_fit, original_source.initial_geometry 별도 보존."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_cached_native_edges_v4_17.py",
+      "symbol": "_load",
+      "line": 137,
+      "end_line": 179,
+      "fact_ko": "families는 seedbank.family, proposals는 별도 historical pose 수집, baseline은 별도 필드."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_grazing_native_candidates_v4_18.py",
+      "symbol": "adapt_cached_task",
+      "line": 29,
+      "end_line": 62,
+      "fact_ko": "original geometry==ORIGINAL coarse 확인; grazing BI→U/filter 후 남은 image q/source/cov는 재생성X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertainty_calibration_v4.py",
+      "symbol": "apply_calibrated_measurements",
+      "line": 315,
+      "end_line": 344,
+      "fact_ko": "q/source/conditionalSigma 그대로; fitSigma/reliability만 추가, runtime e/target 인자X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_partial_observations_v4_4.py",
+      "symbol": "fixed_fit_measurements",
+      "line": 128,
+      "end_line": 139,
+      "fact_ko": "actual correction q/source/conditionalSigma와 원 CAL fitSigma/weight 구분."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_shared_edge_partial_b_v4_7.py",
+      "symbol": "_run",
+      "line": 63,
+      "end_line": 136,
+      "fact_ko": "성공B/I exact보존; 실패B만 actualRGB recovery. G10/e 전 단계."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/prepartial_RGB_point_preservation_v4_26.py",
+      "symbol": "prepare_prepartial_native_problem",
+      "line": 91,
+      "end_line": 118,
+      "fact_ko": "nonfallback partial archive의 q/source/Sigma/weight 그대로 비용복구, 새q추정X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/prepare_geometry_guided_native_evidence_v4_30.py",
+      "symbol": "validate_runtime_join",
+      "line": 49,
+      "end_line": 68,
+      "fact_ko": "observer geometry R/center==ORIGINAL coarse와 visible exact equality 확인."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_bounded_geometric_priors_v4_22.py",
+      "symbol": "_prior_inputs",
+      "line": 61,
+      "end_line": 78,
+      "fact_ko": "S prior 중심/eligibility는 ORIGINAL first coarse; e pose 읽기X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_coarse_visibility_prior_v4_20.py",
+      "symbol": "prepare_bounded_coarse_visibility_prior",
+      "line": 70,
+      "end_line": 84,
+      "fact_ko": "initialR/t/hidden+sealed CAL epsilon. frame e pose 인자X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_native_edge_chains_v4_17b.py",
+      "symbol": "_thin_task",
+      "line": 59,
+      "end_line": 84,
+      "fact_ko": "v15 finish_input._original_source.initial_geometry가 initial observation guide 출처."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_geometry_guided_edges_v4_29.py",
+      "symbol": "_join",
+      "line": 39,
+      "end_line": 72,
+      "fact_ko": "initial geometry==ORIGINAL family coarse 검증. guide_task에 proposals 별도 복사."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/image_edge_observations_v4_29.py",
+      "symbol": "prepare_task_pose_guides",
+      "line": 54,
+      "end_line": 111,
+      "fact_ko": "owncoarse + inherited E-inclusive proposals의 native-ranked6으로 extra guides 생성. E source 제외필터X."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_geometry_guided_lines_v4_28.py",
+      "symbol": "prepare_joint_geometry_guides",
+      "line": 137,
+      "end_line": 222,
+      "fact_ko": "ORIGINAL_INITIAL은 input geometry. extra sourcekind whitelist는 UNIFORM_INITIAL_PROPOSAL_BANK도 허용. measured guide는 qdelta만 사용."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/remainder_native_inputs_v1.py",
+      "symbol": "predictor_record",
+      "line": 76,
+      "end_line": 121,
+      "fact_ko": "fresh143은 N3_SUBPIX qFinal/nativepoints 및 upstream actualpose prediction-only whitelist. G10/e 전 단계."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_remainder_rgb_v4_14.py",
+      "symbol": "observe_remainder_native_frame_v4_14",
+      "line": 115,
+      "end_line": 192,
+      "fact_ko": "fresh143 initialgeometry→actual RGB q/cov archive→fixed-fit. 후속 e pose 미사용."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/image_edge_observations_v4_29.py",
+      "symbol": "_chain_reference",
+      "line": 176,
+      "end_line": 218,
+      "fact_ko": "proposal None이면 frozen initial model seed ref. actual query는 qanchor, bothBI qdelta/unknown modeldelta. guided query는 proposal 실제anchor/direction 보존."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/image_supported_edge_chains_v4_17c.py",
+      "symbol": "_edge_chains",
+      "line": 168,
+      "end_line": 317,
+      "fact_ko": "base query q=point.xy; original model seed normal과 bothBI actual qdelta searchdir 구분. unknown mate only model."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/image_supported_edge_chains_v4_17c.py",
+      "symbol": "observe_image_supported_edge_chains",
+      "line": 320,
+      "end_line": 365,
+      "fact_ko": "projection과 face_context는 independent initial geometry, S gate 전에 payload 미접근; image query는 gated actual BI만."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/image_edge_observations_v4_29.py",
+      "symbol": "observe_joint_geometry_edge_evidence",
+      "line": 287,
+      "end_line": 388,
+      "fact_ko": "base17c와 extra 실제query를 합친 뒤 raw refs/guide dictionary로 decorate. 실제pixels/TLS는 guide가 아니라 측정."
+    },
+    {
+      "path": "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_geometry_guided_lines_v4_28.py",
+      "symbol": "rank_joint_geometry_line_graph",
+      "line": 473,
+      "end_line": 563,
+      "fact_ko": "raw refs별 _node후 dedup. guide_bank는 candidates와 별도로 weakguide cost/ordered helper에 영향; old cached pose_guides 제거도 필요."
+    }
+  ],
+  "source_sha256": {
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_experiment_v2.py": "0955b3b471eba69b55282d65b7d6dff84652c943f8bbf9ec52cbead4c317de46",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_joint_api_v4.py": "19b88972bd24e14d1151b7493df16c80f0a48e4151f1bc66019d20b4f3bc4309",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_evaluation_v4.py": "6e423f56cd6785a11d4df1252f821b1bd465682fd8bb5d419bf3e959809578e6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_visibility_pose_v4_8.py": "00c596b41ffe92f620cbdf9721226fd1e3a733b6b2cf67e95fab65036ae5e09a",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_two_wd_family_v4_9.py": "2dc9b4d185ccec7f1da5ebfe20b36c1262d1b20154c8a401957441946f96018b",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_global_outline_pose_v4_10.py": "507723db2fe4c5294d451537771ff478bb7893800c18ec195f08c39fca2d9c4c",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_face_partial_BI_outline_v4_13d.py": "c53f5f10965e61811778b2fdfa6ff30167c012e7e066f8679073d53ce19ba440",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_fixed_wd_archived_tangent_v4_15.py": "7419979c94cbab5a7b36def236edb541b597d2a72faae8cbd275aaf5efc39865",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_cached_native_edges_v4_17.py": "5d705c9967ff1425716a9d363382fe4b388b6b08071ba80d0208a35b159c87d8",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_grazing_native_candidates_v4_18.py": "8b878eae2f29c70da76fdb2116eabb045ca7837f054c997c8f8e6dbe3b01d8e6",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_uncertainty_calibration_v4.py": "46466bccd948c9fda68eb8eacc1b905a4dc45f2031461ec1608f4a16e255a37a",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_partial_observations_v4_4.py": "d8e2d83bba91d11f58493f17798c14f4bbc3d88c0ee83a944ac26962d6178de8",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_shared_edge_partial_b_v4_7.py": "98c49e20529eca0e4e36890ae58bb18dd45511c60e0445b63d8cdbaa4432275f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/prepartial_RGB_point_preservation_v4_26.py": "5cde45c005baf7d376790393b81247b751d5d2a73100321551d57acde81d939f",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/prepare_geometry_guided_native_evidence_v4_30.py": "cd069c22e9838118ec588c18ec43deef89b5bac388691b4df896215e5d58e351",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/evaluate_bounded_geometric_priors_v4_22.py": "a2cba3523fe9504534bae0745893ef71db98668b5ce78297b8aa006ad38a20e9",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/bounded_coarse_visibility_prior_v4_20.py": "a930357b785583f2430ded3cf7012f58fc3fafd30fe144fc106a39338df0a45a",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_native_edge_chains_v4_17b.py": "bd8c7bfd1269e8a705b173ae0fee5d4951c83279d4262424c4cf1ef562b89064",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_geometry_guided_edges_v4_29.py": "dbc039badc396ebf755b839a162a521a7613764b9018bce6abe34e89b9206228",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/image_edge_observations_v4_29.py": "b58870ff70831e55ba6ee45078b98e76f1efca4d467a30479da949ba784af787",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/joint_geometry_guided_lines_v4_28.py": "c6ebc3b515a25eabdf6d6d100c620d7c6d52305821d201edfac3c949a2bf4a57",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/remainder_native_inputs_v1.py": "55d8bc10a7c89ae547a997dafe146f0a7123bc4f117c736d7ab60fa8d4efd9a1",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/observe_remainder_rgb_v4_14.py": "43ffa13e262f71db118ca7f435fc06a60bc139eb4dee440e5a901478fffdd287",
+    "scripts/research/pallet_visibility_curriculum_20261013_v1/image_supported_edge_chains_v4_17c.py": "995bee9a19d3ec14810994bc3cba7690d4b2e00151498ccd2c6004d8b9591f7b"
+  },
+  "references": {
+    "base_source_audit_sha256": "163c46f91ece83bbc2ee221dbaff6f5935b3df52c5eb51a1692e34f293b111f3",
+    "first_CAL_E_inventory_sha256": "4d70fa386b8d883e64a8b46d794b577181df7c0dd7a86598425a0bf38f143c22"
+  },
+  "reads": {
+    "actual_rows": 0,
+    "models": 0,
+    "metrics": 0,
+    "labels": 0,
+    "RGB": 0,
+    "posefit": 0,
+    "frozen_changes": 0
+  },
+  "audit_execution_note": "First in-memory source inventory attempt used non-existent symbol _base_input instead of _thin_task and aborted before any output/data read; corrected AST source lookup only, experiment unchanged."
+}

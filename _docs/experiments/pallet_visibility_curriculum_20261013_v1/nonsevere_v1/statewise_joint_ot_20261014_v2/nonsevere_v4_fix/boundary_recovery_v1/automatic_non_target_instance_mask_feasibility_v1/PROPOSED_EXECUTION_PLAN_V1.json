@@ -1,0 +1,117 @@
+{
+  "schema": "PROPOSED_SMALL_CAL_AUTOMATIC_OTHER_INSTANCE_SUPPLIER_PLAN_V1",
+  "status": "PROPOSAL_ONLY_NO_ACTUAL_GO_NO_PIPELINE_CONNECTION",
+  "implementation_created": false,
+  "recommended_path": "Existing COCO80 YOLO26n box candidates -> existing MobileSAM vit_t per-box masks with one image embedding -> typed candidate archive and independent actual-image review; current VIS remains unconnected.",
+  "fixed_CAL_fixture_ids": [
+    "wood_184309:000925",
+    "wood_184309:000804",
+    "eval_cad:1778653017736058368"
+  ],
+  "fixture_selection_reason": "Same already-declared three CAL diagnostic fixtures, not selected using new detector/mask outputs. They may contain no recognizable other object; zero/unknown output must remain in report.",
+  "future_execution_gates": [
+    "ROOT explicit new-NN/image GO",
+    "New supplier source/tests and before-image PLAN/model/source/input/protected seals",
+    "Existing generic checkpoint matches static task/names/hash at actual load; failclosed on runtime/API mismatch; no network fallback"
+  ],
+  "future_operations": [
+    {
+      "step": 1,
+      "action": "Decode fixed source RGB unchanged, verify image SHA/canvas; do not load any S/U coordinate payload, GT/reference/e pose or pose errors."
+    },
+    {
+      "step": 2,
+      "action": "Use installed ultralytics.YOLO(existing_absolute_checkpoint).predict on full RGB; store all returned boxes/class/confidence in original result order, stable frame/result-index IDs and empty rows. No class=not-pallet shortcut."
+    },
+    {
+      "step": 3,
+      "action": "Call MobileSAM SamPredictor.set_image once per frame, sequential predict(box=detector_box,multimask_output=True) for all returned valid object boxes; no KP prompts, targetmask input/complement, or synthetic occluder circle. Preserve all mask alternatives/quality; max-quality first-tie is only a displayed proposal."
+    },
+    {
+      "step": 4,
+      "action": "Export original image/source/checkpoint/API/prompt/detection-index/mask-pixel SHA/canvas and explicit CANDIDATE_NON_TARGET_INSTANCE/UNKNOWN. Semantic class is a model prediction; no target/other or foreground-depth certainty claimed."
+    },
+    {
+      "step": 5,
+      "action": "Before any VIS integration, review actual masks and target-vs-other confusion in the same fixed fixtures, compare all alternatives and report wrong/merged/missing masks. Only independently justified non-target regions may be admitted under a separately predeclared source policy; unsupported/overlapping ambiguities stay unknown."
+    },
+    {
+      "step": 6,
+      "action": "Verify existing VIS pre-query exclusion with approved positive mask and genuine pallet support preservation using no-mask control. This diagnostic does not fit poses/change states/replace raw evidence or establish primary success."
+    }
+  ],
+  "suggested_frozen_engineering_API_settings_not_tuned_or_executed": {
+    "imgsz": 640,
+    "conf": 0.25,
+    "iou": 0.7,
+    "max_det": 300,
+    "batch": 1,
+    "half": false,
+    "device": "cpu",
+    "save": false,
+    "verbose": false,
+    "multimask_output": true,
+    "SAM_display_selection": "max uncalibrated quality first tie; all alternatives archived"
+  },
+  "memory_and_compute": {
+    "workers": 1,
+    "image_rows_in_memory": 1,
+    "detector_forwards_per_frame": 1,
+    "MobileSAM_image_encoder_forwards_per_frame": 1,
+    "MobileSAM_prompt_decoder_calls": "M sequential for M returned valid detector boxes, bounded by API max_det300; preserve all returned alternatives on disk",
+    "new_cached_target_mask_inference": 0,
+    "original_target_mask_bytes_preserved": true,
+    "same_image_embedding_reuse_requires_same_image_SHA_and_canvas": true,
+    "old_cached_embedding_available": false,
+    "walltime_or_memory_benchmarks": "not measured; record actual first fixture RSS/time under future GO and preserve failures"
+  },
+  "planned_pure_contract_checks": [
+    "Reject wrong checkpoint task/names/hash and implicit download/missing path",
+    "Mock detector and SAM ensure one encoder per frame and all M box calls/indices preserved",
+    "No S/U/raw KP/GT/e pose parameter in supplier API; poison payload not touched",
+    "Empty detector results produce zero masks/unknown, never target complement fallback",
+    "Invalid boxes explicitly rejected in ledger, original detector records retained",
+    "All alternatives/quality/class are uncalibrated proposals, no O/native identity claim",
+    "Image/canvas/file/pixel/detection/box provenance exact; no cross-frame embedding reuse",
+    "Existing VIS optional positive mask excludes full probe footprint; no-mask path and original targetmask unchanged"
+  ],
+  "prohibited_inferences": [
+    "All COCO class IDs imply non-target because pallet is not among the80 classes",
+    "Detector box/quality or SAM multimask alone proves another instance in front of the target",
+    "Target complement, same-target alternative subtraction, O predicted circles as independent masks",
+    "Zero detected instances means visible/no occlusion",
+    "Same encoder/provenance independence means statistical or physical independence"
+  ],
+  "limitations": {
+    "COCO_contains_chair": true,
+    "COCO_contains_pallet": false,
+    "COCO_contains_forklift": false,
+    "unknown_warehouse_objects_may_be_missed": true,
+    "semantic_misclassification_can_cover_target": true,
+    "monocular_depth_order_unproved": true,
+    "actual_API_load_and_inference_not_tested": true,
+    "no_new_segmentation_checkpoint_download_needed_for_recommended_box_SAM_path": true
+  },
+  "AMG_alternative": {
+    "existing_source_and_vit_t_weights": true,
+    "default_points_per_side": 32,
+    "default_prompt_count": 1024,
+    "default_points_per_batch": 64,
+    "default_decoder_batches_per_fullimage_crop": 16,
+    "default_crop_n_layers": 0,
+    "mask_alternatives_per_prompt": 3,
+    "raw_mask_slots_before_filters": 3072,
+    "image_encoder_passes": "one per crop; extra crops add more encoders",
+    "native_point_or_state_coordinates_used": false,
+    "requires_independent_identity_association": true,
+    "not_recommended_first_due_to_identity_gap_and_prompt_cost": true
+  },
+  "standalone_instance_segmentation_alternative": {
+    "installed_API_exists": true,
+    "named_generic_seg_checkpoint_found": false,
+    "checkpoint_filename_pattern_scope": "Repo and connected vendor *.pt/*.pth/*.onnx filenames: yolo*-seg, MaskRCNN, GroundingDINO, ObjectAware; not a proof about every opaque best.pt",
+    "runtime_download_not_authorized": true
+  },
+  "future_method_boundary": "A mask supplier is a new observation source. Sampling/selection changes require new observation profile/population and CAL line/tangent validation. Final visibility-aware guard/objective design remains separate; current31 sources/models/observations stay frozen.",
+  "actual_steps_executed": 0
+}

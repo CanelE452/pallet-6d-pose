@@ -1,0 +1,32 @@
+# 기존 마스크 공급·가림 연결 소스 감사
+
+현재 캐시는 **팔레트 targetmask**를 공급합니다. 다른 물체의 인스턴스·가림 마스크를 현재 edge 관측기로 공급하는 호출은 찾지 못했습니다. 독립 가림 마스크가 주어졌을 때 쓸 **국소 샘플링 제외 gate는 이미 연결**되어 있습니다. 선분별 가림 분류를 최종 자세 비용·제약에 반영하는 연결은 별개이며 현재 없습니다.
+
+이번 검토는 소스와 설정 JSON의 필요한 필드만 읽었습니다. 영상·NPZ 키/배열·CAL/TEST/R 행·정답·모델 가중치 숫자 decode, NN/관측/적합/렌더 실행은 모두 0입니다. 기존 파일은 변경하지 않았습니다. 코드가 보장하는 저장 스키마를 확인했으며 실제 238 NPZ의 키/픽셀 존재를 다시 검산한 결과는 아닙니다. [핀·범위 원장](AUDIT_V1.json), [소스/설정 SHA](SOURCE_INPUT_BINDINGS.json).
+
+| 공급 단계 | 실제 모델·프롬프트·저장 계약 | 소스 근거 |
+|---|---|---|
+| 원래95 full mask | 공식 frozen **MobileSAM vit_t**. 고정 최초 8개 모델 투영과 유한한 화면 내 nonS raw bounds의 합집합 +19px(기존12+context7) box만 전달. point prompt는 사용하지 않음. | [capture_boundary_recovery_masks_v4_6.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/capture_boundary_recovery_masks_v4_6.py) 56–116, 145–185 |
+| 원래95 저장 | `pallet_mask_raw`, `pallet_mask_clean`/`pallet_mask`, `state_pallet_mask`, **`sam_candidate_masks`, `sam_candidate_quality`**, `previous_pallet_mask`. 최대 uncalibrated quality/첫 tie 선택. clean은 largest-area의 .01 이상 성분 유지, 구멍 메우기 없음. | 같은 파일 119–142, 170–185, 220–229 |
+| 추가143 저장 | 별도 fresh tight box call + full box call. full의 같은 후보/quality 필드 전체와 `pallet_mask_tight`를 저장. full 캡처 모델은 같은 frozen MobileSAM. | [observe_remainder_rgb_v4_14.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/observe_remainder_rgb_v4_14.py) 102–107, 146–159, 189–205 |
+| 상태 특징 mask | TinyUNet [8,16,32], 256 입력, 출력 channel1 sigmoid. frozen `best_source_CAL.pt`는 팔레트 visible/material foreground이며 other-instance 출력이 아님. | [segmentation.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/segmentation.py) 35–50, 78–85; [statewise_masks_v2.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_masks_v2.py) 24–33, 47–79 |
+
+MobileSAM checkpoint 선언 SHA는 `6dbb90523a35330fedd7f1d3dfc66f995213d81b29a5ca8108dbcdd4e37d6c2f`, Tiny checkpoint 선언 SHA는 `032c4afb3800528b8c619453f7e2e024f8c6038f1c82ac27a91d25f11d2b2d65`입니다. 정확한 경로·설정 핀은 위 JSON에 있습니다. 이 감사에서는 weight를 열거나 다시 hash하지 않았습니다. 역사적 full-box 프롬프트는 **nonS** raw를 포함하는 계약입니다. 여기서 현재 S/U 국소 질의가 없다는 사실을 과거 프롬프트가 B/I만 읽었다는 주장으로 넓히지 않습니다.
+
+`multimask_output=True`는 **같은 팔레트 box 프롬프트의 세 대안**을 뜻합니다. scene 전체 object instance 목록, target과 다른 물체의 identity, 앞뒤 관계를 뜻하지 않습니다. 선택 마스크와 다른 대안의 차집합도 가림 마스크가 될 수 없습니다. predictor의 반환 low-resolution logits는 `_`로 버리고 image embedding도 위 writer가 저장하지 않습니다. [predictor.py](../../../../../foundation_mask_v1/vendor/MobileSAM/mobile_sam/predictor.py) 93–132, [foundation.py](../../../../../../../../scripts/research/pallet_foundation_mask_20261013_v1/foundation.py) 72–79.
+
+| 연결 | 현재 실제 작동 범위 | 빠진 연결 |
+|---|---|---|
+| 공급 → 관측 | [observe_geometry_guided_edges_v4_29.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/observe_geometry_guided_edges_v4_29.py) 163–166은 `pallet_mask_clean`만 읽고 `occluder_mask=None, occluder_binding=None` 고정. V30/V31은 이 raw 관측을 재선정함. | 독립 non-target mask 생산/로더 및 source/image/canvas/file/pixel SHA 바인딩 |
+| 공급 시 pre-query 제외 | [edge_visibility_v4_28.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/edge_visibility_v4_28.py) 104–119, 141–194는 `NON_TARGET_OCCLUDER`/target 독립성/실제 occupancy digest를 요구. B/I anchor·initial S·nonS model mate gate 후, 가림 positive 영역을 probe footprint만큼 확장해 candidate lattice를 제외. targetmask는 0으로 덮지 않음. | 실제 입력이 None이므로 현재 자료에선 다른 물체 veto가 활성화되지 않음 |
+| gate → NMS/graph | [joint_geometry_guided_lines_v4_28.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/joint_geometry_guided_lines_v4_28.py) 225–250, 496–500, 568–590: base와 추가 guide 모두 국소 gradient/RGB/mask remap 전 predicate 사용. 보관 actual support도 같은 gate로 후보 제외. fullimage LAB/Sobel 계산 자체가 사라지는 것은 아님. | 공급되면 작동하는 경로이며 새 최종 비용을 추가하지는 않음 |
+| visibility 장부 → 최종 자세 | [image_edge_observations_v4_29.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/image_edge_observations_v4_29.py) 339–366은 winner 이후 `observed_support / occluder_supported_gap / unsupported_unknown` 생성. AUTH/core는 이 class를 읽지 않고 실제 selected line의 normal/angle, tangent, finite/directed hard support를 사용. | 알려진 가림 gap에 따른 guard 완화/가중치/null association은 현재 구현 없음 |
+| global mask 비용 | [statewise_global_outline_solver_v4_10.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/statewise_global_outline_solver_v4_10.py) 75–99는 target foreground convex hull sample을 만듦. [global_foreground_containment_v4_25.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/global_foreground_containment_v4_25.py)는 model hull 안0/밖 soft cost이며 other-object mask/class 입력이 없음. | 공급만 추가해도 기존 global cost가 가림-aware 비용으로 바뀌지 않음 |
+
+기존 [boundary_evidence.py](../../../../../../../../scripts/research/pallet_visibility_curriculum_20261013_v1/boundary_evidence.py) 105–138에는 외부 instance/depth 사실을 받는 계약이 있으나 현재 edge 관측기의 dense mask 생산기는 아닙니다. region만으로 물리 O를 확정하지 않으며 독립 foreground/depth 순서가 추가로 필요합니다. 현재 VIS의 gap 표기도 최초 모델 선분에 조건부이고 native identity·O state의 증명이 아닙니다. targetmask 0은 배경·구멍·분할 누락·다른 위치·다른 물체 모두 가능하여 **unknown**을 유지해야 합니다.
+
+검토한 scripts/research의 세 연구 디렉터리와 scripts/challenge 소스에서 current-cohort all-object detector/other-instance cache 공급 호출은 발견하지 못했습니다(ACTUAL의 별도 source 검색도 같은 결론). 다른 모든 디스크 파일이 없다는 증명은 아닙니다. vendor에는 [automatic_mask_generator.py](../../../../../foundation_mask_v1/vendor/MobileSAM/mobile_sam/automatic_mask_generator.py)가 있으나 현재 caller는 사용하지 않습니다. 이 함수도 fullimage mask proposal/bbox/quality/prompt/crop만 반환하며 target-vs-other identity나 depth를 보장하지 않습니다.
+
+다음 최소 단계는 **독립 non-target mask 공급 증거를 작은 고정 CAL 사례에서 먼저 만드는 것**입니다. 수동 검증된 별도 instance mask로 공급/gate를 확인하거나, 기존 frozen MobileSAM에 별도로 확인된 다른 물체 box·identity를 주는 새 공급기를 설계할 수 있습니다. 전역 자동 mask proposal을 쓰려면 별도 target/other identity 검증이 필요하고, 새 의미/instance detector를 쓰려면 실제 사용 가능한 checkpoint·소스·연산비부터 확인해야 합니다. 모두 기존 캐시를 그대로 꺼내 연결하는 작업과 구분됩니다.
+
+공급기에는 원 영상/canvas, target ID와 다른 instance ID, 양성 mask와 unknown 영역, 독립 프롬프트/모델/파일/픽셀 SHA, foreground 확인 근거를 보관해야 합니다. S/U 좌표 중심의 국소 prompt를 만들지 않고 전체 영상 또는 독립 object box로 생산합니다. 다음 검증은 실제 다른 물체 경계 제외와 진짜 팔레트 support 보존·과도한 abstain을 함께 확인하는 것입니다. 향후 샘플링/선택 모집단이 바뀌면 새 generation/profile/population 및 CAL line/tangent noise 검증이 필요하며 기존 V29–31 모델을 이름만 바꾸어 쓸 수 없습니다. 가림 장부를 최종 비용/guard에 쓰는 설계·CAL 검증은 그 다음 별도 단계입니다. **이번에는 새 method 구현·관측·적합·기본값 변경을 하지 않았습니다.**
