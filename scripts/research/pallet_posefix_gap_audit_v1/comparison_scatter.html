@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>우리 방법 e와 비교 방법의 이미지별 오차</title>
+<style>
+body{font-family:"Nanum Gothic",sans-serif;margin:24px;color:#183047;background:#f5f8fb}
+main{max-width:1600px;margin:auto}h1{font-size:25px;margin-bottom:12px}p{line-height:1.65}
+.controls{display:flex;gap:20px;flex-wrap:wrap;background:white;padding:16px;border:1px solid #d4dfe8;border-radius:10px}
+label{font-size:14px;display:flex;align-items:center;gap:8px}select{font:inherit;padding:8px;border:1px solid #aebfce;border-radius:5px}
+.summary{background:white;padding:15px;margin:16px 0;border:1px solid #d4dfe8;border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;text-align:right;border-bottom:1px solid #e4eaf0}th:first-child,td:first-child{text-align:left}
+.note{font-size:13px;color:#526b7e}#plot{background:white;border-radius:10px;min-height:800px}#paired{font-size:14px}
+</style>
+<main>
+<h1>우리 전체 방법 e와 비교 방법의 이미지별 산점도</h1>
+<p>점 하나는 이미지 한 장의 <b>개별 오차</b>입니다. 낮을수록 좋습니다. 같은 색 점선은 방법별 평균입니다.<br>
+기본 비교 대상인 N3→SubPix+F는 전체 192장 <b>평균 위치·회전 오차</b>가 더 낮습니다. 공동 성공 수는 우리 e가 더 많습니다.</p>
+<div class="controls">
+<label>비교 방법 <select id="baseline"><option value="N0">N3→SubPix + F</option><option value="POSEFIX_RAW">PoseFix</option><option value="N1">N3→SubPix + 최소 B/I</option></select></label>
+<label>영상 집합 <select id="cohort"><option value="FULL192">전체 192장 · 제외 없음</option><option value="RETAINED121">공통 제외 후 121장</option><option value="EXCLUDED71">공통 제외된 71장</option></select></label>
+<label>배치 <select id="mode"><option value="overlay">겹쳐 보기</option><option value="parallel">나란히 보기 · 같은 축 범위</option></select></label>
+</div>
+<div class="summary"><table><thead><tr><th>방법</th><th>평균 위치(cm)</th><th>평균 회전(°)</th><th>공동 성공</th></tr></thead><tbody id="stats"></tbody></table>
+<p id="paired"></p><p class="note">공동 성공 = 위치 ≤5cm 및 회전 ≤5°. 개선·악화 수는 각 오차를 별도로 비교합니다. 마우스를 점에 올리면 이미지 ID와 오차가 표시됩니다.</p></div>
+<div id="plot"></div>
+<p class="note">x는 기존 192장의 이미지 순번이며 필터 후에도 번호를 유지합니다. 위치와 회전의 단위는 서로 다릅니다. 나란히 보기에서는 같은 오차의 좌우 축 범위를 동일하게 맞춥니다.<br>
+121장/71장 구분은 다섯 경로 중 하나라도 N0 유래 IQR 상한(위치 18.728cm 또는 회전 7.222°)을 넘으면 해당 영상을 공통 제외한 사후 보조 분석입니다. 전체 192장 결과를 대체하지 않습니다. CAL46은 별도입니다. 기존 평가참조와 물리 C2 평가를 유지했으며 새 추론은 하지 않았습니다.</p>
+</main>
+<script>__PLOTLY_JS__</script>
+<script id="plot-data" type="application/json">__PLOT_DATA__</script>
+<script>
+'use strict';
+const DATA=JSON.parse(document.getElementById('plot-data').textContent);
+const $=id=>document.getElementById(id);
+const symbols={E0:'square',N0:'circle',POSEFIX_RAW:'diamond',N1:'triangle-up'};
+function render(){
+  const baseline=$('baseline').value,cohort=$('cohort').value,parallel=$('mode').value==='parallel';
+  const ids=new Set(DATA.cohorts[cohort]),points=DATA.points.filter(p=>ids.has(p.id));
+  const arms=['E0',baseline],s=DATA.statistics[cohort];
+  $('stats').innerHTML=arms.map(a=>`<tr><td style="color:${DATA.colors[a]}"><b>${DATA.names[a]}</b></td><td>${s[a].translation_cm.mean.toFixed(3)}</td><td>${s[a].rotation_deg.mean.toFixed(3)}</td><td>${s[a].success} / ${s[a].n}</td></tr>`).join('');
+  const paired=DATA.paired[cohort][baseline];
+  $('paired').innerHTML=['translation_cm','rotation_deg'].map((m,i)=>{
+    const p=paired[m];return `${i?'회전':'위치'}: 비교 방법이 더 낮음 <b>${p.baseline_lower_error}장</b> · 우리 e가 더 낮음 <b>${p.e_lower_error}장</b> · 같음 ${p.tie}장`;
+  }).join('<br>');
+  const traces=[],layout={title:{text:DATA.cohort_names[cohort],font:{size:18}},height:parallel?1080:1020,
+    margin:{l:75,r:30,t:130,b:70},font:{family:'Nanum Gothic, sans-serif',color:'#183047'},
+    paper_bgcolor:'#fff',plot_bgcolor:'#fff',hovermode:'closest',annotations:[],shapes:[],
+    legend:{orientation:'h',x:0,y:1.1,groupclick:'togglegroup'},
+    uirevision:`${cohort}-${baseline}-${parallel}`};
+  const specs=[['translation_cm','위치 오차','cm'],['rotation_deg','회전 오차','°']];
+  specs.forEach(([metric,label,unit],row)=>{
+    const ymax=Math.max(...points.flatMap(p=>arms.map(a=>p.metrics[a][metric])))*1.07;
+    const panels=parallel?arms.map(a=>[a]):[arms];
+    panels.forEach((panel,col)=>{
+      const i=parallel?row*2+col+1:row+1;
+      const suffix=i===1?'':String(i),xa='x'+suffix,ya='y'+suffix;
+      const xdomain=parallel?(col===0?[0,.46]:[.54,1]):[0,1];
+      const ydomain=row===0?[.59,1]:[0,.41];
+      layout['xaxis'+suffix]={domain:xdomain,anchor:ya,range:[.5,192.5],title:{text:'이미지 순번 · 원래 192장 순서'},showgrid:false,zeroline:false};
+      layout['yaxis'+suffix]={domain:ydomain,anchor:xa,range:[0,ymax],title:{text:`${label} (${unit})`},gridcolor:'#e4eaf0',zeroline:false};
+      layout.annotations.push({xref:'paper',yref:'paper',x:(xdomain[0]+xdomain[1])/2,y:ydomain[1],yshift:18,showarrow:false,
+        text:parallel?`${DATA.names[panel[0]]} · ${label}`:label,font:{size:16}});
+      for(const g of DATA.session_blocks.slice(1))layout.shapes.push({type:'line',xref:xa,yref:'paper',x0:g.first-.5,x1:g.first-.5,y0:ydomain[0],y1:ydomain[1],line:{color:'#d9e1e8',width:.7},layer:'below'});
+      for(const arm of panel){
+        const name=DATA.names[arm],color=DATA.colors[arm],mean=s[arm][metric].mean;
+        traces.push({type:'scatter',mode:'markers',x:points.map(p=>p.index),y:points.map(p=>p.metrics[arm][metric]),xaxis:xa,yaxis:ya,
+          name,legendgroup:arm,showlegend:row===0,marker:{color,symbol:symbols[arm],size:8,opacity:.75},
+          customdata:points.map(p=>[p.id,p.excluded?'공통 제외 71장':'유지 121장']),
+          hovertemplate:`${name}<br>이미지 #%{x} · %{customdata[0]}<br>${label}: %{y:.3f}${unit}<br>%{customdata[1]}<extra></extra>`});
+        traces.push({type:'scatter',mode:'lines',x:[.5,192.5],y:[mean,mean],xaxis:xa,yaxis:ya,name:name+' 평균',legendgroup:arm,showlegend:false,
+          line:{color,dash:'dash',width:1.5},hovertemplate:`${name} 평균: %{y:.3f}${unit}<extra></extra>`});
+      }
+    });
+  });
+  return Plotly.react('plot',traces,layout,{responsive:true,displaylogo:false,toImageButtonOptions:{format:'png',scale:2}});
+}
+for(const id of ['baseline','cohort','mode'])$(id).addEventListener('change',render);
+window.comparisonReady=render();
+</script>
+</html>
