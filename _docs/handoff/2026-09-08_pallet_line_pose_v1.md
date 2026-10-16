@@ -106,7 +106,7 @@ atol5.1e-7/rtol0으로 바꿨다(새 aggregate SHA d8b78c67…).18개 검사 최
 [독립 최종 감사](../../data/pallet/results/pallet_line_pose_v1/INDEPENDENT_FINAL_METRIC_AUDIT.json),
 [HTML 보고서](../../data/pallet/results/pallet_line_pose_v1/index.html),
 [전체 완료·브라우저·Discord 기록](../../data/pallet/results/pallet_line_pose_v1/COMPLETION.json).
-설계·해석은 [notes](../notes/pallet_line_pose.md), 날짜별 실행 기록은
+설계·해석은 [notes](../notes/point_line_fusion/01_hough_and_geometry/pallet_line_pose.md), 날짜별 실행 기록은
 [history](../history/2026-09-08.md)를 따른다.
 
 

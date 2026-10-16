@@ -39,4 +39,4 @@ VISUAL_REVIEW는현HTML/5PNG해시바인딩. Finalizer의source검증→실제Ch
 DiscordHTTP204→COMPLETION까지성공했다. 재실행/재전송하지않는다.
 노트/색인/history/handoff도완료상태로동기화했다.
 
-상세해석: [계열 노트](../notes/pallet_dht_gt_audit.md).
+상세해석: [계열 노트](../notes/point_line_fusion/01_hough_and_geometry/pallet_dht_gt_audit.md).

@@ -35,4 +35,4 @@ VIEW_DIAGNOSIS.json/.md completed from the predeclared319frame cohorts. Lower-el
 
 Optional gradient diagnostic remains unexecuted: predeclared14GiB memory guard blocked at12.59GiB before checkpoint load/forward/backward. Do not claim measured loss-gradient conflict. Do not lower the guard or close unrelated apps to force this optional work. Future symmetry-aware point/line correspondence, learned local reliability and longer synthetic-only controlled training are hypotheses for a new protocol, not trained improvements from this run.
 
-See _docs/notes/pallet_dht_joint.md and scripts/research/pallet_dht_joint_v1/README.md for results/reproduction. Preserve unrelated dirty work; no commit was made.
+See _docs/notes/point_line_fusion/01_hough_and_geometry/pallet_dht_joint.md and scripts/research/pallet_dht_joint_v1/README.md for results/reproduction. Preserve unrelated dirty work; no commit was made.

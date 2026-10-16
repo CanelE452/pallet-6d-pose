@@ -1,0 +1,1 @@
+V36 fixed-factor experiment: refine continuous Hough coordinates, learn candidate quality, and test point fusion with matched fine-tuning controls. See PROTOCOL.json. Twelve models, 24,000 optimizer updates; no real GT fitting.

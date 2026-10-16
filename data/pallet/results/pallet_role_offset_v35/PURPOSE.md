@@ -1,0 +1,1 @@
+V35: distinguish physical-line versus virtual-corner offset, line extraction and observability using existing disjoint render groups. Fixed prior networks; train-only ridge calibration, no manual GT fitting or neural training. See PROTOCOL.json.

@@ -1,0 +1,28 @@
+from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent/'pallet_constraint_residual_v41'))
+from context41 import *
+from experiment41 import inputs
+V41=RUN
+KIT=Path(__file__).resolve().parent
+RUN=ROOT/'data/pallet/results/pallet_constraint_validity_v42'
+NOTE=ROOT/'_docs/notes/point_line_fusion/04_failure_analysis/pallet_constraint_validity_v42.md'
+HANDOFF=ROOT/'_docs/handoff/2026-09-11_pallet_constraint_validity_v42.md'
+TARGETS=('visible','physical','constraint');FEATURES=('geometry','visual');ROUTES=('pre_all','pre_hard','post_hard')
+
+def register():
+    RUN.mkdir(parents=True,exist_ok=True)
+    if (RUN/'PROTOCOL.json').exists():return
+    p=population();part=partition(p)
+    protocol=dict(question='Can actual observable features identify valid point-specific physical constraints, independently of point hardness, and prevent harmful analytic-residual corrections while retaining useful alternatives?',
+    scope='Frozen V41 actualphysical3 proposals/direct/residual heads andV39hardnessgate. Same12fit/4cal/8reusedcheck436detectedof600,same2CAD. Existingold16offset/upstreamreuse explicit. No newneural/render/real/manualGTchanges. New classifier diagnostic only,notindependent finalperformance.',
+    targets='Only matched actualsegment point-role slots train/score. visible: GTphysicalrolelength>0. physical: visible andmeanphysicalGTsupport distance toactualsegment<=3px andacuteangle<=10deg. constraint: physical andabs(actualsegmentnormal.GTcorner - actualsegmentrho - V35oldtrainmedianoffset)<=3px. Last measures targetnormalconstraint error,notpointGTgain orcorrecttangent/full2D recovery. Labels GTsupervision only; no GT atactualinference. Three nested labels point-role slots,notindependentsegments. MissingcachedGTvisible support is scopedvisibility definition,notproof of fake pixels.',
+    features='visual uses exactV41physical3X (pooledV40 geometry mean/std+14observablesegmentfields+analyticprior). geometry deletesquery32andcandidatevisual32 fromeachmean/std block (originalgeometrycolumns8:40 and63:95); allotherinputs identical. Point/parentcoords,role/pointID,score,predictedgeometry/support andprior remain. Compareadditionalfrozenappearance signal,notrawnewCNN.',
+    fits='3targets2features3seeds=18HGBClassifier logloss60rounds=1080rounds. Hyperparameters inheritedV38,randomseed42000+seed. Fit12only,validslots only; sourcegroup frameweight broadcast then invalidexcludeandrenormalize (group totals mayvary withvalidslot count). No positiveclass rebalancing.',
+    thresholds='Cal4 only, fixedgrid .10,.15,...,.95. Pick maximumgroupframeweighted recall among thresholds withweightedprecision>=.90,>=10acceptedvalidslots and>=2sourcegroups represented; ties higherprecision thenhigherthreshold. Ifnone,threshold1.1abstains. This is empiricalcalibration,notindependentprecision guarantee. No check-based policy selection.',
+    policies='Keep V41actualphysical3direct points asfallback. pre_all: mask candidates byclassifierthreshold beforemaximizing positive V41residual expectedgain,elsefallback. pre_hard additionallyfrozenV39hardnessgates point; post_hard rejectsV41originalresidual_gate chosenrole ifclassifierfails,elsekeeps. Candidateindexchosenfromsame3pool,notnewregression. Pre_all main independentofhardness. Fallbackalreadyhas~.5%gain vsanchor; noincrementalaction mustnotcountasclassifier benefit. Oracle labels for3targets applysame3routes separately; pointGTbest-of3+fallback andGTsafe postchosen diagnostics are neverdeployable.',
+    metrics='Fit/cal/check label prevalence,AUROC/AP/precision/recall/acceptedgroups andcalibrationgrid. All/easy/hard/outside/hidden/condition point error andharm>1px vsanchor andfallback, switchesrelativefallback. Bootstrap5000sourcegroups3seedmeans,seed-specificmasks. Candidate validity classification is notsameas selectedpointprecision; reportactualchosen constraintlabels and harmed switches.',
+    gates='Primaryconstraint_visual_pre_all: selected trueconstraintprecision>=.90eachseed; allpoint >=1%improvement eachseed vsfallback andpairedCIupper<0; everypopulatedcheckcondition/stratum <=1.01fallback; >=1%switchesfromfallbackeachseed. Allrequiredaccepted. Also comparegeometry counterpart CI but no bestarm selection. Oracle gainsnotactual; rejectedallfallbacknotnewbenefit. Effectsizeandclassificationpartialsignalsreported evenfailedthresholds.',
+    decision='Separate labeldefinition/value, classifiergeneralization, rejectingversusreranking, and limitedactualcandidatecapacity. Iforacleconstraint policycannothelp, classification alonehaslittlevalue undercurrentproposal/residualranking. Iforaclehelpsbutlearnedfails,targetvaliditygeneralization remains. Existing8reusedgroups cannotestablishindependentrealstablegain. No longnewCNN training bydefault.',hyperparameters=PARAMS,partitions={k:v for k,v in part.items() if isinstance(v,list)})
+    write(RUN/'PROTOCOL.json',protocol);old=read(V41/'PRIOR_BINDINGS.json')['files']|read(V41/'COMPLETION.json')['files'];old[str((V41/'COMPLETION.json').relative_to(ROOT))]=sha(V41/'COMPLETION.json');write(RUN/'PRIOR_BINDINGS.json',dict(files=old));(RUN/'PURPOSE.md').write_text('# V42 target-specific physical constraint validity\n\n'+protocol['question']+'\n\n'+protocol['scope']+'\n');HANDOFF.write_text('# V42 역할·목표별 물리 제약 유효성\n\n사용자계속승인. V41actualphysical3/fallbackdirect/residual/V39hardness고정. visible/physical/constraint3labels×geometry/visual2features×3seed=18HGBClassifier60rounds. cal4precision90%조건고정grid,미충족1.1abstain. preall/preh/posth별도,primaryconstraintvisualpreall. GTlabels/policyoracle진단분리. 같은12fit/4cal/8reusedcheck,old16reuse,newreal/neural/render/GTedit0. 이전결과불변,완료후MD/그림/실제Chrome/완료사실만Discord.\n')
+if __name__=='__main__':register()
