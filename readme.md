@@ -525,3 +525,6 @@ paper contract나 keypoint convention을 정의하지 않는다:
 
 
 2026-10-15 후속 기록: [실제 경계선과 native 변의 잘못된 연결 원인, 보정 전·후 사진](./_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_followup_20261015_v2/REPORT_KO.md). CAL 세 사례 진단과 진행 중인 전체 평가를 구분해 기록했습니다.
+
+
+최근 상태별 B/I 실험과 실제 이미지·과정·산점도: [2026-10-16 공개 자료 목록](_docs/experiments/pallet_publication_closeout_20261016_v1/README_KO.md).

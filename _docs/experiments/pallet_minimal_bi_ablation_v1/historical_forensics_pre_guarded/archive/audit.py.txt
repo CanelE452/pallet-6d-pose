@@ -1,0 +1,68 @@
+"""Prediction-only forensic features; no image, model, solve or GT input in features()."""
+import csv,gzip,hashlib,json,sys
+from collections import Counter
+from pathlib import Path
+import numpy as np
+ROOT=Path('/home/minjae/Documents/pallet-research/minimal-bi-ablation-20261016-v1')
+WT=Path('/tmp/pallet-minimal-bi-ablation-20261016-v1')
+sys.path.insert(0,str(WT))
+from scripts.research.pallet_visibility_curriculum_20261013_v1 import joint_ot_pnp as J
+OUT=ROOT/'final_method_forensics'
+
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def readgz(p):
+ with gzip.open(p,'rt') as f:return [json.loads(l) for l in f]
+def js(v):
+ if isinstance(v,dict):return {k:js(x) for k,x in v.items()}
+ if isinstance(v,(list,tuple)):return [js(x) for x in v]
+ if isinstance(v,np.ndarray):return js(v.tolist())
+ if isinstance(v,np.generic):return js(v.item())
+ if isinstance(v,float) and not np.isfinite(v):return None
+ return v
+
+def features(pred,obs,branch,result):
+ o=obs['branches'][branch]['observation'];g=o['initial_geometry'];v=o['visible_correction']
+ xyz=np.asarray(g['native_xyz']);K=np.asarray(g['K']);states=['U' if x in ['O','T'] else x for x in o['states']]
+ supplied=v['visible_measurements'];hw=g['image_hw'];cfg={**J._DEFAULTS,'analytic_jacobian':True}
+ xyz,K,states,meas,domains,hw=J._inputs(xyz,K,states,supplied,[],hw,cfg)
+ old=o['original_coarse_pose'];new=result['actual_pose'];sol=result['solution']
+ def pa(p):
+  R=np.asarray(p['R_cf']);t=np.asarray(p['centroid']);q,z=J.project_native(xyz,R,t,K)
+  audit=J._measurement_audit(q,meas,q,cfg,-R.T@t,hw)
+  return q,z,audit
+ a,za,aa=pa(old);b,zb,ab=pa(new);raw=np.asarray(o['original_raw_points']);ml=[]
+ for m,x,y in zip(supplied,aa,ab):
+  i=m['native_corner'];r=raw[i];cov=np.asarray(m['covariance_px2']);oldraw=np.linalg.norm(a[i]-r);newraw=np.linalg.norm(b[i]-r)
+  ml.append(dict(native_id=i,state=o['states'][i],source=m['source'],raw_xy=r.tolist(),measured_xy=m['xy'],old_projection=a[i].tolist(),new_projection=b[i].tolist(),movement_px=float(np.linalg.norm(np.asarray(m['xy'])-r)),projection_shift_px=float(np.linalg.norm(b[i]-a[i])),covariance_eigenvalues=np.linalg.eigvalsh(cov).tolist(),protection_px=m['protection_px'],old_observation_residual_px=x['measurement_residual_px'],new_observation_residual_px=y['measurement_residual_px'],old_mahalanobis=x['measurement_mahalanobis'],new_mahalanobis=y['measurement_mahalanobis'],old_raw_residual_px=float(oldraw),new_raw_residual_px=float(newraw),old_support_guard=x['visible_support_guards_pass'],new_support_guard=y['visible_support_guards_pass']))
+ # Count original and recovery image-support records separately (no duplicate suppression).
+ lines=[];reasons=Counter()
+ for records in [v.get('records',[]),v.get('boundary_recovery_records',[])]:
+  for r in records:
+   if r.get('reason'):reasons[r['reason']]+=1
+   for ray in r.get('rays',[]):lines.append({k:ray.get(k) for k in ['edge','native_corner','native_neighbor','supported','reason','transition_sample_count','inlier_count','line_rms_px','angle_change_deg']})
+ ambiguity=sol.get('ambiguity') or {}
+ return dict(id=pred['id'],partition=pred['partition'],session=pred['session'],branch=branch,states=o['states'],BI_count=len(ml),true_image_measurements=sum(m['source']!='VISIBLE_BACKBONE_FALLBACK' for m in supplied),changed_measurements=sum(m['movement_px']>1e-9 for m in ml),all_observation_xy_unchanged=all(m['movement_px']<=1e-9 for m in ml),old_pose_admissible_under_same_observation_guards=bool(len(ml)>0 and min(za)>cfg['positive_depth_m'] and all(x['visible_support_guards_pass'] for x in aa)),new_pose_admissible_under_same_observation_guards=bool(len(ml)>0 and min(zb)>cfg['positive_depth_m'] and all(x['visible_support_guards_pass'] for x in ab)),old_min_depth_m=float(min(za)),new_min_depth_m=float(min(zb)),old_max_mahalanobis=max([x['measurement_mahalanobis'] for x in aa],default=None),new_max_mahalanobis=max([x['measurement_mahalanobis'] for x in ab],default=None),old_sum_mahalanobis2=sum(x['measurement_mahalanobis']**2 for x in aa),new_sum_mahalanobis2=sum(x['measurement_mahalanobis']**2 for x in ab),accepted=sol.get('accepted'),status=sol.get('status'),fallback_reason=sol.get('fallback_reason'),source=new.get('source'),ambiguity=ambiguity,visible_rank=(sol.get('rank') or {}).get('visible'),search=sol.get('search'),point_audit=ml,line_audit=lines,observation_reasons=dict(reasons),final_model_visibility_audit=sol.get('final_model_visibility_audit'),pose_translation_shift_m=float(np.linalg.norm(np.asarray(new['centroid'])-np.asarray(old['centroid']))),pose_rotation_shift_deg=float(np.rad2deg(np.arccos(np.clip((np.trace(np.asarray(old['R_cf']).T@np.asarray(new['R_cf']))-1)/2,-1,1)))))
+
+if __name__=='__main__':
+ pp=readgz(ROOT/'run_v2/PREDICTIONS.jsonl.gz');oo={r['id']:r for r in readgz(ROOT/'run_v2/OBSERVATIONS.jsonl.gz')};rows=[]
+ for i,p in enumerate(pp):
+  for b in ['RAW_YOLO','N3_SUBPIX']:
+   r=json.loads((ROOT/'run_v2/poses'/f'{i:03}_{b}.json').read_text())['result'];rows.append(features(p,oo[p['id']],b,r))
+ out=OUT/'PREDICTION_ONLY_FEATURES.json';out.write_text(json.dumps(js(rows),indent=2)+'\n')
+ (OUT/'FEATURE_SEAL.json').write_text(json.dumps(dict(schema='FOLLOWUP_FORENSIC_FEATURES_V1',prediction_inputs_only=True,no_new_models_or_solves=True,feature_rows=len(rows),inputs={str(p.relative_to(ROOT)):sha(p) for p in [ROOT/'run_v2/PREDICTIONS.jsonl.gz',ROOT/'run_v2/OBSERVATIONS.jsonl.gz']},features_sha256=sha(out)),indent=2)+'\n')
+ # Deliberately separate postfeature score join: causal interpretation is forbidden.
+ mm={}
+ for r in csv.DictReader(open(ROOT/'score_v2/ROW_METRICS.csv')):mm.setdefault(r['id'],{})[r['arm']]=r
+ for r in rows:
+  arm,base=('R1','R0') if r['branch']=='RAW_YOLO' else ('N1','N0');m=mm[r['id']]
+  r['score_join_category']=('success' if m[base]['success_le5']=='True' else 'failure')+'_to_'+('success' if m[arm]['success_le5']=='True' else 'failure')
+  r['score_join_old_T_cm']=float(m[base]['translation_cm']);r['score_join_new_T_cm']=float(m[arm]['translation_cm']);r['score_join_old_R_deg']=float(m[base]['rotation_deg']);r['score_join_new_R_deg']=float(m[arm]['rotation_deg'])
+ (OUT/'SCORE_JOINED_FORENSICS.json').write_text(json.dumps(js(rows),indent=2)+'\n')
+ for branch in ['RAW_YOLO','N3_SUBPIX']:
+  print(branch)
+  for cat in ['success_to_failure','failure_to_success','success_to_success','failure_to_failure']:
+   z=[r for r in rows if r['branch']==branch and r['partition']!='CAL' and r['score_join_category']==cat]
+   print(cat,len(z),'ambiguous',sum(bool(r['ambiguity'].get('detected')) for r in z),'old_admissible',sum(r['old_pose_admissible_under_same_observation_guards'] for r in z),'unchanged',sum(r['all_observation_xy_unchanged'] for r in z),'BIcount',dict(Counter(r['BI_count'] for r in z)))
+  for r in rows:
+   if r['branch']==branch and r['partition']!='CAL' and r['score_join_category']=='success_to_failure':
+    print(r['id'],'BI',r['BI_count'],'changes',r['changed_measurements'],'oldadm',r['old_pose_admissible_under_same_observation_guards'],'ambig',r['ambiguity'].get('detected'),'mahal',round(r['old_max_mahalanobis'],3),round(r['new_max_mahalanobis'],3),'Tshift',round(r['pose_translation_shift_m'],3),'rotshift',round(r['pose_rotation_shift_deg'],3))
