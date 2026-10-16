@@ -1,8 +1,22 @@
+## 2026-10-16 상태별 진단 및 연구 브랜치 main 통합
+
+[최신 상태별 진단·전체 결과](_docs/experiments/pallet_statewise_correspondence_diagnosis_v1/REPORT_KO.md) · [실제 8사례 과정 갤러리](_docs/experiments/pallet_statewise_correspondence_diagnosis_v1/gallery/index.html) · [브랜치 통합·보존 검산](_docs/experiments/pallet_main_branch_integration_20261016_v1/README_KO.md)
+
+모든 로컬 연구 브랜치와 origin 연구 브랜치의 코드·결과를 main에 통합했습니다. GitHub가 거부한 100MB 초과 캐시 2개는 [원본 Release](https://github.com/CanelE452/pallet-6d-pose/releases/tag/pallet-point-line-v4-cache-20261016-v1)에 해시와 함께 보존하고, 해당 과거 커밋은 패키징을 바꾼 동등 커밋으로 연결했습니다. 아래 과거 기록의 당시 브랜치 상태는 역사적 설명입니다. 기존 운영 코드·모델 기본값을 교체하지 않았고, 기존 노트의 이전 경로와 정리된 새 경로를 함께 보존했습니다.
+
 ## 2026-10-15 가시성 상태·실제 선·PnP 실험 기록
 
 [최신 Markdown 보고서](_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_20261015_v1/REPORT_KO.md) · [자료 다운로드·검증](_docs/experiments/pallet_visibility_curriculum_20261013_v1/publication_20261015_v1/DOWNLOADS.md)
 
 S/B/I/O/T/U 정의, 전체 192장 비교, 실제 이미지와 선 보정 과정, 새 v29 구현 및 미완료 평가를 정리했습니다. 기본 e는 유지하며, v29는 CAL 관측 32/46장 이후 재개 대기 상태의 기록입니다. 큰 원시 결과와 입력·코드 스냅샷은 같은 저장소 Release 자료로 연결합니다.
+
+## 2026-10-06 공동 후보 A/B/C 실행과 실제 개정 원고
+
+[전체 결과·행별 근거·재개 명령](_docs/experiments/pallet_joint_action_handoff_20261006_v1/README_KO.md) · [주장과 증거 범위](_docs/experiments/pallet_joint_action_handoff_20261006_v1/CLAIM_EVIDENCE_KO.md) · [개정 본문 PDF](_docs/experiments/pallet_joint_action_handoff_20261006_v1/paper_updated/main.pdf) · [탐색적 A 결과를 포함한 보충 PDF](_docs/experiments/pallet_joint_action_handoff_20261006_v1/paper_updated/supplement.pdf).
+
+[확인] 원시 YOLO 점에서 시작하는 고정 기하 후보의 oracle 여지, 세 seed의 독립/공동 선택과 같은 예산의 GEO/PERM 학습을 구분해 보고해. 기존 N3 수치와 반복 사용 DEV319의 한계를 유지하고, 전체 참고문헌·원고와 동일 장치의 최종 PnP 포함 runtime을 실제 검산해. B 취득 패킷과 평가 CLI는 완성했지만 실제 독립 물리 가림 pair는 0개라 `BLOCKED_DATA`야. 별도 작업 branch의 결과이며 main 반영을 의미하지 않아.
+
+이 기록의 연구 브랜치는 2026-10-16 main에 통합했습니다.
 
 ## 2026-10-06 잔여 근거 인계 연결·재집계·원고 반영
 

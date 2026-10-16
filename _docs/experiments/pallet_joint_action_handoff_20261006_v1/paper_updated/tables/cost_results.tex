@@ -1,0 +1,20 @@
+\begin{table*}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{고정 표본에서의 추가 계산 비용. 동일 RTX 3080의 서로 다른 소프트웨어 환경을 구분한다.}\label{tab:cost}
+\begin{tabularx}{\textwidth}{Yrrrrr}
+\toprule
+기반·경로 & \shortstack{추가\\파라미터} & \shortstack{전체 중앙\\(ms)} & \shortstack{전체 P90\\(ms)} & \shortstack{보정 단독\\(ms)} & \shortstack{최대 메모리\\(MiB)} \\
+\midrule
+\multicolumn{6}{l}{환경: \texttt{pallet-yolo26}} \\
+YOLO Base & 0 & 11.195 & 13.712 & \NA & 62.24 \\
+YOLO N3 & 20,259 & 15.138 & 17.212 & 3.432 & 64.52 \\
+\multicolumn{6}{l}{환경: \texttt{pallet-pose}} \\
+DOPE Base & 0 & 62.736 & 77.585 & \NA & 342.39 \\
+DOPE N3 & 23,331 & 65.807 & 80.927 & 2.838 & 342.39 \\
+ResNet-18$^\dagger$ Base & 0 & 8.890 & 9.573 & \NA & 98.85 \\
+ResNet-18$^\dagger$ N3 & 23,331 & 11.592 & 12.747 & 2.632 & 98.85 \\
+\bottomrule
+\end{tabularx}
+\tabnote{26프레임·seed 1·batch 1, 경로별 준비 20회와 프레임당 5반복. 시간은 CUDA event 기준이고 파일 읽기는 제외한다. 보정 단독 시간과 전체 중앙값의 차이는 다른 계측량이다. 동기화 벽시계 시간은 보충자료에 제시한다. Base의 보정 시간은 해당 없음이다.}
+\end{table*}

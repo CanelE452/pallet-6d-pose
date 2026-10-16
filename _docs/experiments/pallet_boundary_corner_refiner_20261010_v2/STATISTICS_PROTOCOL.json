@@ -1,0 +1,21 @@
+{
+  "schema": "boundary_corner_refiner_statistics_v2",
+  "population": "unchanged COHORT245: clean153 + moderate92",
+  "excluded_population": "severe74, excluded by the earlier explicit user instruction",
+  "primary_method": "N3_VALIDATED_ROLE",
+  "comparator": "fixed seed1 N3_SUBPIX, freshly reproduced on the identical245 IDs",
+  "additional_methods": ["VALIDATED_ROLE_ONLY", "N3_VALIDATED_ROLE_NO_MASK", "N3_BASIN_ROBUST", "N3_BASIN_STANDARD"],
+  "metrics": ["translation_cm", "rotation_deg", "ADDsym_m"],
+  "statistics": ["count", "mean", "sample_variance_ddof1", "sample_standard_deviation", "median", "P90_linear_interpolation"],
+  "missing_and_fallback": "retain all245 ID rows; separately count new pose, N3 fallback and complete failure; compare full operational outputs and shared new-pose subsets without deleting large errors",
+  "paired_difference": "new method error minus fresh N3 error on the same frame ID",
+  "performance_success": "primary full operational mean translation and mean rotation are both below the fresh fixed N3 comparator; implementation success alone is insufficient",
+  "ablations": "compare primary to the same pose policy with only native N3 observations and to the same primary coordinates with no self-hidden exclusion; report when learned observations or masking add no measured benefit",
+  "mask_diagnostics": "human self-hidden states only after geometry seal; record mask disagreements and pose deltas separately; never fail a frame solely for a changed or wrong mask",
+  "corner_diagnostics": "direct visible damage and actual hidden reprojection error reported separately from final pose errors",
+  "reference_limit": "existing GEOMETRIC_PROXY development references; no independent physical pose GT or unseen-domain generalization certification",
+  "no_real_threshold_selection": true,
+  "no_setting_change_after_real_scoring": true,
+  "training_updates": 0,
+  "new_RGB_generated": 0
+}

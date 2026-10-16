@@ -19,4 +19,4 @@
 
 831프레임×3선택arm의저장점수2493개독립재계산최대1.07e−14;core동결보존. HTML319원본decode/1276overlay/1914hypothesis,JS오류0. root5개최종screenshots실제확인PASS. 첫QA에서렌더소스동시변경을감지해종료했고,core수치변경없이렌더+QA를동결후다시완료했다. 최종driver81186 exit0,STATUS complete. 기존driver49529 exit1은이렌더검증중단기록이며계산실패아니다.
 
-코드 `scripts/research/pallet_dht_global_layout_v1/`, 산출물 `data/pallet/results/pallet_dht_global_layout_v1/`, 과학적해석 `_docs/notes/pallet_dht_global_layout.md`. 기존decoder/GTaudit/joint/coupling산출물과무관한dirtyworkspace변경보존,commit0.
+코드 `scripts/research/pallet_dht_global_layout_v1/`, 산출물 `data/pallet/results/pallet_dht_global_layout_v1/`, 과학적해석 `_docs/notes/point_line_fusion/01_hough_and_geometry/pallet_dht_global_layout.md`. 기존decoder/GTaudit/joint/coupling산출물과무관한dirtyworkspace변경보존,commit0.

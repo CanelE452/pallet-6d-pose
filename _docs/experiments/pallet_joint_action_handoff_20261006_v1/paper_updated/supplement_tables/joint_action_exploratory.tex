@@ -1,0 +1,13 @@
+본 탐색은 원시 YOLO의 코너 0--7에 pose-coupled 변위를 더하고 center8·박스·점수·누락 마스크를 유지한다. NoOp는 9개 원시점의 정확한 복사다. 후보 생성의 자세 $T_k$가 아니라 실제 전체 prediction-only W/D+PnP 출력 $F(q_k)$를 평가한다. 공동 bank의 최선 후보 oracle은 그 bank 안의 단일 action 선택 J의 상한이며, 각 코너가 독립 선택하는 I는 bank 밖의 조합도 만들 수 있다. 두 readout을 개발 성능으로 재선택하지 않는다.
+
+GEO의 전체 유효 action 집합을 먼저 고정한 뒤 PERM은 non-NoOp 행의 코너별 대응만 고정 permutation으로 바꾸는 유한 대조다. Disentangling by Factorising (2018/ICML)의 차원별 permutation 원리\cite{factorvae2018}를 참고하되 해당 논문의 FactorVAE가 팔레트 개선을 입증하거나 PERM이 완전한 통계 독립을 보장한다고 주장하지 않는다. 같은 점별 후보 좌표·특징·metadata 주변 multiset과 마스크, 노출량을 검증한다.
+
+후보 생성은 초기 prediction-only W/D 가설별 카메라 축 회전·이동의 12개 부호 축과 3개 반경, 64개 여섯 축 부호 조합을 사용한다. 수치 투영 민감도로 회전(rad)과 이동(m)의 크기를 정규화하고 실제 비선형 투영의 root search로 이동 상한을 맞춘다. 최대 후보는 NoOp를 포함해 201개다. $R'=\operatorname{Exp}(\delta r)R$, $t'=t+\delta t$로 물체 중심에 회전을 적용하며 $\operatorname{Exp}(\delta r)t$로 이동을 회전시키지 않는다. 이동은 영상 대각선의 1\% 이내이고 각 코너를 따로 clipping하지 않는다. 등록 치수와 카메라·왜곡 계약은 기존 실제 prediction-only 경로와 같으며, 후보 생성 및 배포 선택에 자세 참조를 넣지 않는다. 합성 치수는 TRAIN 렌더링 side table의 실제 특권 기하이고 실사는 알려진 객체 종류의 등록 치수여서 같은 정보 취득 경로라고 가정하지 않는다.
+
+코너 $j$의 후보 $k$ 점수 $\ell_{jk}$와 공통 추론 지원 집합 $V$에서 I는 각 $j$의 hard argmax를, J는 $\arg\max_k |V|^{-1}\sum_{j\in V}\ell_{jk}$ 한 개를 사용한다. 동률은 NoOp를 우선하며 정답 가시성이 아닌 고정된 추론 마스크로 점수를 모은다. 동결 실험은 기존 N3의 세 seed 특징·점수기를 그대로 재사용하여 I/J를 모두 보고한다. 새 후보로의 분포 변화가 있으므로 동결 점수기 실패를 특징에 정보가 없다는 증명으로 해석하지 않는다. 추가 학습은 같은 초기 가중치·예시 순서·구조·파라미터 수(20,259개)의 GEO/PERM 쌍을 각 세 seed로 시작한다. synthetic TRAIN 55,980행 중 기존 매칭·목표 지원 규칙을 만족한 55,915행을 사용하고 65행은 제외한다. batch 16, AdamW, seed당 6,000 update·96,000 노출과 마지막 체크포인트를 고정하며 실사 학습·추가 cap/seed/epoch 선택은 없다. 목표는 원시 예측에서 고정한 허용 GT 대칭 대응의 코너 제곱 오차로 만든 후보 분포이고, 공통 지원의 점수 평균과 cross entropy를 사용한다. source selection 1,031장은 진입 oracle 진단, 이미 소비한 합성 1,985장은 개발 진단, 실사 319장/13세션은 재사용 DEV로 서로 분리한다.
+
+\input{supplement_tables/joint_action_results}
+
+\input{supplement_tables/joint_action_analysis}
+
+\input{supplement_tables/joint_action_runtime}

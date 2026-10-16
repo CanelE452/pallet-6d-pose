@@ -1,0 +1,48 @@
+\documentclass[border=2mm]{standalone}
+\usepackage{fontspec,kotex,amsmath,amssymb,bm,tikz}
+\setmainfont{Liberation Sans}
+\setmainhangulfont{Noto Sans CJK KR}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\definecolor{Blue}{HTML}{00589C}
+\definecolor{Teal}{HTML}{277B78}
+\definecolor{Light}{HTML}{F0F6F5}
+\definecolor{Grey}{HTML}{56616B}
+\definecolor{Pale}{HTML}{F4F5F6}
+
+\begin{document}
+\begin{tikzpicture}[font=\fontsize{10}{12}\selectfont,
+ b/.style={draw=Teal,fill=Light,rounded corners=1mm,align=center,text width=2.5cm,minimum height=1.0cm,inner sep=4pt},
+ w/.style={draw=Grey,fill=white,rounded corners=.6mm,align=center,text width=2.5cm,minimum height=.8cm,inner sep=3pt},
+ arr/.style={-{Latex[length=2.2mm]},line width=.8pt,draw=Teal},
+ train/.style={-{Latex[length=2.2mm]},line width=.8pt,dashed,draw=Grey}]
+
+\node[anchor=west,font=\bfseries\fontsize{11}{13}\selectfont,text=Blue] at (-1.35,3.25) {(a) 전체 입력: RGB 영상 + 물리적 치수 + 카메라 정보};
+\node[b,text width=1.7cm] (rgb) at (-.1,0) {원본 RGB\\$I$};
+\node[b,text width=2.45cm] (base) at (3,0) {기반 추정기\\$f_{\theta_\beta}(I)$};
+\node[b,text width=2.9cm] (adapter) at (6.8,0) {기반별 연결부 $h_\beta$\\초기 코너·특징\\박스·마스크};
+\node[b,text width=2.75cm] (n3) at (10.8,-1.1) {영상 특징 + 치수\\N3 코너 보정};
+\node[b,text width=2.4cm] (p0) at (14.6,1.75) {동일 PnP\\보정 없음};
+\node[b,text width=2.4cm] (p1) at (14.6,-1.1) {동일 PnP\\보정 후};
+\node[b,text width=1.9cm] (out0) at (18,1.75) {$\mathbf R^{(0)},\mathbf t^{(0)}$};
+\node[b,text width=1.9cm] (out1) at (18,-1.1) {$\mathbf R^{(1)},\mathbf t^{(1)}$};
+\draw[arr](rgb)--(base);\draw[arr](base)--(adapter);
+\draw[arr](adapter.north)--(6.8,1.75)--node[above,font=\fontsize{9}{11}\selectfont]{동일 초기 코너}(p0.west);
+\draw[arr](adapter.east)--(8.55,0)--(8.55,-1.1)--(n3.west);
+\draw[arr](n3)--(p1);\draw[arr](p0)--(out0);\draw[arr](p1)--(out1);
+\node[w,text width=2.55cm,minimum height=.65cm] (kd) at (14.6,.35) {공통 $\mathbf K$·치수 $\mathbf d$};
+\draw[arr](kd.north)--(p0.south);\draw[arr](kd.south)--(p1.north);
+\node[w,text width=3.15cm] (dim) at (10.8,-2.75) {등록 치수 $\mathbf d=(W,D,H)$\\N3에서 추가 활용};
+\draw[arr](dim.north)--(n3.south);
+\node[align=left,anchor=north west,text=Grey,font=\fontsize{9}{11}\selectfont] at (-1.1,-1.1) {초기 코너 추정에는 RGB 사용\\YOLO / DOPE / ResNet-18\\기반별 특징·출력·좌표 연결};
+\node[align=left,text width=8cm,anchor=west,text=Grey,font=\fontsize{9}{11}\selectfont] at (-1.1,-2.75) {객체 선택·박스·점수·중심점·결측 마스크는 각 기반의 보정 전후에 유지};
+\draw[Grey!40] (-1.4,-3.8)--(19.1,-3.8);
+\node[anchor=west,font=\bfseries\fontsize{11}{13}\selectfont,text=Blue] at (-1.35,-4.25) {(b) 학습: 초기 추정기는 고정, 연결 학습층과 보정기를 갱신};
+\node[w,text width=3.0cm] (gt) at (.5,-5.35) {고정 초기 코너\\정답·허용 전체 순열};
+\node[w,text width=3.0cm] (target) at (5,-5.35) {전체 대응·마스크 선택\\목표 분포 $q$};
+\node[w,text width=3.6cm] (loss) at (10,-5.35) {교차엔트로피 학습\\연결 학습층·N3 갱신};
+\node[w,text width=3.6cm] (prob) at (16.1,-5.35) {특징 + 초기 코너 + 치수\\N3 예측 $p^{(1)}$};
+\draw[train](gt)--(target);\draw[train](target)--(loss);\draw[train](prob)--(loss);
+\node[anchor=west,text=Grey,font=\fontsize{9}{11}\selectfont] at (-1.35,-6.25) {실선: 추론\quad 점선: 학습\qquad 세 기반에 N3를 별도 학습\quad /\quad 정답은 추론에 사용하지 않음};
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,46 @@
+\section{관련 연구}\label{sec:related}
+\subsection{팔레트 인지·위치 추정과 취급 응용}
+팔레트 인지 연구에서 사용되는 입력은 컬러 영상, 깊이 영상, 점군 및 거리 센서 등으로 다양하다. \textit{Pallet recognition and localization using an RGB-D camera}(2017)는 깊이 정보를 이용한 템플릿 기반 인식과 위치 추정을 다룬다\cite{xiao2017}. \textit{Real-time Pallet Localization with 3D Camera Technology for Forklifts in Logistic Environments}(2018)은 3차원 카메라를 이용한 위치 추정을 다루며\cite{molter2018}, 창고 팔레트의 구조와 템플릿을 활용하는 RGB-D 방법\cite{zhao2022}, 능동 양안 점군의 특징과 정합을 이용하는 방법\cite{shao2023}, 깊이 카메라의 검출 영역과 점군 처리를 결합하는 방법\cite{hu2025}도 제안되었다. 이 연구들은 깊이 관측을 이용한다는 점에서 현재의 단안 영상 보정과 사용 정보가 다르다.
+
+학습 기반 팔레트 위치 추정에서도 출력의 의미는 동일하지 않다. RGB 영상과 깊이 데이터를 결합한 검출·위치 추정\cite{li2021} 및 여러 깊이 기반 인지 모델의 비교\cite{rocha2023}는 센서 처리 경로 전체를 다룬다. \textit{Pallet Recognition with Multi-Task Learning for Automated Guided Vehicles}(2021)은 영상에서 각도와 거리의 범주를 함께 예측하는 다중 작업 구성을 제안한다\cite{mok2021}. 구성요소 분할을 통한 위치 추정\cite{wu2025}과 위성항법 및 비전을 결합한 위치·회전 추정\cite{meng2024}은 각각 물체 표현과 좌표 정보의 다른 선택을 보여준다. 범주 분류 정확도, 거리 오차 및 전체 6D 자세 오차를 하나의 성능 순위로 해석하지 않는 이유가 여기에 있다.
+
+팔레트의 인지 결과를 실제 취급으로 연결하는 연구에는 야외 팔레트 handling\cite{iinuma2020}, RGB-D 기반 포크 삽입\cite{iinuma2021d}, 다중 카메라를 이용한 적층\cite{iinuma2021s}, 팔레트 트럭의 검출·도킹\cite{tsiogas2021}, 학습 기반 화물 이송 시스템\cite{ren2022}, 영상 측정 기반 접근·삽입\cite{kita2026}이 있다. 본 연구는 이러한 전체 제어 절차를 새로 제안하는 대신, 제어에 공급되는 인지 결과의 보정에 초점을 둔다. 실제 장비에서 수집된 영상을 이용한다는 사실과 제안 보정기로 장비를 제어했다는 주장은 구분한다.
+
+\subsection{합성 학습과 단안 팔레트 자세 추정}
+\textit{Estimating the Pose of a Euro Pallet with an RGB Camera based on Synthetic Training Data}(2022)는 합성 영상을 이용해 DOPE 계열 추정기를 학습하고 RGB 카메라 기반 팔레트 자세 추정을 평가하였다\cite{knitt2022}. \textit{Pallet Detection And Localisation From Synthetic Data}(ACRA 2024)는 합성 데이터와 팔레트 면의 기하 정보를 사용하는 접근이다\cite{mueller2024}. 따라서 합성 영상으로 학습하거나 코너와 알려진 기하를 이용해 자세를 구하는 전체 구성 자체는 선행연구와 구별되는 발명이 아니다.
+
+관측 외형과 기하 표현을 분리하는 연구도 있다. 합성 학습과 stereo depth의 표면 기하를 이용하는 팔레트 인지\cite{beleznai2023}, disparity 및 점·선분 투표를 이용하는 연구\cite{beleznai2025}는 가림과 외형 변화를 다룬다. \textit{Pallet Pose Estimation Based on Front Face Shot}(2025)은 앞면 관측과 신경망·커널 회귀를 이용해 적재물 외형 변화에 대응한다\cite{kai2025}. \textit{Real-Time 6DoF Pallet Pose Estimation with Monocular Metric Depth}(2026)은 단안으로 예측한 거리 정보와 기하 단서를 활용한다\cite{miura2026}. 물리적 깊이 센서의 관측, 단안으로 학습한 depth, 사전에 제공한 치수는 서로 다른 정보이므로 이를 명시한 비교가 필요하다.
+
+\subsection{구조 정보를 이용한 키포인트 추정}
+팔레트의 규칙적인 구조를 이용하는 접근은 이미 연구되어 왔다. \textit{Pallet localization algorithm based on improved human pose estimation with transfer learning}(2025)은 개선된 YOLOv8s-pose 계열과 E형 단면의 키포인트, 강건한 기하 계산을 결합한다\cite{zhou2025jsc}. \textit{Unmanned forklift pallet positioning algorithm based on an improved human pose estimation model}(2025)은 개선된 YOLOv11s-pose와 topology 정보를 결합한 위치 추정이다\cite{zhou2025nyas}. \textit{A Hypergraph Computing and Knowledge-Enhanced Framework for Forklift Pallet Pose Estimation}(2026)은 키포인트의 고차 공간 관계와 구조 사전정보를 활용한다\cite{ye2026}. 따라서 본 연구의 동기는 기존 연구가 구조를 전혀 사용하지 않는다는 주장에 있지 않다. 이미 학습된 추정기의 결과를 유지하면서, 별도의 국소 보정 단계에서 치수 정보와 대응 규칙을 활용했을 때의 추가 효과를 확인하는 데 있다.
+
+\begin{table*}[t]
+\centering
+\caption{직접 관련된 팔레트 연구와 본 연구의 비교 범위. 센서·초기 정보·출력 정의가 다른 논문의 보고 숫자를 직접 순위화하지 않는다.}
+\label{tab:literature}
+\footnotesize
+\begin{tabularx}{\textwidth}{p{0.24\textwidth}p{0.18\textwidth}Y Y}
+\toprule
+연구 & 핵심 정보·표현 & 접근의 초점 & 현재 보정 연구와의 구분 \\
+\midrule
+Euro pallet 합성 학습\cite{knitt2022} & RGB, 합성 학습, 객체 기하 & DOPE 기반 자세 추정 & 기존 추정기를 얻는 단계에 해당 \\
+Synthetic localisation\cite{mueller2024} & 합성 RGB, 면 코너 & 팔레트 검출과 위치 추정 & 본 연구는 초기 코너 이후의 수정을 분리 \\
+Front Face Shot\cite{kai2025} & RGB 앞면, 기하 관계 & 다른 적재물 외형에 대한 대응 & 관측 표현 및 전체 추정 경로의 차이 \\
+Geometric cues\cite{beleznai2025} & stereo disparity, 점·선분 & 기하 표현과 가림 대응 & 센서 증거와 voting 대상이 다름 \\
+Improved YOLOv8s-pose\cite{zhou2025jsc} & E단면 12점, 기하 정보 & 특징·학습 개선, 거리·각도 계산 & full 6D 평가와 동일 지표로 보지 않음 \\
+Improved YOLOv11s-pose\cite{zhou2025nyas} & E단면 점, topology & 키포인트 및 자세 추정기 개선 & 초기 추정기 변경과 후단 보정을 구분 \\
+Hypergraph framework\cite{ye2026} & 고차 관계, 기하·불확실성 & 구조적 키포인트 표현과 위치 추정 & 기하 활용 자체가 본 연구의 신규성은 아님 \\
+Occlusion-Robust\cite{vu2024} & RGB-D 특징 & 가림에 대한 pose 추정 & 깊이 정보 없는 경로와 감독·입력이 다름 \\
+Multi-Stage Domain-Adapted\cite{elmoaqet2025} & CUT, 초기 pose, CosyPose & 영상 적응과 다단계 자세 보정 & 가장 가까운 보정 선행; 초기 pose 및 렌더링 조건 비교 필요 \\
+Monocular Metric Depth\cite{miura2026} & RGB에서 예측한 metric depth & 전체 팔레트 자세 추정 & 치수만 추가한 보정과 정보 구조가 다름 \\
+제안 방법 & 초기 코너, 내부 특징, 치수 & 제한된 이동 후보를 이용한 코너 수정 & 기본 추정기·기하 solver 고정, 전후 차이 평가 \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{입력 적응, 추정기 업데이트 및 출력 보정}
+입력 표현을 바꾸는 접근의 예로 CUT는 대응 영상 쌍 없이 패치 수준의 대조 학습을 이용한 영상 변환을 제안한다\cite{cut2020}. 팔레트 연구에서는 CUT와 CosyPose를 결합한 다단계 보정이 보고되었다\cite{elmoaqet2025}. 이 방법은 영상 적응과 자세 보정을 함께 사용하므로, 합성 학습만으로 목표 영역의 정보를 전혀 보지 않은 설정과 동일하지 않다. 자기지도 pose 적응의 예인 Self6D도 단안 추론과 실사 RGB-D 학습 신호를 구분하여 이해해야 한다\cite{self6d2020}. 이러한 선행의 성공이 현재의 의사 레이블만을 사용하는 자기학습 설정에서도 같은 효과를 보장하지는 않는다.
+
+출력 보정에서는 PoseFix가 이미지와 초기 키포인트를 입력받아 정제된 자세를 산출한다\cite{posefix2019}. DeepIM은 초기 자세로 렌더링한 영상과 관측 영상을 정합하여 자세를 반복적으로 갱신하며\cite{deepim2018}, CosyPose는 단일 시점 자세 가설과 객체 대칭을 다루고 다중 시점 장면을 정제한다\cite{cosypose2020}. 본 연구는 이들과 달리 기존 추정기의 내부 특징을 읽고 코너 주변의 제한된 변위 분포를 계산한다. 이는 전체 RGB 특징을 별도로 추출하거나 물체를 반복 렌더링하는 구성과 비교할 수 있지만, 내부 특징에 접근해야 하므로 모든 추정기에 같은 가중치를 그대로 적용할 수 있다고 주장하지 않는다. 특히 PoseFix의 원래 설정은 다른 추정기의 내부 코드나 특징을 필요로 하지 않는 반면, 본 방법은 기반별 특징·좌표 연결부와 보정 헤드 학습을 요구한다. 따라서 본문의 검증 대상은 동일 보정 절차의 여러 추정기 적용성이다.
+
+분포에서 좌표를 계산하는 기대값 연산은 Integral Human Pose Regression 등의 선행에서 다루어졌다\cite{integral2018}. BB8은 코너 투영으로 자세를 표현하는 과정에서 회전 대칭이 학습에 일으키는 모호성을 다룬다\cite{bb82017}. 본 연구는 기대값 연산이나 대칭 고려 자체를 새롭게 제안하는 것이 아니라, 팔레트 코너 보정의 정보·감독·평가 조건을 묶어 추가 효과를 검토한다. 표~\ref{tab:literature}는 이 범위를 팔레트 선행과 구분하여 정리한다.

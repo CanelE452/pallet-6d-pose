@@ -1,5 +1,10 @@
 # 연구 가이드 — Pallet 6D Pose Geometry-aware Self-Training
 
+> **의사 라벨 품질 검사(2026-09-11):** [Hough 보정으로 평균 오차 개선, 큰 오류 라벨 수 유지·안정성 기준 미통과](notes/supervision_and_distillation/hough-pseudolabel-quality-v1.md). 학생 재학습 없음.
+
+> **최근 점·선 연구(V44, 2026-09-11):** [새 장면 두 검증과 현재 실험 계열 종료 판정](notes/point_line_fusion/04_failure_analysis/pallet_fresh_decision_v44.md) · [그림과 함께 보는 종합](notes/point_line_fusion/STATUS_AND_NEXT_STEPS.md) · [주제별 노트 목차](notes/README.md)
+
+
 > 🛑 **2026-08-17 — 논문 정본은 `_docs/paper/` 로 분리됐다.**
 > 이 README 아래의 목차와 `method/`·`models/`·`experiments/`·`filter/` 문서는
 > **2026-03~06 옛 세대**(v8 전제, 폐기된 평가셋 수치, 반대되는 판정)다.
@@ -21,21 +26,32 @@
 
 ---
 
-## 진행 중 계열 노트 (`_docs/notes/`, 과제 트랙)
+## 주제별 연구 노트
 
-주제축 문서(제안→시도→결과→판정)는 `_docs/notes/{계열}.md` 에 있다. 아래 표는
-이 색인이 처음 만들어진 2026-09-06 시점에 확인된 계열만 담는다 — 새 계열이 생기면
-줄을 추가한다 (논문 트랙 진행 상황은 `_docs/paper/README.md` 가 별도 정본).
+기존 평면 노트51개를 관련 주제와 실험 단계로 묶었다. 읽기 시작할 곳은 [노트 목차](notes/README.md)다. 논문 트랙의 정본은 계속 [paper/README.md](paper/README.md)에 있다.
+
+| 주제 | 문서 |
+|---|---|
+| 점·선 융합의 현재 결론과 시각화 | [종합](notes/point_line_fusion/STATUS_AND_NEXT_STEPS.md) |
+| 다음 실험의 대조군·순서·판정 | [실행 순서](notes/point_line_fusion/NEXT_EXPERIMENTS.md) |
+| 초기 Hough부터V30까지 단계별 상세 | [실험 색인](notes/point_line_fusion/README.md) |
+| 자세 기하·C4·PnP | [목차](notes/pose_geometry/README.md) |
+| 감독 데이터·교사·증류 | [목차](notes/supervision_and_distillation/README.md) |
+
+<details>
+<summary>이전 계열 색인 보존 — 아래 상태는 당시 기록이며 현재 상태는 위 종합을 참고</summary>
 
 | 계열 | 묻는 것 | 상태 | 최신 결과 | 문서 |
 |---|---|:--:|---|---|
-| c4-rotation-symmetry | 정사각 팔레트 90도 회전 대칭을 학습 손실·평가 지표에 어떻게 반영하나 | 🟡 | 정본 라벨 재학습 사전등록 gate PASS — 개선 실체는 index 일관성 회복(phase0 비율 50.6~57.1%→98.7%), 위치정확도(C4-equivalent median)는 거의 그대로, C4 loss 고유 효과는 NOT_ESTABLISHED (2026-09-06) | [notes](notes/c4-rotation-symmetry.md) |
-| pallet-dht-global-layout | 동일 후보의 8점·12선 배치와 번호를 함께 선택하면 개선되는가 | 완료 · 향상 실패 | 합성256 계수선택,512val+319실사. 기존P9041.487→global79.682px,양호점577/1711악화. 좋은번호후보가있어도점수로배제됨. HTML실제창·독립QA·Discord204완료 (2026-09-09) | [notes](notes/pallet_dht_global_layout.md) |
-| pallet-dht-gt-audit | 수동 정답이 정확한데도 P90 41.49px인가 | 감사·전달 완료 | 원 좌표 재계산 일치. visible P90 37.11/직접클릭28.81px, GT7 높이끝·화면밖visible 기록 재검토 후보. 정본수정0, 전체GT정확성 인증아님. HTML실제창/Discord204확인 (2026-09-09) | [notes](notes/pallet_dht_gt_audit.md) |
-| pallet-dht-decoder-probe | 선 교점 후보를 최종 점 계산에 직접 사용하면 작은 결합부 학습으로 개선되는가 | 완료 · 추가 향상 미확인 | 14장×기존3seed진단+동일55,118parameter2모듈×1000updates/실사319평가. 선median6.661px vs점6.514px,진행기준불충족. 후보가중좌표·gate분해 및fixed1악화확인. HTML창/독립QA/Discord204완료 (2026-09-09) | [notes](notes/pallet_dht_decoder_probe.md) |
-| pallet-dht-coupling | 점·선 gradient 충돌, 손실 비중, PCGrad와 명시적 점–선 관계를 분리하면 개선되는가 | 완료 · 종합 향상 미확인 | 12/12 학습·실사319+negative2689 평가 완료, 기존9대조군·48비교. 경사 비중 변화는 확인했지만 안정적 향상 없음. 21모델 갤러리·독립 QA·브라우저 표시·Discord204 완료 (2026-09-09) | [notes](notes/pallet_dht_coupling.md) |
-| pallet-dht-joint | Self-training 없이 Deep Hough 특징과 점 예측을 한 모델로 학습하면 개선되는가 | 완료 | 전체 YOLO+HT/IHT, 동일 예산 3구조×3seeds×합성55,980장 2epochs 및 실사319+negative2689/모델 완료. 점 median6.865→6.689px이나 6지표 CI 모두0 포함·매칭 감소로 종합 우월성 미확인. Runtime strict parity7/702 실패 보존. HTML 창·Discord204 확인 (2026-09-08) | [notes](notes/pallet_dht_joint.md) |
-| pallet-point-line-v4 | 고정 backbone·고정 후보 bank 위에서 유한 선분 내부 읽기·명시 Deep Hough 단서·같은-ID reference 를 분리하면 개선되는가 | 완료 · 합성 진입 실패, 실사 미진입 | 4군(P/S/H/HA)×3seed synth_val512 주지표 전부 baseline(0.005755) 근방. 사전등록 기준 H seed1 에서 실패 → `NO_SYNTHETIC_ADVANCEMENT_SIGNAL`. 512장 중 1~5장의 8코너 인덱스 순열 뒤집힘이 전부를 결정, 세 가설 모두 미확인. 병목=랭킹(oracle 여유42.19%). 실사 DEV·단계 C 미실행 (2026-09-09) | [notes](notes/pallet_point_line_v4.md) |
+| c4-rotation-symmetry | 정사각 팔레트 90도 회전 대칭을 학습 손실·평가 지표에 어떻게 반영하나 | 🟡 | 정본 라벨 재학습 사전등록 gate PASS — 개선 실체는 index 일관성 회복(phase0 비율 50.6~57.1%→98.7%), 위치정확도(C4-equivalent median)는 거의 그대로, C4 loss 고유 효과는 NOT_ESTABLISHED (2026-09-06) | [notes](notes/pose_geometry/c4-rotation-symmetry.md) |
+| pallet-dht-global-layout | 동일 후보의 8점·12선 배치와 번호를 함께 선택하면 개선되는가 | 완료 · 향상 실패 | 합성256 계수선택,512val+319실사. 기존P9041.487→global79.682px,양호점577/1711악화. 좋은번호후보가있어도점수로배제됨. HTML실제창·독립QA·Discord204완료 (2026-09-09) | [notes](notes/point_line_fusion/01_hough_and_geometry/pallet_dht_global_layout.md) |
+| pallet-dht-gt-audit | 수동 정답이 정확한데도 P90 41.49px인가 | 감사·전달 완료 | 원 좌표 재계산 일치. visible P90 37.11/직접클릭28.81px, GT7 높이끝·화면밖visible 기록 재검토 후보. 정본수정0, 전체GT정확성 인증아님. HTML실제창/Discord204확인 (2026-09-09) | [notes](notes/point_line_fusion/01_hough_and_geometry/pallet_dht_gt_audit.md) |
+| pallet-dht-decoder-probe | 선 교점 후보를 최종 점 계산에 직접 사용하면 작은 결합부 학습으로 개선되는가 | 완료 · 추가 향상 미확인 | 14장×기존3seed진단+동일55,118parameter2모듈×1000updates/실사319평가. 선median6.661px vs점6.514px,진행기준불충족. 후보가중좌표·gate분해 및fixed1악화확인. HTML창/독립QA/Discord204완료 (2026-09-09) | [notes](notes/point_line_fusion/01_hough_and_geometry/pallet_dht_decoder_probe.md) |
+| pallet-dht-coupling | 점·선 gradient 충돌, 손실 비중, PCGrad와 명시적 점–선 관계를 분리하면 개선되는가 | 완료 · 종합 향상 미확인 | 12/12 학습·실사319+negative2689 평가 완료, 기존9대조군·48비교. 경사 비중 변화는 확인했지만 안정적 향상 없음. 21모델 갤러리·독립 QA·브라우저 표시·Discord204 완료 (2026-09-09) | [notes](notes/point_line_fusion/01_hough_and_geometry/pallet_dht_coupling.md) |
+| pallet-dht-joint | Self-training 없이 Deep Hough 특징과 점 예측을 한 모델로 학습하면 개선되는가 | 완료 | 전체 YOLO+HT/IHT, 동일 예산 3구조×3seeds×합성55,980장 2epochs 및 실사319+negative2689/모델 완료. 점 median6.865→6.689px이나 6지표 CI 모두0 포함·매칭 감소로 종합 우월성 미확인. Runtime strict parity7/702 실패 보존. HTML 창·Discord204 확인 (2026-09-08) | [notes](notes/point_line_fusion/01_hough_and_geometry/pallet_dht_joint.md) |
+| pallet-point-line-v4 | 고정 backbone·고정 후보 bank 위에서 유한 선분 내부 읽기·명시 Deep Hough 단서·같은-ID reference 를 분리하면 개선되는가 | 완료 · 합성 진입 실패, 실사 미진입 | 4군(P/S/H/HA)×3seed synth_val512 주지표 전부 baseline(0.005755) 근방. 사전등록 기준 H seed1 에서 실패 → `NO_SYNTHETIC_ADVANCEMENT_SIGNAL`. 512장 중 1~5장의 8코너 인덱스 순열 뒤집힘이 전부를 결정, 세 가설 모두 미확인. 병목=랭킹(oracle 여유42.19%). 실사 DEV·단계 C 미실행 (2026-09-09) | [notes](notes/point_line_fusion/02_local_and_identity/pallet_point_line_v4.md) |
+
+</details>
 
 ---
 

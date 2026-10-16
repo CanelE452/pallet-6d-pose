@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pallet:relative-stability:20261006:v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "coordinate_contract",
+    "clock_id",
+    "records"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pallet_relative_pose_stability_20261006_v1"
+    },
+    "coordinate_contract": {
+      "const": "opencv_optical__canonical_object_xyz_WHD__metre"
+    },
+    "clock_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "records": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "timestamp_ns",
+          "R_physical",
+          "centroid_m",
+          "source_record_id"
+        ],
+        "properties": {
+          "timestamp_ns": {
+            "type": "integer"
+          },
+          "R_physical": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "centroid_m": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          },
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

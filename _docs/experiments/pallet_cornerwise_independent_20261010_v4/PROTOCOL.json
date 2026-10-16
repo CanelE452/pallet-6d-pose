@@ -1,0 +1,429 @@
+{
+  "schema": "one_shot_observation_only_cornerwise_protocol_v4",
+  "methods": [
+    "N3_INDEPENDENT_CORNERWISE_ROLE",
+    "N3_INDEPENDENT_ROBUST_H",
+    "N3_INDEPENDENT_ROBUST_NO_MASK",
+    "N3_CORNERWISE_ROLE"
+  ],
+  "primary": "N3_INDEPENDENT_CORNERWISE_ROLE",
+  "frames": 245,
+  "method_rows": 980,
+  "fixed_rows": 490,
+  "new_training_updates": 0,
+  "new_RGB": 0,
+  "new_seeds": 0,
+  "GT_tuning": false,
+  "checkpoint_selection": "unchanged corrected last IMAGE_ROLE step3000",
+  "selection_policy": {
+    "schema": "observation_only_cornerwise_selection_policy_v4",
+    "candidate_admission": "unchanged v2 final-line support and corner uncertainty cap8px",
+    "native_basin": "unchanged v2 distance<=8px for an available native N3 coordinate",
+    "missing_native_exception": "admitted actual boundary may be used if LOO supports it; native-distance comparison unavailable",
+    "heldout_fit": "actual initial H union candidate corner; one robust solve per eligible corner",
+    "heldout_is_self_occlusion": false,
+    "candidate_residual_cap_px": 8.0,
+    "squared_residual_tie_px2": 1e-08,
+    "selection": "LOO new pose, excluded k/H, candidate residual<=8px and native squared residual minus candidate squared residual>1e-8",
+    "ties_or_unavailable_or_ambiguous": "preserve native N3 RGB coordinate; never fail the frame for this selection",
+    "coordinate": "accepted actual boundary intersection, never LOO projected coordinate",
+    "initial_prior": "none: validation pose dimensions/ranking/fit use retained observations only",
+    "conditional_mask": "H comes from unchanged initial N3, fixed during each heldout solve",
+    "proposal_features": "fixed Base-derived query and role features; not independent physical evidence",
+    "fully_independent_validation": false,
+    "same_N3_bank_reused_across_heldouts": true,
+    "conditional_H_inherited_from_initial_N3": true,
+    "proposal_Base_feature_dependence_retained": true,
+    "maximum_heldout_solves": 8,
+    "new_threshold_fitting": false,
+    "truth_input": false
+  },
+  "pose_policy": {
+    "observation_residual_px": 8.0,
+    "maximum_refit_starts": 3,
+    "minimum_correspondences": 4,
+    "initial_pose_prior": false,
+    "initial_rotation_translation_input": false,
+    "initial_projection_input": false,
+    "initial_dimension_choice_input": false,
+    "independently_known_dimension": "optional explicit constructor index and provenance",
+    "dimension_hypotheses": "all deduplicated registry dimensions unless explicitly known",
+    "generators": "unchanged SQPnPGeneric / exact-plane IPPE; every valid returned solution",
+    "generic_cache": "same numeric bank and exact (dimension, fit-ID tuple), across phases and masks",
+    "robust_score": "descending inlier count then truncated squared residual over allowed U only",
+    "ordinary_score": "squared residual over allowed U only",
+    "numerical_score_tie_px2": 1e-08,
+    "equivalent_projection_max_abs_px": 1e-05,
+    "equivalent_physical_rotation_max_abs": 1e-05,
+    "equivalent_translation_relative_diagonal": 1e-05,
+    "numerical_equivalence_not_physical_symmetry": "physical R/t also checked; ADD symmetry is not a pose identity certificate",
+    "tie_order": "dimension index, lexicographic generator IDs, returned solution index, generator",
+    "ambiguity": "same inlier count and numerically tied objective; distinct physical R/t or all-eight model projection",
+    "ambiguity_uses_excluded_image_coordinates": false,
+    "global_uniqueness_proven": false,
+    "hidden_policy": "exclude H before scoring/refit; replace only H after final R,t; never refit projections",
+    "temporary_exclusion_policy": "exclude from generators/scoring/refit; do not replace excluded-only coordinates",
+    "fallback": "none inside solver; caller may separately return a declared unchanged baseline"
+  },
+  "self_hidden": "initial H excluded from final fit; no initial pose priors in three new arms; new valid R,t projects H once; never refit projections",
+  "inputs": {
+    "common.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/common.py",
+      "origin": "public_repository",
+      "sha256": "fc272a8aecb2dd53e90e22b566b47447c2a6d266e93731fe8152afcf87fe6878",
+      "bytes": 7708
+    },
+    "selection.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/selection.py",
+      "origin": "public_repository",
+      "sha256": "6b132c137927f0141bdb23b1bad61f7b8de2c9a2ad9b5ef645065495b0569cbe",
+      "bytes": 13497
+    },
+    "pipeline.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/pipeline.py",
+      "origin": "public_repository",
+      "sha256": "5a15e1e256697e54d750c4ba8a91f6bb5ebf6f6812e77119dd7d1576192afb6e",
+      "bytes": 6580
+    },
+    "run.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/run.py",
+      "origin": "public_repository",
+      "sha256": "44ae7534713cc884dff813901689afb9708e39c6fdd8aeff8c80826704a1379f",
+      "bytes": 10914
+    },
+    "evaluate.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/evaluate.py",
+      "origin": "public_repository",
+      "sha256": "c0de6f126b22069574a665893aa6087666362f52b252f962fde2e1b8cff9900c",
+      "bytes": 17248
+    },
+    "runtime.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/runtime.py",
+      "origin": "public_repository",
+      "sha256": "44018980f6fa2847926d58ffb758bad20b97c266cd1ef8b9924980bea30637b6",
+      "bytes": 20436
+    },
+    "statistics.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/statistics.py",
+      "origin": "public_repository",
+      "sha256": "0144e611af51892b49dd88b5a75ab5dd5dbccd1637e21338eeb92d2e4c2b0101",
+      "bytes": 20613
+    },
+    "verify.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/verify.py",
+      "origin": "public_repository",
+      "sha256": "9df18a52c161e1ba0352a10489773fd7dd8932d0491a54f5c9c78d0e08569950",
+      "bytes": 25485
+    },
+    "test_independence.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/test_independence.py",
+      "origin": "public_repository",
+      "sha256": "2bf89355bfe67172ec1c4a5cbaa9677f4581b2c47edd2dcc2fee2ebd6acc2469",
+      "bytes": 25616
+    },
+    "render.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/render.py",
+      "origin": "public_repository",
+      "sha256": "5e9affbaa8df80c040da14543fd2ad684746470046b555662309b6b1de947a57",
+      "bytes": 5473
+    },
+    "pose.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/pose.py",
+      "origin": "public_repository",
+      "sha256": "ef827022bef6807c5f7e4016d7ebefa1838c5f013f6d48be6f4932e0c9ad4a40",
+      "bytes": 19941
+    },
+    "v3_common.py": {
+      "path": "scripts/research/pallet_cornerwise_refiner_20261010_v3/common.py",
+      "origin": "public_repository",
+      "sha256": "11325c26c0baf20b80847cbe0a49355c264aad9fcbd4f8fc841c55548c93e5dd",
+      "bytes": 7193
+    },
+    "v3_selection.py": {
+      "path": "scripts/research/pallet_cornerwise_refiner_20261010_v3/selection.py",
+      "origin": "public_repository",
+      "sha256": "bbe65eff501c1ec5b756391f0ed16da73c9d2b1e2b0071ef382d73cfbfb71446",
+      "bytes": 12733
+    },
+    "v3_pipeline.py": {
+      "path": "scripts/research/pallet_cornerwise_refiner_20261010_v3/pipeline.py",
+      "origin": "public_repository",
+      "sha256": "d83504099b6751162350731c7fa41c5437092c863e230f7dd5391817fdfacfff",
+      "bytes": 4835
+    },
+    "v2_common.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/common.py",
+      "origin": "public_repository",
+      "sha256": "6bb4d3ee7b34bae5ffeb12f83f827c41e666e59d1bd2c5491b32734b4927a893",
+      "bytes": 13367
+    },
+    "v2_pipeline.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/pipeline.py",
+      "origin": "public_repository",
+      "sha256": "262953a907a8805326c8537a81723933862ffc0e58b499d54296de1669b0b095",
+      "bytes": 31343
+    },
+    "v2_deployment.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/deployment.py",
+      "origin": "public_repository",
+      "sha256": "e9fa8912de49c22eae466557c914a3df35cbdc74c05f35a7324af2e110a5baac",
+      "bytes": 3073
+    },
+    "v2_pose.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/pose.py",
+      "origin": "public_repository",
+      "sha256": "13a99793fa0161b2744d4c2d4e148654b749e2b63f3aa9b626d2df85547aa860",
+      "bytes": 15588
+    },
+    "v2_observations.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/observations.py",
+      "origin": "public_repository",
+      "sha256": "11e3af07dd2e9b92f33810dd54710426688bd9bb2028ffefbeb56fbfb4168c3e",
+      "bytes": 11832
+    },
+    "cohort": {
+      "path": "_docs/experiments/pallet_kp_corrected_supervision_20261010_v1/COHORT.json",
+      "origin": "public_repository",
+      "sha256": "575504709a36ee7963997af11fbcee9212299ba9e4b89ce8bb948c1dd9f8cfb0",
+      "bytes": 123877
+    },
+    "calibration": {
+      "path": "_docs/experiments/pallet_boundary_corner_refiner_20261010_v2/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "7d83f23e0c080ea561c0c453aa7c59fcae7d2954a89feb00516cb3ec58fb077d",
+      "bytes": 2323
+    },
+    "original_inputs": {
+      "path": "_docs/experiments/pallet_observation_refiner_20261009_v1/INPUTS.json",
+      "origin": "public_repository",
+      "sha256": "92624116024e2d2263a7a7545c3b0e41cda68b450bc809ae79d588d5b505b6a7",
+      "bytes": 974891
+    },
+    "runtime_panel": {
+      "path": "_docs/experiments/pallet_kp_corrected_supervision_20261010_v1/RUNTIME_PANEL.json",
+      "origin": "public_repository",
+      "sha256": "569808123a210713fd1912d790f0efa5aad1d907333245d8eba618a1ce7b4e48",
+      "bytes": 26443
+    },
+    "training_completion": {
+      "path": "TRAINING_COMPLETION.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "7196b60469c85f5456a2370f03843447d42d16190910d9f37f0349f3d42c85f1",
+      "bytes": 5092
+    },
+    "ROLE": {
+      "path": "IMAGE_ROLE.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "882a6eddc964258abfbc1ad3baeee380ab9fac42b3b90c7f64166bd98d777d5d",
+      "bytes": 28068
+    },
+    "Base": {
+      "path": "best.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "bytes": 6552807
+    },
+    "N3": {
+      "path": "last.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "ceea743b7b8467cf43eef66582b923dd980e5b2fb27f5575af5df185109f22dd",
+      "bytes": 305470
+    },
+    "original_model": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/model.py",
+      "origin": "public_repository",
+      "sha256": "4e4856abdc3a1c11a920560f1b110d76787975a15ddd637c93c2ec210dbefa3a",
+      "bytes": 6054
+    },
+    "original_solver": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/solver.py",
+      "origin": "public_repository",
+      "sha256": "50e0ad64afd7abe71cc2d10c457275fb70e3a807701556a8e6a14cea5eb56796",
+      "bytes": 17058
+    },
+    "metric": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/evaluate.py",
+      "origin": "public_repository",
+      "sha256": "4f8ddf7325e289e82bffe293296f35ad2ada80ddf1fc5aec7fa0beb904763694",
+      "bytes": 11045
+    },
+    "reference_adapter": {
+      "path": "scripts/research/pallet_kp_corrected_supervision_20261010_v1/scoring_resume.py",
+      "origin": "public_repository",
+      "sha256": "954eab0de5431435f1c5a83918caf1fac2a7f88639f17a948a91db6f107942c0",
+      "bytes": 16401
+    },
+    "statistics_protocol": {
+      "path": "_docs/experiments/pallet_boundary_corner_refiner_20261010_v2/STATISTICS_PROTOCOL.json",
+      "origin": "public_repository",
+      "sha256": "77ba8a330b8be7d6dead7718c8ea1c59111270221c6a6fac3742c5ee71cf4cbd",
+      "bytes": 1934
+    },
+    "visual_protocol": {
+      "path": "_docs/experiments/pallet_boundary_corner_refiner_20261010_v2/VISUAL_CASE_PROTOCOL.json",
+      "origin": "public_repository",
+      "sha256": "0a76ab4e362bd2fde266473ddc33498cdf6fdf0d97610c16e2a06d08a4f187dd",
+      "bytes": 3896
+    },
+    "bootstrap_draws": {
+      "path": "_docs/experiments/pallet_kp_difficulty_20261010_v1/BOOTSTRAP_SESSION_DRAWS.json.gz",
+      "origin": "public_repository",
+      "sha256": "68f02da8e033336b789b28d7b2b89276a8aaf4c4566aabb5b629c4258c0b0ff5",
+      "bytes": 49943
+    },
+    "borrowed_statistics": {
+      "path": "scripts/research/pallet_kp_corrected_supervision_20261010_v1/statistics.py",
+      "origin": "public_repository",
+      "sha256": "e56e8a26cbc02b1012945dca94cd9a5d307fa6a6af5192f92486d63792c924d1",
+      "bytes": 32955
+    },
+    "original_solver_checks": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/test_solver.py",
+      "origin": "public_repository",
+      "sha256": "ce8fb5ca52f0d2b38db4d7b2584c57c5a0cacd65cd14a49d2e09b1ef581f7bfa",
+      "bytes": 8476
+    },
+    "scorer_fit_canary": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/evaluate.py",
+      "origin": "public_repository",
+      "sha256": "9530be26fa585bf50bbd872c17f26fa83f605a8cda78ab05f2b7fe9c8201dc38",
+      "bytes": 9562
+    },
+    "original_context": {
+      "path": "scripts/research/pallet_kp_repair_runtime_20261010_v1/adapter.py",
+      "origin": "public_repository",
+      "sha256": "1ba7b6259c77c72e6dfc610f339b8df34709bac9aa90425733fb55c662abc1e7",
+      "bytes": 26015
+    },
+    "original_common": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/common.py",
+      "origin": "public_repository",
+      "sha256": "997daf366721207f4a5337127f280f963a477bec6daaf8e60867592f6a213a5d",
+      "bytes": 4111
+    },
+    "original_inference": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/inference.py",
+      "origin": "public_repository",
+      "sha256": "988c92220d832058d1ffbc3822134fd4c6507f04fb4bf32b5799a32610adebe6",
+      "bytes": 1986
+    },
+    "original_learned": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/learned_infer.py",
+      "origin": "public_repository",
+      "sha256": "6fae5338f18308882f38bc306978729c85cd1f7b96291370d6864f70965c3a66",
+      "bytes": 6288
+    },
+    "evaluation_contract": {
+      "path": "_docs/experiments/pallet_cornerwise_independent_20261010_v4/EVALUATION_CONTRACT_KO.md",
+      "origin": "public_repository",
+      "sha256": "ac5bb158032612565aee8872b03e6b9503dc0bac1e3610db6a5cc5c2faf1403a",
+      "bytes": 8599
+    },
+    "protection": {
+      "path": "_docs/experiments/pallet_cornerwise_independent_20261010_v4/PROTECTION_BEFORE.json",
+      "origin": "public_repository",
+      "sha256": "42c9cafdcc60751707183cf68ea3bcd015fc8ac2f7aa12cb50a798663265620f",
+      "bytes": 3666201
+    },
+    "v3_control_geometry": {
+      "path": "_docs/experiments/pallet_cornerwise_refiner_20261010_v3/GEOMETRY_SEALED.jsonl.gz",
+      "origin": "public_repository",
+      "sha256": "cd00cdb40c02bb81f816e58f8bf8cd256053f3ec32c1afdaebdd2d3837b16cca",
+      "bytes": 4135722
+    },
+    "v3_control_protocol": {
+      "path": "_docs/experiments/pallet_cornerwise_refiner_20261010_v3/PROTOCOL.json",
+      "origin": "public_repository",
+      "sha256": "5dfe6a8bf2ec09007de0d0ec900f6d302828877485aaef40b7d638190df4082e",
+      "bytes": 16118
+    },
+    "source:scripts/research/pallet_n3_subpix_20261008_v1/runtime.py": {
+      "path": "runtime.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "e1c5afaa7a39ec7cc3b99deec4529442207bd17139b06a3560f07a85f16b96b2",
+      "bytes": 30105
+    },
+    "source:scripts/research/pallet_n3_subpix_20261008_v1/common.py": {
+      "path": "common.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "5f770eba1985a627409241eb7125152b006c9e3d94b038febd2651f93523c044",
+      "bytes": 1619
+    },
+    "source:scripts/research/pallet_training_free_compare_20261007_v1/methods.py": {
+      "path": "methods.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "d1b45186965866810130768bd504af8eefb2abdf8dd15fa3038fac76a92b37f0",
+      "bytes": 11174
+    },
+    "source:scripts/research/pallet_pose_target_6d_20261006_v1/baseline.py": {
+      "path": "baseline.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "301add938ae9c6e1c6609d0dddead731c2d170dd08d0b13c60d75c63cb0bbd7a",
+      "bytes": 1943
+    },
+    "source:_docs/experiments/pallet_dim_conditioned_p_v1/CALIBRATION_AND_SELECTION.json": {
+      "path": "CALIBRATION_AND_SELECTION.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "6ff554de489758fd4a8836fab3242266b54f83fd38c2ac64b4c81e5981d0030c",
+      "bytes": 11571
+    },
+    "source:_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json": {
+      "path": "DIM_NORMALIZATION_LOCK.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    "baseline:scripts/research/pallet_n3_completion_v3/square_yolo.py": {
+      "path": "square_yolo.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "d54c6b8c50e81760207723ad4bd53df1c32b1644c67ac2c1e5dba70b956575ee",
+      "bytes": 35664
+    },
+    "baseline:scripts/research/pallet_dim_conditioned_p_v1/inference.py": {
+      "path": "inference.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "15621cbdc946b762aa36cddc4001972778df24f4925ff1473f7cb940856b4f0a",
+      "bytes": 3399
+    },
+    "baseline:scripts/research/pallet_dim_conditioned_p_v1/pose.py": {
+      "path": "pose.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+      "bytes": 7720
+    },
+    "baseline:scripts/research/pallet_dim_conditioned_p_v1/refiner.py": {
+      "path": "refiner.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "d6ec32c7c31e1c4716873460cb4d5a1985260cdfebae27067acb72bcac3a2164",
+      "bytes": 4526
+    },
+    "baseline:scripts/research/pallet_final_ml_contribution_test_v1/generic_point_refiner.py": {
+      "path": "generic_point_refiner.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "ec854fcb51f33f1bcbf0e336135b10b8b121c876b0ae4f7ad4d4065cebe658bd",
+      "bytes": 6153
+    },
+    "baseline:scripts/research/pallet_line_pose_v1/features.py": {
+      "path": "features.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab",
+      "bytes": 6641
+    }
+  },
+  "CPU_checks": {
+    "path": "_docs/experiments/pallet_cornerwise_independent_20261010_v4/INDEPENDENCE_CHECKS.json",
+    "origin": "public_repository",
+    "sha256": "ee74d2288c765c8ddb44c7fea92815d9bd4676a0d7f04991d1e6e65d7264e5d4",
+    "bytes": 29099
+  },
+  "evaluation": "one preregistered structural correction of numerical all-eight prior leakage; fresh245 once; no score-based threshold/seed/weight changes; existing geometric proxy DEV",
+  "timing": "separate quiet600 complete fresh API calls:4arms x (20warmup+26x5)",
+  "performance_success": "primary operational245 mean T and R both below fixed seed1 N3_SUBPIX",
+  "missing_insufficient_ambiguous": "record distinct statuses and N3 fallback; no mask-error frame veto",
+  "hypothesis_reuse": "same-coordinate four-subset bank reused across masks; refit calls counted separately",
+  "limitations": [
+    "New numeric validation/final poses exclude H/k influence through initialpose priors; H and Base-derived proposals remain inherited estimator outputs; no independent physical truth.",
+    "Severe74 excluded from new runs by direct cohort instruction; historical319 retained.",
+    "Source controlled variants and independent role-feature replay are not completed by this run."
+  ]
+}

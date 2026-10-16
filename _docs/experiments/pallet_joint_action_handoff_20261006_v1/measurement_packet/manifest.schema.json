@@ -1,0 +1,514 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pallet:physical-pairs:20261006:v1",
+  "title": "Newly defined physical-pair manifest schema; NOT a pre-existing dataset",
+  "type": "object",
+  "required": [
+    "schema",
+    "data_kind",
+    "coordinate_contract",
+    "baseline_method",
+    "models",
+    "pairs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pallet_physical_pairs_20261006_v1"
+    },
+    "data_kind": {
+      "enum": [
+        "physical_measurement",
+        "format_fixture"
+      ]
+    },
+    "coordinate_contract": {
+      "const": "opencv_optical__canonical_object_xyz_WHD__metre"
+    },
+    "baseline_method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "models": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/model"
+      }
+    },
+    "pairs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/pair"
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "method",
+        "weights_sha256",
+        "code_sha256",
+        "pose_contract_sha256",
+        "selection_rule_sha256",
+        "locked_at_ns",
+        "training_recording_ids",
+        "training_pose_ids",
+        "selection_recording_ids",
+        "selection_pose_ids"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "weights_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "code_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pose_contract_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "selection_rule_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "locked_at_ns": {
+          "type": "integer"
+        },
+        "training_recording_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "training_pose_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "selection_recording_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "selection_pose_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "required": [
+        "method",
+        "independent_of_model_and_2d_labels",
+        "derived_from",
+        "coordinate_contract",
+        "clock_id",
+        "timestamp_ns",
+        "R_physical",
+        "centroid_m",
+        "source",
+        "source_record_id"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "laser_tracker",
+            "optical_mocap",
+            "surveyed_independent_tag_rig"
+          ]
+        },
+        "independent_of_model_and_2d_labels": {
+          "const": true
+        },
+        "derived_from": {
+          "const": []
+        },
+        "coordinate_contract": {
+          "const": "opencv_optical__canonical_object_xyz_WHD__metre"
+        },
+        "clock_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp_ns": {
+          "type": "integer"
+        },
+        "R_physical": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "centroid_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "source": {
+          "$ref": "#/$defs/artifact"
+        },
+        "source_record_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "required": [
+        "frame_id",
+        "image",
+        "timestamp_ns",
+        "clock_id",
+        "corner_sources",
+        "label_review",
+        "reference"
+      ],
+      "properties": {
+        "frame_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "image": {
+          "$ref": "#/$defs/artifact"
+        },
+        "timestamp_ns": {
+          "type": "integer"
+        },
+        "clock_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "corner_sources": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": {
+            "enum": [
+              "direct-visible",
+              "hidden-estimated",
+              "occluded-projected",
+              "out-of-frame",
+              "unknown"
+            ]
+          }
+        },
+        "label_review": {
+          "$ref": "#/$defs/artifact"
+        },
+        "reference": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "required": [
+        "K",
+        "image_wh",
+        "distortion_model",
+        "distortion_coefficients",
+        "clock_id",
+        "intrinsic_calibration",
+        "time_sync_calibration",
+        "reference_extrinsic_calibration"
+      ],
+      "properties": {
+        "K": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "image_wh": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "distortion_model": {
+          "enum": [
+            "none",
+            "opencv_brown_conrady"
+          ]
+        },
+        "distortion_coefficients": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "clock_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intrinsic_calibration": {
+          "$ref": "#/$defs/artifact"
+        },
+        "time_sync_calibration": {
+          "$ref": "#/$defs/artifact"
+        },
+        "reference_extrinsic_calibration": {
+          "$ref": "#/$defs/artifact"
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": [
+        "tangent_order",
+        "clean_covariance",
+        "occluded_covariance",
+        "clean_occluded_cross_covariance",
+        "budget"
+      ],
+      "properties": {
+        "tangent_order": {
+          "const": [
+            "tx_m",
+            "ty_m",
+            "tz_m",
+            "rx_rad",
+            "ry_rad",
+            "rz_rad"
+          ]
+        },
+        "clean_covariance": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "occluded_covariance": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "clean_occluded_cross_covariance": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "budget": {
+          "$ref": "#/$defs/artifact"
+        }
+      }
+    },
+    "pair": {
+      "type": "object",
+      "required": [
+        "pair_id",
+        "split",
+        "recording_id",
+        "physical_pose_id",
+        "adjacent_interval_id",
+        "pallet_id",
+        "camera_id",
+        "dimensions_WDH_m",
+        "dimension_survey",
+        "symmetry_order",
+        "symmetry_evidence",
+        "occlusion_kind",
+        "occluder_description",
+        "used_for_selection",
+        "first_model_exposure_ns",
+        "camera",
+        "same_pose_tolerance",
+        "stability_record",
+        "uncertainty",
+        "clean",
+        "occluded"
+      ],
+      "properties": {
+        "pair_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "split": {
+          "enum": [
+            "train",
+            "development",
+            "independent_test"
+          ]
+        },
+        "recording_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "physical_pose_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adjacent_interval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pallet_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "camera_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimensions_WDH_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "dimension_survey": {
+          "$ref": "#/$defs/artifact"
+        },
+        "symmetry_order": {
+          "enum": [
+            1,
+            2,
+            4
+          ]
+        },
+        "symmetry_evidence": {
+          "$ref": "#/$defs/artifact"
+        },
+        "occlusion_kind": {
+          "const": "physical_external"
+        },
+        "occluder_description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "used_for_selection": {
+          "type": "boolean"
+        },
+        "first_model_exposure_ns": {
+          "type": "integer"
+        },
+        "camera": {
+          "$ref": "#/$defs/camera"
+        },
+        "same_pose_tolerance": {
+          "type": "object",
+          "required": [
+            "translation_m",
+            "rotation_deg",
+            "max_sync_error_ns",
+            "max_trace_gap_ns",
+            "basis"
+          ],
+          "properties": {
+            "translation_m": {
+              "type": "number",
+              "minimum": 0
+            },
+            "rotation_deg": {
+              "type": "number",
+              "minimum": 0
+            },
+            "max_sync_error_ns": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_trace_gap_ns": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "basis": {
+              "$ref": "#/$defs/artifact"
+            }
+          }
+        },
+        "stability_record": {
+          "$ref": "#/$defs/artifact"
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/uncertainty"
+        },
+        "clean": {
+          "$ref": "#/$defs/frame"
+        },
+        "occluded": {
+          "$ref": "#/$defs/frame"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+source selection 1,031장의 GEO bank에서 실제 전체 자세 함수 $F$의 대칭 8코너 거리(ADDsym) oracle 여지가 수치오차 $10^{-7}$m보다 큰 프레임은 954장이었고, 여지 중앙값은 0.011915m였다. 원시와 oracle 모두 1,030/1,031장에서 자세를 산출했다. 이 상한은 참조로 고른 개발 진단이며 배포 결과가 아니다. 이에 따라 GEO/PERM 각각 세 seed를 원래 무작위 초기화부터 6,000 update씩, 총 36,000 update와 576,000 노출로 학습했다. smoke 4 update는 별도로 폐기했다.
+
+\begin{table}[t]\centering\small\caption{실제 DEV의 추가 탐색 실험. 세 seed의 원결과; 코너 중앙값/90백분위는 매칭 관측 코너의 조건부 통계이며 PCK10은 전체 참조 코너를 분모로 한다. 자세는 같은 2D 레이블에서 재구성한 참조를 사용한다.}\label{sup:joint_action_results}\begin{tabular}{llrrrrr}\toprule 방법&seed&med(px)&P90(px)&PCK10&T(cm)&R(deg)\\\midrule
+
+GEO--J & 1 & 6.429 & 44.777 & 0.648 & 7.289 & 2.403\\
+
+GEO--J & 2 & 6.461 & 43.095 & 0.649 & 7.663 & 2.467\\
+
+GEO--J & 3 & 6.491 & 43.986 & 0.642 & 7.885 & 2.492\\
+
+PERM--J & 1 & 6.627 & 44.105 & 0.637 & 8.227 & 2.550\\
+
+PERM--J & 2 & 6.766 & 43.590 & 0.638 & 8.324 & 2.558\\
+
+PERM--J & 3 & 6.564 & 43.675 & 0.643 & 7.897 & 2.358\\
+
+\bottomrule\end{tabular}\end{table}
+
+GEO--J minus N3의 frame별 seed 평균 정규화 코너 거리 차이는 0.00078570, 95\% session bootstrap 구간은 [0.00045428, 0.00125593]이고 고정 손상/보존 판정은 WORSENED였다.
+
+GEO--J minus PoseFix의 frame별 seed 평균 정규화 코너 거리 차이는 0.00090093, 95\% session bootstrap 구간은 [0.00050038, 0.00141278]이고 고정 손상/보존 판정은 WORSENED였다.
+
+GEO--J minus RAW의 frame별 seed 평균 정규화 코너 거리 차이는 -0.00031911, 95\% session bootstrap 구간은 [-0.00065231, -0.00005401]이고 고정 손상/보존 판정은 UNRESOLVED였다.
+
+GEO--J minus FIT--PERM--J의 frame별 seed 평균 정규화 코너 거리 차이는 -0.00019133, 95\% session bootstrap 구간은 [-0.00039871, -0.00002461]이고 고정 손상/보존 판정은 UNRESOLVED였다.
+
+실제 319장/13세션은 반복 사용한 개발 자료다. 모든 319장에 검출과 유효한 8코너가 존재하지만 GT instance 매칭은 311장이다. 실패와 매칭을 분리했고, 원결과/seed별 손상/같은 bank oracle gap 및 synthetic 개발 진단은 실행 보고서에 남겼다. GEO/PERM의 결합 대조와 동결 scorer의 I/J 대조는 기전의 제한된 범위만 다루며 N3/PoseFix 대비 방법 전체의 효과와 구분한다. 새로운 독립 참조의 clean/실물 가림 pair가 없으므로 독립적인 센서 6D 정확도 확증은 완료하지 못했다. 배포 runtime은 동일 입력/장치/전체 경계의 별도 영수증과 통합한다. 기존 N3 headline은 변경하지 않았다.

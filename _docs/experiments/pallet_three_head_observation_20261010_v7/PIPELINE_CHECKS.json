@@ -1,0 +1,313 @@
+{
+  "schema": "three_head_two_supply_synthetic_pipeline_checks_v7",
+  "complete": true,
+  "passed": true,
+  "check_count": 13,
+  "checks": [
+    {
+      "name": "fixed_three_by_two_and_native_controls_no_prior_or_C2",
+      "status": "PASS",
+      "details": {
+        "heads": 3,
+        "supplies": 2,
+        "native_controls": 2,
+        "fixed_primary": "IMAGE_ROLE_BOUNDARY_ONLY"
+      },
+      "actual_calls": {},
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "capture_shares_one_tensor_and_dispatches_exact_training_modes",
+      "status": "PASS",
+      "details": {
+        "dispatch_stub_counts": {
+          "detector_stub_calls": 1,
+          "N3_stub_calls": 1,
+          "initial_pose_stub_calls": 2,
+          "feature_inputs_stub_calls": 1,
+          "head_stub_calls": 3
+        },
+        "actual_learned_head_forwards": 0,
+        "head_mode_arguments": [
+          {
+            "arm": "GEOMETRY_ONLY",
+            "mode": "GEOMETRY_ONLY",
+            "shared_tensor": true
+          },
+          {
+            "arm": "IMAGE_NO_ROLE",
+            "mode": "IMAGE_NO_ROLE",
+            "shared_tensor": true
+          },
+          {
+            "arm": "IMAGE_ROLE",
+            "mode": "IMAGE_ROLE",
+            "shared_tensor": true
+          }
+        ],
+        "feature_tensor_shared": true
+      },
+      "actual_calls": {},
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "chosen_head_only_and_native_control_zero_head_dispatch",
+      "status": "PASS",
+      "details": {
+        "single_head_capture_stubs": [
+          {
+            "arm": "GEOMETRY_ONLY",
+            "calls": {
+              "detector_stub_calls": 1,
+              "N3_stub_calls": 1,
+              "initial_pose_stub_calls": 1,
+              "feature_inputs_stub_calls": 1,
+              "head_stub_calls": 1
+            }
+          },
+          {
+            "arm": "IMAGE_NO_ROLE",
+            "calls": {
+              "detector_stub_calls": 1,
+              "N3_stub_calls": 1,
+              "initial_pose_stub_calls": 1,
+              "feature_inputs_stub_calls": 1,
+              "head_stub_calls": 1
+            }
+          },
+          {
+            "arm": "IMAGE_ROLE",
+            "calls": {
+              "detector_stub_calls": 1,
+              "N3_stub_calls": 1,
+              "initial_pose_stub_calls": 1,
+              "feature_inputs_stub_calls": 1,
+              "head_stub_calls": 1
+            }
+          }
+        ],
+        "native_control_has_zero_feature_or_head_stub_calls": true
+      },
+      "actual_calls": {},
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "boundary_only_admits_valid_sparse_points_without_native_basin_or_LOO",
+      "status": "PASS",
+      "details": {
+        "outside_native8px_boundary_still_admitted": true,
+        "actual_final_paths": 3,
+        "LOO_calls": 0,
+        "unique_sparse_bank": 1
+      },
+      "actual_calls": {
+        "solvePnPGeneric": 32,
+        "solvePnPRefineLM": 9,
+        "projectPoints": 3
+      },
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "less_than_four_actual_boundary_points_is_unavailable_not_filled",
+      "status": "PASS",
+      "details": {
+        "sparse_available_points": 3,
+        "default_return_is_declared_N3_fallback": true,
+        "displayed_N3_coordinates_not_final_fit_inputs": true
+      },
+      "actual_calls": {},
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "actual_four_and_five_point_sparse_paths_match_frozen_solver",
+      "status": "PASS",
+      "details": {
+        "actual_numeric_results": [
+          {
+            "actual_points": 4,
+            "state": "NEW_POSE",
+            "unresolved_ambiguity": false
+          },
+          {
+            "actual_points": 5,
+            "state": "NEW_POSE",
+            "unresolved_ambiguity": false
+          }
+        ],
+        "natural_ambiguity_not_forced_to_success": true
+      },
+      "actual_calls": {
+        "solvePnPGeneric": 28,
+        "solvePnPRefineLM": 10,
+        "projectPoints": 4
+      },
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "ROLE_hybrid_is_unchanged_v4_point_control_with_actual_heldout_exclusion",
+      "status": "PASS",
+      "details": {
+        "exact_same_selected_coordinates": true,
+        "same_v4_numeric_status_and_pose": true,
+        "actual_LOO_calls": 5
+      },
+      "actual_calls": {
+        "solvePnPGeneric": 576,
+        "solvePnPRefineLM": 36,
+        "projectPoints": 12
+      },
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "same_coordinates_share_finite_bank_across_three_heads_and_native_masks",
+      "status": "PASS",
+      "details": {
+        "unique_coordinate_banks": 2,
+        "actual_LOO_requests": 18,
+        "shared_native_bank_across_three_heads_and_both_native_masks": true,
+        "ledgers": [
+          {
+            "prior_backend": false,
+            "input_hash": "72fb2774f6acc8780d971ab1d95390d0a36ecde292e04e5b58d1ce78495b1cfb",
+            "generic_calls": 32,
+            "subset_generic_calls": 30,
+            "standard_generic_calls": 0,
+            "refit_generic_calls": 2,
+            "lm_calls": 9,
+            "subsets_considered": 30,
+            "returned_solutions": 38,
+            "invalid_solutions": 0,
+            "generic_errors": 0,
+            "geometry_rejected": 0,
+            "generic_cache_hits": 7,
+            "generic_cache_misses": 32
+          },
+          {
+            "prior_backend": false,
+            "input_hash": "91487a4d3369552ee30f9df966fa651f329beb40cb1cec4370dd38d5a1ef3b9a",
+            "generic_calls": 154,
+            "subset_generic_calls": 140,
+            "standard_generic_calls": 0,
+            "refit_generic_calls": 14,
+            "lm_calls": 69,
+            "subsets_considered": 140,
+            "returned_solutions": 178,
+            "invalid_solutions": 0,
+            "generic_errors": 0,
+            "geometry_rejected": 0,
+            "generic_cache_hits": 55,
+            "generic_cache_misses": 154
+          }
+        ]
+      },
+      "actual_calls": {
+        "solvePnPGeneric": 186,
+        "solvePnPRefineLM": 78,
+        "projectPoints": 26
+      },
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "H_fit_exclusion_final_projection_and_detector_metadata_center",
+      "status": "PASS",
+      "details": {
+        "final_H_projection_no_refit": true,
+        "center_and_detector_metadata_preserved": true,
+        "remaining_point_pose_used_despite_mask_exclusion": true
+      },
+      "actual_calls": {
+        "solvePnPGeneric": 142,
+        "solvePnPRefineLM": 3,
+        "projectPoints": 1
+      },
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "frozen_support_and_uncertainty_admission_remain_effective",
+      "status": "PASS",
+      "details": {
+        "final_support_residual_veto_and_above8px_corner_uncertainty_abstain": true
+      },
+      "actual_calls": {},
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "boundary_only_final_numeric_pose_never_uses_initial_or_native_coordinate_prior",
+      "status": "PASS",
+      "details": {
+        "frozen_H_conditioned_sparse_numeric_pose_invariant_to_initial_R_t_dimension_and_native_coordinates": true,
+        "proposal_generation_not_claimed_independent": true
+      },
+      "actual_calls": {
+        "solvePnPGeneric": 64,
+        "solvePnPRefineLM": 6,
+        "projectPoints": 2
+      },
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "invalid_completion_fails_before_heavy_import_or_weights",
+      "status": "PASS",
+      "details": {
+        "incomplete_completion_rejected_before_Torch_or_model_import": true,
+        "fake_fixture_only": true
+      },
+      "actual_calls": {},
+      "forbidden_read_attempts": []
+    },
+    {
+      "name": "single_outer_lifecycle_cleanup_is_exception_safe_and_idempotent",
+      "status": "PASS",
+      "details": {
+        "cleanup_restores_namespace_even_if_models_close_fails": true,
+        "repeated_close_is_idempotent": true,
+        "counts": {
+          "models_close_stub_calls": 1,
+          "context_exit_stub_calls": 1
+        }
+      },
+      "actual_calls": {},
+      "forbidden_read_attempts": []
+    }
+  ],
+  "actual_OpenCV_calls": {
+    "solvePnPGeneric": 1028,
+    "solvePnPRefineLM": 142,
+    "projectPoints": 48
+  },
+  "actual_detector_forwards": 0,
+  "actual_N3_forwards": 0,
+  "actual_head_forwards": 0,
+  "actual_real_images": 0,
+  "actual_private_GT_reads": 0,
+  "actual_rays": 0,
+  "training_updates": 0,
+  "source": "synthetic analytic projections, actual frozen v4 PnP/selector, explicitly labelled capture dispatch stubs",
+  "limits": "dispatch stubs do not certify actual GPU inputs or head/checkpoint correctness; formal frozen execution checks those bindings",
+  "code": {
+    "pipeline": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/pipeline.py",
+      "origin": "public_repository",
+      "sha256": "55c4cef4f106ab71da283e3d2b646fd698976385e871488701017ad58997a21f",
+      "bytes": 21858
+    },
+    "tests": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/test_pipeline.py",
+      "origin": "public_repository",
+      "sha256": "6dee73304dd1a942fdeba47c6026b20628a6a78d366feb75aba4298bd90752cd",
+      "bytes": 27613
+    },
+    "borrowed_pose": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/pose.py",
+      "origin": "public_repository",
+      "sha256": "ef827022bef6807c5f7e4016d7ebefa1838c5f013f6d48be6f4932e0c9ad4a40",
+      "bytes": 19941
+    },
+    "borrowed_selection": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/selection.py",
+      "origin": "public_repository",
+      "sha256": "6b132c137927f0141bdb23b1bad61f7b8de2c9a2ad9b5ef645065495b0569cbe",
+      "bytes": 13497
+    }
+  }
+}

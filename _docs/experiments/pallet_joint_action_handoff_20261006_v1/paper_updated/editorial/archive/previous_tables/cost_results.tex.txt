@@ -1,0 +1,23 @@
+% Generated from verified GitHub CSV at 7e136fc. See evidence/SOURCE_MANIFEST.json.
+\begin{table*}[t]
+\centering\footnotesize
+\caption{고정 26프레임·seed 1의 처리 시간과 추가 파라미터. 같은 RTX 3080에서 실행 환경을 분리하여 표시하였다.}
+\label{tab:cost}
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabularx}{\textwidth}{Yrrrrrr}
+\toprule
+기반·경로 & 추가 파라미터 & 전체 중앙(ms) & 전체 P90(ms) & 벽시계 중앙(ms) & 보정 중앙(ms) & 최대 메모리(MiB) \\
+\midrule
+\multicolumn{7}{l}{\textbf{환경: pallet-yolo26}} \\
+YOLO Base & 0 & 11.195 & 13.712 & 11.237 & \NA & 62.24 \\
+YOLO N3 & 20,259 & 15.138 & 17.212 & 15.179 & 3.432 & 64.52 \\
+\midrule
+\multicolumn{7}{l}{\textbf{환경: pallet-pose}} \\
+DOPE Base & 0 & 62.736 & 77.585 & 62.779 & \NA & 342.39 \\
+DOPE N3 & 23,331 & 65.807 & 80.927 & 65.838 & 2.838 & 342.39 \\
+ResNet-18$^{\dagger}$ Base & 0 & 8.890 & 9.573 & 8.933 & \NA & 98.85 \\
+ResNet-18$^{\dagger}$ N3 & 23,331 & 11.592 & 12.747 & 11.632 & 2.632 & 98.85 \\
+\bottomrule
+\end{tabularx}
+\tabnote{경로별 준비 20회와 프레임당 5반복, 배치 1; 파일 읽기는 계측에서 제외한다. 전체 중앙/P90 및 보정 중앙은 CUDA event 시간이며 동기화 벽시계도 함께 남겼다. YOLO는 이번 추가 측정이고 DOPE·ResNet은 같은 고정 계약의 기존 측정이다. 환경 차이를 무시한 순수 하드웨어 비교 또는 Jetson 성능으로 해석하지 않는다. 보정 없는 경로의 보정 시간은 해당 없음이다.}
+\end{table*}

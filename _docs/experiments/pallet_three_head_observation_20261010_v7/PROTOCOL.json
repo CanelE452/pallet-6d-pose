@@ -1,0 +1,644 @@
+{
+  "schema": "one_shot_fixed_three_head_point_observation_protocol_v7",
+  "methods": [
+    "IMAGE_ROLE_BOUNDARY_ONLY",
+    "GEOMETRY_ONLY_BOUNDARY_ONLY",
+    "IMAGE_NO_ROLE_BOUNDARY_ONLY",
+    "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+    "IMAGE_NO_ROLE_CORNERWISE_HYBRID",
+    "IMAGE_ROLE_CORNERWISE_HYBRID",
+    "N3_INDEPENDENT_ROBUST_H",
+    "N3_INDEPENDENT_ROBUST_NO_MASK"
+  ],
+  "primary": "IMAGE_ROLE_BOUNDARY_ONLY",
+  "frames": 245,
+  "method_rows": 1960,
+  "fixed_rows": 490,
+  "contrasts": [
+    [
+      "GEOMETRY_ONLY_BOUNDARY_ONLY",
+      "N3_SUBPIX"
+    ],
+    [
+      "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+      "N3_SUBPIX"
+    ],
+    [
+      "IMAGE_NO_ROLE_BOUNDARY_ONLY",
+      "N3_SUBPIX"
+    ],
+    [
+      "IMAGE_NO_ROLE_CORNERWISE_HYBRID",
+      "N3_SUBPIX"
+    ],
+    [
+      "IMAGE_ROLE_BOUNDARY_ONLY",
+      "N3_SUBPIX"
+    ],
+    [
+      "IMAGE_ROLE_CORNERWISE_HYBRID",
+      "N3_SUBPIX"
+    ],
+    [
+      "GEOMETRY_ONLY_CORNERWISE_HYBRID",
+      "GEOMETRY_ONLY_BOUNDARY_ONLY"
+    ],
+    [
+      "IMAGE_NO_ROLE_CORNERWISE_HYBRID",
+      "IMAGE_NO_ROLE_BOUNDARY_ONLY"
+    ],
+    [
+      "IMAGE_ROLE_CORNERWISE_HYBRID",
+      "IMAGE_ROLE_BOUNDARY_ONLY"
+    ],
+    [
+      "IMAGE_NO_ROLE_BOUNDARY_ONLY",
+      "GEOMETRY_ONLY_BOUNDARY_ONLY"
+    ],
+    [
+      "IMAGE_ROLE_BOUNDARY_ONLY",
+      "IMAGE_NO_ROLE_BOUNDARY_ONLY"
+    ],
+    [
+      "IMAGE_NO_ROLE_CORNERWISE_HYBRID",
+      "GEOMETRY_ONLY_CORNERWISE_HYBRID"
+    ],
+    [
+      "IMAGE_ROLE_CORNERWISE_HYBRID",
+      "IMAGE_NO_ROLE_CORNERWISE_HYBRID"
+    ],
+    [
+      "N3_INDEPENDENT_ROBUST_H",
+      "N3_INDEPENDENT_ROBUST_NO_MASK"
+    ],
+    [
+      "IMAGE_ROLE_BOUNDARY_ONLY",
+      "N3_INDEPENDENT_ROBUST_H"
+    ],
+    [
+      "IMAGE_ROLE_BOUNDARY_ONLY",
+      "N3_INDEPENDENT_ROBUST_NO_MASK"
+    ]
+  ],
+  "new_training_updates": 0,
+  "new_RGB": 0,
+  "new_seeds": 0,
+  "GT_tuning": false,
+  "checkpoint_selection": "corrected last step3000 of all three original arms, no best-head selection",
+  "supply_policy": {
+    "schema": "fixed_three_head_two_point_supplies_policy_v7",
+    "heads": [
+      "GEOMETRY_ONLY",
+      "IMAGE_NO_ROLE",
+      "IMAGE_ROLE"
+    ],
+    "checkpoint_selection": "corrected step3000 last checkpoint of each original head; no outcome selection",
+    "head_modes": {
+      "GEOMETRY_ONLY": "zero image/neck channels0:19; retain geometry and role25:28",
+      "IMAGE_NO_ROLE": "zero role25:28; retain image/neck and geometry",
+      "IMAGE_ROLE": "unchanged full28 channels"
+    },
+    "source_calibration": "same frozen CAL128 procedure per head; exact existing ROLE calibration reused",
+    "shared_capture": "one fixed detector, N3 correction, N3 initial pose, Base query/feature pose per frame",
+    "boundary_only": "v2 sparse admitted actual boundary intersections; missing coordinates remain NaN",
+    "boundary_only_native_distance_or_LOO_gate": false,
+    "boundary_only_native_coordinates_used_for_numeric_fit": false,
+    "hybrid": "unchanged v4 cornerwise native-N3 heldout validation and actual-boundary replacement",
+    "final_solver": "unchanged prior-free v4 finite four-ID consensus across both registry dimension hypotheses",
+    "initial_rotation_translation_projection_dimension_prior": false,
+    "conditional_mask": "unchanged initial N3 H; excluded from generation/scoring/refit, never a frame veto",
+    "reprojection": "replace H only after a new final pose; never reuse projections as observations",
+    "missing_boundary_filled_for_boundary_only": false,
+    "minimum_actual_correspondences": 4,
+    "hypothesis_cache": "exact coordinate/K/xyz/image-size numeric bank shared across heads, masks and heldouts",
+    "partial_line_pose_factors": false,
+    "new_training_updates": 0,
+    "new_RGB": 0,
+    "real_GT_for_decisions": false,
+    "selection_is_fully_statistically_independent": false,
+    "physical_corner_ownership_independently_certified": false
+  },
+  "pose_policy": {
+    "observation_residual_px": 8.0,
+    "maximum_refit_starts": 3,
+    "minimum_correspondences": 4,
+    "initial_pose_prior": false,
+    "initial_rotation_translation_input": false,
+    "initial_projection_input": false,
+    "initial_dimension_choice_input": false,
+    "independently_known_dimension": "optional explicit constructor index and provenance",
+    "dimension_hypotheses": "all deduplicated registry dimensions unless explicitly known",
+    "generators": "unchanged SQPnPGeneric / exact-plane IPPE; every valid returned solution",
+    "generic_cache": "same numeric bank and exact (dimension, fit-ID tuple), across phases and masks",
+    "robust_score": "descending inlier count then truncated squared residual over allowed U only",
+    "ordinary_score": "squared residual over allowed U only",
+    "numerical_score_tie_px2": 1e-08,
+    "equivalent_projection_max_abs_px": 1e-05,
+    "equivalent_physical_rotation_max_abs": 1e-05,
+    "equivalent_translation_relative_diagonal": 1e-05,
+    "numerical_equivalence_not_physical_symmetry": "physical R/t also checked; ADD symmetry is not a pose identity certificate",
+    "tie_order": "dimension index, lexicographic generator IDs, returned solution index, generator",
+    "ambiguity": "same inlier count and numerically tied objective; distinct physical R/t or all-eight model projection",
+    "ambiguity_uses_excluded_image_coordinates": false,
+    "global_uniqueness_proven": false,
+    "hidden_policy": "exclude H before scoring/refit; replace only H after final R,t; never refit projections",
+    "temporary_exclusion_policy": "exclude from generators/scoring/refit; do not replace excluded-only coordinates",
+    "fallback": "none inside solver; caller may separately return a declared unchanged baseline"
+  },
+  "source_calibration": "same fixed source CAL128 procedure per head, existing ROLE coefficients reused byte-exact; new256source exposures/16headcalls",
+  "self_hidden": "masked arms exclude frozen initial H from final fit; no-mask control uses H=[]; no initial numeric prior in all8 arms; new valid R,t projects each applied H once; never refit projections",
+  "inputs": {
+    "common.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/common.py",
+      "origin": "public_repository",
+      "sha256": "b8e971e71155f5856bcd65e1b31b8de98212e195928ee5443da09c75cf278623",
+      "bytes": 9827
+    },
+    "pipeline.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/pipeline.py",
+      "origin": "public_repository",
+      "sha256": "55c4cef4f106ab71da283e3d2b646fd698976385e871488701017ad58997a21f",
+      "bytes": 21858
+    },
+    "run.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/run.py",
+      "origin": "public_repository",
+      "sha256": "bfbb9f54a564c8ebb1f3070ccaa357be1cebbf061093e7ae729a976d6c944c0d",
+      "bytes": 19351
+    },
+    "evaluate.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/evaluate.py",
+      "origin": "public_repository",
+      "sha256": "bd7366ac3ec21dc77fb58441f9f7c7867f703fe8baf6a0461803078eb44ae8c5",
+      "bytes": 20206
+    },
+    "runtime.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/runtime.py",
+      "origin": "public_repository",
+      "sha256": "ad6c185622816af38d29454c3cf430aef3efb2aabc6311b7da2d63fc497934d6",
+      "bytes": 23194
+    },
+    "statistics.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/statistics.py",
+      "origin": "public_repository",
+      "sha256": "fffa7422b3020c6f61386912eb4910a8099ca5a814c771c11896919dbd4e4f4f",
+      "bytes": 26380
+    },
+    "verify.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/verify.py",
+      "origin": "public_repository",
+      "sha256": "07a0e4a757b0c5ecf2e7cf92cfa5575f8027b1c6e691209153fcd39bfadb9b79",
+      "bytes": 32668
+    },
+    "test_pipeline.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/test_pipeline.py",
+      "origin": "public_repository",
+      "sha256": "6dee73304dd1a942fdeba47c6026b20628a6a78d366feb75aba4298bd90752cd",
+      "bytes": 27613
+    },
+    "test_calibration.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/test_calibration.py",
+      "origin": "public_repository",
+      "sha256": "b957092c9f3d9de64925297777fd4c0d28e3fce5738c88cf71cda2819eb943bd",
+      "bytes": 12561
+    },
+    "calibration.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/calibration.py",
+      "origin": "public_repository",
+      "sha256": "1e958df09dd75c9ede35722023d4f6136270d51d75fc4d909598453841230410",
+      "bytes": 35086
+    },
+    "source_calibration_check.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/source_calibration_check.py",
+      "origin": "public_repository",
+      "sha256": "81f5e7065e27d00803c253f2a86555238af32851807196f6c4c3832dba8f1e23",
+      "bytes": 32107
+    },
+    "render.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/render.py",
+      "origin": "public_repository",
+      "sha256": "373984ac8d23ceced5e2b9924dd8f898a3e90723e1429f25c7994a10b9a9c0af",
+      "bytes": 7096
+    },
+    "public_review.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/public_review.py",
+      "origin": "public_repository",
+      "sha256": "794431b0bb77d2fedb5e6a58cbc0c12bb9d3aeae90692e8729abc9728b0bafab",
+      "bytes": 9524
+    },
+    "reprojection_check.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/reprojection_check.py",
+      "origin": "public_repository",
+      "sha256": "ac9f70da752adb8a59d0d0dc585c27a2eafdd6a378f8711d9f026239b3ade3b2",
+      "bytes": 5155
+    },
+    "archive_evidence.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/archive_evidence.py",
+      "origin": "public_repository",
+      "sha256": "29fa32f10df74d534171ec459d62faabdd94b8d92e51af047d22ac44888d0f7d",
+      "bytes": 2456
+    },
+    "restore_archives.py": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/restore_archives.py",
+      "origin": "public_repository",
+      "sha256": "b7f03b65f1bb230a64e5a9a5cc73ba4f6840291e3641f9bbc63db62209a629c3",
+      "bytes": 3038
+    },
+    "v4_common.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/common.py",
+      "origin": "public_repository",
+      "sha256": "fc272a8aecb2dd53e90e22b566b47447c2a6d266e93731fe8152afcf87fe6878",
+      "bytes": 7708
+    },
+    "v4_selection.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/selection.py",
+      "origin": "public_repository",
+      "sha256": "6b132c137927f0141bdb23b1bad61f7b8de2c9a2ad9b5ef645065495b0569cbe",
+      "bytes": 13497
+    },
+    "v4_pose.py": {
+      "path": "scripts/research/pallet_cornerwise_independent_20261010_v4/pose.py",
+      "origin": "public_repository",
+      "sha256": "ef827022bef6807c5f7e4016d7ebefa1838c5f013f6d48be6f4932e0c9ad4a40",
+      "bytes": 19941
+    },
+    "v2_common.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/common.py",
+      "origin": "public_repository",
+      "sha256": "6bb4d3ee7b34bae5ffeb12f83f827c41e666e59d1bd2c5491b32734b4927a893",
+      "bytes": 13367
+    },
+    "v2_pipeline.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/pipeline.py",
+      "origin": "public_repository",
+      "sha256": "262953a907a8805326c8537a81723933862ffc0e58b499d54296de1669b0b095",
+      "bytes": 31343
+    },
+    "v2_deployment.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/deployment.py",
+      "origin": "public_repository",
+      "sha256": "e9fa8912de49c22eae466557c914a3df35cbdc74c05f35a7324af2e110a5baac",
+      "bytes": 3073
+    },
+    "v2_pose.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/pose.py",
+      "origin": "public_repository",
+      "sha256": "13a99793fa0161b2744d4c2d4e148654b749e2b63f3aa9b626d2df85547aa860",
+      "bytes": 15588
+    },
+    "v2_observations.py": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/observations.py",
+      "origin": "public_repository",
+      "sha256": "11e3af07dd2e9b92f33810dd54710426688bd9bb2028ffefbeb56fbfb4168c3e",
+      "bytes": 11832
+    },
+    "cohort": {
+      "path": "_docs/experiments/pallet_kp_corrected_supervision_20261010_v1/COHORT.json",
+      "origin": "public_repository",
+      "sha256": "575504709a36ee7963997af11fbcee9212299ba9e4b89ce8bb948c1dd9f8cfb0",
+      "bytes": 123877
+    },
+    "calibration": {
+      "path": "_docs/experiments/pallet_boundary_corner_refiner_20261010_v2/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "7d83f23e0c080ea561c0c453aa7c59fcae7d2954a89feb00516cb3ec58fb077d",
+      "bytes": 2323
+    },
+    "original_inputs": {
+      "path": "_docs/experiments/pallet_observation_refiner_20261009_v1/INPUTS.json",
+      "origin": "public_repository",
+      "sha256": "92624116024e2d2263a7a7545c3b0e41cda68b450bc809ae79d588d5b505b6a7",
+      "bytes": 974891
+    },
+    "runtime_panel": {
+      "path": "_docs/experiments/pallet_kp_corrected_supervision_20261010_v1/RUNTIME_PANEL.json",
+      "origin": "public_repository",
+      "sha256": "569808123a210713fd1912d790f0efa5aad1d907333245d8eba618a1ce7b4e48",
+      "bytes": 26443
+    },
+    "training_completion": {
+      "path": "TRAINING_COMPLETION.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "7196b60469c85f5456a2370f03843447d42d16190910d9f37f0349f3d42c85f1",
+      "bytes": 5092
+    },
+    "checkpoint_metadata": {
+      "path": "_docs/experiments/pallet_kp_corrected_supervision_20261010_v1/CHECKPOINT_METADATA.json",
+      "origin": "public_repository",
+      "sha256": "a4bcd45243a43ca75b533ab8acb16bd18b468420a2d145a5eff421800d1603c3",
+      "bytes": 5660
+    },
+    "source_calibration_protocol": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/PROTOCOL.json",
+      "origin": "public_repository",
+      "sha256": "e1978ad4439e5937e943c2e017600bb535a9297d4206daea29b706dc1278131e",
+      "bytes": 22513
+    },
+    "source_calibration_completion": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/COMPLETION.json",
+      "origin": "public_repository",
+      "sha256": "54d958363d0b26d602325b1d41c0d92eeefdc6cfdafe7422dd1ef8f3a99fec54",
+      "bytes": 14824
+    },
+    "source_calibration_contract_checks": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/SOURCE_CALIBRATION_CONTRACT_CHECKS.json",
+      "origin": "public_repository",
+      "sha256": "61635dc2568a69a33ba6fd471a0bd8e6e8837b7a73627e72819ba6a3a598d101",
+      "bytes": 3257
+    },
+    "source_calibration_independent_checks": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/SOURCE_CALIBRATION_CHECKS.json",
+      "origin": "public_repository",
+      "sha256": "cb61a1319a494ed5be99cf69d0c866b3a9fc8a1155f819b1150c9633de5c2181",
+      "bytes": 17078
+    },
+    "pipeline_checks": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/PIPELINE_CHECKS.json",
+      "origin": "public_repository",
+      "sha256": "853784bde4cfd50dfcd373b9ca749ca1b763a5e126f12927cc747ed8784fd6c8",
+      "bytes": 9845
+    },
+    "ROLE_calibration_reuse": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/IMAGE_ROLE/REUSE_RECEIPT.json",
+      "origin": "public_repository",
+      "sha256": "7a913795ca662bc5fb63756a1a3c07fa991a9eefd5e37503a68234d925a699d4",
+      "bytes": 3656
+    },
+    "Base": {
+      "path": "best.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+      "bytes": 6552807
+    },
+    "N3": {
+      "path": "last.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "ceea743b7b8467cf43eef66582b923dd980e5b2fb27f5575af5df185109f22dd",
+      "bytes": 305470
+    },
+    "original_model": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/model.py",
+      "origin": "public_repository",
+      "sha256": "4e4856abdc3a1c11a920560f1b110d76787975a15ddd637c93c2ec210dbefa3a",
+      "bytes": 6054
+    },
+    "original_solver": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/solver.py",
+      "origin": "public_repository",
+      "sha256": "50e0ad64afd7abe71cc2d10c457275fb70e3a807701556a8e6a14cea5eb56796",
+      "bytes": 17058
+    },
+    "metric": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/evaluate.py",
+      "origin": "public_repository",
+      "sha256": "4f8ddf7325e289e82bffe293296f35ad2ada80ddf1fc5aec7fa0beb904763694",
+      "bytes": 11045
+    },
+    "reference_adapter": {
+      "path": "scripts/research/pallet_kp_corrected_supervision_20261010_v1/scoring_resume.py",
+      "origin": "public_repository",
+      "sha256": "954eab0de5431435f1c5a83918caf1fac2a7f88639f17a948a91db6f107942c0",
+      "bytes": 16401
+    },
+    "statistics_protocol": {
+      "path": "_docs/experiments/pallet_boundary_corner_refiner_20261010_v2/STATISTICS_PROTOCOL.json",
+      "origin": "public_repository",
+      "sha256": "77ba8a330b8be7d6dead7718c8ea1c59111270221c6a6fac3742c5ee71cf4cbd",
+      "bytes": 1934
+    },
+    "visual_protocol": {
+      "path": "_docs/experiments/pallet_boundary_corner_refiner_20261010_v2/VISUAL_CASE_PROTOCOL.json",
+      "origin": "public_repository",
+      "sha256": "0a76ab4e362bd2fde266473ddc33498cdf6fdf0d97610c16e2a06d08a4f187dd",
+      "bytes": 3896
+    },
+    "bootstrap_draws": {
+      "path": "_docs/experiments/pallet_kp_difficulty_20261010_v1/BOOTSTRAP_SESSION_DRAWS.json.gz",
+      "origin": "public_repository",
+      "sha256": "68f02da8e033336b789b28d7b2b89276a8aaf4c4566aabb5b629c4258c0b0ff5",
+      "bytes": 49943
+    },
+    "borrowed_statistics": {
+      "path": "scripts/research/pallet_kp_corrected_supervision_20261010_v1/statistics.py",
+      "origin": "public_repository",
+      "sha256": "e56e8a26cbc02b1012945dca94cd9a5d307fa6a6af5192f92486d63792c924d1",
+      "bytes": 32955
+    },
+    "original_solver_checks": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/test_solver.py",
+      "origin": "public_repository",
+      "sha256": "ce8fb5ca52f0d2b38db4d7b2584c57c5a0cacd65cd14a49d2e09b1ef581f7bfa",
+      "bytes": 8476
+    },
+    "scorer_fit_canary": {
+      "path": "scripts/research/pallet_boundary_corner_refiner_20261010_v2/evaluate.py",
+      "origin": "public_repository",
+      "sha256": "9530be26fa585bf50bbd872c17f26fa83f605a8cda78ab05f2b7fe9c8201dc38",
+      "bytes": 9562
+    },
+    "original_context": {
+      "path": "scripts/research/pallet_kp_repair_runtime_20261010_v1/adapter.py",
+      "origin": "public_repository",
+      "sha256": "1ba7b6259c77c72e6dfc610f339b8df34709bac9aa90425733fb55c662abc1e7",
+      "bytes": 26015
+    },
+    "original_common": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/common.py",
+      "origin": "public_repository",
+      "sha256": "997daf366721207f4a5337127f280f963a477bec6daaf8e60867592f6a213a5d",
+      "bytes": 4111
+    },
+    "original_inference": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/inference.py",
+      "origin": "public_repository",
+      "sha256": "988c92220d832058d1ffbc3822134fd4c6507f04fb4bf32b5799a32610adebe6",
+      "bytes": 1986
+    },
+    "original_learned": {
+      "path": "scripts/research/pallet_observation_refiner_20261009_v1/learned_infer.py",
+      "origin": "public_repository",
+      "sha256": "6fae5338f18308882f38bc306978729c85cd1f7b96291370d6864f70965c3a66",
+      "bytes": 6288
+    },
+    "evaluation_contract": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/EVALUATION_CONTRACT_KO.md",
+      "origin": "public_repository",
+      "sha256": "18d09badae8e2f8c8199f65194cabf31be408f56f92d139afe8e1146865e07b7",
+      "bytes": 12524
+    },
+    "protection": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/PROTECTION_BEFORE.json",
+      "origin": "public_repository",
+      "sha256": "b0fe0c4cf65f38479c67a85a745529fb24f087e65a315a233afd80be9345a71a",
+      "bytes": 3742882
+    },
+    "v4_control_geometry": {
+      "path": "_docs/experiments/pallet_cornerwise_independent_20261010_v4/GEOMETRY_SEALED.jsonl.gz",
+      "origin": "public_repository",
+      "sha256": "3fab81b159d288e2a95703cce4a471ac6876ac038226d797fe62aca2ef69f97d",
+      "bytes": 136443262
+    },
+    "v4_control_protocol": {
+      "path": "_docs/experiments/pallet_cornerwise_independent_20261010_v4/PROTOCOL.json",
+      "origin": "public_repository",
+      "sha256": "46cc403bead689e281b43d14eb0fb837c155becb3dd802a7762e0ff10fa413d9",
+      "bytes": 20100
+    },
+    "checkpoint:GEOMETRY_ONLY": {
+      "path": "GEOMETRY_ONLY.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "d188dcc68bd8795c88232d5bf1b85259d684695723b96809017abd47d6ac009b",
+      "bytes": 28104
+    },
+    "calibration:GEOMETRY_ONLY": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/GEOMETRY_ONLY/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "c5b7aee5b9ca2734b396e9b47a332044bfc304d1336fae495b126b64a7ff7c81",
+      "bytes": 3086
+    },
+    "calibration_execution:GEOMETRY_ONLY": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/GEOMETRY_ONLY/CALIBRATION_EXECUTION.json",
+      "origin": "public_repository",
+      "sha256": "d33f11d994bb6a9c30b3333f8880453cd434c260296756d8ba9be7e668896f8d",
+      "bytes": 10167
+    },
+    "checkpoint:IMAGE_NO_ROLE": {
+      "path": "IMAGE_NO_ROLE.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "9c52a2e2036ee8f65ba2e191bdcbebe93ac3ecde60a6aa31e71a4ffbadc0f835",
+      "bytes": 28104
+    },
+    "calibration:IMAGE_NO_ROLE": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/IMAGE_NO_ROLE/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "6c09a0d1b64e7f095f2aa0d386dad6815a53d9bbbde04c39d15a7fd6fa606104",
+      "bytes": 3084
+    },
+    "calibration_execution:IMAGE_NO_ROLE": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/IMAGE_NO_ROLE/CALIBRATION_EXECUTION.json",
+      "origin": "public_repository",
+      "sha256": "8c46ac08e1580a4a27bf48e793588bfcc977a1411111bc5d206fcd4fe335d8e4",
+      "bytes": 10167
+    },
+    "checkpoint:IMAGE_ROLE": {
+      "path": "IMAGE_ROLE.pt",
+      "origin": "external_readonly_dependency",
+      "sha256": "882a6eddc964258abfbc1ad3baeee380ab9fac42b3b90c7f64166bd98d777d5d",
+      "bytes": 28068
+    },
+    "calibration:IMAGE_ROLE": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/IMAGE_ROLE/CALIBRATION.json",
+      "origin": "public_repository",
+      "sha256": "7d83f23e0c080ea561c0c453aa7c59fcae7d2954a89feb00516cb3ec58fb077d",
+      "bytes": 2323
+    },
+    "calibration_execution:IMAGE_ROLE": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/source_calibration/IMAGE_ROLE/CALIBRATION_EXECUTION.json",
+      "origin": "public_repository",
+      "sha256": "a03f260b6417221ea205a82848145dec9df7b6384931bc80c4142da4e454e730",
+      "bytes": 2961
+    },
+    "source:scripts/research/pallet_n3_subpix_20261008_v1/runtime.py": {
+      "path": "runtime.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "e1c5afaa7a39ec7cc3b99deec4529442207bd17139b06a3560f07a85f16b96b2",
+      "bytes": 30105
+    },
+    "source:scripts/research/pallet_n3_subpix_20261008_v1/common.py": {
+      "path": "common.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "5f770eba1985a627409241eb7125152b006c9e3d94b038febd2651f93523c044",
+      "bytes": 1619
+    },
+    "source:scripts/research/pallet_training_free_compare_20261007_v1/methods.py": {
+      "path": "methods.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "d1b45186965866810130768bd504af8eefb2abdf8dd15fa3038fac76a92b37f0",
+      "bytes": 11174
+    },
+    "source:scripts/research/pallet_pose_target_6d_20261006_v1/baseline.py": {
+      "path": "baseline.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "301add938ae9c6e1c6609d0dddead731c2d170dd08d0b13c60d75c63cb0bbd7a",
+      "bytes": 1943
+    },
+    "source:_docs/experiments/pallet_dim_conditioned_p_v1/CALIBRATION_AND_SELECTION.json": {
+      "path": "CALIBRATION_AND_SELECTION.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "6ff554de489758fd4a8836fab3242266b54f83fd38c2ac64b4c81e5981d0030c",
+      "bytes": 11571
+    },
+    "source:_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json": {
+      "path": "DIM_NORMALIZATION_LOCK.json",
+      "origin": "external_readonly_dependency",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a",
+      "bytes": 852
+    },
+    "baseline:scripts/research/pallet_n3_completion_v3/square_yolo.py": {
+      "path": "square_yolo.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "d54c6b8c50e81760207723ad4bd53df1c32b1644c67ac2c1e5dba70b956575ee",
+      "bytes": 35664
+    },
+    "baseline:scripts/research/pallet_dim_conditioned_p_v1/inference.py": {
+      "path": "inference.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "15621cbdc946b762aa36cddc4001972778df24f4925ff1473f7cb940856b4f0a",
+      "bytes": 3399
+    },
+    "baseline:scripts/research/pallet_dim_conditioned_p_v1/pose.py": {
+      "path": "pose.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "4e8c1e6b4c4e885fb671af233ea2d90c416fd7b232b63c75ce9c3ffdeb45b1d7",
+      "bytes": 7720
+    },
+    "baseline:scripts/research/pallet_dim_conditioned_p_v1/refiner.py": {
+      "path": "refiner.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "d6ec32c7c31e1c4716873460cb4d5a1985260cdfebae27067acb72bcac3a2164",
+      "bytes": 4526
+    },
+    "baseline:scripts/research/pallet_final_ml_contribution_test_v1/generic_point_refiner.py": {
+      "path": "generic_point_refiner.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "ec854fcb51f33f1bcbf0e336135b10b8b121c876b0ae4f7ad4d4065cebe658bd",
+      "bytes": 6153
+    },
+    "baseline:scripts/research/pallet_line_pose_v1/features.py": {
+      "path": "features.py",
+      "origin": "external_readonly_dependency",
+      "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab",
+      "bytes": 6641
+    }
+  },
+  "CPU_checks": {
+    "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/PIPELINE_CHECKS.json",
+    "origin": "public_repository",
+    "sha256": "853784bde4cfd50dfcd373b9ca749ca1b763a5e126f12927cc747ed8784fd6c8",
+    "bytes": 9845
+  },
+  "CPU_streaming_checks": {
+    "code": {
+      "path": "scripts/research/pallet_three_head_observation_20261010_v7/test_streaming.py",
+      "origin": "public_repository",
+      "sha256": "28c8ebdb1cb2d6ef48418d1445444aa26384ca6d1936e1d1de1d3fc145bb7626",
+      "bytes": 5577
+    },
+    "receipt": {
+      "path": "_docs/experiments/pallet_three_head_observation_20261010_v7/STREAMING_CHECKS.json",
+      "origin": "public_repository",
+      "sha256": "560495364a754819626182650800fd9c83aaf860884188857fdeaaecc4a09397",
+      "bytes": 2350
+    }
+  },
+  "evaluation": "original C1/E7 missing comparison under latest decoder: all3 corrected heads x boundary-only/cornerwise-hybrid plus nativeH/no-mask; one fresh245, no real-score threshold/head/supply/seed/weight selection; existing repeatedly viewed geometric proxy DEV",
+  "timing": "separate quiet1500 complete fresh API calls:10 methods x (20warmup+26x5); each learned path forwards only its requested head",
+  "performance_success": "primary operational245 mean T and R both below fixed seed1 N3_SUBPIX",
+  "missing_insufficient_ambiguous": "record distinct statuses and N3 fallback; no mask-error frame veto",
+  "hypothesis_reuse": "same-coordinate four-subset bank reused across masks; refit calls counted separately",
+  "limitations": [
+    "Boundary-only uses no native N3 numeric fit/LOO gate; hybrid keeps unchanged native consensus and conditional H/Base proposal dependencies; no independent physical truth.",
+    "Severe74 excluded from new runs by direct cohort instruction; historical319 retained.",
+    "Source controlled variants and independent role-feature replay are not completed by this run."
+  ]
+}

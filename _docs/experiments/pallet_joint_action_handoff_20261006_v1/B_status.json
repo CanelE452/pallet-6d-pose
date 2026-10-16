@@ -1,0 +1,45 @@
+{
+  "schema": "pallet_B_status_20261006_v1",
+  "B": {
+    "status": "DONE_PACKET_BLOCKED_DATA",
+    "acquisition_packet": "DONE",
+    "manifest_schema": "DONE",
+    "import_validate_evaluate": "DONE",
+    "contract_verification": "DONE",
+    "existing_physical_audit": "REUSED_VALIDATED",
+    "DEV319_precision_source": "REUSED_VALIDATED",
+    "physical_pair_acquisition": "BLOCKED_DATA",
+    "independent_reference_measurement": "BLOCKED_DATA",
+    "human_physical_pair_review": "BLOCKED_DATA",
+    "locked_model_pair_inference": "NOT_RUN_DEPENDENCY",
+    "independent_pair_evaluation": "BLOCKED_DATA",
+    "missing_dependencies": [
+      "physical same-pallet/camera clean/real-external-occluded RGB pairs",
+      "per-frame independent canonical six-dimensional reference with raw record IDs",
+      "camera/time/reference external calibration and continuous relative-pose stability trace",
+      "measured uncertainty budget with common-reference cross covariance",
+      "human verification and full recording/pose split exposure manifest",
+      "locked model final prediction-only pose JSONL for acquired frames"
+    ],
+    "dependencies": {
+      "locked_model_pair_inference": [
+        "physical_pair_acquisition",
+        "model runtime and locked weights"
+      ],
+      "independent_pair_evaluation": [
+        "physical_pair_acquisition",
+        "independent_reference_measurement",
+        "human_physical_pair_review",
+        "locked_model_pair_inference"
+      ]
+    },
+    "scientific_question": "NOT_EVALUATED: actual physical occlusion effect with independent metrology",
+    "actual_independent_pairs": 0,
+    "new_actual_model_inferences": 0,
+    "new_actual_pose_solves": 0,
+    "new_fit_count": 0,
+    "new_optimizer_updates": 0,
+    "fixture_test_count": 16,
+    "resume": "measurement.py import -> validate -> evaluate, environment-supplied actual paths; see measurement_packet/README_KO.md"
+  }
+}

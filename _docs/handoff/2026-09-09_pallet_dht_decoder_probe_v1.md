@@ -2,7 +2,7 @@
 
 사용자가 요청한 빠른 실험과 보고 전달은 실제 완료됐다. 잔여 학습/평가/화면검토/알림이 없다. 기존 큰 실험도 완료 상태다. 새로운 사용자 지시 없이 driver를 재시작하거나 Discord를 재전송하지 않는다. unifiedexec session48772는 exit0으로종료됐다. Commit없음, 기존 unrelated dirty변경보존.
 
-최종결과: [주제별 해석](../notes/pallet_dht_decoder_probe.md), [HTML](../../data/pallet/results/pallet_dht_decoder_probe_v1/index.html), [COMPLETION](../../data/pallet/results/pallet_dht_decoder_probe_v1/COMPLETION.json).
+최종결과: [주제별 해석](../notes/point_line_fusion/01_hough_and_geometry/pallet_dht_decoder_probe.md), [HTML](../../data/pallet/results/pallet_dht_decoder_probe_v1/index.html), [COMPLETION](../../data/pallet/results/pallet_dht_decoder_probe_v1/COMPLETION.json).
 
 - 기존joint3seed×동일14장 무학습42records 및 고정jointseed1+동일55,118parameter2모듈×1000actualupdates 완료. 실제합성2048train/512val+실사319캐시2,879CNNforwards+5warmups. Cache76.035+463.715초, head학습11.280+11.110초. Syntheticloss매칭2047/2048,509/512,realGT학습0. 새학습1seed의2D검사이며6D/negative/독립FINAL미평가,centroid8고정.
 - 실제512val+319real×3모드=2,493cachedheadforwards. 실사모든군309/319매칭,2738/2818유효GT점. median/P90(px): 원래6.897/41.487,점결합부6.514/44.928,선결합부6.661/41.856,wrongline7.372/42.996. 선−점frame평균차−.0231px,20k session95%CI[−.6419,.3051]. 등록후속기준false,안정적향상주장없음. 원래양호점1711개중10px초과전환점58/선68.
@@ -15,7 +15,7 @@
 
 사용자 승인: “그러면 이거를 이용해서 실험해줄수있어?” — 무학습 후보 진단과 작은 frozen-backbone 결합부 학습을 실제로 완료한다. 이전 큰 실험은 완료됐으며 재시작하지 않는다. HTML을 실제로 열고 검토한 후 Discord에 결과를 보낸다. 기존 알림 허가가 지속된다.
 
-목적/판정/범위: [notes](../notes/pallet_dht_decoder_probe.md).
+목적/판정/범위: [notes](../notes/point_line_fusion/01_hough_and_geometry/pallet_dht_decoder_probe.md).
 
 경로: scripts/research/pallet_dht_decoder_probe_v1, data/pallet/results/pallet_dht_decoder_probe_v1.
 

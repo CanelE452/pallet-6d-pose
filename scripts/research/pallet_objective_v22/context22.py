@@ -1,0 +1,16 @@
+"""V22: isolate scalar supervision and frozen contextual shortcut hypotheses."""
+from pathlib import Path
+import sys
+KIT=Path(__file__).resolve().parent
+sys.path.insert(0,str(KIT.parent/'pallet_residual_v21'))
+import context21 as PREV
+from context21 import *
+KIT=Path(__file__).resolve().parent
+RUN=ROOT/'data/pallet/results/pallet_objective_v22'
+ARMS=('unit_bce','unit_pixel','unit_nocontext_bce','unit_nocontext_pixel','unit_pixel_local','unit_nocontext_pixel_local')
+
+def save22(split,c,name,m,O,out):
+    d=RUN/'predictions'/split/c;d.mkdir(parents=True,exist_ok=True);det=np.array([x['detected'] for x in m['rows']]);data=dict(ids=np.array([x['id'] for x in m['rows']]),detected=det)
+    for k,v in dict(original_points=O['points'],**{k:out[k] for k in ('points','base','proposal_delta','alpha','coverage')}).items():
+        z=v.detach().cpu().numpy();a=np.full((len(det),)+z.shape[1:],np.nan,np.float32);a[det]=z;data[k]=a
+    np.savez_compressed(d/f'{name}.npz',**data)
