@@ -1,0 +1,1600 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>상태별 대응 진단 · 실제 사례</title><style>body{font-family:sans-serif;max-width:1800px;margin:20px auto;padding:15px;background:#eef2f6;line-height:1.65}article,header{background:white;padding:18px;margin-bottom:18px;border-radius:10px}img{width:100%;height:auto}table{border-collapse:collapse;width:100%}th,td{padding:5px;border-bottom:1px solid #ddd;text-align:left}nav a{display:inline-block;margin:6px}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style><header><h1>상태별 관측·대응·자세 선택: 지정 여섯 사례와 오프라인 후보 진단</h1><p>○ 실제 full B/I · × 상속 예측 fallback · 자홍색 점선 partial 선/범위 · 점선 타원 O/U 영역 · M번호와 상자선은 모델 투영입니다. S/O/T/U를 정밀 영상점으로 그리지 않습니다. 모든 패널은 같은 초기예측 기반 확대 범위를 사용하며, 화면 밖 모델 선은 잘라 표시합니다. 전체 RGB CNN의 수용영역이 S와 독립이라는 뜻은 아닙니다.</p><p>G10 후보와 원 e 선택, 그 뒤의 새 재관측을 구분합니다. 새 진단의 좋은 결과가 원 e보다 향상됐다는 뜻인지는 전체238/PRIMARY192 집계로 판단해야 합니다. 비교패널의 x/z 화살표도 저장 pose에서 투영한 physical 모델축입니다.</p><nav><a href="#case1">1. wood_night_01:029428</a> <a href="#case2">2. plastic_day_01:010995</a> <a href="#case3">3. plastic_day_01:011640</a> <a href="#case4">4. wood_day_01:005249</a> <a href="#case5">5. wood_night_01:031426</a> <a href="#case6">6. wood_night_01:031344</a><a href="#oracle1">오프라인 선택실패 1</a><a href="#oracle2">오프라인 선택실패 2</a></nav><a href="PROCESS.json">저장 좌표·수치·출처</a></header><article id="case1"><h2>1. wood_night_01:029428</h2><p>사용자가 지목한 기존 진단 사례. 개선·악화·실패 여부로 대체하지 않았습니다. 선택 W/D: ORIGINAL_WD. 영상 의미 owner는 미검증입니다.</p><a href="case_01/source_crop.jpg">실제 RGB 확대</a><img src="case_01/process.jpg" alt="원래 e 이전과 이후 과정"><img src="case_01/diagnostics.jpg" alt="네 진단 최종 자세"><table><tr><th>방법</th><th>기존 참조 기준 pose 오차</th></tr><tr><td>N0</td><td>T 4.00cm / R 3.75° · 성공</td></tr><tr><td>E0</td><td>T 9.00cm / R 11.04° · 실패</td></tr><tr><td>POSEFIX_RAW</td><td>T 1.36cm / R 1.52° · 성공</td></tr><tr><td>REOBS_MULTI</td><td>T 1.46cm / R 21.20° · 실패</td></tr><tr><td>REOBS_SINGLE</td><td>T 1.46cm / R 21.20° · 실패</td></tr><tr><td>TYPED_MULTI</td><td>T 9.00cm / R 11.04° · 실패</td></tr><tr><td>TYPED_SINGLE</td><td>T 9.00cm / R 11.04° · 실패</td></tr></table><details><summary>native owner·관측 종류·후단 원예측 주입</summary><table><tr><th>원 e native</th><th>원 상태</th><th>원 관측 종류</th><th>출처</th><th>새 상태</th><th>주입한 N3 source ID</th></tr><tr><td>0</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>0</td></tr><tr><td>1</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>1</td></tr><tr><td>2</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>2</td></tr><tr><td>3</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>3</td></tr><tr><td>4</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>4</td></tr><tr><td>5</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>5</td></tr><tr><td>6</td><td>O</td><td>bounded_region</td><td>None</td><td>O</td><td>6</td></tr><tr><td>7</td><td>S</td><td>model_projection</td><td>None</td><td>S</td><td>7</td></tr></table></details><details><summary>실제 full/partial fitting residual [px] 및 원 factor 값</summary><pre>{
+  &quot;available&quot;: true,
+  &quot;full&quot;: [
+    {
+      &quot;native_corner&quot;: 0,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        221.22154157123873,
+        278.5572606605602
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.2466177891220562,
+          -0.10445789652744061
+        ],
+        [
+          -0.10445789652744061,
+          2.3535023720838093
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.209224740650455,
+          -0.10445789652744061
+        ],
+        [
+          -0.10445789652744061,
+          12.316109323612208
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 1.167765625592158
+    },
+    {
+      &quot;native_corner&quot;: 3,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        221.88559300230912,
+        304.59856482678816
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.262016195067183,
+          0.07188643352934247
+        ],
+        [
+          0.07188643352934247,
+          2.431871231717615
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.224623146595581,
+          0.07188643352934247
+        ],
+        [
+          0.07188643352934247,
+          12.394478183246013
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 1.5190881123263427
+    },
+    {
+      &quot;native_corner&quot;: 5,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        395.16507195893917,
+        270.3226918145433
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.2567531418514584,
+          0.03181607675673042
+        ],
+        [
+          0.03181607675673042,
+          2.3383500790883414
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.219360093379857,
+          0.03181607675673042
+        ],
+        [
+          0.03181607675673042,
+          12.30095703061674
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 1.3501196860754117
+    }
+  ],
+  &quot;partial&quot;: [],
+  &quot;meaning&quot;: &quot;model-to-stored-measurement fit residual, not GT keypoint localization error&quot;
+}</pre><p>위 px는 측정→모델 잔차이며 GT 키포인트 위치 오차가 아닙니다. 전체 자세 T/R과 단위를 혼합하지 않습니다.</p></details></article><article id="case2"><h2>2. plastic_day_01:010995</h2><p>사용자가 지목한 기존 진단 사례. 개선·악화·실패 여부로 대체하지 않았습니다. 선택 W/D: SWAPPED_WD. 영상 의미 owner는 미검증입니다.</p><a href="case_02/source_crop.jpg">실제 RGB 확대</a><img src="case_02/process.jpg" alt="원래 e 이전과 이후 과정"><img src="case_02/diagnostics.jpg" alt="네 진단 최종 자세"><table><tr><th>방법</th><th>기존 참조 기준 pose 오차</th></tr><tr><td>N0</td><td>T 6.24cm / R 83.15° · 실패</td></tr><tr><td>E0</td><td>T 0.76cm / R 0.25° · 성공</td></tr><tr><td>POSEFIX_RAW</td><td>T 9.81cm / R 83.74° · 실패</td></tr><tr><td>REOBS_MULTI</td><td>T 6.66cm / R 84.14° · 실패</td></tr><tr><td>REOBS_SINGLE</td><td>T 6.66cm / R 84.14° · 실패</td></tr><tr><td>TYPED_MULTI</td><td>T 0.76cm / R 0.25° · 성공</td></tr><tr><td>TYPED_SINGLE</td><td>T 0.76cm / R 0.25° · 성공</td></tr></table><details><summary>native owner·관측 종류·후단 원예측 주입</summary><table><tr><th>원 e native</th><th>원 상태</th><th>원 관측 종류</th><th>출처</th><th>새 상태</th><th>주입한 N3 source ID</th></tr><tr><td>0</td><td>I</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>I</td><td>1</td></tr><tr><td>1</td><td>B</td><td>partial_line</td><td>B_TARGET_BACKGROUND_LINES</td><td>U</td><td>5</td></tr><tr><td>2</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>U</td><td>6</td></tr><tr><td>3</td><td>B</td><td>partial_line</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>2</td></tr><tr><td>4</td><td>B</td><td>partial_line</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>0</td></tr><tr><td>5</td><td>U</td><td>bounded_region</td><td>None</td><td>B</td><td>4</td></tr><tr><td>6</td><td>S</td><td>model_projection</td><td>None</td><td>S</td><td>7</td></tr><tr><td>7</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>3</td></tr></table></details><details><summary>실제 full/partial fitting residual [px] 및 원 factor 값</summary><pre>{
+  &quot;available&quot;: true,
+  &quot;full&quot;: [
+    {
+      &quot;native_corner&quot;: 2,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        618.0585800642954,
+        56.40617399407665
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.378384939892891,
+          -0.22779409742480236
+        ],
+        [
+          -0.22779409742480236,
+          2.4416470348500243
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          14.64856120322092,
+          -0.22779409742480236
+        ],
+        [
+          -0.22779409742480236,
+          14.711823298178054
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 0.6253734859145558
+    },
+    {
+      &quot;native_corner&quot;: 7,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        270.0705646846687,
+        36.21521548008796
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.283882392229354,
+          0.19063726795220073
+        ],
+        [
+          0.19063726795220073,
+          2.5043716415039112
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          14.554058655557384,
+          0.19063726795220073
+        ],
+        [
+          0.19063726795220073,
+          14.774547904831941
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 1.0978741834186128
+    }
+  ],
+  &quot;partial&quot;: [
+    {
+      &quot;native_corner&quot;: 0,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 2.9946278234830856,
+      &quot;normal_unit_xy&quot;: [
+        0.32515374312447515,
+        0.9456611672962694
+      ],
+      &quot;offset_px&quot;: -231.57283039372615,
+      &quot;variance_px2&quot;: 26.89275290416472,
+      &quot;fit_reliability_weight&quot;: 0.8084574957765271,
+      &quot;tangent_interval_px&quot;: [
+        -587.2903055896174,
+        -167.40626247025094
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 1,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 0.8898883333614549,
+      &quot;normal_unit_xy&quot;: [
+        -0.9810354442284959,
+        -0.19382842198036312
+      ],
+      &quot;offset_px&quot;: 617.0336181205251,
+      &quot;variance_px2&quot;: 14.529538699353688,
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;tangent_interval_px&quot;: [
+        -119.15887390758886,
+        300.7251692117776
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 3,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 0.8977785276657642,
+      &quot;normal_unit_xy&quot;: [
+        0.3465356230682642,
+        0.938036812680979
+      ],
+      &quot;offset_px&quot;: -268.24348655110765,
+      &quot;variance_px2&quot;: 14.570808755699082,
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;tangent_interval_px&quot;: [
+        -571.0562325759566,
+        -151.1721894565902
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 4,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 1.0576294119412637,
+      &quot;normal_unit_xy&quot;: [
+        -0.9963464762064408,
+        0.08540315773440803
+      ],
+      &quot;offset_px&quot;: 267.49020653470126,
+      &quot;variance_px2&quot;: 14.524450396011868,
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;tangent_interval_px&quot;: [
+        -246.7625122463848,
+        173.12153087298168
+      ]
+    }
+  ],
+  &quot;meaning&quot;: &quot;model-to-stored-measurement fit residual, not GT keypoint localization error&quot;
+}</pre><p>위 px는 측정→모델 잔차이며 GT 키포인트 위치 오차가 아닙니다. 전체 자세 T/R과 단위를 혼합하지 않습니다.</p></details></article><article id="case3"><h2>3. plastic_day_01:011640</h2><p>사용자가 지목한 기존 진단 사례. 개선·악화·실패 여부로 대체하지 않았습니다. 선택 W/D: SWAPPED_WD. 영상 의미 owner는 미검증입니다.</p><a href="case_03/source_crop.jpg">실제 RGB 확대</a><img src="case_03/process.jpg" alt="원래 e 이전과 이후 과정"><img src="case_03/diagnostics.jpg" alt="네 진단 최종 자세"><table><tr><th>방법</th><th>기존 참조 기준 pose 오차</th></tr><tr><td>N0</td><td>T 8.50cm / R 1.04° · 실패</td></tr><tr><td>E0</td><td>T 22.51cm / R 84.61° · 실패</td></tr><tr><td>POSEFIX_RAW</td><td>T 11.90cm / R 1.19° · 실패</td></tr><tr><td>REOBS_MULTI</td><td>T 22.51cm / R 84.61° · 실패</td></tr><tr><td>REOBS_SINGLE</td><td>T 22.51cm / R 84.61° · 실패</td></tr><tr><td>TYPED_MULTI</td><td>T 22.51cm / R 84.61° · 실패</td></tr><tr><td>TYPED_SINGLE</td><td>T 22.51cm / R 84.61° · 실패</td></tr></table><details><summary>native owner·관측 종류·후단 원예측 주입</summary><table><tr><th>원 e native</th><th>원 상태</th><th>원 관측 종류</th><th>출처</th><th>새 상태</th><th>주입한 N3 source ID</th></tr><tr><td>0</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>1</td></tr><tr><td>1</td><td>I</td><td>partial_line</td><td>I_INTERNAL_RGB_JUNCTION</td><td>I</td><td>5</td></tr><tr><td>2</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>6</td></tr><tr><td>3</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>2</td></tr><tr><td>4</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>0</td></tr><tr><td>5</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>4</td></tr><tr><td>6</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>7</td></tr><tr><td>7</td><td>S</td><td>model_projection</td><td>None</td><td>S</td><td>3</td></tr></table></details><details><summary>실제 full/partial fitting residual [px] 및 원 factor 값</summary><pre>{
+  &quot;available&quot;: true,
+  &quot;full&quot;: [
+    {
+      &quot;native_corner&quot;: 0,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        204.9353363426128,
+        75.76838599089436
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.2903005770195692,
+          -0.01685406247707321
+        ],
+        [
+          -0.01685406247707321,
+          2.2538881965074045
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.372575602139651,
+          -0.01685406247707321
+        ],
+        [
+          -0.01685406247707321,
+          12.336163221627487
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 0.9830707809459964
+    },
+    {
+      &quot;native_corner&quot;: 2,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        433.2279274462231,
+        126.83853092818424
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          4.022883246035235,
+          -0.05944851973189732
+        ],
+        [
+          -0.05944851973189732,
+          3.3283220555711024
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          14.105158271155318,
+          -0.05944851973189732
+        ],
+        [
+          -0.05944851973189732,
+          13.410597080691186
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 0.2944171678582236
+    },
+    {
+      &quot;native_corner&quot;: 3,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        206.18852211978177,
+        99.88234905782743
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.291949024475774,
+          0.0685103122569348
+        ],
+        [
+          0.0685103122569348,
+          2.2783345988882817
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.374224049595856,
+          0.0685103122569348
+        ],
+        [
+          0.0685103122569348,
+          12.360609624008365
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 0.4662254582197424
+    },
+    {
+      &quot;native_corner&quot;: 5,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        544.7055248932613,
+        68.43471613297126
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.2587085538254863,
+          -0.006837202322313617
+        ],
+        [
+          -0.006837202322313617,
+          2.249360130357877
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.340983578945568,
+          -0.006837202322313617
+        ],
+        [
+          -0.006837202322313617,
+          12.33163515547796
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 1.4341314112812895
+    },
+    {
+      &quot;native_corner&quot;: 6,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        542.7889549402779,
+        93.70698779540072
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.307211881560098,
+          -0.1168546799002885
+        ],
+        [
+          -0.1168546799002885,
+          2.3159217340685005
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.389486906680181,
+          -0.1168546799002885
+        ],
+        [
+          -0.1168546799002885,
+          12.398196759188583
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 1.8802314126647737
+    }
+  ],
+  &quot;partial&quot;: [
+    {
+      &quot;native_corner&quot;: 1,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 0.6565738529562424,
+      &quot;normal_unit_xy&quot;: [
+        0.07997555894238657,
+        -0.9967968248203105
+      ],
+      &quot;offset_px&quot;: 59.1099805988975,
+      &quot;variance_px2&quot;: 11.217658082353626,
+      &quot;fit_reliability_weight&quot;: 0.9085373144900087,
+      &quot;tangent_interval_px&quot;: [
+        217.33857772489358,
+        627.7814705647229
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 4,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 0.2693894057198136,
+      &quot;normal_unit_xy&quot;: [
+        -0.05024804625210713,
+        0.9987367690477036
+      ],
+      &quot;offset_px&quot;: -41.20739335698018,
+      &quot;variance_px2&quot;: 25.248759367680517,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        -543.4413598868979,
+        -154.79080926171684
+      ]
+    }
+  ],
+  &quot;meaning&quot;: &quot;model-to-stored-measurement fit residual, not GT keypoint localization error&quot;
+}</pre><p>위 px는 측정→모델 잔차이며 GT 키포인트 위치 오차가 아닙니다. 전체 자세 T/R과 단위를 혼합하지 않습니다.</p></details></article><article id="case4"><h2>4. wood_day_01:005249</h2><p>사용자가 지목한 기존 진단 사례. 개선·악화·실패 여부로 대체하지 않았습니다. 선택 W/D: ORIGINAL_WD. 영상 의미 owner는 미검증입니다.</p><a href="case_04/source_crop.jpg">실제 RGB 확대</a><img src="case_04/process.jpg" alt="원래 e 이전과 이후 과정"><img src="case_04/diagnostics.jpg" alt="네 진단 최종 자세"><table><tr><th>방법</th><th>기존 참조 기준 pose 오차</th></tr><tr><td>N0</td><td>T 5.92cm / R 2.08° · 실패</td></tr><tr><td>E0</td><td>T 54.36cm / R 159.14° · 실패</td></tr><tr><td>POSEFIX_RAW</td><td>T 2.14cm / R 2.87° · 성공</td></tr><tr><td>REOBS_MULTI</td><td>T 54.36cm / R 159.14° · 실패</td></tr><tr><td>REOBS_SINGLE</td><td>T 54.36cm / R 159.14° · 실패</td></tr><tr><td>TYPED_MULTI</td><td>T 54.36cm / R 159.14° · 실패</td></tr><tr><td>TYPED_SINGLE</td><td>T 54.36cm / R 159.14° · 실패</td></tr></table><details><summary>native owner·관측 종류·후단 원예측 주입</summary><table><tr><th>원 e native</th><th>원 상태</th><th>원 관측 종류</th><th>출처</th><th>새 상태</th><th>주입한 N3 source ID</th></tr><tr><td>0</td><td>O</td><td>bounded_region</td><td>None</td><td>S</td><td>0</td></tr><tr><td>1</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>1</td></tr><tr><td>2</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>2</td></tr><tr><td>3</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>3</td></tr><tr><td>4</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>4</td></tr><tr><td>5</td><td>O</td><td>bounded_region</td><td>None</td><td>O</td><td>5</td></tr><tr><td>6</td><td>S</td><td>model_projection</td><td>None</td><td>O</td><td>6</td></tr><tr><td>7</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>7</td></tr></table></details><details><summary>실제 full/partial fitting residual [px] 및 원 factor 값</summary><pre>{
+  &quot;available&quot;: true,
+  &quot;full&quot;: [
+    {
+      &quot;native_corner&quot;: 7,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        386.6109992365707,
+        135.9515577581414
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.248895790662168,
+          0.05338381217157048
+        ],
+        [
+          0.05338381217157048,
+          2.2853488567917566
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.211502742190566,
+          0.05338381217157048
+        ],
+        [
+          0.05338381217157048,
+          12.247955808320155
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 0.3846257441499897
+    }
+  ],
+  &quot;partial&quot;: [
+    {
+      &quot;native_corner&quot;: 3,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 4.047022504231336,
+      &quot;normal_unit_xy&quot;: [
+        0.0861383465043256,
+        0.9962831852749
+      ],
+      &quot;offset_px&quot;: -153.19149735150535,
+      &quot;variance_px2&quot;: 24.996554573285586,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        -466.87987906775214,
+        -328.530816679241
+      ]
+    }
+  ],
+  &quot;meaning&quot;: &quot;model-to-stored-measurement fit residual, not GT keypoint localization error&quot;
+}</pre><p>위 px는 측정→모델 잔차이며 GT 키포인트 위치 오차가 아닙니다. 전체 자세 T/R과 단위를 혼합하지 않습니다.</p></details></article><article id="case5"><h2>5. wood_night_01:031426</h2><p>사용자가 지목한 기존 진단 사례. 개선·악화·실패 여부로 대체하지 않았습니다. 선택 W/D: ORIGINAL_WD. 영상 의미 owner는 미검증입니다.</p><a href="case_05/source_crop.jpg">실제 RGB 확대</a><img src="case_05/process.jpg" alt="원래 e 이전과 이후 과정"><img src="case_05/diagnostics.jpg" alt="네 진단 최종 자세"><table><tr><th>방법</th><th>기존 참조 기준 pose 오차</th></tr><tr><td>N0</td><td>T 174.76cm / R 81.69° · 실패</td></tr><tr><td>E0</td><td>T 208.22cm / R 83.75° · 실패</td></tr><tr><td>POSEFIX_RAW</td><td>T 185.78cm / R 80.60° · 실패</td></tr><tr><td>REOBS_MULTI</td><td>T 177.71cm / R 84.10° · 실패</td></tr><tr><td>REOBS_SINGLE</td><td>T 177.71cm / R 84.10° · 실패</td></tr><tr><td>TYPED_MULTI</td><td>T 208.22cm / R 83.75° · 실패</td></tr><tr><td>TYPED_SINGLE</td><td>T 208.22cm / R 83.75° · 실패</td></tr></table><details><summary>native owner·관측 종류·후단 원예측 주입</summary><table><tr><th>원 e native</th><th>원 상태</th><th>원 관측 종류</th><th>출처</th><th>새 상태</th><th>주입한 N3 source ID</th></tr><tr><td>0</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>0</td></tr><tr><td>1</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>1</td></tr><tr><td>2</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>B</td><td>2</td></tr><tr><td>3</td><td>U</td><td>bounded_region</td><td>None</td><td>U</td><td>3</td></tr><tr><td>4</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>4</td></tr><tr><td>5</td><td>O</td><td>bounded_region</td><td>None</td><td>O</td><td>5</td></tr><tr><td>6</td><td>S</td><td>model_projection</td><td>None</td><td>O</td><td>6</td></tr><tr><td>7</td><td>S</td><td>model_projection</td><td>None</td><td>S</td><td>7</td></tr></table></details><details><summary>실제 full/partial fitting residual [px] 및 원 factor 값</summary><pre>{
+  &quot;available&quot;: true,
+  &quot;full&quot;: [
+    {
+      &quot;native_corner&quot;: 2,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        512.0070510944904,
+        237.34350040034968
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.250400165224809,
+          -0.012966825242787961
+        ],
+        [
+          -0.012966825242787961,
+          2.276630242447965
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.213007116753207,
+          -0.012966825242787961
+        ],
+        [
+          -0.012966825242787961,
+          12.239237193976363
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 0.17636328217117914
+    }
+  ],
+  &quot;partial&quot;: [
+    {
+      &quot;native_corner&quot;: 0,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 2.3720607874327015,
+      &quot;normal_unit_xy&quot;: [
+        0.029080523797355644,
+        0.9995770721338458
+      ],
+      &quot;offset_px&quot;: -235.006807867313,
+      &quot;variance_px2&quot;: 24.996554573285593,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        -475.63352680368945,
+        -394.12047113708314
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 4,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 2.4814366870027413,
+      &quot;normal_unit_xy&quot;: [
+        0.002816899822430733,
+        0.9999960325298246
+      ],
+      &quot;offset_px&quot;: -215.8875171199917,
+      &quot;variance_px2&quot;: 24.99655457328558,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        -489.1750313139208,
+        -407.6619756473145
+      ]
+    }
+  ],
+  &quot;meaning&quot;: &quot;model-to-stored-measurement fit residual, not GT keypoint localization error&quot;
+}</pre><p>위 px는 측정→모델 잔차이며 GT 키포인트 위치 오차가 아닙니다. 전체 자세 T/R과 단위를 혼합하지 않습니다.</p></details></article><article id="case6"><h2>6. wood_night_01:031344</h2><p>사용자가 지목한 기존 진단 사례. 개선·악화·실패 여부로 대체하지 않았습니다. 선택 W/D: SWAPPED_WD. 영상 의미 owner는 미검증입니다.</p><a href="case_06/source_crop.jpg">실제 RGB 확대</a><img src="case_06/process.jpg" alt="원래 e 이전과 이후 과정"><img src="case_06/diagnostics.jpg" alt="네 진단 최종 자세"><table><tr><th>방법</th><th>기존 참조 기준 pose 오차</th></tr><tr><td>N0</td><td>T 168.77cm / R 86.73° · 실패</td></tr><tr><td>E0</td><td>T 260.41cm / R 65.52° · 실패</td></tr><tr><td>POSEFIX_RAW</td><td>T 157.85cm / R 86.58° · 실패</td></tr><tr><td>REOBS_MULTI</td><td>T 168.37cm / R 86.55° · 실패</td></tr><tr><td>REOBS_SINGLE</td><td>T 168.37cm / R 86.55° · 실패</td></tr><tr><td>TYPED_MULTI</td><td>T 260.41cm / R 65.52° · 실패</td></tr><tr><td>TYPED_SINGLE</td><td>T 260.41cm / R 65.52° · 실패</td></tr></table><details><summary>native owner·관측 종류·후단 원예측 주입</summary><table><tr><th>원 e native</th><th>원 상태</th><th>원 관측 종류</th><th>출처</th><th>새 상태</th><th>주입한 N3 source ID</th></tr><tr><td>0</td><td>I</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>1</td></tr><tr><td>1</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>5</td></tr><tr><td>2</td><td>B</td><td>complete_image_point</td><td>B_TARGET_BACKGROUND_LINES</td><td>U</td><td>6</td></tr><tr><td>3</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>I</td><td>2</td></tr><tr><td>4</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>0</td></tr><tr><td>5</td><td>B</td><td>partial_line</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>S</td><td>4</td></tr><tr><td>6</td><td>S</td><td>model_projection</td><td>None</td><td>B</td><td>7</td></tr><tr><td>7</td><td>B</td><td>inherited_predictor_point</td><td>VISIBLE_BACKBONE_FALLBACK</td><td>B</td><td>3</td></tr></table></details><details><summary>실제 full/partial fitting residual [px] 및 원 factor 값</summary><pre>{
+  &quot;available&quot;: true,
+  &quot;full&quot;: [
+    {
+      &quot;native_corner&quot;: 2,
+      &quot;source&quot;: &quot;B_TARGET_BACKGROUND_LINES&quot;,
+      &quot;measured_xy&quot;: [
+        474.6854865018886,
+        236.55006508775773
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          2.249550721509036,
+          0.007343541205860509
+        ],
+        [
+          0.007343541205860509,
+          2.3051517727769113
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          12.212157673037435,
+          0.007343541205860509
+        ],
+        [
+          0.007343541205860509,
+          12.26775872430531
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9815023188742336,
+      &quot;model_to_stored_point_residual_px&quot;: 0.5274831202857772
+    },
+    {
+      &quot;native_corner&quot;: 7,
+      &quot;source&quot;: &quot;VISIBLE_BACKBONE_FALLBACK&quot;,
+      &quot;measured_xy&quot;: [
+        407.9825134277344,
+        224.6199493408203
+      ],
+      &quot;observed_covariance_px2&quot;: [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ],
+      &quot;fit_covariance_px2&quot;: [
+        [
+          24.996554573285586,
+          0.0
+        ],
+        [
+          0.0,
+          24.996554573285586
+        ]
+      ],
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;model_to_stored_point_residual_px&quot;: 13.5757641245787
+    }
+  ],
+  &quot;partial&quot;: [
+    {
+      &quot;native_corner&quot;: 0,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 5.594736915971254,
+      &quot;normal_unit_xy&quot;: [
+        -0.05011830253929288,
+        0.998743288213032
+      ],
+      &quot;offset_px&quot;: -196.15591799594196,
+      &quot;variance_px2&quot;: 23.527783516669906,
+      &quot;fit_reliability_weight&quot;: 0.8084574957765271,
+      &quot;tangent_interval_px&quot;: [
+        -478.3730257252946,
+        -379.8812551927165
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 1,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 0.4370277576593935,
+      &quot;normal_unit_xy&quot;: [
+        -0.9887701570812673,
+        -0.14944422526643938
+      ],
+      &quot;offset_px&quot;: 503.27054778651245,
+      &quot;variance_px2&quot;: 24.99655457328559,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        -186.07682442566977,
+        -109.5474793926755
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 3,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 2.7483487669266538,
+      &quot;normal_unit_xy&quot;: [
+        -0.04427536420033475,
+        0.9990193652401977
+      ],
+      &quot;offset_px&quot;: -217.64271056890266,
+      &quot;variance_px2&quot;: 24.996554573285582,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        -480.6833693723661,
+        -381.7390959394418
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 4,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 8.018911313051944,
+      &quot;normal_unit_xy&quot;: [
+        -0.03608779259199767,
+        0.9993486234672246
+      ],
+      &quot;offset_px&quot;: -221.4157605797433,
+      &quot;variance_px2&quot;: 24.996554573285582,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        -475.16070086102593,
+        -377.071462902423
+      ]
+    },
+    {
+      &quot;native_corner&quot;: 5,
+      &quot;line_index&quot;: 0,
+      &quot;normal_residual_px&quot;: 7.735253701451114,
+      &quot;normal_unit_xy&quot;: [
+        0.03608779259199767,
+        -0.9993486234672246
+      ],
+      &quot;offset_px&quot;: 221.41576057974328,
+      &quot;variance_px2&quot;: 24.996554573285582,
+      &quot;fit_reliability_weight&quot;: 0.9614759051625089,
+      &quot;tangent_interval_px&quot;: [
+        420.76274854536683,
+        515.6634552363378
+      ]
+    }
+  ],
+  &quot;meaning&quot;: &quot;model-to-stored-measurement fit residual, not GT keypoint localization error&quot;
+}</pre><p>위 px는 측정→모델 잔차이며 GT 키포인트 위치 오차가 아닙니다. 전체 자세 T/R과 단위를 혼합하지 않습니다.</p></details></article><article id="oracle1"><h2>추가 1. plastic_day_01:011891 · family_selection</h2><p><strong>봉인 뒤 기존 참조를 본 오프라인 oracle입니다. 새 추론 결과나 운영 selector가 아닙니다.</strong> PRIMARY의 해당 실패 단계에서 ID 사전순 첫 사례를 고정했습니다. 저장 후보 <code>ORIGINAL_G13/ORIGINAL_WD/feasible/0</code>를 그대로 그렸습니다.</p><img src="oracle_case_01/selection.jpg" alt="실제 선택과 보관된 성공 후보의 오프라인 비교"><p>후보의 원 목적함수: 3.324534456694252. 실제 선택의 목적함수와 비교할 때 G10/G13 관측 패키지를 구분합니다. source 종류·full/partial/region과 physical owner 가설은 아래 출처에 보존하며 covariance가 owner 정답을 증명하지 않습니다.</p><details><summary>후보·관측·물리 대응의 원 출처</summary><pre>{
+  &quot;id&quot;: &quot;plastic_day_01:011891&quot;,
+  &quot;selection_reason&quot;: &quot;family_selection&quot;,
+  &quot;candidate_id&quot;: &quot;ORIGINAL_G13/ORIGINAL_WD/feasible/0&quot;,
+  &quot;source_RGB_sha256&quot;: &quot;abaadc5af17d32383840a8a835b240d1696a28a2e59079671221512fde3e2dc3&quot;,
+  &quot;source_crop&quot;: &quot;oracle_case_01/source_crop.jpg&quot;,
+  &quot;viewport_original_xyxy&quot;: [
+    159,
+    146,
+    640,
+    287
+  ],
+  &quot;selected_e_pose&quot;: {
+    &quot;available&quot;: true,
+    &quot;R_cf&quot;: [
+      [
+        0.7814730356408889,
+        -0.02794646767217561,
+        0.6233128343864437
+      ],
+      [
+        0.1481035237604717,
+        0.9787532372226048,
+        -0.14180072946216854
+      ],
+      [
+        -0.6061066249563237,
+        0.20312827368665287,
+        0.7690082337746033
+      ]
+    ],
+    &quot;centroid&quot;: [
+      0.42345944133548497,
+      -0.16671771555185871,
+      2.957274416677822
+    ],
+    &quot;R_physical&quot;: [
+      [
+        -0.7814730356408889,
+        -0.027946467672175613,
+        -0.6233128343864437
+      ],
+      [
+        -0.1481035237604717,
+        0.978753237222605,
+        0.14180072946216854
+      ],
+      [
+        0.6061066249563237,
+        0.2031282736866529,
+        -0.7690082337746033
+      ]
+    ],
+    &quot;physical_registration_Q&quot;: [
+      [
+        -1.0,
+        1.322720395125325e-17,
+        -2.9054082166939897e-17
+      ],
+      [
+        -1.322720395125325e-17,
+        1.0000000000000002,
+        1.2156617563069006e-17
+      ],
+      [
+        -2.9054082166939897e-17,
+        -1.2156617563069006e-17,
+        -1.0
+      ]
+    ],
+    &quot;cf_extents&quot;: [
+      1.1,
+      0.11,
+      1.3
+    ],
+    &quot;source&quot;: &quot;CONTINUOUS_GLOBAL_OUTLINE_BI_PARTIAL_OT_U_JOINT_SE3&quot;,
+    &quot;joint_feasible&quot;: true,
+    &quot;fallback&quot;: false,
+    &quot;fallback_pose_does_not_solve_OT&quot;: false,
+    &quot;fallback_pose_does_not_solve_U_regions&quot;: false
+  },
+  &quot;selected_e_metric&quot;: {
+    &quot;translation_cm&quot;: 19.867031218745822,
+    &quot;rotation_deg&quot;: 84.57755865403837,
+    &quot;success_le5&quot;: false,
+    &quot;status&quot;: &quot;unchanged_frozen_E&quot;,
+    &quot;reason&quot;: &quot;Exact independently registered frozen E pose&quot;,
+    &quot;pose_available&quot;: true,
+    &quot;accepted&quot;: &quot;True&quot;,
+    &quot;fallback&quot;: &quot;False&quot;
+  },
+  &quot;candidate_pose&quot;: {
+    &quot;available&quot;: true,
+    &quot;R_cf&quot;: [
+      [
+        0.7285665678999629,
+        0.011029264763323623,
+        0.6848862032901882
+      ],
+      [
+        0.14270383748081245,
+        0.9754868608164491,
+        -0.16751417594555779
+      ],
+      [
+        -0.6699450506621557,
+        0.2197811176904193,
+        0.709133195810231
+      ]
+    ],
+    &quot;centroid&quot;: [
+      0.38433812688628655,
+      -0.17530995596187346,
+      3.1082702170633496
+    ],
+    &quot;R_physical&quot;: [
+      [
+        -0.6848862032901882,
+        0.011029264763323644,
+        0.7285665678999629
+      ],
+      [
+        0.16751417594555779,
+        0.9754868608164493,
+        0.14270383748081245
+      ],
+      [
+        -0.709133195810231,
+        0.21978111769041933,
+        -0.6699450506621557
+      ]
+    ],
+    &quot;physical_registration_Q&quot;: [
+      [
+        2.9054082166939897e-17,
+        1.2156617563069006e-17,
+        1.0
+      ],
+      [
+        -1.322720395125325e-17,
+        1.0000000000000002,
+        1.2156617563069006e-17
+      ],
+      [
+        -1.0,
+        1.322720395125325e-17,
+        -2.9054082166939897e-17
+      ]
+    ],
+    &quot;cf_extents&quot;: [
+      1.3,
+      0.11,
+      1.1
+    ]
+  },
+  &quot;candidate_metric&quot;: {
+    &quot;pose_available&quot;: true,
+    &quot;translation_cm&quot;: 4.595647361798267,
+    &quot;rotation_deg&quot;: 0.8479818944178785,
+    &quot;success_le5&quot;: true,
+    &quot;success_strict_lt5&quot;: true,
+    &quot;reference_rotation_available&quot;: true
+  },
+  &quot;candidate_provenance&quot;: {
+    &quot;archive_path&quot;: &quot;original_candidate_archive_v1/ORIGINAL_E_CANDIDATE_BANK.jsonl.gz&quot;,
+    &quot;archive_sha256&quot;: &quot;53562f84c1b914e5ae880e0024c75450308ff44bf650bd00ed7af43c04655fab&quot;,
+    &quot;source_field&quot;: &quot;stages.G13.families[ORIGINAL_WD].feasible_samples[0].original_record&quot;,
+    &quot;family&quot;: &quot;ORIGINAL_WD&quot;,
+    &quot;native_xyz&quot;: [
+      [
+        -0.65,
+        -0.055,
+        -0.55
+      ],
+      [
+        0.65,
+        -0.055,
+        -0.55
+      ],
+      [
+        0.65,
+        0.055,
+        -0.55
+      ],
+      [
+        -0.65,
+        0.055,
+        -0.55
+      ],
+      [
+        -0.65,
+        -0.055,
+        0.55
+      ],
+      [
+        0.65,
+        -0.055,
+        0.55
+      ],
+      [
+        0.65,
+        0.055,
+        0.55
+      ],
+      [
+        -0.65,
+        0.055,
+        0.55
+      ]
+    ],
+    &quot;Q&quot;: [
+      [
+        2.9054082166939897e-17,
+        1.2156617563069006e-17,
+        1.0
+      ],
+      [
+        -1.322720395125325e-17,
+        1.0000000000000002,
+        1.2156617563069006e-17
+      ],
+      [
+        -1.0,
+        1.322720395125325e-17,
+        -2.9054082166939897e-17
+      ]
+    ],
+    &quot;cf_extents&quot;: [
+      1.3,
+      0.11,
+      1.1
+    ],
+    &quot;index&quot;: 0,
+    &quot;raw_feasible_record&quot;: {
+      &quot;R&quot;: [
+        [
+          0.7285665678999629,
+          0.011029264763323623,
+          0.6848862032901882
+        ],
+        [
+          0.14270383748081245,
+          0.9754868608164491,
+          -0.16751417594555779
+        ],
+        [
+          -0.6699450506621557,
+          0.2197811176904193,
+          0.709133195810231
+        ]
+      ],
+      &quot;t&quot;: [
+        0.38433812688628655,
+        -0.17530995596187346,
+        3.1082702170633496
+      ],
+      &quot;projected_native&quot;: [
+        [
+          236.06983013348346,
+          195.12620470562334
+        ],
+        [
+          455.15228107693883,
+          227.74938960996874
+        ],
+        [
+          454.11749983864047,
+          256.2953474743809
+        ],
+        [
+          236.99276654995174,
+          216.0681444406478
+        ],
+        [
+          370.8946917116167,
+          175.40121358715072
+        ],
+        [
+          572.4497042171157,
+          194.0518401152293
+        ],
+        [
+          570.7551991998239,
+          215.6211854300791
+        ],
+        [
+          370.80911206244684,
+          192.32403590624733
+        ]
+      ],
+      &quot;objective&quot;: 3.324534456694252,
+      &quot;initialization&quot;: &quot;SAVED_0_WINNER&quot;,
+      &quot;all_OT_individual_constraints_pass&quot;: true,
+      &quot;all_U_individual_constraints_pass&quot;: true,
+      &quot;all_partial_BI_tangent_constraints_pass&quot;: true,
+      &quot;all_partial_B_tangent_constraints_pass&quot;: true
+    },
+    &quot;image&quot;: &quot;data/evaluation/pallet_eval_v1/final/positive/sessions/plastic_day_01/rgb/011891.png&quot;,
+    &quot;image_sha256&quot;: &quot;abaadc5af17d32383840a8a835b240d1696a28a2e59079671221512fde3e2dc3&quot;,
+    &quot;K&quot;: [
+      [
+        608.2978515625,
+        0.0,
+        326.4007263183594
+      ],
+      [
+        0.0,
+        607.8462524414062,
+        239.5469512939453
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    &quot;typed_packet_sha256&quot;: &quot;3c46ac850f2749a29b99285b33283deeeb95e961fdd477075ae54ac30c3f9f78&quot;,
+    &quot;original_candidate_packet_sha256&quot;: &quot;f4e814323a5bef74bfd9da85dacaa6ea1998275cf90c03edb44a9eea5afe3bc5&quot;,
+    &quot;oracle_row_sha256&quot;: &quot;868af9a92a694b2c6350eba5727c0df955856565ca863f58fa8ac4fb64558661&quot;,
+    &quot;typed_multi_slot_sha256&quot;: &quot;df7ec06717088ba62e15a7666b8786271dba7c08d77b07bfd7114ccf1598c3ce&quot;
+  },
+  &quot;semantic_owner_status&quot;: &quot;SEMANTIC_OWNER_UNVERIFIED&quot;,
+  &quot;candidate_objective&quot;: 3.324534456694252,
+  &quot;selected_e_objective&quot;: 2.1681040917609837,
+  &quot;candidate_objective_components&quot;: {
+    &quot;soft_BI_robust_loss&quot;: 2.592989341783156,
+    &quot;coarse_pose_prior_loss&quot;: 0.0,
+    &quot;prior_whitened_residual&quot;: [
+      -0.0037724092996471604,
+      0.017971205532766116,
+      -0.004090691832643478,
+      -0.0015664554620100357,
+      0.0002826979498530696,
+      -0.007260768020009707
+    ],
+    &quot;objective_uses_any_S_or_U&quot;: false,
+    &quot;partial_boundary_normal_robust_loss&quot;: 0.12702752412235474,
+    &quot;boundary_factor_weight&quot;: 1.0,
+    &quot;removed_complete_BI_2D_likelihood_ids&quot;: [
+      4
+    ],
+    &quot;removed_raw_B_2D_likelihood_ids&quot;: [],
+    &quot;complete_BI_likelihood_count&quot;: 6,
+    &quot;raw_B_normal_cost_duplicated&quot;: false,
+    &quot;raw_B_tangent_point_cost&quot;: false,
+    &quot;tangent_is_range_only&quot;: true,
+    &quot;global_outline_robust_mean_loss&quot;: 0.604517590788741,
+    &quot;global_outline_factor_weight&quot;: 1.0,
+    &quot;global_outline_audit&quot;: {
+      &quot;valid_projection&quot;: true,
+      &quot;model_to_observed&quot;: {
+        &quot;mean_px&quot;: 1.4798314379519808,
+        &quot;median_px&quot;: 1.1832195800252876,
+        &quot;P90_px&quot;: 3.6711526014275973,
+        &quot;count&quot;: 90
+      },
+      &quot;observed_to_model&quot;: {
+        &quot;mean_px&quot;: 1.1254427111292553,
+        &quot;median_px&quot;: 1.1585347958588745,
+        &quot;P90_px&quot;: 1.6300799701429127,
+        &quot;count&quot;: 733
+      },
+      &quot;model_to_observed_robust_mean&quot;: 0.612045020766881,
+      &quot;observed_to_model_robust_mean&quot;: 0.596990160810601,
+      &quot;normalized_by_arc_length_not_duplicated_pixel_count&quot;: true
+    },
+    &quot;S_keypoint_image_terms&quot;: 0,
+    &quot;U_keypoint_image_terms&quot;: 0
+  },
+  &quot;selected_e_objective_components&quot;: {
+    &quot;soft_BI_robust_loss&quot;: 1.5850885679069027,
+    &quot;coarse_pose_prior_loss&quot;: 0.0,
+    &quot;prior_whitened_residual&quot;: [
+      -0.03142813709958004,
+      1.4685812190882925,
+      0.3360559438604031,
+      0.01797585344140229,
+      0.00030836566559710316,
+      -0.05705910021516567
+    ],
+    &quot;objective_uses_any_S_or_U&quot;: false,
+    &quot;partial_boundary_normal_robust_loss&quot;: 0.015785911345695958,
+    &quot;boundary_factor_weight&quot;: 1.0,
+    &quot;removed_complete_BI_2D_likelihood_ids&quot;: [
+      4
+    ],
+    &quot;removed_raw_B_2D_likelihood_ids&quot;: [],
+    &quot;complete_BI_likelihood_count&quot;: 6,
+    &quot;raw_B_normal_cost_duplicated&quot;: false,
+    &quot;raw_B_tangent_point_cost&quot;: false,
+    &quot;tangent_is_range_only&quot;: true,
+    &quot;global_outline_robust_mean_loss&quot;: 0.5672296125083851,
+    &quot;global_outline_factor_weight&quot;: 1.0,
+    &quot;global_outline_audit&quot;: {
+      &quot;valid_projection&quot;: true,
+      &quot;model_to_observed&quot;: {
+        &quot;mean_px&quot;: 1.4094020404915995,
+        &quot;median_px&quot;: 0.8693428802479224,
+        &quot;P90_px&quot;: 3.314593581359828,
+        &quot;count&quot;: 90
+      },
+      &quot;observed_to_model&quot;: {
+        &quot;mean_px&quot;: 0.9964296640568748,
+        &quot;median_px&quot;: 0.8167666409577337,
+        &quot;P90_px&quot;: 2.1343632270206125,
+        &quot;count&quot;: 733
+      },
+      &quot;model_to_observed_robust_mean&quot;: 0.5761395987145335,
+      &quot;observed_to_model_robust_mean&quot;: 0.5583196263022366,
+      &quot;normalized_by_arc_length_not_duplicated_pixel_count&quot;: true
+    },
+    &quot;S_keypoint_image_terms&quot;: 0,
+    &quot;U_keypoint_image_terms&quot;: 0
+  },
+  &quot;G10_family_objectives&quot;: {
+    &quot;ORIGINAL_WD&quot;: 3.204342841902055,
+    &quot;SWAPPED_WD&quot;: 2.4161317974355265
+  },
+  &quot;G13_family_objectives&quot;: {
+    &quot;ORIGINAL_WD&quot;: 3.324534456694252,
+    &quot;SWAPPED_WD&quot;: 2.1681040917609837
+  },
+  &quot;privileged_offline_reference_oracle&quot;: true,
+  &quot;operational_inference_or_routing&quot;: false,
+  &quot;new_pose_or_candidate_generation&quot;: 0,
+  &quot;original_activation&quot;: {
+    &quot;O_T_U_point_terms&quot;: 0,
+    &quot;S_image_terms&quot;: 0,
+    &quot;all_partial_ids&quot;: [
+      4
+    ],
+    &quot;complete_ids&quot;: [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    &quot;configured_factors_are_not_fallback_solution_success&quot;: true,
+    &quot;consumer&quot;: &quot;statewise_partial_BI_u_solver_v4_13._joint_objective_pair; legacy parent equivalent&quot;,
+    &quot;final_pose_is_solver_accepted&quot;: true,
+    &quot;legacy_e_trace_complete_ids&quot;: [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    &quot;legacy_e_trace_false_complete_ids&quot;: [],
+    &quot;legacy_partial_ids&quot;: [],
+    &quot;selected_objective_component_parity&quot;: true,
+    &quot;typed_partial_ids&quot;: [
+      4
+    ]
+  }
+}</pre></details></article><article id="oracle2"><h2>추가 2. plastic_day_01:007881 · within_family_final_selection</h2><p><strong>봉인 뒤 기존 참조를 본 오프라인 oracle입니다. 새 추론 결과나 운영 selector가 아닙니다.</strong> PRIMARY의 해당 실패 단계에서 ID 사전순 첫 사례를 고정했습니다. 저장 후보 <code>ORIGINAL_G13/ORIGINAL_WD/feasible/1</code>를 그대로 그렸습니다.</p><img src="oracle_case_02/selection.jpg" alt="실제 선택과 보관된 성공 후보의 오프라인 비교"><p>후보의 원 목적함수: 0.9811219898284277. 실제 선택의 목적함수와 비교할 때 G10/G13 관측 패키지를 구분합니다. source 종류·full/partial/region과 physical owner 가설은 아래 출처에 보존하며 covariance가 owner 정답을 증명하지 않습니다.</p><details><summary>후보·관측·물리 대응의 원 출처</summary><pre>{
+  &quot;id&quot;: &quot;plastic_day_01:007881&quot;,
+  &quot;selection_reason&quot;: &quot;within_family_final_selection&quot;,
+  &quot;candidate_id&quot;: &quot;ORIGINAL_G13/ORIGINAL_WD/feasible/1&quot;,
+  &quot;source_RGB_sha256&quot;: &quot;0ab02675e1fc1576638da3cfbfcaa3732dea0a67c422daabf9e0a425af9a9f86&quot;,
+  &quot;source_crop&quot;: &quot;oracle_case_02/source_crop.jpg&quot;,
+  &quot;viewport_original_xyxy&quot;: [
+    239,
+    86,
+    545,
+    203
+  ],
+  &quot;selected_e_pose&quot;: {
+    &quot;available&quot;: true,
+    &quot;R_cf&quot;: [
+      [
+        0.6021865225522443,
+        0.06779947314736137,
+        0.7954713216058612
+      ],
+      [
+        0.2527692596196327,
+        0.9289367010147708,
+        -0.2705259819299007
+      ],
+      [
+        -0.7572840242919284,
+        0.3639777973293625,
+        0.542255539025179
+      ]
+    ],
+    &quot;centroid&quot;: [
+      0.4942953727327194,
+      -0.8071278773422185,
+      4.895853211496562
+    ],
+    &quot;R_physical&quot;: [
+      [
+        -0.7954713216058611,
+        0.06779947314736137,
+        0.6021865225522441
+      ],
+      [
+        0.2705259819299006,
+        0.9289367010147705,
+        0.25276925961963265
+      ],
+      [
+        -0.542255539025179,
+        0.36397779732936236,
+        -0.7572840242919282
+      ]
+    ],
+    &quot;physical_registration_Q&quot;: [
+      [
+        7.287752204169409e-18,
+        2.99222414912445e-17,
+        0.9999999999999998
+      ],
+      [
+        -4.9092173538412705e-18,
+        0.9999999999999998,
+        -2.558890974001333e-17
+      ],
+      [
+        -0.9999999999999999,
+        4.9092173538412705e-18,
+        -7.287752204169409e-18
+      ]
+    ],
+    &quot;cf_extents&quot;: [
+      1.3,
+      0.11,
+      1.1
+    ],
+    &quot;source&quot;: &quot;CONTINUOUS_GLOBAL_OUTLINE_BI_PARTIAL_OT_U_JOINT_SE3&quot;,
+    &quot;joint_feasible&quot;: true,
+    &quot;fallback&quot;: false,
+    &quot;fallback_pose_does_not_solve_OT&quot;: false,
+    &quot;fallback_pose_does_not_solve_U_regions&quot;: false
+  },
+  &quot;selected_e_metric&quot;: {
+    &quot;translation_cm&quot;: 5.342810583507331,
+    &quot;rotation_deg&quot;: 0.9586696411856677,
+    &quot;success_le5&quot;: false,
+    &quot;status&quot;: &quot;unchanged_frozen_E&quot;,
+    &quot;reason&quot;: &quot;Exact independently registered frozen E pose&quot;,
+    &quot;pose_available&quot;: true,
+    &quot;accepted&quot;: &quot;True&quot;,
+    &quot;fallback&quot;: &quot;False&quot;
+  },
+  &quot;candidate_pose&quot;: {
+    &quot;available&quot;: true,
+    &quot;R_cf&quot;: [
+      [
+        0.6017405418612509,
+        0.06631440597640335,
+        0.7959338664992996
+      ],
+      [
+        0.2501429402423913,
+        0.9307634779297138,
+        -0.2666605662618202
+      ],
+      [
+        -0.7585096108339167,
+        0.35955771124004543,
+        0.5434900390627233
+      ]
+    ],
+    &quot;centroid&quot;: [
+      0.49501005746613397,
+      -0.8080110719211309,
+      4.900399548460416
+    ],
+    &quot;R_physical&quot;: [
+      [
+        -0.7959338664992995,
+        0.06631440597640335,
+        0.6017405418612508
+      ],
+      [
+        0.26666056626182016,
+        0.9307634779297136,
+        0.25014294024239125
+      ],
+      [
+        -0.5434900390627233,
+        0.3595577112400453,
+        -0.7585096108339164
+      ]
+    ],
+    &quot;physical_registration_Q&quot;: [
+      [
+        7.287752204169409e-18,
+        2.99222414912445e-17,
+        0.9999999999999998
+      ],
+      [
+        -4.9092173538412705e-18,
+        0.9999999999999998,
+        -2.558890974001333e-17
+      ],
+      [
+        -0.9999999999999999,
+        4.9092173538412705e-18,
+        -7.287752204169409e-18
+      ]
+    ],
+    &quot;cf_extents&quot;: [
+      1.3,
+      0.11,
+      1.1
+    ]
+  },
+  &quot;candidate_metric&quot;: {
+    &quot;pose_available&quot;: true,
+    &quot;translation_cm&quot;: 4.874428893949522,
+    &quot;rotation_deg&quot;: 1.067413397644146,
+    &quot;success_le5&quot;: true,
+    &quot;success_strict_lt5&quot;: true,
+    &quot;reference_rotation_available&quot;: true
+  },
+  &quot;candidate_provenance&quot;: {
+    &quot;archive_path&quot;: &quot;original_candidate_archive_v1/ORIGINAL_E_CANDIDATE_BANK.jsonl.gz&quot;,
+    &quot;archive_sha256&quot;: &quot;53562f84c1b914e5ae880e0024c75450308ff44bf650bd00ed7af43c04655fab&quot;,
+    &quot;source_field&quot;: &quot;stages.G13.families[ORIGINAL_WD].feasible_samples[1].original_record&quot;,
+    &quot;family&quot;: &quot;ORIGINAL_WD&quot;,
+    &quot;native_xyz&quot;: [
+      [
+        -0.65,
+        -0.055,
+        -0.55
+      ],
+      [
+        0.65,
+        -0.055,
+        -0.55
+      ],
+      [
+        0.65,
+        0.055,
+        -0.55
+      ],
+      [
+        -0.65,
+        0.055,
+        -0.55
+      ],
+      [
+        -0.65,
+        -0.055,
+        0.55
+      ],
+      [
+        0.65,
+        -0.055,
+        0.55
+      ],
+      [
+        0.65,
+        0.055,
+        0.55
+      ],
+      [
+        -0.65,
+        0.055,
+        0.55
+      ]
+    ],
+    &quot;Q&quot;: [
+      [
+        7.287752204169409e-18,
+        2.99222414912445e-17,
+        0.9999999999999998
+      ],
+      [
+        -4.9092173538412705e-18,
+        0.9999999999999998,
+        -2.558890974001333e-17
+      ],
+      [
+        -0.9999999999999999,
+        4.9092173538412705e-18,
+        -7.287752204169409e-18
+      ]
+    ],
+    &quot;cf_extents&quot;: [
+      1.3,
+      0.11,
+      1.1
+    ],
+    &quot;index&quot;: 1,
+    &quot;raw_feasible_record&quot;: {
+      &quot;R&quot;: [
+        [
+          0.6017405418612509,
+          0.06631440597640335,
+          0.7959338664992996
+        ],
+        [
+          0.2501429402423913,
+          0.9307634779297138,
+          -0.2666605662618202
+        ],
+        [
+          -0.7585096108339167,
+          0.35955771124004543,
+          0.5434900390627233
+        ]
+      ],
+      &quot;t&quot;: [
+        0.49501005746613397,
+        -0.8080110719211309,
+        4.900399548460416
+      ],
+      &quot;projected_native&quot;: [
+        [
+          285.9414518689362,
+          134.7245228001347
+        ],
+        [
+          392.56610443981674,
+          157.7886112523576
+        ],
+        [
+          393.0070567872788,
+          173.64709313081633
+        ],
+        [
+          287.12196815390564,
+          147.70376881469696
+        ],
+        [
+          384.09255891361755,
+          114.34038413098484
+        ],
+        [
+          497.76696279438937,
+          130.17337062353923
+        ],
+        [
+          497.27173340926555,
+          144.25688700783903
+        ],
+        [
+          384.4699123573485,
+          126.10234609760592
+        ]
+      ],
+      &quot;objective&quot;: 0.9811219898284277,
+      &quot;initialization&quot;: &quot;SAVED_0_WINNER_UNREFINED&quot;,
+      &quot;all_OT_individual_constraints_pass&quot;: true,
+      &quot;all_U_individual_constraints_pass&quot;: true,
+      &quot;all_partial_BI_tangent_constraints_pass&quot;: true,
+      &quot;all_partial_B_tangent_constraints_pass&quot;: true
+    },
+    &quot;image&quot;: &quot;data/evaluation/pallet_eval_v1/final/positive/sessions/plastic_day_01/rgb/007881.png&quot;,
+    &quot;image_sha256&quot;: &quot;0ab02675e1fc1576638da3cfbfcaa3732dea0a67c422daabf9e0a425af9a9f86&quot;,
+    &quot;K&quot;: [
+      [
+        608.2978515625,
+        0.0,
+        326.4007263183594
+      ],
+      [
+        0.0,
+        607.8462524414062,
+        239.5469512939453
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    &quot;typed_packet_sha256&quot;: &quot;c23dc4b6cdb5c97be541da920405e040d736c26117c1ab41c48ccf0a7a9f1816&quot;,
+    &quot;original_candidate_packet_sha256&quot;: &quot;eda404552f4d77af72558355c11c5b7bb314a3d60e59e58d3aa3110ce327d19c&quot;,
+    &quot;oracle_row_sha256&quot;: &quot;1a751e40e76d6a167e6bc84543e67566b3574e9ff1c5f4212d3e298f92639bbd&quot;,
+    &quot;typed_multi_slot_sha256&quot;: &quot;d6c4788787256c18618cc52377f5436d49803a9d3b4c5287745e1f989ed49404&quot;
+  },
+  &quot;semantic_owner_status&quot;: &quot;SEMANTIC_OWNER_UNVERIFIED&quot;,
+  &quot;candidate_objective&quot;: 0.9811219898284277,
+  &quot;selected_e_objective&quot;: 0.8844177655603263,
+  &quot;candidate_objective_components&quot;: {
+    &quot;soft_BI_robust_loss&quot;: 0.5936554346126037,
+    &quot;coarse_pose_prior_loss&quot;: 0.0,
+    &quot;prior_whitened_residual&quot;: [
+      -0.004661543536693597,
+      0.026999207662437102,
+      -0.003425674222976116,
+      -0.0014120805699330413,
+      0.000519097398196916,
+      -0.013592899570806533
+    ],
+    &quot;objective_uses_any_S_or_U&quot;: false,
+    &quot;partial_boundary_normal_robust_loss&quot;: 0.0034096167216688617,
+    &quot;boundary_factor_weight&quot;: 1.0,
+    &quot;removed_complete_BI_2D_likelihood_ids&quot;: [
+      0
+    ],
+    &quot;removed_raw_B_2D_likelihood_ids&quot;: [],
+    &quot;complete_BI_likelihood_count&quot;: 6,
+    &quot;raw_B_normal_cost_duplicated&quot;: false,
+    &quot;raw_B_tangent_point_cost&quot;: false,
+    &quot;tangent_is_range_only&quot;: true,
+    &quot;global_outline_robust_mean_loss&quot;: 0.3840569384941551,
+    &quot;global_outline_factor_weight&quot;: 1.0,
+    &quot;global_outline_audit&quot;: {
+      &quot;valid_projection&quot;: true,
+      &quot;model_to_observed&quot;: {
+        &quot;mean_px&quot;: 0.7938636702878079,
+        &quot;median_px&quot;: 0.799033572920991,
+        &quot;P90_px&quot;: 1.2272276523223355,
+        &quot;count&quot;: 90
+      },
+      &quot;observed_to_model&quot;: {
+        &quot;mean_px&quot;: 0.8861572857849492,
+        &quot;median_px&quot;: 0.8925649034858579,
+        &quot;P90_px&quot;: 1.2282741249697524,
+        &quot;count&quot;: 465
+      },
+      &quot;model_to_observed_robust_mean&quot;: 0.3846667884930754,
+      &quot;observed_to_model_robust_mean&quot;: 0.3834470884952349,
+      &quot;normalized_by_arc_length_not_duplicated_pixel_count&quot;: true
+    },
+    &quot;S_keypoint_image_terms&quot;: 0,
+    &quot;U_keypoint_image_terms&quot;: 0
+  },
+  &quot;selected_e_objective_components&quot;: {
+    &quot;soft_BI_robust_loss&quot;: 0.6412243954121457,
+    &quot;coarse_pose_prior_loss&quot;: 0.0,
+    &quot;prior_whitened_residual&quot;: [
+      9.029594865383149e-05,
+      0.026943235939680277,
+      -0.005036809330516756,
+      -0.0014642553435894184,
+      0.0005463783926474564,
+      -0.014521078416667476
+    ],
+    &quot;objective_uses_any_S_or_U&quot;: false,
+    &quot;partial_boundary_normal_robust_loss&quot;: 0.009851742579434374,
+    &quot;boundary_factor_weight&quot;: 1.0,
+    &quot;removed_complete_BI_2D_likelihood_ids&quot;: [
+      0
+    ],
+    &quot;removed_raw_B_2D_likelihood_ids&quot;: [],
+    &quot;complete_BI_likelihood_count&quot;: 6,
+    &quot;raw_B_normal_cost_duplicated&quot;: false,
+    &quot;raw_B_tangent_point_cost&quot;: false,
+    &quot;tangent_is_range_only&quot;: true,
+    &quot;global_outline_robust_mean_loss&quot;: 0.2333416275687462,
+    &quot;global_outline_factor_weight&quot;: 1.0,
+    &quot;global_outline_audit&quot;: {
+      &quot;valid_projection&quot;: true,
+      &quot;model_to_observed&quot;: {
+        &quot;mean_px&quot;: 0.6612766976809992,
+        &quot;median_px&quot;: 0.6482768980088638,
+        &quot;P90_px&quot;: 1.043910174495962,
+        &quot;count&quot;: 90
+      },
+      &quot;observed_to_model&quot;: {
+        &quot;mean_px&quot;: 0.6537462886266031,
+        &quot;median_px&quot;: 0.6605589346075917,
+        &quot;P90_px&quot;: 1.040905349903443,
+        &quot;count&quot;: 465
+      },
+      &quot;model_to_observed_robust_mean&quot;: 0.23363066234339872,
+      &quot;observed_to_model_robust_mean&quot;: 0.23305259279409368,
+      &quot;normalized_by_arc_length_not_duplicated_pixel_count&quot;: true
+    },
+    &quot;S_keypoint_image_terms&quot;: 0,
+    &quot;U_keypoint_image_terms&quot;: 0
+  },
+  &quot;G10_family_objectives&quot;: {
+    &quot;ORIGINAL_WD&quot;: 0.9174519524619444,
+    &quot;SWAPPED_WD&quot;: 4.625782634267157
+  },
+  &quot;G13_family_objectives&quot;: {
+    &quot;ORIGINAL_WD&quot;: 0.8844177655603263,
+    &quot;SWAPPED_WD&quot;: 4.578417316488274
+  },
+  &quot;privileged_offline_reference_oracle&quot;: true,
+  &quot;operational_inference_or_routing&quot;: false,
+  &quot;new_pose_or_candidate_generation&quot;: 0,
+  &quot;original_activation&quot;: {
+    &quot;O_T_U_point_terms&quot;: 0,
+    &quot;S_image_terms&quot;: 0,
+    &quot;all_partial_ids&quot;: [
+      0
+    ],
+    &quot;complete_ids&quot;: [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    &quot;configured_factors_are_not_fallback_solution_success&quot;: true,
+    &quot;consumer&quot;: &quot;statewise_partial_BI_u_solver_v4_13._joint_objective_pair; legacy parent equivalent&quot;,
+    &quot;final_pose_is_solver_accepted&quot;: true,
+    &quot;legacy_e_trace_complete_ids&quot;: [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    &quot;legacy_e_trace_false_complete_ids&quot;: [],
+    &quot;legacy_partial_ids&quot;: [],
+    &quot;selected_objective_component_parity&quot;: true,
+    &quot;typed_partial_ids&quot;: [
+      0
+    ]
+  }
+}</pre></details></article></html>
