@@ -1,0 +1,122 @@
+{
+  "schema": "frozen_csv_visualization_v1",
+  "population": "PRIMARY192 = TEST49 + REMAINDER143; CAL46 excluded",
+  "same_image_ids_per_arm": 192,
+  "arms": [
+    "R0",
+    "N0",
+    "E0",
+    "POSEFIX_RAW",
+    "POSEFIX_SUBPIX_PF_ANCHOR",
+    "POSEFIX_SUBPIX_YOLO_ANCHOR"
+  ],
+  "predeclared_anchors": "Both fixed PF and YOLO anchors are shown; no representative anchor selected",
+  "success_rule": "Existing CSV success: center translation <=5 cm AND physical C2 rotation <=5 deg on the same final pose; no 90 deg equivalence",
+  "scope": "CSV-only rendering; existing summary values and all existing per-image errors; no accuracy score recomputation",
+  "source": {
+    "path": "SOURCE_ROOT/scripts/research/pallet_accuracy_closeout_20261017_v1/visualize.py",
+    "sha256": "e1f5ab70ab0539bb55456c6d08292e67cf7bf280de98c3cff0ef2422bc064b95"
+  },
+  "inputs": [
+    {
+      "path": "SOURCE_ROOT/_docs/experiments/pallet_accuracy_closeout_20261017_v1/FAIR_192_COMPARISON.csv",
+      "sha256": "3bbb19884e5c64f5320b8a099a8722075ff0d603dafc02838255b6b68e28267e",
+      "bytes": 11379
+    },
+    {
+      "path": "SOURCE_ROOT/_docs/experiments/pallet_accuracy_closeout_20261017_v1/FAIR_ROW_METRICS.csv",
+      "sha256": "62b969cd84f8b6b7d1ac5964ebcc45f039978869baf63933096425b75b894254",
+      "bytes": 253014
+    }
+  ],
+  "outputs": [
+    {
+      "file": "success_primary192.png",
+      "sha256": "08140f2df096e83dbd230b4cf625956cf075c719e2aabd21980b0df467bcf4dc",
+      "bytes": 125170
+    },
+    {
+      "file": "error_ecdf_primary192.png",
+      "sha256": "648a44f9ab025d1ad3ad3855b5c11effd672362498aa9b5469dd95378a0afb82",
+      "bytes": 153393
+    },
+    {
+      "file": "index.html",
+      "sha256": "87b1f712028e9388db48d64390438899f029ee12935e831399eb33ad5b8ed348",
+      "bytes": 5543
+    }
+  ],
+  "coverage": {
+    "R0": {
+      "images": 192,
+      "successes_from_summary": 66,
+      "pose_available": 192,
+      "failures_excluded": 0,
+      "tail_values_excluded": 0
+    },
+    "N0": {
+      "images": 192,
+      "successes_from_summary": 108,
+      "pose_available": 192,
+      "failures_excluded": 0,
+      "tail_values_excluded": 0
+    },
+    "E0": {
+      "images": 192,
+      "successes_from_summary": 114,
+      "pose_available": 192,
+      "failures_excluded": 0,
+      "tail_values_excluded": 0
+    },
+    "POSEFIX_RAW": {
+      "images": 192,
+      "successes_from_summary": 80,
+      "pose_available": 192,
+      "failures_excluded": 0,
+      "tail_values_excluded": 0
+    },
+    "POSEFIX_SUBPIX_PF_ANCHOR": {
+      "images": 192,
+      "successes_from_summary": 112,
+      "pose_available": 192,
+      "failures_excluded": 0,
+      "tail_values_excluded": 0
+    },
+    "POSEFIX_SUBPIX_YOLO_ANCHOR": {
+      "images": 192,
+      "successes_from_summary": 111,
+      "pose_available": 192,
+      "failures_excluded": 0,
+      "tail_values_excluded": 0
+    }
+  },
+  "new_calls": {
+    "NN_forward": 0,
+    "F_or_PnP": 0,
+    "training": 0,
+    "pose_or_accuracy_scoring": 0
+  },
+  "operational_changes": 0,
+  "resources": {
+    "wall_seconds_through_artifact_write": 0.33264709200011566,
+    "cpu_seconds_through_artifact_write": 0.32416378999999995,
+    "process_peak_rss_MiB": 1055.1328125,
+    "measurement_scope": "renderer main through PNG and HTML writes; peak RSS is full process high-water"
+  },
+  "environment": {
+    "python": "3.10.20",
+    "matplotlib": "3.10.9",
+    "BLAS_and_OpenMP_threads": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    }
+  },
+  "limitations": [
+    "All images were previously exposed during development; not an independent test",
+    "Reference poses are existing geometric reconstructions, not independent physical ground truth",
+    "Marginal ECDFs do not encode joint success",
+    "No statistical superiority or equivalence claim"
+  ]
+}

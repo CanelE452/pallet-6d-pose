@@ -1,0 +1,53 @@
+{
+  "schema": "ACCURACY_CLOSEOUT_EVALUATOR_PROTOCOL_V1",
+  "populations": {
+    "PRIMARY192": [
+      "TEST",
+      "REMAINDER"
+    ],
+    "CAL46": [
+      "CAL"
+    ],
+    "TEST49": [
+      "TEST"
+    ],
+    "REMAINDER143": [
+      "REMAINDER"
+    ],
+    "COMMON95": [
+      "CAL",
+      "TEST"
+    ]
+  },
+  "original_arms": [
+    "R0",
+    "N0",
+    "E0",
+    "POSEFIX_RAW"
+  ],
+  "fixed_pf_arms": [
+    "POSEFIX_SUBPIX_PF_ANCHOR",
+    "POSEFIX_SUBPIX_YOLO_ANCHOR"
+  ],
+  "metrics": {
+    "success": "one saved pose: translation_cm<=5 AND physical_C2_rotation_deg<=5",
+    "symmetry": "I and Y(pi) only; rectangular Y(pi/2) excluded",
+    "continuous": "available-only; missing stays binary failure; no imputation",
+    "std": "sample ddof=1",
+    "quantile": "NumPy linear",
+    "tails": "T>50cm,T>100cm,R>45deg"
+  },
+  "bootstrap": {
+    "seed": 20260917,
+    "draws": 10000,
+    "primary_unit": "original cluster_id (whole recording)",
+    "sensitivity_unit": "named session",
+    "estimand": "paired frame-weighted mean difference, whole clusters sampled with replacement",
+    "CI": "descriptive percentile .025/.975, linear interpolation",
+    "limitation": "few clusters, repeated real development data; no independent validation or equivalence claim"
+  },
+  "comparator_policy": "TWO_FIXED_COMPARATORS_NO_GLOBAL_WINNER",
+  "selector_is_separate": true,
+  "source_sha256": "ee15359f03694ffce13271918c1c87c8d6712116c7465322ed1ec332092502e2",
+  "metric_source_sha256": "0a80437d259b4d0cdbd3668da12b386ea77e52577413260a057a327d334c93c4"
+}
