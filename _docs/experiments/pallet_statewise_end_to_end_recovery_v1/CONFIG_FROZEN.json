@@ -1,0 +1,102 @@
+{
+  "baseline_public": "_docs/experiments/pallet_accuracy_closeout_20261017_v1",
+  "boundary_config": {
+    "along_base_px": [
+      4.0,
+      14.666666666666666,
+      25.333333333333332,
+      36.0
+    ],
+    "alpha": 0.36,
+    "appearance_end_base_px": 18.0,
+    "appearance_start_base_px": 1.0,
+    "canonical_image_diagonal_px": 800.0,
+    "histogram_bins_per_channel": 32,
+    "offset_radius_base_px": 36,
+    "protected_unknown_mate_radius_base_px": 7.0,
+    "sample_radius_base_px": 43,
+    "slope_base_px": 0.0,
+    "step_base_px": 1.0
+  },
+  "budget": {
+    "extra_blender_renders": 2048,
+    "gpu_hours": 8,
+    "new_disk_gib": 25,
+    "solver_batch_wall_hours": 10,
+    "training_minutes_each": 60,
+    "training_runs": 6,
+    "wall_hours": 24,
+    "workers": 4
+  },
+  "development_evaluation": true,
+  "fallback": "N0",
+  "fixed_local_starts_per_family": 1,
+  "forbidden_prediction_paths": [
+    "$OLD_STATE_PRIVATE/score_v2/FIXED_REFERENCES.json",
+    "$OLD_STATE_PRIVATE/oracle_v1/ORACLE_ROWS.jsonl.gz",
+    "$RUN_PRIVATE/synthetic_v1/SYNTH_GT_LABELS.jsonl.gz"
+  ],
+  "full_modes": [
+    "fixed",
+    "A",
+    "B",
+    "AB",
+    "edge"
+  ],
+  "learning": {
+    "abstention": "N0 fallback; no safety certificate",
+    "activation": "ReLU",
+    "batch_frames": 32,
+    "eligible": "N0/E0 preserved baseline alternatives OR any model with one globally jointly feasible h/family",
+    "epochs": 50,
+    "feature_dim": 62,
+    "head_hidden_widths": [
+      64,
+      64
+    ],
+    "label_support_gate": "at least32train and16validation frames contain eligible joint-success candidate",
+    "loss": "uniform mass on eligible joint5cm5deg source-C1 good poses, otherwise no-reliable-candidate",
+    "lr": 0.001,
+    "model_selection": "first seed only, fixed validation loss; all6 runs reported; no PRIMARY seed selection",
+    "models": [
+      "L_LINEAR",
+      "L_HEAD"
+    ],
+    "normalization": "train-only valid values first31 transformed features; validity31 unchanged",
+    "optimizer": "AdamW",
+    "patience": 5,
+    "pooling": "eligible candidates mean/max plus log1p(count); permutation invariant",
+    "representative_seed": 20261018,
+    "seeds": [
+      20261018,
+      20261019,
+      20261020
+    ],
+    "weight_decay": 0.0001
+  },
+  "max_iterations": 80,
+  "new_seed_trials": [
+    20261018,
+    20261019,
+    20261020
+  ],
+  "none_prior": 0.01,
+  "old_private": "$OLD_STATE_PRIVATE",
+  "optimizer_ftol": 1e-08,
+  "primary_reference_role": "exploratory_development_evaluation",
+  "primary_scoring_not_yet_authorized": true,
+  "proposal_rule": "common fixed-score best then farthest pose diversity, pad bases to4 ifneeded; native yaw0/-90/-180/-270 shared by every full model",
+  "ransac": {
+    "confidence": 0.99,
+    "iterations": 100,
+    "method": "EPNP",
+    "reprojection_error_px": 8.0,
+    "rng_seed": 20261018
+  },
+  "representative_seed": 20261018,
+  "run_dir": "$RUN_PRIVATE",
+  "schema": "STATEWISE_END_TO_END_RECOVERY_V1",
+  "score_rule": "every carried G10/G13 pose rescored using one G13 context per family; no cross-objective old values",
+  "source_root": "$SOURCE_ROOT",
+  "starts_per_family": 4
+}
