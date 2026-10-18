@@ -16,7 +16,7 @@ PRIMARY192의 사전 대표 D1/H1/MLP(seed20261018)는 120/192 성공이며 기�
 | D1 자동 관측 | 1241장 | 실제 forward/provider 계수·누락 CUDA 시간은 D1 비용 원장에 분리 |
 | D1 unchanged E 실행 | 1099행; exact stage 재사용 142행 | 원39장·parity actual import·shared batch를 별도 실제 실행으로 검산 |
 | 작은 L 학습 | 신규 시도 18/18; 성공 신규 18; 실패 fit 0; 재사용 3 | 개별 fit 내부 timer 합 86.365초 (18/18개); 전체 학습 process 시간이 아님 |
-| 계측 root 기술 실패 | 비정상 종료 6/32개 job; exit 불명 0 | ["ROOT_GALLERY_LAYOUT_TRIAL_V1","ROOT_GALLERY_PRIVATE_V1","ROOT_GALLERY_PUBLIC_V1","ROOT_PRE_SCORING_COST_V2","ROOT_PRIVACY_PREVIEWS_V2","ROOT_PUBLIC_PACK_VERIFY_V1"]; 렌더/import/schema 실패를 성공 fit18회와 구분하며 수정 전 원장을 보존 |
+| 계측 root 기술 실패 | 비정상 종료 6/38개 job; exit 불명 0 | ["ROOT_GALLERY_LAYOUT_TRIAL_V1","ROOT_GALLERY_PRIVATE_V1","ROOT_GALLERY_PUBLIC_V1","ROOT_PRE_SCORING_COST_V2","ROOT_PRIVACY_PREVIEWS_V2","ROOT_PUBLIC_PACK_VERIFY_V1"]; 렌더/import/schema 실패를 성공 fit18회와 구분하며 수정 전 원장을 보존 |
 | D1 중단·미봉인 시도 | INTERRUPTED_EXTERNAL_CAUSE_UNKNOWN; 관측 exit 143; 미봉인 4건 | 원인 UNKNOWN; 부분 연산 N/A / CPU N/A (UNKNOWN은0이 아님); 재개·최종 완성과 중단 기록을 함께 보존 |
 | 미실행 학습군 | 0개; 명시 원목록 {} | 빈 목록은 미실행 학습군이 없다는 뜻이며 기술 실패가 없었다는 뜻이 아님 |
 
@@ -1622,7 +1622,7 @@ B 원장의 집단별 원 관측 수·처리·fallback 원인·예산 계수는 
 | NUMERIC_REPRODUCTION | PASS |
 | GEOMETRIC_SUPPORT | PASS_WITH_RAW_REPRESENTATION_DIFFERENCES |
 | LEARNING_ACTION_CONTRACT | PASS_WITH_DOCUMENTED_REPRESENTATION_EXCEPTIONS |
-| VISUAL_AND_PUBLICATION | MODEL_PIXEL_REVIEW_COMPLETE_REMOTE_PENDING |
+| VISUAL_AND_PUBLICATION | PUSHED_MAIN_VERIFIED_WITH_MODEL_PIXEL_REVIEW |
 
 생산 evaluator를 재호출한 것, 별도 산술 코드, model review와 독립 물리 실사 검증은 구분한다. cluster_id 단위 paired frame-weighted bootstrap(seed20260917,10000회)와 named-session 감도는 별도다. 적은 군집·반복 개발 자료·여러 실험군의 한계가 있으며 CI가0을 포함하지 않아도 독립 확증은 아니다.0을 포함한다고 동등성이 입증되지 않는다.
 
@@ -1726,13 +1726,13 @@ B 기하 판정: GEOMETRY_REPAIR_CONFIRMED. 운영 기본값·기존 가중치·
 | 항목 | 실제 확인값 |
 | --- | --- |
 | 실행 기준 | c69f57e1fd26fcf268eb2f3cd0040e801b30f60b |
-| 결과 commit | N/A |
-| 실제 원격 main SHA | N/A |
-| 게시 상태 | NOT_PUBLISHED_YET |
-| 결과 A의 고정 게시 검사 | N/A |
+| 결과 commit | 9014c68467c4d7e5022e261f28ce366470d12233 |
+| 실제 원격 main SHA | 9014c68467c4d7e5022e261f28ce366470d12233 |
+| 게시 상태 | PUSHED_MAIN_VERIFIED |
+| 결과 A의 고정 게시 검사 | PASS |
 
 이 보고서는 Git 작업이나 원격 확인을 수행하지 않는다. 결과 commit 자기 SHA를 같은 commit 본문에 미리 넣지 않는다. 원격 SHA/게시 상태가 N/A 또는 NOT_PUBLISHED_YET이면 main 게시 완료로 해석하지 않는다. 게시 검사와 manifest는 외부에서 검증한 결과 commit A의 고정 스냅샷이다. 현재 metadata 보고서를 담는 manifest/check를 보고서 입력으로 다시 묶지 않는다.
 
 [전체 CSV](COMPARISON_ALL_ARMS.csv) · [행별 오차](ROW_METRICS.csv.gz) · [짝 전이](PAIRED_TRANSITIONS.csv.gz) · [검산](VALIDATION.json) · [시각검토](VISUAL_REVIEW.json) · [재현 명령](REPRODUCE.md) · [판정 JSON](FINAL_DECISION.json).
 
-실제 사용 입력은 FINAL_DECISION.json의 basename·SHA로 연결한다. 공개 문서에 private 절대경로·raw RGB·원 후보 bank·환경 비밀을 복사하지 않는다. 누락 입력: [{"input":"publication","file":"REMOTE_PUBLICATION_RECEIPT.json","status":"NOT_AVAILABLE","substituted_zero":false}].
+실제 사용 입력은 FINAL_DECISION.json의 basename·SHA로 연결한다. 공개 문서에 private 절대경로·raw RGB·원 후보 bank·환경 비밀을 복사하지 않는다. 누락 입력: [].
