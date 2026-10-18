@@ -1,3 +1,9 @@
+## B 관측 계약·H1 제한적 변경 실험
+
+[보고서](_docs/experiments/pallet_observation_contract_h1_v1/REPORT_KO.md) · [전체 표](_docs/experiments/pallet_observation_contract_h1_v1/FULL_RESULTS.md) · [192장 갤러리](_docs/experiments/pallet_observation_contract_h1_v1/gallery/index.html)
+
+no-B/guard 미채택. 3seed·전체 분모·실패·조건부 미실행을 보존한 연구 기록입니다.
+
 ## 2026-10-18 고정 후보의 위험 감독·지지 정보·RGB 대조
 
 [전체 결과와 대표 그림](_docs/experiments/pallet_risk_information_v1/README.md) · [한국어 보고서](_docs/experiments/pallet_risk_information_v1/REPORT_KO.md) · [전체192장 갤러리](_docs/experiments/pallet_risk_information_v1/gallery/index.html) · [독립 검산과 한계](_docs/experiments/pallet_risk_information_v1/VERIFICATION.json)

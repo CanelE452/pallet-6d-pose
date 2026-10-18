@@ -1,0 +1,47 @@
+{
+  "schema": "MASK_SEMANTIC_AND_SOURCE_MODEL_REVIEW_V1",
+  "status": "ENCODING_AND_PHYSICAL_OWNER_UNVERIFIED",
+  "reviewer_kind": "model_source_and_actual_pixel_review_not_human",
+  "raw_mask_metadata_sha256": "bec8e4bf876a1d86563ed668797bcca198f94f1b8b7405982a5475ba49e3ea7c",
+  "raw_mask_pixel_review_sha256": "d13c77ebeed8c75b86dcf3550c2e0c3a1f6b863e256d9100bf899557325a956e",
+  "source_documents": {
+    "data/pallet/training_data/paper_release/README.md": "cf4aa386b9d9e577e9e8ee6741046e3acc31d1a689101c980c25226ed3a121b6",
+    "data/pallet/release/attribution/ATTRIBUTION.md": "cdf1345cf3dde1ebc4abd28fe0da2e15efa4213c963fe8b5a4dbbb78fde46cc2",
+    "scripts/stage0/multihead/mh_data.py": "92b6f7fbf22b8d3567c64ee649bc3a6010f1b33060441b820d12a9ef4d6a5b1c",
+    "scripts/stage0/multihead/mh_curriculum.py": "cd39d2d211c1754c148b850638b1156ac2e7e2adce4dd0c5eefde3200dcfb819",
+    "scripts/stage0/line/edge_mandatory_fast_search.py": "310b8ba8a22883141e84df894bfb8cf62003d7f5c4abc547382e1f2ba5e9cd3b"
+  },
+  "findings": [
+    "All2006original renderer masks examined by metadata batch were actualLPNG; no RGB/object-index channels silently converted in extra diagnostic",
+    "Raw masks have values0,1,2,254,255; value1 is widespread including visually dark background, so AA-only origin is unverified",
+    "PNG File metadata identifies synth_data_scene_portable_stage2c2.blend, not recovered locally",
+    "Release README describes provided visible/amodal artifacts and filenames but does not authenticate rawpixel encoding or compositor",
+    "Existing downstream consumers threshold raw masks, but a consumer threshold is not original generator/physical-owner provenance; this campaign added no threshold"
+  ],
+  "exact_original_scene_status": "EXACT_SCENE_UNAVAILABLE",
+  "source_blend_basename": "synth_data_scene_portable_stage2c2.blend",
+  "official_sources": [
+    {
+      "url": "https://link.springer.com/article/10.1007/s11263-022-01579-8",
+      "sections": [
+        "2.1",
+        "2.2",
+        "4.1",
+        "4.3",
+        "4.4",
+        "5.4"
+      ],
+      "actual_access": "Official primary article HTML opened and relevant sections read",
+      "scope": "Fixed correspondence lines/single transition; actual silhouette continuous-distance rejection and model limitations"
+    },
+    {
+      "url": "https://docs.blender.org/manual/en/4.4/render/layers/passes.html",
+      "actual_access": "Direct open InternalError preserved in toolhistory; official search-provided4.4full section text read",
+      "scope": "Object vsMaterial Index IDs, nonAA index/depth pass, opacitythreshold, Cryptomatte distinctions; not proof of this original PNG encoding"
+    }
+  ],
+  "new_threshold": 0,
+  "new_physical_edge_labels": 0,
+  "new_model_or_solver_calls": 0,
+  "original_sources_modified": false
+}
