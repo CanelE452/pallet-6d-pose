@@ -1,0 +1,22 @@
+{
+  "epoch": 1792315003.1281002,
+  "python": "3.10.20 (main, Mar 11 2026, 17:46:40) [GCC 14.3.0]",
+  "executable": "${PRIVATE_PATH}/112e1b8774b92905/python",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "versions": {
+    "torch": "2.1.1+cu118",
+    "numpy": "1.26.4",
+    "pillow": "12.2.0",
+    "opencv": "4.9.0"
+  },
+  "torch_threads": 1,
+  "torch_interop_threads": 8,
+  "environment": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "cuda_available": true,
+  "SmoothL1_installed_definition": "Creates a criterion that uses a squared term if the absolute\n    element-wise error falls below beta and an L1 term otherwise.\n    It is less sensitive to outliers than :class:`torch.nn.MSELoss` and in some cases\n    prevents exploding gradients (e.g. see the paper `Fast R-CNN`_ by Ross Girshick).\n\n    For a batch of size :math:`N`, the unreduced loss can be described as:\n\n    .. math::\n        \\ell(x, y) = L = \\{l_1, ..., l_N\\}^T\n\n    with\n\n    .. math::\n        l_n = \\begin{cases}\n        0.5 (x_n - y_n)^2 / beta, & \\text{if } |x_n - y_n| < beta \\\\\n        |x_n - y_n| - 0.5 * beta, & \\text{otherwise }\n        \\end{cases}\n\n    If `reduction` is not `none`, then:\n\n    .. math::\n        \\ell(x, y) =\n        \\begin{cases}\n            \\operatorname{mean}(L), &  \\text{if reduction} = \\text{`mean';}\\\\\n            \\operatorname{sum}(L),  &  \\text{if reduction} = \\text{`sum'.}\n        \\end{cases}\n\n    .. note::\n        Smooth L1 loss can be seen as exactly :class:`L1Loss`, but with the :math:`|x - y| < beta`\n        portion replaced with a quadratic function such that its slope is 1 at :math:`|x - y| = beta`.\n        The quadratic segment smooths the L1 loss near :math:`|x - y| = 0`.\n\n    .. note::\n        Smooth L1 loss is closely related to :class:`HuberLoss`, being\n        equivalent to :math:`huber(x, y) / beta` (note that Smooth L1's beta hyper-parameter is\n        also known as delta for Huber). This leads to the following differences:\n\n        * As beta -> 0, Smooth L1 loss converges to :class:`L1Loss`, while :class:`HuberLoss`\n          converges to a constant 0 loss. When beta is 0, Smooth L1 loss is equivalent to L1 loss.\n        * As beta -> :math:`+\\infty`, Smooth L1 loss converges to a constant 0 loss, while\n          :class:`HuberLoss` converges to :class:`MSELoss`.\n        * For Smooth L1 loss, as beta varies, the L1 segment of the loss has a constant slope of 1.\n          For :class:`HuberLoss`, the slope of the L1 segment is beta.\n\n    .. _`Fast R-CNN`: https://arxiv.org/abs/1504.08083\n\n    Args:\n        size_average (bool, optional): Deprecated (see :attr:`reduction`). By default,\n            the losses are averaged over each loss element in the batch. Note that for\n            some losses, there are multiple elements per sample. If the field :attr:`size_average`\n            is set to ``False``, the losses are instead summed for each minibatch. Ignored\n            when :attr:`reduce` is ``False``. Default: ``True``\n        reduce (bool, optional): Deprecated (see :attr:`reduction`). By default, the\n            losses are averaged or summed over observations for each minibatch depending\n            on :attr:`size_average`. When :attr:`reduce` is ``False``, returns a loss per\n            batch element instead and ignores :attr:`size_average`. Default: ``True``\n        reduction (str, optional): Specifies the reduction to apply to the output:\n            ``'none'`` | ``'mean'`` | ``'sum'``. ``'none'``: no reduction will be applied,\n            ``'mean'``: the sum of the output will be divided by the number of\n            elements in the output, ``'sum'``: the output will be summed. Note: :attr:`size_average`\n            and :attr:`reduce` are in the process of being deprecated, and in the meantime,\n            specifying either of those two args will override :attr:`reduction`. Default: ``'mean'``\n        beta (float, optional): Specifies the threshold at which to change between L1 and L2 loss.\n            The value must be non-negative. Default: 1.0\n\n    Shape:\n        - Input: :math:`(*)`, where :math:`*` means any number of dimensions.\n        - Target: :math:`(*)`, same shape as the input.\n        - Output: scalar. If :attr:`reduction` is ``'none'``, then :math:`(*)`, same shape as the input.\n    ",
+  "gpu_name": "NVIDIA GeForce RTX 3080"
+}

@@ -1,3 +1,9 @@
+## 2026-10-18 고정 후보의 위험 감독·지지 정보·RGB 대조
+
+[전체 결과와 대표 그림](_docs/experiments/pallet_risk_information_v1/README.md) · [한국어 보고서](_docs/experiments/pallet_risk_information_v1/REPORT_KO.md) · [전체192장 갤러리](_docs/experiments/pallet_risk_information_v1/gallery/index.html) · [독립 검산과 한계](_docs/experiments/pallet_risk_information_v1/VERIFICATION.json)
+
+같은 D1 후보에서 연속 회귀·실패 Pareto 순위·양쪽 family 정보와 ZERO 대조·국소 RGB와 NULL 대조를 비교합니다. 모든 seed와192/49/143/별도 CAL46의 회복·손상·극단값을 보존하며, 운영 기본값과 논문은 변경하지 않습니다. GitHub에서는 HTML이 실행되지 않으므로 갤러리는 자산과 함께 내려받아 로컬에서 열 수 있습니다.
+
 ## 2026-10-16 상태별 진단 및 연구 브랜치 main 통합
 
 [최신 상태별 진단·전체 결과](_docs/experiments/pallet_statewise_correspondence_diagnosis_v1/REPORT_KO.md) · [실제 8사례 과정 갤러리](_docs/experiments/pallet_statewise_correspondence_diagnosis_v1/gallery/index.html) · [브랜치 통합·보존 검산](_docs/experiments/pallet_main_branch_integration_20261016_v1/README_KO.md)

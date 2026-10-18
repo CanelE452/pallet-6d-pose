@@ -1,0 +1,208 @@
+{
+  "schema": "RISK_INFORMATION_EXECUTION_PLAN_V1",
+  "status": "FROZEN_BEFORE_FIRST_OPTIMIZER_UPDATE",
+  "campaign_start_epoch": 1792314702.320937,
+  "created_epoch": 1792314975.2044897,
+  "base_main": "870cb9efa1ac1f5e2a1261b90210a9e4d68efca7",
+  "instruction_sha256": "b63fbfb03ff4998d12fe4506b87fa6d1f462e5e9b64703d9b4ec9cce8d7eb40a",
+  "registry_proposed": {
+    "schema": "PROPOSED_HANDOFF_REGISTRY_V1",
+    "status": "PLANNED_NOT_EXECUTED",
+    "baseline_commit": "870cb9efa1ac1f5e2a1261b90210a9e4d68efca7",
+    "authoritative_document": "CLI_RISK_INFORMATION_AND_SUPPORT_20261018_V1.md",
+    "schema_is_new_not_an_existing_repo_api": true,
+    "seeds": [
+      20261018,
+      20261019,
+      20261020
+    ],
+    "representative_seed": 20261018,
+    "new_fit_cap": 18,
+    "default_new_fit_count": 12,
+    "new_pose_solves": 0,
+    "new_candidate_generation": false,
+    "reuse_D1_production": true,
+    "data_counts": {
+      "synthetic_train": 768,
+      "synthetic_validation": 235,
+      "real_primary": 192,
+      "real_test_subset": 49,
+      "real_remainder": 143,
+      "real_cal_separate": 46
+    },
+    "arms": [
+      {
+        "name": "H1_F0_REUSED",
+        "objective": "old_actual_action_BCE",
+        "input": "F0",
+        "new_fits": 0,
+        "conditional": false
+      },
+      {
+        "name": "R_CONT_F0",
+        "objective": "log_axis_error_SmoothL1_minimax_readout",
+        "input": "F0",
+        "new_fits": 3,
+        "conditional": false
+      },
+      {
+        "name": "R_ORDER_F0",
+        "objective": "success_then_failed_Pareto_RankNet",
+        "input": "F0",
+        "new_fits": 3,
+        "conditional": false
+      },
+      {
+        "name": "R_ORDER_F1_ZERO",
+        "objective": "success_then_failed_Pareto_RankNet",
+        "input": "F1_extended_capacity_zero_information_control",
+        "new_fits": 3,
+        "conditional": false
+      },
+      {
+        "name": "R_ORDER_F1",
+        "objective": "success_then_failed_Pareto_RankNet",
+        "input": "F1",
+        "new_fits": 3,
+        "conditional": false
+      },
+      {
+        "name": "V_ORDER_NULL",
+        "objective": "success_then_failed_Pareto_RankNet",
+        "input": "F1_and_visual_capacity_control",
+        "new_fits": 3,
+        "conditional": true
+      },
+      {
+        "name": "V_ORDER_RGB",
+        "objective": "success_then_failed_Pareto_RankNet",
+        "input": "F1_and_candidate_RGB",
+        "new_fits": 3,
+        "conditional": true
+      }
+    ],
+    "B_diagnostic": {
+      "training": false,
+      "optimization": false,
+      "synthetic_GT_use": "diagnostic_process_only",
+      "inject_GT_into_bank": false
+    },
+    "V_gate": [
+      "R_ORDER_F1 representative synthetic validation retains at least one good-action-but-misselected frame",
+      "same source RGB and projection contract available for synthetic and real",
+      "resources suffice for both control and RGB arms and full evaluation"
+    ],
+    "wall_cap_hours": 24,
+    "gpu_activity_cap_hours": 8,
+    "cpu_feature_diagnostic_batch_wall_cap_hours": 10,
+    "operational_defaults_change": false,
+    "paper_change": false,
+    "publication": "verified research results to main if ordinary push is permitted, otherwise PR without bypass",
+    "actual_results": null
+  },
+  "model_selection": {
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_unit": "frame",
+    "batch_size": 32,
+    "max_epochs": 50,
+    "patience": 5,
+    "checkpoint": "strictly smaller corresponding synthetic validation objective",
+    "representative_seed": 20261018
+  },
+  "regression": {
+    "targets": "log1p(raw_axis_error/5)",
+    "head": "188->64 ReLU->64 ReLU->2 softplus",
+    "loss": "valid axes SmoothL1 beta1 equal mean; action then frame mean",
+    "selection": "argmin(max(pred_z_t,pred_z_R)); original H1 physical ordering tie"
+  },
+  "rank": {
+    "relations": [
+      "joint success precedes failure",
+      "failed i Pareto dominates failed j with >=one strict axis"
+    ],
+    "no_relations": [
+      "two successful actions",
+      "failed tradeoff",
+      "numerical order ambiguity"
+    ],
+    "loss": "softplus(score_worse-score_better), mean per relation type then existing types then usable frames",
+    "train_pairs_per_type_max": 256,
+    "validation_pairs": "all in chunks",
+    "sampling": "seed/epoch/canonical physical numeric order deterministic uniform",
+    "numerical_order": "strict relation disagreement between original and independent stable expressions is excluded; no tolerance widening"
+  },
+  "features": {
+    "F0": "exact existing 188 float32 with old D1 train normalizer",
+    "F1": "append two-family provenance/cost/slack/residual/finite-support scalar and validity; no new pooling, final SPEC sealed before full extraction",
+    "F1_ZERO": "entire appended value/validity block zero; same dimension, initial state, frame order and pairs"
+  },
+  "visual": {
+    "gate": "synthetic R_ORDER_F1 seed18 missed >=1 available good action AND original RGB/box/K/model contract available AND budget for both arms",
+    "query_count": 20,
+    "query_geometry": "original cuboid8 corners plus original adjacency12 midpoints",
+    "patch_side": "0.05 times original predicted N0 detector box diagonal; missing box=>missing block",
+    "patch_size": [
+      16,
+      16
+    ],
+    "channels": "RGB3 plus validpixel1",
+    "CNN": "Conv4->8,3pad1 ReLU Conv8->16,3pad1 ReLU GAP; ordered20*16+20 regionvalid appended to F1 then64->64->1",
+    "NULL": "RGB three channels zero, same queries/mask/model/init/order"
+  },
+  "leakage": {
+    "real_references": "decode only after every registered output sealed",
+    "predictor": "no target arguments; readonly feature/checkpoint/RGB whitelist and reference deny audit",
+    "B_reference_diagnosis": "separate process/output; never production candidate/features/training"
+  },
+  "evaluation": {
+    "populations": {
+      "synthetic_train": 768,
+      "synthetic_validation": 235,
+      "real_primary": 192,
+      "real_test_subset": 49,
+      "real_remainder": 143,
+      "real_cal_separate": 46
+    },
+    "all_outputs_and_bad_seeds_preserved": true,
+    "same_physical_pose_joint_success": true,
+    "bootstrap": {
+      "draws": 10000,
+      "seed": 20260917,
+      "primary_unit": "original recording cluster_id",
+      "sensitivity_unit": "named session"
+    },
+    "all_failure_sets": "derive only postseal from unchanged full/pair actual actions; do not input previous41/59IDs",
+    "new_independent_real_test_n": 0
+  },
+  "no_new_solves": true,
+  "no_new_backbone_forward_or_training": true,
+  "no_new_detector_SAM_state_forward": true,
+  "operating_defaults_changed": false,
+  "paper_changed": false,
+  "resource_limits": {
+    "campaign_hours": 24,
+    "GPU_activity_hours": 8,
+    "CPU_feature_diagnostic_batch_wall_sum_hours": 10,
+    "CPU_workers_max": 4,
+    "GPU_jobs_max": 1,
+    "new_fits_max": 18
+  },
+  "gallery": {
+    "representatives": "all executed new groups seed18",
+    "case_selection": "per group maximum position worsening, maximum rotation worsening, maximum continuous improvement (each axis separately), binary recovery, binary damage; deterministic ID tiebreak; merge duplicates",
+    "primary_thumbnails": 192,
+    "privacy": "existing owner-authorized primary derived panels; reused explicit display-only redaction plan, raw never published"
+  },
+  "frozen_epoch": 1792315407.377724,
+  "input_manifest_sha256": "6a2b391c7324cccb0c56fc4d0529d2a648d0a200ff66946ab0af9773da0ac24d",
+  "feature_spec_sha256": "43854263f5be4de155eebe58896b57b2ce2d85221a8e3eec1c963148a7a27eee",
+  "F1_dimensions": {
+    "additional_scalars": 144,
+    "additional_validity_bits": 144,
+    "full_input": 476,
+    "rank_parameters": 34753
+  },
+  "visual_box_status": "1241 original predicted raw boxes restored; no extra padding subtraction"
+}
