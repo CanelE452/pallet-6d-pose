@@ -1,0 +1,109 @@
+{
+  "schema": "INDEPENDENT_ACTION_H1_PHYSICAL_ORDER_TECHNICAL_REPAIR_V1",
+  "status": "PASS_CONSTRUCTED_CHECKS_ONLY",
+  "epoch": 1792302445.1276853,
+  "prior_checker_preserved_file": "independent_action_audit_pre_tie_order_repair.py",
+  "prior_checker_sha256": "d0ae3a654507446fef98380db1d57f37efe3daa0b87048d727f3ae8bdd3a2fa4",
+  "repaired_checker_sha256": "4c49a18b35020fd0b084cb94954df6e5b98d1576d8c9a795b9c29d15488ddb40",
+  "technical_reason": "The prior independent real-action check validated uniqueness/aliases/logits and followed catalog tie order without asserting the frozen H1 physical ordering. A wrongly ordered exact-tie catalog could therefore be mirrored rather than rejected.",
+  "change": "Independently require H1 catalog N0-first then physical R entries/centroid numerical key, without importing production action/input/loss/model functions. H0 original archive order is unchanged.",
+  "unchanged_code_after_removing_only_new_invariant": true,
+  "frozen_scientific_core5_unchanged": true,
+  "fixtures": [
+    {
+      "fixture": "H1_N0_then_numeric",
+      "all_scores_equal": true,
+      "expected_pass": true,
+      "actual_pass": true,
+      "passed": true,
+      "actual_check": {
+        "passed": true,
+        "check": "real_H1_catalog_N0_first_then_physical_numeric_order",
+        "id": "CONSTRUCTED/D1_H1_MLP_s20261018"
+      }
+    },
+    {
+      "fixture": "H1_nonfirst_N0_tie_rejected",
+      "all_scores_equal": true,
+      "expected_pass": false,
+      "actual_pass": false,
+      "passed": true,
+      "actual_check": {
+        "passed": false,
+        "check": "real_H1_catalog_N0_first_then_physical_numeric_order",
+        "id": "CONSTRUCTED/D1_H1_MLP_s20261018"
+      }
+    },
+    {
+      "fixture": "H1_other_exact_tie_reverse_order_rejected",
+      "all_scores_equal": true,
+      "expected_pass": false,
+      "actual_pass": false,
+      "passed": true,
+      "actual_check": {
+        "passed": false,
+        "check": "real_H1_catalog_N0_first_then_physical_numeric_order",
+        "id": "CONSTRUCTED/D1_H1_MLP_s20261018"
+      }
+    },
+    {
+      "fixture": "H1_no_N0_numeric",
+      "all_scores_equal": true,
+      "expected_pass": true,
+      "actual_pass": true,
+      "passed": true,
+      "actual_check": {
+        "passed": true,
+        "check": "real_H1_catalog_N0_first_then_physical_numeric_order",
+        "id": "CONSTRUCTED/D1_H1_MLP_s20261018"
+      }
+    },
+    {
+      "fixture": "H1_pair_N0_priority_over_numeric_E0",
+      "all_scores_equal": true,
+      "expected_pass": true,
+      "actual_pass": true,
+      "passed": true,
+      "actual_check": {
+        "passed": true,
+        "check": "real_H1_catalog_N0_first_then_physical_numeric_order",
+        "id": "CONSTRUCTED/D1_H1_MLP_s20261018"
+      }
+    },
+    {
+      "fixture": "H1_same_scores_wrong_physical_first",
+      "all_scores_equal": true,
+      "expected_pass": false,
+      "actual_pass": false,
+      "passed": true,
+      "actual_check": {
+        "passed": false,
+        "check": "real_H1_catalog_N0_first_then_physical_numeric_order",
+        "id": "CONSTRUCTED/D1_H1_MLP_s20261018"
+      }
+    },
+    {
+      "fixture": "missing_source_cannot_pass_order",
+      "expected_pass": false,
+      "actual_pass": false,
+      "passed": true
+    }
+  ],
+  "fixture_count": 7,
+  "preserved_prior_audits": {
+    "independent_action_d0_v1": "09ea75d8f17c8b9199fc8a8de98325f8e0a0881a662578e72d8675cadecb8529",
+    "independent_action_d0_v2": "f263238e6080a6f21b8f2cc247136f824f01b9a41a97220841f3c88598795aa1"
+  },
+  "ULP_policy": "Prior v1 FAIL and v2 original-expression-exact/maximum2ULP stable-fsum differences are preserved. This change does not alter tolerance, metric expression, labels, fit or success criteria.",
+  "scope": {
+    "AST_extracted_invariant_and_good_pose_only": true,
+    "actual_full_audit_run": false,
+    "reference_reads": 0,
+    "PRIMARY_or_CAL_reference_reads": 0,
+    "accuracy_reads": 0,
+    "candidate_payload_reads": 0,
+    "new_network_forwards": 0,
+    "new_training_fits": 0,
+    "numeric_solves": 0
+  }
+}

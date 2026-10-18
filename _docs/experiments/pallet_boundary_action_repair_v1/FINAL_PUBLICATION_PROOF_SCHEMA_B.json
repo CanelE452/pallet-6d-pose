@@ -1,0 +1,107 @@
+{
+  "schema": "FINAL_PUBLICATION_PROOF_SCHEMA_SPEC_B_V1",
+  "is_schema_spec_only": true,
+  "actual_publication_or_remote_verification_performed": false,
+  "remote_receipt_filename": "REMOTE_PUBLICATION_RECEIPT.json",
+  "remote_receipt_expected_shape": {
+    "schema": "REMOTE_RESULT_COMMIT_VERIFICATION_V1",
+    "status": "PUSHED_MAIN_VERIFIED",
+    "result_commit": "ACTUAL_RESULT_COMMIT_A",
+    "base_commit": "ACTUAL_EXECUTION_BASE",
+    "remote_main_sha": "ACTUAL_NETWORK_MAIN_SHA_AT_A_VERIFICATION",
+    "remote_main_contains_result_commit": true,
+    "network_ls_remote_exit_code": 0,
+    "network_fetch_exit_code": 0,
+    "remote_artifacts_verified": true,
+    "git_proof_sha256": "SHA256_OF_IMMUTABLE_PUBLICATION_GIT_PROOF_JSON",
+    "verified_artifacts": [
+      {
+        "path": "REGISTERED_PUBLIC_ARTIFACT_PATH_AT_A",
+        "result_commit": "ACTUAL_RESULT_COMMIT_A",
+        "expected_sha256": "EXPECTED_A_FILE_SHA256",
+        "remote_blob_sha256": "FETCHED_A_BLOB_SHA256",
+        "match": true
+      }
+    ],
+    "offline_check_snapshot": {
+      "result_commit": "ACTUAL_RESULT_COMMIT_A",
+      "path": "publication_snapshots/result_A/PUBLICATION_CHECK.json",
+      "sha256": "IMMUTABLE_C1_SHA256",
+      "manifest_path": "publication_snapshots/result_A/PUBLICATION_MANIFEST.json",
+      "manifest_sha256": "IMMUTABLE_M1_SHA256",
+      "status": "PASS"
+    }
+  },
+  "git_proof_filename": "PUBLICATION_GIT_PROOF.json",
+  "git_proof_expected_shape": {
+    "schema": "SCOPED_RESEARCH_PUBLICATION_GIT_PROOF_V1",
+    "prework_state_recorded": true,
+    "prework_receipt_sha256": {
+      "MIDRUN_GIT_STATE.json": "ACTUAL_RECEIPT_SHA256"
+    },
+    "explicit_stage_allowlist": [
+      "ACTUAL_ALLOWLISTED_CHANGED_PATHS"
+    ],
+    "stage_only_allowlisted": true,
+    "result_commit": "ACTUAL_RESULT_COMMIT_A",
+    "failures_and_limitations_visible": true,
+    "prepush": {
+      "fetch_exit_code": 0,
+      "remote_main_before": "ACTUAL_FETCHED_MAIN_SHA",
+      "related_diff_reviewed": true,
+      "affected_rechecks_passed": true
+    },
+    "push": {
+      "exit_code": 0,
+      "force_used": false,
+      "normal_fast_forward": true,
+      "result_descends_remote_before": true
+    },
+    "preservation": {
+      "original_reports_or_failure_records_changed": false,
+      "operating_defaults_changed": false,
+      "papers_changed": false,
+      "agent_modified_original_user_worktree": false
+    },
+    "preservation_evidence": [
+      {
+        "path": "ORIGINAL_WORKTREE_RECHECK_BEFORE_PUBLICATION_PREP_V2.json",
+        "sha256": "ACTUAL_V2_SHA256",
+        "scope": "Actual original HEAD/status/protected hashes; repeat prepush under a new receipt without overwriting this evidence"
+      }
+    ]
+  },
+  "visual_review_contract": {
+    "reviewer_type": "model or human",
+    "actual_review_method": "nonempty actual viewing tool/method string",
+    "findings": "explicit list, possibly empty",
+    "corrections": "explicit list, possibly empty",
+    "recheck_status": [
+      "NOT_REQUIRED",
+      "NOT_NEEDED",
+      "PASS",
+      "COMPLETED",
+      "RECHECKED"
+    ],
+    "reviewed_files": [
+      {
+        "sha256": "ACTUAL_VIEWED_IMAGE_SHA256",
+        "actual_pixels_viewed": true,
+        "status": "PASS"
+      }
+    ]
+  },
+  "immutable_order": [
+    "Create scientific reportR1 with no remote claim; packM1 and offlinecheckC1.",
+    "Commit/push actual scientific resultA; preserve exact M1/C1 bytes in the private result_A snapshot directory.",
+    "Read actual network ls-remote/fetch and verify A file blobs; create immutable GitproofG1 and remote receiptR_A binding A/C1/M1/G1.",
+    "Refresh VALIDATION/report/proof using that older resultA snapshot; publish only metadata follow-upB.",
+    "Keep G1/R_A/C1/M1/proofmap unchanged; write B prepush/remote checks separately and report latest remoteSHA in final response."
+  ],
+  "no_cycles": [
+    "A never contains its own future final commitSHA.",
+    "Report/decision never reads current public PUBLICATION_CHECK or PUBLICATION_MANIFEST as inputs.",
+    "Final requirement matrix hashes the proof map; proof map never hashes/attests current final matrix.",
+    "Final PUB03/04/05 prove the immutable A offlinecheck/manifest pair, not the later metadata manifest."
+  ]
+}

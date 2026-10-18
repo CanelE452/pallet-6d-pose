@@ -1,0 +1,140 @@
+{
+  "schema": "ROOT_COST_GATE_STATIC_MODEL_REVIEW_B_V1",
+  "epoch": 1792284111.141351,
+  "reviewer_type": "model_review",
+  "scope": "Static source/schema review only; no source edits; not execution or physical validation",
+  "reference_or_GT_reads": 0,
+  "new_accuracy_or_results_reads": 0,
+  "heavy_CPU_jobs": 0,
+  "new_forwards_PnP_optimization_or_training": 0,
+  "inspected_source_sha256": {
+    "cost_validation.py": "b99bb89287cfa61f9854db6c284e2993ea6c7009597d03f183801b0ec59bf1ad",
+    "run_recorded.py": "9b29b2fbebb81b04a083e0403d511e680801acf1feb502389c181ece8f45c93b",
+    "campaign.py": "bd9261d46395d396e053f481b41a3ac258e73a4b6ef97e372d79a375afe75606",
+    "d1_cost_receipt.py": "9f0e64499318791d8465be3a0173d86f0a5213ea150aa023c888fba9c2e5d4cc",
+    "d1_observation_profile.py": "fede7d7669ad086bfc8ea556999c01342d244c81f6b74bb9a18a85b32dd3a41e",
+    "assemble.py": "2f5159db67380dc83177ed3cdb58b8ed0125b2cbeba2064117a92f55b1188883",
+    "evaluate.py": "cab5c0ea9e9c550d7a6db3176c253c307e9c700efc22252c51d0b31e6d4d5d8c",
+    "predict_actions.py": "233fbe825ad2eca00b43576e273c4745cad38ef333284c62d6d9407fc3dd2ada",
+    "build_report.py": "f0e41449868670e34db6d1b85bc154e118c38a0421f2e634175c5cf328ef5675"
+  },
+  "small_schema_receipts_inspected": [
+    "D1_PREFLIGHT.json",
+    "D1_PREFLIGHT_V2.json"
+  ],
+  "absent_receipts_observed_without_result_read": [
+    "DATA_PIPELINE_PARITY.json",
+    "D1_COST_AND_EXECUTION_RECEIPT.json"
+  ],
+  "positive_findings": [
+    "Shared real/synthetic candidate parent wall is deduplicated by physical execution_batch_id, not multiplied by worker count.",
+    "Latest cost source requires D1/L explicit ledgers and separates exact measured subtotal from conservative upper-bound subtotal.",
+    "Unknown CPU/actual CUDA activity/full simultaneous RSS remain null; missing SAM CUDA events are not extrapolated to exact activity.",
+    "B raw v1 failure and v2 representation reconciliation remain separate geometry evidence; six axes are not collapsed to one overall PASS.",
+    "Finite and D1 scientific source closures plus approved memoization amendment source/evidence hashes are checked before GO.",
+    "The evaluator validates complete plan-bound prediction bytes, exact238 identities/arms and canonical protocol before decoding fixed reference poses.",
+    "No new model inference, training, optimization or GT pose decoding is imported by the new cost wrapper/assembler."
+  ],
+  "findings": [
+    {
+      "id": "B-COST-01",
+      "severity": "HIGH",
+      "state": "FIXED_DURING_REVIEW_SOURCE_ONLY",
+      "file": "cost_validation.py",
+      "locator": "for item in x['distinct_batch_wall_ledger']",
+      "problem": "Initial root cost assembly silently omitted all D1 jobs because the producer exposed unique_execution_batches but no distinct_batch_wall_ledger.",
+      "latest": "Latest producer now emits the ledger; root requires it and preserves wall_is_upper_bound with exact/upper subtotals. No actual final receipt or cost result was examined.",
+      "fix": "Keep explicit missing-ledger failure and shared parent execution ID once."
+    },
+    {
+      "id": "B-COST-02",
+      "severity": "MEDIUM",
+      "state": "OPEN_AT_REVIEW",
+      "file": "cost_validation.py",
+      "locator": "additional_profile_host=profile.get('total_wall_seconds',profile.get('wall_seconds'))",
+      "problem": "The concrete profiler schema uses total_host_seconds. The currently used aliases do not exist, so an actually measured technical GPU profile is reported as null.",
+      "evidence": "d1_observation_profile.run writes total_host_seconds and total_CPU_seconds",
+      "fix": "Read total_host_seconds, with explicit documented aliases only; keep null for genuinely absent measurements.",
+      "exact_expression_present_in_snapshot": false
+    },
+    {
+      "id": "B-COST-03",
+      "severity": "HIGH",
+      "state": "OPEN_AT_REVIEW",
+      "file": "cost_validation.py / campaign.py",
+      "locator": "GPU_observation_host_upper_bound / GPU_host_upper_bound",
+      "problem": "The GPU limit check charges bulk real/synthetic observation host wall only. Separate technical CAL/synthetic observation passes and the cold/warm technical profile also execute GPU forwards but are omitted from that cap check.",
+      "evidence": "D1_COST unique_execution_batches explicitly contains GPU_OBSERVATION and TECHNICAL_GPU_OBSERVATION physical execution jobs.",
+      "fix": "Report bulk separately and compute a conservative all-known-GPU-job host-wall upper subtotal once per physical execution_batch_id, including technical jobs. Do not claim exact GPU activity or substitute CUDA capture gaps with zero."
+    },
+    {
+      "id": "B-VALIDATION-01",
+      "severity": "HIGH",
+      "state": "OPEN_AT_REVIEW",
+      "file": "cost_validation.py",
+      "locator": "'VISUAL_AND_PUBLICATION':axis(...)",
+      "problem": "A publication status can override a missing/failed visual review or failed privacy/rights review; with no publication success a visual PASS can likewise look like the combined axis PASS while publication is pending.",
+      "fix": "Preserve visual/publication/privacy/rights as distinct substatuses. Combined status must explicitly remain pending/fail unless the required conditions are met; an offline PUBLICATION_CHECK is separate from actual remote verification."
+    },
+    {
+      "id": "B-VALIDATION-02",
+      "severity": "MEDIUM",
+      "state": "OPEN_AT_REVIEW",
+      "file": "cost_validation.py",
+      "locator": "human_review=False,model_review=True",
+      "problem": "model_review=True is unconditional even when no VISUAL_REVIEW receipt exists. This can imply pixel review before actual viewing.",
+      "fix": "Derive pixel-review completion and reviewer type from an actual visual receipt; otherwise mark absent/pending. Static model code review may be a separately named evidence type.",
+      "exact_expression_present_in_snapshot": false
+    },
+    {
+      "id": "B-GATE-01",
+      "severity": "MEDIUM",
+      "state": "STATIC_FAIL_CLOSED_GAP_NOT_OBSERVED_DATA_DRIFT",
+      "file": "cost_validation.py",
+      "locator": "complete=all(x['status']=='COMPLETED'for x in state['branches'].values())",
+      "problem": "progress omits L entirely when the training manifest is absent; validation then tests only existing branches. Six completed non-L seals could produce EXECUTION_COMPLETENESS PASS without any L branch. INPUT_AND_VERSION also checks only truthiness of a gate dict, not all_registered_predictions_sealed or its current digests.",
+      "fix": "Require the exact seven branch keys including L, expected row/run inventories, and the valid bound scoring gate. Keep actual gate/assembler checks as evidence, not mere existence."
+    },
+    {
+      "id": "B-GATE-02",
+      "severity": "MEDIUM",
+      "state": "STATIC_BINDING_HARDENING_NOT_OBSERVED_MUTATION",
+      "file": "campaign.py",
+      "locator": "scoring_gate plan method_source_sha256 loop",
+      "problem": "The gate rechecks frozen science source and cache amendment hashes, but does not independently recheck PLAN_LOCK.method_receipts_sha256 or EVALUATION_PROTOCOL against the plan digest. The downstream evaluator does enforce plan-bound predictions and a canonical protocol before its reference decode; direct gate reporting claims more than its own checks.",
+      "fix": "Before writing GO verify frozen method-receipt digests, protocol digest and the prediction seal plan digest, or narrow gate wording and explicitly link the downstream pre-reference guard. Never rewrite the frozen hashes to current values."
+    },
+    {
+      "id": "B-EXECUTION-01",
+      "severity": "MEDIUM",
+      "state": "OPEN_AT_REVIEW",
+      "file": "run_recorded.py",
+      "locator": "result=subprocess.run(command,check=False)",
+      "problem": "An executable launch error (e.g. FileNotFoundError/PermissionError), or wrapper interruption, exits before any receipt is written. Thus the claim that failed actual attempts preserve wall/CPU/exit is incomplete.",
+      "fix": "Write a receipt in an exception/finally path with launch/termination status, wall/CPU/RSS, exception and unavailable exit_code=null. Preserve the original return/exception semantics and do not label a never-launched command as exit0."
+    },
+    {
+      "id": "B-REENTRY-01",
+      "severity": "LOW",
+      "state": "OPERATIONAL_NOTE",
+      "file": "cost_validation.py",
+      "locator": "write(root/'VALIDATION.json',value)",
+      "problem": "The common.write helper rejects existing targets. Re-running cost/validation/bindings after rendering/publication updates cannot refresh those files unless a reviewed versioning/replacement path is used.",
+      "fix": "Plan one final generation, or preserve each prior receipt and explicitly version the updated final derivative. Do not silently discard original validation failures or timestamps."
+    }
+  ],
+  "pre_reference_assumptions": [
+    "new_primary_reference_reads_before_gate=0 is an operational provenance assertion; this code alone cannot detect unrelated external processes reading reference files.",
+    "Original fixed references are hashed against their existing seal before decode; hashing the bytes is distinct from decoding ground-truth poses.",
+    "Runtime/cache source amendments must remain the approved pre-reference snapshots; current final source inventory is not a substitute for a frozen scientific source lock.",
+    "Budget conclusions are measured/conservative known subtotals, with explicitly unmeasured preparation and historical reuse scopes, not an exact campaign-wide CPU/GPU measurement."
+  ],
+  "report_builder_compatibility": {
+    "six_axes_explicit_status": true,
+    "missing_measurements_display": "N/A",
+    "branch_receipts_read_individually": true,
+    "root_COST_embedded_branches_supported_as_auditable_link": true,
+    "report_generation_does_not_publish_or_choose_seed": true
+  },
+  "verdict": "FIX_IDENTIFIED_ACCOUNTING_AND_AXIS_GAPS_BEFORE_FINAL_COST_VALIDATION; no new accuracy was inspected"
+}

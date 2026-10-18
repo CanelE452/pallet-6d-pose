@@ -1,0 +1,100 @@
+{
+  "schema": "PRE_PRIMARY_L_ACTION_PLAN_V1",
+  "created_UTC": "2026-10-17T23:51:59.484915+00:00",
+  "protocol": {
+    "schema": "FROZEN_ACTION_LEARNING_PROTOCOL_V1",
+    "seeds": [
+      20261018,
+      20261019,
+      20261020
+    ],
+    "representative_seed": 20261018,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_frames": 32,
+    "max_epochs": 50,
+    "patience": 5,
+    "checkpoint_selection": "strictly lower validation loss of corresponding objective",
+    "device": "CPU",
+    "threads": 1,
+    "architectures": {
+      "MLP": "188->64ReLU->64ReLU->1;16321parameters",
+      "ROLE_AFFINE": "two187->1 affine routed by shared is_N0 bit;376parameters"
+    },
+    "H0": "historical uniform-positive softmaxCE plus none; none returns N0;188legacyinputs",
+    "H1": "unique actual poses including explicitN0;multi-positive/all-zero frame-balancedBCE;188inputs with is_N0 finalbit",
+    "pair": "independently trained; actual N0/E0 actions only; E0 independent execution required",
+    "tie_rule": "exactscore tie prefersN0, then numerical physical pose order; IDs not model inputs",
+    "normalization": "sameD train eligible candidate fit; exactly reused forH0/H1; no val/real fitting",
+    "new_training_limit": 18,
+    "feature_inputs_include_reference": false
+  },
+  "arms": {
+    "D0_H0_MLP": {
+      "domain": "D0",
+      "objective": "H0",
+      "architecture": "MLP",
+      "pair": false,
+      "new_training_runs": 0
+    },
+    "D0_H1_MLP": {
+      "domain": "D0",
+      "objective": "H1",
+      "architecture": "MLP",
+      "pair": false,
+      "new_training_runs": 3
+    },
+    "D1_H0_MLP": {
+      "domain": "D1",
+      "objective": "H0",
+      "architecture": "MLP",
+      "pair": false,
+      "new_training_runs": 3
+    },
+    "D1_H1_MLP": {
+      "domain": "D1",
+      "objective": "H1",
+      "architecture": "MLP",
+      "pair": false,
+      "new_training_runs": 3
+    },
+    "D1_H1_ROLE_AFFINE": {
+      "domain": "D1",
+      "objective": "H1",
+      "architecture": "ROLE_AFFINE",
+      "pair": false,
+      "new_training_runs": 3
+    },
+    "D1_H1_PAIR_MLP": {
+      "domain": "D1",
+      "objective": "H1",
+      "architecture": "MLP",
+      "pair": true,
+      "new_training_runs": 3
+    },
+    "D1_H1_PAIR_ROLE_AFFINE": {
+      "domain": "D1",
+      "objective": "H1",
+      "architecture": "ROLE_AFFINE",
+      "pair": true,
+      "new_training_runs": 3
+    }
+  },
+  "parameters": {
+    "MLP": 16321,
+    "ROLE_AFFINE": 376
+  },
+  "source_hashes": {
+    "action_data.py": "64673d1c492557ffd4af777b40635f838dd119f96148f8d47db6998c90e05dee",
+    "action_models.py": "ea2934bdc9cb8402642213e06b322a9a159fd82666e054c241c4e46b1cc90b54",
+    "train_actions.py": "43826b909a1880b3ec0292f8b66173ce5c4062e7154c3ea55beaf26126fb5bb9"
+  },
+  "same_common_real_bank_for_all_2x2": true,
+  "new_B_repair_candidates_in_L": false,
+  "D0_labels_sha256": "303a4028e845033dd52c5de25a409a4ac27f1cd2b733498bab76dc0722a8912a",
+  "D0_feature_sha256": "427dc9db33e6051b7e3fb586c36821a59771e7ba4382d29cc4336848fc2c339b",
+  "legacy_D0_H0_training_manifest_sha256": "30c4ddb15d58342e8e3ce6c420811647906c590a09948e9034a93e8f570d9723",
+  "D1_execution_status": "PENDING_INPUT_PRODUCTION",
+  "PRIMARY_scoring_read": false
+}

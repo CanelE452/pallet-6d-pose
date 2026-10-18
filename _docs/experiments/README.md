@@ -67,3 +67,4 @@ unseen 정의   논문용은 v1/v2(내 파렛트) 제외 학습 → real 파렛�
 - `_docs/models/paper_base.md` — 논문 base 모델 명세
 - `data/pallet/eval_results/` — 평가 결과 원본
 - `archive/` — 폐기 v8 실험 (참고용)
+- [pallet_boundary_action_repair_v1/README.md](pallet_boundary_action_repair_v1/README.md) — 유한 B 지지·L 행동 목표 실험: 전체192장·별도 CAL46 결과, 독립 검산과 원영상 갤러리

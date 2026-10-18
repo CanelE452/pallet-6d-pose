@@ -1,0 +1,219 @@
+{
+  "schema": "PUBLIC_PACK_STATIC_MODEL_REVIEW_B_V2",
+  "epoch": 1792285269.4380596,
+  "reviewer_type": "model_review",
+  "status": "PASS_STATIC_AND_ISOLATED_STDLIB_FIXTURES; ACTUAL_PACKAGE_RENDER_AND_REMOTE_CHECKS_PENDING",
+  "prior_review_sha256": "2d5e4929901a8f4b619918138da73bb2a3b51e46c8ccd6ca07b6031d388b09d5",
+  "prior_review_preserved": true,
+  "source_sha256": {
+    "public_pack.py": "528497fb4e9bb864c5f6a7ba0feb1f312820f262a544f4c9861c4402dd047673",
+    "gallery.py": "cc8d9d1bfe129a308b857c54c1622aa015cbdca943846a426529c0f9191ca3c9",
+    "figures.py": "bfd001737fbe0d16a4cc093cd82f3a657aa111a4422060e57b317e76e1ebc313",
+    "build_report.py": "f0e41449868670e34db6d1b85bc154e118c38a0421f2e634175c5cf328ef5675",
+    "display_privacy.py": "d91b506544ed6356bdf46552f0c60f5d29fbceba4d0d5a00417ef6279024e18f",
+    "registry.py": "913ce194da9de4ec2f5ef74902fdcb0afe9f92034d91bc11686c9996008495c8"
+  },
+  "AST_extracted_function_sha256": {
+    "encoded": "865e6be784e62c42f5f144cce43321c7b89b52a5f1b7f21e56ca5259dbdd91ff",
+    "redact": "7ffad9d552c8bfbc5641425e90a91772bdbfc467da8fc1630ae14b52f16a7566",
+    "summarize": "8d806b996ec884c452046a8bf9b88eee709d82a19d56001d3a302cf40f0a3a73",
+    "numeric_csv": "4a1686d176e5edafc23847e95a8b85ae80af7c25f8e35cb95a62da4e9128c7df"
+  },
+  "exact_private_guard_SHA256": "10200c3d9815269ab470a193ec9881171429b8beda8ed18d2b632b73d4831584",
+  "fixture_execution_scope": "AST-extracted stdlib helpers and exact guard node on constructed scalar dictionaries/CSV in a temporary directory; display guard uses stdlib fake image object, no PIL/NumPy/torch imports",
+  "fixture_cases": [
+    {
+      "name": "different_private_paths_same_basename_preserve_identity",
+      "status": "PASS",
+      "detail": {
+        "input_entries": 2,
+        "output_entries": 2,
+        "retained_values": [
+          "sha-A",
+          "sha-B"
+        ],
+        "output_keys": [
+          "${PRIVATE_PATH}/a3de61ea35895b03/common.py",
+          "${PRIVATE_PATH}/971dbb3d16fcbc35/common.py"
+        ],
+        "no_private_literal": true
+      }
+    },
+    {
+      "name": "explicit_alias_collision_is_rejected_no_overwrite",
+      "status": "PASS",
+      "detail": {
+        "expected_error": "Public summary key collision: ${SAME}/pkg/common.py"
+      }
+    },
+    {
+      "name": "generated_training_count_key_collision_is_rejected",
+      "status": "PASS",
+      "detail": {
+        "expected_error": "Public summary key collision: training_frame_count"
+      }
+    },
+    {
+      "name": "generated_bulk_summary_key_collision_is_rejected",
+      "status": "PASS",
+      "detail": {
+        "expected_error": "Public summary key collision: many_summary"
+      }
+    },
+    {
+      "name": "declared_alias_preserves_relative_directory_identity",
+      "status": "PASS",
+      "detail": {
+        "result": "${LEGACY_REPO}/a/common.py"
+      }
+    },
+    {
+      "name": "plain_scalar_CSV_retains_extreme_and_no_pose_failures",
+      "status": "PASS",
+      "detail": {
+        "rows": 3,
+        "failures": 2,
+        "extreme_translation_retained": "9999.125",
+        "no_pose_empty_fields_retained": true,
+        "actual_campaign_data": false
+      }
+    },
+    {
+      "name": "gzip_scalar_CSV_retains_all_records_and_deterministic_bytes",
+      "status": "PASS",
+      "detail": {
+        "rows": 3,
+        "failures": 2,
+        "extreme_translation_retained": "9999.125",
+        "no_pose_empty_fields_retained": true,
+        "actual_campaign_data": false
+      }
+    },
+    {
+      "name": "paired_CSV_preserves_all_before_after_errors_for_deltas",
+      "status": "PASS",
+      "detail": {
+        "rows": 2,
+        "both_failure_translation_delta_cm": 93.75,
+        "both_failure_rotation_delta_deg": 29.5,
+        "binary_damage_retained": true
+      }
+    },
+    {
+      "name": "compact_RESULTS_preserves_failure_counts_and_original_input",
+      "status": "PASS",
+      "detail": {
+        "retained_unfavorable_scalars": {
+          "status": "FAIL",
+          "failure_count": 6132,
+          "successes": 0,
+          "mean": 9999.125
+        },
+        "compact_details_reconstructable_from_separately_tested_full_CSV": true,
+        "original_input_unchanged": true
+      }
+    },
+    {
+      "name": "private_top_level_gallery_flag_rejected",
+      "status": "PASS",
+      "detail": {
+        "expected_rejection": true,
+        "problems": [
+          {
+            "kind": "PRIVATE_GALLERY_IN_PUBLIC_NAMESPACE"
+          }
+        ],
+        "scope": "Exact extracted branch only; not full gallery verification"
+      }
+    },
+    {
+      "name": "private_per_frame_record_rejected",
+      "status": "PASS",
+      "detail": {
+        "expected_rejection": true,
+        "problems": [
+          {
+            "kind": "PRIVATE_GALLERY_IN_PUBLIC_NAMESPACE"
+          }
+        ],
+        "scope": "Exact extracted branch only; not full gallery verification"
+      }
+    },
+    {
+      "name": "authorized_public_flag_not_rejected_by_private_guard",
+      "status": "PASS",
+      "detail": {
+        "expected_rejection": false,
+        "problems": [],
+        "scope": "Exact extracted branch only; not full gallery verification"
+      }
+    },
+    {
+      "name": "geometry_only_flag_not_rejected_by_private_guard",
+      "status": "PASS",
+      "detail": {
+        "expected_rejection": false,
+        "problems": [],
+        "scope": "Exact extracted branch only; not full gallery verification"
+      }
+    },
+    {
+      "name": "display_source_RGB_hash_change_rejected_before_open",
+      "status": "PASS",
+      "detail": {
+        "expected_error": "Actual RGB bytes changed from the sealed inference image"
+      }
+    },
+    {
+      "name": "display_raw_dimensions_mismatch_rejected",
+      "status": "PASS",
+      "detail": {
+        "expected_error": "Actual RGB dimensions differ from the sealed raw canvas"
+      }
+    },
+    {
+      "name": "display_correct_raw_canvas_allowed_with_stdlib_stub",
+      "status": "PASS",
+      "detail": {
+        "stub_raw_hw": [
+          480,
+          640
+        ],
+        "actual_image_opened": false
+      }
+    }
+  ],
+  "fixture_count": 16,
+  "fixture_failures": 0,
+  "static_correction_checks": {
+    "raw_B_v1_required_actual_path": true,
+    "B_v2_required_actual_path": true,
+    "latest_B_tests_v4_published": true,
+    "frozen_registry_plan_protocol_prediction_same_inventory": true,
+    "zero_count_source_roles_required": true,
+    "required_PNG_and_CSV_hashes": true,
+    "detail_cap12_and_selection_checked": true,
+    "three_fixed_regressions_required": true,
+    "page_detail_regression_hashes_checked": true,
+    "original_plan_prediction_evaluation_render_chain": true,
+    "offline_pixel_and_remote_scope_remains_explicit": true,
+    "RGB_source_hash_and_raw_canvas_guard": true
+  },
+  "production_source_edits": 0,
+  "actual_prepare_or_verify_calls": 0,
+  "candidate_GT_reference_or_new_score_payload_reads": 0,
+  "actual_RGB_images_opened": 0,
+  "new_model_forward_PnP_optimization_or_training_calls": 0,
+  "heavy_CPU_jobs": 0,
+  "fixture_wall_seconds": 0.023857441992731765,
+  "fixture_CPU_seconds": 0.023843411,
+  "actual_runtime_checks_still_pending": [
+    "All actual37-arm evaluated/source artifacts match the frozen evaluation and prediction/plan/protocol hash chains.",
+    "Actual public prepare and verify run on final rendered bytes and explicit extras; every CSV, relative link, figure-data pair, gallery192 page, selected detail and fixed regression hash is checked.",
+    "Actual renderer opens source RGB and enforces measured SHA/dimensions, approved PRIMARY-only rights and display-plan correspondence; CAL remains geometry-only.",
+    "Root actually opens final redacted panels and summary PNG pixels, records file hashes/reviewer scope/problems/rechecks; file generation and these fixtures do not certify pixel privacy or geometric ownership.",
+    "Actual independent numeric/geometry/learning receipt states remain separate, including preserved raw B v1FAIL6132 and unverified physical owner/6D GT.",
+    "After final report/index/receipt changes refresh final manifests and offline verification, then perform allowed commit/fetch/safe push and actual remote commit/report/representative/gallery/hash verification."
+  ],
+  "scope_limit": "This receipt is not actual publication PASS, new pose validation, physical GT certification, pixel review or remote verification."
+}
