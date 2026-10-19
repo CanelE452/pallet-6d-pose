@@ -1,0 +1,93 @@
+{
+  "band_columns": [
+    "population",
+    "arm",
+    "axis",
+    "unit",
+    "band",
+    "full_denominator",
+    "available_n",
+    "missing_n",
+    "band_n",
+    "band_sum",
+    "contribution_to_available_mean",
+    "band_squared_deviation_sum",
+    "contribution_to_sample_variance",
+    "full_available_mean",
+    "full_available_sample_variance"
+  ],
+  "boundary": "5,50,100cm and5,45deg included in the lower band;success T<=5 AND R<=5",
+  "categories": [
+    "JOINT_SUCCESS",
+    "TRANSLATION_ONLY_FAILURE",
+    "ROTATION_ONLY_FAILURE",
+    "BOTH_FAILURE",
+    "NO_POSE"
+  ],
+  "check_columns": [
+    "population",
+    "arm",
+    "axis",
+    "full_denominator",
+    "available_n",
+    "missing_n",
+    "sum_band_n",
+    "saved_mean",
+    "reconstructed_mean",
+    "mean_absolute_residual",
+    "saved_sample_variance",
+    "reconstructed_sample_variance",
+    "variance_absolute_residual"
+  ],
+  "fixed_bands": {
+    "R": [
+      "<=5",
+      "(5,45]",
+      ">45"
+    ],
+    "T": [
+      "<=5",
+      "(5,50]",
+      "(50,100]",
+      ">100"
+    ]
+  },
+  "fixed_conservation_tolerance": {
+    "absolute": 1e-06,
+    "relative": 1e-10
+  },
+  "interpretation": "posthoc descriptive accounting,not a new preregistered hypothesis test or selector-performance estimate;bands are not removed",
+  "joint_columns": [
+    "population",
+    "arm",
+    "full_denominator",
+    "category",
+    "n",
+    "fraction_of_full_population"
+  ],
+  "mean_contribution": "sum(x in band)/N_available;sum over bands equals saved full available mean",
+  "missing": "NO_POSE is a full-denominator binary failure;continuous errors excluded only because unavailable,never set to zero",
+  "no_metric_recalculation": true,
+  "no_outlier_exclusion": true,
+  "populations": {
+    "CAL46": 46,
+    "PRIMARY192": 192,
+    "REMAINDER143": 143,
+    "TEST49": 49
+  },
+  "populations_overlap": "PRIMARY192=TEST49+REMAINDER143;CAL46 separate;seeds distinct arms and not independent frame samples",
+  "public_fields": "arm/population/category/band counts and scalar contribution statistics only",
+  "schema": "POSTHOC_SAVED_SCALAR_ERROR_BUDGET_V1",
+  "undefined": "mean contributions null when N=0;sample-variance contributions null when N<2;empty populated-band contributions are0",
+  "units": {
+    "R": {
+      "errors_sums_and_mean_contributions": "deg",
+      "squared_deviations_and_variance_contributions": "deg^2"
+    },
+    "T": {
+      "errors_sums_and_mean_contributions": "cm",
+      "squared_deviations_and_variance_contributions": "cm^2"
+    }
+  },
+  "variance_contribution": "sum((x-saved_full_mean)^2 in band)/(N_available-1);sum equals saved sample variance,ddof1"
+}
