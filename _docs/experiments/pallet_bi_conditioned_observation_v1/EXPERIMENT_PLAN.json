@@ -1,0 +1,593 @@
+{
+  "schema": "BI_CONDITIONED_LOCAL_OBSERVATION_EXPERIMENT_PLAN_V1",
+  "status": "FROZEN_BEFORE_FIRST_REAL_OPTIMIZER_AND_REAL_SCORING",
+  "created_utc": "2026-10-19T02:15:33.466263+00:00",
+  "base_commit": "41ebc5a7f236abf6526eede5f6a8aa48176993b0",
+  "instruction_zip_sha256": "4f896f2dad9624352196e2fbf427c582f7c111b97376ed8dce28325977cd4716",
+  "instruction_md_sha256": "76bea2b7797a2e75de35afda558f27810e448a7d18eee7c77567dd6f91e842d3",
+  "fixed_input_contract_sha256": "3776dcbc4fbd3dca2053edddb9621992276c650f4bd06d907c7a2e7e7b435618",
+  "extraction_lock_sha256": "9873bb9e3fe0c678ad31ea522919b0966812aa7c6ab0290880e3e5be23cecc34",
+  "producer_lock_sha256": "db4caa17793c4847b20fae144632a2938c23594936e26215fc0316c06e978fbf",
+  "synthetic_feature_sha256": "3b2412a36b271fc2d9e1c9d1a7c990b61bd0b338b521914a2c22d8405eb0745f",
+  "synthetic_target_sha256": "b93b2c9433fd86463bf93797a7b49febd43d074d4cc337c7d60181c223ae9d3a",
+  "synthetic_target_seal_sha256": "939f888d0cde6ffc52ca6c50e59f7974797d57629ce3207a0396c7b88b67ad7e",
+  "training_protocol": {
+    "schema": "MATCHED_LOCAL_SCORER_LEARNING_PROTOCOL_V1",
+    "arms": [
+      "COMMON",
+      "BI"
+    ],
+    "seeds": [
+      20261018,
+      20261019,
+      20261020
+    ],
+    "representative_seed": 20261018,
+    "architecture": "concat(normalized numeric values,validity,c2)->64ReLU->64ReLU->1Softplus",
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_frames": 32,
+    "max_epochs": 50,
+    "patience": 5,
+    "target": "log1p(norm(actual_applied_xy-aligned_virtual_corner)/2px)",
+    "objective": "SmoothL1(beta1), candidate->corner->frame mean",
+    "partial_supervision": "Fixed partial path excluded from point scorer loss and selection",
+    "normalizer": "TRAIN valid numeric values only; raw validity appended",
+    "checkpoint": "first strict minimum own validation position-quality loss",
+    "initialization": "torch.manual_seed(seed) immediately before identical Scorer construction",
+    "order": "np.random.default_rng(seed).permutation(training_frame_count) once each epoch",
+    "parameters_expected": 27585,
+    "inference": "one exact argmin candidate; q0-first fixed numeric ties",
+    "CPU_threads": 1,
+    "GPU_jobs": 0,
+    "new_H1_fits": 0,
+    "new_real_supervision": false
+  },
+  "feature_contract": {
+    "schema": "COMMON_LOCAL_NUMERIC_FEATURE_ALLOWLIST_V1",
+    "feature_names": [
+      "candidate.is_keep",
+      "candidate.is_intersection",
+      "candidate.delta_x_sigma",
+      "candidate.delta_y_sigma",
+      "candidate.delta_norm_sigma",
+      "candidate.delta_x_canvas",
+      "candidate.delta_y_canvas",
+      "candidate.delta_norm_object",
+      "candidate.applied_x_canvas",
+      "candidate.applied_y_canvas",
+      "anchor.x_canvas",
+      "anchor.y_canvas",
+      "candidate.raw_intersection_delta_x_sigma",
+      "candidate.raw_intersection_delta_y_sigma",
+      "candidate.blend_alpha",
+      "candidate.covariance_xx_sigma2",
+      "candidate.covariance_xy_sigma2",
+      "candidate.covariance_yy_sigma2",
+      "candidate.conditional_covariance_xx_sigma2",
+      "candidate.conditional_covariance_xy_sigma2",
+      "candidate.conditional_covariance_yy_sigma2",
+      "candidate.intersection_sine",
+      "candidate.boundary_source_count",
+      "candidate.interior_source_count",
+      "anchor.projection_delta_x_sigma",
+      "anchor.projection_delta_y_sigma",
+      "anchor.native_x_extent",
+      "anchor.native_y_extent",
+      "anchor.native_z_extent",
+      "geometry.extent_x_diagonal",
+      "geometry.extent_y_diagonal",
+      "geometry.extent_z_diagonal",
+      "geometry.projected_width_canvas",
+      "geometry.projected_height_canvas",
+      "neighbor0.eligible",
+      "neighbor0.guide_direction_x",
+      "neighbor0.guide_direction_y",
+      "neighbor0.guide_length_object",
+      "neighbor0.guide_length_canvas",
+      "neighbor1.eligible",
+      "neighbor1.guide_direction_x",
+      "neighbor1.guide_direction_y",
+      "neighbor1.guide_length_object",
+      "neighbor1.guide_length_canvas",
+      "neighbor2.eligible",
+      "neighbor2.guide_direction_x",
+      "neighbor2.guide_direction_y",
+      "neighbor2.guide_length_object",
+      "neighbor2.guide_length_canvas",
+      "neighbor0.cueB.line.supported",
+      "neighbor0.cueB.line.selected_by_candidate",
+      "neighbor0.cueB.line.transition_sample_fraction",
+      "neighbor0.cueB.line.sample_fraction",
+      "neighbor0.cueB.line.normal_x",
+      "neighbor0.cueB.line.normal_y",
+      "neighbor0.cueB.line.offset_at_anchor_sigma",
+      "neighbor0.cueB.line.actual_support_length_object",
+      "neighbor0.cueB.line.inlier_count_fraction",
+      "neighbor0.cueB.line.inlier_fraction",
+      "neighbor0.cueB.line.inlier_span_fraction",
+      "neighbor0.cueB.line.inlier_rms_sigma",
+      "neighbor0.cueB.line.angle_change_limit",
+      "neighbor0.cueB.trace.valid_grid_fraction",
+      "neighbor0.cueB.trace.mask_inside",
+      "neighbor0.cueB.trace.mask_outside",
+      "neighbor0.cueB.trace.mask_transition",
+      "neighbor0.cueB.trace.mask_context_transition",
+      "neighbor0.cueB.trace.rgb_normal_gradient",
+      "neighbor0.cueB.trace.rgb_gradient_alignment",
+      "neighbor0.cueB.trace.rgb_color_transition",
+      "neighbor0.cueB.trace.normal_offset_px",
+      "neighbor0.cueI.line.supported",
+      "neighbor0.cueI.line.selected_by_candidate",
+      "neighbor0.cueI.line.transition_sample_fraction",
+      "neighbor0.cueI.line.sample_fraction",
+      "neighbor0.cueI.line.normal_x",
+      "neighbor0.cueI.line.normal_y",
+      "neighbor0.cueI.line.offset_at_anchor_sigma",
+      "neighbor0.cueI.line.actual_support_length_object",
+      "neighbor0.cueI.line.inlier_count_fraction",
+      "neighbor0.cueI.line.inlier_fraction",
+      "neighbor0.cueI.line.inlier_span_fraction",
+      "neighbor0.cueI.line.inlier_rms_sigma",
+      "neighbor0.cueI.line.angle_change_limit",
+      "neighbor0.cueI.trace.valid_grid_fraction",
+      "neighbor0.cueI.trace.mask_inside",
+      "neighbor0.cueI.trace.mask_outside",
+      "neighbor0.cueI.trace.mask_transition",
+      "neighbor0.cueI.trace.mask_context_transition",
+      "neighbor0.cueI.trace.rgb_normal_gradient",
+      "neighbor0.cueI.trace.rgb_gradient_alignment",
+      "neighbor0.cueI.trace.rgb_color_transition",
+      "neighbor0.cueI.trace.normal_offset_px",
+      "neighbor1.cueB.line.supported",
+      "neighbor1.cueB.line.selected_by_candidate",
+      "neighbor1.cueB.line.transition_sample_fraction",
+      "neighbor1.cueB.line.sample_fraction",
+      "neighbor1.cueB.line.normal_x",
+      "neighbor1.cueB.line.normal_y",
+      "neighbor1.cueB.line.offset_at_anchor_sigma",
+      "neighbor1.cueB.line.actual_support_length_object",
+      "neighbor1.cueB.line.inlier_count_fraction",
+      "neighbor1.cueB.line.inlier_fraction",
+      "neighbor1.cueB.line.inlier_span_fraction",
+      "neighbor1.cueB.line.inlier_rms_sigma",
+      "neighbor1.cueB.line.angle_change_limit",
+      "neighbor1.cueB.trace.valid_grid_fraction",
+      "neighbor1.cueB.trace.mask_inside",
+      "neighbor1.cueB.trace.mask_outside",
+      "neighbor1.cueB.trace.mask_transition",
+      "neighbor1.cueB.trace.mask_context_transition",
+      "neighbor1.cueB.trace.rgb_normal_gradient",
+      "neighbor1.cueB.trace.rgb_gradient_alignment",
+      "neighbor1.cueB.trace.rgb_color_transition",
+      "neighbor1.cueB.trace.normal_offset_px",
+      "neighbor1.cueI.line.supported",
+      "neighbor1.cueI.line.selected_by_candidate",
+      "neighbor1.cueI.line.transition_sample_fraction",
+      "neighbor1.cueI.line.sample_fraction",
+      "neighbor1.cueI.line.normal_x",
+      "neighbor1.cueI.line.normal_y",
+      "neighbor1.cueI.line.offset_at_anchor_sigma",
+      "neighbor1.cueI.line.actual_support_length_object",
+      "neighbor1.cueI.line.inlier_count_fraction",
+      "neighbor1.cueI.line.inlier_fraction",
+      "neighbor1.cueI.line.inlier_span_fraction",
+      "neighbor1.cueI.line.inlier_rms_sigma",
+      "neighbor1.cueI.line.angle_change_limit",
+      "neighbor1.cueI.trace.valid_grid_fraction",
+      "neighbor1.cueI.trace.mask_inside",
+      "neighbor1.cueI.trace.mask_outside",
+      "neighbor1.cueI.trace.mask_transition",
+      "neighbor1.cueI.trace.mask_context_transition",
+      "neighbor1.cueI.trace.rgb_normal_gradient",
+      "neighbor1.cueI.trace.rgb_gradient_alignment",
+      "neighbor1.cueI.trace.rgb_color_transition",
+      "neighbor1.cueI.trace.normal_offset_px",
+      "neighbor2.cueB.line.supported",
+      "neighbor2.cueB.line.selected_by_candidate",
+      "neighbor2.cueB.line.transition_sample_fraction",
+      "neighbor2.cueB.line.sample_fraction",
+      "neighbor2.cueB.line.normal_x",
+      "neighbor2.cueB.line.normal_y",
+      "neighbor2.cueB.line.offset_at_anchor_sigma",
+      "neighbor2.cueB.line.actual_support_length_object",
+      "neighbor2.cueB.line.inlier_count_fraction",
+      "neighbor2.cueB.line.inlier_fraction",
+      "neighbor2.cueB.line.inlier_span_fraction",
+      "neighbor2.cueB.line.inlier_rms_sigma",
+      "neighbor2.cueB.line.angle_change_limit",
+      "neighbor2.cueB.trace.valid_grid_fraction",
+      "neighbor2.cueB.trace.mask_inside",
+      "neighbor2.cueB.trace.mask_outside",
+      "neighbor2.cueB.trace.mask_transition",
+      "neighbor2.cueB.trace.mask_context_transition",
+      "neighbor2.cueB.trace.rgb_normal_gradient",
+      "neighbor2.cueB.trace.rgb_gradient_alignment",
+      "neighbor2.cueB.trace.rgb_color_transition",
+      "neighbor2.cueB.trace.normal_offset_px",
+      "neighbor2.cueI.line.supported",
+      "neighbor2.cueI.line.selected_by_candidate",
+      "neighbor2.cueI.line.transition_sample_fraction",
+      "neighbor2.cueI.line.sample_fraction",
+      "neighbor2.cueI.line.normal_x",
+      "neighbor2.cueI.line.normal_y",
+      "neighbor2.cueI.line.offset_at_anchor_sigma",
+      "neighbor2.cueI.line.actual_support_length_object",
+      "neighbor2.cueI.line.inlier_count_fraction",
+      "neighbor2.cueI.line.inlier_fraction",
+      "neighbor2.cueI.line.inlier_span_fraction",
+      "neighbor2.cueI.line.inlier_rms_sigma",
+      "neighbor2.cueI.line.angle_change_limit",
+      "neighbor2.cueI.trace.valid_grid_fraction",
+      "neighbor2.cueI.trace.mask_inside",
+      "neighbor2.cueI.trace.mask_outside",
+      "neighbor2.cueI.trace.mask_transition",
+      "neighbor2.cueI.trace.mask_context_transition",
+      "neighbor2.cueI.trace.rgb_normal_gradient",
+      "neighbor2.cueI.trace.rgb_gradient_alignment",
+      "neighbor2.cueI.trace.rgb_color_transition",
+      "neighbor2.cueI.trace.normal_offset_px"
+    ],
+    "scalar_count": 181,
+    "normalized_value_and_validity_dimension": 362,
+    "condition_dimension": 2,
+    "mlp_input_dimension": 364,
+    "units": {
+      "sigma": "frozen v2 detector_sigma_px=2 for all states",
+      "canvas": "x/width,y/height,length/canvas_diagonal",
+      "object": "projected initial registered cuboid diagonal",
+      "extent": "registered axis extent or 3D diagonal",
+      "mask": "occupancy or signed occupancy difference",
+      "rgb": "original LAB gradient and color difference",
+      "normal_offset": "offset divided by v2 normal_search_radius_px",
+      "line_angle": "angle / maximum_direction_change_deg"
+    },
+    "source_mapping": {
+      "candidate": "own common-bank candidate record including applied XY and covariance",
+      "line": "original v2 _line / boundary_refine._fit_line diagnostics",
+      "trace": "original v2 along/offset grid, both cue gates, mask and RGB summaries at each cue selected samples",
+      "geometry": "same frozen N0 native xyz, projected native pose and dimensions for COMMON and BI"
+    },
+    "missing": "value 0 plus validity 0; observed numeric zero retains validity 1",
+    "normalization": "train valid values only; input [normalized values * validity, validity]",
+    "forbidden": [
+      "frame/corner/candidate IDs as features",
+      "paths",
+      "reference coordinates",
+      "reference error",
+      "GT state",
+      "GT choice",
+      "historical pose success",
+      "real difficulty",
+      "automatic B/I state outside condition"
+    ],
+    "COMMON_condition": [
+      0.5,
+      0.5
+    ],
+    "BI_conditions": {
+      "B": [
+        1.0,
+        0.0
+      ],
+      "I": [
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "solver_contract": {
+    "schema": "BI_CONDITIONED_OBSERVATION_COMMON_SOLVER_V1",
+    "configuration": {
+      "max_p3p_triples": 0,
+      "global_rotation_starts": 0,
+      "max_seed_nfev": 160,
+      "max_joint_iterations": 250,
+      "maximum_union_branches": 256,
+      "positive_depth_m": 1e-05,
+      "outside_canvas_margin_px": 0.0,
+      "feasibility_tolerance": 1e-07,
+      "optimizer_ftol": 1e-10,
+      "analytic_jacobian": true,
+      "enforce_visible_geometry": true,
+      "geometry_tolerance_deg": 2.0,
+      "enforce_visible_canvas": true,
+      "huber_scale": 3.0,
+      "covariance_scale": 1.0,
+      "state_BI_total_error_floor_px2": {
+        "B": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "I": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "state_loss_weights": {
+        "B": 1.0,
+        "I": 1.0
+      },
+      "prior_weight": 0.0,
+      "prior_covariance6": null,
+      "prior_bias6": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bias_strength": 0.0,
+      "prior_rotation_sigma_deg": 10.0,
+      "prior_ray_sigma": 0.03,
+      "prior_log_depth_sigma": 0.15,
+      "ambiguity_objective_gap": 0.05,
+      "ambiguity_rotation_deg": 0.25,
+      "ambiguity_translation_fraction": 0.001
+    },
+    "policy": {
+      "initializations_per_family": 1,
+      "maximum_pose_optimizer_calls": 2,
+      "initialization": "actual saved N0, transformed by existing WD.make_wd_families",
+      "family_selection": "existing WD minimum same image objective; exact tie ORIGINAL_WD",
+      "rank_policy": "image information rank below 6 rejects to original N0",
+      "optimizer_acceptance": "optimizer success AND finite pose/objective AND existing guards",
+      "physical_source_ownership": "first native corner in numeric order; later correlated observations suppressed",
+      "partial_terms": "existing typed normal objective only; complete likelihood revoked",
+      "partial_tangent_constraints": 0,
+      "O_T_U_region_constraints": 0,
+      "partial_raw_points_used_for_initialization": false,
+      "partial_original_xy_role": "revocation archive only; no raw tangent cost, seed, prior, or Mahalanobis guard",
+      "source_identity_scope": "known identical RGB sample-source reuse; material edge identity and unknown correlations uncertified",
+      "backend_states": "immutable automatic states; scorer condition never accepted",
+      "prior_weight": 0.0,
+      "H1": false,
+      "R_CONT": false,
+      "global_outline_cost": false
+    },
+    "adapter_source_sha256": "6040e843fa541449f04bddb36eee50fdbefcf46ffec80ba988f3b020d38ec71d",
+    "source_sha256": {
+      "runtime.py": "063aef0fd93e0129dbc7e2da13db7355cb4bc01eb2153c4d6dc4513eb3e706dc",
+      "joint_ot_pnp.py": "0c0b1291155dd32829d533e85c434f098f22e4dee506178c8781468984285a39",
+      "joint_ot_jacobian_v2.py": "32a67dcc3af8d250008c8a6bbfef51a5de485b660ffc2ba7cb3d8c215a846a2c",
+      "statewise_partial_BI_u_solver_v4_13.py": "93412e3b0a7eeac5d8e7f443cb9397c35b02705165dc017ef40a63fc786b9cbf",
+      "statewise_uncertain_solver_v4_bias.py": "b30d87face8cf2c912a4dac9c9d2720276c788ed489b1ac9ba986a38b21bc865",
+      "statewise_boundary_normal_solver_v4_4.py": "e87e2350933d9910da33d92b10a59aa6bbe38ebc373798c84a11f13e062b55d0",
+      "statewise_two_wd_family_v4_9.py": "2dc9b4d185ccec7f1da5ebfe20b36c1262d1b20154c8a401957441946f96018b",
+      "visible_bi_correction_v2.py": "2e58ceab8b9e4e5b61f52dc2441cbfca2968b621ddf7ae409bc6837add91a799"
+    },
+    "source_functions": [
+      "runtime.registered_geometry",
+      "PART._boundary_inputs",
+      "PART.validate_complete_BI_likelihood_revocations",
+      "PART._joint_objective_pair",
+      "PART._normal_residual_and_jacobian",
+      "PART.BASE._constraints",
+      "WD.make_wd_families",
+      "WD.solve_two_wd_families"
+    ]
+  },
+  "arms": [
+    "N0_HISTORY",
+    "RAW_OBSERVATION_MATCHED",
+    "LEGACY_RULE_MATCHED",
+    "OBS_COMMON_s20261018",
+    "OBS_BI_s20261018",
+    "OBS_COMMON_s20261019",
+    "OBS_BI_s20261019",
+    "OBS_COMMON_s20261020",
+    "OBS_BI_s20261020",
+    "E0_HISTORY",
+    "H1_REP_HISTORY",
+    "POSEFIX_PF_ANCHOR_HISTORY",
+    "POSEFIX_YOLO_ANCHOR_HISTORY"
+  ],
+  "representative_seed": 20261018,
+  "populations": {
+    "PRIMARY192": [
+      "TEST",
+      "REMAINDER"
+    ],
+    "TEST49": [
+      "TEST"
+    ],
+    "REMAINDER143": [
+      "REMAINDER"
+    ],
+    "CAL46": [
+      "CAL"
+    ]
+  },
+  "expected_denominators": {
+    "PRIMARY192": 192,
+    "TEST49": 49,
+    "REMAINDER143": 143,
+    "CAL46": 46
+  },
+  "primary_contrasts": [
+    [
+      "OBS_COMMON_s20261018",
+      "OBS_BI_s20261018"
+    ],
+    [
+      "OBS_COMMON_s20261019",
+      "OBS_BI_s20261019"
+    ],
+    [
+      "OBS_COMMON_s20261020",
+      "OBS_BI_s20261020"
+    ]
+  ],
+  "all_contrasts": [
+    [
+      "OBS_COMMON_s20261018",
+      "OBS_BI_s20261018"
+    ],
+    [
+      "OBS_COMMON_s20261019",
+      "OBS_BI_s20261019"
+    ],
+    [
+      "OBS_COMMON_s20261020",
+      "OBS_BI_s20261020"
+    ],
+    [
+      "N0_HISTORY",
+      "OBS_COMMON_s20261018"
+    ],
+    [
+      "RAW_OBSERVATION_MATCHED",
+      "OBS_COMMON_s20261018"
+    ],
+    [
+      "LEGACY_RULE_MATCHED",
+      "OBS_COMMON_s20261018"
+    ],
+    [
+      "N0_HISTORY",
+      "OBS_BI_s20261018"
+    ],
+    [
+      "RAW_OBSERVATION_MATCHED",
+      "OBS_BI_s20261018"
+    ],
+    [
+      "LEGACY_RULE_MATCHED",
+      "OBS_BI_s20261018"
+    ],
+    [
+      "N0_HISTORY",
+      "OBS_COMMON_s20261019"
+    ],
+    [
+      "RAW_OBSERVATION_MATCHED",
+      "OBS_COMMON_s20261019"
+    ],
+    [
+      "LEGACY_RULE_MATCHED",
+      "OBS_COMMON_s20261019"
+    ],
+    [
+      "N0_HISTORY",
+      "OBS_BI_s20261019"
+    ],
+    [
+      "RAW_OBSERVATION_MATCHED",
+      "OBS_BI_s20261019"
+    ],
+    [
+      "LEGACY_RULE_MATCHED",
+      "OBS_BI_s20261019"
+    ],
+    [
+      "N0_HISTORY",
+      "OBS_COMMON_s20261020"
+    ],
+    [
+      "RAW_OBSERVATION_MATCHED",
+      "OBS_COMMON_s20261020"
+    ],
+    [
+      "LEGACY_RULE_MATCHED",
+      "OBS_COMMON_s20261020"
+    ],
+    [
+      "N0_HISTORY",
+      "OBS_BI_s20261020"
+    ],
+    [
+      "RAW_OBSERVATION_MATCHED",
+      "OBS_BI_s20261020"
+    ],
+    [
+      "LEGACY_RULE_MATCHED",
+      "OBS_BI_s20261020"
+    ]
+  ],
+  "source_sha256": {
+    "training.py": "dabdf3d16e0e7ee6bc83462fbb0e74666ff0a2d178b4f43e12b876558ace87af",
+    "audit_bank.py": "990a05add2b2d72219c07767e548b810552d4de96bc5a447afc1f56536559a70",
+    "observer.py": "4709ca53d384da2cba5bd821c427cb02ab820715d33f880ff838c52365fd12c4",
+    "features.py": "fe3cb9bdb50c58d79aeb0d81eabd12a928cd448f8415bfc6745ef9c018a66304",
+    "__init__.py": "ec3d68593c31738a6993676331fd4b2897c8cb8c45d5a62872ae1f4be9e1f6e0",
+    "models.py": "0c4241e0ae3a59b4958f4d7b1668100e0ae31650f24a73dce4a98deaa87fe363",
+    "solver.py": "6040e843fa541449f04bddb36eee50fdbefcf46ffec80ba988f3b020d38ec71d",
+    "bank.py": "24acb796d836788676c5b45db230dbb47ec90b47f9f391dc59f7a3deaee13882",
+    "supervision.py": "7c1a58ac1f38d1c0a89ccb6f5f46945bd1392d712489dabb398c9a347690b9af",
+    "registry.py": "de60feb4c2cfc74bf0547dde162b10c2eb26876c5c788546923a5829371aec04",
+    "input_contract.py": "5564680a3467ea01498041f2f71512e97581bbbf986780da6cce760d8ac2d3d7"
+  },
+  "common_sources": {
+    "initial": "N0 actual saved native original points, camera, dimensions and pose",
+    "states": "same N0 automatic cached states and S gates",
+    "masks": "same N0 cached tight mask for both union cues; cached fullclean mask for original fixed FACE partials",
+    "extraction": "both cues on identical original v2 15x49 pixels, all legal incident nonS neighbors; max6lines/12intersections+q0; no all-intersection consistency veto",
+    "legacy": "old D1 frozen_BI_fit with old recover_stages/CAL and same-N0 cached FACE partial observations; common fresh solver",
+    "raw": "N0 V raw q0 only; no FACE replacement; same fresh common solver",
+    "covariance": "own candidate covariance; raw CAL effective covariance only on exact q0+matching conditional covariance; common fixed backend state metadata retained",
+    "new_fit_real_supervision": false,
+    "inherited_real_supervision": "existing automatic state classifier and fixed CAL covariance/reliability retain historical CAL supervision"
+  },
+  "intervention": "Only scorer condition c differs: COMMON .5,.5; BI automatic B/I onehot. COMMON retains same geometry/mask and both cues; not whole-pipeline BI-free.",
+  "diagnostic_plan": {
+    "after_all_automatic_real_outputs_sealed": true,
+    "representative": "OBS_BI_s20261018",
+    "synthetic_subset": "all original validation235; no train subset metric used as heldout result",
+    "state_only": "GEOMETRIC_ROLE_REFERENCE from one aligned synthetic GT projected cuboid hull, same automatic V/bank/cov/backend states, only scorer c replaced",
+    "point_only": "PROJECTED_CORNER_REFERENCE_DIAGNOSTIC: replace effective full point XY only using same whole-object aligned projected corner; keep IDs/covariance/partial treatment; same reference circularity disclosed",
+    "real_state": "only independently provenance-authenticated existing B/I labels; absent labels => NA, never reconstructed pose role as independent label",
+    "real_point": "after prediction seal audit existing clicked annotations/registration; only authentic direct physical points on exact existing subset and same IDs if provenance exists, otherwise NA",
+    "real_line": "no certified physical line ownership currently known; audit source then NA unless authenticated original references exist",
+    "new_fits": 0,
+    "automatic_score_table_excludes_diagnostics": true
+  },
+  "metric": {
+    "success": "translation_cm<=5 AND original physical C2 rotation_deg<=5",
+    "symmetry": "I/Y(pi) only, no rectangular90",
+    "dispersion": "sample SD and variance ddof1; untrimmed finite extremes; NumPy linear quantiles",
+    "bootstrap": {
+      "seed": 20260917,
+      "draws": 10000,
+      "unit": "original cluster_id whole recording",
+      "sensitivity": "named session",
+      "independent_real_test_n": 0
+    }
+  },
+  "gallery_selection": "representative pair class RECOVERY,DAMAGE,BOTH_SUCCESS,BOTH_FAILURE each lexicographic ID first2; global worst BI translation and max positive BI-COMMON T/R changes; B and I crop examples lexicographic eligible; all192 lightweight thumbnails+pose/observation linked rows",
+  "resource_bounds": {
+    "wall_hours": 24,
+    "GPU_additional_job_hours": 8,
+    "pose_observation_CPU_batch_hours": 12,
+    "pose_workers_max": 3,
+    "BLAS_threads": 1,
+    "GPU_jobs_max": 1
+  },
+  "prohibited": [
+    "new backbone or H1/risk fit",
+    "real target training or normalizer",
+    "new loss/threshold/seed sweep",
+    "new renderer",
+    "paper/default replacement",
+    "force push"
+  ],
+  "publication": {
+    "target": "main by ordinary fast-forward, PR only if protection/concurrent conflict prevents",
+    "preserve_original_user_checkout": true,
+    "RGB_authorization": "user confirmed all own-shot primary result panels allowed; display-only privacy redactions inherited",
+    "raw_RGB_or_banks_or_annotations_or_large_weights": false
+  }
+}

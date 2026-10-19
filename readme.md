@@ -1,3 +1,9 @@
+# B·I 조건부 국소 관측 실험 — 완료
+
+[전체 보고서와192장 갤러리](_docs/experiments/pallet_bi_conditioned_observation_v1/README.md)
+
+같은 정보·후단에서 B/I 조건의 추가 가치는 미확보. 6fit·전체 평가·독립 검산을 공개했습니다.
+
 ## B 관측 계약·H1 제한적 변경 실험
 
 [보고서](_docs/experiments/pallet_observation_contract_h1_v1/REPORT_KO.md) · [전체 표](_docs/experiments/pallet_observation_contract_h1_v1/FULL_RESULTS.md) · [192장 갤러리](_docs/experiments/pallet_observation_contract_h1_v1/gallery/index.html)
