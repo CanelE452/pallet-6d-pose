@@ -1,0 +1,7 @@
+
+| component | wall_seconds | CPU_seconds | scope | fair_end_to_end_comparison |
+|---|---|---|---|---|
+| PF saved neural outputs -> SubPix/F | 2.6297768109943718 | 2.568618079 | 238frames ×3PF paths; no neural forward; postprocessing only | False |
+| current mean-gap CPU saved-pose audit | 19.59495058300672 | UNKNOWN_NOT_MEASURED | hash checks and all saved scalar/bank analysis; no inference | False |
+| equal training budget backbone comparison | NOT_RUN | NOT_RUN | upstream pretrained histories differ; fixed transfer comparison only | False |
+| end-to-end detector to final pose/Jetson FPS | NOT_RUN | NOT_RUN | cache reuse costs cannot establish system FPS | False |
