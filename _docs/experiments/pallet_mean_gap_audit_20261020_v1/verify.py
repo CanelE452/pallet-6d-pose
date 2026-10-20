@@ -78,6 +78,20 @@ def verify(public,data,output):
         for prefix,key in [('T_cm','translation_cm'),('R_deg','rotation_deg')]:
             v=[float(x[key]) for x in ss if x[key] not in ('','None','null')];assert len(v)==int(r[prefix+'_n'])
             for name,z in [('mean',statistics.mean(v)),('median',statistics.median(v)),('P90',percentile(v,.9)),('P95',percentile(v,.95)),('sample_variance',statistics.variance(v)),('max',max(v))]:close(z,r[prefix+'_'+name]);count['paper_backbone_scalar']+=1
+    # Paired COMMON/BI and no-B effects have distinct saved source contracts.
+    source_cache={}
+    for r in rr(paper/'TABLE_05_PAIRED_CONTRASTS.csv'):
+        if r['after'].startswith('S3_'): loc=data/'pallet-bi-full-execution-20261019-v1/S3_S4_EVALUATION/SCORED_ROWS.jsonl.gz'
+        elif r['after'].startswith('F_'): loc=data/'pallet-bi-full-execution-20261019-v1/F_EVALUATION/SCORED_ROWS.jsonl.gz'
+        else: loc=data/'pallet-observation-contract-h1-20261018-v1/evaluation_v1/SCORED_ROWS.jsonl.gz'
+        if loc not in source_cache:source_cache[loc]=gz(loc)
+        ss=[x for x in source_cache[loc] if x['partition'] in pops[r['population']]]
+        aa=[x['metrics'][r['after']] for x in ss];bb=[x['metrics'][r['before']] for x in ss]
+        assert sum(not y['success'] and x['success'] for x,y in zip(aa,bb))==int(r['recover'])
+        assert sum(y['success'] and not x['success'] for x,y in zip(aa,bb))==int(r['damage'])
+        close(math.fsum(x['translation_cm']-y['translation_cm'] for x,y in zip(aa,bb))/len(ss),r['delta_T_mean'])
+        close(math.fsum(x['rotation_deg']-y['rotation_deg'] for x,y in zip(aa,bb))/len(ss),r['delta_R_mean'])
+        count['distinct_ablation_pair_checks']+=4
     # Prevent accidental publishing of tensors, credentials or local metadata.
     forbidden={'FIXED_REFERENCES.json','PREDICTIONS.jsonl.gz','HEAD_FEATURES.jsonl.gz','PREFLIGHT.json','CHECKPOINTS_PRESERVE.json'}
     for q in public.rglob('*'):
