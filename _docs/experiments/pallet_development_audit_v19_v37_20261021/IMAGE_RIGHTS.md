@@ -1,9 +1,11 @@
 # Image publication inventory
 
-Included: three numerical SVG charts generated from author-derived public scalar measurements. No source image pixels or external visual assets are used.
+Included numerical SVG charts: synthetic_means.svg, bank_coverage.svg, v30_common232.svg. They use only author-derived scalar measurements and no source image assets.
 
-Not included: all real-photo comparison panels, full original RGB/data, checkpoints, reference tensors and synthetic scene panels. The human clarified ownership of self-captured real photos. Three historical real comparison panels were prepared and reviewed, but specific-image public disclosure approval remains pending. They were not uploaded. Their names and pending state are listed in PHOTO_PANEL_STATUS.json without photographic pixels, source identifiers or original metadata.
+Included authorized real comparison panels: real_case_01_recovery.png, real_case_02_deterioration.png, real_case_03_maintained.png. The human confirmed that the real photographs were self-captured and approved public comparison panels. REAL_IMAGE_MANIFEST.json records source-byte binding, pseudonymous IDs, identical crops, historical methods/metrics and projection QA. All three are existing original-OCPR development cases, not new v19–v37 real evaluations.
 
-For the prepared private panels, tight crops were visually checked and fresh PNG encoding removed EXIF/text metadata; pose projections were not shifted or rephased. This review is not represented as public image access. Source photographs remain preserved. User authorship of real photos does not clear unrelated synthetic background/texture rights.
+The tight real crops were visually inspected: no faces, personal identifiers, documents, contact details or readable location identifiers were found. No blur was required. Fresh lossless PNG encoding strips EXIF/text metadata; each included PNG has empty metadata. Source photographs and pose vertices were not generatively edited, warped or rephased. Grayscale conversion and identical crop were the only source-pixel operations.
 
-A future image publication must retain the distinction between reconstructed geometric reference and independent physical GT/visibility/owner labels. The current public package and Pro review can inspect code contracts, numerical charts and scalar cases, not these photographs.
+Excluded: full original RGB/data, remaining photographs/contact sheets, checkpoints, numerical reference tensors and synthetic scene panels. User authorship of real photos is not treated as clearance of unrelated external synthetic backgrounds/textures. Known synthetic object licenses alone do not establish complete rendered-image clearance.
+
+Reference overlays show the existing reconstructed geometric reference, NOT independent physical GT or independently labelled visibility/physical ownership. Scalar transition examples and photographs do not establish aggregate superiority. Original private files remain preserved.

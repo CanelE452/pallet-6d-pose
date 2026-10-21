@@ -6,4 +6,4 @@ No third-party library source, model checkpoint, original dataset, background/te
 
 Numerical figures were generated solely from the published derived error tables. No rights are granted to omitted RGB, masks, weights, renderer assets or reference tensors. The human repository owner explicitly authorized this audit publication; public visibility is not evidence of rights to excluded third-party material.
 
-No photograph is included in this core commit. Prepared real panels remain private pending specific-image disclosure approval.
+Three explicitly authorized user-authored real comparison panels are included. Full original photographs remain omitted. Their image-level permission and privacy review are documented in IMAGE_RIGHTS.md and REAL_IMAGE_MANIFEST.json.

@@ -29,7 +29,7 @@ The figures below are newly rendered from the public scalar CSV, without source 
 - [Bank coverage, not achieved success](figures/bank_coverage.svg)
 - [v30 common-output232 comparison](figures/v30_common232.svg)
 
-Real photograph/overlay panels are not included in this commit. Three user-authored panels were prepared and reviewed but await specific-image public disclosure approval. Synthetic rendered scenes remain excluded. See [IMAGE_RIGHTS.md](IMAGE_RIGHTS.md). No full original RGB, pose/reference tensors, masks, model weights, logits, user names, host identifiers, recording/session IDs, or private-path lookup tables are included. Derived per-frame results use consistent pseudonyms.
+Three user-authored historical real comparison panels are included after hash, privacy and metadata review. Other original photograph/overlay panels and synthetic rendered scenes remain excluded. See [IMAGE_RIGHTS.md](IMAGE_RIGHTS.md). No full original RGB, pose/reference tensors, masks, model weights, logits, user names, host identifiers, recording/session IDs, or private-path lookup tables are included. Derived per-frame results use consistent pseudonyms.
 
 Verify the entire package and reproduce its65 aggregate groups,46 recorded gate comparisons, paired transitions and missing-output handling with Python standard library only:
 
@@ -48,3 +48,13 @@ This is independent **scalar audit reproduction**, not raw-image end-to-end repr
 Scientific base:`93c24d143fa3901de1fa127b3156e8250d81dba8`; local checkout HEAD:`7e92fdcefb0a37bdee0aef95d3e86c572e23b967`; publication parent observed:`f1a407f7ae63bfe041ec06a91b711ef947da4d68`. These provenance roles are distinct. [Essential contract links](ESSENTIAL_CONTRACTS.md) resolve to immutable, byte-verified scientific-base sources.
 
 See [LICENSE_NOTES.md](LICENSE_NOTES.md). This directory does not grant rights to omitted third-party data or checkpoints.
+
+## User-authored real comparison panels
+
+These are historical **original OCPR** examples, not new v19–v37 real results. The geometric reference is reconstructed, not independent physical GT; visibility/physical-owner truth is unavailable. See [REAL_IMAGE_MANIFEST.json](REAL_IMAGE_MANIFEST.json).
+
+![Historical recovery](figures/real_case_01_recovery.png)
+
+![Historical deterioration](figures/real_case_02_deterioration.png)
+
+![Historical maintained success](figures/real_case_03_maintained.png)
