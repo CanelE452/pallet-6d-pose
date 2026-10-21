@@ -1,0 +1,43 @@
+{
+  "created_UTC": "2026-10-21T06:45:47.081836+00:00",
+  "hypothesis": "coarse raw detector box compatibility constrains projected extent/depth; new ROI ordered corner evidence reduced rotation. Test complementary observations in same physical candidatebank. v29 T14.883/R8.673 vsv32 T16.648/R7.980 motivates but does not prove complementarity.",
+  "history": "adaptive after negative v29/v30/v31/v32 development; not independent validation; no PRIMARY-based choice",
+  "change": "same v31 bank/old188norm. concatenate exactly v32 sixteen ROI residual scalars and v29 six box scalars computed on samebank (including ROI candidate); TRAIN-only own22scalar normalization+22validity =>232 input; old188/hidden fresh sameinitialseed, extra44zero",
+  "training": "same binary C2 joint5cm5deg, AdamW lr.001 wd.0001 batch32frames max50epoch patience5 strictlower VALBCE. firstseed20261018 1fit; no loss/architecture/threshold/seed sweep",
+  "fallback": "if ROI evidence unavailable preserve exact v31 output, asv32; not N0 or v5 manual fallback",
+  "gate": "strict unchanged success nondecrease, bothT/Rmean nonincrease one strict, noPose T50 T100 R45 T/R P90 P95 max nonincrease tol1e-7, compared to ALL v5/v24/v31/v32. No scalar bestT and another bestR pose combination. Failure stops CAL/otherseed/PRIMARY.",
+  "cost": "no newRGB/model/PnP/SAM; CPU1 features<=180sec and1fit<=180sec; oldsource/results preserved",
+  "owner_limit": "both signals prediction-based semantic evidence, not independent physical owner labels; C2 90deg wrong; cannot claim new physical visibility GT",
+  "receipt_note": "reusedtrainer literal17089 is documented by ACTUAL_PARAMETER_COUNT232input/19137params; does not affect state/model/training",
+  "bindings": {
+    "script": {
+      "path": "${EXPERIMENT_ROOT}/roi_box_joint_evidence_20261021_v33/experiment.py",
+      "sha256": "b16a808efe90dfd0ac1525490b7b6860dd91f880712c49e1e21d19bb7326292c"
+    },
+    "ROI_evidence_script": {
+      "path": "${EXPERIMENT_ROOT}/roi_evidence_selector_20261021_v32/experiment.py",
+      "sha256": "3450168e577e2e3252adcf7757ef4b4ef42b5f4a0aae38d0b0ccb6546a224f63"
+    },
+    "ROI_rawfeatures": {
+      "path": "${EXPERIMENT_ROOT}/roi_evidence_selector_20261021_v32/SYNTHETIC_v3/FEATURES.jsonl.gz",
+      "sha256": "2c48d803851006a48ee5df10df7277b7bc5d2f5735bd889bd27a75e8ead96dd1"
+    },
+    "v32control": {
+      "path": "${EXPERIMENT_ROOT}/roi_evidence_selector_20261021_v32/s20261018/best.pt",
+      "sha256": "f81143b93ee0dffb16cc1be0d3e72fef4ea78e8bad514cbfbd2173d3a63a2a9e"
+    },
+    "box_source_and_trainer": {
+      "path": "${EXPERIMENT_ROOT}/detector_box_compatibility_20261021_v29/experiment_v3.py",
+      "sha256": "6704d368b81d6b0fe933050eb690cc81c1f1fa12130e7c13164d5aed3b0a42ba"
+    },
+    "same_bank": {
+      "path": "${EXPERIMENT_ROOT}/roi_union_selector_20261021_v31/SYNTHETIC/HEAD_FEATURES.jsonl.gz",
+      "sha256": "a462c6b26c4169ad7d89a59d0496e4b58a0a8a0088818ad35fdccee929384616"
+    },
+    "same_targets": {
+      "path": "${EXPERIMENT_ROOT}/roi_union_selector_20261021_v31/SYNTHETIC/C2_TARGETS.jsonl.gz",
+      "sha256": "00597fbaefffef21a81a377de1473b3d375d8e1b014c52c19ae9db1066830524"
+    }
+  },
+  "status": "PREREGISTERED_BEFORE_FEATURES_FIT"
+}

@@ -1,0 +1,55 @@
+{
+  "created_UTC": "2026-10-21T06:30:18.663233+00:00",
+  "hypothesis": "ROI replacement fails but adds12 successful candidate frames beyond fixed v24 JK bank; preserve incumbent candidates and fit actual H1 on full expanded bank to test whether same existing evidence can choose useful ROI without large damage",
+  "adaptation_history": "designed after v30 SYN VAL scored negative; repeated development, not independent confirmation; new19 above originalbank with7 overlap JK hence12 aboveJK",
+  "change": "single ROI candidate appended to actual original+JK bank if physically valid; no pose smoothing/no per-frame GT selection; original hardadmission retained; scoregap/minima/mean/max/count recomputed; original26 scalar validity/pose/eligibility bitwise retained for old candidates",
+  "target": "derivedC2 binary joint5cm5deg unchanged; sourcephysical C1/C2 distinct; 90deg remains error",
+  "training": "188->64->64->1 fresh same seed20261018 init asv24/v5; own TRAIN768 normalizer; AdamW .001 wd.0001 batch32frames max50 patience5 strictlylower VALBCE checkpoint; first1fit only. do not refill old21ckpt ledger",
+  "gate": "same strict gate vs BOTH originalv5 andv24control; success nondecrease, T/Rmeans nonincrease with1strict, noPose/T50/T100/R45/T/R P90/P95/max nonincrease tol1e-7. No posthoc relaxed epsilon or fallback. NeedTRAINnewgood>=5 andVALnewgood>0 beforefit",
+  "cost": "reuse235 sealed ROI predictions; frozen YOLO/N3 TRAIN768 new pairs max600s; CPU originalcostexport1candidate<=900s; headfit<=180s CPU1; GPUcap25% noforeigncompute. no newSAM/largeNNtraining",
+  "next": "SYN negative stops CAL/otherseed/PRIMARY; ifpass technical real4N0 parity before fixed46ROI+same original CALobservations featureexport; CALreferences only evaluation/own permitted CAL contracts, no tuning. Seeds19/20 only after samegate CAL18. PRIMARY remainsdevelopment, not independent",
+  "method_scope": "new candidate source benchmark, not matched observation-policy COMMON/BI; JOB30 and independentownerlabel blocker remain; no CAL covariance modification",
+  "bindings": {
+    "script": {
+      "path": "${EXPERIMENT_ROOT}/roi_union_selector_20261021_v31/experiment.py",
+      "sha256": "4c152f40667c212800aab904c87c0786fa9f4ffb36d71f46559d42c1f8bd227f"
+    },
+    "ROI_generator": {
+      "path": "${EXPERIMENT_ROOT}/frozen_roi_reinference_20261021_v30/experiment.py",
+      "sha256": "899bf689888e66e50bf8c87ad2a9d2230a9dba74a731a1566e4997d96144d7f5"
+    },
+    "ROI_prereg": {
+      "path": "${EXPERIMENT_ROOT}/frozen_roi_reinference_20261021_v30/PROTOCOL_SCHEMA_CORRECTION.json",
+      "sha256": "a135503690ac4764dbc512f334bf363a4c85c2c15ab7dd41cb3e1ba8b0e14c22"
+    },
+    "sealed_VAL_ROI": {
+      "path": "${EXPERIMENT_ROOT}/frozen_roi_reinference_20261021_v30/SYNTHETIC_VAL/PREDICTIONS.jsonl.gz",
+      "sha256": "c06bd580e4d2ebd972e528c095ae5f7efcddf71f71d7f0c7695cb97c5a60ad75"
+    },
+    "headroom": {
+      "path": "${EXPERIMENT_ROOT}/frozen_roi_reinference_20261021_v30/UNION_HEADROOM_DIAGNOSTIC.json",
+      "sha256": "9fafb2ed55eedbb70a48c895342662ea85fa1cca65fe42e1913167c248da8f47"
+    },
+    "old_union_features": {
+      "path": "${EXPERIMENT_ROOT}/jackknife_bank_20261021_v24/SYNTHETIC_v3/HEAD_FEATURES.jsonl.gz",
+      "sha256": "54dc724dbcc1210876d022dbca5b028150950bcbc6f94b84a51281e052dc3e22"
+    },
+    "old_union_targets": {
+      "path": "${EXPERIMENT_ROOT}/jackknife_bank_20261021_v24/SYNTHETIC_v3/C2_TARGETS.jsonl.gz",
+      "sha256": "494633bd403aa0306c37c8c010806efea2194aa076552d24759bdf67f294e238"
+    },
+    "exporter": {
+      "path": "${EXPERIMENT_ROOT}/jackknife_bank_20261021_v24/experiment_v3.py",
+      "sha256": "7eed30ba9427c5698082ae44596f2e1b3b6924a927550fec0b8c0c45f007973c"
+    },
+    "trainer": {
+      "path": "${EXPERIMENT_ROOT}/jackknife_bank_20261021_v24/learn.py",
+      "sha256": "3bcc6b24bc5bb1c3857bf4de39a22145a16effb2c8f38236995bcb6a4e7107da"
+    },
+    "old_control_checkpoint": {
+      "path": "${EXPERIMENT_ROOT}/jackknife_bank_20261021_v24/s20261018/best.pt",
+      "sha256": "232ffc56a020b7c0983d22bbb0e247ebf85f4e7447c1c1f8c97520d8a51b71de"
+    }
+  },
+  "status": "PREREGISTERED_BEFORE_NEW_TRAIN_FORWARD_AND_FIT"
+}

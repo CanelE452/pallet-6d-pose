@@ -1,0 +1,60 @@
+{
+  "status": "FROZEN_BEFORE_TAIL_COMPLETE_RISK_FIT",
+  "UTC": "2026-10-21T04:55:53.463231+00:00",
+  "hypothesis": "v14/v18 risk supervision omitted T100 even though fixed gate tests T100. v20/v21 new tail crossing74->138cm was jointfail at both and T50alreadycrossed so old risk target0. Add existing gate eventT100 to supervision, learn conditionalrelativeharm using newly available profile/geometry differences vs exact incumbent; not a frame exception or tuned cutoff.",
+  "target": "binary OR: incumbent jointsuccess -> candidatejointfail; incumbentT<=50<candidateT; incumbentT<=100<candidateT; incumbentR<=45<candidateR. Synthetic C2 only, no real targetfit. Existing5/50/100/45 gate cutoffs unchanged.",
+  "information": "Original188 + incumbentlocal62 + candidate-minus-incumbent new1968features=2218. Existing train-only norms reused, validity differences retained. Linear2218->1,2219params. Frozen v21 jointsuccesshead, exactv5 incumbent alwaysadmitted, risklogit<=0 .5fixed; no forcedN0. All old poses/order unchanged. Not calibratedriskprobability.",
+  "difference": "v18 used250sameoldfeatures and omittedT100. This changes target coverage and supplies newprofile/geometry relative evidence together, so effects are not causally attributed to one alone. In-sample v5 TRAINanchor and v21successhead stacking disclosed; no crossfitclaim.",
+  "training": "framebalanced unweightedBCE/AdamW.001 decay.0001 batch32/max50/patience5 strictlowerSYNVALBCE, seed18first CPU1/GPU0, minimumTRAINpositive20actions/20frames beforeoptimizer",
+  "gate": "Unchanged strict v18-v21 vs frozenv5 AND continuedcontrol:successnondecrease,bothmeansnonincrease >=onestrict; noPose/T50/T100/R45/T/RP90/P95/max nonincrease tolerance1e-7",
+  "sequence": "one18riskfit->SYN235gate->onlyifpass CAL46 profilefeatures and predictionseal then evaluation noCALtuning->onlyifpass remaining2same recipe pipeline fits->PRIMARY onlyifallgatespass; no threshold/loss sweep",
+  "budget": {
+    "initial_new_risk_fits": 1,
+    "max_new_risk_fits": 3,
+    "max_additional_jointhead_fits": 2,
+    "new_otherseed_control_fits_max": 2,
+    "CPU_threads": 1,
+    "max_fit_seconds": 180,
+    "new_PnP": 0
+  },
+  "exposure": "Adaptiveafterv20/v21negative and3SYNcaseinspection. RepeatedSYN/CAL/PRIMARYdevelopment. No independent holdout claim; no v20/v21CAL orPRIMARYexecuted.",
+  "preservation": "No oldsource/results/paper/data changes, no install/delete/upload/push",
+  "bindings": {
+    "implementation": {
+      "path": "${EXPERIMENT_ROOT}/tail_complete_risk_20261021_v22/experiment.py",
+      "sha256": "78a4d39d01a0acf4ffcefdad78580359c6940ae22b328cba199a665100a65f1d"
+    },
+    "joint_runtime": {
+      "path": "${EXPERIMENT_ROOT}/profile_geometry_interaction_20261021_v21/experiment.py",
+      "sha256": "a0e7236c2414a00af248d21bef1317336d22098cfde572be20de89a63f92c834"
+    },
+    "profile_runtime": {
+      "path": "${EXPERIMENT_ROOT}/structured_profiles_20261021_v20/experiment.py",
+      "sha256": "73f26539f3f83bf172b7c7e8b22881c17c0b596069272947b8a8b0ad317f6ad4"
+    },
+    "base_runtime": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/experiment.py",
+      "sha256": "118280fa096064b08066534ad931a2c0fbb1746ae66822d6f9eaf28b83d2be9b"
+    },
+    "jointcp18": {
+      "path": "${EXPERIMENT_ROOT}/profile_geometry_interaction_20261021_v21/INFLUENCE_s20261018/best.pt",
+      "sha256": "3080a20b92a4cd5bf35fff8173076fb36e229ff35d9e9dd27ddffb6faab08c03"
+    },
+    "profile_features": {
+      "path": "${EXPERIMENT_ROOT}/structured_profiles_20261021_v20/SYNTHETIC/FEATURES.jsonl.gz",
+      "sha256": "316c41880c1021fb0138d4cfdbb2f4e2944d4b57d30c7fd8aaabe646a3706ba8"
+    },
+    "profile_norm": {
+      "path": "${EXPERIMENT_ROOT}/structured_profiles_20261021_v20/SYNTHETIC/NORMALIZER.json",
+      "sha256": "b0783a0db1eb0ae8774613ceedaa97170579e4e6cfb52b4e8a217cca080bb3f9"
+    },
+    "geometry_features": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/SYNTHETIC/FEATURES.jsonl.gz",
+      "sha256": "2d1d630285c06fe8c0557daed9bcb60ac6274e244881a40cc1e3c40a96a6b628"
+    },
+    "geometry_norm": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/SYNTHETIC/NORMALIZER.json",
+      "sha256": "6820d56f17ef9a8c6840621aa133dc487ccd8e11f90c6711f0312370f2253c8b"
+    }
+  }
+}

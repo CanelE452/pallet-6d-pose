@@ -1,0 +1,54 @@
+{
+  "status": "FROZEN_BEFORE_GPU_PILOT_AND_NEW_FEATURES",
+  "UTC": "2026-10-21T05:46:23.842874+00:00",
+  "hypothesis": "v27 HOGwholeface representation failed despite RGBsupport. Test sameexisting D1frozenImageNetResNet18stem/layer1/layer2, not newtrainedbackbone. 128canonicalfaceRGB preserves morestructure than16HOG. PCA32sharedTRAINonly compresses frozenlayer2avg2x2(512) for6physicalfaces. New192RGBcolumns replace192HOGcolumns, oldmask/geometry204prefix exact.",
+  "information": "Same v24unionbank, knownnative/Q/K/dimensions, exactsame originalcachedmask andv27faceavailability. RGB normalizedImageNetmean/std thenweightedbycachedmask (backgroundzeroinnormalizedspace). NoGT/maskGT/ownerlabels/foregroundtruth at inference. Conditionalcandidateface is not imagevisibilityGT. Existingbackboneweights match D1binding, no download/install.",
+  "control_reuse": "GEOMETRY checkpointv27 reused onlyafter all1003 normalizedGEOMETRYinputsmatchbitwise. First204raw+valid andnormalizerprefix copiedexactly; RGBzeroedforcontrol. Same980architecture, initialization/recipe. APPEARANCE408 andFUSION980 getnewfeatures and1fit each. Controlpolicymissingness equivalence separatelycheck. No redundantcontrolfit.",
+  "training": "same C2binaryframeBCE fresh original188seed/hiddenweights, new792cols0 forfusion. AdamW.001 decay.0001/batch32/max50/patience5 strictlylowerSYNVALBCE. PCAmean/cov/basis andnewRGBnorm TRAINeligiblefacesonly; fixeddim32 (existingpipelinePCA32precedent), no dimension/loss/thresholdsearch.",
+  "gate": "Identicalstrictv18gate vs originalv5 ANDv24union ANDmatchedGEOMETRY:successnondecrease,bothmeansnonincrease >=onestrict,noPose/T50/T100/R45/T/RP90/P95/max nonincrease1e-7. Onlyif mainpass4crossBGdiagnosticfits asv27contract beforeCAL. CAL repeateddevelopment nofit. Otherseed expansion onlywithfullyreviewedmatchedcontrolbudget, notpreclaimed.",
+  "sequence": "GPU8TRAINpilot->ifestimate<900sec/memorycap andnoothercomputejobs SYNfrozenfeatures->CPUownPCA/normalization+all1003controlparity->twoheadfits18->SYN235gate->ifpasscrossBG->ifpassCAL->conditional3seedverification. Anyfailedstage stopexpansion. v26separategoalproposalremainsnotexecuted.",
+  "budget": {
+    "initial_new_head_fits": 2,
+    "reused_geometry_fit": 1,
+    "conditional_crossBG_fits": 4,
+    "max_fit_attempts_current_scope": 8,
+    "CPU_threads": 1,
+    "GPU_feature_device": "samehostRTX3080onlywhencomputeidle",
+    "GPU_training": 0,
+    "GPU_fraction_cap": 0.25,
+    "GPU_face_batch_max": 64,
+    "max_frozen_feature_seconds": 900,
+    "max_fit_seconds": 180,
+    "new_SAM": 0,
+    "new_PnP": 0,
+    "new_backbone_training": 0
+  },
+  "exposure": "Adaptive afterv19-v27inclv24CALnegative; sourceassetsdisjoint, sharedbackgroundcategories. AllSYN/CALdevelopment; noindependenttest. OriginalphysicalC1/C2andderivedC2tasknotconfused; noC4reinterpretation.",
+  "preservation": "Oldsource/data/models/reports/dirty/manuscript untouched. No install/download/upload/push. CUDAcache goesonly/tmp scoped processenv.",
+  "bindings": {
+    "encoder": {
+      "path": "${EXPERIMENT_ROOT}/frozen_face_encoder_20261021_v28/encoder.py",
+      "sha256": "0c6c633f09a3a90966fa3de654354888cc5cc7f5ed4bbb9123f25527177ddba5"
+    },
+    "existing_face_runtime": {
+      "path": "${EXPERIMENT_ROOT}/face_structure_20261021_v27/experiment_v2.py",
+      "sha256": "1ed2aae95ffa56e475c3be1eddafebe39811fad67ba9ccfb007978bf8a222831"
+    },
+    "fixed_backbone": {
+      "path": "${MODEL_REPO}/data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+      "sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec"
+    },
+    "old_face_features": {
+      "path": "${EXPERIMENT_ROOT}/face_structure_20261021_v27/SYNTHETIC/FEATURES.jsonl.gz",
+      "sha256": "529d7da0e106672ec7f759ee0d14b428aa2e2e53fc6d185534589017187b0f2e"
+    },
+    "old_face_norm": {
+      "path": "${EXPERIMENT_ROOT}/face_structure_20261021_v27/SYNTHETIC/NORMALIZER.json",
+      "sha256": "7aa3698ecfe965609953521c9449a1c228df212a0bbb1f6a66992b4e02c86c2f"
+    },
+    "geometry_controlcp": {
+      "path": "${EXPERIMENT_ROOT}/face_structure_20261021_v27/GEOMETRY_s20261018/best.pt",
+      "sha256": "bff293d6bd5f639a6ad9153400e5158186152c0662cde5cbc4740f8ea026cca4"
+    }
+  }
+}

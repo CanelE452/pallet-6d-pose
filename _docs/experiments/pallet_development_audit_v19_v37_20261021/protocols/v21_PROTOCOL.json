@@ -1,0 +1,59 @@
+{
+  "status": "FROZEN_BEFORE_JOINT_EVIDENCE_FIT",
+  "UTC": "2026-10-21T04:52:38.548872+00:00",
+  "hypothesis": "v20 ordered profile evidence lowers SYN means but one partly truncated single-edge frame introduces T100 crossing. Profile evidence does not establish full6D observability. Test joint learned interaction with v19 information/influence, not a rank cutoff; recovery also rankdeficient. Stable wrong correspondence remains possible.",
+  "change": "Concatenate exactly sealed v20 profiles1920 + v19 geometry48 to original188. Total2156. No new features/observations/poses, no GT at inference. No frameID or manual geometric cutoff. Model aliases INFLUENCE=PROFILE_PLUS_GEOMETRY.",
+  "training": "Warmstart same-seed v5C2, original188columns copied/extras1968zero; hidden64/64, binaryjoint5cm5deg frameBCE; AdamW lr.001 decay.0001 batch32/max50/patience5 strictlylowerVALBCE, CPU1/GPU0. Reuse exact v19 control18 fit. Each feature block uses its own already fixed TRAIN-only norm. No loss/threshold tuning.",
+  "gate": "Identical v18-v20 strict gate vs same-seed originalv5 AND continuedcontrol:jointsuccess nondecrease,bothmeans nonincrease >=onestrict,noPose/T50/T100/R45/P90/P95/max nonincrease tolerance1e-7. v20 comparison secondary, no relaxed safety.",
+  "sequence": "one18fit->SYN235->CAL46 onlyifSYNpass noCALtuning->remaining2seed pairedfits onlyifCALpass->PRIMARY repeated development onlyifall3samegatespass",
+  "budget": {
+    "initial_new_fits": 1,
+    "max_new_fit_attempts": 5,
+    "control18_reused": true,
+    "new_feature_generation": 0,
+    "new_PnP": 0,
+    "new_RGB_queries": 0,
+    "CPU_threads": 1,
+    "max_fit_seconds": 180
+  },
+  "exposure": "Adaptive after v19 CALsame and v20 synthetic negative incl3casevisualinspection. All validation/CAL repeatedly used. PRIMARY new0. No independent generalization claim.",
+  "preservation": "All old source/data/reports/models unchanged. No install/delete/upload/push or manuscript changes.",
+  "bindings": {
+    "implementation": {
+      "path": "${EXPERIMENT_ROOT}/profile_geometry_interaction_20261021_v21/experiment.py",
+      "sha256": "a0e7236c2414a00af248d21bef1317336d22098cfde572be20de89a63f92c834"
+    },
+    "training_runtime": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/experiment.py",
+      "sha256": "118280fa096064b08066534ad931a2c0fbb1746ae66822d6f9eaf28b83d2be9b"
+    },
+    "profile_runtime": {
+      "path": "${EXPERIMENT_ROOT}/structured_profiles_20261021_v20/experiment.py",
+      "sha256": "73f26539f3f83bf172b7c7e8b22881c17c0b596069272947b8a8b0ad317f6ad4"
+    },
+    "geometry_train_norm": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/SYNTHETIC/NORMALIZER.json",
+      "sha256": "6820d56f17ef9a8c6840621aa133dc487ccd8e11f90c6711f0312370f2253c8b"
+    },
+    "geometry_features": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/SYNTHETIC/FEATURES.jsonl.gz",
+      "sha256": "2d1d630285c06fe8c0557daed9bcb60ac6274e244881a40cc1e3c40a96a6b628"
+    },
+    "profile_train_norm": {
+      "path": "${EXPERIMENT_ROOT}/structured_profiles_20261021_v20/SYNTHETIC/NORMALIZER.json",
+      "sha256": "b0783a0db1eb0ae8774613ceedaa97170579e4e6cfb52b4e8a217cca080bb3f9"
+    },
+    "profile_features": {
+      "path": "${EXPERIMENT_ROOT}/structured_profiles_20261021_v20/SYNTHETIC/FEATURES.jsonl.gz",
+      "sha256": "316c41880c1021fb0138d4cfdbb2f4e2944d4b57d30c7fd8aaabe646a3706ba8"
+    },
+    "profile_SYNresult": {
+      "path": "${EXPERIMENT_ROOT}/structured_profiles_20261021_v20/SYNTHETIC_VAL_s20261018/EVALUATION.json",
+      "sha256": "06b7142f1b7a30e49a3c5900f7bfd0dc472969e1aebd34462cbc7e3db5fe72b7"
+    },
+    "controlcp": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/CONTROL_s20261018/best.pt",
+      "sha256": "edab9be83f474fc2f4d6c50f2d9805c4967163f82048b3c10d880e0c80383ccf"
+    }
+  }
+}

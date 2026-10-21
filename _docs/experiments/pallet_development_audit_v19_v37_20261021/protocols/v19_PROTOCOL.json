@@ -1,0 +1,60 @@
+{
+  "status": "FROZEN_BEFORE_NEW_FEATURES_AND_FITS",
+  "UTC": "2026-10-21T04:41:22.406870+00:00",
+  "hypothesis": "Original 31 residual summaries do not expose local 6D information conditioning or delete-corner influence. Preserve two original family contexts and append differential noise amplification/influence. Stable wrong poses remain possible; no stability=truth claim.",
+  "history": "Adaptive after v5-v18 negatives and repeated SYN/CAL/PRIMARY exposure. No unused independent test verified. Prior F1 has residual/covariance/support aggregates but no inverse measurement Jacobian covariance or delete-corner linear influence. Existing multimodal profiles not reimplemented.",
+  "priority": [
+    "1 local geometric observability/influence without new observation/PnP",
+    "2 existing per-profile structured support/out-of-grid/conditioning, if1 fails",
+    "3 synthetic-only true-pose basin diagnostic; oracle only, no method candidate insertion"
+  ],
+  "features": "12 scalars x2 original family contexts; signedlog + valid bit=48 extra; TRAIN-only eligible action normalization; full RGB points with frozen fit covariance/reliability, replaces-full partial lines with existing normal variance; no prior/outline/nonRGB pseudo constraints. Rank deficit invalidates covariance and influence. No difference of cross-family costs. Linearization is a diagnostic conditional on current association, not calibrated physical uncertainty.",
+  "models": "Control continues same v5 C2 binary188->64->64->1. Influence236->64->64->1 initializes existing188 columns/layers identically and extras0. Both same frameBCE/AdamW lr.001 decay.0001 batch32frames/max50/patience5/strict lower synthetic validation BCE. No threshold/loss sweep.",
+  "gate": "Unchanged v18 safety gate vs same-seed frozenv5 AND matched continued-training control: success nondecrease; both T/R means nonincrease and >=one strict; noPose/T50/T100/R45/T/R P90/P95/max nonincrease tolerance1e-7. Candidatecount never bypasses safety.",
+  "sequence": "Generate synthetic-only features -> onecontrol18fit+oneinfluence18fit -> SYN235 -> ifpasses CAL46 featureprediction sealed then reference scoring, no CAL tuning -> ifpasses remaining2seedpairedfits -> only if all gates pass PRIMARY192 repeated development. Fail branch stops expansion; next distinct preregistered hypothesis allowed.",
+  "budget": {
+    "initial_fits": 2,
+    "max_fit_attempts": 6,
+    "CPU_threads": 1,
+    "max_fit_seconds": 180,
+    "new_PnP": 0,
+    "new_observation": 0,
+    "new_manual_labels": 0
+  },
+  "information": "Synthetic train/val C2 pose labels only for fitting/checkpoint; CAL only safety no threshold/modelselection; newfeature/predict denies allreference/label file reads. All original candidates/poses/order/188normalizer unchanged. Newfeature norm train only. Existing CAL observation producer frozen; JOB30 remains blocked.",
+  "preservation": "Original/main/dirty files/paper/v5-v18/reports unchanged; no install/delete/push/upload. Reports follow completion without changing prior final.",
+  "bindings": {
+    "implementation": {
+      "path": "${EXPERIMENT_ROOT}/geometric_influence_20261021_v19/experiment.py",
+      "sha256": "118280fa096064b08066534ad931a2c0fbb1746ae66822d6f9eaf28b83d2be9b"
+    },
+    "synthetic_features": {
+      "path": "${DATA_ROOT}/pallet-boundary-action-repair-20261018-v1/d1_synthetic_candidates_v1/HEAD_FEATURES.jsonl.gz",
+      "sha256": "4352aad703fd5592d2c93b57d18da25424c9020b7a13d13eef0c7065487e13ea"
+    },
+    "synthetic_feature_seal": {
+      "path": "${DATA_ROOT}/pallet-boundary-action-repair-20261018-v1/d1_synthetic_candidates_v1/FEATURE_SEAL.json",
+      "sha256": "96d39a9a9a575ca0244e9b300e86d3c2d1d26a7e0d1c55d76175e4d5d27ac0c2"
+    },
+    "C2targets": {
+      "path": "${EXPERIMENT_ROOT}/minimal_improvement_20261020_v5/H1_DEPLOYMENT_C2_TARGET_V1/DERIVED_C2_ACTION_TARGETS.jsonl.gz",
+      "sha256": "b10aa582059b1cfd09ce29df176cae00d119240c3bfb44427bc7b09a700657df"
+    },
+    "normalizer": {
+      "path": "${DATA_ROOT}/pallet-boundary-action-repair-20261018-v1/d1_action_labels_v1/TRAIN_ONLY_NORMALIZER.json",
+      "sha256": "41dfb12645dc0471d25df3df1f17a18cd060b65f4e8892de2492bbaac956b63e"
+    },
+    "v5cp20261018": {
+      "path": "${EXPERIMENT_ROOT}/minimal_improvement_20261020_v5/H1_DEPLOYMENT_C2_TARGET_V1/s20261018/best.pt",
+      "sha256": "bd8da11011b1530732ed9c048cbeb8d1b4992ea614080c2bee28b0b8be12edec"
+    },
+    "v5cp20261019": {
+      "path": "${EXPERIMENT_ROOT}/minimal_improvement_20261020_v5/H1_DEPLOYMENT_C2_TARGET_V1/s20261019/best.pt",
+      "sha256": "cfd0660099f41ebfb37fd607035764d0144b2c5eacaf596eee77cb4c0245f120"
+    },
+    "v5cp20261020": {
+      "path": "${EXPERIMENT_ROOT}/minimal_improvement_20261020_v5/H1_DEPLOYMENT_C2_TARGET_V1/s20261020/best.pt",
+      "sha256": "961b1ae8097531989694fcb3aa703a6a545602127cd9b2da8c3c55c8d8fbc5b2"
+    }
+  }
+}

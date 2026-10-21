@@ -1,0 +1,70 @@
+{
+  "created_UTC": "2026-10-21T06:24:59.531954+00:00",
+  "hypothesis": "global640 neck undersamples small predicted objects; one native RGB ROI before SAME frozen YOLO/N3 may improve points and pose",
+  "change": "all VAL235 receive one predicted-box 1.5 linear expansion crop, floor/ceil clipped image bounds; same640+reflect100; highestconfidence selection retained; no tuning/no extra crop; no SAM or observation regeneration",
+  "unchanged": [
+    "same frozen R0 and N3 seed1",
+    "original full-image N3 cap .01*full_diagonal in original pixels",
+    "full-image native grayscale SubPix win5/count40/eps.001",
+    "original R0 point cap",
+    "original K/physical dimensions/prediction-only W/D selector/SQPnP+LM",
+    "no change symmetry C2 target; 90deg stays error"
+  ],
+  "preflight": "8 uniformly spaced TRAIN replay raw<.001px N3/SubPix<.002px pose<.01cm/.01deg and affine/K roundtrip<1e-9. Fail stops before ROI",
+  "gate": "same strict no success decline, both means nonincrease one strict, noPose T50 T100 R45 P90 P95 max nonincrease tol1e-7 vs saved N0; failure no CAL/PRIMARY. Union good diagnostic only; new bank training requires separate preregistration",
+  "cost": "GPU1 cap25%, CPU1, 8 full pairs then235 ROI pairs, max600sec crop loop, no NN training. Check other compute every25 stop without killing it",
+  "exposure": "SYNTHETIC train/val/CAL repeatedly used development; PRIMARY not accessed for this design or inference",
+  "prior_nonduplicate": "D1 full+tight SAM already uses mask crop; PoseFix crop1.25->1.50 tested support-only failed gate; N3 point head consumes global neck, not rerun rawRGB detector ROI",
+  "references": [
+    {
+      "url": "https://arxiv.org/abs/2202.06934",
+      "scope": "detector slicing motivation only, NOT pallet pose improvement proof"
+    },
+    {
+      "url": "https://arxiv.org/abs/1911.07524",
+      "scope": "coordinate bias caution; no untested UDP correction inserted"
+    }
+  ],
+  "bindings": {
+    "script": {
+      "path": "${EXPERIMENT_ROOT}/frozen_roi_reinference_20261021_v30/experiment.py",
+      "sha256": "899bf689888e66e50bf8c87ad2a9d2230a9dba74a731a1566e4997d96144d7f5"
+    },
+    "R0": {
+      "path": "${MODEL_REPO}/challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7"
+    },
+    "N3": {
+      "path": "${MODEL_REPO}/data/pallet/results/pallet_dim_conditioned_p_v1/runs/N3_DIM_SYM_seed1/last.pt",
+      "sha256": "ceea743b7b8467cf43eef66582b923dd980e5b2fb27f5575af5df185109f22dd"
+    },
+    "normalizer": {
+      "path": "${MODEL_REPO}/_docs/experiments/pallet_dim_conditioned_p_v1/DIM_NORMALIZATION_LOCK.json",
+      "sha256": "0f30210ce310e651750197e3c72d2c61ed5aacad7194f7e8cbcc256631f2250a"
+    },
+    "T_rule": {
+      "path": "${MODEL_REPO}/_docs/experiments/pallet_dim_conditioned_p_v1/CALIBRATION_AND_SELECTION.json",
+      "sha256": "6ff554de489758fd4a8836fab3242266b54f83fd38c2ac64b4c81e5981d0030c"
+    },
+    "source_NO_GT": {
+      "path": "${DATA_ROOT}/pallet-statewise-end-to-end-recovery-v1/synthetic_v1/UPSTREAM_INPUTS_NO_GT.jsonl.gz",
+      "sha256": "62dc1f3b3701c1c6568ecfe659d800b3bc8863aac9c625afb708b7e6edb1483b"
+    },
+    "upstream": {
+      "path": "${DATA_ROOT}/pallet-boundary-action-repair-20261018-v1/d1_upstream_v1/SYNTHETIC1003_UPSTREAM.jsonl.gz",
+      "sha256": "8e76256b6a93ab8e637a4ef06c08693e8d5d891ec0905627f79273eae54a4af2"
+    },
+    "boxes": {
+      "path": "${DATA_ROOT}/pallet-risk-information-support-20261018-v1/v_box_inputs_v1/V_BOX_INPUTS.jsonl.gz",
+      "sha256": "28c3d96c00d37d618917516c86908954c9924fc140ece850a5afb76f18309407"
+    }
+  },
+  "status": "PREREGISTERED_BEFORE_NEW_FORWARD",
+  "preflight_schema_fix": "before any import/forward: existing field detector_box_xyxy_raw, no method change",
+  "technical_correction": "syntax parenthesis before Python execution; zero forwards; PILOT.log retained",
+  "runtime_correction": {
+    "previous": "pallet-pose Ultralytics old class C3k2 missing; forward0",
+    "new": "existing pallet-yolo26 Python3.10 torch2.1.1cu118 Ultralytics8.4.60 cv2 4.9 scipy1.12; installed nothing",
+    "parity_tolerance_unchanged": true
+  }
+}
