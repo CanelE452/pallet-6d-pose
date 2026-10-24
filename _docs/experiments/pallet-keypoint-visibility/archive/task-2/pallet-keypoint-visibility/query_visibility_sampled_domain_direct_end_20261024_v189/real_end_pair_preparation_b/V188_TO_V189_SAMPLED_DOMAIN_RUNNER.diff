@@ -1,0 +1,74 @@
+--- V188_immutable
++++ V189_new
+@@ -1,4 +1,4 @@
+-"""Fixed22/66 source-real end-only pair compositor. Root actual entry required.
++"""V189 sampled-domain fixed22/66 source-real end-only pair compositor. Root actual entry required.
+ 
+ Preparation reads explicit code/JSON only and invented arrays. Actual mode reads
+ only original V164-bound TRAIN RGB/crops and the same proved YCB cutouts. No GT,
+@@ -108,7 +108,7 @@
+     load_functions(HELPER,('erode1','transformed_cutout','opaque_anchor','paste','materialize','verify_before'),ns)
+     load_functions(LOCAL,('crop',),ns)
+     load_functions(TARGET,('valid_box','target_context_grid','sample_target_context'),ns)
+-    spec=importlib.util.spec_from_file_location('frozen_V188_end_geometry',GEOMETRY)
++    spec=importlib.util.spec_from_file_location('frozen_V189_sampled_end_geometry',GEOMETRY)
+     geo=importlib.util.module_from_spec(spec);spec.loader.exec_module(geo)
+     ns['geometry']=geo
+     return ns
+@@ -140,7 +140,9 @@
+     if not geo.finite_pair(original['query_xy']) or not isinstance(original['L'],(int,float)) or not math.isfinite(original['L']) or original['L']<=0:return None,'ORIGINAL_Q_L_MISSING'
+     pixels,outside=geo.candidate_footprint(endpoint['candidate_enclosures_xyxy'],original['raw_hw'])
+     support,_=geo.exact96_support(original['query_xy'],original['L'],original['raw_hw'])
+-    if outside or not pixels or not pixels<=support.keys():return None,'END_OUTSIDE_OR_NOT_FULLY_REPRESENTED_IN_ORIGINAL96_UNKNOWN_NOT_E'
++    sampled=geo.sampled_candidate_relation(original['query_xy'],original['L'],original['raw_hw'],endpoint['candidate_enclosures_xyxy'])
++    if outside or not pixels or not all(sampled[k] for k in ('all_enclosures_inside_original96_sample_extent','every_enclosure_has_positive_valid_original96_sample','all_candidate_raw_footprints_in_frame')):
++        return None,'END_OUTSIDE_OR_NO_POSITIVE_ORIGINAL96_SAMPLED_OPPORTUNITY_UNKNOWN_NOT_E'
+     return pixels,None
+ 
+ 
+@@ -177,12 +179,7 @@
+ 
+ 
+ def selected_sample_mask(original,end_pixels,geo):
+-    q,L=original['query_xy'],original['L'];mask=np.zeros((96,96),bool)
+-    for j in range(96):
+-        for i in range(96):
+-            pt=(q[0]+((i+.5)/96-.5)*L,q[1]+((j+.5)/96-.5)*L)
+-            mask[j,i]=any(p in end_pixels for p,weight in geo.rgb_taps(pt,original['raw_hw']) if p is not None and weight>0)
+-    return mask
++    return np.array(geo.end_related96_mask(original['query_xy'],original['L'],original['raw_hw'],end_pixels),bool)
+ 
+ 
+ def prove(before,cover,sham,ca,sa,end_pixels,endpoint,original,cut,alpha,origins,op):
+@@ -329,9 +326,9 @@
+                         checks,detail=prove(before,cover,sham,ca,sa,end_pixels,endpoint,original,cut,alpha,(co,so),op)
+                         r['pixel_checks']=checks;r['pixel_detail']=detail;r['constructed']=True
+                         r['PASS']=all(checks.values())
+-                        r['status']='SOURCE_REAL_CONTROLLED_END_WEAK_PAIR_SUPPORTED' if r['PASS'] else 'PIXEL_PROOF_FAILURE_UNKNOWN_RETAINED'
++                        r['status']='SOURCE_REAL_SAMPLED_DOMAIN_CONTROLLED_END_WEAK_PAIR_SUPPORTED' if r['PASS'] else 'PIXEL_PROOF_FAILURE_UNKNOWN_RETAINED'
+                         if r['PASS']:r['direct_end_weak_states']=dict(BEFORE='VISIBLE_WEAK',COVER='EXTERNALLY_BLOCKED_WEAK',SHAM='VISIBLE_WEAK')
+-                        r['authority']='SOURCE_RGB_SEMANTIC_END_WEAK_WITH_2D_OPAQUE_FOREIGN_COMPOSITE_NOT_DEPTH_GOLD'
++                        r['authority']='SOURCE_RGB_SEMANTIC_END_WEAK_WITH_SAMPLED_DOMAIN_2D_OPAQUE_FOREIGN_COMPOSITE_NOT_DEPTH_GOLD'
+                         r['contact']=contact(folder,a['case_id'],k,(before,cover,sham),endpoint,checks)
+                         r['clean_selected96']={name:save_clean_png(folder/(name+'_CLEAN96.png'),array['rgb96'][k]) for name,array in zip(VARIANTS,(before,cover,sham))}
+             except Exception:
+@@ -351,7 +348,7 @@
+             image=('<img loading="lazy" src="'+r['pair_id']+'/CONTACT.png" alt="'+html.escape(r['pair_id'])+'">') if r.get('contact') else '<p>No constructed pair; UNKNOWN/failure retained.</p>'
+             sections.append('<section><h2>'+title+'</h2><p><a href="'+r['pair_id']+'/PROOF.json">Exact proof and reason</a></p>'+image+'</section>')
+         with (OUT/'index.html').open('x') as f:
+-            f.write('<!doctype html><meta charset="utf-8"><title>V188 fixed66 source-real end controls</title><style>body{font:16px sans-serif;max-width:1200px;margin:20px auto}img{width:100%;height:auto}section{border-top:1px solid #bbb;margin:24px 0}</style><h1>Fixed22 / original66 source-real semantic-end controls</h1><p>Assistant weak end authority + 2D opaque foreign composite. Native physical visibility, center owner and quality remain separate; no training admission. Every fixed attempt and UNKNOWN/failure is retained.</p>'+''.join(sections))
++            f.write('<!doctype html><meta charset="utf-8"><title>V189 sampled-domain fixed66 source-real end controls</title><style>body{font:16px sans-serif;max-width:1200px;margin:20px auto}img{width:100%;height:auto}section{border-top:1px solid #bbb;margin:24px 0}</style><h1>Fixed22 / original66 source-real semantic-end controls</h1><p>Assistant weak end authority + 2D opaque foreign composite. Native physical visibility, center owner and quality remain separate; no training admission. Every fixed attempt and UNKNOWN/failure is retained.</p>'+''.join(sections))
+         # Recheck text/metadata closure; actual assets were hash-checked on their same load descriptors.
+         for key in ('source_plan','donor_proof_complete','donor_records'):checked_bytes(p[key])
+         checked_bytes(e['direct_end_observations'])
+@@ -362,7 +359,9 @@
+             manifest=bind(manifest),entry=bind(entry_path),protocol=bind(PROTOCOL),observations=e['direct_end_observations'],
+             gallery=bind(OUT/'index.html'),actual_visual_inspection='PENDING_SEPARATE_ACTUAL_TOOL_VIEW',HTML_browser_rendered=False,
+             original_q_L_native_all8_and_labels_unchanged=True,new_native_quality_owner_all8=-1,training_admission=False,
+-            model_encoder_feature_fit_PnP_or_evaluation_reads=0,automatic_retry=False,seconds=time.monotonic()-start)
++            model_encoder_feature_fit_PnP_or_evaluation_reads=0,automatic_retry=False,
++            source_authority='V189 sampled-domain weak endpoint intervention; V188 immutable',
++            no_old_V188_outputs_modified=True,seconds=time.monotonic()-start)
+         write_new(OUT/'COMPLETE.json',done);print(json.dumps({'completed':True,'PASS':True,'complete':bind(OUT/'COMPLETE.json'),'supported_pairs':done['supported_weak_end_pairs']}),flush=True)
+     except Exception:
+         write_new(OUT/'FAILURE.json',dict(completed=False,attempts_completed=len(results),traceback=traceback.format_exc(),automatic_retry=False));raise
