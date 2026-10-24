@@ -1,0 +1,91 @@
+{
+  "completed": true,
+  "preparation_only": true,
+  "root_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_only_bounded_prior_20261023_v102/ROOT_C6_C7_DESIGN_BEFORE_SOURCE_FORWARD.json",
+    "sha256": "7782c8e994a1c370d293ad483e446dbed4f315d3e883aba386052ad374bd51cc"
+  },
+  "model": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_only_bounded_prior_20261023_v102/model/bounded_prior_residual.py",
+    "sha256": "d6be1dd0fd3bd545e3de4be0a746093350573146397616b9f2a7b201ee60e011"
+  },
+  "generated": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_only_bounded_prior_20261023_v102/model/GENERATED_BOUNDED_PRIOR_TESTS.json",
+    "sha256": "c9936c418a4e6c3a1ca67da04c8ad38791c0c57c9a8cf2b9357bcc81fdaa3580"
+  },
+  "test": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_only_bounded_prior_20261023_v102/model/test_generated_bounded_prior.py",
+    "sha256": "27c4e8a739e7df3eac58411130a7d34517f0c63acad62f4d165674e15897d8b3"
+  },
+  "inherited_C5_model_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/model/local_rgb_residual.py",
+    "sha256": "836f7309d8aa2e4db28fe3b7197c2befc3c8643dd986bc1571a07d17906701f4"
+  },
+  "inherited_original_C1_model_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/query_center_scalar.py",
+    "sha256": "d62e1610ca45f24e3cbf90e66dff3a7d954f87713afea4f5ae7bdc404411b0cb"
+  },
+  "inherited_geometry_only": "Pinned C5 code reuses central32 phase/masks/fresh-copied-C1-encoder law. No C5 trained checkpoint is read or loaded.",
+  "constructor": {
+    "class_name": "QueryAnchoredResidualExternal",
+    "arguments": [
+      "c1_state_dict",
+      "arm"
+    ],
+    "arms": [
+      "C6_EXTERNAL_ONLY_RAW_PRIOR",
+      "C7_EXTERNAL_ONLY_CLIPPED_PRIOR2"
+    ],
+    "arm_is_Python_configuration_not_forward_tensor": true
+  },
+  "delayed_factory": {
+    "name": "load_frozen_c1",
+    "arguments": [
+      "arm",
+      "checkpoint_path",
+      "expected_sha256",
+      "map_location"
+    ],
+    "returns": [
+      "model",
+      "receipt"
+    ],
+    "actual_original_C1_checkpoint_declared_only": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/runs/C1_NATURAL_KNOWNSET_SOURCE_V1/BEST_QUERY_CENTER_SCALAR.pt",
+      "sha256": "1a21d8bda252c203a3f54f891e452a6d4bedac6489f495c86b0d382de2c0fd79"
+    },
+    "no_actual_checkpoint_bytes_or_tensors_read_here": true,
+    "actual_loader_call_after_root_trainer_entry_only": true
+  },
+  "forward": {
+    "inputs": [
+      "p3_roi",
+      "local_rgb96",
+      "local_valid96"
+    ],
+    "shapes": [
+      "N,65,9,9 floating",
+      "N,3,96,96 uint8",
+      "N,1,96,96 factual binary"
+    ],
+    "outputs": {
+      "query_logit": "one unchanged-q hidden logit: arm_anchor + residual",
+      "query_available": "exact frozen originalC1 factual input support",
+      "base_logit": "arm_anchor; rawC1 for C6, exactclamp[-2,+2]forC7; loss/diagnostic only",
+      "reference_base_logit": "original rawC1 unchanged; correct-base preservation penalty must use this raw decision",
+      "delta_logit": "fresh trainable centralRGB residual; loss/diagnostic only"
+    },
+    "authoritative_decoder": "available &query_logit<0 D;available &query_logit>=0 external candidate;unavailableU. Does not predict cause-specificS or xy."
+  },
+  "parameter_counts": {
+    "total": 29794,
+    "frozen_base": 26573,
+    "trainable_residual": 3221
+  },
+  "only_arm_difference": "prior_anchor = raw C1 vs torch.clamp(raw C1,-2,2); same initial full parameter/buffer state under reset seed205, same residual initialization law",
+  "seed_responsibility": "Trainer resets torch.manual_seed(205) and CUDA205 immediately before each independent arm construction; no C5 trained branch.",
+  "base_frozen_eval": true,
+  "unknown_S_labels": "Model reads no teacher. External-only D/E supervision and S exclusion are trainer-side, not factual input availability.",
+  "generated_scope": "Invented nonzero C1-format checkpoint only; CPU/CUDA strict deterministic scalar clamp+addition and full generated CUDA backward. Zero source/current weights, pixels, feature caches, fitting or threshold choices.",
+  "actual_source_checkpoint_forward_fit_private_current_PnP": 0
+}

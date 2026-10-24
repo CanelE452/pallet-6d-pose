@@ -1,0 +1,87 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": "Saved-only fixed6 render integrity and actual visual QA; not model accuracy, native visibility labels or task solution.",
+  "render_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_bridge_20261023_v92/qwen3_saved_visual_diagnosis/FIXED6_ACTUAL_SAVED/RENDER_SEAL.json",
+    "sha256": "f6c224a75ff73cd39ca7067d3c48acc6c4e836e89140cacc17299c22f324f192",
+    "bytes": 4190
+  },
+  "inference_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_bridge_20261023_v92/qwen3_source_pilot/SOURCE20_ONE_SHOT/SOURCE_PILOT_SEAL.json",
+    "sha256": "c57046654bcac0833f8f30d01e1a71c9c6cc6ced704bc690436e80d74e112bfe",
+    "bytes": 2706
+  },
+  "all6_source_overlay_context_SHA_exact": true,
+  "all6_saved_RGB96_SHA_exact": true,
+  "fixed6_case_order_q_L_original_RGB_unchanged": true,
+  "all6_actual_full_context_and_RGB96_and_VLM256_figures_viewed": true,
+  "layout_header_rawresponse_and_parsed_text_readable_no_overflow_observed": true,
+  "source_pixels_visualized": {
+    "fixed_cases": 6,
+    "unique_canonical_fullframes": 5,
+    "source_crop_N": 6
+  },
+  "strict_primary_in_6": {
+    "UNPARSED_UNCERTAIN": 6,
+    "parsed": 0,
+    "raw_response_or_parser_changed": false,
+    "note_KO": "원문이 fenced JSON 형태이며 허용외 OTHER_OBJECT/BACKGROUND 키도 보인다. 이를 임의로 복구해 primary 정답/예측으로 만들지 않았다."
+  },
+  "critical_scope_KO": [
+    "사전 AI weak type는 whole RGB96 crop+context 관찰이다. VLM prompt의 near-centre 질의와 범위가 같지 않아 6행을 accuracy/confusion matrix로 부르지 않는다.",
+    "표시 context는 runner.make_context exact native overlay를 그림 크기에 맞게 축소한 preprocessor view이다. actual GPU input tensor dump가 아니다.",
+    "원96crop과256VLMview 모두 unchanged source q/L에서 왔으며,96→256은 새 물리정보를 추가하지 않는다.",
+    "원문에 PALLET_STRUCTURE/YES/CLEAR가 반복되더라도 형식실패 상태는 그대로 U다. 특정 native8/semantic D/E/S/physical owner gold로 승격하지 않는다.",
+    "몇 사례에서 crop중심의 박스/포대/바닥과 scene-level pallet 설명의 차이가 보여 query grounding 검증이 필요하나, 그 원인이 단일모델/resize/context/프롬프트 중 무엇인지 이 진단으로 식별하지 않는다."
+  ],
+  "cases": [
+    {
+      "case_index": 1,
+      "frame_slot": "17/4",
+      "direct_visible_evidence_KO": "빨간 crate의 하단과 회색 pallet 유사 base의 직선 top/수직 지지부/검은 opening이 같은 crop에서 보인다.",
+      "raw_response_scope_KO": "원문은 회색 pallet와 빨간 crate를 언급하여 넓은 영상내용과 일부 맞지만 yellow highlight도 언급한다. 표시된 q annotation과 물리 구조 단서를 혼동하지 않아야 한다.",
+      "remaining_uncertainty_KO": "특정 native part와의 대응은 없으며, crop 중심 자체의 식별가능한 코너 증거가 별도로 입증된 것은 아니다."
+    },
+    {
+      "case_index": 2,
+      "frame_slot": "7/1",
+      "direct_visible_evidence_KO": "작은 L40.15 crop은 대부분 갈색 박스 표면으로 보이고 왼쪽에 짧고 흐린 수평 흔적이 있다. full context에는 박스 아래 pallet가 있다.",
+      "raw_response_scope_KO": "원문은 pallet와 box가 crop 중심에 보인다고 말한다. 고정 crop 중심의 뚜렷한 pallet 구조가 이 확대영상에서 확인되는지는 불확실하여, full-image 객체 존재와 local cue를 구별해야 한다.",
+      "remaining_uncertainty_KO": "사전 weak category는 whole crop/context 관찰이므로 near-centre 문구를 같은 정답으로 채점하지 않는다."
+    },
+    {
+      "case_index": 3,
+      "frame_slot": "4/4",
+      "direct_visible_evidence_KO": "crop에는 적재 포대의 둥근 면과 접힌/묶인 경계가 주로 보이고, target pallet는 full context의 더 아래에 있다.",
+      "raw_response_scope_KO": "원문은 image centre의 wooden pallets와 box/whitebags를 설명한다. 요청한 crop centre 표면에 대한 local ownership 판별보다 장면 전체를 설명하는 해석 가능성이 보인다.",
+      "remaining_uncertainty_KO": "이 장면 설명이 virtual/native corner 외부 가림을 판정했다는 근거는 아니다. 포대가 어떤 정확한 참조점을 가렸다는 gold도 없다."
+    },
+    {
+      "case_index": 4,
+      "frame_slot": "17/6",
+      "direct_visible_evidence_KO": "crop 상단에는 회색 base와 빨간 crate/노란 수직 기둥이 있고, 중심과 하단은 회색 바닥면이 넓다.",
+      "raw_response_scope_KO": "원문은 foreground pallet가 redbins를 받친다고 설명한다. crop 안 어딘가에 pallet 유사 구조가 있는 것과 centre에 그 cue가 있는 것은 다른 범위다.",
+      "remaining_uncertainty_KO": "foreground/context 관계가 관찰되더라도 지정 native part의 가림 여부나 target identity CLEAR를 확정하지 않는다."
+    },
+    {
+      "case_index": 5,
+      "frame_slot": "13/0",
+      "direct_visible_evidence_KO": "crop은 흰 상부/짙은 갈색 하부의 흐린 경계와 왼쪽 노란 기둥이다. full context의 오른쪽 적재 base와 연관되는 후보지만 세부 구조는 흐리다.",
+      "raw_response_scope_KO": "원문은 wooden pallet, whitebox, yellowbarrier를 명확하다고 설명한다. 이 좁고 흐린 cue의 모호함을 해소했다는 증거는 없으며, scene-level 설명일 수 있다.",
+      "remaining_uncertainty_KO": "정확한 physical corner, material/owner 또는 native slot 대응을 새로 부여하지 않는다."
+    },
+    {
+      "case_index": 6,
+      "frame_slot": "6/6",
+      "direct_visible_evidence_KO": "crop의 대부분과 중심은 바닥으로 보이고, pallet/박스 후보의 가장자리 조각은 좌상단에 있다.",
+      "raw_response_scope_KO": "원문은 crop 중심의 wooden pallet structure와 그 위 box를 언급한다. 이미지에서 보이는 중심 표면과 장면 전체 pallet 존재를 분리할 필요가 가장 잘 드러나는 고정 사례 중 하나다.",
+      "remaining_uncertainty_KO": "정량 localization 성능/causal failure 원인은 이 6개 시각진단만으로 확정하지 않는다."
+    }
+  ],
+  "new_model_forward": 0,
+  "new_training": 0,
+  "new_current223_access": 0,
+  "PnP": 0,
+  "fully_solved": false
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "V88_INDEPENDENT_POSTFIT_SCOPE_BEFORE_FIT_COMPLETE",
+  "frozen_UTC": "2026-10-22T22:38:15.225570+00:00",
+  "stage": "PREPARATION_ONLY_NO_SAVED_RESULT_READ",
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/FIT_PROTOCOL_BEFORE_SOURCE_ARRAYS.json",
+    "sha256": "b8fc78174e168a7f5abdde50bc195af5bb1d25c685317d02bd471cbaeb28f72e"
+  },
+  "trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/train_external_once.py",
+    "sha256": "6b3a49913d1e189cff43715f20a1e07d4aebfab0be7f4cab9624f7b69413580d"
+  },
+  "model": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/external_ray_head.py",
+    "sha256": "648be1dffa2a6a024688ed1d69e16728b690dfe37443e44ada5514f94379ad2b"
+  },
+  "allowed_now": [
+    "Code/protocol/schema/metadata reads",
+    "Existing public-pack coordinate and factual-valid arrays only if needed",
+    "Generated NumPy tests; no trainer imports"
+  ],
+  "allowed_only_after_parent_complete_authorization": [
+    "Verify exact FIT_COMPLETE SHA and bound frozen outputs",
+    "Join all 4200 IDs and 33600 slots with teacher label/reason/reference and original input q/L/factual flags",
+    "Independent CM/P/R/U/admission/gates/history/selection/known-only NLL replay"
+  ],
+  "forbidden": [
+    "RGB pixels",
+    "P3 or other feature arrays",
+    "Checkpoint parameter loading",
+    "New model forward",
+    "Training",
+    "Current223 input/GT/scores",
+    "PnP",
+    "Importing trainer functions",
+    "Changing published thresholds/labels/criteria"
+  ],
+  "target_codes": {
+    "1": "EXTERNAL_OTHER_FIRST_HIT_PROXY",
+    "0": "CLEAR_TO_VIRTUAL_ENDPOINT_PROXY",
+    "-1": "UNKNOWN_TYPED"
+  },
+  "admission": "known0/1 & query_center_valid & ROI_anyvalid & local_valid96.any & target_valid128.any & finite((r-q)/L) & -.5<=offset<.5 each coordinate",
+  "inference_abstention": "Factual query-center/input availability only; do not abstain using GT reference local-square flag",
+  "decision": "external iff logit>=0 (frozen p>=.5); factual unavailable -> U",
+  "unknown_NLL": "Stored BCE against clamped U target is diagnostic only and must be excluded from all aggregated selection/known losses",
+  "selection": "20 steps100..2000, equal mean admitted VAL class0/class1 BCE, strict lower earliest tie; update0 never eligible",
+  "numerics": "Class/label/CM exact. Report all numerical discrepancies; 1e-6 discussion tolerance only for independently recomputed arithmetic. History validation-only batch pass may differ from final all-slot batch pass; never reselect from final-pass values.",
+  "external_limits": [
+    "Exactly six GT-free forward tensors, no GT reference/pose/depth/owner/label forward",
+    "Public q are GT-derived emulated augmentation, not deployed native initializer predictions",
+    "Reused development VAL; not independent final generalization",
+    "Clear virtual ray endpoint is not physical cue visible D",
+    "External ray proxy is not human semantic E",
+    "Convex self separate; no merge",
+    "No automatic current evaluation admission even if four source gates pass"
+  ],
+  "actual_source_output_reads": 0,
+  "new_forward_fit_current_PnP": 0
+}

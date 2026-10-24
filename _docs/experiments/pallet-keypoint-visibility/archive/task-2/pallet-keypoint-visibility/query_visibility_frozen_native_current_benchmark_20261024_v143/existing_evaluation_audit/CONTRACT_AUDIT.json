@@ -1,0 +1,495 @@
+{
+  "schema": "V143_EXISTING_CURRENT_OPERATOR_MAPPING_AND_BASELINE_METADATA_AUDIT_V1",
+  "completed": true,
+  "PASS": true,
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_native_current_benchmark_20261024_v143/existing_evaluation_audit/save_contract_audit.py",
+    "sha256": "d86f06218c523bcc489a6a7f8f34d097ed3661fc39767f3abee5b917fcd93501"
+  },
+  "prospective_policy": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_native_current_benchmark_20261024_v143/ROOT_FROZEN_BENCHMARK_POLICY_BEFORE_PRIVATE_BODY_READS.json",
+    "sha256": "33856e89ab3a563e7ee80d2d2daf846d64199122340c02e7299f66fc9f51cd1b"
+  },
+  "audit_scope": {
+    "code_contract_phase_summary_seal_metadata_only": true,
+    "current_RGB_feature_annotation_prediction_body_reads": 0,
+    "current_body_hash_reads": 0,
+    "checkpoint_tensor_body_reads": 0,
+    "new_model_forward_fit_PnP_calls": 0,
+    "forbidden_phase_access": 0,
+    "private_data_open_authorized_by_this_audit": false
+  },
+  "conclusion_KO": "원래 V124의 input loader·전체1784 동시 head 계산·raw0/U-first decoder·매핑/분모/저장 baseline 평가 산술은 그대로 재사용할 수 있습니다. 후보 모델의 source authorization은 V124 C16 전용 guard와 분리해야 합니다. 실제 특징 호환성은 metadata만으로 확정할 수 없으며, 별도 root entry 후 원래 C16 selected4500 가중치로 저장 raw/safe/p-visible와 metadata를 byte parity 검증한 다음에만 C29/C32를 평가해야 합니다.",
+  "reusable_operator": {
+    "code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/current_evaluation_preparation/frozen_head_current.py",
+      "sha256": "d0319bb9e9d69bf963a43e77c9b4b5c0ccf1f582d1e5d2ef5e8afb6d73122cee"
+    },
+    "operator": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/current_evaluation_preparation/CURRENT_OPERATOR_REUSE_PROTOCOL.json",
+      "sha256": "504ae2d916eb4f61c0e2272d76611af6e509b4f07ebe1c5c796dd2d5ce2e6ea9"
+    },
+    "unchanged_function_names": [
+      "load_saved_inputs",
+      "predict_generated_or_actual",
+      "state_sha",
+      "pure_core"
+    ],
+    "input_packet_binding": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/private_evaluation/C11_FROZEN_CURRENT223/RAW_QUERY_SCALAR_OUTPUTS.npz",
+      "sha256": "333c51d976a4d0a0e2ba9db6bb193fad6a6fe0aed3e07431dcdaa7652ed7baeb"
+    },
+    "input_binding_inherited_only_not_read_or_hashed": true,
+    "features": {
+      "shape": [
+        1784,
+        1928
+      ],
+      "dtype": "float32",
+      "finite_all": true,
+      "block_order": "T/Q/F/C/P each384 followed8 descriptors; final1927=context_Q_inside",
+      "learned_input_fields": [
+        "features1928"
+      ],
+      "no_GT_ID_native_geometry_reference_input": true
+    },
+    "metadata_whitelist": [
+      "query_available",
+      "prior_valid",
+      "valid",
+      "context_available",
+      "local_central4_available",
+      "context_Q_inside",
+      "query_xy",
+      "side_L",
+      "original_query_xy",
+      "original_side_L",
+      "id",
+      "native_corner"
+    ],
+    "original_context_box": "FROZEN_INITIAL_Q8_UNCLIPPED_UNEXPANDED_MINMAX; derived from initial native8, not selected detection/GT bbox",
+    "availability": "valid=query_available=prior_valid AND context_available AND local_central4_available; Q_inside is descriptor only, no extra U gate",
+    "expected_original_valid": 1739,
+    "expected_original_input_U": 45,
+    "expected_extra_operator_U": 0,
+    "q_L": "original F64 metadata; feature q/L F32 casts checked equal; no correction/recentering/resizing",
+    "batch_math": "ONE ALL1784 batch, repeat identical second call; never compact available rows or reuse source compact512 batching",
+    "runtime": "Torch2.1.1+cu118 FP32, cuda, one thread, deterministic, TF32false, inference_mode/eval/no gradients",
+    "C16_original_head_parameters": 221825,
+    "C16_selected_update": 4500,
+    "C16_checkpoint": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/runs/C16_EXACT_C15_DURATION_CONTROL_8000/BEST_SPATIAL_TARGET_QUERY_HEAD.pt",
+      "sha256": "ee285b2b5bb5a8e4f211eb3ee898e8e6a9b6582e5f83af01078db2e886e23eb0"
+    },
+    "candidate_head_parameters": 224513,
+    "candidate_G42": "all zeros, original C29/C32 source control, no new native geometry build",
+    "decoder": "all raw logits finite; safe z=where(valid,raw,0) F32; p_visible=sigmoid(-z) display only; valid D iff z<0, E iff z>=0; invalid U first",
+    "exact_minimal_CSV_fields": [
+      "id",
+      "native_corner",
+      "query_x",
+      "query_y",
+      "roi_side",
+      "valid",
+      "raw_query_aux_hidden_logit",
+      "raw_p_visible_FP32",
+      "authoritative_decision"
+    ]
+  },
+  "source_authorization": {
+    "reuse_C16_source_guard_for_candidates": false,
+    "why": "V124 source_guard is tied to C16 design, selected0..8000/100, C15 exact1000+7000 certificate and C16 freeze. C29/C32 retain their original failed source freezes/current_allowedfalse.",
+    "new_frozen_benchmark_policy_only": true,
+    "models_fixed": [
+      "C29",
+      "C32"
+    ],
+    "all_fixed_update8000_raw0": true,
+    "both_reported_even_if_worse": true,
+    "source_gate_waivers": 0,
+    "selected_model": null,
+    "adopted_model": null,
+    "compatibility_gate": "Original source-selected C16 checkpoint ee285b2b... at4500, not C16 FINAL8000, must byte-reproduce original C16 all1784 raw-before-U/safe-z/pv and metadata before either candidate call."
+  },
+  "annotation_and_mapping": {
+    "original_frames": 223,
+    "WOOD105_slots": 840,
+    "SQUARE118_slots": 944,
+    "native_slots": 1784,
+    "centroid8_excluded": true,
+    "frozen_mapping": "Existing N3 branch/permutation native->human reference only for evaluation; original qFinal parity certificate. Never new GT-best permutation or physical native certificate.",
+    "original_mapping_status": {
+      "VERIFIED_FROZEN_BASELINE_MAPPING": 222,
+      "UNKNOWN_UNMATCHED_BASELINE": 1
+    },
+    "unresolved_mapping_ids": [
+      "SQUARE_YOLO:026048"
+    ],
+    "native_order": "Local cuboid convention: 0 front top left, 1 front top right, 2 front bottom right, 3 front bottom left; 4-7 corresponding back-face order; 8 centroid excluded. These are local cuboid names, not image-coordinate sorting. Synthetic perm_v4[dynamic_id]=native_id is separate from real evaluation native-to-reference mapping; do not reapply it to already-dynamic saved arrays.",
+    "group_original_inventory": {
+      "SQUARE118": {
+        "DIRECT_VISIBLE": 531,
+        "UNANNOTATED": 343,
+        "EXTERNAL_OCCLUDED": 61,
+        "UNKNOWN_MAPPING": 8,
+        "OUT_OF_FRAME": 1
+      },
+      "WOOD_PRIMARY105": {
+        "DIRECT_VISIBLE": 637,
+        "SELF_OCCLUDED": 136,
+        "UNANNOTATED": 13,
+        "OUT_OF_FRAME": 23,
+        "EXTERNAL_OCCLUDED": 31
+      }
+    },
+    "groups": {
+      "SQUARE118": {
+        "frames": 118,
+        "native_slots": 944,
+        "source_human_reference_state_counts": {
+          "DIRECT_VISIBLE": 535,
+          "EXTERNAL_OCCLUDED": 62,
+          "SELF_OCCLUDED": 0,
+          "OUT_OF_FRAME": 1
+        },
+        "source_missing_reference_slots": 346,
+        "mapped_native_state_inventory": {
+          "DIRECT_VISIBLE": 531,
+          "UNANNOTATED": 343,
+          "EXTERNAL_OCCLUDED": 61,
+          "UNKNOWN_MAPPING": 8,
+          "OUT_OF_FRAME": 1
+        },
+        "legacy_stored_state_inventory": {
+          "O": 468,
+          "B": 238,
+          "S": 143,
+          "U": 86,
+          "I": 9
+        },
+        "query_inside_raw_canvas": 939,
+        "nearest_pixel_inside_raw_canvas": 939,
+        "roi_has_valid_sample": 942,
+        "semantic_D_vs_E_label_eligible": 592,
+        "semantic_D_vs_ES_label_eligible": 592,
+        "paired_same_query_RGB_D_vs_E": 592,
+        "paired_same_query_RGB_D_vs_ES": 592,
+        "same_slot_pipeline_D_vs_E": 592,
+        "same_slot_pipeline_D_vs_ES": 592,
+        "same_query_RGB_score_available": 796
+      },
+      "WOOD_PRIMARY105": {
+        "frames": 105,
+        "native_slots": 840,
+        "source_human_reference_state_counts": {
+          "DIRECT_VISIBLE": 637,
+          "EXTERNAL_OCCLUDED": 31,
+          "SELF_OCCLUDED": 136,
+          "OUT_OF_FRAME": 23
+        },
+        "source_missing_reference_slots": 13,
+        "mapped_native_state_inventory": {
+          "DIRECT_VISIBLE": 637,
+          "SELF_OCCLUDED": 136,
+          "UNANNOTATED": 13,
+          "OUT_OF_FRAME": 23,
+          "EXTERNAL_OCCLUDED": 31
+        },
+        "legacy_stored_state_inventory": {
+          "I": 39,
+          "B": 431,
+          "U": 151,
+          "S": 128,
+          "O": 91
+        },
+        "query_inside_raw_canvas": 800,
+        "nearest_pixel_inside_raw_canvas": 800,
+        "roi_has_valid_sample": 827,
+        "semantic_D_vs_E_label_eligible": 668,
+        "semantic_D_vs_ES_label_eligible": 804,
+        "paired_same_query_RGB_D_vs_E": 645,
+        "paired_same_query_RGB_D_vs_ES": 666,
+        "same_slot_pipeline_D_vs_E": 656,
+        "same_slot_pipeline_D_vs_ES": 792,
+        "same_query_RGB_score_available": 673
+      }
+    },
+    "binary_target": "Human DIRECT_VISIBLE vs EXTERNAL_OCCLUDED only. Human SELF_OCCLUDED,OUT_OF_FRAME,UNANNOTATED,UNKNOWN_MAPPING stay outside binary E and remain in full1784 ledger.",
+    "no_pixel_segmentation_gold": "No real pixel segmentation reference verified. Semantic evaluation cannot establish real single-pixel presence accuracy.",
+    "prior_source_missing": "Wood13 NO_REFERENCE and square346 pnp_projected review-only slots; mapped square343 UNANNOTATED+8 UNKNOWN_MAPPING differs from source-only346 count. No conversion toD/E."
+  },
+  "cohort_contract": {
+    "paired_same_query_RGB": "Known mapped human task label + saved valid initial query + legacy RGB score at exactly that coordinate. Preserve legacy RGB U abstentions.",
+    "same_slot_pipeline": "Known mapped human task label + valid initial query. Preserve S gate and U/T/missing; report all registered denominators and selective decision coverage separately. This cohort does not claim identical query location for geometric gates.",
+    "primary_paired_from_existing_metadata": {
+      "WOOD": {
+        "D": 616,
+        "E": 29,
+        "N": 645
+      },
+      "SQUARE": {
+        "D": 531,
+        "E": 61,
+        "N": 592
+      },
+      "total": 1237
+    },
+    "same_slot_from_existing_review": {
+      "WOOD": {
+        "D": 626,
+        "E": 30,
+        "N": 656
+      },
+      "SQUARE": {
+        "D": 531,
+        "E": 61,
+        "N": 592
+      },
+      "total": 1248
+    },
+    "note": "Full1784 inputU45 and primary paired D/E1237 inputU0 are different denominators. Preserve all original cohorts rather than filtering by new predictions/GTerror.",
+    "paired_transitions": "Use identical original eligible row keys. Keep baseline-unresolved/new-unresolved and damage/recovery counts, no success-only subset.",
+    "full_denominator_reporting": "In addition to original cohort CM2x3, report all1784/group inventory and original input U/mapping/annotation exclusions. Do not treat all1784 as labelled D/E."
+  },
+  "stored_baselines": {
+    "v61": {
+      "original_binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/target_presence_classifier_20261022_v61/REAL_QUERY_PREDICTIONS.csv",
+        "bytes": 274522,
+        "sha256": "2675b3b03270f245f227330660642bb8aa3b4702e0a773825b367e1344a87081"
+      },
+      "saved_decision": "present_at_fixed_0_5 unchanged",
+      "fixed_threshold": 0.5,
+      "meaning": "M4 target visible silhouette at nearest initial-query pixel, not semantic corner visibility",
+      "new_weight_or_forward": false,
+      "full_inventory_guard": "V72 call(v61) itself returnsD/E without invalid guard. Original cohorts are already valid-only; all1784 inventory must separately preserve original query_valid/missing asU rather than turning invalid False intoE."
+    },
+    "C16": {
+      "saved_outputs": [
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/private_evaluation/C16_FROZEN_CURRENT223/HEAD_ONLY_SCORES.csv",
+          "sha256": "79d56366bff1ae82a1576804e4d86927ab2933ecd3670fe17fe0d5979212e187"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/private_evaluation/C16_FROZEN_CURRENT223/RAW_HEAD_OUTPUTS.npz",
+          "sha256": "91d0630ca94e6ee5482ed484a145ba400a04cd51e896d544ab9aa896eb5094ef"
+        }
+      ],
+      "inference_seal": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/private_evaluation/C16_FROZEN_CURRENT223/INFERENCE_SEAL.json",
+        "sha256": "9a7835cf9df8685a36e69021b328de5d4f5595a22079319c63d8c62962822038"
+      },
+      "fixed_raw0": true,
+      "metadata_from_same_original_packet": true
+    },
+    "real_CAL_legacy": {
+      "available_matched_stored_comparison": true,
+      "model_name": "legacy",
+      "training": "historical real CAL46; not synthetic-only comparator",
+      "fixed_historical_rules": {
+        "descriptor_sha256": "32f1683e9b43dca9731795d061a12bef30253a978f375511b7f98d5cb2291042",
+        "training": "historical real CAL46; not synthetic-only comparator",
+        "visible_if": "p_DIRECT >= .98",
+        "external_if": "p_DIRECT < .96",
+        "abstain_if": ".96 <= p_DIRECT < .98",
+        "visible_states": [
+          "B",
+          "I"
+        ],
+        "external_state": "O",
+        "self_state": "S (geometry before RGB; not a classifier score)",
+        "other_states": "U/T/missing remain separate; never force to negative"
+      },
+      "state_decode": "B/I=D;O=binaryhidden;U=ABSTAIN;S=OUT_OF_TASK_GEOMETRY_S inD_vsE;T/missing=OTHER_UNRESOLVED",
+      "geometry_S": "Out-of-taskS is kept separately and aggregated into predictionU only for CM2x3. It is not externalE. No new geometric fitting or learnedself claim.",
+      "weight_or_fit_or_teacher_read": false
+    },
+    "exact_historical_metric_replay": "Reuse historical_replay on original v61/legacy and C16 counts before reporting candidates; do not recompute old threshold decisions from rounded probabilities."
+  },
+  "coordinate_diagnostics": {
+    "general_bins": [
+      "ALL_ORIGINAL_ELIGIBLE",
+      "LE3",
+      "GT3",
+      "MISSING_REFERENCE_ERROR"
+    ],
+    "general_error_scope": "Original initial query to existing registered reference, not verified query ownership/miss truth. E reference coordinates remain estimated/unspecified.",
+    "manual_near_D": "annotation_coordinate_source=manual_click AND humanD AND existingerror<=3 AND originalqueryvalid; historicalN153wood/223square. Supplemental diagnostic only, not evaluation admission/model selection.",
+    "manual_provenance_binding": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/near_error_diagnosis_20261022/real/NEAR_DIRECT_ROWS_WITH_PROVENANCE.csv",
+      "sha256": "7c9f1e64f1c10049ddeebffa6408461d53f9ad202a8099d2b0adc495140896b6"
+    },
+    "forbidden_uses": [
+      "GTerror primary filtering",
+      "q/L correction",
+      "GT-centered features/crops",
+      "GT permutation choice",
+      "threshold/checkpoint/model/data-source selection"
+    ]
+  },
+  "limitations_KO": [
+    "현재223은 과거 반복 개발에 노출된 자료입니다. 평가 전용 사용을 유지해도 독립 blind test로 표현할 수 없습니다.",
+    "기존 사람 라벨은 원래 reference 의미 가림이며 실사 단일픽셀 target mask gold가 아닙니다.",
+    "등록 native 명칭/이전 GT평가 branch와 독립적인 물리적 대응 인증을 구분해야 합니다.",
+    "C29/C32의 source 실패와 current_allowedfalse는 불변입니다. 이 별도 benchmark는 source 개선의 실사 전이를 측정하는 진단이며 모델 채택이나 새로운 허가의 소급 적용이 아닙니다.",
+    "호환성은 실제 C16 저장출력 byte parity를 통과하기 전에는 미확정입니다. 실패하면 feature 재계산이나 숫자 보정 없이 종속 benchmark를 중단해야 합니다."
+  ],
+  "actual_body_bindings_inherited_only_not_opened_or_hashed": {
+    "current_feature_packet": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/private_evaluation/C11_FROZEN_CURRENT223/RAW_QUERY_SCALAR_OUTPUTS.npz",
+      "sha256": "333c51d976a4d0a0e2ba9db6bb193fad6a6fe0aed3e07431dcdaa7652ed7baeb"
+    },
+    "saved_C16_outputs": [
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/private_evaluation/C16_FROZEN_CURRENT223/HEAD_ONLY_SCORES.csv",
+        "sha256": "79d56366bff1ae82a1576804e4d86927ab2933ecd3670fe17fe0d5979212e187"
+      },
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/private_evaluation/C16_FROZEN_CURRENT223/RAW_HEAD_OUTPUTS.npz",
+        "sha256": "91d0630ca94e6ee5482ed484a145ba400a04cd51e896d544ab9aa896eb5094ef"
+      }
+    ],
+    "saved_C16_inference_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/private_evaluation/C16_FROZEN_CURRENT223/INFERENCE_SEAL.json",
+      "sha256": "9a7835cf9df8685a36e69021b328de5d4f5595a22079319c63d8c62962822038"
+    },
+    "evaluation_manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/PREPARED_QUERY_MANIFEST.csv",
+      "sha256": "950030bac4280bd80ce44e9e7d3168011ac4a10c55b24c080af169d9f5480a24"
+    },
+    "original_prior_rows": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/private_evaluation/CUE_ATTENTION_V3/ROWS_INPUT_ONLY.jsonl",
+      "sha256": "b35ffa94cda9e2c098f3b28675d3f2ab1c7f746ecc36cde05d51f7e82de1cd82"
+    },
+    "manual_coordinate_provenance": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/near_error_diagnosis_20261022/real/NEAR_DIRECT_ROWS_WITH_PROVENANCE.csv",
+      "sha256": "7c9f1e64f1c10049ddeebffa6408461d53f9ad202a8099d2b0adc495140896b6"
+    },
+    "original_v61_prediction": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/target_presence_classifier_20261022_v61/REAL_QUERY_PREDICTIONS.csv",
+      "bytes": 274522,
+      "sha256": "2675b3b03270f245f227330660642bb8aa3b4702e0a773825b367e1344a87081"
+    },
+    "v61_legacy_same_query_saved_outputs": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/presence_previous_models_audit_20261022_v62/SAME_QUERY_SAVED_OUTPUTS.csv",
+      "bytes": 390693,
+      "sha256": "41fa3377e4a8f79546257773a8e51f529e6f458b393a72ae70959300c0630444"
+    },
+    "original_baseline_metric_replay": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/saved_output_evaluation_20261022/CLASSIFICATION_METRICS.csv",
+      "sha256": "cff556ff7f0a6b895575d489bb3db55b9faaca60daa109345b6e7d009fdabb13"
+    },
+    "v61_freeze": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/target_presence_classifier_20261022_v61/MODEL_FREEZE.json",
+      "bytes": 435,
+      "sha256": "1022768ff31c3ec0fb68436224d78ac03beaf1387a4c609ef7227ebe9e9ba8f8"
+    },
+    "legacy_descriptor": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/presence_previous_models_audit_20261022_v62/EXACT_LEGACY_DESCRIPTOR.json",
+      "bytes": 5383,
+      "sha256": "e0187ac55c7ff3dffe4c45146aac23fd1295719891d21f795e67e61d14e08bff"
+    }
+  },
+  "evidence": [
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_native_current_benchmark_20261024_v143/ROOT_FROZEN_BENCHMARK_POLICY_BEFORE_PRIVATE_BODY_READS.json",
+      "sha256": "33856e89ab3a563e7ee80d2d2daf846d64199122340c02e7299f66fc9f51cd1b"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/EVALUATION_CONTRACT.json",
+      "sha256": "15beaf7a56ae6d437c52386c2dae8185cc76aea6830d6733b453bf170e2135d0"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/PREPARATION_AUDIT.json",
+      "sha256": "c80752b66df87d7198d296a750a4ac63de706b376a974bb8c72e1c86b0b3d726"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/SOURCE_BINDINGS.json",
+      "sha256": "b1c7c2aae8461ab438ead31a5e7cdd41956948bcc5ec258c92e7b47041a47999"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/current_evaluation_preparation/CURRENT_OPERATOR_REUSE_PROTOCOL.json",
+      "sha256": "504ae2d916eb4f61c0e2272d76611af6e509b4f07ebe1c5c796dd2d5ce2e6ea9"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/current_evaluation_preparation/PREPARATION.json",
+      "sha256": "aa4961637f8afd0630820da75a11f8b19a81c75d76e2c05fbb4afb60a9b4fb85"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/ROOT_ACTUAL_C16_FROZEN_CURRENT_INFER_ENTRY.json",
+      "sha256": "ce5c368c083e6710ed20c73bf662f5d890b38d709db149e05d7ad53d832996cf"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/ROOT_ACTUAL_C16_SAVED_CURRENT_EVALUATION_ENTRY.json",
+      "sha256": "66146bbf2bc7674cbed2ec5141cc870dfe869257f9dcaa153320022ce84917b5"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/private_evaluation/C16_FROZEN_CURRENT223/INFERENCE_SEAL.json",
+      "sha256": "9a7835cf9df8685a36e69021b328de5d4f5595a22079319c63d8c62962822038"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/private_evaluation/C11_FROZEN_CURRENT223/INFERENCE_SEAL.json",
+      "sha256": "d49f56f81cb59ee76d9a571612acbe945a1148300c1f5a235c939e4cb0764498"
+    },
+    {
+      "kind": "existing_contract_summary_or_seal_metadata",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/saved_current_review/REVIEW.json",
+      "sha256": "e0f2a49463e9e235536bd79c2621f8fd7e323d2b105dd7e771144690597b7d9d"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/current_evaluation_preparation/frozen_head_current.py",
+      "sha256": "d0319bb9e9d69bf963a43e77c9b4b5c0ccf1f582d1e5d2ef5e8afb6d73122cee"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/evaluate_saved_only.py",
+      "sha256": "0045abb266c4e3341aa2bf4b02f387f24ec5f04b5c19b74b200000e5e55113b5"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/infer_same_query_once.py",
+      "sha256": "53fe3d7031aa9a610638465d12d8c17c0778ba0ed289a6a03e4f3540c0d372bd"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/contract/saved_evaluate_current_scores.py",
+      "sha256": "d079650b65aef777675af552da61335a28b73f978580413d74d143433019bef6"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/current_evaluation_preparation/evaluate_current_saved.py",
+      "sha256": "83c7cf31ab29154b447e98db7614fec6604307b15c9522508b8b8719740f8478"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/current_evaluation_preparation/current_adapter.py",
+      "sha256": "1f1ed2341c7ea9edc05b5dd1b376c80e4b58f908fbdca759748fb2ad2c610d90"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+      "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/prepare_saved_evaluation.py",
+      "sha256": "26a855b356eb26866f45839e6d4d55e0de5d9609fa051e7b16802ba1c92fdd0f"
+    },
+    {
+      "kind": "code",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/near_error_diagnosis_20261022/real/audit_real_near.py",
+      "sha256": "cbd6ba334b134dc96634c90abaccc830d980a6c64700dac4dab2300f0f979f8e"
+    }
+  ]
+}

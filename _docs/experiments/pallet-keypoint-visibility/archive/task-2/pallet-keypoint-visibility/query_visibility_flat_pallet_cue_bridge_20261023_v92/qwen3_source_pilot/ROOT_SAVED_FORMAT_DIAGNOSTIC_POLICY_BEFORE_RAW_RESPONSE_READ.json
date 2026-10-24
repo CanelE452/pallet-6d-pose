@@ -1,0 +1,17 @@
+{
+  "schema": "V92_POST_COUNT_PRE_RAW_SAVED_FORMAT_DIAGNOSIS_ONLY",
+  "created_UTC": "2026-10-23T00:09:40.753878+00:00",
+  "timing": "Root has seen initial2 UNPARSED_UNCERTAIN statuses/counts, no raw model response text read by root. Source onepass remains running; no prompt/code/decoding changes.",
+  "primary_strict_parser_unchanged": true,
+  "purpose": "If malformed responses occur, distinguish fenced validJSON, ordinary strictJSON, token-cap truncation and other syntax failure from semantic classification failure. Save a separate diagnosis; no response repair in authoritative160rows.",
+  "operations": [
+    "Count all primary statuses as stored.",
+    "For unparsed rawtext only: if a single complete outer markdownfence exists, remove only that fence and test same exact JSON/enum parser; report FENCED_VALID_JSON separately.",
+    "Otherwise if generated_tokens==96 and strictJSON fails, mark TOKEN_CAP_REACHED_WITH_INVALID_JSON; do not infer causal reason exclusively.",
+    "Other malformed responses remain OTHER_FORMAT_FAILURE.",
+    "Do not extract partial fields or synthesize missingnote/JSON; do not retry or rerun model."
+  ],
+  "semantic_D_E_S_gold": 0,
+  "current_access": 0,
+  "training_modelselection_or_PnP": 0
+}

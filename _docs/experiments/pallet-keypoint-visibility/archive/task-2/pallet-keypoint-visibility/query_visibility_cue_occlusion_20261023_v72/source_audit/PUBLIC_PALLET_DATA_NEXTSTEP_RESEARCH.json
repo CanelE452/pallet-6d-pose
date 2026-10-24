@@ -1,0 +1,183 @@
+{
+  "schema": "V72_BOUNDED_PRIMARY_PUBLIC_REAL_PALLET_CORPUS_RESEARCH_V1",
+  "date_KST": "2026-10-23",
+  "status": "COMPLETE_METADATA_ONLY_NO_DATASET_INTAKE_OR_TRAINING",
+  "main_recommendation": "LOCO is the next priority for real pallet instance/domain coverage. It has explicit CC0 and reachable RGB archive plus manual target-instance boxes. It supplies neither native8 semantic reference labels nor external/self occlusion truth. Do not claim it solves the visibility goal.",
+  "important_scope": "Three concrete public-source leads are separated by suitability. Only LOCO meets whole-scene realRGB + explicitdatasetlicense + availableinstanceboxes in this bounded check; Lang2Lift remains license/annotation HOLD and pallet-block32965 is a part-appearance component rather than fullpallet corpus. No second/third equallyready corpus is invented.",
+  "candidates": [
+    {
+      "priority": 1,
+      "name": "LOCO: Logistics Objects in Context (TUM fml official v1)",
+      "admission": "PRIORITY_NEXT_INTAKE_METADATA_ELIGIBLE; TRAIN_HOLD_UNTIL_RGB_ANNOTATION_AND_FAMILY_AUDIT",
+      "primary_URLs": {
+        "repository": "https://github.com/tum-fml/loco",
+        "readme": "https://raw.githubusercontent.com/tum-fml/loco/main/README.md",
+        "license": "https://github.com/tum-fml/loco/blob/main/LICENSE",
+        "institution": "https://www.mec.ed.tum.de/en/fml/research/2021/loco-logistics-objects-in-context/",
+        "paper": "https://mediatum.ub.tum.de/doc/1578845/1578845.pdf",
+        "official_example_gallery": "https://raw.githubusercontent.com/tum-fml/loco/main/assets/loco_sample_images.png",
+        "annotated_RGB_download": "https://go.mytum.de/239870",
+        "resolved_annotated_RGB_archive": "https://webdisk.ads.mwn.de/Handlers/AnonymousDownload.ashx?folder=73e976ba&path=LOCO%5Cv1%5Cdataset.zip",
+        "annotation_JSON": "https://raw.githubusercontent.com/tum-fml/loco/main/rgb/loco-all-v1.json",
+        "repository_tree_API": "https://api.github.com/repos/tum-fml/loco/git/trees/main?recursive=1"
+      },
+      "real_or_synthetic": "Real RGB captured while walking in five logistics environments using lowcost cameras; TUM describes on-site industrial-partner capture and manuallyannotatedimages. Not point-cloud-only or renderedRGB.",
+      "official_current_readme_counts": {
+        "all_RGB_images": 37988,
+        "manually_annotated_images": 5593,
+        "annotations": 152421,
+        "environments": 5
+      },
+      "count_version_note": "Paper abstract reports39101/151428; keep current README counts distinct from originalpaper counts until actualrelease JSON is audited.",
+      "target_annotation": {
+        "format": "COCO detection JSON",
+        "target_instance_annotation": "manual 2D bbox perinstance; classes pallet/forklift/pallettruck/smallloadcarrier/stillage",
+        "whole_pallet_and_material_scope": "Pallet targetclass is distinct from stillage/loadcarrier; no wood/plastic/square materialsubclass is documented. Nextactualintake must visuallyverify flatwood/square subset, not treat every pallet-classbox as confirmedwood.",
+        "native8_keypoints": false,
+        "reference_visibility_D_E_S": false,
+        "visible_or_amodal_instance_masks": "Not documented as supplied; COCO format does not imply segmentation exists.",
+        "depth_3D_pose": "Not supplied in the inspected detectionrelease description."
+      },
+      "license": {
+        "name": "CC0-1.0 Universal",
+        "scope": "Dataset repository README and LICENSE explicitly dedicate the work to publicdomain/permit reuse, including commercial use. Cite the authors as requested for research.",
+        "dataset_license_verified": true
+      },
+      "actual_raw_download_check": {
+        "method": "HTTP HEAD only; no RGB/archive body downloaded",
+        "status": 200,
+        "content_length_bytes": 769055500,
+        "content_type": "application/zip; charset=utf-8",
+        "Accept_Ranges": "bytes",
+        "filename": "dataset.zip",
+        "checksum": "Not verified/no payload intake"
+      },
+      "annotation_tree_metadata": {
+        "rgb/loco-all-v1.json_bytes": 103523578,
+        "subset_files": [
+          "rgb/loco-sub1-v1-val.json",
+          "rgb/loco-sub2-v1-train.json",
+          "rgb/loco-sub3-v1-train.json",
+          "rgb/loco-sub4-v1-val.json",
+          "rgb/loco-sub5-v1-train.json"
+        ],
+        "note": "Names show5 subsets; do not assume independent capture IDs or materialsplit until release metadata validated."
+      },
+      "independence": "Different publisher/capture program from NVIDIA R2B and KU Leuven Pallox. That is provenance evidence, not imageSHA or siteidentity proof; compare exacthash and capture-family metadata before training; group whole environments/sessions rather than random neighborframes.",
+      "next_concrete_use": "Use manualpallet bbox to build target-instance selection/hard-negative corpus, then freeze physicallylocalized 2D cue proposals and unknowns separately. A bbox is not native8 corner visibility. Keep statefixed under sourcequery jitter and generate controlledother-instance covers with explicitteacher tiers only after a new contract.",
+      "research_limit": "No LOCO RGB was decoded or downloaded; material-specific/sample-level quality is not certified. Official samplegallery did not render in webtool and in-appbrowser unavailable."
+    },
+    {
+      "priority": 2,
+      "name": "Lang2Lift outdoor pallet test RGB (AIT / TU Wien authors)",
+      "admission": "HOLD_DATASET_LICENSE_AND_GT_MASK_RELEASE_UNCONFIRMED",
+      "primary_URLs": {
+        "project": "https://eric-nguyen1402.github.io/lang2lift.github.io/",
+        "dataset_directory": "https://github.com/Eric-nguyen1402/lang2lift.github.io/tree/main/static/datasets",
+        "readme": "https://raw.githubusercontent.com/Eric-nguyen1402/lang2lift.github.io/main/README.md",
+        "tree_API": "https://api.github.com/repos/Eric-nguyen1402/lang2lift.github.io/git/trees/main?recursive=1",
+        "example_raw_RGB_URL_pattern": "https://raw.githubusercontent.com/Eric-nguyen1402/lang2lift.github.io/main/static/datasets/{sunny,snowy,dark,occlusion}/{filename}"
+      },
+      "real_or_synthetic": "Project explicitly presents real outdoor forklift pallet scenes, including loaded/empty wooden pallets, weather, night and occlusion. RGB scene data, not a3D-only corpus.",
+      "published_data_tree_counts": {
+        "RGB_files": 129,
+        "sunny": 42,
+        "snowy": 41,
+        "dark": 12,
+        "occlusion": 34,
+        "prompt_txt_files": 4,
+        "source_project_reported_prompt_image_pairs": 387
+      },
+      "target_annotation": {
+        "published": "per-image language prompts identify targetpallet in RGB",
+        "visible_instance_masks": "Paper/project evaluates prompt-conditioned segmentation, but no mask/annotationJSON export occurs under the inspected public static/datasets tree. Do not infer that benchmarkGT is released.",
+        "native8_D_E_S": "Not provided/confirmed. Imagecategory occlusion is not per-reference externalocclusion truth."
+      },
+      "license": {
+        "confirmed": "README explicitly labels Website License CC BY-SA4.0",
+        "dataset_reuse": "No separate dataset-specific use/export license verified; do not automatically extend website/template license to all rawphotos or undeclaredGT.",
+        "dataset_license_verified": false
+      },
+      "independence": "AIT/TUWien outdoorindustrialcapture context is a distinctpubliclead from NVIDIA indoorR2B, but session/site/copyright and exacthash must still be verified; no random-frame independentVAL claim.",
+      "next_concrete_use": "If dataset rights and targetmask release are clarified, prioritize this as outdoorwood/realoccluder diversity. Until then onlyresearchcandidate; no training or synthetic goldE/S creation."
+    },
+    {
+      "priority": 3,
+      "name": "pallet-block-32965 (TU Dortmund / Fraunhofer IML)",
+      "admission": "LICENSED_REAL_PART_APPEARANCE_AUXILIARY_ONLY; NOT_FULL_PALLET_VISIBILITY_CORPUS",
+      "primary_URLs": {
+        "record": "https://zenodo.org/records/6358607",
+        "metadata_API": "https://zenodo.org/api/records/6358607",
+        "raw_download": "https://zenodo.org/api/records/6358607/files/pallet-block-32965.rar/content",
+        "institution_publication": "https://lamarr-institute.org/de/publication/computer-vision-based-re-identification-of-wooden-euro-pallets/"
+      },
+      "real_or_synthetic": "Actual chipwood blocks of Euro-pallets photographed in anindustrialreidentification setting; closeup RGB parts, not wholepallet scene/depth/3Ddataset.",
+      "counts": {
+        "individual_blocks": 32965,
+        "RGB_images": 131860,
+        "images_per_block": 4,
+        "cameras": 2,
+        "perspectives": 2
+      },
+      "target_annotation": "IndividualblockID, cameraID and frameID. No released globalpallet bbox, semanticcorner reference, native8, full/visiblemask, E/S or targetoccluder relation documented.",
+      "license": {
+        "name": "CC BY4.0",
+        "dataset_license_verified": true,
+        "evidence": "Official Zenodo API metadata.license.id=cc-by-4.0; access_right=open. Attribution/license/change notices required."
+      },
+      "raw_archive_metadata": {
+        "key": "pallet-block-32965.rar",
+        "bytes": 13518893025,
+        "publisher_MD5": "03261e267e6170953b66c88c1ce0ac1f",
+        "actual_download_or_checksum_verification": false
+      },
+      "independence": "Separate Dortmund/Fraunhofer industrial program; file/family auditing remains necessary if ever used. Partidentity grouping is required across the four views.",
+      "next_concrete_use": "Optional woodtexture/agedblock targetpart representation pretraining only. It cannot replace scene-level targetinstance/corner/occlusion supervision and its13.5GB archive is disproportionate to an initialsmall pilot."
+    }
+  ],
+  "excluded_or_not_open_real_ready": [
+    {
+      "name": "RPP3.2k",
+      "primary_URL": "https://www.mdpi.com/2075-1702/13/12/1126",
+      "reason": "Real RGB-D plus Vicon singlepalletpose, but dataavailability states KION data usedunderlicense; publicrawdownload and permissivereuse not verified. Articleopenaccess does not make datasetopen. Not admitted."
+    },
+    {
+      "name": "PalLoc6D",
+      "primary_URL": "https://tore.tuhh.de/entities/product/4b51fbbb-6b30-4468-80c3-fd6d25419310",
+      "reason": "50000syntheticallyrendered RGB/6Dposes, not real images; must not count as independentrealcorpus."
+    },
+    {
+      "name": "EmaroLab PDT",
+      "primary_URL": "https://github.com/EmaroLab/PDT",
+      "reason": "Real2Dlaser scans, not RGB; research-only with separatecommercialarrangement, not thisRGBgoal."
+    },
+    {
+      "name": "unlogical0327/Pallet_database",
+      "primary_URL": "https://github.com/unlogical0327/Pallet_database",
+      "reason": "PublicRGBdirectory exists, but no datasetlicense/instanceannotationdefinition established in inspectedREADME. Holdratherthanassumereuse."
+    },
+    {
+      "name": "Staer Warehouses / Palleset",
+      "primary_URLs": [
+        "https://staer.ai/news/an-open-warehouse-dataset-for-physical-ai-research/",
+        "https://huggingface.co/datasets/eusandre95/Palleset"
+      ],
+      "reason": "Renderedsyntheticwarehouse sources; do not relabel as real to fill the sourcegap."
+    }
+  ],
+  "bounded_research_conclusion": "LOCO offers the most concrete next meaningful full-scene realpallet corpus with manualinstanceboxes and clearlicense, addressing upstream instance-selection/domain failure visible in the publicR2B pass. None of these inspected sources provides our desired semanticnative8D/E/S gold. Newsourceannotation/conditionalteacher construction must preserve that distinction and currentevaluation exclusion. No PnP/physicalmeshDIRECT prerequisite is added.",
+  "actions_this_task": {
+    "web_primary_pages_and_metadata_API_reads": true,
+    "HTTP_HEAD_archive_only": true,
+    "dataset_archive_RGB_or_annotation_payload_downloads": 0,
+    "new_RGB_decodes": 0,
+    "current223_reads": 0,
+    "model_forward_or_training": 0,
+    "PnP": 0
+  },
+  "known_scope_limits": [
+    "This is boundedmetadataresearch, not a fullintake or legal opinion. Publishedlicense names/scopes are recorded; unverifiedrights areHOLD.",
+    "No newcandidate source was fit, scored, visuallycurated or selected using currentevaluation.",
+    "No claim that three independent fullpalletvisibility-ready corpora were found; onlyLOCO meets thebasicwholeRGB/license/instancebox criteria in thischeck."
+  ]
+}

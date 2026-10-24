@@ -1,0 +1,38 @@
+{
+  "schema": "V78_BOP_VISIBILITY_RULE_SCOPE_ADDENDUM",
+  "preserved_contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/next_source_supervision_review/DENSE_SUPERVISION_FEASIBILITY_CONTRACT.json",
+    "sha256": "641ad44feb1330884cf4e34afb7cad169eb7e8ab97845d8586fbf43b7b841e18"
+  },
+  "previous_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/next_source_supervision_review/SEAL.json",
+    "sha256": "6973d2b529af62bcb52e00630b825fe78328aa4e2de515e54daaace526813ed8"
+  },
+  "checked_date": "2026-10-23",
+  "verification": "Read official primary current-master source via web. This documents current toolkit behavior, not a pinned historical generator for the locally downloaded YCB-V masks.",
+  "official_current_sources": [
+    {
+      "url": "https://github.com/thodan/bop_toolkit/blob/master/bop_toolkit_lib/visibility.py",
+      "raw_url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/bop_toolkit_lib/visibility.py",
+      "scope": "_estimate_visib_mask current branches"
+    },
+    {
+      "url": "https://github.com/thodan/bop_toolkit/blob/master/scripts/calc_gt_masks.py",
+      "raw_url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/scripts/calc_gt_masks.py",
+      "scope": "current full/visible mask generation recipe"
+    }
+  ],
+  "current_bop19_rule": "For rendered-model distance d_model>0, visible if d_model-d_test<=delta OR scene d_test==0. Missing scene depth is therefore admitted as visible in this mode; missing depth alone does not support an explanation that the pixel became covered.",
+  "current_bop18_rule": "Requires positive scene and rendered-model distance; missing scene depth is not visible.",
+  "current_mask_script": "Renders the GT model in its supplied pose; full silhouette is positive rendered distance. It calls visibility with bop19 and defaults delta to15mm (script notes5mm for ITODD). Scene and rendered Z-depth are converted to distance images before comparison.",
+  "local_historical_generation_mode": "NOT_CERTIFIED_BY_THIS_REVIEW. Existing pinned archive/PNG hashes certify received bytes; they do not establish generator commit, renderer, alignment, actual visibility delta, or bop18/19 mode used to produce those bytes.",
+  "implications": [
+    "Do not attribute source C errors to missing-depth holes without establishing generation mode and per-pixel evidence.",
+    "Native M4 is target-owned visible-mask PROXY, not perfect human RGB semantic gold. Render/mesh/pose alignment, edge rasterization, depth noise/tolerance, missing-depth treatment and true occlusion remain distinct possible sources of discrepancy.",
+    "M0 minus M4 stays nonvisible expected-support proxy; it does not identify semantic external E, self S, or a specific occluder cause.",
+    "No mask repair, new GT, human-label training, delta/radius/threshold retuning or new fit is authorized by this addendum."
+  ],
+  "changes_to_prior_artifacts": 0,
+  "source_mask_or_RGB_reads_for_this_addendum": 0,
+  "new_dataset_model_forward_fit_current_PnP": 0
+}

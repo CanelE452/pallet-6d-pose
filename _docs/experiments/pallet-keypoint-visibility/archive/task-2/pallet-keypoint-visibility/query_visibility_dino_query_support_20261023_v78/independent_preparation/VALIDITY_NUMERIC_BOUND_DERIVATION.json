@@ -1,0 +1,42 @@
+{
+  "status": "DERIVED_BEFORE_NEW_NUMERIC_CHECKS_AFTER_PRESERVED_1E6_ENGINEERING_FAILURE",
+  "unit_roundoff_FP32": 5.960464477539063e-08,
+  "gamma": "gamma(n)=n*u/(1-n*u)",
+  "assumptions": [
+    "Ordinary finite IEEE FP32 round-to-nearest operations, no autocast/TF32 as bound in FEATURE_PROTOCOL.",
+    "Input factual canvas masks are exact binary0/1. Bilinear align_cornersFalse uses at most4 rounded operations for scale/coordinate peraxis; coordinates bounded by native_size+1. Clamp and bilinear interpolation of binary samples are1-Lipschitz peraxis, so neighboring-index changes near integer ties do not amplify the coordinate bound.",
+    "At most16 further rounded operations conservatively bound a bilinear sample; exact interpolation weights are nonnegative and sum1.",
+    "AvgPool14x14 uses at most195 additions plus at most4 rounded division/reciprocal operations; floating inputs are bounded by1+sample_error.",
+    "Fractions average at most256 token weights, so at most255 additions plus4 division/reciprocal operations.",
+    "True fractions lie[0,1]. Derived FP32 error below2^-12 means FP16 rounding contributes at most2^-12: for x<=1 usual lower-bin half-ulp; for1<x<1+2^-12 rounding is1."
+  ],
+  "bounds_by_native_size": [
+    {
+      "native_size": 96,
+      "coordinate_absolute_bound_each_axis": 2.3126607686664507e-05,
+      "bilinear_sample_absolute_bound": 4.720693470977645e-05,
+      "avgpool196_absolute_bound": 5.906895688485311e-05,
+      "fraction_mean_at_most256_absolute_bound": 7.450770647803414e-05,
+      "FP16_additional_absolute_bound": 0.000244140625,
+      "true_fraction_to_stored_FP16_absolute_bound": 0.00031864833147803414
+    },
+    {
+      "native_size": 128,
+      "coordinate_absolute_bound_each_axis": 3.0756004036904344e-05,
+      "bilinear_sample_absolute_bound": 6.24657419621887e-05,
+      "avgpool196_absolute_bound": 7.43279451290313e-05,
+      "fraction_mean_at_most256_absolute_bound": 8.976693028799625e-05,
+      "FP16_additional_absolute_bound": 0.000244140625,
+      "true_fraction_to_stored_FP16_absolute_bound": 0.00033390755528799623
+    }
+  ],
+  "largest_token_weight_bound": 7.43279451290313e-05,
+  "largest_fraction_float32_bound": 8.976693028799625e-05,
+  "largest_true_fraction_to_half_bound": 0.00033390755528799623,
+  "existing_fraction_gate": 0.00048928125,
+  "original_independent_weight_1e_6_gate_status": "FAILED_AND_PRESERVED; this derivation does not retrospectively call that assertion PASS",
+  "frozen_builder_actual_feature_pool_tolerance": 2e-05,
+  "source_performance_gate_or_labels_or_coordinates_or_model_changed": false,
+  "observed_max_used_to_choose_bound": false,
+  "source_model_forward_current_PnP": 0
+}

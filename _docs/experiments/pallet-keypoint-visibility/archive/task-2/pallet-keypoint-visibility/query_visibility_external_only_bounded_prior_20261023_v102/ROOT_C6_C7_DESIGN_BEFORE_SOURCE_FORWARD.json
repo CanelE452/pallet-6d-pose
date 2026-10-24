@@ -1,0 +1,172 @@
+{
+  "status": "FIXED_BEFORE_ANY_NEW_SOURCE_HEAD_FORWARD_OR_FIT",
+  "UTC": "2026-10-23T05:30:45.973833+00:00",
+  "source_only": true,
+  "current_allowed": false,
+  "PnP_allowed": false,
+  "user_steering": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/ROOT_USER_STEERING_EXTERNAL_ONLY.json",
+    "sha256": "d4aeb6c9a89418cfb0c7dc44531ea1d6945be35688174057f9469eb1eab42c77"
+  },
+  "external_only_contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/next_external_only_preparation/NEXT_EXTERNAL_ONLY_CONTRACT.json",
+    "sha256": "5911814fe219fe0bf5b8aa40fec82de252f7ca0d349ff59611839b9a3649ed00"
+  },
+  "source_bindings": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/source_fit_preparation/SOURCE_BINDINGS.json",
+    "sha256": "c901779d5563690303853601cd87b995118bd7054ae88fdff085b7c3243ec886"
+  },
+  "C5_source_diagnosis": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/saved_source_failure_diagnosis/RESULT.json",
+    "sha256": "e566ace1fed18bd7c8592052d384da66b9975aa755923193f5021d4347f9ae71"
+  },
+  "source_only_motivation": {
+    "TRAIN": {
+      "N": 75,
+      "raw_base_cover_D": 75,
+      "raw_base_cover_and_sham_both_D": 75,
+      "raw_base_relative_margin2_satisfied_but_cover_D": 36,
+      "clipped_base_relative_margin2_satisfied_but_cover_D": 0,
+      "trained_C5_relative_margin2_satisfied_but_cover_D": 63
+    },
+    "VALIDATION": {
+      "N": 119,
+      "raw_base_cover_D": 117,
+      "raw_base_cover_and_sham_both_D": 113,
+      "raw_base_relative_margin2_satisfied_but_cover_D": 34,
+      "clipped_base_relative_margin2_satisfied_but_cover_D": 0,
+      "trained_C5_relative_margin2_satisfied_but_cover_D": 40
+    }
+  },
+  "question": "Does unbounded frozenC1 confidence let relative paired margins hold while covered points still classify visible, and does bounding only that prior improve external D/E source validation?",
+  "not_claimed": "This is a controlled source test, not a proven unique causal explanation or current-real performance improvement.",
+  "operator": {
+    "base": "exact immutable V94C1, all26573parameters frozen/eval/no_grad",
+    "new_branch": "same C5 central32 phase-correct copiedC1 localRGB encoder and MLP;3221trainable,29794total",
+    "inputs_only": [
+      "p3_roi",
+      "rgb96",
+      "crop_valid96"
+    ],
+    "outputs": "one same-q scalar plus availability; original-base/anchor/delta diagnostics loss-only",
+    "arms": [
+      {
+        "id": "C6_EXTERNAL_ONLY_RAW_PRIOR",
+        "anchor": "original C1 raw hidden logit"
+      },
+      {
+        "id": "C7_EXTERNAL_ONLY_CLIPPED_PRIOR2",
+        "anchor": "original C1 hidden logit clamped elementwise[-2,+2]; preserves raw0 sign including finite subnormals and signedzero"
+      }
+    ],
+    "arm_difference_only": "fixed prior clipping; same source input/folds/loss/sampler/seed/initial newbranchweights/updates and selector",
+    "initialization": "both independent arms copy originalC1 encoder, never C5trained residual; final newbranchlinearzero; newbranchinitialstateexact betweenarms; update0 decisions match immutableC1 and factualU",
+    "query_or_PnP_update": false,
+    "geometryS": "existing initial-inference filter external to learned head; no GT S mask enters forward"
+  },
+  "labels": {
+    "raw_teacher_state": "D/E/S/U preserved for all33984 rows",
+    "external_target": "D0/E1 only; S and U have no learned target",
+    "external_loss_eligible": "D/E & factualavailability",
+    "geometricS": "396 known teacherS retained, explicitly outside learned task; not unknownU or hiddenE",
+    "teacherU": "32070 unresolvedU retained, never negative"
+  },
+  "settings": {
+    "seed": 205,
+    "updates_per_arm": 2000,
+    "AdamW_lr": 0.001,
+    "AdamW_weight_decay": 0.0001,
+    "clip_norm": 5.0,
+    "batch": 64,
+    "TRAIN_draw": {
+      "old_accepted_triplets": 4,
+      "new_selected_triplets": 4,
+      "old_LOCO_BEFORE_D": 4,
+      "old_PALLOX_BEFORE_D": 4,
+      "old_BEFORE_E": 8,
+      "new_ALL_D": 8,
+      "new_ALL_E": 16,
+      "shuffle": "fixedCPUtorchgenerator; D32/E32 per draw; botharms exactsame2000draws"
+    },
+    "loss": {
+      "BCE": "known external D/E factual rows, final scalar",
+      "correct_base_delta_L2_weight": 0.05,
+      "correct_base_definition": "original C1 raw0 decision matches known D/E TRAIN label",
+      "paired_hinge_weight": 0.25,
+      "paired_hinge_margin": 2.0,
+      "paired_hinge": "mean relu(2-(z_cover-z_sham)), eight sampledtriplets; bothavailable"
+    },
+    "selector": "per-arm earliest strictminimum equal mean BCE eight sourceVAL cohorts, update0 and every100; unavailable safe0 BCE ln2 and decodedU retained",
+    "VAL_cohorts": {
+      "old_LOCO_BEFORE_D": {
+        "N": 3,
+        "all_D_or_E": true
+      },
+      "old_PALLOX_BEFORE_D": {
+        "N": 30,
+        "all_D_or_E": true
+      },
+      "old_SHAM_D": {
+        "N": 119,
+        "all_D_or_E": true
+      },
+      "old_BEFORE_E": {
+        "N": 2,
+        "all_D_or_E": true
+      },
+      "old_COVER_E": {
+        "N": 119,
+        "all_D_or_E": true
+      },
+      "new_BEFORE_D": {
+        "N": 82,
+        "all_D_or_E": true
+      },
+      "new_SHAM_D": {
+        "N": 77,
+        "all_D_or_E": true
+      },
+      "new_COVER_E": {
+        "N": 32,
+        "all_D_or_E": true
+      }
+    },
+    "threshold_raw_logit": 0.0,
+    "online_augmentation": false,
+    "optimizer": "residual parameters only",
+    "automatic_restart_after_optimizer_update": false
+  },
+  "source_gates": {
+    "old_LOCO_before_D_recall_min": 0.85,
+    "old_PALLOX_before_D_recall_min": 0.85,
+    "old_natural_before_E_recall_min": 0.75,
+    "old_sham_D_recall_min": 0.85,
+    "old_cover_E_recall_min": 0.75,
+    "old_accepted_VAL_pair_all3_min": 0.75,
+    "old_known_VAL_U_rate_max": 0.05,
+    "new_BEFORE_D_recall_min": 0.85,
+    "new_SHAM_D_recall_min": 0.85,
+    "new_COVER_E_recall_min": 0.75,
+    "new_selected_VAL_pair_all3_min": 0.75,
+    "new_known_VAL_U_rate_max": 0.05,
+    "empty_required_cohort": "No fit; preserve actual metadata; no fallback or omitted cohort"
+  },
+  "between_arm_selection": "Only an arm passing all12 prospective external gates may be admitted. If multiple pass, lowest selected8cohort sourceVALBCE; exacttie prefers C6. If none pass, no current inference. No alternative thresholds/checkpoints or new caps tried inside this experiment.",
+  "required_checks": [
+    "originalC1 base+availability exact old31680 and new2304source references",
+    "each initial arm decision equals original C1; base clamp[-2,+2] exact including scalar-edge fixtures",
+    "same initialnewbranchstate and all2000TRAINdraws acrossarms",
+    "rawteacherS preserved and excluded distinctfromU; all33984rows/qL/folds retained",
+    "all loss forward inputs exactly three image tensors; no labels/GTregions/IDs or source arm identifiers as tensors",
+    "frozenbase state unchanged afterfit; matched P3/RGB96 from actualfullRGB",
+    "generated CPU/CUDA phase/loss/support tests before source; code/protocol/data/runtime bindings frozen before actualfit"
+  ],
+  "limits": [
+    "Repeated source development; no fresh blind performance claim",
+    "New synthetic cuboid occluder family has obvious appearancegap",
+    "Old real controls194 ranks cluster10TRAIN/18VALbasequeries, naturalEVAL only2",
+    "AUXphysicalcue labels conditional, native8UNKNOWN/humanfalse",
+    "This model does not predict or certify 2D coordinate accuracy; positionerror remains separately diagnosed"
+  ],
+  "historical_current_review": "The user-requested saved historical current aggregate review is excluded from training, thresholds, checkpoint/armselection and gate choices; this design is motivated by saved source failures only."
+}

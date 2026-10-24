@@ -1,0 +1,116 @@
+{
+  "completed": true,
+  "directly_viewed_contact_sheet": true,
+  "fixed_cases": [
+    {
+      "id": "YCB:000009:000241:000000",
+      "observed_RGB": "기존 RGB96에서는 파란 pitcher 앞 red drill의 표면이 q/r를 차지한다. target128에는 두 물체가 함께 있다.",
+      "primary_pV": 0.23405426785416156,
+      "GT_center": "C",
+      "aux_argmax_center": "V",
+      "aux_center_CVO": [
+        0.42115575075149536,
+        0.4218367040157318,
+        0.15700756013393402
+      ],
+      "interpretation": "primary C는 맞지만 aux 중심 C/V가 0.42116/0.42184로 거의 동률이고 주변 map은 V를 넓게 예측한다. dense target ownership이 해결됐다는 근거가 아니다. near-tie argmax를 자신있는 V 오류로 과장하지 않는다."
+    },
+    {
+      "id": "YCB:000008:001872:000004",
+      "observed_RGB": "흰 cleanser 앞 yellow mustard label이 q/r를 차지한다. target128에는 foreground와 target이 같이 있다.",
+      "primary_pV": 0.18413397406709867,
+      "GT_center": "C",
+      "aux_argmax_center": "C",
+      "aux_center_CVO": [
+        0.39904627203941345,
+        0.26614680886268616,
+        0.334806889295578
+      ],
+      "interpretation": "primary C 및 aux C argmax가 맞는다. 중심 pC 0.399는 낮으므로 확실한 원인 인식으로 부르지 않는다."
+    },
+    {
+      "id": "YCB:000008:001299:000002",
+      "observed_RGB": "low tuna can의 보이는 측면/rim 주변 q/r이며 주변 upright can도 target context에 포함된다.",
+      "primary_pV": 0.3239019152969729,
+      "GT_center": "V",
+      "aux_argmax_center": "V",
+      "aux_center_CVO": [
+        0.41091176867485046,
+        0.4662497043609619,
+        0.12283853441476822
+      ],
+      "interpretation": "aux 중심 argmax V(0.4662)가 있으나 primary는 C(visible0.3239)다. shared spatial output과 primary 판단이 일치하지 않는 실제 사례다. aux pV도 0.5 미만이므로 좋은 분할을 primary readout만 망쳤다고 단정할 수 없다."
+    },
+    {
+      "id": "YCB:000009:000225:000002",
+      "observed_RGB": "wood block의 밝고 노출된 윗면 q/r이며 drill은 주변부에 있다.",
+      "primary_pV": 0.6382904704153393,
+      "GT_center": "V",
+      "aux_argmax_center": "V",
+      "aux_center_CVO": [
+        0.14686982333660126,
+        0.7553958892822266,
+        0.09773431718349457
+      ],
+      "interpretation": "primary V와 aux V(0.7554)가 함께 맞는다. 사례별 성공이며 가림/보임 전체 해결이나 물리 semantic gold를 뜻하지 않는다."
+    }
+  ],
+  "source_gate": "HOLD: four mandatory checks failed; no current223 access",
+  "public_natural_VAL_denominator": {
+    "all_slots": 6400,
+    "primary_admitted": 2018,
+    "C": 287,
+    "V": 1731,
+    "teacher_U": 4299,
+    "input_invalid": 220,
+    "U_and_input_invalid_are_overlapping_not_additive": true
+  },
+  "same_V77_control": {
+    "C_recall_before": 0.7038327526132404,
+    "C_recall_after": 0.6898954703832753,
+    "V_recall_before": 0.6239168110918544,
+    "V_recall_after": 0.6978625072212594,
+    "pair_both_before": 0.36662106703146374,
+    "pair_both_after": 0.36114911080711354,
+    "interpretation": "자연 V recall은 +7.39pp이나 C recall은 -1.39pp, 제어pair양쪽 정답은 -0.55pp. 보임 보존의 일부 이득과 동시 실패를 구분한다."
+  },
+  "auxiliary_natural_VAL_all_query_cell_recall_CVO": [
+    0.1673255584107531,
+    0.5262444086900119,
+    0.6586276223776224
+  ],
+  "hypotheses_and_limits": [
+    "Aux C recall 자체가 자연 VAL all-query native-valid cell에서 16.7%다. source primary 실패를 primary pooling/readout만의 문제로 돌릴 수 없다.",
+    "Fifty auxiliary decoder parameters share fusion supervision only. No new explicit target-instance input was introduced and primary output never consumes aux probabilities.",
+    "Original GT masks are source proxy target-ownership maps. C-mask/primary C is not certified semantic external E, O is not physical absence, self proxy is separate.",
+    "Nominal9 is a loss coordinate grid with broad feature receptive fields. Unchanged local RGB path has a -3.5/96*L phase offset relative to nominal9 receptive-center geometry; no phase change was made.",
+    "Present-class balanced BCE is not natural pixel prevalence calibration. pS is conditional on M0; jointvisible is pA*pS.",
+    "Same four cases were fixed in V79 before V80, but were originally chosen by V78 outcome cells. They are diagnostic, not a prevalence sample.",
+    "Input-only same-tensor collision audit found no exact duplicates; that does not establish universal target identifiability or causal mechanism.",
+    "No source mask threshold, primary admission, query, L, input, step selection or fixed0.5 threshold was changed after observing outcomes."
+  ],
+  "bindings": {
+    "report": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/RESULTS_KO.html",
+      "sha256": "f041fc85bdf7700be5b0f1b99a4e9d53a70929aa3f47761d19a889e04fe0e169"
+    },
+    "report_JSON": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/RESULTS_KO.json",
+      "sha256": "36bc6baa5f6fb5acf3348b18f0eeb66f8ae5ce119bc5d27ecf83cae0013b9f25"
+    },
+    "gallery_build": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/fixed_natural_gallery/BUILD_SEAL.json",
+      "sha256": "8a4262627bda15253f896b13a71e819d1cf8d84249c4e23ec060bb3ace6eb889"
+    },
+    "saved_analysis": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/saved_analysis/SEAL.json",
+      "sha256": "c904394f186e21dd211b9d05bc59eb0f36ec0a259f4de684d2cc2408c91271fd"
+    }
+  },
+  "source_raw_RGB_decode": 0,
+  "model_forward": 0,
+  "fit": 0,
+  "current223": 0,
+  "PnP": 0,
+  "old_artifacts_modified": false
+}

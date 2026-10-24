@@ -1,0 +1,96 @@
+{
+  "completed": true,
+  "planning_only": true,
+  "actual_feature_execution_allowed": false,
+  "rootdesign": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/ROOT_DATA_DESIGN_BEFORE_CORPUS_RGB.json",
+    "sha256": "4fbcff4606e0f2d437b8111d9081f50ef797e1503146928b273192a237579998"
+  },
+  "root_base_config": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/BASE96_SOURCE_CONFIG_INPUT_ONLY.jsonl",
+    "sha256": "94f9ff49017da2b55049924d2c3d5f715f9096e1801e7227993bf168b92dbd82"
+  },
+  "root_base_config_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/BASE96_CONFIG_SEAL.json",
+    "sha256": "7528d405a51aa2c0b0c59ef42b3cf6dce503186449a73d0c16a01d640b0c57ab"
+  },
+  "background_catalog_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/background_catalog/ROOT_CONFIG_JOIN_SEAL.json",
+    "sha256": "9014053b1dbe60330601a24ddd412863ef66ca8a704bb6904743cabc2f0c6232"
+  },
+  "input_contract": {
+    "future_fullRGB_manifest": "actual_corpus/FULL_RGB288_INPUT_ONLY.jsonl",
+    "fullRGB_fields": [
+      "image_id",
+      "base_index",
+      "base_id",
+      "variant",
+      "split",
+      "image(path,sha256)",
+      "decoded_RGB_sha256",
+      "raw_hw",
+      "background_id",
+      "query_input_binding_and_row"
+    ],
+    "future_queries": "B-authoritative QUERY_INPUTS96_INPUT_ONLY, all8q/L source-emulated beforeRGB and identical3variants; binding supplied only after completed corpus. No label/partID/mask/r/worldpoint/cameraGT forwarded.",
+    "full_RGB_count": 288,
+    "q_per_RGB": 8,
+    "query_occurrences": 2304,
+    "TRAIN_occurrences": 1536,
+    "VALIDATION_occurrences": 768,
+    "variants": [
+      "BEFORE",
+      "COVER",
+      "SHAM"
+    ],
+    "order": "base0..95 -> variant BEFORE/COVER/SHAM -> AUX0..7; occurrence_index=((base_index*3+variant_index)*8+aux_index)",
+    "source_query_lineage": "Source-emulated fixed projections+jitter, not actual detector initializer outputs. Native8association UNKNOWN; no query movement afterRGB."
+  },
+  "feature_recipe": {
+    "global_extraction": "Each actual fullRGB decoded and fileSHA/decodedSHA checked. One frozenYOLO wrapper.predict(contiguousBGR,already_padded=False,cpu_features=True) perfullRGB. Normal detector outputs are ignored; no initializer reselection.",
+    "P3": "CaptureFP16plane from same fullRGB; border100 once; actualshape+gain/offset verified; boundV90 CPU FP16toFP32 grid_sample align_cornersFalse/zeros with FP64 phase thenF32grid; all8 q/L together; ROI65 savedFP16.",
+    "RGB96": "Pinned V90 crop from exactly same fullRGB at sameq/L;uint8round+constant0; cropvalidbool. Compare renderer packedRGB96/valid forall2304 when available; failpreserve on mismatch rather than recenter.",
+    "validity": "Retain finite centreOOB/intersecting crops and factual65/valid96 masks. Absent/null query explicitzero placeholder, rawcoordinates retained asNaNmetadata and originalnull lineage. No GT label masks preprocessing.",
+    "globalP3_storage": "Transient only: sample8 ROIs then discard fullP3. No236MB fullP3archive or denseowner/depth archive.",
+    "output": "Three tensor chunks p3_roiFP16[N,65,9,9],rgb96U8[N,3,96,96],crop_valid96bool[N,1,96,96]; input-only metadata separate from GT. Max192queries=8bases perchunk, same renderer order."
+  },
+  "immutable_dependencies": {
+    "backbone_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/frozen_yolo_features.py",
+      "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab"
+    },
+    "backbone_checkpoint": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/yolo26_frozen.pt",
+      "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7"
+    },
+    "native_sampler_and_RGB": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_cue_inputs_20261023_v90/producer/spatial_input_math.py",
+      "sha256": "6a6c2543e28715e3d47e15c543c25f75ff7d3efa3b881e523bd3451817fc004b"
+    },
+    "V94_input_wrapper": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/pallox_actual_query_pack_preparation/build_actual_query_pack.py",
+      "sha256": "a2777bccdfbf667b51139a3d89b6b2f5db7499861c79dd7df6de73f5dc3713af"
+    }
+  },
+  "runtime": {
+    "python": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+    "torch": "2.1.1+cu118",
+    "cv2": "4.9.0",
+    "device": "cuda:0",
+    "threads": 1,
+    "TF32": false,
+    "cudnn_benchmark": false,
+    "backbone_autocast": false
+  },
+  "checks_before_actual_entry": [
+    "Completedcorpus seal andactualRGB288/query96 metadata bindings",
+    "No GT/labels/partIDs/r/depth/poses forwarded; all2304 rows/qL/splits/order retained",
+    "Onegeneratedblankwarmup andfirstRGB P3repeat exact; before/aftermodelstate+checkpointSHA unchanged;allfrozen/eval/noautocast",
+    "All RGB/cache matching andFP16/validity generatedtests thenactual independent savedaudit;no broad private access"
+  ],
+  "execution_boundary": "This document is a coordinated plan only. No new feature code execution/backbone/head/model/fit or current/PnP is authorized by it; later exactrootentry must bind completed corpus and frozen producer.",
+  "current_allowed": false,
+  "head_fit_allowed": false,
+  "PnP_allowed": false,
+  "actual_model_features_run": 0
+}

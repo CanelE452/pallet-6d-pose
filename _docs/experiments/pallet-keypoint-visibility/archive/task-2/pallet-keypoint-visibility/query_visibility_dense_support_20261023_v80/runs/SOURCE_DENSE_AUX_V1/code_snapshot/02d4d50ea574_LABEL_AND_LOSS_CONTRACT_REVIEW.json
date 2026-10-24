@@ -1,0 +1,103 @@
+{
+  "schema": "V80_INDEPENDENT_LABEL_AND_LOSS_CONTRACT_REVIEW",
+  "PASS": true,
+  "blockers": [],
+  "scope": "Frozen label/loss equations, actual model/loss/GT-builder code and artificial CPU logits/AST only. No actual source RGB/masks/features/scores/GT targets/weights or current223 files were opened.",
+  "not_a_fit_entry_approval": "This certifies the reviewed math/code contract, not actual GT/input integrity, completed trainer guards, a fit run, source quality or current evaluation authorization.",
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/EXPERIMENT_DECISIONS_BEFORE_GT_BUILD.json",
+    "sha256": "81ac5890ce9a6d210bce5403425d589351c6306c6379755f153182ed4fafd35a"
+  },
+  "labels": {
+    "A": "expected_support_M0 at unchanged nominal9 native coordinates: source isolated-target same-view2D support, not all3D amodal surface or human semantic visibility.",
+    "V": "visible_target_M4 at those coordinates, valid M4 subset M0. Target ownership is specific to the source instance, not any visible foreground object.",
+    "eligibility_A": "native continuous in-image AND rounded NN bounds AND cached9 validity intersection; no data-driven new pixel/query selection.",
+    "eligibility_visible_given_A": "eligibility_A AND GT M0. Outside M0 is a negative only for A and is ignored for the conditional visibility channel.",
+    "invalid_unknown": "Invalid/unavailable native cells have no auxiliary loss/gradient. Original support U/miss remains zero primary loss, not a covered label. Dense-valid mask labels and primary support U are different notions; current sampled96 queries remain the unchanged admitted known primary cohort.",
+    "support_semantics": "M0/M4 supervision is auxiliary. Primary reference-local VISIBLE/COVERED teacher, virtual native references, exact query-pixel occupancy and human D/E/S stay separate. M0=0 or M4=0 is never alone semantic E/S.",
+    "self": "Convex-self1=mayvisible,0=selfhidden,-1unknown remains separate; it is not merged into either dense target.",
+    "grid": "GT-builder copies frozen V79 nominal9 literal q+(((j+.5)/9)-.5)*L with NN floor+.5 and intersection validity. It is a nominal spatial anchor, not a claim that the P3/RGB receptive field has exact native-pixel support. q/L/r/order are unchanged."
+  },
+  "equations": {
+    "per_query_channel": "For eligible cells E_i and binary label t, C_i={c in{0,1}: n_i,c>0}; L_i=(1/|C_i|)*sum_c[(1/n_i,c)*sum_{j in E_i,t_j=c} BCE(z_j,c)]. Empty E_i gives graph-connected zero.",
+    "query_reduction": "L_A=mean over all96 L_A,i; L_VgivenA=mean over all96 L_VgivenA,i, including zero queries. Do not average only nonempty queries or globally weight all cells.",
+    "combined": "L_primary + 0.25*(L_A + L_VgivenA)/2. Each auxiliary channel therefore has fixed coefficient0.125; missing one channel/query does not renormalize the other.",
+    "gradient": "For an admitted cell of class c: dL_aux/dz =0.125/96/|C_i|/n_i,c * (sigmoid(z)-c); outside that eligibility gradient is0.",
+    "single_present_class": "A query with only one class uses the full class mean, not half a loss. Present-class balancing intentionally makes a small class have equal total weight to the large class within that query.",
+    "nonfinite": "Implementation rejects nonfinite auxiliary logits rather than silently hiding them behind invalid masks. Empty-zero statements assume finite network outputs."
+  },
+  "actual_code_checks": {
+    "model": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/model/dense_support_head.py",
+      "sha256": "bffb4b39833744995ae3b5d73eff9f6890a50a9c5a1746c317f5d14dfdf9d93b"
+    },
+    "loss_helper": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/model/dense_auxiliary_loss.py",
+      "sha256": "11cf2fa9faa674e248c7cc896710980df0abb281bb2f8a260e4eaa363d7c710a"
+    },
+    "model_parameter_contract": "Existing41237 primary/shared parameters plus Conv2d24to2 kernel1/bias=50, total41287. Aux weights/bias zero.",
+    "primary_unchanged": "Independent AST comparison strips only declared aux additions; remaining __init__, _binary, forward and initialize_from_proxy are identical to bound V76/V77 primary code.",
+    "RNG_and_datapath": "Aux constructor uses CPU RNG fork, appended after primary parameters; new aux output reads fused24x9x9 after primary computation and never enters scalar classifier path. Owner generated proof also records initial state/RNG and nonzero output/lambda0 shared-gradient equality.",
+    "no_GT_forward": "Forward signature remains exactly six input tensors. GT maps enter only dense_support_losses/combined_support_loss after forward. No GT mask feature gating, prompt, category, reference, native reassignment or source ID is added.",
+    "loss_masks": "_present_class_mean forms BCE targets from disjoint eligible positives/negatives; caller constructs M0 pos/neg and M0-restricted V/C pos/neg. Invalid cells are masked in both counts and sums.",
+    "guards": "Boolean shape/device checks; M4-not-subset-M0 rejected on valid cells; primary U/nonbinary labels rejected; lambda only.25 or generated-equivalence0 permitted. Trainer must use fixed.25 for actual fit.",
+    "GT_builder_code_only": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/gt_preparation/build_dense_gt9.py",
+      "sha256": "9d6deea24d05691d2aa31d6fd54844a93314c1037087ad59e341cacddf7c8a94"
+    },
+    "GT_builder_boundary": "Code reads only bound source masks/coordinate metadata, applies source-specific thresholds and writes valid9/M0/M4 label tensors. It compares all nominal9 fingerprints/counts to V79. This review did not execute that builder or inspect its actual target arrays."
+  },
+  "independent_generated_results": {
+    "proof_bindings": [
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/contract/GENERATED_LOSS_MATH_TESTS.json",
+        "sha256": "ca7f093b6fbe3cad95a2ce80a5a3263afe99cce148846fe25bf6ebb0de6ab4b4"
+      },
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/contract/GENERATED_LOSS_IMPLEMENTATION_TESTS.json",
+        "sha256": "f3b4b4ca9a15bab1744a33d182c53b232356a0e17e73180fe8384fb8651b6074"
+      },
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/contract/GENERATED_PRIMARY_AST_EQUIVALENCE.json",
+        "sha256": "e2e70bb1b8242d979a1a26bac8f663392f460ef0eb7bf2bc594a9275b7976c09"
+      }
+    ],
+    "loss_math": "Analytic gradients match float64 autograd; conditional-outside and invalid gradients0; empty graphzero; fixed batch denominator; one-class fullmean; withinclass duplication invariance; factorized probabilities sum1.",
+    "implementation": "Actual frozen helper compared with an independent loop reference on96 artificial queries/9x9 cells, including all-invalid, all-outside, all-covered, all-visible and singleton-class cases. Values/gradients match; flat96 versus12x8 exact; unsupported lambda and primaryU reject.",
+    "primary_path": "Read-only AST equivalence proves the old primary operations remain unchanged after removing declared auxiliary-only statements; no model import/forward was needed for this proof.",
+    "owner_generated_proof_read_only": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/model/GENERATED_DENSE_SUPPORT_TESTS.json",
+      "sha256": "cd517bde729ee98d180f6437ebae155c0abd82603f9048b2ace50b02948c4824"
+    },
+    "actual_payloads_used": false,
+    "optimizer_updates": 0,
+    "new_head_or_backbone_forward_in_this_review": 0
+  },
+  "auxiliary_output_interpretation": {
+    "channel0": "pA=sigmoid(expected_support_M0_logit)",
+    "channel1": "pS=sigmoid(visible_given_M0_logit); not unconditional visible probability and unconstrained by supervision outside true M0.",
+    "derived_source_diagnostics": "pVisible=pA*pS; pCovered=pA*(1-pS); pOutside=1-pA. These sum1. They remain source support diagnostics, not human D/E/S or new primary decision scores.",
+    "zero_init": "Both auxiliary logits0 imply pA=.5,pS=.5 and jointvisible=.25, not.5. Primary scalar starts according to the unchanged primary initializer and stays separate.",
+    "first_update": "With zero aux decoder weight, its first backward can update the decoder but yields zero auxiliary gradient to fused/shared features; later nonzero decoder weights can shape shared features. This is expected, not a skipped supervision bug."
+  },
+  "risks_and_falsification": [
+    "Equal present-class weight can amplify a tiny noisy render/depth boundary class. Keep frozen source boundary/interior diagnostics; no heldout/current-based mask repair or band/lambda sweep.",
+    "Shared gradients can trade visible preservation against natural-covered detection. Require the already frozen primary gate and report all groups; auxiliary map improvement alone is insufficient.",
+    "If only controlled pairs improve, or C recall improves by violating required V recall, the intended natural-support remedy is not established.",
+    "If auxiliary ownership maps include the wrong foreground object, intended-target identity remains unresolved. Same-input auxiliary supervision does not add a category/instance request.",
+    "If maps become accurate but scalar support fails, readout/objective coupling is a plausible limit; this is not proof of backbone failure.",
+    "Primary selection remains naturalVAL4strata macroBCE; dense metrics/strict535/source gate must not choose checkpoint, threshold or loss weight. Repeated source VAL is development evidence, not fresh deployment proof.",
+    "Local BOP historical generation mode/render/delta remains unverified; M0/M4 remain source proxies, not repaired human RGB labels. Virtual references need not lie on mesh surfaces."
+  ],
+  "final_assessment": "No blocker found in this label/reduction/code contract. It is a narrow supervision intervention with unchanged primary inference information; it does not establish target identity or full semantic visibility.",
+  "actions": {
+    "source_RGB_masks_features_scores_GT_checkpoint_reads": 0,
+    "model_forward": 0,
+    "new_fit": 0,
+    "current_reads": 0,
+    "PnP": 0,
+    "old_files_modified": false,
+    "automatic_current_gate": false,
+    "fully_solved": false
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "V88_SOURCE_TINY_QUERY_ERROR_DIAGNOSTIC_SCOPE_V1",
+  "completed": true,
+  "created_utc": "2026-10-22T22:40:06.553489+00:00",
+  "frozen_before_individual_scores_GT_query_metadata_and_RGB": true,
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/FIT_PROTOCOL_BEFORE_SOURCE_ARRAYS.json",
+    "sha256": "b8fc78174e168a7f5abdde50bc195af5bb1d25c685317d02bd471cbaeb28f72e"
+  },
+  "trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/train_external_once.py",
+    "sha256": "6b3a49913d1e189cff43715f20a1e07d4aebfab0be7f4cab9624f7b69413580d"
+  },
+  "teacher_GT": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_external_ray_20261023_v87/corpus_build_v1/NATIVE8_EXTERNAL_RAY_GT_ONLY.npz",
+    "sha256": "c37b009b31bcd191af0f648439d8958e95b4855ea352a1257c7f238995360795"
+  },
+  "selection": {
+    "split": "val",
+    "cohort": "all teacherknown label0/1 AND factual query_center_valid AND input_available AND original reference inside unchanged halfopen q-square AND Euclidean(q-r)<=3nativepx",
+    "error_strata": [
+      {
+        "name": "CLEAR_TO_EXTERNAL_FP_SELF0",
+        "GT": 0,
+        "pred": 1,
+        "convexselfproxy": 0
+      },
+      {
+        "name": "CLEAR_TO_EXTERNAL_FP_SELF1",
+        "GT": 0,
+        "pred": 1,
+        "convexselfproxy": 1
+      },
+      {
+        "name": "EXTERNAL_TO_CLEAR_FN_SELF0",
+        "GT": 1,
+        "pred": 0,
+        "convexselfproxy": 0
+      },
+      {
+        "name": "EXTERNAL_TO_CLEAR_FN_SELF1",
+        "GT": 1,
+        "pred": 0,
+        "convexselfproxy": 1
+      }
+    ],
+    "correct_controls": [
+      {
+        "name": "CORRECT_CLEAR",
+        "GT": 0,
+        "pred": 0,
+        "convexselfproxy": "either"
+      },
+      {
+        "name": "CORRECT_EXTERNAL",
+        "GT": 1,
+        "pred": 1,
+        "convexselfproxy": "either"
+      }
+    ],
+    "score_rule": "external_logit>=0 iff p_external>=.5, unchanged frozen rule",
+    "within_each_stratum": "one min SHA256 UTF8(id+\"|\"+str(native_k_zero_based)); lexical SHA order; no replacement after RGB; retain empty strata",
+    "max_cases": 6,
+    "coords_L_order_unchanged": true
+  },
+  "workflow": [
+    "Read sealed source-only outputs/GT/qL metadata and create selection/cohort receipt with no RGB/mask/p3/weights reads.",
+    "After selectionseal, open selected rawRGB and targetM4 only foroutline; read ONLY selected cached rgb96/crop_valid96 arrays, never P3.",
+    "Show fullraw+green targetM4outline/cyaninitialq/magentaGTref/yelloworiginalq-square; separate native96 detail from actual cached modeledspanL RGB96 and canvasvalidity.",
+    "Preserve original numerical teacher depth/range/owner metadata, selectedlabels/logits and all source hashes. Directly view actual figures before seal."
+  ],
+  "meaning_limits": [
+    "CLEAR means clear to virtual endpoint, not humanD/physicalcue visible.",
+    "EXTERNAL is foreign-first-hit ray proxy, not human semanticE. Convexselfproxy is not humanS.",
+    "Public q is V76 emulated initializer; <=3px is not the currentmanual-click<=3px cohort.",
+    "Failure diagnosis only; no label repair, threshold/checkpoint/model selection or favorablecase swap.",
+    "Single-layer depth/weak visible-mask ownership/rasterization/crop information may remain uncertain; distinguish RGB observation from inference."
+  ],
+  "forbidden": [
+    "current223",
+    "new model/backbone inference",
+    "P3 tensor or checkpointweight reads",
+    "fit/thresholdchange/PnP",
+    "GT snapping/coord/query recenter/reorder",
+    "other unselected RGB searches"
+  ],
+  "allowed_inputs": [
+    "Sealed V88 saved scores/freeze/fit metadata",
+    "V87 small GT array/selected per-instance teacher metadata andsource M4path",
+    "V76 public input manifest/lineage and selected chunk rgb96/crop_valid96 only",
+    "Selected source raw RGB/M4 after selectionseal"
+  ],
+  "new_model_forward_fit_current_PnP": 0
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "V88_SOURCE_ONLY_FOREIGN_RAY_HEAD_FIT",
+  "created_UTC": "2026-10-22T22:31:39.105775+00:00",
+  "status": "CHOICES_FIXED_BEFORE_NEW_SOURCE_ARRAY_OR_CHECKPOINT_LOAD",
+  "bindings": {
+    "model_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/external_ray_head.py",
+      "sha256": "648be1dffa2a6a024688ed1d69e16728b690dfe37443e44ada5514f94379ad2b"
+    },
+    "base_architecture": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/mixed_fit/query_center_support_head.py",
+      "sha256": "67fdee4a9ad850ba91482e4ce1fc098834c88f207c4edc0ab178b685ae99c940"
+    },
+    "source_input_bindings": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/mixed_fit/SOURCE_INPUT_BINDINGS.json",
+      "sha256": "da9d9573b3a343b4fc6f927d64b30c8a29593b6c8b7c94a42b502fb3dccd354c"
+    },
+    "source_pretrain": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_context_pretrain_20261023_v75/runs/SOURCE_PRETRAIN_V1/BEST_PROXY_HEAD.pt",
+      "sha256": "256bd8e4d222afe9c4c6c533a78bde65e9171e960829a05bf8214a64a6d55b1e"
+    },
+    "source_pretrain_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_context_pretrain_20261023_v75/PRETRAIN_PROTOCOL.json",
+      "sha256": "ecd30714b7c3ec015f29a97dfb8ef7360aeb0cd121400ef2c397535556007b09"
+    },
+    "teacher_GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_external_ray_20261023_v87/corpus_build_v1/NATIVE8_EXTERNAL_RAY_GT_ONLY.npz",
+      "sha256": "c37b009b31bcd191af0f648439d8958e95b4855ea352a1257c7f238995360795"
+    },
+    "teacher_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_external_ray_20261023_v87/SOURCE_EXTERNAL_RAY_PROTOCOL_BEFORE_DEPTH_PIXELS.json",
+      "sha256": "a5e7d481b7d72bf0799cd513c1f92c848714d5e921b9bc264beb3f8bd07463cd"
+    },
+    "teacher_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_external_ray_20261023_v87/corpus_build_v1/CORPUS_SEAL.json",
+      "sha256": "e806a5777d30adce18c97216beb9eb2e5680b987ba605d4e00f87b1de2608d38"
+    },
+    "independent_teacher_audit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_external_ray_20261023_v87/independent_output_audit/INDEPENDENT_ALL33600_OUTPUT_AUDIT_KO.json",
+      "sha256": "b31d281712feebff3ddb7d292d3dc993d9732e4324aaeee34d30edc49caccbbc"
+    }
+  },
+  "parameter_count": 41237,
+  "forward_fields": [
+    "p3_roi",
+    "local_rgb96",
+    "local_valid96",
+    "target_rgb128",
+    "target_valid128",
+    "context42"
+  ],
+  "architecture": "Exact V76 six-input query-centered architecture reused; rename new output external_logit only. V75 synthetic (G38/P0/TEX) source-pretrained shared features/first classifier linear transferred. Exclude previous DES classifier output and localizer, zero initialize final binary linear. No source/current model comparison for choosing initialization.",
+  "target": {
+    "codes": {
+      "0": "CLEAR_TO_VIRTUAL_ENDPOINT_PROXY",
+      "1": "EXTERNAL_OTHER_FIRST_HIT_PROXY",
+      "-1": "UNKNOWN_TYPED"
+    },
+    "definition": "Exact reviewed V87 single original reference raster ray at original endpoint depth, quantized scene-depth interval, 15mm range margin, all annotated visible instance owners. No mesh material/support gate. Same target and priorities unchanged.",
+    "meaning_limit": "Clear endpoint is not a visible physical corner D. External proxy is not human semantic E gold. Own-first-hit, band, invalid, unassigned and overlap remain unknown. Convex self is separate.",
+    "synthetic_role": "Existing V75 synthetic source pretraining only. Legacy synthetic nine-ray fractions are not pooled as if they were this new single-ray owner/depth target. New supervised adaptation uses public YCB only.",
+    "loss_admission": "known0/1 AND factual query_center_valid AND ROI_anyvalid AND local_valid96.any AND target_valid128.any AND finite original GTref inside unchanged q-square: -.5 <= (r-q)/L < .5 both axes. U/invalid/misses retained but zero loss. No r/GT pose/depth/owner mask enters forward."
+  },
+  "data": {
+    "YCB_instances": 4200,
+    "native8_slots": 33600,
+    "source_split": "Original scenes0..7 TRAIN3400,8..9 VAL800. All rows kept. SourceVAL reused development; not independent final generalization.",
+    "input_producer": "Immutable V76 public q emulation from synthetic TRAIN error bank and original cached six inputs, not actual public native detector outputs. No feature/crop resampling or source/current coordinate changes.",
+    "source_arrays_previously_seen": "V87 label summary and full independent replay outcomes known. V88 has not loaded its source tensors/checkpoint before this protocol. Selection is a distinct target motivated by prior source evidence, not an independent blind experiment."
+  },
+  "loss": "Unweighted BCE over admitted sampled query targets; no location/self/mask/semantic-U auxiliary.",
+  "sampling": {
+    "batch_queries": 96,
+    "per_class": 48,
+    "class_order": [
+      0,
+      1
+    ],
+    "replacement": true,
+    "seed": 20261023,
+    "augmentation": "No new online image/query augmentation. Existing sealed q emulation unchanged."
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.0003,
+    "weight_decay": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "updates": 2000,
+    "clip_grad_norm": 5.0,
+    "schedule": "constant"
+  },
+  "selection": {
+    "every_updates": 100,
+    "criterion": "Minimum equal mean BCE of admitted VAL clear and external classes; strict lower, earliest tie; steps100..2000 eligible, update0 diagnostic only.",
+    "threshold": 0.5,
+    "calibration": "Balanced training yields a score; no claim of calibrated real deployment likelihood. No confidence threshold search."
+  },
+  "source_gate_before_results": {
+    "scope": "All teacher-known VAL slots, including reference-outside-qcrop failures. Factual invalid query or unavailable input produces U. No GT-reference based prediction abstention. Conditional admitted metrics reported separately.",
+    "requirements": {
+      "external_recall": ">=0.8",
+      "clear_recall": ">=0.8",
+      "external_precision": ">=0.5",
+      "factual_U_rate": "<=0.1"
+    },
+    "teacher_U": "Not a model prediction and never included as correct U; report full typed counts and coverage separately.",
+    "pass_consequence": "May prepare separately frozen public physical-cue evaluation; does not grant automatic current223 evaluation or semantic D/E/S equivalence.",
+    "fail_consequence": "Do not read/evaluate current223; preserve failed candidate/results. No retuning gates/threshold or hidden second fit."
+  },
+  "report": "TRAIN/VAL2x3CM rows(clear,external), columns(clear,external,factualU), P/R, predictedU, teacherU/known/fullcounts, allknown vs conditional, GTreference-outside-crop and separate convexself groups. All33600 logits including U retained; no semantic accuracy for teacherU.",
+  "runtime": {
+    "python": "/home/minjae/anaconda3/bin/python",
+    "torch": "2.5.1+cu121",
+    "device": "cuda:0",
+    "CPU_threads": 1,
+    "deterministic": true,
+    "TF32": false,
+    "exact_GPU_backward_bit_claim": false
+  },
+  "execution": "One fit only; generated tests then independent code/protocol review and separate entrylock, source GPU preflight before first update. Preserve any failure/code/log/partial output before repair. No automatic restart after optimizer update1.",
+  "current223_underlying_reads_allowed": false,
+  "PnP_allowed": false,
+  "fully_solved": false,
+  "goal_status": "active"
+}

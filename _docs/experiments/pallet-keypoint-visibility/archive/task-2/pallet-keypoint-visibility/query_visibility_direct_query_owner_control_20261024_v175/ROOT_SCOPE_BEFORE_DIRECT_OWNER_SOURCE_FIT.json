@@ -1,0 +1,109 @@
+{
+  "schema": "V175_PROSPECTIVE_SOURCE_ONLY_DIRECT_QUERY_OWNER_CONTROL_v1",
+  "UTC": "2026-10-24T03:59:04.584686+00:00",
+  "prior_turn_classification": "progress: V173/V174 final source evidence published; full goal remains unsolved",
+  "goal_scope_preserved": "Full WOOD/SQUARE native8 initial-query target presence/external occlusion; self upstream geometry; coordinate accuracy separate. This experiment only improves a query-content component and cannot itself establish full visibility or real transfer success.",
+  "purpose": "Causal matched test of adding literal original-q synthetic point-owner supervision to an independent small head, keeping the same public weak owner253 loss.",
+  "arms": [
+    {
+      "name": "C47_PUBLIC_WEAK253_ONLY",
+      "synthetic_owner_loss_weight": 0
+    },
+    {
+      "name": "C48_PUBLIC_WEAK253_PLUS_LITERAL_SYNTHETIC",
+      "synthetic_owner_loss_weight": 1
+    }
+  ],
+  "head": {
+    "new_independent_branch": true,
+    "input_feature_width": 1928,
+    "visual_transform": "concat(features, abs(T-C), T*C, abs(Q-Pv), Q*Pv); T=0:384,Q=384:768,C=1152:1536,Pv=1536:1920; resulting3464",
+    "architecture": "Linear3464to64,ReLU,Linear64to3",
+    "classes": [
+      "TARGET_VISIBLE_SUPPORTED",
+      "FOREIGN_VISIBLE_SUPPORTED",
+      "BACKGROUND_SUPPORTED"
+    ],
+    "native_slot_geometry_or_q_coordinate_input": false,
+    "last_layer_zero_init": true,
+    "all_other_initialization": "torch Linear default, seed1750 identical in both arms",
+    "previous_model_weights_loaded": false,
+    "normalizer": "none; existing frozen input features unchanged"
+  },
+  "training": {
+    "updates_each": 8000,
+    "seed_each": 1750,
+    "device": "CUDA float32; TF32false; deterministic algorithms; no AMP",
+    "optimizer": "AdamW lr1e-4 weight_decay0.001; clip_grad_norm5",
+    "checkpoint": "fixed final8000 only; no validation monitor, early stop, best checkpoint or threshold fit",
+    "public_loss": "all253 known SOURCE_DEVELOPMENT weak rows each step; mean of per-class mean CE, class counts53/52/148; same weight1 each arm",
+    "synthetic_loss": "C48 only: original TRAIN and query_available true; merge scene_owner_point first2=>T,third=>F,fourth=>BG; retain raw soft boundary mass without hard cutoff. No ambiguous/invalid/missing mass may be relabeled or silently normalized. If present on an input-available training row fail closed for review.",
+    "synthetic_sampling": "256 uniformly with replacement from TRAIN available4016, NumPy default_rng1750; both arms consume identical saved draw sequence",
+    "synthetic_class_balance": "Ntrain/B/3 * sum_i,c [-soft_ic*logsoftmax(logit)_ic / TRAIN_class_mass_c]; TRAIN only class masses; additive coefficient1 in C48",
+    "public_weak_authority": "assistant-weak RGB96 center2x2 observations, not literal point/physical-native/pixel-coordinate gold; separate source loss/domain, no relabel",
+    "private_current_or_any_held_fit_selection": false
+  },
+  "input_bindings": {
+    "OLD6144_features": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_actual_initializer_source_20261024_v132/frozen_C16_actual_initializer_v1/SOURCE_FEATURES_INPUT_ONLY.npz",
+      "sha256": "8a42ae91fb27d461f6f27cd76877c2fff1e9e7b507f9cc31e643214c26e1c46a"
+    },
+    "MR1840_features": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/full230_native_DINO_v1/MR6D_NATIVE1840_FEATURES_INPUT_ONLY.npz",
+      "sha256": "3f608ce1c5cebf204972e7d6d8fe268bfd6be9464788fc8b7f8db8a1fbfd23c1"
+    },
+    "expected_metadata": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/input_contract_audit/EXPECTED_SOURCE_INPUT_NATIVE_METADATA28976.jsonl",
+      "sha256": "976efe7ae22f701533f51b5dba71a60098080b90d0a404e92a06d7a6fb44fbef"
+    },
+    "owner_labels": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/owner_supervision_bridge/ALL1840_SEPARATE_OWNER_AUXILIARY_SUPERVISION.jsonl",
+      "sha256": "23ac690fd62f511a193df6770022b3df33bc1b747e7aa2e90460e6f6a5689cf9"
+    },
+    "source_census_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_full_source_query_causal_census_20261024_v173/literal_raster_census_v1/COMPLETE.json",
+      "sha256": "025ea05d354404046bcaf92cef0af29653c77defd7e0a4c9faa7d9115fd29a96"
+    },
+    "TRAIN_owner_sidecar": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_full_source_query_causal_census_20261024_v173/literal_raster_census_v1/TRAIN4096_LITERAL_RASTER_SOFT_SIDECAR.npz",
+      "sha256": "e7b64d5455268a6b09b360fc787ef301b2c442f899cda52da7a453fc4634fcec"
+    },
+    "VALIDATION_owner_sidecar_POST_FREEZE_EVALUATION_ONLY": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_full_source_query_causal_census_20261024_v173/literal_raster_census_v1/VALIDATION2048_LITERAL_RASTER_SOFT_SIDECAR.npz",
+      "sha256": "95e5d78e3d0fa3e23ed1f89008709798c5f889b584a54e9782e66b9b53a399ee"
+    },
+    "original_source_inventory": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_full_source_query_causal_census_20261024_v173/census_preparation/ALL6144_ORIGINAL_QUERY_METADATA_BEFORE_MASKS.jsonl",
+      "sha256": "09c4d69b0c6a6b8b10c025ad3dacb808a4fa208045753ba7cb99e85c5026a609"
+    }
+  },
+  "fit_admission": {
+    "synthetic_original_TRAIN4096_available4016_only": true,
+    "UNKNOWN_native_semantic_may_have_known_literal_owner": "native D/E/S/U is separate and neither filters nor rewrites pixel-owner supervision",
+    "U88_null56_invalid32_retained_full_inventory": true,
+    "exact_row_join_before_fit": "globalID,originalOccurrenceID,scene/base/native slot, original q/L,split,availability,feature_constructed,no_detection; packet and sidecar direct metadata exact",
+    "existing_native_visibility_quality_entity_losses_checkpoints": "not read or modified; this branch receives only owner supervision",
+    "no_crop_or_GT_reference_recenter": true
+  },
+  "evaluation_frozen_before_results": {
+    "after_final_checkpoint_only": true,
+    "synthetic": "all6144 and original TRAIN4096(apparent)/VALIDATION2048(primary); inputU first, owner argmax with first-index tie; T/nonT and owner3 soft confusion/P/R plus full denominator,U,unknown mass. Both arms reported, no winner selected. Same63 strata and paired availability where possible; existing v61 threshold0 source reference from V174.",
+    "public": "weak253 training apparent only; held owner labels unknown, no invented held metric",
+    "scope_limits": "point-owner != crop-part-presence != coordinate correctness != physical native visibility. Foreign owner != external occlusion; same-pixel BEFORE target conjunction remains separate. native labels and old source qualification remain unchanged.",
+    "reused_source_VAL_not_blind": true
+  },
+  "prohibited_operations": [
+    "private current223 file/score/label/statistic access",
+    "V112 path search/read/hash",
+    "PnP or q/L/xy correction",
+    "initializer/encoder new forward",
+    "model or threshold selection from held data",
+    "rewriting native D/E/S/U from pixel owner",
+    "changing prior checkpoints/labels"
+  ],
+  "code_preparation_only_until_root_static_review": true,
+  "human_permission_required": false,
+  "selected_model": null,
+  "fully_solved": false,
+  "goal_status": "active_unsolved"
+}

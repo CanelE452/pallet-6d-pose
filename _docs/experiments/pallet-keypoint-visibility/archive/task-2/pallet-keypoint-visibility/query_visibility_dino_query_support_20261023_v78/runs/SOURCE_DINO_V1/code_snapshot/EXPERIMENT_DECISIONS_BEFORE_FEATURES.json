@@ -1,0 +1,102 @@
+{
+  "schema": "V78_FROZEN_GENERIC_DINO_QUERY_SUPPORT_CANDIDATE",
+  "created_UTC": "2026-10-22T20:05:59.161119+00:00",
+  "basis": "V77 SOURCE-only low natural public separation; strong3x3 near3px centralquery false-covered217/459 and pairboth268/731. Current not used tochoose this candidate.",
+  "bindings": {
+    "V77_decisions": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/EXPERIMENT_DECISIONS_BEFORE_PAIR_BUILD.json",
+      "sha256": "01b856d88c88677c178ce27d103d7b6877f962a3f0cb2a736e0a0bcf4a9d2f1c"
+    },
+    "V77_source_inputs": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/COMPLETED_SOURCE_INPUT_BINDINGS.json",
+      "sha256": "7cb5d8bbf411daf72dd9221f6c2de8d0417271750534af4726037ce72db12cbd"
+    },
+    "V77_source_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/train_paired_once.py",
+      "sha256": "07ea5b374db1660cdddc57edbcd1279e7aa9614d1f764e8be1eac652af9f8397"
+    },
+    "V77_independent_saved_audit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/independent_saved_audit/AUDIT_SEAL.json",
+      "sha256": "05cdfd15043d8abb80dc05f87015dd2cd79deb653d42f24360afbc669e5c174e"
+    },
+    "V77_source_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/source_interpretation_review/SOURCE_INTERPRETATION_REVIEW.json",
+      "sha256": "1e81b0ff82058511a6286da2c5c0684b7fba16ed66a4b2d72223d9201e267cfb"
+    },
+    "V77_fixed_geometry_evidence": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/source_failure_audit/PUBLIC_NATURAL_FIXED_GEOMETRY_SAVED_COMPARISON.json",
+      "sha256": "a21a97b781422809fea3ad20f7eeb1219fee91e28517b316ebf6ac6f9b5910df"
+    },
+    "generic_inventory": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/generic_backbone_inventory/GENERIC_BACKBONE_INVENTORY.json",
+      "sha256": "1ef835774f3f5fb2153a4b479c3b34b2c18bb409f1221632b54bde83ae26e176"
+    },
+    "DINO_checkpoint": {
+      "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/torch_hub/checkpoints/dinov2_vits14_pretrain.pth",
+      "sha256": "b938bf1bc15cd2ec0feacfe3a1bb553fe8ea9ca46a7e1d8d00217f29aef60cd9"
+    },
+    "DINO_official_code": {
+      "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/models/vision_transformer.py",
+      "sha256": "7799a260f2d7d0fe197331d08502fb8c542f9b7424723650f6a39b64fa2639ea"
+    },
+    "DINO_official_factory": {
+      "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/hub/backbones.py",
+      "sha256": "871fca671b12a9ff02e810654baf509e97ccf461bf8196ce5ddeefff2fd87d3e"
+    }
+  },
+  "data": "Identical V77 original5203 andcontrolledafter4799, source partitions, r/q/L/box/nativecontext/teacher/GTadmission/U andsampler unchanged. No newimages/labels. Frozenfeatures from alreadyboundmodelinput localRGB96/targetRGB128/canvasvalidity ONLY; noGTref/masks/anchor/self/labels/ID/sourceID inimageforward or headforward.",
+  "backbone": {
+    "name": "DINOv2 ViT-S/14 generic official localcheckpoint",
+    "code_commit": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "load": "Localfactory dinov2_vits14(pretrained=False), strict localweights only; no torchhub/HF/network fallback.",
+    "mode": "eval requires_gradFalse, FP32, inference_mode, noautocast, noTF32, cudnnbenchmarkFalse/cudnndeterministicTrue",
+    "input": "uint8 RGB/255 thenbilinear224x224 align_cornersFalse (localoriginal96,target128), thenImageNetmean[.485,.456,.406]std[.229,.224,.225]; existingzeroRGBoutsideimage preserved",
+    "output": "Lastlayer forward_features[x_norm_patchtokens], excludesCLS/register; reshape384x16x16; no layerselection",
+    "batch_views": 32
+  },
+  "pooling": {
+    "validity": "bilinear floatvalidmask to224 align_cornersFalse thenavg_pool2d14 stride14 =>16x16 fractionalweights. No GTmask. No threshold onfractionalweights.",
+    "local_center": "patchrows7:9 cols7:9, validityweightedmean384; denomclamp min1e-12, ifmasszero returnall0.",
+    "local_global": "all16x16 validityweightedmean384; samezero policy.",
+    "target_global": "all16x16 validityweightedmean384; samezero policy.",
+    "fractions": "meanvalidityweight incenter2x2, all local16x16, alltarget16x16; 3scalars perquery",
+    "storage": "FP16 local_featuresNframesx8x2x384, target_featuresNframesx384, validity_fractionsNframesx8x3, context42copiedbitexact original; frameID/geometry onlyjoinmetadata. No fullpatchtokens/embeddingsstored."
+  },
+  "head": {
+    "name": "DinoPooledQuerySupportHead",
+    "initialization": "Randomtorchseed20261023 exceptlastbinarylinearweight/bias0; noV75/V76/V77taskheadtransfer.",
+    "projector": "Shared LayerNorm384(elementwise_affine=False),Linear384to64,GELU appliedcenter/global/target.",
+    "context": "Linear42to32,GELU.",
+    "fusion": "Concatcenter64,global64,target64,center*target64,abs(center-target)64,cosinesimilarity(center,target)1,validityfractions3,context32 =>356; Linear356to64,GELU,Linear64to1.",
+    "parameter_count": 48929,
+    "outputs": "support_logit only. No learnedS/U/location orGTforward.",
+    "candidate_limit": "Backbone/pooling/head/initialization all differ, so this tests new candidate and cannot isolate DINO causal contribution."
+  },
+  "optimization": {
+    "reuse": "ExactV77sample(meta,rng), natural32/afterknownnonanchor32/pairmembers32, sourceclass24each, validTRAINonly.",
+    "optimizer": "AdamW",
+    "lr": 0.0003,
+    "weight_decay": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "updates": 2000,
+    "clip_grad_norm": 5.0,
+    "seed": 20261023,
+    "loss": "meanunweightedBCEover96, no ranking/localization/cause/U loss.",
+    "checkpoint": "MinimumunchangedNATURALVAL4source/class macroBCE, every100updates100..2000, strictearlierminimum; update0diagnostic only.",
+    "threshold": 0.5
+  },
+  "QA": "Freezeexactproducer/code/bindingsbeforeactualfeatures; generatedcoordinate/validity/zero checks; generatedGPUpreflight32views; actualfixedfirstmetadataRGBbatchfreshrepeat parity+independentpooling andoriginalcontext/geometry binding; allframes/features finite; weightchecksumunchanged. Preservefailedattemptcode/log beforeanypreupdate repair. Do notsilentlyrestartafterfirstoptimizerupdate.",
+  "admission": {
+    "current_stage": "NO current223 reads/forward regardlesssource result inthis stage. Anyfuturecurrentcomparisonrequiresseparateboundgate aftersourceaudit.",
+    "source_candidate_minimum_before_anyfuture_current": "Fixed publicnaturalVAL Cprecision>=.50, Crecall>=.80, Vrecall>=.80, pluspubliccontrolledVAL pairboth>=.70. This is provisional source criterion, nothumansemantic validity/generalization.",
+    "threshold_or_checkpoint_tuning": "Forbidden. Gate notcheckpointselector. Preservefullresults includingfailedgate.",
+    "semantic": "Weakreference-localsupport only; nativevirtualref unchanged. HumanD/E/S andexactquerypixel remainseparate. No fullgoalcompletionfromsourcegate alone."
+  },
+  "current_reads": 0,
+  "PnP": 0,
+  "goal_status": "active",
+  "fully_solved": false
+}
