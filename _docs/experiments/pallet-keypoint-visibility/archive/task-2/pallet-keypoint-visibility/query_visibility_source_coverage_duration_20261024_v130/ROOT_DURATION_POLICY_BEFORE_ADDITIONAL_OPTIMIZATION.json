@@ -1,0 +1,75 @@
+{
+  "created_UTC": "2026-10-23T15:37:21.952960+00:00",
+  "scope": "Same frozen source features/head/optimizer recipe, fixed8000 total from C16; controlled duration diagnostic after V129 underfit evidence. No new source acquisitions or coordinate changes.",
+  "previous_control": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/runs/C20_C21_FIXED1000_SOURCE_CONTROL/CONTROL_COMPLETE.json",
+    "sha256": "495079d1af20c0b4ae0edbf84d34323de5af663dedd98d201d1df9bd4926e8ce"
+  },
+  "parent_recipe": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/ROOT_C20_C21_TRAIN_DESIGN_BEFORE_ARRAYS.json",
+    "sha256": "45f971b5d24026fec976387be321b1eb0f38ccecb22b8ce5d32263961e60be76"
+  },
+  "evidence": {
+    "native_TRAIN_D": 17154,
+    "native_TRAIN_E": 1206,
+    "native_class_draws_first1000_each": 32000,
+    "mean_draws_per_D_first1000": 1.8654541214876996,
+    "mean_draws_per_E_first1000": 26.533996683250415,
+    "C20_public_BCE_first100_last100": [
+      1.83321,
+      0.60324
+    ],
+    "C21_public_BCE_first100_last100": [
+      1.93064,
+      0.76971
+    ],
+    "C21_native_BCE_first100_last100": [
+      1.80928,
+      0.54159
+    ],
+    "interpretation": "Loss still decreasing; poor training fit and few draws per nativeD do not establish that frozen features lack the needed information. Duration control is diagnostic, not an assumed fix. V124 old-data duration result does not test this newly expanded corpus."
+  },
+  "design": {
+    "arms": [
+      "C22_PUBLIC_REPLAY_FIXED8000",
+      "C23_PUBLIC_PLUS_NATIVE_FIXED8000"
+    ],
+    "same_head": 221825,
+    "same_feature_width": 1928,
+    "warmstart": "Exact C16 source-selected4500, same as V129",
+    "total_updates": 8000,
+    "public_batch": 64,
+    "native_batch": 64,
+    "native_class_draws": [
+      32,
+      32
+    ],
+    "lr": 0.0001,
+    "weight_decay": 0.001,
+    "clip": 5,
+    "torch_seed": 1300,
+    "public_seed": 1301,
+    "native_seed": 1302,
+    "FP32": true,
+    "TF32": false,
+    "AMP": false,
+    "additional_loss_or_architecture_change": false,
+    "sampler_prefix": "First1000 public and native draws exact V129 plan. Compare model state at update1000 bitexact to each respective V129 final1000 freeze before proceeding.",
+    "checkpoints": "Final8000 only; no VAL checkpoint selection; both optimizations finish before VAL performance readout.",
+    "training": "Same available knownD/E TRAIN pools as V129; S/U/unavailable and allVAL excluded. C22 public only, C23 public+native1.0."
+  },
+  "source_eligibility": "EXACT same eight V129 source criteria, unchanged thresholds and denominators. Passing arm maximum worst6class recall, ties public-only. None passed => no private forward. Old15 regression gates no PASS claim if not computed.",
+  "source_validation_exposure": "V129 source VAL reports already development-exposed; this is controlled source development, not a fresh blind generalization claim.",
+  "forbidden": [
+    "current223fit/threshold/checkpoint/armchoice",
+    "V112access",
+    "PnP",
+    "q_or_L_or_xy_correction",
+    "GTbestassociation",
+    "sourceVALloss",
+    "automaticretry"
+  ],
+  "current_evaluation_authorized": false,
+  "fully_solved": false,
+  "actual_new_fit": false
+}

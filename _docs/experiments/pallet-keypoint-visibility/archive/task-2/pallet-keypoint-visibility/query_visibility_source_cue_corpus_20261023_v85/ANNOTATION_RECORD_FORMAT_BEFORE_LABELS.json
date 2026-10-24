@@ -1,0 +1,103 @@
+{
+  "schema": "V85_COMMON_PAIR_RECORD_FORMAT_V1",
+  "purpose": "Serialization and join keys only; rootsource observation/unknown/temporalpolicy unchanged. Freeze before any new model/labels; native8UNKNOWN.",
+  "part_slots": [
+    "UPPER_WALL_LEFT",
+    "UPPER_WALL_RIGHT",
+    "LOWEST_WIDE_WALL_LEFT",
+    "LOWEST_WIDE_WALL_RIGHT",
+    "BASE_RUNNER_LEFT",
+    "BASE_RUNNER_RIGHT"
+  ],
+  "pair_folder": "annotator_a_or_b/pairs/<session>__<before>_<after>/",
+  "BEFORE_CUES.json": {
+    "pair_id": "exactcohortID",
+    "source_split": "TRAIN_LAB or VAL_HALL",
+    "source_before_RGB": {
+      "path": "absolute",
+      "sha256": "exactfileSHA",
+      "raw_hw": [
+        480,
+        640
+      ]
+    },
+    "principal_wall_description": "actualbeforeobservedprincipalwall identity or uncertainty",
+    "before_only_frozen": true,
+    "slots": [
+      {
+        "part_slot": "oneofallsixpredeclaredslotsinorder",
+        "reference_xy": "[nativeX,nativeY] ornull",
+        "uncertainty_bbox_xyxy_half_open": "[x0,y0,x1,y1] ornull",
+        "before_state": "APPARENT_VISIBLE_STRUCTURAL_CUE_AI / UNKNOWN_U / OUT_OF_FRAME_U / SELF_OR_UNRESOLVED_U",
+        "cue_description": "namedphysicalpartadjacentlines",
+        "evidence": "actualRGBobservation",
+        "ambiguity": "limitationsalternateinterpretation",
+        "native8_semantic_id": null
+      }
+    ]
+  },
+  "BEFORE_SEAL.json": "Bind beforeannotation, ownreaderpolicy, rootpolicy, sourcebeforefile and actualview receipts BEFORE viewingafter; preserve timestamp/process order. Extra fields allowed.",
+  "AFTER_CUE_STATES.json": {
+    "pair_id": "exactsame",
+    "source_split": "exactsame",
+    "source_after_RGB": {
+      "path": "absolute",
+      "sha256": "exactfileSHA",
+      "raw_hw": [
+        480,
+        640
+      ]
+    },
+    "before_annotation": {
+      "path": "absolute",
+      "sha256": "beforeJSONSHA"
+    },
+    "before_seal": {
+      "path": "absolute",
+      "sha256": "beforeSEALSHA"
+    },
+    "slots": [
+      {
+        "part_slot": "sameorderallsix",
+        "reference_xy": "exactcopy frombeforeornull",
+        "uncertainty_bbox_xyxy_half_open": "exactcopy frombeforeornull",
+        "after_state": "APPARENT_SAME_CUE_VISIBLE_AI / EXTERNAL_FOREGROUND_BLOCKER_COVERS_CUE_REGION_AI / PARTIAL_OR_UNCLEAR_U / REGISTRATION_OR_TARGET_MOVEMENT_U / MISSING_BEFORE_REFERENCE_U",
+        "evidence": "RGBsamecueorblocker evidence",
+        "foreign_blocker": "descriptionorNull",
+        "coverage_entire_region": "trueforfullcover,falseornullotherwise",
+        "registration_note": "qualitative only, no fit/warp",
+        "native8_semantic_id": null
+      }
+    ]
+  },
+  "AFTER_SEAL.json": "Bind afterannotation+beforeseal+rootpolicy+rawafterfile+actualviewreceipts. No model/current.",
+  "BATCH_MANIFEST.json": {
+    "completed": true,
+    "batch": "01",
+    "annotator": "aorb",
+    "pairs": [
+      {
+        "pair_id": "exactcohortid",
+        "before_annotation": {
+          "path": "absolute",
+          "sha256": "SHA"
+        },
+        "before_seal": {
+          "path": "absolute",
+          "sha256": "SHA"
+        },
+        "after_annotation": {
+          "path": "absolute",
+          "sha256": "SHA"
+        },
+        "after_seal": {
+          "path": "absolute",
+          "sha256": "SHA"
+        }
+      }
+    ]
+  },
+  "BATCH_SEAL.json": "Bind batchmanifest, annotations, policy/actualviewreceipts and written code outputs. Extra fields allowed.",
+  "null_rule": "For unknown/notvisible before reference, keep coordinate/region null and after MISSING_BEFORE_REFERENCE_U. Do not inventE. Extra observation candidates can be separate but never replace originalslots.",
+  "format_changes_only": "No source labels/coords are chosen or changed by this format. If already rendered before, preserve exact observedcoords and uncertainty when serializing. Keep any earlier file as provenance, do not rewrite sealed observations."
+}

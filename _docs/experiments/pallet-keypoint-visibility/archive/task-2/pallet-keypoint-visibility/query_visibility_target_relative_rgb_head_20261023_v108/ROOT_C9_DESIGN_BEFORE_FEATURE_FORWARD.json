@@ -1,0 +1,119 @@
+{
+  "UTC": "2026-10-23T06:22:41.179782+00:00",
+  "candidate": "C9_TARGET_RELATIVE_FROZEN_RGB",
+  "fixed_before_new_feature_forward": true,
+  "hypothesis": "C8 controlled-public cover failures motivate comparing the q-centred appearance with the input-derived initial target-region appearance. This is a combined representation change, not unique-cause proof.",
+  "source_visual_basis": {
+    "C8_failure_view": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/ROOT_ACTUAL_C8_FAILURE_VIEW_REVIEW.json",
+      "sha256": "95861b4955d7b6af46166e4de24761cfa27582f6e34ac1b18e8bb0d3b13829b3"
+    },
+    "context_pilot": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/actual_fixed_context_feasibility/RESULT.json",
+      "sha256": "f973753b5d5c4763c38fa6528564f0b7005cb9c171adda26e2089fb189558a56"
+    },
+    "root_views": [
+      "case_01_context_triplet.png",
+      "case_01_before_full_box_q.png",
+      "case_02_context_triplet.png"
+    ]
+  },
+  "features": {
+    "target_context": "Exact V107 original initializer selectedbbox; V99 only frozen source-emulated query8extent; no GTbox, expansion, recentering or box changes across variants",
+    "target_sampler": "224x224 direct rectangular native bilinear grid lo+(j+.5)*span/224; integer native pixel centres; strict all-positive-neighbour valid mask; invalid pixels filled ImageNet RGB mean",
+    "target_encoder": "Same local ImageNet-only frozen eval ResNet18 f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec, fcIdentity, standard mean/std; no extra resize of224",
+    "target_descriptor": "L2 normalized512, zero if no valid pixels",
+    "central_descriptor": "Exact unchanged C8 saved features[:,512:1024] and central validfraction[:,1025]",
+    "composition": [
+      "target512",
+      "central512",
+      "torch.cosine_similarity(target,central,dim=1,eps=1e-12)",
+      "target validfraction",
+      "central validfraction"
+    ],
+    "dimension": 1027,
+    "fitted_normalizer": false,
+    "C1_prior": false,
+    "P3_classifier_features": false,
+    "local_full96_descriptor": false,
+    "all_occurrences": 33984,
+    "unique_source_units": 3652,
+    "unit_context_consistency_required": true,
+    "edited_context": "Always matching edited fullRGB, never original context with edited qcrop"
+  },
+  "availability": {
+    "factual": "Exact C8 query_available33984",
+    "context": "Finite positive input box and any valid target224 pixel",
+    "final": "factual & context",
+    "missing_context": "All rows retained, zero descriptor, explicit unsupported U; never negative target",
+    "metadata_check_available_q_missing_box": 0,
+    "pixel_availability": "Actual count to be preserved after extraction; no forced imputation"
+  },
+  "head": {
+    "architecture": "Linear1027x64,ReLU,Linear64x1",
+    "trainable_parameters": 65857,
+    "last_readout_initialization": "zeros",
+    "model_seed": 206,
+    "threshold_logit": 0,
+    "sign": "z<0 D,z>=0 externalE; unavailableU",
+    "coordinates_predicted": false
+  },
+  "fit": {
+    "updates": 2000,
+    "batch_size": 64,
+    "sampler": "Exact V102 external adapter sampler seed205, balanced32D32E;4old+4new matchedtriplets plus fixed source quotas",
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.001,
+    "gradient_clip_norm": 5,
+    "loss": "Available known D/E BCE + .25*relu(2-(z_cover-z_sham)) on paired valid controls",
+    "C1_preservation_penalty": 0,
+    "selector": "Equal mean BCE of exact8 nonempty sourceVAL cohorts; strict earliest minimum; evaluate0 and every100updates",
+    "between_arm_selection": "Single prospective candidate; no sweep or restart after optimizer update"
+  },
+  "data": {
+    "source": "Exact V102 immutable bindings, V96 public real controls plus V99 synthetic",
+    "all_occurrences": 33984,
+    "unique_tensor_units": 3652,
+    "D": 1215,
+    "E": 303,
+    "S_excluded_from_loss_selector_and_gates": 396,
+    "U_excluded_from_loss": 32070,
+    "TRAIN_D_E": 1002,
+    "VAL_D_E": 516,
+    "availability": "Reuse immutable factual source-query availability; include unavailable known rows in U/recall and selector safe0",
+    "native8": "UNKNOWN",
+    "human_gold": false,
+    "development_exposure": "Source VAL repeatedly used for development; not a blind-test claim",
+    "V104_new_pilot_rows_used": 0
+  },
+  "source_gates": {
+    "old_LOCO_before_D_recall_min": 0.85,
+    "old_PALLOX_before_D_recall_min": 0.85,
+    "old_natural_before_E_recall_min": 0.75,
+    "old_sham_D_recall_min": 0.85,
+    "old_cover_E_recall_min": 0.75,
+    "old_accepted_VAL_pair_all3_min": 0.75,
+    "old_known_VAL_U_rate_max": 0.05,
+    "new_BEFORE_D_recall_min": 0.85,
+    "new_SHAM_D_recall_min": 0.85,
+    "new_COVER_E_recall_min": 0.75,
+    "new_selected_VAL_pair_all3_min": 0.75,
+    "new_known_VAL_U_rate_max": 0.05,
+    "empty_required_cohort": "No fit; preserve actual metadata; no fallback or omitted cohort"
+  },
+  "admission": "Select checkpoint by sourceBCE first, then admit only if all12 unchanged external source gates pass. No current inference on source gate failure.",
+  "limits": [
+    "Initial targetbox can contain a targetpart/foreignobjects/multiplepallets; no targetownership or coordinatecorrectness certificate",
+    "V99 context uses source-emulated query extents, not actual initial detection",
+    "Source labels conditional AUX, nativeUNKNOWN/humanfalse; repeated-development sourceVAL is not blind",
+    "No natural YCB surface labels or V104 pilot observations used in this candidate"
+  ],
+  "current223_training_threshold_checkpoint_arm_selection": false,
+  "PnP": false,
+  "q_L_correction": false,
+  "previous_C8_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/ROOT_C8_DESIGN_BEFORE_FEATURE_FORWARD.json",
+    "sha256": "2ee8c6db885399a9148ab8dc3c7186b7769d722b60d5d381f982b6521599bc7e"
+  }
+}

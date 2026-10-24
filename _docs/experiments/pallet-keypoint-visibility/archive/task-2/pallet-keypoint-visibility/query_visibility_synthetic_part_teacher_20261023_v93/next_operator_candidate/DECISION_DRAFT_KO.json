@@ -1,0 +1,88 @@
+{
+  "schema": "V93_NEXT_QUERY_CENTRE_SCALAR_OPERATOR_DECISION_DRAFT_KO_V1",
+  "created_UTC": "2026-10-23T00:45:17.957739+00:00",
+  "status": "DRAFT_ONLY_NO_DECISION_NO_LABEL_ADMISSION_NO_FIT",
+  "핵심판단": "기대 물리cue를 같은 q-centred crop→single scalar로 학습·VAL·추론하는 별도 보조후보는 타당하다. 그러나 우선은 실제 공개 initializer의 원래 q/L을 그대로 유지하는 직접경로다. cuecentre+jitter emulation은 별도검토 후보이며 초기추론crop을 대체하거나 GT-centred 학습을 원래목표로 바꿀 수 없다. 현 savedmetadata만으로 어느 후보의 fit진입도 인증하지 않는다.",
+  "목표와operator": {
+    "원목표": "실제 초기추론 q/L crop에서 대상 팔레트의 존재/가림 판단. 자세개선/PnP가 아니다.",
+    "최소수정": "같은 crop geometry와 같은 single scalar를 source train/VAL/deployment에서 읽는다. 예컨대 map을 유지하면 q-centre[4,4]만 주출력으로 사용하며 GT r/region/mosaic 점수로 교체하지 않는다.",
+    "한계": "연산자일치는 필요조건이지 transfer성공의 증거가 아니다. wholepart 또는 native8→part mapping을 모든 해결책의 필수조건으로 추가하지 않는다. 명확한2D 물리cue 증거로도 별도aux감독은 가능하다.",
+    "namespace": "Nativequery/class와 AUX_PHYSICAL_CUE를 분리한다. Native8연결이 없는 자료는 보조semantictransfer일 뿐 nativegold가 아니다."
+  },
+  "우선후보_A_실제초기query보존": {
+    "입력": "기존 actual public initializer가 만든 selectedtarget/q/L/order 그대로, no-detection·OOB포함. GT r로 q를snap·L확대·다른candidate선택·GTbestcrop을 하지 않는다.",
+    "라벨": "기대target/cue의2D 대응과 before-visible/foreign-cover 근거가 별도 성립할 때만 aux support라벨. 대응이 없거나 여러cue중 어느것인지 불명확하면UNKNOWN. 단순 목재/다른palletpart/foreignpixel을 D/E로 바꾸지 않는다.",
+    "GT_r_labelonly의의미": "이 실제query경로에서는 r/uncertainty가 라벨·source/eval availability 계산에만 쓰이고 입력 crop생성·좌표·출력 sampling에는 들어가지 않는다.",
+    "가장직접적인다음준비": "봉인된 public원q/L별 expectedcue binding과 availability를 검토해 known/U/MISS분모부터 보고한다. 충분한 binding이 없으면 데이터진단으로 끝내고 fit하지 않는다.",
+    "현재한계": "V92 actual20/160 입력정확성 및 약한시각관찰은 있지만 특정expectedcue↔q의 확정된 reference라벨을 제공하지 않는다. 일부visible구조가 있다는 관찰은 native부위/자연E gold가 아니다."
+  },
+  "별도후보_B_sourcecuecentre_jitter_emulation": {
+    "검토조건": "명확한 공개physicalcue r/uncertainty/state가 있는 source에서만 새 AUXnamespace 입력 q=r+delta를 사전고정분포로 생성하는 후보. 실제사용 q/L은 그대로다.",
+    "GT사용정확한표현": "모델forward에는 r좌표를 직접 넣지 않고 출력도 q-centre scalar를 읽지만, sourceq가 r에서 생성되므로 데이터구성은 GT-conditioned query/crop sampling이다. 이 경로를 end-to-end GT-free 또는 r labelonly인 입력생성이라고 부르면 안 된다.",
+    "가능한효용": "같은reference state를 유지하며 q-offset에 대한 crop-evidence 감독을 늘릴 수 있고, region/mosaic 대신 queryscalar를 직접 감독할 수 있다.",
+    "위험과제한": "참조중심 crop 편향으로 실제initializer의 wrongtarget/no-detection/largeoffset/scale분포를 놓칠 수 있다. jitter가 실제오차를 대표한다는 근거는 현재미확인이다. source-only 사전분포·scale·seed·pair공유규칙을 정하고 MISS까지 유지해야 하며 private오차/성능으로 범위를 고르지 않는다.",
+    "검증원칙": "이후 사용을 검토하더라도 실제publicq/L의 독립보류cohort를 별도로 남겨 평가하고 원래목표의평가분모를 emulatedq로 대체하지 않는다. 허용성·효용불명확한현재는 후보검토만 유지한다."
+  },
+  "fit전필요조건": [
+    {
+      "조건": "visible cue identity와 instance ownership",
+      "필요": "선택target의 어떤 구조cue인지2D기준으로 명시하고 uncertainty·반복cue·wrongtarget을 보존. 입력으로 구별불가능한 expectedidentity에 상반된라벨을 주지 않음.",
+      "지금미인증": "모든원query의 binding, human/nativegold, 일반실사target transfer."
+    },
+    {
+      "조건": "insidecrop coverage와 U",
+      "필요": "r가 있는 source/eval에서FULL/PARTIAL/MISS를 별도계산하되 r-state와입력availability를 분리. 실사용은GT r/GTcoverage로abstain할수없음.",
+      "지금미인증": "새actualquery/새emulation packet의 전체coverage·유효학습분모와 inference confidence의 calibration."
+    },
+    {
+      "조건": "cover/sham과 after특징일치",
+      "필요": "같은cue·q/L로 before/opaque cover/cue-preserving sham. 같은donor/rendering 흔적을 양class에두고 모든 after의 RGB·P3등특징을 실제after에서 재계산. 다른cue가 보이면 genericabsence를 강요하지않음.",
+      "지금미인증": "이 새queryscalar계약의 controlled/sham corpus와 pairedsource감사. Existing naturalpair정답을 모든opaqueaugmentation으로대체불가."
+    },
+    {
+      "조건": "scale·operator·jitter match",
+      "필요": "원pixelL/RGB96 sampling/validity와single scalar동일. sourceemulation이면initializer분포와차이·GT조건부sampling을 명시하고visibilitystate별로jitter를유리하게선택하지않음.",
+      "지금미인증": "새sourceq/L분포가실사용초기추론오차/scale을대표한다는증거. private성능으로radius나threshold고르지않음."
+    },
+    {
+      "조건": "capture/instance/cue/donor split",
+      "필요": "같은capture·cue·before/after/augmentation은한partition, donor도TRAIN/VAL분리. source-heldout selection과unknownclass를loss0로명시.",
+      "지금미인증": "기존Pallox는한물리bin의환경분리한계, LOCO기존subset은site독립성보증아님. 새corpus의독립촬영·충분한knowncue분모."
+    },
+    {
+      "조건": "confidenceU와 자연foreign 근거",
+      "필요": "missing/OOB/wrongtarget/identityU를모두보고하고 GT-free confidence/abstention은별도source검증. 자연E는동일expectedcue가실제로foreign에덮인before/after관계와불확실성근거가필요.",
+      "지금미인증": "현재sourceAI조건부cue는human/nativegold아님. Existing publicnaturalpair증거tier를유지해야하며, controlled외부나합성depthproxy의통과만으로자연E/자기S를인증못함."
+    }
+  ],
+  "partteacher의위치": "V93 part152/PA-PS-PV는 expectedpart와다른표면을구분하는 optionalsyntheticaux/진단이다. 실제물리cue/native전체해결책의필수조건이아니고, 원reference8를표면/part로snap하지않는다. 어떤영상2Dcue가독립적으로확인되면 CADpartmapping없이도조건부aux라벨경로를검토할수있다.",
+  "평가와선택의경계": "새labels/input/split/selector/문턱은fit전source-only로동결한다. 원래query전수의knownclass와U·availability·wrongtarget/MISS분모를같이보고한다. semanticauxsource통과와nativecurrent목표해결을분리하고, current223학습·문턱·모델선택0을유지한다. 이초안은새학습/forward를승인하거나실행하지않는다.",
+  "저장근거의범위": {
+    "확인된것": "V91의source는GTuncertainty-region loss와모든tilemosaic뒤region평가, eventual원query평가는q-centre scalar였다는계약차이. V92원actualq/L RGB입력은수치감사됨. 기존공개physicalcue는조건부AI라벨tier이며nativegold아님.",
+    "혼동주의": "기존Pallox8sourceq는GTteacher-guided sampler lineage이므로actual publicinitializerq로부르면안된다. V92LOCO actualfrozeninitializerq와구분한다.",
+    "참조만": [
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/FIT_PROTOCOL_BEFORE_SOURCE_ARRAYS.json",
+        "sha256": "6191df432b4254fb500087b714e1a8e9867a111581158707a95eadf993492028"
+      },
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_bridge_20261023_v92/independent_actual_rgb96_audit/REVIEW.json",
+        "sha256": "35009d69e91db5ce0362c4e3b845ad70b258d5aca5fd06f6b36769432174c653"
+      },
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_synthetic_part_teacher_20261023_v93/semantic_contract_draft/SEMANTIC_CONTRACT_DRAFT_V2.json",
+        "sha256": "ee3eb2a7ee33a7e6f50c60b92ed4653057ef3fb5f50aede1fc9763eeceb775bb"
+      }
+    ]
+  },
+  "이번행동": {
+    "new_original_pixel_reads": 0,
+    "current223_reads": 0,
+    "models_weights_forward_fit_PnP": 0,
+    "new_labels_or_packets": 0,
+    "existing_artifact_changes": 0
+  },
+  "training_admission": false,
+  "fully_solved": false,
+  "goal_status": "active"
+}

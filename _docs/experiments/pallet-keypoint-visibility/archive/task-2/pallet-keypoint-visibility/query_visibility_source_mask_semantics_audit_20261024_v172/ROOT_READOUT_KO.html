@@ -1,0 +1,75 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V172 · native 가시성과 query 소속 의미 점검</title><style>body{font:16px/1.65 system-ui,sans-serif;max-width:1160px;margin:36px auto;padding:0 22px;color:#182537;background:#fafbfe}h1{font-size:28px;line-height:1.35}h2{font-size:20px;margin-top:30px}.lead{padding:18px 22px;background:#e9f0fb;border-left:5px solid #375b91}table{width:100%;border-collapse:collapse;font-size:14px;background:white}th,td{border:1px solid #cbd5e3;padding:9px 10px;text-align:left;vertical-align:top}th{background:#eef2f8}figure{margin:22px 0}img{width:100%;height:auto;border:1px solid #cbd5e3}small,.note,figcaption{color:#536177;font-size:14px}details{margin:24px 0;padding:15px;background:#eef2f8}pre{white-space:pre-wrap;word-break:break-word;font-size:12px}a{color:#235fa0}.scroll{overflow-x:auto}</style><body>
+<h1>V172 · native 부위의 가시성과 원 query의 소속은 다릅니다</h1>
+<p class="note">2026-10-24 · 공개·합성 소스 의미 진단 단계 · 신규 학습 0 · 좌표/문턱/라벨 수정 0 · 모델 채택 없음 · 미해결</p>
+<p class="lead">이번 진전은 <strong>모델 성능 향상이 아니라 목표 의미의 차이를 원기록으로 확인한 것</strong>입니다. 등록된 3D native 부위가 보이는지, 원 query 중심에 무엇이 있는지, 그 query가 같은 native에 정확히 대응하는지는 서로 다른 질문입니다. 기존 학습에는 이미 별도 출력과 loss가 있습니다. 아직 부족한 것은 인증된 정답과 물리 native 대응 근거입니다.</p>
+<h2>선택된 3개 경계 사례</h2>
+<p>모두 <strong>VALIDATION</strong>이며 TRAIN 사례가 아닙니다. D/E는 등록 endpoint·edge·face의 유한 continuous witness 집합 판정입니다. 아래 q 소속은 같은 원 좌표에서 별도로 측정한 raster 진단입니다.</p>
+<div class="scroll"><table><thead><tr><th>원 행 / 장면 / native</th><th>semantic</th><th>q nearest</th><th>SCENE의 q bilinear</th><th>BEFORE target-only의 같은 q</th><th>SCENE nominal ref nearest</th></tr></thead><tbody><tr><td>5353 / 장면669 / native1</td><td>D</td><td>FOREIGN</td><td>외부 물체 100.00%</td><td>다른 target 부위 2.59% + 배경 97.41%</td><td>INCIDENT_TARGET</td></tr><tr><td>5586 / 장면698 / native2</td><td>E</td><td>BG</td><td>외부 물체 13.47% + 배경 86.53%</td><td>배경 100.00%</td><td>FOREIGN</td></tr><tr><td>5609 / 장면701 / native1</td><td>E</td><td>BG</td><td>배경 100.00%</td><td>배경 100.00%</td><td>FOREIGN</td></tr></tbody></table></div>
+<p>5353은 q에서 외부 물체를 보지만 BEFORE에도 해당 q에는 선언 native 부위가 없습니다. 5586과 5609의 q는 BEFORE에서 배경입니다. <strong>따라서 q의 foreign/background 소속을 native 외부 가림 정답으로 자동 전환할 수 없습니다.</strong> 5586의 reference nearest도 BEFORE에서는 배경이지만, 모서리의 raster 판정과 continuous 등록 영역 판정은 동일하지 않습니다.</p>
+<figure><a href="fixed3_forensic_figure_v1/FIXED3_SOURCE_MASK_FORENSIC.png"><img src="fixed3_forensic_figure_v1/FIXED3_SOURCE_MASK_FORENSIC.png" alt="고정3행 원 RGB96, SCENE와 BEFORE 소속 도표, semantic과 q 진단을 구분한 과학 도표"></a><figcaption>고정3행 도표. B와 root가 각각 tools.view_image로 실제1장(3행)을 확인했습니다. 원 RGB·표시 소속 맵과 수치가 구분되어 있습니다. 보고서 HTML은 브라우저에서 실행하지 않았습니다.</figcaption></figure>
+<h2>같은 3장면의 all8 × 3 = 24 query 전수</h2>
+<p>semantic <strong>D8 / E3 / U10 / S3</strong>. 원 입력 U는 <strong>0/24</strong>입니다. q nearest 소속은 <strong>배경18 / 외부 물체2 / 다른 target 부위3 / 선언 native 부위1</strong>입니다. semantic U10은 입력 불가를 뜻하지 않습니다.</p>
+<table><thead><tr><th>semantic</th><th>선언 native 부위</th><th>다른 target 부위</th><th>외부 물체</th><th>배경</th><th>합계</th></tr></thead><tbody><tr><th>D</th><td>0</td><td>0</td><td>2</td><td>6</td><td>8</td></tr><tr><th>E</th><td>0</td><td>0</td><td>0</td><td>3</td><td>3</td></tr><tr><th>U</th><td>1</td><td>0</td><td>0</td><td>9</td><td>10</td></tr><tr><th>S</th><td>0</td><td>3</td><td>0</td><td>0</td><td>3</td></tr></tbody></table>
+<p class="note">D=등록 영역 보임, E=외부 가림, S=자체 가림, U=semantic 미정. INCIDENT_TARGET은 선언 CF 대응 기준입니다. CF/V4 경계에서 initializer가 실제로 학습한 물리 native identity는 미인증입니다. 3개 극단 constraint witness와 주변24행은 전체 corpus의 대표 표본이 아닙니다.</p>
+<h2>이미 분리되어 있던 학습과 남은 공백</h2>
+<p>native external visibility, literal query owner, coordinate quality는 별도 정답·mask·loss를 사용합니다. quality/entity는 별도 MLP·optimizer이며 primary visibility를 gate하지 않습니다. owner253은 별도 출력이지만 visibility 앞 hidden을 공유하므로 표현에 영향을 줄 수 있습니다. V166의 coarse native92도 물리 좌표·quality gold를 만들지는 않았습니다.</p>
+<p>필요한 근거는 같은 원 q/native/selected-instance에 대한 <strong>의도 native 부위 가시성, literal footprint 소속, native 좌표 대응·불확실성의 독립적 인증</strong>입니다. 이번 결과만으로 원 semantic 라벨 오류, 전체 실패 원인 또는 모든 소스의 품질을 확정할 수 없습니다. split architecture를 새로 발견했다는 결론도 아닙니다.</p>
+<h2>검증 범위</h2>
+<p>측정 1회 exit0 · toy 14 PASS · 원24 identity/q/L/native/semantic/input flags 보존 · 3장면 RGB SHA는 원 V171과 일치 · 원6 buffer SHA 불변. A는 선택3의 q/reference × SCENE/BEFORE 12점을 원배열에서 독립 계산하여 nearest12·source pixel48·bilinear12를 검산했습니다. 이는 all24 central32 전수 독립 재계산은 아닙니다.</p>
+<p>이번 단계 신규 head 학습·forward·feature 추출·PnP·q/L 수정·문턱 조정·라벨 교정·학습 입장은 모두 0입니다. 전체 과제 해결 및 모델 채택을 주장하지 않습니다.</p>
+<p>후속 방향은 이번 데이터를 학습에 넣거나 라벨을 고치지 않고, 공개 source-only 원본6144 query 전수에서 q 소속과 같은 위치의 BEFORE target 유무를 따로 검증하는 것입니다. foreign의 존재와 실제 target 가림을 구분하며 원 semantic·불확실 CF identity를 보존합니다. 이 후속 census와 새 성능 확보는 이번 단계에 포함되지 않습니다.</p>
+<details><summary>원기록·검토 영수증·기계 판독 JSON</summary><p><a href="saved_mask_semantics_measurement_v1/COMPLETE.json">저장 측정 COMPLETE</a> · <a href="saved_mask_semantics_measurement_v1/ALL24_ORIGINAL_QUERY_AND_REFERENCE_DIAGNOSTICS.jsonl">원24행 진단</a> · <a href="source_definition_review_a/REVIEW.json">소스 정의 추적 A</a> · <a href="measurement_code_review_a/REVIEW.json">독립 정적 검토 A</a> · <a href="source_training_contract_review_c/REVIEW.json">기존 학습 계약 C</a> · <a href="actual_saved_measurement_review_a/REVIEW.json">원배열 독립 수동 검산 A</a> · <a href="fixed3_forensic_figure_v1/COMPLETE.json">도표 생성 기록</a> · <a href="fixed3_forensic_figure_v1/ACTUAL_VISUAL_QA.json">도표 실제 시각 QA B</a> · <a href="ROOT_ACTUAL_FIXED3_FORENSIC_FIGURE_VISUAL_QA.json">도표 실제 시각 QA root</a> · <a href="ROOT_ACTUAL_SOURCE_MASK_MEASUREMENT_TERMINAL.json">실제 측정 terminal</a></p><p><a href="ROOT_RESULTS_KO.json">전체 수치·해석·SHA binding JSON</a> · <a href="ROOT_PHASE_RESULT.json">단계 완료 범위</a></p><pre>{
+  &quot;ROOT_SCOPE_BEFORE_SOURCE_MASK_OR_DEPTH_BODIES.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/ROOT_SCOPE_BEFORE_SOURCE_MASK_OR_DEPTH_BODIES.json&quot;,
+    &quot;sha256&quot;: &quot;c2a62ce2d9b257f6fdffe2f71adc13e28b9f7eb6713f88c308f6710c45b555c8&quot;
+  },
+  &quot;saved_mask_semantics_measurement_v1/COMPLETE.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/saved_mask_semantics_measurement_v1/COMPLETE.json&quot;,
+    &quot;sha256&quot;: &quot;12d2d8375de1e573f021536176be81ed4aae1f0c10ece179deb2b5782dbd2b78&quot;
+  },
+  &quot;saved_mask_semantics_measurement_v1/ALL24_ORIGINAL_QUERY_AND_REFERENCE_DIAGNOSTICS.jsonl&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/saved_mask_semantics_measurement_v1/ALL24_ORIGINAL_QUERY_AND_REFERENCE_DIAGNOSTICS.jsonl&quot;,
+    &quot;sha256&quot;: &quot;22a1988555c2a4ba7feb1bb676c48422e2ed5b2b47d51d50c3cc9f8d0f5b2d53&quot;
+  },
+  &quot;source_definition_review_a/REVIEW.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/source_definition_review_a/REVIEW.json&quot;,
+    &quot;sha256&quot;: &quot;adc4cec204d4d5dfb0f3eab1ce2488249777539b6ac37fd9b7d9b2742024d5e5&quot;
+  },
+  &quot;measurement_code_review_a/REVIEW.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/measurement_code_review_a/REVIEW.json&quot;,
+    &quot;sha256&quot;: &quot;ac0f98bd055eeb90c6f62b43b6a987d1635a75f362c0ecf1e13b263293343ce5&quot;
+  },
+  &quot;ROOT_STATIC_MEASUREMENT_CODE_REVIEW.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/ROOT_STATIC_MEASUREMENT_CODE_REVIEW.json&quot;,
+    &quot;sha256&quot;: &quot;4f9e29c22ff86e2f14f4fb32f5429afd16028696a4be3f2e7dedfdf7bd5095fe&quot;
+  },
+  &quot;source_training_contract_review_c/REVIEW.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/source_training_contract_review_c/REVIEW.json&quot;,
+    &quot;sha256&quot;: &quot;f656eac95ce5644c27dd0c7f0b53cde98130d0c81543ec1e452eb2302ec718eb&quot;
+  },
+  &quot;INPUT_PATH_READINESS.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/INPUT_PATH_READINESS.json&quot;,
+    &quot;sha256&quot;: &quot;e0b3b8eacc12698103f1aee34fd914973adc83759db960335f2bc79576f16a2c&quot;
+  },
+  &quot;actual_saved_measurement_review_a/REVIEW.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/actual_saved_measurement_review_a/REVIEW.json&quot;,
+    &quot;sha256&quot;: &quot;e741aec263e6e0899c8950cf47d6df511e026d9acf2156f19ffc313772f3482e&quot;
+  },
+  &quot;fixed3_forensic_figure_v1/COMPLETE.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/fixed3_forensic_figure_v1/COMPLETE.json&quot;,
+    &quot;sha256&quot;: &quot;1711549025fdc92583efc57342a43960938d10398e68a65840ba6a11eefdeac2&quot;
+  },
+  &quot;fixed3_forensic_figure_v1/ACTUAL_VISUAL_QA.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/fixed3_forensic_figure_v1/ACTUAL_VISUAL_QA.json&quot;,
+    &quot;sha256&quot;: &quot;21b30e1af67e249cce1467544e9d84d8a47de412076ecf7fdb001c18d9f6eadc&quot;
+  },
+  &quot;ROOT_ACTUAL_FIXED3_FORENSIC_FIGURE_VISUAL_QA.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/ROOT_ACTUAL_FIXED3_FORENSIC_FIGURE_VISUAL_QA.json&quot;,
+    &quot;sha256&quot;: &quot;0e3992c82bfd6d41404b3f56753bc2d5955d7cc308d2bcc4b8066b6402686587&quot;
+  },
+  &quot;ROOT_ACTUAL_SOURCE_MASK_MEASUREMENT_TERMINAL.json&quot;: {
+    &quot;path&quot;: &quot;/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/ROOT_ACTUAL_SOURCE_MASK_MEASUREMENT_TERMINAL.json&quot;,
+    &quot;sha256&quot;: &quot;e1a511ecd94e1fcc86e669e1fc4ad12810a0c2692f53f273ddff0d6d718b40cb&quot;
+  }
+}</pre></details>
+</body></html>

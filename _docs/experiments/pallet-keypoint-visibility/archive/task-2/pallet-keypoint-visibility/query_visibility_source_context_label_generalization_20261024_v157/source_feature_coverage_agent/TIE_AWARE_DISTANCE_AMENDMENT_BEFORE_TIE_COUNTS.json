@@ -1,0 +1,7 @@
+{
+  "schema": "V157_DESCRIPTIVE_NUMERICAL_TIE_HANDLING_AMENDMENT",
+  "reason": "Target-context descriptor is identical for all constructed queries in a frame. A single row argmin can mechanically choose the first native row while the nearest frame contains both D and E. Preserve original argmin IDs for reproducibility and do not interpret deterministic tied row labels as unique semantic support.",
+  "fixed_numerical_tie_tolerance": 1e-7,
+  "policy": "Before computing tie counts, fix absolute FP32 cosine-distance equality tolerance at 1e-7 for every component. Report min-distance-to-D and min-distance-to-E and ties separately, no tolerance tuning and no predictive classification or fitted decision threshold. Supplement query-weighted context distances with one first eligible original query per frame and count unique nearest TRAIN frames.",
+  "causal_limit": "TRAIN leave-frame-out can retain nearby temporal/scene frames while held is a fixed distinct scene group. Distances are descriptive source support, not proof of causal domain shift or independent physical examples."
+}

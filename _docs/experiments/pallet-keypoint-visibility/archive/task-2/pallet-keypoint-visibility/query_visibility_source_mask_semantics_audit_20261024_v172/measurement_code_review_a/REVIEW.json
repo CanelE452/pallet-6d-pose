@@ -1,0 +1,92 @@
+{
+  "schema": "V172_MEASUREMENT_STATIC_REVIEW_A_v1",
+  "completed": true,
+  "PASS": true,
+  "UTC": "2026-10-24T03:29:19.689227+00:00",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/measurement_preparation/measure_saved_source_semantics.py",
+    "sha256": "8e673bb930e9fa49017c85c4355141e0c0846526d49c0297a82db59309418e42"
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/measurement_preparation/PROTOCOL_BEFORE_SOURCE_MASK_DEPTH_BODIES.json",
+    "sha256": "81cbec5ae9626165793a7e3dcd83ec0fbe9c2acbcfc4c1cf7eb5c6e958b62abf"
+  },
+  "generated_tests": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/measurement_preparation/GENERATED_INVENTED_PIXEL_CHECKS.json",
+    "sha256": "ac5ecb6122c3fe054fba17a4057ed974664657a1dee8e4cc3304796a7e060441"
+  },
+  "preparation_complete": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/measurement_preparation/PREPARATION_COMPLETE.json",
+    "sha256": "be3945e1fadde332e16937afe3dd8356714a3f13b99a0164312beace12feae45"
+  },
+  "readiness": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/INPUT_PATH_READINESS.json",
+    "sha256": "e0b3b8eacc12698103f1aee34fd914973adc83759db960335f2bc79576f16a2c"
+  },
+  "source_definition_review": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/source_definition_review_a/REVIEW.json",
+    "sha256": "adc4cec204d4d5dfb0f3eab1ce2488249777539b6ac37fd9b7d9b2742024d5e5"
+  },
+  "scope": "Read-only static source/protocol/toy-receipt review. No importing/running producer or toy tests, no new tests, no source pixel/NPZ/header/model/feature/weight reads. No edits to producer or root scope.",
+  "checks": [
+    {
+      "item": "nearest and point footprint",
+      "PASS": true,
+      "evidence": "point_measure floor(q+.5), and floor(q)+four source pixels with exact float64 bilinear weights. Zero-weight neighbours remain explicit. Out-of-frame support is INVALID, not BG."
+    },
+    {
+      "item": "owner categories and priority",
+      "PASS": true,
+      "evidence": "AMBIGUOUS overrides owner; FOREIGN999, BG negative, per-slot incident target, other target remain separate. Owner IDs are converted to onehot classes before interpolation. Weights sum to1 across5classes+INVALID."
+    },
+    {
+      "item": "saved96 central4/central32",
+      "PASS": true,
+      "evidence": "q+((index+.5)/96-.5)*L;47:49 yields4 samples and32:64 yields1024. Exact original q/L remains the centre. Frozen crop domain [-.5,w-.5)x[-.5,h-.5) invalid samples become all INVALID; partial outside-source bilinear mass remains INVALID."
+    },
+    {
+      "item": "no nominal-reference crop",
+      "PASS": true,
+      "evidence": "Nominal reference is point-only nearest+four-source-pixel diagnostic; crop_region is called only at original q/L. No corrected query or GT-centred96/32 grid."
+    },
+    {
+      "item": "BEFORE distinction",
+      "PASS": true,
+      "evidence": "Measures the same original q/L and incident set against saved BEFORE resolved target-only all-parts buffer, not selected-part-alone layers or reconstructed hidden pixels."
+    },
+    {
+      "item": "all24 identity and original input facts",
+      "PASS": true,
+      "evidence": "All8 slots of each exact3 scenes retained; unique24 original flags are inherited from original V132 cropfacts with q/L parity in preparation and IDs checked at runtime. No conditional row drop or inputU recomputation from measured ownership."
+    },
+    {
+      "item": "RGB/geometry/state source correspondence",
+      "PASS": true,
+      "evidence": "Runtime verifies selected scene RGB_uint8 decoded hash against V171 inherited RGB hash; state8_CF, perm, CF/canonical references and camera against original JSON. Both SCENE and BEFORE buffers are independently identified; original source hashes checked before/after. These are reviewed future assertions, not measurements claimed by this static review."
+    },
+    {
+      "item": "association authority limits",
+      "PASS": true,
+      "evidence": "Protocol and each output explicitly make INCIDENT_TARGET relative to declared CF association. Raw initializer indices do not certify physical CF/V4 identity. correspondence_boundary is ordering disagreement, not image boundary. No result-dependent remapping."
+    },
+    {
+      "item": "labels/admission/scope",
+      "PASS": true,
+      "evidence": "Original semantic records/flags carried separately, new_label null, training_admitted false, no fit/forward/render/threshold or coordinate changes. approvedFalse template and root entry gate retain actual execution boundary."
+    },
+    {
+      "item": "meaningful invented evidence",
+      "PASS": true,
+      "evidence": "14 recorded PASS cases cover ambiguity priority, distinct classes, onehot interpolation, zero-weight neighbours, padding and crop-domain INVALID, exact4/1024 grid, nearest rounding, NaN BG depth, missing q, no reference crop, per-slot incident IDs, input immutability. Final receipt code hash matches reviewed source; reviewer did not rerun tests."
+    }
+  ],
+  "known_limits": [
+    "Measurement classifications diagnose saved source renderer ownership and finite registered teacher semantics only; they do not certify native physical identity, real-pixel corner gold, label error or training admission.",
+    "RGB96 crop payload is not reread by this measurement: correspondence is inherited through exact original fullRGB hash, q/L metadata and frozen96 grid, with prior crop-fact provenance disclosed."
+  ],
+  "blocking_issues": [],
+  "code_changes_requested": false,
+  "actual_measurement_run_by_reviewer": false,
+  "new_source_body_reads": 0,
+  "conclusion_KO": "PASS. 최종 코드·프로토콜·14 toy receipt 바인딩이 일치하며 요청한 표본/INVALID/owner분리/BEFORE/24슬롯 보존을 충족한다. 정적 검토만 완료했고 실제 측정 PASS나 물리 native identity 인증을 주장하지 않는다."
+}

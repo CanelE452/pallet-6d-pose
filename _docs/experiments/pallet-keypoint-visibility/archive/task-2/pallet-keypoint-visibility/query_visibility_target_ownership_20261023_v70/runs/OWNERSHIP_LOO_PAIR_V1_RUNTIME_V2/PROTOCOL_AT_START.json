@@ -1,0 +1,240 @@
+{
+  "schema": "V70_FIXED_CONDITIONAL_QUERY_OWNERSHIP_PILOT_PROTOCOL_V1",
+  "status": "FROZEN_BEFORE_FIRST_V70_FIT",
+  "source_only": true,
+  "current_inference_allowed": false,
+  "training": {
+    "candidate": "OWNERSHIP_LOO_PAIR_V1",
+    "updates": 2000,
+    "validation_every": 100,
+    "batch_size": 256,
+    "source_rows_per_batch": 64,
+    "changed_pairs_per_update": 32,
+    "pair_weight": 0.25,
+    "seed": 20261023,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "BCE_class_weights": "all1",
+    "threshold": 0.5,
+    "checkpoint_selection": "earliest strict minimum unweighted4source knownVE macroNLL"
+  },
+  "model_input_whitelist": [
+    "x",
+    "rgb_native",
+    "sam",
+    "box_grid",
+    "prototype",
+    "prototype_info"
+  ],
+  "architecture": {
+    "name": "TargetOwnershipHead",
+    "parameters": 40137,
+    "shared_appearance_projection": "P3 query and leave-one-ROI-out target prototype share64to24 projection; cosine/product/absdiff explicit",
+    "branches": "localP3, raw75channelRGB5x5 native patches, MobileSAMfeatures, targetprototype nonlinearcontext, inputbox/ROIposition, prototype reliability",
+    "readout": "nonlinear1x1+3x3 fusion, scalar exactly at9x9center; no GAP/globalUNet/sixjoint/amodal head",
+    "raw_cached_context_bypass": false,
+    "SAM_sign_prior_or_veto": false,
+    "backbone_or_SAM_updates": 0
+  },
+  "prototype": {
+    "leave_one_entire_ROI_out": true,
+    "positive_logit_threshold": 0,
+    "positive_comparison": ">",
+    "mass_epsilon": 1e-06,
+    "epsilon_role": "numeric division guard only; empty predicted foreground is identified by zero cell count, not a VAL-tuned mass cutoff",
+    "weight": "inputP3valid AND roughboxinside AND predictedMobileSAMexactlogit>0; sigmoid(logit) weights inside those foreground sites",
+    "fallback": "same-current-target cachedinputcontext only ifnootherpredictedforeground, with explicit emptyflag; canincludequeryitself only inthisflaggedfallback",
+    "GT_label_filter": false,
+    "query_ROI_excluded": true,
+    "original_composite_mixed": false,
+    "diagnostic_only": [
+      "foreground_cell_count",
+      "predicted_foreground_weight_mass",
+      "otherROIcount",
+      "empty_predicted_foreground_fallback_count"
+    ],
+    "output_quality_is_not_GT": true
+  },
+  "labels": {
+    "joint_order": [
+      [
+        "V",
+        "V"
+      ],
+      [
+        "E",
+        "V"
+      ],
+      [
+        "E",
+        "E"
+      ],
+      [
+        "O",
+        "V"
+      ],
+      [
+        "O",
+        "E"
+      ],
+      [
+        "O",
+        "O"
+      ]
+    ],
+    "known_exact_V": "native_valid AND allowed==1",
+    "known_exact_E": "native_valid AND allowed in {2,4,6}",
+    "train_population": "All admitted known exact V/E rows of the unchanged V66 four-source TRAIN cache. O and UNKNOWN are excluded, never relabeled E.",
+    "known_exact_E_scope": "Certified/proxy external support as individually tiered by source; conditional query support, not semantic corner/self gold.",
+    "SYNTH": "Preserved rendered support facts; original M0/M4 proxy semantics unchanged.",
+    "ORIGINAL_YCB": "Originally observed target-visible support; original full-only unknown is never E.",
+    "CONTROLLED_YCB": "Original target-visible pixels covered by independently pasted opaque other-instance RGB; same q/box as original.",
+    "PALLOX": "Symmetric conditional teacher evidence, empirical depth/RGB consistency; not calibration-certified semantic gold.",
+    "state_check": "Exact state independently projected from every allowed 6joint bitset and compared to stored exact state; native invalid must be allowed63/stateUNKNOWN."
+  },
+  "pair_contract": {
+    "mapping": "Immutable TARGETS.jsonl and COMPOSITES.jsonl original_sample_ids; exact same native query, ROI side, target box and original target identity for all8 slots.",
+    "changed": "original known V\u2192controlled known E",
+    "preserved": "original known V\u2192controlled known V",
+    "non_V": "O/UNKNOWN remain unchanged and are audit-only outside this conditional training loss.",
+    "split": "Original target/RGB, composite, donor RGB/target and YCB scene each remain in one split. PALLOX same-session/pair siblings stay grouped. Shared object categories/render generator are not claimed independent families.",
+    "pair_loss_plan_from_root": "32 TRAIN changed pairs per update supply32 original+32 controlled rows, plus32 regular knownVE rows for each YCB domain; SYNTH64 and PALLOX64. Four-source equal BCE +.25 mean softplus(-(z_original-z_controlled)); pair mapping never selected from VAL/current."
+  },
+  "selection": {
+    "population": "VAL, same four sources, native-valid known exact V/E only",
+    "criterion": "Unweighted mean binary NLL within each source, then equal mean over four sources. Every100 updates; earliest strict minimum; fixed2000 update budget. This conditional selector is different from all-class quality gates.",
+    "threshold": "pV>=.5 fixed; no radius/threshold/crop/architecture/weight selection from VAL/current",
+    "ORIGINAL_YCB_caveat": "No known E in ORIGINAL_YCB; VE-only precision is trivially1 when V is predicted. Do not use it as the quality precision gate."
+  },
+  "mandatory_source_quality": {
+    "primary_population": "ALL native-valid exact-class-known V/E/O, preserving prior fixed cohort. UNKNOWN and invalid retained in separate coverage tables.",
+    "public_visible_precision_and_recall": {
+      "sources": [
+        "ORIGINAL_YCB",
+        "CONTROLLED_YCB",
+        "PALLOX"
+      ],
+      "precision_at_least": 0.8,
+      "recall_at_least": 0.8
+    },
+    "known_E_to_binary_nonvisible_recall": {
+      "sources": [
+        "CONTROLLED_YCB",
+        "PALLOX"
+      ],
+      "at_least": 0.6,
+      "wording": "pV<.5 is binary nonvisible, never an inferred causal E class on O/unknown."
+    },
+    "strict25_visible_nonregression": {
+      "ORIGINAL_YCB": {
+        "same_frozen_IDs": 714,
+        "TP_at_least": 679
+      },
+      "CONTROLLED_YCB": {
+        "same_frozen_IDs": 296,
+        "TP_at_least": 278
+      }
+    },
+    "knownVE_conditionals": "Report separately from all-known V/E/O metrics. Preserve exact denominators, source tiers and O/UNKNOWN prediction distributions.",
+    "comparisons": "Frozen same8590-source-query v61 exact-only scores plus existing V65/V66/V67/MobileSAM/SAM21 saved outputs. No invented v61 R2. SAME native valid IDs and GT required.",
+    "authorization": "Ten diagnostic conditions do not select another checkpoint and never automatically authorize current inference or prove semantic goal solved."
+  },
+  "data_requirements": {
+    "caches": {
+      "TRAIN": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/joined_source_cache/CONTROLLED_PLUS_PALLOX_TRAIN.npz",
+        "sha256": "8c7935a55ac9df911ca7670c718e94a466bce46fe245f82047e5f796b4bf27dc",
+        "sha_origin": "unchanged frozen prior source cache binding; no new full payload hash in this header audit"
+      },
+      "VAL": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/joined_source_cache/CONTROLLED_PLUS_PALLOX_VAL.npz",
+        "sha256": "386fa51f11427464ceed6c6c07e39c33f701aa60b3aac794a46616b42581e17d",
+        "sha_origin": "unchanged frozen prior source cache binding; no new full payload hash in this header audit"
+      }
+    },
+    "TRAIN_queries": 31617,
+    "VAL_queries": 8590,
+    "TRAIN_current_targets": 4011,
+    "VAL_current_targets": 1091,
+    "knownVE_TRAIN_counts": {
+      "SYNTH": {
+        "V": 2342,
+        "E": 301
+      },
+      "ORIGINAL_YCB": {
+        "V": 6335,
+        "E": 0
+      },
+      "CONTROLLED_YCB": {
+        "V": 4550,
+        "E": 1781
+      },
+      "PALLOX": {
+        "V": 132,
+        "E": 32
+      }
+    },
+    "counts_from_frozen_label_contract": true,
+    "TRAIN_changed_pairs": 1781,
+    "TRAIN_preservedV_pairs": 4550,
+    "pair_training_table": "TRAIN_CHANGED_PAIR_INDEX.csv ONLY",
+    "prototype_uses_all_included_current_target_ROIs_before_label_filter": true,
+    "deployment_contract": "Target-associated initial ROI set1..8 from SAME currentRGB, roughtargetbox and frozenP3/RGB/MobileSAM. No original twin, GTmask, reference/semantic/native slot ID token."
+  },
+  "limits": [
+    "This is a conditional query-pixel V-vsE ownership component, not the full semantic-reference/crop/self goal.",
+    "O/U excluded from TRAIN; pVisible extrapolation onO/U must be audited. Do not call every negative a causalE/O/self prediction.",
+    "Source checkpoint selector usesknownVE macroNLL; qualityVprecision usesALLnativevalid exactclassknownV/E/O, nottriviallyperfectOrigVEprecision.",
+    "Predicted MobileSAMforeground can includeanoccluder. LOOotherROIs canoverlapspatially; targetprototype isnotcleanGT.",
+    "Fallbackcontext maycontain currentROI contamination; emptyflag preserves thatlimitation.",
+    "YCBsourcequeries/roughboxes haveexistingGT-deriveddistribution; initialpalletq8 deployment differs.",
+    "Architecture/objective/sampler differ fromoldheads; onepilot cannotattributeanydifferenceonlytotheprototype.",
+    "No source-quality PASS automatically authorizescurrentinference or provessemantictransfer; noalternatecheckpoint/threshold/radius search."
+  ],
+  "bindings": {
+    "label_cohort_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/contract/LABEL_COHORT_SEAL.json",
+      "sha256": "45ffa631781e1efef4f5137393b3340d4fd91a1ca137486c8638dbc59fe83b01"
+    },
+    "label_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/contract/LABEL_COHORT_PROTOCOL.json",
+      "sha256": "a3355d887c0d4d8c010d57a471b86e81c956b3c6d47f2567966e86bf5743a046"
+    },
+    "generated_tests": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/model/GENERATED_OWNERSHIP_TESTS_V3.json",
+      "sha256": "0a0e7a074c5c1652c92e8c0dea365aa366250a1e6f565ec4b9a8bee5abc0c8fe"
+    },
+    "cache_header_audit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/provenance/CACHED_INPUT_SCHEMA.json",
+      "sha256": "7e09da57d6d93b7b83ee2f053889dcf8cf22580a91f2b977429ce5210655945f"
+    },
+    "old_V65_model_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/model/query_global_amodal_head.py",
+      "sha256": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144"
+    },
+    "independent_V3_math_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/source_audit/INDEPENDENT_OWNERSHIP_MATH_REVIEW_V3.json",
+      "sha256": "705751b4931c5f4d21a02a0ce83cf6f139cd819df6a301bd3dc106ace7a99ed4"
+    },
+    "independent_small_label_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/source_audit/INDEPENDENT_SMALL_LABEL_COHORT_AUDIT.json",
+      "sha256": "fceb702b88394356d652ca23d10bedaae0d8dcccde7ab572a176bf7bf625bfc3"
+    },
+    "root_code_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/source_audit/ROOT_PRE_FIT_CODE_REVIEW.json",
+      "sha256": "f6011fdadecdb2f44e2fc4847963bea2422645a9e26601f5ebc13f86259afbe6"
+    },
+    "prefit_exploratory_eligibility_policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/contract/CURRENT_EXPLORATORY_ELIGIBILITY_POLICY_BEFORE_FIT.json",
+      "sha256": "71935f677efabf7b20a6b246f2e5241a0e564eed0287d76663fda8753bfbb5f0"
+    }
+  },
+  "actual_source_fit_or_forward_executed": false,
+  "new_backbone_or_SAM_calls": 0,
+  "source_RGB_current_reads": 0,
+  "PnP_calls": 0,
+  "note": "Frozen source-only 2000-update pilot under active user goal. No currentdata or PnP. Template remained preserved.",
+  "frozen_at_UTC": "2026-10-22T16:35:41.173065+00:00",
+  "current_human_comparison_policy": "See prefrozen policy: legacy10diagnostics unchanged/HOLD on anyfailure; separate8broader checks+integrity permit root-sealed once-frozen exploratory current comparison, never automatic authorization/deployment/goalcompletion."
+}

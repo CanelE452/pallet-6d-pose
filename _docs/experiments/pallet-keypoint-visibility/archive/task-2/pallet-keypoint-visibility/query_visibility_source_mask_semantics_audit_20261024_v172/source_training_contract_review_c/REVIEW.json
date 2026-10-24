@@ -1,0 +1,443 @@
+{
+  "schema": "V172_SOURCE_TRAINING_THREE_TARGET_CONTRACT_STATIC_REVIEW_C",
+  "completed": true,
+  "PASS": true,
+  "PASS_scope": "Static source-code/protocol contract documented; does not certify renderer masks, label truth, physical native correspondence or model success.",
+  "UTC": "2026-10-24T03:27:06.640158+00:00",
+  "review_input_scope": "Only explicit V172 root scope, V155/V160/V166 trainer/head source text and their small train protocols. No imports, training functions, model objects or data producers executed.",
+  "main_conclusion_KO": "세 목표는 출력·label mask·loss에서 분리돼 있다. primary native external visibility는 기존 semantic native/weak role 정답이고 literal query owner나 좌표 quality 정답을 대신하지 않는다. quality/entity는 trainable branch와 optimizer가 visibility에서 분리되지만 owner는 visibility 앞 hidden을 공유하므로 auxiliary CE가 visibility 표현에 영향을 준다. 어느 보조 출력도 primary 판정 gate는 아니다.",
+  "target_contracts": [
+    {
+      "target": "native_external_visibility",
+      "output": "external_occlusion scalar; original D=0/E=1",
+      "label_authority_KO": "합성 OLD6144/NEW20480 target은 동결 parent source protocol/GT lineage에서 helper.load_inputs로 온 meta.target을 그대로 쓴다. 이 검토 범위의 trainer는 renderer의 mask/depth 의미를 재정의하거나 literal q 픽셀 owner로 대체하지 않는다. public Pallox는 parent public target, MR은 별도 동결1840 role_target을 사용한다. MR known role은 entity_target=1, role_correspondence_supported, D/E role_state를 요구하지만 human_gold=false/root_adjudicated_weak이며 real point_quality_label은 전부−1이다.",
+      "fit_mask_KO": "합성은 원래 TRAIN draw와 query_available, MR은 available & SOURCE_DEVELOPMENT & known role, Pallox는 동결 public TRAIN pools. quality/owner/GTerror로 main을 새로 필터하지 않는다. MR1840 전체는 TRAIN1480/VALIDATION360으로 보존한다.",
+      "loss": "sum(OLD native BCE, NEW native BCE) + balanced Pallox BCE + balanced MR role BCE; main labels unchanged. V166 C46 alone adds separately admitted weak coarse part-native92 BCE.",
+      "not_equivalent_to": [
+        "literal q target/foreign/background ownership",
+        "same-native q coordinate correctness",
+        "physical pixel/native corner gold"
+      ],
+      "evidence": [
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 75,
+          "line_end": 91,
+          "excerpt": "75: def labels_and_masks(rows):\n76:     assert len(rows) == 1840\n77:     for i, r in enumerate(rows):\n78:         assert r['global_index'] == i and r['frame_index'] == i//8 and r['native_slot'] == i%8\n79:         assert r['entity_target'] in (-1, 0, 1) and r['role_target'] in (-1, 0, 1)\n80:         assert r['split'] in ('SOURCE_DEVELOPMENT', 'SOURCE_VALIDATION')\n81:         if r['role_target'] >= 0:\n82:             assert r['entity_target'] == 1 and r['role_correspondence_supported']\n83:             assert r['role_state'] == ('D', 'E')[r['role_target']]\n84:         assert r['point_quality_label'] == -1\n85:         assert not r['human_gold'] and r['root_adjudicated_weak']\n86:     return dict(entity=np.array([r['entity_target'] for r in rows], np.int8),\n87:         role=np.array([r['role_target'] for r in rows], np.int8),\n88:         state=np.array([r['role_state'] for r in rows]),\n89:         occluder=np.array([r['occluder_or_uncertainty'] for r in rows]),\n90:         training=np.array([r['split'] == 'SOURCE_DEVELOPMENT' for r in rows]),\n91:         available=np.array([r['original_input_valid'] for r in rows], bool))"
+        },
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 121,
+          "line_end": 140,
+          "excerpt": "121:     seal=read(label_seal)\n122:     assert seal['completed'] and seal['PASS'] and seal['source_only'] and seal['source_fit_admitted']\n123:     assert not seal['visibility_scores_used_for_labels']\n124:     assert seal['frames']==230 and seal['rows']==1840 and seal['all_original_queries_retained']\n125:     assert not seal['human_gold'] and not seal['exact_real_point_gold']\n126:     rows=lines(check(seal['labels']))\n127:     meta=labels_and_masks(rows)\n128:     assert meta['training'].sum()==1480 and (~meta['training']).sum()==360\n129:     assert all(len(p) for p in pools(meta['entity'],meta['available'],meta['training']))\n130:     assert all(len(p) for p in pools(meta['role'],meta['available'],meta['training']))\n131:     old=read(PARENT_PROTOCOL);mf=read(MR_FEATURE_SEAL);pf=read(PALLOX_FEATURE_SEAL);quality=read(QUALITY)\n132:     assert mf['completed'] and mf['rows']==1840 and pf['completed']\n133:     assert quality['total_rows']==26624 and quality['all_original_queries_L_order_roles_and_visibility_masks_preserved']\n134:     p=dict(completed=True, prepared_only=True, code=bind(__file__), design=bind(DESIGN),root_policy=design['root_policy'],\n135:         helper=bind(HELPER),head=bind(HEAD),parent_protocol=bind(PARENT_PROTOCOL),\n136:         anchor_checkpoint=old['anchor_checkpoint'],anchor_freeze=old['anchor_freeze'],\n137:         source_supervision_seal=bind(label_seal),source_labels=seal['labels'],\n138:         MR_feature_seal=bind(MR_FEATURE_SEAL),MR_features=mf['features'],MR_inputfacts=mf['inputfacts'],\n139:         Pallox_feature_seal=bind(PALLOX_FEATURE_SEAL),Pallox_features=pf['features'],Pallox_inputfacts=pf['inputfacts'],\n140:         quality=bind(QUALITY),quality_labels=[quality['source_families'][k]['labels'] for k in ('OLD6144','NEW20480')],"
+        },
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 201,
+          "line_end": 211,
+          "excerpt": "201:     oldentry=dict(public_feature_seal=p['Pallox_feature_seal'],public_features=p['Pallox_features'],public_feature_inputfacts=p['Pallox_inputfacts'])\n202:     packs,metas,baselines,public,pub,oldprefix=h.load_inputs(previous,oldentry)\n203:     prefix=[]\n204:     for step,r in enumerate(lines(check(previous['C32_draws'])),1):\n205:         assert r['update']==step and r['extra_source']=='V136_NATIVE'\n206:         ix=np.asarray(r['native_occurrences'],np.int64);ex=np.asarray(r['extra_native_occurrences'],np.int64)\n207:         assert ix.shape==ex.shape==(64,)\n208:         for indices,meta,a in ((ix,metas[0],packs[0]),(ex,metas[1],packs[1])):\n209:             assert (meta['split'][indices]=='TRAIN').all() and a['query_available'][indices].all()\n210:             assert np.array_equal(meta['target'][indices],np.r_[np.ones(16),np.zeros(32),np.ones(16)])\n211:         prefix.append((ix,ex,np.asarray(r['native_pair_pool_positions'],np.int64),np.asarray(r['extra_pair_pool_positions'],np.int64)))"
+        },
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 250,
+          "line_end": 267,
+          "excerpt": "250:     ep=pools(rm['entity'],rm['available'],rm['training']);assert all(len(pool) for pool in ep)\n251:     vi=np.flatnonzero(rm['available']&rm['training']&(rm['role']>=0))\n252:     assert (rm['role'][vi]==0).any() and (rm['role'][vi]==1).any()\n253:     pi=np.sort(np.r_[pub['pools'][0],pub['pools'][1]])\n254:     allpacks=packs+[public,mr]\n255:     for a in allpacks:\n256:         assert not (a['query_available'] & ~a.get('feature_constructed',np.ones(len(a['features']),bool))).any()\n257:     xs=[torch.as_tensor(a['features'],device='cuda') for a in allpacks]\n258:     z42=torch.zeros((max(512,len(vi)),42),device='cuda')\n259:     yn=[torch.as_tensor(m['target'],dtype=torch.float32,device='cuda') for m in metas]\n260:     an=[torch.as_tensor(a['query_available'],device='cuda') for a in packs]\n261:     yp=torch.as_tensor(pub['target'][pi],dtype=torch.float32,device='cuda')\n262:     ym=torch.as_tensor(rm['role'][vi],dtype=torch.float32,device='cuda')\n263:     ye=torch.as_tensor(rm['entity'],dtype=torch.float32,device='cuda')\n264:     yq=[torch.as_tensor(y,dtype=torch.float32,device='cuda') for y in qualities]\n265:     def balance(z,y):\n266:         assert (y==0).any() and (y==1).any()\n267:         return .5*F.binary_cross_entropy_with_logits(z[y==0],y[y==0])+.5*F.binary_cross_entropy_with_logits(z[y==1],y[y==1])"
+        },
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 327,
+          "line_end": 335,
+          "excerpt": "327:                     o=[model(xs[i][ix],z42[:len(ix)]) for i,ix in enumerate((oi,ni))]\n328:                     po=model(xs[2][pi],z42[:len(pi)]);mo=model(xs[3][vi],z42[:len(vi)])\n329:                     eo=model(xs[3][ei],z42[:len(ei)])['target_entity'];eo.retain_grad()\n330:                     qo=[model(xs[i][ix],z42[:len(ix)])['coarse_point_quality'] for i,ix in enumerate(qi)]\n331:                     for z in qo:z.retain_grad()\n332:                     nl=[h.q.native_bce(o[i]['external_occlusion'],yn[i][ix],an[i][ix]) for i,ix in enumerate((oi,ni))]\n333:                     pl=balance(po['external_occlusion'],yp);ml=balance(mo['external_occlusion'],ym)\n334:                     el=balance(eo,ye[ei]);ql=sum(balance(z,yq[i][ix]) for i,(z,ix) in enumerate(zip(qo,qi)))/2\n335:                     loss=sum(nl)+pl+ml+el+ql"
+        }
+      ]
+    },
+    {
+      "target": "literal_query_visible_owner",
+      "output": "query_visible_owner three logits; TARGET=0/FOREIGN=1/BACKGROUND=2/UNKNOWN=−1",
+      "label_authority_KO": "원래 public MR TRAIN390 내 assistant weak center-owner sidecar253개: TARGET53/FOREIGN52/BG148. 1840 중 나머지1587은 owner UNKNOWN이며 SOURCE_VALIDATION은 owner loss 정답이 없다. known owner는 기존 관찰과 center4_valid를 요구한다. human/native/pixel-coordinate gold가 아니다.",
+      "loss": "mean of three within-class mean CE, weight0/1 in V160 factorial; unchanged original253 weight1 in both V166 arms. No new native or point-quality target inferred from owner.",
+      "representation_coupling_KO": "owner uses owner_head(ReLU(pre_slot_h)); pre_slot_h is the same head[0](visual)+geometry input used by visibility. 따라서 owner CE는 owner head뿐 아니라 visibility 첫 linear/hidden에도 역전파할 수 있다. separate new707 optimizer는 이 공유 hidden 경로를 차단하지 않는다. owner에는 native hint branch가 들어가지 않으며 owner loss만으로 visibility 마지막 head[2]를 직접 학습하지는 않는다.",
+      "evidence": [
+        {
+          "source": "V160_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/train_slot_owner_factorial.py",
+          "line_start": 58,
+          "line_end": 77,
+          "excerpt": "58: def owner_metadata(rows,facts):\n59:     assert len(rows)==len(facts)==1840\n60:     for i,(r,f) in enumerate(zip(rows,facts)):\n61:         for key in ('global_index','frame_index','frame_id','source_id','query_id','native_slot','split','query_xy','L'):assert r[key]==f[key],(i,key)\n62:         assert r['owner_state'] in OWNER_MAP and r['owner_aux_target']==OWNER_MAP[r['owner_state']]\n63:         assert not r['training_admitted'] and not r['native_visibility_target_defined'] and not r['point_quality_target_defined']\n64:         assert not r['human_gold'] and not r['physical_native_gold'] and not r['pixel_coordinate_gold']\n65:         if r['owner_aux_target']>=0:assert r['split']=='SOURCE_DEVELOPMENT' and r['prior_owner_observation_present'] and r['center4_valid'] is True\n66:         if r['split']!='SOURCE_DEVELOPMENT':assert r['owner_aux_target']==-1 and not r['prior_owner_observation_present']\n67:     target=np.asarray([r['owner_aux_target'] for r in rows],np.int64)\n68:     assert np.bincount(target[target>=0],minlength=3).tolist()==[53,52,148]\n69:     assert int((target<0).sum())==1587 and target[1043]==-1 and rows[1043]['center4_valid'] is False\n70:     return target\n71: \n72: OWNER_MAP={'TARGET_VISIBLE_SUPPORTED':0,'FOREIGN_VISIBLE_SUPPORTED':1,'BACKGROUND_SUPPORTED':2,'UNKNOWN':-1}\n73: def balanced_owner_ce(logits,target):\n74:     assert logits.ndim==2 and logits.shape==(len(target),3) and target.dtype==torch.int64\n75:     assert bool(((target>=0)&(target<3)).all())\n76:     assert all(bool((target==k).any()) for k in range(3))\n77:     return sum(F.cross_entropy(logits[target==k],target[target==k]) for k in range(3))/3"
+        },
+        {
+          "source": "V160_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/train_slot_owner_factorial.py",
+          "line_start": 257,
+          "line_end": 267,
+          "excerpt": "257:     owner_rows=lines(check(p['owner_labels']));owner=owner_metadata(owner_rows,facts)\n258:     owner_known=np.flatnonzero(owner>=0)\n259:     assert len(owner_known)==253 and np.bincount(owner[owner_known],minlength=3).tolist()==[53,52,148]\n260:     assert np.isin(owner_known,vi).all() and len(vi)==390\n261:     owner_positions=np.flatnonzero(owner[vi]>=0)\n262:     assert np.array_equal(vi[owner_positions],owner_known)\n263:     for a in allpacks:\n264:         assert not (a['query_available'] & ~a.get('feature_constructed',np.ones(len(a['features']),bool))).any()\n265:     xs=[torch.as_tensor(a['features'],device='cuda') for a in allpacks]\n266:     native_slots=[torch.as_tensor(a['native_slot'].astype(np.int64),device='cuda') for a in allpacks]\n267:     owner_y=torch.as_tensor(owner[owner_known],dtype=torch.int64,device='cuda')"
+        },
+        {
+          "source": "V160_head",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/head_preparation/native_slot_owner_head.py",
+          "line_start": 76,
+          "line_end": 90,
+          "excerpt": "76:         T, Q = features[:, :384], features[:, 384:768]\n77:         C, Pv = features[:, 1152:1536], features[:, 1536:1920]\n78:         visual = torch.cat((features, torch.abs(T-C), T*C,\n79:                             torch.abs(Q-Pv), Q*Pv), 1)\n80:         pre_slot_h = self.head[0](visual) + self.geometry(geometry42)\n81:         owner = self.owner_head(self.head[1](pre_slot_h))\n82:         visibility_h = pre_slot_h\n83:         if self.native_slot_hint:\n84:             onehot = F.one_hot(native_slot, num_classes=8).to(dtype=features.dtype)\n85:             visibility_h = pre_slot_h + self.native_hint(onehot)\n86:         visibility = self.head[2](self.head[1](visibility_h)).squeeze(-1)\n87:         return dict(external_occlusion=visibility,\n88:                     target_entity=self.entity_head(T).squeeze(-1),\n89:                     coarse_point_quality=self.quality_head(visual).squeeze(-1),\n90:                     query_visible_owner=owner)"
+        },
+        {
+          "source": "V160_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/train_slot_owner_factorial.py",
+          "line_start": 328,
+          "line_end": 358,
+          "excerpt": "328:             vp=list(model.visibility_parameters());ap=list(model.auxiliary_parameters());np_=list(model.new_parameters())\n329:             assert len(vp)==5 and sum(t.numel() for t in vp)==224513\n330:             assert sum(t.numel() for t in ap)==246530 and sum(t.numel() for t in np_)==707\n331:             ids=[set(map(id,group)) for group in (vp,ap,np_)]\n332:             assert all(not(ids[i]&ids[j]) for i in range(3) for j in range(i))\n333:             assert set.union(*ids)==set(map(id,model.parameters()))\n334:             optimizer_vis=torch.optim.AdamW(vp,lr=1e-4,weight_decay=.001)\n335:             optimizer_aux=torch.optim.AdamW(ap,lr=1e-4,weight_decay=.001)\n336:             optimizer_new=torch.optim.AdamW(np_,lr=1e-4,weight_decay=.001)\n337:             rng=np.random.default_rng(1550);dh=hashlib.sha256();armstart=time.monotonic()\n338:             with (directory/'ALL8000_DRAWS_AND_LOSSES.jsonl').open('x') as log:\n339:                 for step,(oi,ni,opos,npos) in enumerate(prefix,1):\n340:                     ei=draw_balanced(rng,ep,32);qi=[draw_balanced(rng,pair,16) for pair in quality_pools]\n341:                     for ix in (oi,ni,opos,npos,pi,vi,ei,*qi):dh.update(ix.astype('<i8').tobytes())\n342:                     model.train();optimizer_vis.zero_grad(set_to_none=True);optimizer_aux.zero_grad(set_to_none=True);optimizer_new.zero_grad(set_to_none=True)\n343:                     o=[model(xs[i][ix],z42[:len(ix)],native_slots[i][ix]) for i,ix in enumerate((oi,ni))]\n344:                     po=model(xs[2][pi],z42[:len(pi)],native_slots[2][pi]);mo=model(xs[3][vi],z42[:len(vi)],native_slots[3][vi])\n345:                     eo=model(xs[3][ei],z42[:len(ei)],native_slots[3][ei])['target_entity'];eo.retain_grad()\n346:                     qo=[model(xs[i][ix],z42[:len(ix)],native_slots[i][ix])['coarse_point_quality'] for i,ix in enumerate(qi)]\n347:                     for z in qo:z.retain_grad()\n348:                     nl=[h.q.native_bce(o[i]['external_occlusion'],yn[i][ix],an[i][ix]) for i,ix in enumerate((oi,ni))]\n349:                     pl=balance(po['external_occlusion'],yp);ml=balance(mo['external_occlusion'],ym)\n350:                     el=balance(eo,ye[ei]);ql=sum(balance(z,yq[i][ix]) for i,(z,ix) in enumerate(zip(qo,qi)))/2\n351:                     original_loss=sum(nl)+pl+ml+el+ql\n352:                     owner_logits=mo['query_visible_owner'][owner_positions]\n353:                     ol=balanced_owner_ce(owner_logits if owner_weight else owner_logits.detach(),owner_y)\n354:                     loss=original_loss+ol if owner_weight else original_loss\n355:                     assert torch.isfinite(loss);loss.backward()\n356:                     grad_vis=torch.nn.utils.clip_grad_norm_(vp,5);grad_aux=torch.nn.utils.clip_grad_norm_(ap,5);grad_new=torch.nn.utils.clip_grad_norm_(np_,5)\n357:                     assert torch.isfinite(grad_vis) and torch.isfinite(grad_aux) and torch.isfinite(grad_new)\n358:                     optimizer_vis.step();optimizer_aux.step();optimizer_new.step();assert not model.geometry.weight.any()"
+        }
+      ]
+    },
+    {
+      "target": "coordinate_quality",
+      "output": "coarse_point_quality scalar independent MLP",
+      "label_authority_KO": "합성 OLD/NEW 전26624에 별도로 동결한 point_quality_label sidecar를 사용하며 null은−1이다. TRAIN이고 query_available인 known quality만 class-balanced sampler에 들어간다. 이 코드 범위는 해당 label의 underlying coordinate-reference/threshold 정의를 직접 증명하지 않으므로 이를 literal foreground visibility나 physical3px gold라 부르지 않는다. MR real quality는−1이고 CF native92에도 quality/owner/entity loss가 없다.",
+      "loss": "two synthetic quality BCE means averaged; separate from semantic native BCE and owner CE. Unknown quality excludes only quality loss.",
+      "branch_separation_KO": "quality_head(visual) and entity_head(T) have disjoint parameters from visibility head/geometry; frozen input representation is shared but trainable hidden is separate. Original V155/V160/V166 entity-quality optimizer/clip remain separate from primary visibility optimizer/clip. Thus quality loss is not a learned visibility gate or visibility hidden representation update in this architecture.",
+      "evidence": [
+        {
+          "source": "V155_head",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/independent_head_preparation/independent_query_head.py",
+          "line_start": 24,
+          "line_end": 39,
+          "excerpt": "24: class IndependentAuxiliaryQueryHead(OriginalHead):\n25:     \"\"\"224513 original visibility +24705 entity +221825 point quality params.\n26: \n27:     The common frozen input is not a shared trainable hidden representation.\n28:     Use one AdamW/clip5 for visibility_parameters and a separate AdamW/clip5\n29:     for auxiliary_parameters. A global clip/optimizer would change that control.\n30:     \"\"\"\n31:     def __init__(self):\n32:         super().__init__()\n33:         self.entity_head = torch.nn.Sequential(\n34:             torch.nn.Linear(384, 64), torch.nn.ReLU(), torch.nn.Linear(64, 1))\n35:         self.quality_head = torch.nn.Sequential(\n36:             torch.nn.Linear(3464, 64), torch.nn.ReLU(), torch.nn.Linear(64, 1))\n37:         for last in (self.entity_head[2], self.quality_head[2]):\n38:             torch.nn.init.zeros_(last.weight)\n39:             torch.nn.init.zeros_(last.bias)"
+        },
+        {
+          "source": "V155_head",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/independent_head_preparation/independent_query_head.py",
+          "line_start": 51,
+          "line_end": 84,
+          "excerpt": "51:     def visibility_parameters(self):\n52:         return list(self.head.parameters()) + list(self.geometry.parameters())\n53: \n54:     def entity_parameters(self):\n55:         return list(self.entity_head.parameters())\n56: \n57:     def quality_parameters(self):\n58:         return list(self.quality_head.parameters())\n59: \n60:     def auxiliary_parameters(self):\n61:         return self.entity_parameters() + self.quality_parameters()\n62: \n63:     def forward(self, features, geometry42):\n64:         # The parent's exact original expression retains head/geometry state keys.\n65:         visibility = OriginalHead.forward(self, features, geometry42)\n66:         T, Q = features[:, :384], features[:, 384:768]\n67:         C, Pv = features[:, 1152:1536], features[:, 1536:1920]\n68:         visual = torch.cat((features, torch.abs(T-C), T*C,\n69:                             torch.abs(Q-Pv), Q*Pv), 1)\n70:         return dict(external_occlusion=visibility,\n71:                     target_entity=self.entity_head(T).squeeze(-1),\n72:                     coarse_point_quality=self.quality_head(visual).squeeze(-1))\n73: \n74: \n75: def per_output_loss(outputs, labels, available, training_rows):\n76:     \"\"\"Independent known-label masks; real quality unknown never filters D/E.\"\"\"\n77:     losses = {}\n78:     for key, logits in outputs.items():\n79:         target = labels[key]\n80:         known = available & training_rows & ((target == 0) | (target == 1))\n81:         parts = [F.binary_cross_entropy_with_logits(logits[known & (target == cls)],\n82:                                                    target[known & (target == cls)])\n83:                  for cls in (0, 1) if (known & (target == cls)).any()]\n84:         losses[key] = sum(parts) / len(parts) if parts else logits.sum() * 0"
+        },
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 242,
+          "line_end": 264,
+          "excerpt": "242:     qualities=[];quality_pools=[]\n243:     for i,(pack,meta,b) in enumerate(zip(packs,metas,p['quality_labels'])):\n244:         qr=lines(check(b));assert len(qr)==len(pack['features'])\n245:         for j,(r,m) in enumerate(zip(qr,meta['rows'])):\n246:             assert r['global_index']==j and r['query_id']==m['query_id'] and r['split']==m['split']\n247:         target=np.array([-1 if r['point_quality_label'] is None else r['point_quality_label'] for r in qr],np.int8)\n248:         qualities.append(target);quality_pools.append(pools(target,pack['query_available'],meta['split']=='TRAIN'))\n249:         assert all(len(pool) for pool in quality_pools[-1])\n250:     ep=pools(rm['entity'],rm['available'],rm['training']);assert all(len(pool) for pool in ep)\n251:     vi=np.flatnonzero(rm['available']&rm['training']&(rm['role']>=0))\n252:     assert (rm['role'][vi]==0).any() and (rm['role'][vi]==1).any()\n253:     pi=np.sort(np.r_[pub['pools'][0],pub['pools'][1]])\n254:     allpacks=packs+[public,mr]\n255:     for a in allpacks:\n256:         assert not (a['query_available'] & ~a.get('feature_constructed',np.ones(len(a['features']),bool))).any()\n257:     xs=[torch.as_tensor(a['features'],device='cuda') for a in allpacks]\n258:     z42=torch.zeros((max(512,len(vi)),42),device='cuda')\n259:     yn=[torch.as_tensor(m['target'],dtype=torch.float32,device='cuda') for m in metas]\n260:     an=[torch.as_tensor(a['query_available'],device='cuda') for a in packs]\n261:     yp=torch.as_tensor(pub['target'][pi],dtype=torch.float32,device='cuda')\n262:     ym=torch.as_tensor(rm['role'][vi],dtype=torch.float32,device='cuda')\n263:     ye=torch.as_tensor(rm['entity'],dtype=torch.float32,device='cuda')\n264:     yq=[torch.as_tensor(y,dtype=torch.float32,device='cuda') for y in qualities]"
+        },
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 316,
+          "line_end": 339,
+          "excerpt": "316:             vp=list(model.visibility_parameters());ap=list(model.auxiliary_parameters())\n317:             assert not (set(map(id,vp)) & set(map(id,ap)))\n318:             assert set(map(id,vp+ap))==set(map(id,model.parameters()))\n319:             optimizer_vis=torch.optim.AdamW(vp,lr=1e-4,weight_decay=.001)\n320:             optimizer_aux=torch.optim.AdamW(ap,lr=1e-4,weight_decay=.001)\n321:             rng=np.random.default_rng(1550);dh=hashlib.sha256();armstart=time.monotonic()\n322:             with (directory/'ALL8000_DRAWS_AND_LOSSES.jsonl').open('x') as log:\n323:                 for step,(oi,ni,opos,npos) in enumerate(prefix,1):\n324:                     ei=draw_balanced(rng,ep,32);qi=[draw_balanced(rng,pair,16) for pair in quality_pools]\n325:                     for ix in (oi,ni,opos,npos,pi,vi,ei,*qi):dh.update(ix.astype('<i8').tobytes())\n326:                     model.train();optimizer_vis.zero_grad(set_to_none=True);optimizer_aux.zero_grad(set_to_none=True)\n327:                     o=[model(xs[i][ix],z42[:len(ix)]) for i,ix in enumerate((oi,ni))]\n328:                     po=model(xs[2][pi],z42[:len(pi)]);mo=model(xs[3][vi],z42[:len(vi)])\n329:                     eo=model(xs[3][ei],z42[:len(ei)])['target_entity'];eo.retain_grad()\n330:                     qo=[model(xs[i][ix],z42[:len(ix)])['coarse_point_quality'] for i,ix in enumerate(qi)]\n331:                     for z in qo:z.retain_grad()\n332:                     nl=[h.q.native_bce(o[i]['external_occlusion'],yn[i][ix],an[i][ix]) for i,ix in enumerate((oi,ni))]\n333:                     pl=balance(po['external_occlusion'],yp);ml=balance(mo['external_occlusion'],ym)\n334:                     el=balance(eo,ye[ei]);ql=sum(balance(z,yq[i][ix]) for i,(z,ix) in enumerate(zip(qo,qi)))/2\n335:                     loss=sum(nl)+pl+ml+el+ql\n336:                     assert torch.isfinite(loss);loss.backward()\n337:                     grad_vis=torch.nn.utils.clip_grad_norm_(vp,5);grad_aux=torch.nn.utils.clip_grad_norm_(ap,5)\n338:                     assert torch.isfinite(grad_vis) and torch.isfinite(grad_aux)\n339:                     optimizer_vis.step();optimizer_aux.step();assert not model.geometry.weight.any()"
+        },
+        {
+          "source": "V166_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+          "line_start": 559,
+          "line_end": 563,
+          "excerpt": "559:         CF_native_weak_loss_rows_by_condition={ARMS[0]:0,ARMS[1]:92},CF_quality_owner_entity_loss_rows=0,\n560:         owner_loss='Unchanged original253 mean3 per-class CE weight1 in both conditions; no CF owner forward or labels',owner_class_counts_by_condition={arm:[53,52,148] for arm in ARMS},\n561:         native_part_loss='C46 only: weight1 times .5meanBCE(D_SHAM46=0)+.5meanBCE(E_COVER46=1), full fixed92 each update; no new RNG; C45 no CF forward/loss',\n562:         weak_native_target_not_physical_corner_or_quality_gold=True,feature_rows1144_status198_missing55_retained=True,original_primary_losses_masks_splits_availability_and_draws_unchanged=True,original_three_AdamW_clip5_groups_unchanged=True,native_slot_hint=False,\n563:         owner_criterion='Original253 only mean3 per-class CE; class weights unchanged',owner_intrinsic_per_row_weight_change=False,"
+        }
+      ]
+    }
+  ],
+  "prediction_and_loss_gating": {
+    "primary_rule": "Original factual input availability first; otherwise external logit>=0 for E and <0 for D. No quality/entity/owner prediction used to gate primary external visibility.",
+    "secondary_entity_gate": "A separately named secondary_entity_gated_visibility output/reported diagnostic exists; it can add entity-rejection U but does not replace primary visibility.",
+    "label_construction_vs_model_gate_KO": "MR known role 정답이 supported selected entity를 요구하는 것은 label authority 조건이다. 예측 시 entity_head 문턱은 primary visibility gate가 아니며 quality UNKNOWN도 main native D/E mask를 바꾸지 않는다.",
+    "evidence": [
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 161,
+        "line_end": 178,
+        "excerpt": "161: def mr_report(raw,pack,meta):\n162:     av=pack['query_available'];pred=np.where(av,(raw[:,0]>=0).astype(np.int8),-1)\n163:     entity=np.where(av,(raw[:,1]>=0).astype(np.int8),-1)\n164:     gated=np.where(av & (raw[:,1]>=0),pred,-1)\n165:     groups={}\n166:     for name,mask in [('ALL',np.ones(1840,bool)),('SOURCE_DEVELOPMENT',meta['training']),('SOURCE_VALIDATION',~meta['training'])]:\n167:         groups[name]=dict(visibility=binary_metric(meta['role'],pred,mask),\n168:             visibility_inputvalid=binary_metric(meta['role'],pred,mask&av),\n169:             entity=binary_metric(meta['entity'],entity,mask),entity_inputvalid=binary_metric(meta['entity'],entity,mask&av),\n170:             secondary_entity_gated_visibility=binary_metric(meta['role'],gated,mask),\n171:             additional_entity_rejection_U=int((mask&av&(raw[:,1]<0)).sum()),\n172:             semantic_states={str(s):int((mask&(meta['state']==s)).sum()) for s in np.unique(meta['state'])})\n173:         for k in range(8):\n174:             m=mask & (pack['native_slot']==k)\n175:             groups[name+f'::native{k}']=dict(visibility=binary_metric(meta['role'],pred,m),entity=binary_metric(meta['entity'],entity,m))\n176:         for occluder in np.unique(meta['occluder']):\n177:             m=mask & (meta['occluder']==occluder)\n178:             groups[name+'::occluder::'+str(occluder)]=dict(visibility=binary_metric(meta['role'],pred,m),entity=binary_metric(meta['entity'],entity,m))"
+      },
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 279,
+        "line_end": 284,
+        "excerpt": "279:     def save_outputs(directory,prefix_name,raws):\n280:         for name,raw,a in zip(('OLD6144','NEW20480','PALLOX512','MR1840'),raws,allpacks):\n281:             av=a['query_available'];pred=np.where(av,(raw[:,0]>=0).astype(np.int8),-1)\n282:             np.savez_compressed(directory/f'{prefix_name}_{name}_OUTPUTS.npz',raw_three_logits=raw,\n283:                 primary_visibility_prediction=pred,secondary_entity_gated_visibility=np.where(av&(raw[:,1]>=0),pred,-1),\n284:                 **{k:a[k] for k in a if k!='features'})"
+      },
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 383,
+        "line_end": 395,
+        "excerpt": "383:             held=mrrep['SOURCE_VALIDATION'];vis=held['visibility_inputvalid'];ent=held['entity_inputvalid']\n384:             vals=[vis['negative_recall'],vis['positive_recall'],ent['negative_recall'],ent['positive_recall']]\n385:             sanity=all(v is not None and v>=limit for v,limit in zip(vals,[.90,.80,.80,.80]))\n386:             report=dict(completed=True,arm=arm,update=8000,auxiliary_weight=1,visibility_initialization=(\"C32\" if ARMS.index(arm)==0 else \"FRESH\"),native=nr,Pallox=pr,MR=mrrep,\n387:                 synthetic_point_quality=qualityrep,MR_weak_sanity_PASS=sanity,\n388:                 prospective_source_checks_all_pass=bool(nr['native35_all_pass'] and pr['sanity']['PASS'] and sanity),\n389:                 selected_model=None,fully_solved=False,adopted=False,current_allowed=False,\n390:                 primary_visibility_never_filtered_by_entity_quality_or_GTerror=True,source_labels_weak_not_human_gold=True,\n391:                 secondary_entity_gate_logit0_only=True,point_quality_not_a_visibility_gate=True,entity_frame_support=entity_frame_support,**item)\n392:             write(directory/'SOURCE_RESULTS.json',report)\n393:             write(directory/'MODEL_FREEZE.json',dict(completed=True,checkpoint=item['checkpoint'],parameters=471043,update=8000,\n394:                 source_checks_all_pass=report['prospective_source_checks_all_pass'],diagnostic_only=True,current_allowed=False,\n395:                 selected_model=None,threshold_logit=0,all_geometry_input_zero=True))"
+      },
+      {
+        "source": "V160_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/train_slot_owner_factorial.py",
+        "line_start": 156,
+        "line_end": 164,
+        "excerpt": "156:         owner_bridge_complete=bind(OWNER_COMPLETE),owner_labels=bind(OWNER_LABELS),owner_class_counts=[53,52,148],owner_unknown_rows=1587,\n157:         owner_loss='mean of per-class mean CE over all253 known SOURCE_DEVELOPMENT owner rows selected from existing MR vi390 forward;weight0/1;no extra RNG or forward',\n158:         owner_primary_role_quality_independence='No relabel or gate; UNKNOWN only excluded from owner loss; original all28976 rows retained',\n159:         owner_reviewer_provenance={'SINGLE_REVIEW_WEAK':350,'CROSS40_THREE_AGREE_WEAK':30,'CROSS40_CONSERVATIVE_UNKNOWN':10},\n160:         head_generated_checks=bind(HEAD_CHECKS),trainer_generated_checks=bind(H/'GENERATED_TRAINER_CHECKS.json'),interpretation_note=bind(INTERPRETATION),\n161:         all4_fresh_same_original_state=True,all4_fixed_before_source_comparison=True,\n162:         original_visibility_AdamW_clip5_unchanged=True,original_independent_entity_quality_optimizer_clip5_unchanged=True,new707_parameters_separate_AdamW_clip5=True,\n163:         primary_decision='original factual inputU first;otherwise visibility logit>=0;no owner/entity/quality gate',\n164:         source_features_checkpoint_or_saved_score_bodies_read_during_preparation=False,training_admitted_by_preparation=False,actual_fit_performed=False,selected_model=None,current_allowed=False,automatic_retry=False)"
+      },
+      {
+        "source": "V166_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+        "line_start": 474,
+        "line_end": 475,
+        "excerpt": "474:                 primary_visibility_never_filtered_by_entity_quality_or_GTerror=True,source_labels_weak_not_human_gold=True,\n475:                 secondary_entity_gate_logit0_only=True,point_quality_not_a_visibility_gate=True,entity_frame_support=entity_frame_support,**item)"
+      }
+    ],
+    "explicit_learned_self_output_or_loss_in_reviewed_heads": false,
+    "self_scope_KO": "검토한 head 출력에는 explicit self 가림 head가 없다. external scalar와 별도 self 원인 정답을 등치할 수 없으며, synthetic upstream S 처리의 정확한 정의는 본 제한된 trainer 검토로 재인증하지 않았다."
+  },
+  "V166_native92_weak_extension": {
+    "original_packet_targets": "All1144 feature packet and input metadata native_visibility/quality/owner targets remain−1; separate prospective weak sidecar only.",
+    "known_weak_rows": 92,
+    "D_SHAM": 46,
+    "E_COVER": 46,
+    "source_cases": 17,
+    "remaining_unknown_rows": 1052,
+    "inputU_rows_preserved": 178,
+    "potential_variant_statuses": 198,
+    "missing_payload_statuses": 55,
+    "eligibility": "pixel-proof PASS, COVER/ADJACENT_SHAM only, selected original input native slot only, SOURCE_DEVELOPMENT, input available, reviewed supported coarse material-end neighborhood. BEFORE/failed/UNKNOWN/other7 natives excluded from this auxiliary native loss only; retained in census.",
+    "semantics_KO": "이는 알려진 합성개입 아래 의도한 재료 끝의 거친 neighborhood 외관에 대한 assistant weak label이다. 정확한 native-corner/whole-part mask/physical visibility/coordinate quality/owner gold가 아니다. 사례당 사전 선택 donor 한 개 시각검토를46pair 전체의 physical 인증으로 확대하지 않는다.",
+    "condition_difference": "C45: original_loss + original owner253 CE; C46: same + weight1 balanced weak-native92 BCE on external output. No CF owner/entity/quality supervision.",
+    "evidence": [
+      {
+        "source": "V166_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+        "line_start": 145,
+        "line_end": 188,
+        "excerpt": "145: def check_CF_packet(packet, metadata, sidecar, statuses):\n146:     assert len(metadata)==len(sidecar)==1144 and packet['features'].shape==(1144,1928)\n147:     assert packet['features'].dtype==np.float32 and np.isfinite(packet['features']).all()\n148:     assert not any(k in packet for k in ('owner_aux_target','pasted_alpha'))\n149:     for key in ('native_visibility_target','point_quality_target','owner_target'):\n150:         assert packet[key].shape==(1144,) and np.issubdtype(packet[key].dtype,np.integer) and (packet[key]==-1).all()\n151:     assert np.array_equal(packet['occurrence_index'],np.arange(1144))\n152:     for field in ('input_occurrence_id','pair_id','variant','original_query_id','original_global_index','original_frame_index','source_id','split','native_slot'):\n153:         assert packet[field].tolist()==[r[field] for r in metadata],field\n154:     for field in ('query_xy','L'):\n155:         assert np.array_equal(packet[field],np.asarray([r[field] for r in metadata],np.float64),equal_nan=True),field\n156:     for field,source in (('query_available','query_available'),('native_continuous_valid','query_available'),('nearest_valid','nearest_valid'),('feature_constructed','feature_constructed'),('local_central4_available','central4_available'),('context_available','context_available')):\n157:         assert np.array_equal(packet[field],np.asarray([r[source] for r in metadata],bool)),field\n158:     assert int((~packet['query_available']).sum())==178 and packet['feature_constructed'].all()\n159:     assert len(statuses)==198 and sum(not r['constructed_payload'] for r in statuses)==55\n160:     for r in statuses:\n161:         if not r['constructed_payload']:assert r['feature_index'] is r['feature_indices'] is r['payload'] is None\n162:     for i,(r,m) in enumerate(zip(sidecar,metadata)):\n163:         assert r['occurrence_index']==i and r['input_metadata']==m\n164:         expected=bool(m['pair_pixel_proof_PASS'] and m['variant'] in ('COVER','ADJACENT_SHAM') and m['native_slot']==r['selected_anchor_native_slot'])\n165:         target=(1 if m['variant']=='COVER' else 0) if expected else -1\n166:         assert r['part_native_weak_target']==target and r['part_native_loss_admitted_under_root_design']==expected\n167:         assert r['native_visibility_target']==r['point_quality_target']==r['owner_target']==-1\n168:         assert m['native_visibility_target']==m['point_quality_target']==m['owner_target']==-1\n169:         assert not r['human_gold'] and not r['physical_native_corner_gold'] and not r['training_admitted']\n170:     labels=np.asarray([r['part_native_weak_target'] for r in sidecar],np.int64);indices=np.flatnonzero(labels>=0)\n171:     assert len(indices)==92 and np.bincount(labels[indices],minlength=2).tolist()==[46,46]\n172:     assert packet['query_available'][indices].all() and (packet['split']=='SOURCE_DEVELOPMENT').all()\n173:     assert len({sidecar[i]['input_metadata']['case_id'] for i in indices})==17\n174:     return labels,indices\n175: \n176: def balanced_part_native_bce(logits,target):\n177:     assert logits.ndim==target.ndim==1 and logits.shape==target.shape\n178:     assert bool(((target==0)|(target==1)).all()) and bool((target==0).any()) and bool((target==1).any())\n179:     return .5*F.binary_cross_entropy_with_logits(logits[target==0],target[target==0])+.5*F.binary_cross_entropy_with_logits(logits[target==1],target[target==1])\n180: \n181: def loss_for_condition(original_loss, mr_output, owner_positions, owner_y, model, CF_x, CF_slots, geometry42, ci, CF_native_y, include_CF):\n182:     # The C45 expression and owner253 CE match V162 C43 exactly; no zero-loss CF forward.\n183:     ol=balanced_owner_ce(mr_output['query_visible_owner'][owner_positions],owner_y)\n184:     if include_CF:\n185:         logits=model(CF_x[ci],geometry42[:len(ci)],CF_slots[ci])['external_occlusion']\n186:         cfl=balanced_part_native_bce(logits,CF_native_y)\n187:         return original_loss+ol+cfl,ol,cfl\n188:     return original_loss+ol,ol,None"
+      },
+      {
+        "source": "V166_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+        "line_start": 517,
+        "line_end": 542,
+        "excerpt": "517:     assert len(observed)==22 and sum(r['actually_viewed']['before_cover_sham_visible'] for r in observations)==17\n518:     sidecar=[]\n519:     for i,m in enumerate(metadata):\n520:         r=proof[m['pair_id']];slot=r['native_slot']\n521:         eligible=bool(r['PASS'] and m['variant'] in ('COVER','ADJACENT_SHAM') and m['native_slot']==slot)\n522:         target=(1 if m['variant']=='COVER' else 0) if eligible else -1\n523:         assert m['pair_pixel_proof_PASS']==r['PASS'] and m['split']=='SOURCE_DEVELOPMENT'\n524:         assert m['native_visibility_target']==m['point_quality_target']==m['owner_target']==-1 and not m['training_admitted']\n525:         if eligible:\n526:             assert r['region']['region_status']=='SUPPORTED' and observed[m['case_id']]['actually_viewed']['before_cover_sham_visible']\n527:             assert observed[m['case_id']]['cover_observed_end_appearance']=='DISAPPEARS_IN_REVIEWED_COARSE_NEIGHBORHOOD'\n528:             assert observed[m['case_id']]['sham_observed_end_appearance']=='PRESERVED_IN_REVIEWED_COARSE_NEIGHBORHOOD'\n529:             assert m['query_available']\n530:         sidecar.append(dict(occurrence_index=i,input_metadata=m,selected_anchor_native_slot=slot,\n531:             part_native_weak_target=target,part_native_loss_admitted_under_root_design=eligible,\n532:             native_visibility_target=-1,point_quality_target=-1,owner_target=-1,training_admitted=False,\n533:             human_gold=False,physical_native_corner_gold=False,exact_material_mask=False,coordinate_quality_gold=False,\n534:             target_semantics='Assistant weak coarse intended material-end neighborhood appearance under known pixel intervention; COVER external1 / SHAM visible0; not exact native-corner gold',\n535:             root_fit_design=bind(DESIGN),pixel_proof_PASS_is_not_physical_gold=True,\n536:             visual_observation_is_per_case_first_constructed_donor_not_each46=True,\n537:             synthesis_and_collateral_limitations_retained=True))\n538:     targets=np.asarray([r['part_native_weak_target'] for r in sidecar]);known=np.flatnonzero(targets>=0)\n539:     assert len(known)==92 and np.bincount(targets[known],minlength=2).tolist()==[46,46]\n540:     assert len({metadata[i]['case_id'] for i in known})==17\n541:     assert sum(not m['query_available'] for m in metadata)==178\n542:     assert all(sidecar[i]['part_native_weak_target']==-1 for i,m in enumerate(metadata) if m['variant']=='BEFORE' or not m['pair_pixel_proof_PASS'] or m['native_slot']!=sidecar[i]['selected_anchor_native_slot'])"
+      },
+      {
+        "source": "V166_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+        "line_start": 559,
+        "line_end": 564,
+        "excerpt": "559:         CF_native_weak_loss_rows_by_condition={ARMS[0]:0,ARMS[1]:92},CF_quality_owner_entity_loss_rows=0,\n560:         owner_loss='Unchanged original253 mean3 per-class CE weight1 in both conditions; no CF owner forward or labels',owner_class_counts_by_condition={arm:[53,52,148] for arm in ARMS},\n561:         native_part_loss='C46 only: weight1 times .5meanBCE(D_SHAM46=0)+.5meanBCE(E_COVER46=1), full fixed92 each update; no new RNG; C45 no CF forward/loss',\n562:         weak_native_target_not_physical_corner_or_quality_gold=True,feature_rows1144_status198_missing55_retained=True,original_primary_losses_masks_splits_availability_and_draws_unchanged=True,original_three_AdamW_clip5_groups_unchanged=True,native_slot_hint=False,\n563:         owner_criterion='Original253 only mean3 per-class CE; class weights unchanged',owner_intrinsic_per_row_weight_change=False,\n564:         selected_model=None,current_allowed=False,automatic_retry=False,training_admitted_only_under_separate_root_entry=True,feature_or_weight_bodies_read_during_final_preparation=False)"
+      }
+    ]
+  },
+  "geometry_and_input_contract": {
+    "geometry42": "All reviewed source training supplies explicit zeros for G42, and asserts geometry.weight remains zero after updates. Head keeps geometry API, but no pose/GT geometry is supplied to the forward.",
+    "native_metadata": "V160 native_slot may be onehot8 hint in its predeclared factorial branches, separately from G42; owner never gets that hint. V166 has native_slot_hint=false for both arms, but preserves direct original cached native metadata API.",
+    "limit_KO": "G42=0은 전체1928 descriptor에 기하 정보가 전혀 없다는 주장과 다르다. 이 검토는 source trainer/head 계약만 확인했고 current 데이터나 current 실행 코드는 열지 않았다. 해당 계약을 따르는 사용에서는 G42 zero 제약을 유지해야 한다.",
+    "evidence": [
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 257,
+        "line_end": 258,
+        "excerpt": "257:     xs=[torch.as_tensor(a['features'],device='cuda') for a in allpacks]\n258:     z42=torch.zeros((max(512,len(vi)),42),device='cuda')"
+      },
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 327,
+        "line_end": 339,
+        "excerpt": "327:                     o=[model(xs[i][ix],z42[:len(ix)]) for i,ix in enumerate((oi,ni))]\n328:                     po=model(xs[2][pi],z42[:len(pi)]);mo=model(xs[3][vi],z42[:len(vi)])\n329:                     eo=model(xs[3][ei],z42[:len(ei)])['target_entity'];eo.retain_grad()\n330:                     qo=[model(xs[i][ix],z42[:len(ix)])['coarse_point_quality'] for i,ix in enumerate(qi)]\n331:                     for z in qo:z.retain_grad()\n332:                     nl=[h.q.native_bce(o[i]['external_occlusion'],yn[i][ix],an[i][ix]) for i,ix in enumerate((oi,ni))]\n333:                     pl=balance(po['external_occlusion'],yp);ml=balance(mo['external_occlusion'],ym)\n334:                     el=balance(eo,ye[ei]);ql=sum(balance(z,yq[i][ix]) for i,(z,ix) in enumerate(zip(qo,qi)))/2\n335:                     loss=sum(nl)+pl+ml+el+ql\n336:                     assert torch.isfinite(loss);loss.backward()\n337:                     grad_vis=torch.nn.utils.clip_grad_norm_(vp,5);grad_aux=torch.nn.utils.clip_grad_norm_(ap,5)\n338:                     assert torch.isfinite(grad_vis) and torch.isfinite(grad_aux)\n339:                     optimizer_vis.step();optimizer_aux.step();assert not model.geometry.weight.any()"
+      },
+      {
+        "source": "V160_head",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/head_preparation/native_slot_owner_head.py",
+        "line_start": 67,
+        "line_end": 90,
+        "excerpt": "67:     def forward(self, features, geometry42, native_slot):\n68:         assert features.ndim == geometry42.ndim == 2 and features.shape[1] == 1928 and geometry42.shape == (len(features), 42)\n69:         assert features.dtype == geometry42.dtype == torch.float32\n70:         if native_slot.ndim != 1 or native_slot.shape[0] != len(features) or native_slot.dtype != torch.int64:\n71:             raise ValueError('native_slot must be input-metadata int64[N]')\n72:         if native_slot.device != features.device or geometry42.device != features.device:\n73:             raise ValueError('All inputs must be on the same device')\n74:         if bool(((native_slot < 0) | (native_slot > 7)).any()):\n75:             raise ValueError('native_slot must be in 0..7')\n76:         T, Q = features[:, :384], features[:, 384:768]\n77:         C, Pv = features[:, 1152:1536], features[:, 1536:1920]\n78:         visual = torch.cat((features, torch.abs(T-C), T*C,\n79:                             torch.abs(Q-Pv), Q*Pv), 1)\n80:         pre_slot_h = self.head[0](visual) + self.geometry(geometry42)\n81:         owner = self.owner_head(self.head[1](pre_slot_h))\n82:         visibility_h = pre_slot_h\n83:         if self.native_slot_hint:\n84:             onehot = F.one_hot(native_slot, num_classes=8).to(dtype=features.dtype)\n85:             visibility_h = pre_slot_h + self.native_hint(onehot)\n86:         visibility = self.head[2](self.head[1](visibility_h)).squeeze(-1)\n87:         return dict(external_occlusion=visibility,\n88:                     target_entity=self.entity_head(T).squeeze(-1),\n89:                     coarse_point_quality=self.quality_head(visual).squeeze(-1),\n90:                     query_visible_owner=owner)"
+      },
+      {
+        "source": "V166_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+        "line_start": 42,
+        "line_end": 42,
+        "excerpt": "42: ARM_CONFIGS=[dict(name='C45_REPLAY_C43_OWNER253_NATIVE0',native_slot_hint=False,owner_auxiliary_weight=1,CF_native_loss_weight=0),dict(name='C46_PART_NATIVE92_OWNER253_NATIVE0',native_slot_hint=False,owner_auxiliary_weight=1,CF_native_loss_weight=1)]"
+      },
+      {
+        "source": "V166_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+        "line_start": 308,
+        "line_end": 318,
+        "excerpt": "308:     xs=[torch.as_tensor(a['features'],device='cuda') for a in allpacks]\n309:     native_slots=[torch.as_tensor(a['native_slot'].astype(np.int64),device='cuda') for a in allpacks]\n310:     owner_y=torch.as_tensor(owner[owner_known],dtype=torch.int64,device='cuda')\n311:     CF_native_y=torch.as_tensor(CF_native[ci],dtype=torch.float32,device='cuda')\n312:     z42=torch.zeros((max(512,len(vi)),42),device='cuda')\n313:     yn=[torch.as_tensor(m['target'],dtype=torch.float32,device='cuda') for m in metas]\n314:     an=[torch.as_tensor(a['query_available'],device='cuda') for a in packs]\n315:     yp=torch.as_tensor(pub['target'][pi],dtype=torch.float32,device='cuda')\n316:     ym=torch.as_tensor(rm['role'][vi],dtype=torch.float32,device='cuda')\n317:     ye=torch.as_tensor(rm['entity'],dtype=torch.float32,device='cuda')\n318:     yq=[torch.as_tensor(y,dtype=torch.float32,device='cuda') for y in qualities]"
+      },
+      {
+        "source": "V166_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+        "line_start": 387,
+        "line_end": 400,
+        "excerpt": "387:                     o=[model(xs[i][ix],z42[:len(ix)],native_slots[i][ix]) for i,ix in enumerate((oi,ni))]\n388:                     po=model(xs[2][pi],z42[:len(pi)],native_slots[2][pi]);mo=model(xs[3][vi],z42[:len(vi)],native_slots[3][vi])\n389:                     eo=model(xs[3][ei],z42[:len(ei)],native_slots[3][ei])['target_entity'];eo.retain_grad()\n390:                     qo=[model(xs[i][ix],z42[:len(ix)],native_slots[i][ix])['coarse_point_quality'] for i,ix in enumerate(qi)]\n391:                     for z in qo:z.retain_grad()\n392:                     nl=[h.q.native_bce(o[i]['external_occlusion'],yn[i][ix],an[i][ix]) for i,ix in enumerate((oi,ni))]\n393:                     pl=balance(po['external_occlusion'],yp);ml=balance(mo['external_occlusion'],ym)\n394:                     el=balance(eo,ye[ei]);ql=sum(balance(z,yq[i][ix]) for i,(z,ix) in enumerate(zip(qo,qi)))/2\n395:                     original_loss=sum(nl)+pl+ml+el+ql\n396:                     loss,ol,cfl=loss_for_condition(original_loss,mo,owner_positions,owner_y,model,xs[4],native_slots[4],z42,ci,CF_native_y,bool(arm_config['CF_native_loss_weight']))\n397:                     assert torch.isfinite(loss);loss.backward()\n398:                     grad_vis=torch.nn.utils.clip_grad_norm_(vp,5);grad_aux=torch.nn.utils.clip_grad_norm_(ap,5);grad_new=torch.nn.utils.clip_grad_norm_(np_,5)\n399:                     assert torch.isfinite(grad_vis) and torch.isfinite(grad_aux) and torch.isfinite(grad_new)\n400:                     optimizer_vis.step();optimizer_aux.step();optimizer_new.step();assert not model.geometry.weight.any()"
+      }
+    ]
+  },
+  "already_implemented_separation_methods": [
+    {
+      "phase": "V155",
+      "method": "C37 warm/C38 fresh visibility control; disjoint entity and synthetic coordinate-quality heads; independent original/aux optimizer+clip; no main GTerror filter.",
+      "evidence": [
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 295,
+          "line_end": 320,
+          "excerpt": "295:         for arm_index,arm in enumerate(ARMS):\n296:             directory=RUN/arm;directory.mkdir();torch.manual_seed(1550);torch.cuda.manual_seed_all(1550)\n297:             model=head.IndependentAuxiliaryQueryHead().cuda().float()\n298:             factory_fresh_hash=h.state_sha(model)\n299:             if arm_index==0:\n300:                 payload=torch.load(p['anchor_checkpoint']['path'],map_location='cpu',weights_only=True)\n301:                 assert payload['update']==8000;model.load_visibility_state(payload['state_dict']);del payload\n302:             else:assert h.state_sha(model)==factory_fresh_hash\n303:             aux_initial=auxiliary_state_sha(model)\n304:             if common_aux_initial is None:common_aux_initial=aux_initial\n305:             else:assert common_aux_initial==aux_initial\n306:             assert sum(t.numel() for t in model.parameters())==471043 and not model.geometry.weight.any()\n307:             initial_hash=h.state_sha(model);initial=predict(model);repeat=predict(model)\n308:             assert all(h.eq(a,b) for a,b in zip(initial,repeat))\n309:             if arm_index==0:\n310:                 for a,b in zip(initial[:2],baselines):assert h.eq(a[:,0].copy(),b['raw_head_logit_before_U'])\n311:             for raw,a in zip(initial,allpacks):\n312:                 ix=a.get('feature_constructed',np.ones(len(raw),bool));assert not raw[ix,1:].any()\n313:             save_outputs(directory,'INITIAL',initial)\n314:             write(directory/'INITIAL_PARITY.json',dict(completed=True,PASS=True,C32_visibility_old_new_raw_bitexact=(arm_index==0),fresh_visibility_factory_state_unchanged_before_fit=(arm_index==1),auxiliary_state_sha=aux_initial,\n315:                 all4_datasets_repeated_three_outputs_bitexact=True,auxiliary_logits_initial_zero=True,initial_state=initial_hash))\n316:             vp=list(model.visibility_parameters());ap=list(model.auxiliary_parameters())\n317:             assert not (set(map(id,vp)) & set(map(id,ap)))\n318:             assert set(map(id,vp+ap))==set(map(id,model.parameters()))\n319:             optimizer_vis=torch.optim.AdamW(vp,lr=1e-4,weight_decay=.001)\n320:             optimizer_aux=torch.optim.AdamW(ap,lr=1e-4,weight_decay=.001)"
+        },
+        {
+          "source": "V155_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "line_start": 327,
+          "line_end": 344,
+          "excerpt": "327:                     o=[model(xs[i][ix],z42[:len(ix)]) for i,ix in enumerate((oi,ni))]\n328:                     po=model(xs[2][pi],z42[:len(pi)]);mo=model(xs[3][vi],z42[:len(vi)])\n329:                     eo=model(xs[3][ei],z42[:len(ei)])['target_entity'];eo.retain_grad()\n330:                     qo=[model(xs[i][ix],z42[:len(ix)])['coarse_point_quality'] for i,ix in enumerate(qi)]\n331:                     for z in qo:z.retain_grad()\n332:                     nl=[h.q.native_bce(o[i]['external_occlusion'],yn[i][ix],an[i][ix]) for i,ix in enumerate((oi,ni))]\n333:                     pl=balance(po['external_occlusion'],yp);ml=balance(mo['external_occlusion'],ym)\n334:                     el=balance(eo,ye[ei]);ql=sum(balance(z,yq[i][ix]) for i,(z,ix) in enumerate(zip(qo,qi)))/2\n335:                     loss=sum(nl)+pl+ml+el+ql\n336:                     assert torch.isfinite(loss);loss.backward()\n337:                     grad_vis=torch.nn.utils.clip_grad_norm_(vp,5);grad_aux=torch.nn.utils.clip_grad_norm_(ap,5)\n338:                     assert torch.isfinite(grad_vis) and torch.isfinite(grad_aux)\n339:                     optimizer_vis.step();optimizer_aux.step();assert not model.geometry.weight.any()\n340:                     log.write(json.dumps(dict(update=step,old_indices=oi.tolist(),new_indices=ni.tolist(),entity_indices=ei.tolist(),\n341:                         quality_old_indices=qi[0].tolist(),quality_new_indices=qi[1].tolist(),MR_visibility_indices=vi.tolist(),\n342:                         old_native_BCE=float(nl[0].detach()),new_native_BCE=float(nl[1].detach()),Pallox_BCE=float(pl.detach()),\n343:                         MR_BCE=float(ml.detach()),entity_BCE=float(el.detach()),quality_BCE=float(ql.detach()),\n344:                         auxiliary_weight=1,total_loss=float(loss.detach()),visibility_grad_norm=float(grad_vis),auxiliary_grad_norm=float(grad_aux)),allow_nan=False)+'\\n')"
+        }
+      ]
+    },
+    {
+      "phase": "V160",
+      "method": "Four predeclared factorial branches: input-native onehot hint off/on × weak owner253 auxiliary off/on, preserving original labels/draws; owner meaning is separate from native role and quality. Representation is partly coupled as documented above.",
+      "evidence": [
+        {
+          "source": "V160_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/train_slot_owner_factorial.py",
+          "line_start": 34,
+          "line_end": 34,
+          "excerpt": "34: ARM_CONFIGS=[dict(name='C39_BASE_NATIVE0_OWNER0',native_slot_hint=False,owner_auxiliary_weight=0),dict(name='C40_NATIVE_SLOT8_OWNER0',native_slot_hint=True,owner_auxiliary_weight=0),dict(name='C41_NATIVE0_OWNER3_AUX',native_slot_hint=False,owner_auxiliary_weight=1),dict(name='C42_NATIVE_SLOT8_OWNER3_AUX',native_slot_hint=True,owner_auxiliary_weight=1)]"
+        },
+        {
+          "source": "V160_head",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/head_preparation/native_slot_owner_head.py",
+          "line_start": 18,
+          "line_end": 37,
+          "excerpt": "18: class NativeSlotOwnerQueryHead(IndependentAuxiliaryQueryHead):\n19:     \"\"\"Keep original keys/partitions; add 707 separately optimized parameters.\n20: \n21:     Flags are fixed by the constructor, never supplied to forward. Owner logits\n22:     remain diagnostic in every arm; the trainer uses owner loss weight 0 or 1\n23:     from owner_auxiliary. Owner never receives the native-hint representation.\n24:     \"\"\"\n25:     def __init__(self, native_slot_hint=False, owner_auxiliary=False):\n26:         if type(native_slot_hint) is not bool or type(owner_auxiliary) is not bool:\n27:             raise TypeError('Arm flags must be constructor booleans')\n28:         super().__init__()\n29:         self._native_slot_hint = native_slot_hint\n30:         self._owner_auxiliary = owner_auxiliary\n31:         # Always allocate both branches after all original initializations, so\n32:         # every arm has identical original tensors and consumes identical RNG.\n33:         self.native_hint = torch.nn.Linear(8, 64, bias=False)\n34:         self.owner_head = torch.nn.Linear(64, 3)\n35:         torch.nn.init.zeros_(self.native_hint.weight)\n36:         torch.nn.init.zeros_(self.owner_head.weight)\n37:         torch.nn.init.zeros_(self.owner_head.bias)"
+        },
+        {
+          "source": "V160_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/train_slot_owner_factorial.py",
+          "line_start": 348,
+          "line_end": 358,
+          "excerpt": "348:                     nl=[h.q.native_bce(o[i]['external_occlusion'],yn[i][ix],an[i][ix]) for i,ix in enumerate((oi,ni))]\n349:                     pl=balance(po['external_occlusion'],yp);ml=balance(mo['external_occlusion'],ym)\n350:                     el=balance(eo,ye[ei]);ql=sum(balance(z,yq[i][ix]) for i,(z,ix) in enumerate(zip(qo,qi)))/2\n351:                     original_loss=sum(nl)+pl+ml+el+ql\n352:                     owner_logits=mo['query_visible_owner'][owner_positions]\n353:                     ol=balanced_owner_ce(owner_logits if owner_weight else owner_logits.detach(),owner_y)\n354:                     loss=original_loss+ol if owner_weight else original_loss\n355:                     assert torch.isfinite(loss);loss.backward()\n356:                     grad_vis=torch.nn.utils.clip_grad_norm_(vp,5);grad_aux=torch.nn.utils.clip_grad_norm_(ap,5);grad_new=torch.nn.utils.clip_grad_norm_(np_,5)\n357:                     assert torch.isfinite(grad_vis) and torch.isfinite(grad_aux) and torch.isfinite(grad_new)\n358:                     optimizer_vis.step();optimizer_aux.step();optimizer_new.step();assert not model.geometry.weight.any()"
+        }
+      ]
+    },
+    {
+      "phase": "V166",
+      "method": "Keep native hint off/original owner253 unchanged; add only weak selected-part COVER/SHAM92 to primary external BCE in C46, compare fixed C45; no owner/native-quality relabel of saved packet.",
+      "evidence": [
+        {
+          "source": "V166_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+          "line_start": 42,
+          "line_end": 42,
+          "excerpt": "42: ARM_CONFIGS=[dict(name='C45_REPLAY_C43_OWNER253_NATIVE0',native_slot_hint=False,owner_auxiliary_weight=1,CF_native_loss_weight=0),dict(name='C46_PART_NATIVE92_OWNER253_NATIVE0',native_slot_hint=False,owner_auxiliary_weight=1,CF_native_loss_weight=1)]"
+        },
+        {
+          "source": "V166_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+          "line_start": 181,
+          "line_end": 188,
+          "excerpt": "181: def loss_for_condition(original_loss, mr_output, owner_positions, owner_y, model, CF_x, CF_slots, geometry42, ci, CF_native_y, include_CF):\n182:     # The C45 expression and owner253 CE match V162 C43 exactly; no zero-loss CF forward.\n183:     ol=balanced_owner_ce(mr_output['query_visible_owner'][owner_positions],owner_y)\n184:     if include_CF:\n185:         logits=model(CF_x[ci],geometry42[:len(ci)],CF_slots[ci])['external_occlusion']\n186:         cfl=balanced_part_native_bce(logits,CF_native_y)\n187:         return original_loss+ol+cfl,ol,cfl\n188:     return original_loss+ol,ol,None"
+        },
+        {
+          "source": "V166_trainer",
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+          "line_start": 559,
+          "line_end": 564,
+          "excerpt": "559:         CF_native_weak_loss_rows_by_condition={ARMS[0]:0,ARMS[1]:92},CF_quality_owner_entity_loss_rows=0,\n560:         owner_loss='Unchanged original253 mean3 per-class CE weight1 in both conditions; no CF owner forward or labels',owner_class_counts_by_condition={arm:[53,52,148] for arm in ARMS},\n561:         native_part_loss='C46 only: weight1 times .5meanBCE(D_SHAM46=0)+.5meanBCE(E_COVER46=1), full fixed92 each update; no new RNG; C45 no CF forward/loss',\n562:         weak_native_target_not_physical_corner_or_quality_gold=True,feature_rows1144_status198_missing55_retained=True,original_primary_losses_masks_splits_availability_and_draws_unchanged=True,original_three_AdamW_clip5_groups_unchanged=True,native_slot_hint=False,\n563:         owner_criterion='Original253 only mean3 per-class CE; class weights unchanged',owner_intrinsic_per_row_weight_change=False,\n564:         selected_model=None,current_allowed=False,automatic_retry=False,training_admitted_only_under_separate_root_entry=True,feature_or_weight_bodies_read_during_final_preparation=False)"
+        }
+      ]
+    }
+  ],
+  "V171_boundary_witness_split_guard": {
+    "fixed_rows": [
+      5353,
+      5586,
+      5609
+    ],
+    "split": "VALIDATION",
+    "authority": "Root task instruction; no V171 witness data/selection body read in this static code task.",
+    "meaning_KO": "세 경계 witness는 TRAIN 학습 사례가 아니라 VALIDATION 진단이다. 그 행의 관찰을 기존 학습loss에 들어갔다거나 새 학습 admission/라벨 수정이 완료됐다고 주장하면 안 된다.",
+    "training_exclusion_mechanism": "V155 replay draw checks require synthetic split TRAIN; MR masks require SOURCE_DEVELOPMENT. This review does not re-open row bodies to infer any per-row role.",
+    "evidence": [
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 208,
+        "line_end": 210,
+        "excerpt": "208:         for indices,meta,a in ((ix,metas[0],packs[0]),(ex,metas[1],packs[1])):\n209:             assert (meta['split'][indices]=='TRAIN').all() and a['query_available'][indices].all()\n210:             assert np.array_equal(meta['target'][indices],np.r_[np.ones(16),np.zeros(32),np.ones(16)])"
+      },
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 90,
+        "line_end": 91,
+        "excerpt": "90:         training=np.array([r['split'] == 'SOURCE_DEVELOPMENT' for r in rows]),\n91:         available=np.array([r['original_input_valid'] for r in rows], bool))"
+      },
+      {
+        "source": "V155_trainer",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+        "line_start": 248,
+        "line_end": 251,
+        "excerpt": "248:         qualities.append(target);quality_pools.append(pools(target,pack['query_available'],meta['split']=='TRAIN'))\n249:         assert all(len(pool) for pool in quality_pools[-1])\n250:     ep=pools(rm['entity'],rm['available'],rm['training']);assert all(len(pool) for pool in ep)\n251:     vi=np.flatnonzero(rm['available']&rm['training']&(rm['role']>=0))"
+      }
+    ]
+  },
+  "remaining_truth_and_semantics_needed_KO": [
+    "동일한 원 q/native/selected-instance에서 (1) native-reference/의도 부위의 external/self visibility, (2) literal q footprint의 target/foreign/background/unknown owner, (3) 같은 native의 좌표 대응/오차·불확실성을 각각 독립된 정의로 증명해야 한다. 한 mask나 center owner를 나머지 두 정답으로 자동 전환하면 안 된다.",
+    "현재 source trainer는 합성 semantic native labels를 기존 parent helper에서 받아 보존한다. 그 원 renderer/mask/depth가 native virtual corner와 실제 query footprint 중 무엇을 뜻하는지는 이 trainer/head 코드만으로 인증되지 않는다. V172 별도 원소스 의미 감사와 결합해야 한다.",
+    "public real MR에 human/physical native coordinate-quality gold가 없고 quality target은−1이다. coarse neighborhood native92와 center owner253도 그 공백을 채우는 exact physical gold가 아니다.",
+    "새 semantic target을 준비하려면 uncertainty/unknown과 native correspondence, center sampling validity 및 selected-instance ownership authority를 별도로 보존해야 한다. 이는 의미 요구사항 정리이며 새 라벨/모델/threshold/데이터 선택이나 학습 설계 승인 제안이 아니다."
+  ],
+  "review_limitations": [
+    "Static reviewed contract only; no saved data/statistics/model performance inspected in this task.",
+    "Exact synthetic quality cutoff/reference and upstream synthetic mask semantics not re-certified because only the specified trainers/heads/protocols were allowed.",
+    "Source code describes intended behavior; this task did not execute training/forward or certify a new dataset."
+  ],
+  "read_bindings": {
+    "scope": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/ROOT_SCOPE_BEFORE_SOURCE_MASK_OR_DEPTH_BODIES.json",
+      "sha256": "c2a62ce2d9b257f6fdffe2f71adc13e28b9f7eb6713f88c308f6710c45b555c8"
+    },
+    "V155_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+      "sha256": "86e534653cb7ff27fe412bed5b5a58875fbbd1f925591f85804ccebebadca6a2"
+    },
+    "V155_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/independent_head_preparation/independent_query_head.py",
+      "sha256": "3c54dc75d6650aabce8b76a277998fded6f77f22293ba408bdddd998104bb39a"
+    },
+    "V155_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/PROTOCOL_BEFORE_SOURCE_FEATURE_OR_CHECKPOINT_BODIES.json",
+      "sha256": "a042ca1c7daa02959f08ccc45ee65920870d40090518b8ec61c685b7e50910d8"
+    },
+    "V160_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/train_slot_owner_factorial.py",
+      "sha256": "3dd58095938f63b37b92be2b42a628fb0862169087e9c41f7af873c8001c9260"
+    },
+    "V160_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/head_preparation/native_slot_owner_head.py",
+      "sha256": "82c843555cff138d8830f612befb733807c688e1e6c84d0607606dc4c4bd14b6"
+    },
+    "V160_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/source_fit_preparation/PROTOCOL_BEFORE_SOURCE_FEATURE_OR_MODEL_BODIES.json",
+      "sha256": "1ac65cddecf024b42aecece0e446e4b776db7a338c65c9ae4ea72c7581af2be5"
+    },
+    "V166_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+      "sha256": "0f5de46a7f654c449e8b435bc03389f91be0a7aed72a1906f8601e402c6df5f6"
+    },
+    "V166_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/PROTOCOL_BEFORE_SOURCE_FIT_FEATURE_BODIES.json",
+      "sha256": "aad1f9533a90de3424ea3a1628ddecb1d81f08f29e1419d3562429919dfd3cd6"
+    }
+  },
+  "task_access_and_execution": {
+    "allowed_scope_and_code_protocol_reads_only": true,
+    "model_or_head_instantiation_or_import": 0,
+    "new_training_forward_or_threshold_calculation": 0,
+    "mask_depth_RGB_feature_weight_checkpoint_biglabel_body_reads": 0,
+    "private_current_V169_body_reads": 0,
+    "V112_reads_hashes_searches": 0,
+    "q_L_PnP_changes": 0,
+    "new_label_or_training_admission": false
+  },
+  "selected_model": null,
+  "adopted": false,
+  "fully_solved": false
+}

@@ -1,0 +1,53 @@
+import sys
+sys.dont_write_bytecode=True
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFont
+import hashlib,json,importlib.util,textwrap
+import numpy as np
+O=Path(__file__).resolve().parent;V=O.parent;R=V/'private_evaluation/C11_FROZEN_CURRENT223'
+def bind(p):return dict(path=str(Path(p).resolve()),sha256=hashlib.sha256(Path(p).read_bytes()).hexdigest())
+def load(p,n):
+ s=importlib.util.spec_from_file_location(n,p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
+def ash(a):return hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest()
+sel=json.loads((O/'SELECTION_LOCK_BEFORE_PIXELS.json').read_text());rows=sel['selected'];facts={r['id']:r for r in [json.loads(l)for l in(R/'CONTEXT_FRAME_FACTS_INPUT_ONLY.jsonl').read_text().splitlines()]}
+b=sel['bindings'];p=Path(b['current_model_input']['path']);assert bind(p)['sha256']==b['current_model_input']['sha256']
+with np.load(p,allow_pickle=False)as z:rgb96=z['rgb96'];valid96=z['crop_valid96']
+common=load(V/'current_evaluation_preparation/current_adapter.py','c11_view_common');base=common.metric_base();tm=load(V.parent/'query_visibility_target_context_rgb_20261023_v107/target_context_math.py','c11_view_target_math')
+font='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';f=ImageFont.truetype(font,18);small=ImageFont.truetype(font,15);big=ImageFont.truetype(font,24)
+cache={};metadata=[];cards=[]
+for case in rows:
+ i=case['case_index'];s=case['score'];t=case['truth'];ix=case['original_native_row'];fc=facts[s['id']];path=Path(fc['image']['path']);assert bind(path)['sha256']==fc['image']['sha256']
+ if str(path)not in cache:cache[str(path)]=np.array(Image.open(path).convert('RGB'),copy=True)
+ rgb=cache[str(path)];assert ash(rgb)==fc['decoded_RGB_sha256']
+ target,tv=tm.sample_target_context(rgb,fc['box_xyxy']);assert ash(target)==fc['target_RGB224_float32_sha256']
+ q=np.array([float(s['query_x']),float(s['query_y'])]);ref=np.array([float(t['human_reference_x']),float(t['human_reference_y'])]);L=float(s['roi_side'])
+ original=rgb96[ix];valid=valid96[ix];assert original.dtype==np.uint8 and original.shape==(3,96,96)
+ after=Image.fromarray(original.transpose(1,2,0));marked=after.copy();md=ImageDraw.Draw(marked)
+ rp=(ref-q)/L*96+47.5
+ md.line([44,47.5,51,47.5],fill='yellow',width=1);md.line([47.5,44,47.5,51],fill='yellow',width=1)
+ if ((rp>=0)&(rp<96)).all():md.ellipse([rp[0]-2,rp[1]-2,rp[0]+2,rp[1]+2],outline='cyan',width=1)
+ full=Image.fromarray(rgb);fd=ImageDraw.Draw(full);fd.rectangle(fc['box_xyxy'],outline='magenta',width=1);fd.rectangle([q[0]-L/2,q[1]-L/2,q[0]+L/2,q[1]+L/2],outline='white',width=1);fd.line([q[0]-4,q[1],q[0]+4,q[1]],fill='yellow',width=2);fd.line([q[0],q[1]-4,q[0],q[1]+4],fill='yellow',width=2);fd.ellipse([ref[0]-3,ref[1]-3,ref[0]+3,ref[1]+3],outline='cyan',width=1)
+ decisions={m:base.call(t,m,'D_vs_E',{},.5)for m in('v61','legacy')};decisions['C11']=s['authoritative_decision']
+ source=case['manual_provenance'].get('annotation_coordinate_source') or t.get('human_label_source','UNSPECIFIED');origin=case['manual_provenance'].get('reference_coordinate_origin') or 'Not specified in the general evaluation manifest'
+ card=Image.new('RGB',(1580,700),'#f4f6f8');d=ImageDraw.Draw(card)
+ d.text((16,10),f"Case{i:02d} | {s['id']} | native slot {s['native_corner']} | GT {t['human_state']} -> C11 {s['authoritative_decision']}",font=big,fill='black')
+ d.text((16,44),f"{case['rule']} | original row {ix} | q-r {float(t['initial_reference_error_px']):.3f}px",font=f,fill='black')
+ d.text((12,78),'Original full RGB: frozen context magenta; original q-crop white; q yellow; reference cyan',font=small,fill='black');card.paste(full,(10,102))
+ panels=[(670,'Exact saved RGB96 (2x NN)',after),(890,'Separate q/reference markers',marked),(1110,'Frozen context224 before normalize',Image.fromarray(np.floor(np.clip(target,0,255)+.5).astype(np.uint8))),(1350,'Exact valid96',Image.fromarray((valid[0]*255).astype(np.uint8)).convert('RGB'))]
+ for x,label,image in panels:
+  d.text((x,85),label,font=small,fill='black');card.paste(image.resize((208,208),Image.Resampling.NEAREST),(x,112))
+ lines=[f"q=({q[0]:.5f},{q[1]:.5f}), L={L:.5f}; reference=({ref[0]:.3f},{ref[1]:.3f})",f"C11 raw zE={float(s['raw_query_aux_hidden_logit']):.6f}; display pVisible={float(s['p_visible']):.6f}; raw z<0 alone means D.",f"Saved v61: {decisions['v61']} | legacy: {decisions['legacy']} | C11: {decisions['C11']}",f"Reference provenance: {source}",f"Native expected part mapping remains as stored; this report does not assign new physical native identities.",f"Context: {fc['box_mode']}, box={[round(x,3)for x in fc['box_xyxy']]}; fraction={fc['target_valid_fraction']:.4f}",f"ROI validity: {float(valid.mean()):.4f}; original geometry_self_hidden={s['geometry_self_hidden']}; valid={s['valid']}",f"For occluded references, q-r<=3 is not verified location correctness. No reference-centred crop or new prediction."]
+ yy=346
+ for line in lines:
+  for wrapped in textwrap.wrap(line,width=99):d.text((670,yy),wrapped,font=f,fill='black');yy+=25
+ d.text((12,600),'No new inference / fit / threshold or coordinate correction / PnP. Fixed postfit diagnostic selection only.',font=f,fill='black')
+ d.text((12,630),'Unmarked RGB96 is exact model crop; context224 is its frozen preprocessor view, not a GPU tensor dump.',font=f,fill='black')
+ filename=f'CASE_{i:02d}.png';card.save(O/filename);cards.append(card)
+ metadata.append(dict(case_index=i,original_native_row=ix,id=s['id'],native_slot=int(s['native_corner']),group=t['group'],selection_rule=case['rule'],near_eligible_available=case.get('near_eligible_available'),near_eligible_count=case.get('near_eligible_count'),human_state=t['human_state'],query_xy=q.tolist(),original_L=L,reference_xy=ref.tolist(),initial_reference_error_px=float(t['initial_reference_error_px']),reference_annotation_coordinate_source=source,reference_coordinate_origin=origin,human_label_source=t['human_label_source'],annotation_uncertainty_available_in_read_CSV=False,occluded_reference_not_verified_location=True,original_RGB96_sha256=ash(original),original_valid96_sha256=ash(valid),full_RGB_binding=fc['image'],decoded_RGB_sha256=fc['decoded_RGB_sha256'],frozen_context_box=fc['box_xyxy'],frozen_context_float32_sha256=fc['target_RGB224_float32_sha256'],context_replay_bitexact=True,decisions=decisions,C11_raw_zE=float(s['raw_query_aux_hidden_logit']),p_visible_display=float(s['p_visible']),geometry_self_hidden_original=s['geometry_self_hidden'],figure=bind(O/filename)))
+for si in range(2):
+ sheet=Image.new('RGB',(1580,2100),'white')
+ for j in range(3):sheet.paste(cards[si*3+j],(0,j*700))
+ sheet.save(O/f'CONTACT_{si+1:02d}.png')
+result=dict(completed=True,selection_lock=bind(O/'SELECTION_LOCK_BEFORE_PIXELS.json'),renderer=bind(__file__),actual_original_crop_arrays_read_only=True,all3WOOD_manual_near_D_failures_retained=True,all6_fixedcases=metadata,contacts=[bind(O/f'CONTACT_{i:02d}.png')for i in(1,2)],unique_full_RGBs=len(cache),new_model_forward_fit_or_PnP=0,coordinates_labels_gates_unchanged=True,root_has_viewed_new_contacts_at_write_time=False)
+(O/'ALL6_CASES_AND_PROVENANCE.json').write_text(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False)+'\n')
+print(json.dumps(dict(contacts=result['contacts'],metadata=bind(O/'ALL6_CASES_AND_PROVENANCE.json')),indent=2))

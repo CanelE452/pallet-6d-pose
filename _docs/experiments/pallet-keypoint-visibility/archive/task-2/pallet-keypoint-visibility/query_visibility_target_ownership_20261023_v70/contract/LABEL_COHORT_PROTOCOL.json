@@ -1,0 +1,111 @@
+{
+  "schema": "V70_LABEL_COHORT_PROTOCOL_BEFORE_TRAINING_V1",
+  "status": "LABEL_COHORT_AUDIT_AUTHORIZED; COMPONENT_FIT_REQUIRES_ROOT_LOCK_AND_REVIEW",
+  "purpose": "A bounded query-pixel target-ownership component alongside the unresolved V69 semantic-reference/slot contract. This does not redefine full pallet crop/reference visibility or authorize current evaluation.",
+  "truth": {
+    "joint_order": [
+      [
+        "V",
+        "V"
+      ],
+      [
+        "E",
+        "V"
+      ],
+      [
+        "E",
+        "E"
+      ],
+      [
+        "O",
+        "V"
+      ],
+      [
+        "O",
+        "E"
+      ],
+      [
+        "O",
+        "O"
+      ]
+    ],
+    "known_exact_V": "native_valid AND allowed==1",
+    "known_exact_E": "native_valid AND allowed in {2,4,6}",
+    "train_population": "All admitted known exact V/E rows of the unchanged V66 four-source TRAIN cache. O and UNKNOWN are excluded, never relabeled E.",
+    "known_exact_E_scope": "Certified/proxy external support as individually tiered by source; conditional query support, not semantic corner/self gold.",
+    "SYNTH": "Preserved rendered support facts; original M0/M4 proxy semantics unchanged.",
+    "ORIGINAL_YCB": "Originally observed target-visible support; original full-only unknown is never E.",
+    "CONTROLLED_YCB": "Original target-visible pixels covered by independently pasted opaque other-instance RGB; same q/box as original.",
+    "PALLOX": "Symmetric conditional teacher evidence, empirical depth/RGB consistency; not calibration-certified semantic gold.",
+    "state_check": "Exact state independently projected from every allowed 6joint bitset and compared to stored exact state; native invalid must be allowed63/stateUNKNOWN."
+  },
+  "immutable_source_inputs": {
+    "TRAIN": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/joined_source_cache/CONTROLLED_PLUS_PALLOX_TRAIN.npz",
+    "VAL": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/joined_source_cache/CONTROLLED_PLUS_PALLOX_VAL.npz",
+    "GT_pair_tables": "Training lineage/supervision only, never model features. TRAIN_CHANGED_PAIR_INDEX.csv alone admits changed pairs to the pair sampler; VAL_PAIR_INDEX.csv cannot enter fitting.",
+    "do_not_mutate_existing": true
+  },
+  "new_multi_query_model_input_contract": {
+    "deployment_available": "One target-associated set of frozen initial-query ROIs from the SAME observed image, their input-only q/box/valid geometry, cached P3/RGB and frozen predicted mask/base evidence. This is a new multi-query-set contract; earlier V68 single-box baseline and V69 three-field whitelist remain unchanged.",
+    "prototype": "For each scored ROI, only OTHER available initial ROIs of the same current target/image supply predicted-mask-weighted P3 prototype. Never filter prototype ROIs by known V/E, GT masks/labels or scores from original/composite twins. Leave-current-ROI-out and empty-support fallback must be explicitly tested in implementation.",
+    "identity_routing": "sample/global/native index may align/order/route observations but are forbidden learned input tokens. No semantic/native-slot identity embedding, reference location/state, object ID, donor ID, original/composite status or filename tokens.",
+    "pair_separation": "Original and composite get distinct prototypes from their own current image. Counterfactual original RGB/features never serve as composite inference evidence.",
+    "source_deployment_gap": "YCB generic source queries were supervised-source samples; SYNTH retains only already included queries. Deployment has initial pallet q8. Target grouping and query-set availability/distribution remain a material assumption.",
+    "identifiability_limit": "If permitted target context cannot distinguish target from foreground, identical inputs can have conflicting ownership/reference labels. No loss or prototype establishes semantic association by itself."
+  },
+  "pair_contract": {
+    "mapping": "Immutable TARGETS.jsonl and COMPOSITES.jsonl original_sample_ids; exact same native query, ROI side, target box and original target identity for all8 slots.",
+    "changed": "original known V→controlled known E",
+    "preserved": "original known V→controlled known V",
+    "non_V": "O/UNKNOWN remain unchanged and are audit-only outside this conditional training loss.",
+    "split": "Original target/RGB, composite, donor RGB/target and YCB scene each remain in one split. PALLOX same-session/pair siblings stay grouped. Shared object categories/render generator are not claimed independent families.",
+    "pair_loss_plan_from_root": "32 TRAIN changed pairs per update supply32 original+32 controlled rows, plus32 regular knownVE rows for each YCB domain; SYNTH64 and PALLOX64. Four-source equal BCE +.25 mean softplus(-(z_original-z_controlled)); pair mapping never selected from VAL/current."
+  },
+  "selection": {
+    "population": "VAL, same four sources, native-valid known exact V/E only",
+    "criterion": "Unweighted mean binary NLL within each source, then equal mean over four sources. Every100 updates; earliest strict minimum; fixed2000 update budget. This conditional selector is different from all-class quality gates.",
+    "threshold": "pV>=.5 fixed; no radius/threshold/crop/architecture/weight selection from VAL/current",
+    "ORIGINAL_YCB_caveat": "No known E in ORIGINAL_YCB; VE-only precision is trivially1 when V is predicted. Do not use it as the quality precision gate."
+  },
+  "fixed_quality_diagnostics": {
+    "primary_population": "ALL native-valid exact-class-known V/E/O, preserving prior fixed cohort. UNKNOWN and invalid retained in separate coverage tables.",
+    "public_visible_precision_and_recall": {
+      "sources": [
+        "ORIGINAL_YCB",
+        "CONTROLLED_YCB",
+        "PALLOX"
+      ],
+      "precision_at_least": 0.8,
+      "recall_at_least": 0.8
+    },
+    "known_E_to_binary_nonvisible_recall": {
+      "sources": [
+        "CONTROLLED_YCB",
+        "PALLOX"
+      ],
+      "at_least": 0.6,
+      "wording": "pV<.5 is binary nonvisible, never an inferred causal E class on O/unknown."
+    },
+    "strict25_visible_nonregression": {
+      "ORIGINAL_YCB": {
+        "same_frozen_IDs": 714,
+        "TP_at_least": 679
+      },
+      "CONTROLLED_YCB": {
+        "same_frozen_IDs": 296,
+        "TP_at_least": 278
+      }
+    },
+    "knownVE_conditionals": "Report separately from all-known V/E/O metrics. Preserve exact denominators, source tiers and O/UNKNOWN prediction distributions.",
+    "comparisons": "Frozen same8590-source-query v61 exact-only scores plus existing V65/V66/V67/MobileSAM/SAM21 saved outputs. No invented v61 R2. SAME native valid IDs and GT required.",
+    "authorization": "Ten diagnostic conditions do not select another checkpoint and never automatically authorize current inference or prove semantic goal solved."
+  },
+  "executions_authorized_by_this_file": {
+    "label_and_identity_metadata_audit": true,
+    "RGB_feature_weight_model_reads": false,
+    "training": false,
+    "forward": false,
+    "current_data": false,
+    "PnP": false
+  }
+}

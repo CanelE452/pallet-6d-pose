@@ -1,0 +1,23 @@
+{
+  "phase": "V170",
+  "frozen_before_this_phase_source_score_or_label_bodies": true,
+  "purpose": "Exact feasibility intersection for one global visibility E-logit threshold per unchanged C45/C46; no threshold/model selection or new fit",
+  "scope": "Public saved source raw outputs and original synthetic GT/public weak labels only; no current/V169/private/V112/RGB/features/weights/forward/PnP",
+  "conditions": {
+    "native": "All original native35 conditions, original mask/limit/N unchanged",
+    "Pallox_inputvalid_sanity": {"D_correct_at_least": 30, "D_N": 33, "E_correct_at_least": 5, "E_N": 6},
+    "MR_inputvalid_visibility": {"D_recall_at_least": 0.9, "E_recall_at_least": 0.8},
+    "entity_quality": "Original fixed0 gates independent and unchanged; not repaired or overridden by visibility feasibility"
+  },
+  "decision": "E iff raw_FP32_as_float64 >= threshold_float64; D iff raw_FP32_as_float64 < threshold_float64; original inputU always U",
+  "required_correct": "First integer c in 0..N for which Python float(c/N) >= the original stored float limit; do not compute ceil(limit*N)",
+  "E_constraint": "If at least m valid finite E scores exist, threshold <= m-th largest score (closed upper); otherwise empty",
+  "D_constraint": "If at least m valid finite D scores exist, threshold > m-th smallest score (open lower); otherwise empty",
+  "zero_required": "No bound when required correct is zero",
+  "intersection": "All finite global thresholds satisfying every D and E bound simultaneously; empty if insufficient available support or maximum open lower >= minimum closed upper",
+  "report": "Report feasibility, exact bound witnesses and immutable bindings. Critical order statistics are feasibility bounds, never selected working points.",
+  "order": ["rules receipt", "code", "invented boundary/tie/U/denominator tests", "authorized public source bodies", "feasibility JSON"],
+  "automatic_retry": false,
+  "new_threshold_or_head_or_model_selection": false,
+  "new_fit_or_forward": false
+}

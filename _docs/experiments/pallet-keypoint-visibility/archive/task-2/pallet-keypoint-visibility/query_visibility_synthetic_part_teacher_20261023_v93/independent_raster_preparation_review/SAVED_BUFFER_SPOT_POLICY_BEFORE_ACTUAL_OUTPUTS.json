@@ -1,0 +1,61 @@
+{
+  "completed": true,
+  "status": "POLICY_ONLY_WAIT_ROOT_ACTUAL_OUTPUT_AUTHORIZATION",
+  "salt": "V93_INDEPENDENT_RAY_SPOTS_V1",
+  "selection_unit": "one pixel per fixed camera per stratum, min lexicographic SHA256 hexadecimal, no replacement of empty/hard/ambiguous strata",
+  "hash_formula": "SHA256(UTF8(salt+'\\n'+camera_id+'\\n'+str(y)+','+str(x)))",
+  "strata": [
+    {
+      "name": "PA_EXPECTED_ANY",
+      "definition": "finite selected-part-alone cameraZ coverage"
+    },
+    {
+      "name": "PA_EXPECTED_INTERIOR",
+      "definition": "PA and all eight native neighbours PA; out-of-frame neighbours false"
+    },
+    {
+      "name": "PA_EXPECTED_BOUNDARY",
+      "definition": "PA minus the above 3x3 interior"
+    },
+    {
+      "name": "KNOWN_SELF_BLOCKED",
+      "definition": "PA and PS certain nonnegative other-target owner; no ambiguity or background included"
+    },
+    {
+      "name": "KNOWN_FOREIGN_BLOCKED",
+      "definition": "raw certain PSselected and PV certain foreign owner"
+    },
+    {
+      "name": "KNOWN_SELECTED_VISIBLE",
+      "definition": "raw certain PVselected"
+    },
+    {
+      "name": "AMBIGUOUS_SELECTED_TIED",
+      "definition": "PA and PS or PV different-owner ambiguity, with selectedpart depth in final minimum tie set at the ambiguous stage"
+    },
+    {
+      "name": "AMBIGUOUS_SELECTED_NOT_TIED",
+      "definition": "PA and PS or PV different-owner ambiguity, without selectedpart in that stage final minimum tie set"
+    }
+  ],
+  "maximum_selection_rows": 48,
+  "camera_count": 6,
+  "empty_strata": "Retain explicit0, no alternate view/pixel or quality search.",
+  "overlaps": "Selection rows retain all stratum memberships. Repeated camera/pixel rays may be computed once and joined back to each selected row.",
+  "inference_from_selection": "Outcome-conditioned source mask diagnostic, not prevalence estimation, human annotation or a benchmark sample.",
+  "oracle": "After explicit root authorization only: use bound exported world triangles and fixed camera metadata; intersect each selected camera-axis ray directly with triangle planes and test barycentric inclusion/top-left coverage independently of the production raster function. Recover nearest Z/part/face tie set and compare saved PA/PS/PV buffers. No triangle filtering by saved winner or predicted success.",
+  "numeric_policy": "Report absolute and relative depth differences in full; compare owner/coverage/U exactly under frozen production edge/culling/tie conventions. Any discrepancy is reported, never silently corrected or used to relax a label threshold.",
+  "required_report": [
+    "selected camera/pixel/hash/stratum and empty counts",
+    "nearest and tied source face/part IDs, cameraZ differences",
+    "raw subset violation counts and A/V/S/E/U partition discrepancy counts",
+    "whether ambiguity or background could incorrectly enter SELF",
+    "literal target-layer/PS immutability and foreign geometry metadata provenance"
+  ],
+  "restrictions": {
+    "until_root_actual_authorization": "No saved pixel buffers, source mesh NPZ or actual render read.",
+    "new_model_fit_current_PnP": 0,
+    "V92_mutations": 0
+  },
+  "created_UTC": "2026-10-23T00:35:58.397979+00:00"
+}

@@ -1,0 +1,64 @@
+{
+  "created_UTC": "2026-10-23T13:49:05.574182+00:00",
+  "first_actual_session": 24238,
+  "terminal_exit_code": 1,
+  "failure": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/stencil_features/FAILED_EXECUTION.json",
+    "sha256": "2e41ed318d2b75dc956fa83ab9b4b2bc4c09b40a7664edc7cb9325d5962537fb"
+  },
+  "original_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/feature_preparation/prepare_stencil_features.py",
+    "sha256": "dc602c4c2e959b25dff6bb3b67076af68d1833da632a984745ed55378d485134"
+  },
+  "original_entry": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/ROOT_ACTUAL_C19_SOURCE_FEATURE_ENTRY.json",
+    "sha256": "54f76410ef1d6dcea61b18667ce69b367a7c592eafad744f213336d3cea5d633"
+  },
+  "new_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/feature_preparation/prepare_stencil_features_v2.py",
+    "sha256": "f3498a2254c9aa986475325c8f74ef8c97412bbf914c6ecc18b462e746db0491"
+  },
+  "actualcause": "PinnedTorch2.1 Tensor.all rejects tupledim; centralvalid4 reduction failed after firstbatch2encoder calls, beforecachedF/Pparityoranyfit.",
+  "correction": "Flattenonlycentral2x2supportdims then boolall(dim1), mathematicallysameall4pixels. No input,labels,availabilityrule,model,threshold,normalizationortolerance changes.",
+  "new_output_directory": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/stencil_features_v2",
+  "old_attempt_preserved": true,
+  "diff": [
+    "--- /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/feature_preparation/prepare_stencil_features.py",
+    "+++ /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/feature_preparation/prepare_stencil_features_v2.py",
+    "@@ -6,7 +6,7 @@",
+    " import numpy as np",
+    " H=Path(__file__).resolve().parent;V=H.parent;P=V.parent",
+    " s=importlib.util.spec_from_file_location('v127_common',V/'stencil_common.py');c=importlib.util.module_from_spec(s);s.loader.exec_module(c)",
+    "-PROTOCOL=H/'FEATURE_PROTOCOL_BEFORE_FORWARD.json';OUT=V/'stencil_features';PARENT=P/'query_visibility_boundary_query_source_20261023_v125/feature_baseline_preparation/FEATURE_BASELINE_PROTOCOL_BEFORE_FORWARD.json'",
+    "+PROTOCOL=H/'FEATURE_PROTOCOL_V2_BEFORE_FORWARD.json';OUT=V/'stencil_features_v2';PARENT=P/'query_visibility_boundary_query_source_20261023_v125/feature_baseline_preparation/FEATURE_BASELINE_PROTOCOL_BEFORE_FORWARD.json'",
+    " ",
+    " def authorize(entry):",
+    "  e=c.read(entry);assert e['approved_source_stencil_feature_extraction']is True and e['source_only']is True",
+    "@@ -65,7 +65,7 @@",
+    "     nodes=[grid[:,y:y+2,x:x+2].mean((1,2))for y in c.AXIS for x in c.AXIS]",
+    "     rawp=patch.reshape(n,16,16,384)[:,7:9,7:9].mean((1,2));assert torch.equal(nodes[4],rawp)",
+    "     full=F.normalize(cls.float(),p=2,dim=1,eps=1e-12);full=torch.where((frac[:,0]>0)[:,None],full,torch.zeros_like(full))",
+    "-    c4=vv[:,0,47:49,47:49].all((1,2));pv=F.normalize(rawp.float(),p=2,dim=1,eps=1e-12);pv=torch.where(c4[:,None],pv,torch.zeros_like(pv))",
+    "+    c4=vv[:,0,47:49,47:49].flatten(1).all(1);pv=F.normalize(rawp.float(),p=2,dim=1,eps=1e-12);pv=torch.where(c4[:,None],pv,torch.zeros_like(pv))",
+    "     expectedF=torch.as_tensor(base['features'][uu,768:1152],device='cuda');expectedP=torch.as_tensor(base['features'][uu,1536:1920],device='cuda')",
+    "     fe=torch.equal(full,expectedF);pe=torch.equal(pv,expectedP)",
+    "     if not(fe and pe):",
+    "@@ -82,11 +82,11 @@",
+    "   c.write(OUT/'FAILED_EXECUTION.json',dict(traceback=traceback.format_exc(),automatic_retry=False));raise",
+    " ",
+    " def prepare():",
+    "- root=c.policy();parent=c.read(PARENT);cc=c.read(PARENT.parents[1]/'actual_corpus/CORPUS_COMPLETE.json');proof=H/'GENERATED_FEATURE_TESTS.json';g=c.read(proof);assert g['PASS']and g['feature_code']==c.bind(__file__)and g['common_code']==c.bind(V/'stencil_common.py')",
+    "+ root=c.policy();parent=c.read(PARENT);cc=c.read(PARENT.parents[1]/'actual_corpus/CORPUS_COMPLETE.json');proof=H/'GENERATED_FEATURE_TESTS_V2.json';g=c.read(proof);assert g['PASS']and g['feature_code']==c.bind(__file__)and g['common_code']==c.bind(V/'stencil_common.py')",
+    "  keys=('asset_runtime','asset_plan','weight','official_repo','official_revision','official_source_bindings','runtime','C8_preprocess','C11_producer')",
+    "  p={k:parent[k]for k in keys};p.update(completed=True,code=c.bind(__file__),common_code=c.bind(V/'stencil_common.py'),policy=c.bind(c.POLICY),precision_addendum=c.bind(c.ADDENDUM),generated=c.bind(proof),parent_protocol=c.bind(PARENT),input_occurrences=root['bindings']['input_occurrences'],base_features=root['bindings']['base_features'],base_feature_receipt=root['bindings']['base_feature_receipt'],stored_crops=cc['stored_crops'],output=str(OUT),batch_units=8,batch_layout='discardedfulln,usedfulln,centraln; exact3n, lastn4',nodes='rowmajor k+.5=(3.5,7.5,11.5), canonical2x2 raw mean at3:5/7:9/11:13',outer_order=list(c.OUTER),normalization='POOL all9rawmean thenL2 repeat8; ORDERED raw outer nodeL2each',strict_parity='C11 maskedF/P bitexact; stop without tolerance widening',actual_source_pixel_feature_weight_model_reads_or_calls=0)",
+    "- c.write(PROTOCOL,p);c.write(H/'ROOT_FEATURE_ENTRY_TEMPLATE.json',dict(approved_source_stencil_feature_extraction=False,source_only=True,fit_allowed=False,current_allowed=False,V112_allowed=False,PnP_allowed=False,code=c.bind(__file__),common_code=p['common_code'],protocol=c.bind(PROTOCOL),policy=p['policy'],precision_addendum=p['precision_addendum'],generated=p['generated']))",
+    "- print(dict(code=c.bind(__file__),protocol=c.bind(PROTOCOL),template=c.bind(H/'ROOT_FEATURE_ENTRY_TEMPLATE.json'),command=p['runtime']['executable']+' '+str(Path(__file__).resolve())+' --entry ROOT_EXACT_ENTRY.json',actual_forward=0),flush=True)",
+    "+ c.write(PROTOCOL,p);c.write(H/'ROOT_FEATURE_ENTRY_TEMPLATE_V2.json',dict(approved_source_stencil_feature_extraction=False,source_only=True,fit_allowed=False,current_allowed=False,V112_allowed=False,PnP_allowed=False,code=c.bind(__file__),common_code=p['common_code'],protocol=c.bind(PROTOCOL),policy=p['policy'],precision_addendum=p['precision_addendum'],generated=p['generated']))",
+    "+ print(dict(code=c.bind(__file__),protocol=c.bind(PROTOCOL),template=c.bind(H/'ROOT_FEATURE_ENTRY_TEMPLATE_V2.json'),command=p['runtime']['executable']+' '+str(Path(__file__).resolve())+' --entry ROOT_EXACT_ENTRY.json',actual_forward=0),flush=True)",
+    " ",
+    " if __name__=='__main__':",
+    "  ap=argparse.ArgumentParser();ap.add_argument('--prepare',action='store_true');ap.add_argument('--entry',type=Path);a=ap.parse_args()"
+  ],
+  "root_explicit_reexecution_after_fix": true,
+  "training_started": false
+}

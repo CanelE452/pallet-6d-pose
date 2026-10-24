@@ -1,0 +1,47 @@
+{
+  "schema": "V70_GENERATED_OWNERSHIP_MATH_REVIEW_V1",
+  "completed": true,
+  "status": "PASS",
+  "checks": {
+    "all63_V_E_masks_O_UNKNOWN_exclusion": true,
+    "BCE_per_source_mean_and_analytic_gradient": true,
+    "pair_ranking_sign_normalization_and_gradient": true,
+    "generated_128_batches_source64_pair32_permutation_identity_seed": true,
+    "prototype_brute_native_sites_same_current_target_LOO_and_fallback": true,
+    "prototype_nonfinite_and_more_than8_ROIs_rejected": true
+  },
+  "code_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/model/input_prototype.py",
+      "sha256": "fd581696cfd9efdd278db9a5c62d30b0f7239d47739942a8c8ce91e2cb457551"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/model/ownership_head.py",
+      "sha256": "980315e1282ae1e00b6533f61302a2ef7d4dcaf50b0472ea563ce2e260e7ade7"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/model/fit_ownership_head.py",
+      "sha256": "0a0d24bf85b662c73248cdb009489c8e44c430e68fd9e91664179c12ac1e6d90"
+    }
+  ],
+  "review_script": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/source_audit/review_generated_ownership_math.py",
+    "sha256": "b25910dafc1d9023a751a0787ac6e5af4a312b6213b976dc819487355a7a2525"
+  },
+  "code_review": [
+    "GT-free prototype runs on all included ROIs before knownVE filtering. Same current target/image is asserted by cache grouping; original/composite indices are distinct.",
+    "Source-balanced BCE and ranking loss do not use O/U supervision. Validation selector is knownVE-only4-source macro; all-known VEO quality remains separate.",
+    "Prototype fallback uses supplied same-target input context, which may include current ROI; the explicit fallback flag limits the pure LOO claim.",
+    "At most8 other initial ROI context is a new deployment input assumption; overlapping ROIs are not certified clean target pixels.",
+    "All inputs/code/protocol are hashed before actual source array loading. The root must bind exact immutable TRAIN_CHANGED_PAIR_INDEX.csv and cache hashes before authorizing a fit."
+  ],
+  "blockers": [],
+  "fit_authorized_by_this_review": false,
+  "actual_source_RGB_GT_cache_feature_weight_current_reads": 0,
+  "model_forward_calls": 0,
+  "optimizer_updates": 0,
+  "GPU_calls": 0,
+  "PnP_calls": 0,
+  "generated_prototype_calls": 4,
+  "generated_loss_autograd_only": true
+}

@@ -1,0 +1,265 @@
+{
+  "completed": true,
+  "created_UTC": "2026-10-23T13:50:50.102305+00:00",
+  "scope": "Focused code/config/static metadata feasibility only. No model import/execution, features, RGB, weights, current223, V112, private per-frame annotations, rendering, teacher creation, PnP or fit.",
+  "answer_KO": "native8 채널과 canonical cuboid의 대응은 실제 코드에 있고, 합성 장면의 알려진 pose/camera로 같은 native 참조를 투영하는 경로도 있다. 따라서 모든 native 대응을 원천적으로 UNKNOWN으로 볼 이유는 없다. 다만 그 가상 bbox 코너가 실제 팔레트 CAD의 어느 구조 endpoint/face patch인지까지 묶인 primary mesh 계약은 이 범위에서 확인되지 않았다. 기존 in-frame/ray 값은 그 자체로 물리 구조 D/S/E가 아니다.",
+  "native_channel_definition": {
+    "0": "near top left",
+    "1": "near top right",
+    "2": "near bottom right",
+    "3": "near bottom left",
+    "4": "far top left",
+    "5": "far top right",
+    "6": "far bottom right",
+    "7": "far bottom left",
+    "8": "centroid; excluded from native8 classifier",
+    "camera_facing": "image left/right, gravity top/bottom; not a globally fixed object-part ID across every view",
+    "diagram_Xright_Ydown_Zfar": [
+      [
+        "-W/2",
+        "-H/2",
+        "-D/2"
+      ],
+      [
+        "+W/2",
+        "-H/2",
+        "-D/2"
+      ],
+      [
+        "+W/2",
+        "+H/2",
+        "-D/2"
+      ],
+      [
+        "-W/2",
+        "+H/2",
+        "-D/2"
+      ],
+      [
+        "-W/2",
+        "-H/2",
+        "+D/2"
+      ],
+      [
+        "+W/2",
+        "-H/2",
+        "+D/2"
+      ],
+      [
+        "+W/2",
+        "+H/2",
+        "+D/2"
+      ],
+      [
+        "-W/2",
+        "+H/2",
+        "+D/2"
+      ]
+    ],
+    "canonical_mapping_available": true,
+    "API": "pallet_geometry.canonical_keypoints_3d(dimensions), canonical_to_camera_facing_transform(signed_assignment), camera_facing_keypoints_3d(signed_assignment,dimensions), canonical_to_camera_facing_keypoint_permutation(signed_assignment,dimensions)",
+    "invariant": "P_cf[i]=A@P_canonical[perm[i]]; signed YAW0/90/180/270, not W/D parity alone",
+    "PnP_required": false,
+    "private_annotation_required": false
+  },
+  "physical_dimensions_metadata": {
+    "original_target_training_camera_width_depth_height_m": [
+      1.3,
+      1.1,
+      0.12
+    ],
+    "alternate_camera_width_depth_m": [
+      1.1,
+      1.3
+    ],
+    "registry_wood_XYZ_m": [
+      0.8,
+      0.14,
+      0.59
+    ],
+    "registry_plastic_standard_XYZ_m": [
+      1.1,
+      0.11,
+      1.3
+    ],
+    "limits": "These are different object/registration contracts. They do not certify the current square pallet CAD or exact real surface geometry. Registry metadata is not a primary mesh-file binding."
+  },
+  "actual_initializer_training_provenance": {
+    "original_run": "YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42",
+    "checkpoint_SHA_descriptor_only": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7",
+    "training_data_yaml": "challenge/yolo_pose_one_model/datasets/g38_legacy_v1v2_p0_tex20k/data.yaml",
+    "exact_original_windows_writer": "Not recovered as an executable local source in this scoped review. HANDOFF cites Windows v2_realize.py/run_v2_scene_logic.py and source/asset hashes; an older local converter cannot substitute for its full front/tie/asset contract.",
+    "no_checkpoint_body_or_training_labels_read": true
+  },
+  "constructible_without_private_or_PnP": {
+    "known": [
+      "Generate fixed native cuboid references in named canonical axes and map them with an explicitly chosen known signed source pose.",
+      "Project with known synthetic camera/R/t/K and retain original virtual q, optionally prospective input jitter; native channel IDs need not be guessed from RGB.",
+      "A matching registered pallet mesh can supply owner/target-only/whole-scene depth and explicit adjacent structural patch witnesses in the same coordinate system."
+    ],
+    "missing_existing_proof": [
+      "Exact primary pallet CAD bytes, units and mesh-to-canonical transform tied to those references were not established by the checked code/configs. T dataset collector calls its asset palletobj by name, which alone is not a mesh registration certificate.",
+      "Available sdg_annotation.visibility is number of9points in frame divided9, not physical local cue observability or external occlusion.",
+      "Virtual cuboid vertices can lie over empty space; signed corner/axis mapping does not establish a physical endpoint. For an expected structural-cue teacher, the native reference to physical endpoint/incident edge/patch association and partial/competition U rule must be explicit.",
+      "The historical front-facing permutation selection and equal-view ties are not fully reconstructed merely by finding compute_perm_v4."
+    ],
+    "minimal_future_path_KO": "한 matching CAD의 mesh→canonical 변환과 native8 참조를 소스 전용으로 고정하고, 각 참조에 대응하는 실제 인접 endpoint/edge/face patch를 명시한 작은 기하 teacher를 만들 수 있다. 알려진 합성 pose로 channel mapping과 D/S/E/부분U를 계산하면 private annotation이나 PnP가 필요 없다. 대응이 없는 virtual corner를 새 physical vertex로 조용히 옮기거나 임의의 가까운 목재를 같은 cue라고 부르면 안 된다. 이 파일은 그 teacher를 생성하거나 승인하지 않는다."
+  },
+  "why_existing_public_cues_remain_AUX": "LOCO/TOMIE의 특정 region cue가 보인다는 보조 근거와 native camera-facing cuboid channel/physical CAD-part association은 별개다. 코드의 native 순서를 찾았다는 사실만으로 기존 약한 영역 라벨을 native8 인간 gold로 승격할 수 없다. 동시에 이 한계는 일반 public AUX 학습의 새 차단 조건이 아니다.",
+  "V93_interpretation": "V93 scene3 part152 UNKNOWN은 해당 별도 local asset/protocol의 의미 매핑 상태이다. primary pose cuboid의 canonical/channel correspondence까지 불가능하다는 결론으로 일반화하지 않는다. Exact-point-on-surface is also not silently imposed as the only possible future expected structural-cue convention.",
+  "evidence": [
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/contract/pallet_pose_contract.yaml",
+      "sha256": "d28d2cf0d33910e3f7fafea183e256d68290f7eedd9bba8fd6bbca942ee3bc79",
+      "lines": [
+        48,
+        92
+      ],
+      "supports": "Named native camera-facing8 plus centroid, image-left/right, view-dependent W/D and original target synthetic dimensions."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/annotate/pallet_geometry.py",
+      "sha256": "4ff7ea9e71473272429e26b1b065b8bb7fe0b036a4822328b58b5ad662a8a3e5",
+      "lines": [
+        178,
+        298
+      ],
+      "supports": "Canonical/camera-facing corner coordinates, exact signed quarter-turn rotations and literal bijective perm[cf]=canonical, without PnP or image fitting."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/annotate/annotate_pnp.py",
+      "sha256": "b9794949dc88f336bded8ec31b157edccbd51689259bf98fd392366f80ccb89a",
+      "lines": [
+        169,
+        206
+      ],
+      "supports": "Exact9-point diagram Xright/Ydown/Zfar; near points have Z=-D/2."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/annotate/object_geometry_registry.py",
+      "sha256": "b646935a4e1d2ed4ea5cea225c954dd863209f6bee1ef30199c711a45ba356b3",
+      "lines": [
+        22,
+        30
+      ],
+      "supports": "Named object geometry registry source."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/challenge/real_gt_v2/OBJECT_GEOMETRY_REGISTRY.json",
+      "sha256": "0c7a10729b6db18cbe47fa4adb158e2f26ec7a7c9458f59ee60d023c282f0627",
+      "lines": [
+        1,
+        80
+      ],
+      "supports": "Static object dimensions/physical axis metadata, no per-frame annotations read."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/data_prep/isaac_sim/sdg_math.py",
+      "sha256": "f6d28a161923b996a75fa3791a4a98ba37e0108456577721766e88255398d478",
+      "lines": [
+        77,
+        110
+      ],
+      "supports": "Known world-to-CV camera projection frame and Y-up bounding-cuboid corners."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/data_prep/isaac_sim/sdg_annotation.py",
+      "sha256": "4589cd30a88ef6509094fc25237b2d59e9d76e794a3dacc99608ea44948b1430",
+      "lines": [
+        41,
+        105
+      ],
+      "supports": "Known model/camera transforms directly project cuboid references; visibility is only in-frame fraction."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/data_prep/isaac_sim/sdg_scene_models.py",
+      "sha256": "3a01b36b58a957cd10fa52f79520c89e434f4add637770b923b8504e13ce4fe0",
+      "lines": [
+        21,
+        48,
+        107,
+        124
+      ],
+      "supports": "Explicit source-specific orientation/scale/bounds plumbing; does not bind a matching primary physical-part endpoint."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/annotate/convert_to_camera_facing_v4.py",
+      "sha256": "3633dacafdfb4370eec57c7abcb627d32f80c671fbff1708966ebf51b4c452b1",
+      "lines": [
+        94,
+        187
+      ],
+      "supports": "Legacy camera-facing area permutation, not a certified current Windows writer."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_dht_structured_v2/SEMANTICS.md",
+      "sha256": "93ba34709d7f1c8b0ee9efc19122bb090c6ac84ca161eb6de2e8449cfc646bd7",
+      "lines": [
+        3,
+        19
+      ],
+      "supports": "Current G38/P0/TEX convention and remaining exact-writer/front-selection provenance limits; layout consistency not physical edge visibility."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/frozen_yolo_features.py",
+      "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab",
+      "lines": [
+        18,
+        20
+      ],
+      "supports": "Actual frozen initializer original checkpoint locator and SHA descriptor; checkpoint not opened."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/args.yaml",
+      "sha256": "051af620143651c154bd2c8a2c6db4ab91ebc28cb7e69ea688e33fd0595bdf92",
+      "lines": [
+        1,
+        22
+      ],
+      "supports": "Actual named initializer run training data/config locator."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/datasets/g38_legacy_v1v2_p0_tex20k/data.yaml",
+      "sha256": "19e0501c835df11e7d2356864bf7cd38da367618fd07e3822fad9ccc92417ec5",
+      "lines": [
+        1,
+        10
+      ],
+      "supports": "Actual run has9x3 keypoint channels and preserved flip index."
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/spatial_concat_scratch/build_dataset.py",
+      "sha256": "a762312eed480802e7ed94078febe5966d7a8d16dff158205d039d19b4af953f",
+      "lines": [
+        112,
+        165
+      ],
+      "supports": "Consumes recorded perm_v4/renderer metadata to recover fixed physical W/D; does not select new front face."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/HANDOFF_KO.md",
+      "sha256": "400e3a2269b0e3f5b3dc7976e4c61bc1363d5b45e9fd467a0791828e5c60bf79",
+      "lines": [
+        50,
+        71
+      ],
+      "supports": "Windows actual-writer source information is an inherited external-machine report, not accessible Ubuntu implementation proof."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_synthetic_part_teacher_20261023_v93/SCOPE_BEFORE_ACTUAL_MESH_GEOMETRY.json",
+      "sha256": "c6d63fe1f5ba19b62998522d310fb964f8d4f6bd6a2a6d2bf4c3f28109901552",
+      "lines": [
+        1,
+        20
+      ],
+      "supports": "V93asset-local auxiliary namespace intentionally not primary poseasset/native identity certification."
+    }
+  ],
+  "inspection_limits": [
+    "Only explicitly referenced text/code/config/static geometry metadata were inspected; no exhaustive proof that no other CAD asset or generator exists elsewhere.",
+    "Local legacy renderer functions are reusable geometry/projection code, not certified historical G38/P0/TEX writer or already complete physical D/S/E labels.",
+    "No quiet change to V127 arms, labels, feature contract, training admission or user goal."
+  ],
+  "new_teacher_labels_render_fit_PnP_model_current_V112_calls": 0,
+  "old_artifacts_modified": false
+}
