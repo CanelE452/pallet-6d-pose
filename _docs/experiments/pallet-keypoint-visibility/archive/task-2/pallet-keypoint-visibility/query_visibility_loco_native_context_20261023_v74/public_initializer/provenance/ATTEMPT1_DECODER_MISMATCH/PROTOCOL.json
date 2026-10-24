@@ -1,0 +1,129 @@
+{
+  "schema": "V74_PUBLIC_LOCO_FIXED20_RGB_ONLY_INITIALIZER_PROTOCOL",
+  "status": "FROZEN_BEFORE_ROOT_MODEL_FORWARD",
+  "objective": "GT-free frozen initializer measurement on already SHA-fixed20 public LOCO frames; all candidates retained; no model fit/PnP/current",
+  "input_manifest": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/public_initializer/INPUTS_RGB_ONLY.jsonl",
+    "sha256": "2457cda2b4a2b3fb44bd8add61bbb841de64e9a24bc382469c7147709dd4f60c"
+  },
+  "number_of_RGB_frames": 20,
+  "order": "Unchanged V73 fixed20 metadata SHA-selected order; no score/cue re-selection",
+  "source_counts": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4,
+    "5": 4
+  },
+  "initializer_model": {
+    "path": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "bytes": 6552807,
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7"
+  },
+  "initializer_code": {
+    "path": "/tmp/pallet-bi-full-execution-20261019-v1/scripts/research/pallet_line_pose_v1/features.py",
+    "bytes": 6641,
+    "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab"
+  },
+  "declared_source_provenance": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/synthetic_head_minimal_20261022_v54/FEATURE_SMOKE_PROTOCOL.json",
+    "bytes": 1137,
+    "sha256": "9fefce0dbb66ba00e53e1f6a941313c3d5629b0ccc973fdacc35f105e9ec57fd"
+  },
+  "provenance_limit": "The prior feasibility and smoke protocol identify the existing frozen synthetic-trained checkpoint. This lock verifies file identities; it does not recreate or independently certify historical model training.",
+  "runtime": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+  "predictor": {
+    "class_name": "FrozenYoloFeatures",
+    "method": "predict",
+    "call_arguments": {
+      "already_padded": false,
+      "cpu_features": true
+    },
+    "decoded_color": "OpenCV BGR input from each original RGB PNG; no crop/recenter before predict.",
+    "border": {
+      "pixels": 100,
+      "mode": "cv2.BORDER_REFLECT_101",
+      "applications": 1
+    },
+    "explicit_ultralytics_kwargs": {
+      "conf": 0.001,
+      "imgsz": 640,
+      "rect": true,
+      "augment": false,
+      "half": false,
+      "verbose": false,
+      "save": false,
+      "stream": false
+    },
+    "batching": "one original frame per predict call",
+    "runtime_defaults": "Use unchanged installed Ultralytics defaults for kwargs not specified in FrozenYoloFeatures.predict; runner records actual version/resolved args without tuning.",
+    "output_coordinates": "All nine keypoints and box_xyxy in original native image coordinates after subtracting the added 100px border; preserve returned values, including out-of-image coordinates.",
+    "selection": "selected_index = int(numpy.argmax(candidate_scores)); exact ties select the first returned candidate; selected_index=null if there are no returned candidates.",
+    "candidates": "Retain every candidate returned by the unchanged Ultralytics predict call at conf=.001, in returned order. This does not mean pre-NMS raw head logits.",
+    "no_extra_filter": true
+  },
+  "prohibited_selection": [
+    "No cue/GT-based detection choice or nearest-reference choice.",
+    "Do not drop zero-detection, low-confidence, out-of-image, or qualitatively poor frames.",
+    "No GT/cue-derived query/box, recentering, matching, threshold selection, or model selection."
+  ],
+  "required_saved_output_fields": [
+    "input id/hash",
+    "all candidate indices",
+    "all candidate scores",
+    "all candidate native box_xyxy",
+    "all candidate raw9 keypoints_xy",
+    "all candidate raw9 keypoints_conf",
+    "selected_index or null",
+    "input_shape",
+    "canvas_shape",
+    "added_border",
+    "explicit no_detection status",
+    "runtime and checkpoint/state hashes"
+  ],
+  "zero_detection": "Save the frame with empty candidates, null selected_index, and no_detection=true. No replacement or retry selected by cue evidence.",
+  "low_confidence": "All returned detections are retained at the fixed .001 call floor; no second confidence cutoff defines success or eligibility.",
+  "optional_P3_cache": {
+    "permitted": true,
+    "required": false,
+    "dtype": "float16",
+    "shape": "FrozenYoloFeatures unchanged padded P3: channel_count x 80 x 80",
+    "budget_uncompressed_bytes": 100000000,
+    "rule": "Save all 48 or explicitly report unavailable/budget exception; never subset by cue/model performance. Cache contains input features only; no learned head/fit."
+  },
+  "state_invariants": {
+    "model_eval": true,
+    "requires_grad": false,
+    "optimizer_steps": 0,
+    "parameters_and_buffers_before_after_hash_match": true,
+    "checkpoint_file_hash_before_after_match": true,
+    "runner_must_record_state_digest_method_and_device": true
+  },
+  "source_family": {
+    "coarse_group": "NVIDIA_R2B_STORAGE_GALILEO_FAMILY_UNRESOLVED",
+    "split": "UNASSIGNED_GROUP_HOLD",
+    "training_only_possible_after_separate_admission": true,
+    "independent_validation_claim": false,
+    "all48_same_coarse_group": true
+  },
+  "labels": {
+    "existing_AI_cue_exposure_known": true,
+    "cue_rows_or_labels_in_model_inputs": false,
+    "native8_mapping": "UNKNOWN",
+    "no_new_visibility_GT_from_initializer": true,
+    "GT_admission": "HOLD; this proposal pass does not admit labels or train"
+  },
+  "exclusions": {
+    "current223_inputs_GT_scores_features": 0,
+    "new_fit": 0,
+    "PnP_or_pose_optimization": 0,
+    "new_source_download": 0,
+    "this_input_builder_model_imports_or_forward": 0
+  },
+  "execution_authority": "Root runs the actual frozen forward separately after binding this protocol/input lock and the runner code; this builder does not execute a model.",
+  "decoder": "PIL RGB same as immutable V73 RGBpixelhash; explicit BGR reversal into unchanged FrozenYoloFeatures",
+  "source_input_lock": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_pallet_loco_20261023_v73/data/intake/FIXED_20_RGB_SELECTION_LOCK.json",
+    "sha256": "333486dc92050c92f6ab87e2fb0bc1f0299f530f6bfba7e58136b8e8c92846bc"
+  }
+}

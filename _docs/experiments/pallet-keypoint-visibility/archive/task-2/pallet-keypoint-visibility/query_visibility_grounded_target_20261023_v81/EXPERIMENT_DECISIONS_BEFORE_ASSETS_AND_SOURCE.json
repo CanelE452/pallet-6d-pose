@@ -1,0 +1,105 @@
+{
+  "frozen": true,
+  "stage": "V81_FROZEN_GROUNDED_TARGET_SAM_MASK_OWNERSHIP_SOURCE_VAL_PILOT",
+  "objective": "Test explicit globally fixed category requests plus input-only instance association for target-owned visible masks; not train/claim a semantic DES classifier.",
+  "bindings": {
+    "V80_final": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/REPORT_FINAL_SEAL.json",
+      "sha256": "f4a1a6da057c0c3565c65856dee0bd40b28851705d503ff2a1ba96afa88e3677"
+    },
+    "V80_result": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/ROOT_RESULT_AND_NEXT_DECISION.json",
+      "sha256": "955434f16d1b3f63504343bd91fa2b513b5649851bd9a5e163eacd6c50c603cc"
+    },
+    "grounding_runtime": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/runtime/RUNTIME_IMPORT_ONLY_SEAL.json",
+      "sha256": "13fb5d64dcde87314fb37badd2fba15d452a85083bbd29d74384671cc8b83933"
+    }
+  },
+  "scope": {
+    "source_only": true,
+    "original_VAL_all_instances": 1035,
+    "SYNTH_instances": 235,
+    "YCB_instances": 800,
+    "expected_unique_RGB": 435,
+    "controlled_after_in_this_pilot": false,
+    "current223_access": false,
+    "training": false,
+    "PnP": 0
+  },
+  "grounding": {
+    "official_model": "IDEA-Research/grounding-dino-tiny",
+    "revision": "a2bb814dd30d776dcf7e30523b00659f4f141c71",
+    "weight_file": "model.safetensors",
+    "weight_bytes": 689359096,
+    "weight_SHA256": "1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3",
+    "trust_remote_code": false,
+    "local_files_only_inference": true,
+    "fixed_phrases_in_order": [
+      "master chef can",
+      "cracker box",
+      "sugar box",
+      "tomato soup can",
+      "mustard bottle",
+      "tuna fish can",
+      "pudding box",
+      "gelatin box",
+      "potted meat can",
+      "banana",
+      "pitcher base",
+      "bleach cleanser",
+      "bowl",
+      "mug",
+      "power drill",
+      "wood block",
+      "scissors",
+      "large marker",
+      "large clamp",
+      "extra large clamp",
+      "foam brick",
+      "pallet"
+    ],
+    "fixed_caption": "master chef can. cracker box. sugar box. tomato soup can. mustard bottle. tuna fish can. pudding box. gelatin box. potted meat can. banana. pitcher base. bleach cleanser. bowl. mug. power drill. wood block. scissors. large marker. large clamp. extra large clamp. foam brick. pallet.",
+    "ontology": "Published YCBVideo21 classes, numericprefix removed/underscores replaced withspaces, plus deployment-known constant pallet; SAME22requests everyimage, never per-instance GTname selection.",
+    "ontology_source": "https://github.com/yuxng/YCB_Video_toolbox/blob/master/classes.txt",
+    "tokenizer_gate": "Before sourceforward: exactfixedcaption token IDs saved, length<=256; no score-driven wording/order/chunk changes. Fail and preserveiflong.",
+    "box_threshold": 0.4,
+    "text_threshold": 0.3,
+    "threshold_source": "Officialtiny modelcard example .4/.3; prospectively adopted, no tuning. https://huggingface.co/IDEA-Research/grounding-dino-tiny",
+    "native_image": "Full existing rawRGB once peruniqueSHA, noGTmaskcrop; processor pinnedpreprocessor_config sizes only.",
+    "precision": "FP32 eval frozen, noautocast,TF32false,threads1,batch1,seed20261023",
+    "disable_custom_kernels": true,
+    "NMS": "None; keepallfixedpostprocessed detections, noGT matching/filter."
+  },
+  "association": {
+    "input_box": "Existing initialquery_box_xyxy fromfrozenoriginalinputpack; sameq8/L/nativeorder. NoGTr/class/mask.",
+    "rule": "Choose detection with maximum continuousXYXY IoU(initialbox,detectedbox), ties higherdetector score then earlierdetectorqueryordinal. RequireIoU>=0.1. Boxinvalid/noassociation=>U.",
+    "tie_precision": "Use actualFP32postprocessed detectorbox/score arrays, IoUfloat64; stable lexicographic sorting.",
+    "box_clipping": "detectedXYXY clippedto [0,W]x[0,H] forSAMprompt, positivewidth/heightrequired; invalidprompt=>U.",
+    "query_recenter": false,
+    "known_limit": "Occluder/duplicate/sameclass targetassociation canbe wrong; no oraclecorrection, per-testGTclass orbestGTmask selection."
+  },
+  "SAM": {
+    "existing_checkpoint": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+    "checkpoint_SHA256": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5",
+    "existing_runtime": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python",
+    "prompt": "Associated detectedbox only, point_coords/point_labelsNone; noGT/originalGTbox/snap.",
+    "multimask_output": false,
+    "precision": "UseexistingsealedV68SAM21 predictor fixed inference precision/settings, nofeature finetune; bind exactimplementationbefore actualrun.",
+    "mask_threshold": "ExistingSAM2imagepredictor default mask_threshold0.0; onebool nativeH×W visiblemask.",
+    "image_embedding": "ReusewithinrawRGB, maskoneperassociatedtargetinstance. No predictedmask may select orchangeitsdetector association."
+  },
+  "evaluation": {
+    "source_GT_usage": "Onlypostsavedoutput diagnosis. SourceinputproducerqGT-emulation preexists andisdeclared; no newGT reference/category/mask to detector/SAM.",
+    "mask_ownership": "All1035targetinstance nativeM4 IoU; reportconditionalmatchedandallrowswithnomatchcounted0, ratesbysource. GTneverchoosesmask/detection.",
+    "qpixel": "Atfloor(q+.5), nativecontinuous/NNbounds valid and GTqM0=1: report qC/qV vs predictedmaskC/V/U, allclassdenominators andheldU. OoutsideM0 separate; neverturnO/unknownintoE/S.",
+    "strict535": "SamefixedYCB535IDs; qGTstate==oldreference label provedV79, report2x3C/V/U, precisionandendtoendrecall(Ucountsasmiss), holdingrate.",
+    "primary_target_difference": "Fulloldreferenceprimary labels unchanged; qpixeloccupancy is separatelynamed, no newprimaryadmission orrrelabelling.",
+    "nominal9": "Optionalsame9NNmaskread+fixed4RGBillustration toshowtargetownership, no newreadout tuning.",
+    "decision": "Feasibility pilot only; no automaticcurrentevaluationorsemanticDESadoption. Controlledafter/learnedreference-supportintegration requireseparatenextcontract.",
+    "pretraining_overlap": "Genericfoundationpretrainingdataset overlapnotcertified; repeatedsourceVALdevelopmentonly."
+  },
+  "failure_policy": "Preserve allmissing/failedrows,U andfailedcode/log. No silent retries withnewmodel/wording/thresholds/GTselectors. Infrastructure repairs before sourceforward requireboundaddendum.",
+  "created_UTC": "2026-10-22T20:56:01.924868+00:00",
+  "fully_solved": false
+}

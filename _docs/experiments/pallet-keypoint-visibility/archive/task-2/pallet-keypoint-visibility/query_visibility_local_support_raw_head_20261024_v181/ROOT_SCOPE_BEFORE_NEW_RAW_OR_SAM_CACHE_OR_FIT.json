@@ -1,0 +1,50 @@
+{
+  "schema": "V181_PROSPECTIVE_RAW_CROP_DUAL_SUPPORT_HEAD_AND_FROZEN_SAM_ABLATION_v1",
+  "UTC": "2026-10-24T05:45:09.083483+00:00",
+  "previous_goal_turn_classification": "PROGRESS: V180 actual TRAIN4096 support generation, frozenSAM512image execution and independent saved/visual audits complete; full goal unsolved.",
+  "full_goal": "Fixed original initial-query crop judge selected-pallet visibility/external occlusion; full WOOD/SQUARE/native8, self upstream geometry and coordinate mismatch separate. No PnP/q/L/native changes.",
+  "rationale_source_only": "V179/V180 TRAIN shows q-pixel ownership differs from crop-local selected-end support; V180 fixed TRAIN source tiny covers and hole-filling justify fine RGB branch and mask-context ablation. User explicitly permits synthetic/public real/YCB/frozen SAM. No architecture/data/threshold/arm selection from current223 orpublicheld45.",
+  "fitting_data": {
+    "synthetic": "Original TRAIN4096 rows, inputavailable4016, inputU80 preserved/excluded fromfit; V180 visible-support/foreign-front-support targets -1/0/1 separately admitted as experimental supervision, UNKNOWN masked. V173 scene_owner_central4 soft6 collapsedincident+other=T,FOREIGN=F,BG=BG separately owneraux, no nativeD/E/S/pointquality relabel.",
+    "public_original": "Existing SOURCE_DEVELOPMENT185frames/1480 slots only. Preexisting supportedweak centerowner253(T53/F52/BG148) are owneraux only, not native/end visibility targets. Originalinputcontinuous-valid1286/U194 retained; no new nearest/center4 gate.",
+    "YCB_public_CF": "Existing V161 original477 variant occurrences retained; preexistingknown314=157COVER F+157ADJACENT_SHAM T owneraux only, separatemean. Keep BEFORE/UNKNOWN/pairfail records without forcinglabels; source frames46, no held. Exact metadata/payloadbindings resolved before cache/fit entry.",
+    "exclusion": "Private current223 and publicheld45/360 evaluation-only, no body/score/label reads for this phase; V112 forbidden any read/hash/search."
+  },
+  "model": {
+    "arms": [
+      "C50_RAW96_DUAL_SUPPORT_OWNER_AUX",
+      "C51_RAW96_PLUS_FROZEN_SAM_DUAL_SUPPORT_OWNER_AUX"
+    ],
+    "same_architecture": "Conv3x3/GN/SiLU blocks8→16s1→32s2→32s1→48s2→48s1→64s2, adaptivepool3x3→Linear64 SiLU→support2 andowner3. No BN/dropout;115157parameters expected, verifyactual.",
+    "input8": "RGB3 fixed/255, originalvalid96, constantnormalizedXY2, SAMbinarymask96 andSAMavailability96. RAWarm sets onlySAM2channels tozero. SAMarm uses officialfrozenmodel logits bilinearsampled on exactoriginal96grid >0, valid-domainavailability separately; no GTmodelinput.",
+    "outputs": "Two independent visible-end-support andforeign-front-support logits; owneraux T/F/BG logits. No predictednewcoordinates.",
+    "forbidden_model_inputs": [
+      "GT reference/corner/camera/part/depth/nativeD/E/S/targetregion",
+      "GTcentered crop",
+      "GT-best permutations",
+      "physicalidentitycertificate",
+      "private/heldlabels"
+    ]
+  },
+  "training": {
+    "seed": 1810,
+    "same_initial_state_and_draws_both_arms": true,
+    "steps_per_arm": 8000,
+    "final_checkpoint_only": true,
+    "optimizer": "AdamW lr3e-4 weight_decay1e-4 clip_grad_norm5 FP32/TF32false deterministic, no schedule/earlystopping/selection",
+    "batch_draws_per_step": "Visible support:16YES+16NO;foreign support16YES+16NO;syntheticowner16/class48 via class-conditional softmass draws; publicowner16/class48; YCB_CF16/class32. Same192 row/class draws reused bybotharms; replacement allowed, original missing/UNKNOWN notimputed.",
+    "loss": "Arithmeticmean of five equal-weight means: BCE visiblebalanced32, BCEforeignbalanced32, syntheticowner class-balancedCE48 unbiasedconditionalsoftowner sampling, publicowner CE48, CFownerCE32. Labels for owneraux remain domain-specific and never become end/native gold.",
+    "no_fit_until": "Root reviews exact input cache/code and separate actualfitentry; authorizes under existing usergoal, no userapproval pending."
+  },
+  "frozen_SAM_public_preprocessing": "Same officialSAM1ViTB/code/weights asV180, full originalcanonicalRGB (public720x1280), originalinitialq8 exactfloatminmaxbox only, no clip/expand/GT/positivepoints, singlemaskreturnlogits threshold0. OriginalCFfullRGB andownq8 exact; publiccanonicalRGBnpy avoidPILJPEGdecode drift. Source-only inputmanifest andentry beforeactualforward.",
+  "evaluation": {
+    "source_train": "All original4096 plus public1480 andCF477 withavailability/known-label masks; trainingapparentfit notgeneralization.",
+    "synthetic_VAL": "Prepare originalexistingVAL2048/256images using unchangedV180 source-endoperator andsameSAM protocol in new separately boundVAL metadata/runner. Evaluationonly, nofit/draw/normalizer/checkpoint/threshold; notblindresearchholdout because historicallyreused. Do not read oldVALsoft forarchitecture design.",
+    "decisions": "Support logits>0 separately; owner argmax. Prospective nativeproxy response: foreign>0→E; else visible>0→D; elseU. This proxy is namedregional-support diagnostic, never exact native/human gold. Self/position strata separate; noGTselfgate modelinput.",
+    "private_or_publicheld": "No newforward in thisphase. Future allarm frozenevaluation only aftersource qualification; no outcome-driven selection."
+  },
+  "training_admission": "Explicitly admit only the named source support/owner fields under this newfitcontract; originalV180 sidecar training_admission=false retained as historicalprovenance. New native/quality targets remain-1.",
+  "goal_status": "active_unsolved",
+  "fully_solved": false,
+  "selected_model": null
+}

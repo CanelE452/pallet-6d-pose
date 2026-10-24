@@ -1,0 +1,99 @@
+{
+  "schema": "V181_INDEPENDENT_HEAD_TRAINER_STATIC_REVIEW_A_v1",
+  "completed": true,
+  "PASS": true,
+  "UTC": "2026-10-24T05:52:26.977220+00:00",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/train_local_support_ablation.py",
+    "sha256": "ca4d5ac9018cb6fc7bfea622a96f219bc7c7ce4bd5ac471cb93b19eca5f27a63"
+  },
+  "head": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/head_preparation/local_support_head.py",
+    "sha256": "5f2e92d4dd0984fa3f0e4e6891166ccc10af977df843a1734fcb31f1b70f56e5"
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/PROTOCOL_BEFORE_NEW_RAW_CACHE_OR_FIT_BODIES.json",
+    "sha256": "745e2a0ef6be10d6509529f3708d42e9c6b2e4ad491fabfb30749f01583728d4"
+  },
+  "checks": [
+    {
+      "name": "Exact prospective head and channels",
+      "PASS": true,
+      "evidence": "115157 parameters; eight input channels RGB/255, valid, constant XY, SAM mask and availability. RAW zeros only SAM channels; no q/L/native/GT forwarded."
+    },
+    {
+      "name": "Original crop metadata and split",
+      "PASS": true,
+      "evidence": "Exact NPZ key/dtype/shape plus row-ID/global/native/q/L/availability joins; three TRAIN domains fixed4096/1480/3816. Public and CF support targets all-1."
+    },
+    {
+      "name": "Original availability and UNKNOWN",
+      "PASS": true,
+      "evidence": "Inputavailable4016/1286/3456 retained. All support/owner losses use original available pools; supportUNKNOWN excluded. Raw originalU outputNaN/pred-1 preserved."
+    },
+    {
+      "name": "Source soft boundary mass",
+      "PASS": true,
+      "evidence": "CDF weights use each original finite available T/F/BG mass, with partial-known rows retained. AMBIG/INVALID separate; no per-row normalization or pseudo-targets. Fullunknown mass0 does not draw."
+    },
+    {
+      "name": "Hard weak supervision authority",
+      "PASS": true,
+      "evidence": "Exactlypublic253 class53/52/148 and CF314 class157/157 only; owneraux does not become native/end/quality labels."
+    },
+    {
+      "name": "Loss mapping and gradients",
+      "PASS": true,
+      "evidence": "Five losses use fixed192 ordered samples: support32+32, sourceowner48,publicowner48,CFowner32. Independent supportBCE and ownerCE arithmeticmean gives each domain/head loss weight1/5."
+    },
+    {
+      "name": "Same initial state and draws",
+      "PASS": true,
+      "evidence": "Both fresh arms seed1810, same architecture/AdamW lr3e-4 wd1e-4 clip5, NP RNG reset1810, fixed8000 steps and exact draw hash parity required. No BN/dropout or early selection."
+    },
+    {
+      "name": "Source VAL separated",
+      "PASS": true,
+      "evidence": "Evaluation cache JSON/NPZ first loaded after both final checkpoints freeze and freeze receipt. VAL with_targets=False; no VAL labels/draws/normalizer or selection in optimizer loop. Original split is VALIDATION."
+    },
+    {
+      "name": "Saved outputs and threshold",
+      "PASS": true,
+      "evidence": "Final checkpoints only; repeated same-input outputs exact; both final state hashes checked unchanged. Independent support >0, ownerargmax and named regional E/D/U proxy follow frozen scope; native equivalence not claimed."
+    },
+    {
+      "name": "No old models or extra inference in review",
+      "PASS": true,
+      "evidence": "Trainer uses only new raw head, cache inputs and separatedtargets. This review reads code/protocol/check receipts only; no import, replay, actual raw/label/feature/SAM/weight bodies, private/held/V112 access."
+    },
+    {
+      "name": "Generated meaningful evidence",
+      "PASS": true,
+      "evidence": "Read check source and19PASS receipt: analytic five-loss gradient masks, classconditional soft objective/gradient, 3-step RAW-vs-SAMmissing allparameter/AdamW/RNG byteparity, GN/head/inputchecks. No duplicate tests run."
+    },
+    {
+      "name": "Current dependency limits",
+      "PASS": true,
+      "evidence": "ActualTRAIN cache and separateVAL cache still entry-bound dependencies; this static PASS is not cache numeric integrity, actual CUDA execution, fitting success, model qualification or adoption."
+    }
+  ],
+  "check_source": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/invented_local_support_checks.py",
+    "sha256": "f847e7d7eda904c515d4e109b189573170a83e46a3e75a1ad4ed8a8fe28d4d22"
+  },
+  "preparation": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/PREPARATION_COMPLETE.json",
+    "sha256": "c96f62b8368f38d8489f891ab867d4693b702ecde52f88ae9623c98d10f8045e"
+  },
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/ROOT_SCOPE_BEFORE_NEW_RAW_OR_SAM_CACHE_OR_FIT.json",
+    "sha256": "8cd21d5eb4caf9663927859ead0cbcbd823e701fd4a2164a66aa765e046bfcdc"
+  },
+  "review_method": "Read complete head/trainer/protocol and invented check source+receipt; checked source bindings. No actual source cache/GT/SAM/weight/model body or execution.",
+  "blocking_issues": [],
+  "actual_new_tests_or_fit_or_forward_or_render": 0,
+  "private_publicheld_V112_body_reads": 0,
+  "actual_saved_score_numerical_audit": false,
+  "selected_model": null,
+  "fully_solved": false
+}

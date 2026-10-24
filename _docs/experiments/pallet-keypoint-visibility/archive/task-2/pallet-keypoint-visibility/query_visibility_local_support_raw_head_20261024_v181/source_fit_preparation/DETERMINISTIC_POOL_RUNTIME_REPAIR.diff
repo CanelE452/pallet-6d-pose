@@ -1,0 +1,24 @@
+--- BEFORE/head_preparation/local_support_head.py
++++ AFTER/head_preparation/local_support_head.py
+@@ -78,7 +78,9 @@
+                            torch.nn.SiLU()))
+             incoming = outgoing
+         self.encoder = torch.nn.Sequential(*layers)
+-        self.pool = torch.nn.AdaptiveAvgPool2d((3,3))
++        # Fixed96 input and three stride2 blocks give12x12. Four-by-four means
++        # are the same12-to3 average partition; this has strict CUDA backward.
++        self.pool = torch.nn.AvgPool2d(kernel_size=4, stride=4)
+         self.shared = torch.nn.Sequential(torch.nn.Flatten(),torch.nn.Linear(64*3*3,64),torch.nn.SiLU())
+         self.support_head = torch.nn.Linear(64,2)
+         self.owner_head = torch.nn.Linear(64,3)
+--- BEFORE/source_fit_preparation/train_local_support_ablation.py
++++ AFTER/source_fit_preparation/train_local_support_ablation.py
+@@ -21,7 +21,7 @@
+ PROTOCOL = H/'PROTOCOL_BEFORE_NEW_RAW_CACHE_OR_FIT_BODIES.json'
+ CHECKS = H/'GENERATED_INVENTED_CHECKS.json'
+ CHECK_SOURCE = H/'invented_local_support_checks.py'
+-RUN = V/'runs/C50_C51_LOCAL_SUPPORT_FIXED8000'
++RUN = V/'runs/C50_C51_LOCAL_SUPPORT_FIXED8000_v2'
+ PYTHON = '/home/minjae/anaconda3/envs/pallet-yolo26/bin/python'
+ ARMS = [('C50_RAW96_DUAL_SUPPORT_OWNER_AUX',False),('C51_RAW96_PLUS_FROZEN_SAM_DUAL_SUPPORT_OWNER_AUX',True)]
+ DOMAIN_ROWS = {'SYNTH_TRAIN4096':4096,'PUBLIC_TRAIN1480':1480,'CF3816':3816}

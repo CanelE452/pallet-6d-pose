@@ -1,0 +1,81 @@
+{
+  "schema": "V180_FROZEN_SAM1_SOURCE_RUN_PROTOCOL_v2_RUNTIME_ONLY_REPAIR",
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ROOT_SCOPE_BEFORE_SAM_CODE_WEIGHTS_OR_SOURCE_RGB.json",
+    "sha256": "44471032f7d1fed944cc1bee78c3634b4ec1f65edf212d091ea6b5f966264a08"
+  },
+  "runtime_repair_binding": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ROOT_RUNTIME_CUMSUM_REPAIR_BEFORE_NEW_MASK_OUTPUT.json",
+    "sha256": "5e147ff26ab9112a4e0d107a92d5a3833ca10a45f5e6fd11e34c901426e0db9a"
+  },
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/runner_preparation/run_frozen_sam_source.py",
+    "sha256": "b5d7f5591f83b231887270759de5059a27380ed58419acc3eef01ebdde0f8fa6"
+  },
+  "source_pin": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/runner_preparation/OFFICIAL_SOURCE_AND_IMPORT_PROBE.json",
+    "sha256": "0465710d49b1bb8531dc6f064b8fa5d8f961e1b9b73a701d063f6063407ed020"
+  },
+  "checks": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/runner_preparation/GENERATED_MEANINGFUL_CHECKS.json",
+    "sha256": "2472aa9b91dfde217fa2247086c50f629f1e5226ec3f4b9fc62c9274512be63c"
+  },
+  "default_manifest": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_source_target_definition_audit_20261024_v179/source_train_goal_alignment_a/SAM_SMOKE_INPUTS128_METADATA_ONLY.jsonl",
+    "sha256": "3c7a722faeda6e89b73a9e600ab3a56e83d6c3b927764904e428b862acdcda29"
+  },
+  "full_TRAIN_manifest": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ALL4096_TRAIN_INPUTS_METADATA_ONLY.jsonl",
+    "sha256": "86e016c7a528f0b631609c0088081e8033a715b35e971c4c28972cd683b44704"
+  },
+  "extension_scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ROOT_ALL_TRAIN_EXTENSION_BEFORE_ANY_SAM_SOURCE_RGB_OR_SCORES.json",
+    "sha256": "511741e29620f0044e2a1d745183d773de33d07dcc8dd8800176711283b5e0c1"
+  },
+  "default_expected_rows": 128,
+  "default_expected_scenes": 16,
+  "default_output_dir": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/frozen_sam_source_predictions_v2",
+  "model": "Official SAM1 vit_b only, build(checkpoint=None), torch.load(map_location=cpu,weights_only=True), load_state_dict(strict=True).",
+  "checkpoint": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/checkpoints/sam_vit_b_01ec64.pth",
+    "sha256": "ec2df62732614e57411cdcf32a23ffdf28910380d03139ee0f4fcbe91eb8c912",
+    "expected_bytes": 375042383,
+    "inherited_only_not_read_during_preparation": true
+  },
+  "runtime": {
+    "python": "3.10.20",
+    "torch": "2.1.1+cu118",
+    "torchvision": "0.16.1+cu118",
+    "numpy": "1.26.4",
+    "Pillow": "12.2.0"
+  },
+  "model_input_whitelist": [
+    "RGB decoded uint8[512,512,3] from original raw_RGB_PNG only",
+    "one box exact float64 minmax of original_initial_points8, no clipping/expansion; official predictor casts transformed box to float32"
+  ],
+  "prompt_no_GT_or_teacher_fields": true,
+  "API": {
+    "set_image": "image_format=RGB",
+    "predict": {
+      "point_coords": null,
+      "point_labels": null,
+      "box": "original q8 XYXY",
+      "mask_input": null,
+      "multimask_output": false,
+      "return_logits": true
+    }
+  },
+  "state": "FP32 CUDA eval,requires_gradFalse,inference_mode,TF32False,cudnn_benchmarkFalse,threads1; set_image strict deterministic True. predict-only scoped warn_only=True with finally restore strictTrue. Before any images exact CUDA/CPU ones64x64 cumsum dim0/1 byte parity required and saved. Firstscene repeat/fullstate/checkpoint hashes unchanged.",
+  "scene_order": "First appearance in immutable manifest, native rows sorted0..7 only;16 unique set_image+predict attempts then one independent first-scene repeat; no quality-based masks/selection or retries.",
+  "output_schema": {
+    "per_scene_NPZ": "SCENE_000004_OUTPUTS.npz: image_logits f32[512,512],lowres_logits f32[256,256],predicted_quality f32[1],mask_logits_gt0 bool[512,512],box_xyxy f64[4],original_query_xy f64[8,2],original_L f64[8],native_slot i8[8],original_global_index i64[8],original_occurrence_id str[8],original_query_available bool[8],prediction_available bool[8]",
+    "COMPLETE": "completed/PASS,scenes exact count,each scene outputs binding/null+prompt/runtime availability/reasons+original_input_metadata8;first_scene_repeat,state/input/checkpoint hashes",
+    "rows": "ALL128_INPUTS_AND_PREDICTION_STATUS.jsonl (generic ALL{N}): all original128 metadata+separate original/prompt/runtime/finalavailability; null q/L stay JSONnull,NPZ numericmeta NaN with original metadata preserved."
+  },
+  "U_failure_policy": "OriginalinputU first; any missing/nonfinite/degenerate q8 retains8promptU. Runtime/RGB verification failure retains all scene/row statuses, outputs null; no fakezero masks/no retry. Global failure retains all records and fails terminal.",
+  "overwrite_policy": "Entry-bound output path under V180 must not exist; mkdir(exist_ok=False).",
+  "generic_expansion": "Optional --manifest/--expected-rows/--expected-scenes/--output-dir must exactly match separately approved entry. SourceTRAIN only. Full4096 expansion only after root review, decided on runtime/integrity not SAM scores.",
+  "evaluation_separation": "No source GT/part/depth or labels model input; future saved-output evaluation has separate root entry after prediction seal. A class-agnostic proposal is not selected-instance/native E/S/corner proof. Nonmask does not mean external.",
+  "training_admission": false,
+  "actual_forward_completed_during_prepare": false
+}

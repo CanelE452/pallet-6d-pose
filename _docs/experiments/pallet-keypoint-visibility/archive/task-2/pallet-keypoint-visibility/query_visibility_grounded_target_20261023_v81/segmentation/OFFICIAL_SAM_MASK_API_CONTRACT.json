@@ -1,0 +1,49 @@
+{
+  "schema": "OFFICIAL_SAM21_SINGLE_MASK_API_ENCODING_V1",
+  "completed": true,
+  "predictor": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/sam2_repo/sam2/sam2_image_predictor.py",
+    "sha256": "f13e5f9d94e5c8d9d2c3622dab20c8f334c089ef2ee5ea8e199da7d332b029ba"
+  },
+  "official_repository": "https://github.com/facebookresearch/sam2",
+  "revision": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+  "multimask_output": false,
+  "return_logits": false,
+  "mask_threshold": 0.0,
+  "internal": {
+    "line": 435,
+    "expression": "masks = masks > self.mask_threshold",
+    "semantics": "Strict logit > already frozen SAM threshold; creates torch bool internally."
+  },
+  "public_predict": {
+    "line": 300,
+    "expression": "masks_np = masks.squeeze(0).float().detach().cpu().numpy()",
+    "semantics": "Official public method explicitly casts internally binary mask to float32 before NumPy return."
+  },
+  "required_input_to_conversion": {
+    "shape": "1,H,W",
+    "dtype": "float32",
+    "values": "finite and exactly 0 or 1; no tolerance"
+  },
+  "conversion": "Check exact binary F32 then astype(np.bool_); no new threshold, selection, rounding, repair, or logits interpretation.",
+  "saved_mask": {
+    "key": "visible_mask",
+    "shape": "H,W",
+    "dtype": "bool"
+  },
+  "RGBcopy": "Copy converted uint8 RGB into writable np.array; retain raw and decoded pixel SHA assertions.",
+  "preserved_failure": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/provenance/FAILED_BINARY_FLOAT_API_V1/PRESERVATION_SEAL.json",
+    "sha256": "21132fb3e406640236d743bbb6152076c165867bca7692bda9e9846b8decf0a8"
+  },
+  "scope": {
+    "new_source_RGB_reads": 0,
+    "new_weights_reads": 0,
+    "new_model_construction": 0,
+    "new_forward": 0,
+    "current223": 0,
+    "fit": 0,
+    "PnP": 0
+  },
+  "not_model_quality_evidence": true
+}

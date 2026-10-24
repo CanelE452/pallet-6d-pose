@@ -1,0 +1,152 @@
+{
+  "schema": "PROSPECTIVE_PUBLIC_YCB_RASTERIZED_VIRTUAL_REFERENCE_EXTERNAL_RAY_PROXY_V1_DRAFT",
+  "status": "DESIGN_ONLY_NOT_EXECUTED_NOT_TRAINING_ADMISSION",
+  "target_ko": "물리적 M0 surface가 있는지 요구하지 않고, 고정된 virtual AABB reference의 rasterized camera ray endpoint 앞에 관측된 다른 instance가 있는지의 조건부 external-ray proxy를 만든다. 사람의 영상 cue D/E/S나 visible corner truth가 아니다.",
+  "semantic_goal_not_replaced": true,
+  "source_scope": {
+    "all_existing_YCB_instances": 4200,
+    "unique_RGB_depth_frames": 1000,
+    "TRAIN_instances": 3400,
+    "VAL_instances": 800,
+    "split_rule": "Existing source scenes0..7 TRAIN and8..9 VAL. Preserve all instances/8slots including unknown. No current223 and no GT-best query/detection selection."
+  },
+  "GT_only_inputs": {
+    "instance_manifest": {
+      "file": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/instances.jsonl",
+      "fields": [
+        "scene_id",
+        "frame_id",
+        "instance_id",
+        "object_id",
+        "K",
+        "cam_R_m2c",
+        "cam_t_m2c",
+        "depth",
+        "depth_scale",
+        "mask_vis",
+        "height",
+        "width"
+      ]
+    },
+    "reference_geometry": {
+      "bounds_file": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/models_info_OFFICIAL.json",
+      "fields": [
+        "min_x",
+        "min_y",
+        "min_z",
+        "size_x",
+        "size_y",
+        "size_z"
+      ],
+      "units": "millimeters, matching cam_t_m2c; R is dimensionless",
+      "source_code": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/build_gt_corpus.py::ycb_geometry",
+      "formula": "X_fixed = min_xyz + (FIXED_ZUP_SIGNS+1)/2 * size_xyz; Xc = X_fixed @ R_m2c.T + t_m2c; r=(K@Xc)/(K@Xc)[2]; dynamic order uses existing frozen normal_facing_permutation; retain perm GT-only once, not twice.",
+      "existing_corpus_limitation": "GT_ONLY_TEACHER_CORPUS.npz stores native_GTref8,perm_dynamic_to_fixed8 and camera-Z-positive flags, not numeric cameraZ; numeric z is computable from existing bounds+pose, no PnP."
+    },
+    "depth": {
+      "template": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/data/train_real/SCENE/depth/FRAME.png",
+      "stored": "uint16 single-channel native480x640",
+      "conversion": "depth_Z_mm = raw_uint16 * scene_camera[frame].depth_scale; all1000 currently scale0.1",
+      "invalid": "raw depth0, missing file, wrong HW, nonfinite/nonpositive K or referenceZ => U; no target-mask-positive override"
+    },
+    "ownership": {
+      "templates": [
+        "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/data/train_real/SCENE/mask_visib/FRAME_GTID.png",
+        "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/data/train_real/SCENE/scene_gt.json"
+      ],
+      "join": "GTID is instance ordinal in scene_gt[frame], not object_id. All annotated instances of selected1000frames exist locally (4200). Read mask_visib>0 at identical pixel, include target and every other annotated instance.",
+      "representation": "Set of positive GTIDs; unique target=OWN, unique distinct GTID=OTHER_ANNOTATED, no GTID=UNASSIGNED, >1 GTID=OVERLAP. Neither missing annotation nor mask0 is evidence of external cause.",
+      "limits": "No exported complete first-hit owner image; M4-derived owner is weak pose/depth-raster evidence. Table/background/unannotated occluders remain unassigned. The current official bop19 policy may include missing-depth pixels; depth validity must be tested first."
+    }
+  },
+  "raster": {
+    "reference_not_query": "r_GT is fixed teacher anchor; never q, nearest visible surface or GT-snapped/recentered query",
+    "pixel": "p=floor(r+.5); require continuous0<=r_x<W,0<=r_y<H and rounded p inbounds, reference cameraZ>0. Invalid/outframe typed separately and U for ray evidence.",
+    "point_ray_approximation": "A fractional reference is rasterized once. Endpoint is the same-pixel camera ray at original referenceZ, not a claim of exact subpixel ray casting through the source renderer."
+  },
+  "range_contract": {
+    "camera_ray": "v=inv(K)@[p_x,p_y,1]; v=v/v_z; gamma=norm(v)",
+    "reference_endpoint_range_mm": "s_ref = z_ref_mm * gamma; retain original norm(Xc) and raster offset as diagnostics, not substitutes",
+    "observed_range_interval_mm": "depth quantization interval Zlo=max(0,(raw-.5)*depth_scale), Zhi=(raw+.5)*depth_scale; slo=Zlo*gamma, shi=Zhi*gamma",
+    "fixed_proposed_margin_range_mm": 15.0,
+    "fore_relation": "s_ref - shi > 15mm => FOREGROUND_BEFORE_ENDPOINT",
+    "behind_relation": "slo - s_ref > 15mm => CLEAR_TO_ENDPOINT_PROXY",
+    "near_relation": "Otherwise => RANGE_BAND_UNKNOWN",
+    "why_range_not_Z": "The same15mm is a distance tolerance. Equivalent Z tolerance varies as15/gamma; a constant15mm Z test is different. The former V74 one-instance Zgap15mm contract is not claimed equivalent.",
+    "provenance_limit": "15mm is one explicit prospective scale inspired by BOP standard tolerance, not tuned on current/source results and not a validated sensor-noise or pose-error bound. Even with range conversion this virtual-endpoint test is not official rendered-surface visibility. Root must separately freeze/approve a generation protocol; no sweep proposed here."
+  },
+  "primary_external_proxy": {
+    "positive_1": "Valid depth + FOREGROUND_BEFORE_ENDPOINT + unique OTHER_ANNOTATED owner + targetM4==0 => EXTERNAL_OTHER_FIRST_HIT_PROXY",
+    "negative_0": "Valid depth + CLEAR_TO_ENDPOINT_PROXY => CLEAR_TO_VIRTUAL_ENDPOINT_PROXY, even if M0(r)==0",
+    "unknown_minus1": [
+      "Invalid depth/reference/raster",
+      "RANGE_BAND_UNKNOWN",
+      "Foreground first owner OWN",
+      "Foreground owner UNASSIGNED or OVERLAP"
+    ],
+    "M0_admission": "M0 is not loaded into the label decision. Keep M0(r), M4(r), physical-surface diagnostics separate if later audited. No snapping r to M0.",
+    "self_separation": "OWN foreground is OWN_FIRST_HIT audit, not semantic S and not an external-negative veto. The existing convex-face self_proxy is exported independently. Single-layer depth cannot determine an external obstruction hidden behind a nearer own surface, so this stays U for external target."
+  },
+  "output_GT_only_schema": [
+    "id",
+    "source",
+    "split",
+    "frame",
+    "target_instance_GTID",
+    "dynamic_slot",
+    "reference_xy",
+    "reference_camera_xyz_mm",
+    "reference_z_mm",
+    "pixel_xy",
+    "depth_raw",
+    "depth_scale",
+    "observed_Z_mm",
+    "gamma",
+    "observed_range_interval_mm",
+    "reference_endpoint_range_mm",
+    "range_relation",
+    "owner_GTID_set",
+    "owner_type",
+    "external_proxy_label_1_0_minus1",
+    "external_unknown_reason",
+    "OWN_first_hit_flag",
+    "convex_self_proxy_separate",
+    "reference_valid_and_outframe_flags",
+    "raster_offset",
+    "M0_M4_diagnostics_separate_if_enabled"
+  ],
+  "legacy_comparison": "Existing v60 target is multi-ray aggregate external blockage>=.5, not this single rasterized reference ray. Original occlusion_fraction9 and any nine-probe audits must remain separately named; no silent cross-source label equality or old primary reinterpretation.",
+  "forward_boundary": {
+    "prospective_allowed": "Existing RGB/P3/local/target inputs with input-only q/L/box/full predicted q8, deployment logical native slot and context42 may be explicitly versioned. Current model contracts remain unchanged in this review.",
+    "forbidden": [
+      "GT reference_xy",
+      "reference depth",
+      "GT pose",
+      "GT camera-native permutation",
+      "GT instance/category label",
+      "scene depth",
+      "M0/M4",
+      "owner maps",
+      "proxy state",
+      "generated offset"
+    ],
+    "native_identity_caveat": "A public deployed slot index does not leak r/state, but public YCB camera-dynamic AABB slots are constructed weak references and are not pallet physical8 semantic gold. A native slot/full-query input needs its own versioned association contract and identifiability audit."
+  },
+  "unknowns_before_generation": [
+    "Actual RGB-depth registration/depth edges and pose calibration not independently checked for all frames.",
+    "Historical generation mode/delta of delivered M4 not fully established; invalid depth never becomes clear.",
+    "Meshes/target-only depth/complete first-hit owner buffers absent locally.",
+    "Virtual AABB corners need not lie on physical mesh/cue; LOS-clear is not visible cue D.",
+    "No all4200 source label computation or coverage count yet.",
+    "No claim of exact replay of synthetic historical nine-ray raycast or human D/E/S."
+  ],
+  "execution": {
+    "new_labels": 0,
+    "teacher_corpus_execution": 0,
+    "depth_pixel_decodes_in_this_review": 0,
+    "model_forward": 0,
+    "training": 0,
+    "current223": 0,
+    "PnP": 0
+  }
+}

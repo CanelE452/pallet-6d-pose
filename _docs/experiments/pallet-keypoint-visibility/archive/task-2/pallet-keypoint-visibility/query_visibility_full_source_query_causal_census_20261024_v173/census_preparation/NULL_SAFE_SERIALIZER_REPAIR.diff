@@ -1,0 +1,53 @@
+--- preserved_before.py
++++ final.py
+@@ -74,6 +74,17 @@
+         if points is None:result[name]=None
+         else:result[name]=sample_weights(classes,points,nclasses,iscrop)[0].mean(0)
+     return result
++def metadata_assembly(rows,nearest_joint):
++    """Lossless identity/flags plus explicit null encoding for fixed NPZ dtypes."""
++    assert len(rows)==len(nearest_joint)
++    data=dict(original_global_index=np.array([r['original_global_index'] for r in rows],np.int32),original_occurrence_id=np.array([r['original_occurrence_id'] for r in rows]),scene_index=np.array([r['scene_index'] for r in rows],np.int32),base_index=np.array([r['base_index'] for r in rows],np.int32),native_slot=np.array([r['native_slot'] for r in rows],np.int8),
++        query_xy=np.asarray([[np.nan,np.nan] if r['query_xy'] is None else r['query_xy'] for r in rows],np.float64),query_xy_missing=np.array([r['query_xy'] is None for r in rows],bool),
++        L=np.asarray([np.nan if r['L'] is None else r['L'] for r in rows],np.float64),L_missing=np.array([r['L'] is None for r in rows],bool),
++        split=np.array([r['split'] for r in rows]),variant=np.array([r['variant'] for r in rows]),original_semantic_state=np.array([r['original_semantic_state'] for r in rows]),declared_canonical_index=np.array([r['declared_canonical_index'] for r in rows],np.int8),nominal_reference_xy=np.asarray([r['nominal_reference_xy'] for r in rows],np.float64),correspondence_boundary=np.array([r['correspondence_boundary'] for r in rows],bool),
++        selected_index=np.array([-1 if r['selected_index'] is None else r['selected_index'] for r in rows],np.int32),selected_index_missing=np.array([r['selected_index'] is None for r in rows],bool),nearest_joint_class_index=nearest_joint.copy())
++    data.update({k:np.array([r['original_input_flags'][k] for r in rows],bool) for k in FLAGS});data.update({k:np.array([r['factors'][k] for r in rows]) for k in ('material','aspect','geometry_family','foreign_family','signed_quarter')})
++    assert data['query_xy'].shape==(len(rows),2)
++    return data
+ def invented(pinned):
+     def b(pid,dep=None,tri=None,amb=None):
+         pid=np.asarray([pid],np.int32);return dict(part_id=pid,camera_depth=np.asarray([dep if dep is not None else [2.]*pid.shape[1]],np.float64),global_triangle_id=np.asarray([tri if tri is not None else list(range(pid.shape[1]))],np.int32),ambiguity=np.asarray([amb if amb is not None else [False]*pid.shape[1]],bool))
+@@ -97,6 +108,13 @@
+     c['central4_original96_coordinates']=positions([64,64],96,47,49).tolist()==[[63.5,63.5],[64.5,63.5],[63.5,64.5],[64.5,64.5]]
+     c['central32_1024_original96_positions']=positions([64,64],96,32,64).shape==(1024,2)
+     bb=b([0]);ss=b([999],dep=[np.nan]);c['nonfinite_foreign_depth_inconsistent']=joint_map(bb,ss)[0][0,0]==5
++    toy=[]
++    for i in range(64):
++        missing=i<56;toy.append(dict(original_global_index=i,original_occurrence_id=f'INVENTED:{i}',scene_index=i//8,base_index=i//32,native_slot=i%8,query_xy=None if missing else [float(i),float(i+1)],L=None if missing else 20.,selected_index=None if missing else 0,split='TRAIN' if i<32 else 'VALIDATION',variant='BEFORE',original_semantic_state='U' if missing else 'D',declared_canonical_index=i%8,nominal_reference_xy=[1.,2.],correspondence_boundary=False,original_input_flags={k:not missing for k in FLAGS},factors=dict(material='PROCEDURAL_WOOD',aspect='SQUARE',geometry_family='BOARD_BLOCK_RUNNER',foreign_family='SAME_TARGET_MATERIAL',signed_quarter=0)))
++    original_json=json.dumps(toy,sort_keys=True);assembled=metadata_assembly(toy,np.full(64,-1,np.int8))
++    c['same_runtime_serializer_mixed56_null_q_L_selected_shapes_dtypes']=assembled['query_xy'].shape==(64,2) and assembled['query_xy'].dtype==np.float64 and assembled['selected_index'].dtype==np.int32
++    c['same_runtime_serializer_56_missing_explicit_flags_and_NaN_minus1']=all(int(assembled[k].sum())==56 for k in ('query_xy_missing','L_missing','selected_index_missing')) and np.isnan(assembled['query_xy'][:56]).all() and np.isnan(assembled['L'][:56]).all() and (assembled['selected_index'][:56]==-1).all()
++    c['same_runtime_serializer_present_values_U_denominator_and_JSONnull_immutable']=assembled['query_xy'][56].tolist()==[56.,57.] and assembled['L'][56]==20 and assembled['selected_index'][56]==0 and int((~assembled['query_available']).sum())==56 and len(assembled['original_global_index'])==64 and original_json==json.dumps(toy,sort_keys=True)
+     assert all(c.values());return dict(completed=True,PASS=True,invented_only=True,checks={k:bool(v) for k,v in c.items()},number_checks=len(c),source_mask_depth_or_RGB_body_header_hash_reads=0,code=bind(__file__))
+ def prepare():
+     scope=read(SCOPE);assert scope['no_model_scores_features_weights_forward_or_training'];pinned_b=scope['original_pure_measurement_code'];pinned=pure(checked(pinned_b),{'categories','bilinear_weights'},{'np':np,'CLASSES':OWNER})
+@@ -126,7 +144,7 @@
+         joint_aggregation='Classify pixel conjunction before float64 bilinear sampling. Never multiply marginal owner distributions. Keep all inconsistent weights/scene reason pixel counts.',
+         sampling='Pinned V172 categorical owner6; exact samefloat64 source-pixel footprint generalized tojoint7 with invented byte-parity. Original q point, originalq/L96 central4 indices47:49 andcentral32 indices32:64. No ref-centered crop.',
+         invalid='Missing/sentinelq ormissingL produces JSONnull/NPZNaN+explicit missing flag, neverfakezero/BG. Finite out-of-frame support mass INVALID. Original inputU never filters census rows or becomes newlabels.',
+-        sidecar='Two fixedsplit NPZ TRAIN4096/VALIDATION2048; allsoftfloat64 sceneowner6/BEFOREowner6/joint7 atpoint/c4/c32 + originalglobalID/q/L/native/flags/semantic; training_admission=false.',
++        sidecar='Two fixedsplit NPZ TRAIN4096/VALIDATION2048; allsoftfloat64 sceneowner6/BEFOREowner6/joint7 atpoint/c4/c32 + originalglobalID/q/L/native/flags/semantic; JSONnull unchanged; NPZ qNone->[NaN,NaN],LNone->NaN,selectedNone->-1 with query_xy_missing/L_missing/selected_index_missing explicit flags; training_admission=false.',
+         authority='Literal original raster and declared source registration only; not initializer physical native identity certification. CF/V4 correspondence_boundary is ordering disagreement, not pixelboundary. Original semantic D/E/S/U unchanged. No hardlabel threshold, best permutation, row replacement, training admission or model selection.',
+         binary_headers_bodies_or_hashes_read_during_preparation=0,score_feature_weight_or_forbidden_reads=0,automatic_retry=False)
+     write(PROTOCOL,protocol);write(H/'ROOT_ACTUAL_CENSUS_ENTRY_TEMPLATE_APPROVED_FALSE.json',dict(approved_full_source_census=False,source_only=True,code=protocol['code'],protocol=bind(PROTOCOL),scope=protocol['scope'],inventory=protocol['inventory'],scene_inventory=protocol['scene_inventory'],tests=protocol['tests'],pinned_sampling_code=pinned_b,new_model_fit_render_or_forbidden_access=False,automatic_retry=False))
+@@ -195,8 +213,7 @@
+         assert len(outputs)==6144 and sum(not r['original_input_flags']['query_available'] for r in outputs)==88
+         for a in soft.values():valid=np.isfinite(a).all(1);assert np.allclose(a[valid].sum(1),1,rtol=0,atol=2e-13)
+         allrows=OUT/'ALL6144_LITERAL_RASTER_SOURCE_DIAGNOSTICS.jsonl';write_lines(allrows,outputs);df=OUT/'ALL768_SCENE_INCONSISTENCY_DIAGNOSTICS.jsonl';write_lines(df,diagnostics)
+-        sidecars={};splits=np.array([r['split'] for r in rows]);metadata=dict(original_global_index=np.arange(6144,dtype=np.int32),original_occurrence_id=np.array([r['original_occurrence_id'] for r in rows]),scene_index=np.array([r['scene_index'] for r in rows],np.int32),base_index=np.array([r['base_index'] for r in rows],np.int32),native_slot=np.array([r['native_slot'] for r in rows],np.int8),query_xy=np.asarray([r['query_xy'] for r in rows],np.float64),L=np.asarray([np.nan if r['L'] is None else r['L'] for r in rows],np.float64),split=splits,variant=np.array([r['variant'] for r in rows]),original_semantic_state=np.array([r['original_semantic_state'] for r in rows]),declared_canonical_index=np.array([r['declared_canonical_index'] for r in rows],np.int8),nominal_reference_xy=np.asarray([r['nominal_reference_xy'] for r in rows],np.float64),correspondence_boundary=np.array([r['correspondence_boundary'] for r in rows],bool),selected_index=np.array([r['selected_index'] for r in rows],np.int32),nearest_joint_class_index=nearest_joint)
+-        metadata.update({k:np.array([r['original_input_flags'][k] for r in rows],bool) for k in FLAGS});metadata.update({k:np.array([r['factors'][k] for r in rows]) for k in ('material','aspect','geometry_family','foreign_family','signed_quarter')})
++        sidecars={};splits=np.array([r['split'] for r in rows]);metadata=metadata_assembly(rows,nearest_joint)
+         for split,N in [('TRAIN',4096),('VALIDATION',2048)]:
+             mask=splits==split;assert int(mask.sum())==N;data={k:a[mask].copy() for k,a in {**metadata,**soft}.items()};data.update(owner_class_order=np.array(OWNER),joint_class_order=np.array(JOINT),training_admission=np.array(False),initializer_physical_native_identity_certified=np.array(False))
+             path=OUT/f'{split}{N}_LITERAL_RASTER_SOFT_SIDECAR.npz';np.savez_compressed(path,**data)

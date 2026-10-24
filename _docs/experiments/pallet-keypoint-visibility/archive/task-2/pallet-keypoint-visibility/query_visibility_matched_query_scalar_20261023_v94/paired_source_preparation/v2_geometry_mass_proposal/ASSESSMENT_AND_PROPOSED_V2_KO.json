@@ -1,0 +1,48 @@
+{
+  "completed": true,
+  "stage": "PROSPECTIVE_CODE_AND_GENERATED_PROPOSAL_NOT_ACTUAL_SOURCE_ADOPTION",
+  "original_V1_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/PAIRED_SOURCE_PREPARATION_SEAL.json",
+    "sha256": "4017886781157743caf612db9bd57eab415e8ec38d7b904c01e4d5f3ed5b4843",
+    "bytes": 3209
+  },
+  "all_original_V1_sealed_files_exact_unchanged": true,
+  "issue1_KO": "확인됨. V1의 .40L cutout이 protected support+uncertainty보다 작으면 불필요한 afterU가 발생한다. 생성 fixture에서는 protected폭28px 대비 fixedcutout26px여서 불가였고, geometry-only scale로32x13 wholecutout을 쓰면 같은 q/L에서 cover/sham이 둘 다 가능했다. 실제 source의 발생률이나 성공률은 아직 모른다.",
+  "scale_proposal": {
+    "opaque_core": "Erode1 native visible mask 후 전체 cutout에서 allTrue 최대면적 축정렬 사각형을 한 번 선택; tie xyxy lex. 구멍을 메우지 않는다. 사각형은 opacity certificate 영역일 뿐, RGB를 rectangle로 대체하지 않는다.",
+    "protected_wh": "Support와uncertainty union raster bbox nativeW/H.",
+    "formula": "desired=(protectedW+4,protectedH+4); s=max(desiredW/coreW,desiredH/coreH,9/nativeWholeLongest). WholeRGB+alpha transform once; outputWH=ceil(nativeWH*s).",
+    "bounds": "s<=4, max(outputWH)<=.80*originalL. Bounds exceed=>afterbothU, no crop/q/L enlargement or new donor/scale attempt.",
+    "verification": "Resized hardalpha의 실제 opaque rectangle이 desiredW/H를 포함하는지 다시 검사하고 actual placement에서 모든 protected alpha1를 확인. Core centre로 cover9offset, unchangedq-relative sham25offset.",
+    "same_transform_both_classes": "Same selected one-minSHA donor, source crop, wholeRGB/mask resize dimensions/scale/shape/style. Only integer translation differs."
+  },
+  "issue2_KO": "V1은 이미 wholecutout bbox가 native frame 및 원 RGB96 sample-centre envelope 안에 완전히 들어가야 하므로 sham 대부분이 crop밖인 경우는 거부한다. 그러나 equalnativearea와 no-clipping만으로 RGB96에서의 편집 노출량이 같다고 할 수 없다. 동일한 1px shape를1nativepx 옮긴 생성 반례에서 두 shape 모두 crop안이고 area80으로 같지만, 실제96sampling phase의 bilinear alpha mass는0과40이었다.",
+  "mass_proposal": {
+    "native_frame": "Globalalpha cell count cover==sham>0; both unclipped.",
+    "native_in_original_crop": "Within original RGB96 sample-centre envelope, visible nativealpha cell count==globalalpha cell count for BOTH; no partially outside sham.",
+    "actual_RGB96_operator": "Same q+((j+.5)/96-.5)*L and bilinear/zero/RGBvalid rule, applied to alpha as float64 without uint8 quantization. This is GT-side footprint accounting, never a model input or soft semantic mask.",
+    "criterion": "Both96masses>0 AND abs(Mcover-Msham) <= 1e-9 + .01*(Mcover+Msham)/2. The1e-9 term is numeric only; there is no2-pixel allowance that could dominate tiny footprints.",
+    "finite_pair_rule": "First SHA-ranked feasible pair in fixed9cover x25sham candidates satisfying FULLcover/CLEARsham and mass. None=>bothafterU; no rescale/donor replacement/querymove/favorable row drop.",
+    "counts_required": "Record global/nativecrop/96masses, discrepancy, allowed tolerance, rejectedpair count/reason and all original rows. Geometry coverage and mass rejection are distinct."
+  },
+  "limits_KO": [
+    "Support-dependent scale과 placement는 GT-guided controlled augmentation이며 GT-free 생성이나 naturalforeign gold가 아니다.",
+    "Eroded source mask에 opaque rectangle이 있다는 사실은 실제 RGB의 불투명 재질/owner나 selectedtarget와 cue binding을 증명하지 않는다. 실제 donor/cue admission은 pending이다.",
+    "Mass를 맞춰도 색·경계·위치·P3 receptive field·context shortcut을 없앴다는 증명은 아니다. 같은 donor의 presence만으로 class가 갈리는 큰 불균형을 막는 대조 조건이다.",
+    "1% 기준이 만드는 추가 U도 숨기지 않는다. 실제 source 결과를 본 뒤 tolerance를 늦추거나 다른 donor/scale로 교체해 구제하지 않는다."
+  ],
+  "generated": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/v2_geometry_mass_proposal/GENERATED_GEOMETRY_MASS_TESTS.json",
+    "sha256": "c9b1fe8604cd7d2529c9b570ad983de22585f5d41d1c93c6ba3bb98b0ccb435a",
+    "bytes": 3200
+  },
+  "proposal_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/v2_geometry_mass_proposal/geometry_mass_v2.py",
+    "sha256": "61e61356ea16287c41dff09c739c05c07ea5941a9539a9e1af4b83c8f97530a4",
+    "bytes": 8512
+  },
+  "adoption_required_before_real_build": "Root must review/freeze/adopt V2 with future source entry; current V1 artifacts are preserved and no actual source generation has run.",
+  "actual_source_annotations_pixels_arrays_weights_current_reads": 0,
+  "actual_model_forward_fit_PnP": 0,
+  "native_semantic_gold_created": false
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "INDEPENDENT_EXACT_FROZEN_V82_PROTOCOL_REVIEW_V1",
+  "completed": true,
+  "PASS": true,
+  "blockers": [],
+  "frozen_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/EXPERIMENT_DECISIONS_BEFORE_INPUTS_AND_FORWARD.json",
+    "sha256": "ab89f3885627cdd319b93fb6ead6357950a10f7fa51d751798ddd7cabba5af28"
+  },
+  "preserved_prior_review": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/next_category_review/V82_PROVIDED_TARGET_CATEGORY_FEASIBILITY_CONTRACT.json",
+    "sha256": "1de9b4eeedad6b8ffd1394f13498e357f8453d09acb1ee7c325d5faa59b5c6fe"
+  },
+  "verdict": "Acceptable as an explicitly category-provided source development benchmark. Ready for the separately required input-only audit/code/generated/entry stages; this review does not execute or authorize forward.",
+  "checked": {
+    "original1035and8280cohort_preserved": true,
+    "originalq_L_box_nativeorder_unchanged_required": true,
+    "canonical21map_matches_V81ontology": true,
+    "GTmetadata_provided_class_disclosed_not_predicted": true,
+    "not_same_input_ablation_disclosed": true,
+    "category_is_not_instance_identity_disclosed": true,
+    "fixed_thresholds_association_SAMruntime_API_preserved": true,
+    "all_U_preserved_no_gt_mask_output_selection": true,
+    "full_active_F32_logits_and_token_metadata_saving_required": true,
+    "pretraining_overlap_and_repeatedVAL_limits_disclosed": true,
+    "pixel_reference_and_semantic_targets_kept_separate": true,
+    "no_automatic_current_admission": true
+  },
+  "implementation_clarifications": [
+    {
+      "scope": "Detector cache identity",
+      "note": "Interpret unique_forward_key concretely as original raw file SHA plus exact caption/token sequence (and asserted nativeHW). Decode verifies decoded uint8HWC SHA. The phrase decoded input RGB file SHA should not lead to dropping original file identity or accidentally reusing a result for another requested category."
+    },
+    {
+      "scope": "Exact saved score/text replay",
+      "note": "Persist active-token position indices, full tokenizer input_ids/attention_mask, full raw active FP32 logits for every original model query, raw normalized boxes, output-axis lengths, kept original query ordinals, postprocessed native boxes/scores/text labels, and processor/tokenizer/code bindings. Persist a per-forward padding -inf/NaN/+inf validation certificate. This allows score/text replay; do not silently save only kept-query logits, cast to FP16, omit special/active positions, or truncate for the estimated storage budget."
+    },
+    {
+      "scope": "Comparison interpretation",
+      "note": "A gain with the requested noun is evidence that supplied category conditioning helps this pipeline, not proof that all V81 errors were detector-caused. Correct target boxes may still lead box-only SAM to segment an occluder. Same-class ambiguity and target-instance association remain unproven."
+    }
+  ],
+  "no_protocol_edits_requested": true,
+  "input_creation_or_execution": false,
+  "scope": {
+    "docs_code_only": true,
+    "RGB_mask_weights_reads": 0,
+    "source_GT_instance_rows_reads": 0,
+    "saved_score_case_reads": 0,
+    "new_inputs": 0,
+    "new_forward": 0,
+    "fit": 0,
+    "current223": 0,
+    "PnP": 0,
+    "existing_artifacts_modified": 0
+  }
+}

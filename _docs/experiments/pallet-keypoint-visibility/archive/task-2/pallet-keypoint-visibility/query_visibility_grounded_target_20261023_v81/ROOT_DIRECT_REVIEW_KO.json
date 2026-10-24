@@ -1,0 +1,41 @@
+{
+  "schema": "V81_ROOT_DIRECT_REVIEW_KO_V1",
+  "completed": true,
+  "fully_solved": false,
+  "current_capture_provenance": {
+    "direct_user_answer": "직접 촬영했고 KU Leuven 자료와 무관합니다",
+    "interpretation": "현재 평가 223장의 촬영 원본은 사용자 직접 촬영이며 KU Leuven Pallox DOI 10.48804/DJLDFS와 원본을 공유하지 않는다는 사용자 확인입니다.",
+    "scope": "원본 계열 독립성에 대한 확인이며 모든 공개 자료의 사전학습 이력이나 일반화 성능을 보증하는 뜻은 아닙니다.",
+    "current223_role": "평가 전용. V81 학습·문턱·후보 선택·추론에 사용하지 않음."
+  },
+  "direct_Pro_thread_review": {
+    "title_verbatim": "실험 감사와 실패 원인 진단",
+    "thread_id": "6ad599a5-f7c4-83ee-8f28-a9146700ff0a",
+    "url": "https://chatgpt.com/c/6ad599a5-f7c4-83ee-8f28-a9146700ff0a",
+    "tool": "mcp__codex_app__read_thread",
+    "requested_scope": "최근 10개 turn, 항목당 14000자. 긴 최소설계 답변 및 도구 출력 일부는 잘렸으므로 전체 과거 원문을 완독했다고 주장하지 않음.",
+    "observed_relevant_answer_id": "cea1b746-b2b8-5f2d-a746-3c1dfa3529d3",
+    "interpretation_KO": "목표는 해당 코너·부분선을 확인하는 영상 단서와 외부 물체의 차단 여부입니다. 초기 기하는 crop 안내이며 정답은 아닙니다. 크기 정규화는 정보 복원이 아니며, 가상 직육면체 안의 팔레트 구멍을 외부 가림으로 바꾸면 안 됩니다.",
+    "prior_thread_instructions": "이전 대화의 실행 금지·합성 전용 조건은 그 요청의 역사적 문맥입니다. 현재 사용자가 허용한 공개 실사·합성 연구와 현재223 평가 전용·PnP 금지 계약을 따릅니다. 원 Pro 문서나 역사적 HANDOFF는 수정하지 않음."
+  },
+  "root_visual_review": {
+    "files_viewed": [
+      "fixed_natural_gallery/CONTACT_SHEET.png",
+      "fixed_natural_gallery/FIRST_PAGE.png"
+    ],
+    "all_four_fixed_cases_inspected": true,
+    "case_2_observation": "원 target은 뒤 흰 cleanser이고 앞 노란 mustard bottle이 검출·분할되었습니다. q-r=1.166px인데 예측 mask가 q를 포함합니다. 의도한 target M4 IoU는 약 0.027입니다. 이 사례는 대상 연결 실패의 실제 증거입니다.",
+    "case_3_observation": "참치캔에 대응하는 box IoU가 사전 0.1 미만이라 U입니다. 보이는 target인데 no-mask이며, all-zero mask로 바꾸지 않았습니다.",
+    "cases_1_4_observation": "예측 phrase가 정확한 source class 명칭과 달라도 의도한 target mask와 IoU 약 0.771/0.821로 맞았습니다. phrase 이름의 불일치만으로 잘못된 대상이라고 확정하지 않습니다.",
+    "limit": "고정 4사례는 진단 그림입니다. 오류 원인의 빈도 추정이나 전체 mask GT의 무오류 보증이 아닙니다."
+  },
+  "interpretation_KO": [
+    "정의 차이가 실제로 있습니다. YCB reference-primary 2018점 중 GT q-M4 bit과 reference label이 다른 점은 669개입니다. 완벽한 q-pixel mask도 reference 목표의 대체물이 아닙니다.",
+    "정의 차이만으로 설명되지는 않습니다. 두 중심 상태가 같은 strict535에서 실제 SAM 결과는 C15/76, V259/459, U122/535입니다.",
+    "V81은 고정 foundation 경로의 source pilot 실패 결과로 보존합니다. 현재223을 다시 평가하거나 V81을 채택하지 않습니다.",
+    "다음 원인 진단은 저장된 마스크의 대상 소유권을 전체 source에서 비교합니다. GT-best 후보 선택이나 결과 수정에는 사용하지 않습니다.",
+    "가상 reference에 대한 공개 depth 외부-ray 감독이 가능한지 별도로 확인합니다. 가능하더라도 사람 D/E/S나 코너 영상 단서 정답과 동일하다고 부르지 않습니다."
+  ],
+  "root_review_new_model_forward_fit_current_PnP": 0,
+  "phase_execution_scope": "V81 전체는 실제 source 추론을 수행했습니다: detector436회, 성공 SAM mask predict823회/embedding345회, 별도 보존된 실패 predict1회/embedding1회. 이번 root 판독·저장 결과 재계산의 추가 추론만 0입니다."
+}

@@ -1,0 +1,83 @@
+{
+  "schema": "V94_INDEPENDENT_CURRENT_CODE_GENERATED_REVIEW_V1",
+  "completed": true,
+  "PASS": true,
+  "blockers": [],
+  "time_UTC": "2026-10-23T01:33:08.858975+00:00",
+  "범위": "최종 코드·프로토콜 초안·생성 fixture 검토. 실제 current 결과/입력 유효성에 대한 saved-output 검증은 아직 수행하지 않았습니다.",
+  "code": {
+    "infer_same_query_once.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/infer_same_query_once.py",
+      "sha256": "53fe3d7031aa9a610638465d12d8c17c0778ba0ed289a6a03e4f3540c0d372bd",
+      "bytes": 8587
+    },
+    "evaluate_saved_only.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/evaluate_saved_only.py",
+      "sha256": "0045abb266c4e3341aa2bf4b02f387f24ec5f04b5c19b74b200000e5e55113b5",
+      "bytes": 13693
+    },
+    "current_common.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/current_common.py",
+      "sha256": "8655a598978a2f840901d2d7083957d794e6bccfb7210db6c758441046e05ed9",
+      "bytes": 6353
+    },
+    "test_generated_current.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/test_generated_current.py",
+      "sha256": "11d7bc16ced81790d5761bd88c4bb5765b1f1e868c40bbfb65bd5937b2143ed7",
+      "bytes": 9899
+    }
+  },
+  "protocol_draft": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/PROTOCOL_DRAFT_BEFORE_CURRENT_ARTIFACTS.json",
+    "sha256": "1104c165c045a0cd7d675baa041615613737354c920a8d02e671716bffaf0b58",
+    "bytes": 5931
+  },
+  "producer_preparation_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/PREPARATION_SEAL.json",
+    "sha256": "07aefca886094b552f1a1e2715df472f07a38a68f62274adcd08f250767fe47e",
+    "bytes": 3328
+  },
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/independent_current_evaluation_preparation_review/SCOPE_BEFORE_GENERATED_RERUN.json",
+    "sha256": "ab5fb6c8700a2e903ec42451af84f492d02870db67e798044726d5d6e8e25f2d",
+    "bytes": 3290
+  },
+  "generated_rerun": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/independent_current_evaluation_preparation_review/GENERATED_RERUN.json",
+    "sha256": "5cc257323ef671961cf7155eb110bfc0131a25744e1170d69285c565d44aac12",
+    "bytes": 2753
+  },
+  "확인사항": [
+    "Final runtime guard는 source 학습/VAL과 같은 Torch2.1.1+cu118이며 legacy 환경 생성 검사와 in-memory weights_only load가 통과했습니다.",
+    "Pinned V91 입력 reader로 223×8 원 q/L/slot/order 및 기존 P3 dtype을 보존하며, forward kwargs는 p3_roi/local_rgb96/local_valid96 세 개입니다. GT reference/region/mosaic/native-ID/source-ID는 forward 입력이 아닙니다.",
+    "Raw z<0는 D, z>=0는 auxiliary hidden E입니다. FP32 sigmoid(-z)는 표시용이며 반올림된 .5가 raw 부호를 바꾸지 않습니다.",
+    "valid=prior_valid AND operator_available. 기존45U와 additional_operator_U를 분리하고, invalid/U 판정이 old geometry 적용보다 우선합니다.",
+    "RAW와 PLUS_OLD_GEOMETRY를 별도로 집계합니다. Human S subset의 binary-hidden 반응은 learned self 또는 외부/자기 가림 원인 구분으로 해석하지 않습니다.",
+    "동일 saved query/slot/image/q/L 조인을 검사하고 pinned V72 평가 core의 paired_same_query_RGB/same_slot_pipeline, WOOD105/SQUARE118, D/E·D/S·D/ES 분모를 사용합니다. 기존 v61/legacy/V91 count replay가 보존됩니다.",
+    "Generated 1784행에서 q 변경 거부, original45U+extraU1, manual-near D153/223, SQUARE S support0, geometry/U 우선순위와 source-gate 거부7건을 확인했습니다.",
+    "Root entry/선택된 source freeze/3개 gate/독립 source audit 검증 후 infer에서만 current input SHA/body를 읽습니다. EVAL body는 완료된 inference seal 검증 뒤에 읽도록 분리되어 있습니다."
+  ],
+  "generated_evidence": {
+    "invented_slots": 1784,
+    "stub_calls_not_learned_model_calls": 56,
+    "source_gate_and_entry_rejections": 7,
+    "historical_metric_count_rows": 40,
+    "manualnear_D_denominators": [
+      153,
+      223
+    ],
+    "runtime": "2.1.1+cu118"
+  },
+  "한계": [
+    "Root actual artifact packet 및 최종 actual protocol은 아직 검토/실행하지 않았습니다. 이 리뷰는 draft를 actual 실행 승인으로 바꾸지 않습니다.",
+    "실제1784행 입력·저장 출력·GT·성능은 읽지 않았으므로 실제 source/current replay PASS로 확대하지 않습니다.",
+    "Conditional auxiliary cue D/hiddenE 전이는 native expected-part 대응 UNKNOWN이며 인간 D/E/S gold 또는 학습된 confidence-U를 뜻하지 않습니다."
+  ],
+  "actual_current_artifact_hash_or_body_reads": 0,
+  "actual_current_GT_RGB_cache_array_reads": 0,
+  "checkpoint_parameter_loads": 0,
+  "actual_model_or_backbone_forward": 0,
+  "optimizer_updates": 0,
+  "PnP": 0,
+  "original_files_modified": false
+}

@@ -1,0 +1,87 @@
+{
+  "schema": "V94_QUERY_CENTER_SINGLE_SCALAR_OPERATOR_PREPARATION_DRAFT_V1",
+  "completed": true,
+  "stage": "CODE_AND_GENERATED_ONLY_NO_DATA_OR_FIT_ADMISSION",
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/SCOPE_BEFORE_MATCHED_QUERY_CONTRACT.json",
+    "sha256": "f8e942477a25b284d60a42ddbc4b2884511f7791c88bc81d05bcf15e5484af10",
+    "bytes": 3352
+  },
+  "model_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/query_center_scalar.py",
+    "sha256": "d62e1610ca45f24e3cbf90e66dff3a7d954f87713afea4f5ae7bdc404411b0cb",
+    "bytes": 6681
+  },
+  "generated_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/test_generated_query_operator.py",
+    "sha256": "cee4b8cbafbd250ae98d619d76ca6dce7476a6a487ade0492aad752e1f6648a0",
+    "bytes": 7897
+  },
+  "generated_proof": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/GENERATED_OPERATOR_TESTS.json",
+    "sha256": "4b18ebd2defe070cc07511dbf919f38d53049047426131c39a66cabd02b6b896",
+    "bytes": 1775
+  },
+  "V91_reference_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/local_cue_evidence_map.py",
+    "sha256": "5bfcdc8fc752eb2b758edf349a42ee3779ea6442506d0de3331d0cb1841883a3",
+    "bytes": 5040
+  },
+  "parameter_count": 26573,
+  "preserved_encoder_and_fusion_constructor_AST": {
+    "p3_encoder": true,
+    "local_encoder": true,
+    "fusion": true
+  },
+  "forward_inputs": {
+    "p3_roi": "N65x9x9 floating original cached P3 including factual native support channel64. Preserve original dtype until model cast; no new quantization.",
+    "local_rgb96": "N3x96x96 uint8 unmarked original-q-centred source RGB crop, unchanged q/L and old bilinear recipe.",
+    "local_valid96": "N1x96x96 factual binary RGB canvas support; not semantic visibility."
+  },
+  "forbidden_forward_inputs": [
+    "GT r/reference/uncertainty/mask/region/label",
+    "semantic native8 or cueID/slot token",
+    "source ID/instance ID/pose/depth",
+    "mosaic/GT-selected output coordinate",
+    "corrected query/crop/L"
+  ],
+  "output": {
+    "query_logit": "Exactly one finite scalar per original input q/crop. Positive class meaning NOT YET ADMITTED; source label contract must freeze it.",
+    "query_available": "GT-free factual tensor support only. P3 native centre[4,4] and all four RGB96 cells bracketing nominal q (47:49,47:49) valid, plus some pool support. Not semantic U/confidence.",
+    "attention_diagnostic_only": "N9x9. Never used as GT-region readout, localizer target, alternate output or label/coordinate selector."
+  },
+  "same_operator_everywhere": "Training loss, sourceVAL and prospective deployment read output[query_logit] directly. No GT-region lookup, argmax site, mosaic or chosen tile changes the scalar. Identical runtime/batch shape are required for exact FP32 repeat claims.",
+  "attention": "Centre fused feature -> learned query8, each spatial fused feature -> key8, dot/sqrt8, factual-cell masked softmax. Relative offsets are fixed input-grid offsets to original q, not GT coordinates. Weighted sum24 + centre24 + supportfraction1 -> MLP49/16/1.",
+  "pool_support": "P3 native support & adaptive-averaged RGB support>0. Invalid pixel values are zeroed before encoders, pool excludes factual invalid cells. Empty support attention=0.",
+  "loss_draft_only": "BCEWithLogits directly on same scalar; known label 0/1 & query_available only, unweighted admitted mean, empty graphzero. Unknown labels and known unavailable rows never become negative examples. All rows must remain in downstream reports; source gate denominator/abstention penalty/selector/sampler/budget are NOT established by this draft.",
+  "decode_draft": "Sign: logit>=0 -> binary1, logit<0 -> binary0; unavailable -> -1 U. Rounded sigmoid is display-only. This draft assigns no D/E/S name to binary classes.",
+  "prior_factual_flags": "A future data protocol must preserve original q/L/order/producer-valid/MISS/absent-candidate flags separately and use the same GT-free output availability gate at train/VAL/deployment. This model cannot infer q continuous-valid metadata not present in its three tensors.",
+  "initialization": "Generated random encoders/fusion/query/key/MLP; final scalar linear is zero. No checkpoint read/load/transfer executed. Any future V91/V88 transfer must be separately frozen and checked.",
+  "runtime_generated": {
+    "torch": "2.5.1+cu121",
+    "device": "CPU",
+    "threads": 1,
+    "seed": 20261023
+  },
+  "FP32_batch_shape_note": {
+    "same_batch_train_VAL_deploy_exact": true,
+    "different_N16_vs_two_N8_max_abs_generated_drift": 1.4901161193847656e-08,
+    "not_claimed_exact_across_rebatching": true,
+    "preserved_failure": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/provenance/GENERATED_REBATCH_EXACTNESS_V1/FAILURE_AND_SCOPE.json",
+      "sha256": "742aa4d21accea53ee38082c269ad8f75731338cd39af136d3dfa267d24fbb44",
+      "bytes": 633
+    }
+  },
+  "pending_before_source_or_fit": [
+    "Actual initializer q/L availability and expected target/cue operational binding.",
+    "Known D/E/U source evidence admission and same-query cover/sham controls.",
+    "Source family/capture/cue/donor group split and development exposure.",
+    "Fixed scale distribution, sampler, initialization, runtime/batch handling, loss normalization, budget, source selector and mandatory gates.",
+    "Input/source/code/protocol/independent-review entrylock before actual data or checkpoint parameter loads."
+  ],
+  "no_actual_source_arrays_pixels_checkpoint_parameters_or_current_reads": true,
+  "actual_model_forward_fit_current_PnP": 0,
+  "query_semantic_gold_created": false,
+  "source_or_current_inference_authorized": false
+}

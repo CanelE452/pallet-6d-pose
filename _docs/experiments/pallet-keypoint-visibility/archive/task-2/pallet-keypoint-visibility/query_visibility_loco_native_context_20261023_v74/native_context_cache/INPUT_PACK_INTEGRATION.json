@@ -1,0 +1,39 @@
+{
+  "completed": true,
+  "pack_root": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/native_context_cache/SYNTH5120_INPUT_PACK",
+  "frame_axis": 5120,
+  "query_axis_per_frame": 8,
+  "flatten_query_order": "frame_index*8+native_index",
+  "frame_inputs": [
+    "target_rgb128 F3x128x128 uint8",
+    "target_valid128 F1x128x128 bool",
+    "initial8_norm F8x2 float32",
+    "initial8_norm_valid F8 bool",
+    "query_box_xyxy F4 float64",
+    "L F float64"
+  ],
+  "query_inputs": [
+    "p3_roi F8x65x9x9 float16",
+    "rgb96 F8x3x96x96 uint8",
+    "crop_valid96 F8x1x96x96 bool",
+    "native_index F8 int8",
+    "context42 F8x42 float32",
+    "query8_xy_safe F8x2 float32",
+    "query_valid F8 bool"
+  ],
+  "raw_query_audit": "query8_xy is original inverse-affine raw native q, can be NaN for missing detection. Never forward NaN blindly; use safe coordinates+validity or fixed context42/normalized set.",
+  "lineage": "INDEX_LINEAGE_INPUT_ONLY.jsonl frame_index/cache_row/id/source/partition are loader/sampler metadata, not model ID features. GT is a future separate sameID join.",
+  "loader_recipe": "Read PACK_MANIFEST chunks in start/end order. Concatenate requested fields along frame axis. Querybatch target_inverse=floor(flatqueryindex/8); encode unique frame targetRGB once, keep native_index=flatqueryindex%8. No GT-based query selection.",
+  "source_partition_counts": {
+    "G38|train": 1366,
+    "G38|heldout": 342,
+    "P0|train": 1365,
+    "P0|heldout": 341,
+    "TEX|train": 1365,
+    "TEX|heldout": 341
+  },
+  "NPZ_disk_bytes": 1018729800,
+  "uncompressed_bytes": 2285537280,
+  "missing_detection_U_policy": "Keep rows and mask unknown labels separately; no deletion or automaticE/O label.",
+  "model_teacher_training_or_current_inference_performed": false
+}

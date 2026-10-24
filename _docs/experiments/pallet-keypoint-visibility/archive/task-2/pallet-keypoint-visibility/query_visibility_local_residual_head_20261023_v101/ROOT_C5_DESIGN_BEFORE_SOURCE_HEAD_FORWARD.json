@@ -1,0 +1,174 @@
+{
+  "candidate": "C5_C1_FROZEN_CENTRAL_RGB_RESIDUAL",
+  "status": "DESIGN_FIXED_BEFORE_SOURCE_HEAD_FORWARD_OR_FIT",
+  "source_only": true,
+  "current_allowed": false,
+  "PnP_allowed": false,
+  "base_operator": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/query_center_scalar.py",
+    "sha256": "d62e1610ca45f24e3cbf90e66dff3a7d954f87713afea4f5ae7bdc404411b0cb"
+  },
+  "base_checkpoint": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/runs/C1_NATURAL_KNOWNSET_SOURCE_V1/BEST_QUERY_CENTER_SCALAR.pt",
+    "sha256": "1a21d8bda252c203a3f54f891e452a6d4bedac6489f495c86b0d382de2c0fd79"
+  },
+  "base_freeze": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/runs/C1_NATURAL_KNOWNSET_SOURCE_V1/MODEL_FREEZE.json",
+    "sha256": "e276f2230902ef29120c6a0c88d5c106fc089666eebcfe636cd05634f5cd7064"
+  },
+  "old_source_pack_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_query_anchored_cue_20261023_v96/actual_source_pair_input_pack/INPUT_PACK_SEAL.json",
+    "sha256": "eb1607140fb1466a5aaad4ce839e4b9471c5514abd49288c7572a916123773f6"
+  },
+  "new_fullRGB_corpus_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/render_preparation/FINAL_PREPARATION_AND_CORPUS_SEAL.json",
+    "sha256": "618aba1893ade4086d99a7458b462b41110fbe71a353c67bd61de80e573ef52f"
+  },
+  "operator": {
+    "forward_inputs_only": [
+      "p3_roi",
+      "rgb96",
+      "crop_valid96"
+    ],
+    "prediction": "one same-q scalar z=base_logit+delta_logit and factual availability; raw0 sign threshold",
+    "base": "exact C1 base frozen, eval, no_grad; no changes to original26573 parameters or buffers",
+    "new_branch": "copy loaded C1 local encoder as trainable; central32 crop of RGB96 and factual valid channel; phase-correct16-vector + support fraction -> Linear17to16 GELU Linear16to1",
+    "nominal_query_phase": {
+      "RGB96_index": 47.5,
+      "slice": "[32:64,32:64]",
+      "crop32_index": 15.5,
+      "stride8_feature_index": 1.9375,
+      "grid_sample_align_corners": true,
+      "grid_sample_xy": 0.2916666666666667
+    },
+    "initialization": "copy loaded local encoder; initialize new readout normally; zero final residual linear only; combined update0 exact C1 parity",
+    "parameter_counts": {
+      "base_frozen": 26573,
+      "new_trainable": 3221,
+      "total": 29794
+    },
+    "coordinate_prediction_or_update": false,
+    "GT_region_or_mask_or_ID_forward": false,
+    "base_logit_and_delta_logit": "loss and diagnostic components of same scalar only, no separate inference decision"
+  },
+  "sources": {
+    "V96": "all31680 old real source occurrence rows retained;960 fixed original query references; known D/E only",
+    "V99": "all2304 new synthetic composite occurrences retained; source-emulated fixed q, not detector initializer output; native8 UNKNOWN; geometric physical-cue AUX proxies only",
+    "labels": {
+      "D": 0,
+      "E": 1,
+      "S": 1,
+      "U": -1
+    },
+    "unknown": "No loss; retained in every output and count; missing/unlocated/competition never hidden negatives",
+    "new_counts": {
+      "TRAIN": {
+        "D": 751,
+        "E": 71,
+        "S": 204,
+        "U": 510
+      },
+      "VALIDATION": {
+        "D": 209,
+        "E": 34,
+        "S": 192,
+        "U": 333
+      }
+    },
+    "new_selected_pairs": {
+      "TRAIN": 64,
+      "VALIDATION": 32
+    },
+    "row_deduplication": false,
+    "tensor_reference_deduplication_only": true
+  },
+  "settings": {
+    "seed": 205,
+    "updates": 2000,
+    "batch": 64,
+    "AdamW_lr": 0.001,
+    "AdamW_weight_decay": 0.0001,
+    "clip_norm": 5.0,
+    "optimizer_parameters": "new residual branch only",
+    "train_draw": {
+      "old_accepted_triplets_with_replacement": 4,
+      "new_selected_triplets_with_replacement": 4,
+      "old_LOCO_BEFORE_D": 4,
+      "old_PALLOX_BEFORE_D": 4,
+      "old_natural_BEFORE_E": 8,
+      "new_ALL_S": 8,
+      "new_ALL_D": 8,
+      "new_ALL_E": 8,
+      "total_rows": 64,
+      "shuffle": "fixed CPU torch generator"
+    },
+    "loss": {
+      "binary_BCE": "known and available final scalar rows only",
+      "correct_base_delta_L2_weight": 0.05,
+      "correct_base_definition": "known available TRAIN row, frozen base raw0 prediction equals label; per-sampled-row mean delta squared",
+      "matched_cover_sham_hinge_weight": 0.25,
+      "hinge_margin": 2.0,
+      "hinge": "mean relu(2-(z_cover-z_sham)) for eight sampled triplets with both available; no GT enters forward"
+    },
+    "selector": "earliest strict minimum equal mean BCE of nine nonempty VAL cohorts; update0 eligible; every100 updates",
+    "VAL_cohorts": [
+      "old_LOCO_BEFORE_D",
+      "old_PALLOX_BEFORE_D",
+      "old_SHAM_D",
+      "old_BEFORE_E",
+      "old_COVER_E",
+      "new_BEFORE_D",
+      "new_SHAM_D",
+      "new_COVER_E",
+      "new_ALL_S"
+    ],
+    "unavailable_VAL": "safe zero logit BCE ln2 included; decoded U",
+    "threshold_raw_logit": 0.0,
+    "online_augmentation": false,
+    "restart_after_optimizer_update": false
+  },
+  "source_gates": {
+    "old_LOCO_before_D_recall_min": 0.85,
+    "old_PALLOX_before_D_recall_min": 0.85,
+    "old_natural_before_E_recall_min": 0.75,
+    "old_sham_D_recall_min": 0.85,
+    "old_cover_E_recall_min": 0.75,
+    "old_accepted_VAL_pair_all3_min": 0.75,
+    "old_known_VAL_U_rate_max": 0.05,
+    "new_BEFORE_D_recall_min": 0.85,
+    "new_SHAM_D_recall_min": 0.85,
+    "new_COVER_E_recall_min": 0.75,
+    "new_ALL_S_hidden_recall_min": 0.75,
+    "new_selected_VAL_pair_all3_min": 0.75,
+    "new_known_VAL_U_rate_max": 0.05,
+    "empty_required_cohort": "No fit; preserve actual metadata; no fallback or omitted cohort"
+  },
+  "reporting": {
+    "E_S": "same binary classifier, separated evaluation strata; no learned-cause classification claim",
+    "axes": [
+      "TRAIN/VALIDATION",
+      "BEFORE/COVER/SHAM",
+      "proceduralwood/mattepolymer",
+      "rectangular/square",
+      "camera azimuth/elevation"
+    ],
+    "required": [
+      "all occurrence IDs/q/L/folds",
+      "base frozen state hash",
+      "update0 C1 parity both packs",
+      "loss and exact sampled IDs every update",
+      "every selector checkpoint criterion",
+      "all occurrence selected source scores",
+      "source confusion/precision/recall/U",
+      "pair correctness",
+      "base-correct prediction preservation and drift"
+    ]
+  },
+  "current_policy": "Only if all frozen source gates pass, freeze selected checkpoint and exact one-run current inference entry; no tuning with current223 or saved current performance",
+  "limitations": [
+    "V99 is simplified RGBA composite with visible appearance gap, not real transfer proof",
+    "source annotations are conditional AUX, not native human keypoint gold",
+    "real E VAL old source cohort only2; report denominator",
+    "source repeated development exposure must be disclosed"
+  ]
+}

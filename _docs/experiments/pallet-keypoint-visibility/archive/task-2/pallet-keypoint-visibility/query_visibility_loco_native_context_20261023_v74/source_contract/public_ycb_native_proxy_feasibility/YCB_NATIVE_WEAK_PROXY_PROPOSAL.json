@@ -1,0 +1,57 @@
+{
+  "schema": "PUBLIC_YCB_NATIVE_VIRTUAL_REFERENCE_DEPTH_PROXY_FEASIBILITY_V1",
+  "status": "BOUNDED_SINGLE_SOURCE_INSTANCE_PROPOSAL_NOT_TRAINING_ADMISSION",
+  "source_selection": "ExistingTRAINinstances lexicographic(scene_id,frame_id,instance_id)first=scene0/frame1/instance0/obj8; no model score or occlusion selection",
+  "maximum_instances": 1,
+  "native_reference": {
+    "bbox": "BOPmodels_info min_xyz/size_xyz modelAABB, millimeters",
+    "fixed8": "samewriter-fixed Zup convention asV74, then dynamic permutation",
+    "front": "maximum outwardnormal dot(camera_model-cuboid_center) among4modelZparallelverticalsides",
+    "rear": "depth-edge correspondence tofrontslots, not independentimageXsort",
+    "top": "modelZmax, naturallyupright convention; not gravity measured in every scene",
+    "pose": "cam_R_m2c/cam_t_m2c mapmodeltoOpenCVcamera; noSyntheticcenteredYupconversion",
+    "camera_model": "solve(R,-t)",
+    "projection": "rGT=K(RX+t),dividebycameraZ",
+    "centroid8": "optionalprojectedmodelAABBcenter, not usedasnativeclassificationtarget"
+  },
+  "depth_external_proxy": {
+    "depth_mm": "uint16depthPNG*perframe depth_scale (0.1here)",
+    "scene_depth": "cameraZ, compare with positive referencecameraZ at samepixel; noEuclideanrange substitution",
+    "samples": "center+8ringdirections radius6nativeRGBpixels; backprojectedconstant-Zreferenceplane approximation",
+    "rounding": "floor(sampledprojectedpixel+.5); requirecontinuous+nearestbounds",
+    "external_true": "validscenedepth and targetvisiblemask==0 and scene_depth_mm<referencecameraZ_mm",
+    "target_visible_veto": "targetmask==1 -> externalfalse onvaliddepth, evenwhenownsurfacecloserthanvirtualpoint",
+    "non_target_owner": "otherinstancemask or environment/unassigned bothallowed; report separately",
+    "unknown": "OOB,nonpositive/invaliddepth,nonpositive/nonfiniteGTreferenceZ,orinvalidK/pose ->U; nozero-depthasclear",
+    "noise_margin_mm": 0.0,
+    "noise_margin_status": "Literalcloser-threshold only forboundedfeasibility; notcalibrated/trainingselected; preserve rawdepthgaps and expose noise/GTalignment limitation",
+    "aggregation": "blocked,clear,unknown counts separately; diagnosticblocked/(blocked+clear), plusconservativeinterval[B/9,(B+U)/9]. Threshold.5priorproxyknownEonlyiflower>=.5;knownunblockedonlyifupper<.5;elseU. Unknownraysnotdroppedforprimarycertainty."
+  },
+  "convex_self_proxy": "AnyadjacentmodelAABBface camera-facing, computedindependently. Notactualmeshsurfacevisibility. Primaryweakteacherprecedence Uinvalidref, thenSconvexselfhidden, thenEdepthblockcertainty, thenDunblockedcertainty, elseU.",
+  "labels_not_claimed": [
+    "semanticnativeD/E/Sgold",
+    "querypixelpresence",
+    "exactSYNTHraycastlabelreproduction",
+    "physicalmeshpointcoincidence"
+  ],
+  "source_query_producer": "ThisboundedtaskcomputesGTreferencesonly. FutureGTjitterproducerisEMULATED_SOURCE_INITIALIZER andmustnotbecalledactualdeployedYOLOq. r/GTpose/perm/depth/masksforbiddenmodelinputs.",
+  "no_surface_gate": true,
+  "local_alignment_checks": [
+    "projectedvirtualAABBpositivecameraZ",
+    "full/visiblemaskpixelbboxinsideprojectedAABB(min/max)diagnostic",
+    "validtargetmaskdepthrange versuscuboidcameraZrange descriptive"
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/thodan/bop_toolkit/blob/master/docs/bop_datasets_format.md",
+      "supports": "models_infoAABB,modelZup,OpenCVcamera,mmunits,depth_scale,sceneGTinstanceformat"
+    },
+    {
+      "url": "https://bop.felk.cvut.cz/datasets/",
+      "supports": "BOPYCBmodelsrecenteredandmmposes"
+    }
+  ],
+  "new_full_archive_download": false,
+  "new_dataset_generation": false,
+  "model_forward_fit_current_PnP": 0
+}

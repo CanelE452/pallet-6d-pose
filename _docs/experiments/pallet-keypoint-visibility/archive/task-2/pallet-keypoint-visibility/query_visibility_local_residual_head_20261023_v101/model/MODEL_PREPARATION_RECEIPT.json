@@ -1,0 +1,77 @@
+{
+  "completed": true,
+  "PASS_preparation": true,
+  "scope": "Code and generated tensors/checkpoint only; no actual source/current inputs or checkpoint parameter load",
+  "root_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/ROOT_C5_DESIGN_BEFORE_SOURCE_HEAD_FORWARD.json",
+    "sha256": "d7625dcce1b2862695d9665e6fb5fbe329b47d137834fea816b4aa4111f4f81d"
+  },
+  "model_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/model/local_rgb_residual.py",
+    "sha256": "836f7309d8aa2e4db28fe3b7197c2befc3c8643dd986bc1571a07d17906701f4"
+  },
+  "generated_CPU": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/model/GENERATED_MODEL_TESTS.json",
+    "sha256": "405a403f61156d8614486a0a37c86c28f5ad451662a11a65fe9ba910b67bdea9"
+  },
+  "generated_CUDA": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/model/GENERATED_CUDA_MODEL_TESTS.json",
+    "sha256": "c1b6e0750ba56fb10ecdf3479b52f89259fd0cd7eb28bd2341b766bc56c1c6eb"
+  },
+  "proof_code_hashes_revalidated_after_interruption": true,
+  "successful_model_tests_rerun_on_resume": false,
+  "base_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/query_center_scalar.py",
+    "sha256": "d62e1610ca45f24e3cbf90e66dff3a7d954f87713afea4f5ae7bdc404411b0cb"
+  },
+  "default_C1_checkpoint": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/runs/C1_NATURAL_KNOWNSET_SOURCE_V1/BEST_QUERY_CENTER_SCALAR.pt",
+    "sha256": "1a21d8bda252c203a3f54f891e452a6d4bedac6489f495c86b0d382de2c0fd79"
+  },
+  "default_C1_freeze": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/runs/C1_NATURAL_KNOWNSET_SOURCE_V1/MODEL_FREEZE.json",
+    "sha256": "e276f2230902ef29120c6a0c88d5c106fc089666eebcfe636cd05634f5cd7064"
+  },
+  "parameter_counts": {
+    "base_frozen": 26573,
+    "new_trainable": 3221,
+    "total": 29794
+  },
+  "forward_fields": [
+    "p3_roi",
+    "local_rgb96",
+    "local_valid96"
+  ],
+  "prediction": "query_logit=base_logit+delta_logit, query_available; rawsign0 only; no coordinate prediction",
+  "loss_diagnostic_only_fields": [
+    "base_logit",
+    "delta_logit"
+  ],
+  "base": "Strict C1 state load before copy; requires_gradFalse, eval even during outer train(), forward under no_grad; value digest includes buffers",
+  "residual": {
+    "copy": "Loaded C1 Conv4to8to12to16 encoder; requires_gradTrue restored after deepcopy",
+    "crop": "RGB96/valid96[:, :,32:64,32:64]",
+    "query_input_index": 15.5,
+    "feature_index": 1.9375,
+    "grid_align_corners": true,
+    "grid_xy": 0.2916666666666667,
+    "support_fraction": "Mean factual validity over central32 square",
+    "readout": "16feat+1support -> Linear17to16,GELU,Linear16to1; only finalLinear zero-initialized"
+  },
+  "availability": "Exact unchanged C1 native9 centre and four47:49 RGB96 support cells plus factual pool support; unavailable base/delta/combined safezero with explicit U",
+  "factory": "load_frozen_c1(checkpoint_path=immutableC1, expected_sha256=1a21d8...,map_location=cpu) returns(model,receipt); strict weights_only load/state_dict and source hash",
+  "base_state_digest_note": "Generated before/after hash belongs to invented nonzero C1-format state, not a claim that actual source weights were loaded in preparation",
+  "generated_evidence": [
+    "Nonzero base+zero residual exact parity and frozen eval/no_grad",
+    "Correct q phase vs feature ramp, exact CPU and CUDA",
+    "Nonzero residual invariant to changes outside central32 and masked RGB",
+    "One invented optimizer update changes only new final head; next backward reaches copied encoder",
+    "Invalid/U safezero and loss gradient exclusion",
+    "Strict three-input contract rejects GT/ID/coordinate kwargs",
+    "Torch2.1.1cu118 strict deterministic CUDA grid_sample backward passes"
+  ],
+  "source_native_mapping": "UNKNOWN; label meaning external to model",
+  "actual_source_checkpoint_parameter_reads": 0,
+  "actual_source_RGB_features_forward_fit_private_current_PnP": 0,
+  "no_original_V94_V100_changes": true
+}

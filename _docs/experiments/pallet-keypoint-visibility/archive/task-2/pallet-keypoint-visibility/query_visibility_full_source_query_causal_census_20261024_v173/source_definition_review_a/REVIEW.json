@@ -1,0 +1,80 @@
+{
+  "schema": "V173_PROSPECTIVE_CAUSAL_DEFINITION_REVIEW_A_v1",
+  "completed": true,
+  "PASS_definition_feasibility": true,
+  "UTC": "2026-10-24T03:37:09.139381+00:00",
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_full_source_query_causal_census_20261024_v173/ROOT_SCOPE_BEFORE_FULL_SOURCE_MASK_BODIES.json",
+    "sha256": "daa274779f5aafbdcaf260b41d80016df538052a1d94dd2d927edd307fd45c80"
+  },
+  "V172_sampling_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/measurement_preparation/measure_saved_source_semantics.py",
+    "sha256": "8e673bb930e9fa49017c85c4355141e0c0846526d49c0297a82db59309418e42"
+  },
+  "source_definition_authority": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/source_definition_review_a/REVIEW.json",
+    "sha256": "adc4cec204d4d5dfb0f3eab1ce2488249777539b6ac37fd9b7d9b2742024d5e5"
+  },
+  "review_scope": "Existing source definition and sampler code plus V173 prospective scope only. No new source pixel/NPZ/header/body hashes, scores, model, features, private/current/V169/V112 reads. No new data execution or tests.",
+  "buffer_compatibility": "Saved SCENE and matching same-base BEFORE target-only all-parts buffers provide part_id, global_triangle_id, camera_depth, ambiguity/tie_count at the same512 integer-pixel lattice. BEFORE is resolved target scene, not selected-part-alone hidden surface. Incident membership is per declared CF native association; causal target membership includes all target IDs, independent of that association.",
+  "pixelwise_partition_proposal": [
+    {
+      "priority": 1,
+      "class": "INVALID_SUPPORT",
+      "condition": "Outside original source pixel lattice; frozen saved96 sample outside its valid domain becomes all INVALID. Missing q/L remains explicit missing/UNKNOWN with null measurement, never a fabricated coordinate; any optional all-INVALID encoding must retain that missing status separately."
+    },
+    {
+      "priority": 2,
+      "class": "AMBIGUOUS_EITHER",
+      "condition": "In-lattice and ambiguity true in BEFORE or SCENE. Owner stored under a depth tie must not override this priority."
+    },
+    {
+      "priority": 3,
+      "class": "VISIBLE_TARGET",
+      "condition": "Both owners are target IDs (nonnegative except999), same part_id and same global_triangle_id, and both finite positive camera_depth values are exactly equal. This is unchanged visible source first-surface evidence, not original native D."
+    },
+    {
+      "priority": 4,
+      "class": "EXTERNAL_OVER_BEFORE_TARGET",
+      "condition": "BEFORE unambiguous target with finite positive depth; SCENE unambiguous foreign999 with finite positive depth strictly less than BEFORE depth. The strict-depth implication can be a checked invariant or routed to INCONSISTENT on violation, without a new epsilon."
+    },
+    {
+      "priority": 5,
+      "class": "FOREIGN_WITHOUT_BEFORE_TARGET",
+      "condition": "BEFORE unambiguous background owner<0; SCENE unambiguous foreign999 with finite positive depth. BEFORE999 or other malformed owner is not background."
+    },
+    {
+      "priority": 6,
+      "class": "BACKGROUND_BOTH",
+      "condition": "Both unambiguous owners are background<0, with original background missing-depth representation retained."
+    },
+    {
+      "priority": 7,
+      "class": "INCONSISTENT_CHANGE",
+      "condition": "Every remaining valid, unambiguous pair: changed target part/triangle/depth; target disappears into background; target appears over background; foreign in BEFORE; nonfinite or nonpositive foreground depth; foreign not nearer than before target. Retain reason counts; do not silently force visible/external/BG."
+    }
+  ],
+  "mathematical_assessment": "The priority masks are disjoint and exhaustive over source pixels. INVALID is additionally assigned to out-of-lattice bilinear support. For finite valid q, classify each of four source pixels jointly from BEFORE+SCENE first, then sum float64 onehot weights. Independent BEFORE/SCENE marginal probabilities cannot be multiplied to obtain causal joint mass. Source-depth invariants are consistency diagnostics, not fitted thresholds or row-admission filters.",
+  "sampling_preservation": [
+    "nearest floor(q+.5), exact original q/L saved96 positions; central4 indices47:49 and central32 indices32:64",
+    "Zero-weight neighbours explicit if needed; no interpolation of categorical IDs; INVALID footprint mass retained rather than renormalizing valid support",
+    "No reference-centred crop or new coordinates, no best CF/V4 permutation; original6144 row/scene/base/split/native/availability and semantic D/E/S/U remain separate and complete",
+    "Missing q or L remains a row with missing status and original inputU; do not count unknown-null measurements as observed BG or omit their denominator silently"
+  ],
+  "meaningful_invented_checks_required": [
+    "A fixture covering all7 causal classes, including INVALID; exactly one class per supported source pixel and total measured mass1.",
+    "Either BEFORE or SCENE ambiguity overrides visible/external/BG; BEFORE999 goes inconsistent.",
+    "VISIBLE requires target same part+triangle+finite positive exact depth; vary each operand independently to demonstrate inconsistent handling.",
+    "External target-to-foreign, background-to-foreign distinct; non-nearer foreign/nonfinite foreground depth yields preserved inconsistent reason.",
+    "BEFORE identical to SCENE yields only VISIBLE/BACKGROUND/AMBIGUOUS/INVALID, never new external.",
+    "Two four-pixel fixtures with equal BEFORE/SCENE marginals but different joint external mass prove direct conjunction rather than product-of-marginals.",
+    "Known half/quarter bilinear masses, integer zero-weight neighbours, partial outside support, frozen domain invalid and nearest floor+.5 boundaries.",
+    "Exact4/1024 saved96 grid locations, missing q/L preserved, all6144 identities and original inputU/semantic labels retained without source-body reads."
+  ],
+  "static_code_followup_pending": true,
+  "blocking_definition_issue": false,
+  "notes": "B acknowledged these conditions; final code/protocol must explicitly freeze the foreground-depth invariant treatment and missing/null convention before actual body entry. This receipt adds no training gate and certifies no physical native identity.",
+  "new_labels_or_training_admission": false,
+  "selected_model": null,
+  "fully_solved": false
+}

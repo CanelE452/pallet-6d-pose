@@ -1,0 +1,638 @@
+{
+  "completed": true,
+  "UTC": "2026-10-23T06:13:56.366016+00:00",
+  "candidate": "C8_FROZEN_IMAGENET_RGB_TWO_SCALE",
+  "main_outcome_KO": "합성 외부 cover 제어는 크게 개선됐으나 공개 RGB 기반 controlled cover 일반화는 부족하다. 12개 사전 gate 중9개만 통과해 불채택하며 새 current223 추론은 없다.",
+  "architecture": {
+    "frozen_encoder": "ResNet18 ImageNet1K_V1",
+    "scales": "unchanged RGB96 and its central32; each resized224",
+    "trainable_head_parameters": 65793,
+    "P3_or_C1_score_input": false,
+    "new_coordinates_predicted": false
+  },
+  "selected_update": 300,
+  "optimizer_updates": 2000,
+  "selected_criterion_eight_VAL_BCE": 0.27339961005459135,
+  "source_gates": {
+    "old_LOCO_before_D_recall_min": {
+      "value": 1.0,
+      "limit": 0.85,
+      "PASS": true
+    },
+    "old_PALLOX_before_D_recall_min": {
+      "value": 1.0,
+      "limit": 0.85,
+      "PASS": true
+    },
+    "old_natural_before_E_recall_min": {
+      "value": 0.5,
+      "limit": 0.75,
+      "PASS": false
+    },
+    "old_sham_D_recall_min": {
+      "value": 0.907563025210084,
+      "limit": 0.85,
+      "PASS": true
+    },
+    "old_cover_E_recall_min": {
+      "value": 0.47058823529411764,
+      "limit": 0.75,
+      "PASS": false
+    },
+    "new_BEFORE_D_recall_min": {
+      "value": 0.9878048780487805,
+      "limit": 0.85,
+      "PASS": true
+    },
+    "new_SHAM_D_recall_min": {
+      "value": 0.974025974025974,
+      "limit": 0.85,
+      "PASS": true
+    },
+    "new_COVER_E_recall_min": {
+      "value": 1.0,
+      "limit": 0.75,
+      "PASS": true
+    },
+    "old_accepted_VAL_pair_all3_min": {
+      "value": 0.3865546218487395,
+      "limit": 0.75,
+      "PASS": false
+    },
+    "new_selected_VAL_pair_all3_min": {
+      "value": 0.9375,
+      "limit": 0.75,
+      "PASS": true
+    },
+    "old_known_VAL_U_rate_max": {
+      "value": 0.0,
+      "limit": 0.05,
+      "PASS": true
+    },
+    "new_known_VAL_U_rate_max": {
+      "value": 0.0,
+      "limit": 0.05,
+      "PASS": true
+    }
+  },
+  "admitted": false,
+  "passed_gates": 9,
+  "failed_gates": 3,
+  "main_source_comparison": [
+    {
+      "model": "v61",
+      "display": "v61",
+      "old_public_D_E": {
+        "matrix": [
+          [
+            25,
+            127,
+            0
+          ],
+          [
+            11,
+            110,
+            0
+          ]
+        ],
+        "D_recall": 0.16447368421052633,
+        "E_recall": 0.9090909090909091,
+        "D_precision": 0.6944444444444444,
+        "E_precision": 0.4641350210970464,
+        "known_U_rate": 0.0
+      },
+      "old_cover_E": {
+        "N": 119,
+        "correct": 108
+      },
+      "old_sham_D": {
+        "N": 119,
+        "correct": 18
+      },
+      "old_triple": {
+        "N": 119,
+        "correct": 8,
+        "rate": 0.06722689075630252
+      },
+      "new_synthetic_D_E": {
+        "matrix": [
+          [
+            37,
+            172,
+            0
+          ],
+          [
+            5,
+            29,
+            0
+          ]
+        ],
+        "D_recall": 0.17703349282296652,
+        "E_recall": 0.8529411764705882,
+        "D_precision": 0.8809523809523809,
+        "E_precision": 0.14427860696517414,
+        "known_U_rate": 0.0
+      },
+      "new_triple": {
+        "N": 32,
+        "correct": 7,
+        "rate": 0.21875
+      }
+    },
+    {
+      "model": "C1_frozen_reference",
+      "display": "C1 저장 기준",
+      "old_public_D_E": {
+        "matrix": [
+          [
+            147,
+            5,
+            0
+          ],
+          [
+            117,
+            4,
+            0
+          ]
+        ],
+        "D_recall": 0.9671052631578947,
+        "E_recall": 0.03305785123966942,
+        "D_precision": 0.5568181818181818,
+        "E_precision": 0.4444444444444444,
+        "known_U_rate": 0.0
+      },
+      "old_cover_E": {
+        "N": 119,
+        "correct": 2
+      },
+      "old_sham_D": {
+        "N": 119,
+        "correct": 115
+      },
+      "old_triple": {
+        "N": 119,
+        "correct": 2,
+        "rate": 0.01680672268907563
+      },
+      "new_synthetic_D_E": {
+        "matrix": [
+          [
+            189,
+            20,
+            0
+          ],
+          [
+            32,
+            2,
+            0
+          ]
+        ],
+        "D_recall": 0.9043062200956937,
+        "E_recall": 0.058823529411764705,
+        "D_precision": 0.8552036199095022,
+        "E_precision": 0.09090909090909091,
+        "known_U_rate": 0.0
+      },
+      "new_triple": {
+        "N": 32,
+        "correct": 2,
+        "rate": 0.0625
+      }
+    },
+    {
+      "model": "C6_RAW",
+      "display": "C6 raw 잔차",
+      "old_public_D_E": {
+        "matrix": [
+          [
+            148,
+            4,
+            0
+          ],
+          [
+            111,
+            10,
+            0
+          ]
+        ],
+        "D_recall": 0.9736842105263158,
+        "E_recall": 0.08264462809917356,
+        "D_precision": 0.5714285714285714,
+        "E_precision": 0.7142857142857143,
+        "known_U_rate": 0.0
+      },
+      "old_cover_E": {
+        "N": 119,
+        "correct": 8
+      },
+      "old_sham_D": {
+        "N": 119,
+        "correct": 115
+      },
+      "old_triple": {
+        "N": 119,
+        "correct": 7,
+        "rate": 0.058823529411764705
+      },
+      "new_synthetic_D_E": {
+        "matrix": [
+          [
+            171,
+            38,
+            0
+          ],
+          [
+            1,
+            33,
+            0
+          ]
+        ],
+        "D_recall": 0.8181818181818182,
+        "E_recall": 0.9705882352941176,
+        "D_precision": 0.9941860465116279,
+        "E_precision": 0.4647887323943662,
+        "known_U_rate": 0.0
+      },
+      "new_triple": {
+        "N": 32,
+        "correct": 26,
+        "rate": 0.8125
+      }
+    },
+    {
+      "model": "C7_CLIP2",
+      "display": "C7 clip2 잔차",
+      "old_public_D_E": {
+        "matrix": [
+          [
+            147,
+            5,
+            0
+          ],
+          [
+            55,
+            66,
+            0
+          ]
+        ],
+        "D_recall": 0.9671052631578947,
+        "E_recall": 0.5454545454545454,
+        "D_precision": 0.7277227722772277,
+        "E_precision": 0.9295774647887324,
+        "known_U_rate": 0.0
+      },
+      "old_cover_E": {
+        "N": 119,
+        "correct": 64
+      },
+      "old_sham_D": {
+        "N": 119,
+        "correct": 115
+      },
+      "old_triple": {
+        "N": 119,
+        "correct": 63,
+        "rate": 0.5294117647058824
+      },
+      "new_synthetic_D_E": {
+        "matrix": [
+          [
+            133,
+            76,
+            0
+          ],
+          [
+            0,
+            34,
+            0
+          ]
+        ],
+        "D_recall": 0.6363636363636364,
+        "E_recall": 1.0,
+        "D_precision": 1.0,
+        "E_precision": 0.3090909090909091,
+        "known_U_rate": 0.0
+      },
+      "new_triple": {
+        "N": 32,
+        "correct": 19,
+        "rate": 0.59375
+      }
+    },
+    {
+      "model": "C8_RGB",
+      "display": "C8 frozen RGB",
+      "old_public_D_E": {
+        "matrix": [
+          [
+            141,
+            11,
+            0
+          ],
+          [
+            64,
+            57,
+            0
+          ]
+        ],
+        "D_recall": 0.9276315789473685,
+        "E_recall": 0.47107438016528924,
+        "D_precision": 0.6878048780487804,
+        "E_precision": 0.8382352941176471,
+        "known_U_rate": 0.0
+      },
+      "old_cover_E": {
+        "N": 119,
+        "correct": 56
+      },
+      "old_sham_D": {
+        "N": 119,
+        "correct": 108
+      },
+      "old_triple": {
+        "N": 119,
+        "correct": 46,
+        "rate": 0.3865546218487395
+      },
+      "new_synthetic_D_E": {
+        "matrix": [
+          [
+            205,
+            4,
+            0
+          ],
+          [
+            0,
+            34,
+            0
+          ]
+        ],
+        "D_recall": 0.9808612440191388,
+        "E_recall": 1.0,
+        "D_precision": 1.0,
+        "E_precision": 0.8947368421052632,
+        "known_U_rate": 0.0
+      },
+      "new_triple": {
+        "N": 32,
+        "correct": 30,
+        "rate": 0.9375
+      }
+    }
+  ],
+  "C8_old_PUBLIC_TRAIN_triples": {
+    "N": 75,
+    "correct": 67,
+    "rate": 0.8933333333333333
+  },
+  "C8_old_PUBLIC_VAL_triples": {
+    "N": 119,
+    "correct": 46,
+    "rate": 0.3865546218487395
+  },
+  "C8_new_SYNTH_VAL_triples": {
+    "N": 32,
+    "correct": 30,
+    "rate": 0.9375
+  },
+  "C8_VAL_eight_cohorts": {
+    "old_LOCO_BEFORE_D": {
+      "N": 3,
+      "correct": 3
+    },
+    "old_PALLOX_BEFORE_D": {
+      "N": 30,
+      "correct": 30
+    },
+    "old_SHAM_D": {
+      "N": 119,
+      "correct": 108
+    },
+    "old_BEFORE_E": {
+      "N": 2,
+      "correct": 1
+    },
+    "old_COVER_E": {
+      "N": 119,
+      "correct": 56
+    },
+    "new_BEFORE_D": {
+      "N": 82,
+      "correct": 81
+    },
+    "new_SHAM_D": {
+      "N": 77,
+      "correct": 75
+    },
+    "new_COVER_E": {
+      "N": 32,
+      "correct": 32
+    }
+  },
+  "denominator_and_semantic_boundary": {
+    "all_occurrences": 33984,
+    "D": 1215,
+    "E": 303,
+    "S_excluded": 396,
+    "GT_U": 32070,
+    "factual_input_U_allrows": 4686,
+    "known_VAL_U_rate_old": 0.0,
+    "known_VAL_U_rate_new": 0.0,
+    "labels": "Conditional physical-cue AUX; native identity UNKNOWN; not human gold or current metrics. Geometric S outside learned D/E, not recoded to E or teacher U.",
+    "old_controls": "Public RGB with GT-guided real-donor opaque-cover/sham edits;119 VAL ranks cluster18 base queries9images. Not119 natural occlusion events. Natural BEFORE_E VAL only2.",
+    "new_controls": "Simplified synthetic expected-cue RGB composites. Camera/aspect/material tests are source controls, not real deployment evidence.",
+    "development": "Repeated source VAL development; not a blind test.",
+    "new_V104_pilot_rows_used_in_C8": 0
+  },
+  "audit_scope": "Saved source metadata/GT/decoding/selector/sampler/metrics reconciliation PASS; does not certify visual label truth, feature internals or independent generalization.",
+  "fixed_source_figures": {
+    "completed": true,
+    "case_selection": "First canonical pair satisfying each named diagnostic condition from the already-frozen C8 saved outputs; not training/checkpoint/threshold selection",
+    "cases": [
+      {
+        "name": "PUBLIC TRAIN first all3 correct",
+        "indices": [
+          5808,
+          5813,
+          5814
+        ],
+        "split": "TRAIN",
+        "source": "PALLOX",
+        "q": [
+          201.630859375,
+          323.4834899902344
+        ],
+        "L": 62.37342834472656,
+        "labels": [
+          "D",
+          "E",
+          "D"
+        ],
+        "predictions": [
+          "D",
+          "E",
+          "D"
+        ],
+        "logits": [
+          -4.910569667816162,
+          2.3480899333953857,
+          -2.618291139602661
+        ]
+      },
+      {
+        "name": "PUBLIC VAL first cover miss",
+        "indices": [
+          23265,
+          23280,
+          23281
+        ],
+        "split": "VALIDATION",
+        "source": "PALLOX",
+        "q": [
+          439.9801025390625,
+          405.5439758300781
+        ],
+        "L": 58.13026428222656,
+        "labels": [
+          "D",
+          "E",
+          "D"
+        ],
+        "predictions": [
+          "D",
+          "D",
+          "D"
+        ],
+        "logits": [
+          -3.976877450942993,
+          -2.128628730773926,
+          -1.336351990699768
+        ]
+      },
+      {
+        "name": "PUBLIC VAL first all3 correct",
+        "indices": [
+          23529,
+          23558,
+          23559
+        ],
+        "split": "VALIDATION",
+        "source": "PALLOX",
+        "q": [
+          439.16094970703125,
+          404.2171630859375
+        ],
+        "L": 64.44868469238281,
+        "labels": [
+          "D",
+          "E",
+          "D"
+        ],
+        "predictions": [
+          "D",
+          "E",
+          "D"
+        ],
+        "logits": [
+          -4.461166858673096,
+          0.46038490533828735,
+          -3.9047000408172607
+        ]
+      },
+      {
+        "name": "SYNTH VAL first all3 correct",
+        "indices": [
+          32070,
+          32078,
+          32086
+        ],
+        "split": "VALIDATION",
+        "source": "SYNTH_EXPECTED_CUE",
+        "q": [
+          460.83609297706147,
+          371.9826018837933
+        ],
+        "L": 90.94375365109634,
+        "labels": [
+          "D",
+          "E",
+          "D"
+        ],
+        "predictions": [
+          "D",
+          "E",
+          "D"
+        ],
+        "logits": [
+          -0.4679914712905884,
+          5.838113784790039,
+          -1.4548804759979248
+        ]
+      }
+    ],
+    "public_or_synthetic_only": true,
+    "new_forward_fit_private_current_PnP": 0,
+    "images": [
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/saved_failure_views/SOURCE_CONTROLS_CENTRAL32.png",
+        "sha256": "3e96e848006a92fe23a4f38f2970e3768ad61787cd9cddcb037a49ccf39496e4"
+      },
+      {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/saved_failure_views/SOURCE_CONTROLS_RGB96.png",
+        "sha256": "0e23464153c17be1092b620e890a161d260da869f6a28114858ef12442df2f36"
+      }
+    ]
+  },
+  "interpretation_limits_KO": [
+    "중앙 crop에 donor가 크게 보여도 공개 VAL 첫 cover 실패에서 D였다. 한 그림으로 실패 원인이나 특정 encoder의 한계를 단정하지 않는다.",
+    "C8은 합성 D 보존과 triple 성능을 개선했지만 공개 controlled triple은 C7보다 낮다. 단일 수치로 전체 우월을 주장하지 않는다.",
+    "실제 초기 query의 target/cue 대응은 별도 문제다. V104에서 multi-pallet box, floor·사람·트럭 위 q가 관찰됐고 자동 E/위치 오답 gold를 만들지 않았다."
+  ],
+  "next_KO": "더 다양한 자연 실제 RGB에서 고정 초기 q/L의 target↔물리 cue·좌표 불확실성·외부 blocker 근거를 독립적으로 정리하고, target-context 표현을 검토한다. 임의 threshold/LR 재추첨이나 현재자료 선택으로 해결하지 않는다.",
+  "new_current_inference": 0,
+  "report_model_or_feature_forward": 0,
+  "report_fit_or_PnP": 0,
+  "current_training_threshold_checkpoint_selection": 0,
+  "proofs": {
+    "design": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/ROOT_C8_DESIGN_BEFORE_FEATURE_FORWARD.json",
+      "sha256": "2ee8c6db885399a9148ab8dc3c7186b7769d722b60d5d381f982b6521599bc7e",
+      "bytes": 4351
+    },
+    "fit_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/runs/C8_FROZEN_IMAGENET_RGB_TWO_SCALE/FIT_COMPLETE.json",
+      "sha256": "b618b681b6275e1ed1f2f6a94fda873d8acdcf5e7de0129e3b0456ab82a313fb",
+      "bytes": 1434
+    },
+    "source_results": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/runs/C8_FROZEN_IMAGENET_RGB_TWO_SCALE/SOURCE_RESULTS.json",
+      "sha256": "dd4e1c09bf4c32593c2a77bc25eb8ad8a8f33890d91fc5f3b175807629e43eff",
+      "bytes": 36690
+    },
+    "source_gate_results": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/runs/C8_FROZEN_IMAGENET_RGB_TWO_SCALE/SOURCE_GATE_RESULTS.json",
+      "sha256": "e808e3c09dca973161820feeff6c0d098acf68a61d1772ddedaefb632a206c15",
+      "bytes": 1480
+    },
+    "source_admission": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/ROOT_SOURCE_ADMISSION.json",
+      "sha256": "34aa32df09b6b02ebefe05dac39db70811a12eb181fd6ba3fd02df6b76af6c12",
+      "bytes": 1823
+    },
+    "saved_source_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/saved_source_review/REVIEW.json",
+      "sha256": "84b9cce5d5a92fff6be9b4a384e4cddd39305847610e845e81ea2e8cf3d914b1",
+      "bytes": 26386
+    },
+    "saved_case_selection": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/saved_failure_views/CASES.json",
+      "sha256": "b62f587d33f796b9a128069ea29728254b4b11c015ab01e7792d2bc69b50ba4e",
+      "bytes": 3024
+    }
+  },
+  "V104_query_ambiguity_readout": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_queries_20261023_v104/visual_query_review/ACTUAL_VISUAL_READOUT_KO.html",
+    "sha256": "7d6cd36da8c50d590ff0a6161d853f7c85f8daa08579909927cff92a94c70eb4",
+    "bytes": 5166
+  }
+}

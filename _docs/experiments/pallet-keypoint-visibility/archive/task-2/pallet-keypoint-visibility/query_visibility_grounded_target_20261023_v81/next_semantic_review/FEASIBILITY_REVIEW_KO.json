@@ -1,0 +1,178 @@
+{
+  "schema": "V81_NEXT_SEMANTIC_TARGET_FEASIBILITY_REVIEW_KO",
+  "completed": true,
+  "status": "AVAILABLE_FOR_PROSPECTIVE_PUBLIC_EXTERNAL_RAY_PROXY_AUDIT; SEMANTIC_LABEL_ADMISSION_HOLD",
+  "main_finding_ko": "현재 공개YCB에는 scene depth1000장, instance4200개의 GT pose/K/visible mask 및 official model AABB가 있어 M0 surface를 요구하지 않는 virtual-reference external-ray proxy를 새로 계산할 재료가 있다. 그러나 scene의 완전한 owner/target-only depth/mesh가 없고, 기존1003 SYNTH에는 같은 depth export가 없어 정확한 renderer ray 재현이나 사람 D/E/S 동등성은 보장되지 않는다.",
+  "operational_goal_from_parent_direct_app_read": {
+    "thread_title": "실험 감사와 실패 원인 진단",
+    "thread_id": "6ad599a5-f7c4-83ee-8f28-a9146700ff0a",
+    "parent_reported_answer_id": "cea1b746...",
+    "paraphrase_ko": "확인하려는 corner/부분선의 영상 단서가 직접 보이는지, 외부 물체가 가렸다는 근거가 있는지가 목표이며 팔레트 cuboid 안의 빈 구멍은 외부 가림이 아니다.",
+    "evidence_scope": "Parent supplied direct read_thread findings; this reviewer did not reopen current223 or the ChatGPT thread. Historical handoff disclaimers remain unchanged.",
+    "consequence": "Future ray truth stays external-ray proxy, not a substitute for visual cue D/E/S or full semantic goal."
+  },
+  "actual_available_assets": {
+    "inventory": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/next_semantic_review/SAVED_RAY_ASSET_INVENTORY.json",
+      "sha256": "0613aeecf6fe847b7d0a143748aa78b78a51ac34939d0005d8521ee038d6dd10"
+    },
+    "YCB_current_files": {
+      "unique_depth_frames": 1000,
+      "compressed_depth_bytes": 114082652,
+      "native_HW": [
+        480,
+        640
+      ],
+      "PNG_IHDR": {
+        "bit_depth": 16,
+        "color_type": 0
+      },
+      "depth_scale_mm_per_stored_unit": 0.1,
+      "pose_K_instance_metadata_exact_all4200": true,
+      "TRAIN_frames_instances": [
+        800,
+        3400
+      ],
+      "VAL_frames_instances": [
+        200,
+        800
+      ],
+      "visible_masks": 4200,
+      "model_AABB_objects": 21,
+      "local_meshes": 0,
+      "complete_exported_owner_map": false
+    },
+    "SYNTH1003": {
+      "root": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged",
+      "existing_dirs": [
+        "labels",
+        "mask_amodal",
+        "mask_visible",
+        "rgb"
+      ],
+      "scene_depth_or_instance_map_directory": false,
+      "reference_geometry": "objects[0].cuboid/projected_cuboid/pose_transform/perm_v4; camera_data intrinsics/worldframe; dimensions_m present",
+      "existing_external_target": "objects[0].scene_placement_v2.occlusion_fraction stored9 fractions; no per-ray center hit IDs/depths exported",
+      "unit_note": "dimensions_m explicitly meters, but world/pose conversion and historical ray geometry need their producer binding; no scene-depth array is available for numeric comparison in this scoped root."
+    }
+  },
+  "existing_precedent_not_new_work": {
+    "V60": {
+      "protocol": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/external_ray_proxy_head_20261022_v60/PROTOCOL.json",
+        "sha256": "afa1e58af6608a87feb3e5efa49a09c7fe4cc0b2db06d010d08f278fd27c346a"
+      },
+      "target": "Synthetic stored first8 external nine-ray fraction>=.5; no public real depth supervision. Existing current/pose outputs were not opened here."
+    },
+    "V74_one_instance": {
+      "proposal": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_contract/public_ycb_native_proxy_feasibility/YCB_NATIVE_WEAK_PROXY_PROPOSAL_V2.json",
+        "sha256": "81bce76bb2bab0a5b9b48098dc635c4e8c663b516019368ef30838722c502ed7"
+      },
+      "summary": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_contract/public_ycb_native_proxy_feasibility/PUBLIC_YCB_NATIVE_PROXY_FEASIBILITY_SUMMARY.json",
+        "sha256": "6d22354fdd78a6325649b93a83c34c874fc574a27a033428a0a95720470f0d05"
+      },
+      "limitations_requiring_new_contract": [
+        "Own-target M4==1 vetoed external even when depth invalid; this conflicts with proposed conservative invaliddepthU.",
+        "Compared constant15mm cameraZ gap, not converted distance.",
+        "Unassigned/environment foreground admitted as weak external, not annotated owner evidence.",
+        "It was oneTRAINinstance only; not masspublic teacher or training."
+      ],
+      "important_counterexample": "Existing onecase had fullmask==visiblemask yet a virtual reference ray-proxy blocked by unassigned/environment depth. This is direct evidence the proxy is not physical visible cue truth, not proof all source labels wrong."
+    }
+  },
+  "weak_support_teacher_review": {
+    "helper": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/teacher_preparation/reference_local_support_teacher.py",
+      "sha256": "dd78e99e47442141817d61202abfacda02b5dfa85e978ad67cf4e984ebd07e70"
+    },
+    "existing_aggregate": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/CORPUS_SUMMARY.json",
+      "sha256": "f81af65e95a159c7b8124edc2a7dd7794c51d52c30a0ed724f3894e25880e13c"
+    },
+    "point": "Teacher targets expected nearby silhouette support, not line-of-sight at the particular3D reference. Strong3x3 precedes footprint; otherwise it computes M4/M0 weighted support within rho=max(4,.05*reference_span).",
+    "known_GT_corpus_C_total": 2149,
+    "known_C_with_center_M0zero": 1251,
+    "known_C_center_M0zero_fraction": 0.5821312238250349,
+    "known_GT_corpus_V_total": 17897,
+    "known_V_with_center_M0zero": 10098,
+    "known_V_center_M0zero_fraction": 0.5642286416717885,
+    "zero_expected_footprint_slots_all_U": 19576,
+    "denominator": "Existing5203GT-only corpus, not source primary/input-valid training pools and not human semantic gold.",
+    "answer_to_systematic_mislabel_question_ko": "센터M0=0인 known C가1251/2149, known V가10098/17897로 reference-pixel surface와 local-footprint target의 체계적 차이는 확인된다. 하지만 M0(r)=0만으로3D점이 공중인지/LOS가 clear인지/semantic E가 틀렸는지는 알 수 없다. 현재teacher자신의local-support정의에서 오라벨이라 단정할 수 없고, 이를 corner D/E/S로 읽는 것이 부당하다. 실제새 depth-ray/영상cue audit 전에는 systematic semantic mislabel이라고 확정하지 않는다.",
+    "preservation": "All old labels/primary scores/results remain unchanged; this review generates no replacement labels."
+  },
+  "one_concrete_prospective_contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/next_semantic_review/PROPOSED_EXTERNAL_RAY_CONTRACT_DRAFT.json",
+    "sha256": "c79809f6712a76eb2991ed53a4b22614b68c4f58764199b9abf47f914eeb1565"
+  },
+  "why_adds_distinct_information": "It compares an independently fixed virtual-reference endpoint with observed aligned depth and visible-instance ownership, without requiring an M0 physical surface near r. Thus it can separate clear air-before-surface from genuine observed other-owner foreground, unlike M4/M0 local support. Its weak ray target still differs from visible semantic cue evidence.",
+  "minimum_future_admission_not_executed": [
+    "Freeze a new source-only protocol with exact reference raster, converted range tolerance and unknown/ownership policy before any labels.",
+    "Keep separate raw depth relation, own-first-hit, other-owner and unassigned/overlap; invalid depth always U.",
+    "Audit fixed TRAIN metadata-selected examples of M0(r)=0 clear/blocked/own/missing; inspect depth registration/owner masks and original visual cue evidence separately.",
+    "Preserve original split families/query identities; no current223 selection, GT-snapping, PnP or new backbone needed for teacher generation.",
+    "Any later learned use must state logicalnative slot/fullq-context forward contract and retain human semantic benchmark as separate evaluation-only goal."
+  ],
+  "official_primary_sources": [
+    {
+      "title": "BOP dataset format",
+      "URL": "https://github.com/thodan/bop_toolkit/blob/master/docs/bop_datasets_format.md",
+      "local_copy": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/bop_datasets_format_OFFICIAL.md",
+        "sha256": "6994afd65c29c2a198ea6e08e138f586ace316aaacda21ae3c498b37d1535222"
+      },
+      "supported_facts": "Depth_scale gives mm, model/translation mm, mask filenames use instance ordinal and camera looks+Z. Reference projection is K[R|t]."
+    },
+    {
+      "title": "BOP calc_gt_masks",
+      "URL": "https://github.com/thodan/bop_toolkit/blob/master/scripts/calc_gt_masks.py",
+      "supported_facts": "Official mask computation converts Z-depth images to distance images before visibility comparison."
+    },
+    {
+      "title": "BOP visibility implementation",
+      "URL": "https://github.com/thodan/bop_toolkit/blob/master/bop_toolkit_lib/visibility.py",
+      "supported_facts": "Current bop19 permits missing scene depth for rendered model visibility; our proposed depth-ray teacher does not copy this rule."
+    }
+  ],
+  "additional_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/DRAFT_PROTOCOL.json",
+      "sha256": "fc918fccde2aa376087d152ec8884ac1ae5c8e0a53bd3366004be113428b82db"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/source_audit/SYNTH_REFERENCE_VISIBILITY_INTAKE.json",
+      "sha256": "28daf4ac39b168e00c8cb5b166e72dbb4affd8c4717434f4772acd591f65a524"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/LOCAL_AVAILABILITY_AND_ONE_DEPTH_AUDIT.json",
+      "sha256": "2c89de3f887550cc0d96306634d5498efd9f2916581e563da300aeeba20c9818"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/build_gt_corpus.py",
+      "sha256": "63b049bbbdd4a672b38168bcab9ac26a02c0b813067b4592ab4defb41cfa5a05"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_contract/native_context_contract_v2.py",
+      "sha256": "4ddd134aa26da1d676628bd6987a161ab36f09328dfdaa89bedd213e397755ab"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/official_dataset_info.txt",
+      "sha256": "4766684f25f165c1c312745e3583fe248161c56c35a862bfa04134141151882e"
+    }
+  ],
+  "scope": {
+    "metadata_files_and_existing_GT_aggregate_read": true,
+    "new_depth_RGB_mask_pixel_decodes": 0,
+    "new_visibility_or_ray_labels": 0,
+    "new_teacher_execution": 0,
+    "model_forward": 0,
+    "fit": 0,
+    "current223_access": 0,
+    "PnP_or_pose_optimization": 0,
+    "sealed_reports_or_models_modified": false,
+    "downloads_or_installations": 0,
+    "official_documentation_read_only_browse": true
+  }
+}

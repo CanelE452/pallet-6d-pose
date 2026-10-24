@@ -1,0 +1,90 @@
+{
+  "schema": "V181_INDEPENDENT_RUNTIME_POOL_REPAIR_REVIEW_A_v1",
+  "completed": true,
+  "PASS": true,
+  "UTC": "2026-10-24T06:02:51.900469+00:00",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/train_local_support_ablation.py",
+    "sha256": "f14b2a7d16642b5cf00eea9bd6c07922939b07e29da60c5d4cbd64a8b5d65a46"
+  },
+  "head": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/head_preparation/local_support_head.py",
+    "sha256": "14a40c4dd14d416c1648e62b408fd7acdf74f06d4113c69785bd737b45aa848b"
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/PROTOCOL_BEFORE_NEW_RAW_CACHE_OR_FIT_BODIES.json",
+    "sha256": "4c19855b64a3e9e625d22de54a6541b6173ad53d91a29fb9733317abaf5448ec"
+  },
+  "CPU_checks": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/GENERATED_INVENTED_CHECKS.json",
+    "sha256": "f69b565dc926bb0f32b7e71f8781b9fbc74dc0968f6253f017af9671d45129b9"
+  },
+  "pool_runtime_repair": {
+    "scope": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/ROOT_DETERMINISTIC_POOL_RUNTIME_REPAIR_BEFORE_NEW_FIT.json",
+      "sha256": "fd9e6a750a6ffb86d6ad34741302c797f9f25760eef255bd659f9016b2110dcb"
+    },
+    "CUDA_checks": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/GENERATED_POOL_RUNTIME_REPAIR_CHECKS.json",
+      "sha256": "c579fdd99495a4cc5ee1876b43c22b5d152c257abeddd43a940191af1fc6bc15"
+    },
+    "check_source": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/invented_pool_runtime_repair_checks.py",
+      "sha256": "92424f962d3f0dc597037b455914c957e2dccd6bf32c03e0f79269167860c43a"
+    },
+    "operator": "Fixed encoder12x12→AvgPool2d4stride4→3x3; oldAdaptiveCPU/GPU forward byteequal and strictCUDA backward verified; zero parameters/statekeys changed"
+  },
+  "preparation": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/source_fit_preparation/PREPARATION_COMPLETE.json",
+    "sha256": "d59e1d353de185c76fb2bcd473325df373185e25fabf3ad0b8eafd0030112f01"
+  },
+  "previous_static_review_immutable": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/independent_head_trainer_review_a/REVIEW.json",
+    "sha256": "dfdfa89807a90f29d35daddad53f0f3b4bd6a84561bcecbde01859dd160c9929"
+  },
+  "old_head_preserved": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/provenance/BEFORE_DETERMINISTIC_POOL_RUNTIME_REPAIR/head_preparation/local_support_head.py",
+    "sha256": "5f2e92d4dd0984fa3f0e4e6891166ccc10af977df843a1734fcb31f1b70f56e5"
+  },
+  "old_trainer_preserved": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/provenance/BEFORE_DETERMINISTIC_POOL_RUNTIME_REPAIR/source_fit_preparation/train_local_support_ablation.py",
+    "sha256": "ca4d5ac9018cb6fc7bfea622a96f219bc7c7ce4bd5ac471cb93b19eca5f27a63"
+  },
+  "checks": [
+    {
+      "name": "Pool-only source delta",
+      "PASS": true,
+      "evidence": "Exact whole head text equals prior except parameter-free AdaptiveAvgPool3→fixedAvgPool4stride4/comment; fixedencoder96→12 makes same3×3 nonoverlap means."
+    },
+    {
+      "name": "Trainer-only runtime and output delta",
+      "PASS": true,
+      "evidence": "Reviewed full unified diff: RUNsuffix_v2, explicitrootrepair/checksource/checkreceiptguards and preparationbinding fields only. Loss, pools, draw_step, five_losses, loops,seed8000,AdamW/clip5,availability,outputs and VALafterfreeze unchanged."
+    },
+    {
+      "name": "Meaningful invented strict CPU/CUDA evidence",
+      "PASS": true,
+      "evidence": "Read actual10checksource/receipt: old/new CPU and GPU pool/wholehead forward bytes; old/new CPU allparameter gradients; fixedGPU poolbackward equals CPU; newfullGPUbackward finite; three identical inventedCUDA AdamW update programs preserve parameter/optimizer/RNG/draw parity."
+    },
+    {
+      "name": "Evidence limits",
+      "PASS": true,
+      "evidence": "Three-step update parity compares the two repaired CUDA arms on identical invented input; it is not old unsupportedCUDAbackward parity or CPU-versus-GPUoptimizer identity, and no sourcefit result is inferred."
+    },
+    {
+      "name": "Preservation and no new source choice",
+      "PASS": true,
+      "evidence": "Read rootrepair supplement: firstbackward failed before optimizerupdates/checkpoints/outputs, oldattempt/code/protocol/CPUchecks preserved. Originalprospectivescope/data/qL/loss/threshold/arms unchanged; newruntime-only rootentry remainsrequired."
+    },
+    {
+      "name": "Final bindings",
+      "PASS": true,
+      "evidence": "Verified finalhead14a40c4d/trainerf14b2a7d/protocol4c19855b/GPU10checksc579fdd9/CPU19f69b565d/supplementfd9e6a75 exact; no source/cache/label/weight/held/private body loaded or new test/fit/forward run in this review."
+    }
+  ],
+  "blocking_issues": [],
+  "actual_new_tests_or_model_or_SAM_or_fit": 0,
+  "private_publicheld_V112_reads": 0,
+  "selected_model": null,
+  "fully_solved": false
+}

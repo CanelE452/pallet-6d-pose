@@ -1,0 +1,61 @@
+{
+  "schema": "INDEPENDENT_V81_SAVED_METRICS_READER_POLICY_BEFORE_PACKETS_V1",
+  "frozen": true,
+  "scope": "Saved source GT/score packet reconciliation only; no labels/gates/threshold/model changes.",
+  "allowed": [
+    "V81/source_evaluation_preparation/GT_PACK_SEAL.json and its saved scalar packet/labels metadata",
+    "V81/source_evaluation/GROUNDED_SAM21_FIXED saved JSON/CSV/NPZ labels/scores",
+    "V79 saved q/reference state packets if needed for oracle; no masks"
+  ],
+  "forbidden": [
+    "RGB body",
+    "visible/amodal/native mask files",
+    "weights",
+    "model construction/import/forward",
+    "fit",
+    "current223 files",
+    "original seal/output edits"
+  ],
+  "primary_reconciliation": {
+    "all_published_matrices": true,
+    "columns": "model V/C proxy plus U kept; read actual schema",
+    "precision": "Known-label only prediction denominator; preserve explicit report definition and disclose U.",
+    "recall": "All GT including U versus decided-only reported distinctly.",
+    "IoU": "Recompute arithmetic using perinstance saved intersection/union/IoU and matched flag; nomatch all-instance IoU0 distinct from conditional matched IoU."
+  },
+  "diagnostic_q_M4_oracle": {
+    "saved_q_states_only": true,
+    "not_a_model_bound": true,
+    "no_new_masks": true,
+    "no_label_or_gate_changes": true,
+    "meaning": "Use saved exact q visible/nonvisible state as a pseudo-prediction against the older reference-local primary teacher; outside-M0 q is M4zero but reported separately.",
+    "root_predeclared_expected_YCB_primary_2x2": [
+      [
+        278,
+        9
+      ],
+      [
+        660,
+        1071
+      ]
+    ],
+    "strict535_expected": "perfect if saved q/ref class alignment holds"
+  },
+  "expected_strict535_SAM_2x3": [
+    [
+      15,
+      56,
+      5
+    ],
+    [
+      83,
+      259,
+      117
+    ]
+  ],
+  "audit_execution_before_packet_reads": true,
+  "current223": 0,
+  "new_forward": 0,
+  "fit": 0,
+  "PnP": 0
+}

@@ -1,0 +1,46 @@
+{
+  "동결상태": "이새진단을위한prediction/GT출력읽기전동결. 이전봉인V81평가수치와고정4사례는이미알고있음.",
+  "scope": "원래sourceVAL1035target전부, 특히같은고정strict535의 C76:예측C/V/U전부유지. C→V56사례는기존봉인prediction그대로정의하고재선택하지않음.",
+  "bindings": {
+    "eval_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/source_evaluation/GROUNDED_SAM21_FIXED/EVALUATION_SEAL.json",
+      "sha256": "b288722f1c738830c7d5f1ff1629bcd134396bbb626ee1ff70a2d9dc218540d9"
+    },
+    "eval_results": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/source_evaluation/GROUNDED_SAM21_FIXED/SOURCE_MASK_RESULTS.json",
+      "sha256": "45c3b5f5a84a0e9391915ac8ff3ff2100f7619c333d5cfe7d1d6623178b59d96"
+    },
+    "GT_pack": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/source_evaluation_preparation/GT_PACK_SEAL.json",
+      "sha256": "f2548ddb36e8c5cdd0fa734509a36b6dd38bff35c35d89d9b980273bf86e5ced"
+    },
+    "SAMseal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/outputs/SAM_OUTPUT_SEAL.json",
+      "sha256": "54bb5519a9f9ea36ad7cb2f85dfd0e90c3a788bad0924342889fa980f2466bd9"
+    },
+    "detector_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/detector/outputs/DETECTOR_OUTPUT_SEAL.json",
+      "sha256": "903454d2b143c8bfb08c4b62f59ff5c7b6599a3f5009360e394dcf07df0aa310"
+    }
+  },
+  "availability_first": "기존YCBinstances.jsonl와scene_gt및mask_visib파일명metadata로동일RGB의모든공식instance가로컬에있는지먼저확인. 누락은기록하고다운로드/대체하지않음. SYNTH다른instanceGT가없으면nootherlocalannotatedGT로표시하며물체가없다는뜻이아님.",
+  "comparison": "예측마스크는이미선택된boolmask그대로. intended GT M4 IoU와동일RGB에서intendedinstance를제외한모든로컬annotated M4 IoU를계산. bestother는최대IoU,동률은작은공식instance_id/마스크경로lexicographic. 정수intersection/unioncrossproduct로정확비교,epsilon없음. GT union0의실제both-empty만1,missingmask는기존0.",
+  "attribution_bins": [
+    "NO_ASSOCIATION_U",
+    "ASSOCIATED_MASK_MISSING_U",
+    "OTHER_GT_MASK_MISSING_HOLD",
+    "NO_OTHER_ANNOTATED_INSTANCE_LOCAL",
+    "OTHER_IOU_GREATER",
+    "INTENDED_IOU_GREATER",
+    "EXACT_IOU_TIE"
+  ],
+  "local_evidence": "고정 C→V query에서 다른 annotatedvisibleinstance가 q를 덮는지 별도로검사. globalIoU순위와q국소소유권을두축으로보고, 같은cause로단정하지않음. Intended가globalIoU우세인데 q가other visible인경우overinclusive/부분혼합과일관된증거일뿐입증아님.",
+  "selected_metadata": "기존selected phrase/rawbox/promptbox/querybox associationIoU를그대로기록. 추가로detbox-vsGTvisiblebbox IoU는진단용. phrase불일치는오대상증거로단정하지않으며GTcategory를모델에되먹이지않음.",
+  "fixed_examples": {
+    "salt": "V81_TARGET_ATTRIBUTION_MIN_SHA_V1",
+    "rule": "각attributionbin의고정strictCfalseV에서SHA256(salt+newline+input_id+newline+native_k)최소1개,동률lexinputid/k. 없으면없음. U는별도고정strictC U에서동일규칙1개. confidence/IoU크기/영상품질로사례를고르지않음."
+  },
+  "interpretation": "OTHER_IOU_GREATER는다른대상마스크와더일치한다는진단이지검출과SAM중단일원인을확정하지않음. 작거나0인IoU동률·미표기물체·GT마스크한계는별도유지. source조건부proxy이지humanDESgold아님.",
+  "immutable": "출력/라벨/q/r/box/모델/문턱/이전봉인변경0. 진단의bestother가outputselector가되는일없음.",
+  "new_download_RGB_pixels_weights_model_forward_fit_current223_PnP": 0
+}

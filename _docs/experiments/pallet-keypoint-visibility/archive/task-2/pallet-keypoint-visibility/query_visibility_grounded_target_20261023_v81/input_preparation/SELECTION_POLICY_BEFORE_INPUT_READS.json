@@ -1,0 +1,38 @@
+{
+  "frozen_before_new_manifest_cache_or_lineage_reads": true,
+  "scope": "All original source VAL only, never controlled-after/TRAIN/current223.",
+  "selection": "Retain every original input-cache row whose frozen input partition is val. Preserve order from original SYNTH then PUBLIC packs, all8queries, including null/invalid qbox; no scores, GTlabels/masks/objectIDs/referencepoint or imagequality selection.",
+  "expected_counts_to_verify": {
+    "SYNTHETIC_targets": 235,
+    "YCB_PUBLIC_REAL_targets": 800,
+    "SYNTHETIC_unique_RGB": 235,
+    "YCB_unique_RGB": 200
+  },
+  "model_input_whitelist": [
+    "input_id",
+    "image",
+    "image_sha256",
+    "raw_hw",
+    "initial_points",
+    "roi_side",
+    "query_box_xyxy"
+  ],
+  "provenance_separate": "original row/ID/source/split and exact source cache/lineage/inputrecord bindings belong only to PROVENANCE.jsonl, not model-input manifest. input_id is newly assigned opaque ordinal, never source/category ID.",
+  "coordinate_policy": "Copy existing q8/L/query_box_xyxy/rawHW exactly, no recenter/GTrelocation/PnP. Serialize native nonfinite q/box values as JSON null only with explicit per-row normalization metadata in provenance; no silent invented coordinates.",
+  "caption_and_detection": "Root separate frozen execution protocol: same fixed published all21YCBcategories+pallet caption for every RGB, all detections retained; associate by initialqbox maximalIoU GTfree, no detection/nullbox=>U. This preparation does not run model or select caption/per-image category.",
+  "public_query_provenance": "Existing PUBLIC q is GT-derived emulation using TRAIN-only synthetic initializer error bank; not an actual public initializer prediction. This fact is provenance only, no r/pose/GT forwarded.",
+  "cache_recipe": "No RGB decode or embeddings read; load only coordinate/context-free metadata fields from original cache and RGBpath/hash/rawHW from original input inventory/lineage.",
+  "bindings_to_original_input_lock": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/mixed_fit/SOURCE_INPUT_BINDINGS.json",
+    "sha256": "da9d9573b3a343b4fc6f927d64b30c8a29593b6c8b7c94a42b502fb3dccd354c"
+  },
+  "source_stage": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/EXPERIMENT_DECISIONS_BEFORE_GT_BUILD.json",
+    "sha256": "81ac5890ce9a6d210bce5403425d589351c6306c6379755f153182ed4fafd35a"
+  },
+  "source_audit": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/independent_saved_audit/INDEPENDENT_SELECTED_SAVED_AUDIT.json",
+    "sha256": "c053c9b2a08d7865e63401759c62e2b7e85c2c6fc0165413a7abc7c6759db0ff"
+  },
+  "current_RGB_GT_scores_model_weights_forward_fit_PnP": 0
+}

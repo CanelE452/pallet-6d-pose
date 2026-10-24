@@ -1,0 +1,35 @@
+{
+  "completed": true,
+  "model_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/query_center_scalar.py",
+    "sha256": "d62e1610ca45f24e3cbf90e66dff3a7d954f87713afea4f5ae7bdc404411b0cb",
+    "bytes": 6681
+  },
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/SCOPE_BEFORE_MATCHED_QUERY_CONTRACT.json",
+    "sha256": "f8e942477a25b284d60a42ddbc4b2884511f7791c88bc81d05bcf15e5484af10",
+    "bytes": 3352
+  },
+  "conclusion_KO": "동일 q-crop의 동일 scalar를 학습·검증·배포에 사용하는 소형 후보를 구현했다. 이는 readout 연산 차이를 제거하는 준비이며, 어떤 target/cue에 관한 가림을 답할지와 실제 의미적 정답을 해결한 결과는 아니다.",
+  "why_attention_KO": "V91 중심 index4는 두 3x3 convolution을 거친 nominal P3-grid 5x5 support를 가진다. RGB branch도 strided convolution/interpolation으로 crop 일부에만 직접 의존한다. 백본 feature의 더 넓은 실제 RF와는 별개로, crop 전부의 모든 단서 위치에 direct computational path가 보장되지 않는다. 따라서 중심 feature로 query-conditioned attention을 만들어 모든 factual9cell을 pooling하되 출력은 원 q의 scalar 한 개로 고정한다.",
+  "what_gradient_proof_means_KO": "생성 fixture에서 먼 corner P3 cell→동일 scalar gradient가 비0이다. 이는 연산 경로가 존재함만 증명하며, attention이 올바른 cue를 찾았거나 가림 원인을 식별했다는 증거가 아니다.",
+  "new_confound_KO": "새 learned pooling은 operator 변화다. 미래 성능이 달라져도 학습/VAL/deploy operator match, global receptive path, 파라미터 증가 효과를 분리하지 않으면 특정 요인 탓으로 확정할 수 없다. 현 단계 후보 하나만 준비했으며 새로운 학습/선택은 하지 않았다.",
+  "center_and_global_KO": "원 q가 attention query의 고정 중심이다. Attention이 다른 위치를 읽어도 q/r/L를 이동하거나 다른 좌표의 GT를 출력에 붙이지 않는다. 전역 구조 존재만 보고 원 cue를 오판할 수 있으므로 generic pallet presence와 특정 expected cue의 가시성을 혼동하면 안 된다.",
+  "identifiability_KO": "동일 RGB96/P3/valid tensors와 원 q/L에서 hidden expected cue가 다르면 한 cue는 보이고 다른 cue는 가려질 수 있다. 세 입력에 expected identity를 식별할 근거가 없으면 deterministic scalar는 두 상태를 동시에 맞출 수 없다. Native8 mapping UNKNOWN은 그대로이며 별도 token/input 추가를 암묵적으로 하지 않았다.",
+  "generated_collision_math": {
+    "two_identical_input_crops_hidden_refA_label0_refB_label1": "Any deterministic scalar must be identical; labels cannot both be fitted with zero BCE.",
+    "balanced_BCE_minimum_at_logit": 0,
+    "balanced_BCE_minimum": 0.6931471805599453,
+    "source_or_human_claim": false
+  },
+  "source_requirements_KO": [
+    "원래 공개 initializer q/L을 보존하는 source만 실제 prediction-distribution evidence로 구분한다. GT r+jitter q는 별도 AUX 분포다.",
+    "각 known 상태는 selected target와 expected cue의 binding/evidence를 먼저 정의해야 한다. 거친 wholecrop 관찰이나 material presence만으로 native-slot 정답을 만들지 않는다.",
+    "모호한 cue/target binding, cropMISS, partial, missing detection을 U 또는 별도 사실 flag로 유지하고 전체 분모를 남긴다.",
+    "가림 E는 opacity/foreign ownership와 원 cue 불확실 영역 전체 cover의 근거, sham은 cue 보존 근거가 필요하다. mask0/air/다른 물체 표면만으로 human E/S를 만들지 않는다.",
+    "L 분포/invalid 지원/3입력dtype/배치와 operator를 sourceVAL/deploy에 동일하게 사용하고 결과 후 맞추지 않는다."
+  ],
+  "scope_evidence_not_generalization_KO": "코드와 생성 수학 검사 PASS는 실제 source/current generalization, task solution 또는 native8 human gold 감사가 아니다.",
+  "actual_source_pixels_arrays_GT_checkpoint_parameters_current_reads": 0,
+  "actual_model_forward_fit_PnP": 0
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "V115_EXISTING_LOCO_TARGET_ENTITY_METADATA_PLAN_V1",
+  "scope": "Metadata-only preparation for a later prospectively fixed SAM2 candidate-ownership-mask pilot; this file authorizes no pixel reads or model calls.",
+  "frame_cohort": "Exactly the original 20 V92 selected frame records and 160 original ordered query records. Preserve image identity, q, L, candidate index, raw folds, validity and failures.",
+  "target_rule": "Reuse the already frozen V74 REPRESENTATIVE_INSTANCE_LOCK representative_annotation.id and exact bbox for each frame. Do not choose a new largest annotation, nearest cue, GT-best detection, or new query. Missing or nonunique existing target identity becomes a retained no-call UNKNOWN.",
+  "target_meaning": "The frozen official representative annotation entity. Its equivalence to the initializer-selected physical target remains UNKNOWN unless already explicitly certified; box overlap is diagnostic only.",
+  "competitor_rule": "Optional one request per existing target: among ALL other official annotation entities of the same image with valid raw positive-area bbox, choose maximum positive raw bbox IoU, exact tie lowest ann_id. Use exact rational arithmetic for selection. No overlap means a retained missing competitor no-call. Another annotation may be the same/merged physical instance.",
+  "witness_rule": "Inventory only prelocked conditional visible cue records with the same image and an explicit representative_annotation_id equal to this target. Preserve reference and uncertainty regions and original weak AI qualification. No spatially inferred ann_id link, bbox-center positive, nearest cue, or HOLD promotion. A visible region is not a certified occupied pixel; center_pixel_support UNKNOWN cannot become a SAM positive point.",
+  "SAM_request_plan": "At most 20 target plus 20 optional competitor box requests. Exact raw XYWH and derived XYXY preserved; proposed box-only point_coords=null. Existing cue witnesses are separate evidence and are not automatically point prompts. Root will fix the complete prospective execution policy before any pixels/models.",
+  "query_mask_readout": "Keep every original query and factual U. No-query/OOB rows cannot gain replacement queries from SAM. A candidate mask is not an official visible/amodal mask; absence never creates external E or geometric S.",
+  "provenance": "The public feasibility recommendation was fixed before C12 current results, as recorded in the parent task. This preparation uses no current/holdout errors or model scores to select targets, competitors or witnesses.",
+  "not_claimed": ["native8 or human semantic gold", "distinct physical instance from ann_id alone", "official visible-own mask from COCO bbox/polygon", "exact positive pixel from cue region", "automatic training admission", "fresh blind source split"],
+  "operations_allowed": ["read existing JSON/JSONL/text metadata", "hash metadata files", "stat existing payload paths without reading payload bytes", "write only this new V115 directory"],
+  "operations_prohibited": ["source pixel or array payload reads", "SAM or tensor/model imports", "checkpoint parameter deserialization", "network/download", "any model forward or fit", "private/current/V112 reads", "PnP", "changes to earlier source records"],
+  "training_admission": false,
+  "native_mapping": "UNKNOWN",
+  "human_gold": false
+}

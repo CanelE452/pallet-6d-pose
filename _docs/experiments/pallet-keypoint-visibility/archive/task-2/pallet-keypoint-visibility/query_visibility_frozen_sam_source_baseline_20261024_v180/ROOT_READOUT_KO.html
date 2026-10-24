@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>V180 합성 TRAIN SAM·영역 감독 진단</title>
+<style>body{font:17px/1.65 system-ui;max-width:1250px;margin:36px auto;padding:0 18px;color:#172b3b}img{max-width:100%}table{border-collapse:collapse;width:100%}td,th{padding:9px;border-bottom:1px solid #d7e0e6;text-align:left}.note{background:#f0f5f8;padding:18px}a{color:#096b9b}</style>
+<h1>V180: 동결 SAM 실행과 crop 주변 보임 감독</h1>
+<p class="note"><b>합성 TRAIN에서 실제 실행과 감독 생성까지 완료했습니다. 사용자 데이터 성능 개선·모델 채택·전체 해결은 아직 입증하지 않았습니다.</b> 초기 q/L/native8과 PnP는 그대로이며 이번 단계의 새 학습은 0회입니다.</p>
+<p>공식 SAM ViT-B에 초기 8점의 min/max 박스만 넣었습니다. GT 박스·양성 키포인트·부위 정답을 입력하지 않았습니다. 512장 중 초기 8점이 없는 6장은 보류, 506장 추론과 첫 장 반복을 완료했고 원 U80을 보존했습니다. 마스크 threshold는 공식 0으로 고정했습니다.</p>
+<img src="scientific_readout_v1/SOURCE_SAM_AND_END_SUPPORT_V2.png">
+<h2>대상 마스크와 원 q의 소속은 별도 진단</h2>
+<p>전체 대상 마스크 평균 IoU: <b>0.9364</b> (가용 506장). 원 q의 팔레트 소속 soft 재현율: <b>78.9%</b>, precision: <b>94.0%</b>. 외부 물체 소속 질량에 nonmask 응답: <b>50.4%</b>, 배경 소속 질량에는 <b>99.4%</b>.</p>
+<p>원 4,096행 중 q 소속 측정은 4,048행, q 결측은 48행입니다. 측정 행의 INVALID/예측 U 질량 32은 별도로 보존했으며, 결측 48행을 합친 원 입력 U는 총 80행입니다.</p>
+<p>모두 합성 TRAIN의 저장 raster 기준이며 실사 전이 정확도가 아닙니다. nonmask에는 배경과 다른 물체가 함께 들어가므로 이를 외부 가림 판정으로 바꾸지 않았습니다. 전체 면적 IoU가 높아도 작은 가림 영역을 놓칠 수 있습니다.</p>
+<table><tr><th>합성 그룹</th><th>가용/전체 영상</th><th>평균 마스크 IoU</th><th>Foreign 위 오포함 pixel</th></tr>
+<tr><td>DARK_POLYMER / RECTANGULAR</td><td>128/128</td><td>0.9371</td><td>8589</td></tr>
+<tr><td>DARK_POLYMER / SQUARE</td><td>128/128</td><td>0.9152</td><td>12118</td></tr>
+<tr><td>PROCEDURAL_WOOD / RECTANGULAR</td><td>124/128</td><td>0.9392</td><td>7872</td></tr>
+<tr><td>PROCEDURAL_WOOD / SQUARE</td><td>126/128</td><td>0.9545</td><td>10990</td></tr>
+</table><h2>중심 한 픽셀과 구분한 새 감독</h2>
+<p>원 crop 안의 고정된 작은 팔레트 끝 영역에서 보임 YES/NO/UNKNOWN은 2904/113/1079입니다. 해당 영역 앞의 외부 차폐는 138/1507/2451입니다. 두 조건은 비배타적이며 부분 가림에서는 함께 YES일 수 있습니다. 자기 가림·대응 불명·원 입력 결측은 따로 남겼고 기존 native D/E/S를 교체하지 않았습니다.</p>
+<p>고정 16장에는 확인된 foreign-front 원 픽셀이 합계 58개뿐입니다. 그중 BEFORE와 RGB가 완전히 같은 픽셀은 1개입니다. 같은 재질 가림의 대비가 작다는 관찰은 있으나, 영상이 동일하거나 추론 불가능하다는 증거는 아닙니다. 새 감독의 training_admission은 false이며 새 head fit은 아직 수행하지 않았습니다.</p>
+<h2>고정 네 그룹의 COVER 사례</h2><img src="scientific_readout_v1/FIXED4_COVER_INPUT_SAM_TARGET_END.png">
+<p>각 그룹의 원 COVER 대상 슬롯을 모두 표시했습니다. G40에서는 외부 물체 소속인 원 q를 SAM이 대상으로 포함합니다. G521/553에서는 배경색과 비슷한 가림물을 마스크에서 제외합니다. G8은 원 q 자체는 대상에 속하지만 주변의 지정 끝 영역은 가려져 있어, 두 정답이 다를 수 있음을 보여줍니다. 이 네 장에서는 형상과 가림물 재질 조건도 함께 달라지므로 형상만의 효과로 해석하지 않습니다.</p>
+<p><a href="saved_sam_allTRAIN4096_evaluation_c_v3/index.html">고정 16장·128개 SAM/원 crop/대상 raster 대조</a> · <a href="source_end_spatial_visual128_v1/index.html">동일 128개의 부위 보임·차폐 감독 위치</a></p>
+<h2>실행 및 남은 범위</h2><p>첫 SAM 실행은 Torch 2.1의 strict deterministic cumsum guard에서 종료됐습니다. 공식 모델 코드는 그대로 두고 predict 구간의 guard만 완화했으며 CPU/CUDA ones-grid 일치·첫 영상 반복·가중치 불변을 확인했습니다. 저장 평가기의 행 병합/함수명 충돌 두 오류도 실패 기록을 보존한 뒤 수정했습니다. 입력·마스크·문턱·정답 기준을 고친 것은 아닙니다.</p>
+<p>사용자223장과 공개 보류45프레임의 원영상·특징·개별 주석을 이번 단계에서 추가로 열람하거나 적합에 사용하지 않았습니다. 기존 v178 실사 결과는 그대로입니다. 다음에는 이 영역별 감독의 실제 학습 효과와 공개 실사에서의 대상 식별·작은 외부 가림 구분을 검증해야 합니다. SAM 마스크 하나를 가림 모델로 채택한 상태는 아닙니다.</p>
+<p>PNG는 별도 실제 시각 QA 기록을 확인하십시오. 이 HTML은 파일 링크 및 소스 검사를 하며 브라우저 렌더 완료를 주장하지 않습니다.</p>

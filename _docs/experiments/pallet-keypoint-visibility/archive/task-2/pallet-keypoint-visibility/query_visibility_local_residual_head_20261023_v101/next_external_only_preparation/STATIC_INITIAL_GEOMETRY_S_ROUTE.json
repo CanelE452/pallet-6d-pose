@@ -1,0 +1,57 @@
+{
+  "scope": "Static code inspection only. No current artifact body/SHA/array/label/score/image read.",
+  "code_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/contract/geometry_self_rule.py",
+      "sha256": "841cd136910e45c299743420ccd7347a11c036303197fd5ee8e341e252eb487f"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/inference/infer_current_frozen.py",
+      "sha256": "b7e6befba20bd01b97326558a4959fd1efc4d362e9c2cc5269e258618301cbf5"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/inference/infer_current_frozen.py",
+      "sha256": "c049979b2f988ea82fe885b7bad6ff10ef5440efa9ceed5383c0e85375018292"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/private_evaluation/infer_native_center_once.py",
+      "sha256": "df126041c752c02ab5842765fcfcde294cf02ee666f5c604417b812b3991a5bb"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/current_common.py",
+      "sha256": "8655a598978a2f840901d2d7083957d794e6bccfb7210db6c758441046e05ed9"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/infer_same_query_once.py",
+      "sha256": "53fe3d7031aa9a610638465d12d8c17c0778ba0ed289a6a03e4f3540c0d372bd"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/current_evaluation_preparation/evaluate_saved_only.py",
+      "sha256": "0045abb266c4e3341aa2bf4b02f387f24ec5f04b5c19b74b200000e5e55113b5"
+    }
+  ],
+  "source_inputs": [
+    "frame.initial_pose.available",
+    "frame.initial_pose.cf_extents[width,height,depth]",
+    "frame.initial_pose.R_cf[3,3]",
+    "frame.initial_pose.centroid[3]"
+  ],
+  "what_is_reused": "Saved initial registered cuboid dimensions/rotation/translation and its eight native-ordered conditional self-hidden booleans; V91 copies prior rows, V94 copies again. No new pose solution or cuboid fit.",
+  "not_a_mask": "This S route does not reuse a SAM mask, visible-instance mask, depth map, RGB classification, or learned head output as self evidence.",
+  "formula": {
+    "xyz": "Native centered cuboid corners \u00b1extents/2 in the original eight-slot order.",
+    "camera_in_object_frame": "camera=-R_cf.T@centroid",
+    "ray": "camera-xyz[k]",
+    "cosines": "sign(xyz[k])*ray/norm(ray)",
+    "hidden": "max(cosines[k]) < -sin(2degrees)",
+    "guard": "finite positive extents, properR, all8 positive cameraZ; unavailable/invalid initial pose ->8None."
+  },
+  "route": "Raw learned scalar/probability remains separate. V94 response: if factual/operator invalid ->U first; else if optional geometry route and saved geometry_self_hidden isTrue ->ABSENT_NONVISIBLE; otherwise use learned raw sign. The geometry flag is not appended to three-tensor forward.",
+  "important_boundaries": [
+    "FalseS flag is not proof of D or absence of external occlusion.",
+    "Saved coarse-pose/cuboid/order mistakes can cause wrong S; code review establishes mechanism only.",
+    "Synthetic teacherS is a different source geometric proxy and cannot certify the actual initializer S gate.",
+    "Missing geometry isNone, not automaticS or geometricpass evidence. Future combinedreport must retain rawexternal outcome and geometricS outcome separately."
+  ],
+  "new_PnP_or_pose_changes": false
+}

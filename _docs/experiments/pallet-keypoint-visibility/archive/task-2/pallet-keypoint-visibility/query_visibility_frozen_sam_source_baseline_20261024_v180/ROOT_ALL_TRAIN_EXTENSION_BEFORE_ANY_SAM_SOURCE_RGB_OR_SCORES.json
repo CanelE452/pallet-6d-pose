@@ -1,0 +1,17 @@
+{
+  "schema": "V180_PROSPECTIVE_ALL_SYNTHETIC_TRAIN_EXTENSION_v1",
+  "UTC": "2026-10-24T05:16:27.203721+00:00",
+  "frozen_before_any_SAM_source_RGB_or_output_read": true,
+  "rationale": "Original full WOOD/SQUARE/native8 task requires source coverage beyond a runtime smoke. All existing TRAIN data, no selection from private/held or model metrics.",
+  "selection": "Every original synthetic TRAIN row4096,512originalscenes,128bases,all4variants/allnative0..7; original global order; no dropping null/invalid q or missing prompt. No synthetic VAL body.",
+  "model_prompt_runtime": "Exactly original V180 SAM1 ViT-B box-only single-mask protocol; no modifications from smoke quality/GT labels.",
+  "execution_condition": "Run once source smoke runtime/input-integrity checks pass; independent of SAM quality/labels. If runtime/serialization bug, fix documented bug without inspecting held/private and preserve failed artifacts.",
+  "null_policy": "All8 original initial q required finite nondegenerate for image box. Missing/nonfinite/degenerate prompt makes all8 promptU independently of original inputU. Do not replace fromGT/another variant or shrink to validsubset.",
+  "inference_scope": "Every usable original scene once plus first usable scene repeat. Keep all512scene metadata and all4096slot rows. Original inputU never becomes BG/non-target.",
+  "render_selection": "Keep initial first4groups/bases0,1,16,17 all16scenes128slots fixed before results; wholeTRAIN metrics do not imply all4096 crops visually inspected.",
+  "outputs_are": "Class-agnostic mask proposal and source diagnostic, not proved semantic/native external/self classifier.",
+  "development_data": "SOURCE TRAIN only; current223 andpublicheld45 evaluation-only preserved.",
+  "new_training_updates": 0,
+  "goal_status": "active_unsolved",
+  "selected_model": null
+}

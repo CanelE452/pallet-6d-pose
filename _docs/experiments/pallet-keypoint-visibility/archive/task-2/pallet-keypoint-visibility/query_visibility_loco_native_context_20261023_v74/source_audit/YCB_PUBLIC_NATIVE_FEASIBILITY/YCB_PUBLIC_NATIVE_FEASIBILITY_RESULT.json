@@ -1,0 +1,114 @@
+{
+  "schema": "V74_YCB_NATIVE_VIRTUAL_REFERENCE_SOURCE_FEASIBILITY_INTAKE",
+  "created_UTC": "2026-10-22T18:48:08.502377+00:00",
+  "status": "LOCAL_INPUTS_AND_OFFICIAL_MODEL_BOUNDS_AVAILABLE_FOR_ONE_INSTANCE_WEAK_PROXY_TEST; NOT_NATIVE8_SEMANTIC_GOLD_OR_TRAIN_ADMISSION",
+  "local_inputs": {
+    "RGB_frames": 1000,
+    "official_original_scene_depth_frames": 1000,
+    "visible_instance_masks": 4200,
+    "isolated_full_silhouette_masks": 4200,
+    "scene_gt_files": 10,
+    "scene_camera_files": 10,
+    "source_splits": "Existing frozen scenes0..7 TRAIN,8..9 VAL; no new split/selection.",
+    "depth_scale_mm_per_unit": 0.1
+  },
+  "actual_source_instance": {
+    "scene_id": 0,
+    "frame_id": 1,
+    "instance_id": 0,
+    "object_id": 8,
+    "name": "009_gelatin_box",
+    "selection_rule": "Lexicographically first existing TRAIN instance, not selected by image/model quality.",
+    "original_depth_valid_pixels": 276584,
+    "visible_mask_valid_depth_pixels": 17623,
+    "visible_mask_invalid_depth_pixels": 625,
+    "projected_object_origin_xy": [
+      251.85196411590434,
+      225.65591803334686
+    ],
+    "origin_projection_in_visible_mask": true,
+    "observed_depth_mm_at_nearest_origin_pixel": 562.0,
+    "origin_camera_z_mm": 590.451478877042,
+    "surface_or_visibility_inference_from_origin": false
+  },
+  "official_model_bounds": {
+    "models_info": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/models_info_OFFICIAL.json",
+      "sha256": "13978298d8c37f089a7e0c421ed8be867fa836818936f5499786175da2c4c4cb",
+      "bytes": 7093
+    },
+    "object_count": 21,
+    "object8_bounds_mm": {
+      "diameter": 114.053,
+      "min_x": -44.6775,
+      "min_y": -50.5545,
+      "min_z": -15.06,
+      "size_x": 89.355,
+      "size_y": 101.109,
+      "size_z": 30.12
+    },
+    "source_archive": "https://huggingface.co/datasets/bop-benchmark/ycbv/resolve/5c2c4aa229800355648cd268040aa814f8dc94f0/ycbv_models.zip",
+    "pinned_revision": "5c2c4aa229800355648cd268040aa814f8dc94f0",
+    "entry_CRC32_verified": true,
+    "archive_range_bytes": 67734,
+    "archive_full_download": false,
+    "whole_archive_LFS_SHA_recomputed": false
+  },
+  "primary_provenance": [
+    {
+      "URL": "https://bop.felk.cvut.cz/datasets/#YCB-V",
+      "role": "Official BOP dataset distribution"
+    },
+    {
+      "URL": "https://huggingface.co/datasets/bop-benchmark/ycbv/tree/5c2c4aa229800355648cd268040aa814f8dc94f0",
+      "role": "Pinned official BOP mirror; archive metadata and model entry"
+    },
+    {
+      "URL": "https://github.com/thodan/bop_toolkit/blob/master/docs/bop_datasets_format.md",
+      "role": "Official depth/mask/pose/model frame format; local immutable Markdown copy saved"
+    }
+  ],
+  "units_and_coordinate_evidence": {
+    "local_dataset_info": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/official_dataset_info.txt",
+      "sha256": "4766684f25f165c1c312745e3583fe248161c56c35a862bfa04134141151882e",
+      "bytes": 4035
+    },
+    "official_format_copy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/bop_datasets_format_OFFICIAL.md",
+      "sha256": "6994afd65c29c2a198ea6e08e138f586ace316aaacda21ae3c498b37d1535222",
+      "bytes": 9821
+    },
+    "depth": "Stored uint16 \u00d7 scene_camera.depth_scale gives millimeters; zero means no valid measurement.",
+    "pose": "R_m2c * X_model_mm + t_m2c_mm gives camera coordinates; cam_K projects them. Models and translations use mm.",
+    "model_frame": "Official models use natural upright +Z model coordinates and bbox-centered origins. Source real model-native axes are not proof of pallet semantic/native8 correspondence.",
+    "mask": "IMID_GTID indexes scene_gt list; GTID is not object class ID. Visible/full source rasters are silhouettes, not per-corner semantic D/E/S."
+  },
+  "missing_or_uncertified": [
+    "Full object mesh is not present in this intake; only official model AABB bounds were newly extracted. No first-hit mesh renderer equivalence is established.",
+    "No official camera-dynamic native8 keypoint visibility annotation is present. A virtual cuboid can be constructed as a declared weak geometric teacher, but its corners need not lie on real surfaces.",
+    "Invalid scene depth exists, including625 visible-mask pixels for this first instance; ray estimates must retain UNKNOWN/interval uncertainty.",
+    "A constant-cuboid-point-depth ring test is distinct from the original synthetic first-hit ray/occluder test. It must not be renamed exact semantic external visibility.",
+    "Actual initializer-production q is not established by GT-jitter emulation. Any such q distribution is source-supervised/emulated and must be declared."
+  ],
+  "feasibility_statement": "The actual official scene depth, target instance masks, GT object pose, K and exact model AABB are sufficient inputs to test one source-only virtual-reference proxy. They do not certify physical corner semantics, reliable native8 correspondence, or solve real pallet visibility. The label agent owns the separate one-instance normal-order/ray-proxy calculation.",
+  "scope": {
+    "new_download_range_bytes": 67734,
+    "new_format_doc_bytes": 9821,
+    "new_RGB_depth_mesh_texture_downloads": 0,
+    "RGB_decoded": 0,
+    "new_model_forward_training_current_PnP": 0,
+    "existing_files_modified": false,
+    "no_duplicate_proxy_calculation_with_label_agent": true
+  },
+  "local_audit": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/LOCAL_AVAILABILITY_AND_ONE_DEPTH_AUDIT.json",
+    "sha256": "2c89de3f887550cc0d96306634d5498efd9f2916581e563da300aeeba20c9818",
+    "bytes": 11193
+  },
+  "small_metadata_receipt": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/OFFICIAL_METADATA_INTAKE_RECEIPT.json",
+    "sha256": "cc19eb6eb8431bc5f62865b7eaf0d96b9619a5e0422d9cd04eb209a4f2ed9d1c",
+    "bytes": 1919
+  }
+}

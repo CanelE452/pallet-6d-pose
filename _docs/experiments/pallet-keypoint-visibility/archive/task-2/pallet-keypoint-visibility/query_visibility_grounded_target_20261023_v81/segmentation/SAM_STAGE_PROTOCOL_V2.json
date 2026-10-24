@@ -1,0 +1,111 @@
+{
+  "schema": "V81_SINGLE_BOX_NATIVE_VISIBLE_MASK_STAGE_V2_API_ENCODING",
+  "source_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/EXPERIMENT_DECISIONS_BEFORE_ASSETS_AND_SOURCE.json",
+    "sha256": "34e406371c3452f7013d6f871568f218f69d9e668e1ea8115919b11d0472040e"
+  },
+  "runtime": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/RUNTIME_SEAL.json",
+    "sha256": "e5655309c2c99ee18e76fa0ebe85541194445895673d9b64f915384130bcbf82"
+  },
+  "checkpoint": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+    "sha256": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5"
+  },
+  "precision_precedent": {
+    "code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/extract_source_masks.py",
+      "sha256": "185ccea1e43ff8cf43e57694c8e382d2dd8911538286a1a8f44218fdefdb81aa"
+    },
+    "protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/PROTOCOL.json",
+      "sha256": "1e6a99030faf8b2c6cd1144b70b09395d55609c2b746c9fd7d12ad6f7e622128"
+    }
+  },
+  "scope": "Preparation only until root-approved SAM_ENTRYLOCK and explicit source-only run.",
+  "input": {
+    "detector_output_seal": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/detector/outputs/DETECTOR_OUTPUT_SEAL.json",
+    "ASSOCIATIONS": "1035 original input order and original7 fields unchanged",
+    "perRGB": "435 unique RGB; raw SHA/HW and decoded uint8HWC SHA equality before set_image",
+    "box": "Detector selected prompt float32 native clipped positive XYXY; validate selection IoU/score/originalordinal without choosing a new box",
+    "GT_forward": false,
+    "query_prompts": false
+  },
+  "settings": {
+    "weights": "FP32 eval frozen",
+    "torch": "2.5.1+cu121",
+    "numpy": "1.26.4",
+    "device": "cuda",
+    "autocast": "bfloat16",
+    "TF32": false,
+    "seed": 20261023,
+    "threads": 4,
+    "compile": false,
+    "postprocessing": false,
+    "mask_threshold": 0.0,
+    "max_hole_area": 0.0,
+    "max_sprinkle_area": 0.0,
+    "multimask_output": false,
+    "return_logits": false,
+    "points": null,
+    "quality_selection": false,
+    "selected_mask_index": 0
+  },
+  "embedding_cache": "Group all associated inputs by RGB identity; exactly one set_image per associated RGB; no across-image stale reuse.",
+  "output": {
+    "manifest": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/outputs/OUTPUT_MASKS.jsonl",
+    "seal": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/outputs/SAM_OUTPUT_SEAL.json",
+    "native_mask_key": "visible_mask",
+    "native_mask_dtype": "bool",
+    "native_mask_shape": "H,W",
+    "mask_status": "OK or U",
+    "no_association": "U with mask=null, no artificial all-zero mask",
+    "zero_mask": "OK; exact query prediction NOT_VISIBLE_MASK",
+    "quality": "One scalar reported for audit only; no branch/confidence/GT selection",
+    "query_csv": "8280 ordered slots; original q floor(q+.5), continuous and nearest bounds, invalid U; no E/S labels"
+  },
+  "semantics": "Visible mask proxy. A zero pixel is not evidence of external/self occlusion; a no-match is UNKNOWN. No semantic gold or goal/deployment completion claim.",
+  "guards": [
+    "root approved entry before source metadata or model",
+    "all code/runtime/weights hash bindings before model load",
+    "source whitelist/full identity/order and saved detector NPZ verification before RGB",
+    "pixel-decode equality across Pillow runtimes",
+    "state SHA before/after identical",
+    "existing output directory rejects automatic rerun"
+  ],
+  "prepared_reads": {
+    "source_RGB": 0,
+    "GT": 0,
+    "weights": 0,
+    "model_construction": 0,
+    "forward": 0,
+    "current223": 0,
+    "fit": 0,
+    "PnP": 0
+  },
+  "official_public_API_encoding": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/OFFICIAL_SAM_MASK_API_CONTRACT.json",
+    "sha256": "064596878f118f2da0e8d996012c7328f9829d055929932fabf919d0e14a006c"
+  },
+  "API_conversion": "Official return_logits=False masks are exactly binary float32; require finite {0,1} then bool cast, no tolerance or additional threshold.",
+  "RGBcopy": "Writable np.array uint8 copy; raw file SHA/HW and decoded byte SHA assertions retained.",
+  "technical_failure_preservation": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/provenance/FAILED_BINARY_FLOAT_API_V1/PRESERVATION_SEAL.json",
+    "sha256": "21132fb3e406640236d743bbb6152076c165867bca7692bda9e9846b8decf0a8"
+  },
+  "settings_changed": false,
+  "already_attempted_source_calls": {
+    "failed_attempt_predict": 1,
+    "failed_attempt_set_image": 1,
+    "failed_attempt_RGB_decode": 1,
+    "failed_attempt_saved_masks": 0
+  },
+  "prepared_repair_reads": {
+    "new_source_RGB": 0,
+    "GT": 0,
+    "weights": 0,
+    "model_construction": 0,
+    "forward": 0,
+    "current223": 0
+  }
+}

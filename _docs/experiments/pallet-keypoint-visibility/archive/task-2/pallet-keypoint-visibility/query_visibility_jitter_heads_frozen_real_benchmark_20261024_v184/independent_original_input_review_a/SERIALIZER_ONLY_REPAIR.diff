@@ -1,0 +1,19 @@
+--- preserved_first_actual
++++ serializer_repaired
+@@ -131,6 +131,7 @@
+     ACCESSES.clear();tests['actual_mixed_reader_whitelist4_no_inventory']=keys==['rgb96','crop_valid96','query_xy','side_L']
+     tests['globalIDs_may_overlap_between_original_domains']=len(set(range(1784))&set(range(584,944)))==360
+     tests['JSON_null_numeric_nan_same_original_missing_identity']=equal([None,None],np.array([np.nan,np.nan])) and equal(None,np.nan) and not equal([None,None],[1.,2.])
++    toy=H/'INVENTED_SERIALIZED_ALIAS_COUNT.json';write(toy,dict(FP32_alias_nonzero_grid_drift_rows=int(np.int64(7))));tests['actual_writer_accepts_explicit_int_alias_drift_count']=read(toy)==dict(FP32_alias_nonzero_grid_drift_rows=7)
+     need(all(tests.values()),'Invented checks failed');return tests
+ def prepare():
+     tests=invented();write(H/'GENERATED_INVENTED_CHECKS.json',dict(completed=True,PASS=True,checks=tests,count=len(tests),real_body_reads=0))
+@@ -170,7 +171,7 @@
+                 if np.isfinite(q[k]).all() and math.isfinite(L):
+                     delta=max(abs(float(raw['query_xy'][i,j])-q[k,j])+47.5/96*abs(float(raw['side_L'][i])-L) for j in range(2));max_drift=max(max_drift,delta);alias_drift+=delta>0
+         for key in ['rgb96','valid96']:need(array_sha(x[key])==d['actual_raw_array_SHA'][key],'Current saved wholearray hash')
+-        summary['CURRENT223_1784']=dict(rows=1784,frames=223,original_inputU=45,RGB_valid_byte_equal_rows=1784,metadata6_exact_rows=1784,F64_constructed_grid_checked=grid_rows,nonconstructed_zero_placeholder=placeholder,FP32_alias_nonzero_grid_drift_rows=alias_drift,max_abs_axis_alias_drift_bound_px=max_drift)
++        summary['CURRENT223_1784']=dict(rows=1784,frames=223,original_inputU=45,RGB_valid_byte_equal_rows=1784,metadata6_exact_rows=1784,F64_constructed_grid_checked=grid_rows,nonconstructed_zero_placeholder=placeholder,FP32_alias_nonzero_grid_drift_rows=int(alias_drift),max_abs_axis_alias_drift_bound_px=max_drift)
+         allrows.extend(rr);del raw,x
+         source=read_lines(verify(src['public_manifest']));need(len(source)==360,'All original public360')
+         d=c['domains']['PUBLIC_HELD45_360'];x=output_packet(d['inputs'],360,list(range(584,944)),108);rr=read_lines(verify(d['metadata']));need(len(rr)==360,'Public ROWS360');grid_rows=placeholder=0

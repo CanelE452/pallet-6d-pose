@@ -1,0 +1,139 @@
+{
+  "completed": true,
+  "PASS": true,
+  "blockers": [],
+  "scope": "Independent pre-source code and generated math review only. No source arrays/pixels/semantic annotation bodies/checkpoint parameters/current or actual source model forward/fit/PnP.",
+  "operator": {
+    "code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/query_center_scalar.py",
+      "sha256": "d62e1610ca45f24e3cbf90e66dff3a7d954f87713afea4f5ae7bdc404411b0cb",
+      "bytes": 6681
+    },
+    "protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/OPERATOR_PROTOCOL_DRAFT.json",
+      "sha256": "00691c4d4111aa0846b21c0b8e1efb6ff4f3e4338146e8c84da3130d72e3b684",
+      "bytes": 6252
+    },
+    "tests": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/test_generated_query_operator.py",
+      "sha256": "cee4b8cbafbd250ae98d619d76ca6dce7476a6a487ade0492aad752e1f6648a0",
+      "bytes": 7897
+    },
+    "producer_proof": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/GENERATED_OPERATOR_TESTS.json",
+      "sha256": "4b18ebd2defe070cc07511dbf919f38d53049047426131c39a66cabd02b6b896",
+      "bytes": 1775
+    },
+    "rerun": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/independent_operator_and_pair_preparation_review/PRODUCER_OPERATOR_GENERATED_RERUN.json",
+      "sha256": "4b18ebd2defe070cc07511dbf919f38d53049047426131c39a66cabd02b6b896",
+      "bytes": 1775
+    },
+    "parameter_count": 26573,
+    "findings": [
+      "The explicit three tensors are P3 N65x9x9, uint8 original RGB96, factual local-valid96. Forward accepts no r/uncertainty/GT region/native semantic ID/variant/donor/source/target selector.",
+      "Training loss and sign decoder consume the same query_logit produced in train/VAL/infer. There is no GT-region readout, spatial argmax output, mosaic or recenter path. Generated nonzero outputs match exactly at identical batch shape; N16 versus two N8 drift is explicitly diagnostic (1.4901161193847656e-08), not claimed exact.",
+      "P3/RGB invalid contents are masked before encoders. Pool excludes factual invalid cells; all-invalid attention is zero. Centre-support requires native[4,4] plus all four RGB47:49 cells. Unavailable rows retain safe0 with query_available=false and decode U, rather than label0/1.",
+      "Loss admits known&query_available, validates known labels0/1, masks unknown targets before BCE, returns graphzero when empty, and reports known-unavailable separately. Independent analytic loss/gradient and full-model unavailable input gradients are exactly0 where required.",
+      "Original producer availability is a separate factual bit outside this three-tensor model. The existing pair materializer reports original_input_valid, operator_query_available, additional_operator_unavailable and their intersection. Future train/VAL/infer readers must retain these declared distinctions; safe0 is never a binary prediction for an unavailable occurrence.",
+      "Centre-conditioned attention creates a computational path from distant crop evidence to the one unchanged-q scalar. This does not prove learned localization, selected-cue identity, or immunity to global pallet-presence/another-cue/context shortcuts."
+    ]
+  },
+  "pair": {
+    "V1_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/same_q_pair_builder.py",
+      "sha256": "7450f610bd3f7567c2f87e9fe18197e5a064b64ba02c61f1a3e58d85ed3731fb",
+      "bytes": 16569
+    },
+    "V1_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/PAIR_DATA_PROTOCOL_DRAFT_BEFORE_SOURCE_BODIES.json",
+      "sha256": "895b99633e75930fa1009be3d2fcf14903d06fadd5d1840decdc0701e477876d",
+      "bytes": 11169
+    },
+    "V1_materializer_tests": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/test_generated_pairs.py",
+      "sha256": "a66f22c23e0a3e7ad79cd4b3ef48e94f75486715a8bfaa83dfc7331c7eb5b09c",
+      "bytes": 10001
+    },
+    "V1_rerun": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/independent_operator_and_pair_preparation_review/PRODUCER_PAIR_V1_MATERIALIZER_GENERATED_RERUN.json",
+      "sha256": "88aaf6cefb5f072f29180d56b41bee578f051991c240c5a914749226c33d16b7",
+      "bytes": 1905
+    },
+    "V2_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/v2_geometry_mass_proposal/geometry_mass_v2.py",
+      "sha256": "61e61356ea16287c41dff09c739c05c07ea5941a9539a9e1af4b83c8f97530a4",
+      "bytes": 8512
+    },
+    "V2_proposal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/v2_geometry_mass_proposal/ASSESSMENT_AND_PROPOSED_V2_KO.json",
+      "sha256": "b1150399b97d8531eb3cf8ebd6e589ddbc54027d803ab86e604f873e78bfcc91",
+      "bytes": 5315
+    },
+    "V2_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/v2_geometry_mass_proposal/PROPOSED_V2_PREPARATION_SEAL.json",
+      "sha256": "8523db0b044953ba17f1f32614a9550ed6ba1d6d8ba1a2fc9dc913442fa7ff6c",
+      "bytes": 1907
+    },
+    "V2_tests": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/paired_source_preparation/v2_geometry_mass_proposal/test_generated_geometry_mass.py",
+      "sha256": "8936ed9ebc9e9d41918ad134291eabcc732ec625acf5c9671377643b55415aa4",
+      "bytes": 5571
+    },
+    "V2_rerun": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/independent_operator_and_pair_preparation_review/PRODUCER_PAIR_V2_GENERATED_RERUN.json",
+      "sha256": "c9b1fe8604cd7d2529c9b570ad983de22585f5d41d1c93c6ba3bb98b0ccb435a",
+      "bytes": 3200
+    },
+    "findings": [
+      "One metadata-selected minSHA foreign donor remains fixed per original input/slot and split/object-family policy. V2 erodes its mask once, takes tight whole cutout, selects one native opaque rectangle (max area/lex tie), and computes one bounded scale from protected geometry plus4px margin. No donor replacement or scale sweep rescues failure.",
+      "V2 opaque rectangle is an alpha certificate within the actual donor, not substitute rectangular RGB. RGB uses bilinear resize; hard alpha uses nearest; actual resized opaque core and all protected cells are rechecked. Fixed9x25 cover/sham translation candidates are SHA ranked; first feasible mass-matched pair only.",
+      "Cover and sham use the identical donor RGB/shape/scale; unclipped native alpha counts must agree and all donor cells lie inside the original96 sampling envelope. The independent float64 bilinear96 alpha mass tracks exact crop sampling phase rather than area alone. Both masses must be positive with abs difference<=1e-9+.01*mean mass.",
+      "The1e-9 term is numerical tolerance;1% is the explicitly declared prospective mass-design allowance. It is not a learned parameter, model-score threshold or evidence of equal visual/P3 information. No tolerance sweep or post-source relaxation was performed here.",
+      "The existing materializer uses each edited full RGB for both exact original-q RGB96 and a fresh frozen full-image-P3 callback. Before ROI may be reused only on before occurrence; passing before P3 as the after callback is rejected. GT edit/cue/donor data remain outside head_inputs_only.",
+      "All160 original slots become480 occurrence records in BEFORE/COVER/SHAM order. Invalid/no-query/U and impossible cases remain; failed pair leaves both AFTER variants U while an independently admitted BEFORE may stay known. The V1 generated ledger preserves38x3 factual U occurrences. Finite invalid original crops remain unchanged, not forcibly replaced by zero crops.",
+      "V2 currently exports geometry/mass helpers and proposal fixtures; it is not wired into V1 prepare_occurrences, which intentionally retains sealed .40L behavior. Therefore this PASS certifies helper math and the separate existing same-image materializer API, not an executed integrated V2 source builder or corpus."
+    ]
+  },
+  "independent_generated": {
+    "script": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/independent_operator_and_pair_preparation_review/generated_independent.py",
+      "sha256": "70b4568e9261f35ffc794a216bfc76ef15e66862b7f3f841cc85238b6af241e9",
+      "bytes": 5541
+    },
+    "proof": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/independent_operator_and_pair_preparation_review/INDEPENDENT_GENERATED_MATH.json",
+      "sha256": "31a67540d02e2b1b017b9fc79bf645f3b2ddd6654f502e938cc95cf55f38095b",
+      "bytes": 737
+    },
+    "own_loss_error": 0.0,
+    "own_gradient_error": 0.0,
+    "all_512_3x3_opacity_masks_bruteforce_rectangle_exact": true,
+    "scalar_alpha_cases": 3,
+    "scalar_alpha_samples": 27648,
+    "scalar_alpha_mass_errors": [
+      1.1368683772161603e-12,
+      1.2732925824820995e-11,
+      4.547473508864641e-13
+    ],
+    "impossible_empty_thin_donor_U": true
+  },
+  "actual_readiness": {
+    "actual_source_corpus_created": false,
+    "actual_donor_pixel_or_opacity_certified": false,
+    "actual_after_P3_parity_certified": false,
+    "semantic_or_native_gold_created": false,
+    "fit_authorized": false,
+    "current_admission_authorized": false,
+    "interpretation": "These are pending facts, not preparation failures or new gates. Root can proceed to actual source materialization/admission and freeze a fit protocol once the real corpus/labels/input bindings are established; this review neither requests user approval nor invents a native/CAD surface prerequisite."
+  },
+  "limitations": [
+    "Physical 2D pallet structural cues can be legitimate conditional auxiliary evidence without native8/CAD mapping. They cannot be silently renamed expected native-corner D/E/S or human gold.",
+    "An opaque alpha certificate and matched paste mass do not certify source donor material opacity/ownership or remove position, edge, color, feature receptive-field and global-presence shortcuts. Those are honest limits of controlled source augmentation.",
+    "Unlabelled/background/material-only appearance is not E/S or a negative expected-cue label. Cue identity/selected-instance ambiguity remains UNKNOWN, and conflicting labels for indistinguishable permitted inputs remain possible.",
+    "No architecture/loss/threshold/checkpoint selector, training budget, current gate or source quality requirement was selected or changed by this audit. No original sealed V1/operator artifacts were modified."
+  ],
+  "created_UTC": "2026-10-23T01:10:59.819420+00:00",
+  "reviewer_actual_source_model_forward_fit_current_PnP": 0,
+  "generated_CPU_random_model_calls_only": true
+}

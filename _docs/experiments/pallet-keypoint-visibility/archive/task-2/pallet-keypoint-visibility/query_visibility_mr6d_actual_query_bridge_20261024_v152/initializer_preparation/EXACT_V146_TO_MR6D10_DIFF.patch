@@ -1,0 +1,65 @@
+--- V146_RUN
++++ V152_RUN
+@@ -8,10 +8,10 @@
+         check(p[k])
+     for k in ('reference_code', 'reference_protocol', 'backbone_code', 'checkpoint', 'native_grid'):
+         check(p[k])
+-    assert read(GENERATED)['PASS'] and (not OUT.exists()) and (p['frames'] == 64) and (p['native_slots'] == 512) and (p['output'] == str(OUT))
++    assert read(GENERATED)['PASS'] and (not OUT.exists()) and (p['frames'] == 10) and (p['native_slots'] == 80) and (p['output'] == str(OUT))
+     rows = lines(INPUTS)
+-    assert len(rows) == 64 and all((set(r) == INPUT_KEYS and r['frame_index'] == i for (i, r) in enumerate(rows)))
+-    validate_transport(e,p,rows)
++    assert len(rows) == 10 and all((set(r) == INPUT_KEYS and r['frame_index'] == i for (i, r) in enumerate(rows)))
++    validate_transport(e, p, rows)
+     OUT.mkdir()
+     os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
+     os.environ['YOLO_CONFIG_DIR'] = str(OUT / 'runtime/Ultralytics')
+@@ -25,15 +25,15 @@
+     torch.backends.cuda.matmul.allow_tf32 = False
+     torch.backends.cudnn.allow_tf32 = False
+     torch.use_deterministic_algorithms(True)
+-    spec = importlib.util.spec_from_file_location('v146_exact_R0_factory', p['backbone_code']['path'])
++    spec = importlib.util.spec_from_file_location('v152_exact_R0_factory', p['backbone_code']['path'])
+     factory = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(factory)
+     model = factory.FrozenYoloFeatures(p['checkpoint']['path'], device=p['runtime']['device'])
+ 
+     def image(row):
+-        assert sha(row['image'])==row['image_sha256']
+-        rgb=np.load(check(row['canonical_RGB_NPY']),allow_pickle=False)
+-        return array_to_bgr(rgb,row)
++        assert sha(row['image']) == row['image_sha256']
++        rgb = np.load(check(row['canonical_RGB_NPY']), allow_pickle=False)
++        return array_to_bgr(rgb, row)
+     hooks = [0]
+     handle = model.yolo.model.register_forward_pre_hook(lambda *_: hooks.__setitem__(0, hooks[0] + 1))
+     loaded = state(model.yolo.model)
+@@ -70,22 +70,22 @@
+         repeat = model.predict(image(rows[0]), already_padded=False, cpu_features=True)
+         assert serial(repeat) == first and repeat['p3'].numpy().tobytes() == firstp3.tobytes()
+         assert state(model.yolo.model) == warm and sha(p['checkpoint']['path']) == p['checkpoint']['sha256'] and all((not m.training for m in model.yolo.model.modules())) and all((not p.requires_grad for p in model.yolo.model.parameters()))
+-        for (name, records) in (('FROZEN_PROPOSALS_ALL64_INPUT_ONLY.jsonl', proposals), ('ORIGINAL_NATIVE_QUERY512_INPUT_ONLY.jsonl', queries)):
++        for (name, records) in (('FROZEN_PROPOSALS_ALL10_INPUT_ONLY.jsonl', proposals), ('ORIGINAL_NATIVE_QUERY80_INPUT_ONLY.jsonl', queries)):
+             with (OUT / name).open('x') as f:
+                 for row in records:
+                     f.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + '\n')
+         arrays = {key: np.concatenate(value, axis=0) for (key, value) in qpack.items()}
+-        arrays.update(global_index=np.arange(512, dtype=np.int32), frame_index=np.repeat(np.arange(64, dtype=np.int32), 8), native_slot=np.tile(np.arange(8, dtype=np.int8), 64), query_id=np.array([r['query_id'] for r in queries]), frame_id=np.repeat([r['id'] for r in rows], 8), split=np.repeat([r['split'] for r in rows], 8), no_detection=np.repeat([z['selected_index'] is None for z in proposals], 8))
+-        np.savez_compressed(OUT / 'ORIGINAL_NATIVE_QUERY512_AND_VALID9X9_INPUT_ONLY.npz', **arrays)
++        arrays.update(global_index=np.arange(80, dtype=np.int32), frame_index=np.repeat(np.arange(10, dtype=np.int32), 8), native_slot=np.tile(np.arange(8, dtype=np.int8), 10), query_id=np.array([r['query_id'] for r in queries]), frame_id=np.repeat([r['id'] for r in rows], 8), split=np.repeat([r['split'] for r in rows], 8), no_detection=np.repeat([z['selected_index'] is None for z in proposals], 8))
++        np.savez_compressed(OUT / 'ORIGINAL_NATIVE_QUERY80_AND_VALID9X9_INPUT_ONLY.npz', **arrays)
+         sizes = {'box_xyxy': (4,), 'keypoints_xy': (9, 2), 'keypoints_conf': (9,), 'score': ()}
+         allc = {key: np.stack(value) if value else np.empty((0,) + sizes[key], np.float64) for (key, value) in candidate_arrays.items()}
+         np.savez_compressed(OUT / 'ALL_CANDIDATES_RAW9_AND_BOXES_INPUT_ONLY.npz', frame_offsets=np.array(offsets, np.int32), selected_index=np.array([-1 if z['selected_index'] is None else z['selected_index'] for z in proposals], np.int32), **allc)
+         handle.remove()
+         model.close()
+-        result = dict(completed=True, PASS=True, frames=64, native_slots=512, no_detection_frames=sum((r['selected_index'] is None for r in proposals)), candidate_count=offsets[-1], finite_non_sentinel_slots=int(arrays['finite_non_sentinel'].sum()), continuous_valid_slots=int(arrays['continuous_valid'].sum()), nearest_valid_slots=int(arrays['nearest_valid'].sum()), finite_OOB_slots=int((arrays['finite_non_sentinel'] & ~arrays['continuous_valid']).sum()), all64_and512_retained=True, all_candidates_raw9_and_firstargmax_unchanged=True, centroid_excluded_from_native_q_and_L=True, warmup_state_SHA=warm, after_state_unchanged=True, checkpoint_unchanged=True, repeat_first_serial_and_P3_exact=True, no_saved_fullP3_duplicate=True, explicit_predict_calls=66, total_forward_hooks=hooks[0], generated_warmup_hooks=warmhooks, input_seal=p['inputs'], GT_pose_K_reference_semantic_mask_or_historic_score_reads=0, visibility_classifier_fit_private_V112_PnP_q_L_correction_calls=0, association_not_inferred=True, seconds=time.monotonic() - start)
++        result = dict(completed=True, PASS=True, frames=10, native_slots=80, no_detection_frames=sum((r['selected_index'] is None for r in proposals)), candidate_count=offsets[-1], finite_non_sentinel_slots=int(arrays['finite_non_sentinel'].sum()), continuous_valid_slots=int(arrays['continuous_valid'].sum()), nearest_valid_slots=int(arrays['nearest_valid'].sum()), finite_OOB_slots=int((arrays['finite_non_sentinel'] & ~arrays['continuous_valid']).sum()), all10_and80_retained=True, all_candidates_raw9_and_firstargmax_unchanged=True, centroid_excluded_from_native_q_and_L=True, warmup_state_SHA=warm, after_state_unchanged=True, checkpoint_unchanged=True, repeat_first_serial_and_P3_exact=True, no_saved_fullP3_duplicate=True, explicit_predict_calls=12, total_forward_hooks=hooks[0], generated_warmup_hooks=warmhooks, input_seal=p['inputs'], GT_pose_K_reference_semantic_mask_or_historic_score_reads=0, visibility_classifier_fit_private_V112_PnP_q_L_correction_calls=0, association_not_inferred=True, seconds=time.monotonic() - start)
+         write(OUT / 'RESULT.json', result)
+-        outputs = [bind(OUT / name) for name in ('FROZEN_PROPOSALS_ALL64_INPUT_ONLY.jsonl', 'ORIGINAL_NATIVE_QUERY512_INPUT_ONLY.jsonl', 'ORIGINAL_NATIVE_QUERY512_AND_VALID9X9_INPUT_ONLY.npz', 'ALL_CANDIDATES_RAW9_AND_BOXES_INPUT_ONLY.npz', 'RESULT.json')]
+-        write(OUT / 'PREDICTION_SEAL.json', dict(completed=True, PASS=True, code=bind(__file__), policy=e['policy'], protocol=bind(PROTOCOL), entry=bind(entry), inputs=p['inputs'], canonical_transport_seal=e['canonical_transport_seal'], outputs=outputs, frames=64, rows=512, GT_read=False, historical_predictions_read=False, all64_frames512_native_slots_preserved=True, actual_original_initializer=True, source_emulation=False))
++        outputs = [bind(OUT / name) for name in ('FROZEN_PROPOSALS_ALL10_INPUT_ONLY.jsonl', 'ORIGINAL_NATIVE_QUERY80_INPUT_ONLY.jsonl', 'ORIGINAL_NATIVE_QUERY80_AND_VALID9X9_INPUT_ONLY.npz', 'ALL_CANDIDATES_RAW9_AND_BOXES_INPUT_ONLY.npz', 'RESULT.json')]
++        write(OUT / 'PREDICTION_SEAL.json', dict(completed=True, PASS=True, code=bind(__file__), policy=e['policy'], protocol=bind(PROTOCOL), entry=bind(entry), inputs=p['inputs'], canonical_transport_seal=e['canonical_transport_seal'], outputs=outputs, frames=10, rows=80, GT_read=False, historical_predictions_read=False, all10_frames80_native_slots_preserved=True, actual_original_initializer=True, source_emulation=False))
+         print(json.dumps(dict(completed=True, PASS=True, seal=bind(OUT / 'PREDICTION_SEAL.json'), result=bind(OUT / 'RESULT.json'))), flush=True)
+     except BaseException:
+         write(OUT / 'FAILED_EXECUTION.json', dict(completed=False, traceback=traceback.format_exc(), automatic_retry=False))

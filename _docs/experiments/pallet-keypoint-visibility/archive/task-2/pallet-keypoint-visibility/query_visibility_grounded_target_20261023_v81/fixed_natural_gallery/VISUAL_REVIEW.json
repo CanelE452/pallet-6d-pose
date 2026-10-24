@@ -1,0 +1,130 @@
+{
+  "completed": true,
+  "PASS_visual_QA": true,
+  "directly_viewed_contact_sheet_and_firstpage": true,
+  "fixed_four": [
+    {
+      "id": "YCB:000009:000241:000000",
+      "native_k": 6,
+      "finding": "관측된 target mask 소유권이 대체로 맞은 사례",
+      "actual_saved_output_and_RGB_reading": "Scene에서 input box와 선택 box는 blue pitcher 주변이고 q/r는 앞 red drill의 표면이다. 예측 phrase는 mug지만 target M4 IoU0.771이고 q mask0으로 source C와 맞는다. Phrase 문자열이 source category 이름과 같은지가 mask ownership의 대체 지표는 아니다.",
+      "predicted_phrase": "mug",
+      "M4_IoU": 0.7714669051878354,
+      "V81_mask_at_q": "NOT_VISIBLE_MASK",
+      "GT_reference_support": "C",
+      "figure": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/fixed_natural_gallery/1_FIXED_GROUNDED_MASK.png",
+        "sha256": "9ad0efc5b4f6294c303c21cc63c3bdff3dd3b252dc243505ef861f01fa62b850"
+      }
+    },
+    {
+      "id": "YCB:000008:001872:000004",
+      "native_k": 6,
+      "finding": "선택한 occluder와 intended target이 다른 사례",
+      "actual_saved_output_and_RGB_reading": "원래 target은 뒤 white cleanser인데 선택 box/phrase는 앞 yellow mustard bottle이다. SAM mask가 q를 포함해 false-visible이고 원 target M4 IoU는0.0268이다. 이 사례에서는 input-only max-IoU association이 occluder를 고르는 것이 실제 source 출력/그림에서 확인된다. 올바른 target을 SAM이 segment하지 못했다고 단순히 돌리거나 다른 GT-best detection으로 고치지 않는다.",
+      "predicted_phrase": "mustard bottle",
+      "M4_IoU": 0.02680569962330076,
+      "V81_mask_at_q": "VISIBLE_MASK",
+      "GT_reference_support": "C",
+      "figure": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/fixed_natural_gallery/2_FIXED_GROUNDED_MASK.png",
+        "sha256": "0161e39b28b31c4ea206f2c177f4dbdbe9533053f760e8c77c662966700bb3e9"
+      }
+    },
+    {
+      "id": "YCB:000008:001299:000002",
+      "native_k": 1,
+      "finding": "U를 실제 nonvisible로 바꾸면 안 되는 사례",
+      "actual_saved_output_and_RGB_reading": "보이는 low tuna can의 원 q/L은 그대로지만 max initial-box IoU가 사전0.1 미만이라 U/no mask다. 이를 all-zero mask나 COVERED 예측으로 표시하지 않았다. End-to-end visible recall에는 miss로 포함한다. 대체 detection/문턱은 선택하지 않았다.",
+      "predicted_phrase": null,
+      "M4_IoU": 0.0,
+      "V81_mask_at_q": "U",
+      "GT_reference_support": "V",
+      "figure": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/fixed_natural_gallery/3_FIXED_GROUNDED_MASK.png",
+        "sha256": "1d578152afe102721816a6eb2f2cd2da7d8e2bc67d1deddd7e2304acfcc9c5e7"
+      }
+    },
+    {
+      "id": "YCB:000009:000225:000002",
+      "native_k": 6,
+      "finding": "예측 phrase와 별개로 target mask가 맞은 사례",
+      "actual_saved_output_and_RGB_reading": "선택 phrase는 cracker box지만 scene의 wood block에 선택 box가 맞고 target M4 IoU0.821, q mask1로 source V와 맞는다. GT category name으로 후보를 걸러 재선택하면 실제 frozen producer를 바꾸게 된다. 원 producer 결과를 유지한다.",
+      "predicted_phrase": "cracker box",
+      "M4_IoU": 0.8213193311582382,
+      "V81_mask_at_q": "VISIBLE_MASK",
+      "GT_reference_support": "V",
+      "figure": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/fixed_natural_gallery/4_FIXED_GROUNDED_MASK.png",
+        "sha256": "236492ca80bc2bbeb8af2ef1fe3ba40e216b7f27935dd3dd21719e732ff1ddb0"
+      }
+    }
+  ],
+  "denominator_checks": {
+    "all_instances": 1035,
+    "mask_available": 823,
+    "no_association_U": 212,
+    "U_not_zero_mask": true,
+    "all_mIoU_Uzero": 0.5115457502751155,
+    "matched_mIoU": 0.6433169520470771,
+    "strict535_CM_CV_by_CVU": [
+      [
+        15,
+        56,
+        5
+      ],
+      [
+        83,
+        259,
+        117
+      ]
+    ],
+    "strict_C_end_to_end_recall": 0.19736842105263158,
+    "strict_V_end_to_end_recall": 0.5642701525054467,
+    "strict_U": 122,
+    "known_CV_precision_scope": true
+  },
+  "target_definition_audit": {
+    "YCB_original_primary_visible_N": 1731,
+    "same_q_GT_O_among_reference_V": 655,
+    "same_q_GT_V_among_reference_V": 1071,
+    "same_q_GT_C_among_reference_V": 5,
+    "interpretation": "Reference-local V and exact q pixel V are different targets; even a perfect target-visible mask read at q cannot automatically reproduce a reference-local V when qGT is O. Original primary labels stay unchanged. However strict535 qGT agrees with the reference labels and remains weak, so target-definition mismatch is not the whole explanation."
+  },
+  "limits": [
+    "Same four V79 outcome-cell examples, fixed before V81, are diagnostic not prevalence evidence.",
+    "Same globally fixed22-class caption for every image; no GT target class supplied, no GT candidate/mask selection.",
+    "Open-vocabulary phrase does not uniquely identify intended instance from an imprecise input q-box.",
+    "Mask0 is NOT_VISIBLE_MASK, not physical absence, causal external E or self S; U is no mask or invalid q.",
+    "Whole-instance visible-mask IoU and exact query-pixel/reference-semantic metrics are different objectives.",
+    "No current223, new training, PnP, query shift, new radius or posthoc score/threshold/model selection.",
+    "Prior failed SAM output-dtype guard and pre-run detector padded-logit guard were infrastructure contract fixes; preserved artifacts remain immutable."
+  ],
+  "bindings": {
+    "build": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/fixed_natural_gallery/BUILD_SEAL.json",
+      "sha256": "0811f76535fad04442af619147e512e87b37076bfa4ba7c6034c1eee626ee8d9"
+    },
+    "report": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/RESULTS_KO.html",
+      "sha256": "bf1bd3d062339f43eefe8d2ccc7c6fe50ee61b154de1ca13395e0341a03d10bb"
+    },
+    "report_JSON": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/RESULTS_KO.json",
+      "sha256": "dc15d1d8d624c507d4bd3b102195696cafd5dc2f64261eab4c4a7cff3efc5f92"
+    },
+    "contact": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/fixed_natural_gallery/CONTACT_SHEET.png",
+      "sha256": "36c7c7e127f10bbc92612c6462d39f0d442293cd1f522b6603a0bbfa167b6b0a"
+    },
+    "firstpage": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/fixed_natural_gallery/FIRST_PAGE.png",
+      "sha256": "c8cf54b598f1e7bc9bfe3588b1fb6b5e24dfdb924c42de34733b066eb8700495"
+    }
+  },
+  "new_model_forward": 0,
+  "new_fit": 0,
+  "current223": 0,
+  "PnP": 0,
+  "raw_source_RGB_decodes_for_existing_fixed_figures_only": 4
+}
