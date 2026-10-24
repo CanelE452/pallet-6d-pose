@@ -1,3 +1,11 @@
+# V201 TRAIN 대응 진단 게시
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V201_KO.md) · [TRAIN 대응·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_train_native_end_q8_correspondence_20261025_v201/PORTABLE_REPORT_KO.md)
+
+원 query와 감독 finite-end를 분리한 source metadata 기록이며 새 모델·학습·성능 개선이나 채택을 뜻하지 않는다.
+
+---
+
 # V200 동결 native 조건 head 실사 비교
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V200_KO.md) · [V200 결과·코드·같은68 gallery](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/PORTABLE_REPORT_KO.md)

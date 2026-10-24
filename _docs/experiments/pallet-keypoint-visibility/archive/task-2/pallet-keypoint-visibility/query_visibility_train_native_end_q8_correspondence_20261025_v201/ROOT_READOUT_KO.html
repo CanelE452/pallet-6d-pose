@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><title>V201 TRAIN target/query/q8 correspondence</title>
+<style>body{font:17px/1.65 system-ui,sans-serif;max-width:1200px;margin:32px auto;padding:0 24px;color:#202a35}img{width:100%;height:auto}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd3db;padding:8px}th{background:#eef3f8}.callout{padding:16px;background:#eef4fa;border-left:5px solid #266ba6}a{color:#125c9b}</style>
+<h1>V201: 무엇의 가림을 학습했는가?</h1><p class="callout">새 모델 성능 개선은 아직 미확인. 이번에는 실제 SOURCE TRAIN에서 query·native·weak-end·원8점 출처의 대응을 확인했습니다. 새 학습·추론·PnP는 실행하지 않았습니다.</p>
+<p><a href="PORTABLE_REPORT_KO.md">전체 한국어 보고서</a> · <a href="ROOT_RESULTS_KO.json">결과와 해시</a> · <a href="target_correspondence_b/ALL109_TRAIN_FINITE_END_QUERY_CORRESPONDENCE.csv">109쌍 CSV</a></p>
+<h2>원 query와 감독 끝부위의 위치</h2><img src="scientific_readout_v1/TRAIN_QUERY_AND_WEAK_END.png" alt="TRAIN109 weak-end/query correspondence">
+<p>상자 거리는 GT 좌표 오차가 아닙니다. 합성과 공개 실사 상자의 정의도 다릅니다. 사람이 평가한 native D/E 권위는 그대로 유지합니다.</p>
+<h2>마지막 실사 비교 — V200 저장 집계 재사용</h2><p>같은 D1,147/E90 query. legacy는 과거 real-CAL 참조군입니다. 새 평가 또는 독립 blind 결과가 아닙니다.</p><table><tr><th>모델</th><th>D 재현율</th><th>E 재현율</th><th>E 정밀도</th></tr><tr><td>v61</td><td>22.67%</td><td>97.78%</td><td>9.03%</td></tr><tr><td>legacy</td><td>57.11%</td><td>92.22%</td><td>20.65%</td></tr><tr><td>C55</td><td>72.45%</td><td>41.11%</td><td>10.48%</td></tr><tr><td>C57</td><td>63.56%</td><td>57.78%</td><td>11.06%</td></tr><tr><td>C59</td><td>52.57%</td><td>43.33%</td><td>6.69%</td></tr></table>
+<h2>확인한 입력 계약</h2><p>합성 원 q8는 GT 투영이 아니라 실제 동결 초기 검출기의 출력입니다. 공개 실사는 기존 source 입력 facts와의 저장값 join을 확인했습니다. 동일 원 group·native 순서·availability를 보존해야 합니다. 한 query만 이동시키는 증강에서는 other7이 인위적 offset 단서를 남길 수 있으며, 이것이 실제 모델의 실패 원인이라고 입증된 것은 아닙니다.</p>
+<p>다음은 원 초기8점의 공간 관계와 RGB를 함께 읽는 작은 head 및 대응 대조군 준비입니다. end 상자·GT 좌표를 모델 입력에 넣거나 query를 정답으로 옮기지 않습니다.</p>
+<p><a href="q8_provenance_a/KO.md">q8 provenance</a> · <a href="target_correspondence_b/KO.md">target 대응</a> · <a href="independent_input_contract_c/KO.md">정보 계약</a> · <a href="independent_train_census_review_c/REVIEW.json">독립 TRAIN QA</a></p>
