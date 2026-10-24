@@ -1,3 +1,15 @@
+# 팔레트 가림 판정 최신 기록 · V213
+
+공개 실사와 합성으로 학습한 두 head의 고정 실사 비교를 공개했다. C63은 보이는 점 recall73.50%, 외부 가림 recall21.11%로 기존 실사 학습 모델(57.11%/92.22%)의 외부 가림 성능에 못 미친다. 같은 합성 HOLDOUT의 외부 가림 recall76.92%와 차이가 크다. 좌표/PnP를 바꾸거나 현재 평가셋으로 학습·문턱을 조정하지 않았다. 새 가중치2개·저장 예측26개·전체 혼동행렬·precision/recall·보류율·실제 고정crop·실패 기록을 포함한다. 문제는 아직 해결되지 않았고 모델 채택도 없다.
+
+- [최신 인덱스와 비교표](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V213_KO.md)
+- [실사 결과와 시각화](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/PORTABLE_REPORT_KO.md)
+- [학습·합성 HOLDOUT·실사 차이](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/ROOT_SOURCE_TRAIN_HOLDOUT_REAL_GAP_KO.md)
+
+아래 이전 README 내용은 그대로 보존한다.
+
+---
+
 # V209–V211 · SOURCE point 정합·학습 준비 진단 게시
 
 [최신 SOURCE V211 통합 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V211_KO.md) · [고정8 source control gallery](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_control_alignment_20261025_v209/fixed8_source_native_point_visual_v1/PORTABLE_GALLERY_KO.md) · [V211 저장 point3520 조회](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_dense_source_native_point_teacher_20261025_v211/PORTABLE_REPORT_KO.md)
