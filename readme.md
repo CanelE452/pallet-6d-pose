@@ -1,3 +1,11 @@
+# V202 spatial q8 source 대조 학습 게시
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V202_KO.md) · [TRAIN 대응·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_nominal_grouped_source_training_20261025_v202/PORTABLE_REPORT_KO.md)
+
+원 초기8점 공간 조건과 matched control 두 source head 각4000 학습의 기록이다. 실제 성능·한계는 보고서에 보존하며 실사 개선·채택·전체 해결을 자동 주장하지 않는다.
+
+---
+
 # V201 TRAIN 대응 진단 게시
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V201_KO.md) · [TRAIN 대응·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_train_native_end_q8_correspondence_20261025_v201/PORTABLE_REPORT_KO.md)
