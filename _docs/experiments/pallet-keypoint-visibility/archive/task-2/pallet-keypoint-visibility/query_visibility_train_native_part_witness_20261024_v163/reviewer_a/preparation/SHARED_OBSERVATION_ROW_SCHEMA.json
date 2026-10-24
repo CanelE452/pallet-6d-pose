@@ -1,0 +1,107 @@
+{
+  "schema": "V163_NATIVE_PART_WITNESS_ROW_SCHEMA_V1",
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_train_native_part_witness_20261024_v163/ROOT_SCOPE_BEFORE_NATIVE_PART_WITNESS_PIXELS.json",
+    "sha256": "875f28ae4633d83f80b598a6bc0812ae312131ea22d740d7e15f52b88f44481a"
+  },
+  "guidance": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_train_native_part_witness_20261024_v163/reviewer_a/preparation/SHARED_OBSERVATION_GUIDANCE.json",
+    "sha256": "971c69cc5a5038b9c094256451913dccf560546632f9a710b97a4ba24f743fe1"
+  },
+  "required_identity": [
+    "case_id",
+    "global_index",
+    "query_id",
+    "reviewer",
+    "review_set",
+    "native_slot",
+    "native_name"
+  ],
+  "identity_policy": "Copy identities from supplied blinded review manifest exactly; no independent selection/reindexing/q or L changes.",
+  "enums": {
+    "selected_instance_correspondence": [
+      "CLEAR",
+      "AMBIGUOUS",
+      "NOT_VISUALLY_RESOLVABLE"
+    ],
+    "native_part_visibility": [
+      "VISIBLE_SUPPORTED",
+      "EXTERNAL_BLOCK_SUPPORTED",
+      "SELF_HIDE_SUPPORTED",
+      "BOUNDARY_OR_GAP_AMBIGUOUS",
+      "UNKNOWN"
+    ],
+    "query_relation": [
+      "ON_INTENDED_PART_SUPPORTED",
+      "NEAR_INTENDED_PART_SAME_SELECTED_PALLET",
+      "OTHER_SELECTED_PALLET_PART",
+      "FOREIGN_OBJECT",
+      "BACKGROUND_OR_GAP",
+      "UNKNOWN"
+    ],
+    "part_support_extent": "Optional coarse RGB witness region for structuralpart only, not new physicalcornercoordinate or <=3pxgold; explicitreason andambiguity always",
+    "part_cover_readiness": [
+      "WEAK_CANDIDATE_PART_VISIBLE_AND_Q_RELATED",
+      "UNKNOWN_NOT_ADMITTED"
+    ],
+    "reviewer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "review_set": [
+      "PRIMARY130",
+      "BLIND_CROSS40"
+    ]
+  },
+  "required_observation_fields": [
+    "selected_instance_correspondence",
+    "native_part_visibility",
+    "query_relation",
+    "reason_KO",
+    "ambiguity_KO",
+    "part_cover_readiness",
+    "part_support_extent",
+    "actually_viewed"
+  ],
+  "reason_KO": "Concise actual RGB structural evidence: selected-instance connection, intended deck/runner-end witness, occluding structure or reason unresolved. Never just nominalref/oldrole/slotname.",
+  "ambiguity_KO": "Explicit unresolved limits; use a short statement even for supported observations (nominal pose/corner identity uncertified).",
+  "part_support_extent": {
+    "allowed": [
+      "null",
+      "coarse_region"
+    ],
+    "coarse_region_example": {
+      "coordinate_frame": "original_fullRGB",
+      "bbox_xyxy": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "meaning": "visible structural region, not physical corner coordinate"
+    },
+    "optional": true
+  },
+  "actually_viewed": {
+    "manifest": {
+      "path": "absolute blinded manifest",
+      "sha256": "exact hash"
+    },
+    "images": [
+      {
+        "path": "absolute image path actually viewed",
+        "sha256": "exact hash"
+      }
+    ],
+    "tool": "tools.view_image",
+    "viewed": true
+  },
+  "required_constant_fields": {
+    "assistant_weak_observation_only": true,
+    "native_coordinate_gold": false,
+    "training_admitted": false,
+    "original_labels_modified": false
+  },
+  "aggregate_receipt": "Bind frozen input manifests, guidance/schema, both JSONLs and complete actually-viewed image inventory; assert exact130+40 rows/no missing/no additions with separate set coverage."
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "V158_OWNER_WITNESS_ROW_SCHEMA",
+  "required_fields": {
+    "global_index": "integer",
+    "query_id": "string",
+    "owner_state": "TARGET_VISIBLE_SUPPORTED|FOREIGN_VISIBLE_SUPPORTED|BACKGROUND_SUPPORTED|UNKNOWN",
+    "reason_KO": "nonempty Korean evidence sentence",
+    "confidence": "SUPPORTED|UNKNOWN",
+    "panel": "exact manifest binding path+sha256",
+    "center4_valid": "boolean",
+    "reviewer": "agent name",
+    "source_only_weak_observation": "true",
+    "human_gold": "false",
+    "physical_native_gold": "false",
+    "coordinate_quality_gold": "false"
+  },
+  "constraints": [
+    "confidenceUNKNOWN iff owner_stateUNKNOWN",
+    "center4_validFalse forces owner_stateUNKNOWN",
+    "no originalroleD/E/GTrefxy/savedmodelprediction fields in blindannotation rows"
+  ],
+  "primary_output": "owner_witness_A/PRIMARY195_OWNER_WITNESS.jsonl or owner_witness_B/PRIMARY195_OWNER_WITNESS.jsonl",
+  "cross_output": "same folder CROSS20_OWNER_WITNESS.jsonl",
+  "view_receipt": "REVIEW_COMPLETE.json binds rowfiles+inputmanifest+allactuallyviewedPNGs. No claim blindcross40 is accuracygold."
+}

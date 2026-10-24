@@ -1,0 +1,89 @@
+{
+  "schema": "V163_SHARED_NATIVE_PART_RGB_OBSERVATION_GUIDANCE_V1",
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_train_native_part_witness_20261024_v163/ROOT_SCOPE_BEFORE_NATIVE_PART_WITNESS_PIXELS.json",
+    "sha256": "875f28ae4633d83f80b598a6bc0812ae312131ea22d740d7e15f52b88f44481a"
+  },
+  "native_dictionary": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/native_definition_audit/NATIVE8_EXPECTED_PART_AND_PROOF_REQUIREMENTS.jsonl",
+    "sha256": "dbed3a7b5d1fcd8eed253cd035b00908d0b8107b3fffe9d5448b14b238b586a0"
+  },
+  "before_new_pixel_cards": true,
+  "assistant_weak_observation_only": true,
+  "review_order": [
+    "Use whole RGB and structural connections to identify selected pallet; nominal selected-instance wireframe is an uncertain orientation/identity cue only.",
+    "Identify the intended native-role outer end structure using dictionary and connected deck/runner/block topology. A visible adjacent board is not automatically the intended end.",
+    "Observe intended end-part visibility independently of unchanged query position.",
+    "Observe unchanged query relation using exact q96/central32 plus full RGB; reference crop is separate diagnostic only.",
+    "Record evidence and unresolved ambiguity; retain every case, including UNKNOWN."
+  ],
+  "dictionary_check": {
+    "PASS": true,
+    "role_definition": "camera-dynamic cuboid role; no fixed physical vertex identity",
+    "deck_slots": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "runner_slots": [
+      2,
+      3,
+      6,
+      7
+    ],
+    "deck_expected": "outer deck-board end corner",
+    "runner_expected": "outer bottom-runner end corner",
+    "rear_pairs": {
+      "4": 0,
+      "5": 1,
+      "6": 2,
+      "7": 3
+    },
+    "rear_order": "paired across depth, not independently image-X sorted",
+    "real_instance_corner_certified": false
+  },
+  "selected_instance_criteria": {
+    "CLEAR": "Whole-frame RGB connects the intended end structure to one selected pallet through consistent deck, runner and/or block adjacency and orientation. Similar wood color, nearest pallet or a nominal wireframe overlap alone is insufficient.",
+    "AMBIGUOUS": "Two or more plausible pallet instances, stacked pallets, intersecting structures or uncertain nominal alignment prevent unique correspondence.",
+    "NOT_VISUALLY_RESOLVABLE": "The selected pallet/required structure cannot be identified from the supplied RGB evidence."
+  },
+  "native_part_visibility_criteria": {
+    "VISIBLE_SUPPORTED": "The intended selected-instance outer deck/runner end structure itself has a coherent visible RGB surface/edge witness and supporting structural adjacency; not merely another nearby visible part. Nominal reference need not be pixel-exact and q need not be ON this part.",
+    "EXTERNAL_BLOCK_SUPPORTED": "The intended end location is supported by adjacent selected-pallet edges continuing behind a distinct foreground object. Nominal reference falling on foreign material alone is insufficient.",
+    "SELF_HIDE_SUPPORTED": "The intended end identity is structurally supported and the selected pallet's own visible structure demonstrably hides it. Rear role alone, absence of a visible end or a projection on wood is insufficient.",
+    "BOUNDARY_OR_GAP_AMBIGUOUS": "The relevant end is associated with a visible edge, opening, missing material or mixed boundary, but RGB cannot establish material-end visibility versus gap/virtual cuboid/nominal-pose mismatch.",
+    "UNKNOWN": "Insufficient RGB support for intended end identity or for distinguishing visibility, external blocking, self hiding and boundary/gap."
+  },
+  "query_relation_criteria": {
+    "ON_INTENDED_PART_SUPPORTED": "Unchanged query is visibly on the identified intended end structure. This is coarse structural correspondence, not exact corner or coordinate-quality certification.",
+    "NEAR_INTENDED_PART_SAME_SELECTED_PALLET": "Query is actually on an immediately adjacent facet of the same selected pallet, with a clear RGB structural relation to the identified intended end. If q is on background/gap, use BACKGROUND_OR_GAP even when a visible intended part is nearby. No numeric distance cutoff.",
+    "OTHER_SELECTED_PALLET_PART": "Query is visibly on a different identified part of the selected pallet, rather than the intended end neighborhood.",
+    "FOREIGN_OBJECT": "Query is visibly on a distinct object; this alone says nothing about whether intended native part is visible elsewhere.",
+    "BACKGROUND_OR_GAP": "Query is visibly on natural floor/wall/background or an actual opening. Padded/invalid samples are not natural background.",
+    "UNKNOWN": "Query is on an ambiguous/mixed/invalid boundary or the required selected-part relation is unresolved."
+  },
+  "consistency_rules": [
+    "Intended/near/other-selected query categories require CLEAR selected-instance correspondence and an explicit RGB structural reason.",
+    "Selected-instance AMBIGUOUS or NOT_VISUALLY_RESOLVABLE prevents supported intended-native visibility; use UNKNOWN or BOUNDARY_OR_GAP_AMBIGUOUS as appropriate, with reason. Literal FOREIGN_OBJECT or BACKGROUND_OR_GAP may still be reported when independently clear.",
+    "Visibility and query relation are separate axes: intended part may be visible while q is foreign/background/other part; q can touch selected wood without supporting intended part visibility.",
+    "Central samples that are invalid/padded or bilinear mixed must not be called clear background/foreign/material solely from their color; inspect validity and state uncertainty.",
+    "WEAK_CANDIDATE_PART_VISIBLE_AND_Q_RELATED only when instance CLEAR, part VISIBLE_SUPPORTED and q ON_INTENDED_PART_SUPPORTED or NEAR_INTENDED_PART_SAME_SELECTED_PALLET. This descriptive flag is not admission.",
+    "Optional part_support_extent is a coarse visible structural region, not a new native coordinate, corrected q, physical corner point or <=3px gold.",
+    "No native/owner/quality labels overwritten, no training admission, no distance-derived visibility label and no hard pixel/pose/dimension uncertainty bound.",
+    "Primary130 and cross40 are separate outputs; all cross40 reviewed without reading other reviewer votes. Preserve overlaps and all UNKNOWN rows."
+  ],
+  "forbidden_evidence": [
+    "original weak D/E",
+    "old center-owner annotations",
+    "model outputs/scores/errors",
+    "nominal reference or mask as physical pixel gold",
+    "private/current/V112/held45"
+  ],
+  "future_render_trigger_required": true,
+  "pixels_read": false,
+  "training_admission_allowed": false,
+  "selected_model": null,
+  "adopted": false,
+  "reviewer_context": "Reviewers have historical project context; this is evidence-blinded new RGB observation, not naive human annotation or human gold."
+}
