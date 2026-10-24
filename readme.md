@@ -1,3 +1,11 @@
+# V199 source-only native 조건부 대조 학습 기록
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V199_KO.md) · [V199 원문·방법·출력·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_native_conditioned_grouped_source_training_20261024_v199/PORTABLE_REPORT_KO.md)
+
+새 RAW 두팔은 각116407parameter·8000step으로 고정됐습니다. Source TRAIN327은 두팔 모두 맞혔지만, weak 합성-only HOLDOUT45는 D28/30씩·E5/15 대4/15이며 native-ID 개선을 입증하지 못했습니다.6base·real-end HOLDOUT0·weak authority·기존 노출된 설계 한계를 보존하며 물리 gold·freshblind·실사 개선·선택·채택·전체 목표 해결을 주장하지 않습니다. Source freeze의 신규 실사 결과 미열람은 V200 새 metric에 한정되며 과거 실사 평가 노출을 부정하지 않습니다. 정확2개 자체 checkpoint와24저장 출력은 바이트만 보존하고 input/target/외부모델은 제외합니다.
+
+---
+
 # V198 nativeID·originalq8 입력 계약 코드 검토
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V198_KO.md) · [V198 원문·독립 검토·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_native_query_conditioning_feasibility_20261024_v198/PORTABLE_REPORT_KO.md)
