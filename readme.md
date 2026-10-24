@@ -1,3 +1,11 @@
+# V207 + V208 · SOURCE 제어·판정 정의 진전 게시
+
+[최신 V208 통합 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V208_KO.md) · [V207 제어 gallery](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_witness_conditioned_controls_20261025_v207/raw96_weak_witness_control_pilot_v1/PORTABLE_GALLERY_KO.md) · [V208 source point/region 진단](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_state_grounding_20261025_v208/PORTABLE_REPORT_KO.md)
+
+18쌍/62실패와 저장 point D·region U123/328을 포함해 방법·시도·검증·한계를 보존한다. post-sampler weak control과 합성 내부 point 상태는 실사 native gold·학습 성공이 아니다. 최신 실제 실사 비교 V203은 그대로이며 모델 개선·전체 해결을 주장하지 않는다.
+
+---
+
 # V206 · 8 source visible-part weak witness 게시
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V206_KO.md) · [독립 weak ROI·시각근거·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_visible_part_witness_20261025_v206/PORTABLE_REPORT_KO.md)

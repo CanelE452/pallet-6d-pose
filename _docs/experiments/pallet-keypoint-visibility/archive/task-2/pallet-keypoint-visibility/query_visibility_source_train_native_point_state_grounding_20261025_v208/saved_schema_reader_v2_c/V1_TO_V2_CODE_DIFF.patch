@@ -1,0 +1,55 @@
+--- /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_state_grounding_20261025_v208/preparation_a/lookup_saved_train_native_point_states.py
++++ /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_state_grounding_20261025_v208/saved_schema_reader_v2_c/lookup_saved_train_native_point_states_v2_records_CF.py
+@@ -3,7 +3,7 @@
+ from collections import Counter
+ import argparse,csv,hashlib,json,math,os,stat,traceback
+ H=Path(__file__).absolute().parent;V=H.parent;P=V.parent
+-PROTOCOL=H/'PROTOCOL_BEFORE_SELECTED_TRAIN_GT_JSON_BODIES.json';SELECTION=H/'SELECTED_SOURCE_TRAIN_BEFORE_GT.json';OUT=V/'source_train_native_point_grounding_v1'
++PROTOCOL=H/'PROTOCOL_BEFORE_SAME_TRAIN_GT_RECORDS_CF_V2.json';SELECTION=V/'preparation_a/SELECTED_SOURCE_TRAIN_BEFORE_GT.json';OUT=V/'source_train_native_point_grounding_v2'
+ STATES={'D','E','S','U'}
+ def need(x,m):
+  if not x:raise AssertionError(m)
+@@ -52,19 +52,22 @@
+ def cf_records(doc,scene_index):
+  scene,reason=before_scene(doc,scene_index)
+  if scene is None:return None,reason
+- candidates=[]
+- def add(x):
+-  if isinstance(x,list)and len(x)==8 and all(isinstance(r,dict)and'CF_index'in r and'canonical_index'in r for r in x):candidates.append(x)
+- add(scene)
+- if isinstance(scene,dict):
+-  for value in scene.values():
+-   add(value)
+-   if isinstance(value,dict):
+-    for v in value.values():add(v)
+- unique={json.dumps(x,sort_keys=True):x for x in candidates}
+- if len(unique)!=1:return None,'UNKNOWN_OR_AMBIGUOUS_SAVED_CF_RECORD_LIST'
+- records=next(iter(unique.values()));need(all(type(r['CF_index'])is int and type(r['canonical_index'])is int for r in records),'Integer saved native/canonical identities')
++ # The observed original schema has several CF-indexed diagnostic lists.
++ # Only the authoritative saved point-witness records_CF is admissible.
++ if not isinstance(scene,dict):return None,'UNKNOWN_BEFORE_SCENE_NOT_OBJECT_WITH_EXPLICIT_RECORDS_CF'
++ records=scene.get('records_CF')
++ if not isinstance(records,list)or len(records)!=8 or not all(isinstance(r,dict)and'CF_index'in r and'canonical_index'in r for r in records):return None,'UNKNOWN_MISSING_OR_INVALID_EXPLICIT_RECORDS_CF'
++ need(all(type(r['CF_index'])is int and type(r['canonical_index'])is int for r in records),'Integer saved native/canonical identities')
+  need(sorted(r['CF_index']for r in records)==list(range(8)),'Unique saved CF native0..7, no fallback/permutation fit')
++ need(sorted(r['canonical_index']for r in records)==list(range(8)),'Declared canonical0..7 bijection')
++ for r in records:
++  if'native_canonical_index'in r:need(type(r['native_canonical_index'])is int and r['native_canonical_index']==r['canonical_index'],'Saved canonical declarations agree')
++ if'permCF_to_canonical'in scene:
++  perm=scene['permCF_to_canonical']
++  need(isinstance(perm,list)and len(perm)==8 and all(type(x)is int for x in perm)and sorted(perm)==list(range(8)),'Explicit scene CF-to-canonical permutation')
++  need(all(perm[r['CF_index']]==r['canonical_index']for r in records),'Scene permutation equals saved CF declarations')
++ # extract_one separately requires each record's canonical index to equal the
++ # unchanged original selection's declared_CF_to_canonical for that slot.
+  return {r['CF_index']:r for r in records},None
+ 
+ def saved_state(record,key,point0=False):
+@@ -100,7 +103,7 @@
+ def run(entry_path):
+  e=checked(bind(entry_path));need(e.get('approved_selected_TRAIN_saved_GT_JSON_lookup')is True and e.get('automatic_retry')is False,'Separate actual root entry required')
+  p=checked(e['protocol']);need(e['code']==bind(__file__)==p['code']and e['protocol']==bind(PROTOCOL),'Frozen code/protocol')
+- checked(e['scope']);selection=checked(e['selection']);need(e['selection']==p['selection']==bind(SELECTION),'Frozen metadata-first selection')
++ checked(e['scope']);need(e['scope']==p['scope'],'Exact prospective V2 schema-adapter scope');selection=checked(e['selection']);need(e['selection']==p['selection']==bind(SELECTION),'Frozen metadata-first selection')
+  whitelist=selection['GT_json_whitelist_NOT_OPENED'];need(e['GT_json_whitelist']==whitelist,'Exact selected original TRAIN GT JSON paths+recorded SHA; no config/binary additions')
+  need(selection['config_json_required']is False and e['output_directory']==str(OUT),'No config/projection dependency, fresh output')
+  need(all(r['role']=='TRAIN'for r in selection['parents']+selection['original_BEFORE_native8']+selection['physical_control_rows']),'No HOLDOUT query/state export')
