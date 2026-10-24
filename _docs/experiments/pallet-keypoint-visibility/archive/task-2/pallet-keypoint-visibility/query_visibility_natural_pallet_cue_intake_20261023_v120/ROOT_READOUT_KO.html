@@ -1,0 +1,24 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>실제 crop의 공통 실패와 공개 실사 단서</title><style>
+body{font-family:"Noto Sans CJK KR",sans-serif;margin:0;background:#f3f6f8;color:#152c3b;line-height:1.65}main{max-width:1120px;margin:auto;padding:32px 24px 70px}h1{font-size:30px;line-height:1.35}h2{margin-top:40px;font-size:23px}p{max-width:980px}.lead{font-size:19px}.note{background:#fff4df;border-left:5px solid #a45c00;padding:14px 18px}.good{background:#e4f3eb;padding:14px 18px}img{display:block;max-width:100%;height:auto;margin:18px auto;background:white}table{width:100%;border-collapse:collapse;background:white}td,th{text-align:left;padding:12px;border-bottom:1px solid #cbd5dd}a{color:#076797}.small{font-size:14px;color:#526573}li{margin:9px 0}
+</style><main><h1>잘되는 것과 안 되는 것:<br>실제 crop에서 확인한 공통 문제</h1>
+<p class="lead">보이는 점을 유지하는 능력은 좋아졌지만, 외부 가림을 구별하는 문제는 아직 해결되지 않았습니다. 최신 C14는 외부 가림90점 중15점만 검출했습니다.</p>
+<p>목표 자체가 과도하다고 결론 낼 근거는 없습니다. 사람이 crop에서 콘을 확인할 수 있는 비교적 뚜렷한 사례도 놓치므로, 현재 실패 전체를 단일RGB의 불가피한 모호성으로 설명할 수 없습니다. 다만 모든 시점·좌표 오차·같은 재질의 가림을 완벽히 분류하는 목표에는 관측 한계가 있어, 보류를 함께 다뤄야 합니다.</p>
+<table><tr><th>같은 고정 평가 대상</th><th>실제 보임 중 보임</th><th>실제 외부 가림 중 가림</th><th>이 분모의 보류율</th></tr><tr><td>목재</td><td>599/616 (97.2%)</td><td>9/29 (31.0%)</td><td>0%</td></tr><tr><td>정사각형</td><td>531/531 (100.0%)</td><td>6/61 (9.8%)</td><td>0%</td></tr></table>
+<p class="small">D/E 공통 대상만의 수치. 자기 가림은 별도이며 upstream 기하 처리 대상입니다. 전체 annotation의 미정·영상 밖·mapping 누락을 제거했다는 뜻이 아닙니다. <a href="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_consistent_query_context_20261023_v119/ROOT_READOUT_KO.html">혼동행렬·precision/recall 전체 표</a></p>
+<h2>1. 현재 평가 영상의 실제 성공·실패</h2>
+<p>위쪽은 보임과 외부 가림의 성공, 아래쪽은 가림 누락입니다. 그림은 기존 C13 저장 crop이며, 네 사례의 최신 C14 판단도 모두 같습니다. 새 추론·좌표 교정 없이 비교했습니다.</p>
+<img src="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/visual_followup/LATEST_C13_SUCCESS_FAILURE.png" alt="기존 C13 저장 crop의 성공2와 실패2. C14도 같은 네 판단.">
+<ul><li><b>잘되는 부분:</b> 노출된 모서리를 보임으로 유지하고, 일부 콘 가림도 검출합니다.</li><li><b>공통 실패:</b> 콘/팔레트가 섞인 경계에서 가림을 놓치며, 콘이 중심을 크게 차지하는 crop에서도 놓칩니다. 작은 좌표 오차만으로 설명되지 않습니다.</li><li><b>아직 가설인 부분:</b> 주변 재질이나 전체 대상의 존재를 해당 모서리의 보임으로 오인하는 경향이 의심됩니다. 시각적 유사성만으로 모델 내부의 원인을 확정할 수는 없습니다.</li></ul>
+<h2>2. 공개 실사에서 더 직접 확인되는 구분</h2>
+<p>왼쪽은 목재 끝 단서가 보이고, 오른쪽은 상자가 그 부근을 가립니다. 오른쪽 장면에도 다른 목재는 계속 보입니다. 따라서 ‘crop에 목재가 있는가’만 배워서는 원하는 가림 판단을 할 수 없습니다.</p>
+<img src="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/visual_intake/figures/PAIR_00.png" alt="공개 실사의 목재 구조 단서 before와 전경 상자 after">
+<p class="note">이 그림의 중심은 공개 source의 기존 참조점입니다. 실제 초기 query 입력이나 모델 예측 결과가 아닙니다. 단서 주변의 약한 AI 주석을 검토한 것이며, 사람 정답·정확한 픽셀 소유권·native8 대응을 새로 얻은 것은 아닙니다.</p>
+<p>전체37쌍·74뷰를 검토했습니다. 실제로는22촬영쌍·44RGB, 같은 bin과 유사한 골판지 가림에 묶입니다. 15쌍 TRAIN/22쌍 VAL의 원 구분을 유지했습니다. 11쌍에는 일부 crop padding, 7쌍에는 작은 단서 해상도 한계가 있습니다. before/after의 실제 초기q8와L8은 모든 쌍에서 다릅니다.</p>
+<p><a href="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/visual_intake/PUBLIC37_NATURAL_STRUCTURAL_CUE_GALLERY_KO.html">37쌍 전체 crop 갤러리</a> · <a href="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/independent_review_C/ACTUAL_VISUAL_OBSERVATIONS.json">37쌍 독립 관찰</a></p>
+<h2>3. 학습 목표의 차이도 실제로 존재합니다</h2>
+<p>기존 공개 YCB source3200개를 저장된 depth·mask와 대조했습니다. 표면 참조r에서 정답이 있던678개 중187개(27.6%)는 최대4px 흔들린 입력q에서 같은 기준의 증거가 부족해 보류가 됩니다. D↔E 직접 반전은0개입니다. 이는 라벨이 틀렸다는 증거가 아니라, 표면 픽셀의 지지와 모서리 단서의 보임이 같은 과제가 아님을 보여주는 진단입니다.</p>
+<p><a href="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_consistent_query_context_20261023_v119/next_source_teacher_audit/ROOT_INTERPRETATION_KO.html">3200개 참조r/입력q 대조 결과</a></p>
+<h2>4. 다음에 바꿀 부분</h2>
+<ol><li><b>목표:</b> 초기 query 부근에서 기대한 구조 단서가 보이는지와 외부 물체가 가리는지를 학습 목표로 명시합니다. 자기 가림은 기하 처리, 좌표 불확실성은 별도 보류로 유지합니다.</li><li><b>source 입력:</b> 이미 확보한 자연 구조 단서를 별도 source query 모사로 사용할 수 있는지 먼저 확인합니다. 기존 실제 초기q/L을 몰래 참조점으로 교정하지 않습니다.</li><li><b>검증:</b> 단서를 가리는 예와, 주변에 물체가 있지만 단서는 남는 예를 함께 평가합니다. 같은 물체/촬영의 파생본을 새 독립 데이터로 세지 않습니다.</li><li><b>성공 기준:</b> 보임을 보존하면서 외부 가림 검출도 개선되어야 합니다. 현재 평가셋은 학습·문턱·checkpoint·방법 선택에 사용하지 않습니다.</li></ol>
+<p class="good">이번37쌍 검토는 완료했습니다. 새 학습·모델 호출·PnP는 이 단계에서0회이며, 전체 가림 문제는 계속 미해결 상태입니다.</p>
+<p class="small"><a href="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/ROOT_RESULTS_KO.json">수치·범위·근거 파일</a> · current223는 과거 개발 과정에서 반복 열람된 평가 자료이므로 새 blind holdout으로 부르지 않습니다.</p></main></html>

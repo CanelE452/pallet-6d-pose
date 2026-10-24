@@ -1,0 +1,41 @@
+{
+  "completed": true,
+  "scope": "Read-only report-generator semantic/methodological review. No new current/source data recalculation, RGB/model/weights/forward/fit/PnP.",
+  "generator": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/build_root_readout.py",
+    "sha256": "44aafa5fd600a85bc4be8b4fe8a8dab1f634d15d4e32ba0a4a3dab2e5337fcac"
+  },
+  "numerical_unit_scope_review_PASS": true,
+  "publication_wording_revision_recommended": true,
+  "fully_solved_false_and_goal_active_preserved": true,
+  "correct_points_KO": [
+    "Source conditionalAI cue와 current human native8을동등한정답으로가정하지않는다.",
+    "1264tile/cue units의원unc영역 조회와170view mosaic 및currentqcentre를단위분리한다.",
+    "qinsideunc0은centrecellgradient0이아님을명시한다.",
+    "sourceL128/256/currentnativeL및dtype차이는기록만하며그자체의인과효과를측정했다고주장하지않는다.",
+    "45U/추가U0 및기하분리/미해결/native8UNKNOWN/반복사용현재평가한계를유지한다."
+  ],
+  "findings": [
+    {
+      "id": "MOSAIC_CAUSAL_SCOPE",
+      "severity": "wording_revision_before_publish",
+      "literal": "현재 가림 실패를 mosaic 제거만으로 설명할 만큼 낮지는 않습니다",
+      "issue_KO": "Source원unc영역 score와currentqcentre는target/domain/연산이함께달라source단일tile성능만으로current에서mosaic제거의기여량/충분성을판단할수없다.",
+      "suggested_KO": "Source내 단일tile의원unc영역에서도높은점수가남으므로source성공이전적으로mosaic합성만의산물이라고볼근거는없다. 다만currentqcentre/라벨/domain이달라현재오류에대한mosaic제거의기여량은분리할수없다."
+    },
+    {
+      "id": "PHASE_FAULT_NOT_ESTABLISHED",
+      "severity": "wording_revision_before_publish",
+      "literal": "Definitiongap and residualrealtransfer/phaseerrors both present",
+      "issue_KO": "phaseerrors는이미검산된sampling phase구현에오류가확인됐다는뜻으로읽힐수있다. 실제로는고정q/r위치에따른저장응답차이및라벨/operator/domain/scale조건차이가관찰됐다.",
+      "suggested": "Definition and operation conditions differ; residual errors under changed target/operator/data/scale remain. A coordinate implementation phase fault is not established."
+    },
+    {
+      "id": "AUDIT_SCOPE",
+      "severity": "clarification_recommended",
+      "suggested_KO": "독립감사PASS는파일·좌표·저장출력·집계의일관성확인이며, 물리정답의재주석/새객체일반화/최종목표해결검증이아니다."
+    }
+  ],
+  "root_code_or_reports_modified": false,
+  "new_current_source_RGB_model_forward_fit_threshold_PnP": 0
+}

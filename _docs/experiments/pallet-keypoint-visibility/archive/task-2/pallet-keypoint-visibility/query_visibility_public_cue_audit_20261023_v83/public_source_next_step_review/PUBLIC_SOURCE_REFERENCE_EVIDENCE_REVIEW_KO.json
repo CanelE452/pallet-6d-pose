@@ -1,0 +1,212 @@
+{
+  "schema": "V83_PUBLIC_SOURCE_NEXT_STEP_REFERENCE_EVIDENCE_REVIEW_KO",
+  "completed": true,
+  "created_UTC": "2026-10-22T21:55:51.034077+00:00",
+  "결론": "기존 세 자료 모두 native8 corner DES gold를 주지 않는다. 그러나 Pallox는 단일 물리대상·supplied geometry·같은 pose의 실제 가림사진 쌍을 갖추므로, 현재 가장 직접 실행할 새 증거는 고정 TRAIN 한 쌍에서 실제 물리 part-line/junction을 식별하고 같은 reference의 전후 가림을 원본으로 검증하는 pack이다. 이는 새 mask 모델 fit과 다르며 flat-pallet 전체 목표 해결 주장이 아니다.",
+  "source_evidence_table": [
+    {
+      "source": "KU Leuven Pallox DOI10.48804/DJLDFS",
+      "material_shape": "One physical wooden high-sided pallet bin, not flat pallet",
+      "official_evidence": [
+        "322 RGB/depth; 284 fully joined RGB/depth/SAM/pose/K; 290 SAM masks; one textured reconstructed OBJ.",
+        "50 same-session identical-T/K pairs (22TRAINlab,28VALhall). Source describes photographs with/without cardboard occluder.",
+        "6 visibility_scores.csv give projected mesh area percentages, not per-corner visibility."
+      ],
+      "instance_association": "One source bin mesh/pose identity; masks from manually selected prompt points then SAM. Cargo in bin and mesh inaccuracies remain.",
+      "native_or_part_cue_annotation": "No native8/landmark/edge file. OBJ has27598 vertices/54744faces, no o/g semantic part tags and one material. Geometric vertex/cuboid extremum is not an annotated physical corner cue.",
+      "useful_next_evidence": "Same physical part/line correspondence across real photographic occlusion can be newly documented on fixed A/B, rather than inferred from mask membership.",
+      "missing": [
+        "actual named part-line/junction coordinate+uncertainty in rawRGB",
+        "physical correspondence of that same cue across A/B",
+        "dataset-specific RGB-depth alignment certificate",
+        "independent per-corner human labels",
+        "flat-pallet/domain diversity",
+        "native8 mapping"
+      ],
+      "grouping": "Same object across all sessions; lab/hall is environment holdout only. Keep each pair and all derived variants together. Current private-family independence is trusted user provenance recorded previously, no current file read here.",
+      "license": "CC-BY-4.0 official dataset metadata",
+      "official_URLs": [
+        "https://rdr.kuleuven.be/dataset.xhtml?persistentId=doi:10.48804/DJLDFS",
+        "https://rdr.kuleuven.be/api/datasets/:persistentId/versions/1.0?persistentId=doi:10.48804/DJLDFS",
+        "https://www.scitepress.org/Papers/2026/144556/144556.pdf"
+      ]
+    },
+    {
+      "source": "TUM LOCO",
+      "material_shape": "Actual logistics flat pallets, stacked pallets and mixed logistics objects; per-image bbox can be crowded/group ambiguous",
+      "official_evidence": [
+        "Local archive5593JPEG, official COCO5097images/151428annotations;496 archive images absent from COCO remain U.",
+        "Pallet120445 bbox annotations across4727images.",
+        "Every actual annotation key inspected in prior schema audit: no keypoints/native8/occlusion fields; metadata empty.150568segmentations are axis-aligned4cornerrectangles,860others not verified visible silhouettes."
+      ],
+      "instance_association": "Official category+COCObbox is an annotation entity, not guaranteed one physically separable pallet in stack/group. Largest-box selection is a deterministic review entity, not ownership proof.",
+      "native_or_part_cue_annotation": "No supplied 3D model/pose/K or physical endpoint/line correspondence in consumed release. Existing60-source review proposed28cue refs,22conditionalAIaux refs on12frames; native8/human gold/naturalE/S=0.",
+      "useful_next_evidence": "Expand instance-resolved physical base/deck-edge annotation with explicit association and uncertainty on flat pallets; suitable for auxiliary cue/identity training only after source label contract, not native8 mapping by nearest q.",
+      "missing": [
+        "single-pallet versus group annotation resolution",
+        "shared physical part convention across objects",
+        "natural before/after same-reference occlusion correspondence",
+        "native8/DES labels",
+        "camera calibration/3D correspondence"
+      ],
+      "grouping": "Official environments whole subset TRAIN2/3/5 versus VAL1/4; prior actual archive audit found0decoded duplicates/0strong crosssplit nearpairs.19path-timefamilies are not19independent environments; physical site revisits not fully ruled out.",
+      "license": "CC0 official repo/LICENSE",
+      "official_URLs": [
+        "https://github.com/tum-fml/loco",
+        "https://mediatum.ub.tum.de/doc/1578845/1578845.pdf",
+        "https://go.mytum.de/239870"
+      ]
+    },
+    {
+      "source": "NVIDIA R2B storage_v3 and galileo2_v1",
+      "material_shape": "Actual flat wooden base visible under loads among purple crates/blue carrier; source RGB candidate",
+      "official_evidence": [
+        "Storage bag includes RGB/depth/camera_info/TF topics; Galileo2 includes D455RGB301 and depth614messages, camera_info+TF. Topic presence is not object 3D or RGB-depth registration proof.",
+        "Already fixed32storage+16galileo RGB available; do not expand/download for this review.",
+        "V83independent A/B reviewed3fixed apparent physical cues as weak AI observations; native8known0/humanlabels0/naturalE0; selected initializer FULL cue crops0."
+      ],
+      "instance_association": "No official pallet instance box/mask/tracking/mesh/corner labels in inspected bag schemas. Sensor TF is sensor extrinsics, not pallet object pose.",
+      "native_or_part_cue_annotation": "Existing cue ledgers are AI proposals, not official annotation. Time adjacency alone cannot transfer a hidden corner reference through camera motion.",
+      "useful_next_evidence": "Source-only stress/qualitative packet for input target/crop association and possible future explicit temporal part correspondence. Cannot supply E from an untracked hidden reference.",
+      "missing": [
+        "same physical pallet/part track",
+        "object pose or stable same-camera registered pair",
+        "native8/3D instance landmarks",
+        "independent visibility label",
+        "independent train/VAL capture family"
+      ],
+      "grouping": "Both clips one unresolved NVIDIA_R2B_STORAGE_GALILEO coarse-family. Different years/clipnames/hash do not establish independent source split.",
+      "license": "CC-BY-4.0 official NGC cards",
+      "official_URLs": [
+        "https://catalog.ngc.nvidia.com/orgs/nvidia/isaac/resources/r2bdataset2023/3",
+        "https://catalog.ngc.nvidia.com/orgs/nvidia/isaac/resources/r2bdataset2024/1",
+        "https://github.com/NVIDIA-ISAAC-ROS/ros2_benchmark"
+      ]
+    }
+  ],
+  "what_V64_V66_already_did": {
+    "V64": "YCB target-full/visible masks에서 query/native9 exact/radius2 및 other-instance visible corroboration을 재구성; target-swap/source shape 진단. 물리 팔레트 corner/part-line annotation이나 Pallox native cue correspondence를 만들지 않았다.",
+    "V66": "공식 Pallox intake,50동일pose쌍,직접T/역T·두 raster 구현검산, SAM interior+mesh/depth로 symmetric Va/Vb/Ea/Eb partial pixel evidence, native query/radius2 라벨과 q8 sampling. full-negative/O 및 semantic self 비활성. 새 physical edge/junction correspondence를 직접 관찰·명명하지 않았다.",
+    "not_new_evidence": "M4positive를D로, M4zero를E로 이름바꾸기; 기존 genericpixel지원이나 globalmeshvisibility%를cornervisibility로 간주; AABBextremum을 물리cue로 선언; 같은T재투영≈0을 실제RGB정합인증으로 주장하기."
+  },
+  "geometry_reliability_answer": {
+    "supported": "동일T/K와 raw common-depth residual은 같은 카메라/정적 bin 가정을 지지한다. 기존고정pair에서 directT가inverse보다더많은 teacher-core mesh-depth agreement(98016 vs10281)를 보인다. 구현방향/단위가 맞는 conditional source teacher 후보로는 충분하다.",
+    "not_supported": "mesh/pair가 corner단위nativepixelgold라는 주장은 부족하다. 직접T도mesh−depthAmedian+7.05mm/p95+26.95mm와큰꼬리; RGB-depth정렬공식증거없음; SAMinterior통계는가려진경계/얇은boardedge정합을보장하지않음. Nearly-zero supplied-pose reprojection은 동일T/K 투영항등이다.",
+    "answer": "투영 fixed reference를 제안하는 데는 사용가능하나, 실제 part cue와의 대응을 원본RGB로 별도 검증하기 전 확정GT로 사용하면 안 된다. 같은물리2Dcue가 정적 A/B에서 확인되면 3D/native8을 필수조건으로 추가하지 않고도 conditional auxiliary reference evidence를 만들 수 있다."
+  },
+  "executable_next_candidate": {
+    "name": "FIXED_TRAIN_PALLOX_PHYSICAL_JUNCTION_BEFORE_AFTER_EVIDENCE_PACK",
+    "manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_cue_audit_20261023_v83/public_source_next_step_review/MINIMAL_PALLOX_PAIR_BEFORE_RGB.json",
+      "sha256": "6dfd466fa51fa54742e38ae837b31c0c85e84b48d73bae1063cb2c5b8905e61f"
+    },
+    "first_step": "Root가 frozen0.55m_lab0000/0001 두 rawRGB와 native crops를 본다. 현재이리뷰는RGB를열지않았다.",
+    "reference_rule": "관찰된 bin의 base/deck board-edge junction 한 개와 incident line segment 두 개를 명명. 위치/uncertainty를 첫 관찰RGB에서 동결하고 동일range를 other view에 그대로 적용. 해당 cue가 모호하면 U/null 유지, arbitrarynearestforeground로 이동금지.",
+    "registration_without_fit": [
+      "A/B무정렬 flicker와 고정 nativegrid에서 unchangedtarget/background edges의 이중선·변위를 확인한다.",
+      "Depth는 suppliedsamegrid와 기존mm단위로 그대로 비교, invalid/edge혼합별도; no learned/fitted warp, ICP, PnP, pose/tolerance 최적화.",
+      "선택한 물리cue projection이 관찰범위와 일치하는지 별도 기록하고 실패면 U/불일치 그대로, GT좌표로 T나q를재중심화하지 않는다."
+    ],
+    "new_evidence_required": [
+      "same physical instance/part identity in both photos",
+      "observable source-cue endpoint+supporting-line uncertainty, not one foreground pixel",
+      "actual foreign foreground obscuring all or part of the same fixed range, with partial/U retained",
+      "independent raw alignment diagnosis at that boundary plus conditional depth/mesh corroboration",
+      "original crop FULL/PARTIAL/MISS kept separate from cue visible/external state"
+    ],
+    "labels": "처음에는 AI_OBSERVED_VISIBLE_CUE/AI_OBSERVED_EXTERNAL_COVER/PARTIAL/U로 evidence tier를 명시. 실제human검수가 있지 않으면 humanverified/gold라고 하지 않음. Native8 UNKNOWN, self S UNKNOWN. E는 같은reference 가림이 실제로 입증될 때만 후보.",
+    "training_inference_status": "No fit, forward, TRAIN extraction, label admission or output selection authorized/performed by this report. Small cue pack is an operational source-evidence milestone, not goal completion.",
+    "scaling_if_supported": "같은 source-pair recipe를 나머지TRAIN22pair에 먼저 적용하고 wholepair/session grouping유지. 독립geometry/generalization을 주장하지 말고 LOCO flat-pallet instance-resolved part-line annotation을 별도domain bridge로 준비. VAL hall은 이미 pixel/fixturepreview가 있었음을 명시하고 새heldoutgold라고 주장하지 않음."
+  },
+  "read_scope": {
+    "RGB_decoded": 0,
+    "depth_or_mask_arrays_decoded": 0,
+    "ML_model_weights_or_features_read": 0,
+    "new_forward": 0,
+    "fit": 0,
+    "current223_file_or_metrics_read": 0,
+    "new_download": 0,
+    "PnP": 0,
+    "local_docs_and_metadata_read": true,
+    "OBJ_text_tags_counted_without_rendering": true,
+    "historical_source_assessment_text_incidental_read": "SOURCE_TARGET_IDENTIFIABILITY_REVIEW contains old source-only V72 metrics; no new model choice/threshold/fit based on them. No current performance files opened."
+  },
+  "primary_web_browse_needed": false,
+  "reason_no_web": "이미 내려받고 봉인한 공식 README/API/annotation schema와 provenance문서에서 필요한 고정release 정의를 확인. 새 URL/다운로드/외부최신정보가 필요하지 않았다.",
+  "existing_artifacts_changed": false,
+  "full_goal_solved": false,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/OFFICIAL_SOURCE_PROVENANCE.json",
+      "sha256": "03644b791a40c23c6037761bc0bc8cb256da56cec69045b517e3a7627c7b8daf"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/NATIVE_FORMAT_AND_EXCLUSION_AUDIT.json",
+      "sha256": "a3963a449e649ab57fee1164905c321fbd0059bf4ade74ab2e2cfefd278219e2"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/data/README.md",
+      "sha256": "06344d868baf10389964124e263e4d7e9333bd0f7b7a36f4b03ced68cc08efd3"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/EXACT_POSE_PAIR_MANIFEST.json",
+      "sha256": "e799661b97624a8daf98b12f922262f39d1f905aeb2b8c0a5cc5301ea0bc6a2f"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/SUPPLIED_POSE_RENDERER_CROSSCHECK.json",
+      "sha256": "8316228039cc6d077af6b8b6d57f7fbf0ce730e43a492a74a766c3547a5fe1df"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/SYMMETRIC_ALL50_V2/SYMMETRIC_SOURCE_EVIDENCE_REPORT.json",
+      "sha256": "dca6edf52053a28a292e3fad3d516e1b5675e6f5fd387ea3078365c22004cd36"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/PAIRED_REAL_LABEL_PROTOCOL.json",
+      "sha256": "554178a520287030a5aef5162272ee45c3307d49c8e68c1e20449cb8c57ebbfb"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_pallet_loco_20261023_v73/data/intake/README_OFFICIAL.md",
+      "sha256": "48df5953cb660f1b9ec5ecb6baa8a594c79833da8cdc524ba27b3f0064e15606"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_pallet_loco_20261023_v73/data/intake/ACTUAL_COCO_SCHEMA_AUDIT.json",
+      "sha256": "d8441501949ee6259485a052e05a8de1fb1822ba6089d61781329b1c192b31ba"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_groups/SOURCE_GROUP_FREEZE.json",
+      "sha256": "9fbb135ca05d23eaa6fac2b5e46423d3fafd9c0c771fba37e6610405a36ee3b2"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_groups/OFFICIAL_ENVIRONMENT_SPLIT_EVIDENCE.json",
+      "sha256": "01c69f29ab82e2a3efe5880034393ce5d99c05b7254cd7c26d3a43db32813088"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/public_reference_review/COMBINED60_REFERENCE_REVIEW_ADDENDUM.json",
+      "sha256": "21a6c7e75759503637e5577ada3bab500ec2c5b920e378bc17d981dd13b04308"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/public_real_sources_20261023/r2b_storage_v3/SQLITE_SCHEMA_AND_TOPICS.json",
+      "sha256": "aad17954b183d27a6b6304861931d500277c2570f1bf57a6aedfeb121d3f0ab5"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/public_real_sources_20261023/r2b_galileo2_v1/MCAP_SCHEMA_AND_TOPICS.json",
+      "sha256": "a67973c87bc16c49e8709fd5ae54e41f98988a46da35bcf6cfc85ccdcb9026d2"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/public_real_sources_20261023/r2b_galileo2_v1/CAPTURE_FAMILY_AUDIT.json",
+      "sha256": "1d7ae69341bfe961e52e5b2e74100cdc8dd7d258e4fde63b189de20698a73245"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_cue_audit_20261023_v83/reviewer_a/REVIEW_SEAL.json",
+      "sha256": "2881c6e205ce5a38fee1d94ac953e6b34a296a7f1358f641765fcf85d2e13faa"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_cue_audit_20261023_v83/reviewer_b/REVIEW_SEAL.json",
+      "sha256": "2e8b6085bff46ce867373aa5560829bd854b3c3d106808ff2d30f7d8b4a82821"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_audit/YCB_EVIDENCE_AUDIT_PROTOCOL.json",
+      "sha256": "bf9531b7f6245c5391984cdb1b568919b58bf17957d40f8092c0051ed26d1166"
+    }
+  ]
+}

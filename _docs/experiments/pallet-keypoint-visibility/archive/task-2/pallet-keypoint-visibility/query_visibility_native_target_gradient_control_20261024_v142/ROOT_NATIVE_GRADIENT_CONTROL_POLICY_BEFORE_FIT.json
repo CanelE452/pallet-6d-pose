@@ -1,0 +1,59 @@
+{
+  "created_UTC": "2026-10-23T19:05:20.214347+00:00",
+  "goal_status": "active",
+  "fully_solved": false,
+  "objective": "Causal source-only matched control of AUX cue/surface labels sharing the registered-native D/E scalar. Remove only AUX-to-native gradient, keeping exact C29 data, draws, initialization, model, native losses and budget. This is a diagnosis/control, not a deployment claim.",
+  "reason_before_fit": "Code audit verified old51004 AUX native correspondence UNKNOWN; no equivalent native-only gradient control in V125-V139. C29 native qualification18/35 still fails even separating AUX29. Architecture RGB/DINO/SAM/ownership additions have already been tried.",
+  "fixed_reference_control": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/ROOT_PHASE_RESULT.json",
+    "sha256": "457e318f11aa1ef59a455718c9a01b6c5b9bda3c1839b7584a50bda8e2116b70"
+  },
+  "fixed_reference_results": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/ROOT_RESULTS_KO.json",
+    "sha256": "75333d3ea753aabc5148c12856628e47abdb939f33cdc47e925445c6b3d60958"
+  },
+  "immutable_C29_trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/source_fit_preparation/train_matched_coverage.py",
+    "sha256": "9751b158c14cf0e0ba1cc2b8cb41e761f798c6ff8fe6b6dcdd4d69d2b5f9d2b5"
+  },
+  "immutable_C30_C29_exact_replay_trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/source_fit_preparation/train_broad_geometry.py",
+    "sha256": "ef297c1c4b9cd90abc7d077092e7ba22c6a715ab398f35befc7af4de1764f690"
+  },
+  "arm": "C32_AUX_TO_NATIVE_GRAD0_FIXED8000",
+  "prospective_only_difference": "Entire AUX(old192) loss coefficient1->0 for native scalar/sharedhead gradients; AUX values and draws retained and reported. Registered-native old64/new64 BCE weights, masks and alloriginalrows unchanged.",
+  "AUX_original_loss": "BCE(old128)+.25*hinge(24pairs)+BCE(flat64)",
+  "native_original_loss": "BCE(oldnative64)+BCE(newnative64)",
+  "same_conditions": {
+    "updates": 8000,
+    "seed": 1330,
+    "initial": "Exact C16 step4500 source-frozen parameters, fresh AdamW",
+    "model": "Same224513 GeometryQueryHead, G42 allzeros for every source corpus, same as C29/C30",
+    "optimizer": "lr1e-4 wd.001 clip5, FP32 TF32false deterministic1thread",
+    "source_inputs": "all old51004 AUX + oldnative6144 + newnative20480, same firstq/L/caches and sample draws; no new GT filtering/drop/relabel",
+    "final": "Only fixed8000 rawlogit0; no VAL checkpoint or threshold search"
+  },
+  "mandatory_audits": [
+    "Source update0/parameters exact C16.",
+    "Invented gradient parity: AUX coefficient0 has no native parametergradient, native-only same gradient; no shared AUX clip/optimizer path.",
+    "All8000 three-corpus draw ledger hashes same as C29/C30.",
+    "Existing C29/C30 checkpoints/results untouched; no new baseline replay needed because C30 exact replay already proved.",
+    "All64 historical/source gates unchanged and reported; additionally split AUX29/native35. No gate waived, no retrospective C29 qualification change.",
+    "All original full/LE3/samewood cohorts and originalU/NOQUERY/OOB masks retained, S/U outside binaryE.",
+    "Failure/success crops fixed previously8 case IDs, without GT recropping."
+  ],
+  "source_public_V140_native_proposals": "Not training inputs in this control; association checkV141 proceeds separately. No new native-labelled public model claim.",
+  "current_latest_model_unchanged": "V124_C16",
+  "model_selection": "None in this diagnostic phase even if some scores improve. No private forward.",
+  "prohibited": {
+    "current223_image_label_prediction_or_feature_bodies": true,
+    "V112_any_access": true,
+    "new_encoder_forward": true,
+    "new_RGB_composite": true,
+    "PnP": true,
+    "pose_q_L_correction": true,
+    "private_threshold_checkpoint_arm_choice": true
+  },
+  "one_actual_fit_after_root_entry": true,
+  "inert_preparation_may_read_code_and_existing_source_metadata_only": true
+}

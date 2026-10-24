@@ -1,0 +1,136 @@
+--- PINNED_V137_RUN
++++ EFFECTIVE_V142_RUN
+@@ -3,6 +3,7 @@
+     assert all(e[k] is False for k in ('current223', 'V112', 'PnP', 'q_correction', 'automatic_retry'))
+     assert sha(POLICY) == POLICY_SHA and same(e['code'], bind(__file__)) and same(e['protocol'], bind(PROTOCOL))
+     p = read(PROTOCOL)
++    validate_extra_bindings(p, e)
+     for key in ('code', 'policy', 'generated'):
+         assert same(e[key], p[key])
+     for key in ('policy', 'generated', 'parent_trainer', 'source_binding_policy', 'source_helper', 'historical_C24_fit', 'historical_C24_trace',
+@@ -46,8 +47,8 @@
+             gens = [torch.Generator().manual_seed(s) for s in (208, 214, 215, 216, 217)]; flatgen = torch.Generator().manual_seed(218)
+             pg = torch.Generator().manual_seed(1334); ug = torch.Generator().manual_seed(1332)
+             epg = torch.Generator().manual_seed(1374); eug = torch.Generator().manual_seed(1372)
+-            extra_pool, extra_uniform = (oldpairs, data['native_pools']) if arm == ARMS[0] else (new['pairs'], new['pools'])
+-            ex, extarget, exav = (xn, nt, na) if arm == ARMS[0] else (xx, et, ea)
++            extra_pool, extra_uniform = new['pairs'], new['pools']
++            ex, extarget, exav = xx, et, ea
+             shared_hash = hashlib.sha256(); extra_hash = hashlib.sha256()
+             exposure_old = np.zeros(NOLD, np.int64); exposure_native = np.zeros(NATIVE, np.int64); exposure_new = np.zeros(NEWN, np.int64)
+ 
+@@ -82,21 +83,22 @@
+                 return oldz, raw, eraw
+ 
+             old0, native0, new0 = evaluate(0)
+-            parity = dict(completed=True, all51004_old_scores_bitexact=np.array_equal(old0, data['baseline']['query_logit']),
+-                all6144_native_raw_scores_bitexact=np.array_equal(native0, data['nbaseline']['raw_head_logit_before_U'], equal_nan=True),
+-                all20480_new_raw_scores_bitexact=np.array_equal(new0, new['baseline']['raw_head_logit_before_U'], equal_nan=True),
++            parity = dict(completed=True, all51004_old_scores_bitexact=equal_array(old0, data['baseline']['query_logit']),
++                all6144_native_raw_scores_bitexact=equal_array(native0, data['nbaseline']['raw_head_logit_before_U']),
++                all20480_new_raw_scores_bitexact=equal_array(new0, new['baseline']['raw_head_logit_before_U']),
+                 original_constructed_compact512_batches_and_last_lengths_exact=True, available_only_compaction=False, geometry_weights_zero=True, actual_updates=0)
+             parity['PASS'] = bool(parity['all51004_old_scores_bitexact'] and parity['all6144_native_raw_scores_bitexact'] and parity['all20480_new_raw_scores_bitexact'])
+             # Convert NumPy booleans before saving any replay receipt.
+             parity = {k: bool(v) if isinstance(v, np.bool_) else v for k, v in parity.items()}
+             write(directory / 'UPDATE0_C16_EXACT_PARITY.json', parity); assert parity['PASS'], 'Initialization parity failure; preserve before any fit.'
+             torch.save(checkpoint(0), directory / 'INITIAL_CHECKPOINT.pt')
+-            with (directory / 'TRAIN_DRAWS_AND_LOSSES.jsonl').open('x') as trace, Path(p['historical_C26_trace']['path']).open() as previous, Path(p['historical_C24_trace']['path']).open() as c24:
++            with (directory / 'TRAIN_DRAWS_AND_LOSSES.jsonl').open('x') as trace, Path(p['historical_C26_trace']['path']).open() as previous, Path(p['historical_C24_trace']['path']).open() as c24, Path(p['historical_C29_trace']['path']).open() as c29:
+                 for step in range(1, 8001):
+                     ix, pairs, audit, *_ = data['h'].draw192(data['c12'], data['c10'], data['pools'], data['mp'], data['wp'], data['fp'], gens, flatgen)
+                     ni, npi = q.draw_native64(oldpairs, data['native_pools'], pg, ug)
+                     ei, epi = q.draw_native64(extra_pool, extra_uniform, epg, eug)
+                     prior = json.loads(next(previous)); original = json.loads(next(c24))
++                    historical = json.loads(next(c29)); assert_draw_replay(historical, step, ix, pairs, ni, npi, ei, epi)
+                     assert prior['update'] == original['update'] == step
+                     for history in (prior, original):
+                         assert np.array_equal(ix, history['old_occurrences']) and np.array_equal(pairs, history['old_matched_cover_sham_positions'])
+@@ -104,32 +106,36 @@
+                     assert (data['oldmeta']['split'][ix] == 'TRAIN').all() and data['available'][ix].all()
+                     assert (oldmeta['split'][ni] == 'TRAIN').all() and data['npack']['query_available'][ni].all()
+                     assert np.array_equal(oldmeta['target'][ni], np.r_[np.ones(16, np.int8), np.zeros(32, np.int8), np.ones(16, np.int8)])
+-                    extra_meta = oldmeta if arm == ARMS[0] else newmeta
++                    extra_meta = newmeta
+                     assert (extra_meta['split'][ei] == 'TRAIN').all()
+-                    extra_available = data['npack']['query_available'] if arm == ARMS[0] else new['packet']['query_available']
++                    extra_available = new['packet']['query_available']
+                     assert extra_available[ei].all()
+                     assert np.array_equal(extra_meta['target'][ei], np.r_[np.ones(16, np.int8), np.zeros(32, np.int8), np.ones(16, np.int8)])
+                     for value in (ix, pairs, ni): shared_hash.update(value.astype('<i8').tobytes())
+                     extra_hash.update(ei.astype('<i8').tobytes()); extra_hash.update(epi.astype('<i8').tobytes())
+                     np.add.at(exposure_old, ix, 1); np.add.at(exposure_native, ni, 1)
+-                    np.add.at(exposure_native if arm == ARMS[0] else exposure_new, ei, 1)
++                    np.add.at(exposure_new, ei, 1)
+                     oi = torch.as_tensor(ix, device='cuda', dtype=torch.long); nn = torch.as_tensor(ni, device='cuda', dtype=torch.long)
+                     ee = torch.as_tensor(ei, device='cuda', dtype=torch.long); pp = torch.as_tensor(pairs, device='cuda', dtype=torch.long)
+                     model.train(); optimizer.zero_grad(set_to_none=True)
+                     zo = model(xt[units[oi]], zeros[:192]); zn = model(xn[nn], zeros[:64]); ze = model(ex[ee], zeros[:64])
+                     oldloss, bce, hinge, flatbce = data['h'].loss192(zo, oldtarget[oi], oldav[oi], pp)
+-                    nl = q.native_bce(zn, nt[nn], na[nn]); el = q.native_bce(ze, extarget[ee], exav[ee]); loss = oldloss + nl + el
+-                    assert torch.isfinite(loss); loss.backward(); grad = torch.nn.utils.clip_grad_norm_(model.parameters(), 5); assert torch.isfinite(grad); optimizer.step()
++                    nl = q.native_bce(zn, nt[nn], na[nn]); el = q.native_bce(ze, extarget[ee], exav[ee]); loss = oldloss * 0. + nl + el
++                    zo.retain_grad()
++                    assert torch.isfinite(loss); loss.backward()
++                    assert zo.grad is not None and torch.count_nonzero(zo.grad).item() == 0
++                    grad = torch.nn.utils.clip_grad_norm_(model.parameters(), 5); assert torch.isfinite(grad); optimizer.step()
+                     assert not model.geometry.weight.any()
+                     trace.write(json.dumps(dict(update=step, old_occurrences=ix.tolist(), old_matched_cover_sham_positions=pairs.tolist(),
+                         native_occurrences=ni.tolist(), native_pair_pool_positions=npi.tolist(), extra_native_occurrences=ei.tolist(),
+-                        extra_pair_pool_positions=epi.tolist(), extra_source='OLD_NATIVE' if arm == ARMS[0] else 'V136_NATIVE',
++                        extra_pair_pool_positions=epi.tolist(), extra_source='V136_NATIVE', AUX_old192_loss_coefficient=0, AUX_old192_output_gradient_nonzero=0, AUX_old192_full_loss_value=float(oldloss.detach()),
+                         loss=float(loss.detach()), old_BCE=float(bce.detach()), old_hinge=float(hinge.detach()), flat_BCE=float(flatbce.detach()),
+                         native_BCE=float(nl.detach()), extra_native_BCE=float(el.detach()), native_hinge_weight=0,
+                         gradient_before_clip=float(grad)), allow_nan=False) + '\n')
+                     if step % 100 == 0: evaluate(step)
+                     if step % 1000 == 0: print(json.dumps(dict(arm=arm, updates=step, seconds=time.monotonic() - started)), flush=True)
+-                assert next(previous, None) is None and next(c24, None) is None
++                assert next(previous, None) is None and next(c24, None) is None and next(c29, None) is None
++            assert shared_hash.hexdigest() == p['historical_C29_draw_hash'] and extra_hash.hexdigest() == p['historical_C29_extra_draw_hash']
+             shared = shared_hash.hexdigest(); rng_hash = hashlib.sha256(epg.get_state().numpy().tobytes() + eug.get_state().numpy().tobytes()).hexdigest()
+             if shared_reference is None: shared_reference, extra_rng_reference = shared, rng_hash
+             else: assert shared == shared_reference and rng_hash == extra_rng_reference
+@@ -140,6 +146,9 @@
+             rank = [v['value'] for k, v in gates.items() if not k.startswith('HISTORICAL15::')]; assert len(rank) == 49
+             worst = None if any(x is None for x in rank) else min(rank)
+             eligible = all(g['PASS'] for g in gates.values())
++            split_report = qualification_split(gates)
++            write(directory / 'QUALIFICATION_SPLIT.json', split_report)
++            write(directory / 'FIXED8_CASES_AND_TWO_STRIPS.json', fixed_case_scores(eraw, new['packet'], newmeta, p))
+             np.savez_compressed(directory / 'FINAL_OLD51004_SOURCE_SCORES.npz', query_logit=oldz,
+                 prediction=np.where(data['available'], (oldz >= 0).astype(np.int8), -1), query_available=data['available'],
+                 global_occurrence_index=np.arange(NOLD), input_unit_index=data['units'], external_target=data['oldmeta']['external_target'],
+@@ -150,27 +159,27 @@
+             write(directory / 'SOURCE_RESULTS.json', dict(completed=True, arm=arm, selected_update=8000, VAL_checkpoint_choice=False, threshold_logit=0,
+                 old=report, native_CF=nr, native_V4_sensitivity_only=q.native_report(raw, data['npack']['query_available'], data['nmeta'][CONVENTIONS[1]]),
+                 new_native_CF=en, new_native_obsolete_area_V4_sensitivity_only=new_report(eraw, new['packet']['query_available'], new['meta'][CONVENTIONS[1]]),
+-                gates=gates, source_eligible=eligible, worst_required49_class_recall=worst, shared_old192_native64_sha256=shared,
++                gates=gates, qualification_split=split_report, AUX_old192_loss_coefficient=0, selected_model=None, diagnostic_only=True, source_eligible=eligible, worst_required49_class_recall=worst, shared_old192_native64_sha256=shared,
+                 extra_native_draw_sha256=extra_hash.hexdigest(), extra_rng_consumption_sha256=rng_hash,
+                 old_pair_count=125, new_pair_count=len(new['pairs']), historical_old192_and_native64_all8000_exact=True,
+                 all_old51004_native6144_new20480_preserved=True, teacher_SU_no_external_gradient=True, actual_geometry_input_used=False,
+-                semantic_target='Registered native physical corner visibility, separate from actual query coordinate error; no error filtering.', current_V112_PnP=0))
++                semantic_target='Declared CF registered native reference visibility; constructed anchors coincide with support mesh, separate from actual query coordinate error; no error filtering.', current_V112_PnP=0))
+             write(directory / 'MODEL_FREEZE.json', dict(completed=True, arm=arm, update=8000, selected_update=8000,
+                 checkpoint=bind(directory / 'FINAL_RESUME_CHECKPOINT.pt'), threshold_logit=0, parameters=224513, source_eligible=eligible,
+                 policy=bind(POLICY), trainer=bind(__file__), C16_freeze=p['C16_freeze'], all_geometry_input_zero=True,
+-                encoder_trainable_parameters=0, current_allowed=False, V112_allowed=False, PnP=0))
++                encoder_trainable_parameters=0, selected_model=None, diagnostic_only=True, AUX_old192_loss_coefficient=0, current_allowed=False, V112_allowed=False, PnP=0))
+             write(directory / 'FIT_COMPLETE.json', dict(completed=True, optimizer_updates=8000, arm=arm,
+                 results=bind(directory / 'SOURCE_RESULTS.json'), freeze=bind(directory / 'MODEL_FREEZE.json'),
+                 initialization_parity=bind(directory / 'UPDATE0_C16_EXACT_PARITY.json'), shared_draw_sha256=shared,
+-                source_eligible=eligible, worst_required49_class_recall=worst))
++                source_eligible=eligible, worst_required49_class_recall=worst, qualification_split=bind(directory / 'QUALIFICATION_SPLIT.json'), fixed_cases=bind(directory / 'FIXED8_CASES_AND_TWO_STRIPS.json'), selected_model=None, diagnostic_only=True))
+             arms[arm] = dict(source_eligible=eligible, worst_required49_class_recall=worst,
+                 fit=bind(directory / 'FIT_COMPLETE.json'), freeze=bind(directory / 'MODEL_FREEZE.json'))
+             del model, optimizer; torch.cuda.empty_cache()
+         eligible = [a for a in ARMS if arms[a]['source_eligible']]
+-        selected = max(eligible, key=lambda a: (arms[a]['worst_required49_class_recall'], -ARMS.index(a))) if eligible else None
++        selected = None  # Root policy: no model admission/selection in this diagnostic phase.
+         write(RUN / 'CONTROL_COMPLETE.json', dict(completed=True, PASS=True, arms=arms, selected_arm_source_only=selected,
+             same_all8000_old192_native64_draws=True, shared_draw_sha256=shared_reference, extra_same_algorithm_rng_consumption=True,
+-            extra_rng_consumption_sha256=extra_rng_reference, extra_occurrence_ids_not_claimed_equal=True, final_update8000_both=True,
++            extra_rng_consumption_sha256=extra_rng_reference, extra_occurrence_ids_all8000_exact_C29=True, final_update8000_single_arm=True, new_baseline_fits=0, AUX_old192_loss_coefficient=0, model_selection_prohibited=True, selected_model=None,
+             old42_and_new22_required_gates=True, original27_plus_new22_rank=True, application_solved=False,
+             private_current_V112_PnP_q_correction_calls=0, seconds=time.monotonic() - started, code=bind(__file__), policy=bind(POLICY), protocol=bind(PROTOCOL)))
+         print(json.dumps(read(RUN / 'CONTROL_COMPLETE.json')), flush=True)

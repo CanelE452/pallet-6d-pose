@@ -1,0 +1,39 @@
+V150 공개 source fidelity / 초기 public objective 독립 진단
+
+범위: V146의 공개 weak labels와 V148에 저장된 INITIAL_C32 public logits를 직접 join하여 전수 검산했다. 현재223, V149 private 결과, 금지 phase, RGB, features/weights, model/fit/PnP는 읽거나 실행하지 않았다. 모든 수치는 SOURCE_FIDELITY_AND_INITIAL_RANKING.json과 audit_public_source_fidelity.py로 재현된다.
+
+1. 공개 실사는 무엇을 학습시키고 있는가
+
+V146의 512 native 행 중 D70/E14/U428이다. TRAIN_LAB은 D35/E8/U213, VAL_HALL은 D35/E6/U215이며 HALL의 D2행은 original input-U다. native2/3은 동일 목재 통합 조립체의 하부 가상 footprint 역할에 대한 제한적인 assistant weak bridge다. upper0/1 및 rear4..7은 U이며, 정확한 physical vertex/human gold/full native8 인증이 아니다. sourceUP=-OBJY와 whole-mesh AABB의 scan-outlier 한계는 그대로다.
+
+모든 E14의 실제 semantic_reason은 동일하게 '별도 전경 cardboard가 같은 목재 조립체의 전면 왼쪽 하부 지지 역할을 가림'이다. E는 모두 native3이다. TRAIN D35는 native2 19개/native3 16개다. 목재가 목재를 가리는 경우, 정사각형/다른 재질의 자연 가림, upper/rear의 자연 E, 다양한 target instance/topology를 이번 공개 부분 라벨이 제공했다고 말할 수 없다. HALL은 동일 조립체/가림 유형의 공개된 개발 검증이며 fresh human test가 아니다.
+
+2. 장면의 역할 보임과 원 query crop 증거의 차이
+
+원 q/L을 고치지 않고, virtual reference가 원 96 sample-centre 범위 안에 있는지만 대조했다. TRAIN D35 중 2개는 reference가 full96 밖이다: global67(0.55m_lab:0005,n3)은 136.745px=1.318L, global139(1.23m_lab:0014,n3)은 80.076px=.714L다. 해당 D 라벨은 실제 조립체 역할이 다른 위치에서 보이는지 판단하며, q 픽셀/바닥 crop 안에 그 역할이 존재함을 뜻하지 않는다. TRAIN E8 중 2개도 reference가 full96 밖이다. central32에서는 D19/35, E6/8의 reference가 밖이다.
+
+이 대조는 virtual-reference locality 진단이다. 이를 새로운 teacher로 삼아 D를 E로 바꾸거나 행을 버리지 않았다. virtual AABB reference는 exact physical-pixel gold가 아니다. C16 입력에는 q8minmax target context도 있어, local crop 밖에서 장면의 역할 보임을 읽을 가능성은 있지만 사용자가 원하는 '원 키포인트 중심 crop에서 대상 존재/외부 가림'과 같은 감독이라고 주장할 수 없다. q 신뢰도/대상 부재와 역할의 외부 가림을 섞으면 바닥 crop에 D를 강제하는 목표 충돌이 남는다.
+
+3. 초기 class-balanced BCE가 실제로 어느 쪽으로 미는가
+
+V148의 public loss는 .5*mean_D softplus(zD)+.5*mean_E softplus(-zE)이다. 초기 C32에서 D는 33/35 정답, E는 8/8 정답이다. E 최소 z=+2.3541이고 D 최대 z=+6.5640이다. analytic dL/db는 D +.0382337506, E -.0066564136, 합 +.0315773370이다. 따라서 이 public loss 항만 보면 gradient descent가 공통 출력 bias를 음수로 민다. class balancing은 각 class의 가중치를 맞추지만 이미 정답인 E와 큰 D 오류의 gradient 크기까지 맞추지는 않는다. D의 절대 gradient 질량이 E의 5.744배다.
+
+이는 초기 scalar gradient의 방향이라는 확인된 메커니즘 단서다. 실제 full-network 변화는 native loss, shared hidden parameters, clipping/AdamW/weight decay와 함께 생기므로 전체 결과가 output-bias 이동 때문이라는 인과 확정은 아니다.
+
+4. 제안 가능한 한 가지 통제 실험과 한계
+
+새로운 source-only 통제로, 동일한 43 TRAIN 행/동일 C32 초기값/동일 native BCE와 draws/budget을 유지한 public balanced BCE 대 public cross-class mean softplus(1+zD-zE)를 사전에 고정하여 비교할 수 있다. rank 항은 공통 additive logit offset에 정확히 불변이며 직접적인 output-bias gradient 합이 0이다. native BCE/weight decay/hidden 변화에 의한 절대 logit 이동까지 없애는 것은 아니다. margin=1은 여기서 prospective 분석에 사용한 고정값이며 source/private 성능에 맞춰 선택한 값이 아니다. 실제 fit/weight/margin/budget 선택은 새 root policy가 필요하고 여기서는 실행하지 않았다.
+
+모든 D35×E8=280 조합을 쓰면 43개 모두를 유지하지만, 152개가 native2-D 대 native3-E라 channel confound가 있다. 같은 native3의 D16×E8=128개만 쓰면 이 confound는 줄지만 public D2 controls19개가 rank 항에서 빠지는 별도 intervention이 된다. 따라서 BCE 대비 objective 하나를 확인하려면 full43 pool을 유지하고 same-native3 분석을 고정 보조 진단으로 보고하는 편이 비교 범위가 명확하다. 같은 조립체라는 것 외에는 frame/pose/offset이 달라 matched same-q causal occluder pair로 부를 수 없다.
+
+현재 ranking 문제가 크게 남아 있는 것도 아니다. 전체280의 순서 오류는 3개, margin1 위반은 4개이며 hinge라면 276개는 이미 gradient0다. same-native3도 동일 3/4개이고 124/128은 margin 충족이다. softplus 평균은 전체 .0473093/same3 .0987347이다. 특히 모든 margin1 위반은 global67 D와 E4개 조합이다. 이 global67은 위의 136.745px 바닥 query다. 따라서 ranking 통제는 대부분 이 한 source 역할-D를 다루며, crop 목표 차이나 부족한 E 재질/역할 범위를 해결하는 실험으로 해석해서는 안 된다. Source35 gates/full known HALL/input-U/모든 upper-rear U는 그대로 유지하고, 새 threshold/행제외/모델선택을 하지 않아야 한다.
+
+pair loss 자체는 새 방법이 아니다. V135가 registered-native COVER-E/NEAR_SHAM-D125쌍에 margin2 hinge를 실제 사용했고 V95는 원 same-q 공개 source에 YCB cutout BEFORE/COVER/SHAM을 실제 만들었다. 여기서 확인할 수 있는 새 경계는 실제 public partial-native weak supervision의 BCE calibration 경로 대 offset-invariant discrimination 경로뿐이다. 새로운 자연 가림 유형을 추가했다고 주장하지 않는다.
+
+5. YCB-V는 이미 썼지만 native pallet supervision은 아니었다
+
+V106은 PCA octant별 original mesh vertex를 고른 AUX_SURFACE_CUE_PCA_OCTANT_VERTEX_V1이며 physical junction/part/native8 mapping은 UNKNOWN이다. 기존 V100 rejected AABB를 native8로 고친 기록이 아니다. V109 실제 corpus는 1000 instances/8000 slots이며 D1181/E340/S1917/U4562, 전부 기존 TRAIN, VAL0이다. q는 provided GT surface projection에 독립 radius4px jitter를 더한 emulated query였고 실제 initializer 출력이 아니다. D/E는 reference 주변 owner/depth/target-alone ray로 정의한 associated surface visibility이지 q-pixel membership이 아니다.
+
+V110 C10은 이 YCB8000과 old33984를 실제 frozen-ResNet RGB features로 학습했다(2000 updates, source 선택800). 기존12 source gates 중3개를 실패해 당시 current admission은 없었다. 이후 V111은 같은 source 흐름의 DINO1928을 사용했고, 그 데이터는 old51004 AUX 계층에 이어진다. V142 C32에서는 AUX 전체 gradient0이며 V148에서는 AUX51004 body/loss를 아예 읽지 않았다. 따라서 '공개 실사는 전혀 사용한 적 없다'도, 'YCB가 실제 pallet-native 최초 q 가림 감독을 이미 제공했다'도 둘 다 부정확하다.
+
+결론: 공개 실제 q 기반의 부분 역할 감독은 확보했고 source HALL에 사용할 수 있는 D/E가 생겼다. 그러나 현재 공개 E는 한 조립체/cardboard/native3에 몰려 있고 원 crop 밖의 역할-D 감독도 존재한다. ranking 통제는 학습 방향의 한 가설을 분리할 수 있지만, source 목표 정합성과 가림 유형의 실물 coverage를 대신하지 못한다.

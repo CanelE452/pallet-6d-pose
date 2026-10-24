@@ -1,0 +1,139 @@
+{
+  "UTC": "2026-10-23T06:41:16.680073+00:00",
+  "candidate": "C10_NATURAL_SURFACE_TARGET_RELATIVE_RGB",
+  "fixed_before_new_RGB_feature_forward_and_fit": true,
+  "hypothesis": "C9 target context improves public controlled cover, but natural cardboard occlusion remains wrong. Add measured public natural target/foreign surface supervision and explicit per-channel target/centre relations; retain local96 appearance so small-object4px query noise does not remove the associated cue from all query views. This combined method is not a unique-cause test.",
+  "source": {
+    "old_source_occurrences": 33984,
+    "new_public_YCB_instances": 1000,
+    "new_public_YCB_slots": 8000,
+    "all_occurrences": 41984,
+    "old_unique_units": 3652,
+    "new_slot_unique_units": 8000,
+    "all_feature_units": 11652,
+    "all_new_TRAIN": true,
+    "new_VAL": 0,
+    "new_states": {
+      "D": 1181,
+      "E": 340,
+      "S": 1917,
+      "U": 4562
+    },
+    "all_raw_states": {
+      "D": 2396,
+      "E": 643,
+      "S": 2313,
+      "U": 36632
+    },
+    "TRAIN_D_E": 2523,
+    "VAL_D_E": 516,
+    "conditional_label_scope": "Old physicalcue AUX plus new associated reference-surface visibility with jitter, not native/humanjunctiongold",
+    "new_input_freeze": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/INPUTS1000_QUERY_EMULATION_ONLY.jsonl",
+      "sha256": "f06d1d2b2231835160c3c748c3269e518a460a694a37fcbddf7b00f5dfe166f2"
+    },
+    "new_teacher_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/corpus_build_v1/CORPUS_SEAL.json",
+      "sha256": "934a9a3aa88854cf0632fc7b3f4c89b5f0630cc435cfc1f64e1c4eea220903db"
+    },
+    "new_policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/ROOT_SOURCE_POLICY_V2_CORRECTED_INVENTORY_BEFORE_BULK.json",
+      "sha256": "2817c6233634bc0238b211dc6ceca4efe9d9d0f7c24b32e5c90929b4a5c0e8fd"
+    },
+    "training_admission_required_before_fit": "Joint fixed-by-state sourceRGB review plus policy reconciliation; keep allunknown/unsupported rows"
+  },
+  "features": {
+    "base_dimension": 1541,
+    "layout": [
+      "target512",
+      "localfull96_512",
+      "central32_512",
+      "cos(target,central)1",
+      "cos(target,localfull)1",
+      "target_validfraction1",
+      "localfull_validfraction1",
+      "central_validfraction1"
+    ],
+    "old_features": "Copy exact C8full+centre andC9target, derivecosines only; no oldCNN rerun",
+    "new_input": "V109 input-only image/q8/L/querybox, no r/depth/mask/teacher/native/pose in model inputs",
+    "new_RGB96": "Exact deployment-compatible nativeq/L RGB96+valid sampler; uint8 round convention preserved",
+    "new_target_context": "Exact V107 rectangular224 noexpansion/nativebilinear grid; meanfillinvalid then standardImageNetmean/std",
+    "pretrained": "ImageNet-only frozen evalResNet18 f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec fcIdentity; per-viewL2",
+    "fitted_normalizer": false,
+    "C1_prior": false,
+    "P3_classifier_features": false,
+    "availability": "Old unchanged factual&context; new q continuous+nearest and exact RGBcentre4 valid AND supported query-box context; unknown rows retained, never negative"
+  },
+  "head": {
+    "feature_input_dimension": 1541,
+    "derived_relations": [
+      "abs(target512-central512)",
+      "target512*central512"
+    ],
+    "linear_input_dimension": 2565,
+    "architecture": "Concat1541+512+512,Linear2565x64,ReLU,Linear64x1",
+    "trainable_parameters": 164289,
+    "last_readout_initialization": "zeros",
+    "model_seed": 208,
+    "threshold_logit": 0,
+    "sign": "z<0 D,z>=0 externalE, unavailableU",
+    "coordinates_predicted": false
+  },
+  "fit": {
+    "updates": 2000,
+    "batch_size": 64,
+    "sampler_seed": 208,
+    "sampler_eligible": "TRAIN knownD/E AND factual feature availability; old triplet pools requireall3available. All excluded rows still scored/reported. No score-based eligibility.",
+    "quotas": {
+      "old_triplets": 4,
+      "synth_triplets": 4,
+      "old_LOCO_D": 2,
+      "old_PALLOX_D": 2,
+      "synth_D": 4,
+      "YCB_D": 8,
+      "old_natural_E": 4,
+      "synth_E": 8,
+      "YCB_E": 12
+    },
+    "draw_classes": [
+      32,
+      32
+    ],
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.001,
+    "gradient_clip_norm": 5,
+    "loss": "Available knownD/E BCE+.25relu(2-(zcover-zsham)) on8 sampled old/synthetictriplets; no S/U loss",
+    "selector": "Exact8 oldsourceVALcohorts, equalmeanBCE, strict earliest; evaluate0and100..2000. NewYCB hasnoVAL andneverselectscheckpoint.",
+    "between_arm_selection": "Single prospectivelyfixedC10; no sweep/restart afteroptimizerupdate"
+  },
+  "source_gates": {
+    "old_LOCO_before_D_recall_min": 0.85,
+    "old_PALLOX_before_D_recall_min": 0.85,
+    "old_natural_before_E_recall_min": 0.75,
+    "old_sham_D_recall_min": 0.85,
+    "old_cover_E_recall_min": 0.75,
+    "old_accepted_VAL_pair_all3_min": 0.75,
+    "old_known_VAL_U_rate_max": 0.05,
+    "new_BEFORE_D_recall_min": 0.85,
+    "new_SHAM_D_recall_min": 0.85,
+    "new_COVER_E_recall_min": 0.75,
+    "new_selected_VAL_pair_all3_min": 0.75,
+    "new_known_VAL_U_rate_max": 0.05,
+    "empty_required_cohort": "No fit; preserve actual metadata; no fallback or omitted cohort"
+  },
+  "admission": "Selectedcheckpoint by fixed sourceBCE then all12 unchanged sourcegates. No current inference iffail.",
+  "limitations": [
+    "PublicnaturalYCBderivedsurface-label uncertainty and repeated sourcecapture/development exposure explicit",
+    "AllnewdataTRAIN means no fresh naturalreal heldout performance claim",
+    "Sourcequeries areGT+jitteremulation, not actualinitializer; geometry/native/coordinatecorrectness not solved",
+    "Initial targetbox/context may include foreignobject; sourceappearance and actualnativepallet transfer requireevaluation"
+  ],
+  "current223_training_normalizer_threshold_checkpoint_armselection": false,
+  "new_PnP": false,
+  "q_L_correction": false,
+  "previous_C9_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_relative_rgb_head_20261023_v108/ROOT_C9_DESIGN_BEFORE_FEATURE_FORWARD.json",
+    "sha256": "081537ffb3a662d17143874d477c217ad21b89e00367e6415fda5421113d2a0b"
+  }
+}

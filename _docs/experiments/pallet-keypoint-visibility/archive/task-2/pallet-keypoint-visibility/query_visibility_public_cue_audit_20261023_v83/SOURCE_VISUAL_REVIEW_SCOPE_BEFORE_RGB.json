@@ -1,0 +1,13 @@
+{
+  "schema": "V83_PUBLIC_PALLET_CUE_EVIDENCE_REVIEW_ONLY_V1",
+  "goal_status": "active",
+  "fully_solved": false,
+  "purpose_KO": "기존 공개 팔레트 영상의 세 후보 reference가 실제 코너·부분선 영상 단서를 가리키는지 독립적으로 확인합니다. 더 좋은 pixel mask가 곧 코너 가시성 정답이라는 가정을 반복하지 않고, 다음 감독 목표를 실제 공개 자료에 연결하기 위한 단계입니다.",
+  "scope": "Existing V67/V69 R2B3 AI reference proposals and already local public R2B frames only. V72 public_pallet_initializer saved source q/input metadata may be read to establish initial-query lineage. No current223 RGB/annotation/features/scores or model weights.",
+  "reviewers": "Two separate AI reviewers freeze policies before raw public RGB reads and inspect independently. Share only paths/coordinates/metadata until both reports sealed; do not share judgments in advance.",
+  "review_fields": ["target pallet identity and evidence", "proposed reference pixel and visible cue", "coordinate/cue uncertainty and alternate interpretation", "external blocker evidence or ambiguity", "native8 correspondence evidence or UNKNOWN", "saved initializer query availability and association evidence", "capture-family split limits"],
+  "source_label_tier": "AI-reviewed weak source evidence only, even if reviewers agree. Human-confirmed semantic gold remains0. A random mask-positive pixel or an AI anchor ID is not a canonical native8 corner.",
+  "invariants": ["Preserve all old proposals/data and fixed coordinate candidates", "Do not invent native8 IDs or snap references to physical mesh", "Do not use current223 to choose cue definitions/points/crops", "Do not silently move a proposed point to make it visibly correct; record correction proposals separately", "Keep missing/uncertain/correspondence-unknown explicit", "Do not split related R2B clips/sensors as independent capture families without evidence"],
+  "not_executed_or_admitted": ["new source teacher labels", "RGB compositing", "query jitter generation", "source training", "new model inference", "depth teacher corpus", "current evaluation", "PnP"],
+  "next_gate": "After the actual source evidence review, root will separately decide whether a narrowly named observed-cue controlled proxy can be admitted. This review itself does not admit semantic D/E/S labels or authorize a fit."
+}

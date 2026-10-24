@@ -1,0 +1,181 @@
+{
+  "schema": "V79_TARGET_CLASS_GROUNDING_NARROW_FEASIBILITY_PRIMARY_SOURCES",
+  "created_date": "2026-10-23",
+  "status": "IMPLEMENTATION_AND_PUBLIC_WEIGHTS_AVAILABLE_REMOTELY; LOCAL_SAM21_READY; GROUNDING_NOT_INSTALLED_AS_A_VERIFIED_PIPELINE_OR_BENCHMARKED",
+  "question": "Can a known target request reduce the observed target-versus-occluder ownership ambiguity, without per-test GT selectors?",
+  "bounded_approach": "One possible future source-only diagnostic is generic text-conditioned detection for an inference-known target category, then GT-free association to the original initializer box and existing SAM2.1 box-prompt segmentation. This is feasibility research, not a chosen architecture/candidate or authorization to run.",
+  "official_remote_artifacts": {
+    "model_id": "IDEA-Research/grounding-dino-tiny",
+    "revision": "a2bb814dd30d776dcf7e30523b00659f4f141c71",
+    "public_api": {
+      "private": false,
+      "gated": false,
+      "disabled": false,
+      "credentials_used": false
+    },
+    "weight": {
+      "filename": "model.safetensors",
+      "bytes": 689359096,
+      "approx_MB_decimal": 689.36,
+      "sha256_from_official_metadata": "1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3",
+      "pinned_download_URL_not_fetched": "https://huggingface.co/IDEA-Research/grounding-dino-tiny/resolve/a2bb814dd30d776dcf7e30523b00659f4f141c71/model.safetensors"
+    },
+    "duplicate_variant": "pytorch_model.bin691,914,602B exists; no need to treat both formats as required. This review fetched neither.",
+    "processor_files": "config/preprocessor/tokenizer/vocab/special-token files are additional small artifacts. Existing model.safetensors includes image/text model weights; a future local snapshot must bind all required files and forbid silent network fallback.",
+    "safetensors_parameter_metadata": {
+      "F32": 172249090,
+      "I64": 28812,
+      "total_elements": 172277902
+    },
+    "licenses": "Official code and HF tiny card list Apache2.0; no license reinterpretation or new terms acceptance performed.",
+    "source_ids": [
+      "official_model_card",
+      "official_model_api",
+      "pinned_weight_metadata",
+      "official_code_license"
+    ]
+  },
+  "local_read_only_runtime_inventory": {
+    "existing_SAM21": {
+      "ready_from_existing_seal": true,
+      "runtime": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv",
+      "Python": "3.10.20",
+      "torch": "2.5.1+cu121",
+      "torchvision": "0.20.1+cu121",
+      "repository_revision": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+      "checkpoint": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+      "checkpoint_bytes": 323606802,
+      "checkpoint_prior_bound_SHA256": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5",
+      "new_model_or_checkpoint_load": false,
+      "HF_packages_present_in_this_isolated_runtime": false
+    },
+    "main_environment_metadata_only": {
+      "path": "/home/minjae/anaconda3/lib/python3.13/site-packages",
+      "Python": "3.13",
+      "torch": "2.5.1+cu121",
+      "transformers": "4.57.6",
+      "huggingface_hub": "1.24.0",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.22.2",
+      "accelerate": "1.14.0",
+      "GroundingDINO_model_config_processor_source_files_exist": true,
+      "torchvision_dist_info_found": false,
+      "operational_compatibility_verified": false
+    },
+    "weight_inventory_limit": "No GroundingDINO/GroundedSAM/SAM3 matching weight filenames found in the bounded known HF cache and prior DINO-asset roots searched. This is not an all-filesystem absence claim.",
+    "compatibility_inference": "Existing SAM21 Python/Torch/torchvision versions meet the combined-demo documented version floor. Extra HF dependencies are not in that frozen SAM venv. The main environment has HF implementation source, but imports/dependencies/kernel path and joint execution were not tested. A future separate environment/process integration is possible in principle; preserve sealed runtime unchanged until a new protocol.",
+    "resources": "New tiny weight artifact is about689MB plus small processor files; the existing SAM21 weight is already local. Combined activation memory, 10GB GPU fit, latency and throughput are unmeasured. No numerical runtime promise is made.",
+    "source_ids": [
+      "official_combined_install",
+      "official_combined_demo",
+      "official_existing_version_config"
+    ]
+  },
+  "inference_target_request_and_public_fairness": {
+    "user_pallet": "The user-known constant category pallet can be specified before any image/GT is inspected. A fixed generic pallet request is legitimate inference input; picking per-test wording/class from the hidden GT, current errors or desired output is not.",
+    "publicYCB_category_free_option": "Freeze one complete published YCB category ontology, wording/order and deterministic batching globally, then run the same text set on every source image. Associate detections to the original q8-derived box using only input geometry and predicted outputs. Do not choose only the current target GT name, objectID, mask or best-GT-overlap detection.",
+    "ontology_length": "Verify tokenized total against the model text-length limit before source inference; if batching is needed, fix identical ontology chunks/order for all images before reading results. No score-driven synonym/description or per-frame prompt search.",
+    "publicYCB_class_provided_option": "Alternatively the request may explicitly provide a target class for every inference, but that is a declared category-conditioned benchmark, separate from the old class-free protocol. It must not be presented as information that the old initializer supplied.",
+    "association_limit": "An ALL-category detector plus qbox is not an oracle for intended instance. Occluder detections can overlap the initial box more than a partly visible target, and repeated same-class objects remain ambiguous. A future association rule/ties/no-match policy must be frozen from available inputs, not GT; report wrong-instance/no-match separately.",
+    "no_detection": "No class detection or unreliable association is UNKNOWN/not-grounded, not proof of covered/external/self absence. Fully occluded targets may have no visible detection even though their semantic reference exists.",
+    "no_query_change": "Keep original q8/L/native order and evaluation locations. A detector box may be a separately declared segmentation prompt, not a reason to recenter queries, change r, or select different crops/GT targets.",
+    "SAM_limit": "A box-conditioned SAM mask remains visible segmentation. It may include an occluder or wrong instance; mask0 is not semantic E/S or virtual-reference absence. Target-class grounding may help identity, but does not produce expected/amodal M0 or solve hidden reference association.",
+    "prototype_limit": "TRAIN-only class/prototype parameters are legitimate only from TRAIN and selected with inference-known category; no VAL/current target template or per-test GT-mask-weighted prototype. VAL-only classes6/11 remain unsupported by a supervised TRAIN-only per-class bank.",
+    "seen_unseen_caution": "The new frozen source class breakdown shows V78 covered recall38/217 on TRAIN-seen VAL classes and23/70 on unseen classes. Thus unseen categories alone cannot explain the failure; main VAL covered mass217/287 is seen. This is post-prediction diagnosis only, not category input or selection."
+  },
+  "relationship_to_dense_supervision_review": "Wait for full V79 same-crop coverage/collision results before choosing any candidate. This identity-request option differs from adding visible/M0 auxiliary loss to the same inputs. Do not combine changes and claim an isolated cause; no backbone sweep is proposed.",
+  "not_assessed": "SAM3 and other model families were not investigated because this bounded task already has a primary official detector-to-existing-SAM21 path; no availability/performance claim about them is made.",
+  "primary_sources": [
+    {
+      "id": "official_model_card",
+      "url": "https://huggingface.co/IDEA-Research/grounding-dino-tiny",
+      "accessed_date": "2026-10-23",
+      "facts": "Official IDEA-Research model card lists Transformers zero-shot object detection and Apache-2.0; image plus text yields phrase-conditioned boxes. It recommends lowercase phrases separated by periods."
+    },
+    {
+      "id": "official_model_api",
+      "url": "https://huggingface.co/api/models/IDEA-Research/grounding-dino-tiny?blobs=true",
+      "accessed_date": "2026-10-23",
+      "facts": "Public metadata request without credentials reported private=false,gated=false,disabled=false,revisiona2bb814dd30d776dcf7e30523b00659f4f141c71. Safetensors file size/hash listed below; metadata only, no weights fetched."
+    },
+    {
+      "id": "pinned_weight_metadata",
+      "url": "https://huggingface.co/IDEA-Research/grounding-dino-tiny/blob/a2bb814dd30d776dcf7e30523b00659f4f141c71/model.safetensors",
+      "accessed_date": "2026-10-23",
+      "facts": "Pinned official file page gives approximately689MB and SHA2561a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3."
+    },
+    {
+      "id": "official_transformers_docs",
+      "url": "https://huggingface.co/docs/transformers/v4.44.2/model_doc/grounding-dino",
+      "accessed_date": "2026-10-23",
+      "facts": "Processor supports image-text pairs and multiple period-separated classes; grounded postprocessing recovers boxes and text labels in requested image coordinates. Example thresholds are documentation examples, not selected experiment values."
+    },
+    {
+      "id": "official_existing_version_config",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/v4.57.6/src/transformers/models/grounding_dino/configuration_grounding_dino.py",
+      "accessed_date": "2026-10-23",
+      "facts": "Configuration documents max_text_len256 and disable_custom_kernels. These expose implementation controls; no speed/memory compatibility is certified by reading the config."
+    },
+    {
+      "id": "official_combined_demo",
+      "url": "https://github.com/IDEA-Research/Grounded-SAM-2/blob/main/grounded_sam2_hf_model_demo.py",
+      "accessed_date": "2026-10-23",
+      "facts": "IDEA official example loads grounding-dino-tiny through AutoProcessor/AutoModelForZeroShotObjectDetection, sends detected XYXY boxes to SAM2ImagePredictor without positive point prompts, and accepts SAM2.1 checkpoint/config arguments. Demo precision/threshold settings are not an experiment protocol."
+    },
+    {
+      "id": "official_combined_install",
+      "url": "https://github.com/IDEA-Research/Grounded-SAM-2",
+      "accessed_date": "2026-10-23",
+      "facts": "The repo documents Python3.10, Torch>=2.3.1, torchvision>=0.18.1,CUDA12.1 and both HF/original GroundingDINO routes; it records SAM2.1 support. Original native GroundingDINO build may require CUDA compilation; no build was attempted."
+    },
+    {
+      "id": "official_code_license",
+      "url": "https://github.com/IDEA-Research/GroundingDINO/blob/main/LICENSE",
+      "accessed_date": "2026-10-23",
+      "facts": "Original repository supplies Apache2.0 license. The HF card separately labels the tiny weights Apache2.0."
+    }
+  ],
+  "local_evidence_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/target_identity_review/TARGET_IDENTITY_INPUT_SCOPE_REVIEW.json",
+      "sha256": "721da636909a0558e7e67ec1f9bf180679fe8412f246bdd7471909dc1ea93774"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/natural_failure_gallery/VISUAL_REVIEW.json",
+      "sha256": "4742663e1ea25e95ce543045c1b9cbdda38dfc86ad7fd9234e919bf8aadc27ea"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/object_split_diagnosis/OBJECT_SPLIT_SAVED_RESULTS.json",
+      "sha256": "a03f6e67526daca320d66ebb365ea05fcac2a7190b52b2a239d6788a80760ad0"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/RUNTIME_SEAL.json",
+      "sha256": "e5655309c2c99ee18e76fa0ebe85541194445895673d9b64f915384130bcbf82"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/provenance/RUNTIME_VERSIONS.json",
+      "sha256": "e0d39bf3bb02b2cf6acbe2def1817aafa59e5aca8a9f8ef60ec54a5dd32b391f"
+    },
+    {
+      "path": "/home/minjae/anaconda3/lib/python3.13/site-packages/transformers/models/grounding_dino/modeling_grounding_dino.py",
+      "sha256": "ba98eb52acbd8a7e36bab581fd0f9b092fed3579e37cd6e69c55ea153504b2e0"
+    },
+    {
+      "path": "/home/minjae/anaconda3/lib/python3.13/site-packages/transformers/models/grounding_dino/configuration_grounding_dino.py",
+      "sha256": "bf48ec785c4ec1f99d3b17acde82fbe5ef869887632049e09c974c34f0844bf4"
+    }
+  ],
+  "actions": {
+    "official_web_and_small_public_metadata_reads": true,
+    "new_weight_or_dataset_downloads": 0,
+    "environment_changes": 0,
+    "model_import_or_run": 0,
+    "new_model_architecture_loss_threshold_selected": false,
+    "new_fit": 0,
+    "current_reads": 0,
+    "PnP": 0,
+    "V79_scan_modified": false,
+    "automatic_current_authorization": false,
+    "fully_solved": false
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": "PUBLIC natural structural-cue RGB intake and visual inspection only. No model inputs, new labels, training admission or native/human gold.",
+  "source_scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/ROOT_PUBLIC37_INTAKE_SCOPE_BEFORE_PIXELS.json",
+    "sha256": "09cf91dac301efafe7de6e38929751bcecb284f6f5636180551fa8d8742be93e"
+  },
+  "metadata_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/metadata_preparation/SEAL.json",
+    "sha256": "d2d11494d9627135c259d77e3be30f1992bb8546e508cad141957f1d8e5567e7"
+  },
+  "render_output_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/visual_intake/RENDER_OUTPUT_SEAL.json",
+    "sha256": "187dd34f9711a198e9fbf7f95c74072e405dd7fa0b72ad20c8b37080c239d772"
+  },
+  "render_receipts": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/visual_intake/RENDER_RECEIPTS.json",
+    "sha256": "c2ec0166ca7ac67d140611bb4ef7fe2120f16ca39c3dd358ef3f1328f98c2058"
+  },
+  "facts": {
+    "cue_pairs": 37,
+    "views": 74,
+    "distinct_physical_frame_pairs": 22,
+    "unique_full_RGB_files": 44,
+    "folds": {
+      "TRAIN_LAB": 15,
+      "VAL_HALL": 22
+    },
+    "unchanged_teacher_labels": {
+      "BEFORE_D": 37,
+      "AFTER_E": 37
+    },
+    "slot_names": {
+      "LOWEST_WIDE_WALL_LEFT": 21,
+      "BASE_RUNNER_LEFT": 14,
+      "V84_A_CUE_02": 1,
+      "B03": 1
+    },
+    "original_reference_OOB": 0,
+    "uncertainty_bbox_exceeds_fixed128crop": 0,
+    "partially_padded_native128_views": 22,
+    "pairs_with_padding": 11,
+    "minimum_crop_valid_fraction": 0.5625,
+    "initializer_metadata_present_views": 74
+  },
+  "actual_view_receipt": {
+    "contacts_viewed": [
+      "CONTACT_01.png",
+      "CONTACT_02.png",
+      "CONTACT_03.png",
+      "CONTACT_04.png",
+      "CONTACT_05.png",
+      "CONTACT_06.png",
+      "CONTACT_07.png"
+    ],
+    "all37_pairs_seen_in_contacts": true,
+    "individual_cards_viewed": [
+      "PAIR_00.png",
+      "PAIR_23.png",
+      "PAIR_26.png",
+      "PAIR_35.png",
+      "PAIR_36.png"
+    ],
+    "full_context_and_raw_crop_panels_present": true,
+    "independent_C_judgments_read": false
+  },
+  "observations_KO": [
+    {
+      "finding": "연락판에서 가림 전에는 왼쪽 목재 벽/하부 runner의 모서리·결합부가 보이고, 가림 후에는 같은 고정 참조 부근에 실제 상자가 놓인 장면 변화를 볼 수 있습니다. 주변에 목재가 남는 것은 기대 구조 단서가 보인다는 뜻과 같지 않습니다.",
+      "limit": "이것은 기존 조건부 weak D/E 정의를 이해하기 위한 RGB 관찰입니다. 각 참조가 native8 기대 부품인지, 정확한 숨은 좌표인지, 불확실성의 모든 픽셀이 정말 가려졌는지에 대한 새 gold 판정은 아닙니다."
+    },
+    {
+      "finding": "가까운 장면부터 멀리 보이는 장면까지 크기·시점이 달라, 동일128 native픽셀 창의 물리적 내용과 target 비율이 크게 바뀝니다. 일부 창에는 구조물·바닥·상자가 함께 들어갑니다.",
+      "limit": "이 oracle 창은 모델의 초기 q/L crop이나 동일 입력 연산자를 재현한 것이 아닙니다. 실제 초기 q8/L은 원 metadata에 그대로 남고 GT-bestslot/최근접 참조 연결은 만들지 않았습니다."
+    },
+    {
+      "finding": "전체37 단서는22촬영쌍/44RGB에 묶이며, 같은 목재 bin의 왼쪽 단서와 유사한 cardboard 상자 가림이 반복됩니다.",
+      "limit": "37개의 독립 환경·개체 표본이나 다양한 자연 가림 재질의 검증으로 셀 수 없습니다. TRAIN/VAL은 원 lab/hall 개발 fold이며 물리 개체 독립성은 없습니다."
+    },
+    {
+      "finding": "모든74 참조점과 전체 uncertainty bbox는 해당 고정128창 안에 있습니다. 다만22창(11쌍)은 영상 아래쪽 경계 등으로 일부 padding이 있고 최소valid비율은0.5625입니다.",
+      "limit": "검정 padding은 외부 물체나 가림 레이블이 아닙니다. 원본픽셀/valid를 보존하고 OOB/어려운 예시를 제외하지 않았습니다."
+    },
+    {
+      "finding": "전체 배경/목재 윤곽은 before/after에서 유사하지만, 실제 촬영의 작은 이동·시차·노출 차이를 이 시각화로 배제할 수 없습니다.",
+      "limit": "동일 supplied transform이나 유지된 참조값이 exact pixel registration의 증명은 아닙니다. 정렬·워프·참조 이동·새 레이블 수정은 수행하지 않았습니다."
+    }
+  ],
+  "preserved_limits": {
+    "native_mapping": "UNKNOWN",
+    "human_gold": false,
+    "official_gold": false,
+    "pixel_material_membership": false,
+    "training_admission": false,
+    "new_visibility_labels_created": false,
+    "actual_initializer_q_L_changed": false,
+    "GT_best_native_slot_chosen": false,
+    "registration_refit": false,
+    "current_or_V112_access": false
+  },
+  "terminal": {
+    "session": 42653,
+    "exit_code": 0,
+    "pairs": 37,
+    "views": 74,
+    "restarts": 0
+  },
+  "new_model_encoder_head_fit_current_V112_PnP": 0
+}

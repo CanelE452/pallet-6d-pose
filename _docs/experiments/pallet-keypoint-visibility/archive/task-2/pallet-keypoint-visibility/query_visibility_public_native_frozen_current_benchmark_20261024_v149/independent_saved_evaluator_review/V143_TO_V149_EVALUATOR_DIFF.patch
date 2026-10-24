@@ -1,0 +1,181 @@
+--- V143
++++ V149
+@@ -1,4 +1,4 @@
+-"""Thin saved-only V143 adapter over unchanged historical current metric math."""
++"""Thin saved-only V149 adapter over unchanged historical current metric math."""
+ from pathlib import Path
+ from types import SimpleNamespace,ModuleType
+ from collections import Counter
+@@ -6,8 +6,12 @@
+ import numpy as np
+ sys.dont_write_bytecode=True
+ H=Path(__file__).resolve().parent;V=H.parent;P=V.parent
+-POLICY=V/'ROOT_FROZEN_BENCHMARK_POLICY_BEFORE_PRIVATE_BODY_READS.json'
+-POLICY_SHA='33856e89ab3a563e7ee80d2d2daf846d64199122340c02e7299f66fc9f51cd1b'
++POLICY=V/'ROOT_C33_C34_DIAGNOSTIC_BENCHMARK_POLICY_BEFORE_CURRENT_READS.json'
++POLICY_SHA='4e552173893c20a10c6ac2cd94ea6eb39cd85af1132a2bb92be94669ea6e6e13'
++PRIOR=P/'query_visibility_frozen_native_current_benchmark_20261024_v143'
++PRIOR_CODE=PRIOR/'saved_evaluation_preparation/evaluate_saved_benchmark.py'
++PRIOR_CODE_SHA='32044fed57ebd578b1e71c5484a60ecf3de93da37348344dcab8e56b3fd407e9'
++HEAD=V/'head_operator_preparation/PROTOCOL_BEFORE_ANY_PAYLOAD.json'
+ OLD=P/'query_visibility_training_duration_control_20261023_v124'
+ ADAPTER=OLD/'current_evaluation_preparation/frozen_head_current.py'
+ ADAPTER_SHA='d0319bb9e9d69bf963a43e77c9b4b5c0ccf1f582d1e5d2ef5e8afb6d73122cee'
+@@ -19,9 +23,12 @@
+ METRIC=P/'query_visibility_cue_occlusion_20261023_v72/contract/saved_evaluate_current_scores.py'
+ METRIC_SHA='d079650b65aef777675af552da61335a28b73f978580413d74d143433019bef6'
+ PRED=V/'frozen_current_head_benchmark_v1/PREDICTION_SEAL.json'
+-PRED_SHA='74f403323879e42f08b0561e483c2939df91321922365c1c4960838f754a27b9'
++PRIOR_PRED=PRIOR/'frozen_current_head_benchmark_v1/PREDICTION_SEAL.json'
++PRIOR_PRED_SHA='74f403323879e42f08b0561e483c2939df91321922365c1c4960838f754a27b9'
++PRIOR_EVAL=PRIOR/'saved_current_benchmark_evaluation_v1/EVALUATION_SEAL.json'
+ PROTOCOL=H/'PROTOCOL.json';GENERATED=H/'GENERATED_CHECKS.json';OUT=V/'saved_current_benchmark_evaluation_v1'
+-MODELS=('v61','legacy','C16','C29','C32')
++ORIGINAL_MODELS=('v61','legacy','C16','C29','C32')
++MODELS=ORIGINAL_MODELS+('C33','C34')
+ FIELDS=('id','native_corner','query_x','query_y','roi_side','valid','raw_query_aux_hidden_logit','raw_p_visible_FP32','authoritative_decision')
+ META=('query_available','prior_valid','valid','context_available','local_central4_available','context_Q_inside','query_xy','side_L','original_query_xy','original_side_L','id','native_corner')
+ def require(x,why):
+@@ -44,13 +51,28 @@
+     functions(CORE,{'readcsv','writecsv','key','boolean','numeric_same','score_index','response','join_all','calculate_all','historical_replay'},ns)
+     functions(DECODER,{'decode_rows'},ns);functions(ADAPTER,{'enrich_minimal_baseline'},ns)
+     core=SimpleNamespace(**ns)
+-    base=ModuleType('v143_original_metric_math');base.__dict__.update(math=math,Counter=Counter,D='DIRECT_VISIBLE',E='EXTERNAL_OCCLUDED',S='SELF_OCCLUDED',
++    base=ModuleType('v149_original_metric_math');base.__dict__.update(math=math,Counter=Counter,D='DIRECT_VISIBLE',E='EXTERNAL_OCCLUDED',S='SELF_OCCLUDED',
+         TASKS={'D_vs_E':['DIRECT_VISIBLE','EXTERNAL_OCCLUDED'],'D_vs_S':['DIRECT_VISIBLE','SELF_OCCLUDED'],'D_vs_ES':['DIRECT_VISIBLE','EXTERNAL_OCCLUDED','SELF_OCCLUDED']},GROUPS=['WOOD_PRIMARY105','SQUARE118'])
+     functions(METRIC,{'yes','ratio','call','calculate'},base.__dict__)
+     ex=dict(np=np,math=math,Counter=Counter,c=SimpleNamespace(NEW='C29',NEW_GEO='UNREPORTED_C29_GEOMETRY',OLD='C32',OLD_GEO='UNREPORTED_C32_GEOMETRY',MODELS=MODELS))
+     functions(REPORT,{'error_bins','matrices'},ex)
+     return core,base,SimpleNamespace(**ex)
+ def byte_equal(a,b):return a.shape==b.shape and a.dtype==b.dtype and a.tobytes()==b.tobytes()
++def exact_csv_rows(current,historical):
++    normalized=[{k:''if v is None else str(v)for k,v in r.items()}for r in current]
++    require(normalized==historical,'Original saved rows/precision/recall/U changed')
++    return len(historical)
++def original_five_replay(core,tables,ledger,bindings):
++    replay={};table_keys={name.upper():name for name in tables}
++    for name,binding in bindings.items():
++        historical=core.readcsv(check(binding))
++        if name=='ALL1784_NATIVE_LEDGER':
++            fields=tuple(historical[0]);current=[{k:r[k]for k in fields}for r in ledger]
++        else:
++            current=tables[table_keys[name]]
++            current=[r for r in current if(r.get('model')in ORIGINAL_MODELS if'model'in r else r.get('new_model')in('C29','C32')if'new_model'in r else True)]
++        replay[name]=exact_csv_rows(current,historical)
++    return replay
+ def generated():
+     core,base,_=pure()
+     rows=[dict(id='INVENTED',human_state=base.D,present_at_fixed_0_5='True',legacy_stored_state='U'),dict(id='INVENTED',human_state=base.E,present_at_fixed_0_5='False',legacy_stored_state='S')]
+@@ -59,25 +81,32 @@
+     require(core.response(dict(valid=False,z=-100,geo=True))=='OTHER_UNRESOLVED','U precedence')
+     require(core.response(dict(valid=True,z=0.,geo=False))=='ABSENT_NONVISIBLE','Fixed zero rule')
+     require(not byte_equal(np.array([0.],np.float32),np.array([-0.],np.float32)),'Byte comparison')
+-    write(GENERATED,dict(completed=True,PASS=True,invented_only=True,code=bind(__file__),legacyU_and_S_not_externalE=True,raw0_and_U_precedence=True,current_body_reads_or_hashes=0))
++    invented=[dict(model='C16',N=2,precision=.5,recall=None,U=1,flag=False)];historical=[dict(model='C16',N='2',precision='0.5',recall='',U='1',flag='False')]
++    exact_csv_rows(invented,historical)
++    try:exact_csv_rows([dict(invented[0],precision=.5000001)],historical)
++    except ValueError:pass
++    else:raise ValueError('Changed original precision accepted')
++    write(GENERATED,dict(completed=True,PASS=True,invented_only=True,code=bind(__file__),legacyU_and_S_not_externalE=True,raw0_and_U_precedence=True,
++        exact_original_CSV_None_bool_numeric_replay_and_changed_precision_rejected=True,current_body_reads_or_hashes=0))
+ def prepare():
+-    require(sha(POLICY)==POLICY_SHA and sha(PRED)==PRED_SHA,'Frozen phase/seal')
+-    generated();entry=read(OLD/'ROOT_ACTUAL_C16_SAVED_CURRENT_EVALUATION_ENTRY.json')
+-    c16seal=read(check(entry['inference_seal']))
+-    oldeval=read(check(dict(path=str(OLD/'private_evaluation/C16_FROZEN_CURRENT223/evaluation/EVALUATION_SEAL.json'),sha256='ddda975c152f2b773c16ed323aaebe74b5aa850dd0a27e769f1e60df99d27199')))
+-    outputs={Path(b['path']).name:b for b in c16seal['outputs']}
+-    historical=next(b for b in oldeval['files']if Path(b['path']).name=='METRICS.csv')
+-    p=dict(completed=True,prepared_only=True,code=bind(__file__),policy=bind(POLICY),generated=bind(GENERATED),prediction_seal=bind(PRED),
+-        operator_codes=[bind(x)for x in(ADAPTER,CORE,DECODER,REPORT,METRIC)],C16_inference_seal=entry['inference_seal'],
+-        C16_scores=outputs['HEAD_ONLY_SCORES.csv'],C16_raw=outputs['RAW_HEAD_OUTPUTS.npz'],historical_C16_metrics=historical,
+-        prior=entry['bindings']['prior_input_rows'],truth=entry['bindings']['evaluation_manifest'],manual=entry['bindings']['manual_provenance'],
+-        historical_original=entry['bindings']['original_baseline_metrics'],models=list(MODELS),output=str(OUT),
+-        contract='Unchanged historical core math; original1237paired/1248same-slot/1784inventory. ALL45U preserved; S/unknown outside binaryE. GTerror bands/manual376 diagnostic only. AllC29/C32 fixed reported; sourcefail unchanged; selectionnull.',
+-        payload_body_or_hash_reads_during_prepare=0)
+-    write(PROTOCOL,p);template=dict(approved_saved_evaluation=False,code=p['code'],policy=p['policy'],protocol=bind(PROTOCOL),prediction_seal=p['prediction_seal'],
+-        private_fit=False,threshold_or_model_choice=False,RGB_read=False,encoder_forward=False,V112=False,PnP=False,q_L_correction=False)
++    require(sha(POLICY)==POLICY_SHA and sha(PRIOR_CODE)==PRIOR_CODE_SHA and sha(PRIOR_PRED)==PRIOR_PRED_SHA,'Frozen phase/prior')
++    generated();previous=read(PRIOR/'saved_evaluation_preparation/PROTOCOL.json');head=read(HEAD);oldseal=read(PRIOR_EVAL)
++    require(oldseal['completed']and oldseal['PASS']and oldseal['selected_model']is None and oldseal['prediction_seal']==previous['prediction_seal']==bind(PRIOR_PRED),'Completed prior evaluation')
++    historic={Path(b['path']).name:b for b in oldseal['outputs']}
++    tables=('METRICS','CONFUSION','HUMAN_SELF_BINARY_RESPONSE','MANUAL_NEAR_D','AVAILABILITY_BY_GROUP','COORDINATE_ERROR_BINS','D_VS_EXTERNAL_E_2X3','PAIRED_RECOVERY_AND_DAMAGE','ALL1784_MODEL_INVENTORY','ALL1784_NATIVE_LEDGER')
++    require(all(name+'.csv'in historic for name in tables),'Prior complete table bindings')
++    keys=('operator_codes','C16_inference_seal','C16_scores','C16_raw','historical_C16_metrics','prior','truth','manual','historical_original')
++    p=dict(completed=True,prepared_only=True,code=bind(__file__),policy=bind(POLICY),generated=bind(GENERATED),prior_code=bind(PRIOR_CODE),
++        prior_protocol=bind(PRIOR/'saved_evaluation_preparation/PROTOCOL.json'),prior_prediction_seal=bind(PRIOR_PRED),prior_evaluation_seal=bind(PRIOR_EVAL),
++        historical_original_five_tables={name:historic[name+'.csv']for name in tables},head_protocol=bind(HEAD),head_code=head['code'],required_prediction_seal=str(PRED),
++        source_control=head['source_control'],models=list(MODELS),original_models=list(ORIGINAL_MODELS),output=str(OUT),**{k:previous[k]for k in keys},
++        contract='Original mapping/metric math/cohorts retained; original five models exact saved-table replay then C33/C34 appended. Bothfinal2000/raw0, no selection or source qualification change. Full1784/U/S/unknown retained; qerror/manual376 diagnostic only.',payload_body_or_hash_reads_during_prepare=0)
++    write(PROTOCOL,p)
++    template=dict(approved_saved_evaluation=False,code=p['code'],policy=p['policy'],protocol=bind(PROTOCOL),
++        prediction_seal=dict(path=str(PRED),sha256='ROOT_FILL_COMPLETED_NEW_PREDICTION_SEAL_SHA'),private_fit=False,threshold_or_model_choice=False,RGB_read=False,encoder_forward=False,V112=False,PnP=False,q_L_correction=False)
+     write(H/'ROOT_ENTRY_TEMPLATE.json',template)
+     print(json.dumps(dict(prepared_only=True,code=bind(__file__),protocol=bind(PROTOCOL),template=bind(H/'ROOT_ENTRY_TEMPLATE.json'))))
++
+ def load_packet(path):
+     with np.load(path,allow_pickle=False)as f:return{k:f[k].copy()for k in f.files}
+ def records(core,prior,score_binding,packet_binding,reference):
+@@ -97,8 +126,9 @@
+     for cohort in('paired_same_query_RGB','same_slot_pipeline'):
+         for group in base.GROUPS:
+             rr=[r for r in truth if r['group']==group and base.yes(r,cohort+'_D_vs_E')and r['human_state']in(base.D,base.E)]
+-            for new in('C29','C32'):
+-                for old in('C16','v61','legacy'):
++            for new in('C29','C32','C33','C34'):
++                baselines=('C16','v61','legacy')if new in('C29','C32')else('C16','v61','legacy','C29','C32')+(('C33',)if new=='C34'else())
++                for old in baselines:
+                     c=Counter()
+                     for r in rr:
+                         a,b=model_call(r,old),model_call(r,new);gt='VISIBLE'if r['human_state']==base.D else'ABSENT_NONVISIBLE'
+@@ -113,20 +143,27 @@
+     e=read(path);require(e['approved_saved_evaluation']is True,'Root entry')
+     require(all(e[k]is False for k in('private_fit','threshold_or_model_choice','RGB_read','encoder_forward','V112','PnP','q_L_correction')),'Scope')
+     require(sha(POLICY)==POLICY_SHA and e['code']==bind(__file__)and e['protocol']==bind(PROTOCOL),'Frozen code')
+-    p=read(PROTOCOL);require(e['prediction_seal']==p['prediction_seal']and Path(e['prediction_seal']['path'])==PRED,'Prediction binding')
++    p=read(PROTOCOL);require(Path(e['prediction_seal']['path'])==PRED==Path(p['required_prediction_seal']),'Prediction binding')
+     seal=read(check(e['prediction_seal']));require(seal['completed']and seal['PASS']and seal['GT_read']is False and seal['selected_model']is None and seal['source_admission_changed']is False,'Complete prediction seal')
+     parity=read(check(seal['C16_parity']));require(parity['PASS'],'C16 exact parity before candidates')
+-    require(set(seal['models'])=={'C29','C32'},'Both fixed candidates')
+-    for name,m in seal['models'].items():require(m['fixed_update']==8000 and m['threshold_logit']==0 and m['source_eligible']is False and m['benchmark_only_not_admitted']is True and m['state_before']==m['state_after'],'Frozen candidate')
++    require(set(seal['models'])=={'C33','C34'},'Both fixed candidates')
++    require(seal['code']==p['head_code']and seal['protocol']==p['head_protocol']and seal['policy']==p['policy']and seal['source_control']==p['source_control'],'Exact head provenance')
++    for name,m in seal['models'].items():require(m['fixed_update']==2000 and m['parent_C32_update']==8000 and m['threshold_logit']==0 and m['source_native35_all_pass']is False and m['benchmark_only_not_admitted']is True and m['source_current_allowed_false_unchanged']is True and m['state_before']==m['state_after']and m['public_coefficient']==(0 if name=='C33'else 1),'Frozen candidate')
++    previous_seal=read(check(p['prior_prediction_seal']));require(previous_seal['completed']and previous_seal['PASS']and previous_seal['selected_model']is None and previous_seal['source_admission_changed']is False,'Original candidates sealed')
++    for name,m in previous_seal['models'].items():require(m['fixed_update']==8000 and m['threshold_logit']==0 and m['source_eligible']is False and m['state_before']==m['state_after'],'Original candidate unchanged')
++    for binding in(p['prior_code'],p['prior_protocol'],p['prior_evaluation_seal'],p['head_protocol'],p['head_code']):check(binding)
+     for b in p['operator_codes']:check(b)
+     require(read(check(p['generated']))['PASS']and not OUT.exists(),'Generated/exclusive output')
+     OUT.mkdir();write(OUT/'BEFORE_LABEL_READ.json',dict(completed=True,entry=bind(path),prediction_seal=e['prediction_seal'],C16_parity=seal['C16_parity'],label_read_so_far=False))
+     core,base,extra=pure();truth=core.readcsv(check(p['truth']));manual=core.readcsv(check(p['manual']));prior=[json.loads(s)for s in check(p['prior']).read_text().splitlines()if s]
+     require(len(truth)==len(prior)==1784 and len({r['id']for r in truth})==223,'Full native inventory')
++    teacher_inventory=dict(Counter(r['human_state']for r in truth));require(teacher_inventory.get('SELF_OCCLUDED')==136 and teacher_inventory.get('OUT_OF_FRAME')==24,'Original teacher S/OOF inventory')
++    require(len({r['id']for r in truth if r['group']=='WOOD_PRIMARY105'})==105 and len({r['id']for r in truth if r['group']=='SQUARE118'})==118,'Original material groups')
+     reference=load_packet(check(p['C16_raw']));require(int((~reference['valid']).sum())==45 and int(reference['valid'].sum())==1739,'Original U45')
+     rr={};pack={}
+     rr['C16'],pack['C16']=records(core,prior,p['C16_scores'],p['C16_raw'],reference)
+-    for name in('C29','C32'):rr[name],pack[name]=records(core,prior,seal['models'][name]['scores_csv'],seal['models'][name]['raw_packet'],reference)
++    for name in('C29','C32'):rr[name],pack[name]=records(core,prior,previous_seal['models'][name]['scores_csv'],previous_seal['models'][name]['raw_packet'],reference)
++    for name in('C33','C34'):rr[name],pack[name]=records(core,prior,seal['models'][name]['scores_csv'],seal['models'][name]['raw_packet'],reference)
+     # The unchanged core names its second input field physical_external. This
+     # lossless in-memory alias is only a schema bridge; source bytes unchanged.
+     oldrows=[dict(r,raw_physical_external_logit=r['raw_query_aux_hidden_logit'])for r in rr['C32']]
+@@ -168,15 +205,17 @@
+                 legacy_abstain=responses['ABSTAIN'],out_of_task_geometry_S=responses['OUT_OF_TASK_GEOMETRY_S'],other_unresolved=responses['OTHER_UNRESOLVED'],
+                 human_state_inventory=json.dumps(dict(Counter(r['human_state']for r in rows)),sort_keys=True)))
+     tables['all1784_model_inventory']=inventory
++    historical_five_exact=original_five_replay(core,tables,ledger,p['historical_original_five_tables'])
+     for name in('metrics','confusion','human_self_binary_response','manual_near_D','availability_by_group','coordinate_error_bins','D_vs_external_E_2x3','paired_recovery_and_damage','all1784_model_inventory'):
+         core.writecsv(OUT/(name.upper()+'.csv'),tables[name])
+     core.writecsv(OUT/'ALL1784_NATIVE_LEDGER.csv',ledger)
+     summary=dict(completed=True,PASS=True,models=list(MODELS),tables=tables,original_slots=1784,WOOD_frames=105,SQUARE_frames=118,cohort_denominators=cohortN,
+         original_input_valid=1739,original_input_U=45,additional_U=0,historical_v61_legacy_rows_exact=replay,historical_C16_rows_exact=replay16,
+-        raw_C32_internal_field_alias_only=True,source_model_admission_unchanged=True,source_eligible=dict(C29=False,C32=False),selected_model=None,adopted_model=None,
++        historical_original_five_all_table_fields_exact=historical_five_exact,teacher_full1784_inventory=teacher_inventory,
++        raw_C32_internal_field_alias_only=True,source_model_admission_unchanged=True,source_qualification_unchanged=dict(C29='ORIGINAL_FAIL',C32='ORIGINAL_FAIL',C33='NATIVE35_FAIL',C34='NATIVE35_FAIL'),selected_model=None,adopted_model=None,
+         development_exposed_not_blind=True,coordinate_error_diagnostic_only=True,S_and_unknown_outside_external_binary=True,
+         no_new_forward_fit_threshold_choice_RGB_encoder_PnP=True,policy=p['policy'],prediction_seal=e['prediction_seal'],
+-        limits_KO=['현재223은 개발 노출 자료이며 독립 blind test가 아닙니다.','사람 S는 별도 응답 진단이며 binary hidden이 학습된 self/외부 원인 인증을 뜻하지 않습니다.','원래 reference 오차와 manualD376은 진단이며 primary 필터·좌표 수정·모델 선택에 사용하지 않았습니다.','C29/C32 source qualification 실패와 current_allowedfalse는 불변이며 두 모델을 모두 보고하고 채택하지 않았습니다.'])
++        limits_KO=['현재223은 개발 노출 자료이며 독립 blind test가 아닙니다.','사람 S는 별도 응답 진단이며 binary hidden이 학습된 self/외부 원인 인증을 뜻하지 않습니다.','원래 reference 오차와 manualD376은 진단이며 primary 필터·좌표 수정·모델 선택에 사용하지 않았습니다.','기존5모델 저장결과와 C33/C34 source qualification/current_allowedfalse를 바꾸지 않고 두 새 모델을 모두 보고했습니다.'])
+     write(OUT/'CURRENT_FROZEN_BENCHMARK_RESULTS.json',summary)
+     files=[bind(f)for f in OUT.iterdir()if f.is_file()]
+     write(OUT/'EVALUATION_SEAL.json',dict(completed=True,PASS=True,code=bind(__file__),policy=p['policy'],protocol=bind(PROTOCOL),entry=bind(path),prediction_seal=e['prediction_seal'],outputs=files,selected_model=None,source_admission_changed=False,new_forward_fit_RGB_PnP=0))

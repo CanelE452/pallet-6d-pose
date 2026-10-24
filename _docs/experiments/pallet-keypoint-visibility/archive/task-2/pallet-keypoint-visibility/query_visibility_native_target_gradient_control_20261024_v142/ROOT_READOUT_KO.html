@@ -1,0 +1,47 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>AUX→native gradient 대조</title><style>body{max-width:1450px;margin:32px auto;padding:0 20px;font:17px/1.65 sans-serif;color:#15202b}table{border-collapse:collapse;margin:18px 0}td,th{border:1px solid #c6ccd2;padding:8px 12px}img{max-width:100%;height:auto}</style><h1>AUX→native 학습 신호 제거 대조</h1><p>AUX 일반cue/surface 학습 신호를 native scalar에서 제거하는 matched8000 대조를 실제 완료했다. 새 native VAL은7건 회복했지만 기존native VAL의D2건은 악화했고, 고정wood NEAR(2.54px)의 falseE도 남았다. 단일원인 해결이나 새 실사 성능 개선을 증명하지 못했다.</p><p>1fit·고정8000updates·60.14초. 같은C16초기화·표본·native손실·모델을 유지하고 entire AUX손실에만0을 곱했습니다. 새encoder/private추론·PnP·q/L보정은0회입니다.</p>
+<h2>기존 native source VAL</h2><table><tr><th>고정구간</th><th>모델</th><th>D/E/U 혼동행렬</th><th>보임 recall</th><th>외부가림 recall</th><th>외부 precision</th><th>보류율</th></tr>
+<tr><td>VALIDATION</td><td>C29_C30</td><td>[[808, 17, 3], [11, 48, 1]]</td><td>97.58%</td><td>80.00%</td><td>73.85%</td><td>0.45%</td></tr>
+<tr><td>VALIDATION</td><td>C32</td><td>[[806, 19, 3], [11, 48, 1]]</td><td>97.34%</td><td>80.00%</td><td>71.64%</td><td>0.45%</td></tr>
+<tr><td>VALIDATION::LE3_PX</td><td>C29_C30</td><td>[[395, 3, 0], [0, 16, 0]]</td><td>99.25%</td><td>100.00%</td><td>84.21%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION::LE3_PX</td><td>C32</td><td>[[395, 3, 0], [0, 16, 0]]</td><td>99.25%</td><td>100.00%</td><td>84.21%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL</td><td>C29_C30</td><td>[[178, 12, 0], [8, 8, 0]]</td><td>93.68%</td><td>50.00%</td><td>40.00%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL</td><td>C32</td><td>[[176, 14, 0], [8, 8, 0]]</td><td>92.63%</td><td>50.00%</td><td>36.36%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL_LE3</td><td>C29_C30</td><td>[[85, 3, 0], [0, 5, 0]]</td><td>96.59%</td><td>100.00%</td><td>62.50%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL_LE3</td><td>C32</td><td>[[85, 3, 0], [0, 5, 0]]</td><td>96.59%</td><td>100.00%</td><td>62.50%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET</td><td>C29_C30</td><td>[[90, 5, 0], [4, 4, 0]]</td><td>94.74%</td><td>50.00%</td><td>44.44%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET</td><td>C32</td><td>[[88, 7, 0], [4, 4, 0]]</td><td>92.63%</td><td>50.00%</td><td>36.36%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET_LE3</td><td>C29_C30</td><td>[[50, 2, 0], [0, 4, 0]]</td><td>96.15%</td><td>100.00%</td><td>66.67%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET_LE3</td><td>C32</td><td>[[50, 2, 0], [0, 4, 0]]</td><td>96.15%</td><td>100.00%</td><td>66.67%</td><td>0.00%</td></tr>
+</table>
+<h2>범위를 넓힌 native source VAL</h2><table><tr><th>고정구간</th><th>모델</th><th>D/E/U 혼동행렬</th><th>보임 recall</th><th>외부가림 recall</th><th>외부 precision</th><th>보류율</th></tr>
+<tr><td>VALIDATION</td><td>C29_C30</td><td>[[1714, 56, 2], [18, 112, 0]]</td><td>96.73%</td><td>86.15%</td><td>66.67%</td><td>0.11%</td></tr>
+<tr><td>VALIDATION</td><td>C32</td><td>[[1717, 53, 2], [14, 116, 0]]</td><td>96.90%</td><td>89.23%</td><td>68.64%</td><td>0.11%</td></tr>
+<tr><td>VALIDATION::LE3_PX</td><td>C29_C30</td><td>[[947, 3, 0], [1, 36, 0]]</td><td>99.68%</td><td>97.30%</td><td>92.31%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION::LE3_PX</td><td>C32</td><td>[[947, 3, 0], [0, 37, 0]]</td><td>99.68%</td><td>100.00%</td><td>92.50%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL</td><td>C29_C30</td><td>[[447, 11, 0], [9, 29, 0]]</td><td>97.60%</td><td>76.32%</td><td>72.50%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL</td><td>C32</td><td>[[447, 11, 0], [7, 31, 0]]</td><td>97.60%</td><td>81.58%</td><td>73.81%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL_LE3</td><td>C29_C30</td><td>[[263, 1, 0], [1, 10, 0]]</td><td>99.62%</td><td>90.91%</td><td>90.91%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_SAME_TARGET_MATERIAL_LE3</td><td>C32</td><td>[[263, 1, 0], [0, 11, 0]]</td><td>99.62%</td><td>100.00%</td><td>91.67%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET</td><td>C29_C30</td><td>[[221, 8, 0], [3, 16, 0]]</td><td>96.51%</td><td>84.21%</td><td>66.67%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET</td><td>C32</td><td>[[221, 8, 0], [2, 17, 0]]</td><td>96.51%</td><td>89.47%</td><td>68.00%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET_LE3</td><td>C29_C30</td><td>[[129, 1, 0], [1, 6, 0]]</td><td>99.23%</td><td>85.71%</td><td>85.71%</td><td>0.00%</td></tr>
+<tr><td>VALIDATION_PROCEDURAL_WOOD_AND_SAME_TARGET_LE3</td><td>C32</td><td>[[129, 1, 0], [0, 7, 0]]</td><td>99.23%</td><td>100.00%</td><td>87.50%</td><td>0.00%</td></tr>
+</table>
+<p>행은정답D/E, 열은예측D/E/U입니다. SAME_TARGET_MATERIAL은목재+polymer이며, PROCEDURAL_WOOD_AND_SAME_TARGET는실제목재교집합입니다. LE3는정답좌표오차가알려진진단구간이며선택/보정조건이아닙니다.</p><h2>원래 검증조건 유지</h2><table><tr><th>모델</th><th>AUX</th><th>native</th><th>전체</th><th>채택</th></tr><tr><td>C29/C30</td><td>26/29</td><td>18/35</td><td>44/64</td><td>없음</td></tr><tr><td>C32</td><td>22/29</td><td>20/35</td><td>42/64</td><td>없음</td></tr></table>
+<p>RGB96 CNN, central32 residual, DINO多scale/spatialstencil, G42 geometry, SAMmask/owner prototype는 이전에 실제 수행했다. 단순 큰모델/동일branch추가를 새 실험으로 세지 않았다.</p>
+<p>Old51004 AUX는 지정cue/associatedsurface의 조건부보임이다. 실제R0 native reference와 동등하다는 증거가 없고 native correspondence UNKNOWN 계약이다.</p>
+<p>C29는 AUX old128BCE+.25hinge+flat64BCE와 nativeold64/new64BCE를 같은 scalar로 학습했다. 행수만으로 AUX가 압도했다고 해석하지 않았다.</p>
+<p>C32는 이미mixedAUX로 학습된 C16초기화는 유지했다. 완전native-only fromscratch가 아니며, AUX제거의 전체gradient/clip/optimizer궤적 효과만 대조한다.</p>
+<h2>기존 고정 crop: base519 / native0</h2><img src="saved_native_gradient_fixed_visual_report_v1/BASE_0519_NATIVE_0_C16_V61_C29_C32_RGB96.png">
+<h2>기존 고정 crop: base590 / native1</h2><img src="saved_native_gradient_fixed_visual_report_v1/BASE_0590_NATIVE_1_C16_V61_C29_C32_RGB96.png">
+<p>base519/native0의빨간COVER는 C29와C32모두 E로맞히고, 옆NEAR와FAR는D로맞힌다. C32의새로운성공사례로세지않는다.</p>
+<p>base590/native1의목재NEAR_SHAM은 teacherD, qerror2.539879px다. C29 h+.375567→C32 h+.175004로줄었지만 raw0 기준둘다E로오판한다.</p>
+<p>같은base의COVER는C29 h+6.073759, C32 h+6.256841로둘다E정답이다. 원래8고정사례의이진판단은전부그대로다.</p>
+<p>두기존crop그룹과4variant의q/L은variant별초기추론값그대로다. GT중심이동/재crop/새사례선택을하지않았다.</p>
+<p>새VAL D1714→1717/1772, E112→116/130은 이 조건에서 AUXgradient제거가 준 작은이득이다. 기존VAL D808→806/828, E48/60변화없음도 함께보고한다.</p>
+<p>대상과같은재질 foreignfamily는목재와polymer를합친범주다. 실제목재∩같은재질교집합과목재∩같은재질∩LE3를별도로집계했다.</p>
+<p>C32 native35중20통과로C29의18보다2늘었지만15기준실패가남았다. AUX29는26→22로낮아졌다. 전체64조건은그대로이며후보채택하지않았다.</p>
+<p>부분개선은 label목표혼합이유일실패원인이라는증거가아니다. 보이는틈/올바른part를읽는표현, 실제reference역할과domain전이 문제는남는다.</p>
+<p>같은base의여러slot/variant는상관된다. 7건회복을독립표본의유의성이나실사전이로해석하지않는다.</p>
+<p>초기좌표오차GT구간은진단용이다. 입력보정이나실패제외에사용하지않았다. S/U정답은외부가림negative가아니고, 예측U는knownDE분모에남겼다.</p>
+<p>현재실사마지막평가C16: 보임1137/1147, 외부가림35/90 그대로입니다. 이새source결과를실사성공이라고하지않습니다.</p><p><a href="../query_visibility_public_native_initializer_association_20261024_v141/ROOT_READOUT_KO.html">공개실사 q/주석 대상과역할 검토</a></p></html>

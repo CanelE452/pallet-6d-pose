@@ -1,0 +1,31 @@
+--- preserved_before_footer_repair.py
++++ render_all45_blinded_held_inputs.py
+@@ -18,6 +18,7 @@
+ NEAREST = Image.Resampling.NEAREST
+ COLORS = ['#ff3737','#04bfe8','#ffe000','#ff69df','#48e577','#ff9933','#bfa4ff','#ffffff']
+ SLOT_COLUMNS = ((0,'clean raw96 x3',288),(310,'clean center16 x12',192),(520,'clean2x2',96),(630,'invalid display',216),(860,'valid96 / footprint',216))
++SLOT_FOOTERS = ((310,294,'40:56 subset.',192),(310,318,'Cyan: display only.',192),(520,309,'2x2 valid',96))
+ 
+ def sha(p):
+     h = hashlib.sha256()
+@@ -124,7 +125,7 @@
+         im.paste(Image.fromarray(m[47:49,47:49].astype(np.uint8)*255).convert('RGB').resize((96,96),NEAREST),(x+520,y+200))
+         overlay=Image.fromarray(display_invalid(a,m)).resize((216,216),NEAREST);od=ImageDraw.Draw(overlay);od.rectangle((47*2.25-2,47*2.25-2,49*2.25+1,49*2.25+1),outline='#00ffff',width=2);im.paste(overlay,(x+630,y+84))
+         vm=Image.fromarray(m.astype(np.uint8)*255).convert('RGB').resize((216,216),NEAREST);vd=ImageDraw.Draw(vm);vd.rectangle((47*2.25-2,47*2.25-2,49*2.25+1,49*2.25+1),outline='#00ffff',width=2);im.paste(vm,(x+860,y+84))
+-        d.text((x+310,y+294),'Center16: exact40:56 subset.',font=font(16),fill='#c7e0f5');d.text((x+310,y+318),'Cyan footprint only on copies/mask.',font=font(16),fill='#c7e0f5');d.text((x+520,y+309),'2x2 valid',font=font(16),fill='#c7e0f5')
++        for dx,dy,text,width in SLOT_FOOTERS:d.text((x+dx,y+dy),text,font=font(16),fill='#c7e0f5')
+     im.save(p);return bind(p)
+ 
+ def invented(op):
+@@ -162,6 +163,11 @@
+     ok('sheet_geometry_8slots_nonoverlap',890+3*380+84+288<=SHEET_HW[0] and 24+1190+860+216<=SHEET_HW[1] and 1280+24<1340)
+     ok('caption_widths_fit',font(23).getlength('slot7 | g943 | CENTER UNKNOWN: CENTER4_INVALID')<1160 and font(21).getlength('Target identity unclear? Keep UNKNOWN; context does not certify it.')<1060)
+     ok('all_rendered_column_captions_fit_their_actual_allocated_width',all(font(17).getlength(title)<=width for _,title,width in SLOT_COLUMNS))
++    footer_boxes=[]
++    for x,y,text,width in SLOT_FOOTERS:
++        left,top,right,bottom=font(16).getbbox(text);footer_boxes.append((x+left,y+top,x+right,y+bottom))
++    ok('all_rendered_footer_caption_bbox_widths_fit_actual_columns',all(font(16).getbbox(text)[2]-font(16).getbbox(text)[0]<=width for _,_,text,width in SLOT_FOOTERS))
++    ok('all_rendered_footer_caption_bboxes_are_pairwise_disjoint',all(a[2]<=b[0] or b[2]<=a[0] or a[3]<=b[1] or b[3]<=a[1] for i,a in enumerate(footer_boxes) for b in footer_boxes[i+1:]))
+     return tests
+ 
+ def prepare():

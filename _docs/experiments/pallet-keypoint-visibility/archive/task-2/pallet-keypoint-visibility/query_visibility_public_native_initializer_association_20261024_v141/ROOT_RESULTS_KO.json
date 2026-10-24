@@ -1,0 +1,132 @@
+{
+  "completed": true,
+  "created_UTC": "2026-10-23T19:22:23.024903+00:00",
+  "goal_status": "active",
+  "fully_solved": false,
+  "goal_turn_classification": "PROGRESS",
+  "outcome_KO": "고정 공개 실사16장의 실제 초기 추론128점과 source 주석의 대상을 비교했다. 주석15개를 그대로 학습 라벨로 이전할 수 없으며, 다른 instance와 큰 상자 전체/바닥 부분의 참조 범위 불확실성을 분리했다. 하단4개는 조건부 공통 역할 후보로 남겼다.",
+  "actual_execution": {
+    "failed_v1_session": 3062,
+    "failed_v1_exit_code": 1,
+    "failed_v1_source_frames_forwarded": 0,
+    "canonical_transport_exit_code": 0,
+    "source_v2_session": 21969,
+    "source_v2_exit_code": 0,
+    "source_v2_seconds": 0.5425323829986155,
+    "source_images": 16,
+    "all_candidates": 120,
+    "original_native_slots": 128,
+    "valid_native_slots": 107,
+    "no_detection_slots": 8,
+    "finite_OOB_slots": 13,
+    "explicit_predict_calls": 18,
+    "saved_association_session": 76899,
+    "saved_association_exit_code": 0,
+    "new_visibility_classifier_forwards": 0,
+    "new_fit": 0,
+    "new_private_body_reads": 0,
+    "PnP_q_L_correction": 0
+  },
+  "decoder_repair_KO": "원 JPEG SHA/HW는 같았지만 pinned libjpeg-turbo와 원 canonical libjpeg9의 픽셀 값이 달랐다. 원 expected decodedSHA를 바꾸지 않고 canonical RGB16개를 lossless NPY로 전달했다. 원 실패 실행과 모든 원본은 보존했다.",
+  "independent_validation_KO": "128 q/L/유효9x9mask/120candidate/raw9/firstargmax와8미검출·13OOB를 검산했다. 과거 Pallox2장과 모든 후보·q8/L·affine이 정확히 재현됐다.",
+  "source_proposal_partition": {
+    "different_source_annotated_entity": 5,
+    "wholecrate_upper_vs_base_scope_uncertain": 5,
+    "possible_common_lower_footprint_roles_LAB": 4,
+    "large_offset_plus_lower_role_uncertainty_HALL": 1
+  },
+  "automatic_label_transfer": 0,
+  "confirmed_new_query_training_labels": 0,
+  "actual_query_annotation_U": 128,
+  "annotation_U_is_not_model_prediction_U_or_abstention": true,
+  "conditional_common_lower_candidates": {
+    "LAB": [
+      {
+        "frame_index": 12,
+        "native_slots": [
+          2,
+          3
+        ],
+        "source_proposal_states": [
+          "D",
+          "E"
+        ]
+      },
+      {
+        "frame_index": 13,
+        "native_slots": [
+          2,
+          3
+        ],
+        "source_proposal_states": [
+          "D",
+          "E"
+        ]
+      }
+    ],
+    "HALL": [
+      {
+        "frame_index": 15,
+        "native_slot": 3,
+        "source_proposal_state": "E",
+        "large_offset_and_role_uncertainty": true
+      }
+    ]
+  },
+  "important_distinctions_KO": [
+    "LOCO10의 첫 검출은 source2D주석의 앞쪽 팔레트와 다른 뒤쪽 팔레트다. 이것만으로 검출기가 틀렸다고 하지 않는다. 주석 coverage와 선택된 instance가 다른 문제다.",
+    "Pallox LAB의 q8과 박스는 상자 하부에 모인다. 큰 상자 윗테두리 native0/1 D를 그대로 주면 하부 상단점의 의미와 섞일 수 있다. 단순 큰좌표오차로 확정하지 않았다.",
+    "하단 native2/3은 같은 일체형 base의 바닥 footprint 역할일 가능성이 있다. 큰좌표차이를 이유로 버리지 않고 공통footprint 계약과 등록 불확실성을 확인할 조건부후보로 유지했다.",
+    "Hall0012는 상자와 떨어진 작은 영역을 선택했다. 상자의 D/E를 그 query에 이전할 수 없다. Hall0003 하단3은 sourceE를 바꾸지 않고40.9px차이와 역할 불확실성을 분리했다.",
+    "정확한 mesh표면에없다는 이유로 visibility를 막지 않았다. 새로운고정GT순열·점이동·검출대상재선택도 하지 않았다.",
+    "실제query의 U128은 source 라벨 연결 미확정 상태다. 가림 모델을 실행해서128개 모두 보류한 결과가 아니다."
+  ],
+  "train_ready": false,
+  "next_source_action_KO": "source3D mesh 구조만으로 pallet-base/shared-lower-footprint 역할을 명시하고 원래 fullcrate reference와 분리한 뒤, query/라벨 연결을 재검토한다. 투영오차를 줄이도록 3D경계나 pose를 맞추지 않는다. LOCO source 주석은 원래 instance에 보존한다.",
+  "latest_current_evaluation_unchanged": {
+    "model": "V124_C16",
+    "D": [
+      1137,
+      1147
+    ],
+    "E": [
+      35,
+      90
+    ],
+    "development_exposed_not_blind": true
+  },
+  "bindings": {
+    "policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/ROOT_SOURCE_INITIALIZER_ASSOCIATION_POLICY_BEFORE_FORWARD.json",
+      "sha256": "99e3efb5693da7ecb0866bdb0b931d6c21d1f56b31351ceaf7e2db50c6866d41"
+    },
+    "repair_policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/ROOT_SOURCE_TRANSPORT_REPAIR_POLICY_BEFORE_EXPORT.json",
+      "sha256": "3f74ef6133c429a85e5bbe57ae70c2df5c4a506ccf192690c0ee6387fdc64278"
+    },
+    "failed_v1": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/actual_public_initializer_v1/FAILED_EXECUTION.json",
+      "sha256": "4ed1033412dc73b4585fe3c0c14095d3f2110b17af285133a4f3e44c231fa402"
+    },
+    "canonical_transport": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/canonical_RGB_transport_v1/TRANSPORT_COMPLETE.json",
+      "sha256": "5048852cfc14aa3e57e67d09ed6970e69486c920cf8fa8dfb7227e5d0b01993b"
+    },
+    "actual_initializer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/actual_public_initializer_canonical_transport_v2/PREDICTION_SEAL.json",
+      "sha256": "b8e26a9b76d6e1c9084902cbd63e692ab4a7606a97033a93088d7d1d021d2dce"
+    },
+    "saved_input_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/independent_saved_input_review/REVIEW.json",
+      "sha256": "0359281c6aef2a868425d29f6257b77881a95c0f48f3d61cb35e80304840f836"
+    },
+    "saved_association": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/saved_public_association_v1/ASSOCIATION_COMPLETE.json",
+      "sha256": "e54c1cfe8a533fe9c3d38c7db58a70f8ffb08b585cda7340b10915d13b01af71"
+    },
+    "root_visual_adjudication": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/ROOT_SOURCE_ASSOCIATION_VISUAL_ADJUDICATION.json",
+      "sha256": "211e8409200d187d1d4b2e0cd18561265bc79b1f9f122a72c7440007b3d2c3e7"
+    }
+  }
+}

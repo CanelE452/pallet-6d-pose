@@ -1,0 +1,58 @@
+{
+  "completed": true,
+  "review_only": true,
+  "actual_execution": false,
+  "training_admission": false,
+  "title_KO": "37개 공개 자연 전경 가림 쌍의 ±3px source-emulated query 라벨 허용 범위",
+  "recommendation_KO": "별도로 정의한 SOURCE_EMULATED_COMPONENT_CUE_VISIBILITY 보조 과제로는 조건부 허용할 수 있다. 원래 37개 before-D/after-E의 단서 정체성과 uncertainty를 유지하고, q=r+{-3,0,3}²를 사전 고정한 입력 위치 변화로 명시한다. native8 매핑이나 새 인간 gold를 필수 조건으로 추가할 필요는 없다. 다만 이는 기존 actual initializer q를 대체하거나 그대로 평가하는 실험은 아니며, 이번 검토만으로 라벨 admission/학습을 실행하지 않는다.",
+  "semantic_target_vs_exact_pixel_KO": [
+    "Semantic cue visible는 대상의 특정 판재 끝/받침/part-line 관계를 주변 RGB에서 식별할 수 있는지를 뜻한다. q가 3px 옮겨 바닥이나 틈의 픽셀에 걸려도 같은 구조 단서가 국소 evidence 안에서 보이면 그 단서의 D 상태는 바뀌지 않는다.",
+    "Exact pixel target은 q의 최근접 픽셀이 대상 소유 표면인지 묻는다. 경계를 넘으면 픽셀 라벨은 달라질 수 있으므로, 같은 D를 붙인 9개 q를 9개의 대상 mask-positive 픽셀이나 dense segmentation 정답으로 사용하면 안 된다.",
+    "After의 E는 별도 전경 물체가 동일한 구조 단서의 원래 uncertainty 영역을 가린다는 조건부 증거다. crop 안의 다른 목재가 보인다는 이유로 D로 바꾸거나, q에 목재가 없다는 이유만으로 E로 만들지 않는다. 상자의 모서리/접힘선도 원래 목재 단서가 아니다."
+  ],
+  "relation_to_existing_evaluation_definition_KO": "기존 EVALUATION_CONTRACT는 의미적으로 대응된 참조 단서의 DIRECT_VISIBLE/EXTERNAL_OCCLUDED를 평가하며, 실제 q 픽셀의 segmentation gold는 검증하지 않았다고 명시한다. 따라서 작은 q 오차에 대해 같은 cue visibility를 학습하는 방향은 사용자 과제와 부합한다. 단, 공개 bin의 보조 구조 단서와 배포 native corner의 동등성, 잘못된 대상/잘못된 단서 연결, 원래 initializer 위치오차의 해결을 입증하는 것은 아니다.",
+  "prospective_operational_conditions_KO": [
+    "원본 actual q8/L/slot/fold 기록은 그대로 보존하고, 새 9개 q는 별도 source-emulation namespace에 둔다. r로 q를 생성했으므로 GT-derived input-placement emulation임을 밝힌다. r이 label-only라고 쓰면서 생성된 q의 출처를 감추지 않는다. 추론 시 r/uncertainty/단서 ID를 입력하지 않는다.",
+    "동일한 단서에 대한 작은 입력 중심 이동으로 해석하고, source 학습/VAL/추론은 동일한 q-centred scalar readout과 사전 고정 L/context 규칙을 사용한다. 단서를 더 잘 보이게 하는 q/L/best-slot 재선택은 하지 않는다. 원래 initializer 평가 q에는 jitter나 보정을 적용하지 않는다.",
+    "기존 before 구조 단서 확인 및 after의 동일 uncertainty 전경 덮임 근거를 그대로 사용한다. 단서 정체성/움직임/부분 덮임이 불명확하면 U 또는 별도 미확인 속성을 보존하며, S는 기하학적 known 상태로 learned D/E에서 분리한다. q가 물질 경계를 넘는다는 이유만으로 U/E/S를 새로 만들지 않는다.",
+    "9개 위치는 한 cue/view의 반복 입력이며 독립 정답 9개로 분모를 부풀리지 않는다. 원래 TRAIN_LAB/VAL_HALL 및 물리 촬영 pair 그룹을 유지하고, 학습 가중치와 성능표는 cue/view·physical pair 수준도 별도로 보여야 한다."
+  ],
+  "metadata_geometry_fact": {
+    "pairs": 37,
+    "views_with_9_emulated_queries_each": 74,
+    "prospective_emulated_query_records": 666,
+    "literal_plusminus3_grid_inside_original_uncertainty_boxes_pairs": 37,
+    "literal_plusminus3_grid_exactly_equal_to_stored_original_V91_uncertainty9_pairs": 8,
+    "clarification": "Stored V91 uncertainty9 are 3x3 cell centres of each original variable-width/asymmetric box. Literal ±3 is a new declared query grid; keep original uncertainty9 and coordinates unchanged."
+  },
+  "limitations_and_hold_KO": [
+    "이 37쌍은 한 physical bin의 22개 촬영 쌍/44개 RGB에 집중되며, 골판지 전경·두 환경·반복 개발 source라는 제한이 있다. 666개의 새로운 독립 자연 장면이나 실제 initializer error 분포를 제공하지 않는다.",
+    "기존 쌍의 동일 r/uncertainty와 유사한 장면은 subpixel 정합 증명이 아니다. 작은/먼 받침이나 영상 아래쪽 padding은 정확한 픽셀 대응 근거를 약화시킨다. 이 제한은 조건부 보조 cue 라벨의 범위로 명시하고, native/corner gold로 승격하지 않는다.",
+    "실제 q8를 모두 유지한 조건과 이 보조 jitter 조건의 유효성은 이후 공개 source 평가에서 구분해야 한다. 이번 note는 모델·임계값·gate를 고르지 않으며 현재 데이터의 라벨/수치/영상 또는 V112를 읽지 않았다."
+  ],
+  "bindings": {
+    "root_source_scope": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/ROOT_PUBLIC37_INTAKE_SCOPE_BEFORE_PIXELS.json",
+      "sha256": "09cf91dac301efafe7de6e38929751bcecb284f6f5636180551fa8d8742be93e"
+    },
+    "original_V91_region_teacher_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/TEACHER_CONTRACT_BEFORE_BUILD.json",
+      "sha256": "9c33b438ae8518f355fe6731155bbe183607ad00ac535da5a4c62b2172c8ed45"
+    },
+    "existing_semantic_evaluation_definition_only": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/EVALUATION_CONTRACT.json",
+      "sha256": "15beaf7a56ae6d437c52386c2dae8185cc76aea6830d6733b453bf170e2135d0"
+    },
+    "V120_original_metadata": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/metadata_preparation/PAIRS37_SOURCE_INTAKE_INPUT_AND_WEAK_EVIDENCE.jsonl",
+      "sha256": "43fe3a45d1acd6badcd74d2412d4744be4afd41f1b1a19d3ec42c75bf1e9c12a"
+    },
+    "own_completed_source_visual_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/independent_review_C/ACTUAL_VISUAL_OBSERVATIONS.json",
+      "sha256": "e0cac955e8899e79289c5e275aa089a14d1c663661bfeba25540f2ecd776b93b"
+    }
+  },
+  "new_pixels_model_fit_current_labels_scores_V112_PnP_reads_or_calls": 0,
+  "native_mapping": "UNKNOWN",
+  "human_gold": false
+}

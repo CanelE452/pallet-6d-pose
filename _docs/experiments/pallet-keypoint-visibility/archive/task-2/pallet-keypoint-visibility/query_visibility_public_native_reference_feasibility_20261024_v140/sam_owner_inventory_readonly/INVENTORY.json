@@ -1,0 +1,683 @@
+{
+  "schema": "READONLY_LOCAL_SAM_AND_OWNER_EXPERIMENT_INVENTORY_V1",
+  "completed": true,
+  "scope": {
+    "metadata_code_and_filename_stat_only": true,
+    "new_model_calls": 0,
+    "fit_calls": 0,
+    "downloads": 0,
+    "weight_body_reads": 0,
+    "RGB_reads": 0,
+    "label_or_score_body_reads": 0,
+    "forbidden_phase_access": 0,
+    "private_current_access": 0,
+    "PnP": 0,
+    "primary_denominator_changes": 0
+  },
+  "main_conclusion_KO": "SAM 특징과 작은 CNN, SAM 가중 대상 prototype을 함께 학습한 기록이 이미 있다. SAM/owner branch 자체를 미시도 방법으로 볼 수 없다. SAM2.1은 실제 실행됐지만 검토한 완료 기록은 frozen mask proxy 또는 source 후보 조사이며 현재 native physical-corner CF 의미를 학습한 동일 조건의 검증은 아니다.",
+  "experiments": [
+    {
+      "phase": "V63",
+      "kind": "frozen MobileSAM standalone and local learned residual CNN",
+      "frozen_source_extraction": {
+        "targets": 3003,
+        "frames": 2003,
+        "seconds": 77.4597301989561,
+        "GT_masks_read": false,
+        "fit_updates": 0
+      },
+      "standalone": {
+        "targets": 159,
+        "image_encoder_forwards": 109,
+        "prompt_decoder_calls": 159,
+        "seconds": 4.83675984304864
+      },
+      "feature": "Selected full-image MobileSAM logit sampled at original query/L 9x9; /8 clipped[-4,4], invalid zero; F16. Local SAM CNN + raw RGB CNN + P3/context CNN; learned raw-logit residual prior.",
+      "target_scope": "Exact query-pixel target-instance visible-mask membership. Not registered physical-corner external/self semantics.",
+      "prompt_scope": "Box-only, no positive query click, highest predicted quality among alternatives. Source YCB boxes were annotation-derived fixed jitter; synthetic boxes initial-query bounds.",
+      "runs": [
+        {
+          "run": "SYNTH_CONTEXT_RGB_SAM_V4",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 500,
+          "parameters": 50498,
+          "target": "visible target-instance mask at exact query center pixel",
+          "head_config": {
+            "architecture": "spatial",
+            "in_channels": 65,
+            "hidden_channels": 32,
+            "coordinate_channels": true,
+            "rgb_branch": true,
+            "rgb_hidden_channels": 16,
+            "target_context": true,
+            "context_channels": 64,
+            "rgb_sampling_version": "native9",
+            "sam_branch": true,
+            "sam_hidden_channels": 8,
+            "sam_prior_mode": "learned_raw_residual",
+            "sam_logit_scale": 8.0,
+            "sam_zero_init_residual": true
+          },
+          "runtime_recorded": null,
+          "checkpoint_body_read_for_inventory": false
+        },
+        {
+          "run": "MIXED_CONTEXT_RGB_SAM_V4",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 1300,
+          "parameters": 50498,
+          "target": "visible target-instance mask at exact query center pixel",
+          "head_config": {
+            "architecture": "spatial",
+            "in_channels": 65,
+            "hidden_channels": 32,
+            "coordinate_channels": true,
+            "rgb_branch": true,
+            "rgb_hidden_channels": 16,
+            "target_context": true,
+            "context_channels": 64,
+            "rgb_sampling_version": "native9",
+            "sam_branch": true,
+            "sam_hidden_channels": 8,
+            "sam_prior_mode": "learned_raw_residual",
+            "sam_logit_scale": 8.0,
+            "sam_zero_init_residual": true
+          },
+          "runtime_recorded": null,
+          "checkpoint_body_read_for_inventory": false
+        }
+      ]
+    },
+    {
+      "phase": "V64",
+      "kind": "two SAM-channel multi-target spatial CNN",
+      "feature": "SAM exact+r2 local channels with P3, RGB75, context and box grid, two 3x3 SAM convolutions; features only, no SAM sign veto.",
+      "target_scope": "Exact/radius2 visible and full-instance support, six paired joint states VV_EV_EE_OV_OE_OO; not native8 physical-corner semantics.",
+      "runs": [
+        {
+          "run": "SYNTH_MULTITARGET_UNWEIGHTED",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 300,
+          "parameters": 45286,
+          "target": "exact/radius2 visible and full instance support",
+          "head_config": {
+            "p3_channels": 65,
+            "p3_hidden": 32,
+            "rgb_native_channels": 75,
+            "rgb_hidden": 16,
+            "sam_channels": 2,
+            "sam_hidden": 8,
+            "context_channels": 64,
+            "context_hidden": 16,
+            "fusion_hidden": 32,
+            "box_grid": true,
+            "coordinate_channels": true,
+            "sam_role": "features_only",
+            "joint_order": "VV_EV_EE_OV_OE_OO"
+          },
+          "runtime_recorded": {
+            "torch": "2.5.1+cu121",
+            "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+            "deterministic_algorithms": true,
+            "CUDA": "12.1"
+          },
+          "checkpoint_body_read_for_inventory": false
+        },
+        {
+          "run": "MIXED_MULTITARGET_UNWEIGHTED",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 500,
+          "parameters": 45286,
+          "target": "exact/radius2 visible and full instance support",
+          "head_config": {
+            "p3_channels": 65,
+            "p3_hidden": 32,
+            "rgb_native_channels": 75,
+            "rgb_hidden": 16,
+            "sam_channels": 2,
+            "sam_hidden": 8,
+            "context_channels": 64,
+            "context_hidden": 16,
+            "fusion_hidden": 32,
+            "box_grid": true,
+            "coordinate_channels": true,
+            "sam_role": "features_only",
+            "joint_order": "VV_EV_EE_OV_OE_OO"
+          },
+          "runtime_recorded": {
+            "torch": "2.5.1+cu121",
+            "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+            "deterministic_algorithms": true,
+            "CUDA": "12.1"
+          },
+          "checkpoint_body_read_for_inventory": false
+        }
+      ]
+    },
+    {
+      "phase": "V65",
+      "kind": "global RGB/SAM shape U-Net and local SAM CNN",
+      "extraction": {
+        "targets": 3003,
+        "frames": 2003,
+        "local_exact_and_r2_replay_cells": 3891888,
+        "local_replay_mismatches": 0,
+        "GT_masks_read": 0
+      },
+      "feature_contract": {
+        "local": "all frozen v64 P3/context/nativeRGB/SAMexact+r2/box features and same queries retained",
+        "global": "64x64 anisotropic crop of same frozen SAM promptbox expanded1.25, RGBbilinear+SAMselectedexactlogitnearest/8clip4+promptinside5channels",
+        "crop_phase": "native_xy=center+(j+.5-32)*(1.25box_size/64); local integerlabelpixel inverse mapped nearest into64and8grids; invalid sampled featureszero",
+        "conditioning_gap": "YCBsource boxes are annotation-derived jittered boxes, SYNTHusesunchangedN0querybounds; deployment usesN0box. No target mask values/extrema used for new features.",
+        "frozen_backbones": true,
+        "border": "globalRGB cv2linear constant0 border may retain partial-edge color at invalidgridcenters; globalSAM/promptzero there, globalGTlossmasked. querysampledglobalfeatures/logitszero outsidevalidlocalmapping.",
+        "global_resolution_limit": "sampled64logits and8bottleneck are coarse context; localnativeexact/r2GTremain authoritative; no64logitexactpixelparityclaim"
+      },
+      "runs": [
+        {
+          "run": "SYNTH_GLOBAL_UNWEIGHTED",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 300,
+          "parameters": 95508,
+          "target": "exact/radius2 visible and full instance support",
+          "head_config": {
+            "p3_channels": 65,
+            "p3_hidden": 32,
+            "rgb_native_channels": 75,
+            "rgb_hidden": 16,
+            "sam_channels": 2,
+            "sam_hidden": 8,
+            "context_channels": 64,
+            "context_hidden": 16,
+            "fusion_hidden": 32,
+            "box_grid": true,
+            "coordinate_channels": true,
+            "sam_role": "features_only",
+            "joint_order": "VV_EV_EE_OV_OE_OO",
+            "global_channels": 5,
+            "global_bottleneck": 32,
+            "global_sampling": "nearest_onehot_matmul"
+          },
+          "runtime_recorded": {
+            "torch": "2.5.1+cu121",
+            "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+            "deterministic_algorithms": true,
+            "CUDA": "12.1"
+          },
+          "checkpoint_body_read_for_inventory": false
+        },
+        {
+          "run": "MIXED_GLOBAL_UNWEIGHTED",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 400,
+          "parameters": 95508,
+          "target": "exact/radius2 visible and full instance support",
+          "head_config": {
+            "p3_channels": 65,
+            "p3_hidden": 32,
+            "rgb_native_channels": 75,
+            "rgb_hidden": 16,
+            "sam_channels": 2,
+            "sam_hidden": 8,
+            "context_channels": 64,
+            "context_hidden": 16,
+            "fusion_hidden": 32,
+            "box_grid": true,
+            "coordinate_channels": true,
+            "sam_role": "features_only",
+            "joint_order": "VV_EV_EE_OV_OE_OO",
+            "global_channels": 5,
+            "global_bottleneck": 32,
+            "global_sampling": "nearest_onehot_matmul"
+          },
+          "runtime_recorded": {
+            "torch": "2.5.1+cu121",
+            "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+            "deterministic_algorithms": true,
+            "CUDA": "12.1"
+          },
+          "checkpoint_body_read_for_inventory": false
+        }
+      ]
+    },
+    {
+      "phase": "V66/V67",
+      "kind": "same global/local SAM architecture under controlled public-real and visible-BCE experiments",
+      "feature": "V65 95,508-parameter RGB/SAM/global+local architecture; fresh frozen MobileSAM on composites/public pallet sources. V67 added visible-preservation BCE.",
+      "runs": [
+        {
+          "run": "CONTROLLED_ONLY",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 300,
+          "parameters": 95508,
+          "target": null,
+          "head_config": null,
+          "runtime_recorded": {
+            "executable": "/home/minjae/anaconda3/bin/python",
+            "torch": "2.5.1+cu121",
+            "CUDA": "12.1"
+          },
+          "checkpoint_body_read_for_inventory": false
+        },
+        {
+          "run": "CONTROLLED_PLUS_PALLOX",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 400,
+          "parameters": 95508,
+          "target": null,
+          "head_config": null,
+          "runtime_recorded": {
+            "executable": "/home/minjae/anaconda3/bin/python",
+            "torch": "2.5.1+cu121",
+            "CUDA": "12.1"
+          },
+          "checkpoint_body_read_for_inventory": false
+        },
+        {
+          "run": "VISIBLE_BCE1",
+          "completed": true,
+          "optimizer_updates": 2000,
+          "best_update": 400,
+          "parameters": 95508,
+          "target": null,
+          "head_config": null,
+          "runtime_recorded": {
+            "executable": "/home/minjae/anaconda3/bin/python",
+            "torch": "2.5.1+cu121",
+            "CUDA": "12.1"
+          },
+          "checkpoint_body_read_for_inventory": false
+        }
+      ]
+    },
+    {
+      "phase": "V68",
+      "kind": "actual frozen SAM2.1 box-only baseline",
+      "completed_targets": 1091,
+      "completed_queries": 8590,
+      "native_valid": 8584,
+      "native_invalid_U": 6,
+      "training_updates": 0,
+      "verdict": "SOURCE_HOLD",
+      "diagnostics_pass_fail": [
+        4,
+        6
+      ],
+      "semantic_limit": "Exact query-pixel target support and original reference-keypoint semantic visibility are different labels. SAM mask absence is not an E/S causal classifier.",
+      "recipe": "Same rough box, no query-positive clicks. Highest predicted quality multimask, raw0 exact query readout; radius2 reported separately. No learned SAM2 branch here."
+    },
+    {
+      "phase": "V70",
+      "kind": "actual SAM-conditioned target ownership/prototype CNN",
+      "feature": "MobileSAM2ch + P3 + raw RGB75. Other same-current-target ROIs weighted by predicted SAM foreground, box validity and sigmoid(logit), leave-one-entire-ROI-out prototype; query-target cosine/product/absolute difference. Fallback context flagged, no GT mask input.",
+      "target_scope": "Known exact visible/external conditional target-support facts from SYNTH/original YCB/controlled YCB/Pallox; original full-only unknown not treated as E. These legacy eight query slots are not all registered native corners.",
+      "new_backbone_or_SAM_calls_in_this_fit": 0,
+      "run": {
+        "run": "OWNERSHIP_LOO_PAIR_V1_RUNTIME_V2",
+        "completed": true,
+        "optimizer_updates": 2000,
+        "best_update": 100,
+        "parameters": 40137,
+        "target": null,
+        "head_config": null,
+        "runtime_recorded": null,
+        "checkpoint_body_read_for_inventory": false
+      },
+      "verdict": "HOLD_NOT_ELIGIBLE_FOR_CURRENT_COMPARISON",
+      "broader_eligibility": {
+        "pass": 5,
+        "fail": 3,
+        "failed": [
+          {
+            "category": "public_ALL_known_VEO_visible",
+            "source": "ORIGINAL_YCB",
+            "metric": "precision",
+            "value": 0.6151773686573866,
+            "minimum": 0.8,
+            "passed": false
+          },
+          {
+            "category": "public_ALL_known_VEO_visible",
+            "source": "CONTROLLED_YCB",
+            "metric": "precision",
+            "value": 0.5049973698053656,
+            "minimum": 0.8,
+            "passed": false
+          },
+          {
+            "category": "known_E_binary_nonvisible",
+            "source": "PALLOX",
+            "metric": "recall",
+            "value": 0.4838709677419355,
+            "minimum": 0.6,
+            "passed": false
+          }
+        ]
+      },
+      "limitation": "Predicted foreground can include occluder; other ROIs can overlap, no clean ownership guarantee. Architecture/objective/sampler changed together."
+    },
+    {
+      "phase": "V81",
+      "kind": "actual grounded detector-box to frozen SAM2.1 pipeline",
+      "summary": {
+        "completed": true,
+        "PASS": true,
+        "targets": 1035,
+        "unique_RGB": 435,
+        "query_slots": 8280,
+        "associated": 823,
+        "unassociated": 212,
+        "embedding_calls": 345,
+        "query_predictions": {
+          "VISIBLE_MASK": 1405,
+          "NOT_VISIBLE_MASK": 4715,
+          "U": 2160
+        },
+        "fit": false
+      },
+      "input_contract": {
+        "detector_output_seal": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/detector/outputs/DETECTOR_OUTPUT_SEAL.json",
+        "ASSOCIATIONS": "1035 original input order and original7 fields unchanged",
+        "perRGB": "435 unique RGB; raw SHA/HW and decoded uint8HWC SHA equality before set_image",
+        "box": "Detector selected prompt float32 native clipped positive XYXY; validate selection IoU/score/originalordinal without choosing a new box",
+        "GT_forward": false,
+        "query_prompts": false
+      },
+      "semantic_limit": "Visible mask proxy. A zero pixel is not evidence of external/self occlusion; a no-match is UNKNOWN. No semantic gold or goal/deployment completion claim.",
+      "mask_recipe": "Single detector-selected box, no points, no multimask/quality selection, no postprocessing. Unassociated target is U; zero mask is only NOT_VISIBLE_MASK."
+    },
+    {
+      "phase": "V115",
+      "kind": "actual public LOCO annotation-target plus competitor SAM2.1 mask pilot",
+      "summary": {
+        "completed": true,
+        "PASS": true,
+        "frames": 20,
+        "request_slots": 40,
+        "primary_masks": 33,
+        "missing_competitor_no_calls": 7,
+        "set_image_calls": 20,
+        "total_predict_calls": 34,
+        "original_query_slots": 160,
+        "native_mapping": "UNKNOWN",
+        "human_gold": false,
+        "semantic_D_E_S_created": false,
+        "training_admission": false,
+        "fit": false
+      },
+      "prompt_scope": "Official annotation-entity bbox target and fixed nearest annotation-entity competitor bbox, not GT-free deployment target association.",
+      "decision": "NOT_ADMITTED_AS_AUTOMATIC_D_E_S_TEACHER_OR_VISIBILITY_CLASSIFIER_FOR_ORIGINAL160. Keep masks as conditional annotation-entity candidates; all original160 retain semantic UNKNOWN, no label changes and no query reassociation.",
+      "why": "Initializer-to-annotation target correspondence is unverified and visually differs in fixed cases; masks have local boundary/ownership uncertainty. Mask absence cannot identify external occlusion.",
+      "limitation": "Target/competitor masks can overlap and do not establish depth order/ownership. All semantic UNKNOWN retained. No trained joint competitor-owner branch in this pilot."
+    }
+  ],
+  "local_assets": [
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/foundation_mask_v1/vendor/MobileSAM/weights/mobile_sam.pt",
+      "exists": true,
+      "bytes_now_stat_only": 40728226,
+      "sha256_inherited_from_metadata_not_rehashed": "6dbb90523a35330fedd7f1d3dfc66f995213d81b29a5ca8108dbcdd4e37d6c2f",
+      "body_read_or_deserialized": false
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/MobileSAM/weights/mobile_sam.pt",
+      "exists": true,
+      "bytes_now_stat_only": 40728226,
+      "sha256_inherited_from_metadata_not_rehashed": "6dbb90523a35330fedd7f1d3dfc66f995213d81b29a5ca8108dbcdd4e37d6c2f",
+      "body_read_or_deserialized": false
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+      "exists": true,
+      "bytes_now_stat_only": 323606802,
+      "sha256_inherited_from_metadata_not_rehashed": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5",
+      "body_read_or_deserialized": false
+    }
+  ],
+  "runtime": {
+    "MobileSAM": {
+      "vendor": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/foundation_mask_v1/vendor/MobileSAM",
+      "deployment_vendor": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/MobileSAM",
+      "parameters_from_existing_CPU_smoke": 10130092,
+      "new_import_or_smoke": false,
+      "recorded_compatible_training_python": "/home/minjae/anaconda3/bin/python",
+      "recorded_Torch": "2.5.1+cu121",
+      "runtime_evidence": "V64/V65/V66 MODEL_FREEZE and V63 CPU_LOAD_SMOKE; no fresh package compatibility claim"
+    },
+    "SAM2.1": {
+      "READY_from_existing_seal": true,
+      "python": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python",
+      "python_exists_now": true,
+      "config": "configs/sam2.1/sam2.1_hiera_b+.yaml",
+      "repo_revision": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+      "pinned_versions": {
+        "torch": "2.5.1+cu121",
+        "torchvision": "0.20.1+cu121",
+        "triton": "3.1.0",
+        "numpy": "1.26.4",
+        "hydra-core": "1.3.2",
+        "omegaconf": "2.3.0",
+        "iopath": "0.1.10",
+        "SAM-2": "1.0"
+      },
+      "license_recorded": "Apache-2.0; official code and checkpoint",
+      "generated_smokes_recorded": {
+        "CPU": {
+          "PASS": true,
+          "seconds": 4.482704499969259,
+          "CUDA_peak_allocated_bytes": 0,
+          "CUDA_peak_reserved_bytes": 0
+        },
+        "CUDA": {
+          "PASS": true,
+          "seconds": 2.5819934509927407,
+          "CUDA_peak_allocated_bytes": 713659904,
+          "CUDA_peak_reserved_bytes": 889192448
+        }
+      },
+      "new_import_or_smoke": false
+    },
+    "SAM3": {
+      "local_ready_asset_found_in_inspected_locations": false,
+      "scope": "Project root dedicated runtime/asset names, github root SAM-named repos, torch checkpoint cache, Hugging Face cache first-level SAM names only; no exhaustive machine-wide absence claim.",
+      "download_or_remote_availability_check": false
+    }
+  },
+  "nonduplication_assessment_KO": [
+    "SAM 중심 mask0/1 또는 local SAM CNN 추가, 글로벌 RGB+SAM U-Net, SAM 가중 LOO 대상 prototype은 이미 시험했다. 이를 새 방법의 근거로 삼으면 중복이다.",
+    "남은 구체적 차이는 현재 actual initial q8/L 및 native CF D/E/S/U 라벨을 그대로 유지한 동일 source control에서 SAM2.1의 예측 target/competitor 관계를 조건으로 학습하는 것이다. 기존 완료 기록과 입력·라벨 조건이 다르며 성공은 아직 입증되지 않았다.",
+    "V81은 예측 detector target association을 이미 시도했고 V115는 target+competitor mask를 이미 추출했다. 따라서 detector association 또는 competitor mask의 존재 자체도 새로움의 근거는 아니다.",
+    "기존 MobileSAM learned-owner 실패는 SAM2.1 joint native conditioning의 불가능성을 증명하지 않는다. 반대로 더 큰 SAM 이름만으로 개선을 예상할 근거도 없다.",
+    "모든 초기 slot/원래 input U와 OOB 분모를 보존해야 한다. SAM 미검출·mask0을 E로 바꾸거나 성공 mask만 남기면 목표와 분모가 바뀐다. GT mask/GT bbox를 배포 입력으로 주지 않는다. Query를 positive SAM click으로 넣으면 보임을 강제할 수 있으므로 기존 box-only readout과 동일한 의미가 아니다."
+  ],
+  "evidence": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/sam_source/SEAL.json",
+      "sha256": "7edcbbb7184a9add62542862f5b8e316b110f0a9c6b86a9e930e62ccff958625",
+      "kind": "metadata",
+      "bytes": 523
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/sam/PREDICTION_SEAL.json",
+      "sha256": "5888c0a2d8dbd9a888e4053f98d7d156f469ceefb7879b5a5e83fa10fa0d43a0",
+      "kind": "metadata",
+      "bytes": 1107
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/sam/CPU_LOAD_SMOKE.json",
+      "sha256": "e4c3fbe7fdfcd52ac8a0bede349af3498bff658adda0710fa5cadc871e48567d",
+      "kind": "metadata",
+      "bytes": 295
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/runs/SYNTH_CONTEXT_RGB_SAM_V4/MODEL_FREEZE.json",
+      "sha256": "b841404918708954deb59ec46eaef00f501bdf21a566b075e440146d21244005",
+      "kind": "metadata",
+      "bytes": 7973
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/runs/MIXED_CONTEXT_RGB_SAM_V4/MODEL_FREEZE.json",
+      "sha256": "41092be63221502c9dfb2b10cd9656a6deb7c534d63ecae7f52419b98802ed7d",
+      "kind": "metadata",
+      "bytes": 7998
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/runs/SYNTH_MULTITARGET_UNWEIGHTED/MODEL_FREEZE.json",
+      "sha256": "9c06e1112e844882a46d819846c08f5f2393b9315e4c921ce6f4c6a808ca0d4f",
+      "kind": "metadata",
+      "bytes": 8117
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/runs/MIXED_MULTITARGET_UNWEIGHTED/MODEL_FREEZE.json",
+      "sha256": "8e2543b40ba19daff064f0e72e0c5c135c0a6037589c3d269f1203bd54d55b8f",
+      "kind": "metadata",
+      "bytes": 8269
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/runs/SYNTH_GLOBAL_UNWEIGHTED/MODEL_FREEZE.json",
+      "sha256": "c9c3d17df3c4b112ba0deb56569a6d6c086dbd87571c38fd267777c025eb2f78",
+      "kind": "metadata",
+      "bytes": 12123
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/runs/MIXED_GLOBAL_UNWEIGHTED/MODEL_FREEZE.json",
+      "sha256": "5af6e47329872c5c76f7f3410a6b884b10535316bbadd81cc9673f2f78e2bd4d",
+      "kind": "metadata",
+      "bytes": 12280
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/sam_source/SEAL.json",
+      "sha256": "a71d3272e706259ca53cad2edc847b1f4f5edb42a99b21f3148aa5ccc8c005ec",
+      "kind": "metadata",
+      "bytes": 515
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/PROTOCOL.json",
+      "sha256": "e99859f1369a328af812383ba01c2fe9fe08bc2d0a04fa26da476d02e9bfd4f8",
+      "kind": "metadata",
+      "bytes": 4292
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/runs/CONTROLLED_ONLY/MODEL_FREEZE.json",
+      "sha256": "4325b2cd3e0065f834fe73d3c0842cbe7f0c8d96ce7facac9623d82e7fec6215",
+      "kind": "metadata",
+      "bytes": 2128
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/runs/CONTROLLED_PLUS_PALLOX/MODEL_FREEZE.json",
+      "sha256": "9f6e54e59c56c6d0f3c39dd06398311f29107393d085e711229e494342dc6f71",
+      "kind": "metadata",
+      "bytes": 2171
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/runs/VISIBLE_BCE1/MODEL_FREEZE.json",
+      "sha256": "539a08c236586d0c94df557f6465a9ca2d3108bc373eabc085c991fcf1fd2f68",
+      "kind": "metadata",
+      "bytes": 3057
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/runs/OWNERSHIP_LOO_PAIR_V1_RUNTIME_V2/MODEL_FREEZE.json",
+      "sha256": "137cdfa6dd5ac813a7f985c863953046775732c0ddfb5c6c344c7474517a358e",
+      "kind": "metadata",
+      "bytes": 7806
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/FIT_PROTOCOL.json",
+      "sha256": "d0b243bd174b2fc22e4ed38439da1439addefd7faf8696b291d11951023a3ad8",
+      "kind": "metadata",
+      "bytes": 12697
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/SOURCE_ADMISSION_DECISION.json",
+      "sha256": "825b293bd48aa49168730bff54a2b481dd8b076f839d26353d8bb8f0f0cf2e18",
+      "kind": "metadata",
+      "bytes": 2328
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/RESULTS_KO.json",
+      "sha256": "1d67cd288ec43e8952b9c19a476712ae5f5bdaf06c08ceb7fc2333a425c620b8",
+      "kind": "metadata",
+      "bytes": 5940
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/outputs/SUMMARY.json",
+      "sha256": "b9c1976be863411f14f4002e0476174c0f2ecebf39324e59811044b091a4685a",
+      "kind": "metadata",
+      "bytes": 1107
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/SAM_STAGE_PROTOCOL_V2.json",
+      "sha256": "a73107d56133a95b643bf2e2eb93cca929c5b3d1cbf94700c040b39e475817fc",
+      "kind": "metadata",
+      "bytes": 5590
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_annotation_target_masks_20261023_v115/source_sam_candidates_v1/SUMMARY.json",
+      "sha256": "15c996aeb4f03207c5580f82a27108b66e9eef6844cc08300c74ef5d6c1673cb",
+      "kind": "metadata",
+      "bytes": 2139
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_annotation_target_masks_20261023_v115/ROOT_ACTUAL_FIXED_VISUAL_REVIEW_AND_DECISION.json",
+      "sha256": "15b98edc852cad0b64f284163d7519062ee5a6e0992ca3f6f3b75e6d3a3bf612",
+      "kind": "metadata",
+      "bytes": 7983
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/RUNTIME_SEAL.json",
+      "sha256": "e5655309c2c99ee18e76fa0ebe85541194445895673d9b64f915384130bcbf82",
+      "kind": "metadata",
+      "bytes": 59255
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/query_head.py",
+      "sha256": "049ec1c41f0d087fdf3a8e152fa981dadbe4e9fdcc795355f9322972191f54dd",
+      "kind": "code",
+      "bytes": 8302
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/build_sam_source_cache.py",
+      "sha256": "25725b5fcc030e4658a7439f2f6605d8ab95f20d72e359c39bd4374d28167adf",
+      "kind": "code",
+      "bytes": 8881
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/runs/MIXED_MULTITARGET_UNWEIGHTED/code/query_multitarget_head.py",
+      "sha256": "785de264082ec8ecfa79e527ff7677a58c5a64c6f4e343c67bc094749e6e0824",
+      "kind": "code",
+      "bytes": 6378
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/model/query_global_amodal_head.py",
+      "sha256": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144",
+      "kind": "code",
+      "bytes": 9997
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/model/ownership_head.py",
+      "sha256": "c3497eefc6448eb45d56ec2aad019a0d7f59828641bdaf979751d175acfd976b",
+      "kind": "code",
+      "bytes": 4863
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/model/input_prototype.py",
+      "sha256": "37c1e01fa988168300dd8f853686d8db0d7e506a64802a34e4b93cb515ec9221",
+      "kind": "code",
+      "bytes": 4602
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_annotation_target_masks_20261023_v115/sam_candidate_preparation/produce_sam_candidates_once.py",
+      "sha256": "05675a6aef258edada1ff82496b560bf3f517562f40106f8f4cc1be0059aa069",
+      "kind": "code",
+      "bytes": 16125
+    }
+  ]
+}

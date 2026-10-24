@@ -1,0 +1,81 @@
+{
+  "schema": "V87_PUBLIC_YCB_VIRTUAL_REFERENCE_EXTERNAL_RAY_TEACHER_GENERATION_V1",
+  "created_utc": "2026-10-22T22:17:22.695587+00:00",
+  "goal_status": "active",
+  "fully_solved": false,
+  "purpose_KO": "virtualreference까지 관측된 다른instance가 앞을 가로막는지의 명시적 조건부 externalray proxy를 실제 공개YCB전체에서 계산한다. 기존 local M0/M4 support와 물리cue/사람D/E/S를 대체하지 않는다.",
+  "cohort": "All4200 existing publicYCB instances/1000frames/33600native8slots, oldscene0..7TRAIN3400 /8..9VAL800 unchanged. No q-dependent selection, no current223.",
+  "reference": "Existing officialmodel AABB fixedsigns and GT R/t/K, same normal_facing_permutation asV76, r8/perm/self exactly replayed once; no snap/materialgate/PnP. z numericcomputed from same3Dreference.",
+  "raster": "Float64 originalr valid if finite, z>0 and continuous inframe; p=floor(r+.5) must also inframe. Raster endpoint uses original z on samepinhole pixelray, not exactfractionalrenderer raycast.",
+  "depth": "Native16bit PNG rawdepth0 invalid first, scene_scale gives Zmm. QuantizationZ interval[(raw-.5)*scale,(raw+.5)*scale], lowerclamp0. gamma=norm(Kinverse@[px,py,1] normalized toZ1). Reference endpoint range=zref*gamma. Scene range interval=Zinterval*gamma.",
+  "range_margin_mm": 15.0,
+  "relations": {
+    "FRONT": "ref_range-observed_range_high>15mm",
+    "CLEAR": "observed_range_low-ref_range>15mm",
+    "BAND_UNKNOWN": "otherwise",
+    "INVALID": "missing/zero/baddepth,invalidreference/raster"
+  },
+  "owner": "Read all annotated visibleM4 masks>0 atp for each sameframe. GTID is instanceordinal, allsceneGT instances must bepresent inmanifest. owner uniqueTARGET/uniqueOTHER/UNASSIGNED/OVERLAP. M4-derived ownership is weak raster evidence, not completefirsthitownerbuffer.",
+  "external_proxy": {
+    "1": "Validdepth +FRONT +uniqueOTHER; samep targetM4zero byuniqueness",
+    "0": "Validdepth +CLEAR irrespectiveM0physicalsupport/ownermask; meansclear-to-virtual-endpoint only, not visiblephysicalcueD",
+    "-1": "Invalid/OOB/band,FRONTOWN,FRONTUNASSIGNED,FRONTOVERLAP"
+  },
+  "unknownpriority": "Invaliddepth alwaysU evenM4positive. Ownforeground isseparateaudit, not E or externalnegative. Unassignedforeground staysU. NoM0decision/no surfacegate/selfmaskveto.",
+  "self_separate": "Existing convexselfvisibility proxy exported unchanged; not learnedsemanticS or mergedintoexternalteacher.",
+  "single_ray": "One rasterized center reference ray. OldSYNTH9fraction>=.5 is anotherproxy and is not silentlyequated/relabelled. No new SYNTH depthlabels.",
+  "stages": [
+    "Bind source metadata and ordered4200cohort before depth/maskpixels. Check completeinstanceordinals and GTpose/K/scale metadata.",
+    "Generatedpuremathfixtures must test depthinvalidfirst, own/foreign/unassigned/overlap, margininterval, nonunitgamma, band, noM0 dependence.",
+    "Actualonecorpusbuild all4200+perframe sourcehashes, typed U/reasons and originalreferenceparity. Failures/logs/partialoutputs preserved, no rowskip/labelrepair.",
+    "Compare old reference-localsupport labels/centerM0/M4 only AFTER each newray label computed; keep targetsseparate, no groundtruthaccuracyclaim.",
+    "For future visualaudit select minSHA(id,slot) per typedreason onTRAIN aftergeneration, disclosed diagnostic selection nottraining/evalcohortchoice; noRGB/modelinference inbuild."
+  ],
+  "forward_boundary": "Allpose/referenceZ/depth/ownermasks/GT r/perm/labels are GT-only. No newforward input dataset, model/fit/current evaluation admitted bythisphase.",
+  "scientific_limits": [
+    "15mm range margin is prospectivefixedscale inspiredbyBOP, not sensorposecalibration/noiseguarantee or tunedthreshold.",
+    "Rasterray/virtualendpoint differs officialrenderedsurfacemask computation; invaliddepthU differsbop19missingdepthvisible.",
+    "Clearvirtualendpoint mayhave no physicalvisiblecue; M0zero isnotE/S.",
+    "One-layerdepth cannotprovehidden obstruction behind nearownsurface.",
+    "Existing sourceVAL repeatedlydeveloped; no independentfinalgeneralizationclaim."
+  ],
+  "prior_exposure": "V74 oneTRAINcase and existing masks/metadata known. This new all4200depthtarget is prospective, not blindhumanannotation.",
+  "bindings": {
+    "manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/instances.jsonl",
+      "sha256": "8639706d6b352d507e9c05fd96573f9bf0a8ae43d1bf6b371ce8636b193b364a",
+      "bytes": 9785590
+    },
+    "models_info": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_audit/YCB_PUBLIC_NATIVE_FEASIBILITY/models_info_OFFICIAL.json",
+      "sha256": "13978298d8c37f089a7e0c421ed8be867fa836818936f5499786175da2c4c4cb",
+      "bytes": 7093
+    },
+    "native_math": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_contract/native_context_contract_v2.py",
+      "sha256": "4ddd134aa26da1d676628bd6987a161ab36f09328dfdaa89bedd213e397755ab",
+      "bytes": 7834
+    },
+    "old_GT_corpus": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/GT_ONLY_TEACHER_CORPUS.npz",
+      "sha256": "626338ae0dee48f5c5d5f53930e05d02960225ee9d3972e751aeff4b25c30f45",
+      "bytes": 1442344
+    },
+    "draft": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/next_semantic_review/PROPOSED_EXTERNAL_RAY_CONTRACT_DRAFT.json",
+      "sha256": "c79809f6712a76eb2991ed53a4b22614b68c4f58764199b9abf47f914eeb1565",
+      "bytes": 9282
+    },
+    "prior_depth_inventory": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/next_semantic_review/SAVED_RAY_ASSET_INVENTORY.json",
+      "sha256": "0613aeecf6fe847b7d0a143748aa78b78a51ac34939d0005d8521ee038d6dd10",
+      "bytes": 14176
+    },
+    "V86_visual_evidence": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_cue_evidence_20261023_v86/independent_native_audit/FINAL_NATIVE24_EVIDENCE_SEAL.json",
+      "sha256": "3f36b6dae8156adee67468e69c0b81fcb14f99ce37b5368c2b971fe511c746f1",
+      "bytes": 3089
+    }
+  },
+  "new_model_fit_current_PnP": 0
+}

@@ -1,0 +1,113 @@
+{
+  "completed": true,
+  "PASS": true,
+  "blockers": [],
+  "model": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/local_cue_evidence_map.py",
+    "sha256": "5bfcdc8fc752eb2b758edf349a42ee3779ea6442506d0de3331d0cb1841883a3",
+    "bytes": 5040
+  },
+  "mosaic": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/spatial_mosaic.py",
+    "sha256": "7af7fdb0f6e3858c2af087b6fcfe25ff3837442dd853d3a8c5507ef1dd531c1a",
+    "bytes": 3700
+  },
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/independent_model_math_review/SCOPE_BEFORE_GENERATED_TESTS.json",
+    "sha256": "f290119439d87051591dfbbe3401a202bd6e62f93dfba8bd57c3ff6efa228c5a",
+    "bytes": 1312
+  },
+  "review_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/independent_model_math_review/run_generated_review.py",
+    "sha256": "868c732f4c741866d3f0293cfeffbd69f764cfbb230aaf7b09822143e1cc3e1f",
+    "bytes": 15055
+  },
+  "generated": {
+    "model": {
+      "parameter_count": 25381,
+      "three_tensor_signature": true,
+      "GT_metadata_inputs_rejected": [
+        "GTdict",
+        "GTkwarg",
+        "GTstatekwarg",
+        "wrongRGBdtype",
+        "wrongP3shape",
+        "nonfiniteP3",
+        "nonbinaryvalid"
+      ],
+      "zero_output_initialization": true,
+      "factual_validity_parity": true,
+      "all_invalid_input_unavailable": true,
+      "copied_shared_encoder_tensors": [
+        "p3_encoder.0.weight",
+        "p3_encoder.0.bias",
+        "local_encoder.0.weight",
+        "local_encoder.0.bias",
+        "local_encoder.2.weight",
+        "local_encoder.2.bias",
+        "local_encoder.4.weight",
+        "local_encoder.4.bias"
+      ],
+      "source_fusion_or_classifier_not_copied": true,
+      "new_fusion_default_random_and_final_output_zero": true,
+      "generated_nonzero_output_gradient": {
+        "p3_encoder_abs_sum": 13.104072570800781,
+        "RGB_encoder_abs_sum": 5.164362907409668
+      },
+      "no_actual_weights_or_feature_arrays_loaded": true
+    },
+    "region": {
+      "independent_scalar_cases": 104,
+      "max_abs_error_float64": 2.220446049250313e-16,
+      "max_abs_error_float32": 1.8654642996995818e-07,
+      "border_and_cell_boundary": true,
+      "normalized0_maps_to_center4": true,
+      "normalized_2offset_overL": true,
+      "nine_logits_mean_one_BCE_not_mean9BCE": true,
+      "all9_sample_support_required": true,
+      "unavailable_unit_mask_has_zero_gradient": true,
+      "constant_field_exact": true
+    },
+    "mosaic": {
+      "independent_scalar_native_pixels": 1564,
+      "max_abs_logit_error": 3.8743019104003906e-07,
+      "max_abs_den_error": 0.0,
+      "small_frame_random_constant_ramp_invalid": true,
+      "fixed_129_algorithm_tiles": true,
+      "all129_constant_full_frame_covered": true,
+      "all129_constant_max_abs": 0.0,
+      "native_output_grid": "integer pixel centres0..W-1, distinct from RGB96 even cell centres",
+      "exact_formula": "sum(tent*bilinear(logit*valid))/sum(tent*bilinear(valid)); den0 has availableFalse",
+      "no_GT_reference_or_label_argument": true,
+      "halfopen_windows_and_zero_tent_at_outer_boundary": true
+    },
+    "final_mosaic_scoring": {
+      "native_integer_and_subpixel_ramp": true,
+      "NaN_outside_and_factual_holes_U": true,
+      "scoring_called_after_completed_GTfree_map": true
+    }
+  },
+  "static_native_initial_query_compatibility": {
+    "adapter_created": false,
+    "adapter_executed": false,
+    "input_shapes": "N65x9x9 + N3x96x96(uint8) + N1x96x96(valid)",
+    "center_readout": "physical_external_logit[:,4,4] with map_valid[:,4,4]; same nominal native query center for grid9.",
+    "caveat": "This static shape compatibility is not target/native8 semantic association, a calibration claim, current admission, or observed transfer."
+  },
+  "mandatory_downstream_integration_notes": [
+    "GT stays outside forward. Use only finite safe GT grids/admitted units; region available must gate the BCE and denominator. U/partial/no-support cannot become E or D.",
+    "region_logit itself does not consume loss_admitted/weights/labels. Trainer must apply separately frozen view/scale/duplicate normalization; this review does not inspect an actual trainer.",
+    "New fusion has default random initialization; only final evidence Conv is zero-initialized. Copied source parts are exactly P3/local encoders, not V88 classifier/fusion/target/context.",
+    "map_valid is factual native/RGB support, not semantic target mask. Head has no explicit target instance/native slot identity and does not solve hidden-reference identifiability.",
+    "Mosaic interpolation uses fixed border extension and validity normalization, including at native9 outer cells. This is the declared spatial readout, not a proven physical cue/pixel model.",
+    "Mosaic expects already validated finite logits, binary map validity, finite integer q and positive even L from fixed metadata; primitive utility validation is not an arbitrary-input security boundary."
+  ],
+  "no_source_RGB_P3_GT_arrays_or_model_weights_loaded": true,
+  "generated_random_model_forward_only": true,
+  "actual_source_forward_training_current_PnP": 0,
+  "runtime": {
+    "executable": "/home/minjae/anaconda3/bin/python",
+    "torch": "2.5.1+cu121",
+    "numpy": "2.3.5"
+  }
+}

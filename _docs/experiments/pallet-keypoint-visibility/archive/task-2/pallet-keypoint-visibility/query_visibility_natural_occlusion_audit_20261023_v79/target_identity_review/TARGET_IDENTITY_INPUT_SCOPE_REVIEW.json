@@ -1,0 +1,128 @@
+{
+  "schema": "V79_TARGET_IDENTITY_INFERENCE_INPUT_SCOPE_REVIEW",
+  "status": "SOURCE_READ_ONLY_CONDITIONAL_RECOMMENDATION; WAIT_COMPLETE_V79_COVERAGE; NO_CANDIDATE_CHANGE",
+  "main_finding": "The initializer q8/rough box/native slot and target128 crop provide an intended-instance proposal and geometric context, not certified target ownership or explicit object category. A crop containing a recognizable object can still show an occluder rather than the intended target. Extra generic representation capacity alone cannot resolve an unspecified intended object.",
+  "evidence": {
+    "code_scope": "Reviewed existing input_context_features, V76 six-tensor model, V78 frozen pooled-feature contract and V70 input-derived prototype recipe; no model instantiated or source features/weights executed.",
+    "actual_source_gallery": "Fixed strict535 four-cell gallery shows blue pitcher behind drill and white cleanser behind mustard. Both desired target and occluder appear in the q8-derived target128 crop. The visible wood-block false-covered case also shows that ownership is not proven to explain every failure.",
+    "what_is_not_proved": "Four outcome-selected cases do not establish prevalence, actual identical-input label contradictions, an attention/encoder causal mechanism, or the benefit of category/prototype conditioning. They are source weak-support cases, not human D/E/S gold.",
+    "category_coverage_warning": "Existing sealed intake summary records VAL-only object6=100instances and object11=100instances. A target-specific prototype bank built only from this source TRAIN cannot silently supply learned supervised prototypes for those unseen categories."
+  },
+  "available_forward_information": [
+    {
+      "field": "initial ordered q8 + native k",
+      "content": "Native k is the initializer output channel; full same-target q8 describes one proposed cuboid/reference set. It can indicate which virtual slot is queried and where other slots lie. It does not name the object category or certify that the selected target/query association is correct.",
+      "GT_requirement": "Never infer native k by nearest GT reference or choose q8 using GT/mask/teacher quality at inference."
+    },
+    {
+      "field": "context42",
+      "content": "8slot onehot +16 relative q8 coordinates +8factual validity flags +4relative box coordinates +2normalized current-query coordinates +2normalized span +2image HW/scale. These are 2D input geometry, not GT3D pose, self normals, mesh membership, target mask or a category embedding."
+    },
+    {
+      "field": "q8-derived box and target RGB128",
+      "content": "GT-free min/max proposal crop is contextual visual evidence. Occluders, another object, background or a wrong target can dominate its pixels; it is not an isolated target template."
+    },
+    {
+      "field": "local RGB96 / existing frozen features",
+      "content": "Shows appearance near q, which can belong to the intended target, an occluder or background. The existence of strong foreground features cannot by itself identify target ownership."
+    }
+  ],
+  "identifiability_limits": {
+    "conditional_not_impossible": "When the q8 configuration/target context uniquely localizes one target and enough of its appearance is visible, ownership may be learnable from existing inputs. Neither the code nor the gallery proves that all source queries are unidentifiable.",
+    "explicit_counterexample": "If the exact same effective RGB crops, q8/box/L/native k/context are paired once with intended target A and once with intended target B, and A/B ownership at the query differs, a deterministic head with only those inputs cannot satisfy both targets. This is a conceptual counterexample; actual collision counts await the frozen V79 coverage/identity audit.",
+    "category_not_instance": "Providing category can distinguish a pitcher from a drill, but cannot uniquely select one of two overlapping instances of the same category. A GT-free tracked/detected instance proposal remains necessary; matching predictions to GT for loss/evaluation does not authorize a GT instance prompt at inference.",
+    "missing_appearance": "A fully covered target may provide no reliable appearance in the target crop. A category prior can express what is sought but cannot recover arbitrary hidden instance identity/shape with certainty. Preserve task-appropriate uncertainty and report failures.",
+    "source_query_caveat": "YCB q8 is GT-derived source query emulation, not actual deployed initialization. Its latent target association may be cleaner than a real detector; no public-source result certifies deployed object selection.",
+    "virtual_reference_scope": "Native0..7 are virtual cuboid reference conventions. Do not require mesh-surface membership, replace the native references by arbitrary physical cues, move q, or derive semantic E/S from mask0."
+  },
+  "three_distinct_options_not_selected": [
+    {
+      "option": "Same-input spatial visible/M0 auxiliary supervision",
+      "legitimate_use": "Existing M0/M4 annotate a dense loss at unchanged source crop coordinates; masks are loss/report targets only. This can teach target-owned visible/expected support structure without adding test-time identity information.",
+      "limitation": "It cannot resolve truly identical forward inputs with different intended targets. Target128 mixing and source label noise remain. A V78 pooled vector cache does not retain spatial tokens; the previously proposed existing V77 fused spatial tensor is a separate narrowly scoped supervision control.",
+      "scope": "No auxiliary weight, model modification or fit chosen here; complete coverage/collision audit first."
+    },
+    {
+      "option": "Explicit known target category",
+      "legitimate_use": "For the user task, pallet is a user-known category available before seeing GT. A constant pallet category prior can be part of a deployed contract. A YCB experiment may provide a target class only as an explicitly declared category-conditioned benchmark with the same class information available for every test request.",
+      "forbidden_shortcut": "Do not read per-row GT object_id/sourceID to choose a test-time class and present that as the old category-free benchmark. A dataset source flag is not a semantic target category. Do not derive a GT target mask, prompt point, bbox, pose or best reference from the category annotation.",
+      "limitation": "Class conditioning changes the input contract. Per-class shape/appearance, unseen classes and same-class multiple instances require separate reporting. Generic YCB target ownership does not mean all YCB objects should become the pallet-positive category."
+    },
+    {
+      "option": "TRAIN-only generic-feature target/category prototype",
+      "legitimate_use": "A fixed vector/bank learned solely from TRAIN target annotations can be a learned parameter/buffer, analogous to classifier weights. Frozen generic features may be aggregated with TRAIN target-owned labels/masks to estimate that parameter; GT may supervise learning but must not appear as an example-specific inference input. Freeze construction, split, class vocabulary and all selection/normalization before heldout evaluation.",
+      "inference_contract": "At inference select a bank entry only using user-provided category or another predeclared GT-free class/instance request. A fixed pallet prototype can be supplied for every pallet request. Model uncertainty/missing prototype must be explicit; never choose the best prototype with GT/VAL/current scores.",
+      "forbidden_shortcut": "No VAL/current image/mask/reference/label contributes to prototype learning, selection, clean template or parameter updates. No same-test-frame GT-mask-weighted prototype, hidden before-occlusion counterpart, GT bbox crop, GT class lookup or nearest GT reference may be consumed by the prediction path.",
+      "unseen_class_limit": "A TRAIN-only YCB prototype bank has no supervised entry for recorded VAL-only object6/object11. Do not fill it from VAL masks or claim a missing-class fallback is target-specific; use a separately declared class-agnostic/missing category path and report it. No new extraction or prototype is built in this review."
+    }
+  ],
+  "online_input_derived_prototype_is_different": {
+    "existing_example": "V70 input_prototype.py uses all other same-current-target initial ROIs, factual validity, rough-box membership and predicted MobileSAM foreground; leaves the current ROI out and falls back to input context with an explicit flag.",
+    "legal_status": "This uses inference-available inputs rather than GT and may be a legitimate online feature. It is not a TRAIN-only learned target template or certified clean target appearance.",
+    "failure_mode": "Predicted generic foreground may include the occluder. Other ROIs can overlap the same occluder; target context fallback can be contaminated too. Leave-one-ROI-out avoids exact self-use but does not establish target ownership. Do not filter prototype cells by GT support at validation/inference."
+  },
+  "minimal_recommendation_after_coverage": {
+    "now": "Keep the V79 full coverage scan and all existing source results/admissions unchanged. Do not pick an architecture, objective weight, new backbone or threshold in this review.",
+    "decision_order": [
+      "First reconcile usable same-crop natural Vmask/Cmask/O coverage, target association and effective-input label collisions at the actual unchanged TRAIN/VAL pools. Global mask area and a strong generic encoder are not substitutes for this.",
+      "If inputs identify the intended target reasonably and coverage supplies meaningful natural nonvisible support, a same-input dense supervision control is the narrower next experiment; it tests missing supervision rather than adding a new test-time identity oracle.",
+      "If collisions/occluder-dominated target contexts show the target request is materially missing, first declare exactly what category/instance information deployment supplies. A constant user-known pallet prior or a strictly TRAIN-only class prototype is legitimate, but YCB class-provided and old class-free results must remain different benchmarks.",
+      "Do not run both changes and attribute success to one, do not repair heldout labels or make GT prompts to improve the score, and do not enter current223 automatically. Any later single candidate requires its own frozen input/learning/selection protocol."
+    ],
+    "reason": "This separates supervision insufficiency from intended-target information insufficiency and avoids another unconditional backbone upgrade. Neither source pixel/support improvement nor category-conditioned success proves human native-reference semantic visibility."
+  },
+  "scope_invariants": {
+    "new_model_or_forward": 0,
+    "new_fit": 0,
+    "new_download": 0,
+    "current_reads": 0,
+    "PnP": 0,
+    "V79_scan_modified": false,
+    "new_GT_or_human_annotations": 0,
+    "architecture_or_loss_selected": false,
+    "automatic_current_gate": false,
+    "fully_solved": false
+  },
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/AUDIT_ENTRY.json",
+      "sha256": "bdefc2af54e4e9e38eb1dc312116ad230421a9e47eadfa4810b85b5b2b3987b6"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/natural_failure_gallery/SELECTION_LOCK_BEFORE_RGB.json",
+      "sha256": "8072abb0456c155e3a9ba622045892a815e6ce869af996f4e92298627cf54ac0"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/natural_failure_gallery/VISUAL_REVIEW.json",
+      "sha256": "4742663e1ea25e95ce543045c1b9cbdda38dfc86ad7fd9234e919bf8aadc27ea"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/natural_failure_gallery/GALLERY_METADATA.json",
+      "sha256": "d32248809526e751d8ea88adc3a4a0883b381ef3618775cad5dc23df3497af0a"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_contract/native_context_contract.py",
+      "sha256": "908e28231766dcd395f82f878fb28aee98a15d2d71cefe603a12c6979c11aa2d"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/mixed_fit/query_center_support_head.py",
+      "sha256": "67fdee4a9ad850ba91482e4ce1fc098834c88f207c4edc0ab178b685ae99c940"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/model/input_prototype.py",
+      "sha256": "37c1e01fa988168300dd8f853686d8db0d7e506a64802a34e4b93cb515ec9221"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/EXPERIMENT_DECISIONS_BEFORE_FEATURES.json",
+      "sha256": "a008fc7d35e9aa1d0d4b7d631a796f238aaba7f0aa052fe7da087080b70115e9"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/next_source_supervision_review/DENSE_SUPERVISION_FEASIBILITY_CONTRACT.json",
+      "sha256": "641ad44feb1330884cf4e34afb7cad169eb7e8ab97845d8586fbf43b7b841e18"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/INTAKE_SUMMARY.json",
+      "sha256": "db021f820086e37dcff8865743ca562cb01fe5484f1d9476e4fd32eee1786792"
+    }
+  ]
+}

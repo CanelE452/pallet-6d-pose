@@ -1,0 +1,40 @@
+--- IMMUTABLE_FAILED_V1_RUN
++++ CANONICAL_TRANSPORT_V2_RUN
+@@ -6,6 +6,7 @@
+     for k in('reference_code','reference_protocol','backbone_code','checkpoint','native_grid'):check(p[k])
+     assert read(GENERATED)['PASS']and not OUT.exists()and p['frames']==16 and p['native_slots']==128 and p['output']==str(OUT)
+     rows=lines(INPUTS);assert len(rows)==16 and all(set(r)==INPUT_KEYS and r['frame_index']==i for i,r in enumerate(rows))
++    transport_rows=validate_transport(e,p,rows)
+     OUT.mkdir();os.environ['CUBLAS_WORKSPACE_CONFIG']=':4096:8';os.environ['YOLO_CONFIG_DIR']=str(OUT/'runtime/Ultralytics');os.environ['MPLCONFIGDIR']=str(OUT/'runtime/matplotlib')
+     import cv2,torch
+     assert str(torch.__version__)==p['runtime']['torch']and cv2.__version__==p['runtime']['cv2']and Path(sys.executable).resolve()==Path(p['runtime']['python']).resolve()
+@@ -13,15 +14,12 @@
+     spec=importlib.util.spec_from_file_location('v141_exact_R0_factory',p['backbone_code']['path']);factory=importlib.util.module_from_spec(spec);spec.loader.exec_module(factory)
+     model=factory.FrozenYoloFeatures(p['checkpoint']['path'],device=p['runtime']['device'])
+     def image(row):
++        # Exact original expected RGB values, transported losslessly. No JPEG
++        # decoder runs in the model environment; original input SHA unchanged.
+         assert sha(row['image'])==row['image_sha256']
+-        if row['decoder']=='EXACT_V94_CV2_BGR':
+-            bgr=cv2.imread(row['image'],cv2.IMREAD_COLOR);assert bgr is not None;rgb=np.ascontiguousarray(bgr[:,:,::-1])
+-        else:
+-            assert row['decoder']=='CANONICAL_PIL_RGB_TO_BGR'
+-            from PIL import Image
+-            rgb=np.asarray(Image.open(row['image']).convert('RGB'));bgr=np.ascontiguousarray(rgb[:,:,::-1])
+-        assert rgb.dtype==np.uint8 and list(rgb.shape)==row['raw_hw']+[3]and hashlib.sha256(rgb.tobytes()).hexdigest()==row['decoded_RGB_sha256']
+-        return bgr
++        array=transport_rows[row['frame_index']]
++        rgb=np.load(check(array['canonical_RGB_NPY']),allow_pickle=False)
++        return array_to_bgr(rgb,row)
+     hooks=[0];handle=model.yolo.model.register_forward_pre_hook(lambda *_:hooks.__setitem__(0,hooks[0]+1))
+     loaded=state(model.yolo.model);model.predict(np.zeros(tuple(rows[0]['raw_hw'])+(3,),np.uint8),already_padded=False,cpu_features=True);warm=state(model.yolo.model);warmhooks=hooks[0]
+     write(OUT/'STARTED.json',dict(completed=True,entry=bind(entry),protocol=bind(PROTOCOL),inputs=p['inputs'],loaded_state_SHA=loaded,warmed_state_SHA=warm,generated_blank_warmup_hooks=warmhooks,source_forward_calls=0,GT_read=False))
+@@ -55,7 +53,7 @@
+             finite_non_sentinel_slots=int(arrays['finite_non_sentinel'].sum()),continuous_valid_slots=int(arrays['continuous_valid'].sum()),nearest_valid_slots=int(arrays['nearest_valid'].sum()),
+             finite_OOB_slots=int((arrays['finite_non_sentinel']&~arrays['continuous_valid']).sum()),all16_and128_retained=True,all_candidates_raw9_and_firstargmax_unchanged=True,centroid_excluded_from_native_q_and_L=True,
+             warmup_state_SHA=warm,after_state_unchanged=True,checkpoint_unchanged=True,repeat_first_serial_and_P3_exact=True,no_saved_fullP3_duplicate=True,explicit_predict_calls=18,total_forward_hooks=hooks[0],generated_warmup_hooks=warmhooks,
+-            input_seal=p['inputs'],GT_pose_K_reference_semantic_mask_or_historic_score_reads=0,visibility_classifier_fit_private_V112_PnP_q_L_correction_calls=0,association_not_inferred=True,seconds=time.monotonic()-start)
++            input_seal=p['inputs'],GT_pose_K_reference_semantic_mask_or_historic_score_reads=0,visibility_classifier_fit_private_V112_PnP_q_L_correction_calls=0,association_not_inferred=True,canonical_transport_seal=e['canonical_transport_seal'],manual_revision_after_decoder_guard=True,expected_RGB_SHA_unchanged=True,seconds=time.monotonic()-start)
+         write(OUT/'RESULT.json',result)
+         outputs=[bind(OUT/name)for name in('FROZEN_PROPOSALS_ALL16_INPUT_ONLY.jsonl','ORIGINAL_NATIVE_QUERY128_INPUT_ONLY.jsonl','ORIGINAL_NATIVE_QUERY128_AND_VALID9X9_INPUT_ONLY.npz','ALL_CANDIDATES_RAW9_AND_BOXES_INPUT_ONLY.npz','RESULT.json')]
+         write(OUT/'PREDICTION_SEAL.json',dict(completed=True,PASS=True,code=bind(__file__),policy=e['policy'],protocol=bind(PROTOCOL),entry=bind(entry),inputs=p['inputs'],outputs=outputs,frames=16,rows=128,GT_read=False,historical_predictions_read=False,all16_frames128_native_slots_preserved=True,actual_original_initializer=True,source_emulation=False))

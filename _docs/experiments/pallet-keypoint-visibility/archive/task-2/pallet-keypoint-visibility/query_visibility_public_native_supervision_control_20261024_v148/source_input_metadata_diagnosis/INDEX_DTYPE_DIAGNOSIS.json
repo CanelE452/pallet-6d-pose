@@ -1,0 +1,158 @@
+{
+  "completed": true,
+  "PASS": true,
+  "diagnosis": "global_index is int32 in frozen feature packets versus int64 in saved C32 score packets; same integer values/order, every other compared identity/coordinate/availability column byte-exact",
+  "corpora": [
+    {
+      "corpus": "OLD6144",
+      "N": 6144,
+      "features": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_actual_initializer_source_20261024_v132/frozen_C16_actual_initializer_v1/SOURCE_FEATURES_INPUT_ONLY.npz",
+        "sha256": "8a42ae91fb27d461f6f27cd76877c2fff1e9e7b507f9cc31e643214c26e1c46a"
+      },
+      "baseline": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_target_gradient_control_20261024_v142/runs/C32_AUX_TO_NATIVE_GRAD0_FIXED8000/C32_AUX_TO_NATIVE_GRAD0_FIXED8000/FINAL_NATIVE6144_SCORES_INPUT_AND_OUTPUT.npz",
+        "sha256": "4b1985375e51b3e0dc42b013b214880c734cfaf7b3e99461fe800e4487de8f9d"
+      },
+      "columns": {
+        "global_index": {
+          "feature_dtype": "int32",
+          "baseline_dtype": "int64",
+          "shape": [
+            6144
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": false
+        },
+        "occurrence_id": {
+          "feature_dtype": "<U23",
+          "baseline_dtype": "<U23",
+          "shape": [
+            6144
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        },
+        "query_xy": {
+          "feature_dtype": "float64",
+          "baseline_dtype": "float64",
+          "shape": [
+            6144,
+            2
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        },
+        "L": {
+          "feature_dtype": "float64",
+          "baseline_dtype": "float64",
+          "shape": [
+            6144
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        },
+        "query_available": {
+          "feature_dtype": "bool",
+          "baseline_dtype": "bool",
+          "shape": [
+            6144
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        }
+      },
+      "indices_both_exact_0_to_Nminus1": true,
+      "occurrence_scene_base_slot_order_exact": true,
+      "constructed_head_forwarded_equal": true,
+      "constructed_count": 6088,
+      "available_count": 6056
+    },
+    {
+      "corpus": "NEW20480",
+      "N": 20480,
+      "features": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/frozen_C16_actual_initializer_v1/SOURCE_FEATURES_INPUT_ONLY.npz",
+        "sha256": "208d91c1d7c627eee5216a97810223428bfc32c0dc5bf3064ddeb14a37552d68"
+      },
+      "baseline": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_target_gradient_control_20261024_v142/runs/C32_AUX_TO_NATIVE_GRAD0_FIXED8000/C32_AUX_TO_NATIVE_GRAD0_FIXED8000/FINAL_NEW_NATIVE20480_SCORES_INPUT_AND_OUTPUT.npz",
+        "sha256": "5f14a4f92c2521c7b1f6951309509dadc65f919ff815c74664deffb6b4052df2"
+      },
+      "columns": {
+        "global_index": {
+          "feature_dtype": "int32",
+          "baseline_dtype": "int64",
+          "shape": [
+            20480
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": false
+        },
+        "occurrence_id": {
+          "feature_dtype": "<U23",
+          "baseline_dtype": "<U23",
+          "shape": [
+            20480
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        },
+        "query_xy": {
+          "feature_dtype": "float64",
+          "baseline_dtype": "float64",
+          "shape": [
+            20480,
+            2
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        },
+        "L": {
+          "feature_dtype": "float64",
+          "baseline_dtype": "float64",
+          "shape": [
+            20480
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        },
+        "query_available": {
+          "feature_dtype": "bool",
+          "baseline_dtype": "bool",
+          "shape": [
+            20480
+          ],
+          "values_equal": true,
+          "dtype_shape_bytes_equal": true
+        }
+      },
+      "indices_both_exact_0_to_Nminus1": true,
+      "occurrence_scene_base_slot_order_exact": true,
+      "constructed_head_forwarded_equal": true,
+      "constructed_count": 20424,
+      "available_count": 20384
+    }
+  ],
+  "minimal_fix": "Explicit integer-kind, shape, 0..N-1 and np.array_equal checks for global_index only; retain existing strict dtype/shape/bytes equality for occurrence_id/query_xy/L/query_available. No row reorder or field rewrite.",
+  "prior_loader_evidence": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_fine_rgb_control_20261024_v145/source_fit_preparation/train_native_fine_rgb.py",
+    "function": "load_base",
+    "rule": "np.array_equal(a['global_index'],np.arange(n))"
+  },
+  "accessed_NPZ_columns": [
+    "global_index",
+    "occurrence_id",
+    "query_xy",
+    "L",
+    "query_available",
+    "feature_constructed",
+    "head_forwarded",
+    "source_occurrence_index",
+    "scene_index",
+    "base_index",
+    "native_slot"
+  ],
+  "feature_values_checkpoint_GT_RGB_model_forward_or_fit_reads": 0,
+  "auto_retry": false
+}

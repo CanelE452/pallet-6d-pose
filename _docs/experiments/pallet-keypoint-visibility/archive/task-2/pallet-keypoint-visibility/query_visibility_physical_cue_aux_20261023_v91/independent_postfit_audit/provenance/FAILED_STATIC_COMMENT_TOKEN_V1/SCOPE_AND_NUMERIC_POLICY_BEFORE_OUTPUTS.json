@@ -1,0 +1,77 @@
+{
+  "schema": "V91_INDEPENDENT_POSTFIT_SAVED_AUDIT_BEFORE_OUTPUTS",
+  "created_UTC": "2026-10-22T23:12:20.000361+00:00",
+  "bindings": {
+    "protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/FIT_PROTOCOL_BEFORE_SOURCE_ARRAYS.json",
+      "sha256": "6191df432b4254fb500087b714e1a8e9867a111581158707a95eadf993492028",
+      "bytes": 13144
+    },
+    "trainer_preparation": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/train_physical_cue_once.py",
+      "sha256": "ffbb7eeb63722c56b18ab0927729f1d344fe08a91ad2f908f607cf4f7a331d90",
+      "bytes": 36342
+    },
+    "mosaic": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/spatial_mosaic.py",
+      "sha256": "7af7fdb0f6e3858c2af087b6fcfe25ff3837442dd853d3a8c5507ef1dd531c1a",
+      "bytes": 3700
+    },
+    "model_code_static_only": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/local_cue_evidence_map.py",
+      "sha256": "5bfcdc8fc752eb2b758edf349a42ee3779ea6442506d0de3331d0cb1841883a3",
+      "bytes": 5040
+    },
+    "teacher_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/TEACHER_CONTRACT_BEFORE_BUILD.json",
+      "sha256": "9c33b438ae8518f355fe6731155bbe183607ad00ac535da5a4c62b2172c8ed45",
+      "bytes": 8755
+    },
+    "GT_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/corpus_build_v1/GT_CORPUS_SEAL.json",
+      "sha256": "0b9c8c6c992a86b00e27a7ef7ad52f0491522f7b09bc7194058f0eb48f5b9c6f",
+      "bytes": 7011
+    },
+    "independent_GT_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/independent_teacher_review/GT_UNITS_AND_WEIGHTS_REPLAY.json",
+      "sha256": "18e1fc137c3e5a33ad7f69ffb104809c84c2fc110349ead632f3895efae9b982",
+      "bytes": 2234
+    }
+  },
+  "stage": "FROZEN_BEFORE_READING_ANY_V91_RUN_OUTPUT_VALUES",
+  "execution_gate": "Actual audit requires parent FIT_COMPLETE completion notice and exactSHA CLI, rootapprovedentry/code hashes unchanged. Never access run directory during preparation.",
+  "allowed_actual_saved_reads": "Publicsource GT metadata/GT-only units, originalV89 q/L/frame geometry, completedV91 saved604scores/12900tilemaps/100mosaics/history/results/freeze/execution certificates. Check checkpoint SHA bytes only, no parameter/model deserialization.",
+  "forbidden": [
+    "current223",
+    "RGBpixels",
+    "sourceP3/RGBfeaturearrays",
+    "weightparameterload",
+    "modelconstruction/backbone/headforward",
+    "newfit/PnP",
+    "GTbesttileorposthocgates/thresholdselection"
+  ],
+  "primary_exact_checks": [
+    "604cueID/pair/view/split/order/defined/U labels and duplicateweights fromimmutableteacher. 261D/37E/306U raw; weighted257D/37E.",
+    "Allknown2x3 CM D/E vsD/E/U, conditional probabilities .5 representedlogit>=0E; teacherU separate distributions; VALknown170/all336/U166.",
+    "Pairedsamecue D→E VAL22 and D→D63, availability counted asmiss; bothregion/reference, no favorabletile.",
+    "Frozen9gates replay directly fromexactCM/pair counts; no newmodel/gatechoice.",
+    "History20updates100..2000, perclassweightedmacro, earliest strictmin excludesupdate0, frozencheckpointSHA andstagebindings. Finalallframe macroNLL isseparatedfromselectedhistory; no reselection fromnumericaldrift.",
+    "All12900tilemaps F32 finite+GT-free IDs/order, factualmapvalid independentlyfromq/L/native9 plusadaptive9RGBvalidgeometry, no semanticmask.",
+    "All100savednativeF32mosaics/valid/support shape+finite/hash/order, constructeachusingall129fixedtiles withoutGTmask/ref/label/FULLselection.",
+    "All604scores replay from completedmosaic byindependent CPUF32 bilinear/border/alignfalse sampler, fixedunc9logitmean+separater; exactavailable andsavedF32logits expected.",
+    "AllknownNLL independentlyFP64stableBCE, unavailablefixedzero-logitlog2penalty; ignoreGTUplaceholderNLL inloss/selection.",
+    "CodeAST confirms threeforwardfields only, lossGTdownstream, predictionalltiles completebeforeGTreader; storedcertificate≠hiddenprocessproof."
+  ],
+  "mosaic_replay_numeric_policy": {
+    "plan": "IndependentNumPyF64bilinear onstoredF32tilemaps, all100frames, usingnativepixels andfixedtent. Savedmosaics wereGPUF32: do not demandFP64bitidentity. Exactmasks/availability required; differences andhard-nearzero diagnostics reported.",
+    "derivation": "FixedL128/256 andintegernativepixels givebinary-exactnormalizedcoordinates andtentweights. At most129tilecontributions perframe/pixel; each bilinear interpolation has4products+3adds, validity masking/tent multiplication and129term accumulation/division. 4096binary32 operations isaconservativebound exceeding129*24=3096. Forpositiveweightednormalization, numeratorabsolute error<=gamma4096*M*D anddenominatorrelativeerror<=gamma4096; ratioerror<=2gamma4096*M/(1-gamma4096). Use4gamma4096*max(1,M)/(1-gamma4096) toinclude finaldivision/rounding. This bound isderivedbeforeobservingoutputs, not fitted toobservedmax.",
+    "binary32_unit_roundoff": 5.960464477539063e-08,
+    "gamma4096": 0.0002442002442002442,
+    "absolute_logit_bound_formula": "4*gamma4096*max(1,max_abs_saved_tile_logit)/(1-gamma4096)",
+    "denominator_relative_bound": "gamma4096/(1-gamma4096);zero masks exact; positiveD>=1e-12 or explicitlyauditfrozenclamp path.",
+    "meaning": "Engineering sampler arithmetic bound only; never sourceperformancecriteria or semanticGT tolerance. Preservefailedcasebeforeanyrepair; reportdifferenceswithout changingchoices."
+  },
+  "score_numeric_policy": "CPUF32recipe replay expectedbitexact; analyticFP64BCE differences diagnostic withmax/mean, no hiddeneligibilitychange. Any mismatch ispreservedandreported beforefix. No source/performance tolerance invented postresults.",
+  "generated_tests_before_actual": "OwnCM/U/teacherunknown-NLL exclusion/weightedmacro/earliestties/pairedlogic, constantmosaic+invalidsupport/tent halfopen fixtures fromgeneratedarraysonly. No model import orforward.",
+  "new_forward_fit_current_PnP": 0
+}

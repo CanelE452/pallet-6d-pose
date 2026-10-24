@@ -1,0 +1,63 @@
+{
+  "completed": true,
+  "phase": "V134_SAVED_SOURCE_DIAGNOSIS_BEFORE_FIXED_QUERY_AND_PAIR_CONTROLS",
+  "created_UTC": "2026-10-23T17:14:12.641193+00:00",
+  "goal_status": "active",
+  "fully_solved": false,
+  "previous_goal_turn_classification": "PROGRESS",
+  "findings_KO": [
+    "초기 키포인트 순서가 잘못 연결됐다는 가설은 현재192개 합성 설정에서 지지되지 않는다.60000개 원본 source 저장순열과 실제 유효 training좌표를 대조한 normal-facing 규칙이 CF와192/192일치한다. 기존 area-V4 비교는 다른 과거 규칙의 민감도다.",
+    "C24/C25는 TRAIN 특징을 거의 완전히 구분하지만 VAL에서 오판한다. available TRAIN AUC0.99995/0.99997 대비 VAL0.92002/0.91236이다. 정보의 일반화 가능성이나 정보 소실을 이 수치만으로 증명하지 않는다.",
+    "단일 문턱 조절만으로도 목표를 만족하지 못한다. VAL에서 보임98%를 보존하려면 사후 이상적인 cut에서도 외부가림은 C24 26/60,C25 25/60만 가능하다. 어떤 문턱 값도 내보내거나 적용하지 않았다.",
+    "대응 경계 제외·오차3px이하에서 C24/C25는 가림12점을 모두 맞히지만 보임293점 중20/23점을 지운다.136/137의 가까운 같은재질 물체와 실제 가림을 혼동하는 crop 사례를 직접 확인했다.",
+    "TRAIN의125개 유효 같은모서리 가림/근접비가림 짝에서 가림쪽은 평균1954회, 가까이만놓인 비가림쪽은137회 뽑혔다. 비가림은 학습에서 빠진 것이 아니며 개별 노출 비율이14.26배다.",
+    "연속형 TRAIN/VAL coverage 공백도 있다. VAL네 형상 모두 TRAIN최소보다 얇고, 카메라·texture·조명·배경도 함께 바뀌어 단일원인으로 확정할 수 없다."
+  ],
+  "root_personally_viewed_cases": [
+    136,
+    137,
+    134
+  ],
+  "agent_personally_viewed_cases": [
+    128,
+    132,
+    136,
+    137,
+    134,
+    135,
+    157,
+    173
+  ],
+  "new_training_in_V134": 0,
+  "new_current_or_V112_or_PnP": 0,
+  "bindings": {
+    "source_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_contract_review/SOURCE_CONTRACT_SUMMARY_KO.json",
+      "sha256": "0754b925607faee0a3f12d0b3af318ef9af68ed6cbcec5a6e3fd9ff3085e0f22"
+    },
+    "original_training_order": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_contract_review/ORIGINAL_INITIALIZER_TRAINING_ORDER_REPLAY.json",
+      "sha256": "ceb12bb5ce1245401a4f286971caba61af970f9fd4e6b5c0af5205b596137fc6"
+    },
+    "source_features": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/feature_diagnosis/saved_feature_diagnosis_v1/DIAGNOSIS_SEAL.json",
+      "sha256": "ee5824d570ecd48450e01c4a8d77926c0d53fd26998ffe3b0e5cea629721d68a"
+    },
+    "native_pair_coverage": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/feature_diagnosis/NATIVE_TRAIN_PAIR_COVERAGE_AND_LOSS_HISTORY.json",
+      "sha256": "da1ae31b7db9a62406dea90bfcb6b99fcc4a387c27d16cb523778ff12ce27efc"
+    },
+    "ranking": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_ranking_diagnosis/RANKING_DIAGNOSIS_NO_THRESHOLD_EXPORT.json",
+      "sha256": "18fd00ce19c232207811aa4850325273e96e65a3c276da5893ae96947b88a20f"
+    },
+    "actual_visuals": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_visual_review/VISUAL_REVIEW_SEAL.json",
+      "sha256": "fdc664316eac451f3ec5d6b108b8e22b0c93111c41982579412273b38933e392"
+    }
+  },
+  "next_controls": [
+    "같은초기BEFORE q8/L/context를변형마다고정한 SOURCE frozen forward로 이미지변화와q이동의영향을분리한다. GT좌표재crop은하지않는다.",
+    "V135125같은물리모서리짝을균형있게뽑는sampler와native점수차이학습을대조한다. 전체old51004/native6144와42기준을유지한다."
+  ]
+}

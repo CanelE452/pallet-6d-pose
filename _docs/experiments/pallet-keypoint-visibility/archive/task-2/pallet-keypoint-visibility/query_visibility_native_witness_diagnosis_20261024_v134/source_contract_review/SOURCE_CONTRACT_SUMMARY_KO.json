@@ -1,0 +1,620 @@
+{
+  "completed": true,
+  "PASS": true,
+  "goal_status": "active",
+  "fully_solved": false,
+  "scope_KO": "저장 source 메타데이터·GT·점수만으로 TRAIN/VAL 차이와 V133 회귀를 확인. 새 모델 실행·RGB·feature body·private/V112/PnP 없음.",
+  "conclusions_KO": [
+    "V133의 보이는 점→가림 회귀는 기존 실제 q·crop·특징·teacher를 그대로 두고 head만 바꾼 뒤 생겼다. C16이 맞힌 비경계·오차≤3px 보임293점 중 C24는20점, C25는23점을 가림으로 바꿨다.",
+    "그20/23점은 모두 VAL 카메라[-12°,22°]에 있고, 해당 view에는 과거 area-V4와의 순서 차이도 없다. 모든 점의 active witness 영역은 실제 local96뿐 아니라 central32 sampling 범위 안에 있다. 따라서 순서 경계나 crop 밖으로 나간 큰 좌표 오차만으로 이 회귀를 설명할 수 없다.",
+    "새 topology·새 재질 범주·새 가림 물체 범주 때문이라고 단정할 근거도 없다. 모든VAL64개 설정은 geometry/aspect/material/quarter/occluderfamily/role/distance/extent/margin/depth/roll/sham방향/카메라부호가 같은 TRAIN 설정을 갖고, 두 fold는 동일한17/19part mesh template를 사용한다.",
+    "실제 확인된 coverage 공백은 연속 치수와 카메라·appearance다. TRAIN8개 scale geometry 높이0.135174~0.175823m에 비해 VAL4개는0.124528~0.133422m여서 모두 TRAIN 최소 높이보다 낮다. 카메라도 TRAIN[-24,15]/[24,30],VAL[-12,22]/[12,37]이며 grain·조명·배경 seed까지 같이 바뀐다. 어느 한 요인의 인과 효과인지는 분리되지 않았다.",
+    "실제 동결 초기 추론기가 학습한 native 순서는 과거 projected-area compute_perm_v4와 다르다.60000개 source 저장 순열 및475066개 유효 training target의 같은 채널 좌표를 독립 재현했고, 그 normal-facing 규칙은 V129192개 설정 모두 선언CF와 일치한다.22개 area-V4 차이를 실제 학습 ontology의 불확실성으로 볼 근거가 해소됐다. 원 writer source/tie policy까지 찾았다는 뜻은 아니다.",
+    "외부 D/E teacher의 파생 규칙은6144개 모두 코드와 일치한다. S/U는 외부 가림 negative로 바꾸지 않았다. 다만 이 정답은 연속 표면 witness의 가시성이며 sensor의 한 픽셀·사람 주석과 동일하다고 증명한 것은 아니다."
+  ],
+  "source_counts": {
+    "TRAIN_bases": 128,
+    "VAL_bases": 64,
+    "TRAIN_unique_scaled_geometry": 8,
+    "VAL_unique_scaled_geometry": 4,
+    "shared_topologies": 2,
+    "all_VAL64_have_matched_seen_discrete_config": true,
+    "TRAIN_camera_pairs": [
+      [
+        -24,
+        15
+      ],
+      [
+        24,
+        30
+      ]
+    ],
+    "VAL_camera_pairs": [
+      [
+        -12,
+        22
+      ],
+      [
+        12,
+        37
+      ]
+    ],
+    "TRAIN_height_m": [
+      0.1351741371776563,
+      0.1758225077228709
+    ],
+    "VAL_height_m": [
+      0.12452770802162548,
+      0.13342163801336027
+    ],
+    "all_VAL_heights_below_TRAIN_min": true,
+    "TRAIN_material_seed_groups": 16,
+    "VAL_material_seed_groups": 8,
+    "TRAIN_light_background_groups": 64,
+    "VAL_light_background_groups": 32
+  },
+  "comparison_nonboundary_LE3": {
+    "C16": {
+      "slots": 771,
+      "teacher": {
+        "D": 293,
+        "E": 12,
+        "S": 112,
+        "U": 354
+      },
+      "CM_DE_rows_DEU_columns": [
+        [
+          293,
+          0,
+          0
+        ],
+        [
+          7,
+          5,
+          0
+        ]
+      ],
+      "D_recall": 1.0,
+      "E_recall": 0.4166666666666667,
+      "teacher_S_responses": {
+        "0": 89,
+        "1": 23
+      },
+      "teacher_U_responses": {
+        "0": 353,
+        "1": 1
+      }
+    },
+    "C24": {
+      "slots": 771,
+      "teacher": {
+        "D": 293,
+        "E": 12,
+        "S": 112,
+        "U": 354
+      },
+      "CM_DE_rows_DEU_columns": [
+        [
+          273,
+          20,
+          0
+        ],
+        [
+          0,
+          12,
+          0
+        ]
+      ],
+      "D_recall": 0.931740614334471,
+      "E_recall": 1.0,
+      "teacher_S_responses": {
+        "0": 89,
+        "1": 23
+      },
+      "teacher_U_responses": {
+        "0": 337,
+        "1": 17
+      }
+    },
+    "C25": {
+      "slots": 771,
+      "teacher": {
+        "D": 293,
+        "E": 12,
+        "S": 112,
+        "U": 354
+      },
+      "CM_DE_rows_DEU_columns": [
+        [
+          270,
+          23,
+          0
+        ],
+        [
+          0,
+          12,
+          0
+        ]
+      ],
+      "D_recall": 0.9215017064846417,
+      "E_recall": 1.0,
+      "teacher_S_responses": {
+        "0": 84,
+        "1": 28
+      },
+      "teacher_U_responses": {
+        "0": 332,
+        "1": 22
+      }
+    }
+  },
+  "comparison_TRAIN_LE3": {
+    "C16": {
+      "slots": 2432,
+      "teacher": {
+        "D": 1113,
+        "E": 44,
+        "S": 254,
+        "U": 1021
+      },
+      "CM_DE_rows_DEU_columns": [
+        [
+          1113,
+          0,
+          0
+        ],
+        [
+          23,
+          21,
+          0
+        ]
+      ],
+      "D_recall": 1.0,
+      "E_recall": 0.4772727272727273,
+      "teacher_S_responses": {
+        "0": 230,
+        "1": 24
+      },
+      "teacher_U_responses": {
+        "0": 1018,
+        "1": 3
+      }
+    },
+    "C24": {
+      "slots": 2432,
+      "teacher": {
+        "D": 1113,
+        "E": 44,
+        "S": 254,
+        "U": 1021
+      },
+      "CM_DE_rows_DEU_columns": [
+        [
+          1113,
+          0,
+          0
+        ],
+        [
+          0,
+          44,
+          0
+        ]
+      ],
+      "D_recall": 1.0,
+      "E_recall": 1.0,
+      "teacher_S_responses": {
+        "0": 174,
+        "1": 80
+      },
+      "teacher_U_responses": {
+        "0": 1014,
+        "1": 7
+      }
+    },
+    "C25": {
+      "slots": 2432,
+      "teacher": {
+        "D": 1113,
+        "E": 44,
+        "S": 254,
+        "U": 1021
+      },
+      "CM_DE_rows_DEU_columns": [
+        [
+          1113,
+          0,
+          0
+        ],
+        [
+          0,
+          44,
+          0
+        ]
+      ],
+      "D_recall": 1.0,
+      "E_recall": 1.0,
+      "teacher_S_responses": {
+        "0": 154,
+        "1": 100
+      },
+      "teacher_U_responses": {
+        "0": 1014,
+        "1": 7
+      }
+    }
+  },
+  "false_hidden_visible": {
+    "C16": {
+      "nonboundary_D_to_E": 2,
+      "smallerror_LE3_D_to_E": 0,
+      "LE3_variant": {},
+      "LE3_camera": {},
+      "LE3_native_slot": {},
+      "LE3_geometry": {},
+      "LE3_material": {},
+      "LE3_foreign_family": {},
+      "LE3_full96_contains": 0,
+      "LE3_core32_contains": 0,
+      "LE3_context_contains": 0,
+      "LE3_region_RGB96_width": {
+        "N": 0
+      },
+      "LE3_region_RGB96_height": {
+        "N": 0
+      },
+      "indices": [
+        4336,
+        5672
+      ],
+      "smallerror_indices": []
+    },
+    "C24": {
+      "nonboundary_D_to_E": 57,
+      "smallerror_LE3_D_to_E": 20,
+      "LE3_variant": {
+        "BEFORE": 4,
+        "COVER": 3,
+        "FAR_SHAM": 4,
+        "NEAR_SHAM": 9
+      },
+      "LE3_camera": {
+        "[-12, 22]": 20
+      },
+      "LE3_native_slot": {
+        "0": 15,
+        "3": 4,
+        "4": 1
+      },
+      "LE3_geometry": {
+        "BOARD_BLOCK_RUNNER": 15,
+        "RIB_LEG_RUNNER": 5
+      },
+      "LE3_material": {
+        "DARK_POLYMER": 10,
+        "PROCEDURAL_WOOD": 10
+      },
+      "LE3_foreign_family": {
+        "BACKGROUND_LIKE": 11,
+        "HIGH_CONTRAST": 5,
+        "SAME_TARGET_MATERIAL": 4
+      },
+      "LE3_full96_contains": 20,
+      "LE3_core32_contains": 20,
+      "LE3_context_contains": 11,
+      "LE3_region_RGB96_width": {
+        "N": 20,
+        "minimum": 3.36364699390755,
+        "q25": 4.537406241108545,
+        "median": 4.80726161849657,
+        "q75": 5.278496126066283,
+        "maximum": 5.664845009270673
+      },
+      "LE3_region_RGB96_height": {
+        "N": 20,
+        "minimum": 4.166167917176359,
+        "q25": 5.396365381287042,
+        "median": 6.068100795229178,
+        "q75": 6.772131717001173,
+        "maximum": 7.1848819668121475
+      },
+      "indices": [
+        4096,
+        4112,
+        4120,
+        4144,
+        4224,
+        4240,
+        4248,
+        4289,
+        4304,
+        4305,
+        4313,
+        4321,
+        4336,
+        4403,
+        4480,
+        4483,
+        4488,
+        4491,
+        4496,
+        4500,
+        4504,
+        4507,
+        4512,
+        4515,
+        4520,
+        4523,
+        4528,
+        4532,
+        4536,
+        4539,
+        4616,
+        4736,
+        4737,
+        4744,
+        4745,
+        4752,
+        4753,
+        4760,
+        4761,
+        4995,
+        5003,
+        5008,
+        5011,
+        5019,
+        5048,
+        5248,
+        5256,
+        5264,
+        5272,
+        5672,
+        5697,
+        5721,
+        5737,
+        5745,
+        5904,
+        5936,
+        6081
+      ],
+      "smallerror_indices": [
+        4096,
+        4112,
+        4120,
+        4240,
+        4403,
+        4496,
+        4512,
+        4515,
+        4520,
+        4523,
+        4528,
+        4532,
+        4536,
+        4539,
+        4616,
+        5248,
+        5264,
+        5272,
+        5904,
+        5936
+      ]
+    },
+    "C25": {
+      "nonboundary_D_to_E": 67,
+      "smallerror_LE3_D_to_E": 23,
+      "LE3_variant": {
+        "BEFORE": 5,
+        "COVER": 3,
+        "FAR_SHAM": 4,
+        "NEAR_SHAM": 11
+      },
+      "LE3_camera": {
+        "[-12, 22]": 23
+      },
+      "LE3_native_slot": {
+        "0": 16,
+        "3": 6,
+        "4": 1
+      },
+      "LE3_geometry": {
+        "BOARD_BLOCK_RUNNER": 18,
+        "RIB_LEG_RUNNER": 5
+      },
+      "LE3_material": {
+        "DARK_POLYMER": 11,
+        "PROCEDURAL_WOOD": 12
+      },
+      "LE3_foreign_family": {
+        "BACKGROUND_LIKE": 13,
+        "HIGH_CONTRAST": 5,
+        "SAME_TARGET_MATERIAL": 5
+      },
+      "LE3_full96_contains": 23,
+      "LE3_core32_contains": 23,
+      "LE3_context_contains": 12,
+      "LE3_region_RGB96_width": {
+        "N": 23,
+        "minimum": 3.36364699390755,
+        "q25": 4.537194426590208,
+        "median": 4.8069111797253665,
+        "q75": 5.08624739326409,
+        "maximum": 5.664845009270673
+      },
+      "LE3_region_RGB96_height": {
+        "N": 23,
+        "minimum": 4.166167917176359,
+        "q25": 5.388198059567029,
+        "median": 6.035755882867516,
+        "q75": 6.5673090435877395,
+        "maximum": 7.1848819668121475
+      },
+      "indices": [
+        4096,
+        4112,
+        4120,
+        4144,
+        4152,
+        4224,
+        4240,
+        4248,
+        4289,
+        4304,
+        4305,
+        4313,
+        4321,
+        4336,
+        4371,
+        4403,
+        4480,
+        4483,
+        4488,
+        4491,
+        4496,
+        4499,
+        4500,
+        4504,
+        4507,
+        4512,
+        4515,
+        4520,
+        4523,
+        4528,
+        4531,
+        4532,
+        4536,
+        4539,
+        4608,
+        4616,
+        4656,
+        4736,
+        4737,
+        4744,
+        4745,
+        4752,
+        4753,
+        4760,
+        4761,
+        4995,
+        5003,
+        5008,
+        5011,
+        5019,
+        5024,
+        5040,
+        5048,
+        5248,
+        5256,
+        5264,
+        5272,
+        5672,
+        5697,
+        5721,
+        5737,
+        5745,
+        5779,
+        5904,
+        5936,
+        6081,
+        6097
+      ],
+      "smallerror_indices": [
+        4096,
+        4112,
+        4120,
+        4240,
+        4371,
+        4403,
+        4496,
+        4512,
+        4515,
+        4520,
+        4523,
+        4528,
+        4531,
+        4532,
+        4536,
+        4539,
+        4608,
+        4616,
+        5248,
+        5264,
+        5272,
+        5904,
+        5936
+      ]
+    }
+  },
+  "teacher_counts": {
+    "TRAIN": {
+      "D": 1906,
+      "TARGET_ALONE_U": 1536,
+      "S": 512,
+      "E": 134,
+      "PARTIAL_OR_AMBIGUOUS_EXTERNAL": 8
+    },
+    "VALIDATION": {
+      "D": 828,
+      "TARGET_ALONE_U": 832,
+      "S": 320,
+      "E": 60,
+      "PARTIAL_OR_AMBIGUOUS_EXTERNAL": 8
+    }
+  },
+  "ordering": {
+    "original_source_normal_permutation_exact": 60000,
+    "native_known_training_targets_replayed": 475066,
+    "V129_normal_CF_exact": 192,
+    "smallest_V129_normal_margin": 0.4389093082767261,
+    "original_writer_source_recovered": false,
+    "interpretation_KO": "CF_PRIMARY를 유지하고 area-V4는 과거 별도 규칙 대조로 명명. accuracy가 더 좋은 mapping을 선택한 결과가 아니다."
+  },
+  "actionable_next_KO": [
+    "새 head 반복 학습 전, source의 높이·view·appearance를 분리해 같은 registered object/witness에서 영상과 초기 q가 어떻게 달라지는지 비교한다. 현재 자료는 이 세 요인이 같이 바뀌므로 원인 하나를 증명할 수 없다.",
+    "추가 source TRAIN을 만들 때 기존 사전 범위 height[.12,.18]·카메라 영역을 층화해 coverage를 확보하고, 새로운 seed/group으로 생성한다. 기존 VAL64를 TRAIN으로 옮기거나 같은VALgeometry를 복제해 넣지 않는다.",
+    "목표는 큰 q오차 정렬이나 PnP가 아니라, 올바른 초기 근방에서 실제 가시성에 필요한 RGB 증거를 보존하는 것. 특히 C24/C25가 새로 지운20/23개와 원래C16도 놓친 E를 함께 검토해 실제전이와 representation/teacher차이를 나눈다.",
+    "센서 raster 관측에서 active witness 영역이 실제 몇 개의 팔레트·가림 픽셀로 나타나는지 별도 확인한다. 현재 source계약 감사는 그 bbox가 crop안에 있다는 것까지만 확인했다. 주변 텍스처가 보인다는 이유로 정답을D로 바꾸거나 continuousE를 background label로 대체하지 않는다."
+  ],
+  "not_proven_KO": [
+    "높이 coverage만 보완하면 해결된다는 인과 결론",
+    "좌표오차·crop밖·순서가 모든 실패를 설명한다는 결론",
+    "고정DINO특징의 정보 부족이 단독 원인이라는 결론",
+    "합성 조건 내 성능이 현재실사223장으로 전이된다는 결론"
+  ],
+  "actions": {
+    "RGB_reads": 0,
+    "mixed_buffer_reads": 0,
+    "feature_body_reads": 0,
+    "model_calls": 0,
+    "training": 0,
+    "current223": 0,
+    "V112": 0,
+    "PnP": 0
+  },
+  "evidence": {
+    "SOURCE_CONTRACT_AND_SPLIT_REVIEW.json": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_contract_review/SOURCE_CONTRACT_AND_SPLIT_REVIEW.json",
+      "sha256": "3fe3df19717f4b6bcaf11ed5a03eca4f44021f6597bf516b596bf47f39b4642f",
+      "bytes": 355823
+    },
+    "ALL6144_TEACHER_SUPPORT_METADATA.json": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_contract_review/ALL6144_TEACHER_SUPPORT_METADATA.json",
+      "sha256": "e95489c95a5886a8c6e09c950720db84ecf70e8646b850422e2fe9759d983f16",
+      "bytes": 4710106
+    },
+    "ORIGINAL_INITIALIZER_TRAINING_ORDER_REPLAY.json": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_contract_review/ORIGINAL_INITIALIZER_TRAINING_ORDER_REPLAY.json",
+      "sha256": "ceb12bb5ce1245401a4f286971caba61af970f9fd4e6b5c0af5205b596137fc6",
+      "bytes": 156366
+    },
+    "review_source_contract.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_contract_review/review_source_contract.py",
+      "sha256": "d4dac8fd37ce6bc775bfebf2137e56f50f52670683585ebfd68293168ad990bc",
+      "bytes": 16720
+    },
+    "replay_training_order.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/source_contract_review/replay_training_order.py",
+      "sha256": "3c32a3cc6cf6aded99fe7f7fbcf888ac42dbc22e8415c507d7eef9f2d67bdde6",
+      "bytes": 9644
+    }
+  }
+}

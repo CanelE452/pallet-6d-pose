@@ -1,0 +1,189 @@
+{
+  "completed": true,
+  "GT_only": true,
+  "contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/TEACHER_CONTRACT_BEFORE_BUILD.json",
+    "sha256": "9c33b438ae8518f355fe6731155bbe183607ad00ac535da5a4c62b2172c8ed45",
+    "bytes": 8755
+  },
+  "corpus_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/corpus_build_v1/GT_CORPUS_SEAL.json",
+    "sha256": "0b9c8c6c992a86b00e27a7ef7ad52f0491522f7b09bc7194058f0eb48f5b9c6f",
+    "bytes": 7011
+  },
+  "NPZ": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/corpus_build_v1/ALL77916_TILE_CUE_TRAINING_UNITS_GT_ONLY.npz",
+    "sha256": "005f2e47ea68c1e116ec73555ff86c76c0af8b37f05e8b58a0d83fac0b46c588",
+    "bytes": 1136237
+  },
+  "cue_view_lookup": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/corpus_build_v1/ALL604_CUE_VIEW_TEACHERS_GT_ONLY.jsonl",
+    "sha256": "d4547bb3e6629cd1996a7f89bf202ef3e515bc9da04370028a235376a3287de1",
+    "bytes": 702514
+  },
+  "all_unit_identity_CSV": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/corpus_build_v1/ALL77916_TILE_CUE_TRAINING_UNITS_GT_ONLY.csv",
+    "sha256": "18dc109afbda6896f31b52c966aa413761553f5a61e05ba9f2f155dbc337363c",
+    "bytes": 13043764
+  },
+  "schema": {
+    "tile_index": {
+      "shape": [
+        77916
+      ],
+      "dtype": "int32"
+    },
+    "cue_view_index": {
+      "shape": [
+        77916
+      ],
+      "dtype": "int32"
+    },
+    "teacher_label": {
+      "shape": [
+        77916
+      ],
+      "dtype": "int8"
+    },
+    "training_label": {
+      "shape": [
+        77916
+      ],
+      "dtype": "int8"
+    },
+    "loss_admitted": {
+      "shape": [
+        77916
+      ],
+      "dtype": "bool"
+    },
+    "full": {
+      "shape": [
+        77916
+      ],
+      "dtype": "bool"
+    },
+    "uncertainty_inside_image": {
+      "shape": [
+        77916
+      ],
+      "dtype": "bool"
+    },
+    "geometry_tile_weight": {
+      "shape": [
+        77916
+      ],
+      "dtype": "float64"
+    },
+    "base_loss_weight": {
+      "shape": [
+        77916
+      ],
+      "dtype": "float64"
+    },
+    "duplicate_weight": {
+      "shape": [
+        77916
+      ],
+      "dtype": "float64"
+    },
+    "loss_weight": {
+      "shape": [
+        77916
+      ],
+      "dtype": "float64"
+    },
+    "reference_normalized_xy": {
+      "shape": [
+        77916,
+        2
+      ],
+      "dtype": "float32"
+    },
+    "reference_normalized_xy_safe": {
+      "shape": [
+        77916,
+        2
+      ],
+      "dtype": "float32"
+    },
+    "uncertainty9_normalized_xy": {
+      "shape": [
+        77916,
+        9,
+        2
+      ],
+      "dtype": "float32"
+    },
+    "uncertainty9_normalized_xy_safe": {
+      "shape": [
+        77916,
+        9,
+        2
+      ],
+      "dtype": "float32"
+    },
+    "coverage_code": {
+      "shape": [
+        77916
+      ],
+      "dtype": "int8"
+    }
+  },
+  "cohorts": [
+    {
+      "split": "TRAIN_LAB",
+      "cue_view_rows": 268,
+      "known_cue_view_rows": 128,
+      "supervised_units": 990,
+      "supervised_unit_label_counts": {
+        "0": 866,
+        "1": 124
+      },
+      "unique_supervised_input_tiles": 662,
+      "effective_label_mass": {
+        "0": 109.0,
+        "1": 15.0
+      }
+    },
+    {
+      "split": "VAL_HALL",
+      "cue_view_rows": 336,
+      "known_cue_view_rows": 170,
+      "supervised_units": 1264,
+      "supervised_unit_label_counts": {
+        "0": 1101,
+        "1": 163
+      },
+      "unique_supervised_input_tiles": 902,
+      "effective_label_mass": {
+        "0": 148.0,
+        "1": 22.0
+      }
+    }
+  ],
+  "parent_input_join": "tile_index is exact0..12899 V89 INPUTS_GRID_ONLY.jsonl order (all tiles retained); cue_view_index is exact0..603 ALL604...jsonl row. GT arrays never enter feature/model forward.",
+  "loss_API": "Select loss_admitted rows only (or safegrid+zero-mask correctly). Gather tile9x9 logits by tile_index; grid_sample(grid=uncertainty9_normalized_xy_safe.reshape(N,9,1,2),bilinear,align_corners=False,padding_mode=border), mean9 logits, one BCEWithLogits against training_label0D/1E. Weight with loss_weight; original geometry/base/duplicate weights remain separate. Do not treat U training_label=-1 as E0 or D0.",
+  "unknown_grid": "Raw missing-reference coords remain NaN; *_safe zeros exist only numerical guards, never known labels or observed locations. Unknown mass zero.",
+  "reduction_scope": "No threshold/checkpoint/model/sampler selected by this GT-only component. Root fit protocol defines minibatch normalization without silently losing per-cue/view scale-balanced mass.",
+  "prohibited": "No rasterized background negatives; no selecting best tile, replacing q with r, GTnativeID/region/label forward.",
+  "overlap_report": {
+    "positive_D_E_cell_overlap": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/corpus_build_v1/D_E_BILINEAR_CELL_SUPPORT_COLLISIONS_GT_ONLY.jsonl",
+      "sha256": "29ff0bf15a7471c3cec2476e465ecc92a2d5f21b22a187e94c0904a6d71f7b52",
+      "bytes": 2649
+    },
+    "exact_operator_conflict": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/teacher_preparation/corpus_build_v1/EXACT_REGION_OPERATOR_D_E_COLLISIONS_GT_ONLY.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "cell_count": 8,
+    "tiles": 4,
+    "exact_same_operator_conflicts": 0
+  },
+  "source_native8_mapping": "UNKNOWN",
+  "human_gold": false,
+  "target_identity_input_added": false,
+  "new_model_forward_fit_current_PnP": 0
+}

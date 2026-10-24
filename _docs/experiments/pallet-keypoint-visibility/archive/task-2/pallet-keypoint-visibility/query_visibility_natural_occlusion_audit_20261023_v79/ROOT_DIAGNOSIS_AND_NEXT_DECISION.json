@@ -1,0 +1,49 @@
+{
+  "completed": true,
+  "goal_turn": "PROGRESS",
+  "fully_solved": false,
+  "diagnostic_scope": "Saved source outputs plus raw source masks/RGB; no new model forward, fit or current223 access.",
+  "facts": {
+    "full_source_rows": 10002,
+    "queries": 80016,
+    "strict535_reference_and_query_state_match": 535,
+    "strict_reference_C_q_native3x3_all_C": 76,
+    "V78_strict_C_correct": 17,
+    "V78_strict_V_correct": 357,
+    "strict_C_crop_visible_fraction_median": 0.021538628472222224,
+    "ROI_float32_mask_class_changes": 0,
+    "exact_inference_input_collisions": 0,
+    "VAL_target_instances": 800,
+    "VAL_unique_RGB": 200,
+    "natural_primary_VAL_C": 287,
+    "natural_primary_VAL_V": 1731,
+    "VAL_only_target_objects": [
+      6,
+      11
+    ]
+  },
+  "interpretation_KO": [
+    "고정 근접535에서 reference-vs-query 중심 pixel 목표 차이와 큰 좌표 오차만으로 실패를 설명할 수 없다.",
+    "가려진 strict76 모두 q의 raw3x3도 C이며, crop V 중앙값2.15%다. 전역 crop의 가시 우세만으로 모든 오류를 설명할 수 없다.",
+    "실제 주전자/드릴과 나무블록 예시는 가림/가시 source mask와 육안이 부합한다. 네 예시는 결과 cell별 선고정 선택으로, 전체 label오류율이나 전이실패의 단일 원인을 추정하지 않는다.",
+    "V78은 TRAIN에서 본 종류에서도 자연C recall38/217로 낮다. 미학습 종류만의 문제라는 설명은 배제된다.",
+    "crop내 target128은 대상과 occluder가 섞일 수 있다. 대상 소유권·공간 감독·readout 문제는 가능한 가설이며 인과적으로 확정되지 않았다.",
+    "완전히 같은 입력의 상충 GT는 없었다. 연속 입력값의 유일성은 대상 식별 가능성을 보장하지 않는다."
+  ],
+  "limits_KO": [
+    "원래 public q는 GT 기반 모사이며 실제 초기추론 좌표가 아니다.",
+    "M0/M4는 렌더·깊이 정책에 따른 support proxy다. 사람 D/E/S와 동일하지 않고 기존 mask 생성모드/commit/delta도 미확인이다.",
+    "전체 primary에서는 q중심 outsideM0가 많다. outside/무효를 semantic가림으로 합치지 않는다.",
+    "반복 sourceVAL은 개발 지표다. current223 역시 앞선 실험들의 반복 평가셋이며 독립 새검증으로 부르지 않는다.",
+    "RGBbilinear/P3 RF와 nominalmaskNN의 물리적 동일성을 주장하지 않는다."
+  ],
+  "next_action": "V80 same-input spatial auxiliary source control; labels, primary admission, sampler, initialization, threshold and selector frozen before execution.",
+  "next_decisions": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/EXPERIMENT_DECISIONS_BEFORE_GT_BUILD.json",
+    "sha256": "81ac5890ce9a6d210bce5403425d589351c6306c6379755f153182ed4fafd35a"
+  },
+  "current223_reads": 0,
+  "new_model_forward": 0,
+  "new_fit": 0,
+  "PnP": 0
+}

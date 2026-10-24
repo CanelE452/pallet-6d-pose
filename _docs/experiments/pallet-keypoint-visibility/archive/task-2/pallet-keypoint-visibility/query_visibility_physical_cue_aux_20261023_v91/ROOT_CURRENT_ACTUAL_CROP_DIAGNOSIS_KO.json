@@ -1,0 +1,63 @@
+{
+  "completed": true,
+  "actual_all8_figures_viewed": true,
+  "figures": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/current_actual_crop_diagnosis_v1/ACTUAL_CROPS_AND_FIGURES.json",
+    "sha256": "7f22a1d678142945a0383a0f96c7367acbcec1a404298c17eb4bbc55479508df"
+  },
+  "reference_diagnostic": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/current_actual_crop_diagnosis_v1/FIXED8_SAVED_REFERENCE_READOUT_DIAGNOSTIC.json",
+    "sha256": "1b2c839464159efd55fffa06de33fee06b139a1bcd74d6ec4f1ae7f6e1d1f352"
+  },
+  "source_definition_evidence": "Previously sealed V86 native24:8/10 observedstructuralcues hadzero exactmaterialmask atoriginalr; fixedsource evidence only, not currentpixelGT.",
+  "findings": [
+    {
+      "kind": "SMALL_ERROR_STILL_FALSE_ABSENT",
+      "cases": [
+        0,
+        4
+      ],
+      "observation": "목재 발의 노출된 아래 모서리와 정사각형 녹색 팔레트의 바닥 외곽 junction이 실제 crop에 보인다. 외부 물체가 이 두 단서를 직접 덮는 모습은 없다. 수동 클릭 D 정답이며 오차1.002/1.745px다.",
+      "saved_evidence": "목재 q/r zE=+19.012/+19.522, 정사각형 +2.055/+5.685로 같은 저장map의r에서도E다.",
+      "conclusion": "원래q만 약간 잘못 놓였다는 설명만으로 이 두 실패를 해결할 수 없다. 물리cue학습을 맞춘 뒤에도 실제전이/국소판정 실패가 남는다. 같은map r조회는 재추론이나좌표교정성능실험이 아니다."
+    },
+    {
+      "kind": "SUCCESS_IN_SAME_NEAR_GROUP",
+      "cases": [
+        1,
+        5
+      ],
+      "observation": "어두운 목재 끝단과 cone옆 녹색 팔레트의 노출된 바닥 끝단을 V91이D로판정한다. v61은같은원q에서absent다. 어두움/occluder동시등장 자체가무조건실패를정의하지않는다."
+    },
+    {
+      "kind": "EXTERNAL_FALSE_VISIBLE_NOT_ALL_CROP_MISS",
+      "cases": [
+        2,
+        6
+      ],
+      "observation": "cone가해당target쪽을가리고, 원q는cone의경계/옆asphalt, 기존r는cone표면쪽이다. 두r모두원crop안에있다.",
+      "saved_evidence": "목재case02 q/r는D/D(-28.644/-5.970). 정사case06는D/E(-25.432/+6.630).",
+      "conclusion": "정사case06은저장공간응답을읽는위치가판정을바꾸는예다. 목재case02는r쪽저장응답까지D여서좌표phase만으로설명되지않는다. target-instance/cue구분과occluderappearance전이한계와양립하지만, 단일그림으로유일원인을증명하지않는다."
+    },
+    {
+      "kind": "COORDINATE_READOUT_CAN_CHANGE_EITHER_DIRECTION",
+      "cases": [
+        3,
+        7
+      ],
+      "observation": "현재q에서E를맞힌cone사례도존재한다. 목재밤case03의r조회는오히려D로바뀌며, 정사case07은E유지다.",
+      "conclusion": "GT r로옮겨읽으면모든오류가고쳐진다고주장할수없다. 실제추론좌표나판정은변경하지않았다."
+    }
+  ],
+  "all8_reference_inside_original_crop": true,
+  "scope": "Root AI visual observations plus existinghumanlabels, not newhumanannotation orpixelmembershipGT. Each public/private image/score/label immutable.",
+  "source_to_current_limits": [
+    "Publicsame tallwoodbin vsflatwood/plasticpallet appearance/topology/camera context.",
+    "Sourceall129tiles native-mosaic region/r evaluation vscurrentoneoriginalq-centre.",
+    "SourceL128/256, current1632/1784L<128. No causal scale or dtypeablation has been run.",
+    "Headforwardhas no targetinstance/nativeidentity or learnedself."
+  ],
+  "new_model_forward_fit_threshold_or_PnP": 0,
+  "main_current_metrics_unchanged": true,
+  "fully_solved": false
+}

@@ -1,0 +1,114 @@
+{
+  "completed": true,
+  "created_UTC": "2026-10-23T18:59:59.335744+00:00",
+  "goal_status": "active",
+  "fully_solved": false,
+  "goal_turn_classification": "PROGRESS",
+  "outcome_KO": "공개 원본16장과32개 제공pose 기반 가상 참조점의 실제 RGB·역할·보임/가림 제안 검토를 완료했다. source-only 조건부 제안은 D11/E4/U113이며, 초기 추론 entity/순서 연결 전이므로 아직 학습에 넣지 않는다.",
+  "actual_executed": {
+    "public_LOCO_originals_extracted_and_viewed": 12,
+    "all_official_LOCO_pallet_instances_retained": 424,
+    "Pallox_fixed_frames_mesh_pose_K_depth_projected_and_viewed": 4,
+    "named_CF_virtual_references_generated": 32,
+    "native_rule": "Exact original V74 normal-facing +front-top imageX ordering +paired rear/vertical roles",
+    "fixed_static_source_up": "-rawOBJ_Y; visually justified provisional registration, suppliedpose unchanged",
+    "named_projection_exit_code": 0,
+    "named_projection_seconds": 0.636,
+    "new_native_semantic_source_assistant_proposals_known": 15,
+    "new_human_gold": 0,
+    "new_fit": 0,
+    "new_initializer_or_classifier_forward": 0,
+    "new_current223_image_label_prediction_body_reads": 0,
+    "V112_any_access": 0,
+    "PnP": 0,
+    "pose_query_L_correction": 0
+  },
+  "source_proposal_counts": {
+    "LOCO_TRAIN": {
+      "D": 2,
+      "E": 0,
+      "S": 0,
+      "U": 94
+    },
+    "Pallox_LAB_TRAIN": {
+      "D": 6,
+      "E": 2,
+      "S": 0,
+      "U": 8
+    },
+    "Pallox_HALL_VAL": {
+      "D": 3,
+      "E": 2,
+      "S": 0,
+      "U": 11
+    }
+  },
+  "combined_128_review_slots": {
+    "D": 11,
+    "E": 4,
+    "S": 0,
+    "U": 113
+  },
+  "denominator_scope": "LOCO96 are8 review slots per selected image, not complete native annotations for all424 pallet instances. Exactlyone LOCO targetann371955 has2 sourceD proposals; all official boxes and all8slots remain. Pallox32 are4x8 fixed roles.",
+  "proposal_status": {
+    "human_gold": false,
+    "blinded_independent_human_annotation": false,
+    "provisional_source_only": true,
+    "original_U_rows_unchanged": true,
+    "source_semantic_proposals_approved_for_initializer_association_audit": true,
+    "train_ready": false,
+    "human_annotation_not_added_as_universal_requirement": true
+  },
+  "key_findings_KO": [
+    "공개 데이터에 팔레트 bbox/visible mask가 있다는 사실만으로 native8 의미의 보임/외부 가림 정답이 생기지는 않는다. LOCO12장에서는 흐림·적재물·잘림·작은 대상이 많아 명확한 제안은 한 대상의2 D에 한정됐다.",
+    "Pallox mesh는 평평한 팔레트가 아니라 높은 목재 상자/feet이며 rawY 방향을 그대로 기존Zup 순서로 붙이면 위아래 역할을 잘못 연결할 수 있었다. 실제 RGB/mesh에서 -Y를 위로 정하고 원래 CF규칙을 적용했다.",
+    "제공pose는 변경하지 않았다. static축 좌표변환은 같은 투영을 수치오차범위에서 보존한다. GThearest순열, 점 이동, 표면snapping, posefit을 하지 않았다.",
+    "Pallox는 상단/오른쪽 하단 지지 구조의 D9와 cardboard가 전면 왼쪽 하단을 가리는 조건부E4 제안이 나왔다. 화면밖8개와 자기/외부 분리 불명11개는U로 남겼다.",
+    "가상 참조점의 역할, 구조 지지의 보임, 투영 픽셀의 재질 소유권과 표면 일치는 다르다. 일부 D 제안의 투영점은 배경에 놓이며 이를 v61식 픽셀 존재 정답으로 쓰지 않는다.",
+    "예상 참조점→재구성mesh의6~13cm거리는 진단이다. 정확한표면에없다는이유만으로 분류를 막거나, 다른점으로옮겨 원래 목표를 바꾸지 않았다.",
+    "조건부제안15개는 새source증거이지만 실사전이 성공이나 정확3px 위치정답을 뜻하지 않는다. 기존 actualinitializer와 같은 target/native를 가리키는지 아직 확인하지 않았다."
+  ],
+  "latest_private_evaluation_unchanged": {
+    "model": "V124_C16",
+    "D": [
+      1137,
+      1147
+    ],
+    "E": [
+      35,
+      90
+    ],
+    "development_exposed_not_blind": true
+  },
+  "next_action_KO": "고정16 공개원본에 기존R0 firstargmax/원native8/L을 그대로 적용하여 물체/역할 연결을 확인한다. 기존출력2장은 별도replay 비교하고 noquery/다른물체/OOB는보존한다. 이 단계에서도 가림head학습·새private평가·PnP는하지 않는다.",
+  "bindings": {
+    "policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/ROOT_PUBLIC_NATIVE_FEASIBILITY_POLICY_BEFORE_BODY_READS.json",
+      "sha256": "59addd73ff75fbaf926c54d4640834327d3401fbd6a604a1097237372f816d5c"
+    },
+    "loco_intake": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/loco_fixed12_intake_v1/INTAKE_COMPLETE.json",
+      "sha256": "90543aae63724b38d3cf4d3f4f6dc4f7c305d002edc7ddffde4433d1a47eacfa"
+    },
+    "loco_source_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/ROOT_LOCO_TWO_SOURCE_PROPOSALS_ADJUDICATION.json",
+      "sha256": "31299a51ad395fd631785f990f8d1570b51293badfeab8ecd65cea27b2825cba"
+    },
+    "pallox_projection": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/pallox_reference_diagnostics_v1/PROJECTION_COMPLETE.json",
+      "sha256": "e78dbaf528c6252c07d613385f9a805884324a42608240043b43b5bf591931d6"
+    },
+    "pallox_named_reference": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/pallox_named_virtual_reference_v1/NAMED_REFERENCE_COMPLETE.json",
+      "sha256": "2b49b35e02dd5006630288c6662ee5eed23bd8a040bee563712cb42933d34a22"
+    },
+    "pallox_source_adjudication": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/ROOT_PALLOX_SOURCE32_SEMANTIC_ADJUDICATION.json",
+      "sha256": "1ec682ee7f9ba9dcaaf0fd13fafbf1f48e73e598e3b587240dff8733947e5452"
+    },
+    "initializer_readiness": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/saved_initializer_readiness/EXISTING_ACTUAL_INITIALIZER_METADATA_ONLY.json",
+      "sha256": "510de108fbcecd3d0334d76643492f5b93ff60cae14ae95b278e559ccd590eac"
+    }
+  }
+}

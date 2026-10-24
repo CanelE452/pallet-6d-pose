@@ -1,0 +1,56 @@
+{
+  "schema": "V89_PUBLIC_PALLOX_GT_FREE_SPATIAL_GRID_BEFORE_INPUT_PREPARATION",
+  "created_UTC": "2026-10-22T22:40:22.018900+00:00",
+  "stage": "FROZEN_BEFORE_GRID_MANIFEST_OR_GT_JOIN",
+  "root_choices": {
+    "source": "Original fixed Pallox50 pairs/all100rawframes, no dropping/qualityfilter. Original pair/view/split/onephysicalbinfamily maintained; V84seed separate.",
+    "sides_native_pixels": [
+      128,
+      256
+    ],
+    "stride": "L/2 (integer64/128)",
+    "x_centres": "sorted unique list(range(0,W,L//2)) union {W-1}",
+    "y_centres": "sorted unique list(range(0,H,L//2)) union {H-1}",
+    "tile_order": "original cohort row order, before then after, L ascending, y ascending, x ascending",
+    "window": "float64 half-open [qx-L/2,qx+L/2) x [qy-L/2,qy+L/2)",
+    "in_frame_query": "all centres satisfy0<=x<W and0<=y<H; window may include padding. Report valid native integer-pixel count/fraction separately.",
+    "input_geometry_metadata": "sourceimagepath/SHA/nativeHW,pair/view/split/family,query_xy,L only; no q selection byGT. No native8slot/context42 fabrication."
+  },
+  "source_cohort": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_cue_corpus_20261023_v85/ALL50_PAIR_COHORT_LOCK_BEFORE_NEW_RGB.json",
+    "sha256": "7729dc5c0605d1e3107237e6d563bca81a3705589d1a1bb667cf4efa10ea84df",
+    "bytes": 124129
+  },
+  "prior_exposure_KO": "기존 Pallox cue/teacher/이미지 감사에서 GT와 공개 RGB를 이미 보았다. 이번 선택은 고정 GT-free 기하 함수이며 blind protocol이라고 주장하지 않는다.",
+  "permitted_image_access": "Read PNG fixed24-byte header only for nativeW/H. Do not decode RGB or read tensor/pixelbody. Image SHA copied from immutable source cohort metadata; no new image pixel/hash scan.",
+  "stages": [
+    "Freeze this protocol + generated edge/math fixtures + builder code.",
+    "Build all100frames and all grid tile input metadata. Seal input manifest BEFORE any proposed cue GT join.",
+    "After input seal, read immutable V85proposed294 GT-only and V84seed original8/6 linked only for separate alltiles coverage diagnostics.",
+    "Keep all U/null and uncertainty out-of-image flags; report FULL/PARTIAL/MISS and all matching tileIDs, never choose best tile or recenter/filter modelinputs."
+  ],
+  "GT_coverage_definition": {
+    "FULL": "positive-area cue uncertainty half-open box entirely contained by tile half-open window (equality at window high allowed for containment).",
+    "PARTIAL": "positive-area intersection but not FULL.",
+    "MISS": "zero positive-area intersection.",
+    "MISSING_REFERENCE_U": "reference or uncertainty box null; preserve as U, not MISS or E.",
+    "dual_diagnostics": "Float64 continuous box and integer-native-pixel raster uncertainty support computed separately; retain mismatch counts.",
+    "invalid_box": "retain/report invalid or zero-area box; fail before changing geometry if present.",
+    "out_of_image": "report uncertainty intersects/falls outside native bounds separately; FULL tile does not guarantee visibility or valid source pixels."
+  },
+  "tier_KO": "조건부 AI 물리 단서 관찰을 위한 공간 보조 후보 기하다. native8 semantic GT/human gold 또는 실제 training admission이 아니다.",
+  "forbidden": [
+    "newfit/modelinference",
+    "RGBdecode/cropextraction/RGBarrays",
+    "P3/features",
+    "current223",
+    "PnP/registrationoptimization",
+    "gridorboxchosenbyGTpose/depth/masks/ref/state",
+    "native8/context42fabrication",
+    "GTbesttileinputselection",
+    "oldsourcechanges"
+  ],
+  "training_admission": false,
+  "prepared_data_claim": "metadata and deterministic geometry only; no actual crop/P3 tensors",
+  "current_forward_fit_PnP": 0
+}
