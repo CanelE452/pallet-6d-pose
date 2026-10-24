@@ -1,0 +1,31 @@
+{
+  "schema": "V160_FIXED_SOURCE_CROP12_SELECTION_BEFORE_RGB_AND_NEW_PREDICTIONS",
+  "selection_inputs": "Existing source input facts, original weak role label metadata, canonical-RGB/crop manifests and static producer code only.",
+  "forbidden_before_root_all4_completion_trigger": ["V160 prediction/score/metric/checkpoint bodies", "source RGB or saved crop packet bodies"],
+  "count": 12,
+  "MR1840": {
+    "count": 8,
+    "split": "SOURCE_VALIDATION",
+    "original_input_available_required": true,
+    "native_slots": [0, 1, 2, 3, 4, 5, 6, 7],
+    "original_weak_role_by_native": {"0": "D", "1": "D", "2": "D", "3": "D", "4": "E", "5": "E", "6": "D", "7": "D"},
+    "selection_native_order": [6, 7, 4, 5, 0, 1, 2, 3],
+    "reason_for_order": "Rare available weak-D slots6/7 selected first; distinct frames where feasible. No model or RGB evidence used."
+  },
+  "PALLOX512": {
+    "count": 4,
+    "split": "VAL_HALL",
+    "original_input_available_required": true,
+    "strata_in_order": [{"native_slot": 2, "weak_role": "D"}, {"native_slot": 3, "weak_role": "D"}, {"native_slot": 3, "weak_role": "E"}, {"native_slot": 3, "weak_role": "E"}],
+    "label_scope": "Existing partial assistant/root weak lower-role bridge only; no native8 certification inferred."
+  },
+  "within_stratum": "Sort SHA256(query_id+'V160_FIXED_SOURCE_CROP12') ascending then original global_index; select first candidate with a source frame not yet selected in that family. If none, fail closed and report missing coverage; do not replace using predictions/RGB.",
+  "rendering": "After root trigger only: exact inherited saved uint8 RGB96 packet, canonical original RGB with selected original-q display cross only. Preserve q/L/native/split and raw96 pixels. No recenter/re-crop/encoder/model/GT correction.",
+  "predictions_after_trigger": "Read all4 frozen FINAL family output packets only after completed CONTROL_COMPLETE plus ALL4_FROZEN_BEFORE_SOURCE_COMPARISON bindings; show primary p(E), original inputU-first raw-logit0 D/E/U call and diagnostic owner3 probabilities. No threshold/arm/epoch/case selection.",
+  "weak_role_provenance": "Original D/E are prior assistant/root structural weak source roles, not official human per-keypoint physical visibility gold.",
+  "all12_validation_only": true,
+  "new_visibility_or_owner_labels": false,
+  "held_supervision_admitted": false,
+  "training_admitted": false,
+  "private_current_V112_PnP_or_qL_changes": false
+}

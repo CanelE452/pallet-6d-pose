@@ -1,0 +1,299 @@
+{
+  "schema": "V166_ACTUAL_FIXED_NATIVE_PART92_CONTROL_RESULT_KO",
+  "completed": true,
+  "UTC": "2026-10-24T02:47:23.134936+00:00",
+  "report_as_of_KST": "2026-10-24 11:47:23 KST",
+  "summary_KO": "두 조건의 실제 8,000회 대조학습은 완료됐고 저장 실행·결과 검증도 통과했다. 약한 TRAIN92 적합은 향상됐으나 공개 held에서 E 2/52→3/52, AUROC 하락과 전체 자격 미통과로 전체 과제 해결이나 모델 채택은 성립하지 않는다.",
+  "actual_execution": {
+    "actual_fits": 2,
+    "optimizer_updates_each": 8000,
+    "total_optimizer_updates": 16000,
+    "terminal_exit_code": 0,
+    "automatic_retry": false,
+    "both_models_frozen_before_source_comparison": true,
+    "common_original_draws_and_initial_state_equal": true,
+    "C45_exact_C43_replay": true,
+    "both_entity_quality_outputs_and_states_exact": true,
+    "independent_saved_review_checks_passed": 6,
+    "original_source_rows_each": 28976,
+    "original_inputU_each": 535,
+    "PART_rows_preserved": 1144,
+    "PART_inputU_preserved": 178,
+    "PART_all198_statuses_preserved": true,
+    "PART_missing55_null": true
+  },
+  "conditions": [
+    {
+      "arm": "C45_REPLAY_C43_OWNER253_NATIVE0",
+      "meaning_KO": "C43 원본 baseline 재현. original owner253, native hint 없음, 추가 part native 손실 없음."
+    },
+    {
+      "arm": "C46_PART_NATIVE92_OWNER253_NATIVE0",
+      "meaning_KO": "같은 baseline에 별도 약한 native 주손실92 추가: COVER E46 + SHAM D46. owner253 및 class weight 유지, native hint 없음."
+    }
+  ],
+  "fixed_evaluation": {
+    "threshold_logit": 0,
+    "new_threshold_selected": false,
+    "public_sequence": "val/000001",
+    "official_public_sequences": 1,
+    "frames": 45,
+    "all_original_query_rows": 360,
+    "full_known_weak_DE_rows": 154,
+    "full_known_D": 102,
+    "full_known_E": 52,
+    "known_D_inputU": 9,
+    "truth_outside_DE": 206,
+    "input_valid_ranking_rows": 145,
+    "input_valid_D": 93,
+    "input_valid_E": 52,
+    "known_U_excluded_only_for_ranking": true,
+    "all154_preserved_for_fixed_working_point": true,
+    "weak_assistant_truth_not_human_native_gold": true
+  },
+  "arm_results": [
+    {
+      "arm": "C45_REPLAY_C43_OWNER253_NATIVE0",
+      "MR_held_CM_rows_D_E_columns_D_E_U": [
+        [
+          93,
+          0,
+          9
+        ],
+        [
+          50,
+          2,
+          0
+        ]
+      ],
+      "MR_held_D_correct": 93,
+      "MR_held_D_denominator": 102,
+      "MR_held_D_U": 9,
+      "MR_held_E_correct": 2,
+      "MR_held_E_denominator": 52,
+      "MR_held_E_FN": 50,
+      "input_valid145_pairwise_AUROC_E": 0.923490488006617,
+      "weak_TRAIN92_CM_rows_D_E_columns_D_E_U": [
+        [
+          46,
+          0,
+          0
+        ],
+        [
+          36,
+          10,
+          0
+        ]
+      ],
+      "TRAIN_response_not_generalization": true,
+      "native35_passed": 23,
+      "native35_total": 35,
+      "Pallox": {
+        "D_correct": 33,
+        "D_N": 33,
+        "D_minimum": 30,
+        "E_correct": 6,
+        "E_N": 6,
+        "E_minimum": 5,
+        "PASS": true
+      },
+      "full_source_qualification": false
+    },
+    {
+      "arm": "C46_PART_NATIVE92_OWNER253_NATIVE0",
+      "MR_held_CM_rows_D_E_columns_D_E_U": [
+        [
+          93,
+          0,
+          9
+        ],
+        [
+          49,
+          3,
+          0
+        ]
+      ],
+      "MR_held_D_correct": 93,
+      "MR_held_D_denominator": 102,
+      "MR_held_D_U": 9,
+      "MR_held_E_correct": 3,
+      "MR_held_E_denominator": 52,
+      "MR_held_E_FN": 49,
+      "input_valid145_pairwise_AUROC_E": 0.8490488006617039,
+      "weak_TRAIN92_CM_rows_D_E_columns_D_E_U": [
+        [
+          46,
+          0,
+          0
+        ],
+        [
+          0,
+          46,
+          0
+        ]
+      ],
+      "TRAIN_response_not_generalization": true,
+      "native35_passed": 26,
+      "native35_total": 35,
+      "Pallox": {
+        "D_correct": 33,
+        "D_N": 33,
+        "D_minimum": 30,
+        "E_correct": 6,
+        "E_N": 6,
+        "E_minimum": 5,
+        "PASS": true
+      },
+      "full_source_qualification": false
+    }
+  ],
+  "fixed_effect": {
+    "held_E_correct_delta": 1,
+    "held_D_correct_delta": 0,
+    "held_known_U_delta": 0,
+    "known154_changed_global_indices": [
+      844
+    ],
+    "all360_changed_global_indices": [
+      584,
+      587,
+      839,
+      844,
+      847
+    ],
+    "AUROC_delta_C46_minus_C45": -0.07444168734491319,
+    "interpretation_KO": "고정 0 문턱에서 E 한 건 증가했지만 순위 AUROC는 낮아졌다. TRAIN 합성 약라벨92 정답이나 native35 23→26만으로 실제 가림 일반화·전체 자격을 입증하지 못한다."
+  },
+  "saved_visual_readout": {
+    "all360_census_retained": true,
+    "all154_known_weak_rows_rendered": true,
+    "agent_A_actual_distinct_CARD_views": 5,
+    "agent_A_actual_tool_calls": 5,
+    "other149_not_claimed_actually_viewed": true,
+    "PNG_assets_hashed": 733,
+    "unique_asset_bindings_verified": 850,
+    "representatives_and_changed_known1_actually_viewed": true,
+    "root_new_actual_view_receipt_not_bound": true,
+    "HTML_browser_rendered": false,
+    "gallery": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/index.html",
+      "sha256": "58867c81425c33362725f860a10dcc57dea1676225e75bda9de7d5e2fc6c0c82"
+    },
+    "diagnostic_representatives": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/diagnostic_representatives.html",
+      "sha256": "b992e730b9b41484d1fd60d2d0b552a52c4b9997bb040a2b37b21f71cd2bad5e"
+    },
+    "all_changed_appendix": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/all_changed_appendix.html",
+      "sha256": "749bf089e7df9f51cd42aa5c32f1a56d29e30d365c1595637267aa8d30a7dad6"
+    }
+  },
+  "visual_interpretation_KO": [
+    "A가 확인한 FN에는 자연 바구니·나무상자와 팔레트의 비슷한 색·질감, 선택 부위와 literal q crop의 차이가 있었다. V164 합성 donor의 선명한 색·경계·그림자 차이는 가능한 설명 가설이며 실패 원인으로 확정하지 않는다.",
+    "같은 갈색 바구니/나무상자 유형에서도 TP와 FN이 모두 있었다. 대표5개의 약한 관찰을 전체52E의 원인·대표성이나 native/좌표 gold로 확대하지 않는다.",
+    "전체154 갤러리는 빠짐없는 저장 시각 증거다. 실제 직접 본 수는 A의5 CARD이며, 나머지149는 해시·배열·디코드·링크 검증 범위다."
+  ],
+  "limitations_KO": [
+    "공개 held는 공식 공개 시퀀스 val/000001의45프레임 한 묶음이며 시간적으로 인접한 프레임이다. 독립적인 여러 장면·데이터셋 일반화나 안정성 증거가 아니다.",
+    "기존 D/E는 assistant 구조적 약라벨이다. 사람 native 가시성·물리 가림·3px 좌표 품질 gold가 아니다.",
+    "한 seed의 고정 8,000회 대조이며 사후 문턱·epoch·조건 선택을 하지 않았다. AUROC는 동결 후 공개 입력 유효145행의 진단이다.",
+    "전체 WOOD/SQUARE/native8 목표, 실사 SQUARE/runner/native7 부위 witness와 실사 좌표 품질 gold 부족, 별도 entity 한계가 남아 있다."
+  ],
+  "scope": {
+    "source_only": true,
+    "new_current223_evaluations": 0,
+    "new_private_current_data_training_or_selection": 0,
+    "new_PnP_calls": 0,
+    "q_L_xy_changes": 0,
+    "new_model_or_encoder_calls_for_this_report": 0,
+    "report_reads_saved_JSON_and_gallery_metadata_only": true,
+    "global_filename_directory_zero_access_claimed": false
+  },
+  "next_work": {
+    "phase": "V167",
+    "scope_KO": "공개 source만 사용하는 scalar threshold 및 purged time-block stability의 별도 prospective 설계·준비 단계. 그 단계의 실행 여부나 결과는 이 V166 보고서에 포함하지 않는다.",
+    "execution_status_path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/ACTIVE_HANDOFF_KO.json",
+    "threshold_or_model_selected_in_V166": false
+  },
+  "bindings": {
+    "frozen_design": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/ROOT_DESIGN_BEFORE_NATIVE_PART_SUPERVISION_FIT.json",
+      "sha256": "dc754378d6d22534755458799052eb1969585bdd68c7ed4655bff0ca80c10792"
+    },
+    "control_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/CONTROL_COMPLETE.json",
+      "sha256": "7ee94f466e1e842614427f47d302d3618af1ea7d3617fca415cdc0f1fc3380b3"
+    },
+    "both_frozen_barrier": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/ALL2_FROZEN_BEFORE_SOURCE_COMPARISON.json",
+      "sha256": "223ee0ca546d118e8a83ed9291c3298c8c148cb2b9d3039687f584a62bb213a5"
+    },
+    "baseline_C43_exact_replay": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/BASELINE_C43_EXACT_REPLAY_PARITY.json",
+      "sha256": "ccb809c2a7960cf88ad161c0a2e78694dd0688d1455761bb031c745a0a5aeff8"
+    },
+    "actual_terminal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/ROOT_ACTUAL_FIT_EXECUTION_TERMINAL.json",
+      "sha256": "967d8301d503d4e52a4bcb214d2917085396ea9c34003aa85c354abdc627a12c"
+    },
+    "independent_saved_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/independent_saved_fit_review_preparation/SAVED_C45_C46_EXECUTION_REVIEW.json",
+      "sha256": "029a199336746f752d76a3f98d0472c253d9b91d219befb5ddfbe12385631e87"
+    },
+    "postfreeze_ranking": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/ROOT_POST_FREEZE_PUBLIC_RANKING_DIAGNOSIS.json",
+      "sha256": "3bec8a2144c317141c5615df392f85da8048664af181b9883a127f5d780dec90"
+    },
+    "full154_visual_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/COMPLETE.json",
+      "sha256": "71aef79b9221732fcd9c4f648b8ea964dc8ea74f299c4ce76527d05d8be3a844"
+    },
+    "visual_QA_A": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/ACTUAL_VISUAL_QA_COMPLETE.json",
+      "sha256": "910c699b4ffa005c2ee541bbec5fc788c15f98db53c01a70b30fd4d7e2711f09"
+    },
+    "gallery154": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/index.html",
+      "sha256": "58867c81425c33362725f860a10dcc57dea1676225e75bda9de7d5e2fc6c0c82"
+    },
+    "diagnostic_representatives": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/diagnostic_representatives.html",
+      "sha256": "b992e730b9b41484d1fd60d2d0b552a52c4b9997bb040a2b37b21f71cd2bad5e"
+    },
+    "all_changed_appendix": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/all_changed_appendix.html",
+      "sha256": "749bf089e7df9f51cd42aa5c32f1a56d29e30d365c1595637267aa8d30a7dad6"
+    },
+    "all360_census": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/ALL360_SOURCE_VALIDATION_CENSUS.jsonl",
+      "sha256": "a69f2e2a111b2b380de62f0db173097ef1a86eaf67db965d401df1e3c2cac87f"
+    },
+    "all154_manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/ALL154_GALLERY_MANIFEST.jsonl",
+      "sha256": "958cfca7a4c55f0842244651440830d11807c6bbff2b6fdc59efcd7f0fafcbab"
+    },
+    "C45_REPLAY_C43_OWNER253_NATIVE0_fit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/C45_REPLAY_C43_OWNER253_NATIVE0/FIT_COMPLETE.json",
+      "sha256": "d9d06fedd5da9dc7e81f5412a05931290341b276a18c44ee598d0e5a67901e5a"
+    },
+    "C45_REPLAY_C43_OWNER253_NATIVE0_source_results": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/C45_REPLAY_C43_OWNER253_NATIVE0/SOURCE_RESULTS.json",
+      "sha256": "7bf80413774a5dfcfe11ad0e3a708f7bfc20896c9f057d3f9b05d11c0f0b30f8"
+    },
+    "C46_PART_NATIVE92_OWNER253_NATIVE0_fit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/C46_PART_NATIVE92_OWNER253_NATIVE0/FIT_COMPLETE.json",
+      "sha256": "60bf3f633149ae05d8ad1103fed4cd3efa7d23a7187f36982d95d38367705dcf"
+    },
+    "C46_PART_NATIVE92_OWNER253_NATIVE0_source_results": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/C46_PART_NATIVE92_OWNER253_NATIVE0/SOURCE_RESULTS.json",
+      "sha256": "0c020a5a9b87eaba841a355458ccc0dfb9a53db2f986e8caac4d8f1957209892"
+    }
+  },
+  "selected": null,
+  "selected_model": null,
+  "adopted": false,
+  "fully_solved": false,
+  "goal_status": "active_unsolved",
+  "phase_complete": true,
+  "phase_complete_does_not_mean_full_task_success": true
+}

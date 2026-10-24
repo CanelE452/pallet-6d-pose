@@ -1,0 +1,44 @@
+{
+  "completed": true,
+  "UTC": "2026-10-23T23:52:54.257501+00:00",
+  "source_code_and_schema_only": true,
+  "schema": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/FEATURE_PROTOCOL_BEFORE_SOURCE_FORWARD.json",
+    "sha256": "e7f12ad8bf61994ec22fd510839d213564f7dd97933e6a89587f6f1063080645"
+  },
+  "source_fit_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+    "sha256": "86e534653cb7ff27fe412bed5b5a58875fbbd1f925591f85804ccebebadca6a2"
+  },
+  "feature_layout": {
+    "dimension": 1928,
+    "descriptors384_order": [
+      "T=contextCLS",
+      "Q=context_patch_bilinear_at_initial_q",
+      "F=local96CLS",
+      "C=central32CLS",
+      "P=mean_local96_centre2x2_patch_tokens"
+    ],
+    "scalar_order": [
+      "cos(T,C)",
+      "cos(T,F)",
+      "cos(Q,C)",
+      "cos(Q,P)",
+      "target_valid_fraction",
+      "localfull_valid_fraction",
+      "central_valid_fraction",
+      "Q_inside_supported_context"
+    ],
+    "normalization": "Each descriptor individual FP32 L2 eps1e-12 after pooling/sample. T,F,C zero if respective supportfraction0; P zero if literal RGB96 central4 invalid; Q zero if no supported context/finite box/query or q outside initial box.",
+    "context_Q": "Native q=(x,y), u=(q-lo)/(hi-lo); 16x16 token centres at lo+(j+.5)*span/16. grid_sample align_corners=False,bilinear,padding_mode=border using grid2u-1. Gate Q to0 unless0<=u<=1 and context supportany. No q movement or box expansion.",
+    "P": "Mean raw x_norm_patchtokens rows7:9,cols7:9 of full96 branch resized224, then L2",
+    "RGB_inputs": "Exact existing uint8 RGB96 andvalid; full96 and central32 views use exact C8 preprocessing. Targetcontext is exactV107 nativebilinear224/noexpansion + meanfillinvalid and ImageNetmean/std. No fitted normalizer or spatial augmentation.",
+    "availability": "Exact same41984 factual/context/combined flags as C10; out-of-box Q only zeros descriptor/flag and never addsU or relabels.",
+    "no_labels_masks_depth_pose_reference_native_in_forward": true
+  },
+  "explicit_native_identity_in_1928": false,
+  "source_fit_geometry42": "Zero tensor; exactcode reviewed, no providedGT/pose in forward.",
+  "implication_KO": "현재 visual feature에는 명시적인 native slot/부위 정체성이 없다. 실제 중심 소유만으로 원하는 native 부위 가시성을 구별하기 어려운 경우가 있다. 이것은 입력 정보의 차이이며 모델 실패의 단독 인과 증거는 아니다.",
+  "no_new_architecture_selected_or_fit": true,
+  "new_model_data_weight_private_body_calls": 0
+}
