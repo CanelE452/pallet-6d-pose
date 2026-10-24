@@ -1,3 +1,11 @@
+# V197 TRAIN-only saved target/input correspondence records update
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V197_KO.md) · [V197 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_train_only_target_contract_readout_20261024_v197/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 TRAIN109개 source metadata와 예측 오류로 선택하지 않은 고정12묶음288행·원입력U24·약한 표적36개/UNKNOWN252개 및 full-context36그림의 입력-표적 대응 진단입니다. 새 학습·추론·점수·라벨·실사 성능개선·원인 확정·native 물리 정답·모델 선택·채택이나 전체 목표 해결을 뜻하지 않습니다. 원본 배열은 제외하고 원문·표·그림·한계를 보존합니다.
+
+---
+
 # V196 saved source-HOLDOUT diagnostic records update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V196_KO.md) · [V196 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_grouped_source_holdout_target_readout_20261024_v196/PORTABLE_REPORT_KO.md)

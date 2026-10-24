@@ -1,0 +1,34 @@
+--- frozen_v1
++++ fresh_v2
+@@ -164,7 +164,7 @@
+  avail=a['original_query_available']if layout=='SYNTH_TRIPLET'else a['query_available'];ids=a['original_occurrence_id']if layout=='SYNTH_TRIPLET'else a['query_id'];targets=a['direct_end_external_target'][vi]if layout=='SYNTH_TRIPLET'else a.get('direct_end_external_target')
+  for k in range(8):
+   r=next(r for r in rr if r['variant']==var and r['native_slot']==k)
+-  need(np.array_equal(a['query_xy'][k],qarray(r['query_xy']),equal_nan=True)and a['L'][k]==r['L']and int(a['original_global_index'][k])==r['original_global_index']and bool(avail[k])==r['original_query_available'],'Packet original q/L/availability/ID')
++  need(np.array_equal(a['query_xy'][k],qarray(r['query_xy']),equal_nan=True)and np.array_equal(np.asarray(a['L'][k]),np.asarray(np.nan if r['L']is None else r['L']),equal_nan=True)and int(a['original_global_index'][k])==r['original_global_index']and bool(avail[k])==r['original_query_available'],'Packet original q/L/availability/ID')
+   need(str(ids[k])==r['original_occurrence_id']and ash(rgb[k])==r['raw_RGB96_sha256']and ash(valid[k])==r['raw_valid96_sha256'],'Original occurrence/raw/valid bytehash')
+   if targets is not None:need(int(targets[k])==r['direct_weak_target'],'Stored direct target remains unchanged')
+  full=a.get('full_RGB');full=(full[vi]if layout=='SYNTH_TRIPLET'else full)if full is not None else None
+@@ -214,6 +214,22 @@
+  im=contact(t,np.stack([rgb]*3),np.ones((3,96,96),bool),None,assoc)
+  tests['clean_contact_ROI_byteexact_no_mask_fallback']=np.array_equal(np.asarray(im)[158:542,18:402],np.repeat(np.repeat(rgb,4,0),4,1))and im.size==(1488,1040)
+  tests['missingcanonical_not_filled_by_native']=assoc['canonical_index_metadata']is None
++ # Exercise the actual production packet validator with all8 mixed-null U metadata.
++ fixture_rows=[];fixture_rgb=np.zeros((3,8,96,96,3),np.uint8);fixture_valid=np.ones((3,8,96,96),bool)
++ for vi,var in enumerate(VARS):
++  for k in range(8):
++   fixture_rows.append(dict(variant=var,native_slot=k,query_xy=[float(k),0.],L=96.,original_global_index=k,original_query_available=True,original_occurrence_id='TOY_ID%d'%k,raw_RGB96_sha256=ash(fixture_rgb[vi,k]),raw_valid96_sha256=ash(fixture_valid[vi,k]),direct_weak_target=(1 if var=='COVER'else 0)if k==2 else-1))
++ fixture=dict(rgb96=fixture_rgb,valid96=fixture_valid,query_xy=np.asarray([[float(k),0.]for k in range(8)],np.float64),L=np.full(8,96.,np.float64),native_slot=np.arange(8,dtype=np.int8),original_global_index=np.arange(8,dtype=np.int64),original_occurrence_id=np.asarray(['TOY_ID%d'%k for k in range(8)]),original_query_available=np.ones(8,bool),direct_end_external_target=np.asarray([[r['direct_weak_target']for r in fixture_rows if r['variant']==var]for var in VARS],np.int8))
++ validate_packet(fixture,fixture_rows,'BEFORE','SYNTH_TRIPLET');tests['actual_validator_all8_finite_fixture']=True
++ for r in fixture_rows:
++  if r['native_slot']==7:r.update(query_xy=None,L=None,original_query_available=False)
++ fixture['query_xy'][7]=[np.nan,np.nan];fixture['L'][7]=np.nan;fixture['original_query_available'][7]=False
++ validate_packet(fixture,fixture_rows,'BEFORE','SYNTH_TRIPLET');tests['actual_validator_mixed_all8_original_None_saved_NaN_U_retained']=True
++ for name,index,badvalue in [('finite_L_mismatch',0,97.),('None_metadata_finite_saved_mismatch',7,96.)]:
++  bad={k:a.copy()for k,a in fixture.items()};bad['L'][index]=badvalue
++  try:validate_packet(bad,fixture_rows,'BEFORE','SYNTH_TRIPLET');ok=False
++  except AssertionError:ok=True
++  tests['actual_validator_'+name+'_rejected']=ok
+  need(all(tests.values()),'Invented contract/readability tests');return dict(completed=True,PASS=True,invented_only=True,tests=tests,actual_source_metadata_inventory_array_header_pixel_score_or_model_reads=0)
+ 
+ def prepare():
