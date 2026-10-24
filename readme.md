@@ -4,6 +4,9 @@
 
 허용된 V63–V186 기록과 초기 v60/v61/v62 관련 자료를 공개합니다. 최신 실제 비교는 보임 회복과 외부가림 손상이 함께 나타나 새 모델을 채택하지 않았습니다. 최신 공개 source 등록 진단도 모델 성공 결과와 구분합니다. 전체 목표는 미해결이며, 완료한 후속 실험도 같은 위치에 계속 게시합니다.
 
+
+[전체 이미지16,727개 파일 목록](_docs/experiments/pallet-keypoint-visibility/REVIEW_IMAGE_CATALOG_KO.md) · [게시 완료·검산 기록](_docs/experiments/pallet-keypoint-visibility/publication/MAIN_PUBLICATION_RECEIPT_20261024.json)
+
 # B·I 조건부 국소 관측 실험 — 완료
 
 [전체 보고서와192장 갤러리](_docs/experiments/pallet_bi_conditioned_observation_v1/README.md)
