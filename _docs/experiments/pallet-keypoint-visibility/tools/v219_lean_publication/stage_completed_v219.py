@@ -1,0 +1,309 @@
+"""Frozen V219 paired SOURCE-training publication; text/PNG and exact owned PT2 opaque bytes, no Git."""
+from pathlib import Path
+from html.parser import HTMLParser
+from urllib.parse import urlsplit,unquote
+import argparse,hashlib,json,os,posixpath,re,stat,tempfile
+H=Path(__file__).absolute().parent;P=H.parent.parent
+PHASE=P/'query_visibility_expected_part_weak_paired_source_training_20261025_v219'
+PHASES=(PHASE,);LABELS=('V219',)
+REPO=Path('/home/minjae/Documents/pallet-visibility-publication-20261024');PREFIX='_docs/experiments/pallet-keypoint-visibility/';PUB=REPO/PREFIX
+ARCHIVE_PREFIX='archive/task-2/pallet-keypoint-visibility/'
+DELTA='publication/deltas/V219_20261025_v1/';INDEX='EXPERIMENT_INDEX_THROUGH_V219_KO.md';PRIOR='EXPERIMENT_INDEX_THROUGH_V218_KO.md'
+PROTOCOL=H/'PROTOCOL_BEFORE_ACTUAL_V219_ENUMERATION_OR_COPY.json'
+ROOT_PREP_SCOPE={'path': '/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_PUBLICATION_PREPARATION_C/ROOT_MESSAGE_PUBLICATION_CODE_PREPARATION_AUTHORITY.json', 'sha256': 'bafab3cf2fcd5ef39c8ae9cc6b5f5eb3458cd44597d1d0e77940d3b4deb7fa35'}
+INHERITED={'path': '/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V218_PUBLICATION_PREPARATION_B_V2/stage_completed_v218.py', 'sha256': '1b6850630c1ced18b6d1e3a15636ad678ea38280247d580ad3c4374b47912d60'}
+EXPECTED_PARENT='5b764d4d90479a1e5530d71575511d85d8809181'
+LIMIT=100*1024**2;BATCH=480*1024**2;MAX_ORIGINAL_FILES=1200;MAX_ORIGINAL_BYTES=180*1024**2
+TEXT={'.py','.json','.jsonl','.csv','.tsv','.md','.txt','.html','.htm','.patch','.diff','.log','.svg'}
+RAW={'.npz','.npy','.pt','.pth','.bin','.safetensors','.pkl','.pickle'}
+MODEL_RELS=('paired_source_fit_v1/STRONG_ONLY_CONTROL/FINAL_CHECKPOINT.pt','paired_source_fit_v1/STRONG_PLUS_EXPECTED_PART_WEAK/FINAL_CHECKPOINT.pt')
+REQUIRED_ROLES=('V219_ROOT_PHASE_RESULT','V219_ROOT_FINAL_FREEZE')
+REPORT=ARCHIVE_PREFIX+PHASE.name+'/PORTABLE_REPORT_KO.md'
+RULES={'private_key':r'-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----','AWS':r'\b(?:AKIA|ASIA)[A-Z0-9]{16}\b','GitHub':r'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b','OpenAI':r'\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{32,}\b','Slack':r'\bxox[baprs]-[A-Za-z0-9-]{20,}\b'}
+
+def need(x,m):
+ if not x:raise AssertionError(m)
+
+def safe(p):
+ p=Path(p);need(p.is_absolute()and'..'not in p.parts and all('v112'not in q.casefold()for q in p.parts),'Forbidden path before filesystem access');return p
+
+def parentfd(p,create=False):
+ p=safe(p);fd=os.open(p.anchor,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  for q in p.parts[1:-1]:
+   try:n=os.open(q,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+   except FileNotFoundError:
+    need(create,'Missing parent');os.mkdir(q,dir_fd=fd);n=os.open(q,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+   os.close(fd);fd=n
+  return p,fd
+ except BaseException:os.close(fd);raise
+
+def rb(p):
+ p,fd=parentfd(p)
+ try:n=os.open(p.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=fd)
+ finally:os.close(fd)
+ need(stat.S_ISREG(os.fstat(n).st_mode),'Only regular file')
+ with os.fdopen(n,'rb')as f:return f.read()
+
+def digest(z):return hashlib.sha256(z).hexdigest()
+
+def bind(p):return dict(path=str(p),sha256=digest(rb(p)))
+
+def checked(z):need(bind(z['path'])==z,'SHA binding drift');return json.loads(rb(z['path']))
+
+def enc(z):return(json.dumps(z,ensure_ascii=False,indent=2,allow_nan=False)+'\n').encode()
+
+def new(p,z):
+ p,fd=parentfd(p,True)
+ try:n=os.open(p.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o644,dir_fd=fd)
+ finally:os.close(fd)
+ with os.fdopen(n,'wb')as f:f.write(z)
+
+def replace_readme(p,z,expected):
+ need(str(p)==str(REPO/'readme.md'),'Only mutable README');need(digest(rb(p))==expected,'README changed since root entry')
+ p,fd=parentfd(p)
+ try:n=os.open(p.name,os.O_WRONLY|os.O_TRUNC|os.O_NOFOLLOW,dir_fd=fd)
+ finally:os.close(fd)
+ with os.fdopen(n,'wb')as f:f.write(z)
+
+def frozen_phase(q,phase_result=None):
+ need(q.get('completed')is True and q.get('frozen')is True and q.get('all_scientific_phase_files_final_no_more_writes')is True and q.get('administrative_publication_receipts_written_elsewhere')is True,'Actual root final freeze fields')
+ b=q.get('phase_result');need(isinstance(b,dict)and set(b)=={'path','sha256'}and re.fullmatch('[0-9a-f]{64}',b['sha256']),'Freeze phase_result binding schema');safe(b['path'])
+ if phase_result is not None:need(b==phase_result,'Freeze exact phase_result role binding')
+ return True
+
+def model_policy(e,verify=False):
+ wl=e['owned_model_whitelist'];need(isinstance(wl,list)and len(wl)==2,'Exactly two new checkpoints')
+ if 'owned_binary_whitelist'in e:need(e['owned_binary_whitelist']==wl,'One consistent manifest owned PT2 whitelist')
+ owned={}
+ for b in wl:
+  need(set(b)=={'path','sha256','size_bytes'}and isinstance(b['path'],str),'Strict two checkpoint binding shape');p=safe(b['path'])
+  need(p in [PHASE/r for r in MODEL_RELS]and b['path']not in owned and re.fullmatch('[0-9a-f]{64}',b['sha256'])and type(b['size_bytes'])is int and 0<b['size_bytes']<LIMIT,'Only exact fresh owned PT2')
+  owned[b['path']]=b
+ excluded=e['excluded_RAW_input_paths'];need(isinstance(excluded,list)and len(excluded)<=16 and len(set(excluded))==len(excluded),'Closed excluded input list<=16')
+ for rel in excluded:
+  need(type(rel)is str and not rel.startswith('/')and posixpath.normpath(rel)==rel and '..'not in Path(rel).parts and Path(rel).suffix.casefold()=='.npz','Only phase-relative excluded NPZ');safe(PHASE/rel)
+ if verify:
+  def metadata(b):
+   need(isinstance(b,dict)and set(b)in({'path','sha256'},{'path','sha256','size_bytes'}),'Declared own-fit metadata binding');z=rb(b['path']);need(digest(z)==b['sha256']and('size_bytes'not in b or len(z)==b['size_bytes']),'Own-fit metadata SHA/size');return json.loads(z)
+  fitb=e['owned_source_fit_complete'];barb=e['owned_all2_freeze'];need(fitb['path']==str(PHASE/'paired_source_fit_v1/COMPLETE.json')and PHASE in safe(barb['path']).parents,'Exact own source fit/barrier metadata')
+  fit=metadata(fitb);bar=metadata(barb);need(fit['completed']is True and fit['PASS']is True and fit['source_only']is True and fit['from_scratch']is True and fit['parameters_each']==118359 and type(fit['steps_each'])is int and fit['steps_each']>0,'Completed actual fresh source pair')
+  need({k:fit['all2_freeze'][k]for k in('path','sha256')}=={k:barb[k]for k in('path','sha256')}and bar['completed']is True and bar['PASS']is True and bar['DEV_or_real_output_emitted']is False,'Both final states before outputs')
+  expected={str(PHASE/r)for r in MODEL_RELS};need({a['checkpoint']['path']for a in fit['arms'].values()}==expected and len(fit['arms'])==2,'Both exact new checkpoint roles')
+  need(bar['checkpoints']=={a:r['checkpoint']for a,r in fit['arms'].items()},'Barrier checkpoint closure')
+  for r in fit['arms'].values():
+   b=r['checkpoint'];need(b['path']in owned and b['sha256']==owned[b['path']]['sha256']and b['size_bytes']==owned[b['path']]['size_bytes'],'Actual checkpoint binding equals explicit whitelist')
+ return owned,set(excluded)
+
+def manifest_models(manifest):
+ owned,excluded=model_policy(manifest)
+ records=[r for r in manifest['entries']if r['category']=='original_scientific_record'and Path(r['source_absolute']).suffix.casefold()in RAW]
+ need(len(records)==2 and {r['source_absolute']for r in records}==set(owned),'Manifest includes only new PT2')
+ for r in records:
+  b=owned[r['source_absolute']];need(r['source_sha256']==r['published_sha256']==b['sha256']and r['size_bytes']==b['size_bytes']and r['published_relative']==original_destination(PHASE,Path(b['path'])),'Owned source/published manifest identity')
+ return owned,excluded
+
+def physical_models(files,manifest):
+ owned,_=manifest_models(manifest);allowed={PREFIX+original_destination(PHASE,Path(p)):b for p,b in owned.items()}
+ raw=[r for r in files if Path(r['path']).suffix.casefold()in RAW];need(len(raw)==2 and {r['path']for r in raw}==set(allowed),'Only declared PT2 in whole physical plan')
+ for r in raw:need(r['sha256']==allowed[r['path']]['sha256']and r['size_bytes']==allowed[r['path']]['size_bytes'],'Physical checkpoint SHA/size exactly whitelist')
+ return allowed
+
+def inventory(root,owned=None,excluded_raw=None):
+ root=safe(root);out=[];excluded=[];stack=[root];owned={}if owned is None else owned;excluded_raw=set()if excluded_raw is None else set(excluded_raw);seen_owned=set();seen_excluded=set()
+ while stack:
+  d=stack.pop()
+  with os.scandir(d)as it:
+   for q in sorted(it,key=lambda x:x.name):
+    need('v112'not in q.name.casefold(),'Forbidden basename before stat')
+    if q.name in {'matplotlib_cache','__pycache__'}:excluded.append(str(Path(q.path).relative_to(root)));continue
+    mode=q.stat(follow_symlinks=False).st_mode;need(not stat.S_ISLNK(mode),'Source symlink refused')
+    if stat.S_ISDIR(mode):stack.append(Path(q.path));continue
+    need(stat.S_ISREG(mode),'Nonregular source refused');source=Path(q.path);suffix=source.suffix.casefold();rel=str(source.relative_to(root))
+    if suffix in RAW:
+     if rel in excluded_raw:
+      need(suffix=='.npz','Excluded RAW is NPZ only');seen_excluded.add(rel);excluded.append(dict(path=rel,reason='Exact closed SOURCE input NPZ excluded before body/header/hash; no binding followed'));continue
+     need(str(source)in owned and suffix=='.pt','Unexpected RAW outside explicit PT2/excludedNPZ list: STOP');seen_owned.add(str(source))
+    need(suffix in TEXT|{'.png'}or str(source)in owned,'Only positive records and explicit owned PT2')
+    need(q.stat(follow_symlinks=False).st_size<LIMIT,'Each Gitfile<100MiB before body access');out.append(source)
+ need(seen_owned==set(owned)and seen_excluded==excluded_raw,'Every declared model/input path observed exactly; no implicit extra RAW');return sorted(out),excluded
+
+def hits(z):
+ text=z.decode('utf-8');return{k:len(re.findall(v,text))for k,v in RULES.items()if re.search(v,text)}
+
+class Attrs(HTMLParser):
+ def __init__(self):super().__init__();self.links=[]
+ def handle_starttag(self,tag,attrs):self.links.extend(v for k,v in attrs if k in('href','src')and v)
+
+def links(doc,z):
+ text=z.decode('utf-8')
+ if Path(doc).suffix.lower()in('.html','.htm'):p=Attrs();p.feed(text);found=p.links
+ else:found=re.findall(r'!?\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))\)',text);found=[a or b for a,b in found]
+ out=[]
+ for v in found:
+  u=urlsplit(v)
+  if u.scheme in('http','https','mailto','tel')or not u.path:continue
+  need(not u.scheme and not u.netloc and not u.path.startswith('/'),'Portable local link must be relative')
+  target=posixpath.normpath(posixpath.join(posixpath.dirname(doc),unquote(u.path)))
+  need(not target.startswith('../')and target!='..','Link outside publication root');safe(PUB/target);out.append(target)
+ return out
+
+def existing_target(p):
+ # Check ordinary file/directory components, never enumerate/follow a source binding.
+ p=safe(p);fd=os.open(p.anchor,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  for i,q in enumerate(p.parts[1:]):
+   flags=os.O_RDONLY|os.O_NOFOLLOW|(os.O_DIRECTORY if i<len(p.parts)-2 else 0);n=os.open(q,flags,dir_fd=fd);os.close(fd);fd=n
+  mode=os.fstat(fd).st_mode;return stat.S_ISREG(mode)or stat.S_ISDIR(mode)
+ finally:os.close(fd)
+
+def original_destination(root,source):
+ need(root in PHASES and root in safe(source).parents,'Exact owned source root')
+ return ARCHIVE_PREFIX+root.name+'/'+str(source.relative_to(root))
+
+def role_phase(role):
+ need(role in REQUIRED_ROLES,'Exact completion role')
+ return PHASES[LABELS.index(role.split('_',1)[0])]
+
+
+def publication_headers(e):
+ z=e['publication_prefixes'];need(set(z)=={'index_utf8','readme_utf8'},'Root exact prose keys')
+ out=[]
+ for key in ('index_utf8','readme_utf8'):
+  value=z[key];need(isinstance(value,str)and value.strip(),'Root final prose required')
+  data=value.encode();need(len(data)<65536 and not hits(data),'Bounded credential-free prose');out.append(data)
+ return tuple(out)
+
+def portable_pages(e):
+ pages=e['portable_pages'];need(isinstance(pages,list)and len(pages)==len(set(pages))and 2<=len(pages)<=30,'Bounded unique root-selected portable pages')
+ need(INDEX in pages and REPORT in pages,'Index and root PORTABLE mandatory')
+ for rel in pages:
+  need(rel==INDEX or rel.startswith(ARCHIVE_PREFIX+PHASE.name+'/'),'Pages exact new phase only')
+  need(Path(rel).suffix.lower()in{'.md','.html','.htm'}and posixpath.normpath(rel)==rel,'Portable page path')
+  safe(PUB/rel)
+ return set(pages)
+
+def selftest():
+ checks=[]
+ def add(name,v):need(v,name);checks.append(name)
+ add('SHA_kernel',digest(b'abc')=='ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad')
+ for bad in('/invented/V112/a','/invented/../a'):
+  try:safe(bad);ok=False
+  except AssertionError:ok=True
+  add('lexical_reject_before_FS_'+str(len(checks)),ok)
+ with tempfile.TemporaryDirectory(dir=H,prefix='invented_')as t:
+  d=Path(t);(d/'proof.json').write_bytes(b'{}');(d/'view.png').write_bytes(b'opaque invented PNG');(d/'table.tsv').write_bytes(b'a\tb\n');(d/'figure.svg').write_bytes(b'<svg/>')
+  (d/'__pycache__').mkdir();(d/'__pycache__/unread').write_bytes(b'unread');(d/'fit_inputs').mkdir();(d/'fit_inputs/raw.npz').write_bytes(b'never hashed or decoded')
+  ff,ee=inventory(d,{},['fit_inputs/raw.npz']);add('positive_text_PNG_and_binary_cache_excluded',set(p.name for p in ff)=={'proof.json','view.png','table.tsv','figure.svg'}and len(ee)==2)
+  new(d/'exact.txt',b'exact');add('exclusive_byte_copy',rb(d/'exact.txt')==b'exact')
+  try:new(d/'exact.txt',b'overwrite');ok=False
+  except FileExistsError:ok=True
+  add('no_overwrite',ok)
+  (d/'link').symlink_to(d/'proof.json')
+  try:inventory(d,{},['fit_inputs/raw.npz']);ok=False
+  except AssertionError:ok=True
+  add('symlink_refused_before_read',ok)
+ f=dict(completed=True,frozen=True,all_scientific_phase_files_final_no_more_writes=True,administrative_publication_receipts_written_elsewhere=True,phase_result=dict(path=str(PHASE/'ROOT_PHASE_RESULT.json'),sha256='a'*64))
+ add('strict_authoritative_freeze',frozen_phase(f,f['phase_result']))
+ try:frozen_phase(dict(f,frozen=False));ok=False
+ except AssertionError:ok=True
+ add('false_freeze_refused',ok)
+ e=dict(publication_prefixes=dict(index_utf8='# SOURCE V219\n\n',readme_utf8='# SOURCE V219\n\n'),portable_pages=[INDEX,REPORT])
+ ih,rh=publication_headers(e);add('root_prose_history_suffix',(ih+b'oldindex').endswith(b'oldindex')and(rh+b'oldREADME').endswith(b'oldREADME'))
+ add('singlephase_2roles_pages',len(PHASES)==1 and len(REQUIRED_ROLES)==2 and portable_pages(e)=={INDEX,REPORT})
+ add('relative_sibling_link',links('archive/a/r.md',b'[prior](../b/r.md)')==['archive/b/r.md'])
+ add('credential_format_only',hits(('ghp_'+'x'*40).encode())=={'GitHub':1})
+ add('V219_exact_parent_index_delta_policy',EXPECTED_PARENT=='5b764d4d90479a1e5530d71575511d85d8809181'and PRIOR=='EXPERIMENT_INDEX_THROUGH_V218_KO.md'and DELTA=='publication/deltas/V219_20261025_v1/'and MAX_ORIGINAL_FILES==1200 and MAX_ORIGINAL_BYTES==180*1024**2)
+ add('exact_new_owned_destination',original_destination(PHASE,PHASE/'invented/note.json')==ARCHIVE_PREFIX+PHASE.name+'/invented/note.json')
+ add('dynamic_future_gallery_pages',portable_pages(dict(e,portable_pages=[INDEX,REPORT,ARCHIVE_PREFIX+PHASE.name+'/future_pixel_gallery.md',ARCHIVE_PREFIX+PHASE.name+'/future_nominal_report.html']))=={INDEX,REPORT,ARCHIVE_PREFIX+PHASE.name+'/future_pixel_gallery.md',ARCHIVE_PREFIX+PHASE.name+'/future_nominal_report.html'})
+ return dict(completed=True,PASS=True,invented_only=True,checks=checks,source_or_repository_body_access=0,Git_calls=0)
+
+def prepare():
+ q=selftest();new(H/'GENERATED_INVENTED_CHECKS.json',enc(q))
+ p=dict(completed=True,prepared_only=True,code=bind(__file__),checks=bind(H/'GENERATED_INVENTED_CHECKS.json'),owned_policy_checks=bind(H/'OWNED_PT2_POLICY_INVENTED_CHECKS.json'),root_prospective_scope=ROOT_PREP_SCOPE,inherited_publisher=INHERITED,
+  source_roots=[str(PHASE)],required_completion_roles=list(REQUIRED_ROLES),expected_parent=EXPECTED_PARENT,
+  policy='One frozen SOURCE-training V219 phase; positive text/PNG/SVG plus only exact newly owned PT2 opaque whitelist. Root closed excluded inputNPZ<=16 before body/header/hash; every other RAW causes STOP. No source pointer following.',
+  byte_security_kernel='Inherited V216 functions need/safe/parentfd/rb/digest/bind/checked/enc/new/replace_readme/frozen_phase/hits/Attrs/links/existing_target/original_destination/role_phase unchanged.',
+  strict_freeze_fields=dict(completed=True,frozen=True,all_scientific_phase_files_final_no_more_writes=True,administrative_publication_receipts_written_elsewhere=True,phase_result='Exact result-role binding'),
+  required_actual_scope_fields=dict(approved_bounded_publication_copy_stage=True,approved_git_commit_or_push_by_child=False,completed_source_phases=[dict(path=str(PHASE),freeze_sha256='ROOT_FINAL_SCIENTIFIC_PHASE_FREEZE binding SHA')],expected_parent_main=EXPECTED_PARENT,remote='https://github.com/CanelE452/pallet-6d-pose.git',known_ignored_cache_exclusions=[]),
+  original_file_cap=MAX_ORIGINAL_FILES,original_byte_cap=MAX_ORIGINAL_BYTES,each_file_cap_strict=LIMIT,batch_cap_strict=BATCH,
+  future_root_supplies='Exact final index/readme UTF8 prefixes, portable pages, actual scope, result/freeze and prior THROUGH_V217/readme SHA bindings and independent numeric/semantic QA in the root final phase/result authority. No current results assumed.',
+  mandatory_portable_pages=[INDEX,REPORT],Git_add_commit_push=False,source_phase_writes=0,automatic_retry=False)
+ new(PROTOCOL,enc(p))
+ template=dict(approved_actual_V219_stage=False,code=p['code'],protocol=bind(PROTOCOL),root_prospective_scope=ROOT_PREP_SCOPE,root_scope=None,
+  source_roots=[str(PHASE)],initial_remote_main=None,repository=str(REPO),completion_receipts=[],
+  previous_index=dict(path=str(PUB/PRIOR),sha256=None),global_readme_before=dict(path=str(REPO/'readme.md'),sha256=None),
+  publication_prefixes=dict(index_utf8=None,readme_utf8=None),portable_pages=[INDEX,REPORT],owned_model_whitelist=[],excluded_RAW_input_paths=[],owned_source_fit_complete=None,owned_all2_freeze=None,output_directory=str(P/'publication_root_preparation/V219_PUBLICATION_STAGE_C'),automatic_retry=False,Git_add_commit_push=False)
+ new(H/'ROOT_ACTUAL_ENTRY_FALSE_TEMPLATE.json',enc(template))
+ new(H/'PUBLISHER_READY.json',enc(dict(completed=True,PASS=True,FINAL_READY_FROZEN=True,code=p['code'],protocol=bind(PROTOCOL),checks=p['checks'],false_entry=bind(H/'ROOT_ACTUAL_ENTRY_FALSE_TEMPLATE.json'),actual_source_enumeration_copy=0,Git_calls=0)))
+ print(json.dumps(dict(completed=True,PASS=True,ready=bind(H/'PUBLISHER_READY.json'),checks=len(q['checks']))))
+
+def run(entry):
+ e=json.loads(rb(entry));need(e['approved_actual_V219_stage']is True and e['automatic_retry']is False and e['Git_add_commit_push']is False,'Root copy-stage authority only')
+ p=checked(e['protocol']);need(e['code']==bind(__file__)==p['code']and e['protocol']==bind(PROTOCOL),'Frozen code/protocol');need(checked(p['checks'])['PASS']is True,'Invented preflight PASS');owned_checks=checked(p['owned_policy_checks']);need(owned_checks['PASS']is True and owned_checks['stager']==p['code'],'New PT2 policy preflight exact code')
+ need(e['root_prospective_scope']==ROOT_PREP_SCOPE,'Exact prospective authority');prep=checked(ROOT_PREP_SCOPE);need(prep['approved_actual_enumeration_or_copy']is False,'Preparation remains copyfalse')
+ scopebinding=e['root_scope'];need(isinstance(scopebinding,dict)and safe(scopebinding['path']).parent==P/'publication_root_preparation'and scopebinding!=ROOT_PREP_SCOPE,'Separate root actual scope required')
+ scope=checked(scopebinding);need(scope['approved_bounded_publication_copy_stage']is True and scope['approved_git_commit_or_push_by_child']is False,'Root actual stage/no Git')
+ declared=scope['completed_source_phases'];need(len(declared)==1 and[declared[0]['path']]==e['source_roots']==[str(PHASE)],'Exact V219 root only')
+ need(e['repository']==str(REPO)and e['initial_remote_main']==scope['expected_parent_main']==EXPECTED_PARENT,'Root declared exact parent')
+ need(scope['remote']=='https://github.com/CanelE452/pallet-6d-pose.git','Exact repository remote')
+ roles={}
+ for r in e['completion_receipts']:
+  need(r['role']not in roles,'Unique role');root=role_phase(r['role']);need(root in safe(r['binding']['path']).parents,'Exact source role')
+  z=checked(r['binding']);need(r['expected_fields'],'Exact completion expectations')
+  for key,value in r['expected_fields'].items():need(z[key]==value,'Completion field '+key)
+  roles[r['role']]=r
+ need(set(roles)==set(REQUIRED_ROLES),'Exactly result/freeze roles')
+ result=roles['V219_ROOT_PHASE_RESULT']['binding'];freeze=roles['V219_ROOT_FINAL_FREEZE']['binding']
+ need(result['path']==str(PHASE/'ROOT_PHASE_RESULT.json')and freeze['path']==str(PHASE/'ROOT_FINAL_SCIENTIFIC_PHASE_FREEZE.json')and freeze['sha256']==declared[0]['freeze_sha256'],'Exact frozen phase bindings')
+ need(checked(result).get('completed')is True,'Root phase result completed');frozen_phase(checked(freeze),result)
+ owned,excluded_raw=model_policy(e,True);pages=portable_pages(e);ih,rh=publication_headers(e)
+ out=safe(e['output_directory']);need(out==P/'publication_root_preparation/V219_PUBLICATION_STAGE_C','Exact fresh admin stage');out.mkdir(exist_ok=False)
+ new(out/'STARTED.json',enc(dict(completed=False,entry=bind(entry),automatic_retry=False)))
+ try:
+  need(e['previous_index']['path']==str(PUB/PRIOR)and e['global_readme_before']['path']==str(REPO/'readme.md'),'Exact prior index/README')
+  oldindex=rb(e['previous_index']['path']);need(digest(oldindex)==e['previous_index']['sha256'],'Prior index unchanged')
+  oldreadme=rb(e['global_readme_before']['path']);need(digest(oldreadme)==e['global_readme_before']['sha256'],'README before unchanged')
+  original,excluded=inventory(PHASE,owned,excluded_raw);need(original and len(original)<=MAX_ORIGINAL_FILES,'Bounded nonempty source count')
+  original_bytes=sum(os.stat(source,follow_symlinks=False).st_size for source in original);need(original_bytes<=MAX_ORIGINAL_BYTES,'Source bytes cap before copy')
+  records=[];physical=[];texts={};source_hashes={}
+  def store(rel,data,source,category):
+   need(len(data)<LIMIT,'Each Gitfile<100MiB');need(not hits(data)if Path(rel).suffix.lower()in TEXT else True,'Credential pattern, values withheld')
+   new(PUB/rel,data);need(rb(PUB/rel)==data,'Exact destination bytes')
+   physical.append(dict(path=PREFIX+rel,sha256=digest(data),size_bytes=len(data)))
+   records.append(dict(source_root_id='P'if category=='original_scientific_record'else'PUBLICATION_ADMIN_CODE'if category=='publication_tool'else'DELTA_DERIVED',source_absolute=str(source),source_relative_path=str(source.relative_to(P))if P in source.parents else rel,source_sha256=digest(data),size_bytes=len(data),published_relative=rel,published_sha256=digest(data),status='PUBLISHED_RAW',category=category,exclusion_reason=None,gzipchunks=None))
+   if rel in pages:texts[rel]=data
+  for source in original:
+   data=rb(source)
+   if str(source)in owned:need(digest(data)==owned[str(source)]['sha256']and len(data)==owned[str(source)]['size_bytes'],'Own PT2 SHA/size before copy')
+   source_hashes[str(source)]=digest(data);store(original_destination(PHASE,source),data,source,'original_scientific_record')
+  for source in(Path(__file__).absolute(),PROTOCOL,H/'GENERATED_INVENTED_CHECKS.json',H/'push_completed_v219_plan.py',H/'verify_v219_source_and_plan_bytes.py',H/'post_push_v219_QA_and_handoff.py',H/'PROTOCOL_BEFORE_ACTUAL_V219_ROOT_TRANSACTIONS.json',H/'ROOT_MESSAGE_PUBLICATION_CODE_PREPARATION_AUTHORITY.json',H/'FINAL_READY.json'):store('tools/v219_lean_publication/'+source.name,rb(source),source,'publication_tool')
+  store(INDEX,ih+oldindex,PUB/INDEX,'versioned_index');need(rb(PUB/INDEX).endswith(oldindex),'Historical index suffix')
+  store(DELTA+'GLOBAL_README_BEFORE_V219.md',oldreadme,PUB/(DELTA+'GLOBAL_README_BEFORE_V219.md'),'old_global_snapshot')
+  manifest=dict(format='immutable-completed-phase-delta-v1',phase='V219_EXPECTED_PART_WEAK_PAIRED_SOURCE_TRAINING',source_roots=[str(PHASE)],previous_index=e['previous_index'],root_entry=bind(entry),completion_receipts=e['completion_receipts'],entries=records,owned_binary_whitelist=e['owned_model_whitelist'],owned_model_whitelist=e['owned_model_whitelist'],excluded_RAW_input_paths=e['excluded_RAW_input_paths'],owned_source_fit_complete=e['owned_source_fit_complete'],owned_all2_freeze=e['owned_all2_freeze'],excluded_cache_paths={PHASE.name:excluded},source_bindings_followed=0,old_archive_or_manifest_paths_modified=False,no_second_closing_required=True)
+  manifest_models(manifest);mz=enc(manifest);new(PUB/(DELTA+'DELTA_MANIFEST.json'),mz);physical.append(dict(path=PREFIX+DELTA+'DELTA_MANIFEST.json',sha256=digest(mz),size_bytes=len(mz)))
+  need(set(texts)==pages,'Every root-selected portable entry present');linkrows=[]
+  for doc,data in texts.items():
+   targets=links(doc,data)
+   for target in targets:need(existing_target(PUB/target),'Missing portable link '+doc+' -> '+target)
+   linkrows.append(dict(page=doc,local_links=len(targets)))
+  rootlinks=links('ROOT_REPO_README.md',rh)
+  for target in rootlinks:need(existing_target(REPO/target),'New README target missing')
+  linkrows.append(dict(page='readme.md newprefix only; oldsuffix preserved',local_links=len(rootlinks)))
+  final,excluded_final=inventory(PHASE,owned,excluded_raw);need(final==original and excluded_final==excluded,'Final exact phase inventory unchanged')
+  newreadme=rh+oldreadme;need(newreadme.endswith(oldreadme),'Historical README suffix');replace_readme(REPO/'readme.md',newreadme,e['global_readme_before']['sha256']);physical.append(dict(path='readme.md',sha256=digest(newreadme),size_bytes=len(newreadme)))
+  for source,h in source_hashes.items():need(digest(rb(source))==h,'Original source final SHA unchanged')
+  for rec in physical:
+   data=rb(REPO/rec['path']);need(digest(data)==rec['sha256']and len(data)==rec['size_bytes'],'Final physical SHA/size')
+  physical_models(physical,manifest);need(len({r['path']for r in physical})==len(physical)and sum(r['size_bytes']for r in physical)<BATCH,'Single unique bounded batch')
+  qa=dict(completed=True,PASS=True,entry=bind(entry),exact_phase_frozen=True,exact2_completion_roles=True,original_source_files=len(original),original_source_bytes=original_bytes,source_PNGs=sum(source.suffix.lower()=='.png'for source in original),all_original_to_destination_SHA_size_exact=True,source_original_final_SHA_unchanged=True,original_destination_identity_exact=True,all_declared_portable_local_links_resolve=True,link_pages=linkrows,local_links=sum(r['local_links']for r in linkrows),credential_format_detections=0,oldindex_and_README_suffix_preserved=True,source_bindings_followed=0,owned_models=2,new_prediction_NPZ=0,targets_inputs_NPZ=0,old_archive_mutations=0,model_array_image_decode=0,Git_calls=0,automatic_retry=False,ignored_ancestor_cache_paths_not_statted_read_hashed_or_modified=scope['known_ignored_cache_exclusions'])
+  new(out/'QA.json',enc(qa))
+  plan=dict(authorized_main_push=True,repository=str(REPO),remote=scope['remote'],branch='main',initial_remote_main=e['initial_remote_main'],manifest_sha256=digest(mz),batch_max_bytes=BATCH,batches=[dict(files=physical,message='Publish V219 paired SOURCE training with expected-part weak supervision')],scope='Completed V219 fresh paired SOURCE training methods/results and exactly2 new owned checkpoints; text/tables/derived PNG/SVG plus THROUGH_V219/README prepend. Latest real V213 unchanged; no new protected evaluation/PnP/model selection/adoption/extra closing cycle.')
+  new(out/'ROOT_V219_PUSH_PLAN.json',enc(plan))
+  complete=dict(completed=True,PASS=True,staged_only_not_pushed=True,entry=bind(entry),manifest=bind(PUB/(DELTA+'DELTA_MANIFEST.json')),QA=bind(out/'QA.json'),push_plan=bind(out/'ROOT_V219_PUSH_PLAN.json'),original_source_files=len(original),original_source_bytes=original_bytes,physical_files=len(physical),physical_bytes=sum(r['size_bytes']for r in physical),source_PNGs=qa['source_PNGs'],owned_models=2,new_prediction_NPZ=0,targets_inputs_NPZ=0,excluded_cache_paths={PHASE.name:excluded},Git_calls=0,phase_writes=0)
+  new(out/'COMPLETE.json',enc(complete));print(json.dumps(complete))
+ except BaseException as error:
+  new(out/'FAILURE_PRESERVED_NO_RETRY.json',enc(dict(completed=False,PASS=False,error_type=type(error).__name__,error=str(error),automatic_retry=False)));raise
+
+if __name__=='__main__':
+ a=argparse.ArgumentParser();g=a.add_mutually_exclusive_group(required=True);g.add_argument('--prepare',action='store_true');g.add_argument('--entry',type=Path);v=a.parse_args();prepare()if v.prepare else run(v.entry)

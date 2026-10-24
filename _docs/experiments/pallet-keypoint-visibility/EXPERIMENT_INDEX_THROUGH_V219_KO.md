@@ -1,0 +1,480 @@
+# V219 공개 실사 약한 부재 감독: 실제 paired SOURCE 학습 완료
+
+C64/C65를 같은 초기 상태·공통 표본 추출·각 4,000회로 학습하고 두 최종 모델을 모두 보존했습니다. 공개 SOURCE DEV 12행(3 component)에서 D recall 55.56%→88.89%, E precision 33.33%→66.67%, E recall 66.67%로 동일했습니다. 4행 회복·1행 악화이며, 이동을 뺀 원형 DEV 7행에서는 순증 1행입니다. 작은 상관 표본/AI 부재 약한 라벨/GT 유래 학습 query의 한계가 있습니다. 현재 평가223·v61·기존 모델 대비 새 개선은 미측정이며 최신 실사 평가 V213을 유지합니다. 채택 모델 없음, 목표 active.
+
+[보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/PORTABLE_REPORT_KO.md) · [실제 crop과 결과](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/ROOT_READOUT_KO.html)
+
+---
+
+# V218: 공개 SOURCE intended-part/query 약타깃 실제 구성
+
+기존 SOURCE12장·원96query는 그대로 보존하고, finite local-part 9개에 대한 post-RAW96 D/E/D 약관계 27장을 만들었습니다. 별도 GT-derived training query family는 15개 선언 GT후보의 nominal·jitter RGB96 360장입니다. 이는 원 initializer의 성능 측정이나 GT pose/ROI를 추가 배포 feature로 넣은 실험이 아닙니다.
+
+| 실제 구성 | 수 |
+|---|---:|
+| 원 query / 원 U | 96 / 11 |
+| local finite-part weak triplet / RGB | 9 / 27 |
+| 별도 GT-derived training RGB96 | 360 |
+| nominal 두 reader 합의 weak D / E | 19 / 8 |
+| crop support 확인 후 weak 후보 | 57 |
+| SOURCE_FIT / SOURCE_DEV 후보 | 45 / 12 |
+| 새 fit / model forward / protected evaluation / PnP | 0 / 0 / 0 / 0 |
+
+- [실제 데이터·방법·한계·다음 실험](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_intended_part_query_targets_20261025_v218/PORTABLE_REPORT_KO.md)
+- [finite-part weak9 COVER/SHAM 그림](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_intended_part_query_targets_20261025_v218/weak_part_pair_controls_v1/PORTABLE_GALLERY_KO.md)
+- [GT-query 후보15 contact 그림](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_intended_part_query_targets_20261025_v218/public_source_gt_query_jitter_v1/PORTABLE_GALLERY_KO.md)
+- [360행 상태·타깃 전체 CSV](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_intended_part_query_targets_20261025_v218/joined_weak_intended_part_targets_v1/ALL360_TARGET_CENSUS.csv)
+- [120행 두 관찰자 합의 원장](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_intended_part_query_targets_20261025_v218/joined_weak_intended_part_targets_v1/ALL120_JOINED_NOMINAL_OBSERVATIONS.jsonl)
+- [과학 QA·동결 결과](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_intended_part_query_targets_20261025_v218/ROOT_PHASE_RESULT.json)
+
+ROI는 weak bag/region 타깃이며 픽셀별 물질 segmentation gold가 아닙니다. finite-part와 native anatomy·query support를 구분하고, SOURCE_DEV 및 모든 파생형은 모든 fit/정규화에서 제외합니다. 추가 학습 타깃 채택·학습·모델 개선은 아직 없으며 최신 실사 benchmark는 V213 그대로입니다. 목표는 아직 미해결입니다.
+
+---
+
+# V217: 공개 실사 GT·원 query·native 부위 대응 실제 진단
+
+고정 SOURCE12장·원96query를 15개 GT후보와 실제 mask/depth/nominal 투영으로 대조했습니다. 다른 상자·손잡이에 놓인 query, 세운 팔레트의 부위 역할 차이, depth 가시 proxy와 RGB 의미 차이를 확인했습니다. 원 q/L/U는 보존했고 새 학습·모델 추론·보호 평가·PnP는0입니다. 모델 개선은 아직 미입증이며 최신 실사 benchmark는 V213입니다.
+
+| 범위 | 수 |
+|---|---:|
+| 원 query / 원 U | 96 / 11 |
+| FIT / DEV 원 query | 64 / 32 |
+| 모든GT후보 / 후보-native행 / 후보U | 15 / 120 / 17 |
+| 실제 선택 GT/info/camera값 / 건너뛴 다른frame값 | 36 / 519 |
+| full/visible/depth PNG | 15 / 15 / 12 |
+| 새 native D/E/SELF gold / 학습 투입 | 0 / 0 |
+
+- [전체 진단·이전 성능 비교·다음 실험](archive/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/PORTABLE_REPORT_KO.md)
+- [고정4 원 crop 대 nominal 기준점 그림](archive/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/fixed_query_crop_nominal_reference_visual_v1/PORTABLE_GALLERY_KO.md)
+- [전체15후보 mask/depth 그림](archive/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/fixed12_mask_depth_query_diagnostics_v2/PORTABLE_MASK_DEPTH_GALLERY.md)
+- [120행 통합 CSV](archive/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/ROOT_QUERY_INSTANCE_PART_SUPPORT_SYNTHESIS.csv)
+- [과학 검산과 결과](archive/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/ROOT_PHASE_RESULT.json)
+
+다음은 SOURCE instance/part/query를 연결한 실제 감독 자료 구성입니다. 공개 실사 사용은 허용하되 직접 촬영 평가223장은 계속 학습·문턱·모델 선택에서 제외합니다. 약한 local-part 보임과 native D/E는 합치지 않습니다.
+
+---
+
+# V216: 공개 실사 query·부위 대응과 실제 12장 검토
+
+공개 SOURCE 12장·96점을 두 관찰자가 독립 기록하고 같은 frame/crop에서 대조했습니다. 학습·새 추론·보호 평가·PnP는 수행하지 않았으며 최신 실사 benchmark는 V213 그대로입니다. 모델 개선/채택 주장이 아닙니다.
+
+| 구분 | 전체 | SOURCE FIT | SOURCE DEV |
+|---|---:|---:|---:|
+| 원 슬롯 | 96 | 64 | 32 |
+| 원 입력 U | 11 | 9 | 2 |
+| 기계적 D 합의 | 11 | 9 | 2 |
+| 실제 검토 후 약한 같은 팔레트 부위 D | 9 | 7 | 2 |
+| 동일 feature 불확실 보류 | 2 | 2 | 0 |
+
+외부 E/SELF 확정은 0개입니다. local witness 합의 62개에는 상자·카트 손잡이가 포함되므로 native 정답으로 해석하지 않습니다. 모든 training admission은 false입니다. 기존 공개 GT는 보존 영수증상 존재하고 V154/V159에서도 일부 활용됐으나, 이번 실제 GT payload 재검증은 0입니다.
+
+- [V216 전체 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_part_query_support_contract_20261025_v216/PORTABLE_REPORT_KO.md)
+- [실제 12장 A/C ROI 갤러리](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_part_query_support_contract_20261025_v216/joined_part_query_support_v2/PORTABLE_GALLERY_KO.md)
+- [root 96행 의미 검토 CSV](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_part_query_support_contract_20261025_v216/ROOT_ALL96_SEMANTIC_REVIEW.csv)
+- [raw 전체 role/native 표](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_part_query_support_contract_20261025_v216/joined_part_query_support_v2/SOURCE_COUNTS_BY_ROLE_NATIVE_READER.csv)
+- [공개 GT 보유/기존 활용과 다음 한 가지 점검](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_part_query_support_contract_20261025_v216/public_GT_text_readiness_a/KO.md)
+
+다음은 기존 SOURCE TRAIN의 대상 인스턴스·native 부위·원 query를 보존된 전체/가시 마스크·depth와 대조하는 단일 점검입니다. 평가셋으로 문턱/학습을 고르지 않습니다.
+
+---
+
+# V214·V215 최신 기록: 영상 의존 진단과 공개 실사 query 대응 문제
+
+새 학습 없이 동결 C62/C63의 SOURCE TRAIN 입력 의존도를 검사하고, 사전에 고정한 공개 SOURCE TRAIN 12프레임의 원 query96slot을 실제 확인했다. 현재 평가셋과 보호 HOLDOUT의 새 추론·원장·배열 읽기는 없으며, 과거 공개 집계에 노출된 이력은 명시했다. 최신 실사 성능 비교는 아래에 보존한 V213이다. 이번 완료는 진단과 입력 관찰이며 모델 개선·채택·최종 해결을 뜻하지 않는다.
+
+|검사|이번 확인|해석 범위|
+|---|---|---|
+|2모델×6조건×SOURCE6140|73,680 scalar와24혼동행렬 저장·독립 재집계|학습 자료의 의존도/OOD 검사|
+|C63 native/q8 condition 전부 제거|point6096/weak44의 판정 변화0개, logit은 변화|조건 기여가 수학적으로0이라는 뜻은 아님|
+|RGB를127로 고정|두 모델의 모든 known SOURCE가 E, 보이는 점 recall0%|영상 변화에 민감하지만 실사 실패 원인 확정 아님|
+|새 공개 실사12프레임|원96slot, available85/U11; root6+B6 실제 관찰|같은 프레임의 독립 합의나 native gold가 아님|
+
+SOURCE point 감독과 공개 visible-feature weak 감독은 의미와 권위가 다르다. 기존 weak44는 공개3frame/native0..4만 담고, native5/6/7은 없다. 기존 공개 TRAIN155frame의 나머지152장은 RGB가 없는 것이 아니다. 새12frame에서는 query가 여러 목재 물체에 나뉘거나 작은 검은 카트 손잡이 주변에 모이는 사례가 보였다. 이런 국소 외관을 곧바로 의도한 팔레트 부위의 D/E로 바꾸면 안 된다. 모든96slot의 새 native D/E/S와 학습 admission은 여전히 미확정이다.
+
+다음 SOURCE 작업은 선택된 instance·의도한 부위·국소 visible witness·query support를 별도로 기록하고 UNKNOWN을 유지하는 것이다. 원 q/L/native8/RAW96 sampler와 PnP를 유지했다. 이번에는 새 가중치·문턱 조정·모델 선택이 없다. 실행 전 metadata gate 오류와 한정 수리, 그림 실행 코드의 과거 snapshot도 보존했다.
+
+- [V214 전체 혼동행렬·의존도 그림·고정4입력·원장](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_modality_reliance_diagnosis_20261025_v214/PORTABLE_REPORT_KO.md)
+- [SOURCE 감독 정의와 coverage 감사](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_modality_reliance_diagnosis_20261025_v214/target_coverage_review_b/KO.md)
+- [기존 pretrained 시도 감사](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_modality_reliance_diagnosis_20261025_v214/pretrained_source_readiness_c/KO.md)
+- [V215 공개12frame·query 대응 관찰](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_visible_part_coverage_expansion_20261025_v215/PORTABLE_REPORT_KO.md)
+- [실제 확인한 공개12frame 전체 갤러리](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_visible_part_coverage_expansion_20261025_v215/fixed12_public_TRAIN_input_previews_v1/PORTABLE_GALLERY_KO.md)
+
+아래 THROUGH_V213 기록을 원문 그대로 보존한다.
+
+---
+
+# V213 최신 실사 비교: 점 감독 보정과 공개 실사 weak bridge 후에도 미해결
+
+V212에서 같은 초기 상태·원 q/L/native8·96 crop·4,000 update로 C62와 C63을 각각 학습하고, 두 최종 모델을 동결한 뒤 V213에서 기존12+신규2 모델을 같은 평가 대상으로 비교했다. C63은 결과 전 정한 주 비교 팔이며 C62는 공개 weak bridge를 뺀 대조 팔이다. 결과에 따라 모델이나 문턱을 채택하지 않았다.
+
+|동일 주평가 1,237점 (D1,147/E90)|보이는 점 recall|외부 가림 recall|외부 가림 precision|보류율|
+|---|---:|---:|---:|---:|
+|기존 실사 학습 legacy|57.11%|92.22%|20.65%|14.31%|
+|이전 C61|67.22%|28.89%|6.47%|0%|
+|이번 C62 point-only|61.81%|28.89%|5.60%|0%|
+|이번 C63 point + weak bridge|73.50%|21.11%|5.88%|0%|
+
+C63은 이전 C61보다 보이는 점 정답이72개 늘었지만 외부 가림 정답은7개 줄었다. 기존 실사 학습 모델보다 좋다고 결론낼 수 없다. 0% 보류는 가용 입력을 이진 판정하는 규칙의 결과로, 신뢰도 보장이 아니다. legacy는 과거 자체 실사 CAL 이력이 있으며, 현재 평가는 반복 노출되어 새 blind test가 아니다. v61은 presence proxy이므로 외부 가림 전용 모델과 의미가 다르다.
+
+합성 point 학습6096점(D5853/E243)에서 두 팔 모두 E243/243을 맞혔다. 학습에 넣지 않은 SOURCE18 component의 별도 known938입력(D899/E39)에서는 두 팔 E30/39(76.92%)였으나 실사에서는 각각 E26/90(28.89%), E19/90(21.11%)였다. 이 세 숫자의 정답 권위·장면·분포는 서로 다르다. 합성의 일부 일반화와 큰 실사 격차를 관찰했지만 외형 전이와 남아 있는 목표 대응 문제 중 한 원인으로 분리하지 못했다. SOURCE의 E39입력은 독립39장면이 아니다.
+
+현재 평가223장·공개 HOLDOUT45·기존 VAL/HOLDOUT은 학습·문턱 선택·정규화에 쓰지 않았다. 자기 가림은 별도 표로 유지하고 초기 좌표·sampler·PnP를 바꾸지 않았다. 새 가중치2개, SOURCE 저장 출력22개, 실사 저장 출력4개, 코드·프로토콜·로그·전체 표·실제 확인한 고정12crop·실패 및 수리 기록을 함께 공개한다. SOURCE point HOLDOUT 첫 실행의 null query 표기 비교 오류는 보존했고, NaN pair의 동일성 처리만 고친 별도 V2가 완료되었다.
+
+- [최신 실사 전체 결과·목재/정사각형·SELF·reference·public weak 별도 표](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/PORTABLE_REPORT_KO.md)
+- [실제 고정12 crop과14모델 응답](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/fixed12_dense_point_real_visual_v1/PORTABLE_GALLERY_KO.md)
+- [학습 / SOURCE HOLDOUT / 실사 차이와 해석 한계](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/ROOT_SOURCE_TRAIN_HOLDOUT_REAL_GAP_KO.md)
+- [SOURCE 학습 구성·8,000 draw 감사·apparent 결과](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_point_weak_bridge_source_training_20261025_v212/PORTABLE_REPORT_KO.md)
+- [SOURCE HOLDOUT 요약](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/source_point_holdout_evaluation_v2/SUMMARY.json)
+
+완료된 실험 기록 공개이며 모델 채택·문제 해결을 뜻하지 않는다. 아래에는 THROUGH_V211의 이전 인덱스를 그대로 보존한다.
+
+---
+
+# V209–V211 · SOURCE native point 감독 정합 진단
+
+[V209 point/opaque alpha 대응](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_control_alignment_20261025_v209/PORTABLE_REPORT_KO.md) · [고정8 source gallery](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_control_alignment_20261025_v209/fixed8_source_native_point_visual_v1/PORTABLE_GALLERY_KO.md) · [1968행 CSV](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_control_alignment_20261025_v209/report_preparation_b/ALL1968_ALPHA_RELATIONS.csv)
+
+[V210 같은 C61 학습 코드·입력 준비](archive/task-2/pallet-keypoint-visibility/query_visibility_native_point_source_head_readiness_20261025_v210/PORTABLE_REPORT_KO.md) · [V211 own-scene point3520와 입력7040 대응](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_source_native_point_teacher_20261025_v211/PORTABLE_REPORT_KO.md) · [독립 strata CSV](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_source_native_point_teacher_20261025_v211/independent_actual_review_c/SOURCE_POINT_STRATA_INDEPENDENT.csv)
+
+V209는 원 TRAIN82 요청 point가 BEFORE CLEAR/COVER COVERED/SHAM CLEAR임을 저장 alpha로 확인하고 고정8 시각화를 보존했다. V210은 코드·metadata 준비이며 새 학습이 아니다. V211은 고정 TRAIN110 base·440 scene의 point D2957/E123/SELF440과 실제 image/query-anchor 대응을 조회했다. NEAR_SHAM의 point E11도 그대로 보존한다. 이 세 단계는 SOURCE 진단이며 새 target admission·모델 학습·실사 개선·채택·전체 해결이 아니다. 최신 완료 실사 벤치마크는 V203이며 이후 미완료 단계 V212/V213은 여기 복사하지 않는다.
+
+[이전 V208 인덱스](EXPERIMENT_INDEX_THROUGH_V208_KO.md) — 아래 역사 본문은 원 바이트 그대로 보존했다.
+
+---
+
+# V207 + V208 · SOURCE 제어·판정 정의 진전
+
+[V207 RAW96 weak witness controls](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_witness_conditioned_controls_20261025_v207/PORTABLE_REPORT_KO.md) · [V207 전체80 gallery](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_witness_conditioned_controls_20261025_v207/raw96_weak_witness_control_pilot_v1/PORTABLE_GALLERY_KO.md) · [80상태 CSV](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_witness_conditioned_controls_20261025_v207/raw96_weak_witness_control_pilot_v1/ALL80_STATUS.csv)
+
+[V208 point0·region 저장값](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_state_grounding_20261025_v208/PORTABLE_REPORT_KO.md) · [native328 CSV](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_state_grounding_20261025_v208/NATIVE328_POINT_REGION_LOCALITY.csv) · [이전 V206 인덱스](EXPERIMENT_INDEX_THROUGH_V206_KO.md)
+
+V207은 기존 공개 TRAIN3프레임·8사례에서 80시도를 모두 보존했고 18쌍 구성/62실패를 기록했다. 이는 post-sampler RAW96 weak-feature control이며 native E나 학습 admission이 아니다. V208은 original BEFORE41부모·native328의 저장 point/region 정의를 조회했고 point D·region U123을 분리했다. annotation 오류 수나 모델 원인을 인증하지 않는다. 두 단계 모두 새 모델 개선·채택을 주장하지 않으며 최신 실제 실사 비교는 V203 그대로다. 아래 이전 V206 인덱스는 바이트 그대로다.
+
+---
+
+# V206 · 8 source visible-part weak witness
+
+[최신 V206 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_visible_part_witness_20261025_v206/PORTABLE_REPORT_KO.md) · [이전 V205 인덱스](EXPERIMENT_INDEX_THROUGH_V205_KO.md)
+
+기존 공개 TRAIN3프레임의 고정8 원query에 대한 독립 visible-part ROI, 실제 시각근거, 합의/불일치와 한계를 보존한다. 의미 부위 가시성과 query 위치 가능성을 분리하며 V205 strict join을 수정하지 않는다. ROI는 교정q·physical native gold가 아니고, fit admission·새 학습·모델 성공·채택을 주장하지 않는다. 아래 이전 V205 인덱스 바이트는 그대로다.
+
+---
+
+# V205 공개 TRAIN native 의미 약관찰 pilot
+
+[최신 V205 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_native_visibility_annotation_pilot_20261025_v205/PORTABLE_REPORT_KO.md) · [이전 V204 인덱스](EXPERIMENT_INDEX_THROUGH_V204_KO.md)
+
+사전 고정한 기존 공개 TRAIN6프레임48슬롯의 원본·원crop·독립 약관찰과 합의/불일치를 보존한다. SELF·위치문제·UNKNOWN/U는 분리하며 native physical gold·새 학습·모델 채택을 주장하지 않는다. 아래 이전 인덱스 바이트는 그대로다.
+
+---
+
+# V204 SOURCE TRAIN 감독·입력 대응 진단
+
+[최신 V204 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_intervention_query_alignment_20261025_v204/PORTABLE_REPORT_KO.md) · [이전 V203 인덱스](EXPERIMENT_INDEX_THROUGH_V203_KO.md)
+
+기존 MR6D 공개 TRAIN 원본·YCB 외부가림물 공여자·finite-end 약한 감독과 실제 입력 편집을 분리한 진단이다. 새 모델·native gold·재라벨·모델 채택을 주장하지 않는다. 아래 이전 인덱스 바이트는 그대로다.
+
+---
+
+# V203 frozen spatial q8 실사 평가
+
+[최신 V203 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_heads_frozen_real_benchmark_20261025_v203/PORTABLE_REPORT_KO.md) · [이전 V202 인덱스](EXPERIMENT_INDEX_THROUGH_V202_KO.md)
+
+두 사전고정 RAW spatial q8 source final4000의 같은 원 q/L/native8 실사 평가 기록이다. 기존 baseline/cohort/UNKNOWN과 노출한계를 보존하며 모델 채택·전체 목표 해결을 자동 주장하지 않는다. 아래 이전 인덱스 바이트는 그대로다.
+
+---
+
+# V202 spatial q8 NOMINAL source 대조 학습
+
+[최신 V202 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_nominal_grouped_source_training_20261025_v202/PORTABLE_REPORT_KO.md) · [이전 V201 인덱스](EXPERIMENT_INDEX_THROUGH_V201_KO.md)
+
+원 q/L/native8 및 weak/UNKNOWN을 유지한 두 RAW head 각4000 source 학습 기록이다. 결과로 실사 전이·물리 native gold·모델 채택·전체 목표 해결을 주장하지 않는다. 아래 이전 인덱스 바이트는 그대로다.
+
+---
+
+# V201 TRAIN native/end/query 대응 진단
+
+[최신 V201 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_train_native_end_q8_correspondence_20261025_v201/PORTABLE_REPORT_KO.md) · [이전 V200 인덱스](EXPERIMENT_INDEX_THROUGH_V200_KO.md)
+
+원 q/L/native8 및 weak/UNKNOWN 권한을 보존한 TRAIN metadata 진단이다. 새 학습·물리 native gold·성능 개선·모델 채택·전체 목표 해결을 주장하지 않는다. 아래 이전 인덱스 바이트는 그대로다.
+
+---
+
+[이번 delta manifest](publication/deltas/V200_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V200.json)
+
+# 추가 완료 기록: V200 frozen native heads real comparison, no improvement/adoption
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V199_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V199.json)
+
+# 추가 완료 기록: V199 matched native input source fit and weak heldout limits
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_native_conditioned_grouped_source_training_20261024_v199/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V198_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V198.json)
+
+# 추가 완료 기록: V198 nativeID / originalq8 code feasibility
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_native_query_conditioning_feasibility_20261024_v198/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V197_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V197.json)
+
+# 추가 완료 기록: V197 TRAIN-only saved target/input correspondence readout
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_train_only_target_contract_readout_20261024_v197/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V196_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V196.json)
+
+# 추가 완료 기록: V196 saved source-HOLDOUT diagnostic records
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_grouped_source_holdout_target_readout_20261024_v196/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V195_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V195.json)
+
+# 추가 완료 기록: V195 frozen grouped direct-end real comparison and fixed68 review
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_grouped_direct_end_heads_frozen_real_benchmark_20261024_v195/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V194_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V194.json)
+
+# 추가 완료 기록: V194 source-only grouped paired fit and source TRAIN/HOLDOUT records
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_source_group_split_direct_end_training_20261024_v194/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V193_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V193.json)
+
+# 추가 완료 기록: V193 source-only finite-end weak control-data records
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_source_end_pairs_opposite_sham_20261024_v193/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V192_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V192.json)
+
+# 추가 완료 기록: V192 source-only metadata diagnosis records
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_source_direct_end_coverage_audit_20261024_v192/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V191_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V191.json)
+
+# 추가 완료 기록: V191 frozen real evaluation records
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_end_heads_frozen_real_benchmark_20261024_v191/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V190_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V190.json)
+
+# 추가 완료 기록: V190 sampled-domain completed source records
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_end_paired_source_training_20261024_v190/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V189_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V189.json)
+
+# 추가 완료 기록: V189 sampled-domain completed source records
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_sampled_domain_direct_end_20261024_v189/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V188_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V188.json)
+
+# 추가 완료 기록: V188 direct-end source controls
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_end_local_counterfactual_20261024_v188/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+[이번 delta manifest](publication/deltas/V187_20261024_v1/DELTA_MANIFEST.json) · [manifest chain](MANIFEST_CHAIN_AFTER_V187.json)
+
+# 추가 완료 기록: V187 source correspondence
+
+[새 실험 보고서·그림·표·실패 기록](archive/task-2/pallet-keypoint-visibility/query_visibility_source_selected_part_correspondence_20261024_v187/PORTABLE_REPORT_KO.md)
+
+아래는 이전 게시 인덱스의 원문입니다. 기존 manifest와 모든 기존 게시 경로는 유지됩니다. 이번 추가 게시가 모델 채택 또는 전체 목표 해결을 뜻하지 않습니다.
+
+---
+
+# 전체 실험 기록
+
+단계별 방법·결과·실패·검증·그림을 원문과 함께 보존한 목록입니다. 단계 PASS는 전체 목표 해결을 뜻하지 않습니다.
+
+최신 완료 실험은 V186의 고정4 source 프레임/5 GT instance 등록 진단과 독립400 ray 검산입니다. 모델 성공 결과가 아닙니다. 최신 실사 분류 비교는 V184이며 D recall 증가와 E recall 감소를 함께 보고했고 모델 채택이 없습니다. V185는 source 감독 준비도 검토입니다. 전체 WOOD/SQUARE·native8 목표는 미해결입니다.
+
+legacy 모델의 실사-CAL 이력, 새 모델의 평가-only 실사 사용, 역사적으로 반복 노출된 VAL/current/public held의 not-blind 한계를 각 원문대로 유지합니다. source point-owner와 regional end-support는 native 외부가림 정답과 동일하지 않습니다.
+
+이 게시본에는 허용된 버전 원문과 별도 Markdown 파생본이 공존합니다. 원문 로컬 절대 경로는 provenance이고 이 페이지 링크는 프로젝트 상대 경로입니다. 대용량/외부 의존성은 최종 publication manifest에 별도 기록합니다.
+
+V112는 명시 지시에 따라 디렉터리 이름 단계에서 제외했습니다. 그 내용을 읽거나 완료/실패로 평가하지 않았습니다.
+
+| 버전 | 개요 | 원본 디렉터리 |
+|---|---|---|
+| V63 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/) |
+| V64 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/) |
+| V65 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/) |
+| V66 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/) |
+| V67 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/) |
+| V68 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/) |
+| V69 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/) |
+| V70 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_target_ownership_20261023_v70/) |
+| V71 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/) |
+| V72 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/) |
+| V73 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_pallet_loco_20261023_v73/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_pallet_loco_20261023_v73/) |
+| V74 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/) |
+| V75 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_context_pretrain_20261023_v75/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_context_pretrain_20261023_v75/) |
+| V76 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/) |
+| V77 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/) |
+| V78 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/) |
+| V79 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_occlusion_audit_20261023_v79/) |
+| V80 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_dense_support_20261023_v80/) |
+| V81 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/) |
+| V82 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/) |
+| V83 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_cue_audit_20261023_v83/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_cue_audit_20261023_v83/) |
+| V84 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_paired_cue_20261023_v84/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_paired_cue_20261023_v84/) |
+| V85 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_source_cue_corpus_20261023_v85/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_source_cue_corpus_20261023_v85/) |
+| V86 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_cue_evidence_20261023_v86/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_cue_evidence_20261023_v86/) |
+| V87 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_external_ray_20261023_v87/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_external_ray_20261023_v87/) |
+| V88 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_external_ray_head_20261023_v88/) |
+| V89 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_cue_grid_20261023_v89/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_cue_grid_20261023_v89/) |
+| V90 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_cue_inputs_20261023_v90/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_cue_inputs_20261023_v90/) |
+| V91 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_physical_cue_aux_20261023_v91/) |
+| V92 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_bridge_20261023_v92/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_bridge_20261023_v92/) |
+| V93 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_synthetic_part_teacher_20261023_v93/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_synthetic_part_teacher_20261023_v93/) |
+| V94 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/) |
+| V95 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/) |
+| V96 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_query_anchored_cue_20261023_v96/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_query_anchored_cue_20261023_v96/) |
+| V97 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_cue_triplets_20261023_v97/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_cue_triplets_20261023_v97/) |
+| V98 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_C1_warmstart_20261023_v98/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_C1_warmstart_20261023_v98/) |
+| V99 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/) |
+| V100 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_box_cue_20261023_v100/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_box_cue_20261023_v100/) |
+| V101 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/) |
+| V102 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_external_only_bounded_prior_20261023_v102/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_external_only_bounded_prior_20261023_v102/) |
+| V103 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_pilot_20261023_v103/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_pilot_20261023_v103/) |
+| V104 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_queries_20261023_v104/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_queries_20261023_v104/) |
+| V105 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/) |
+| V106 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_surface_cues_20261023_v106/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_surface_cues_20261023_v106/) |
+| V107 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/) |
+| V108 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_target_relative_rgb_head_20261023_v108/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_target_relative_rgb_head_20261023_v108/) |
+| V109 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/) |
+| V110 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/) |
+| V111 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/) |
+| V111 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_holdout_20261023_v111/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_holdout_20261023_v111/) |
+| V113 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_wood_foam_source_20261023_v113/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_ycb_wood_foam_source_20261023_v113/) |
+| V114 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/) |
+| V115 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_loco_annotation_target_masks_20261023_v115/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_loco_annotation_target_masks_20261023_v115/) |
+| V116 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/) |
+| V117 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_success_failure_visual_review_20261023_v117/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_success_failure_visual_review_20261023_v117/) |
+| V118 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/) |
+| V119 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_consistent_query_context_20261023_v119/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_consistent_query_context_20261023_v119/) |
+| V120 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_pallet_cue_intake_20261023_v120/) |
+| V121 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_cue_query_baseline_20261023_v121/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_natural_cue_query_baseline_20261023_v121/) |
+| V122 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_source_20261023_v122/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_source_20261023_v122/) |
+| V123 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/) |
+| V124 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/) |
+| V125 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/) |
+| V126 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_wide_only_loss_diagnostic_20261023_v126/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_wide_only_loss_diagnostic_20261023_v126/) |
+| V127 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/) |
+| V128 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_registered_native_render_20261023_v128/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_registered_native_render_20261023_v128/) |
+| V129 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/) |
+| V130 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_source_coverage_duration_20261024_v130/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_source_coverage_duration_20261024_v130/) |
+| V131 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_small_query_jitter_20261024_v131/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_small_query_jitter_20261024_v131/) |
+| V132 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_actual_initializer_source_20261024_v132/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_actual_initializer_source_20261024_v132/) |
+| V133 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_geometry_control_20261024_v133/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_geometry_control_20261024_v133/) |
+| V134 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_witness_diagnosis_20261024_v134/) |
+| V135 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_pair_supervision_control_20261024_v135/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_pair_supervision_control_20261024_v135/) |
+| V136 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/) |
+| V137 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/) |
+| V138 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_saved_query_reliability_20261024_v138/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_saved_query_reliability_20261024_v138/) |
+| V139 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/) |
+| V140 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_reference_feasibility_20261024_v140/) |
+| V141 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_initializer_association_20261024_v141/) |
+| V142 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_target_gradient_control_20261024_v142/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_target_gradient_control_20261024_v142/) |
+| V143 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_native_current_benchmark_20261024_v143/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_native_current_benchmark_20261024_v143/) |
+| V144 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_selected_native_labels_20261024_v144/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_selected_native_labels_20261024_v144/) |
+| V145 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_fine_rgb_control_20261024_v145/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_fine_rgb_control_20261024_v145/) |
+| V146 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_source_expansion_20261024_v146/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_source_expansion_20261024_v146/) |
+| V147 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_features_20261024_v147/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_features_20261024_v147/) |
+| V148 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_supervision_control_20261024_v148/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_supervision_control_20261024_v148/) |
+| V149 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_frozen_current_benchmark_20261024_v149/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_frozen_current_benchmark_20261024_v149/) |
+| V150 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_saved_mechanism_20261024_v150/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_native_saved_mechanism_20261024_v150/) |
+| V151 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_public_native_intake_20261024_v151/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_public_native_intake_20261024_v151/) |
+| V152 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_actual_query_bridge_20261024_v152/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_actual_query_bridge_20261024_v152/) |
+| V153 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/) |
+| V154 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/) |
+| V155 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/) |
+| V156 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_separated_frozen_current_benchmark_20261024_v156/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_separated_frozen_current_benchmark_20261024_v156/) |
+| V157 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_source_context_label_generalization_20261024_v157/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_source_context_label_generalization_20261024_v157/) |
+| V158 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_train_query_owner_witness_20261024_v158/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_train_query_owner_witness_20261024_v158/) |
+| V159 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/) |
+| V160 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/) |
+| V161 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_owner_counterfactual_20261024_v161/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_owner_counterfactual_20261024_v161/) |
+| V162 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_counterfactual_frozen_features_20261024_v162/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_counterfactual_frozen_features_20261024_v162/) |
+| V163 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_train_native_part_witness_20261024_v163/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_train_native_part_witness_20261024_v163/) |
+| V164 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_counterfactual_20261024_v164/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_counterfactual_20261024_v164/) |
+| V165 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_frozen_features_20261024_v165/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_frozen_features_20261024_v165/) |
+| V166 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/) |
+| V167 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/) |
+| V168 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_threshold_full_source_20261024_v168/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_threshold_full_source_20261024_v168/) |
+| V169 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_public_threshold_current_benchmark_20261024_v169/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_public_threshold_current_benchmark_20261024_v169/) |
+| V170 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_source_threshold_feasibility_20261024_v170/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_source_threshold_feasibility_20261024_v170/) |
+| V171 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_constraint_witness_crops_20261024_v171/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_constraint_witness_crops_20261024_v171/) |
+| V172 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_source_mask_semantics_audit_20261024_v172/) |
+| V173 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_full_source_query_causal_census_20261024_v173/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_full_source_query_causal_census_20261024_v173/) |
+| V174 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/) |
+| V175 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_query_owner_control_20261024_v175/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_query_owner_control_20261024_v175/) |
+| V176 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_owner_public_ycb_control_20261024_v176/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_owner_public_ycb_control_20261024_v176/) |
+| V177 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_held_blind_center_owner_review_20261024_v177/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_held_blind_center_owner_review_20261024_v177/) |
+| V178 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_owner_frozen_current_benchmark_20261024_v178/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_direct_owner_frozen_current_benchmark_20261024_v178/) |
+| V179 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_source_target_definition_audit_20261024_v179/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_source_target_definition_audit_20261024_v179/) |
+| V180 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/) |
+| V181 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/) |
+| V182 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_source_same_query_causal_diagnosis_20261024_v182/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_source_same_query_causal_diagnosis_20261024_v182/) |
+| V183 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_query_jitter_paired_source_training_20261024_v183/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_query_jitter_paired_source_training_20261024_v183/) |
+| V184 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_jitter_heads_frozen_real_benchmark_20261024_v184/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_jitter_heads_frozen_real_benchmark_20261024_v184/) |
+| V185 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_part_supervision_readiness_20261024_v185/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_part_supervision_readiness_20261024_v185/) |
+| V186 | [방법·결과·한계](archive/task-2/pallet-keypoint-visibility/query_visibility_public_source_registration_probe_20261024_v186/PORTABLE_REPORT_KO.md) | [원본](archive/task-2/pallet-keypoint-visibility/query_visibility_public_source_registration_probe_20261024_v186/) |

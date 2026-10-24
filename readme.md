@@ -1,3 +1,9 @@
+[V219 공개 실사 약한 부재 감독 실제 학습·결과](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V219_KO.md)
+
+C64/C65 두 SOURCE 모델·코드·로그·저장 출력·혼동행렬·실제 crop을 공개했습니다. 작은 SOURCE DEV에서 보이는 부재 오삭제는 감소했고 외부 가림 recall은 동일했습니다. 현재 평가에서의 개선은 아직 측정하지 않았습니다.
+
+---
+
 ## V218 공개 SOURCE intended-part/query 약타깃 구성
 
 finite-part weak9 제어쌍과 별도 GT-query RGB360장을 만들고, 두 관찰자 nominal weak D19/E8 및 crop-support 확인 후보57(FIT45/DEV12)를 원장·그림으로 공개했습니다. ROI는 타깃 전용이고 native/물리점 gold나 새 모델 개선이 아닙니다. 새 학습0, 최신 실사 비교는 V213 그대로입니다.
