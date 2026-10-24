@@ -1,0 +1,16 @@
+{
+  "schema":"FIXED_PUBLIC_PALLOX_BEFORE_AFTER_DEPTH_DIAGNOSTIC_V1",
+  "fixed_before_pair_statistics":true,
+  "selection":"First exactly matching supplied-pose consecutive even/odd pair in each of six named sessions; source split already locked TRAINlab/VALhall. Full-catalog pair identification uses metadata/hash only; pixel/depth diagnostics initially restricted to these six pairs.",
+  "pair_identity":"Same session and identical supplied4x4pose bytes and sameK; exactly2 fully joined frames with consecutive even then odd ids. Paper documents one unoccluded and one cardboard-occluded capture per position, but frame ordering is checked visually and by depth rather than inferred from mask0.",
+  "transforms":"Use supplied poses and K only. No PnP, ICP, optimization, learned flow or fitted alignment. Object-in-camera direction follows explicit README p_cam=T@p_obj; direct versus inverse overlay comparison is diagnostic, never pose refinement.",
+  "before_positive_core":"Before SAM-named mask eroded radius2 (native5x5 all-positive) AND both measured depths positive. Mask source is human-prompted SAM, not independent human pixel truth.",
+  "foreground_candidate":"Db-Da>=50mm at the same native pixel for identical T/K. Do not require after mask0 and do not turn mask0 into E/O. Candidate remains dependent on camera stability and before-positive provenance.",
+  "stable_visible_candidate":"Before positive core, both depths valid, afterSAMpositive and |Da-Db|<=20mm.",
+  "ambiguous":"Every other point U. No true OUTSIDE or semantic SELF labels are derived.",
+  "strict_mesh_evidence":"Separately flag before-positive points where supplied-pose mesh-render depth exists and |Dmesh-Db|<=max(20mm,1%Db). Do not blindly treat all depth-positive points as target agreement.",
+  "sensitivity_only":"Also count foreground margins100mm and200mm. They are descriptive, not thresholds selected from current data or performance.",
+  "stability_diagnostics":"Provided-pose/K identity reprojection, unchanged common-positive target RGB differences and measured after-before depth residual distributions; retain uncertainty if not aligned. No new alignment transformation is estimated.",
+  "admission":"Family independence follows user's direct factual confirmation via root metadata, license officialCCBY4; exactRGBSHAdenylist still required. Label/registration/geometry quality gates remain separate before any fit.",
+  "scope":"Source-only, no current/private RGB or GT/scores, no model inference, no GPU, no training/threshold tuning/PnP. All v63-v65 artifacts unchanged."
+}

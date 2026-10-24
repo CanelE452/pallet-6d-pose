@@ -1,0 +1,85 @@
+{
+  "schema": "V72_ACTUAL_FIXED_REAL_CROP_VISUAL_FINDINGS_V1",
+  "completed": true,
+  "metadata": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/diagnostics/FIXED_CURRENT_CROP_METADATA.json",
+    "sha256": "f3458794c6756f1c4536e680b97b0d87388d4aad92e6efa9df6da66fda11bab8"
+  },
+  "figures": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/diagnostics/FIXED_D_MODEL_INPUT_AND_ATTENTION.png",
+      "sha256": "46d09068f6770683abbbcd8f4e4c825a8e0b131550d661581f5083415ebfc7b0"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/diagnostics/FIXED_E_MODEL_INPUT_AND_ATTENTION.png",
+      "sha256": "2989c89d316d696155a8a23f0e1ea9c86a6e46c431d5485ceb30f574b5e8839f"
+    }
+  ],
+  "selection": "Exact same ordered four D/two E cases fixed before V72 score access; no replacements.",
+  "actual_visual_QA": {
+    "all2_contact_sheets_opened": true,
+    "all6_model_RGB96_native96_and_attention_panels_inspected": true,
+    "layout_PASS": true,
+    "q_reference_markers_display_only": true,
+    "model_L_and_native96_context_distinguished": true
+  },
+  "summary": {
+    "fixed_D_n": 4,
+    "V72_D_predictions": 2,
+    "v61_saved_binary_visible": 0,
+    "fixed_E_n": 2,
+    "V72_E_conditional_predictions": 1,
+    "v61_saved_binary_nonvisible": 2,
+    "max_D_coordinate_error_px": 0.384304729101454,
+    "all6_coordinate_error_at_most3px": true
+  },
+  "observations": [
+    {
+      "id": "wood_night_01:032494",
+      "native_corner": 5,
+      "observation_KO": "표시된 어두운 목재 끝/상면 경계가 model span과 native96에서 보입니다. attention은 중심 cell에 모이고 V72 pD=.6841로 D 출력입니다. 기존 v61 저장pV=.1263과 다릅니다.",
+      "causal_inference": "NONE"
+    },
+    {
+      "id": "SQUARE_YOLO:025747",
+      "native_corner": 5,
+      "observation_KO": "reference 부근 녹색 팔레트 상단 rim/corner가 보이고 attention peak도 중심 cell입니다. 그러나 V72 pD=.2724로 E 조건부 출력입니다. 이 고정 false-D-miss는 attention 중심 이탈만으로 설명되지 않습니다.",
+      "causal_inference": "Attention centered is insufficient to guarantee correct D classification; mechanism not isolated."
+    },
+    {
+      "id": "wood_night_01:032376",
+      "native_corner": 0,
+      "observation_KO": "어두운 목재 상면/끝 경계와 오른쪽 원뿔이 함께 있습니다. attention peak는 위-오른쪽 cell[0,8]로 reference에서35.51nativepx 떨어지고 pD=.0496입니다. 낮은 대비와 옆 물체가 함께 관찰되지만 원인 분리 실험은 하지 않았습니다.",
+      "causal_inference": "Distractor-attention association is descriptive, not proven cause."
+    },
+    {
+      "id": "SQUARE_YOLO:027620",
+      "native_corner": 1,
+      "observation_KO": "노출된 녹색 팔레트 rim/corner 부근에 attention 중심 peak가 있고 pD=.9203입니다. 같은 generic visible-corner 계열의025747과 출력이 다르지만 두 장면이 통제된 쌍은 아닙니다.",
+      "causal_inference": "NONE"
+    },
+    {
+      "id": "wood_day_01:005249",
+      "native_corner": 5,
+      "observation_KO": "빨간 원뿔이 reference 부근 앞쪽을 차지하고 오른쪽에 목재 팔레트가 있습니다. human E 사례에서 pD=.0031로 E 조건부 출력입니다. peak는 원뿔 하단-왼쪽[8,0]이며 E에는 D-only 위치보조감독이 없으므로 올바른 가림 원인 localization 증거로 해석하지 않습니다.",
+      "causal_inference": "Correct binary comparison does not validate calibrated causal E."
+    },
+    {
+      "id": "SQUARE_YOLO:030931",
+      "native_corner": 4,
+      "observation_KO": "human E reference는 원뿔과 팔레트 경계 부근입니다. attention peak는 그 오른쪽-아래의 보이는 녹색 팔레트 영역[5,5], reference에서10.52nativepx이며 pD=.9800으로 D 출력입니다. crop 안의 주변 visible target 지지가 특정 semantic reference 가림과 혼동될 수 있는 실패 양상이나, attention만으로 인과를 확정하지 않습니다.",
+      "causal_inference": "Compatible with nearby target-presence vs reference-visibility confusion; not a causal proof."
+    }
+  ],
+  "interpretation_limits": [
+    "D/E are existing human semantic reference states; native exact-pixel visible/full GT is unavailable.",
+    "pD/pE are source-cue D/E-conditional model outputs, not a calibrated causal E/S/O/U system.",
+    "Attention peak is predicted 9x9 cell center sampled at unchanged L/9; RGB overlay is display-only and not a new model input.",
+    "The six development-exposed cases are explanatory, not independent heldout performance.",
+    "No model/threshold/radius/coordinate changed or selected from these cases."
+  ],
+  "new_model_forward": 0,
+  "new_training": 0,
+  "new_PnP": 0,
+  "old_files_modified": false
+}

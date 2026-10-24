@@ -1,0 +1,670 @@
+{
+  "PASS": true,
+  "schema": "V77_SAVED_ONLY_PUBLIC_NATURAL_FIXED_GEOMETRY_COMPARISON",
+  "fixed_threshold": 0.5,
+  "V76_update": 200,
+  "V77_update": 600,
+  "checkpoint": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/runs/PAIRED_SUPPORT_V1/BEST_SUPPORT_HEAD.pt",
+    "sha256": "076ebe49de896068014d9922f0073efdb30706a2176d55c110628e097479e4d1"
+  },
+  "same_primary_admission_and_IDs": true,
+  "old_V76_published_cohort_counts_metrics_reconciled": true,
+  "base_public_VAL_instances": 800,
+  "base_all_slots": 6400,
+  "base_known_primary_slots": 2018,
+  "definitions": {
+    "error": "Euclidean ||r-q|| native pixels <=3, exactly the previous V76 rule.",
+    "strong": "Frozen teacher rule prefix STRONG_3X3; source silhouette support, not semantic human/native8 gold.",
+    "central_cell": "Linf=max(abs((r-q)/L))<=1/18, exactly prior native9 center-cell square rule; not L2 radius or newly chosen tolerance.",
+    "labels": "Teacher stays at reference r; model crop remains emulated q. Unknown/invalid/ref-MISS not negatives.",
+    "threshold": "support_logit>=0 means VISIBLE at fixed p=.5; no threshold or checkpoint selection here."
+  },
+  "cohorts": [
+    {
+      "cohort": "ALL_NATURAL_PUBLIC_VAL_PRIMARY",
+      "cohort_IDs_SHA256": "0faa04d69bc628b06b8ea7b473f6dfc1c269cb0609643bf2da619ca037a506bb",
+      "V76": {
+        "N": 2018,
+        "C_support": 287,
+        "V_support": 1731,
+        "C_pred_C_TN": 173,
+        "C_pred_V_FP": 114,
+        "V_pred_C_FN": 574,
+        "V_pred_V_TP": 1157,
+        "V_precision_conditional_known_admitted": 0.9103068450039339,
+        "V_recall": 0.6683997689196995,
+        "C_precision_conditional_known_admitted": 0.23159303882195448,
+        "C_recall": 0.6027874564459931,
+        "accuracy": 0.6590683845391476
+      },
+      "V77": {
+        "N": 2018,
+        "C_support": 287,
+        "V_support": 1731,
+        "C_pred_C_TN": 202,
+        "C_pred_V_FP": 85,
+        "V_pred_C_FN": 651,
+        "V_pred_V_TP": 1080,
+        "V_precision_conditional_known_admitted": 0.927038626609442,
+        "V_recall": 0.6239168110918544,
+        "C_precision_conditional_known_admitted": 0.23681125439624853,
+        "C_recall": 0.7038327526132404,
+        "accuracy": 0.6352824578790882
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 287,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              158,
+              15
+            ],
+            [
+              44,
+              70
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 1731,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              415,
+              159
+            ],
+            [
+              236,
+              921
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "ERROR_LE3PX",
+      "cohort_IDs_SHA256": "a38093de3a3315c964d276ccbb9050f9f229b918462284c1b4462cd5c2351364",
+      "V76": {
+        "N": 1030,
+        "C_support": 157,
+        "V_support": 873,
+        "C_pred_C_TN": 100,
+        "C_pred_V_FP": 57,
+        "V_pred_C_FN": 307,
+        "V_pred_V_TP": 566,
+        "V_precision_conditional_known_admitted": 0.9085072231139647,
+        "V_recall": 0.6483390607101948,
+        "C_precision_conditional_known_admitted": 0.2457002457002457,
+        "C_recall": 0.6369426751592356,
+        "accuracy": 0.6466019417475728
+      },
+      "V77": {
+        "N": 1030,
+        "C_support": 157,
+        "V_support": 873,
+        "C_pred_C_TN": 113,
+        "C_pred_V_FP": 44,
+        "V_pred_C_FN": 355,
+        "V_pred_V_TP": 518,
+        "V_precision_conditional_known_admitted": 0.9217081850533808,
+        "V_recall": 0.5933562428407789,
+        "C_precision_conditional_known_admitted": 0.24145299145299146,
+        "C_recall": 0.7197452229299363,
+        "accuracy": 0.612621359223301
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 157,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              91,
+              9
+            ],
+            [
+              22,
+              35
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 873,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              223,
+              84
+            ],
+            [
+              132,
+              434
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "STRONG_3X3",
+      "cohort_IDs_SHA256": "f4959b04361493cf041e3334623e11717a9fa22a9916db4ab8450adcc9b245ef",
+      "V76": {
+        "N": 1174,
+        "C_support": 169,
+        "V_support": 1005,
+        "C_pred_C_TN": 92,
+        "C_pred_V_FP": 77,
+        "V_pred_C_FN": 442,
+        "V_pred_V_TP": 563,
+        "V_precision_conditional_known_admitted": 0.8796875,
+        "V_recall": 0.5601990049751244,
+        "C_precision_conditional_known_admitted": 0.17228464419475656,
+        "C_recall": 0.5443786982248521,
+        "accuracy": 0.5579216354344123
+      },
+      "V77": {
+        "N": 1174,
+        "C_support": 169,
+        "V_support": 1005,
+        "C_pred_C_TN": 110,
+        "C_pred_V_FP": 59,
+        "V_pred_C_FN": 454,
+        "V_pred_V_TP": 551,
+        "V_precision_conditional_known_admitted": 0.9032786885245901,
+        "V_recall": 0.5482587064676617,
+        "C_precision_conditional_known_admitted": 0.1950354609929078,
+        "C_recall": 0.650887573964497,
+        "accuracy": 0.5630323679727428
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 169,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              80,
+              12
+            ],
+            [
+              30,
+              47
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 1005,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              319,
+              123
+            ],
+            [
+              135,
+              428
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "CENTER_NATIVE9_CELL_LINF_LE1_OVER18",
+      "cohort_IDs_SHA256": "ce5ba43157cdc979e16791d43c0e0648145d9d50c2948a37d8ecd695b7a2e316",
+      "V76": {
+        "N": 1163,
+        "C_support": 171,
+        "V_support": 992,
+        "C_pred_C_TN": 105,
+        "C_pred_V_FP": 66,
+        "V_pred_C_FN": 319,
+        "V_pred_V_TP": 673,
+        "V_precision_conditional_known_admitted": 0.9106901217861976,
+        "V_recall": 0.6784274193548387,
+        "C_precision_conditional_known_admitted": 0.24764150943396226,
+        "C_recall": 0.6140350877192983,
+        "accuracy": 0.6689595872742906
+      },
+      "V77": {
+        "N": 1163,
+        "C_support": 171,
+        "V_support": 992,
+        "C_pred_C_TN": 121,
+        "C_pred_V_FP": 50,
+        "V_pred_C_FN": 365,
+        "V_pred_V_TP": 627,
+        "V_precision_conditional_known_admitted": 0.9261447562776958,
+        "V_recall": 0.6320564516129032,
+        "C_precision_conditional_known_admitted": 0.24897119341563786,
+        "C_recall": 0.7076023391812866,
+        "accuracy": 0.6431642304385211
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 171,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              96,
+              9
+            ],
+            [
+              25,
+              41
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 992,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              224,
+              95
+            ],
+            [
+              141,
+              532
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "STRONG_AND_ERROR_LE3PX",
+      "cohort_IDs_SHA256": "e3537a62533d35581b46c975b0fae4a4b42b452986dcf23a2f62fc92f9df583e",
+      "V76": {
+        "N": 620,
+        "C_support": 92,
+        "V_support": 528,
+        "C_pred_C_TN": 56,
+        "C_pred_V_FP": 36,
+        "V_pred_C_FN": 243,
+        "V_pred_V_TP": 285,
+        "V_precision_conditional_known_admitted": 0.8878504672897196,
+        "V_recall": 0.5397727272727273,
+        "C_precision_conditional_known_admitted": 0.18729096989966554,
+        "C_recall": 0.6086956521739131,
+        "accuracy": 0.55
+      },
+      "V77": {
+        "N": 620,
+        "C_support": 92,
+        "V_support": 528,
+        "C_pred_C_TN": 60,
+        "C_pred_V_FP": 32,
+        "V_pred_C_FN": 255,
+        "V_pred_V_TP": 273,
+        "V_precision_conditional_known_admitted": 0.8950819672131147,
+        "V_recall": 0.5170454545454546,
+        "C_precision_conditional_known_admitted": 0.19047619047619047,
+        "C_recall": 0.6521739130434783,
+        "accuracy": 0.5370967741935484
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 92,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              49,
+              7
+            ],
+            [
+              11,
+              25
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 528,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              173,
+              70
+            ],
+            [
+              82,
+              203
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "STRONG_AND_CENTER_CELL",
+      "cohort_IDs_SHA256": "bcd322d1a75f3a4557a5c33567c0e48047596e4b071d778cce24eb133399bc72",
+      "V76": {
+        "N": 668,
+        "C_support": 93,
+        "V_support": 575,
+        "C_pred_C_TN": 51,
+        "C_pred_V_FP": 42,
+        "V_pred_C_FN": 249,
+        "V_pred_V_TP": 326,
+        "V_precision_conditional_known_admitted": 0.8858695652173914,
+        "V_recall": 0.5669565217391305,
+        "C_precision_conditional_known_admitted": 0.17,
+        "C_recall": 0.5483870967741935,
+        "accuracy": 0.5643712574850299
+      },
+      "V77": {
+        "N": 668,
+        "C_support": 93,
+        "V_support": 575,
+        "C_pred_C_TN": 57,
+        "C_pred_V_FP": 36,
+        "V_pred_C_FN": 251,
+        "V_pred_V_TP": 324,
+        "V_precision_conditional_known_admitted": 0.9,
+        "V_recall": 0.5634782608695652,
+        "C_precision_conditional_known_admitted": 0.18506493506493507,
+        "C_recall": 0.6129032258064516,
+        "accuracy": 0.5703592814371258
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 93,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              44,
+              7
+            ],
+            [
+              13,
+              29
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 575,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              171,
+              78
+            ],
+            [
+              80,
+              246
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "ERROR_LE3PX_AND_CENTER_CELL",
+      "cohort_IDs_SHA256": "05f422683e7ab7df81dbc603891bf614dabbe344beba74ea405a789ea26e1de3",
+      "V76": {
+        "N": 914,
+        "C_support": 139,
+        "V_support": 775,
+        "C_pred_C_TN": 89,
+        "C_pred_V_FP": 50,
+        "V_pred_C_FN": 266,
+        "V_pred_V_TP": 509,
+        "V_precision_conditional_known_admitted": 0.9105545617173524,
+        "V_recall": 0.6567741935483871,
+        "C_precision_conditional_known_admitted": 0.2507042253521127,
+        "C_recall": 0.6402877697841727,
+        "accuracy": 0.6542669584245077
+      },
+      "V77": {
+        "N": 914,
+        "C_support": 139,
+        "V_support": 775,
+        "C_pred_C_TN": 101,
+        "C_pred_V_FP": 38,
+        "V_pred_C_FN": 306,
+        "V_pred_V_TP": 469,
+        "V_precision_conditional_known_admitted": 0.9250493096646942,
+        "V_recall": 0.6051612903225806,
+        "C_precision_conditional_known_admitted": 0.24815724815724816,
+        "C_recall": 0.7266187050359713,
+        "accuracy": 0.6236323851203501
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 139,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              81,
+              8
+            ],
+            [
+              20,
+              30
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 775,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              191,
+              75
+            ],
+            [
+              115,
+              394
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "STRONG_AND_ERROR_LE3PX_AND_CENTER_CELL",
+      "cohort_IDs_SHA256": "29788a656ccc480179e04222423ea53b57973d9989d1e297198e6318506560ac",
+      "V76": {
+        "N": 535,
+        "C_support": 76,
+        "V_support": 459,
+        "C_pred_C_TN": 46,
+        "C_pred_V_FP": 30,
+        "V_pred_C_FN": 212,
+        "V_pred_V_TP": 247,
+        "V_precision_conditional_known_admitted": 0.8916967509025271,
+        "V_recall": 0.5381263616557734,
+        "C_precision_conditional_known_admitted": 0.17829457364341086,
+        "C_recall": 0.6052631578947368,
+        "accuracy": 0.5476635514018692
+      },
+      "V77": {
+        "N": 535,
+        "C_support": 76,
+        "V_support": 459,
+        "C_pred_C_TN": 49,
+        "C_pred_V_FP": 27,
+        "V_pred_C_FN": 217,
+        "V_pred_V_TP": 242,
+        "V_precision_conditional_known_admitted": 0.8996282527881041,
+        "V_recall": 0.5272331154684096,
+        "C_precision_conditional_known_admitted": 0.18421052631578946,
+        "C_recall": 0.6447368421052632,
+        "accuracy": 0.5439252336448598
+      },
+      "paired_prediction_transitions": [
+        {
+          "GT": "COVERED",
+          "N": 76,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              40,
+              6
+            ],
+            [
+              9,
+              21
+            ]
+          ]
+        },
+        {
+          "GT": "VISIBLE",
+          "N": 459,
+          "CM_rows_V76_pred_CV_cols_V77_pred_CV": [
+            [
+              148,
+              64
+            ],
+            [
+              69,
+              178
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "strict_intersection_self_slices": [
+    {
+      "self_flag": "CONVEX_SELF_HIDDEN",
+      "V76": {
+        "N": 308,
+        "C_support": 61,
+        "V_support": 247,
+        "C_pred_C_TN": 42,
+        "C_pred_V_FP": 19,
+        "V_pred_C_FN": 139,
+        "V_pred_V_TP": 108,
+        "V_precision_conditional_known_admitted": 0.8503937007874016,
+        "V_recall": 0.43724696356275305,
+        "C_precision_conditional_known_admitted": 0.23204419889502761,
+        "C_recall": 0.6885245901639344,
+        "accuracy": 0.487012987012987
+      },
+      "V77": {
+        "N": 308,
+        "C_support": 61,
+        "V_support": 247,
+        "C_pred_C_TN": 45,
+        "C_pred_V_FP": 16,
+        "V_pred_C_FN": 150,
+        "V_pred_V_TP": 97,
+        "V_precision_conditional_known_admitted": 0.8584070796460177,
+        "V_recall": 0.39271255060728744,
+        "C_precision_conditional_known_admitted": 0.23076923076923078,
+        "C_recall": 0.7377049180327869,
+        "accuracy": 0.461038961038961
+      }
+    },
+    {
+      "self_flag": "CONVEX_MAY_VISIBLE",
+      "V76": {
+        "N": 227,
+        "C_support": 15,
+        "V_support": 212,
+        "C_pred_C_TN": 4,
+        "C_pred_V_FP": 11,
+        "V_pred_C_FN": 73,
+        "V_pred_V_TP": 139,
+        "V_precision_conditional_known_admitted": 0.9266666666666666,
+        "V_recall": 0.6556603773584906,
+        "C_precision_conditional_known_admitted": 0.05194805194805195,
+        "C_recall": 0.26666666666666666,
+        "accuracy": 0.6299559471365639
+      },
+      "V77": {
+        "N": 227,
+        "C_support": 15,
+        "V_support": 212,
+        "C_pred_C_TN": 4,
+        "C_pred_V_FP": 11,
+        "V_pred_C_FN": 67,
+        "V_pred_V_TP": 145,
+        "V_precision_conditional_known_admitted": 0.9294871794871795,
+        "V_recall": 0.6839622641509434,
+        "C_precision_conditional_known_admitted": 0.056338028169014086,
+        "C_recall": 0.26666666666666666,
+        "accuracy": 0.6563876651982379
+      }
+    },
+    {
+      "self_flag": "SELF_PROXY_UNKNOWN",
+      "V76": {
+        "N": 0,
+        "C_support": 0,
+        "V_support": 0,
+        "C_pred_C_TN": 0,
+        "C_pred_V_FP": 0,
+        "V_pred_C_FN": 0,
+        "V_pred_V_TP": 0,
+        "V_precision_conditional_known_admitted": null,
+        "V_recall": null,
+        "C_precision_conditional_known_admitted": null,
+        "C_recall": null,
+        "accuracy": null
+      },
+      "V77": {
+        "N": 0,
+        "C_support": 0,
+        "V_support": 0,
+        "C_pred_C_TN": 0,
+        "C_pred_V_FP": 0,
+        "V_pred_C_FN": 0,
+        "V_pred_V_TP": 0,
+        "V_precision_conditional_known_admitted": null,
+        "V_recall": null,
+        "C_precision_conditional_known_admitted": null,
+        "C_recall": null,
+        "accuracy": null
+      }
+    }
+  ],
+  "interpretation": [
+    "Errors remaining in the <=3px+strong3x3+central-cell intersection cannot all be attributed to large query displacement, crop-reference MISS or footprint-fallback labels.",
+    "This is a source-only controlled comparison of saved model outputs; it does not isolate encoder/identity/scale as a causal mechanism.",
+    "Known support at reference r is a conditional source proxy. Exact query-pixel occupancy and human semantic reference-corner D/E/S are not inferred.",
+    "V77 improves controlled visibility suppression while preserving substantial natural-visible false-covered errors; inspect the shown C/V tradeoff rather than declaring the full goal solved."
+  ],
+  "query_labels_admission_threshold_checkpoint_changes": false,
+  "input_arrays_decoded": [
+    "query8_xy",
+    "L"
+  ],
+  "RGB_mask_P3_model_current_forward_fit_PnP": 0,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/source_failure_diagnosis/PUBLIC_VAL_SAVED_FAILURE_DIAGNOSIS.json",
+      "sha256": "f4268d4ab7b3e374b4d5a5337ad76b624c52bce29f6de1d402103ebae9055992"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/GT_ONLY_TEACHER_CORPUS.npz",
+      "sha256": "626338ae0dee48f5c5d5f53930e05d02960225ee9d3972e751aeff4b25c30f45"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/mixed_fit/runs/MIXED_SUPPORT_V1/SELECTED_SOURCE_SCORES.npz",
+      "sha256": "d3fb764e44ec4e08decc7ca1075212cba9a580f6942fc42a2c3a57826c256b98"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/runs/PAIRED_SUPPORT_V1/SELECTED_SOURCE_SCORES.npz",
+      "sha256": "c225ac0455ee6fb43aff05b21ef8686efc0a493dc436a927b5c0e5b345c43f7a"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/runs/PAIRED_SUPPORT_V1/MODEL_FREEZE.json",
+      "sha256": "c90541b444fd65fdaeb91b59825d46e608fdd88f6bdba9741f4d5785307bfb68"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/public_input_pack/PACK_MANIFEST.json",
+      "sha256": "f7b83fcbb5aa9036db6e9bc001560414d3ea30cdf58145c74e594d08fb77f85f"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/public_input_pack/INDEX_LINEAGE_INPUT_ONLY.jsonl",
+      "sha256": "15740d2ea7e1af16c11f43870cfca92b00f1e8be104bc6316a88f6832e88a386"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/source_failure_audit/PUBLIC_NATURAL_FIXED_GEOMETRY_SAVED_COMPARISON.csv",
+      "sha256": "595cff3742a2ebfc44c06102244e348606aa7dfbcad3205fa1b36f7ee919aaf7"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/source_failure_audit/FIXED_COHORT_IDS.csv",
+      "sha256": "328caa6779d7dbdd4e715a64220332a0d0a78357fbc2a295265d37bf97b2e38d"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/source_failure_audit/compare_fixed_geometry_saved.py",
+      "sha256": "2f3e4bc84601ee9d7e2a5153e04a10935a79f44a0f56cb39aa412ccd27edf237"
+    }
+  ]
+}

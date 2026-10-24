@@ -1,0 +1,72 @@
+{
+  "schema": "SOURCE_ONLY_GLOBAL_SHAPE_V65_PROTOCOL",
+  "objective": "Test whether whole-target visible/full shape context improves six-state native-query support separation over v64; no semantic-self or physical-amodal certainty claim.",
+  "data": {
+    "train": "unchanged SYNTH768/YCB800 source frames and queries",
+    "validation": "unchanged SYNTH235/YCB200 source frames and queries, 4942 valid queries",
+    "excluded": "current223 evaluation RGB/annotation/scores are never used for training, normalization, calibration, thresholds, checkpoint or architecture selection; no new private inference during source experiment"
+  },
+  "labels": {
+    "joint_order": [
+      "VV",
+      "EV",
+      "EE",
+      "OV",
+      "OE",
+      "OO"
+    ],
+    "exact": "nearest floor(native_xy+.5) visible/full source mask membership",
+    "radius2": "native clipped5x5 any visible/full support, dilation before64resampling",
+    "E": "full1visible0 support proxy, not certified physical external occlusion or semantic self",
+    "global": "same6jointGT sampled at64crop native centers; out-of-frame continuous/nearest invalids masked"
+  },
+  "input": {
+    "local": "all frozen v64 P3/context/nativeRGB/SAMexact+r2/box features and same queries retained",
+    "global": "64x64 anisotropic crop of same frozen SAM promptbox expanded1.25, RGBbilinear+SAMselectedexactlogitnearest/8clip4+promptinside5channels",
+    "crop_phase": "native_xy=center+(j+.5-32)*(1.25box_size/64); local integerlabelpixel inverse mapped nearest into64and8grids; invalid sampled featureszero",
+    "conditioning_gap": "YCBsource boxes are annotation-derived jittered boxes, SYNTHusesunchangedN0querybounds; deployment usesN0box. No target mask values/extrema used for new features.",
+    "frozen_backbones": true,
+    "border": "globalRGB cv2linear constant0 border may retain partial-edge color at invalidgridcenters; globalSAM/promptzero there, globalGTlossmasked. querysampledglobalfeatures/logitszero outsidevalidlocalmapping.",
+    "global_resolution_limit": "sampled64logits and8bottleneck are coarse context; localnativeexact/r2GTremain authoritative; no64logitexactpixelparityclaim"
+  },
+  "model": {
+    "parameters_max": 100000,
+    "global": "UNetencoder5-8-16-24-32,double3x3blocks; decoderone3x3perlevel24-16-8;6jointmasklogits",
+    "query": "v64nonlinearlocalfusion receivesglobal32bottleneckand6logits by deterministicnearestonehotmatmul",
+    "weight_initialization": "new head seed20261022; no v64/private checkpoint initialization"
+  },
+  "fit": {
+    "candidates": [
+      "SYNTH_GLOBAL_UNWEIGHTED",
+      "MIXED_GLOBAL_UNWEIGHTED"
+    ],
+    "updates": 2000,
+    "batch_queries": 256,
+    "seed": 20261022,
+    "optimizer": "AdamWlr.001wd.0001",
+    "validation_every_updates": 100,
+    "loss": "mean(sourcequerycenterCE)+.25mean(sourcelocalvaliddenseCE)+.25mean(sourceunique-batchtargetvalidglobaldenseCE)",
+    "global_loss_normalization": "validpixelmean perunique target thenmean within source; uniquetargets perminibatch remove duplicatequery weighting; selection iscenterqueryNLL only",
+    "class_and_evidence_weights": 1,
+    "selection": "lowestmacro-source-unweightedVALcenterqueryjointNLL",
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "decoder": {
+    "binary": "pVisible>=.5, exact andradius2 separate; primarycomparablebinarynoU",
+    "logical": "V ifpVisible>=.5 elseE ifpFull>=.5 elseO; diagnostic notconfidentE",
+    "confidence": "jointMAP ifmaxjoint>=.5 elseUNKNOWN; samefixedthresholdsasv64",
+    "self": "no learnedselflabel; savedposepuregeometry optionalproxy only, noPnP"
+  },
+  "source_reporting": [
+    "same4942queryv64andTRAINprior/rawSAM+box/constantscontrols",
+    "sourceV/E/OconfusionP/RconfidenceUandallGTdenominator",
+    "strictcorroboratedEandambiguous/boundary/depthstrata",
+    "perobjectYCB",
+    "NLLselectiondoesnotprovesolvedexternalocclusion",
+    "sourcecomparisonreleaseHOLDifEprecision/strictErecall/Orecall/confidencecoveragefails to improve jointly versusv64 onYCB, or anydomainNLLfails TRAINprior"
+  ],
+  "new_PnP_calls": 0,
+  "new_current_eval_inference_started": false,
+  "source_before_private_freeze": true,
+  "experiment_limit": "two sourcefits only; report all results, do not start unbounded architecture search if this remains inadequate"
+}

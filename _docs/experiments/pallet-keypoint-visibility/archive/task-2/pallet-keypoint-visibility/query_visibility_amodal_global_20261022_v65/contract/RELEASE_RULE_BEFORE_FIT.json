@@ -1,0 +1,105 @@
+{
+  "schema": "V65_SOURCE_COMPARATIVE_RELEASE_RULE_BEFORE_FIT_V1",
+  "created_UTC": "2026-10-22 13:42:20 UTC",
+  "source_fits_started_at_registration": false,
+  "source_of_authorization": "Parent explicitly fixed all four strict improvements before any source fit; source-only engineering release criterion.",
+  "candidate_budget": [
+    "SYNTH_GLOBAL_UNWEIGHTED",
+    "MIXED_GLOBAL_UNWEIGHTED"
+  ],
+  "selection": "Checkpoint always lowest macro source unweighted valid-center query jointNLL; release rule never changes selected checkpoint or threshold.",
+  "predeclared_primary": "MIXED_GLOBAL_UNWEIGHTED",
+  "decoder": {
+    "joint": "argmax among ordered VV,EV,EE,OV,OE,OO; first index wins ties",
+    "confidence": "max joint probability>=.5 accepted else pairU",
+    "scale": "exact for four comparative engineering criteria",
+    "binary": "pV>=.5 unchanged; reported separately"
+  },
+  "criteria": {
+    "E_precision": {
+      "numerator": 43,
+      "denominator": 66,
+      "baseline": 0.6515151515151515,
+      "definition": "Among all YCB exact queries predicted E by accepted jointMAP, fraction with exact GT E.",
+      "required_comparison": "strictly > frozen v64 baseline; compare exact integer ratios by cross multiplication"
+    },
+    "strict_E_recall_all_GT": {
+      "numerator": 36,
+      "denominator": 176,
+      "baseline": 0.20454545454545456,
+      "definition": "Among fixed YCB source evidence strict_external_corroborated_5x5=1 queries (176), fraction predicted exact E. All U and wrong classes count as misses.",
+      "required_comparison": "strictly > frozen v64 baseline; compare exact integer ratios by cross multiplication"
+    },
+    "O_recall_all_GT": {
+      "numerator": 472,
+      "denominator": 1096,
+      "baseline": 0.4306569343065693,
+      "definition": "Among all YCB exact GT O queries, fraction predicted exact O. U counts as miss.",
+      "required_comparison": "strictly > frozen v64 baseline; compare exact integer ratios by cross multiplication"
+    },
+    "overall_confidence_coverage": {
+      "numerator": 2212,
+      "denominator": 3200,
+      "baseline": 0.69125,
+      "definition": "All YCB queries with max six-joint probability>=.5 divided by all3200 YCB queries; U retained in denominator.",
+      "required_comparison": "strictly > frozen v64 baseline; compare exact integer ratios by cross multiplication"
+    }
+  },
+  "baseline_YCB_confusion_V_E_O_rows_and_V_E_O_U_columns": [
+    [
+      1123,
+      3,
+      110,
+      335
+    ],
+    [
+      229,
+      43,
+      36,
+      225
+    ],
+    [
+      176,
+      20,
+      472,
+      428
+    ]
+  ],
+  "baseline_strict_E_confusion": [
+    22,
+    36,
+    21,
+    97
+  ],
+  "source_NLL_rule": "For every evaluation source domain, query jointNLL strictly below empirical TRAIN-only prior NLL. If no training examples from that domain, use and disclose global TRAIN prior. Laplace1 additional diagnostic only.",
+  "decision": "RELEASE only if all4ratioimprovements AND everydomainNLLbeatsTRAINprior; else HOLD. Missing/undefined metric or data-integrity failure =>HOLD.",
+  "scope_caution": "Passing is a comparative engineering check against v64, not proof of solved external occlusion or private reliability. No retries, threshold fitting, new datasets or unbounded architecture search.",
+  "no_private_RGB_labels_or_scores_accessed": true,
+  "new_training_GPU_PnP_calls": 0,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/PROTOCOL.json",
+      "sha256": "e99859f1369a328af812383ba01c2fe9fe08bc2d0a04fa26da476d02e9bfd4f8"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/global_recipe.py",
+      "sha256": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/extract_global_inputs.py",
+      "sha256": "e0295876102d6f3f85e7efe50fca842a34e12af8150293b28a6d95d72a97ea89"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/contract/MIXED_ALL4942_SOURCE.json",
+      "sha256": "02012274755f32e0c3189b6ce7f24e4557f601f2451bbada8cb2f69ebe4073c0"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_audit/YCB_VALIDATION_QUERY_EVIDENCE.csv",
+      "sha256": "5e376b0597e7c41971fe1c91ebaad7dbfec17fe04cb71f19cb385616f013ce68"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_comparison/MIXED_MULTITARGET_UNWEIGHTED/SOURCE_OUTPUTS.npz",
+      "sha256": "03d626436ca4d67dff7ab0b92677f08a6ec5f6415c2f4bddf151c184f2de0b05"
+    }
+  ]
+}

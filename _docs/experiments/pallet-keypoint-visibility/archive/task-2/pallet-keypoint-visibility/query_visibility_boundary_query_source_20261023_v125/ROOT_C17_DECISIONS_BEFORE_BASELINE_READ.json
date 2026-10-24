@@ -1,0 +1,87 @@
+{
+  "created_UTC": "2026-10-23T13:00:53.150330+00:00",
+  "purpose": "One prospective small-head fit to test controlled query-boundary augmentation; decisions before frozen V125 C16 baseline/GT evaluation",
+  "goal_status": "active",
+  "fully_solved": false,
+  "training_admission": "Conditional existing weak region/component D/E labels only; original uncertainty/physical compositions/folds unchanged; no native/pixel gold claims",
+  "warmstart": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_training_duration_control_20261023_v124/runs/C16_EXACT_C15_DURATION_CONTROL_8000/MODEL_FREEZE.json",
+    "sha256": "d62623ce6649b932740e95cd9462844bab5f77f8d95823551f091c0098fb9570"
+  },
+  "parent_helper": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/source_fit_preparation/train_source_once.py",
+    "sha256": "1ae7f8daada610257772a64df30c52b4fe41e604e05a8497c878570742b9ba1f"
+  },
+  "head": {
+    "class_unchanged": true,
+    "trainable_parameters": 221825,
+    "encoder_trainable": 0,
+    "threshold_logit": 0,
+    "normalizer_fit": false
+  },
+  "optimizer": {
+    "type": "AdamW",
+    "fresh_optimizer_for_changed_objective": true,
+    "lr": 0.0001,
+    "weight_decay": 0.001,
+    "clip_norm": 5,
+    "updates": 1000,
+    "early_stop": false,
+    "extensions_inside_run": false,
+    "torch_seed": 219
+  },
+  "sampling": {
+    "old192": "Exact C15 draw192 helpers/pools/seeds208,214,215,216,217,new218, resets explicitly; retain old same-material hinge",
+    "additional_wide64": {
+      "E_alpha_outside": 16,
+      "E_alpha_inside": 16,
+      "D_SHAM_alpha_inside": 16,
+      "D_SHAM_alpha_outside": 8,
+      "D_BEFORE": 8
+    },
+    "wide_generator_seed": 220,
+    "replacement": true,
+    "new_pool_membership": "known D/E AND input-available AND originalTRAIN only; uniform occurrence draw within each fixed stratum",
+    "loss": "unchanged C15 loss192(old128BCE+.25hinge+oldnew64BCE) + additional wide64 mean BCE",
+    "S_U_in_loss": false,
+    "known_unavailable_in_loss": false
+  },
+  "selection": {
+    "evaluate_updates": [
+      0,
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900,
+      1000
+    ],
+    "criterion": "equal mean of exact old14 validation cohort BCE plus four V125(LOCO/TOMIE x D/E) validation cohort BCE; earliest strict minimum, including update0",
+    "preserve_exact_old15_regression_gate_definitions": true,
+    "current_used": false
+  },
+  "new_source_checks": {
+    "scope": "source diagnostics, not reliable-real-goal completion proof",
+    "for_each_LOCO_VAL_and_TOMIE_DEV": {
+      "D_recall_min": 0.85,
+      "E_recall_min": 0.75,
+      "known_model_U_rate_max": 0.05,
+      "E_q_alpha_outside_recall_min": 0.75,
+      "SHAM_D_q_alpha_inside_recall_min": 0.75
+    },
+    "include_all_planned_rows_in_reports": true,
+    "teacherU_and_inputU_separate": true
+  },
+  "source_only": true,
+  "current223_training_threshold_normalizer_checkpoint_arm_selection": false,
+  "current_forward_allowed_yet": false,
+  "V112_allowed": false,
+  "PnP": false,
+  "q_L_correction": false,
+  "only_one_model_arm": true,
+  "no_automatic_restart_after_updates": true
+}

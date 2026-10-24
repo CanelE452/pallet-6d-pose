@@ -1,0 +1,21 @@
+Scope: local only; original source/data/checkpoints required and intentionally not bundled. Use a NEW output directory, not overwrite existing immutable receipts.
+Scientific source revision:93c24d143fa3901de1fa127b3156e8250d81dba8
+CPU env:/home/minjae/anaconda3/envs/pallet-pose/bin/python
+GPU env:/home/minjae/anaconda3/envs/pallet-yolo26/bin/python
+Threads:OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+Order actually executed:
+prepare_inputs.py
+extract_features.py --scope SYNTH [same-host GPU]
+fit_head.py [same-host GPU; exactly one fit480updates; no automatic rerun]
+evaluate_pose.py --scope SYNTH [CPU; predictions sealed before references]
+parity_real_inputs.py [fails80; preserve]
+repair_real_carrier_attempt1.py [original qFinal restores80; inverse-dimension rounding still fails strict1e-9]
+repair_real_carrier.py [exact registry dimensions; REAL_VERIFIED_PARITY_V2 PASS]
+extract_features.py --scope REAL [same-host GPU; frozen model]
+predict_real_head.py [same-host GPU; no optimizer/targets]
+evaluate_pose.py --scope REAL [CPU; predictions sealed before references]
+verify_and_figures.py [same-formula success counts; SciPy projected rotation diagnostic reported]
+independent_metric_closure.py [same historical trace metric independent scalar audit]
+finalize_local.py [reports/local package only]
+No threshold/anchor/crop/checkpoint changes based on real performance.
+See common.py absolute local source paths; files are private local deliverables, not public portable data release.

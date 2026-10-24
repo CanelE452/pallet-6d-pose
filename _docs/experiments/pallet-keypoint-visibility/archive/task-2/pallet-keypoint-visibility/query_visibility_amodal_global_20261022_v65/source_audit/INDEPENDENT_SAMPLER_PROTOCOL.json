@@ -1,0 +1,13 @@
+{
+  "schema":"INDEPENDENT_PUBLIC_GLOBAL_SAMPLER_AUDIT_V65_V1",
+  "fixed_before_execution":true,
+  "scope":"All3003 public source targets, global64x64 GT and all four domain/split caches; all local query mappings64/8. No root-code imports or mutations, no GPU, model inference, training, PnP, current/private images/labels/scores.",
+  "global_grid":"Independently use expanded box left/top=(box0-.125*box_size), step=1.25*box_size/64, native centers=expanded_left+(index+.5)*step. Native nearest=floor(xy+.5), validity requires continuous and rounded native bounds.",
+  "local_mapping":"Reconstruct native9 local centers from original q/L, first round to native nearest integer; inverse grid index=floor((native_integer-expanded_left)/step), not original floating q. Verify64flatten index and8block index on every local cell, invalid indices0.",
+  "GT":"SYNTH mask>127, YCB mask>0. Native5x5 any visible/full computed before resampling. Verify global joint0..5, all cells and valid cells separately, visible-subset-full.",
+  "RGB":"Fixed16 targets per source/split (64 total), evenly spaced in sorted id order before reading outputs. Original source RGB sampled by cv2 INTER_LINEAR with constant0 border at reconstructed float32 coordinates; exact uint8 compare.",
+  "SAM":"No full-resolution source SAM logit maps were preserved. Without new GPU inference, independently compare every global cell whose nearest native pixel equals an original frozen local SAM exact sample at that same target/pixel; invalid zero checks. Report covered count and do not claim complete independent full-map replay. Read-only extraction code review verifies full-resolution nearest recipe and root's existing3.89M own-grid replay seal.",
+  "quantization":"Report global64 and8 native spacing, nearest native pixel error after mapping, global GT versus authoritative local GT disagreement caused by coarse sampling, duplicate/colliding indices, coverage and mapped-global-valid holes. Coarse disagreement is descriptive, not automatically a sampler bug.",
+  "provenance":"All source image hashes must exclude existing current-evaluation hash denylist; check source hashes and cache arrays unchanged; public YCB roughbox remains annotation-derived jittered box, not GT-free.",
+  "preserve":"New artifacts only in v65/source_audit. Preserve v64 audits and active model/cache files."
+}

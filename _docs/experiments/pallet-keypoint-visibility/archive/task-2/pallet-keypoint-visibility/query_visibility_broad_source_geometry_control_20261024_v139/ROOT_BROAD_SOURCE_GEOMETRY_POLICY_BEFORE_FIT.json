@@ -1,0 +1,120 @@
+{
+  "created_UTC": "2026-10-23T18:26:32.416624+00:00",
+  "classification_previous_goal_turn": "PROGRESS",
+  "goal_status": "active",
+  "fully_solved": false,
+  "hypothesis_KO": "넓힌 source에서 원본 초기8점 G42를 영상 해석의 조건으로 더하면, 같은 자료·표본·예산의 G0 대비 보임 보존과 외부 가림 포착이 함께 개선되는가? 기하 단독 판정이나 좌표 보정이 아니다.",
+  "prior_evidence": {
+    "previous_phase": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_reliability_20261024_v138/ROOT_PHASE_RESULT.json",
+      "sha256": "c587d65af7c3c8a38f490128f19bbacba66f23a6b0e5beeecc5d509f488fb02d"
+    },
+    "input_only_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_reliability_20261024_v138/input_only_reliability_v1/INPUT_SEAL.json",
+      "sha256": "6691fd506f58f8335be0afc898a56b8f31ed21a61de7440c5db8bfe47c4f54cb"
+    },
+    "previous_narrow_G42_negative": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_geometry_control_20261024_v133/ROOT_RESULTS_KO.json",
+      "sha256": "7e7f2fe438f8003d502ffa8e087bdc800f62a4cc4e42bdf9d43364abc71876ad"
+    },
+    "source_coverage_gain": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/ROOT_RESULTS_KO.json",
+      "sha256": "f7399eb665ef37f103ab1021b68c8d67677615dd4a0d172bd56c981e94fab710"
+    },
+    "limited_input_observability": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_reliability_20261024_v138/ROOT_RESULTS_KO.json",
+      "sha256": "ce90f913a5bc1c67c7f71f9f675d1b9c3a38a566ab6aab1c2248b985fd9c585f"
+    }
+  },
+  "parent_V137_policy": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/ROOT_CONTINUOUS_COVERAGE_POLICY_BEFORE_FIT.json",
+    "sha256": "0bfd6a5a30f2705a49636f3cb6b60df735e863c4a2f74e973012a48e3d236c60"
+  },
+  "parent_V137_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/source_fit_preparation/PROTOCOL_BEFORE_SOURCE_FIT.json",
+    "sha256": "5c54db74326d1625af428a4685cdea617165f6347da4f6a97c30046013e63973"
+  },
+  "parent_V137_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/source_fit_preparation/train_matched_coverage.py",
+    "sha256": "9751b158c14cf0e0ba1cc2b8cb41e761f798c6ff8fe6b6dcdd4d69d2b5f9d2b5"
+  },
+  "parent_V137_control": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/runs/C28_C29_CONTINUOUS_COVERAGE_FIXED8000/CONTROL_COMPLETE.json",
+    "sha256": "6e63c484d38f758376ad36b342b529cab05b21a7beda04d2fca8b6221363bc9f"
+  },
+  "arms": [
+    "C30_BROAD_SOURCE_ZERO_GEOMETRY_CONTROL",
+    "C31_BROAD_SOURCE_NATIVE_G42"
+  ],
+  "only_experimental_difference": "C30 native6144+new20480 uses G42 all0; C31 uses exact original G42 from sealed V138 table. Old51004 always G0.",
+  "inputs": {
+    "all_old_occurrences": 51004,
+    "old_native": 6144,
+    "new_native": 20480,
+    "geometry_dim": 42,
+    "geometry_source": "V138 original G42 float32 only; no secondary q descriptors, confidences, edge-risk values or GT-derived data.",
+    "metadata_for_join_not_features": [
+      "IDs",
+      "source",
+      "fold",
+      "variant",
+      "material",
+      "rendererfactors",
+      "GTerror",
+      "teacherstate",
+      "camera",
+      "referencecoordinates",
+      "image-specificpermutation"
+    ],
+    "all_original_q_and_L_preserved": true,
+    "all_rows_preserved": true,
+    "noquery_G42_allzero_constructedfalse": true,
+    "finite_OOB_retained": true
+  },
+  "matched_training": {
+    "initialization": "Exact C16 selected update4500, same GeometryQueryHead zero-initialized bias-free42x64 branch.",
+    "parameters_each": 224513,
+    "optimizer": "Fresh AdamW lr1e-4 wd0.001,clip5",
+    "seed": 1330,
+    "updates_each": 8000,
+    "FP32": true,
+    "TF32": false,
+    "frozen_visual_encoder": true,
+    "old192_native64_newnative64_exact_V137_C29": true,
+    "loss": "Original old192loss + oldnative64 knownDE BCE + newnative64 knownDE BCE. No new pair hinge.",
+    "native_pairs_and_uniform": "Same original125 old and473 new TRAIN pairs, no GTerror/modelscore/area filter.",
+    "all_corpus_sampling_loss_and_rng_unchanged": true,
+    "final_update_only": true,
+    "raw_threshold_logit": 0,
+    "teacher_SU_no_external_gradient": true
+  },
+  "mandatory_replay_control": {
+    "C30_original_C29_all_source_score_arrays_bitexact": true,
+    "C30_all8000_draws_losses_trace_and_parameters_bitexact": true,
+    "update0_all_old51004_native6144_new20480_C16_scores_bitexact_both_arms": true,
+    "all_constructed_head_forward_chunks_same512": true,
+    "last_short_batches_and_finite_OOB_included": true,
+    "if_control_fails": "Preserve failed output and diagnose runtime/adapter; no claim of matched experiment or automatic retry."
+  },
+  "reporting": {
+    "all64_source_gates_required": true,
+    "original49_native_and_old14_min_class_recall_ranking": true,
+    "old15historical_gates_required_not_ranked": true,
+    "no_gate_waiver": true,
+    "missing_support_ineligible": true,
+    "neither_eligible_selected_null": true,
+    "source_only_choice": true,
+    "all_arms_full_CM_precision_recall_and_predictionU": true,
+    "teacher_S_U_separate": true,
+    "GTerror_strata_diagnosis_only_not_filter": true,
+    "material_aspect_foreign_and_fixed_original8crop_cases": true
+  },
+  "root_entry_required": true,
+  "automatic_retry": false,
+  "current223_fit_threshold_checkpoint_arm_choice": false,
+  "current223_access_during_source_phase": false,
+  "V112_access": false,
+  "PnP": false,
+  "query_xy_or_L_correction": false,
+  "no_current_forward_until_independent_source_verification_and_separate_root_evaluation_entry": true
+}

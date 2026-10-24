@@ -1,0 +1,51 @@
+{
+  "status": "PROPOSED_DESIGN_ONLY_NOT_EXECUTED",
+  "user_updated_data_policy": {
+    "allowed_training_sources": [
+      "synthetic",
+      "public real distinct from current evaluation corpus"
+    ],
+    "current_evaluation_images_labels_derived_features": "evaluation only; no fit/normalizer/calibration/threshold/checkpoint selection",
+    "existing_v61": "preserved synthetic-only baseline",
+    "new_method_name": "synthetic + public-real training"
+  },
+  "target_proposal": {
+    "primary": "Target keypoint evidence visibility: DIRECT/EXTERNAL/SELF and UNKNOWN or QUERY_MISS separated, aligned with human semantic annotation.",
+    "auxiliary": "Exact query pixel target-instance presence stays a distinct output.",
+    "optional_local_support": "Explicit finite-neighborhood target support is a new target; select radius using source validation only.",
+    "supervision_gap": "Generic public instance masks do not supply pallet native8 semantic visibility. Verify matched synthetic support/state labels or annotate separate public pallet training images. Never use current evaluation labels for this."
+  },
+  "minimal_model_proposal": {
+    "backbone": "keep existing backbone frozen initially",
+    "head": "small spatial target mask/readout queried at the specified location rather than pooled-only scalar",
+    "conditioning": "target initial bounding region or wider context, query marker/coordinates and native keypoint index",
+    "semantic_loss": "only on source rows with verified matching semantic states; mask missing/unverified states",
+    "effectiveness": "untested"
+  },
+  "public_real_candidates": [
+    {
+      "name": "BOP YCB-V real training",
+      "url": "https://bop.felk.cvut.cz/datasets/",
+      "use": "real visible target masks + poses/mesh for external occlusion source queries",
+      "license_as_listed_by_BOP": "MIT",
+      "limitation": "not pallets; full-vs-visible mask does not directly give self visibility or human native8 states"
+    },
+    {
+      "name": "Open Images V7 training segmentations",
+      "url": "https://storage.googleapis.com/openimages/web/download_v7.html",
+      "license_url": "https://storage.googleapis.com/openimages/web/factsfigures_v7.html#licenses",
+      "use": "real target boundaries/materials/background/other-object negatives",
+      "license": "annotations CC BY4.0; images listed CC BY2.0 with individual-rights verification requested",
+      "limitation": "IsOccluded is object-level external occlusion, not query/keypoint visibility"
+    }
+  ],
+  "source_sampling": [
+    "Sample actual source predictions and jittered queries, not only GT-centered crops.",
+    "Include low-occupancy center-positive and high-occupancy center-negative boundary queries to test area shortcuts.",
+    "Keep background, pallet holes, other instances, external occluders and query-miss distinct.",
+    "Use source video/scene/object splits; deduplicate against current evaluation corpus."
+  ],
+  "selection": "Choose weights/radius/crop/threshold/epoch on synthetic and public-real validation. Current223 are exposed development evaluation; reserve a new session for final generalization.",
+  "future_ablation": "A2x2 source comparison (synthetic vs synthetic+public-real) and current vs proposed readout/target package separates source effect from combined package effect. Match budget. It does not isolate readout from target individually. No runs started.",
+  "needed_for_real_pixel_diagnosis": "Separate evaluation-only target-instance mask or explicit query presence annotations with boundary uncertainty; human semantic D alone cannot provide this."
+}

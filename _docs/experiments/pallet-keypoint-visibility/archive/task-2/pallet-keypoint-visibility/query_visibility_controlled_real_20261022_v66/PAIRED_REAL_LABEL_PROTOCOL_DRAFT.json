@@ -1,0 +1,127 @@
+{
+  "schema": "V66_PAIRED_PUBLIC_REAL_LABEL_PROTOCOL_INITIAL_AUDIT_DRAFT_V1",
+  "status": "DRAFT_NOT_SOURCE_ADMITTED_NOT_FINAL_VAL_PROTOCOL",
+  "scope": "Photographic same-camera/static-bin A/B paired evidence, distinct from frozen YCB opaque-paste causal labels; no fitting or private data.",
+  "separate_from_controlled": {
+    "frozen_YCB_protocol_sha256": "7ab257789998262dba23508aa4b5e7cce4450d85293c64e3dba948d78c040109",
+    "YCB": "Original observed maskpositive plus explicitly opaque independent paste produces controlled changed ownership; original full-only remainsunknown.",
+    "Pallox": "Real photographic pair with manually-prompted SAM teachers, supplied mesh/pose and measured depth. Evidence conditional on teacher ownership, geometry/calibration and registration; not the same provenance tier."
+  },
+  "official_provenance": {
+    "dataset": "KU Leuven DOI10.48804/DJLDFS",
+    "sensor": "Intel RealSenseL515, reported640x480",
+    "capture": "Tripod; three heights0.55/1.23/1.92m, lab/hall; paired no-occlusion/cardboard-occlusion captures at each position.",
+    "file_order": "Even/odd or lexical A/B order is NOT guaranteed as before/occluded. Use symmetricA/B, never even=unoccluded.",
+    "SAM": "Paper describes manually selected prompt points followed by SAM; masks are teachers, not independent human dense-pixel ownership truth.",
+    "pose": "Supplied annotations historically used PnP/RANSAC or depth-constrainedSVD in source work. Read stored4x4poses only; perform no newPnP/pose refinement.",
+    "mesh": "Source mesh reconstructed withCOLMAP; source bin filled with random objects to vary appearance. Verify frame origin/scale and mismatching contents; supplied mesh is not exact physical truth.",
+    "instance": "One physical pallet-bin instance; do not claim geometry/appearance generalization from this source.",
+    "family": "User explicitly confirmed current223 are own captures unrelated to KU dataset. Separate source family admission plus image SHA denylist required; no private images are inspected."
+  },
+  "initial_audit": {
+    "fixtures": "Literal0000/0001 in each of six sessions,12RGBDframes total; preserve earlier hash-sorted accidentalV1 fixtures as invalid/diagnostic.",
+    "symmetry": "Report A andB visible support and both directions of depth change.",
+    "thresholds_descriptive_only_mm": [
+      50,
+      100,
+      200
+    ],
+    "held_out_status": "Initial fixed fixtures may include sourceVAL previews for calibration/provenance auditing; disclose that exposure. Do not tune model or labels on full sourceVAL. Future fullVAL protocol freezes only after this audit.",
+    "no_model_training": true
+  },
+  "pair_admission_prerequisites": [
+    "Common native RGB/depth pixel grid/registration established; same dimensions alone is insufficient.",
+    "Same K and supplied pose metadata and static physical camera/bin supported; identical TXT/MD5 alone is necessary evidence, not proof.",
+    "Depth units inmm and camera-Z interpretation established; radial range requires explicit conversion.",
+    "Source mesh units/object-frame origin and object-to-camera direction established; no alignment/PnP optimization to force agreement.",
+    "Mesh raster uses rectified pinhole intrinsics and integer pixel centers; any distortion or raster resize convention explicit.",
+    "No skipped near-plane-crossing geometry may supply a full-negative certificate.",
+    "Invalid/missing depth, camera inconsistency or rejected registration => all affected visibility factsUNKNOWN."
+  ],
+  "candidate_constants": {
+    "teacher_interior": "erode2 native SAM positives with border0, predeclared source rule",
+    "depth_valid": "finite andpositive in verified commonmm camera-Z grid; retain supplied confidence/range flags ifavailable.",
+    "mesh_tolerance": "tau_i=max(20mm,0.01*D_i) using observed target-reference depth in that view.",
+    "primary_pair_closer_gap_mm": 50,
+    "foreground_mesh_margin": "For E_A use M-D_A>=max(50mm,2*tau_B) from visible B reference, mirror for E_B. Never use the closer occluder depth to shrink target-reference uncertainty.",
+    "descriptive_gap_sensitivity_mm": [
+      50,
+      100,
+      200
+    ],
+    "sensitivity_policy": "Only pair-depth-gap is varied descriptively for initial source noise analysis; this does not choose a finalmodelthreshold or a private setting."
+  },
+  "candidate_pixel_facts": {
+    "V_A": "pair_admitted & erode2SAM_A &validD_A &finiteM &abs(D_A-M)<=tau_A",
+    "V_B": "pair_admitted & erode2SAM_B &validD_B &finiteM &abs(D_B-M)<=tau_B",
+    "E_A": "V_B &validD_A &(D_B-D_A>=delta) &NOTV_A &(M-D_A>=max(50mm,2*tau_B))",
+    "E_B": "V_A &validD_B &(D_A-D_B>=delta) &NOTV_B &(M-D_B>=max(50mm,2*tau_A))",
+    "full_positive": "V_A ORV_B only under verified shared camera/static target.",
+    "full_negative": "DISABLED bydefault. A separately validated conservative complete-geometry far-outside certificate may be registered later. Renderer background or SAM0 alone is not full-negative.",
+    "mesh_outside_proxy": "Save separately for audit; never silently map it to controlled/pairedO.",
+    "visible_negative_A": "E_A OR independently certifiedfullnegative. All other non-V_A pixels remain visible-UNKNOWN.",
+    "visible_negative_B": "E_B OR independently certifiedfullnegative. All other non-V_B pixels remain visible-UNKNOWN.",
+    "exact_A": "VifV_A, EifE_A, Oonlyifcertifiedfullnegative, otherwiseU. SymmetricB.",
+    "conflicts": "Assert V_A&E_A=false,V_B&E_B=false,E_A&E_B=false; preserve any calibration/evidence conflict andsetU."
+  },
+  "window_labels": {
+    "exact": "Unchanged native query nearest floor(q+.5); continuous androunded bounds.",
+    "radius2": "Clipped native5x5, separately supervised support target.",
+    "V": "Any certified/teacher-supported visible-positive inwindow.",
+    "E": "Only if EVERY window pixel is visible-knownnegative andANY window pixel is certifiedfullpositive.",
+    "O": "Only if EVERY window pixel has separately admitted full-negative evidence.",
+    "U": "All remaining uncertain windows. Teacher0 or missing positives are not negatives.",
+    "joint": "Keep six allowed pair states and compatible-state partial facts; use window-minus-exact to respect shared-pixel correlation, never padU toO.",
+    "strict_Ecore": "All25pixels satisfy pair E evidence atnative resolution; clipping or depthmissing blocks strictcore.",
+    "semantic_corner": "No native-corner/self visibility ground truth is created; predictedOV is support/location uncertainty, not verified coordinate-error truth."
+  },
+  "evidence_tiers": [
+    "PAIRED_SAM_INTERIOR_TEACHER",
+    "PAIRED_SAM_PLUS_MESH_DEPTH_AGREEMENT_VISIBLE_CANDIDATE",
+    "PAIRED_SYMMETRIC_NEW_FOREGROUND_DEPTH_SUPPORTED_E_CANDIDATE",
+    "PAIRED_STRICT25PIXEL_E_CORE",
+    "MESH_OUTSIDE_PROXY_NOT_FULL_NEGATIVE",
+    "UNKNOWN_MISSING_OR_CONFLICTING_EVIDENCE"
+  ],
+  "required_reports": [
+    "Per initial fixture native-grid registration evidence, depthunit/range/Z facts and suppliedpose/K pair equality.",
+    "Before/after symmetric teacher-interior versus meshdepth residual distributions, finite support and no-nearclip checks.",
+    "Symmetric closer/farther/stable/missing depth counts,50/100/200gap strata withsame rules, no retrospective thresholdselection.",
+    "Perpixel acceptance reason/evidence tier andknown/unknown visible/full denominators.",
+    "Boundary/core, depthmissing, SAMteacher overlap andmeshagreement conflicts separately.",
+    "No O supervision when fullnegative certificate isunadmitted; all excluded pixels remainU.",
+    "Control YCB and paired photographic results stay separately reported; no gold/proxy provenance collapse."
+  ],
+  "limitations": [
+    "Stable depth plusSAM can confuse coplanar/very-close occluders or cargo with target; Va/Vb are conditional teacher/geometry evidence, not goldvisible ownership.",
+    "Source mesh may miss thin/slatted geometry, contain reconstruction holes, or differ from filled bin. Agreement at positive pixels does not prove complete negative silhouette.",
+    "Hardwaredepth errors grow with distance; providedpositive depth alone is not measurement quality certification.",
+    "Pair metadata equality does not eliminate small motion, RGB/depth extrinsic misregistration or capture timing artifacts.",
+    "Initial fixture audit is data admission work, not a modelselection or real-evaluation performance result."
+  ],
+  "finalization": "Root will review fixed6source geometry/registration quality before freezing PAIRED_REAL_LABEL_PROTOCOL.json and fullsourceVAL admission. No paired-data training before that decision.",
+  "no_current223_images_labels_or_scores_read": true,
+  "no_new_training_GPU_models_PnP_calls": 0,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/DATA_LABEL_PROTOCOL.json",
+      "sha256": "7ab257789998262dba23508aa4b5e7cce4450d85293c64e3dba948d78c040109"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/source_audit/mesh_depth_render.py",
+      "sha256": "be665b578c431fc5f5c1c1cc04ef646ca2f954ea063d218452f1a6ac7d61f823"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/source_audit/INDEPENDENT_MESH_DEPTH_MATH_AUDIT.json",
+      "sha256": "19d8dfb6d3b825ba270082c16c93530f214fcbcc36e584d4503b77021bfe58f7"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/OFFICIAL_PAPER_144556.pdf",
+      "sha256": "ab5c1d961b0b5dd95419ddd17f478ca5a8ce4316fe72b7bf3cc50d3e7d051765"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/SPLIT_LOCK_BEFORE_FIT.json",
+      "sha256": "8fad8779ec0c6ceca8037a4740e27612b3d2e576a4969052f868603ffdc3c774"
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "schema": "V72_SINGLE_CANDIDATE_SEMANTIC_CUE_HEAD_CONTRACT_V2",
+  "completed": true,
+  "status": "IMPLEMENTATION_AND_GENERATED_TESTS_READY_ROOT_PREFIT_FREEZE_REQUIRED",
+  "candidate_count": 1,
+  "actual_fit_authorized_by_this_file": false,
+  "current_inference_authorized": false,
+  "purpose": "Source conditional physical-cue D/E visibility in a q-centered crop; query-pixel target membership is not the target label.",
+  "canonical_native8_correspondence": "UNKNOWN; nearest old source q row is GT lineage only, no semantic identity input.",
+  "label_contract": {
+    "D": "RGB-observed frozen operational cue plus conservative source ownership sanity, entire frozen uncertainty bbox available in crop. Conditional AI teacher, not human gold.",
+    "E": "The same admitted cue was D in original RGB; a known distinct opaque source object is pasted in front and its replayed alpha covers the entire frozen uncertainty footprint; crop remains FULL.",
+    "U": [
+      "source/ownership ambiguity",
+      "partial cue occlusion",
+      "crop PARTIAL",
+      "crop MISS",
+      "input invalid",
+      "same-effective-input reference/state conflict"
+    ],
+    "training_labels": {
+      "D": 1,
+      "E": 0,
+      "U": -1
+    },
+    "known_class_requires_FULL_and_input_valid": true,
+    "mask_zero_is_not_semantic_E": true,
+    "GT_querypixel_presence_may_differ_from_cue_state": true,
+    "self_occlusion_supervision": "Unsupported/UNKNOWN; no manufactured S labels or geometry dependence.",
+    "unknown_loss": 0,
+    "U_is_not_E": true,
+    "nonFULL_underlying_reference_state": "Preserve D/E reference evidence separately while training_target=U."
+  },
+  "model": {
+    "class": "CueVisibilityHead",
+    "parameters": 40682,
+    "frozen_backbone": "Existing full-image FrozenYoloFeatures P3 extraction, frozen original checkpoint/code/preprocessing; new actual RGB composites need a fresh forward and cache.",
+    "P3_input": "N,65,9,9 = 64 frozen P3 features + binary native input-valid channel; ROI sites q+(i-4)*L/9, continuous+nearest validity per existing source API.",
+    "RGB_input": "N,3,96,96 raw uint8 actual input raster; N,1,96,96 crop_valid. Small learned 4->8->16->16 stride2 RGB+valid branch; interpolate to9x9.",
+    "geometry_input": "query_xy,box_xyxy,side_L only; relative box endpoints /L clipped[-8,8]/8. No image, source, target, row or slot ID token.",
+    "fusion": "P3/nativevalid + learned localRGB + inputvalid fraction + native9 offsets + input-only relative box; conv32 shared feature.",
+    "outputs": [
+      "logit_D_given_DE (sigmoid>=.5 D, otherwise conditional E)",
+      "cue_heatmap_logits 9x9",
+      "heatmap_input_valid derived from cropvalid"
+    ],
+    "forbidden_forward_inputs": [
+      "reference_xy",
+      "uncertainty bbox",
+      "r-q GT offset",
+      "mask",
+      "paste alpha",
+      "GT state",
+      "native GT ID",
+      "source ID",
+      "target/image/sample ID",
+      "query slot semantic token"
+    ],
+    "explicit_limits": [
+      "Binary head is not a trained U/MISS rejection classifier.",
+      "A negative D/E-conditional score does not establish a causal E in unknown/other-task deployment inputs.",
+      "Localization is coarse native9 auxiliary, not PnP/pose optimization or guaranteed pixel-accurate r.",
+      "No reference association or learnability guarantee is created by these inputs."
+    ],
+    "old_feature_reuse": "Old q0 P3 arrays cannot stand in for new q/L crops or changed composites. Full-image extraction API/checkpoint may be reused only with correctly indexed actual new image/ROI features."
+  },
+  "loss_proposal": {
+    "class": "Unweighted knownFULL D/E BCE mean within each informative source, then equal mean over informative sources.",
+    "heatmap": "D-only uncertainty-rectangle area-overlap target on9x9 crop cells; normalized unit mass, source-equal mean CE. E/U heatmaps unknown and masked, never zero-negative.",
+    "lambda_heatmap": 0.25,
+    "total": "source_equal_BCE + .25 * source_equal_D_heatmap_CE",
+    "absent_source_behavior": "Exclude domains with no eligible rows from that term; all-U batch returns exact differentiable zero.",
+    "no_extra_pair_regularizer": "Pair preservation is measured; no new pair-loss hyperparameter in this single candidate.",
+    "normalization_note": "Class and D-heatmap terms have different informative denominators, explicitly reported; no claim of generic twice-weighted class loss.",
+    "training_sampler": "Batch128: source SYNTH64/publicYCB64, each source32D+32E drawn from knownFULL only; replacement permitted for tiny source. Therefore within-source mean BCE equals D/E-balanced BCE."
+  },
+  "prefit_selection_proposal": {
+    "criterion": "For each fixed VAL source/cue, balanced BCE=.5*meanDloss+.5*meanEloss; then equal cue mean within source; equal mean over informative VAL sources.",
+    "checkpoint": "Earliest strict minimum at root-frozen fixed validation intervals; last-equal does not replace first minimum.",
+    "training_budget_seed_batch_optimizer": {
+      "updates": 1000,
+      "validation_every": 50,
+      "seed": 20261023,
+      "batch": 128,
+      "sampler": "64/source;32D+32E/source",
+      "optimizer": "AdamW",
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "lambda_heatmap": 0.25,
+      "candidate_count": 1
+    },
+    "reused_VAL": "Three YCB reference cues were already visually inspected. This is small reused source diagnostic validation, not fresh generalization or human/native8 gold.",
+    "no_current_selection": true,
+    "no_metric_gate_checkpoint_reselection": true,
+    "missing_class_behavior": "If a VAL cue has knownD/E rows but only one class, selector is ineligible and no silent unweighted substitute is used. All-U cues stay reported and excluded from selector, never relabeled."
+  },
+  "fixed_source_evaluation": {
+    "threshold": "logit_D_given_DE>=0 is D; <0 is conditional E. No threshold tuning.",
+    "primary_cohort": "FULL knownD/E conditional teacher only; class confusion GT[D,E] x pred[D,E], D/E precision/recall and per-cue NLL.",
+    "all_denominators": "Report all rows, FULL/PARTIAL/MISS/invalid and each sourceunknown/partialcover/locU count; never drop unknowns from reporting.",
+    "paired": "At identical cue/q/L/box, originalD->fullcoverE both-correct and originalD->neutralD retention; partialcover remains U with output distribution only.",
+    "query_offset": "GT-only max(abs((q-r)/L)) bins [0,.125],(.125,.25],(.25,.5],>.5, fixed before scores; availability remains separate.",
+    "unknown": "Report finite input-valid raw D/E prediction counts by U reason and crop availability, no fabricated unknown accuracy.",
+    "localization": "For knownD, report native9 peak/expected-location error relative to r and uncertainty bbox; coarse target-cell resolution must be shown. E/U localization has no visible-reference target metric.",
+    "physical_pixel_comparison": "If fixed v61/v70/pixel baselines are available, preserve their labels/results and compare only on an explicit same-query semantic mapping. Do not rename pixel presence as cue D/E evidence.",
+    "old_quality_gates": "Leave all historical pixel quality gates/results unchanged; new semantic-cue metrics neither overwrite them nor prove the full native8 goal solved.",
+    "source_admission": "No automatic current/deployment gate; root must separately seal once-selected checkpoint and input contracts if future use is authorized."
+  },
+  "leakage_and_integrity_guards": [
+    "Input-only model NPZ/tensor whitelist; GT-only reference/alpha/cue identity in a separate adapter used only by losses/evaluation.",
+    "Freeze data recipe, all source input/RGB/GT/cache SHA, helper/model/trainer SHA, thresholds, selection criterion and fixed update budget before optimizer step.",
+    "Group splits by original source scene/target/cue and donor lineage. Keep original/full/partial/neutral variants of each group in the same source split.",
+    "Preserve all frozen proposals and source-U labels; reject supervised D/E conflict on identical decoded RGB+q/L/box or effective crop/valid/q/L/box input.",
+    "No current223 RGB/features/labels/scores; SHA denylist may be used only for exclusion.",
+    "No PnP/GT pose updates or reference-to-input injection. No query recentering or L expansion from referenceGT.",
+    "Inference must finish and seal scores before GT evaluation. SourceVAL exposure and limited cue counts remain explicit."
+  ],
+  "execution_dependencies": [
+    "New full-image P3 cache on actual new RGB + exact q/L ROI sampling is required (not available in this code-only task).",
+    "A root trainer must map immutable metadata to class labels/GT-only heatmap targets while forwarding only input whitelist tensors.",
+    "Root must freeze actual source manifests and fit protocol before a single fit."
+  ],
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/model/cue_visibility_head.py",
+      "sha256": "fd5ef60b4f37694a6a0770ca3fdd897a570d399ba92bc87ed6a1ceb82c7a5469"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/model/test_generated_cue_head.py",
+      "sha256": "e18f2f27fced912cecfcbe1f6a820375f5f8fe78c0d3672a416b49c69e8e6ae7"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/model/GENERATED_CUE_HEAD_TESTS.json",
+      "sha256": "e80f6a941cca849de5931e005b4eedc473336dffa694190a7b1579127ce1eca4"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/model/saved_semantic_metrics.py",
+      "sha256": "a13c2b07dcd2b2600046fa9ea9360467224c02d592c15435346d004c134f3411"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/model/test_generated_semantic_metrics.py",
+      "sha256": "deb2e917376f01274f3221caa8c949408fd3edc43727c5c8eebed905796b41a8"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/model/GENERATED_SEMANTIC_METRIC_TESTS_V2.json",
+      "sha256": "ba441ac1733dc031f4d2a26d498175670cbbf70035ec03db1b186f323279b873"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/model/provenance/PRE_BALANCED_SELECTOR_V1/SNAPSHOT_BINDINGS.json",
+      "sha256": "3656a6f2a55d5000e9a43a229a159c320581ada306318e50b53c4aae7a20b0ad"
+    }
+  ],
+  "source_RGB_GT_features_weights_current_reads_in_this_implementation": 0,
+  "actual_forward_fit_PnP_calls": 0,
+  "full_goal_solved": false,
+  "revision": "Prefit root fixed cue/class/source-balanced selector and 1000-update plan. V1 unweighted proposal and exact code/mock snapshots preserved in provenance/PRE_BALANCED_SELECTOR_V1.",
+  "future_current_diagnostic_scope_prefit": {
+    "status": "ROOT_PROPOSED_SEPARATE_PREFIT_DIAGNOSTIC_REQUIRES_SOURCE_AND_CURRENT_GATE_SEALS",
+    "once_only": true,
+    "source_selected_checkpoint_and_thresholds_frozen_first": true,
+    "run_all_groups_regardless_of_quality_results": true,
+    "current_reselection_refit_threshold_fit": false,
+    "cohorts": [
+      "human paired D/E same frozen query",
+      "same-slot D/S with saved geometry self proxy separate",
+      "manual near<=3 subset with fixed GT eligibility",
+      "all error/source/material strata unchanged"
+    ],
+    "limits": [
+      "Generic operational source cues have no canonical/native8 identity supervision.",
+      "Current semantic transfer diagnosis may fail for reference association despite source pixel or cue performance.",
+      "New semantic-target protocol does not overwrite V70 prior pixel-component eligibility or its failed results.",
+      "No deployment approval, gold/generalization claim or full-goal-success conclusion follows from this pilot."
+    ],
+    "actual_current_reads_or_model_execution_by_this_subtask": 0
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "scope": "saved outputs, original RGB and historical human semantic labels only",
+  "new_training": 0,
+  "new_model_forward": 0,
+  "new_PnP": 0,
+  "new_real_pixel_ground_truth": 0,
+  "near_direct_n": 461,
+  "same_nearest_pixel_n": 35,
+  "same_nearest_pixel_v61_absent": 30,
+  "all_near_paired_same_query_RGB": true,
+  "groups": {
+    "WOOD_PRIMARY105": {
+      "n": 238,
+      "v61_present": 52,
+      "v61_absent": 186,
+      "semantic_D_recall": 0.2184873949579832,
+      "same_nearest_pixel_n": 20,
+      "same_nearest_pixel_v61_absent": 17,
+      "reference_sources": {
+        "locked_DEV_coordinate": 238
+      },
+      "annotation_coordinate_sources": {
+        "unknown": 33,
+        "manual_click": 153,
+        "pnp_projected": 52
+      },
+      "manual_coordinate_only": {
+        "n": 153,
+        "v61_present": 42,
+        "v61_absent": 111,
+        "same_nearest_pixel_n": 17,
+        "same_nearest_pixel_v61_absent": 14
+      },
+      "human_identity_confirmed": {
+        "False": 238
+      },
+      "error_P3_stride_percentiles": [
+        0.023645288069779308,
+        0.09753810112688008,
+        0.1370753166852421,
+        0.2046065034597676,
+        0.28512999365756014
+      ],
+      "P3_stride_raw_px_values": [
+        10.5,
+        18.5
+      ],
+      "feature_valid_sample_count": {
+        "81": 234,
+        "54": 1,
+        "63": 1,
+        "45": 2
+      }
+    },
+    "SQUARE118": {
+      "n": 223,
+      "v61_present": 43,
+      "v61_absent": 180,
+      "semantic_D_recall": 0.19282511210762332,
+      "same_nearest_pixel_n": 15,
+      "same_nearest_pixel_v61_absent": 13,
+      "reference_sources": {
+        "manual_click": 223
+      },
+      "annotation_coordinate_sources": {
+        "manual_click": 223
+      },
+      "manual_coordinate_only": {
+        "n": 223,
+        "v61_present": 43,
+        "v61_absent": 180,
+        "same_nearest_pixel_n": 15,
+        "same_nearest_pixel_v61_absent": 13
+      },
+      "human_identity_confirmed": {
+        "False": 223
+      },
+      "error_P3_stride_percentiles": [
+        0.009944229802954058,
+        0.11304605817912261,
+        0.16620194818852457,
+        0.22699391120999673,
+        0.28489932259895984
+      ],
+      "P3_stride_raw_px_values": [
+        10.5
+      ],
+      "feature_valid_sample_count": {
+        "81": 221,
+        "63": 1,
+        "72": 1
+      }
+    }
+  },
+  "label_contract": {
+    "human_target": "Existing reference-corner semantic visibility, not occupancy segmentation of a pixel.",
+    "v61_target": "Final visible target M4 occupancy at nearest initial-query pixel.",
+    "near_distance": "Distance to existing human reference location; <=3px does not certify which physical instance owns the nearest pixel.",
+    "real_pixel_reference": "No verified real target-instance pixel mask exists in these sources; exact-pixel transfer accuracy and mismatch fraction are unidentifiable.",
+    "source_provenance": "Visibility sidecar uses old frozen coordinates and does not create a new independent 6D or subpixel reference.",
+    "review_rules": [
+      "Judge frame severity from the original RGB before opening the reference overlay.",
+      "The overlay contains reference identities only; it contains no Base/N3 prediction or error.",
+      "Opening the overlay is recorded as reference exposure.",
+      "Do not infer visibility from coordinate presence, PnP projection, or validity flags.",
+      "Existing 71 statuses remain provenance-locked; a new opinion must be a separate review revision.",
+      "Missing-reference slots may be annotated, but do not enter the existing 2D denominator."
+    ]
+  },
+  "architecture_evidence": {
+    "input": "Frozen YOLO P3 64 channels plus valid channel, bilinear sampled to 9x9.",
+    "head": "two Conv3x3/GELU, global average pooling, linear scalar; no raw RGB central-pixel branch",
+    "interpretation": "Nominal P3 stride and context pooling make <=3 raw pixels sub-feature-scale. This is a capability concern, not a proved failure cause."
+  },
+  "visual_review": "16 examples directly inspected via view_image; 12 deterministic strata and 4 low-error supplements. See VISUAL_REVIEW.csv. Diagnostic comments are not pixel GT."
+}

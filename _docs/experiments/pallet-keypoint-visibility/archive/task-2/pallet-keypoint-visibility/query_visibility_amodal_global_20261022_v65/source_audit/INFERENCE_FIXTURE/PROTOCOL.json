@@ -1,0 +1,10 @@
+{
+  "schema":"FROZEN_V65_INFERENCE_PREPROCESSING_PUBLIC_FIXTURE_V1",
+  "fixed_selection":"For each of SYNTH/YCB TRAIN/VALIDATION, select first/middle/last id in lexicographic target-id order from sealed public source GLOBAL_INPUTS;12 targets, no score-based selection.",
+  "scope":"Read newly implemented inference code and call its pure input_features/context/initialbox/queryvalid helpers on public source inputs only. No current/private RGB, GT or scores before output seal. No GPU, optimizer, training, thresholds or PnP.",
+  "CPU_SAM":"Replay unchanged frozen source SAM on the12 public targets using CPU to obtain selected full-resolution logit. Maximum predicted quality, first tie, same rough box. These replayed logits may differ numerically from stored GPU logits.",
+  "parity":"Separate exact recipe parity on the SAME CPU full logit from CPU-versus-stored-GPU SAM drift. RGB/native75/box/grid/mapping/context must match saved source arrays. SAM same-logit recipe must match independently reconstructed normalized float16 features; report stored GPU max errors and foreground flips without threshold changes.",
+  "context":"Compute valid-channel weighted mean64 over all8 stored half P3 ROIs, including corners omitted from label rows. SYNTH uses authorized source-only v60 SYNTH_ROI_CACHE; YCB source rows contain all8.",
+  "initialbox":"SYNTH source box should match input-only finite N0q8 minmax; YCB source box is annotation-derived jitter and is passed explicitly for feature parity rather than mislabeled as N0-derived.",
+  "preserve":"No root inference/model/cache changes. New public fixture artifacts only in source_audit/INFERENCE_FIXTURE. Source model freeze and thresholds remain unchanged."
+}

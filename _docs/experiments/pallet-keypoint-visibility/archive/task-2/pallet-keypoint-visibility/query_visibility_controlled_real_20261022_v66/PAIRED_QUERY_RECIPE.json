@@ -1,0 +1,96 @@
+{
+  "schema": "V66_PAIRED_PUBLIC_REAL_SHARED_QUERY_RECIPE",
+  "created_unix": 1792680034.8493412,
+  "seed": 20261022,
+  "scope": "Input-only RGB features at8same source-guided queries shared A/B; supplied depth/pose/teachers only construct conditional labels and sampling metadata.",
+  "pairs": "All50 exact-pose pairs including empty-E and zero-V evidence; TRAIN_LAB22pairs/VAL_HALL28pairs. No quality or model-score filtering.",
+  "target_ids": "PALLOXPAIR:{pair_id}:A and :B, sample_id=target_id:{k}, group_id=PALLOXPAIR:{pair_id}",
+  "rng": "NumPydefault_rng seed=int.from_bytes(SHA256(str(20261022)+colon+pair_id+colon+stage).digest()[:8],little). Distinct stage box/anchor/jitter.",
+  "teacher_prompt_box": {
+    "source": "tight native bbox of union original provided SAMteacher_A/B positives, maxcoords+1",
+    "jitter": "same box forpair; center shift independently uniform[-.05,.05]*originalwidth,height; width,height independently multiplied uniform[.9,1.1]; clamp XYXY to [0,0,639,479], fail explicit if degenerate",
+    "provenance_gap": "Source teacher-derived rough box differs from deployment box from initial query8. No claim of detectorbox distribution match."
+  },
+  "anchor_categories": [
+    {
+      "slots": [
+        0,
+        1
+      ],
+      "preferred": "erode2(E_A) OR erode2(E_B)",
+      "fallbacks": [
+        "E_A OR E_B",
+        "V_A OR V_B",
+        "roughbox diagonal corner integer"
+      ]
+    },
+    {
+      "slots": [
+        2,
+        3
+      ],
+      "preferred": "erode2(V_A AND V_B)",
+      "fallbacks": [
+        "V_A OR V_B",
+        "roughbox diagonal corner integer"
+      ]
+    },
+    {
+      "slots": [
+        4,
+        5
+      ],
+      "preferred": "(V_A OR V_B) AND NOT erode2(V_A OR V_B)",
+      "fallbacks": [
+        "V_A OR V_B",
+        "roughbox diagonal corner integer"
+      ]
+    },
+    {
+      "slots": [
+        6,
+        7
+      ],
+      "preferred": "roughbox top-left and bottom-right rounded floor+.5",
+      "fallbacks": []
+    }
+  ],
+  "anchor_selection": "Row-major pool of true native pixels; use anchor RNG.choice among not-yet-used anchors. If pool empty try next frozen fallback; record pool name/count. Do not inspect any model output.",
+  "erode2": "native5x5 alltrue constantfalse borders",
+  "jitter": "After all8anchors fixed, add jitter RNG.uniform(-3,3,size=(8,2)) native pixels. Same8floatqueries forA/B. Do not recenter/clamp/repair any query; actual query labels read at floor(q+.5), preserving invalid/U. Anchor label need not survive jitter.",
+  "roi_side": "clip(.25*max(ptp(query8,x),ptp(query8,y)),16,max(rawH,rawW)); samepair. Compute from inputqueries only.",
+  "labels": "Pure conditional paired_truth/partial_truth_grid from frozen native evidence, not sampler category. SAMteacher0 never O/E. Fullnegative/O disabled; exact/r2 UNKNOWN and compatible masks retained.",
+  "required_outputs": [
+    "INPUTS_RGB_ONLY.jsonl: image path/SHA, id/group/split,raw_hw,query8,side,box; exclude source masks/depth/pose/evidence",
+    "QUERIES_LABELS.jsonl orlabel-onlyNPZ: source chosenanchors+jitter+actual exact/r2/compatibleGT; independent fromfeatureworker",
+    "QUERY_INPUT_LOCK.json binding code/recipe/frozenlabelprotocol/evidence/sourcefiles before feature extraction",
+    "100target/800query counts, per-split known/unknown/state/fallback denominators; no inferredself/cornertruth",
+    "fixed firstpair per6sessions originalA/B+same96nativecrop atslot0, source evidence overlay, no modelscores"
+  ],
+  "source_selection_exposure": "Fixed initial6pairs previewed for geometry; query recipe freezes before any model inference/fit. Source validation remains scene/environment holdout for model selection, not unseen object instance.",
+  "current223_reads": false,
+  "model_fitting": false,
+  "PnP_calls": 0,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/PAIRED_REAL_LABEL_PROTOCOL.json",
+      "sha256": "554178a520287030a5aef5162272ee45c3307d49c8e68c1e20449cb8c57ebbfb"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/SYMMETRIC_ALL50_V2/PAIR_EVIDENCE_MANIFEST.jsonl",
+      "sha256": "f74b2d532ad09a7759bfdea839a5c48c5f30cd14437201e209fd96d24da63f70"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/contract/paired_truth.py",
+      "sha256": "649c93b98085289bb1aa797b3beba141423f5ffbeb055b5c7f2f571e208f0c14"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/contract/partial_truth_grid.py",
+      "sha256": "cb1b4dbeec94f4932339ba53ae8bed63966f3f5fed765d9af9e672c784193eda"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/contract/PARTIAL_TRUTH_GRID_MOCK_PROOF.json",
+      "sha256": "7e713b2bc04610b3e63d256530735c689a23bc3cc058b9cc235b71c36fec8500"
+    }
+  ]
+}

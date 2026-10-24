@@ -1,0 +1,38 @@
+{
+  "schema": "V66_SAVED_SOURCE_LOSS_TRADEOFF_PROTOCOL",
+  "scope": "Saved SOURCE outputs/PER_QUERY/partialGTbits/strictVdiagnosis only",
+  "models": [
+    "V65_BASELINE",
+    "CONTROLLED_ONLY",
+    "CONTROLLED_PLUS_PALLOX"
+  ],
+  "sources": [
+    "SYNTH",
+    "ORIGINAL_YCB",
+    "CONTROLLED_YCB",
+    "PALLOX"
+  ],
+  "selection_not_performed": true,
+  "loss": "logsumexp(all6savedlogits)-logsumexp(allowed savedlogits); nativevalid AND allowed!=63 informative. Original CPU saved partial_NLL retained ascanonical and independently recomputed.",
+  "decomposition": "For eachdisjointcategory/source: loss_sum/N_info_source is source contribution; divideby4for macro contribution. All category sums exactly reconstruct per-source means and common4domainmacro.",
+  "partitions": [
+    "ExactGT knownVV/knownE/knownO/unknownExact",
+    "Allowed cardinality",
+    "ExactGT cross cardinality",
+    "Singletonjoint or partialcardinality",
+    "Exact allowed bitmask"
+  ],
+  "visible_known": "Verify every native-valid knownexactV has allowed1 (VV) andradius2V. Loss=-logpVV, output-logitgradient=p-onehotVV; no contradictory nearlabelatthese pixels.",
+  "strictV": "Use frozen SOURCE_BOUNDARY_FAILURE_DIAGNOSIS_QUERY_ROWS.csv strict25flags, sourceGT+native5x5. Shared rawSAMpositive iff storedprob>.5 (original strict logit0sign). Head exactpV>=.5; radius2diagnostic only.",
+  "gradient": "dL/dz_j=p_j - I_allowed(j)*exp(z_j)/sum_allowedexp(z). Sum accordingtofixedsourceinformative normalization. Output-space pressure only, neverparameter/branchcausal.",
+  "forbidden": [
+    "currentRGB/GT/scores/inputdata",
+    "featurecaches",
+    "weights",
+    "newmodelinference",
+    "optimizer",
+    "PnP",
+    "threshold/radius/modelreselection"
+  ],
+  "no_changes_to_frozen_V66_reports_or_seals": true
+}

@@ -1,0 +1,80 @@
+{
+  "scope": "Preparation only; existing semantic labels and frozen saved outputs; no new metrics, training, inference or PnP.",
+  "evaluation_name": "Semantic keypoint visibility transfer evaluation of query-pixel presence",
+  "positive_label": "DIRECT_VISIBLE",
+  "tasks": {
+    "D_vs_E": {
+      "negative": [
+        "EXTERNAL_OCCLUDED"
+      ],
+      "excluded": [
+        "SELF_OCCLUDED",
+        "OUT_OF_FRAME",
+        "UNANNOTATED",
+        "UNKNOWN_MAPPING"
+      ]
+    },
+    "D_vs_ES": {
+      "negative": [
+        "EXTERNAL_OCCLUDED",
+        "SELF_OCCLUDED"
+      ],
+      "excluded": [
+        "OUT_OF_FRAME",
+        "UNANNOTATED",
+        "UNKNOWN_MAPPING"
+      ]
+    }
+  },
+  "v61": {
+    "target": "M4 target visible silhouette at nearest initial-query pixel, not semantic corner visibility",
+    "threshold": 0.5,
+    "checkpoint_epoch": 9,
+    "training": "synthetic only; one head, 480 updates",
+    "crop": "same frozen P3 9x9 ROI; predicted 2D span scale, not pose/K/dimension crop comparison"
+  },
+  "legacy": {
+    "descriptor_sha256": "32f1683e9b43dca9731795d061a12bef30253a978f375511b7f98d5cb2291042",
+    "training": "historical real CAL46; not synthetic-only comparator",
+    "visible_if": "p_DIRECT >= .98",
+    "external_if": "p_DIRECT < .96",
+    "abstain_if": ".96 <= p_DIRECT < .98",
+    "visible_states": [
+      "B",
+      "I"
+    ],
+    "external_state": "O",
+    "self_state": "S (geometry before RGB; not a classifier score)",
+    "other_states": "U/T/missing remain separate; never force to negative"
+  },
+  "cohorts": {
+    "paired_same_query_RGB": "Known mapped human task label + saved valid initial query + legacy RGB score at exactly that coordinate. Preserve legacy RGB U abstentions.",
+    "same_slot_pipeline": "Known mapped human task label + valid initial query. Preserve S gate and U/T/missing; report all registered denominators and selective decision coverage separately. This cohort does not claim identical query location for geometric gates.",
+    "all_registered_slots": "Keep all 1784 rows and each exclusion/status; do not silently drop unknowns or OOB."
+  },
+  "future_decision_scoring": {
+    "v61": "Saved present_at_fixed_0_5=True is positive; False is negative in each semantic transfer task.",
+    "legacy_D_vs_E": "B/I positive; O negative; S is a separate out-of-task prediction, retained in denominator and decision coverage, never forced to external.",
+    "legacy_D_vs_ES": "B/I positive; O or geometric S negative; identify S as a geometry decision separately from RGB.",
+    "legacy_unresolved": "U/T/missing remain unresolved outcomes in either task. Keep their rows in the task denominator; any selective confusion table must also show unresolved counts and coverage.",
+    "ranking": "Use p_present and p_DIRECT on paired_same_query_RGB rows, including RGB U. Never fabricate an RGB probability for S."
+  },
+  "mapping": "Use stored baseline N3 branch/permutation only for evaluation. These are historical GT-evaluation branches, not independent physical identity certification and never inference input. Exact stored qFinal parity checked. No new GT-best branch selection. Unmatched SQUARE_YOLO:026048 stays UNKNOWN.",
+  "native_slot_order": "Local cuboid convention: 0 front top left, 1 front top right, 2 front bottom right, 3 front bottom left; 4-7 corresponding back-face order; 8 centroid excluded. These are local cuboid names, not image-coordinate sorting. Synthetic perm_v4[dynamic_id]=native_id is separate from real evaluation native-to-reference mapping; do not reapply it to already-dynamic saved arrays.",
+  "unannotated_slots": "Historical metric-reference-only review: wood13 NO_REFERENCE, square346 pnp_projected. Never convert these to EXTERNAL or DIRECT from raw visibility=1/reason=unknown.",
+  "pixel_presence_reference": "No real pixel segmentation reference verified. Semantic evaluation cannot establish real single-pixel presence accuracy.",
+  "diagnostics": "Initial-to-reference pixel distance and fixed nominal crop coverage are evaluation-only; never recenter or resize crop using reference.",
+  "exposure": "All 223 frames are repeated development material. No CAL46 exact ID or image-SHA overlap does not establish independent final evaluation.",
+  "reporting": "Separate wood/square and recording; keep OOF/unannotated/mapping/query-OOB/no-RGB/S/U counts. Preserve paired improvement and damage denominators when metrics are later computed.",
+  "pro_conversation": {
+    "url": "https://chatgpt.com/c/6ad599a5-f7c4-83ee-8f28-a9146700ff0a",
+    "title": "실험 감사와 실패 원인 진단",
+    "directly_read_message_ids": [
+      "cea1b746-b2b8-5f2d-a746-3c1dfa3529d3",
+      "74037ab2-5b79-5adb-a63b-b7ab60e7f63f",
+      "c0d5dbe9-2a2e-572b-8396-b431f06eaa17"
+    ],
+    "full_historical_conversation_read": false,
+    "relation_to_current_task": "Earlier design included localization/pose; current user goal is presence/occlusion classification."
+  }
+}

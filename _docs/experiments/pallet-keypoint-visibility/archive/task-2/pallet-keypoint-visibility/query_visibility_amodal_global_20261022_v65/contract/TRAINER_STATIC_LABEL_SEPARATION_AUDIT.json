@@ -1,0 +1,36 @@
+{
+  "schema": "V65_INDEPENDENT_TRAINER_STATIC_LABEL_SEPARATION_AUDIT_V1",
+  "PASS": true,
+  "forward_tensor_keys": [
+    "box_grid",
+    "context",
+    "global_index64",
+    "global_index8",
+    "global_prompt",
+    "global_query_valid",
+    "global_rgb",
+    "global_sam",
+    "rgb_native",
+    "sam",
+    "x"
+  ],
+  "GT_label_tensors_not_in_forward": true,
+  "global_query_target_deduplication": "np.unique(target_index[ix],return_inverse=True)",
+  "global_loss": "validpixelmean perunique target, then mean targets in each source, then mean sources; inspected source_balanced_global_loss",
+  "loss_weights": "1center+.25localdense+.25globaldense by fixed defaultargs and protocol",
+  "source_model_initialization": "new QueryGlobalAmodalHead(HeadConfig), torch seed20261022; no prior checkpoint init",
+  "checkpoint_selection": "macro within-domain unweighted center jointNLL, fixed2000 updates",
+  "labels_ignored_by_inference": [
+    "joint",
+    "classes",
+    "global_joint",
+    "evidence_weight"
+  ],
+  "no_mask_or_RGB_or_private_files_read_by_audit": true,
+  "no_models_loaded_or_GPU_training_PnP_calls": true,
+  "bindings": {
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/model/fit_global_amodal_head.py": "473f9cefa9c8089145bb599ba66159163755b34d137049b844c4984c334cda56",
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/model/query_global_amodal_head.py": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144",
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/PROTOCOL.json": "e99859f1369a328af812383ba01c2fe9fe08bc2d0a04fa26da476d02e9bfd4f8"
+  }
+}

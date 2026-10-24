@@ -1,0 +1,54 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V137 — 자료 범위 대조 결과</title><style>body{font:17px/1.65 system-ui,sans-serif;max-width:1300px;margin:32px auto;padding:0 20px;background:#f6f8fa;color:#182432}h1,h2{line-height:1.3}table{border-collapse:collapse;width:100%;background:white;margin:20px 0}th,td{border:1px solid #d4dce4;padding:10px;text-align:right}th:first-child,td:first-child{text-align:left}img{max-width:100%;height:auto}.note{padding:18px;background:#e8f0fa;border-left:5px solid #3974af}code{font-size:14px;overflow-wrap:anywhere}a{color:#195ba0}</style>
+<h1>자료 범위를 넓히면 가림 판단이 개선되는가?</h1><p class="note"><b>같은 예산의 대조군보다 보임·외부 가림 모두 개선됐습니다.</b> 전체 source 기준은 미통과입니다. 새 실사 평가는 하지 않았고 현재 실사 결과는 C16의 보임 1137/1147, 외부 가림 35/90으로 그대로입니다.</p>
+<p>기존 합성·공개 실사 51,004개 관측과 기존 native 합성 6,144점을 유지했습니다. 새로 640개 기본 장면 × 가림 전/실제 가림/가까운 비가림/먼 비가림 = 2,560장, 20,480점을 만들었습니다. 학습 512개·검증 128개 기본 장면은 치수·재질 씨드가 분리됐으며 두 분할 모두 높이·시점 범위를 넓혔습니다.</p>
+<p>C28은 기존 native 자료를 더 반복하고, C29는 같은 추가 배치 자리에 새 자료를 사용했습니다. 두 모델 모두 같은 초기 가중치·8,000회 학습·손실·문턱값 0입니다. 기존 192개와 native 64개의 매회 추출 순서는 완전히 같습니다. 새 학습 전에 세 데이터군의 C16 점수도 완전히 일치했습니다.</p>
+<h2>새 합성 검증: 보임 1,772개 / 외부 가림 130개</h2><p>행렬: 정답 행 [보임 D, 외부 가림 E], 예측 열 [D, E, 보류 U]. 자기 가림과 정답 U는 별도 집계합니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>v61</td><td>[[314, 1456, 2], [15, 115, 0]]</td><td>17.72%</td><td>88.46%</td><td>95.44%</td><td>7.32%</td><td>0.11%</td></tr>
+<tr><td>C16</td><td>[[1756, 14, 2], [85, 45, 0]]</td><td>99.10%</td><td>34.62%</td><td>95.38%</td><td>76.27%</td><td>0.11%</td></tr>
+<tr><td>C28</td><td>[[1686, 84, 2], [32, 98, 0]]</td><td>95.15%</td><td>75.38%</td><td>98.14%</td><td>53.85%</td><td>0.11%</td></tr>
+<tr><td>C29</td><td>[[1714, 56, 2], [18, 112, 0]]</td><td>96.73%</td><td>86.15%</td><td>98.96%</td><td>66.67%</td><td>0.11%</td></tr>
+</table>
+<h2>기존 합성 검증도 유지: 보임 828개 / 외부 가림 60개</h2><p>행렬: 정답 행 [보임 D, 외부 가림 E], 예측 열 [D, E, 보류 U]. 자기 가림과 정답 U는 별도 집계합니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>v61</td><td>[[158, 667, 3], [7, 52, 1]]</td><td>19.08%</td><td>86.67%</td><td>95.76%</td><td>7.23%</td><td>0.45%</td></tr>
+<tr><td>C16</td><td>[[819, 6, 3], [46, 13, 1]]</td><td>98.91%</td><td>21.67%</td><td>94.68%</td><td>68.42%</td><td>0.45%</td></tr>
+<tr><td>C28</td><td>[[778, 47, 3], [16, 43, 1]]</td><td>93.96%</td><td>71.67%</td><td>97.98%</td><td>47.78%</td><td>0.45%</td></tr>
+<tr><td>C29</td><td>[[808, 17, 3], [11, 48, 1]]</td><td>97.58%</td><td>80.00%</td><td>98.66%</td><td>73.85%</td><td>0.45%</td></tr>
+</table>
+<h2>새 합성 검증 중 좌표 오차 3px 이하: 보임 950개 / 외부 가림 37개</h2><p>행렬: 정답 행 [보임 D, 외부 가림 E], 예측 열 [D, E, 보류 U]. 자기 가림과 정답 U는 별도 집계합니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>v61</td><td>[[139, 811, 0], [3, 34, 0]]</td><td>14.63%</td><td>91.89%</td><td>97.89%</td><td>4.02%</td><td>0.00%</td></tr>
+<tr><td>C16</td><td>[[949, 1, 0], [18, 19, 0]]</td><td>99.89%</td><td>51.35%</td><td>98.14%</td><td>95.00%</td><td>0.00%</td></tr>
+<tr><td>C28</td><td>[[943, 7, 0], [5, 32, 0]]</td><td>99.26%</td><td>86.49%</td><td>99.47%</td><td>82.05%</td><td>0.00%</td></tr>
+<tr><td>C29</td><td>[[947, 3, 0], [1, 36, 0]]</td><td>99.68%</td><td>97.30%</td><td>99.89%</td><td>92.31%</td><td>0.00%</td></tr>
+</table>
+<p>3px 구간은 GT를 사용하는 진단입니다. 실제 입력 좌표를 보정하거나 배포에서 GT 오차로 사례를 거르지 않았습니다. 전체 검증 결과를 대체하지 않습니다.</p><h2>남은 문제</h2><p>C29는 64개 source 조건 중 44개를 통과했습니다(C28: 33개). 새 검증에서 D 오판 56개와 외부 가림 누락 18개가 남았고, 같은 재질 가림은 29/38개를 검출했습니다. 기존 검증의 같은 재질 가림은 8/16개에 머뭅니다. 보임 보존과 공개 실사 source 일부 조건도 퇴행했습니다. 두 후보 모두 미채택입니다.</p><h2>C29: 재질·모양·외부 물체별 새 검증</h2><table><tr><th>조건</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>material::PROCEDURAL_WOOD</td><td>[[848, 36, 2], [7, 58, 0]]</td><td>95.71%</td><td>89.23%</td><td>61.70%</td><td>0.21%</td></tr>
+<tr><td>material::DARK_POLYMER</td><td>[[866, 20, 0], [11, 54, 0]]</td><td>97.74%</td><td>83.08%</td><td>72.97%</td><td>0.00%</td></tr>
+<tr><td>aspect::RECTANGULAR</td><td>[[822, 38, 2], [9, 55, 0]]</td><td>95.36%</td><td>85.94%</td><td>59.14%</td><td>0.22%</td></tr>
+<tr><td>aspect::SQUARE</td><td>[[892, 18, 0], [9, 57, 0]]</td><td>98.02%</td><td>86.36%</td><td>76.00%</td><td>0.00%</td></tr>
+<tr><td>foreign_family::SAME_TARGET_MATERIAL</td><td>[[447, 11, 0], [9, 29, 0]]</td><td>97.60%</td><td>76.32%</td><td>72.50%</td><td>0.00%</td></tr>
+<tr><td>foreign_family::CARDBOARD_TAN</td><td>[[421, 17, 0], [0, 26, 0]]</td><td>96.12%</td><td>100.00%</td><td>60.47%</td><td>0.00%</td></tr>
+<tr><td>foreign_family::BACKGROUND_LIKE</td><td>[[439, 7, 0], [7, 27, 0]]</td><td>98.43%</td><td>79.41%</td><td>79.41%</td><td>0.00%</td></tr>
+<tr><td>foreign_family::HIGH_CONTRAST</td><td>[[407, 21, 2], [2, 30, 0]]</td><td>94.65%</td><td>93.75%</td><td>58.82%</td><td>0.43%</td></tr>
+</table><p>여기서 재질과 종횡비는 합성 자료의 독립 요인입니다. 실사 WOOD/SQUARE 평가군의 결과는 별도입니다.</p><h2>실제 모델 입력 crop</h2><p>고정된 C16 실패·성공 선택을 그대로 사용했습니다. 원래 초기 q, L에서 저장한 RGB96이며 GT 중심으로 다시 자르지 않았습니다. 아래 비교 그림에는 마지막 C28/C29 출력도 표시합니다.</p>
+<p><a href="saved_control_crop_comparison/BASE_0519_NATIVE_0_FOUR_VARIANT_RGB96_COMPARISON.png"><img src="saved_control_crop_comparison/BASE_0519_NATIVE_0_FOUR_VARIANT_RGB96_COMPARISON.png"></a></p>
+<p><a href="saved_control_crop_comparison/BASE_0590_NATIVE_1_FOUR_VARIANT_RGB96_COMPARISON.png"><img src="saved_control_crop_comparison/BASE_0590_NATIVE_1_FOUR_VARIANT_RGB96_COMPARISON.png"></a></p>
+<p>새 검증의 C29 실패 76개 중 72개가 GT 좌표 오차 3px 초과 구간에 있습니다. 이는 연관성 진단이며 좌표 오차만이 원인이라는 증거는 아닙니다. 고정 사례 중 빨간 물체에 의한 가림은 C28과 C29가 모두 고쳤으므로, 이 사례 하나를 새 자료만의 효과라고 부르지 않습니다. 목재의 가까운 비가림은 여전히 오판합니다.</p>
+<p><a href="../query_visibility_continuous_native_source_20261024_v136/actual_query_visual_review/saved_gallery_v1/INDEX.html">원본 full-image / q·GT 위치 / 96 crop / 유효 마스크 4장 보기</a></p><h2>해석과 다음 확인</h2><p>자료 범위 부족이 실제로 영향을 준다는 대조 증거를 얻었습니다. 올바른 좌표 근처의 합성 구간에서는 두 종류 판단을 함께 높일 수 있었습니다. 남은 전체 오류는 좌표 오차 구간·재질·근접 외부 물체별로 점검하며, GT 오차로 실패를 제거하지 않습니다. 다음 검증은 초기 좌표를 고치지 않고 그 좌표에서 얻는 영상·기하 정보가 남은 오류를 구분하는지 확인하는 것입니다. 현재 실사셋으로 학습·문턱·학습 시점·모델을 선택하지 않습니다.</p><details><summary>제약과 근거 파일</summary><ul>
+<li>여기서 새 성능 향상은 합성 검증 결과다. 실사 전이는 검증되지 않았다.</li>
+<li>기존 두 형상과 절차적 재질을 확장했으며 새 토폴로지나 실사 질감의 충분성을 증명하지 않았다.</li>
+<li>D/E는 등록된 물리 코너의 보임/외부 가림이다. 초기 좌표가 실제 코너인지의 판정과는 별도다.</li>
+<li>3px 이하 구간은 GT로 나눈 사후 진단이며 배포에서 적용할 필터가 아니다. 전체 분모와 실패도 함께 보존한다.</li>
+<li>S는 자기 가림, 정답 U는 보수적인 불확실 상태다. 둘 다 외부 가림 음성으로 학습하지 않았다. 예측 보류 U와도 구별한다.</li>
+<li>v61의 학습 목표는 픽셀 존재이며 등록 코너의 외부 가림 의미와 차이가 있다.</li>
+<li>control: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/runs/C28_C29_CONTINUOUS_COVERAGE_FIXED8000/CONTROL_COMPLETE.json</code> <code>6e63c484d38f758376ad36b342b529cab05b21a7beda04d2fca8b6221363bc9f</code></li>
+<li>independent_audit: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/independent_saved_review/REVIEW.json</code> <code>35c5a82c5d437babfd58c4dbec4255d339cf10bf8bff27c44d2edb8399e96022</code></li>
+<li>policy: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/ROOT_CONTINUOUS_COVERAGE_POLICY_BEFORE_FIT.json</code> <code>0bfd6a5a30f2705a49636f3cb6b60df735e863c4a2f74e973012a48e3d236c60</code></li>
+<li>new_source_evaluation: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/saved_frozen_visibility_evaluation_v1/EVALUATION_SEAL.json</code> <code>16bc63796892f1892e2f8d2b83406c1f28f9c9cab0ac62159615bd002789092c</code></li>
+<li>source_data_audit: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/actual_render_saved_review/SAVED_SOURCE_AUDIT_COMPLETE.json</code> <code>58f9821be45fe40e4411e1c696d0c39a42fa3658225b331386d345230584ccf3</code></li>
+<li>source_RGB_alias_audit: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/actual_render_saved_review/SOURCE_NATIVE_WITNESS_RGB_ALIAS_OBSERVATIONS.json</code> <code>69bf1c3da4eb6d53b5159e7bf66422522f408f72bc873b23a67d23240bf65b51</code></li>
+<li>original_query_gallery: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/actual_query_visual_review/saved_gallery_v1/GALLERY_COMPLETE.json</code> <code>241ce4a30881184cc4111a6b0047ced5494b9c18b749d639ea94aece2f92f6df</code></li>
+<li>saved_control_crop_comparison: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/saved_control_crop_comparison/COMPARISON_COMPLETE.json</code> <code>d757528ade1f2ddb792dc6865d8a596cf9c2bcec6587f37fa409a1be3941c4b3</code></li>
+<li>residual_error_diagnosis: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_source_coverage_control_20261024_v137/residual_error_diagnosis/RESULTS.json</code> <code>ef22c68382b5527820e63164fef6da98ec41941bb32d41de9c91174e23d6a92c</code></li>
+<li>AST_runtime_erratum: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_continuous_native_source_20261024_v136/ROOT_AST_RUNTIME_ERRATUM.json</code> <code>d874834e29ec4c398c0c18748407ade27e571415cae6878571fe406eaf1c6e76</code></li>
+</ul></details></html>

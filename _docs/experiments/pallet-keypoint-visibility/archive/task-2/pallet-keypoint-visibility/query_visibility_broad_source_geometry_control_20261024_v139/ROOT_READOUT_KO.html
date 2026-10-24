@@ -1,0 +1,54 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V139 — 원본8점 구조 조건 대조</title>
+<style>body{font:17px/1.65 system-ui,sans-serif;max-width:1400px;margin:32px auto;padding:0 20px;background:#f6f8fa;color:#182432}table{border-collapse:collapse;width:100%;background:white;margin:20px 0}th,td{border:1px solid #d4dce4;padding:9px;text-align:right}th:first-child,td:first-child{text-align:left}img{max-width:100%;height:auto}.note{padding:18px;background:#e8f0fa;border-left:5px solid #3974af}code{font-size:13px;overflow-wrap:anywhere}a{color:#195ba0}</style>
+<h1>초기8점 구조 정보를 더해도 외부 가림 문제는 남았습니다</h1><p class="note">C30은 이전 C29를 학습8000회부터 최종 점수·파라미터까지 정확히 재현했습니다. C31은 같은 조건에서 native G42만 추가했습니다. 새 합성 검증에서 보임 정답은4개 늘고 외부 가림 정답은1개 줄었습니다. 두 모델 모두 미채택이며 새 실사 추론은 하지 않았습니다.</p>
+<p>기존 합성·공개 실사51004개, 기존 native6144개와 새 native20480개를 모두 유지했습니다. DINO 영상 encoder는 고정하고 동일한224513개 head 파라미터를 같은 초기값·표본 순서·손실·8000회·문턱0으로 학습했습니다. G42는 원본 초기8점·native번호·context/경계에서 계산한 기존42개 입력입니다. 좌표·L을 바꾸거나 정답 오차를 입력으로 사용하지 않았습니다.</p>
+<h2>새 합성 검증: 보임1772 / 외부 가림130</h2><p>혼동행렬: 정답 행[D,E], 예측 열[D,E,U]. 전체 known D/E 분모입니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>v61</td><td>[[314, 1456, 2], [15, 115, 0]]</td><td>17.72%</td><td>88.46%</td><td>95.44%</td><td>7.32%</td><td>0.11%</td></tr>
+<tr><td>C16</td><td>[[1756, 14, 2], [85, 45, 0]]</td><td>99.10%</td><td>34.62%</td><td>95.38%</td><td>76.27%</td><td>0.11%</td></tr>
+<tr><td>C29</td><td>[[1714, 56, 2], [18, 112, 0]]</td><td>96.73%</td><td>86.15%</td><td>98.96%</td><td>66.67%</td><td>0.11%</td></tr>
+<tr><td>C30</td><td>[[1714, 56, 2], [18, 112, 0]]</td><td>96.73%</td><td>86.15%</td><td>98.96%</td><td>66.67%</td><td>0.11%</td></tr>
+<tr><td>C31</td><td>[[1718, 52, 2], [19, 111, 0]]</td><td>96.95%</td><td>85.38%</td><td>98.91%</td><td>68.10%</td><td>0.11%</td></tr>
+</table>
+<h2>기존 합성 검증: 보임828 / 외부 가림60</h2><p>혼동행렬: 정답 행[D,E], 예측 열[D,E,U]. 전체 known D/E 분모입니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>v61</td><td>[[158, 667, 3], [7, 52, 1]]</td><td>19.08%</td><td>86.67%</td><td>95.76%</td><td>7.23%</td><td>0.45%</td></tr>
+<tr><td>C16</td><td>[[819, 6, 3], [46, 13, 1]]</td><td>98.91%</td><td>21.67%</td><td>94.68%</td><td>68.42%</td><td>0.45%</td></tr>
+<tr><td>C29</td><td>[[808, 17, 3], [11, 48, 1]]</td><td>97.58%</td><td>80.00%</td><td>98.66%</td><td>73.85%</td><td>0.45%</td></tr>
+<tr><td>C30</td><td>[[808, 17, 3], [11, 48, 1]]</td><td>97.58%</td><td>80.00%</td><td>98.66%</td><td>73.85%</td><td>0.45%</td></tr>
+<tr><td>C31</td><td>[[809, 16, 3], [11, 48, 1]]</td><td>97.71%</td><td>80.00%</td><td>98.66%</td><td>75.00%</td><td>0.45%</td></tr>
+</table>
+<h2>기존 합성의 같은 재질 외부 물체</h2><p>혼동행렬: 정답 행[D,E], 예측 열[D,E,U]. 전체 known D/E 분모입니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>C30</td><td>[[178, 12, 0], [8, 8, 0]]</td><td>93.68%</td><td>50.00%</td><td>95.70%</td><td>40.00%</td><td>0.00%</td></tr>
+<tr><td>C31</td><td>[[179, 11, 0], [8, 8, 0]]</td><td>94.21%</td><td>50.00%</td><td>95.72%</td><td>42.11%</td><td>0.00%</td></tr>
+</table>
+<h2>기존 합성의 초기좌표 오차≤3px (GT 진단)</h2><p>혼동행렬: 정답 행[D,E], 예측 열[D,E,U]. 전체 known D/E 분모입니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>C30</td><td>[[395, 3, 0], [0, 16, 0]]</td><td>99.25%</td><td>100.00%</td><td>100.00%</td><td>84.21%</td><td>0.00%</td></tr>
+<tr><td>C31</td><td>[[395, 3, 0], [0, 16, 0]]</td><td>99.25%</td><td>100.00%</td><td>100.00%</td><td>84.21%</td><td>0.00%</td></tr>
+</table>
+<h2>새 합성의 같은 재질 외부 물체</h2><p>혼동행렬: 정답 행[D,E], 예측 열[D,E,U]. 전체 known D/E 분모입니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>C30</td><td>[[447, 11, 0], [9, 29, 0]]</td><td>97.60%</td><td>76.32%</td><td>98.03%</td><td>72.50%</td><td>0.00%</td></tr>
+<tr><td>C31</td><td>[[448, 10, 0], [10, 28, 0]]</td><td>97.82%</td><td>73.68%</td><td>97.82%</td><td>73.68%</td><td>0.00%</td></tr>
+</table>
+<h2>새 합성의 초기좌표 오차≤3px (GT 진단)</h2><p>혼동행렬: 정답 행[D,E], 예측 열[D,E,U]. 전체 known D/E 분모입니다.</p><table><tr><th>모델</th><th>혼동행렬</th><th>D recall</th><th>E recall</th><th>D precision</th><th>E precision</th><th>보류율</th></tr>
+<tr><td>C30</td><td>[[947, 3, 0], [1, 36, 0]]</td><td>99.68%</td><td>97.30%</td><td>99.89%</td><td>92.31%</td><td>0.00%</td></tr>
+<tr><td>C31</td><td>[[947, 3, 0], [2, 35, 0]]</td><td>99.68%</td><td>94.59%</td><td>99.79%</td><td>92.11%</td><td>0.00%</td></tr>
+</table>
+<h2>원래 고정한 실제 모델 입력 crop</h2><p>예전 C16 결과로 선택한 사례를 그대로 사용했습니다. 아래96 crop은 저장한 원본 픽셀을3배 확대했으며, v61은 자체 P3 ROI의 출력을 표시합니다. 네 변형마다 실제 초기 q와 L은 다르므로 고정q 인과 실험은 아닙니다. 전체8개 기존 사례는 <a href="saved_geometry_control_diagnosis_v1/INDEX.html">상세 비교</a>에 있습니다.</p>
+<img src="saved_geometry_control_visual_report_v1/BASE_0519_NATIVE_0_C16_V61_C29_C30_C31_RGB96.png">
+<img src="saved_geometry_control_visual_report_v1/BASE_0590_NATIVE_1_C16_V61_C29_C30_C31_RGB96.png">
+<h2>판단</h2><p>기존source에서 보임2개를 고치고1개를 잃었으며 외부 가림 변화는 없습니다. 새source에서는 보임8개를 고치고4개를 잃었고, 외부 가림1개를 잃었습니다. C31의45번째 통과 조건은 TOMIE의 보임 회복입니다. native 외부 가림이 해결된 것은 아닙니다. C30은44/64, C31은45/64로 둘 다 전체 기준 미달입니다.</p><p>실사 결과는 마지막 C16의 보임1137/1147, 외부 가림35/90으로 그대로입니다. 이 결과로 실제 평가 사진에서 새 모델이 좋아졌다고 주장하지 않습니다.</p><h2>다음 실제 작업</h2><p>공개 팔레트 실사에서 원래 native 참조·entity·순서와 구조적 근거를 검증하는 작은 주석 가능성 검사를 먼저 수행한다. 기존 임의cue나 가상bbox8점을 native 정답으로 재명명하지 않는다.</p><p>그 주석은 현재 평가223장과 무관한 공개 원본에서만 만듭니다. 원래 가상cuboid 참조점, 그곳의 구조적 근거와 실제 표면을 구분해야 합니다. 두 합성 형상의 참조점이 표면 꼭짓점과 일치한다는 검증은 공개 형상 전체에 적용되지 않습니다. 초기 좌표 정확성, 등록 참조의 보임, 자기 가림을 구별하고 모호한 대응을U로 남깁니다. 이번에는 공개 native 라벨을 새로 만들지 않았습니다.</p><details><summary>한계와 근거 파일</summary><ul>
+<li>이번 결과는 이 head와 학습 조건에서의 G42 비교다. 모든 구조 정보의 무용성이나 다른 모델의 불가능성을 증명하지 않는다.</li>
+<li>좌표 오차3px 이하 등 GT 구간은 진단용이다. 입력 좌표를 옮기거나 평가에서 실패를 제거하지 않았다.</li>
+<li>이 합성자료의 D/E는 등록된 코너의 보임/외부 가림이다. D 출력이 초기 query 좌표의 정확성을 보증하지 않는다.</li>
+<li>정답 자기 가림 S와 불확실 U는 외부 가림 이진 학습의 음성이 아니다. 예측 보류 U는 전체 known D/E 분모에 남겼다.</li>
+<li>같은 기본 장면과 여러 slot/variant는 상관된다. 작은 수의 개선을 독립 표본 유의성이나 실사 전이로 해석하지 않는다.</li>
+<li>현재223으로 학습·문턱·체크포인트·모델을 선택하지 않았고 새 실사 추론도 하지 않았다.</li>
+<li>policy: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/ROOT_BROAD_SOURCE_GEOMETRY_POLICY_BEFORE_FIT.json</code> <code>b1c38b4110f90ada399fe71c15fb29cc931b0adeb852ed920b2b1556dfb00415</code></li>
+<li>control: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/runs/C30_C31_BROAD_SOURCE_GEOMETRY_FIXED8000/CONTROL_COMPLETE.json</code> <code>8fd3a1695d4721e857e70edb2de96fca42bc29e96df429e59c8bccfcef0122e3</code></li>
+<li>exact_C29_replay: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/runs/C30_C31_BROAD_SOURCE_GEOMETRY_FIXED8000/C30_BROAD_SOURCE_ZERO_GEOMETRY_CONTROL/C30_EXACT_C29_REPLAY.json</code> <code>d029b3d5b7576cf187ecfd35fd63dfdd6feb792a950debfa6a2968aadc0b7862</code></li>
+<li>independent_review: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/independent_saved_review/REVIEW.json</code> <code>0f708a1855a2ee9c54b58b31e2bcfd14814f7ee3c7114d263deb3e4d87fd4186</code></li>
+<li>paired_transitions: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/independent_saved_review/PAIRED_C30_C31_FULL_COHORT_TRANSITIONS.json</code> <code>f87b745a8f6747e067a444c6b49d4f19e0d83e727b213009df6aefc56497aa6c</code></li>
+<li>saved_diagnosis: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/saved_geometry_control_diagnosis_v1/DIAGNOSIS_SEAL.json</code> <code>f9095b62dab566543828c98e2befd34aa3874bc75a61ba2ca13604867db8a3e9</code></li>
+<li>all_strata_and_cases: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/saved_geometry_control_diagnosis_v1/SOURCE_RESULTS.json</code> <code>253fb4b9821ca54dd362ba6f60702b158d374ac784754f024ff890259c7cc302</code></li>
+<li>source_visuals: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/saved_geometry_control_visual_report_v1/VISUAL_REPORT_COMPLETE.json</code> <code>c7d4da785793a34eb33429d664d443ccf4cd95cdda29b1614f7c49bfe6f6f506</code></li>
+<li>public_native_readiness: <code>/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_broad_source_geometry_control_20261024_v139/public_native_source_readiness/PUBLIC_NATIVE_READINESS_EXISTING_METADATA_ONLY.json</code> <code>1c464d897e7cab08730a96aa7b43e683a34a086edf4b3e85d7339e7c56c3b386</code></li>
+</ul></details></html>

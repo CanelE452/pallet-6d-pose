@@ -1,0 +1,2650 @@
+{
+  "schema": "PUBLIC_SOURCE_FROZEN_V65_INFERENCE_PURE_HELPER_AUDIT_V2",
+  "PASS": true,
+  "source_only": true,
+  "private_RGB_GT_scores_read": false,
+  "GPU_used": false,
+  "optimizer_updates": 0,
+  "PnP": false,
+  "threshold_changes": false,
+  "root_files_modified": false,
+  "helper_path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/inference/infer_current_frozen.py",
+  "helper_file_sha256_at_review": "c049979b2f988ea82fe885b7bad6ff10ef5440efa9ceed5383c0e85375018292",
+  "pure_function_AST_sha256": {
+    "context64": "abceae4c47fc1d1bf9b28a602912f19ffdb73f96127fae24dd2dd9c4c5f06163",
+    "initial_query_box": "49f93c29833deee442af6d27af854e6de1da7fb01b1cc57ae5f877a7f6495213",
+    "query_validity": "f3afa0350bff05c9f66e6977a62e3a1dc60ad3d741b75683c9978fa27b845d12",
+    "input_features": "196881c53b6e2be0929c67c451e87178f11954eebfc29d4e0c2f2f651d1ec772",
+    "forward_frame": "8efdb459fb0d36ddfea9646c8702f3d3fdcae6b102345b5178ff7e361b3cec36",
+    "probabilities": "1e64f1a561acc6dba8364a43f890247c28a88c15a5114782fb199258445e5ba2"
+  },
+  "recipe_sha256": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0",
+  "checkpoint_sha256": "1d88ecd20f4f24d115e3c7fca95b4a5fb16ea66bbf38e86eed8311f21f507ebe",
+  "frozen_model_state_unchanged": true,
+  "source_fixture_manifest_sha256": "891eabf14c73388f8d60c974f0543a661ede36339b019a553562bbe89ec75bc8",
+  "expected_features_sha256": "9169420daafcbdfb0bee0d381f3ac6658726e622757f24f6cfe59abb211f002e",
+  "CPU_logit_sha256": "ad4b833a7db1be160872dca07dd01631d8c53dd953d48163ca55ba6e7f037178",
+  "code_sha256": "1413959313c0718094863af60d443577ebf626cfed3e47652c8645beee115c28",
+  "SAM_drift_scope": "This PASS compares the SAME full CPU logit through two recipes. CPU-versus-saved-GPU numerical differences remain separately in EXPECTED_FEATURES_REPORT.json; this is not a claim of bit-exact CPU/GPU SAM.",
+  "CPU_layout_scope": "Original feature values match bit-exactly but strided helper arrays versus NPZ-contiguous arrays can select different CPU convolution layouts. Record original-layout numerical differences; canonicalize BOTH audit-only arrays to C-contiguous to verify identical head outputs. No inference/model/threshold change was made.",
+  "YCB_source_box_scope": "YCB source jittered annotation box was supplied explicitly. Source box is not N0-query derived; deployment initialbox formula itself is tested independently and SYNTH source box equals it.",
+  "execution_section_scope": "Pure helper ASTs verified stable. Main private execution section was still being finalized and must be reviewed/bound separately before private file opens.",
+  "fixtures": [
+    {
+      "fixture_index": 0,
+      "id": "G38__G__f0032",
+      "source": "SYNTH",
+      "split": "train",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": true,
+      "initial_box": [
+        88.70425415039062,
+        418.9277648925781,
+        176.35247802734375,
+        479.0
+      ],
+      "source_prompt_box_is_N0_based": true,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 1,
+      "id": "G38__G__f2735",
+      "source": "SYNTH",
+      "split": "train",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": true,
+      "initial_box": [
+        219.52200317382812,
+        139.734130859375,
+        422.6684875488281,
+        350.9075622558594
+      ],
+      "source_prompt_box_is_N0_based": true,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 2,
+      "id": "G38__G__f9987",
+      "source": "SYNTH",
+      "split": "train",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": true,
+      "initial_box": [
+        594.4909057617188,
+        258.8642883300781,
+        719.0,
+        303.2580871582031
+      ],
+      "source_prompt_box_is_N0_based": true,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 3,
+      "id": "G38__G__f0039",
+      "source": "SYNTH",
+      "split": "validation",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": true,
+      "initial_box": [
+        239.52105712890625,
+        160.77549743652344,
+        397.8528747558594,
+        330.1710510253906
+      ],
+      "source_prompt_box_is_N0_based": true,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 4,
+      "id": "G38__G__f27649",
+      "source": "SYNTH",
+      "split": "validation",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": true,
+      "initial_box": [
+        191.7563018798828,
+        115.9505615234375,
+        489.5324401855469,
+        409.75897216796875
+      ],
+      "source_prompt_box_is_N0_based": true,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 5,
+      "id": "G38__G__f9806",
+      "source": "SYNTH",
+      "split": "validation",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": true,
+      "initial_box": [
+        223.62440490722656,
+        142.3552703857422,
+        427.55987548828125,
+        348.5849304199219
+      ],
+      "source_prompt_box_is_N0_based": true,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 6,
+      "id": "YCB:000000:000001:000001",
+      "source": "YCB",
+      "split": "train",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": null,
+      "initial_box": [
+        347.05907652653485,
+        107.2241664914849,
+        475.99045536986216,
+        303.71789888996926
+      ],
+      "source_prompt_box_is_N0_based": false,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 7,
+      "id": "YCB:000004:000001:000001",
+      "source": "YCB",
+      "split": "train",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": null,
+      "initial_box": [
+        313.8624345821041,
+        288.19122411993567,
+        476.6358645060995,
+        451.7816502708806
+      ],
+      "source_prompt_box_is_N0_based": false,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 8,
+      "id": "YCB:000007:002017:000003",
+      "source": "YCB",
+      "split": "train",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": null,
+      "initial_box": [
+        144.9114416937746,
+        190.24804323016298,
+        257.3771630711584,
+        311.4002655002168
+      ],
+      "source_prompt_box_is_N0_based": false,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 9,
+      "id": "YCB:000008:000001:000000",
+      "source": "YCB",
+      "split": "validation",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": null,
+      "initial_box": [
+        188.04439642269992,
+        223.18913702436458,
+        277.3273596731844,
+        278.1651323053565
+      ],
+      "source_prompt_box_is_N0_based": false,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 10,
+      "id": "YCB:000009:000001:000000",
+      "source": "YCB",
+      "split": "validation",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": null,
+      "initial_box": [
+        299.202733899319,
+        124.94865037642822,
+        410.86377324181336,
+        334.2492945338171
+      ],
+      "source_prompt_box_is_N0_based": false,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    },
+    {
+      "fixture_index": 11,
+      "id": "YCB:000009:001590:000002",
+      "source": "YCB",
+      "split": "validation",
+      "comparisons": {
+        "rgb_native": {
+          "shape": [
+            8,
+            75,
+            9,
+            9
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "box_grid": {
+          "shape": [
+            8,
+            4,
+            9,
+            9
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "sam": {
+          "shape": [
+            8,
+            2,
+            9,
+            9
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_rgb": {
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "dtype": "uint8",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_sam": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "float16",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_prompt": {
+          "shape": [
+            1,
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index64": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_index8": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "int64",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_query_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "global_valid": {
+          "shape": [
+            1,
+            64,
+            64
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "native_valid": {
+          "shape": [
+            8,
+            9,
+            9
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "context64": {
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        },
+        "query_validity": {
+          "shape": [
+            8
+          ],
+          "dtype": "bool",
+          "value_mismatches": 0,
+          "max_abs": 0.0
+        }
+      },
+      "SYNTH_initial_box_matches_source_prompt": null,
+      "initial_box": [
+        544.1031100899739,
+        243.74540812633842,
+        639.0,
+        479.0
+      ],
+      "source_prompt_box_is_N0_based": false,
+      "same_values_original_memory_layout_CPU_model_max_logit_difference": 0.0,
+      "same_logit_same_contiguous_layout_CPU_model_max_logit_difference": 0.0,
+      "original_layout_logical_state_mismatches": 0,
+      "original_layout_jointMAP_mismatches": 0,
+      "memory_layout_differences": {
+        "rgb_native": {
+          "helper_strides": [
+            6075,
+            1,
+            675,
+            75
+          ],
+          "NPZ_expected_strides": [
+            6075,
+            81,
+            9,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_rgb": {
+          "helper_strides": [
+            0,
+            1,
+            192,
+            3
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": false,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_sam": {
+          "helper_strides": [
+            0,
+            0,
+            128,
+            2
+          ],
+          "NPZ_expected_strides": [
+            0,
+            8192,
+            128,
+            2
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        },
+        "global_prompt": {
+          "helper_strides": [
+            0,
+            0,
+            64,
+            1
+          ],
+          "NPZ_expected_strides": [
+            0,
+            4096,
+            64,
+            1
+          ],
+          "helper_C_contiguous": true,
+          "NPZ_expected_C_contiguous": true
+        }
+      }
+    }
+  ]
+}

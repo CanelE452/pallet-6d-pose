@@ -1,0 +1,61 @@
+{
+  "schema": "SAM21_ISOLATED_FROZEN_IMAGE_API_INTEGRATION_V1",
+  "scope": "Runtime and official checkpoint prepared; only generated blank-image API smoke authorized by this bundle.",
+  "python": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python",
+  "repo": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/sam2_repo",
+  "checkpoint": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+  "config": "configs/sam2.1/sam2.1_hiera_b+.yaml",
+  "versions": {
+    "python": "3.10.20",
+    "torch": "2.5.1+cu121",
+    "torchvision": "0.20.1+cu121",
+    "triton": "3.1.0"
+  },
+  "compile": false,
+  "SAM2_BUILD_CUDA": "0",
+  "apply_postprocessing": false,
+  "max_hole_area": 0,
+  "max_sprinkle_area": 0,
+  "image_API": {
+    "imports": [
+      "from sam2.build_sam import build_sam2",
+      "from sam2.sam2_image_predictor import SAM2ImagePredictor"
+    ],
+    "model": "build_sam2(config, checkpoint, device='cuda', mode='eval', apply_postprocessing=False, hydra_overrides_extra=['++model.compile_image_encoder=false'])",
+    "frozen": "model.requires_grad_(False)",
+    "predictor": "SAM2ImagePredictor(model, mask_threshold=0., max_hole_area=0., max_sprinkle_area=0.)",
+    "context": "torch.inference_mode() and torch.autocast('cuda', dtype=torch.bfloat16)",
+    "set_image": "predictor.set_image(uint8_HWC_RGB)",
+    "prediction": "predictor.predict(box=float32_xyxy, multimask_output=True, return_logits=True)",
+    "outputs": [
+      "mask_logits(C,H,W)",
+      "quality(C)",
+      "lowres_logits(C,256,256)"
+    ],
+    "no_point_prompt": true,
+    "selection": "No dataset mask-selection/query rule is authorized by this runtime preparation; freeze separately."
+  },
+  "generated_smoke_reproduction": [
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/smoke_blank.py --device cpu --out NEW_CPU_OUTPUT_DIRECTORY",
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/smoke_blank.py --device cuda --out NEW_CUDA_OUTPUT_DIRECTORY"
+  ],
+  "installation_commands": [
+    "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python -m venv /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv",
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python -m pip install --no-index --no-deps --find-links /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/wheels -r /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/CACHED_REQUIREMENTS.txt setuptools==75.8.0 MarkupSafe==3.0.3",
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python -m pip install --no-index --no-deps --find-links /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/wheels torch==2.5.1+cu121 torchvision==0.20.1+cu121 triton==3.1.0",
+    "SAM2_BUILD_CUDA=0 /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python -m pip install --no-index --no-deps --no-build-isolation -e /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/sam2_repo"
+  ],
+  "no_global_env_install": true,
+  "no_dataset_RGB_reads": true,
+  "optimizer_updates": 0,
+  "PnP_calls": 0,
+  "caution": "Blank-image logits/quality values only establish API/finite-value operation. They are not accuracy results. No dataset inference or teacher-label generation is authorized by this document.",
+  "artifacts": {
+    "seal": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/RUNTIME_SEAL.json",
+    "wheel_manifest": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/provenance/WHEEL_MANIFEST.json",
+    "cached_stage_manifest": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/provenance/CACHED_STAGE_WHEELS.json",
+    "runtime_versions": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/provenance/RUNTIME_VERSIONS.json",
+    "cpu_smoke": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/smoke/CPU/SMOKE.json",
+    "cuda_smoke": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/smoke/CUDA/SMOKE.json"
+  }
+}

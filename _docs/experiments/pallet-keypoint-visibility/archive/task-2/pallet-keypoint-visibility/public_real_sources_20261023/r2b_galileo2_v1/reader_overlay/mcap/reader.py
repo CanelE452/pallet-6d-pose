@@ -1,0 +1,647 @@
+"""High-level classes for reading content out of MCAP data sources."""
+
+import io
+import warnings
+from abc import ABC, abstractmethod
+from typing import (
+    IO,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+)
+
+from ._message_queue import make_message_queue
+from .data_stream import ReadDataStream, RecordBuilder
+from .decoder import DecoderFactory
+from .exceptions import DecoderNotFoundError, McapError
+from .records import (
+    Attachment,
+    AttachmentIndex,
+    Channel,
+    Chunk,
+    ChunkIndex,
+    Footer,
+    Header,
+    McapRecord,
+    Message,
+    Metadata,
+    MetadataIndex,
+    Schema,
+    Statistics,
+)
+from .stream_reader import MAGIC_SIZE, StreamReader, breakup_chunk, read_magic
+from .summary import Summary
+
+
+def _resolve_time_range(
+    start_time: Optional[int],
+    end_time: Optional[int],
+    starting_at: Optional[int],
+    starting_after: Optional[int],
+    ending_at: Optional[int],
+    ending_before: Optional[int],
+) -> Tuple[Optional[int], Optional[int]]:
+    """Resolve the explicit and deprecated time bounds to an inclusive-start /
+    exclusive-end pair, warning on deprecated names and rejecting conflicting bounds
+    and crossed ranges. A start bound past every possible end bound (for example
+    ``starting_after`` at the maximum timestamp) is an empty query, not an error,
+    unless an end bound is also given below it.
+    """
+    if start_time is not None:
+        warnings.warn(
+            "start_time is deprecated; use starting_at (inclusive) or starting_after"
+            " (exclusive) instead",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+    if end_time is not None:
+        warnings.warn(
+            "end_time is deprecated; use ending_before (exclusive) or ending_at"
+            " (inclusive) instead",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+    if (
+        sum(bound is not None for bound in (start_time, starting_at, starting_after))
+        > 1
+    ):
+        raise ValueError(
+            "provide at most one of start_time, starting_at, starting_after"
+        )
+    if sum(bound is not None for bound in (end_time, ending_at, ending_before)) > 1:
+        raise ValueError("provide at most one of end_time, ending_at, ending_before")
+    start = starting_at if starting_at is not None else start_time
+    if starting_after is not None:
+        start = starting_after + 1
+    end = ending_before if ending_before is not None else end_time
+    if ending_at is not None:
+        end = ending_at + 1
+    if start is not None and end is not None and start > end:
+        raise ValueError("end time cannot come before start time")
+    return start, end
+
+
+def _get_record_size(record: McapRecord):
+    """utility for counting the number of bytes a given record occupies in an MCAP."""
+    rb = RecordBuilder()
+    record.write(rb)
+    return rb.count
+
+
+FOOTER_SIZE = _get_record_size(Footer(0, 0, 0))
+
+
+def _read_summary_from_stream_reader(stream_reader: StreamReader) -> Optional[Summary]:
+    """read summary records from an MCAP stream reader, collecting them into a Summary."""
+    summary = Summary()
+    for record in stream_reader.records:
+        if isinstance(record, Statistics):
+            summary.statistics = record
+        elif isinstance(record, Schema):
+            summary.schemas[record.id] = record
+        elif isinstance(record, Channel):
+            summary.channels[record.id] = record
+        elif isinstance(record, AttachmentIndex):
+            summary.attachment_indexes.append(record)
+        elif isinstance(record, ChunkIndex):
+            summary.chunk_indexes.append(record)
+        elif isinstance(record, MetadataIndex):
+            summary.metadata_indexes.append(record)
+        elif isinstance(record, Footer):
+            # There is no summary!
+            if record.summary_start == 0:
+                return None
+            else:
+                return summary
+    return summary
+
+
+def _chunks_matching_topics(
+    summary: Summary,
+    topics: Optional[Iterable[str]],
+    starting_at: Optional[float],
+    ending_before: Optional[float],
+) -> List[ChunkIndex]:
+    """returns candidate ChunkIndex records that may include messages of the given topics.
+
+    :param summary: the summary of this MCAP.
+    :param topics: topics to match. If None, all chunk indices in the summary are returned.
+    :param starting_at: if not None, messages from before this unix timestamp are not included.
+    :param ending_before: if not None, messages at or after this unix timestamp are not included.
+    """
+    out: List[ChunkIndex] = []
+    for chunk_index in summary.chunk_indexes:
+        if starting_at is not None and chunk_index.message_end_time < starting_at:
+            continue
+        if (
+            ending_before is not None
+            and chunk_index.message_start_time >= ending_before
+        ):
+            continue
+        if topics is None:
+            out.append(chunk_index)
+            continue
+        if len(chunk_index.message_index_offsets) == 0:
+            # Without message indexes, topic membership is unknown until the chunk is scanned.
+            out.append(chunk_index)
+            continue
+        for channel_id in chunk_index.message_index_offsets.keys():
+            if summary.channels[channel_id].topic in topics:
+                out.append(chunk_index)
+                break
+    return out
+
+
+class DecodedMessageTuple(NamedTuple):
+    """Yielded from every iteration of :py:meth:`~mcap.reader.McapReader.iter_decoded_messages`."""
+
+    schema: Optional[Schema]
+    channel: Channel
+    message: Message
+    decoded_message: Any
+
+
+class McapReader(ABC):
+    """Reads data out of an MCAP file, using the summary section where available to efficiently
+    read only the parts of the file that are needed.
+
+    :param decoder_factories: An iterable of :py:class:`~mcap.decoder.DecoderFactory`
+        instances which can provide decoding functionality to
+        :py:meth:`~mcap.reader.McapReader.iter_decoded_messages`.
+    """
+
+    def __init__(
+        self,
+        decoder_factories: Iterable[DecoderFactory] = (),
+    ):
+        self._decoder_factories = decoder_factories
+        self._decoders: dict[int, Callable[[bytes], Any]] = {}
+
+    @abstractmethod
+    def iter_messages(
+        self,
+        topics: Union[Iterable[str], str, None] = None,
+        start_time: Optional[int] = None,
+        end_time: Optional[int] = None,
+        log_time_order: bool = True,
+        reverse: bool = False,
+        *,
+        starting_at: Optional[int] = None,
+        starting_after: Optional[int] = None,
+        ending_at: Optional[int] = None,
+        ending_before: Optional[int] = None,
+    ) -> Iterator[Tuple[Optional[Schema], Channel, Message]]:
+        """iterates through the messages in an MCAP.
+
+        :param topics: if not None, only messages from these topics will be returned.
+        :param start_time: deprecated alias for ``starting_at``; use ``starting_at`` or
+            ``starting_after`` instead.
+        :param end_time: deprecated alias for ``ending_before``; use ``ending_before`` or
+            ``ending_at`` instead.
+        :param log_time_order: if True, messages will be yielded in ascending log time order. If
+            False, messages will be yielded in the order they appear in the MCAP file.
+        :param reverse: if both ``log_time_order`` and ``reverse`` are True, messages will be
+            yielded in descending log time order.
+        :param starting_at: an integer nanosecond timestamp. if provided, messages logged before
+            this timestamp are not included (inclusive lower bound).
+        :param starting_after: an integer nanosecond timestamp. if provided, messages logged at or
+            before this timestamp are not included (exclusive lower bound).
+        :param ending_at: an integer nanosecond timestamp. if provided, messages logged after this
+            timestamp are not included (inclusive upper bound).
+        :param ending_before: an integer nanosecond timestamp. if provided, messages logged at or
+            after this timestamp are not included (exclusive upper bound).
+
+        At most one lower bound (``start_time``, ``starting_at``, ``starting_after``) and one upper
+        bound (``end_time``, ``ending_at``, ``ending_before``) may be provided. The bounds
+        resolve to a half-open range ``[start, end)``. ``start > end`` raises ``ValueError``;
+        ``start == end`` is a valid empty range.
+        """
+        raise NotImplementedError()
+
+    def iter_decoded_messages(
+        self,
+        topics: Union[Iterable[str], str, None] = None,
+        start_time: Optional[int] = None,
+        end_time: Optional[int] = None,
+        log_time_order: bool = True,
+        reverse: bool = False,
+        *,
+        starting_at: Optional[int] = None,
+        starting_after: Optional[int] = None,
+        ending_at: Optional[int] = None,
+        ending_before: Optional[int] = None,
+    ) -> Iterator[DecodedMessageTuple]:
+        """iterates through messages in an MCAP, decoding their contents.
+
+        Accepts the same arguments as :py:meth:`iter_messages`.
+        """
+        # Resolve the bounds here rather than in iter_messages so that a deprecation
+        # warning is attributed to the caller of this generator, not to the loop below.
+        starting_at, ending_before = _resolve_time_range(
+            start_time, end_time, starting_at, starting_after, ending_at, ending_before
+        )
+        message_iterator = self.iter_messages(
+            topics,
+            log_time_order=log_time_order,
+            reverse=reverse,
+            starting_at=starting_at,
+            ending_before=ending_before,
+        )
+
+        def decoded_message(
+            schema: Optional[Schema], channel: Channel, message: Message
+        ) -> Any:
+            decoder = self._decoders.get(message.channel_id)
+            if decoder is not None:
+                return decoder(message.data)
+            for factory in self._decoder_factories:
+                decoder = factory.decoder_for(channel.message_encoding, schema)
+                if decoder is not None:
+                    self._decoders[message.channel_id] = decoder
+                    return decoder(message.data)
+
+            raise DecoderNotFoundError(
+                f"no decoder factory supplied for message encoding {channel.message_encoding}, "
+                f"schema {schema}"
+            )
+
+        for schema, channel, message in message_iterator:
+            yield DecodedMessageTuple(
+                schema, channel, message, decoded_message(schema, channel, message)
+            )
+
+    @abstractmethod
+    def get_header(self) -> Header:
+        """Reads the Header records from the beginning of the MCAP file."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_summary(self) -> Optional[Summary]:
+        """Reads the (optional) summary section from the MCAP file."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def iter_attachments(self) -> Iterator[Attachment]:
+        """Iterates through attachment records in the MCAP."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def iter_metadata(self) -> Iterator[Metadata]:
+        """Iterates through metadata records in the MCAP."""
+        raise NotImplementedError()
+
+
+def make_reader(
+    stream: IO[bytes],
+    validate_crcs: bool = False,
+    decoder_factories: Iterable[DecoderFactory] = (),
+) -> McapReader:
+    """constructs the appropriate McapReader implementation for this data source."""
+    if stream.seekable():
+        return SeekingReader(
+            stream, validate_crcs=validate_crcs, decoder_factories=decoder_factories
+        )
+    return NonSeekingReader(
+        stream, validate_crcs=validate_crcs, decoder_factories=decoder_factories
+    )
+
+
+class SeekingReader(McapReader):
+    """an McapReader for reading out of seekable data sources.
+
+    :param stream: a file-like object for reading the source data from.
+    :param validate_crcs: if ``True``, will validate Chunk CRCs for any chunks read. This class
+        does not validate the data section CRC in the DataEnd record because it is designed not to
+        read the entire data section when reading messages. To read messages while validating the
+        data section CRC, use :py:class:`NonSeekingReader`.
+    :param decoder_factories: An iterable of :py:class:`~mcap.decoder.DecoderFactory`
+        instances which can provide decoding functionality to
+        :py:meth:`~mcap.reader.McapReader.iter_decoded_messages`.
+    :param record_size_limit: An upper bound to the size of MCAP records that this reader will
+        attempt to load in bytes, defaulting to 4 GiB. If this reader encounters a record with a
+        greater length, it will throw an :py:class:`~mcap.exceptions.RecordLengthLimitExceeded`
+        error.  Setting to ``None`` removes the limit, but can allow corrupted MCAP files to trigger
+        a `MemoryError` exception.
+    """
+
+    def __init__(
+        self,
+        stream: IO[bytes],
+        validate_crcs: bool = False,
+        decoder_factories: Iterable[DecoderFactory] = (),
+        record_size_limit: Optional[int] = 4 * 2**30,
+    ):
+        super().__init__(decoder_factories=decoder_factories)
+        read_magic(ReadDataStream(stream, calculate_crc=False))
+        self._stream = stream
+        self._validate_crcs = validate_crcs
+        self._summary: Optional[Summary] = None
+        self._record_size_limit = record_size_limit
+
+    def iter_messages(
+        self,
+        topics: Union[Iterable[str], str, None] = None,
+        start_time: Optional[int] = None,
+        end_time: Optional[int] = None,
+        log_time_order: bool = True,
+        reverse: bool = False,
+        *,
+        starting_at: Optional[int] = None,
+        starting_after: Optional[int] = None,
+        ending_at: Optional[int] = None,
+        ending_before: Optional[int] = None,
+    ) -> Iterator[Tuple[Optional[Schema], Channel, Message]]:
+        """iterates through the messages in an MCAP.
+
+        See :py:meth:`McapReader.iter_messages` for a description of the arguments.
+        """
+        starting_at, ending_before = _resolve_time_range(
+            start_time, end_time, starting_at, starting_after, ending_at, ending_before
+        )
+        if isinstance(topics, str):
+            topics = [topics]
+        summary = self.get_summary()
+        if summary is None or len(summary.chunk_indexes) == 0:
+            # No chunk indices available, so there is no index to search for messages.
+            # use a non-seeking reader to read linearly through the stream.
+            self._stream.seek(0, io.SEEK_SET)
+            yield from NonSeekingReader(self._stream).iter_messages(
+                topics,
+                log_time_order=log_time_order,
+                starting_at=starting_at,
+                ending_before=ending_before,
+            )
+            return
+
+        message_queue = make_message_queue(
+            log_time_order=log_time_order, reverse=reverse
+        )
+        for chunk_index in _chunks_matching_topics(
+            summary, topics, starting_at, ending_before
+        ):
+            message_queue.push(chunk_index)
+        while message_queue:
+            next_item = message_queue.pop()
+            if isinstance(next_item, ChunkIndex):
+                self._stream.seek(next_item.chunk_start_offset + 1 + 8, io.SEEK_SET)
+                chunk = Chunk.read(ReadDataStream(self._stream))
+                for index, record in enumerate(
+                    breakup_chunk(chunk, validate_crc=self._validate_crcs)
+                ):
+                    if isinstance(record, Message):
+                        channel = summary.channels[record.channel_id]
+                        if topics is not None and channel.topic not in topics:
+                            continue
+                        if starting_at is not None and record.log_time < starting_at:
+                            continue
+                        if (
+                            ending_before is not None
+                            and record.log_time >= ending_before
+                        ):
+                            continue
+                        if channel.schema_id == 0:
+                            schema = None
+                        else:
+                            schema = summary.schemas[channel.schema_id]
+                        message_queue.push(
+                            (
+                                (schema, channel, record),
+                                next_item.chunk_start_offset,
+                                index,
+                            )
+                        )
+            else:
+                yield next_item[0]
+
+    def get_header(self) -> Header:
+        """Reads the Header record from the beginning of the MCAP file."""
+        self._stream.seek(0)
+        header = next(
+            StreamReader(
+                self._stream,
+                skip_magic=False,
+                record_size_limit=self._record_size_limit,
+            ).records
+        )
+        if not isinstance(header, Header):
+            raise McapError(
+                f"expected header at beginning of MCAP file, found {type(header)}"
+            )
+        return header
+
+    def get_summary(self) -> Optional[Summary]:
+        """Reads the (optional) summary section from the MCAP file."""
+        if self._summary is not None:
+            return self._summary
+        self._stream.seek(-(FOOTER_SIZE + MAGIC_SIZE), io.SEEK_END)
+        footer = next(
+            StreamReader(
+                self._stream,
+                skip_magic=True,
+                record_size_limit=self._record_size_limit,
+            ).records
+        )
+        if not isinstance(footer, Footer):
+            raise McapError(
+                f"expected footer at end of MCAP file, found {type(footer)}"
+            )
+        if footer.summary_start == 0:
+            return None
+        self._stream.seek(footer.summary_start, io.SEEK_SET)
+        self._summary = _read_summary_from_stream_reader(
+            StreamReader(
+                self._stream, skip_magic=True, record_size_limit=self._record_size_limit
+            )
+        )
+        return self._summary
+
+    def iter_attachments(self) -> Iterator[Attachment]:
+        """Iterates through attachment records in the MCAP."""
+        summary = self.get_summary()
+        if summary is None:
+            # no index available, use a non-seeking reader to read linearly through the stream.
+            self._stream.seek(0, io.SEEK_SET)
+            yield from NonSeekingReader(self._stream).iter_attachments()
+            return
+        for attachment_index in summary.attachment_indexes:
+            self._stream.seek(attachment_index.offset)
+            record = next(
+                StreamReader(
+                    self._stream,
+                    skip_magic=True,
+                    record_size_limit=self._record_size_limit,
+                ).records
+            )
+            if isinstance(record, Attachment):
+                yield record
+            else:
+                raise McapError(f"expected attachment record, got {type(record)}")
+
+    def iter_metadata(self) -> Iterator[Metadata]:
+        """Iterates through metadata records in the MCAP."""
+        summary = self.get_summary()
+        if summary is None:
+            # fall back to a non-seeking reader
+            self._stream.seek(0, io.SEEK_SET)
+            yield from NonSeekingReader(self._stream).iter_metadata()
+            return
+        for metadata_index in summary.metadata_indexes:
+            self._stream.seek(metadata_index.offset)
+            record = next(
+                StreamReader(
+                    self._stream,
+                    skip_magic=True,
+                    record_size_limit=self._record_size_limit,
+                ).records
+            )
+            if isinstance(record, Metadata):
+                yield record
+            else:
+                raise McapError(f"expected attachment record, got {type(record)}")
+
+
+class NonSeekingReader(McapReader):
+    """an McapReader for reading out of non-seekable data sources, such as a pipe or socket.
+
+    :param stream: a file-like object for reading the source data from.
+    :param validate_crcs: if ``True``, will validate chunk and data section CRC values.
+    :param decoder_factories: An iterable of :py:class:`~mcap.decoder.DecoderFactory`
+        instances which can provide decoding functionality to
+        :py:meth:`~mcap.reader.McapReader.iter_decoded_messages`.
+    :param record_size_limit: An upper bound to the size of MCAP records that this reader will
+        attempt to load in bytes, defaulting to 4 GiB. If this reader encounters a record with a
+        greater length, it will throw an :py:class:`~mcap.exceptions.RecordLengthLimitExceeded`
+        error.  Setting to ``None`` removes the limit, but can allow corrupted MCAP files to trigger
+        a `MemoryError` exception.
+    """
+
+    def __init__(
+        self,
+        stream: IO[bytes],
+        validate_crcs: bool = False,
+        decoder_factories: Iterable[DecoderFactory] = (),
+        record_size_limit: Optional[int] = 4 * 2**30,
+    ):
+        super().__init__(decoder_factories=decoder_factories)
+        self._stream_reader = StreamReader(
+            stream,
+            validate_crcs=validate_crcs,
+            record_size_limit=record_size_limit,
+        )
+        self._schemas: Dict[int, Schema] = {}
+        self._channels: Dict[int, Channel] = {}
+        self._spent: bool = False
+
+    def _check_spent(self):
+        if self._spent:
+            raise RuntimeError(
+                "cannot use more than one query against a non-seeking data source"
+            )
+        self._spent = True
+
+    def get_header(self) -> Header:
+        """Reads the Header record from the beginning of the MCAP file."""
+        self._check_spent()
+        header = next(self._stream_reader.records)
+        if not isinstance(header, Header):
+            raise McapError(
+                f"expected header at beginning of MCAP file, found {type(header)}"
+            )
+        return header
+
+    def iter_messages(
+        self,
+        topics: Union[Iterable[str], str, None] = None,
+        start_time: Optional[int] = None,
+        end_time: Optional[int] = None,
+        log_time_order: bool = True,
+        reverse: bool = False,
+        *,
+        starting_at: Optional[int] = None,
+        starting_after: Optional[int] = None,
+        ending_at: Optional[int] = None,
+        ending_before: Optional[int] = None,
+    ) -> Iterator[Tuple[Optional[Schema], Channel, Message]]:
+        """Iterates through the messages in an MCAP.
+
+        See :py:meth:`McapReader.iter_messages` for a description of the arguments.
+
+        .. warning::
+            setting log_time_order to True on a non-seekable stream will cause the entire content
+            of the MCAP to be loaded into memory.
+        """
+        starting_at, ending_before = _resolve_time_range(
+            start_time, end_time, starting_at, starting_after, ending_at, ending_before
+        )
+        if isinstance(topics, str):
+            topics = [topics]
+        if not log_time_order:
+            for t in self._iter_messages_internal(topics, starting_at, ending_before):
+                yield t
+        else:
+            for t in sorted(
+                self._iter_messages_internal(topics, starting_at, ending_before),
+                key=lambda tup: tup[2].log_time,
+                reverse=reverse,
+            ):
+                yield t
+
+    def _iter_messages_internal(
+        self,
+        topics: Optional[Iterable[str]] = None,
+        starting_at: Optional[int] = None,
+        ending_before: Optional[int] = None,
+    ) -> Iterator[Tuple[Optional[Schema], Channel, Message]]:
+        self._check_spent()
+        for record in self._stream_reader.records:
+            if isinstance(record, Schema):
+                self._schemas[record.id] = record
+            if isinstance(record, Channel):
+                if record.schema_id != 0 and record.schema_id not in self._schemas:
+                    raise McapError(
+                        f"no schema record found with id {record.schema_id}"
+                    )
+                self._channels[record.id] = record
+            if isinstance(record, Message):
+                if record.channel_id not in self._channels:
+                    raise McapError(
+                        f"no channel record found with id {record.channel_id}"
+                    )
+                channel = self._channels[record.channel_id]
+                if topics is not None and channel.topic not in topics:
+                    continue
+                if starting_at is not None and record.log_time < starting_at:
+                    continue
+                if ending_before is not None and record.log_time >= ending_before:
+                    continue
+                if channel.schema_id == 0:
+                    schema = None
+                else:
+                    schema = self._schemas[channel.schema_id]
+                yield (schema, channel, record)
+
+    def get_summary(self) -> Optional[Summary]:
+        """Returns a Summary object containing records from the (optional) summary section."""
+        self._check_spent()
+        return _read_summary_from_stream_reader(self._stream_reader)
+
+    def iter_attachments(self) -> Iterator[Attachment]:
+        """Iterates through attachment records in the MCAP."""
+        self._check_spent()
+        for record in self._stream_reader.records:
+            if isinstance(record, Attachment):
+                yield record
+
+    def iter_metadata(self) -> Iterator[Metadata]:
+        """Iterates through metadata records in the MCAP."""
+        self._check_spent()
+        for record in self._stream_reader.records:
+            if isinstance(record, Metadata):
+                yield record

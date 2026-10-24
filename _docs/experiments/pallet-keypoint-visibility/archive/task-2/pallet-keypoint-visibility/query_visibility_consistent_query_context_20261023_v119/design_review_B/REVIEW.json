@@ -1,0 +1,143 @@
+{
+  "completed": true,
+  "PASS": true,
+  "review_kind": "Read-only prospective design feasibility; no C14 implementation, feature extraction, training, current evaluation or training admission.",
+  "timestamp_UTC": "2026-10-23T10:12:22.810643+00:00",
+  "scope": "Source aggregate metadata, frozen C13 design/trainer and C11 producer/current-operator code only. No current inputs/arrays/GT/scores/pixels, source pixels/features/weights, V112 or model calls. Existing C13 artifacts unchanged.",
+  "conclusion": "Feasible as one controlled source context-operator alignment candidate if actual source unit/availability reconciliation permits the frozen sampler trace. Keep the C13 head, fresh initialization, training and selection fixed; change only context-derived descriptor blocks/scalars for genuinely box-different units. This corrects a documented construction mismatch without claiming it caused current errors or predicts transfer.",
+  "evidence": {
+    "public_known_D_E_occurrences": 2804,
+    "selectedbox_public_known": 605,
+    "selectedbox_inside": 549,
+    "selectedbox_outside": 56,
+    "selectedbox_unique_basequeries": 65,
+    "selectedbox_contexts": 28,
+    "emulated_q8_public_known": 2199,
+    "emulated_q8_public_outside": 0,
+    "synthetic_known_D_E": 1065,
+    "synthetic_outside": 0,
+    "source_selectedbox_definitions": {
+      "LOCO": {
+        "contexts": 20,
+        "present": 18,
+        "missing": 2,
+        "present_equal_q8": 0
+      },
+      "PALLOX": {
+        "contexts": 100,
+        "present": 95,
+        "missing": 5,
+        "present_equal_q8": 0
+      }
+    },
+    "q8_existing_equal_contexts": {
+      "V109": 1000,
+      "V113": 400,
+      "V99": 96
+    },
+    "interpretation": "Counts include repeated before/cover/sham/donor occurrences.56 is not56 independent scenes and is not a measured current count. No source/current outcome is used for eligibility."
+  },
+  "single_operator_definition": {
+    "rule": "Exact deployed initial_context_box AST: original q8 FP64, keep finite points except exact[-1,-1], including finite OOB; unclipped/unexpanded per-axis min/max. Missing if no finite usable points or nonpositive width/height.",
+    "same_pair_geometry": "Use each original before frame input q8 unchanged across BEFORE/COVER/SHAM; no reinitialization on composites, q recentering, GT/reference/CAD-selected box, clipping, margin expansion or camera correction.",
+    "sampler": "Reuse V107 sample_target_context224 and C8/DINO preprocessing exactly: integer native pixel-centre convention, internal samples lo+(j+.5)*span/224, original mean-fill of invalid support.",
+    "Q": "Reuse C11 raw16x16 patch bilinear sample with F32(2*uF64−1), align_corners=False, padding_mode=border; closed inside0<=u,v<=1 with contextsupport. Raw sample then L2 normalization eps1e−12; Qoutside descriptor/flag0 only, never a new semantic negative or U gate.",
+    "context_any_and_fraction": "Compute genuine support-any and fraction from the new native context crop. Finite OOB q may enlarge the box; do not clip it or silently convert padding to valid pixels."
+  },
+  "permitted_feature_diff": {
+    "T": "columns0:384 freshly encode changed224 target-context CLS then original L2.",
+    "Q": "columns384:768 freshly read transformed originalq from same new target-context patch grid then original L2.",
+    "cosines": "columns1920:1924: recompute exact four cos(T,C),cos(T,F),cos(Q,C),cos(Q,P), eps1e−12.",
+    "context_fraction": "column1924 from actual new contextvalid support.",
+    "Q_inside": "column1927 from exact new box/q/support; not availability.",
+    "must_copy_bit_exact": [
+      "F768:1152",
+      "C1152:1536",
+      "P1536:1920",
+      "local_fraction1925",
+      "central_fraction1926",
+      "all q/L/native order/source/folds/GT identities and original localRGB96/valid facts"
+    ],
+    "same_box_reuse": "When original box already exactly equals canonical q8box and fullRGB/operator bindings match, reuse all1928 values exactly rather than rerun CNN/ViT. This includes YCB emulated and V99 synthetic contexts; no unnecessary numerical/batch drift.",
+    "head_derived_interactions": "The unchanged head recomputes its existing abs/product T−C and Q−P terms. Those expected changes follow T/Q replacement; no new architecture or original logit input."
+  },
+  "availability_and_sampler_control": {
+    "frozen_query_facts": "q/L and local96 support unchanged imply original factual_query_available/local-central4 facts must stay exact. Context support is a separate measured input fact.",
+    "possible_changed_U": "New context_support_any may change context_available and therefore final query_available=factual_query_available&context_available. Retain every affected row with its original teacher state; report old→new fact masks separately. TeacherU and predicted/operatorU are different.",
+    "exact_trace_condition": "The existing sampler filters known TRAIN pools by availability before RNG draws. If any known TRAIN availability changes, pool size/indices and the C13 all128 trace can change. Do not silently claim exact draws and filtered-pool parity at once. If all sampled-known availability is unchanged, exact C13 draws are feasible with the same RNGs.",
+    "if_not_equal": "Disclose the concrete availability difference before root freezes design. Do not hide a known row, resample/relabel/replace it, add Qinside filtering, or silently change the128known-available loss contract. A prospective root resolution is needed only if facts actually conflict; this review adds no user approval or performance gate.",
+    "selector_and_eval": "Known unavailable rows remain in the same10 VAL cohorts with safe0 BCE ln2 and in classification denominators as U. U/S stay excluded from D/E loss and retained in saved45184+924 rows.",
+    "no_hidden_filter": "Preserve all46108 rows, raw D2944/E925/S3521/U38718, knownTRAIN3233 andVAL636 even if final support changes. No Qinside/newbox/GT-overlap admission or denominator cut."
+  },
+  "training_controls_to_hold": {
+    "head": "Exact C13/C11 SpatialTargetQueryHead221825 on1928 features; fresh seed211, zero output. Do not warmstart C13 selected weights.",
+    "optimizer": "Same AdamW.001/wd.001/clip5,2000 updates, no augmentation.",
+    "draws": "C13 old64/old96/all128 draw identities and RNG208/214/215/216/217 unchanged if known availability/pools remain exact.",
+    "loss": "Same absolute BCE128 +.25 mean margin2 on24 true COVER/SHAM pairs; no absolute threshold/hinge/prior changes.",
+    "selector": "Same source10 cohort BCE, update0 and100..2000, strict earliest minimum. No new context/Q strata in selection.",
+    "gates": "Same15 source gates and rawlogit0; all numerator/denominator/U rules unchanged. No current-based checkpoint/head/operator/threshold selection.",
+    "current": "Existing deployed q8 cachedfeatures/operator remains unchanged; this review reads only its code/contract, no current body or new current measurements."
+  },
+  "implementation_pitfalls": [
+    "Reconstruct q8 at original frame identity, not a per-query singleton or GTcue extent. Preserve sentinels/nonfinite/OOB semantics exactly.",
+    "Same fullRGB filename with different q8box is not an eligible feature reuse unit. Changed composite fullRGB must receive fresh matching target T/Q from that image even if localRGB96 is unchanged.",
+    "Preserve original unit/occurrence identities. V11628 BEFORE units alias original source inputs; if storage dedup is used, prove aliases have identical fullRGB/q8box/localfacts and apply the context replacement consistently to both occurrence paths. Do not collapse teacher/sample multiplicity.",
+    "Do not rebuild F/C/P from newly encoded context or change encoder/runtime/normalization/descriptor phase. Assert all noncontext columns exact against frozen old packets.",
+    "Boundary inclusion becomes common by construction: q8minmax contains its own extrema. More Qinside/zero outside is an operator tautology, not better coordinate correctness or expected-part ownership.",
+    "q8extent may include empty/foreign regions or outlier initial points and may contain only part of the desired object. Matching deployment does not prove target identity or whole-object context.",
+    "Same box formula does not make GT-projection+jitter YCB queries equivalent to actual initializer queries. Native identity, teacher quality, source family and environment gaps remain.",
+    "This is one representation/operator candidate with no assurance of improved source or target performance; do not infer a current error cause from source outside counts."
+  ],
+  "required_A_C_feasibility_evidence_before_final_root_design": [
+    "all15004 unit/46108 occurrence mappings with immutable q8 provenance and exact source/fold/qL joins",
+    "counts of box-different/same/missing units, genuine support/availability transitions, known and all-state denominators",
+    "actual public RGB context feasibility observations under fixed new box, without data-dependent box changes; source-emulated equalboxes reusedexact",
+    "no new teacher or local pixel label changes; nativeUNKNOWN retained"
+  ],
+  "bindings": {
+    "source_context_audit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/public_context_provenance_audit/RESULT.json",
+      "sha256": "37c259a95f34ccbc113033236a414ec7f547275cb57659295dab44b0a8a28c24",
+      "bytes": 55767
+    },
+    "C13_design": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/ROOT_C13_DESIGN_BEFORE_SOURCE_FORWARD.json",
+      "sha256": "18eb784ea40cdb726dd4303b65904446f2a1bd9655542bca36d534112948f089",
+      "bytes": 15631
+    },
+    "C13_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/source_fit_preparation/train_source_once.py",
+      "sha256": "48418a0e1ca495a489ce19a95f1c08c2c37f7fa9c5ed46ec5f6ab36e053a54e4",
+      "bytes": 21112
+    },
+    "C13_source_result_metadata": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/runs/C13_SAME_MATERIAL_FOREGROUND_SPATIAL_QUERY/SOURCE_RESULTS.json",
+      "sha256": "4bc6a7e86390bad2d0164c1c2b5d37946c6c3b25ff68d9475a85ec0e1e007c72",
+      "bytes": 39229
+    },
+    "source_producer_assemble_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+      "bytes": 19042
+    },
+    "deployed_context_box_code_only": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/current_evaluation_preparation/current_adapter.py",
+      "sha256": "1f1ed2341c7ea9edc05b5dd1b376c80e4b58f908fbdca759748fb2ad2c610d90",
+      "bytes": 16908
+    },
+    "target_crop_math": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/target_context_math.py",
+      "sha256": "aa7cd8e2568c8b7d30827e8681b4b87899944bd23cfa1b27948ceda5b55d07f3",
+      "bytes": 2204
+    }
+  },
+  "review_is_not_C14_implementation_admission": true,
+  "forbidden_reads_or_calls": {
+    "current_data_GT_scores_pixels": 0,
+    "source_pixel_feature_weight_bodies": 0,
+    "V112": 0,
+    "model_forward": 0,
+    "fit": 0,
+    "PnP": 0
+  }
+}

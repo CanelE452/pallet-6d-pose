@@ -1,0 +1,503 @@
+      6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a
+          Synthetically Trained Object Detector and FoundationPose
+
+                                                   Yanming Wu1,2                  a
+                                                                                      and Eric Demeester1,2                   b
+         1 KU Leuven, Diepenbeek Campus, Dept. Mechanical Engineering, Research unit ACRO, B-3000 Leuven, Belgium
+                                               2 Flanders Make @ KU Leuven, B-3001 Heverlee, Belgium
+
+
+
+
+Keywords:             6D Pose Estimation, Pallet Bin Localization, RGB-D Perception.
+
+Abstract:             Accurate 6D pose estimation of pallet bins is essential for enabling autonomous forklifts and mobile manipu-
+                      lators to operate safely and efficiently in warehouse and agricultural logistics. This work presents a modular
+                      perception paradigm that combines a synthetically trained 2D object detector with a transformer-based foun-
+                      dation model to achieve practical and scalable pallet bin pose estimation when CAD models are available
+                      at inference time. We generate a diverse synthetic dataset in NVIDIA Isaac Sim, fine-tune state-of-the-art
+                      detectors (YOLOv12 and RF-DETR), and identify RF-DETR-S as the most effective initialization module.
+                      FoundationPose is then used in a model-based configuration to refine and rank multiple pose hypotheses. To
+                      provide an initial evaluation of this pipeline, we collect a new RGB-D dataset of 284 frames featuring diverse
+                      distances, illumination settings, viewpoints, and visibility levels. Experimental results show that RF-DETR-S,
+                      trained solely on synthetic data, yields bounding boxes sufficiently accurate for FoundationPose to achieve
+                      pose accuracy close to that obtained using ground-truth segmentation masks. A visibility-based analysis re-
+                      veals that pose accuracy remains stable when at least 25% of the object is visible, whereas severe occlusion or
+                      truncation is the primary source of failure. Depth has a moderate effect, with reliable performance maintained
+                      between 2 m and 7 m. Overall, our findings indicate that the proposed RF-DETR-S + FoundationPose pipeline
+                      is a promising direction for pallet bin perception in autonomous logistics. We further outline practical insights
+                      and considerations for deploying such perception systems in real forklift applications.
+
+
+
+1        INTRODUCTION                                                                        existing work has focused on standard flat pallets due
+                                                                                             to their prevalence in industrial logistics (Wang et al.,
+The next generation of industrial automation demands                                         2023; Beleznai et al., 2024; Shao et al., 2025). How-
+substantial advancements in sensing and perception                                           ever, estimating the 6D pose of such low-profile struc-
+to enable intelligent systems for autonomous intra-                                          tures in cluttered warehouse scenes remains challeng-
+logistics and warehousing applications (Kalkha et al.,                                       ing because their critical fork pockets and edges are
+2023). A core requirement for such systems is the                                            often heavily occluded by surrounding objects or floor
+ability to reliably detect and localize key functional                                       clutter. In this paper, we instead target 6D pose es-
+objects. Many warehouse and agricultural logistics                                           timation for pallet bins: box-shaped containers with
+operations, such as transportation, loading, unload-                                         palletized bases that are widely used for agricultural
+ing, and storage, depend on manipulating contain-                                            produce, bulk materials, and warehouse storage work-
+ers, including standard pallets and pallet bins. Con-                                        flows.
+sequently, robust and precise six-degree-of-freedom                                              In contrast to flat pallets, pallet bins provide
+(6D) pose estimation of these objects is essential for                                       richer geometric and visual cues through their ele-
+deploying autonomous forklifts and mobile manipu-                                            vated walls. These features often remain visible even
+lators.                                                                                      when the base is occluded, enabling reliable estima-
+    While object detection and localization have been                                        tion of the global bin pose. Once the global pose is
+extensively studied in robotics and automation, most                                         known, the positions and orientations of the often-
+                                                                                             hidden fork pockets can be precisely inferred from the
+     a                                                                                       bin’s CAD model. However, a practical industrial so-
+           https://orcid.org/0000-0002-8705-0902
+     b                                                                                       lution should ideally generalize to previously unseen
+           https://orcid.org/0000-0001-6866-3802
+
+
+468
+Wu, Y. and Demeester, E.
+6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a Synthetically Trained Object Detector and FoundationPose.
+DOI: 10.5220/0014455600004067
+Paper published under CC license (CC BY-NC-ND 4.0)
+In Proceedings of the 15th International Conference on Pattern Recognition Applications and Methods (ICPRAM 2026), pages 468-475
+ISBN: 978-989-758-797-9; ISSN: 2184-4313
+Proceedings Copyright © 2026 by SCITEPRESS – Science and Technology Publications, Lda.
+         6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a Synthetically Trained Object Detector and FoundationPose
+
+
+
+
+pallet bins without requiring object-specific retrain-                  dataset with ground-truth annotations and conduct
+ing. Pallet bins vary widely in appearance; differ-                     a quantitative analysis, demonstrating how visibil-
+ences in wall height, slat count, material (e.g., wood,                 ity and depth affect 6D pose accuracy and offering
+plastic, metal), and structural design introduce chal-                  practical insights for designing reliable perception
+lenges for training data-driven perception systems.                     systems for autonomous forklifts.
+The lack of annotated real datasets also makes it diffi-
+cult to train models that generalize across diverse bin
+types and operating conditions.                                     2     RELATED WORK
+     To address these challenges, we present a mod-
+ular two-stage pipeline for generalizable 6D pallet
+bin pose estimation. The system integrates a syn-                   2.1 Object Detection
+thetically trained 2D object detector with Foundation-
+Pose (Bowen Wen, 2024), a transformer-based foun-                   Modern object detection is dominated by deep learn-
+dation model for pose estimation. In the first stage,               ing models based on either convolutional networks
+YOLOv12 (Tian et al., 2025) and RF-DETR (Robin-                     or Transformers. CNN-based detectors include two-
+son et al., 2025) detectors are trained exclusively                 stage approaches such as Faster R-CNN (Girshick
+on a large synthetic dataset generated in NVIDIA                    et al., 2014) and single-stage models such as SSD (Liu
+Isaac Sim. After evaluating both models, the better-                et al., 2016) and YOLO (Redmon et al., 2016).
+performing RF-DETR-S detector is selected as the 2D                 The YOLO family has evolved substantially since
+initialization module. The detector outputs 2D bound-               YOLOv1 (Redmon et al., 2016). The latest itera-
+ing boxes in RGB images.                                            tion, YOLOv12 (Tian et al., 2025), introduces several
+     In the second stage, FoundationPose refines a 6D               architectural enhancements, such as the area atten-
+bin pose using RGB-D input and the bin’s CAD                        tion mechanism, Residual Efficient Layer Aggrega-
+model. The translation is initialized from the me-                  tion Networks (R-ELAN), and an optimized attention
+dian depth within the detected bounding box, and                    architecture, leading to notable improvements in both
+multiple rotation hypotheses are uniformly sampled                  accuracy and computational efficiency. The YOLO
+around the object. Each hypothesis is rendered and                  series has become a staple for real-time processing
+compared with the observed RGB-D data using a                       and edge-device deployment.
+transformer-based refinement network that iteratively                   Transformer-based       detectors    began    with
+updates translation and rotation. A hierarchical pose-              DETR (Carion et al., 2020), which combines a
+selection network then scores the refined hypotheses                CNN backbone for feature extraction with a Trans-
+and selects the final pose. Because FoundationPose                  former encoder-decoder architecture. The encoder
+is trained on large-scale synthetic data with language-             aggregates spatial features across the image, while
+guided texture augmentation, it generalizes to unseen               the decoder employs learned object queries to predict
+object geometries without retraining, requiring only a              object categories and bounding boxes. Subsequent
+CAD model during inference.                                         DETR variants have addressed limitations such as
+     Our experimental evaluation on a newly collected               slow convergence and high computational cost. One
+real-world dataset demonstrates that the proposed                   of the most recent developments in Transformer-
+pipeline achieves high accuracy across varying view-                based object detection is RF-DETR (Robinson
+points, distances, lighting conditions, and visibility              et al., 2025), introduced by Roboflow. Building
+levels. The main contributions of this work are as fol-             upon Deformable DETR (Zhu et al., 2020) and
+lows:                                                               LW-DETR (Chen et al., 2024), RF-DETR integrates
+                                                                    a DINOv2 (Oquab et al., 2023) backbone to enhance
+  • We propose a practical two-stage pipeline that in-
+                                                                    global context modeling, domain adaptability, and
+     tegrates a synthetically trained 2D object detec-
+                                                                    real-time inference performance.
+     tor with the FoundationPose model to achieve ro-
+                                                                        This work evaluates YOLOv12 as a representative
+     bust and generalizable 6D pose estimation of pre-
+                                                                    CNN-based detector and RF-DETR as a representa-
+     viously unseen pallet bins.
+                                                                    tive Transformer-based detector, both trained on the
+  • We construct a large-scale synthetic pallet bin                 same synthetic pallet-bin dataset and tested on a real-
+     dataset in NVIDIA Isaac Sim and train two state-               world pallet bin dataset to assess their detection per-
+     of-the-art object detectors (YOLOv12 and RF-                   formance.
+     DETR), evaluate their performance, and identify
+     RF-DETR-S as the most effective detector for ini-
+     tializing 6D pose estimation.
+  • We collect a real-world pallet bin pose estimation
+
+
+                                                                                                                               469
+ICPRAM 2026 - 15th International Conference on Pattern Recognition Applications and Methods
+
+
+
+
+Figure 1: System overview of the proposed pallet bin 6D pose estimation framework. Synthetic pallet bin images are first
+generated and used to train the object detectors (YOLOv12 and RF-DETR). During inference, the trained detector localizes
+pallet bins in RGB images, and the resulting bounding boxes are passed to FoundationPose for initialization. FoundationPose
+samples multiple pose hypotheses around the initial translation, refines each using a pose refinement network, and evaluates
+them through a pose selection module. The pose with the highest score is selected as the final 6D pose estimate.
+
+
+
+2.2    6D Object Pose Estimation                                    3     SYSTEM OVERVIEW
+Classical instance-level 6D pose estimation meth-                   Our system integrates a 2D object detector
+ods (Xiang et al., 2017; Park et al., 2019; He et al.,              (YOLOv12 or RF-DETR) with FoundationPose
+2020) require object-specific training and cannot gen-              to achieve accurate 6D pose estimation of pallet bins.
+eralize to unseen shapes. Category-level approaches                 The overall pipeline is illustrated in Fig. 1. First,
+such as NOCS (Wang et al., 2019) introduce the                      synthetic pallet bin images are generated and used
+Normalized Object Coordinate Space to establish                     to train the object detectors. During inference, the
+pixel-wise correspondences between the image and a                  trained detector localizes pallet bins in the RGB
+canonical object coordinate frame shared within each                image, and the detected bounding boxes are used to
+category. However, accurate CAD models are still re-                initialize FoundationPose. FoundationPose employs
+quired to generate ground-truth NOCS maps during                    a pose refinement network and a pose selection mod-
+training, and separate networks must be trained for                 ule to produce the final 6D pose estimate for each
+different categories.                                               pallet bin. The main components of the proposed
+    Few-shot model-free approaches such as                          system are described in detail below.
+OnePose (Sun et al., 2022), FS6D (Yisheng et al.,
+2022), and Gen6D (Liu et al., 2022) infer poses from                3.1 Synthetic Data Generation
+a small number of reference images without requiring
+CAD models. FoundationPose (Bowen Wen, 2024)                        The synthetic dataset is generated using NVIDIA
+further unifies the model-based and model-free                      Isaac Sim to provide large-scale, photorealistic train-
+paradigms under a single transformer-based frame-                   ing data. The dataset includes eight pallet bin mod-
+work for 6D object pose estimation and tracking.                    els from NVIDIA’s simulation-ready asset library. To
+Strong generalization across unseen objects is                      further increase diversity, eight additional custom pal-
+achieved by training entirely on large-scale synthetic              let bin assets are created by combining base pallet ge-
+data augmented with large-language-model (LLM)                      ometries with wall slats of varying numbers, heights,
+guided texture generation and a contrastive learning                and spacing between slats. Surface textures are ran-
+objective. In this work, we employ FoundationPose                   domized to simulate different materials such as wood
+in its model-based mode, requiring only the CAD                     and plastic, while the bins are randomly placed within
+model of the pallet bin at inference time.                          a warehouse environment. Lighting conditions, cam-
+                                                                    era viewpoints, and distractor objects are also ran-
+                                                                    domized to improve domain generalization. In addi-
+                                                                    tion, warehouse floor and wall textures are varied to
+                                                                    enhance background diversity. Each simulated scene
+
+
+470
+         6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a Synthetically Trained Object Detector and FoundationPose
+
+
+
+
+automatically generates annotated RGB images with                   Table 1: Comparison of YOLOv12 and RF-DETR models
+bounding box labels suitable for object detector train-             on the COCO validation set.
+ing.                                                                                                  Speed (ms)
+                                                                      Model           mAP@50:95                       Params (M)
+    A total of 7500 synthetic images are produced,                                                    T4 TensorRT10
+
+containing 6958 annotated pallet bins. Examples of                    YOLOv12-M            52.5           4.27           19.6
+                                                                      YOLOv12-L            53.8           5.83           26.5
+the generated synthetic data are shown in Fig. 2.                     RF-DETR-S            53.0           3.52           32.1
+                                                                      RF-DETR-M            54.7           4.52           33.7
+3.2   Training Object Detection Models
+Two state-of-the-art object detectors, YOLOv12 and                  3.3 6D Pose Estimation with
+RF-DETR, are trained for pallet bin detection using                     FoundationPose
+the synthetically generated dataset.
+    YOLOv12 provides five model variants (12N,                      The trained object detector first identifies pallet bins
+12S, 12M, 12L, and 12X) with parameter counts                       by producing bounding boxes in the RGB image. Pix-
+ranging from 2.6M to 59.1M, supporting deployment                   els within each bounding box are then used to esti-
+from low-power edge devices to high-performance                     mate an initial 3D translation of the object pose. A set
+GPUs. RF-DETR offers four configurations: NANO,                     of K candidate rotations is uniformly sampled from an
+SMALL, MEDIUM, and LARGE, enabling flexible                         icosphere to generate coarse pose hypotheses. Foun-
+adaptation between real-time and high-accuracy ap-                  dationPose is employed in its model-based configu-
+plications.                                                         ration, which requires only a textured CAD model of
+    In this study, the YOLOv12-M and YOLOv12-L                      the pallet bin at inference time, eliminating the need
+variants, along with the RF-DETR-S and RF-DETR-                     for retraining when new pallet bin geometries are in-
+M variants, are selected for evaluation as they provide             troduced.
+an effective balance between detection accuracy and                     The pose estimation process consists of two main
+computational efficiency. These selected models ex-                 stages: pose refinement and pose selection. In the
+hibit comparable performance and complexity on the                  pose refinement stage, each coarse pose is used to
+COCO benchmark, as summarized in Table 1, based                     render a synthetic view of the object and to crop the
+on publicly available results reported by the respec-               corresponding region from the observed RGB-D im-
+tive authors.                                                       age. Feature maps from both RGB-D inputs are ex-
+    Both models are fine-tuned on the synthetic pallet              tracted using a shared CNN encoder, concatenated,
+bin dataset under identical experimental conditions.                and passed through CNN blocks with residual con-
+RF-DETR training follows the official Roboflow im-                  nections. The resulting features are then tokenized
+plementation, with weights initialized from COCO-                   by dividing into patches with position embedding.
+pretrained checkpoints. The model is optimized using                The network then predicts translation and rotation up-
+the AdamW optimizer with a learning rate of 0.0001,                 dates, which are independently processed by trans-
+a batch size of 16, and trained for 200 epochs to en-               former encoders and linearly projected to the output
+sure convergence. YOLOv12 models are trained us-                    space.
+ing the official Ultralytics PyTorch framework with                     In the pose selection stage, all refined pose hy-
+the same hyperparameter configuration. For both de-                 potheses are rendered and compared with the cropped
+tectors, the input image resolution is standardized to              RGB-D observation. A pose ranking encoder, shar-
+640 × 640 pixels. The synthetic dataset consists of                 ing the CNN backbone from the refinement stage,
+7500 images, divided into 6375 for training and 1125                extracts and tokenizes features from both images
+for validation.                                                     and processes them using a multi-head self-attention
+    All training is conducted on a workstation                      transformer to evaluate alignment quality. The em-
+equipped with an AMD Ryzen Threadripper PRO                         beddings from all K pose candidates are then concate-
+5965WX (24 cores) CPU and an NVIDIA GeForce                         nated and jointly analyzed by another self-attention
+RTX 4090 GPU with 24 GB of VRAM.                                    module, allowing the network to reason globally
+    The four trained models are then evaluated on a                 across hypotheses. The pose with the highest score
+real pallet bin dataset, which is described in Sec-                 in the resulting score vector is selected as the final
+tion 4.1. The model that achieves the highest detec-                prediction.
+tion performance is integrated with FoundationPose
+for 6D pose initialization.
+
+
+
+
+                                                                                                                                471
+ICPRAM 2026 - 15th International Conference on Pattern Recognition Applications and Methods
+
+
+
+
+                       (a)                     (b)                        (c)                     (d)
+                               Figure 2: Examples of synthetically generated pallet bin images.
+
+
+
+4     EXPERIMENTS                                                   plane of the bin is visible and PnP becomes ill-posed
+                                                                    due to rotational ambiguity, a depth-constrained 3D-
+4.1    Dataset Collection and Processing                            3D alignment approach is applied. In this case, se-
+                                                                    lected 2D points are back-projected into 3D using
+To evaluate the effectiveness of the proposed pal-                  depth measurements, and optimal rotation and trans-
+let bin pose estimation framework, a custom RGB-                    lation are estimated via singular value decomposition
+D dataset is collected using an Intel RealSense L515                (SVD) of the point correspondence matrix. The an-
+camera. The dataset is designed to emulate realis-                  notation interface provides real-time visualization of
+tic scenarios encountered by an autonomous forklift                 the pallet bin’s bounding box, 3D overlay, and repro-
+approaching pallet bins. It consists of 284 RGB-D                   jection error, allowing annotators to verify alignment
+frames with ground-truth pallet bin poses and seg-                  quality interactively.
+mentation mask annotations, covering a wide range of                Ground-Truth Segmentation Mask Generation.
+distances, orientations, visibility levels, and both arti-          Ground-truth segmentation masks are generated by
+ficial and natural lighting conditions. Example frames              manually selecting prompt points and applying the
+from the dataset can be found in Fig. 4. We note that               Segment Anything Model (SAM). These masks are
+this dataset contains a single physical pallet bin in-              used to compute object visibility percentages and to
+stance; thus, the evaluation should be interpreted as               assess the influence of initialization accuracy.
+a preliminary study assessing feasibility rather than
+a comprehensive benchmark of generalization across                  4.2 Metrics
+bin geometries and appearances.
+Data collection. The pallet bin CAD model is                        Object Detection Evaluation Metrics. We evalu-
+reconstructed from multi-view RGB images using                      ate detection performance using standard single-class
+COLMAP. To introduce visual variation between the                   metrics: Precision, Recall, F1-score, mean Average
+observed bin and its CAD counterpart, the bin is filled             Precision (mAP@50 and mAP@50:95), and mean
+with random objects. The camera is mounted on a tri-                IoU (mIoU). Precision measures the proportion of
+pod and positioned at three heights (0.55 m, 1.23 m,                correctly predicted positive detections among all pre-
+and 1.92 m) in two environments: an indoor labora-                  dictions, while Recall quantifies the proportion of
+tory with artificial lighting and a glass-ceiling hallway           correctly detected objects among all ground-truth in-
+with natural illumination, resulting in six sequences               stances. The F1-score represents the harmonic mean
+in total. For each sequence, the camera is placed                   of Precision and Recall. The mean Average Preci-
+at distances ranging from 2 m to 9 m from the bin                   sion (mAP) is computed by averaging the area un-
+and rotated around the vertical axis between 0◦ and                 der the Precision–Recall curve across all classes and
+30◦ to capture diverse viewpoints. At each position,                IoU thresholds, where mAP@50 considers a single
+two RGB-D frames are recorded: one without occlu-                   IoU threshold of 0.5 and mAP@50:95 averages over
+sion and one with a cardboard box partially occluding               thresholds from 0.5 to 0.95 in steps of 0.05. mIoU
+the bin. The images are captured at a resolution of                 evaluates the overlap between predicted and ground-
+640 × 480.                                                          truth bounding boxes, reflecting localization accu-
+Ground-Truth Pose Annotation. An interactive 6D                     racy.
+pose labeling tool has been developed to generate                   Pose Estimation Evaluation Metrics. For 6D pose
+accurate pose annotations under both standard and                   estimation, we report the Area Under the Curve
+degenerate geometric conditions. For non-coplanar                   (AUC) of the ADD and ADD-S metrics (Xiang et al.,
+point sets, ground-truth poses are computed using the               2017). ADD computes the average distance be-
+Perspective-n-Point (PnP) algorithm with RANSAC,                    tween model points transformed by the predicted and
+based on manually selected 2D-3D correspondences.                   ground-truth poses, and ADD-S uses closest-point
+For coplanar configurations, where only a single                    distances to handle symmetric cases. Higher AUC in-
+
+
+
+472
+          6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a Synthetically Trained Object Detector and FoundationPose
+
+
+
+
+                                                                     Pose to estimate the pose of previously unseen pallet
+                                                                     bins, and (2) implicitly evaluate how effectively RF-
+                                                                     DETR-S provides initialization cues for downstream
+                                                                     pose estimation.
+                                                                          Table 3 summarizes the pose estimation perfor-
+                                                                     mance under both initialization strategies, reporting
+                                                                     the mean and standard deviation of ADD and ADD-
+                                                                     S errors across visibility classes, together with their
+                                                                     corresponding AUC scores. Several key observa-
+                                                                     tions emerge. First, the overall performance gap be-
+                                                                     tween detector-based and GT-based initialization is
+                                                                     small, indicating that RF-DETR-S supplies bound-
+Figure 3: ADD error distribution as a function of depth and          ing boxes that are sufficiently accurate for Founda-
+visibility. Each point corresponds to a single frame; the hor-       tionPose to refine. Second, both pipelines exhibit a
+izontal axis shows the distance from the camera to the pallet        pronounced drop in AUC within the lowest visibil-
+bin, the vertical axis shows the percentage of visible object        ity range (0–25%), highlighting that FoundationPose
+pixels, and the color encodes the ADD error magnitude.               struggles when only a small portion of the object is
+                                                                     visible. Beyond this range, performance becomes
+dicates greater pose accuracy across distance thresh-                stable and comparable across the two initialization
+olds.                                                                strategies. These trends demonstrate that RF-DETR-
+                                                                     S combined with FoundationPose forms a promising
+4.3    Pallet Bin Detection Accuracy                                 and practical pipeline for pallet-bin pose estimation,
+                                                                     particularly in common scenarios where at least 25%
+The detection results in Table 2 summarize the per-                  of the object is visible.
+formance of YOLOv12 and RF-DETR on the real                               Fig. 3 further illustrates how pose accuracy from
+pallet bin dataset. YOLOv12-M achieves the high-                     the RF-DETR-S + FoundationPose pipeline varies
+est mAP@50, indicating strong performance under a                    with depth and visibility using the ADD metric. A
+relaxed IoU threshold, while the RF-DETR variants                    clear trend emerges: visibility is the dominant factor.
+perform very similarly across most metrics. Notably,                 Frames with less than roughly 25% visibility contain
+RF-DETR-S delivers the strongest overall detection                   nearly all high-error outliers (yellow to red points near
+performance. It achieves the highest Precision, Re-                  the bottom of the plot). As visibility increases, errors
+call, and F1-score, meaning it detects the largest num-              sharply decrease, and the points become overwhelm-
+ber of true objects while producing fewer false posi-                ingly green, indicating that FoundationPose produces
+tives and false negatives. RF-DETR-S also attains the                stable and accurate estimates once a moderate portion
+best mAP@50:95, reflecting more consistent local-                    of the object is observed. Depth also affects accuracy,
+ization accuracy across stricter IoU thresholds. Based               though to a lesser extent. For distances between 2 m
+on these results, we select RF-DETR-S as the final ob-               and 7 m, ADD errors remain low across a broad vis-
+ject detection model due to its superior recall and reli-            ibility range. A mild degradation appears beyond 7
+able localization, which make it well-suited as the de-              m, likely due to lower image resolution and increased
+tection front end for FoundationPose-based pose esti-                depth-sensor noise at long ranges. Overall, the dis-
+mation.                                                              tribution confirms that the proposed RF-DETR-S +
+                                                                     FoundationPose pipeline is robust across typical fork-
+4.4    Pose Estimation Accuracy                                      lift operating distances, with failures primarily asso-
+                                                                     ciated with heavily occluded or truncated views rather
+We evaluate the 6D pose estimation system using two                  than depth variation.
+pipelines. In the first pipeline, FoundationPose is ini-                  Fig. 4 presents qualitative examples of pallet bin
+tialized using bounding boxes predicted by the RF-                   6D pose estimation using the proposed RF-DETR-S
+DETR-S detector. In the second pipeline, we replace                  plus FoundationPose pipeline. In examples (a)-(e),
+the detector output with ground-truth (GT) segmen-                   the projected 3D bounding boxes closely align with
+tation masks, providing an upper-bound initialization                the pallet bins, demonstrating reliable pose recovery
+condition. For a fair comparison, any frames where                   across diverse environments, viewpoints, and moder-
+RF-DETR-S fails to produce a detection are excluded                  ate levels of occlusion. Example (f) illustrates a fail-
+from both evaluations. This comparison allows us                     ure case: because only a small portion of the pallet bin
+to (1) assess the standalone capability of Foundation-               is visible, the estimated pose deviates substantially
+
+
+
+                                                                                                                                473
+ICPRAM 2026 - 15th International Conference on Pattern Recognition Applications and Methods
+
+
+
+
+Table 2: Object detection performance of YOLOv12 and RF-DETR on the real pallet bin dataset. Precision, recall, F1-score,
+and mIoU are computed using the optimal confidence threshold selected by sweeping across all thresholds. Best results are
+highlighted in bold.
+                 Model            mAP@50          mAP@50:95              Precision      Recall        F1-score      mIoU
+                 YOLOv12-M            0.9761            0.8592            0.9750        0.9613        0.9681       0.9304
+                 YOLOv12-L            0.9568            0.8407            0.9675        0.9437        0.9554       0.9273
+                 RF-DETR-S            0.9723            0.8791            0.9892        0.9683        0.9786       0.9389
+                 RF-DETR-M            0.9705            0.8776            0.9820        0.9613        0.9715       0.9396
+
+
+Table 3: 6D pose estimation accuracy by visibility class using ADD and ADD-S for two initialization strategies: RF-DETR-
+S-detected bounding boxes and ground-truth (GT) segmentation masks. Values show mean ± standard deviation of the ADD
+and ADD-S error in meters and the AUC computed up to 0.1× object diameter.
+                                       RF-DETR-S + FoundationPose                                GT mask + FoundationPose
+ Visibility class (#frames)            ADD                        ADD-S                       ADD                       ADD-S
+                               Mean±Std        AUC            Mean±Std       AUC       Mean±Std         AUC       Mean±Std         AUC
+ 0–25% (53)                   0.5539±0.4424    0.2253    0.1478±0.1714       0.5277   0.5275±0.4183    0.2546    0.1251±0.1271     0.5346
+ 25–50% (31)                  0.1005±0.1593    0.6441    0.0373±0.0278       0.8138   0.0949±0.1533    0.6493    0.0356±0.0219     0.8229
+ 50–75% (86)                  0.0960±0.1113    0.5977    0.0462±0.0445       0.7787   0.0999±0.1484    0.6062    0.0463±0.0485     0.7811
+ 75–100% (106)                0.0940±0.0798    0.5698    0.0448±0.0292       0.7770   0.0945±0.0804    0.5678    0.0447±0.0294     0.7770
+ Overall (276)                0.1837±0.2816    0.5207    0.0642±0.0913       0.7338   0.1794±0.2728    0.5288    0.0596±0.0725     0.7369
+
+
+
+
+         (a)                    (b)                     (c)                     (d)                    (e)                   (f)
+Figure 4: Qualitative examples of pallet bin pose estimation results. Ground-truth (GT) is shown in blue, and FoundationPose
+results are shown in green. Identifiable signage and background content have been masked to preserve anonymity for double-
+blind review.
+
+from the ground-truth orientation and position. This                     strongly on precise bounding-box initialization. Sec-
+observation is consistent with the quantitative results,                 ond, object visibility is the primary factor influencing
+which show that low-visibility instances represent the                   pose accuracy, indicating the need for mechanisms to
+primary failure mode for FoundationPose in this ap-                      handle occlusion or truncation, such as active view-
+plication.                                                               point adjustment, temporal tracking, or multi-sensor
+                                                                         fusion. Finally, the observed failure cases suggest
+4.5    Runtime Analysis                                                  that uncertainty estimates or confidence-based deci-
+                                                                         sion rules are necessary for triggering additional sens-
+We measure runtime on the hardware of Intel(R)                           ing or deferring manipulation when detections are un-
+Core(TM) i9-9920X CPU @ 3.50GHz and NVIDIA                               reliable.
+GeForce RTX 2080 Ti GPU. The RF-DETR-S object
+detection takes about 21 ms and the FoundationPose
+pose estimation takes about 2.8 s per frame.                             5      CONCLUSIONS
+4.6    Insights for Designing a Practical                                This work has presented a two-stage perception
+       Perception System for Autonomous                                  pipeline for 6D pose estimation of pallet bins in ware-
+       Forklifts                                                         house environments, combining the RF-DETR-S ob-
+                                                                         ject detector with the FoundationPose model. Our
+The experimental results highlight several considera-                    preliminary evaluation on a small but diverse real-
+tions for building a robust perception module for au-                    world dataset indicates that this modular approach can
+tonomous forklifts. First, reliable 2D detection is crit-                provide accurate and reliable 6D pose estimates under
+ical, as the accuracy of the two-stage pipeline depends                  typical operating conditions, particularly when a suf-
+
+
+474
+          6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a Synthetically Trained Object Detector and FoundationPose
+
+
+
+
+ficient portion of the object is visible. These results                   and Wang, W. (2022). Gen6d: Generalizable model-
+suggest that a synthetically trained detector, paired                     free 6-dof object pose estimation from rgb images. In
+with a generalizable foundation model and CAD in-                         ECCV.
+formation at inference time, represents a practical                  Oquab, M., Darcet, T., Moutakanni, T., Vo, H., Szafraniec,
+and scalable direction for pallet bin perception in au-                   M., Khalidov, V., Fernandez, P., Haziza, D., Massa, F.,
+                                                                          El-Nouby, A., et al. (2023). Dinov2: Learning robust
+tonomous logistics applications.                                          visual features without supervision. arXiv preprint
+     Future work will focus on improving robustness                       arXiv:2304.07193.
+in low-visibility scenarios, incorporating temporal                  Park, K., Patten, T., and Vincze, M. (2019). Pix2pose:
+tracking for real-time performance, and exploring                         Pixel-wise coordinate regression of objects for 6d
+multi-sensor fusion to enhance reliability in cluttered                   pose estimation. In Proceedings of the IEEE/CVF
+environments. Another important direction is to eval-                     international conference on computer vision, pages
+uate the pipeline across multiple real pallet bin ge-                     7668–7677.
+ometries and materials to further assess its generaliza-             Redmon, J., Divvala, S., Girshick, R., and Farhadi, A.
+tion to the diversity of bins encountered in real ware-                   (2016). You only look once: Unified, real-time object
+                                                                          detection. In Proceedings of the IEEE conference on
+houses. We also plan to integrate the perception sys-
+                                                                          computer vision and pattern recognition, pages 779–
+tem with motion planning and control modules and                          788.
+deploy the full pipeline on a real autonomous fork-                  Robinson, I., Robicheaux, P., Popov, M., Ramanan, D., and
+lift, enabling closed-loop evaluation of the complete                     Peri, N. (2025). Rf-detr. https://github.com/roboflow/
+perception-action stack in real-world settings.                           rf-detr. SOTA Real-Time Object Detection Model.
+                                                                     Shao, Y., Xu, Z., Chen, J., Lu, J., and Shen, W. (2025).
+                                                                          Enhanced pallet detection in complex environments:
+                                                                          an am-mask r-cnn method. International Journal of
+REFERENCES                                                                Computer Integrated Manufacturing, pages 1–21.
+                                                                     Sun, J., Wang, Z., Zhang, S., He, X., Zhao, H., Zhang, G.,
+Beleznai, C., Reisinger, L., Pointner, W., and Murschitz, M.              and Zhou, X. (2022). OnePose: One-shot object pose
+     (2024). Pallet detection and 3d pose estimation via                  estimation without CAD models. CVPR.
+     geometric cues learned from synthetic data. In Inter-
+     national Conference on Pattern Recognition and Arti-            Tian, Y., Ye, Q., and Doermann, D. (2025). Yolov12:
+     ficial Intelligence, pages 281–295. Springer.                        Attention-centric real-time object detectors. arXiv
+                                                                          preprint arXiv:2502.12524.
+Bowen Wen, Wei Yang, J. K. S. B. (2024). FoundationPose:
+     Unified 6d pose estimation and tracking of novel ob-            Wang, H., Cui, B., Wen, X., Jiang, Y., Gao, C., and Tian,
+     jects. In CVPR.                                                      Y. (2023). Pallet detection and estimation with rgb-
+                                                                          d salient feature learning. In 2023 China Automation
+Carion, N., Massa, F., Synnaeve, G., Usunier, N., Kirillov,               Congress (CAC), pages 8914–8919.
+     A., and Zagoruyko, S. (2020). End-to-end object de-
+     tection with transformers. In European conference on            Wang, H., Sridhar, S., Huang, J., Valentin, J., Song, S., and
+     computer vision, pages 213–229. Springer.                            Guibas, L. J. (2019). Normalized object coordinate
+                                                                          space for category-level 6d object pose and size esti-
+Chen, Q., Su, X., Zhang, X., Wang, J., Chen, J., Shen, Y.,                mation. In Proceedings of the IEEE/CVF Conference
+     Han, C., Chen, Z., Xu, W., Li, F., et al. (2024). Lw-                on Computer Vision and Pattern Recognition (CVPR).
+     detr: A transformer replacement to yolo for real-time
+     detection. arXiv preprint arXiv:2406.03459.                     Xiang, Y., Schmidt, T., Narayanan, V., and Fox, D. (2017).
+                                                                          Posecnn: A convolutional neural network for 6d ob-
+Girshick, R., Donahue, J., Darrell, T., and Malik, J. (2014).             ject pose estimation in cluttered scenes. arXiv preprint
+     Rich feature hierarchies for accurate object detection               arXiv:1711.00199.
+     and semantic segmentation. In 2014 IEEE Conference
+     on Computer Vision and Pattern Recognition, pages               Yisheng, H., Yao, W., Haoqiang, F., Qifeng, C., and Jian, S.
+     580–587.                                                             (2022). Fs6d: Few-shot 6d pose estimation of novel
+                                                                          objects. In IEEE/CVF Conference on Computer Vision
+He, Y., Sun, W., Huang, H., Liu, J., Fan, H., and Sun, J.                 and Pattern Recognition (CVPR).
+     (2020). Pvn3d: A deep point-wise 3d keypoints vot-
+     ing network for 6dof pose estimation. In Proceedings            Zhu, X., Su, W., Lu, L., Li, B., Wang, X., and Dai, J.
+     of the IEEE/CVF conference on computer vision and                    (2020). Deformable detr: Deformable transform-
+     pattern recognition, pages 11632–11641.                              ers for end-to-end object detection. arXiv preprint
+                                                                          arXiv:2010.04159.
+Kalkha, H., Khiat, A., Bahnasse, A., and Ouajji, H. (2023).
+     The rising trends of smart e-commerce logistics. IEEE
+     Access, 11:33839–33857.
+Liu, W., Anguelov, D., Erhan, D., Szegedy, C., Reed, S.,
+     Fu, C.-Y., and Berg, A. C. (2016). SSD: Single Shot
+     MultiBox Detector, page 21–37. Springer Interna-
+     tional Publishing.
+Liu, Y., Wen, Y., Peng, S., Lin, C., Long, X., Komura, T.,
+
+
+
+                                                                                                                                475
+

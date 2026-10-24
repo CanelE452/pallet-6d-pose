@@ -1,0 +1,36 @@
+{
+  "schema": "V66_SAVED_SOURCE_BOUNDARY_DIAGNOSIS_RECIPE",
+  "source_only": true,
+  "models": [
+    "V65_BASELINE",
+    "CONTROLLED_ONLY",
+    "CONTROLLED_PLUS_PALLOX"
+  ],
+  "sources": [
+    "ORIGINAL_YCB",
+    "CONTROLLED_YCB"
+  ],
+  "visible_masks": "ORIGINAL_YCB=original visible; CONTROLLED_YCB=original visible AND NOT opaque paste, fromsealed canonical evidence",
+  "native_position": "Saved unchanged q8 nearest floor(q+.5), continuous androunded native bounds, no jitter/recentering",
+  "distance": "SciPy exactEuclidean distance_transform_edt on visible mask paddedonefalsepixel; distance measured nativequerypixelcenter to nearest masknegative/outsideframe center",
+  "bins": [
+    "(0,1]",
+    "(1,2]",
+    "(2,3]",
+    ">3"
+  ],
+  "strict25": "All actual25native5x5 pixels visible/newE with constant-false border; separate overlapping diagnostic from distancebins",
+  "primary": "Known exactV only; headpV>=.5 TP/FN. SavedrawSAMpositive iff savedprobability>.5 (strictnative logit>0).",
+  "radius2": "Separate learned neighborhood-support diagnostic; neverreplaces primary exactquery task",
+  "E": "Source controlled newE only. Confident jointMAP>=.5 E classification,3x4 known V/E/O by V/E/O/U; UNKNOWN excludedfromFP/FN andreportedseparately. Core/boundary E recall; discriminative precision only ALLknown denominator.",
+  "interpretation": "Boundary-knownV falseabsence remains an error under exactpixelGT. Stratification measures boundary sensitivity; interiorFNs are unsupported by boundary-only explanation. No private semanticcorner/pixel task equivalence is inferred.",
+  "forbidden": [
+    "current223RGB/GT/scores/inputs",
+    "sourceinputfeatures",
+    "weights/checkpoints",
+    "newinference",
+    "training",
+    "PnP",
+    "threshold/radius/modelselection"
+  ]
+}

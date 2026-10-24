@@ -1,0 +1,90 @@
+{
+  "schema": "V77_INDEPENDENT_PROTOCOL_CODE_METADATA_REVIEW",
+  "PASS": true,
+  "source_scope": "Source-only frozen code/math and metadata; no RGB/mask/P3/weights/current score or GT bodies read.",
+  "trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/train_paired_once.py",
+    "sha256": "07ea5b374db1660cdddc57edbcd1279e7aa9614d1f764e8be1eac652af9f8397"
+  },
+  "pair_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/pair_generation/PAIR_BUILD_PROTOCOL_BEFORE_COMPOSITION.json",
+    "sha256": "38c7568a4d0d1cc945b517605f3f490c2c81e93f8436a11430c4b318dc27147d"
+  },
+  "root_decisions": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/EXPERIMENT_DECISIONS_BEFORE_PAIR_BUILD.json",
+    "sha256": "01b856d88c88677c178ce27d103d7b6877f962a3f0cb2a736e0a0bcf4a9d2f1c"
+  },
+  "reviewed_code": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/pair_generation/build_pairs.py",
+      "sha256": "8800e7c4393f93dc768128f8e640dd48d524ea3381bb6bf3daea7b2a417ed15e"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/pair_generation/opaque_pair_geometry.py",
+      "sha256": "895d57160ac4e7ee172aa900fd9b10a93c495580809885ad3cc87ede50796289"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/after_input_preparation/build_after_input_pack.py",
+      "sha256": "44698cd7751ca7535578a1c1f026d40982ef9f44769f5ef1df5f249f09ce71eb"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/mixed_fit/train_mixed_once.py",
+      "sha256": "dab2c7accabad96d52f02ba80a7448a5835490a08498642bbbfe22860775e908"
+    }
+  ],
+  "generated_proofs": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/GENERATED_TRAINER_TESTS.json",
+      "sha256": "db5dcbe41d392084494c77964d70aff7464e60d88ec6ec2b7aac3df824f23e93"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/pair_generation/GENERATED_DISCRETE_COVERAGE_TESTS.json",
+      "sha256": "c71e242c7e55c215caf227cb975a77216b3f62cc145e527435e609ebcc76d2dd"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/independent_preparation/GENERATED_INDEPENDENT_AUDIT_PRIMITIVE_TESTS.json",
+      "sha256": "bd7865a881d1fdcaf52cee3a304ded084f398838e9cb1adf09f3a9b87092ff68"
+    }
+  ],
+  "checks": {
+    "sampling32_32_32": true,
+    "source_class24": true,
+    "each_component_source_class8": true,
+    "pair_beforeV_afterC_adjacent": true,
+    "failed_control_excluded_even_actual_teacherC": true,
+    "natural_VAL_only_4strata_selection": true,
+    "strict_lower_earliest_ties": true,
+    "threshold_fixed_half_inclusive": true,
+    "all5203_original_rows_retained_in_natural_bank": true,
+    "all4799_original_primaryV_eligible_rows_retained": true,
+    "all_anchor_hash_donor_hash_turn_hash_replayed": true,
+    "donor_same_partition_other_RGB_and_otherYCB_object": true,
+    "GT_fields_excluded_from_model_forward": true,
+    "q_r_L_box_context_and_canvasvalidity_checked_in_trainer": true,
+    "after_RGB_target_and_P3_recomputed_by_separate_bound_producer": true
+  },
+  "metadata_counts": {
+    "SYNTHETIC|train": 743,
+    "SYNTHETIC|val": 230,
+    "YCB_PUBLIC_REAL|train": 3095,
+    "YCB_PUBLIC_REAL|val": 731
+  },
+  "resolved_finding": {
+    "problem": "Trainer V2 omitted explicit pair_anchor_success/anchor_training_target eligibility, permitting a hypothetical failed-control+teacherC pair.",
+    "resolution": "V3 pair_eligibility now requires control_success AND anchor_target==0 and asserts flag/target mapping. Generated failed-control actualC case independently replayed and excluded.",
+    "previous_code_preserved_by_root": "provenance/PRE_CONTROL_SUCCESS_LOSS_GUARD_V2"
+  },
+  "limitations": [
+    "Actual after RGB/P3 consistency, full teacher replay and input canvas facts await completed source data/input seals; this review does not certify unfinished payloads.",
+    "EDT proof certifies opaque discrete mask coverage only; extreme donor magnification and frame-wide cover can create synthetic visual shortcuts.",
+    "Global occluder shortcut is reduced but not disproved by nonanchor controls; report same-after anchorC/nonanchorV and beforeV/afterV stability separately.",
+    "Paired C is conditional target-reference support suppression, not natural human semantic E/S or native physical corner gold.",
+    "Public YCB q is GT-derived query emulation; this experiment does not measure an actual deployed public-data initializer.",
+    "SYNTH validation shares the established source-heldout selection family; no new independent real pallet semantic evaluation claim."
+  ],
+  "future_saved_auditor": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_pairs_20261023_v77/independent_preparation/audit_frozen_pair_saved.py",
+    "sha256": "e96cb64823844f59674f11bffed0e23837abc8be445a7fa8051018d86c7de5d9"
+  },
+  "optimizer_updates_or_model_forward_current_PnP": 0
+}

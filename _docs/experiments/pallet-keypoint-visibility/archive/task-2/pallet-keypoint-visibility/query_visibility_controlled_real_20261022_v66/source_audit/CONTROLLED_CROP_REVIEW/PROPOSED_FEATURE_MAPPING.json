@@ -1,0 +1,204 @@
+{
+  "schema": "V66_PROPOSED_INPUT_ONLY_FEATURE_EXTRACTION_MAPPING_NO_EXECUTION",
+  "status": "PROPOSAL_ONLY; wait independent controlled-data admission and frozen source feature protocol before extraction",
+  "purpose": "Keep v65 input semantics/architecture unchanged while extracting features from changed composite RGB; no score/fit/model choice here.",
+  "data_counts": {
+    "controlled_TRAIN_targets": 1599,
+    "controlled_VALIDATION_targets": 400,
+    "queries_per_target": 8,
+    "controlled_TRAIN_queries": 12792,
+    "controlled_VALIDATION_queries": 3200,
+    "requested_source_targets": 2000,
+    "skipped_source_target": "YCB:000007:001141:000002; no existing strict25-visible anchor"
+  },
+  "source_and_split": {
+    "source": "sealed YCB controlled composites only; Pallox not included",
+    "target_and_donor_splits": "original TRAINscenes0..7 / VALIDATIONscenes8..9",
+    "family": "original target scene/frame is group_id, retaining original/composite counterfactual siblings in the same split",
+    "object_reporting": "target and occluder object IDs separate; unseen-as-target does not imply unseen-as-donor or unseen-in-any-RGB"
+  },
+  "input_manifest": {
+    "admissible_images": "only RGB entries in controlled/COMPOSITES.jsonl with exact SHA and shape; reject source_audit/review PNG paths",
+    "feature_worker_fields": [
+      "composite id",
+      "composite RGB path+SHA",
+      "raw_hw",
+      "unchanged query8",
+      "unchanged ROI side",
+      "unchanged original jittered SAM box",
+      "split",
+      "source group/id"
+    ],
+    "label_worker_separate": "source/paste/certainty masks and class/object audit fields do not enter feature/model inputs; partial labels attached after feature seal"
+  },
+  "image_processing": {
+    "original_native_canvas": "No resize or coordinate repair before recipes; source/composite query values are byte-preserved float metadata.",
+    "RGB_decode": "PIL RGB for native/global/SAM branches; cv2 BGR for frozen YOLO recipe, same underlying composite PNG hash",
+    "ROIs": "Use original saved source ROI side; do not infer a replacement side from composite masks, model outputs or reference points."
+  },
+  "frozen_backbones": {
+    "YOLO26": {
+      "assets": {
+        "backbone_code": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/frozen_yolo_features.py",
+          "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab"
+        },
+        "backbone_checkpoint": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/yolo26_frozen.pt",
+          "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7"
+        },
+        "roi_code": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/head_and_roi.py",
+          "sha256": "2c0f3bbeb29cb6f93152a62a3183d592d7b8c22bb45c20b2a84b80dc06843de0"
+        }
+      },
+      "recipe": "Same frozen FrozenYoloFeatures inference: reflect100 raw border; imgsz640 rect preprocessing; half=False; capture P3 with original affine bookkeeping; preserve v60/v63 FP16 rounding/padding and ROI recipe.",
+      "must_reextract": "Composite changes RGB. Run the frozen backbone anew; do not reuse original P3/ROI x for the composite.",
+      "state": "eval+requires_grad_false; BN buffers/weights unchanged, optimizer_updates0"
+    },
+    "MobileSAM": {
+      "checkpoint": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deployment_assets/MobileSAM/weights/mobile_sam.pt",
+        "sha256": "6dbb90523a35330fedd7f1d3dfc66f995213d81b29a5ca8108dbcdd4e37d6c2f"
+      },
+      "model_type": "vit_t",
+      "prompt": "UNCHANGED preexisting jittered original target box; no point prompts or new GT extrema",
+      "mask_choice": "maximum finite predicted quality; exact tie first; no source masks/paste labels for mask selection",
+      "must_reextract": "Replay on composite RGB; original SAM logits/masks belong only to original zero-new-occlusion RGB.",
+      "storage": "Save reproducible local2/native9 and global1/native64 normalizedfloat16 inputs, selected maskbinary and provenance; full float32 maps not necessary."
+    }
+  },
+  "v65_input_mapping": {
+    "x": {
+      "shape": "N,65,9,9",
+      "dtype": "float16",
+      "value": "fresh composite P3 ROI64channels plus input validity1; native query grid offset(i-4)*side/9"
+    },
+    "context": {
+      "shape": "N,64",
+      "dtype": "float32",
+      "value": "recompute from ALL8 fresh composite ROI64features weighted by ROI validity; one shared target prototype repeated to query8"
+    },
+    "rgb_native": {
+      "shape": "N,75,9,9",
+      "dtype": "uint8",
+      "value": "at every unchanged native9 grid nearest floor(q+offset+.5), take5x5 RGB patch with0outside; channels=color*25+dy*5+dx"
+    },
+    "sam": {
+      "shape": "N,2,9,9",
+      "dtype": "float16",
+      "value": "same selected full-resolution composite SAM logits and native5x5 max before native9 sampling; /8clip[-4,4], invalid0"
+    },
+    "box_grid": {
+      "shape": "N,4,9,9",
+      "dtype": "float32",
+      "value": "unchanged native grid relativeXY to SAME original prompt box and constant log2(side/boxwidth,height), clip[-4,4]"
+    },
+    "global_rgb": {
+      "shape": "T,3,64,64",
+      "dtype": "uint8",
+      "value": "changed composite RGB; same box expanded1.25 anisotropic native centers center+(j+.5-32)*(1.25boxsize/64), cv2linear remap constant0"
+    },
+    "global_sam": {
+      "shape": "T,1,64,64",
+      "dtype": "float16",
+      "value": "same selected composite SAM full-resolution exact logit nearest at those global centers; /8clip4, invalid0"
+    },
+    "global_prompt": {
+      "shape": "T,1,64,64",
+      "dtype": "bool",
+      "value": "continuous native centers inside unchanged raw prompt box and native valid; no source mask values"
+    },
+    "global_index64": {
+      "shape": "N,9,9",
+      "dtype": "int64",
+      "value": "inverse-map native integer label pixels to nearest64grid per v65; invalidplaceholder0"
+    },
+    "global_index8": {
+      "shape": "N,9,9",
+      "dtype": "int64",
+      "value": "per-axis index64//8 thenflatten; NOT flatindex64//8"
+    },
+    "global_query_valid": {
+      "shape": "N,9,9",
+      "dtype": "bool",
+      "value": "both continuous and nearest native bounds plus64grid index bounds; invalid global featureszero"
+    },
+    "target_index": {
+      "shape": "N",
+      "dtype": "int64",
+      "value": "query->this cache target table; exact8queries eachtarget, mixed-source merge offsets target tables"
+    },
+    "unchanged_v65_head": "same95,508parameter global/local architecture and6joint order VV,EV,EE,OV,OE,OO; no architecture experiment is proposed"
+  },
+  "labels_not_inputs": {
+    "contract": "DATA_LABEL_PROTOCOL.json +controlled_truth.py only",
+    "exact_and_radius2": "Reconstruct native controlled certainty from sealed masks; original-full-only staysU. Query/radius2 defined in native pixels before any resampling.",
+    "center": "Join exact sealed8query facts and compatible-bitmasks; assert exact equality to QUERIES.csv and per-target .queries.json.",
+    "local_dense": "At same native9 continuous grid and nearest labelpixel, run the pure known-bit exact/window-minus-exact compatible6joint rule; preserve geometric valid mask independently of partial certainty.",
+    "global_dense": "At same native64 centers, query native certainty; native radius2 before64sampling. Do not infer full-negative from resized full-positive absence.",
+    "proposed_fields": [
+      "center/dense/global joint_compatible_mask uint8",
+      "joint_known bool",
+      "unique_joint int8 with-1unknown",
+      "visible/full known bits",
+      "geometric valid masks",
+      "source evidence tiers"
+    ],
+    "training_loss": "NOT registered or executed here. A later frozen source-only fit protocol must choose partial-compatible-state likelihood versus dropping unknowns. Never ordinaryCE on U padded as O/E.",
+    "self": "semantic self/corner visibility remainsUNKNOWN; saved-pose pure geometry proxy separate only"
+  },
+  "original_counterfactual": {
+    "reuse": "Unchanged original RGB features may be reused only with exact original RGB SHA, query8/side/box and frozen preprocessing/checkpoint bindings; this does not authorize using original features for altered composite RGB.",
+    "labels": "Original zero-new-occlusion controlled labels differ from original full-mask proxy labels; store both evidence tiers separately."
+  },
+  "preplanned_checks_only_no_execution": [
+    "Verify data admission/source lock/generation seal and current223 SHA exclusion before feature input open.",
+    "Freeze minimal RGB-only feature manifest and all checkpoint/code/runtime hashes before first forward.",
+    "Verify same8queries/side/box and group split per composite; review images/GT masks cannot become input RGB/features.",
+    "Check native75 RGB center and exact/r2/global SAM normalizedfloat16 sampling against independent source fixture.",
+    "State/BN buffers frozen and optimizer_updates0; deterministic repeat on source fixture.",
+    "Feature seal before attaching mask-derived partial labels; allknown/unknown denominators retained."
+  ],
+  "bindings": {
+    "controlled_generation_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/controlled/SEAL.json",
+      "sha256": "8ba83649a4b99650afc384840f40108e39763c49369d93c4343bb3538f02a2f4"
+    },
+    "generation_input_lock": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/provenance/GENERATION_INPUT_LOCK.json",
+      "sha256": "bf5445419133e07ab04c80741c81670bbbd776b5ec1c27ae6836c7a5ae02b508"
+    },
+    "controlled_label_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/DATA_LABEL_PROTOCOL.json",
+      "sha256": "7ab257789998262dba23508aa4b5e7cce4450d85293c64e3dba948d78c040109"
+    },
+    "partial_truth_helper": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/contract/controlled_truth.py",
+      "sha256": "0bfedfb48744aa9ae2bd16941afcb0ec568a464119a4c99177d97ccc21290d64"
+    },
+    "v65_source_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/PROTOCOL.json",
+      "sha256": "e99859f1369a328af812383ba01c2fe9fe08bc2d0a04fa26da476d02e9bfd4f8"
+    },
+    "v65_global_recipe": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/global_recipe.py",
+      "sha256": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0"
+    },
+    "v65_input_only_helper": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/inference/infer_current_frozen.py",
+      "sha256": "c049979b2f988ea82fe885b7bad6ff10ef5440efa9ceed5383c0e85375018292"
+    },
+    "v63_generic_assets_bundle": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/DEPLOYMENT_BUNDLE.json",
+      "sha256": "d0e7dcfc11892fddcb8d1589ae38e5cb2ade402729e75ad6b572d35060162036"
+    }
+  },
+  "executed": {
+    "feature_or_backbone_or_SAM_forward_calls": 0,
+    "training_or_GPU_calls": 0,
+    "private_inference_calls": 0,
+    "PnP_calls": 0
+  },
+  "selection": "No private model/candidate/threshold selection. This proposal is an internal data/feature admission step within the existing goal authorization."
+}

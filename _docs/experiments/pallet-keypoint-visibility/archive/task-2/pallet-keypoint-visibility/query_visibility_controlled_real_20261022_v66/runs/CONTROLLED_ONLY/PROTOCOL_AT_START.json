@@ -1,0 +1,122 @@
+{
+  "schema": "V66_SOURCE_ONLY_PARTIAL_VISIBILITY_FIT_PROTOCOL_V2_GUARDS",
+  "created_unix": 1792680223.76146,
+  "objective": "Known target ownership under controlled opaque-paste and conditional photographic paired occlusion, exact+native radius2 support; semanticcorner/self truth stays separate.",
+  "status": "FROZEN_BEFORE_ANY_V66_MODEL_FIT; input hashes freeze separately before run",
+  "architecture": "Unchanged v65 QueryGlobalAmodalHead95,508params; frozen generic YOLO26/MobileSAM features; no new backbone/segmentation training.",
+  "candidates": {
+    "CONTROLLED_ONLY": {
+      "training_sources": [
+        "SYNTH",
+        "ORIGINAL_YCB",
+        "CONTROLLED_YCB"
+      ]
+    },
+    "CONTROLLED_PLUS_PALLOX": {
+      "training_sources": [
+        "SYNTH",
+        "ORIGINAL_YCB",
+        "CONTROLLED_YCB",
+        "PALLOX"
+      ]
+    }
+  },
+  "validation_sources": [
+    "SYNTH",
+    "ORIGINAL_YCB",
+    "CONTROLLED_YCB",
+    "PALLOX"
+  ],
+  "updates": 2000,
+  "validation_every": 100,
+  "batch_size": 256,
+  "seed": 20261022,
+  "optimizer": {
+    "type": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001
+  },
+  "loss": {
+    "center": 1,
+    "local_dense": 0.25,
+    "global_dense": 0.25,
+    "definition": "logsumexp(all6jointlogits)-logsumexp(compatiblejointlogits)",
+    "class_weights": "all1",
+    "partial": "Exact/native5x5 correlation represented by6state-compatiblebitmask. UNKNOWN is never padded to E/O.",
+    "uninformative": "allowed63 has exact0loss/gradient and is excluded from loss/selection informative denominators. Invalidnative cells63+validfalse. Empty targets/source terms ignored with reported coverage.",
+    "local_norm": "Mean informative cells within each source, then equal mean over sources represented in balanced minibatch.",
+    "global_norm": "Mean informative native64cells perunique minibatchtarget, then targetmean within each source, then equal source mean."
+  },
+  "sampler": "Informative center rows only. Each update draws with replacement256 rows, equal counts bysource; remainder rotates deterministically. No class weights or score-driven sampling.",
+  "source_labels": {
+    "SYNTH": "Existing synthetic rendered native joint labels, unchanged.",
+    "ORIGINAL_YCB": "Existing original RGB features only with strictidentity/SHA/query/side/box check; labels rebuilt as partial. Original-visiblepositive fullpositive, outside-fullnegative, originalfullonly fullUNKNOWN. Original visible-negative completeness remains explicit.",
+    "CONTROLLED_YCB": "Audited saved composite newRGB features, certified fullpositive from originally observed target, known new external where opaque other-object cutout covers it. Original fullonly remainsfullUNKNOWN.",
+    "PALLOX": "Conditional SAM-interior+suppliedmesh-depth+symmetry teacher, no original-pixelgold claim. Native full-negative/O disabled, unresolvedfactsUNKNOWN."
+  },
+  "source_selection": "For eachcheckpoint: common4domain mean informative-center partialNLL, eachdomainequal. Strict improvement only; firstminimumwins. Afterbothfixedruns, lowestsamecriterionselectscandidate; exacttie selectearlierlistedCONTROLLED_ONLY.",
+  "thresholds": {
+    "visible": 0.5,
+    "confident_joint_MAP": 0.5,
+    "external": "jointMAP labelE only ifmaxjoint>=.5 otherwiseU",
+    "outside": "jointMAP labelO only ifmaxjoint>=.5 otherwiseU"
+  },
+  "evaluation": {
+    "primary_support": "Report exact and radius2 separately; do not equate exactabsence to verified external/self occlusion.",
+    "partial_label_metrics": "Known exact/r2 subset confusion/precision/recall plus unknown coverage and predictionsonunknown; compatible-stateNLL uses all informative partialcenters. Unknown rows never silently dropped from totalcoverage.",
+    "source_baselines": [
+      "frozenv65checkpoint",
+      "frozenrawMobileSAMvisibleonly",
+      "constantvisible/outside",
+      "TRAINsourcejointpriorwherevalid"
+    ],
+    "source_data_groups": "SYNTH / ORIGINAL_YCB / CONTROLLED_YCB / PALLOX_LABTRAIN-HALLVAL; report controlledstrictnewE, pairedstrict25E, boundary, nativejitter, missingdepth/teacherUNKNOWN separately.",
+    "deployment_quality_targets": "Diagnostic: on known-source subsets visibleR>=.80, externalP>=.80 andR>=.60 in BOTHnewcontrolled andnaturalpaired VAL; nativeoutsideknownonlyapplicablesources. Passing alone doesnotproveprivatepallettransfer.",
+    "current223": "Fit/threshold/selection forbidden. Atmostone selectedfrozenarm maylaterbeevaluated withimmutablegate aftersourceaudit; current223 repeatedlyexposeddevelopmentcohort, notfreshindependentfinaltest. PnPneverrun."
+  },
+  "prohibited": [
+    "current223RGB/annotations/scores as fit input or threshold/checkpoint choice",
+    "newPnP/pose/alignment optimization",
+    "currentmodelscore-basedsourcequery/maskselection",
+    "reusing oldP3/SAM on changedcompositeRGB",
+    "O label from SAM0 or meshbackgroundwithoutadmittedfullnegative",
+    "posthoc dropofempty paired evidence or reverse direction"
+  ],
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/model/query_global_amodal_head.py",
+      "sha256": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/model/fit_partial_head.py",
+      "sha256": "0a820e59c6ea7edc631f6592c27f2291700b21d1c1fe2527dfe5cc938e8c133a"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/DATA_LABEL_PROTOCOL.json",
+      "sha256": "7ab257789998262dba23508aa4b5e7cce4450d85293c64e3dba948d78c040109"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/PAIRED_REAL_LABEL_PROTOCOL.json",
+      "sha256": "554178a520287030a5aef5162272ee45c3307d49c8e68c1e20449cb8c57ebbfb"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/PAIRED_QUERY_RECIPE.json",
+      "sha256": "513b6cf28855f18a35c683dfcc1b1133f4b4e571a86ff0a0bd08ae942133fb8b"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/contract/partial_truth_grid.py",
+      "sha256": "cb1b4dbeec94f4932339ba53ae8bed63966f3f5fed765d9af9e672c784193eda"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/source_audit/CONTROLLED_DATA_ADMISSION.json",
+      "sha256": "67c863dd6f5b0060e1dd71ea22f39563b8a8d33e39a5192de06ff8a58595c040"
+    }
+  ],
+  "runtime": "frozen-feature extraction pallet-yolo26Torch2.1; cachedhead fit defaultanacondaTorch2.5 deterministicCUDA,CUBLAS_WORKSPACE_CONFIG=:4096:8",
+  "input_lock": "Allselectedfeature+GTcaches, mergecodeandSHA willbecheckedbeforeRUN_STARTED. Data admission alone doesnot authorizeunfrozenmodelchoice.",
+  "preflight_revision": {
+    "previous_protocol_sha256": "0fe493821dc9cc9bd5ed86c88553514fd6bf04573137cc48eed6131908127a17",
+    "previous_trainer_sha256": "648b676f0cdf81634939befa64113f814a489ae4eaa8615458b42b71abf85271",
+    "reason": "Independent code review required actual approved cache/code/denylist path+SHA and seed guard at fit entry. No run, optimizer update, source scores or private inference preceded this guard revision. Partial loss/model/data/selection/budget unchanged."
+  }
+}

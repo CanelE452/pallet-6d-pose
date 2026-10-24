@@ -1,0 +1,175 @@
+{
+  "completed": true,
+  "source_only": true,
+  "new_fit_or_protocol_created": false,
+  "GT_error_filter_proposed": false,
+  "coordinate_correctness_solved": false,
+  "evidence": {
+    "original_C29_errors": {
+      "DfalseE": 17,
+      "EfalseD": 11,
+      "inputU": 4,
+      "q_GT3_among_binary_mistakes": "25/28 = 89.29%",
+      "q_GT3_all_known_failures": "25/32 = 78.125%; remaining4 NO_QUERY and3 LE3"
+    },
+    "new_C29_errors": {
+      "DfalseE": 56,
+      "EfalseD": 18,
+      "inputU": 2,
+      "q_GT3_among_binary_mistakes": "70/74 = 94.59%",
+      "q_GT3_all_known_failures": "72/76 = 94.74%"
+    },
+    "new_same_material": {
+      "full_CM": [
+        [
+          447,
+          11,
+          0
+        ],
+        [
+          9,
+          29,
+          0
+        ]
+      ],
+      "LE3_CM": [
+        [
+          263,
+          1,
+          0
+        ],
+        [
+          1,
+          10,
+          0
+        ]
+      ],
+      "q_GT3_binary_mistakes": "18/20"
+    },
+    "original_same_material": {
+      "full_CM": [
+        [
+          178,
+          12,
+          0
+        ],
+        [
+          8,
+          8,
+          0
+        ]
+      ],
+      "LE3_CM": [
+        [
+          85,
+          3,
+          0
+        ],
+        [
+          0,
+          5,
+          0
+        ]
+      ],
+      "q_GT3_binary_mistakes": "17/20"
+    },
+    "new_factors": {
+      "wood_DfalseE_EfalseD": [
+        36,
+        7
+      ],
+      "polymer_DfalseE_EfalseD": [
+        20,
+        11
+      ],
+      "rectangular_DfalseE_EfalseD": [
+        38,
+        9
+      ],
+      "square_DfalseE_EfalseD": [
+        18,
+        9
+      ],
+      "both_geometry_families_binary_errors": [
+        37,
+        37
+      ]
+    },
+    "historical_G42": {
+      "V133_C24_VAL": [
+        [
+          758,
+          67,
+          3
+        ],
+        [
+          14,
+          45,
+          1
+        ]
+      ],
+      "V133_C25_G42_VAL": [
+        [
+          747,
+          78,
+          3
+        ],
+        [
+          14,
+          45,
+          1
+        ]
+      ],
+      "conclusion": "No old-data geometry benefit: same E45/60,11 additional DfalseE."
+    },
+    "matched_coverage_gain": {
+      "new_C28": [
+        [
+          1686,
+          84,
+          2
+        ],
+        [
+          32,
+          98,
+          0
+        ]
+      ],
+      "new_C29": [
+        [
+          1714,
+          56,
+          2
+        ],
+        [
+          18,
+          112,
+          0
+        ]
+      ],
+      "conclusion": "Broader source coverage improved both classes against matched budget, but64gates still fail."
+    }
+  },
+  "interpretation": [
+    "Large qerror is associated with most residual mistakes. It may be a consequence of the same hard appearance/occlusion, not the cause of classification failure.",
+    "Even LE3 has residual false occlusion (original3 visible points; new3 visible+1hidden). Same-material cue specificity is not completely solved.",
+    "All finite source query coordinates and L stay unchanged. Selecting LE3 with GT would be evaluation leakage and would not solve the full task.",
+    "Paired COVER/NEAR uses the same physical registered corner but every finite VAL pair has different actual q; newmovement median1.985px,max203.263 and Ldelta max33.740. These are not fixed-q causal image comparisons."
+  ],
+  "next_evidence_step": {
+    "priority": "Saved-input reliability diagnosis before adding another trained head.",
+    "action": "On fixed source TRAIN/held-out VAL, test whether existing input-only per-keypoint confidence, q8 shape/edge consistency and crop-validity facts identify unreliable queries. Report full cohort mistakes and uncertainty coverage; no GTerror at deployment and no private thresholds.",
+    "why": "Residuals concentrate at high GT error, but current evidence does not show that this error is observable from deployed inputs."
+  },
+  "broad_data_G42_assessment": {
+    "status": "Reasonable falsifiable follow-up hypothesis, not an evidence-established fix.",
+    "rationale": "V137 broadens scale/view variation and improves both classes; G42 could supply actual native/edge context. The direct V133 matched negative result lowers confidence.",
+    "limits": "A future matched G0/G42 comparison would need same broad data/full gates and originalq; no GT geometry, slot remapping or recrop. No new run/protocol proposed here."
+  },
+  "query_reliability_auxiliary_assessment": {
+    "status": "Conceptually distinct, potentially useful only after input observability is established.",
+    "target": "Reliability/uncertainty of original query, separate from semantic external visibility; never output corrected xy.",
+    "limits": "GTerror may label source-only auxiliary supervision but cannot be an input or deployed gate. U/rejection must remain in original knownDE denominators and abstention rates. It cannot reinterpret all badq as occluded or claim pose/keypoint accuracy solved."
+  },
+  "recommendation": "Prioritize the saved-input reliability audit. Treat broad-data G42 and a separate reliability auxiliary as competing hypotheses, with neither currently selected or trained."
+}

@@ -1,0 +1,151 @@
+{
+  "schema": "V66_CONTROLLED_PUBLIC_REAL_PARTIAL_LABEL_PROTOCOL_BEFORE_COMPOSITION_V1",
+  "created_UTC": "2026-10-22 14:16:54 UTC",
+  "status": "LABEL_PROTOCOL_FROZEN_BEFORE_COMPOSITION; generator recipe and source admission still required",
+  "objective": "Construct controlled newly occluded versus outside target support on public real source pixels with certified original visible ownership. Data-first audit; no model training yet.",
+  "scope": {
+    "source": "Existing public YCB-V original TRAIN scenes0..7 and VAL scenes8..9 only; same original split for target and independent occluder.",
+    "current223": "Excluded by immutable image SHA manifest. No private RGB, visibility labels, reference coordinates or scores read or used in v66 design/composition/selection.",
+    "new_public_pallet": "Not admitted by this protocol. License, mask/geometry provenance and capture-family separation require separate admission; unknown evidence means HOLD.",
+    "semantic_self": "UNKNOWN; optional saved-pose geometry remains a separate proxy, never controlled pixel supervision."
+  },
+  "source_assumptions": {
+    "original_visible_positive": "orig_vis1 is accepted source GT for an observed target-owned pixel. This is native public mask membership, not semantic corner truth.",
+    "original_visible_negative": "orig_vis0 is accepted source-visible-mask negative under the explicit completeness assumption of this source mask. It certifies no observed target-visible pixel at that native pixel, NOT hidden target-full ownership.",
+    "original_full_negative": "orig_full0 is accepted source target-full-negative support, including target holes/background; preserve original source-mask provenance.",
+    "original_hidden_full": "orig_full1 andorig_vis0 does not certify hidden full support for CONTROLLED truth. Full membership and exact3state class remain UNKNOWN, even when newly pasted.",
+    "source_mask_noise": "BOP rendered/depth masks are still source annotations. Preserve boundary/void/depth attributes and original proxy labels; no certified human physical-corner or natural-occlusion claim."
+  },
+  "composition": {
+    "first_recipe": "Opaque binary paste support only. Any later antialiased/partial alpha pixels require explicit uncertainty rules and a new preregistration; never silently call partial coverage fully hidden.",
+    "target_identity": "Tracked target remains the original source instance. A pasted real object is another layer/instance even if visually similar or same class.",
+    "occluder": "RGB and original visible mask from a DIFFERENT source image SHA in the SAME original split; original source visible mask only, never full-mask hidden extensions.",
+    "layer": "Apply a fixed registered geometric transform and clipping; paste_mask is the actual final opaque support. Ground truth uses actual pasted support, not a proposed box or unclipped mask.",
+    "RGB_proof": [
+      "Outside paste_mask compositeRGB equals original target RGB byte-for-byte.",
+      "Inside paste_mask compositeRGB equals transformed occluder RGB byte-for-byte."
+    ],
+    "input_geometry": "Same frozen original target query8/side/roughbox; no reference/corner repair or crop adjustment from new pasted labels.",
+    "recipe_status": "Root must register exact target/occluder pools, seeded transforms, placement/count schedule, query set, resampling/border rules and hashes in GENERATION_RECIPE.json before any composition. This label contract fixes no outcome-driven numeric search."
+  },
+  "pixel_certainty": {
+    "visible_value": "orig_vis &~paste_mask",
+    "visible_known": "True under explicit original-visible-mask completeness assumption; do not derive this merely from classUNKNOWN.",
+    "visible_evidence_tiers": [
+      "ORIGINAL_OBSERVED_VISIBLE iforig_vis1 andnotpaste",
+      "NEW_CONTROLLED_NONVISIBLE iforig_vis1 andpaste",
+      "SOURCE_ORIGINAL_VISIBLE_NEGATIVE iforig_vis0"
+    ],
+    "full_known_positive": "orig_vis",
+    "full_known_negative": "~orig_full",
+    "full_unknown": "orig_full &~orig_vis",
+    "exact_class": [
+      "V iforig_vis1 andnotpaste",
+      "E_CONTROLLED iforig_vis1 andpaste",
+      "O iforig_full0",
+      "U iforig_full1 andorig_vis0, unchanged bypaste"
+    ],
+    "original_proxy": "Save original V/E_PROXY/O separately; never relabel original hidden proxy as controlled E or O."
+  },
+  "native_query": {
+    "pixel": "floor(native_query+.5); continuous and rounded coordinates must both be in native image.",
+    "exact": "Radius0 membership/certainty at that unchanged nearest native pixel.",
+    "radius2": "Clipped native5x5 square centered at the same nearest native pixel; no dilation in resized crop pixels.",
+    "invalid": "Mask invalid native queries and losses; do not relabel invalid as O."
+  },
+  "window_certainty": {
+    "visible_positive": "Any known-visible pixel implies V regardless of unknown-full neighbors.",
+    "visible_negative": "All native window pixels must have known visible-negative status to certify no V. If any visibility bit is untrusted/unknown and no positive V exists, window visible status is UNKNOWN.",
+    "full_positive": "Any certified full-positive pixel (orig_vis1) implies window full support; unknown-full neighbors do not invalidate this existential positive.",
+    "full_negative": "EVERY window pixel must be certified full-negative (~orig_full). No known full-positive alone is insufficient; any unknown-full pixel blocks O.",
+    "radius2_class": [
+      "V ifanyknownvisiblepositive.",
+      "Else E_CONTROLLED_WINDOW ifallvisibleknownnegative andanycertifiedfullpositive.",
+      "Else O ifallfullknownnegative (which also implies no target visible).",
+      "Else U."
+    ],
+    "E_window_assumption": "When unknown-full pixels occur in an E window, no-visible certainty relies explicitly on original-visible-mask completeness; it is not an exact controlled-E label on those unknown pixels.",
+    "strict_E_core": "All native window pixels are orig_vis1 AND paste_mask1. This is the strongest fully newly occluded owned-target5x5 certificate; report separately.",
+    "strict_O_core": "All native window pixels are orig_full0; paste does not change target outside truth.",
+    "no_shortcuts": [
+      "Never map U to O or count absence of known full positives as full-negative.",
+      "Never map wholemask0/background to E.",
+      "Never turn orig_full1vis0 into exact controlledE, even when covered.",
+      "Never create semantic self labels from masks or paste."
+    ]
+  },
+  "partial_joint": {
+    "order": [
+      "VV",
+      "EV",
+      "EE",
+      "OV",
+      "OE",
+      "OO"
+    ],
+    "unique_joint": "Assign one6statecode only when both exact andradius2 states are known and compatible; otherwise joint_code=-1 and joint_known=False.",
+    "compatibility": "Save compatible6statebitset from known visible/full facts. With visible-knownnegative butfullunknown, possible exact/near classes are{E,O}; retain partial certainty instead of padding a class.",
+    "examples": [
+      "exactU/nearV permits EV orOV.",
+      "exactU/nearE permits EE orOE.",
+      "exactO/nearU permits OE orOO.",
+      "exactU/nearU permits EE,OE,OO."
+    ],
+    "training_status": "No training/loss choice is admitted here. Later training must explicitly register dropping unknowns versus a compatible-state partial likelihood; never ordinaryCE on paddedU."
+  },
+  "OV_and_semantics": {
+    "exact": "OV is exact outside target support with visible target within fixed native radius2; it is NOT external occlusion.",
+    "practical": "A predictedOV may suggest finite query/support mismatch. It does not prove initial-coordinate error or that a semantic corner is visible.",
+    "corner_truth": "Human/native-corner visibility and target-pixel ownership remain different targets. Source pseudoqueries supply pixel/window support truth only; no new corner semantics."
+  },
+  "data_audits_required_before_admission": [
+    "Verify original masks0/255binary, visible subsetfull, image/mask shape and source SHA.",
+    "Verify target and occluder source-image SHAs differ and both belong to the same fixed original split.",
+    "Verify no target/occluder/output image SHA overlaps excluded current223; no TRAIN/VAL source image or recording scene overlap.",
+    "Reconstruct actual opaque paste RGB pixel invariants and exact V/E/O/U partition independently.",
+    "Independently verify native exact/radius2 certainty and all joint compatibility including unknown neighborhoods, borders and ties.",
+    "Retain original proxy E, unknown-full coverage, source and paste boundaries, void/depthmissing and class/object IDs as audit attributes, never input features.",
+    "Freeze all generation recipes, manifests, input hashes and generated hashes; preserve failed artifacts with reason instead of silent corrections."
+  ],
+  "source_validation": {
+    "split": "Original disjoint source scenes/images retained for target AND occluder; no augmented sibling or reused occluder RGB across TRAIN/VAL.",
+    "frozen_queries": "Query set, placement dose, transformed-occluder pool and subgroup sizes fixed before generator run; all fixed examples reported, no filtered easy/private-favored subset.",
+    "counterfactual_pairs": "Pair original/zero-new-occlusion and composed views at identical target/query/box. Controlled E evaluation uses orig_vis1 newly covered; target-outside O remains separate.",
+    "report": [
+      "Exact andradius2 known/unknown denominators and class counts.",
+      "Controlled E versus observed V versus known O confusion, precision/recall/coverage with all eligible GT in denominators.",
+      "Strict newly-occluded5x5 E core and strict outside O core separately.",
+      "Original unknown-full, source/paste boundaries and paste-interior strata; hiddenproxy remains separate.",
+      "Per source target object, occluder object, source scene/frame and occlusion dose; held-out original YCB objects.",
+      "Counterfactual V->E response versus unchanged O predictions and unchanged V controls.",
+      "Controlled-compositor performance separately from untouched original source-proxy evaluation."
+    ],
+    "selection": "No model/threshold/runtime/architecture selection from current223. Future checkpoint criterion must be frozen after data admission and before training.",
+    "risk": "Hard seams and crop/box source conditioning can make controlled validation easy while failing natural occlusion. Passing controlled labels or generator tests alone is not natural-real transfer success."
+  },
+  "admission": {
+    "default": "HOLD",
+    "training_allowed": false,
+    "release": "Only after root independently accepts deterministic recipe, exclusion/split/causal-label audits and controlled class/window certainty. No new training before admission."
+  },
+  "no_new_private_data_or_scores_read": true,
+  "no_new_model_training_GPU_PnP_calls": 0,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/train_instances.jsonl",
+      "sha256": "cb92bbbe1dbc2896c2ad55bcf0116ffff75049cb12df36d4fde7daf4dac5e2f7"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/SOURCE_VAL_LOCKED_200.jsonl",
+      "sha256": "0e2fbc717a12bf2b9135bdb3a71931ad619aeb6a580e521d6aacfe2472f4aa36"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/contract/EVALUATION_SHA256_DENYLIST.json",
+      "sha256": "58ef8b2ca79b9cb511fe7b5813d22b31f6ff82ef5049a2be340ec293bdbef987"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/contract/LABEL_OUTPUT_SELECTION_CONTRACT.json",
+      "sha256": "f03ae5de1a4e87fadb87746ed92dd5593bc3862ea2b321cc5faa259a3f485c85"
+    }
+  ]
+}

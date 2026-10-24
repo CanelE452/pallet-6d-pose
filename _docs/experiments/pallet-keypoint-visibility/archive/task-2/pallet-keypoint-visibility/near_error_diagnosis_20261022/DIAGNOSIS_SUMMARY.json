@@ -1,0 +1,80 @@
+{
+  "date_Asia_Seoul": "2026-10-22",
+  "new_training": 0,
+  "new_model_forward": 0,
+  "new_PnP": 0,
+  "model_or_threshold_changed": false,
+  "conclusion_ko": "목표 정의 차이와 합성 자체의 경계 분류 실패가 공존한다. 실사 exact-pixel GT가 없어 실사 오류를 두 원인으로 정확히 분해할 수 없다.",
+  "synthetic_near_scope": "VAL valid query + valid renderer reference coordinate/pixel + distance<=3px; one additional <=3px query has out-of-frame reference and is excluded.",
+  "independent_recounts": {
+    "valid_near_queries": 1030,
+    "M4_positive_queries": 409,
+    "TP": 238,
+    "FN": 171,
+    "clear_interior_TP_N": [
+      172,
+      180
+    ],
+    "boundary_TP_N": [
+      66,
+      229
+    ],
+    "boundary_share_of_FN": 0.9532163742690059,
+    "reference_M4_1_query_M4_0": 106,
+    "those_predicted_absent": 85
+  },
+  "crop_occupancy_dependence": {
+    "positive_center_only_pearson_r": 0.8351,
+    "below25percent_TP_N": [
+      2,
+      25
+    ],
+    "25to50percent_TP_N": [
+      96,
+      244
+    ],
+    "atleast50percent_TP_N": [
+      140,
+      140
+    ],
+    "causal_architecture_claim": false
+  },
+  "real_near_evidence": {
+    "semantic_D_queries": 461,
+    "v61_absent": 366,
+    "wood_manual_D_absent_N": [
+      111,
+      153
+    ],
+    "square_manual_D_absent_N": [
+      180,
+      223
+    ],
+    "same_nearest_pixel_absent_N": [
+      30,
+      35
+    ],
+    "full_valid_ROI_absent_N": [
+      364,
+      455
+    ],
+    "real_target_instance_pixel_truth": "UNAVAILABLE"
+  },
+  "architecture_hypotheses": [
+    "P3 9x9 + global average pooling does not explicitly read the query pixel.",
+    "Raw P3 stride about10.5px,18.5px in some wood images is coarser than the exact pixel label.",
+    "Current probabilities track patch occupancy strongly; spatial query readout is a proposed intervention, not tested."
+  ],
+  "not_established": [
+    "Fraction of real errors due to label mismatch versus exact-pixel domain-transfer failure.",
+    "Causal responsibility of GAP, stride, crop scale, illumination or domain.",
+    "Equivalence of renderer projected cuboid pixel membership or external-ray proxy to human semantic DIRECT."
+  ],
+  "evidence_files": [
+    "synthetic/SYNTH_NEAR_METRICS.csv",
+    "synthetic/SYNTH_TARGET_DISTINCTION.csv",
+    "synthetic/SYNTH_CROP_FRACTION_METRICS.csv",
+    "real/REAL_NEAR_AUDIT.json",
+    "FROZEN_FEATURE_AUDIT.json"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema": "V66_LABEL_ONLY_PARTIAL_SOURCE_CACHE_RECIPE_BEFORE_BUILD",
+  "scope": "CPU labels only, ORIGINAL_YCB2000 and CONTROLLED1999; no features, RGB, models or current evaluation reads",
+  "inputs": "Immutable TARGETS/COMPOSITES/QUERIES, source mask files and controlled canonical known-bit NPZs",
+  "output_names": [
+    "ORIGINAL_YCB_TRAIN.npz",
+    "ORIGINAL_YCB_VAL.npz",
+    "CONTROLLED_TRAIN.npz",
+    "CONTROLLED_VAL.npz"
+  ],
+  "source_order": "Preserve each input manifest order per split. Each target contributes its unchanged8 queries in native_corner0..7 order. Feature join must use sample_id/global_id.",
+  "IDs": "Original global_id=target id, sample_id=original_sample_ids. Controlled global_id=composite id, sample_id=sealed QUERIES.csv sample_id. target_index indexes that cache own global_id list.",
+  "original_truth": "construct_certainty(original_visible, original_full, paste=zeros, visible_negative_trusted=True). Visible negatives explicit BOP completeness assumption. Full-only remains full UNKNOWN, never hardE.",
+  "controlled_truth": "Read visible_positive/visible_negative/full_positive/full_negative verbatim from generation-sealed NPZ; enforce closed certainty.",
+  "dense_native_grid": "query + (i-4)*side/9, x/y meshgrid i0..8, float64; nearest floor(xy+.5); continuous AND rounded native bounds",
+  "global_native_grid": "Unchanged v65global_recipe.grid(box):1.25 box expansion,64x64 half-cell grid; nearest floor(xy+.5); continuous AND rounded native bounds",
+  "label_grid": "Proven partial_truth_grid native5x5, clipped frame window, exact/shared-neighbor correlated6joint completions",
+  "joint_order": [
+    [
+      "V",
+      "V"
+    ],
+    [
+      "E",
+      "V"
+    ],
+    [
+      "E",
+      "E"
+    ],
+    [
+      "O",
+      "V"
+    ],
+    [
+      "O",
+      "E"
+    ],
+    [
+      "O",
+      "O"
+    ]
+  ],
+  "invalid": "allowed=63 (all6states), valid=false, state=-1, joint_known=false. Invalid points never supervise.",
+  "data_fields": {
+    "sample_id": "Nunicode",
+    "global_id": "Tunicode",
+    "target_index": "Nint64",
+    "native_corner": "Nuint8",
+    "dense_allowed": "N9x9uint8",
+    "dense_valid": "N9x9bool",
+    "dense_exact_state": "N9x9int8",
+    "dense_radius2_state": "N9x9int8",
+    "center_joint_known": "Nbool",
+    "center_joint_state": "Nint8",
+    "center_exact_state": "Nint8",
+    "center_radius2_state": "Nint8",
+    "global_allowed": "T64x64uint8",
+    "global_valid": "T64x64bool",
+    "global_exact_state": "T64x64int8",
+    "global_radius2_state": "T64x64int8",
+    "image_sha256": "Nunicode of saved inputRGBSHA",
+    "global_image_sha256": "Tunicode",
+    "query": "N2float64",
+    "side": "Nfloat64",
+    "global_box": "T4float64"
+  },
+  "checks": [
+    "Source saved RGB SHAs directly compared to current223 exclusion manifest; no current images opened",
+    "Actual read source-mask/controlled-NPZ SHA matches immutable input metadata",
+    "All15992 controlled centers exact/r2/joint masks/known/state/valid match sealed QUERIES.csv",
+    "All15992 controlled original-baseline centers match sealed zero-occlusion truth",
+    "Every original full-only pixel exact UNKNOWN with no fullpositive/fullnegative certificate",
+    "Unchanged q8/side/box and IDs; split-disjoint saved RGB SHA; compressed label outputs total<100MB"
+  ],
+  "original_hidden_proxy": "Original full-minus-vis hardE retained only in source input masks/legacy audit files. Never written as primary training hardE in these caches.",
+  "no_extra_jitter": true,
+  "no_features_models_RGB_private_PnP": true
+}

@@ -1,0 +1,181 @@
+{
+  "phase": "V136_CONTINUOUS_NATIVE_SOURCE_PREPARATION",
+  "prepared_only": true,
+  "goal_status": "active",
+  "fully_solved": false,
+  "purpose": "Source-only continuous coverage intervention following V134 verified dimension/view holdout gap and V135 failed paired-supervision controls; no new MLP change.",
+  "fixed_factors": {
+    "asset_seeds": {
+      "TRAIN": [
+        1366101,
+        1366102,
+        1366103,
+        1366104,
+        1366105,
+        1366106,
+        1366107,
+        1366108
+      ],
+      "VALIDATION": [
+        1367101,
+        1367102
+      ]
+    },
+    "geometry_families": [
+      "BOARD_BLOCK_RUNNER",
+      "RIB_LEG_RUNNER"
+    ],
+    "aspect_ratios": {
+      "RECTANGULAR": 1.2,
+      "SQUARE": 1.0
+    },
+    "materials": [
+      "PROCEDURAL_WOOD",
+      "DARK_POLYMER"
+    ],
+    "signed_quarters": [
+      0,
+      90,
+      180,
+      270
+    ],
+    "view_signs": [
+      -1,
+      1
+    ],
+    "size": 512,
+    "fov_deg": 50,
+    "near_m": 0.001,
+    "principal": [
+      255.5,
+      255.5
+    ]
+  },
+  "counts": {
+    "TRAIN_bases": 512,
+    "VALIDATION_bases": 128,
+    "bases": 640,
+    "variants": [
+      "BEFORE",
+      "COVER",
+      "NEAR_SHAM",
+      "FAR_SHAM"
+    ],
+    "scenes": 2560,
+    "native_slots": 20480,
+    "TRAIN_geometry_groups": 32,
+    "VALIDATION_geometry_groups": 8,
+    "target_raster_groups": 320
+  },
+  "continuous": {
+    "height_m": {
+      "bounds": [
+        0.1,
+        0.2
+      ],
+      "TRAIN_strata": 32,
+      "VALIDATION_strata": 8,
+      "key": "asset_ordinal*4+template_index*2+aspect_index",
+      "within_stratum": "SHA256 independent height_jitter"
+    },
+    "footprint_Z_m": {
+      "bounds": [
+        0.85,
+        1.25
+      ],
+      "sampling": "Independent SHA256 uniform per geometry group, different tag from height"
+    },
+    "footprint_X_m": "aspect_ratio*Z; aspect kept exact",
+    "azimuth_abs_deg": {
+      "bounds": [
+        5,
+        40
+      ],
+      "sampling": "Independent SHA256 uniform per geometry group/quarter/sign"
+    },
+    "elevation_deg": {
+      "bounds": [
+        10,
+        45
+      ],
+      "sampling": "Independent SHA256 uniform per geometry group/quarter/sign"
+    },
+    "distance_scale": {
+      "bounds": [
+        2.2,
+        4.2
+      ],
+      "units": "dimensionless multiplier",
+      "distance_m": "distance_scale*max(X,Z), original V129 camera_config contract"
+    },
+    "foreign_extent": {
+      "bounds": [
+        1.25,
+        3.0
+      ]
+    },
+    "foreign_margin_px": {
+      "bounds": [
+        1.0,
+        7.0
+      ]
+    },
+    "foreign_depth_fraction": {
+      "bounds": [
+        0.45,
+        0.8
+      ]
+    },
+    "foreign_roll_deg": {
+      "bounds": [
+        -25.0,
+        25.0
+      ]
+    }
+  },
+  "sampling_contract": "Hash tuple prefix V136 and purpose tags; dimensions shared across views/materials, camera shared across material twins. All finite configurations retained with no quality/label/error rejection or rerolls. Separate independent tags for height,Z,azimuth,elevation,distance and each foreign factor. Statistical finite-sample correlations are reported, not optimized away.",
+  "appearance_contract": "V129 exact procedural wood/polymer/shader; SHA256 material/light/background/foreign seeds predeclared in each config; audit the effective rendered recipe signature (wood tone%1009 and grain%53; polymer tone%1009) disjoint between new folds and old corpus. Same-target surviving surface RGB bitexact across variants.",
+  "registration_contract": "Same reviewed V127 17/19-part templates, positive scaling of vertices, native anchors, patches and all37 witnesses together. No new topology. Same registered native8 canonical corners. Signed quarter perm must equal source-label-equivalent V74 normal-facing rule on every configuration, no ties. Historical projected-area V4 not used.",
+  "placement_contract": "Exact V129 opaque12triangle cuboid, analytic selected registered support, near clears1nativepx and far adds128px; one fixed foreign mesh/material/rotation per base translated only. All8 corners all4 variants, no attempt filtering. D/E/S/U teacher generated only after root render entry.",
+  "split_contract": "Independent explicit new asset IDs, geometry dimensions, actual texture recipe signatures and exact camera/dimension tuples disjoint TRAIN/VALIDATION and old. Same broad continuous ranges in both folds. Old V129128/64 unchanged; new TRAIN never incorporates old VAL. New source VAL is synthetic supplementary evidence, not fresh human application validation.",
+  "old_regression": {
+    "policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/ROOT_CORPUS_POLICY_BEFORE_PIXELS.json",
+      "sha256": "43a0a3989793a6e1ead3e2cf2b7897c8a7e7dfc7c7d21f46a7e29c471a3663ed"
+    },
+    "base_configs": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/BASE_CONFIGS192_BEFORE_RGB.json",
+      "sha256": "a63c1e6931cbff892dc0738c6571a7a9a57c588a8a1df66bcdcd409d638a2e86"
+    },
+    "render_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/actual_corpus_v1/RENDER_COMPLETE.json",
+      "sha256": "31f7d00f3d8ba1d1dc52b63cf5c462dbe44ead5eb50a4773cbb6ebdf23838e63"
+    },
+    "source_math": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/corpus_math.py",
+      "sha256": "96713b5c8380e7698081d9189d54b3f4911ea6cda14cbd47083a79f4df36817e"
+    },
+    "renderer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/render_corpus_once.py",
+      "sha256": "f6093f950b9af0aff8494f3fc03d633ac6789a53e70e381d85d4e9f7716e0ec6"
+    },
+    "preserve_original128_64": true,
+    "preserve_old_source_51004_all14_cohorts_and_historical15_gates": true,
+    "preserve_V133_native_full_known_U_42gates": true,
+    "source_training_admission": false
+  },
+  "scope": "This entry prepares metadata and a renderer only. Rendering requires explicit root entry binding reviewed code/config/design/test hashes. No q emulation/initializer, crops, features, head, optimizer, private application data, V112 or PnP.",
+  "forbidden": {
+    "model_forward": true,
+    "fit": true,
+    "current223": true,
+    "V112": true,
+    "PnP": true,
+    "q_correction": true,
+    "GT_best_association": true,
+    "automatic_retry": true
+  },
+  "actual_render_requires_root_entry": true,
+  "training_admitted": false,
+  "no_user_permission_pending": true
+}

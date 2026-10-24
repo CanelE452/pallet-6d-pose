@@ -1,0 +1,330 @@
+{
+  "arguments": {
+    "train": "source_cache/SYNTH_TRAIN_GLOBAL.npz",
+    "val": "source_cache/SYNTH_VALIDATION_GLOBAL.npz",
+    "out": "runs/SYNTH_GLOBAL_UNWEIGHTED",
+    "eval_denylist": "../query_visibility_public_real_20261022_v63/contract/EVALUATION_SHA256_DENYLIST.json",
+    "provenance": "source_cache/SOURCE_INPUT_LOCK.json",
+    "protocol": "PROTOCOL.json",
+    "max_updates": 2000,
+    "val_every_updates": 100,
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "dense_loss_weight": 0.25,
+    "global_loss_weight": 0.25,
+    "seed": 20261022,
+    "threads": 1,
+    "device": "cuda"
+  },
+  "head_config": {
+    "p3_channels": 65,
+    "p3_hidden": 32,
+    "rgb_native_channels": 75,
+    "rgb_hidden": 16,
+    "sam_channels": 2,
+    "sam_hidden": 8,
+    "context_channels": 64,
+    "context_hidden": 16,
+    "fusion_hidden": 32,
+    "box_grid": true,
+    "coordinate_channels": true,
+    "sam_role": "features_only",
+    "joint_order": "VV_EV_EE_OV_OE_OO",
+    "global_channels": 5,
+    "global_bottleneck": 32,
+    "global_sampling": "nearest_onehot_matmul"
+  },
+  "parameters": 95508,
+  "joint_pairs": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      2
+    ]
+  ],
+  "target": "exact/radius2 visible and full instance support",
+  "loss": {
+    "center_joint_CE": 1.0,
+    "dense_joint_CE": 0.25,
+    "global_joint_CE": 0.25,
+    "global_normalization": "validpixel mean per unique target then source-mean target loss",
+    "source_balanced": true
+  },
+  "selection": "lowest macro(source unweighted valid-center joint NLL)",
+  "class_weights": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "evidence_weights_used_for_training": false,
+  "evidence_weights_used_for_selection": false,
+  "threshold": 0.5,
+  "paired_hard_state_decoder": "per-scale V if pVisible>=.5 else E if pFull>=.5 else O; joint MAP diagnostic only",
+  "logical_decoder_scope": "presence/full logical support, not confidence-qualified external classification",
+  "confidence_mechanism_decoder": "joint MAP only if maxjoint>=.5, otherwise U; threshold fixed before evaluation",
+  "train_sha256": "811a743225ccb70967a536ba409fd46ad055ba38a961662528da983c189cda65",
+  "val_sha256": "40c40c8338d737a4a38bc888ce0c1b37f002eca371bb252096752c4e59073660",
+  "eval_denylist_sha256": "58ef8b2ca79b9cb511fe7b5813d22b31f6ff82ef5049a2be340ec293bdbef987",
+  "excluded_images": 223,
+  "exclusion_checks": {
+    "TRAIN": {
+      "queries": 5673,
+      "global_targets": 768,
+      "denied_image_overlap": 0
+    },
+    "VAL": {
+      "queries": 1742,
+      "global_targets": 235,
+      "denied_image_overlap": 0
+    }
+  },
+  "split_overlap_checks": {
+    "group_id": 0,
+    "sample_id": 0,
+    "image_sha256": 0,
+    "global_id": 0,
+    "global_image_sha256": 0
+  },
+  "eval_data_used": false,
+  "PnP_used": false,
+  "code_sha256": {
+    "fit_global_amodal_head.py": "473f9cefa9c8089145bb599ba66159163755b34d137049b844c4984c334cda56",
+    "query_global_amodal_head.py": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144"
+  },
+  "runtime": {
+    "torch": "2.5.1+cu121",
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "deterministic_algorithms": true,
+    "CUDA": "12.1"
+  },
+  "source_provenance": {
+    "path": "source_cache/SOURCE_INPUT_LOCK.json",
+    "sha256": "fc2255e6b388bdab3dc9470deab5be8938a37a91211a0722116c587714c83215",
+    "content": {
+      "schema": "V65_SOURCE_INPUT_LOCK_BEFORE_FIT",
+      "bindings": {
+        "PROTOCOL.json": "e99859f1369a328af812383ba01c2fe9fe08bc2d0a04fa26da476d02e9bfd4f8",
+        "contract/RELEASE_RULE_BEFORE_FIT.json": "51fa3b34081b87929f1327ed3869d56720e78c0925602accec0590a7940b1411",
+        "sam_source/SEAL.json": "a71d3272e706259ca53cad2edc847b1f4f5edb42a99b21f3148aa5ccc8c005ec",
+        "global_recipe.py": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0",
+        "build_global_cache.py": "c17016a3b588a7dd00ead9ac0fe0f172ac5881437cdfe257ab22de05d1eab3d5",
+        "extract_global_inputs.py": "e0295876102d6f3f85e7efe50fca842a34e12af8150293b28a6d95d72a97ea89",
+        "model/query_global_amodal_head.py": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144",
+        "model/fit_global_amodal_head.py": "473f9cefa9c8089145bb599ba66159163755b34d137049b844c4984c334cda56",
+        "source_cache/MIXED_TRAIN_GLOBAL.npz": "e8ad847acb6187f5465209e3dc2d909dc4fa59d097b16b79267246bb353bf459",
+        "source_cache/MIXED_VALIDATION_GLOBAL.npz": "89ad2a0eebe9d43e503ccfee40ef02c3022af6df3324d00e3b057a9ef81964f9",
+        "source_cache/SYNTH_TRAIN_GLOBAL.npz": "811a743225ccb70967a536ba409fd46ad055ba38a961662528da983c189cda65",
+        "source_cache/SYNTH_VALIDATION_GLOBAL.npz": "40c40c8338d737a4a38bc888ce0c1b37f002eca371bb252096752c4e59073660",
+        "source_cache/YCB_TRAIN_GLOBAL.npz": "792bd6d4209518522a688c5a278ccde6a2e9f0998bbc893efd611db95c463c35",
+        "source_cache/YCB_VALIDATION_GLOBAL.npz": "720752cfc04fa9996f938fc060c92c7fe890fe1a90e8cd48f6c25730d9a9bf5a"
+      },
+      "private_data_read": false,
+      "PnP_calls": 0,
+      "new_optimizer_updates": 0,
+      "fitting_candidates": [
+        "SYNTH_GLOBAL_UNWEIGHTED",
+        "MIXED_GLOBAL_UNWEIGHTED"
+      ],
+      "caches": {
+        "MIXED_TRAIN_GLOBAL": {
+          "split": "TRAIN",
+          "queries": 18473,
+          "targets": 2368,
+          "input_sha256": [
+            "811a743225ccb70967a536ba409fd46ad055ba38a961662528da983c189cda65",
+            "792bd6d4209518522a688c5a278ccde6a2e9f0998bbc893efd611db95c463c35"
+          ],
+          "cache_sha256": "e8ad847acb6187f5465209e3dc2d909dc4fa59d097b16b79267246bb353bf459",
+          "code_sha256": "c17016a3b588a7dd00ead9ac0fe0f172ac5881437cdfe257ab22de05d1eab3d5",
+          "current_eval_accessed": false,
+          "updates": 0,
+          "PnP_calls": 0
+        },
+        "MIXED_VALIDATION_GLOBAL": {
+          "split": "VALIDATION",
+          "queries": 4942,
+          "targets": 635,
+          "input_sha256": [
+            "40c40c8338d737a4a38bc888ce0c1b37f002eca371bb252096752c4e59073660",
+            "720752cfc04fa9996f938fc060c92c7fe890fe1a90e8cd48f6c25730d9a9bf5a"
+          ],
+          "cache_sha256": "89ad2a0eebe9d43e503ccfee40ef02c3022af6df3324d00e3b057a9ef81964f9",
+          "code_sha256": "c17016a3b588a7dd00ead9ac0fe0f172ac5881437cdfe257ab22de05d1eab3d5",
+          "current_eval_accessed": false,
+          "updates": 0,
+          "PnP_calls": 0
+        },
+        "SYNTH_TRAIN_GLOBAL": {
+          "source": "SYNTH",
+          "split": "TRAIN",
+          "queries": 5673,
+          "targets": 768,
+          "center_global_mapping_coverage": 1.0,
+          "valid_global_cells": 3017026,
+          "valid_global_joint_counts": [
+            1099775,
+            26071,
+            136506,
+            210815,
+            25645,
+            1518214
+          ],
+          "source_cache_sha256": "0525289f50c11adefa708e5f9efcfacb04e588150c8b944bdf6035456a30ffaa",
+          "global_inputs_sha256": "c957de991ec8d4fba8584d82aa1ec09a9ea69306029818375b48bcaea7e59b25",
+          "cache_sha256": "811a743225ccb70967a536ba409fd46ad055ba38a961662528da983c189cda65",
+          "recipe_sha256": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0",
+          "code_sha256": "c17016a3b588a7dd00ead9ac0fe0f172ac5881437cdfe257ab22de05d1eab3d5",
+          "local_arrays_unchanged": true,
+          "GT_features_used": false,
+          "current_eval_accessed": false,
+          "updates": 0,
+          "PnP_calls": 0,
+          "seconds": 7.639113098033704
+        },
+        "SYNTH_VALIDATION_GLOBAL": {
+          "source": "SYNTH",
+          "split": "VALIDATION",
+          "queries": 1742,
+          "targets": 235,
+          "center_global_mapping_coverage": 1.0,
+          "valid_global_cells": 922498,
+          "valid_global_joint_counts": [
+            329294,
+            7899,
+            48014,
+            59912,
+            8686,
+            468693
+          ],
+          "source_cache_sha256": "fdddd8360069d0cca030e16da1143a7f341c64915b65bd67284361a3f565de23",
+          "global_inputs_sha256": "c957de991ec8d4fba8584d82aa1ec09a9ea69306029818375b48bcaea7e59b25",
+          "cache_sha256": "40c40c8338d737a4a38bc888ce0c1b37f002eca371bb252096752c4e59073660",
+          "recipe_sha256": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0",
+          "code_sha256": "c17016a3b588a7dd00ead9ac0fe0f172ac5881437cdfe257ab22de05d1eab3d5",
+          "local_arrays_unchanged": true,
+          "GT_features_used": false,
+          "current_eval_accessed": false,
+          "updates": 0,
+          "PnP_calls": 0,
+          "seconds": 2.787294410984032
+        },
+        "YCB_TRAIN_GLOBAL": {
+          "source": "YCB",
+          "split": "TRAIN",
+          "queries": 12800,
+          "targets": 1600,
+          "center_global_mapping_coverage": 0.9865625,
+          "valid_global_cells": 6432244,
+          "valid_global_joint_counts": [
+            2760588,
+            41616,
+            235523,
+            245704,
+            25477,
+            3123336
+          ],
+          "source_cache_sha256": "05a1bee94309f00500bd48c63f3ab04a34cdca964ff5cbfa0b15291a76bab609",
+          "global_inputs_sha256": "c957de991ec8d4fba8584d82aa1ec09a9ea69306029818375b48bcaea7e59b25",
+          "cache_sha256": "792bd6d4209518522a688c5a278ccde6a2e9f0998bbc893efd611db95c463c35",
+          "recipe_sha256": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0",
+          "code_sha256": "c17016a3b588a7dd00ead9ac0fe0f172ac5881437cdfe257ab22de05d1eab3d5",
+          "local_arrays_unchanged": true,
+          "GT_features_used": false,
+          "current_eval_accessed": false,
+          "updates": 0,
+          "PnP_calls": 0,
+          "seconds": 12.091834263992496
+        },
+        "YCB_VALIDATION_GLOBAL": {
+          "source": "YCB",
+          "split": "VALIDATION",
+          "queries": 3200,
+          "targets": 400,
+          "center_global_mapping_coverage": 0.9875,
+          "valid_global_cells": 1598145,
+          "valid_global_joint_counts": [
+            664249,
+            14663,
+            89743,
+            53312,
+            9398,
+            766780
+          ],
+          "source_cache_sha256": "eb86826bb7a0147282bb32061b4b3c80887c23d7fe6fdf41e4f8d14e84cd44f8",
+          "global_inputs_sha256": "c957de991ec8d4fba8584d82aa1ec09a9ea69306029818375b48bcaea7e59b25",
+          "cache_sha256": "720752cfc04fa9996f938fc060c92c7fe890fe1a90e8cd48f6c25730d9a9bf5a",
+          "recipe_sha256": "fd81929a87aae4db7dc88b72dc6921406f140ada72ed01021b84e3e5bfedccb0",
+          "code_sha256": "c17016a3b588a7dd00ead9ac0fe0f172ac5881437cdfe257ab22de05d1eab3d5",
+          "local_arrays_unchanged": true,
+          "GT_features_used": false,
+          "current_eval_accessed": false,
+          "updates": 0,
+          "PnP_calls": 0,
+          "seconds": 3.5763050370151177
+        }
+      }
+    }
+  },
+  "protocol": {
+    "path": "PROTOCOL.json",
+    "sha256": "e99859f1369a328af812383ba01c2fe9fe08bc2d0a04fa26da476d02e9bfd4f8"
+  },
+  "optimizer_updates": 2000,
+  "best_update": 300,
+  "best_source_VAL_joint_NLL": 0.797478362917462,
+  "best_VAL_NLL_by_source": {
+    "SYNTH": 0.797478362917462
+  },
+  "checkpoint_sha256": "233ba2281e93c20d438f2a20aa99675540dd913acdbcb7dd90dc2d40f5f2cb99",
+  "TRAIN_joint_priors": {
+    "ALL": [
+      0.41283271637581526,
+      0.006345848757271285,
+      0.04671249779658029,
+      0.3271637581526529,
+      0.025912215758857746,
+      0.1810329631588225
+    ],
+    "SYNTH": [
+      0.41283271637581526,
+      0.006345848757271285,
+      0.04671249779658029,
+      0.3271637581526529,
+      0.025912215758857746,
+      0.1810329631588225
+    ]
+  },
+  "seconds": 90.16240653395653,
+  "completed": true,
+  "source_mechanism_gate": {
+    "PASS": true,
+    "HOLD": false,
+    "supported_zero_recall_states": [],
+    "scope": "source mechanism only; checkpoint remains lowest-source-NLL selection",
+    "private_evaluation_used": false,
+    "threshold_changed": false
+  }
+}

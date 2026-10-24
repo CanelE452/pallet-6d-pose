@@ -1,0 +1,83 @@
+{
+  "schema": "OFFICIAL_PALLOX_PROVENANCE_AND_DATA_SHAPE_V1",
+  "dataset": {
+    "DOI": "10.48804/DJLDFS",
+    "version": "1.0",
+    "repository": "KU Leuven Research Data Repository",
+    "title": "Replication Data for:6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a Synthetically Trained Object Detector and FoundationPose",
+    "authors": [
+      "Yanming Wu",
+      "Eric Demeester"
+    ],
+    "affiliation": "Associatie KU Leuven; paper: Diepenbeek Campus, ACRO/FlandersMake",
+    "official_API": "https://rdr.kuleuven.be/api/datasets/:persistentId/versions/1.0?persistentId=doi:10.48804/DJLDFS",
+    "landing_page": "https://rdr.kuleuven.be/dataset.xhtml?persistentId=doi:10.48804/DJLDFS",
+    "paper": "https://www.scitepress.org/Papers/2026/144556/144556.pdf",
+    "paper_DOI": "10.5220/0014455600004067"
+  },
+  "license": {
+    "dataset": "CC-BY-4.0",
+    "license_URL": "https://creativecommons.org/licenses/by/4.0/",
+    "scope": "Official dataset catalog metadata; article license is a separate matter",
+    "license_metadata_sha256": "f22502de994d8a1f87299dcf5c74aff25a119869036d50cace9cde9cf17e8bf3"
+  },
+  "capture": {
+    "object": "One physical wooden high-sided open-top Pallox pallet BIN, not a flat pallet",
+    "mesh": "COLMAP reconstruction from multi-view RGB; one physical instance; contents varied in captured bin",
+    "sensor": "Intel RealSense L515",
+    "resolution": [
+      640,
+      480
+    ],
+    "depth": "uint16 PNG, millimeters",
+    "camera": "Tripod; heights0.55/1.23/1.92m; laboratory artificial light / glass-ceiling hallway natural light",
+    "source_pairs": "Paper describes unoccluded + cardboard-occluded RGBD capture at each camera position; no filename order guarantee",
+    "distances": {
+      "README_and_API": "1.5–8m",
+      "paper": "2–9m",
+      "status": "Source discrepancy recorded without harmonizing"
+    }
+  },
+  "label_provenance": {
+    "SAM": "Paper describes manual prompt-point selection then SAM. No independent human dense-pixel correction is stated.",
+    "mask_zero": "Not an independently certified visible-negative, external, self, or outside label",
+    "full_amodal_mask": "Not provided",
+    "supplied_pose_history": "Source authors used manual 2D–3D correspondences with PnP-RANSAC or depth/SVD; this intake only reads provided matrices",
+    "pose_direction": "README camera-to-object heading conflicts with explicit ob_in_cam equation p_cam=T@p_obj. Direct T projection/depth is substantially better in fixed-six audit.",
+    "geometry_limit": "Renderer proves implementation/projection consistency, not source mesh or pose physical accuracy",
+    "native_RGB_depth_alignment": "No explicit source alignment/calibration statement located in README/paper; common native grid is a conditional assumption, not certified pixel GT"
+  },
+  "family_exclusion": {
+    "status": "PASS_BY_TRUSTED_HUMAN_PROVENANCE_FROM_ROOT_METADATA",
+    "user_confirmation": "직접 촬영했고 KU Leuven 자료와 무관합니다",
+    "scope": "CURRENT223 are human-owned captures unrelated to KU dataset",
+    "root_metadata_file": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/provenance/EVALUATION_FAMILY_PROVENANCE.json",
+    "root_metadata_sha256": "4c9adc6e4ed595c20fca346b25fc29ad6d2e525de0ec4d1dbc65d177cbd12ed4",
+    "current_image_or_GT_inspection_in_this_intake": false
+  },
+  "content_exclusion": {
+    "candidate_public_RGB": 322,
+    "current_denylist_images": 223,
+    "SHA256_overlap": 0,
+    "report": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/NATIVE_FORMAT_AND_EXCLUSION_AUDIT.json",
+    "report_sha256": "a3963a449e649ab57fee1164905c321fbd0059bf4ade74ab2e2cfefd278219e2"
+  },
+  "split": {
+    "pre_fit_lock": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/SPLIT_LOCK_BEFORE_FIT.json",
+    "sha256": "8fad8779ec0c6ceca8037a4740e27612b3d2e576a4969052f868603ffdc3c774",
+    "TRAIN_LAB_fully_joined": 168,
+    "VAL_HALL_fully_joined": 116,
+    "single_instance_environment_holdout": true,
+    "not_cross_object_generalization": true
+  },
+  "bindings": {
+    "official_metadata_sha256": "1e6d8dd40c3944eb222c13917d499826b649e52357f4d6bd5a4ec244a852bf37",
+    "official_readme_sha256": "06344d868baf10389964124e263e4d7e9333bd0f7b7a36f4b03ced68cc08efd3",
+    "official_paper_sha256": "ab5c1d961b0b5dd95419ddd17f478ca5a8ce4316fe72b7bf3cc50d3e7d051765"
+  },
+  "new_training": false,
+  "current_model_inference": false,
+  "new_PnP_calls": 0,
+  "pose_or_alignment_optimization": false,
+  "GPU_used": false
+}

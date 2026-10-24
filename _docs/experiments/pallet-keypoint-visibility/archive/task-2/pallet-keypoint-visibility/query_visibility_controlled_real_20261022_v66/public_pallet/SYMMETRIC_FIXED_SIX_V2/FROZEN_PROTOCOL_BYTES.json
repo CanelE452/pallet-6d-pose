@@ -1,0 +1,226 @@
+{
+  "schema": "V66_PAIRED_PUBLIC_REAL_LABEL_PROTOCOL_FROZEN_SYMMETRIC_V2",
+  "status": "FROZEN_FOR_FULL50_SOURCE_EVIDENCE_PREPARATION_CONDITIONAL_TEACHER; MODEL_FIT_HOLD",
+  "scope": "Photographic same-camera/static-bin A/B conditional paired evidence, separate from controlled YCB paste truth. Fixed50 source pairs only; no model fitting authorized by this contract.",
+  "separate_from_controlled": {
+    "frozen_YCB_protocol_sha256": "7ab257789998262dba23508aa4b5e7cce4450d85293c64e3dba948d78c040109",
+    "YCB": "Original observed maskpositive plus explicitly opaque independent paste produces controlled changed ownership; original full-only remainsunknown.",
+    "Pallox": "Real photographic pair with manually-prompted SAM teachers, supplied mesh/pose and measured depth. Evidence conditional on teacher ownership, geometry/calibration and registration; not the same provenance tier."
+  },
+  "official_provenance": {
+    "dataset": "KU Leuven DOI10.48804/DJLDFS",
+    "sensor": "Intel RealSenseL515, reported640x480",
+    "capture": "Tripod; three heights0.55/1.23/1.92m, lab/hall; paired no-occlusion/cardboard-occlusion captures at each position.",
+    "file_order": "Even/odd or lexical A/B order is NOT guaranteed as before/occluded. Use symmetricA/B, never even=unoccluded.",
+    "SAM": "Paper describes manually selected prompt points followed by SAM; masks are teachers, not independent human dense-pixel ownership truth.",
+    "pose": "Supplied annotations historically used PnP/RANSAC or depth-constrainedSVD in source work. Read stored4x4poses only; perform no newPnP/pose refinement.",
+    "mesh": "Source mesh reconstructed withCOLMAP; source bin filled with random objects to vary appearance. Verify frame origin/scale and mismatching contents; supplied mesh is not exact physical truth.",
+    "instance": "One physical pallet-bin instance; do not claim geometry/appearance generalization from this source.",
+    "family": "User explicitly confirmed current223 are own captures unrelated to KU dataset. Separate source family admission plus image SHA denylist required; no private images are inspected."
+  },
+  "initial_audit": {
+    "fixtures": "Literal0000/0001 in each of six sessions,12RGBDframes total; preserve earlier hash-sorted accidentalV1 fixtures as invalid/diagnostic.",
+    "symmetry": "Report A andB visible support and both directions of depth change.",
+    "thresholds_descriptive_only_mm": [
+      50,
+      100,
+      200
+    ],
+    "held_out_status": "Fixed-six lab/hall source fixtures were inspected for provenance/geometry before full evidence preparation. Disclose this sourceVAL preview. No model/label thresholds chosen by those statistics.",
+    "no_model_training": true,
+    "geometry_replay": "Two independent native mesh raster implementations: all six finite support masks and depths exactly equal, no crossing triangles. This checks implementation agreement only."
+  },
+  "pair_admission_prerequisites": [
+    "Both native RGB/depth/SAM have expected480x640 dimensions; source mm camera-Z interpretation is used. Missing/nonpositive/nonfinite depth yields no pixel evidence.",
+    "Supplied K and4x4object-to-camera pose matrices exactly equal between A/B; same session, source split, and static camera/bin are conditional source assumptions.",
+    "Supplied mesh raster: all vertices strictly in front, near_plane_crossing_triangles=0. Reject pair to UNKNOWN if geometric/metadata gates fail; no pose fitting or alignment repair.",
+    "Source mesh scale/object origin and supplied pose convention are the independently audited native renderer recipe; renderer correctness does not validate mesh truth.",
+    "RGB-depth registration is empirically supported by fixed-six inspection/residuals, NOT established by official dataset calibration metadata. This permits conditional TEACHER evidence only, never GOLD or registration-certified claims.",
+    "Same physical instance and photographic pair assumptions apply; cross-object, semantic-self or human corner labels are not created."
+  ],
+  "window_labels": {
+    "exact": "Unchanged native query nearest floor(q+.5); continuous androunded bounds.",
+    "radius2": "Clipped native5x5, separately supervised support target.",
+    "V": "Any certified/teacher-supported visible-positive inwindow.",
+    "E": "Only if EVERY window pixel is visible-knownnegative andANY window pixel is certifiedfullpositive.",
+    "O": "Only if EVERY window pixel has separately admitted full-negative evidence.",
+    "U": "All remaining uncertain windows. Teacher0 or missing positives are not negatives.",
+    "joint": "Keep six allowed pair states and compatible-state partial facts; use window-minus-exact to respect shared-pixel correlation, never padU toO.",
+    "strict_Ecore": "All25pixels satisfy pair E evidence atnative resolution; clipping or depthmissing blocks strictcore.",
+    "semantic_corner": "No native-corner/self visibility ground truth is created; predictedOV is support/location uncertainty, not verified coordinate-error truth."
+  },
+  "evidence_tiers": [
+    "CONTROLLED_YCB_ORIGINAL_OBSERVED_PLUS_OPAQUE_PASTE (separate frozen protocol)",
+    "CONDITIONAL_PAIRED_SAM_MESH_DEPTH_TEACHER_VISIBLE",
+    "CONDITIONAL_PAIRED_SYMMETRIC_FOREGROUND_DEPTH_TEACHER_EXTERNAL_SUPPORT",
+    "CONDITIONAL_PAIRED_STRICT25PIXEL_EXTERNAL_SUPPORT_CORE",
+    "MESH_OUTSIDE_PROXY_NOT_FULL_NEGATIVE",
+    "UNKNOWN_MISSING_UNSUPPORTED_OR_CONFLICTING_EVIDENCE"
+  ],
+  "required_reports": [
+    "Per initial fixture native-grid registration evidence, depthunit/range/Z facts and suppliedpose/K pair equality.",
+    "Before/after symmetric teacher-interior versus meshdepth residual distributions, finite support and no-nearclip checks.",
+    "Symmetric closer/farther/stable/missing depth counts,50/100/200gap strata withsame rules, no retrospective thresholdselection.",
+    "Perpixel acceptance reason/evidence tier andknown/unknown visible/full denominators.",
+    "Boundary/core, depthmissing, SAMteacher overlap andmeshagreement conflicts separately.",
+    "No O supervision when fullnegative certificate isunadmitted; all excluded pixels remainU.",
+    "Control YCB and paired photographic results stay separately reported; no gold/proxy provenance collapse."
+  ],
+  "limitations": [
+    "Stable depth plusSAM can confuse coplanar/very-close occluders or cargo with target; Va/Vb are conditional teacher/geometry evidence, not goldvisible ownership.",
+    "Source mesh may miss thin/slatted geometry, contain reconstruction holes, or differ from filled bin. Agreement at positive pixels does not prove complete negative silhouette.",
+    "Hardwaredepth errors grow with distance; providedpositive depth alone is not measurement quality certification.",
+    "Pair metadata equality does not eliminate small motion, RGB/depth extrinsic misregistration or capture timing artifacts.",
+    "Initial fixture audit is data admission work, not a modelselection or real-evaluation performance result."
+  ],
+  "finalization": "FROZEN before full50 paired-teacher generation. Preserve DRAFT and V1 diagnostic results. Any future negative/full geometry extension requires a separately versioned protocol, not mutation of this file.",
+  "no_current223_images_labels_or_scores_read": true,
+  "no_new_training_GPU_models_PnP_calls": 0,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/DATA_LABEL_PROTOCOL.json",
+      "sha256": "7ab257789998262dba23508aa4b5e7cce4450d85293c64e3dba948d78c040109"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/source_audit/mesh_depth_render.py",
+      "sha256": "be665b578c431fc5f5c1c1cc04ef646ca2f954ea063d218452f1a6ac7d61f823"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/source_audit/INDEPENDENT_MESH_DEPTH_MATH_AUDIT.json",
+      "sha256": "19d8dfb6d3b825ba270082c16c93530f214fcbcc36e584d4503b77021bfe58f7"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/OFFICIAL_PAPER_144556.pdf",
+      "sha256": "ab5c1d961b0b5dd95419ddd17f478ca5a8ce4316fe72b7bf3cc50d3e7d051765"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/SPLIT_LOCK_BEFORE_FIT.json",
+      "sha256": "8fad8779ec0c6ceca8037a4740e27612b3d2e576a4969052f868603ffdc3c774"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/source_audit/INDEPENDENT_FIXED_SIX_GEOMETRY.json",
+      "sha256": "5297ee6d338eb18b246a83e7267137af7046b8718ba5645cc58aa298033689be"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/contract/paired_truth.py",
+      "sha256": "649c93b98085289bb1aa797b3beba141423f5ffbeb055b5c7f2f571e208f0c14"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/contract/PAIRED_TRUTH_MOCK_PROOF.json",
+      "sha256": "fb1290821f63fc3ae8fccb3173fc4e9a6ede9d9224eabe64c4ca2ed5655ce319"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/EXACT_POSE_PAIR_MANIFEST.json",
+      "sha256": "e799661b97624a8daf98b12f922262f39d1f905aeb2b8c0a5cc5301ea0bc6a2f"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/public_pallet/FIXED_SIX_PAIR_SELECTION.json",
+      "sha256": "9ef35038df1b65f39a827b2165a9ed9c04cbb688510c28e3c1798a18f334fe7d"
+    }
+  ],
+  "freeze_basis": "Parent approved conditional-teacher preparation after actual fixed-six native overlays and independent mesh raster agreement. No performance/model/threshold selection and no current223 data used.",
+  "constants": {
+    "teacher_interior": "erode2 native SAM positives with border0, predeclared source rule",
+    "depth_valid": "finite andpositive in verified commonmm camera-Z grid; retain supplied confidence/range flags ifavailable.",
+    "mesh_tolerance": "tau_i=max(20mm,0.01*D_i) using observed target-reference depth in that view.",
+    "primary_pair_closer_gap_mm": 50,
+    "foreground_mesh_margin": "For E_A use M-D_A>=max(50mm,2*tau_B) from visible B reference, mirror for E_B. Never use the closer occluder depth to shrink target-reference uncertainty.",
+    "descriptive_gap_sensitivity_mm": [
+      50,
+      100,
+      200
+    ],
+    "sensitivity_policy": "Only pair-depth-gap is varied descriptively for initial source noise analysis; this does not choose a finalmodelthreshold or a private setting."
+  },
+  "pixel_facts": {
+    "V_A": "pair_admitted & erode2SAM_A &validD_A &finiteM &abs(D_A-M)<=tau_A",
+    "V_B": "pair_admitted & erode2SAM_B &validD_B &finiteM &abs(D_B-M)<=tau_B",
+    "E_A": "V_B &validD_A &(D_B-D_A>=delta) &NOTV_A &(M-D_A>=max(50mm,2*tau_B))",
+    "E_B": "V_A &validD_B &(D_A-D_B>=delta) &NOTV_B &(M-D_B>=max(50mm,2*tau_A))",
+    "full_positive": "V_A OR V_B, shared by A/B, under conditional same-camera/static-bin assumptions; retained even if the other frame has UNKNOWN visibility.",
+    "full_negative": "DISABLED. Always Boolean zeros in this version, including renderer background and SAM0. Therefore no O hard labels are produced.",
+    "mesh_outside_proxy": "Save separately for audit; never silently map it to controlled/pairedO.",
+    "visible_negative_A": "E_A only. No source SAM-negative completeness assumption. B uses E_B.",
+    "visible_negative_B": "E_B only. All other non-V_B pixels remain visible-UNKNOWN.",
+    "exact_A": "VifV_A, EifE_A, Oonlyifcertifiedfullnegative, otherwiseU. SymmetricB.",
+    "conflicts": "Assert V_A&E_A=false, V_B&E_B=false, E_A&E_B=false. Metadata/geometric admission failure makes all pixels UNKNOWN, not O.",
+    "known_class_A": "V_A OR E_A, distinct from shared full_positive. For B use V_B OR E_B."
+  },
+  "full_source_preparation_gate": {
+    "manifest": "public_pallet/EXACT_POSE_PAIR_MANIFEST.json, fixed50 pairs;22TRAIN_LAB and28VAL_HALL",
+    "split": "All lab sessions TRAIN; all hall sessions VAL from immutable source split lock. A/B always same split.",
+    "allowed": "Generate and audit frozen conditional-teacher masks/certainty for all fixed50 pairs, preserving every diagnostic. No quality threshold optimization, per-pair residual selection, relabeling, model fit or current-evaluation access.",
+    "hard_pair_checks": [
+      "same session/split",
+      "native shapes480x640",
+      "supplied K/T exact equality",
+      "all mesh vertices infront",
+      "no near-plane crossing"
+    ],
+    "descriptive_only": [
+      "per-pair common-teacher20mm stable-depth fraction",
+      "mesh/depth signed/absolute residual distributions",
+      "valid-depth coverage",
+      "symmetric50/100/200mm gap counts",
+      "strict25pixel Ecore and reverse speckle counts"
+    ],
+    "no_numeric_residual_admission_threshold": "Residuals and coverage describe empirical support; they do not create a registration certificate or choose/drop a pair.",
+    "failures": "Preserve and report. No repair by fitting, alignment or mask/threshold changes. Any pair with a hard-check failure supplies UNKNOWN facts.",
+    "fit_admission": "HOLD until independent dataset/artifact review and a separate frozen training/source-evaluation protocol."
+  },
+  "partial_label_storage": {
+    "canonical_classes": {
+      "UNKNOWN": -1,
+      "VISIBLE": 0,
+      "EXTERNAL_SUPPORT": 1,
+      "OUTSIDE": 2
+    },
+    "external_storage_encoding": "If intake uses0=U,1=V,2=E, name that encoding explicitly and convert before joint-state training/evaluation.",
+    "required_per_frame": [
+      "visible_positive",
+      "visible_negative",
+      "visible_known",
+      "full_positive",
+      "full_negative",
+      "full_known",
+      "full_unknown",
+      "exact_state"
+    ],
+    "joint_order": [
+      [
+        "V",
+        "V"
+      ],
+      [
+        "E",
+        "V"
+      ],
+      [
+        "E",
+        "E"
+      ],
+      [
+        "O",
+        "V"
+      ],
+      [
+        "O",
+        "E"
+      ],
+      [
+        "O",
+        "O"
+      ]
+    ],
+    "U_training_policy": "UNKNOWN is partial evidence, never a seventh class or an O/E hard negative. If later trained, use compatible joint-state likelihood and a separately frozen loss contract.",
+    "pure_helper": "contract/paired_truth.py; constructs native erode2 teachers, symmetric evidence and correlated exact/r2 compatible sets.",
+    "full_negative_enabled": false,
+    "semantic_self": "UNKNOWN; geometry proxy, if used, remains separately named and supplied-pose-only."
+  },
+  "official_geometry_reference": {
+    "url": "https://dev.realsenseai.com/docs/projection-texture-mapping-and-occlusion-with-intel-realsense-depth-cameras/",
+    "verified_utc_date": "2026-10-22",
+    "supported": "Native pixel centers integer; RealSense depth is camera Z rather than Euclidean range; RGB/depth sensors have distinct intrinsic/extrinsic geometry and require explicit stream alignment.",
+    "not_supported": "This general manufacturer document does not certify this dataset underwent RGB-depth alignment or supply missing dataset calibration metadata."
+  }
+}
