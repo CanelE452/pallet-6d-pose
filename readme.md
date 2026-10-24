@@ -1,3 +1,11 @@
+# V198 nativeID·originalq8 입력 계약 코드 검토
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V198_KO.md) · [V198 원문·독립 검토·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_native_query_conditioning_feasibility_20261024_v198/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 nativeID 저장·forward 여부와 원q8 문맥의 증강량 누출 위험, native prior 및 비선형 대조의 의미를 코드만으로 검토합니다. 새 모델·학습·추론·점수·라벨·실사 개선·물리 native gold·인과 효과·선택·채택·전체 목표 해결을 주장하지 않습니다. 별도 V199 진행은 이 V198의 성능 결과가 아닙니다. 모든 배열·가중치를 제외하고 원문·실패·가상 검사를 보존합니다.
+
+---
+
 # V197 TRAIN-only saved target/input correspondence records update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V197_KO.md) · [V197 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_train_only_target_contract_readout_20261024_v197/PORTABLE_REPORT_KO.md)
