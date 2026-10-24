@@ -1,0 +1,1 @@
+V203 최종 수치·문서·고정갤러리 QA PASS. 36개 주평가/재질 표, 24개 SELF 응답 표, 11개 public weak 표 및 MD/HTML/JSON 셀을 완료된 독립 감사와 대조했다. Primary1237(D1147/E90)와 same-slot1248은 별개다. C가 실제 본 것은 지정6카드이며 물리 native identity나 실사 실패 원인을 crop으로 새로 확정하지 않았다. 새모델 채택·threshold 선택·목표완료 주장은 없다.

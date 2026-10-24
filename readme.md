@@ -1,3 +1,11 @@
+# V203 spatial q8 고정 실사 비교 게시
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V203_KO.md) · [실사 비교·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_heads_frozen_real_benchmark_20261025_v203/PORTABLE_REPORT_KO.md)
+
+원 초기8점 공간 조건과 matched control 두 고정 source head의 동일 실사 평가 기록이다. 결과·실패·권한·한계를 보존하며 새 학습이나 모델 채택·전체 해결을 자동 주장하지 않는다.
+
+---
+
 # V202 spatial q8 source 대조 학습 게시
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V202_KO.md) · [TRAIN 대응·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_nominal_grouped_source_training_20261025_v202/PORTABLE_REPORT_KO.md)
