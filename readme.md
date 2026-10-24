@@ -1,3 +1,9 @@
+[V220 현재 실사 고정 비교·실패 진단](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V220_KO.md)
+
+C65는 보이는 점 보존이 늘었지만 외부 가림 검출은 악화했습니다. 같은 원래 query의 혼동행렬·precision/recall·보류율·목재/정사각형·3px 이하 실패·실제12crop을 공개합니다. SOURCE 학습·두 모델은 V219 기록에 보존했습니다.
+
+---
+
 [V219 공개 실사 약한 부재 감독 실제 학습·결과](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V219_KO.md)
 
 C64/C65 두 SOURCE 모델·코드·로그·저장 출력·혼동행렬·실제 crop을 공개했습니다. 작은 SOURCE DEV에서 보이는 부재 오삭제는 감소했고 외부 가림 recall은 동일했습니다. 현재 평가에서의 개선은 아직 측정하지 않았습니다.

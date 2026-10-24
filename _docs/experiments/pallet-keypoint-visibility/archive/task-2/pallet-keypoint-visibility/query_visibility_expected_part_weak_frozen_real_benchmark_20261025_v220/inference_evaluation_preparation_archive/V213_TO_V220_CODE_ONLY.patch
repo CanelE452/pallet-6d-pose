@@ -1,0 +1,369 @@
+--- V213/infer_both_frozen_dense_point_heads.py
++++ V220/infer_both_frozen_expected_part_heads.py
+@@ -1,4 +1,4 @@
+-"""V213 code-only preparation; root-entry-only both-final spatial-q8 prediction.
++"""V220 code-only preparation; root-entry-only both-final spatial-q8 prediction.
+ 
+ Reuse exact V184 original raw10 cache. No SAM, initializer or crop rerun, labels,
+ references, metrics, baseline outputs or model construction during preparation.
+@@ -7,20 +7,21 @@
+ import argparse,ast,hashlib,importlib.util,json,os,stat,sys,traceback
+ import numpy as np
+ os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8');sys.dont_write_bytecode=True
+-H=Path(__file__).absolute().parent;V=H.parent;P=V.parent
++H=Path(__file__).absolute().parent;P=Path('/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility');V=P/'query_visibility_expected_part_weak_frozen_real_benchmark_20261025_v220'
+ OLD=P/'query_visibility_jitter_heads_frozen_real_benchmark_20261024_v184'
+-FITPHASE=P/'query_visibility_dense_point_weak_bridge_source_training_20261025_v212'
+-SCOPE=V/'ROOT_PROSPECTIVE_DENSE_POINT_HEADS_FROZEN_BENCHMARK_SCOPE.json'
+-INHERITED_PROTOCOL=P/'query_visibility_spatial_q8_heads_frozen_real_benchmark_20261025_v203/prediction_preparation_a/PROTOCOL_BEFORE_ANY_REAL_ARRAY_OR_FINAL_WEIGHT_BODIES.json'
++FITPHASE=P/'query_visibility_expected_part_weak_paired_source_training_20261025_v219'
++SCOPE=V/'ROOT_PROSPECTIVE_FROZEN_EXPECTED_PART_HEADS_REAL_COMPARISON_SCOPE.json'
++INHERITED_PROTOCOL=Path('/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/inference_evaluation_preparation_b/PROTOCOL_BEFORE_ANY_REAL_ARRAY_OR_FINAL_WEIGHT_BODIES.json')
+ DECODER_SPEC=P/'query_visibility_direct_end_paired_source_training_20261024_v190'/'ROOT_DIRECT_LOGIT_DECODER_NUMERICAL_SPEC_BEFORE_FIT.json'
+ RAW10=OLD/'real_raw10_SAM96_inputs_v1/COMPLETE.json'
+ RAW8=OLD/'original_real_raw8_inputs_v1/COMPLETE.json'
+ SOURCE=OLD/'frozen_prediction_preparation_c/compose_SAM96_and_infer_both_frozen_heads.py'
+ FIT_PROTOCOL=P/'query_visibility_spatial_q8_nominal_grouped_source_training_20261025_v202/fit_preparation_b/PROTOCOL_BEFORE_SPATIAL_Q8_SOURCE_ARRAY_OR_FIT_BODIES.json'
+ PROTOCOL=H/'PROTOCOL_BEFORE_ANY_REAL_ARRAY_OR_FINAL_WEIGHT_BODIES.json';CHECKS=H/'GENERATED_INVENTED_CHECKS.json'
+-OUT=V/'frozen_C62_C63_real_predictions_v1'
+-ARMS=(('C62_DENSE_POINT_RAW_Q8',False,True),('C63_DENSE_POINT_WEAK_BRIDGE_RAW_Q8',False,True))
++OUT=V/'frozen_C64_C65_real_predictions_v1'
++ARMS=(('C64_STRONG_ONLY_RAW_Q8',False,True),('C65_STRONG_PLUS_EXPECTED_PART_WEAK_RAW_Q8',False,True))
+ ARM_WEAK={ARMS[0][0]:(False,0.),ARMS[1][0]:(True,.25)}
++SOURCE_ARM_MAP={ARMS[0][0]:'STRONG_ONLY_CONTROL',ARMS[1][0]:'STRONG_PLUS_EXPECTED_PART_WEAK'}
+ DOMAINS={'CURRENT223_1784':(1784,0,45),'PUBLIC_HELD45_360':(360,584,108)}
+ META=('row_id','original_global_index','native_slot','query_xy','L','original_query_available')
+ INPUTS=set(META)|{'rgb96','valid96','sam_mask96','sam_available96'}
+@@ -218,54 +219,46 @@
+  test('No_actual_model_weight_or_forward_in_preparation',True)
+  return dict(completed=True,PASS=True,invented_only=True,checks=checks,count=len(checks),actual_real_array_header_hash_or_body_reads=0,actual_model_construction_or_forward=0,invented_CPU_toy_forward_calls=2)
+ 
++def binding_same(a,b):
++ return isinstance(a,dict)and isinstance(b,dict)and all(a.get(k)==b.get(k)for k in ('path','sha256'))
++def resolve_root_scope(e,p):
++ b=e.get('scope');require(isinstance(b,dict)and isinstance(b.get('sha256'),str)and len(b['sha256'])==64,'Concrete root V220 scope before actual')
++ path=safe(b['path']);require(path.parent==V and path.suffix=='.json'and path.name.startswith('ROOT_'),'Exact new V220 administrative scope only');checked(b) if 'checked'in globals()else check(b)
++ p=dict(p);p['scope']=b;return p
++
++def source_state_sha(state):
++ h=hashlib.sha256()
++ for k,t in sorted(state.items()):
++  a=t.detach().cpu().contiguous().numpy();h.update(k.encode());h.update(str((a.dtype,a.shape)).encode());h.update(a.tobytes())
++ return h.hexdigest()
++
+ def resolve_source_bindings(e,p):
+  p=dict(p)
+  for ek,pk in [('fit_complete','source_fit_complete'),('independent_source_fit_review','independent_source_fit_review'),('source_fit_protocol','source_fit_protocol'),('source_fit_trainer','source_fit_trainer'),('source_both_final_freeze','source_both_final_freeze')]:
+-  b=e.get(ek);require(isinstance(b,dict)and set(b)=={'path','sha256'}and isinstance(b['sha256'],str)and len(b['sha256'])==64,'Concrete root source binding '+ek)
+-  require(FITPHASE in safe(b['path']).parents,'Current V212 source closure only');p[pk]=b
+- require(p['source_fit_complete']['path']==p['source_fit_complete_path']and p['source_fit_trainer']['path']==p['source_fit_trainer_path'],'Exact prospective V212 source paths')
++  b=e.get(ek);require(isinstance(b,dict)and {'path','sha256'}<=set(b)and isinstance(b['sha256'],str)and len(b['sha256'])==64,'Concrete root source binding '+ek)
++  require(FITPHASE in safe(b['path']).parents or safe(b['path']).parent==P/'publication_root_preparation/V219_TRAINING_PREPARATION_C','Exact V219 code/source closure only');p[pk]=b
++ require(p['source_fit_complete']['path']==p['source_fit_complete_path']and p['source_fit_trainer']['path']==p['source_fit_trainer_path'],'Exact prospective V219 source paths')
+  return p
+ 
+ def validate_source_metadata(fit,review,e,p,source_entry,barrier):
+- require(fit['completed']and fit['PASS']and fit['source_only']and fit['from_scratch']and fit['all2_frozen_before_any_SOURCE_outputs'],'Both source finals before source outputs')
+- require(review['completed']and review['PASS']and review['fit_complete']==e['fit_complete'],'Independent PASS binds exact current fit')
+- require(fit['code']==source_entry['code']==p['source_fit_trainer']and fit['entry']==e['source_fit_entry']and source_entry['protocol']==fit['protocol']==p['source_fit_protocol'],'Exact source trainer/entry/protocol')
+- require(fit['head']==p['head']and fit['candidate']==p['candidate']and fit['spatial_head']==p['spatial_head']and fit['context_adapter']==p['source_context_adapter'],'Same fixed C61 architecture/context')
+- require(fit['parameters_each']==118359 and fit['steps_each']==4000 and fit['total_updates']==8000 and fit['protected_real_COMMON_VAL_access']==0 and set(fit['arms'])=={a for a,_,_ in ARMS},'Both fixed RAW source arms4000')
+- require(fit['all2_freeze']==p['source_both_final_freeze']and barrier['completed']and barrier['checkpoints']=={a:fit['arms'][a]['checkpoint']for a,_,_ in ARMS},'Both final checkpoint barrier exact')
+- for a,_,_ in ARMS:
+-  r=fit['arms'][a];require(r['updates']==4000 and r['use_sam']is False and r['spatial_q8']is True and type(r['weak_bridge'])is bool and r['weak_bridge']is ARM_WEAK[a][0]and r['weak_loss_weight']==ARM_WEAK[a][1],'Fixed source target-only/weak-bridge roles')
++ require(fit['completed']and fit['PASS']and fit['source_only']and fit['from_scratch']and fit['DEV_not_fit']and fit['protected_access']==0 and fit['selected_arm']is None,'Frozen source-only paired fit')
++ require(review['completed']and review['PASS']and binding_same(review['fit_complete'],e['fit_complete'])and review['initial_seed1810_state_exact']is True and review['all8000_saved_log_rows_verified']is True,'Independent exact-fit PASS/current initial+draw proof')
++ require(binding_same(fit['code'],source_entry['code'])and binding_same(fit['code'],p['source_fit_trainer'])and binding_same(fit['entry'],e['source_fit_entry'])and binding_same(source_entry['protocol'],p['source_fit_protocol']),'Exact source code/entry/protocol')
++ require(binding_same(source_entry['kernels']['base_head'],p['head'])and binding_same(source_entry['kernels']['candidate'],p['candidate'])and binding_same(source_entry['kernels']['spatial_head'],p['spatial_head']),'Same C61 RAW118359 factory')
++ require(fit['parameters_each']==118359 and fit['steps_each']==4000 and set(fit['arms'])==set(SOURCE_ARM_MAP.values()),'Both fixed source arms4000')
++ require(binding_same(fit['all2_freeze'],p['source_both_final_freeze'])and barrier['completed']and barrier['PASS']and barrier['DEV_or_real_output_emitted']is False and set(barrier['checkpoints'])==set(SOURCE_ARM_MAP.values()),'Both final barrier before any DEV outputs')
++ for arm,src in SOURCE_ARM_MAP.items():
++  r=fit['arms'][src];rr=review['results'][src]
++  require(binding_same(barrier['checkpoints'][src],r['checkpoint'])and rr['PASS']and rr['parameters']==118359 and rr['state_tensors']==36 and rr['all_finite']and rr['optimizer_all_steps4000'],'Exact own final checkpoint/source audit')
+  return True
+ 
+ 
+ def prepare():
+- root=read(SCOPE);require(root['approved_actual_forward_or_evaluation']is False and root['status']=='PROSPECTIVE_CODE_PREPARATION_ONLY','Code-only new scope')
+- inherited=read(INHERITED_PROTOCOL);fitp=read(FIT_PROTOCOL)
+- write(CHECKS,generated_checks())
+- p=dict(inherited)
+- p.update(completed=True,prepared_only=True,code=bind(Path(__file__)),scope=bind(SCOPE),inherited_protocol=bind(INHERITED_PROTOCOL),checks=bind(CHECKS),
+-   arms=[dict(name=a,use_sam=s,spatial_q8=n,weak_bridge=ARM_WEAK[a][0],weak_loss_weight=ARM_WEAK[a][1])for a,s,n in ARMS],
+-   source_fit_protocol=None,source_fit_trainer=None,source_fit_complete=None,source_both_final_freeze=None,independent_source_fit_review=None,
+-   source_fit_complete_path=str(FITPHASE/'runs/C62_C63_DENSE_POINT_WEAK_BRIDGE_SOURCE_FIXED4000/COMPLETE.json'),
+-   source_fit_trainer_path=str(FITPHASE/'fit_preparation_a/train_dense_point_weak_bridge.py'),
+-   source_factory_authority=bind(FIT_PROTOCOL),head=fitp['source_bindings']['existing_head'],candidate=fitp['source_bindings']['candidate'],spatial_head=fitp['spatial_head'],
+-   source_context_adapter=fitp['context_adapter'],source_context_protocol=fitp['context_protocol'],output=str(OUT),parameters_each=118359,steps_each=4000,
+-   primary_a_priori='C63',ablation_a_priori='C62',required_source_fit_review_flags=[],
+-   original_input_metadata_bodies_read_during_prepare=False,existing_input_bindings_copied_without_body_or_fresh_asset_hash=True,
+-   context_contract='Both same native/mask/actualXY16, original input-only ROWS group8; V202 F64 subtract/divide clip[-8,8] then FP32; self/U zero. No GT/reference/point/role feature.',
+-   dynamic_source_binding_rule='Root actual entry after V212 final READY, source terminal and independent exact-fit PASS fills all five source bindings; nulls fail before real input/weight bodies.',
+-   selected_model=None,adopted=False,fully_solved=False)
+- write(PROTOCOL,p)
+- template=H/'ROOT_ACTUAL_PREDICTION_ENTRY_TEMPLATE_APPROVED_FALSE.json'
+- write(template,dict(approved_both_frozen_direct_prediction=False,all_two_final4000_frozen=False,labels_old_scores_metrics_or_fit_allowed=False,
+-   code=p['code'],protocol=bind(PROTOCOL),scope=p['scope'],fit_complete=None,independent_source_fit_review=None,
+-   source_fit_protocol=None,source_fit_trainer=None,source_both_final_freeze=None,source_fit_entry=None,source_terminal_evidence=None,root_confirmed_source_terminal_exit0=False))
+- ready=dict(completed=True,PASS=True,prepared_only=True,code=p['code'],protocol=bind(PROTOCOL),checks=p['checks'],entry_template=bind(template),actual_array_header_asset_hash_weight_or_output_reads=0,actual_forward=0,invented_CPU_toy_forward_only=True)
+- write(H/'PREDICTION_PREPARATION_COMPLETE.json',ready);print(json.dumps(ready))
++ raise RuntimeError('Use frozen R preparation metadata; actual root scope/entry required. No data preparation here.')
+ 
+ def run(entry_path):
+  e=read(entry_path);require(e['approved_both_frozen_direct_prediction'] is True and e['all_two_final4000_frozen'] is True and e['labels_old_scores_metrics_or_fit_allowed'] is False,'Root frozen prediction entry')
+- p=read(checked(e['protocol']));require(e['code']==bind(Path(__file__))==p['code'] and e['scope']==bind(SCOPE)==p['scope'] and e['protocol']==bind(PROTOCOL),'Frozen code/protocol/root scope')
++ p=resolve_root_scope(e,read(checked(e['protocol'])));require(e['code']==bind(Path(__file__))==p['code'] and e['scope']==p['scope'] and e['protocol']==bind(PROTOCOL),'Frozen code/protocol/root scope')
+  p=resolve_source_bindings(e,p)
+  for key in ['decoder_spec','source_fit_protocol','source_fit_trainer','head','candidate','spatial_head','source_context_adapter','source_context_protocol','input_complete','original_raw_complete','checks']:checked(p[key])
+  require(e['fit_complete']['path']==p['source_fit_complete_path'],'Exact completed source run path')
+@@ -286,16 +279,16 @@
+    x=arrays(record['inputs']);rows=lines(checked(record['metadata']));validate_input(x,rows,domain,record);caches[domain]=x;input_metadata[domain]=rows;contexts[domain],context_receipts[domain]=build_real_context(x,rows,kernel)
+   head=source_module(p['head'],'v200_original_head');candidate=source_module(p['candidate'],'v200_direct_candidate');spatial_factory=source_module(p['spatial_head'],'v203_spatial_residual');cls=spatial_factory.make_spatial_q8_head_class(head,candidate);arms={}
+   for arm,use_sam,spatial_q8 in ARMS:
+-   f=fit['arms'][arm];require(f['updates']==4000 and f['use_sam']is False and type(f['spatial_q8'])is bool and f['spatial_q8']is spatial_q8,'Fixed RAW/native arm')
+-   payload=torch.load(checked(f['checkpoint']),map_location='cpu',weights_only=True);require(payload['update']==4000 and payload['seed']==1810 and payload['arm']==arm and payload['use_sam']is False and type(payload['spatial_q8'])is bool and payload['spatial_q8']is spatial_q8 and payload['protocol']==p['source_fit_protocol']and payload['weak_bridge']is ARM_WEAK[arm][0]and payload['weak_loss_weight']==ARM_WEAK[arm][1],'Exact final checkpoint metadata')
++   f=fit['arms'][SOURCE_ARM_MAP[arm]]
++   payload=torch.load(checked(f['checkpoint']),map_location='cpu',weights_only=True);require(payload['update']==4000 and payload['parameters']==118359 and payload['use_sam']is False and payload['spatial_q8']is True and payload['use_weak']is ARM_WEAK[arm][0]and payload['weak_weight']==ARM_WEAK[arm][1]and binding_same(payload['source_entry'],e['source_fit_entry'])and binding_same(payload['recipe'],fit['root_recipe']),'Exact V219 checkpoint metadata')
+    model=cls(spatial_q8=spatial_q8).cuda().float().eval().requires_grad_(False);model.load_state_dict(payload['state_dict'],strict=True);del payload
+-   require(sum(v.numel() for v in model.parameters())==118359 and object_sha(model.state_dict())==f['final_state_sha'],'Exact source-final118359 state')
++   require(sum(v.numel() for v in model.parameters())==118359 and source_state_sha(model.state_dict())==f['final'],'Exact source-final118359 state')
+    require(len(model.state_dict())==36,'Exact36 source state tensors');directory=OUT/arm;directory.mkdir();outputs={};receipts={}
+    for domain,x in caches.items():
+     packet,proof=infer(model,x,use_sam,head,contexts[domain]);path=directory/('FINAL_'+domain+'_OUTPUTS.npz')
+     with path.open('xb') as h:np.savez_compressed(h,**packet)
+     outputs[domain]=bind(path);receipts[domain]=proof
+-   require(object_sha(model.state_dict())==f['final_state_sha'] and all(not t.requires_grad for t in model.parameters()),'Final frozen state unchanged');arms[arm]=dict(checkpoint=f['checkpoint'],updates=4000,source_final_state_sha=f['final_state_sha'],use_sam=use_sam,spatial_q8=spatial_q8,weak_bridge=ARM_WEAK[arm][0],weak_loss_weight=ARM_WEAK[arm][1],outputs=outputs,inference=receipts);del model;checked(f['checkpoint'])
++   require(source_state_sha(model.state_dict())==f['final'] and all(not t.requires_grad for t in model.parameters()),'Final frozen state unchanged');arms[arm]=dict(checkpoint=f['checkpoint'],updates=4000,source_final_state_sha=f['final'],use_sam=use_sam,spatial_q8=spatial_q8,weak_bridge=ARM_WEAK[arm][0],weak_loss_weight=ARM_WEAK[arm][1],outputs=outputs,inference=receipts);del model;checked(f['checkpoint'])
+   for record in p['domains'].values():checked(record['inputs']);checked(record['metadata'])
+   for k in ('source_context_adapter','spatial_head','source_context_protocol'):checked(p[k])
+   write(OUT/'PREDICTION_SEAL.json',dict(completed=True,PASS=True,code=p['code'],protocol=bind(PROTOCOL),entry=bind(entry_path),scope=p['scope'],decoder_spec=p['decoder_spec'],spatial_head=p['spatial_head'],source_context_adapter=p['source_context_adapter'],context_group_receipts=context_receipts,source_fit_protocol=p['source_fit_protocol'],source_fit_trainer=p['source_fit_trainer'],source_both_final_freeze=p['source_both_final_freeze'],source_fit_complete=e['fit_complete'],source_fit_integrity_review=e['independent_source_fit_review'],source_fit_entry=e['source_fit_entry'],source_terminal_evidence=e['source_terminal_evidence'],input_complete=p['input_complete'],original_raw_complete=p['original_raw_complete'],arms=arms,original_rows2144=2144,model_domain_rows4288=4288,all_two_models_completed_before_any_annotation_reference_or_baseline_score_reads=True,all_batch_repeat2_state_and_input_bytes_exact=True,original_currentU45_publicU108=True,annotations_reference_GT_oldreal_scores_or_fullRGB_read=False,new_encoder_initializer_SAM_forward_crop_fit_threshold_or_qL_changes=0,selected_model=None,adopted=False,fully_solved=False,requires_separate_saved_evaluation_entry=True,automatic_retry=False))
+--- V213/evaluate_saved_dense_point_heads_real.py
++++ V220/evaluate_saved_expected_part_heads_real.py
+@@ -1,4 +1,4 @@
+-"""Saved-only V213 all14 evaluation. Preparation touches source/contract JSON + invented data.
++"""Saved-only V220 all16 evaluation. Preparation touches source/contract JSON + invented data.
+ 
+ Real annotation/baseline/new prediction bodies are opened only after a separately
+ bound root entry and BOTH fixed real prediction seals. No model imports/forwards.
+@@ -21,15 +21,15 @@
+ import numpy as np
+ 
+ H = Path(__file__).absolute().parent
+-V = H.parent
+-P = V.parent
++P = Path('/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility')
++V = P/'query_visibility_expected_part_weak_frozen_real_benchmark_20261025_v220'
+ OLD195=P/'query_visibility_grouped_direct_end_heads_frozen_real_benchmark_20261024_v195'
+ OLD203=P/'query_visibility_spatial_q8_heads_frozen_real_benchmark_20261025_v203'
+ OLD200=P/'query_visibility_native_heads_frozen_real_benchmark_20261024_v200'
+-INHERITED_PROTOCOL=OLD203/'evaluation_preparation_a/PROTOCOL_BEFORE_REAL_ANNOTATION_OR_SAVED_SCORE_BODIES.json'
++INHERITED_PROTOCOL=Path('/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213/inference_evaluation_preparation_b/PROTOCOL_BEFORE_REAL_ANNOTATION_OR_SAVED_SCORE_BODIES.json')
+ OLD191=P/'query_visibility_direct_end_heads_frozen_real_benchmark_20261024_v191'
+ OLD184 = P/'query_visibility_jitter_heads_frozen_real_benchmark_20261024_v184'
+-SCOPE = V/'ROOT_PROSPECTIVE_DENSE_POINT_HEADS_FROZEN_BENCHMARK_SCOPE.json'
++SCOPE = V/'ROOT_PROSPECTIVE_FROZEN_EXPECTED_PART_HEADS_REAL_COMPARISON_SCOPE.json'
+ CLARIFY = OLD184/'ROOT_REFERENCE_AUTHORITY_CLARIFICATION_BEFORE_REAL_BODIES.json'
+ ADDENDUM=OLD200/'ROOT_TRANSITIVE_SAVED_EVALUATOR_CODE_ONLY_ADDENDUM.json'
+ DECODER_SPEC=P/'query_visibility_direct_end_paired_source_training_20261024_v190/ROOT_DIRECT_LOGIT_DECODER_NUMERICAL_SPEC_BEFORE_FIT.json'
+@@ -37,8 +37,8 @@
+ PRIOR_PRED = OLD184/'frozen_C52_C53_real_predictions_v1/PREDICTION_SEAL.json'
+ RAW_COMPLETE = OLD184/'original_real_raw8_inputs_v1/COMPLETE.json'
+ RAW10_COMPLETE=OLD184/'real_raw10_SAM96_inputs_v1/COMPLETE.json'
+-PRED = V/'frozen_C62_C63_real_predictions_v1/PREDICTION_SEAL.json'
+-PRED_CODE = H/'infer_both_frozen_dense_point_heads.py'
++PRED = V/'frozen_C64_C65_real_predictions_v1/PREDICTION_SEAL.json'
++PRED_CODE = H/'infer_both_frozen_expected_part_heads.py'
+ PRED_PROTOCOL = H/'PROTOCOL_BEFORE_ANY_REAL_ARRAY_OR_FINAL_WEIGHT_BODIES.json'
+ PRED_PREP = H/'PREDICTION_PREPARATION_COMPLETE.json'
+ PRIOR_CURRENT = P/'query_visibility_direct_owner_frozen_current_benchmark_20261024_v178/evaluation_preparation'
+@@ -57,28 +57,34 @@
+ CHECKS = H/'GENERATED_MEANINGFUL_CHECKS.json'
+ PREP = H/'PREPARATION_COMPLETE.json'
+ OUT = V/'saved_real_head_evaluation_v1'
+-ARMS = ('C62_DENSE_POINT_RAW_Q8','C63_DENSE_POINT_WEAK_BRIDGE_RAW_Q8')
++ARMS = ('C64_STRONG_ONLY_RAW_Q8','C65_STRONG_PLUS_EXPECTED_PART_WEAK_RAW_Q8')
+ ARM_SPATIAL=dict(zip(ARMS,(True,True)))
+ ARM_WEAK={ARMS[0]:(False,0.),ARMS[1]:(True,.25)}
++SOURCE_ARM_MAP={ARMS[0]:'STRONG_ONLY_CONTROL',ARMS[1]:'STRONG_PLUS_EXPECTED_PART_WEAK'}
++OLD213=P/'query_visibility_dense_point_heads_frozen_real_benchmark_20261025_v213'
++PRIOR_DENSE_ARMS=('C62_DENSE_POINT_RAW_Q8','C63_DENSE_POINT_WEAK_BRIDGE_RAW_Q8')
++PRIOR_DENSE_TAGS=('C62','C63')
++PRIOR_DENSE_PRED=OLD213/'frozen_C62_C63_real_predictions_v1/PREDICTION_SEAL.json'
+ PRIOR_SPATIAL_ARMS=('C60_RAW96_NATIVE_MASK_ZERO_XY_NOMINAL_CONTROL','C61_RAW96_NATIVE_MASK_Q8_XY_NOMINAL')
+ PRIOR_SPATIAL_TAGS=('C60','C61')
+ PRIOR_SPATIAL_PRED=OLD203/'frozen_C60_C61_real_predictions_v1/PREDICTION_SEAL.json'
+ PRIOR_GROUPED_ARMS=('C56_RAW96_DIRECT_END_GROUPED','C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED')
+ PRIOR_GROUPED_TAGS=('C56','C57')
+ PRIOR_GROUPED_PRED=OLD195/'frozen_C56_C57_real_predictions_v1/PREDICTION_SEAL.json'
+-TAGS = ('C62','C63')
++TAGS = ('C64','C65')
+ PRIOR_DIRECT_ARMS=('C54_RAW96_DIRECT_END','C55_RAW96_PLUS_FROZEN_SAM_DIRECT_END')
+ PRIOR_DIRECT_TAGS=('C54','C55')
+ PRIOR_NATIVE_ARMS=('C58_RAW96_DIRECT_RESIDUAL_ZERO_NATIVE_CONTROL','C59_RAW96_DIRECT_RESIDUAL_NATIVE_ONEHOT')
+ PRIOR_NATIVE_TAGS=('C58','C59')
+ PRIOR_NATIVE_PRED=OLD200/'frozen_C58_C59_real_predictions_v1/PREDICTION_SEAL.json'
+-DIRECT_TAGS=PRIOR_DIRECT_TAGS+PRIOR_GROUPED_TAGS+PRIOR_NATIVE_TAGS+PRIOR_SPATIAL_TAGS+TAGS
++DIRECT_TAGS=PRIOR_DIRECT_TAGS+PRIOR_GROUPED_TAGS+PRIOR_NATIVE_TAGS+PRIOR_SPATIAL_TAGS+PRIOR_DENSE_TAGS+TAGS
+ PRIOR_DIRECT_PRED=OLD191/'frozen_C54_C55_real_predictions_v1/PREDICTION_SEAL.json'
+ PRIOR_SIX_COMPLETE=OLD191/'saved_real_head_evaluation_v1/COMPLETE.json'
+ PRIOR_CONTRACT=OLD191/'evaluation_preparation_a/PROTOCOL_BEFORE_REAL_ANNOTATION_OR_SAVED_SCORE_BODIES.json'
+ OLD_ARMS=('C52_RAW96_JITTER_PAIRED_SOURCE','C53_RAW96_SAM_JITTER_PAIRED_SOURCE')
+ REGIONAL_TAGS=('C52','C53')
+-OLD_TAGS=REGIONAL_TAGS+PRIOR_DIRECT_TAGS+PRIOR_GROUPED_TAGS+PRIOR_NATIVE_TAGS+PRIOR_SPATIAL_TAGS
++OLD_TWELVE_TAGS=REGIONAL_TAGS+PRIOR_DIRECT_TAGS+PRIOR_GROUPED_TAGS+PRIOR_NATIVE_TAGS+PRIOR_SPATIAL_TAGS
++OLD_TAGS=OLD_TWELVE_TAGS+PRIOR_DENSE_TAGS
+ ALLTAGS=OLD_TAGS+TAGS
+ BASELINES = ('v61', 'legacy')
+ MODELS = BASELINES+ALLTAGS
+@@ -297,7 +303,7 @@
+     tables['coordinate_error_bins']=extra.error_bins(core,base,truth,manual,adapted[TAGS[0]],old)
+     tables['D_vs_external_E_2x3']=extra.matrices(tables['metrics'])
+     for av in [tables['availability'],*tables['availability_by_group']]:
+-        av['C62_direct_total_U']=av.pop('new_total_U'); av['C63_direct_total_U']=av.pop('V91_total_U')
++        av['C64_direct_total_U']=av.pop('new_total_U'); av['C65_direct_total_U']=av.pop('V91_total_U')
+     model_call=lambda r,m:call(r,m,'D_vs_E',{},.5)
+     tables['paired_recovery_and_damage']=core.paired_transitions(base,truth,model_call)
+     tables['support_joint_owner_and_reference_associations']=current_associations(core,base,truth,packets)
+@@ -354,7 +360,9 @@
+     require(state_inventory.get(base.S,0)==136 and sum(base.yes(r,'paired_same_query_RGB_D_vs_ES')and r['human_state']==base.S for r in truth)==21,'Original self all136 and pairedflag21 are separate from primary D/E1237')
+     require(sum(r['human_state']==base.D and core.error_bucket(r)=='LE3'for r in truth)==461,'Original <=3 reference humanD461 distinct from manualnear376')
+     prior_twelve=core.readcsv(check(p['prior_twelve_metrics']))
+-    prior_twelve_exact=exact([r for r in tables['metrics']if r['model']in BASELINES+OLD_TAGS],prior_twelve)
++    prior_twelve_exact=exact([r for r in tables['metrics']if r['model']in BASELINES+OLD_TWELVE_TAGS],prior_twelve)
++    prior_fourteen=core.readcsv(check(p['prior_fourteen_metrics']))
++    prior_fourteen_exact=exact([r for r in tables['metrics']if r['model']in BASELINES+OLD_TAGS],prior_fourteen)
+     historical={}
+     for name in ('METRICS','CONFUSION','HUMAN_SELF_BINARY_RESPONSE','MANUAL_NEAR_D','COORDINATE_ERROR_BINS','D_VS_EXTERNAL_E_2X3','ALL1784_MODEL_INVENTORY'):
+         hist=core.readcsv(check(p['historical_three_tables'][name]));key=next(k for k in tables if k.upper()==name)
+@@ -367,9 +375,9 @@
+     write_lines(out/'ALL1784_CURRENT_NATIVE_LEDGER.jsonl',ledger)
+     return dict(completed=True,original_slots=1784,primary_D_E_N=1237,primary_D=1147,primary_E=90,same_slot_N=1248,
+         original_input_U=45,original_available=1739,WOOD_frames=105,SQUARE_frames=118,tables=tables,historical_original_metric_rows_exact=replay,
+-        historical_v61_legacy_tables_exact=historical,historical_twelve_metric_rows_exact=prior_twelve_exact,state_inventory=state_inventory,self_all136=True,self_pairedflag21=True,reference_LE3_humanD461=True,manual_near_D376=True,primary_quality_owner_reference_error_filter=False,
++        historical_v61_legacy_tables_exact=historical,historical_twelve_metric_rows_exact=prior_twelve_exact,historical_fourteen_metric_rows_exact=prior_fourteen_exact,state_inventory=state_inventory,self_all136=True,self_pairedflag21=True,reference_LE3_humanD461=True,manual_near_D376=True,primary_quality_owner_reference_error_filter=False,
+         human_semantic_authority='Existing human D/E/S with unchanged original mapping, missing/ambiguous mapping UNKNOWN; no new mesh recertification blocker.',
+-        prediction_scope='C62/C63 same spatial-q8 RAW dense-point/weak-bridge source finals primary direct raw>=0E/<0D, original U/nonfinite first. Saved C54/C55/C56/C57/C58/C59 keep direct routes; C52/C53 keep regional E-first. Old support2/owner3 are separate diagnostics; neither ownerF/BG nor binary E establishes physical external/self cause.',
++        prediction_scope='C64/C65 same spatial-q8 RAW dense-point/weak-bridge source finals primary direct raw>=0E/<0D, original U/nonfinite first. Saved C54/C55/C56/C57/C58/C59 keep direct routes; C52/C53 keep regional E-first. Old support2/owner3 are separate diagnostics; neither ownerF/BG nor binary E establishes physical external/self cause.',
+         reference_scope='Existing <=3px/manualnear/missing-reference association only; no coordinate correction or new point-quality gold.',
+         repeated_development_exposure=True,fresh_independent_validation=False,legacy_CAL_overlap_preserved=True)
+ 
+@@ -403,7 +411,7 @@
+     v61=k.load_v61(p['v61'],source)
+     predictions={tag:packets[tag]['owner_prediction'] for tag in ALLTAGS};predictions['v61']=v61
+     paired=np.logical_and.reduce([predictions[tag]>=0 for tag in (*ALLTAGS,'v61')])
+-    masks=dict(FULL360=np.ones(360,bool),KNOWN_CENTER_TRUTH=truth>=0,ALL13_MODEL_PAIRED_AVAILABLE=paired,KNOWN_TRUTH_AND_ALL13_PAIRED_AVAILABLE=(truth>=0)&paired)
++    masks=dict(FULL360=np.ones(360,bool),KNOWN_CENTER_TRUTH=truth>=0,ALL15_MODEL_PAIRED_AVAILABLE=paired,KNOWN_TRUTH_AND_ALL13_PAIRED_AVAILABLE=(truth>=0)&paired)
+     cohorts={}
+     for cohort,mask in masks.items():
+         cohorts[cohort]={}
+@@ -487,6 +495,33 @@
+         r=seal['arms'][arm];require(r['updates']==8000 and r['use_sam']is False and type(r['native_condition'])is bool and r['native_condition']is bool(i)and set(r['outputs'])==set(DOMAINS),'Exact old V2008000 RAW/native flags')
+     return {tag:seal['arms'][arm]['outputs']for tag,arm in zip(PRIOR_NATIVE_TAGS,PRIOR_NATIVE_ARMS)}
+ 
++
++def binding_same(a,b):
++ return isinstance(a,dict)and isinstance(b,dict)and all(a.get(k)==b.get(k)for k in ('path','sha256'))
++def resolve_root_scope(e,p):
++ b=e.get('scope');require(isinstance(b,dict)and isinstance(b.get('sha256'),str)and len(b['sha256'])==64,'Concrete root V220 scope before actual')
++ path=safe(b['path']);require(path.parent==V and path.suffix=='.json'and path.name.startswith('ROOT_'),'Exact new V220 administrative scope only');checked(b) if 'checked'in globals()else check(b)
++ p=dict(p);p['scope']=b;return p
++
++def validate_source_metadata(fit,review,e,p,source_entry,barrier):
++ require(fit['completed']and fit['PASS']and fit['source_only']and fit['from_scratch']and fit['DEV_not_fit']and fit['protected_access']==0 and fit['selected_arm']is None,'Frozen source-only paired fit')
++ require(review['completed']and review['PASS']and binding_same(review['fit_complete'],e['fit_complete'])and review['initial_seed1810_state_exact']is True and review['all8000_saved_log_rows_verified']is True,'Independent exact-fit PASS/current initial+draw proof')
++ require(binding_same(fit['code'],source_entry['code'])and binding_same(fit['code'],p['source_fit_trainer'])and binding_same(fit['entry'],e['source_fit_entry'])and binding_same(source_entry['protocol'],p['source_fit_protocol']),'Exact source code/entry/protocol')
++ require(binding_same(source_entry['kernels']['base_head'],p['head'])and binding_same(source_entry['kernels']['candidate'],p['candidate'])and binding_same(source_entry['kernels']['spatial_head'],p['spatial_head']),'Same C61 RAW118359 factory')
++ require(fit['parameters_each']==118359 and fit['steps_each']==4000 and set(fit['arms'])==set(SOURCE_ARM_MAP.values()),'Both fixed source arms4000')
++ require(binding_same(fit['all2_freeze'],p['source_both_final_freeze'])and barrier['completed']and barrier['PASS']and barrier['DEV_or_real_output_emitted']is False and set(barrier['checkpoints'])==set(SOURCE_ARM_MAP.values()),'Both final barrier before any DEV outputs')
++ for arm,src in SOURCE_ARM_MAP.items():
++  r=fit['arms'][src];rr=review['results'][src]
++  require(binding_same(barrier['checkpoints'][src],r['checkpoint'])and rr['PASS']and rr['parameters']==118359 and rr['state_tensors']==36 and rr['all_finite']and rr['optimizer_all_steps4000'],'Exact own final checkpoint/source audit')
++ return True
++
++def prior_dense_outputs(seal,p):
++    require(seal['completed']and seal['PASS']and seal['all_two_models_completed_before_any_annotation_reference_or_baseline_score_reads'],'V213 both saved predictions complete')
++    require(seal['code']==p['prior_dense_prediction_code']and seal['protocol']==p['prior_dense_prediction_protocol']and seal['input_complete']==p['input_complete']and seal['original_raw_complete']==p['original_raw_complete'],'Exact unchanged V213 saved provenance')
++    require(set(seal['arms'])==set(PRIOR_DENSE_ARMS),'Both old dense arms retained')
++    for i,arm in enumerate(PRIOR_DENSE_ARMS):
++        r=seal['arms'][arm];require(r['updates']==4000 and r['use_sam']is False and r['spatial_q8']is True and r['weak_bridge']is bool(i)and r['weak_loss_weight']==(0.25 if i else 0.)and set(r['outputs'])==set(DOMAINS),'Old dense roles unchanged')
++    return {tag:seal['arms'][arm]['outputs']for tag,arm in zip(PRIOR_DENSE_TAGS,PRIOR_DENSE_ARMS)}
+ 
+ def prior_spatial_outputs(seal,p):
+     require(seal['completed']and seal['PASS']and seal['all_two_models_completed_before_any_annotation_reference_or_baseline_score_reads'],'Prior V203 both saved predictions complete')
+@@ -649,39 +684,16 @@
+ 
+ 
+ def prepare():
+-    require(platform.python_version()=='3.10.20'and np.__version__=='1.26.4','Pinned CPU metric runtime')
+-    inherited=read(INHERITED_PROTOCOL);pred=read(PRED_PROTOCOL);ready=read(PRED_PREP)
+-    require(ready['completed']and ready['PASS']and ready['prepared_only'],'Prepared code-only predictor')
+-    for b in inherited['operator_codes']:check(b)
+-    write(CHECKS,generated_checks());p=dict(inherited)
+-    for key in ('prior_ten_evaluation_complete','prior_ten_evaluation_code','prior_ten_evaluation_protocol'):p.pop(key,None)
+-    p.update(completed=True,prepared_only=True,code=bind(__file__),scope=bind(SCOPE),inherited_protocol=bind(INHERITED_PROTOCOL),checks=bind(CHECKS),
+-      input_complete=pred['input_complete'],original_raw_complete=pred['original_raw_complete'],source_fit_complete_path=pred['source_fit_complete_path'],source_fit_protocol=None,
+-      spatial_head=pred['spatial_head'],source_context_adapter=pred['source_context_adapter'],prediction_producer_code=bind(PRED_CODE),prediction_producer_protocol=bind(PRED_PROTOCOL),prediction_producer_preparation=bind(PRED_PREP),
+-      prior_spatial_prediction_code=inherited['prediction_producer_code'],prior_spatial_prediction_protocol=inherited['prediction_producer_protocol'],
+-      prior_twelve_evaluation_complete_path=str(OLD203/'saved_real_head_evaluation_v1/COMPLETE.json'),prior_twelve_evaluation_code=inherited['code'],prior_twelve_evaluation_protocol=bind(INHERITED_PROTOCOL),
+-      prediction_seal_path=str(PRED),arms=list(ARMS),fixed_arm_spatial_q8=ARM_SPATIAL,models=list(MODELS),output=str(OUT),
+-      packet_contract='New C62/C63 and prior C54..C61 exact16keys; C52/C53 exact13. Original META6 unchanged; current14/publicweak13, no selection.',
+-      public_cohorts=['FULL360','KNOWN_CENTER_TRUTH','ALL13_MODEL_PAIRED_AVAILABLE','KNOWN_TRUTH_AND_ALL13_PAIRED_AVAILABLE'],
+-      primary_a_priori='C63',ablation_a_priori='C62',actual_annotation_score_metric_array_header_fresh_asset_hash_reads_during_prepare=0)
+-    p['exposure']='Repeated exposed current223/publicheld45, not blind. Source includes procedural/open-real weak data; no protected current/publicheld/COMMON/VAL fitting or result-guided choice. Both arms carry regardless source metrics.'
+-    write(PROTOCOL,p)
+-    template=H/'ROOT_ACTUAL_SAVED_REAL_EVALUATION_ENTRY_TEMPLATE_APPROVED_FALSE.json'
+-    write(template,dict(approved_saved_real_evaluation=False,all_two_real_predictions_frozen=False,evaluation_only=True,no_model_data_architecture_threshold_selection=True,no_forward_fit_RGB_features_weights_PnP_qL_or_V112=True,
+-      code=bind(__file__),protocol=bind(PROTOCOL),scope=bind(SCOPE),prediction_seal=None,prior_prediction_seal=dict(path=str(PRIOR_PRED),sha256=None),
+-      prior_direct_prediction_seal=dict(path=str(PRIOR_DIRECT_PRED),sha256=None),prior_grouped_prediction_seal=dict(path=str(PRIOR_GROUPED_PRED),sha256=None),prior_native_prediction_seal=dict(path=str(PRIOR_NATIVE_PRED),sha256=None),
+-      prior_spatial_prediction_seal=dict(path=str(PRIOR_SPATIAL_PRED),sha256=None),prior_twelve_evaluation_complete=dict(path=p['prior_twelve_evaluation_complete_path'],sha256=None),source_fit_complete=None,independent_source_fit_review=None,output=str(OUT)))
+-    ready=dict(completed=True,PASS=True,prepared_only=True,code=bind(__file__),protocol=bind(PROTOCOL),checks=bind(CHECKS),entry_template=bind(template),no_actual_real_annotation_or_score_bodies_or_hashes=True,new_model_fit_forward_threshold_calls=0)
+-    write(PREP,ready);print(json.dumps(ready))
++    raise RuntimeError('Use frozen R preparation metadata; actual root scope/entry required. No protected bodies here.')
+ 
+ def run(entry_path):
+     e=read(entry_path)
+     require(all(e.get(k) is True for k in ('approved_saved_real_evaluation','all_two_real_predictions_frozen','evaluation_only',
+             'no_model_data_architecture_threshold_selection','no_forward_fit_RGB_features_weights_PnP_qL_or_V112')),'Separate root saved-only evaluation entry')
+-    require(e['code']==bind(__file__) and e['protocol']==bind(PROTOCOL) and e['scope']==bind(SCOPE)
++    require(e['code']==bind(__file__) and e['protocol']==bind(PROTOCOL)
+             and e['output']==str(OUT),'Frozen evaluator/root scope')
+     require(platform.python_version()=='3.10.20' and np.__version__=='1.26.4','Pinned CPU runtime')
+-    p=read(PROTOCOL);require(read(check(p['checks']))['PASS'] and read(PREP)['PASS'],'Invented checks/preparation passed')
++    p=resolve_root_scope(e,read(PROTOCOL));require(read(check(p['checks']))['PASS'] and read(PREP)['PASS'],'Invented checks/preparation passed')
+     require(e['prediction_seal']['path']==str(PRED),'Exact both-real prediction seal path')
+     seal=read(check(e['prediction_seal']));outputs=validate_prediction_seal(seal,p)
+     p['source_fit_protocol']=seal['source_fit_protocol']
+@@ -689,10 +701,10 @@
+     for b in p['operator_codes']+[p['original_raw_complete'],p['input_complete'],p['source_fit_protocol'],p['spatial_head'],p['source_context_adapter'],p['transitive_code_addendum'],p['prediction_producer_code'],p['prediction_producer_protocol'],p['prediction_producer_preparation']]:check(b)
+     require(e['source_fit_complete']==seal['source_fit_complete'] and e['independent_source_fit_review']==seal['source_fit_integrity_review'],'Independent source fit closure')
+     fit=read(check(e['source_fit_complete']));review=read(check(e['independent_source_fit_review']))
+-    require(fit['completed'] and fit['PASS'] and fit['all2_frozen_before_any_SOURCE_outputs'] and review['completed'] and review['PASS'] and review['fit_complete']==e['source_fit_complete'],'Both source finals and independent exact-fit PASS')
+-    require(fit['protocol']==p['source_fit_protocol'],'Exact source objective protocol')
+-    for arm in ARMS:
+-        require(fit['arms'][arm]['updates']==4000 and fit['arms'][arm]['use_sam']is False and type(fit['arms'][arm]['spatial_q8'])is bool and fit['arms'][arm]['spatial_q8']is ARM_SPATIAL[arm] and fit['arms'][arm]['weak_bridge']is ARM_WEAK[arm][0]and fit['arms'][arm]['weak_loss_weight']==ARM_WEAK[arm][1]and seal['arms'][arm]['weak_bridge']is fit['arms'][arm]['weak_bridge']and seal['arms'][arm]['weak_loss_weight']==fit['arms'][arm]['weak_loss_weight']and seal['arms'][arm]['checkpoint']==fit['arms'][arm]['checkpoint'] and seal['arms'][arm]['source_final_state_sha']==fit['arms'][arm]['final_state_sha'],'Exact source final4000 state, no weight body')
++    source_entry=read(check(seal['source_fit_entry']));barrier=read(check(seal['source_both_final_freeze']))
++    p.update(source_fit_trainer=seal['source_fit_trainer'],source_fit_protocol=seal['source_fit_protocol'],source_both_final_freeze=seal['source_both_final_freeze'])
++    validate_source_metadata(fit,review,dict(fit_complete=e['source_fit_complete'],source_fit_entry=seal['source_fit_entry']),p,source_entry,barrier)
++    for arm,src in SOURCE_ARM_MAP.items():require(binding_same(seal['arms'][arm]['checkpoint'],fit['arms'][src]['checkpoint'])and seal['arms'][arm]['source_final_state_sha']==fit['arms'][src]['final'],'Exact V219 source state/no weight body')
+     check(p['current']['annotation_authority']);check(p['public']['definition'])
+     require(not OUT.exists(),'Single fixed new output; no overwrite/retry')
+     OUT.mkdir();write(OUT/'BEFORE_ANNOTATION_AND_SAVED_SCORE_READ.json',dict(completed=True,entry=bind(entry_path),prediction_seal=e['prediction_seal'],both_models_closed=True,annotation_or_score_bodies_read_so_far=False))
+@@ -703,6 +715,9 @@
+         require(e['prior_grouped_prediction_seal']['path']==str(PRIOR_GROUPED_PRED),'Exact V195 saved grouped seal');outputs.update(prior_grouped_outputs(read(check(e['prior_grouped_prediction_seal'])),p))
+         require(e['prior_native_prediction_seal']['path']==str(PRIOR_NATIVE_PRED),'Exact V200 saved native seal');outputs.update(prior_native_outputs(read(check(e['prior_native_prediction_seal'])),p))
+         require(e['prior_spatial_prediction_seal']['path']==str(PRIOR_SPATIAL_PRED),'Exact V203 saved spatial seal');outputs.update(prior_spatial_outputs(read(check(e['prior_spatial_prediction_seal'])),p))
++        require(e['prior_dense_prediction_seal']['path']==str(PRIOR_DENSE_PRED),'Exact V213 old dense seal');outputs.update(prior_dense_outputs(read(check(e['prior_dense_prediction_seal'])),p))
++        require(e['prior_fourteen_evaluation_complete']['path']==p['prior_fourteen_evaluation_complete_path'],'Exact V213 old14 evaluation')
++        prior14=read(check(e['prior_fourteen_evaluation_complete']));require(prior14['completed']and prior14['PASS']and prior14['code']==p['prior_fourteen_evaluation_code']and prior14['protocol']==p['prior_fourteen_evaluation_protocol'],'Exact prior14 evaluation closure');p['current']['prior_fourteen_metrics']=prior14['outputs']['current1784/METRICS.csv']
+         require(e['prior_twelve_evaluation_complete']['path']==p['prior_twelve_evaluation_complete_path'],'Exact V203 old12 evaluation');p['prior_twelve_evaluation_complete']=e['prior_twelve_evaluation_complete']
+         prior_twelve=read(check(p['prior_twelve_evaluation_complete']));require(prior_twelve['completed']and prior_twelve['PASS']and prior_twelve['code']==p['prior_twelve_evaluation_code']and prior_twelve['protocol']==p['prior_twelve_evaluation_protocol'],'Prior twelve saved evaluation closure');p['current']['prior_twelve_metrics']=prior_twelve['outputs']['current1784/METRICS.csv']
+         packets={};metadata={}
+@@ -729,7 +744,7 @@
+             primary_current_D1147_E90_N1237=True,current_human_semantic_authority_valid=True,primary_quality_owner_error_gate=False,
+             public_reference_weak_only=True,public_legacy_missing=True,all_both_predictions_closed_before_any_annotation_or_score_body=True,
+             repeated_development_exposure_not_fresh_validation=True,new_forward_fit_RGB_features_weights_threshold_or_model_data_choice=0,
+-            old_annotations_outputs_and_inputs_unchanged=True,old_twelve_primary_metrics_exact=True,new_training_admission=False,selected_model=None,adopted=False,fully_solved=False,automatic_retry=False)
++            old_annotations_outputs_and_inputs_unchanged=True,old_twelve_primary_metrics_exact=True,old_fourteen_primary_metrics_exact=True,new_training_admission=False,selected_model=None,adopted=False,fully_solved=False,automatic_retry=False)
+         write(OUT/'COMPLETE.json',complete)
+         print(json.dumps(dict(completed=True,PASS=True,complete=bind(OUT/'COMPLETE.json'))))
+     except BaseException:
