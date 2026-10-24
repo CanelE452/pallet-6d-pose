@@ -1,3 +1,15 @@
+# 팔레트 가림 판정 최신 기록 · V214–V215
+
+이번에는 새 학습 없이 영상·조건 입력 의존도를 검사하고 공개 SOURCE TRAIN12프레임의 원96 query crop을 확인했다. C63은 조건 branch를 제거해도 학습 입력의 판정이 같았고, RGB127에서는 두 모델 모두 전부 가림으로 답했다. 공개 실사에는 query가 다른 물체·손잡이 주변에 모이는 사례가 있어 대상 부위와의 대응을 별도 감독해야 한다. 모델 성능 개선·채택·문제 해결은 아직 없다. 최신 실사 비교는 V213이다.
+
+- [전체 최신 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V215_KO.md)
+- [입력 의존도 표·시각화](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_modality_reliance_diagnosis_20261025_v214/PORTABLE_REPORT_KO.md)
+- [공개 실사12frame과 원query 관찰](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_visible_part_coverage_expansion_20261025_v215/PORTABLE_REPORT_KO.md)
+
+아래 이전 README를 그대로 보존한다.
+
+---
+
 # 팔레트 가림 판정 최신 기록 · V213
 
 공개 실사와 합성으로 학습한 두 head의 고정 실사 비교를 공개했다. C63은 보이는 점 recall73.50%, 외부 가림 recall21.11%로 기존 실사 학습 모델(57.11%/92.22%)의 외부 가림 성능에 못 미친다. 같은 합성 HOLDOUT의 외부 가림 recall76.92%와 차이가 크다. 좌표/PnP를 바꾸거나 현재 평가셋으로 학습·문턱을 조정하지 않았다. 새 가중치2개·저장 예측26개·전체 혼동행렬·precision/recall·보류율·실제 고정crop·실패 기록을 포함한다. 문제는 아직 해결되지 않았고 모델 채택도 없다.
