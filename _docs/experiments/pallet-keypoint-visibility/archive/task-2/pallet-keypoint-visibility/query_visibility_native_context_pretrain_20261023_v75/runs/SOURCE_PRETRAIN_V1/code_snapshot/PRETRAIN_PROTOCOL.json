@@ -1,0 +1,96 @@
+{
+  "schema": "V75_SOURCE_ONLY_NATIVE_REFERENCE_PROXY_PRETRAIN_PROTOCOL",
+  "created_UTC": "2026-10-22T18:42:18.178822+00:00",
+  "phase": "One source-only pretrain; does not complete public-real adaptation or native semantic gold validation. No current223 evaluation in this phase.",
+  "bindings": {
+    "model_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/model_preparation/native_context_proxy_head.py",
+      "sha256": "9f738428a864ddb8cc4fd1197bf22fe4eabee3fc5912c7d01c8382420125c473"
+    },
+    "model_test": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/model_preparation/GENERATED_NATIVE_CONTEXT_HEAD_TESTS_V2.json",
+      "sha256": "da47d969c502dfa858c3dd940f3e266d696503186422d90eaa9dfa43a5e803a2"
+    },
+    "input_manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/native_context_cache/SYNTH5120_INPUT_PACK/PACK_MANIFEST.json",
+      "sha256": "b7878691e8a301b7c7b1f23878873cc667bca565b29a43d68fce523b0a313fac"
+    },
+    "input_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/native_context_cache/SYNTH5120_INPUT_PACK/PACK_SEAL.json",
+      "sha256": "21bf9973bc015a2bc661001a1bbd86d68bb5fb8997272ee3ca5dbdec53920dbf"
+    },
+    "input_QA": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/native_context_cache/INPUT_PACK_QA.json",
+      "sha256": "44b439a7a1fe332406df34460e79886dd86de44d04d3169934c6a933113e2345"
+    },
+    "GT_binding": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/native_context_cache/GT_LABEL_BINDING.json",
+      "sha256": "52c6440b4e887ac070627216d34f558a9cdd1cecb329956dcb6f14a3384380da"
+    },
+    "GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/native_context_cache/SYNTH5120_GT_ONLY.npz",
+      "sha256": "afca28304f0d711f51a7fe1e4882cad101855bb1786688dbc2bed5877895547e"
+    }
+  },
+  "source_selection": "Use all5120unchanged rows and all40960slots; fit only29353 TRAIN DES loss-mask slots. heldout7358 loss slots never enter optimizer. Unmatched/F/invalid retained, loss0. No newquery/pose/crop selection.",
+  "labels": [
+    "D_UNBLOCKED_RAY_PROXY",
+    "E_EXTERNAL_RAY_PROXY",
+    "S_CONVEX_SELF_PROXY"
+  ],
+  "loss": {
+    "primary": "unweighted 3way cross entropy, balanced sampler over nine source(G38/P0/TEX) x class(D/E/S) TRAIN strata",
+    "location_auxiliary": "0.1 * spatial cross entropy of Gaussian reference target only for primary-eligible D proxy AND reference_in_local_square; target offset from GT-only (r-q)/L, sourcegrid centers=(i-4)/9, gaussian sigma=0.75 cells, normalize over factual response_input_valid cells. No E/S response-zero loss. This is virtual-reference location proxy, not physical-cue or pixel-mask gold.",
+    "GT_forward": false
+  },
+  "sampling": {
+    "batch_queries": 90,
+    "per_source_class": 10,
+    "with_replacement": true,
+    "generator_seed": 20261023,
+    "no_data_augmentation": true
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.0003,
+    "weight_decay": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "updates": 1000,
+    "clip_grad_norm": 5.0,
+    "LR_schedule": "constant",
+    "initialization_seed": 20261023
+  },
+  "runtime": {
+    "python": "/home/minjae/anaconda3/bin/python",
+    "torch": "2.5.1+cu121",
+    "device": "cuda:0",
+    "dtype": "FP32 model and loss; cast frozen FP16 P3 atforward",
+    "CPU_threads": 1,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "allow_tf32": false,
+    "exact_GPU_training_bit_reproducibility_claim": false
+  },
+  "checkpoint_selection": {
+    "evaluate_every_updates": 50,
+    "include_untrained_update0_diagnostic": true,
+    "eligible_for_selection": "updates50..1000 only",
+    "criterion": "minimum arithmetic mean of crossentropy across nine heldout source x class strata; all strata nonempty required. Ties select earlier update.",
+    "decision": "argmax3 fixed; pD binary visibleproxy threshold0.5 also reported, no tuning",
+    "no_current_or_public_ref_selection": true
+  },
+  "report_metrics": "TRAIN and heldout full3x3 confusion, classprecision/recall, per-source, conditional mainmask rates, locationaux coverage and predicted attention reference offsets. Exact weights/checkpoints/source code/hash/freezes. Holdout is upstream historical validation, not a new independent fullsystemtest.",
+  "execution": "One fit only after trainer generated/loader checks and exact trainercode lock. Preflight errors before first optimizer update may be corrected with rejected code/log snapshots. After first update do not silently restart or addseeds. Preserve partial failure and ask root to resolve ifneeded.",
+  "scope_forbidden": [
+    "current223 RGB/annotations/scores/cache",
+    "private legacy currentfeatures",
+    "PnP",
+    "public real labels in this phase",
+    "new backbone inference",
+    "source GT reference/matched/sourceID entering model.forward"
+  ],
+  "goal_status": "active"
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "SOURCE_YCB_MASK_EVIDENCE_AUDIT_V64_V1",
+  "created_client_date": "2026-10-22",
+  "selection": "All fixed v63 YCB TRAIN12800 and VAL3200 queries; no scores or private data. No adaptive sample selection.",
+  "coordinates": "nearest pixel=floor(query+.5); native9 offsets=((i+.5)/9-.5)*preserved ROI side. Dense validity requires continuous native coordinate and nearest pixel both in bounds.",
+  "radius2": "Clipped axis-aligned5x5 square around nearest pixel, no circular radius. Region visible/full support are independent any-pixel tests, not center labels.",
+  "states": {
+    "VISIBLE_PROXY": "target visible mask1",
+    "EXTERNAL_CORROBORATED_SOURCE_MASKS": "target full1,visible0 and another annotated instance visible1 at same pixel",
+    "EXTERNAL_AMBIGUOUS_SOURCE_MASKS": "target full1,visible0 and no other annotated visible instance at same pixel",
+    "OUTSIDE_FULL_SUPPORT": "target full0, including holes/background; never renamed external"
+  },
+  "confirmation_scope": "Other-instance visible mask is corroborating evidence under source annotations. It does not independently certify human physical visibility; both visible masks may be derived from pose/depth.",
+  "strict_external_5x5": "25 in-frame pixels, all target full1, no target visible pixels. Strict corroborated additionally requires other-visible union at all25 pixels; strict ambiguous additionally requires no other-visible pixels in the25.",
+  "interior_external_distance": "Separately report exact external points with full inside Euclidean distance>2px and target visible outside distance>2px; no claim this equals a full5x5 square.",
+  "holes": "Full-mask background components enclosed under4-connectivity, not touching image border. This is a 2D enclosed-void proxy, not proof of a physical3D hole.",
+  "boundary": "r1/r2 uncertainty if corresponding clipped square touches frame boundary or has both0/1 target-mask values.",
+  "depth": "Observed uint16 depth with official per-frame depth_scale to mm, if available. Zero is missing. No rendered target depth or occluder depth ordering is inferred.",
+  "source_GT_uncertainty": [
+    "official rendered/depth mask proxy, no human point visibility truth",
+    "pose/mesh/RGB misregistration can affect native boundary pixels",
+    "visible-mask overlap between different instances is flagged",
+    "unexplained external support is ambiguous, never silently relabeled positive",
+    "GTinfo visible pixel-count deltas reported; full px_count_all may include projected off-frame area"
+  ],
+  "preservation": "No v63 cache/model mutation, no GPU, no PnP, no training, no private image/score reads.",
+  "output_dense": "NPZ arrays keyed by sample_id; bool labels outside dense_valid are0, depth outside valid isNaN. Compare old dense targets only where dense_valid1."
+}

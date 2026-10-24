@@ -1,0 +1,208 @@
+{
+  "arguments": {
+    "train": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/SYNTH_TRAIN_WITH_SAM.npz",
+    "val": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/SYNTH_VALIDATION_WITH_SAM.npz",
+    "out": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/runs/SYNTH_MULTITARGET_UNWEIGHTED",
+    "eval_denylist": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/contract/EVALUATION_SHA256_DENYLIST.json",
+    "provenance": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/MERGE_PROVENANCE.json",
+    "protocol": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/PROTOCOL.json",
+    "max_updates": 2000,
+    "val_every_updates": 100,
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "dense_loss_weight": 0.25,
+    "use_evidence_weights": false,
+    "seed": 20261022,
+    "threads": 1,
+    "device": "cuda"
+  },
+  "head_config": {
+    "p3_channels": 65,
+    "p3_hidden": 32,
+    "rgb_native_channels": 75,
+    "rgb_hidden": 16,
+    "sam_channels": 2,
+    "sam_hidden": 8,
+    "context_channels": 64,
+    "context_hidden": 16,
+    "fusion_hidden": 32,
+    "box_grid": true,
+    "coordinate_channels": true,
+    "sam_role": "features_only",
+    "joint_order": "VV_EV_EE_OV_OE_OO"
+  },
+  "parameters": 45286,
+  "joint_pairs": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      2
+    ]
+  ],
+  "target": "exact/radius2 visible and full instance support",
+  "loss": {
+    "center_joint_CE": 1.0,
+    "dense_joint_CE": 0.25,
+    "source_balanced": true
+  },
+  "selection": "lowest macro(source unweighted valid-center joint NLL)",
+  "class_weights": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "evidence_weights_used_for_training": false,
+  "evidence_weights_used_for_selection": false,
+  "threshold": 0.5,
+  "paired_hard_state_decoder": "per-scale V if pVisible>=.5 else E if pFull>=.5 else O; joint MAP diagnostic only",
+  "logical_decoder_scope": "presence/full logical support, not confidence-qualified external classification",
+  "confidence_mechanism_decoder": "joint MAP only if maxjoint>=.5, otherwise U; threshold fixed before evaluation",
+  "train_sha256": "0525289f50c11adefa708e5f9efcfacb04e588150c8b944bdf6035456a30ffaa",
+  "val_sha256": "fdddd8360069d0cca030e16da1143a7f341c64915b65bd67284361a3f565de23",
+  "eval_denylist_sha256": "58ef8b2ca79b9cb511fe7b5813d22b31f6ff82ef5049a2be340ec293bdbef987",
+  "excluded_images": 223,
+  "exclusion_checks": {
+    "TRAIN": {
+      "queries": 5673,
+      "denied_image_overlap": 0
+    },
+    "VAL": {
+      "queries": 1742,
+      "denied_image_overlap": 0
+    }
+  },
+  "split_overlap_checks": {
+    "group_id": 0,
+    "sample_id": 0,
+    "image_sha256": 0
+  },
+  "eval_data_used": false,
+  "PnP_used": false,
+  "code_sha256": {
+    "fit_multitarget_head.py": "9f6d417e1322f3c56db2786f1fc5e604f5ac0dc63048a8dd3d96e30ceecd5f1d",
+    "query_multitarget_head.py": "785de264082ec8ecfa79e527ff7677a58c5a64c6f4e343c67bc094749e6e0824"
+  },
+  "runtime": {
+    "torch": "2.5.1+cu121",
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "deterministic_algorithms": true,
+    "CUDA": "12.1"
+  },
+  "source_provenance": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/MERGE_PROVENANCE.json",
+    "sha256": "7b59c8ac67b9c91544c765a664fbdccd099ebf946e2b4c443d72879bef84f275",
+    "content": {
+      "schema": "MULTITARGET_SOURCE_SAM_MERGE_V1",
+      "outputs": {
+        "TRAIN": [
+          {
+            "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/SYNTH_TRAIN_WITH_SAM.npz",
+            "sha256": "0525289f50c11adefa708e5f9efcfacb04e588150c8b944bdf6035456a30ffaa",
+            "source_input_sha256": "3ca660a8fc50cb63a58faab43e83ddf19224aefa9e5cd81a87763eacabbe02c5",
+            "queries": 5673
+          },
+          {
+            "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/YCB_TRAIN_WITH_SAM.npz",
+            "sha256": "05a1bee94309f00500bd48c63f3ab04a34cdca964ff5cbfa0b15291a76bab609",
+            "source_input_sha256": "beb788eef7b0fb1991090bd21850ed108ed8dfe031452d4345d4c971b33e715b",
+            "queries": 12800
+          },
+          {
+            "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/MIXED_TRAIN_WITH_SAM.npz",
+            "sha256": "ef10af774b33795f43209c5d4c7b4667f6ad5d33e7ebdfaf4cbc6cd2020fa8bf",
+            "queries": 18473
+          }
+        ],
+        "VALIDATION": [
+          {
+            "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/SYNTH_VALIDATION_WITH_SAM.npz",
+            "sha256": "fdddd8360069d0cca030e16da1143a7f341c64915b65bd67284361a3f565de23",
+            "source_input_sha256": "e3c3cbee3e39624bcfd1e2f7fd1a84fa1ec675cf7c0bbb5bd76ab4a4a76476c0",
+            "queries": 1742
+          },
+          {
+            "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/YCB_VALIDATION_WITH_SAM.npz",
+            "sha256": "eb86826bb7a0147282bb32061b4b3c80887c23d7fe6fdf41e4f8d14e84cd44f8",
+            "source_input_sha256": "0ed5e44659240b4c10b61b94398e514d692b552afea03a32613415fb7b390772",
+            "queries": 3200
+          },
+          {
+            "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/source_cache/MIXED_VALIDATION_WITH_SAM.npz",
+            "sha256": "626780c22f1634d06b28e18e171ea99ffb3dc685eccdff12a65c558fefadddfc",
+            "queries": 4942
+          }
+        ]
+      },
+      "overlay_sha256": "293c18c1dfaf6ef232f986451b4791b77cdca240ed3c395873ce1ee97adb8e7b",
+      "code_sha256": "91d8aa359297335831169d7a8f6a7fdd5a83a0b17947ad0eeb675abe9af53f83",
+      "all_input_values_preserved": true,
+      "train_validation_sample_group_image_overlap": 0,
+      "current_eval_image_overlap": 0,
+      "current_eval_data_accessed": false,
+      "new_training_updates": 0,
+      "new_PnP_calls": 0
+    }
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/PROTOCOL.json",
+    "sha256": "1812fb0a40c54b36e6c1f5f85eb77bd44010411d501cebe664f3cb2cec5e4ce8"
+  },
+  "optimizer_updates": 2000,
+  "best_update": 300,
+  "best_source_VAL_joint_NLL": 0.7960142516440066,
+  "best_VAL_NLL_by_source": {
+    "SYNTH": 0.7960142516440066
+  },
+  "checkpoint_sha256": "d24b03232e5a9de694a61bd0152c6da1cc915f7ac02e52ec0c30fadaa8d704c3",
+  "TRAIN_joint_priors": {
+    "ALL": [
+      0.41283271637581526,
+      0.006345848757271285,
+      0.04671249779658029,
+      0.3271637581526529,
+      0.025912215758857746,
+      0.1810329631588225
+    ],
+    "SYNTH": [
+      0.41283271637581526,
+      0.006345848757271285,
+      0.04671249779658029,
+      0.3271637581526529,
+      0.025912215758857746,
+      0.1810329631588225
+    ]
+  },
+  "seconds": 21.142262556008063,
+  "completed": true,
+  "source_mechanism_gate": {
+    "PASS": true,
+    "HOLD": false,
+    "supported_zero_recall_states": [],
+    "scope": "source mechanism only; checkpoint remains lowest-source-NLL selection",
+    "private_evaluation_used": false,
+    "threshold_changed": false
+  }
+}

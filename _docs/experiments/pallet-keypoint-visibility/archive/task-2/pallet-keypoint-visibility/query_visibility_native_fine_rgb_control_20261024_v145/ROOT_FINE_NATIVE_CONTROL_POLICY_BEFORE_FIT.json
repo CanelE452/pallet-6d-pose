@@ -1,0 +1,66 @@
+{
+  "created_UTC": "2026-10-23T19:40:42.711121+00:00",
+  "goal_status": "active",
+  "fully_solved": false,
+  "purpose": "Actual registered-native finepixel increment control, separate from V144 publicalignment. FrozenC32 + newly learned central32 spatial residual, sharp RGB vs fixed valid-normalized blur. Source-only small diagnostic, no private choice or adoption.",
+  "base_fixed_before_fit": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_target_gradient_control_20261024_v142/runs/C32_AUX_TO_NATIVE_GRAD0_FIXED8000/C32_AUX_TO_NATIVE_GRAD0_FIXED8000/MODEL_FREEZE.json",
+    "sha256": "576af5edd677ad30834c30ec44f08083a759bd752b7ea588b92e2a48e504260a"
+  },
+  "base_choice_rationale": "Follows source-native-gradient C32 mechanism and pre-V143 V142 future hypothesis. Not selected by private current metrics. Stored C32 source raw logits only, no baseline forward.",
+  "corpus": {
+    "old_registered_native": 6144,
+    "continuous_registered_native": 20480,
+    "total_rows": 26624,
+    "original_base_splits_immutable": true,
+    "all_variants_slots_teacherS_U_inputU_OOB_NOQUERY_preserved": true,
+    "labels": "Declared registerednative D vs externalE at expected native reference; S/U mask only from binaryloss. No exactsurface-membership universal requirement."
+  },
+  "inputs": [
+    "source fixed q/L RGB96 central32=[32:64,32:64]",
+    "matching valid96 central32",
+    "existing input-only G42",
+    "frozen stored C32 raw source logit"
+  ],
+  "no_model_input": [
+    "GTxy",
+    "GTerror",
+    "teacherstates",
+    "sourceGTpose",
+    "manual_reference_coords",
+    "current223 features/RGB/labels"
+  ],
+  "model": {
+    "residual_parameters": 39441,
+    "conv": "4ch RGB+valid ->16->16->16, 3x3 stride1",
+    "native_condition": "G42 FiLM gamma/beta16",
+    "spatial_readout": "avgpool4 -> 8x8x16 -> flatten1024 ->32 ->delta scalar",
+    "last_layer_zero_init": true,
+    "frozen_base_plus_delta": true,
+    "same_architecture_for_both_arms": true
+  },
+  "arms": [
+    "SHARP_NATIVE_CENTRAL32",
+    "BLURRED_NATIVE_CENTRAL32"
+  ],
+  "only_arm_difference": "Blur arm applies fixed valid-normalized Gaussian kernel5x5 sigma1 to central32RGB; valid channel/G42/basez identical. No data-dependent blur calibration. DINO baseline information retained in both.",
+  "training": {
+    "seed": 1450,
+    "updates_each": 2000,
+    "nativeold64_and_new64_original_sampler": "Reuse actual original native sampling rule/pair/uniform pool; same per-update64+64 row positions in both arms.",
+    "loss": "BCE_oldnative64 + BCE_newnative64; same teacherD/E and originalinputavailability masking. No AUX and no new pairhinge.",
+    "optimizer": "fresh AdamW lr1e-4 weight_decay.001, globalgradclip5, FP32 TF32false deterministic",
+    "final_update_only": 2000,
+    "fixed_threshold_logit": 0,
+    "no_early_stopping_or_val_selection": true
+  },
+  "qualification": "Report exact existing registered-native35 source criteria and all relevant per-family/pair/error diagnostic strata. New probe AUX29 is unmeasured/inapplicable because AUX-to-native correspondenceUNKNOWN; original old64/C32freeze remains immutable. No claim to pass original64.",
+  "no_current_training_forward_or_selection": true,
+  "no_model_adoption_selected_model": null,
+  "new_encoder_initializer_baseline_forward": 0,
+  "PnP_q_L_correction": 0,
+  "V112_any_access": false,
+  "training_start_requires_root_code_and_input_review": true,
+  "public_weak_native_labels_in_this_fit": 0,
+  "inference_U_originalavailability_no_extra_U": true
+}

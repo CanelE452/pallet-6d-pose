@@ -1,0 +1,23 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V164·V165 공개 TRAIN 입력 단계 결과</title>
+<style>body{max-width:1100px;margin:32px auto;padding:0 22px;font:17px/1.65 system-ui,sans-serif;color:#183244;background:#f8fafc}h1{font-size:29px;line-height:1.3}h2{font-size:21px;margin-top:30px}table{border-collapse:collapse;width:100%;background:white}th,td{border:1px solid #cbd5df;padding:9px 13px;text-align:left}th{background:#e9eff4}.status{padding:18px 22px;background:#e4edf5;border-left:5px solid #376b98}.limit{color:#87421a}.small{font-size:14px;color:#536573}img{max-width:100%;height:auto;border:1px solid #cbd5df}a{color:#185f95}li{margin:7px 0}footer{margin-top:36px;border-top:1px solid #cbd5df;padding-top:18px}</style>
+<h1>V164·V165: 같은 q의 부위 가림 입력과 동결 특징 생성 완료</h1>
+<p class="small">공개 TRAIN 입력 단계 기록 · 2026-10-24 11:31:20 KST · 이후 학습 결과를 포함하지 않는 시점별 보고서</p>
+<div class="status"><strong>입력 단계는 완료했습니다. 현재 모델 성능 개선은 아직 검증하지 않았습니다.</strong><br>전체 66시도를 보존했고, 그중 46쌍이 픽셀 개입 검사를 통과했습니다. 새 분류기 학습은 이 두 단계에서 0회이며, 모델 선택·채택·전체 해결은 모두 미완료입니다.</div>
+<h2>무엇을 만들고 검증했나</h2>
+<table><tr><th>단계</th><th>실제 수치</th><th>해석</th></tr>
+<tr><td>V164 고정 생성</td><td>22사례 × TRAIN donor 3개 = 66시도<br><strong>통과46 / 배치 경계 실패5 / 영역 UNKNOWN15</strong></td><td>실패5는 BEFORE만 저장. UNKNOWN15는 추정 영역이나 가짜 개입 이미지를 만들지 않음.</td></tr>
+<tr><td>저장 배열 검증</td><td>NPZ 194개 = 입력 payload143 + 변환 donor51<br>무결성 검증 66/66</td><td>66/66은 실패 보존·배열 일치 검사 수치. 생성 통과는 46/66이며 전체 통과 PASS는 false.</td></tr>
+<tr><td>시각 증거 QA</td><td>PNG 해시 767개 = variant 자산715 + CARD51 + census1<br>직접 확인52장 = CARD51 + census1</td><td>767개를 모두 직접 본 것은 아님. root는 별도 고정5 CARD·요약 그림·census를 확인.</td></tr>
+<tr><td>V165 동결 특징</td><td>실제 encoder 호출109 = BEFORE17 + 개입92<br>143 payload → 1,144행 × 1,928차원</td><td>새 모델 학습이 아닌 기존 동결 encoder 추출. 입력 U178행도 유지.</td></tr>
+<tr><td>특징 동일성·누락 보존</td><td>BEFORE17프레임/136행 원본 특징 byte 일치<br>BEFORE34 exact reuse · 198상태 중 누락55는 null 유지</td><td>실패5 BEFORE 포함. 1,144행 해시 및 143개 전처리 바인딩을 root 저장 특징 감사로 확인.</td></tr></table>
+<h2>실제 입력에서 확인한 것과 남은 한계</h2>
+<p>A는 지원된 17사례에서 사전 규칙으로 한 donor의 세 variant를 직접 확인했습니다. 관찰한 거친 상판 끝 외관은 <strong>COVER에서 사라지고 SHAM에서 유지</strong>됐습니다(각17/17). 이는 assistant 약한 관찰이며, 46쌍 전체나 정확한 native 점·전체 부품·물리 가시성을 인증한 gold가 아닙니다.</p>
+<p>합성 크기·시점·경계·접촉 그림자 cue, 주변 판·블록까지 가리는 영향, 아래 적층 팔레트의 비슷한 끝이 남는 문제가 기록됐습니다. 같은 q/L은 유지되며, q의 literal 중심과 의도한 부위 끝은 서로 다를 수 있습니다.</p>
+<p><strong>통과46쌍 중 COVER의 center4 RGB가 그대로인 경우11, 전처리 central32가 동일한 경우2</strong>가 있습니다. SHAM37쌍은 선택 local/central가 동일하고 target context만 달랐습니다. 부위 개입과 중심 변화의 차이이며, 좌표 오류·3px gold나 모델 성능 수치가 아닙니다.</p>
+<p><img src="ROOT_FIXED_QUERY_PART_INTERVENTION_EXAMPLES_KO.png" alt="원래 q를 고정한 부위 가림 입력 예시와 보존된 실패"></p>
+<p><a href="visual_readout_v1/index.html">전체66시도 입력 갤러리</a> · <a href="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_train_native_part_witness_20261024_v163/full390_visual_readout/index.html">이전 전체390 부위 관찰 갤러리</a> · <a href="visual_readout_v1/ALL66_CENSUS.png">66시도 census PNG</a></p>
+<h2>모델 결과와 다음 실험</h2>
+<p>V164·V165의 신규 head fit은 <strong>0회</strong>입니다. 원본 source와 current223의 신규 학습 사용도 0이며 PnP 실행·q/L/좌표 보정도 0입니다. 시각화와 특징 추출은 일반화 성능 결과가 아닙니다. 기존 <a href="/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_counterfactual_frozen_features_20261024_v162/ROOT_READOUT_KO.html">V162</a>의 고정 공개 held 약한 E 결과 <strong>2/52 → 3/52</strong>와 양쪽 전체 자격 미통과는 그대로 유지합니다.</p>
+<p>다음은 <strong>V166 C45/C46 주손실 대조학습 준비</strong>입니다. 통과46쌍의 COVER/SHAM92개를 별도 프로토콜의 약한 native 증거로 검증하며, 이 보고서 시점에는 A/B/root 검토 중입니다. V164·V165 원자료의 새 native·quality·owner targets는 모두 −1이고 학습 admission은 false입니다.</p>
+<p class="limit">WOOD 일부 상판 끝의 실험입니다. UNKNOWN runner5사례, native7 실제 부위 witness, 실사 SQUARE와 점 품질 gold가 부족하며 원래 WOOD/SQUARE/native8 전체 목표는 유지됩니다. selected=null · adopted=false · fully_solved=false.</p>
+<footer><p class="small">HTML은 소스·로컬 링크만 검사했으며 file URL 보안 차단으로 브라우저 렌더링은 미검증입니다. 우회는 시도하지 않았습니다. PNG 직접 확인과 구분합니다. 과거 파일명 inventory는 전역 디렉터리 접근 0을 보장하지 않으므로 그러한 주장은 하지 않습니다. 이번 실제 실험에서 금지 입력·라벨·특징·모델·예측을 증거로 사용한 수는 0이며 <a href="ROOT_FILENAME_INVENTORY_SCOPE_DISCIPLINE_NOTE.json">범위 기록</a>에 연결합니다.</p><p><a href="ROOT_RESULTS_KO.json">수치·한계·SHA 바인딩 JSON</a> · <a href="ROOT_PHASE_RESULT.json">입력 단계 완료 기록</a> · <a href="visual_readout_v1/ACTUAL_PNG_VIEW_QA_COMPLETE.json">52장 직접 확인 QA</a></p></footer></html>

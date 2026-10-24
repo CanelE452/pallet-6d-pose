@@ -1,0 +1,220 @@
+{
+  "completed": true,
+  "PASS": true,
+  "source_only": true,
+  "control_complete": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/runs/C35_C36_SEPARATE_QUERY_FIXED2000/CONTROL_COMPLETE.json",
+    "sha256": "45279eeb0bdb6d21c73d796062a279516f187970134e8c9ffa983e3ce17d476c"
+  },
+  "key_findings_KO": [
+    "C36의 세 출력은 분리돼 있지만64차원 hidden은 공유한다. 보조 두 손실을 함께 넣은 처치로 MR VAL E13→31/52가 늘고 D89→64/93이 줄었다. source35도22→17개로 감소하여 공동 목표 개선은 아니다.",
+    "C36 entity gate는 TRAIN에서 맞게E인49개 중14개, VAL에서31개 중16개를U로 바꾼다. TRAIN D341개 entity거절0과 비교해 가림E에 편향된 거절이 학습자료에서도 남는다.",
+    "모든2000 draw를 재생했다. entity양성 E49개는 총4865회, 각80–117회 노출되었고 거절14개도81–117회였다. 누락이나미추출은 아니지만 E는 entity양성638개 중49개로 작은하위집단이며 class내 의미적 균형은 보장되지 않는다.",
+    "teacher D/E 각각에서도 visibility와entity logit은 거의 반대축(Pearson 약−.993~−.999), entity와quality는 같은축(약+.934~+.980)을 따른다. 출력의 강한 결합은 관측되지만 어느aux의gradient가 원인인지 또는 sharedhidden만이 원인인지는 이번 두aux동시처치로 식별되지 않는다.",
+    "MR quality음수를 전부 visibility shortcut으로 단정하면 안 된다. 명목 같은역할 거리 중앙값은 TRAIN D19.1px/E68.8px, VAL D21.2px/E44.5px이며 E의 더 큰 query편차가 가능하다. 실제 real pointquality gold는 전혀 없다.",
+    "VAL entity거절 E16개의 명목거리는 전부20–100px, 중앙39.8px/.202L이고 >100px는0개다. TRAIN거절E14중4개는>100px, 고정사례하나는182.3px/1.69L다. cm오차의providedpose라20px근처를 실측정답/오답으로 판정하거나 학습필터로 쓰지 않는다.",
+    "독립 auxiliary hiddenbranch를 같은고정feature에서 학습하는 다음 source-only control은 근거가 있다. visibility hidden에 auxgradient가 들어가지 않게 하고 원C35visibility학습/primary결과를 그대로 유지하는 진단으로, entity가 trueE 양성을 구별할수있는지 먼저 확인한다. 현재 결과로 새설계의 성공이나 채택을 주장하지 않는다."
+  ],
+  "all_source_rows_preserved": 28976,
+  "MR_original_rows": 1840,
+  "MR_ROLE_unknown_by_entity_truth": {
+    "TRAIN": {
+      "entity_truth_-1": {
+        "N": 283,
+        "entity_negative": 60,
+        "quality_negative": 153
+      },
+      "entity_truth_0": {
+        "N": 365,
+        "entity_negative": 359,
+        "quality_negative": 365
+      },
+      "entity_truth_1": {
+        "N": 248,
+        "entity_negative": 10,
+        "quality_negative": 87
+      }
+    },
+    "VAL": {
+      "entity_truth_-1": {
+        "N": 0,
+        "entity_negative": 0,
+        "quality_negative": 0
+      },
+      "entity_truth_0": {
+        "N": 8,
+        "entity_negative": 8,
+        "quality_negative": 8
+      },
+      "entity_truth_1": {
+        "N": 99,
+        "entity_negative": 30,
+        "quality_negative": 88
+      }
+    }
+  },
+  "draw_exposure": {
+    "entity_positive_all": {
+      "rows": 638,
+      "total_draws": 64000,
+      "minimum": 75,
+      "median": 100.0,
+      "maximum": 142,
+      "never_sampled": 0,
+      "samples": {
+        "N": 638,
+        "finite": 638,
+        "undefined": 0,
+        "negative": 0,
+        "negative_fraction": 0.0,
+        "zero": 0,
+        "mean": 100.31347962382445,
+        "median": 100.0,
+        "p10": 87.0,
+        "p90": 113.0
+      }
+    },
+    "entity_negative_all": {
+      "rows": 365,
+      "total_draws": 64000,
+      "minimum": 137,
+      "median": 176.0,
+      "maximum": 212,
+      "never_sampled": 0,
+      "samples": {
+        "N": 365,
+        "finite": 365,
+        "undefined": 0,
+        "negative": 0,
+        "negative_fraction": 0.0,
+        "zero": 0,
+        "mean": 175.34246575342465,
+        "median": 176.0,
+        "p10": 158.0,
+        "p90": 192.0
+      }
+    },
+    "D_entity_positive": {
+      "rows": 341,
+      "total_draws": 34280,
+      "minimum": 75,
+      "median": 100.0,
+      "maximum": 142,
+      "never_sampled": 0,
+      "samples": {
+        "N": 341,
+        "finite": 341,
+        "undefined": 0,
+        "negative": 0,
+        "negative_fraction": 0.0,
+        "zero": 0,
+        "mean": 100.52785923753666,
+        "median": 100.0,
+        "p10": 87.0,
+        "p90": 114.0
+      }
+    },
+    "E_entity_positive": {
+      "rows": 49,
+      "total_draws": 4865,
+      "minimum": 80,
+      "median": 99.0,
+      "maximum": 117,
+      "never_sampled": 0,
+      "samples": {
+        "N": 49,
+        "finite": 49,
+        "undefined": 0,
+        "negative": 0,
+        "negative_fraction": 0.0,
+        "zero": 0,
+        "mean": 99.28571428571429,
+        "median": 99.0,
+        "p10": 87.0,
+        "p90": 111.2
+      }
+    },
+    "unknown_role_entity_positive": {
+      "rows": 248,
+      "total_draws": 24855,
+      "minimum": 77,
+      "median": 100.0,
+      "maximum": 129,
+      "never_sampled": 0,
+      "samples": {
+        "N": 248,
+        "finite": 248,
+        "undefined": 0,
+        "negative": 0,
+        "negative_fraction": 0.0,
+        "zero": 0,
+        "mean": 100.22177419354838,
+        "median": 100.0,
+        "p10": 88.0,
+        "p90": 112.0
+      }
+    },
+    "E_later_entity_rejected": {
+      "rows": 14,
+      "total_draws": 1391,
+      "minimum": 81,
+      "median": 101.0,
+      "maximum": 117,
+      "never_sampled": 0,
+      "samples": {
+        "N": 14,
+        "finite": 14,
+        "undefined": 0,
+        "negative": 0,
+        "negative_fraction": 0.0,
+        "zero": 0,
+        "mean": 99.35714285714286,
+        "median": 101.0,
+        "p10": 87.6,
+        "p90": 112.0
+      }
+    },
+    "E_later_entity_accepted": {
+      "rows": 35,
+      "total_draws": 3474,
+      "minimum": 80,
+      "median": 97.0,
+      "maximum": 115,
+      "never_sampled": 0,
+      "samples": {
+        "N": 35,
+        "finite": 35,
+        "undefined": 0,
+        "negative": 0,
+        "negative_fraction": 0.0,
+        "zero": 0,
+        "mean": 99.25714285714285,
+        "median": 97.0,
+        "p10": 87.4,
+        "p90": 110.6
+      }
+    }
+  },
+  "draw_hash": "ada3afa65b32048695eecdc0bd3750d706e934cf014ce6d41266fa7f34d4ab5b",
+  "real_point_quality_gold": false,
+  "nominal_distance_purpose": "cm-uncertain source-only diagnosis, never3pxgold/visibilityfilter/relabel/GTnearest",
+  "causal_limit": "matched total effect of adding both entity and quality losses; separate aux effects and shared-latent causal mechanism not independently identified",
+  "next_design_status": "recommendation only; no new fit/protocol/threshold/model choice",
+  "original_bound_inputs_unchanged": true,
+  "new_model_feature_weight_private_or_fit_calls": 0,
+  "selected_model": null,
+  "goal_status": "active_unsolved",
+  "results": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/saved_output_cause_diagnosis/RESULTS.json",
+    "sha256": "e6e29e2c56e48984cc067e75b933c0894766e31f42d157e7f9d3bf5d0f069c02"
+  },
+  "view_record": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/saved_output_cause_diagnosis/ACTUAL_FIXED8_VIEW_RECORD.json",
+    "sha256": "2a3479918efae4bbe9136299a6b1380b4b73805d5595d4f6e55f8fb8fe548150"
+  },
+  "board": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/saved_output_cause_diagnosis/FIXED8_SAVED_CROP_DIAGNOSIS.png",
+    "sha256": "0a5318fcccceab06e701bd5472dd6ffffcb05c3954164304f1373cc2b1640503"
+  },
+  "initial_failed_attempt": "provenance/INITIAL_SYNTAX_ONLY_FAILURE; parser failure before source reads, repaired closing metadata dict only"
+}

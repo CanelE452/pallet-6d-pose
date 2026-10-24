@@ -1,0 +1,191 @@
+{
+  "schema": "V64_SOURCE_MULTITARGET_LABEL_OUTPUT_CONTRACT_V2",
+  "date_Asia_Seoul": "2026-10-22",
+  "scope": "Source-only label/model/metric design; no current private scores or new private RGB used",
+  "user_invariants": {
+    "training_sources": [
+      "existing synthetic source train",
+      "existing public YCB-V train_real source train"
+    ],
+    "validation": [
+      "existing synthetic validation",
+      "existing public YCB-V scene8/9 validation"
+    ],
+    "current_pallet_corpus": "No fit, thresholds, radius, normalizer, checkpoint or model selection. Existing private output is not a v64 design/selection input.",
+    "new_datasets": false,
+    "new_PnP": false,
+    "semantic_self_supervision": false
+  },
+  "class_order": {
+    "0": "VISIBLE",
+    "1": "EXTERNAL_SUPPORT",
+    "2": "OUTSIDE"
+  },
+  "joint_order": {
+    "0": [
+      "VISIBLE",
+      "VISIBLE"
+    ],
+    "1": [
+      "EXTERNAL_SUPPORT",
+      "VISIBLE"
+    ],
+    "2": [
+      "EXTERNAL_SUPPORT",
+      "EXTERNAL_SUPPORT"
+    ],
+    "3": [
+      "OUTSIDE",
+      "VISIBLE"
+    ],
+    "4": [
+      "OUTSIDE",
+      "EXTERNAL_SUPPORT"
+    ],
+    "5": [
+      "OUTSIDE",
+      "OUTSIDE"
+    ]
+  },
+  "coordinate_rule": {
+    "query": "unchanged registered source query; no human reference or new localization",
+    "pixel": "floor(query+.5), continuous AND rounded coordinate must be inside native image",
+    "radius0": "one exact nearest pixel",
+    "radius2": "clipped5x5 square around the same nearest pixel; radius is fixed before fitting",
+    "invalid": "mask all center/dense losses; do not relabel invalid positions as outside",
+    "centroid": "index8excluded"
+  },
+  "source_mask_rules": {
+    "SYNTH": "visible=M4>127,full=M0>127; values1/2 are background artifacts, not target",
+    "YCB": "visible=mask_visib>0,full=mask>0; verify0/255binary and subset per record",
+    "subset": "visible must be subset of full or the record fails the mask contract"
+  },
+  "label_rules": {
+    "radius0": [
+      "VISIBLE if visible(query)",
+      "else EXTERNAL_SUPPORT if full(query)",
+      "else OUTSIDE"
+    ],
+    "radius2": [
+      "VISIBLE if any visible pixel in the fixed clipped window",
+      "else EXTERNAL_SUPPORT if any full pixel in window",
+      "else OUTSIDE"
+    ],
+    "mixed_window": "Visible has priority for the window-support target; save visible/full/hidden counts and mixed support attributes.",
+    "external_definition": "Full target-only silhouette support removed by final scene visibility. It is a source mask-difference target, not guaranteed human corner external occlusion.",
+    "outside_definition": "No target support at this scale; includes background, holes or wrong query. Do not rename it external occlusion.",
+    "semantic_self": "UNKNOWN: hidden semantic 3D corners can project onto visible target-owned surfaces; full/visible2D masks supply no native-corner self truth."
+  },
+  "external_evidence": {
+    "role": "Attributes and stratified evaluation only, never relabel EXTERNAL_SUPPORT as OUTSIDE or invent self.",
+    "other_visible": "Union source-visible masks of all other instances in the frame, excluding target. Positive overlap on hidden target support is explicit source ownership evidence; retain overlap count and coverage.",
+    "depth": "Only aligned scene and target-render depth in the same units plus an explicitly locked source tolerance can establish scene surface in front of target. Measured depth>0, object-center z or frame valid-pixel totals alone cannot.",
+    "render_boundary": "Mark mask transition/image clipping without other-owner or paired-depth evidence as ambiguous render boundary. An uncertainty attribute is not proof that the source label is wrong.",
+    "unknown": "Missing other-instance masks or target-render depth stays unavailable; no automatic negative or fabricated depth evidence.",
+    "conflict": "Preserve source class and flag paired scene-depth-behind conflict for audit."
+  },
+  "training": {
+    "head": "one6-way joint softmax; no impossible joint training labels",
+    "loss": "source-domain-balanced mean center joint cross entropy +0.25 source-domain-balanced valid dense joint cross entropy",
+    "joint_class_weights": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "evidence_weights": "1forall including ambiguous boundaries; confidence attributes do not silently remove hard source cases",
+    "reason": "First registered intervention isolates multitarget/representation changes; inverse-frequency weights would additionally change calibrated source-prior behavior.",
+    "optional_later_control": "If needed, register a separate run using inverse TRAIN joint frequencies per domain, clipped before normalization. Never compute weights from VAL/private or retrofit the primary.",
+    "budget": "Root registered fixed2000updates; checkpoint selected only by source validation"
+  },
+  "selection": {
+    "primary": "unweighted center jointNLL per domain, then equal mean over SYNTH andYCB; strict lowest value; no private choice",
+    "baselines": [
+      "TRAIN-only per-domain empirical6joint prior (actual trainer baseline)",
+      "TRAIN-only per-domain6joint prior with Laplace1 (additional diagnostic)",
+      "uniform6joint",
+      "alwaysvisiblejoint0",
+      "alwaysexternalsupportjoint2",
+      "alwaysoutsidejoint5",
+      "frozen rawSAM exact/r2 visible plus prompt-box full-support heuristic"
+    ],
+    "prior_rule": "Primary empirical TRAIN prior count_j/TRAINtotal matches frozen trainer; additional Laplace1=(count_j+1)/(TRAINtotal+6). For a missing TRAIN domain use global TRAIN prior and disclose.",
+    "audit": [
+      "Report each domain separately; a good macro mean can hide a failed domain.",
+      "Report jointNLL/Brier and6stateMAPconfusion; exact/radius2 V/E/O hierarchical confusion,P/R and balanced accuracy; binary visible/full BCE/AP.",
+      "Report external-support confirmedother/depth versus ambiguousboundary strata with their full denominators.",
+      "Constant all-absent cannot claim success from recall or accuracy. If a supported class has zero recall or a domain does not beat its TRAIN-prior NLL, mark a source mechanism HOLD diagnostic; do not silently switch metrics or thresholds."
+    ],
+    "thresholds": "Primary binary visible pV>=.5; user-facing mechanism jointMAP with maxjoint>=.5 else wholepairU; logical pV/pFull .5 paired diagnostic. All fixed before private."
+  },
+  "outputs": {
+    "joint_probabilities": "p0..p5 ordered above",
+    "exact_marginals": {
+      "VISIBLE": "p0",
+      "EXTERNAL_SUPPORT": "p1+p2",
+      "OUTSIDE": "p3+p4+p5"
+    },
+    "radius2_marginals": {
+      "VISIBLE": "p0+p1+p3",
+      "EXTERNAL_SUPPORT": "p2+p4",
+      "OUTSIDE": "p5"
+    },
+    "full_exact": "p0+p1+p2",
+    "full_radius2": "p0+p1+p2+p3+p4",
+    "near_visible_without_exact_visible": "p1+p3; finite spatial evidence change, not verified coordinate error",
+    "joint_MAP": "Argmax p0..p5 is a six-state MAP diagnostic; user-facing mechanism additionally requires maxjoint>=.5.",
+    "independent_marginal_argmax": "Do not combine independent3classargmax predictions as a physically valid pair; explicit counterexample preserved.",
+    "confidence_U": "User-facing mechanism: accept jointMAP only ifmaxjoint>=.5, otherwise entirepairU. Exact .5 ties accepted, argmax firstindex. Report coverage and recallallGT including U; no fitted threshold.",
+    "probability_caution": "Ehardcall need not imply pE>=.5, and softmax confidence is not calibrated on current pallet data.",
+    "primary_binary_comparison": "pVisible>=.5 at each scale, same visible-versus-nonvisible threshold as v61/v63; no U in binary comparison.",
+    "logical_support_diagnostic": "At each scale V ifpVisible>=.5; elseE ifpFull>=.5; elseO. Paired6validstates with nested sums; logical E may have pE<.5, so not mechanism confidence."
+  },
+  "interpreting_joint_states": {
+    "0": "Exact query target visible, with local visible support.",
+    "1": "Exact supported pixel is hidden while a nearby pixel has visible support; evidence varies within2px.",
+    "2": "Exact and nearby supported region have no visible target pixels.",
+    "3": "Exact query lies outside target support while target is visible nearby; potential query phase/boundary mismatch, not semantic location-error truth.",
+    "4": "Exact query outside support, with hidden target support nearby.",
+    "5": "No target support at exact or radius2window."
+  },
+  "geometry": "Optional saved-initial-pose cuboid self flag remains separate from raw joint probabilities; never a learned target, no pose solve or reference-coordinate input.",
+  "preserve_v63": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/SOURCE_SELECTION_SEAL.json",
+      "sha256": "c7c6239f6da65f544a84f785ed266e25f1728d0a66a49f63a1f6c0a216517ca8"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/runs/MIXED_CONTEXT_RGB_SAM_V4/MODEL_FREEZE.json",
+      "sha256": "41092be63221502c9dfb2b10cd9656a6deb7c534d63ecae7f52419b98802ed7d"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/runs/MIXED_CONTEXT_RGB_SAM_V4/BEST_QUERY_HEAD.pt",
+      "sha256": "5e89f3f0e1b0b2b43c553cfdb290451f5ff5e9a489352ce823f1a0b14a5a3441"
+    }
+  ],
+  "source_contract_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/contract/LABEL_EVALUATION_CONTRACT.json",
+      "sha256": "b52e813927dd2699b53f0a1a563b55152322613aea6238b1e326c5f4df1b3a71"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/contract/source_support_contract.py",
+      "sha256": "8b9c08e34cec1e26012ce82b126e0c27dd8b7b7b1bb8ad3f7bed82431ffc182a"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/contract/HIERARCHICAL_DECODER_AUDIT.json",
+      "sha256": "90d372faea8113b22db0b32f4b37194db6a8e8b43eb1e0d32828fa572fd13f12"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/contract/SOURCE_SUPPORT_SMOKE.json",
+      "sha256": "20bfeda4683fc1f5edd73988f72efd86cfc66941c66e2449bc6dbac3f33be85c"
+    }
+  ],
+  "protocol_amendment": {
+    "reason": "Clarify distinction between binary visibility comparison, logical support diagnostic, and confidence-qualified user-facing mechanism before any v64 private inference. No loss/data/checkpoint/radius/threshold changes.",
+    "confidence_limitation": "Joint confidence requires confidence about both exact and nearby states. E marginal may be substantial but split between EV andEE; output explicit per-scale pE, preserve U recallallGT and per-class coverage.",
+    "independent_validation": "1,000,000 generated posteriors and11ties; acceptedjointMAP chosen exact/near marginals >=.5."
+  }
+}

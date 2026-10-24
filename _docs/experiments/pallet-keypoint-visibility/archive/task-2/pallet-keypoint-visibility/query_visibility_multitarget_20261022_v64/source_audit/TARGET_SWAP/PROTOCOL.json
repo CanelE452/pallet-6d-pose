@@ -1,0 +1,34 @@
+{
+  "schema": "PUBLIC_YCB_TARGET_IDENTITY_COUNTERFACTUAL_V64_V1",
+  "fixed_before_execution": true,
+  "selection": "All3200 fixed YCB heldout-scene validation queries from200 images and400 selected target instances. Exactly2 selected targets per frame; the other selected target is the counterfactual conditioner. No scores select pairs.",
+  "held_fixed": ["source RGB", "original query8", "original ROI side L", "original frozen P3 and valid grid", "original75-channel native RGB patches"],
+  "arms": {
+    "ORIGINAL": "original context64, registered SAM box_grid, exact/radius2 selectedSAM logits",
+    "CONTEXT_ONLY_SWAP": "other selected target context64; original SAM and box_grid remain fixed. This deliberately inconsistent conditioning probe is not deployment accuracy.",
+    "FULL_CONDITION_SWAP": "other target context64 and same locked source SAM promptbox, rebuilt box_grid at original q/L, other-target selected full-resolutionSAM exact and native5x5 maximum sampled at original q/L"
+  },
+  "labels": "Reconstruct other-target exact and native clipped5x5 visible/full support from official masks at the unchanged original q/L. Same six joint states and logical decoder as registered v64. Never relabel negatives.",
+  "evidence": "Other-instance visible-mask union excludes the newly conditioned target; record external corroborated/ambiguous, strict5x5 full1vis0, near-boundary and overlapping-visible evidence. These remain source rendered/depth proxies, not certified human visibility.",
+  "SAM": {
+    "checkpoint_and_loader": "unchanged frozen v63 MobileSAM",
+    "prompts": "same locked public source boxes, no mask/positive point prompts",
+    "selection": "maximum SAM predicted quality, tie first",
+    "execution": "set_image200 times and predict400 target prompts; decode once per target and resample for the other target's unchanged query8",
+    "replay_check": "each decoded target's own original exact/radius2 grids must bitmatch v64 source_cache/YCB_VALIDATION_WITH_SAM.npz before saving counterfactual features",
+    "GPU": "do not execute until parent explicitly releases GPU; CPU prepare and final head inference are allowed"
+  },
+  "metrics": {
+    "thresholds": "registered pVisible>=.5 else pFull>=.5; confidence diagnostic jointMAP only when maxjoint>=.5 elseU",
+    "ownership_changed_subset": "separate exact V/E/O changed, exact visible-bit changed, full-bit changed; repeat at radius2",
+    "binary_correct_direction": "(p_swapped-p_original)*(truth_other-truth_original)>0 on changed binary truth; ties separately",
+    "class_correct_direction": "[(p_original[oldclass]-p_original[newclass])-(p_swapped[oldclass]-p_swapped[newclass])]>0 on changed classes",
+    "both_targets_correct": "registered decoder correct for original target AND swapped target at the same original query; conditional on fixed changed-ownership subsets and all pairs",
+    "confidence_and_U": "original/context/full U rates, paired coverage, both-target accuracy within jointly confident pairs; report jointMAP and registered logical decoder separately",
+    "strictE": "descriptive slices for original/new target strict external5x5 and corroborated/ambiguous exact external, without label changes",
+    "rawSAM": "visible-only exact/radius2 original-versus-full-swap baseline, no external/full inference from SAM foreground"
+  },
+  "box_provenance_caveat": "Public YCB source box is annotation bbox_obj with fixed0.9..1.1 scale jitter. Swap reuses this same registered box, not a newly mask-fitted box. Source box is not GT-free; deployment needs its own available initial box.",
+  "prohibitions": ["private image/label/score access", "training", "PnP", "threshold fitting", "active model/cache modification", "using counterfactual labels in inference"],
+  "output_directory": "source_audit/TARGET_SWAP"
+}

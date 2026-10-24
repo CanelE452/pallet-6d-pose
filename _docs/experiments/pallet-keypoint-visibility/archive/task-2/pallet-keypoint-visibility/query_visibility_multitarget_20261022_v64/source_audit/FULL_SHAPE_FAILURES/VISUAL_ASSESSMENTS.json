@@ -1,0 +1,75 @@
+{
+  "schema": "PUBLIC_SOURCE_GLOBAL_SHAPE_VISUAL_ASSESSMENT_V1",
+  "scope": "Qualitative reading of the deterministic6-case contact sheet and official source masks. No model inference or new performance claim.",
+  "markers": "Blue roughbox and yellow query are display annotations only. They are not painted into the proposed model RGB input. Official green/magenta overlays are diagnostic reference only.",
+  "population": {"strict_corroborated_E":176,"saved_prediction_V":22,"saved_prediction_E":105,"saved_prediction_O":49},
+  "interpretation": {
+    "V_failure": "The model assigns the foreground surface to the conditioned target. Global identity/shape can help when enough target is visible, but a box dominated by its occluder can identify the occluder instead.",
+    "O_failure": "Low pVisible is often already correct, while low pFull misses hidden target support. Improving target identity alone does not establish the unseen amodal boundary.",
+    "intrinsic_ambiguity": "No case is formally proved impossible from RGB. In heavily hidden cases, multiple target shapes/identities are compatible with RGB plus roughbox; the official amodal label relies on object mesh/pose unavailable as this input. Record uncertainty instead of claiming the global encoder must solve it.",
+    "selection_limit": "Six deliberately diverse failure examples, not an estimate of prevalence. All queries satisfy fixed strong source mask evidence, which is still not independent human physical truth."
+  },
+  "cases": [
+    {
+      "sample_id":"YCB:000008:000182:000003:3",
+      "saved_prediction":"VISIBLE",
+      "target_visible_fraction":0.195,
+      "observation":"The roughbox is dominated by the tall white foreground container. The conditioned target survives as a narrow strip at its left; the local query reads the white container's top/side.",
+      "global_shape_potential":"LIMITED_IDENTITY_CUE",
+      "why":"Global RGB reveals that another target may continue behind the white container, but does not cleanly specify the hidden target identity or exact extent. A selectedSAM mask can continue to favor the foreground container.",
+      "remaining_ambiguity":"The visible strip and roughbox allow several hidden-target completions. A target-specific reference or learned shape prior may be necessary; larger RGB alone is not guaranteed."
+    },
+    {
+      "sample_id":"YCB:000008:000363:000000:3",
+      "saved_prediction":"VISIBLE",
+      "target_visible_fraction":0.049,
+      "observation":"Only4.9% of the target's in-frame full support is visible. Global RGB inside the roughbox largely shows the white foreground container, and the query lies on its colored label.",
+      "global_shape_potential":"TARGET_IDENTITY_SEVERELY_UNDERCONSTRAINED",
+      "why":"The displayed magenta shape is known from the official target mask, not apparent as a full object in RGB. The proposed crop has little direct target shape evidence and a SAM-selected foreground can reinforce the wrong object.",
+      "remaining_ambiguity":"A target-agnostic roughbox and RGB do not reliably distinguish a nearly fully hidden target from the visible occluder. Do not treat an encoder failure here as proof of a sampler/label bug."
+    },
+    {
+      "sample_id":"YCB:000009:000049:000002:3",
+      "saved_prediction":"VISIBLE",
+      "target_visible_fraction":0.799,
+      "observation":"Most of the wooden block is visible. The red drill covers the query on top/front of the block; the small local crop sees only drill texture.",
+      "global_shape_potential":"STRONG_OWNERSHIP_CUE",
+      "why":"The expanded RGB crop clearly separates the large wooden support object from the red drill and provides its visible outer edges. This is a concrete test where target shape/identity should plausibly improve V versus E separation.",
+      "remaining_ambiguity":"The exact hidden support boundary remains an inferred continuation, but this query is strict interior support under source labels. Improvement is plausible, not demonstrated until frozen source evaluation."
+    },
+    {
+      "sample_id":"YCB:000008:000242:000003:3",
+      "saved_prediction":"OUTSIDE",
+      "target_visible_fraction":0.231,
+      "observation":"The white container dominates global and local RGB. The original target is a narrow visible portion alongside it. pVisible=.056 already rejects the foreground as target, but pFull=.392 misses hidden support.",
+      "global_shape_potential":"LIMITED_AMODAL_RECOVERY_CUE",
+      "why":"A larger crop can show the remaining target fragment, yet the key error is whether that target extends behind the query. This requires an amodal shape/pose prior, beyond simply recognizing that the white surface is another object.",
+      "remaining_ambiguity":"Target identity and hidden extent are both weakly observed; global crop alone may remain insufficient."
+    },
+    {
+      "sample_id":"YCB:000008:000423:000001:3",
+      "saved_prediction":"OUTSIDE",
+      "target_visible_fraction":0.561,
+      "observation":"The yellow bottle neck and much of its body are clearly visible; the white container hides its right side at the query. The local crop contains white plastic and its label rather than yellow target texture.",
+      "global_shape_potential":"MODERATE_TO_STRONG_TARGET_SHAPE_CUE",
+      "why":"The global crop exposes a recognizable bottle contour and the occluding boundary. It could improve coarse hidden full-support completion, while local appearance alone encourages OUTSIDE.",
+      "remaining_ambiguity":"Precise hidden bottle width and depth ordering are not measured by the global RGB input. Keep the original full-support GT and report uncertainty rather than relabeling."
+    },
+    {
+      "sample_id":"YCB:000009:000450:000000:7",
+      "saved_prediction":"OUTSIDE",
+      "target_visible_fraction":0.690,
+      "observation":"Most of the blue pitcher is visible. The query lies on the front wooden block hiding its lower body; the local crop shows the bright wood surface. pVisible=.024 is correct as a visible-support decision, while pFull=.107 is low.",
+      "global_shape_potential":"MODERATE_AMODAL_SHAPE_CUE",
+      "why":"The pitcher rim and visible body give clear target identity and a plausible vertical continuation toward the hidden lower body. Global position-conditioned shape features may help distinguish E from O.",
+      "remaining_ambiguity":"The exact hidden base outline cannot be certified from the visible top/body. The official target mesh/pose determines the label; global RGB remains an inference about amodal extent."
+    }
+  ],
+  "minimal_source_only_success_criteria": [
+    "Evaluate all fixed source VAL queries and strict corroborated E populations, without selecting models or thresholds on these six pictures.",
+    "For saved E->V failures, require pVisible decrease and measure E versus O separately; merely lowering visible is insufficient.",
+    "For saved E->O failures, require pFull increase while pVisible remains low; report confident E precision/recall/U on all V/E/O truth.",
+    "Repeat the same-image full target-swap probe with the other target global crop while q/L/P3/nativeRGB remain fixed; target identity response should survive controlled ownership changes.",
+    "Retain confidence U on severely hidden/weak-target cases; no GT-negative relabeling, new PnP, or current-evaluation tuning."
+  ]
+}

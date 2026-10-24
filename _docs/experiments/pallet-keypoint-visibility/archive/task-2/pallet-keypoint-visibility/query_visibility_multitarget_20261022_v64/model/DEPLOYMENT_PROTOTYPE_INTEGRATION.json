@@ -1,0 +1,34 @@
+{
+  "status": "prototype for source fixtures or arbitrary new RGB; private registered evaluation requires separate source-selection gate",
+  "runtime": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+  "candidate_selection": "explicit frozen candidate name; no default model and no threshold changes",
+  "python": "QueryMultiTargetVisibility(candidate).predict_rgb(rgb_uint8_HWC,initial_points_8x2,saved_initial_pose=None)",
+  "cached": "predict_precomputed(points=q8,raw_hw=[H,W],x=roi8,rgb_native=uint8_8x75x9x9,sam=normalized8x2x9x9,box_grid=8x4x9x9,context=optional64_or8x64)",
+  "CLI": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/model/deploy_multitarget_prototype.py --candidate MIXED_MULTITARGET_UNWEIGHTED --input-json /ABS/NEW_REQUEST.json --out /ABS/NEW_RESULT.json --device cpu",
+  "request_fields": [
+    "image",
+    "initial_points",
+    "initial_pose(optional saved only)",
+    "request_id(optional)"
+  ],
+  "preprocessing": {
+    "RGB_native": "same integer labelpixel for every native9 position, channel RGB*25+dy*5+dx, integer5x5patches, no interpolation",
+    "SAM": "same selected box-only generic MobileSAM full-resolution logits; exact and actual native5x5 max before nearest native9 sampling; /8clip4",
+    "target_box": "unchanged q8 minmax clipped to original image; source YCB used annotation-derived jittered box, preserving source distribution caveat",
+    "box_grid": "continuous native9XY relative to identical SAMbox plusconstant log2(side/box width,height)",
+    "context": "same input-only weighted valid-cell mean from8 frozen P3 ROIs",
+    "PnP": "never imported or called"
+  },
+  "outputs": {
+    "joint_probability": "six valid exact/near state pair probabilities",
+    "exact/radius2": "p_visible,p_external_support,p_outside_full,p_full",
+    "mechanism": "jointMAP pair only ifmaxjoint>=.5 elseUNKNOWN; fixed heuristic, not calibrated real-pallet correctness",
+    "logical_support": "pVisible.5 thenpFull.5 decision diagnostic, can callE withpE<.5; not user-facing confidentocclusion",
+    "nearby_support_gap": "posterior outside-exact/visible-or-hidden-support-near; not proof of coordinate error",
+    "raw_SAM": "exact and real5x5 scores separate, cache reconstruction marked clipped",
+    "self_hidden_geometry_proxy": "separate unchanged saved-cuboid geometry flag; no alteration to learned probabilities",
+    "invalid": "nonfinite/offimage/sentinel query or emptyROI and missing/degeneratebox ->UNKNOWN"
+  },
+  "preservation": "v63 code/checkpoints/data unchanged; runtime genericassets reused only, v63 learnedhead never instantiated",
+  "portability": "absolute SHA-bound current-workspace paths; local reproducibility, not fully portable without rebinding paths/runtime"
+}

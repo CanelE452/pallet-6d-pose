@@ -1,0 +1,98 @@
+{
+  "schema": "SOURCE_ONLY_MULTITARGET_V64_PROTOCOL",
+  "objective": "Improve original query visibility by separating exact/nearby visible/full support, external support proxy, outside support and independent semantic self geometry; no PnP.",
+  "preservation": "v61/legacy/v63 frozen models, outputs, gates and reports are unchanged.",
+  "data": {
+    "train": "existing SYNTH768 and YCB800 source frames; unchanged queries/source group splits",
+    "validation": "existing SYNTH235 and YCB200 heldout-scene frames",
+    "current_eval": "No new inference until all source models/decisions freeze; no fitting/statistics/calibration/threshold/model choice from current223; already exposed development cohort"
+  },
+  "labels": {
+    "class_order": [
+      "VISIBLE_TARGET_SUPPORT",
+      "EXTERNAL_SUPPORT_PROXY",
+      "OUTSIDE_TARGET_SUPPORT"
+    ],
+    "exact": "nearest floor(q+.5) mask membership",
+    "radius2": "any visible/full support inside clipped native5x5 square at each nearest query pixel",
+    "joint_codes": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "self": "UNKNOWN in source2Dmask labels; saved initialpose puregeometry separate optionalproxy",
+    "external_evidence": "keep samefull1vis0 GT proxy; otherobjectvisible/depth/boundary confidence is descriptive, no relabel"
+  },
+  "inputs": {
+    "x": "unchanged frozen65x9x9 P3+validity",
+    "context": "unchanged64dim8ROI validcell mean",
+    "rgb_native": "75x9x9 uint8, RGBchannel-major5x5rawpixelpatch pernative9 labelpixel; zero outside raw image",
+    "sam": "2x9x9 frozen same box selectedSAM exact/r2rawlogit /8clipped4; rawexactarray mustbitmatchV63overlay",
+    "box_grid": "4x9x9 relativeXY toSAME promptbox pluslog2L/bw,bh; sourceYCBboxannotation-derivedjitter andSYNTHunchangedq8bounds",
+    "annotation_targets_never_inputs": true
+  },
+  "model": {
+    "parameters_max": 100000,
+    "six_joint_softmax": "hard probability monotonicity of exact/nearbyvisible/full marginals",
+    "fusion": "nonlinearshared RGB/P3/context/SAM/targetbox; no additive-onlyfinalbranch restriction",
+    "backbones_frozen": true
+  },
+  "fit": {
+    "candidates": [
+      "SYNTH_MULTITARGET_UNWEIGHTED",
+      "MIXED_MULTITARGET_UNWEIGHTED"
+    ],
+    "seed": 20261022,
+    "updates": 2000,
+    "batch_queries": 256,
+    "optimizer": "AdamW lr.001 wd.0001",
+    "validation_every_updates": 100,
+    "loss": "mean(source center6classCE)+.25mean(source validnative9denseCE)",
+    "class_weights": 1,
+    "evidence_weights": 1,
+    "selection": "lowest mean source VAL centerjointNLL, current evaluation unused",
+    "thresholds": {
+      "p_visible": 0.5,
+      "p_full": 0.5,
+      "scope": "fixed before scoring, never tune oncurrent"
+    }
+  },
+  "report": [
+    "train-frequency6classprior VALNLL baseline",
+    "rawSAM exact/r2presenceand alwaysvisible/absent priors",
+    "per-source exact/radius2 V/E/O confusion precision recall BA",
+    "jointMAPconfusion",
+    "strict/corroborated/ambiguous external support slices",
+    "source mechanism HOLD if any supportedV/E/O class haszero recall, independent ofNLLbest"
+  ],
+  "decoder": {
+    "primary": "visible ifpV>=.5 else external-support ifpFull>=.5 elseoutside, separatelyatexact/r2; marginalmonotonicityenforcesallowedhardjointpairs",
+    "joint_MAP": "argmax6joint separate diagnostic",
+    "independent_scale_marginal_argmax": "forbidden aspairedmechanismdecoder;canproduceimpossiblepair",
+    "abstention": "only optionalprespecified maxjoint<.5 diagnostic, no currentthresholdfitting"
+  },
+  "new_PnP_calls": 0,
+  "new_current_eval_inference_started": false,
+  "source_before_private_freeze": true
+}

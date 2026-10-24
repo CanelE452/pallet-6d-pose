@@ -1,0 +1,57 @@
+{
+  "schema": "V135_PROSPECTIVE_NATIVE_PAIR_SAMPLING_AND_MARGIN_CONTROL",
+  "purpose": "Correct source-defined near-foreign visible supervision imbalance while preserving full visibility task and old public/synthetic replay.",
+  "previous_goal_turn_classification": "PROGRESS",
+  "previous_turn_evidence": "V133 two matched source heads completed; geometry alone failed. V134 actual stored crops and draw traces show near-foreign false occlusion and 14.26x per-row COVER-E versus paired NEAR-SHAM-D exposure.",
+  "initialization": "Exact V124 source-selected C16 checkpoint update4500, SHA ee285b2b5bb5a8e4f211eb3ee898e8e6a9b6582e5f83af01078db2e886e23eb0; both start here, never from a V133 final candidate.",
+  "architecture": "Same V133 GeometryQueryHead224513 parameters; bias-free42x64 additive branch stays zero for all inputs and both arms. Original C16 visual MLP trainable, encoder frozen.",
+  "arms": ["C26_NATIVE_PAIR_SAMPLER", "C27_NATIVE_PAIR_SAMPLER_AND_MARGIN"],
+  "historical_control": "Reuse frozen V133 C24_ZERO_GEOMETRY_CONTROL actual source results as same-budget uniform-native sampling control; do not claim rerunning it.",
+  "data": {
+    "old": "Entire original51004 occurrences/19432 feature units; YCB-V natural/material, samewood, public pallets and all synthetic source replay retained.",
+    "native": "All original V1326144 actual-query slots retained; TRAIN available D1869/E131 only in loss; original VAL/S/U/unavailable excluded from fit.",
+    "native_pair_pool": "All125 TRAIN base/native groups with available COVER=E and NEAR_SHAM=D, same physical registered native corner, built from fixed source GT labels before fit; 3 source bases without eligible input do not erase other rows from uniform replay.",
+    "pair_coordinates": "Use each variant's original actual q8/L/context/features. They differ across images. Semantic pair ranking is valid supervised D/E comparison, not an isolated fixed-q image causal contrast.",
+    "private": "Current223 remains evaluation-only; zero access for this fit and no threshold/checkpoint/arm choice from it.",
+    "ontology": "Original source-label normal-facing rule matches60000 archived native permutations and all192V129 configs. CF stays primary. Historical area-V4 disagreement subset remains a named diagnostic only."
+  },
+  "sampler_each_update": {
+    "old192": "Exact original C16 draw192, same original seeds and loss; keep source15 historical checks and14 class recalls.",
+    "native64": "16 paired COVER-E +16 paired NEAR_SHAM-D from same16 pool draws, plus16 uniform available native TRAIN-D and16 uniform native TRAIN-E. Preserve32D/32E and all uniform pools.",
+    "native_order": "pairedE16,pairedD16,uniformD16,uniformE16",
+    "pair_generator_seed": 1334,
+    "uniform_native_generator_seed": 1332,
+    "original_old_generators": [208,214,215,216,217],
+    "original_flat_generator": 218,
+    "torch_seed": 1330,
+    "same_all_draws_between_new_arms": true,
+    "old192_draws_exact_historical_C24": true
+  },
+  "loss": {
+    "both": "Exact old192 BCE+old matched hinge+flat BCE, plus native64 BCE weight1.",
+    "C26": "No native margin term.",
+    "C27": "Add0.25*mean(relu(2-(z_pairedE-z_pairedD))) over16 native source pairs. No teacher S/U/unavailable gradient.",
+    "reference_coordinates_depth_pose_renderer_selected_role_as_input": false
+  },
+  "optimization": {
+    "updates_each": 8000,
+    "selection_update": 8000,
+    "VAL_checkpoint_choice": false,
+    "optimizer": "fresh AdamW",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.001,
+    "clip_grad_norm": 5,
+    "precision": "FP32, TF32 false, deterministic; exact update0 C16 replay before first optimizer step"
+  },
+  "acceptance": {
+    "threshold_hidden_logit": 0,
+    "gates": "Reuse all42 prospective V133 gates unchanged:15 historical,14 old cohort preservation, full native D/E, area-disagreement-excluded D/E, four foreign-family D/E, same-material subset E.",
+    "full_denominators": "Known prediction-U included in recall; all6144 original slots retained, teacherS/U kept separate; keep CF primary and area-V4 as obsolete-convention sensitivity.",
+    "selection": "Only if all42 PASS, choose higher minimum of27 required recalls; exact tie C26. If neither PASS no new private forward.",
+    "scope": "SOURCE-only candidate admission. Passing does not prove application success. Existing private C16 D1137/1147 E35/90 remains latest until a separately frozen evaluation."
+  },
+  "new_training_allowed_only_after_code_review_and_generated_gradient_draw_checks": true,
+  "automatic_retry": false,
+  "PnP_q_xy_L_or_pose_correction": false,
+  "fully_solved": false
+}
