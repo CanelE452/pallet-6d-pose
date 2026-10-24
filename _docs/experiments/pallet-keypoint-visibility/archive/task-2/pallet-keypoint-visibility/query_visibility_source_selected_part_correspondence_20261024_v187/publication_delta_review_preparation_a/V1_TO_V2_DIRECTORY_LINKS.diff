@@ -1,0 +1,90 @@
+--- audit_immutable_delta.py
++++ audit_immutable_delta_v2_directory_links.py
+@@ -4,7 +4,7 @@
+ from pathlib import Path, PurePosixPath
+ from html.parser import HTMLParser
+ from urllib.parse import urlsplit, unquote
+-import argparse, codecs, gzip, hashlib, io, json, os, posixpath, re, stat, traceback
++import argparse, codecs, gzip, hashlib, io, json, os, posixpath, re, stat, tempfile, traceback
+ 
+ H=Path(__file__).absolute().parent;V=H.parent;P=V.parent
+ REPO=Path('/home/minjae/Documents/pallet-visibility-publication-20261024')
+@@ -14,9 +14,9 @@
+ PHASE=V.name
+ ARCHIVE='archive/task-2/pallet-keypoint-visibility/'+PHASE+'/'
+ BASE_SHA='f5f4c2d819c7533492e24d2238baa8a6f638438c4458492d01c0321a34130fc7'
+-OUT=P/'publication_root_preparation/V187_DELTA_INDEPENDENT_REVIEW_A'
+-PROTOCOL=H/'PROTOCOL_BEFORE_ACTUAL_DELTA_BYTES.json'
+-CHECKS=H/'GENERATED_INVENTED_CHECKS.json'
++OUT=P/'publication_root_preparation/V187_DELTA_INDEPENDENT_REVIEW_A_V2_DIRECTORY_LINKS'
++PROTOCOL=H/'PROTOCOL_BEFORE_ACTUAL_DELTA_BYTES_V2_DIRECTORY_LINKS.json'
++CHECKS=H/'GENERATED_INVENTED_CHECKS_V2_DIRECTORY_LINKS.json'
+ C=V/'publication_delta_preparation_c'
+ C_CODE={'path':str(C/'build_completed_phase_delta.py'),'sha256':'1340a77b8f21376f8a9b9bcac2e4e29673b840863635b8fc0ba51cc5c9454833'}
+ C_PROTO={'path':str(C/'BUILDER_PROTOCOL_BEFORE_ANY_DELTA_ARTIFACT_READ.json'),'sha256':'ae9424e3efaf0f2d37572b076b1a0c092e6f0e59213eb8205e21d418983359e7'}
+@@ -137,9 +137,22 @@
+         if resolved is None:external+=1
+         else:require(exists(resolved),'Missing portable link: '+resolved);local.append(resolved)
+     return {'document':document,'local_links':local,'local_link_count':len(local),'external_or_anchor_or_inline_count':external}
+-def exists_regular(relative_path):
+-    try:
+-        with opened(PUB/relative(relative_path)):return True
++def ordinary_link_target(path):
++    p=safe_name(path);require(p.is_absolute(),'Explicit absolute target')
++    require(REPO in p.parents or P in p.parents,'Explicit publication/project target only')
++    fd=os.open(p.anchor,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
++    try:
++        for part in p.parts[1:-1]:
++            new=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);os.close(fd);fd=new
++        final=os.open(p.parts[-1],os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=fd)
++    finally:os.close(fd)
++    try:
++        mode=os.fstat(final).st_mode
++        return stat.S_ISREG(mode) or stat.S_ISDIR(mode)
++    finally:os.close(final)
++def exists_file_or_directory(relative_path):
++    try:
++        return ordinary_link_target(PUB/relative(relative_path))
+     except FileNotFoundError:return False
+ 
+ def invented():
+@@ -173,6 +186,12 @@
+         add('portable_'+name+'_rejected',ok)
+     add('strict_Git_100MiB_boundary',LIMIT-1<LIMIT and not LIMIT<LIMIT)
+     add('previous_index_suffix_keeps_relative_parent',resolve_target('EXPERIMENT_INDEX_THROUGH_V187_KO.md','reports/old.md')=='reports/old.md')
++    with tempfile.TemporaryDirectory(prefix='invented_directory_only_',dir=H)as t:
++        root=Path(t);directory=root/'ordinary';directory.mkdir();link=root/'symlink';link.symlink_to(directory,target_is_directory=True)
++        add('ordinary_directory_link_target_accepted_without_enumeration',ordinary_link_target(directory))
++        try:ordinary_link_target(link);ok=False
++        except OSError:ok=True
++        add('symlink_directory_target_refused_NOFOLLOW',ok)
+     return {'completed':True,'PASS':all(t['PASS']for t in tests),'invented_only':True,'checks':tests,'actual_phase_inventory_publication_or_source_hash_copy_reads':0,'Git_calls':0}
+ 
+ def prepare():
+@@ -181,12 +200,14 @@
+            'immutable_base_manifest':{'path':str(PUB/'PUBLICATION_MANIFEST.json'),'sha256':BASE_SHA},'delta_manifest_path':str(PUB/DELTA/'DELTA_MANIFEST.json'),'source_archive_manifest_path':str(PUB/DELTA/'SOURCE_ARCHIVE_MANIFEST.jsonl'),
+            'source_phase':str(V),'repository':str(REPO),'output':str(OUT),'portable_pages':PORTABLE,
+            'audit':['All new included original source files streamhash versus frozen sourceSHA; stored RAW or concatenated gzip roundtrip versus same SHA/size, every stored part SHA/size/CRC, every physical Git-stage file strictly<100MiB.','Old manifest metadata only; reject all delta logical/raw/part/descriptor collisions before opening new bodies. Rehash unchanged base manifest after audit; no old raw dataset/model/evaluation file bodies.','Exact SOURCE_ARCHIVE records occur in DELTA; separate physical descriptor records and BUILD physical_files close stored paths, delta/chain/readme.','Scan new logical text plus additional new physical text for credential formats; output only redacted type/path/line, never token content. This format scan is not a general secret detector.','Only three named portable entry pages receive relative-link checks. Copied provenance Markdown is scanned for credentials but not treated as a portable entry. Verify new index ends with old index bytes in same parent, global readme ends with preserved prior bytes.'],
++           'link_target_policy':'V2 only: explicit ordinary regular files OR ordinary directories exist; every component opened with NOFOLLOW, no directory enumeration/content read. Symlinks refused, no logical gzip fallback. All other byte/credential/collision checks unchanged.',
++           'V1_static_finding':bind(H/'ROOT_STATIC_DIRECTORY_LINK_FINDING_V1_PRESERVED.json'),
+            'body_interpretation':'No image/model/NPZ/evaluation decode or semantic data parse; manifests/chain/descriptors are administrative metadata, other text is regex/link audit only. No network or Git commands.','actual_before_root_entry':0,'automatic_retry':False}
+     write(PROTOCOL,proto)
+     template={'approved_actual_V187_immutable_delta_audit':False,'completed_phase_frozen':False,'code':proto['code'],'protocol':bind(PROTOCOL),'checks':proto['checks'],'repository':str(REPO),'build_complete':{'path':None,'sha256':None},'base_manifest':proto['immutable_base_manifest'],'delta_manifest':{'path':proto['delta_manifest_path'],'sha256':None},'output':str(OUT),'Git_mutation_or_push':False,'image_model_eval_decode_or_parse':False,'automatic_retry':False}
+-    write(H/'ROOT_ACTUAL_ENTRY_TEMPLATE_APPROVED_FALSE.json',template)
+-    ready={'completed':True,'prepared_only':True,'code':proto['code'],'protocol':bind(PROTOCOL),'checks':proto['checks'],'template':bind(H/'ROOT_ACTUAL_ENTRY_TEMPLATE_APPROVED_FALSE.json'),'actual_phase_enumeration_hash_copy_or_repo_access':0,'output_after_entry':str(OUT),'command':'/home/minjae/anaconda3/envs/pallet-yolo26/bin/python '+str(Path(__file__).absolute())+' --entry <root-entry>'}
+-    write(H/'PREPARATION_COMPLETE.json',ready);print(json.dumps(ready),flush=True)
++    write(H/'ROOT_ACTUAL_ENTRY_TEMPLATE_APPROVED_FALSE_V2_DIRECTORY_LINKS.json',template)
++    ready={'completed':True,'prepared_only':True,'code':proto['code'],'protocol':bind(PROTOCOL),'checks':proto['checks'],'template':bind(H/'ROOT_ACTUAL_ENTRY_TEMPLATE_APPROVED_FALSE_V2_DIRECTORY_LINKS.json'),'actual_phase_enumeration_hash_copy_or_repo_access':0,'output_after_entry':str(OUT),'command':'/home/minjae/anaconda3/envs/pallet-yolo26/bin/python '+str(Path(__file__).absolute())+' --entry <root-entry>'}
++    write(H/'PREPARATION_COMPLETE_V2_DIRECTORY_LINKS.json',ready);print(json.dumps(ready),flush=True)
+ 
+ def run(entry):
+     e=read(entry);require(e['approved_actual_V187_immutable_delta_audit']is True and e['completed_phase_frozen']is True,'Root completed-phase audit entry')
+@@ -260,7 +281,7 @@
+         old_index_rows=[r for r in base['entries']if r.get('published_relative')=='EXPERIMENT_INDEX_KO.md'and r['status']!='EXCLUDED']
+         require(len(old_index_rows)==1 and hashlib.sha256(old_index).hexdigest()==old_index_rows[0]['published_sha256']and new_index.endswith(old_index),'Original index byte-exact suffix in same parent')
+         backup=bytes_of(PUB/DELTA/'GLOBAL_README_BEFORE_V187.md');require(bytes_of(REPO/'readme.md').endswith(backup),'Prior global README byte-exact suffix')
+-        links=[portable_audit(doc,bytes_of(PUB/doc).decode('utf-8'),exists_regular)for doc in PORTABLE]
++        links=[portable_audit(doc,bytes_of(PUB/doc).decode('utf-8'),exists_file_or_directory)for doc in PORTABLE]
+         require(not credential_hits,'Credential format hits present; values are redacted')
+         require(digest(file_chunks(e['base_manifest']['path']))[0]==BASE_SHA,'Immutable base unchanged after audit')
+         result={'completed':True,'PASS':True,'review_type':'INDEPENDENT_IMMUTABLE_PUBLICATION_DELTA_BYTE_AND_PORTABLE_TEXT_AUDIT','entry':bind(entry),'code':bind(__file__),'protocol':bind(PROTOCOL),'base_manifest':e['base_manifest'],'delta_manifest':e['delta_manifest'],'build_complete':e['build_complete'],

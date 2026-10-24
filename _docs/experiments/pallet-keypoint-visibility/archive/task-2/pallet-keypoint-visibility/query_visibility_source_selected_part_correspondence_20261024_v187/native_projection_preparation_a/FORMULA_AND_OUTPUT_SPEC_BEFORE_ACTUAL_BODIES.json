@@ -1,0 +1,36 @@
+{
+  "schema": "V187_NOMINAL_REFERENCE_AND_ORIGINAL96_FOOTPRINT_SPEC_v1",
+  "recorded_UTC": "2026-10-24T09:05:36.023502+00:00",
+  "frozen_before_actual_C_results_or_source_geometry_body_read": true,
+  "projection": "p_c=R*p_m+t; r=K*p_c; reference_xy=(r0/r2,r1/r2). Canonical box signs times [400,600,72]mm. Camera in model coordinates=solve(R,-t); exact supplied R/K/t retained.",
+  "native_order": "Exact existing V74 normal_facing_permutation pure AST, perm[dynamic]=canonical. No q-dependent permutation or GT-best matching.",
+  "original96_grid": {
+    "source_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_cue_inputs_20261023_v90/producer/spatial_input_math.py",
+      "sha256": "6a6c2543e28715e3d47e15c543c25f75ff7d3efa3b881e523bd3451817fc004b",
+      "lines": [
+        74,
+        83
+      ]
+    },
+    "sample_center_xy": "grid(row i,col j)=[qx+((j+0.5)/96-0.5)*L,qy+((i+0.5)/96-0.5)*L]",
+    "continuous_crop_index_xy": "t=96*(reference_xy-original_q_xy)/original_L+47.5; original q maps to(47.5,47.5), between the central4 samples.",
+    "inside_outer_crop_extent": "-0.5<=tx<95.5 AND -0.5<=ty<95.5; equivalently q-L/2<=reference<q+L/2, half-open. This describes the continuous crop pixel cells, not an exact sampled center.",
+    "inside_sample_center_rectangle": "0<=tx<=95 AND 0<=ty<=95; inclusive bounding rectangle of96x96 sample centers.",
+    "reference_has_original_sampler_valid_domain": "-0.5<=reference_x<W-0.5 AND -0.5<=reference_y<H-0.5, separately from original continuous-valid q.",
+    "not_validity_gate": "These three booleans are nominal geometry diagnostics only. They never change original_query_available/inputU, q/L, crop pixels, native labels or admission."
+  },
+  "nominal_discrepancy": {
+    "vector_px": "reference_xy-original_q_xy",
+    "distance_px": "hypot(dx,dy)",
+    "vector_over_L": "(reference_xy-original_q_xy)/original_L",
+    "distance_over_L": "distance_px/original_L",
+    "authority": "Nominal discrepancy only, not physical coordinate error/gold or a quality target. No cutoff or fitted threshold."
+  },
+  "missing": "Invalid/missing/nonfinite/sentinel q or nonpositive/nonfinite L => footprint/discrepancy null with reason, original rows/flags retained. Nonpositive reference camera-Z => diagnostic invalid/UNKNOWN, no visible/self/external inference.",
+  "association": "Lookup only the C unique-positive-max-bbox-IoU weak association when selected_obj_id==1 and exact original GT-list index exists. All other outcomes UNKNOWN, no fallbackinstance.",
+  "no_new_supervision": true,
+  "native_visibility_target": -1,
+  "point_quality_target": -1,
+  "training_admission": false
+}

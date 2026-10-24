@@ -1,0 +1,235 @@
+{
+  "schema": "V187_SOURCE_NOMINAL_NATIVE_CORRESPONDENCE_PREPARATION_v1",
+  "completed_preparation": true,
+  "actual_source_calculation_performed": false,
+  "question_KO": "원래 초기 q/L crop을 유지한 채, 선택된 팔레트의 해당 camera-facing 끝부위가 crop에 보이거나 다른 물체에 앞가림되는가. 문자 그대로 q 중심의 owner, crop-any-pallet, native D/E/S 및 좌표 품질은 별개이다.",
+  "scope_binding": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_selected_part_correspondence_20261024_v187/ROOT_SCOPE_BEFORE_SOURCE_CORRESPONDENCE_BODIES.json",
+    "sha256": "888d596d58101b2eb84387f63407a5391b4cbd63d6ef159276163981d68129db",
+    "kind": "TEXT_CODE_OR_DOCUMENT_OR_METADATA_ONLY"
+  },
+  "population": "SOURCE_DEVELOPMENT/TRAIN185 frames /1480 original native slots /194 inputU, scope-declared; no new row statistics calculated.",
+  "nominal_coordinates": {
+    "model": "MR6D obj_id=1 nominal Euro pallet",
+    "units": "mm",
+    "dimensions_xyz": [
+      800,
+      1200,
+      144
+    ],
+    "center_xyz": [
+      0,
+      0,
+      0
+    ],
+    "canonical8": [
+      {
+        "canonical_index": 0,
+        "sign": [
+          -1,
+          -1,
+          1
+        ],
+        "XYZ_mm": [
+          -400,
+          -600,
+          72
+        ]
+      },
+      {
+        "canonical_index": 1,
+        "sign": [
+          1,
+          -1,
+          1
+        ],
+        "XYZ_mm": [
+          400,
+          -600,
+          72
+        ]
+      },
+      {
+        "canonical_index": 2,
+        "sign": [
+          1,
+          -1,
+          -1
+        ],
+        "XYZ_mm": [
+          400,
+          -600,
+          -72
+        ]
+      },
+      {
+        "canonical_index": 3,
+        "sign": [
+          -1,
+          -1,
+          -1
+        ],
+        "XYZ_mm": [
+          -400,
+          -600,
+          -72
+        ]
+      },
+      {
+        "canonical_index": 4,
+        "sign": [
+          -1,
+          1,
+          1
+        ],
+        "XYZ_mm": [
+          -400,
+          600,
+          72
+        ]
+      },
+      {
+        "canonical_index": 5,
+        "sign": [
+          1,
+          1,
+          1
+        ],
+        "XYZ_mm": [
+          400,
+          600,
+          72
+        ]
+      },
+      {
+        "canonical_index": 6,
+        "sign": [
+          1,
+          1,
+          -1
+        ],
+        "XYZ_mm": [
+          400,
+          600,
+          -72
+        ]
+      },
+      {
+        "canonical_index": 7,
+        "sign": [
+          -1,
+          1,
+          -1
+        ],
+        "XYZ_mm": [
+          -400,
+          600,
+          -72
+        ]
+      }
+    ],
+    "axis_authority": "V151 prior-audit code identifies +Z72 five deck boards and -Z72 three bottom runners. This is source-asset anatomy evidence, not initializer-channel or semantic-label certification.",
+    "projection": "p_camera=R_m2c*p_model+t_m2c; (u,v)=first2(K*p_camera)/(K*p_camera)[2]. Preserve supplied R/t/K; camera_model=solve(R,-t), not an assumed exact transpose inverse.",
+    "do_not_apply": "The separate synthetic world-Z-up to model-Y-up transform is not an additional MR6D transform."
+  },
+  "dynamic_role_rule": {
+    "authority": "Exact existing V74 pure rule as reused by V153. Empirically verified source-renderer-equivalent contract, not recovered historical writer code or certification of actual learned-channel physical correspondence.",
+    "vertical_faces": [
+      [
+        0,
+        1,
+        2,
+        3
+      ],
+      [
+        4,
+        5,
+        6,
+        7
+      ],
+      [
+        0,
+        4,
+        7,
+        3
+      ],
+      [
+        1,
+        5,
+        6,
+        2
+      ]
+    ],
+    "front_selection": "Outward face normals, camera direction from box center; argmax normalized dot product over four vertical faces only. No image-area rule, q-nearest rule, reference-error minimization or GT-best permutation.",
+    "front_order": "Two highest model-Z vertices, image-X ascending gives top-left/top-right; corresponding same-model-XY bottom vertices give bottom-right/bottom-left.",
+    "rear_order": "Opposite face is front_face_index XOR 1; retain each front vertex structural correspondence across box depth by nearest fixed 3D opposite vertex. Do not independently image-X-sort rear vertices.",
+    "permutation_direction": "perm[dynamic_slot]=canonical_fixed_index; dynamic_reference[k]=canonical_reference[perm[k]]. Original inferred q[k] is never permuted again.",
+    "dynamic_names": [
+      "front_top_left",
+      "front_top_right",
+      "front_bottom_right",
+      "front_bottom_left",
+      "rear_top_left",
+      "rear_top_right",
+      "rear_bottom_right",
+      "rear_bottom_left"
+    ],
+    "tie_status": "V153 inherited exact_tie_original_writer_policy_uncertified flag (margin<=1e-10) remains an uncertainty flag. Listed-order tie breaking computes a reference but does not manufacture semantic identity. No new threshold tuning.",
+    "role_vs_visibility": "Rear name or convex-box proxy does not determine self-hidden/external/visible semantic state."
+  },
+  "selected_instance_contract": {
+    "identity_key": [
+      "dataset_split",
+      "scene_id",
+      "frame_id",
+      "scene_gt_list_index",
+      "obj_id"
+    ],
+    "confirmed_from_code": "Initializer selects first confidence argmax proposal, then transports raw first8 of9 keypoints unchanged. V153 projects every supplied obj1 GT list instance separately; it does not identify which GT instance the selected detection denotes.",
+    "not_identity_authority": [
+      "selected detection index equal to GT-list index",
+      "q8-derived box alone",
+      "nearest nominal corner or best permutation",
+      "a single provided instance alone",
+      "union of all obj1 masks"
+    ],
+    "bbox_diagnostic": "Frozen continuous bbox IoU against all GT object IDs may report identity candidates, ties, no overlap, invalid and other-object outcomes. It is weak correspondence evidence, not automatic exact semantic identity gold.",
+    "foreign_relative_to_target": "A different instance, including a second obj1 pallet of the same material, is foreign relative to the selected target. Provided full/visible masks may overlap and are not exclusive owner maps.",
+    "unknown_preservation": "Retain every original row and all GT candidates. Unresolved selected-instance correspondence stays UNKNOWN; it is not resolved by changing q/L, fitting pose or selecting the best-looking model result."
+  },
+  "intended_material_part": {
+    "minimum_definition": "Once target-instance correspondence is explicit, map slot k through the fixed dynamic-to-canonical rule to a declared deck/runner end region on that selected source pallet. Use a fixed coarse material component/end patch and unchanged original crop.",
+    "existing_gap": "The reviewed nominal8 projection supplies box/endpoint references, not a released per-native selected material-part segmentation label or a q-to-GT-instance crosswalk. V180 constructive synthetic part IDs/quads are not MR6D mesh part IDs.",
+    "allowed_practical_authority": "A clearly supported RGB structural part/end witness may remain an explicitly weak source observation. Exact physical vertex/depth certification is not a new prerequisite for existing human semantic labels or such weak observations.",
+    "do_not_promote": [
+      "a nominal projected point to <=3px physical gold",
+      "full-silhouette mask overlap to visible-part identity",
+      "q on background to intended-part invisibility",
+      "crop containing any target material to intended-end visibility",
+      "center-owner FOREIGN to native external E"
+    ],
+    "independent_unknown_fields": [
+      "selected-instance unresolved",
+      "nominal camera-side/order degeneracy or uncertified tie",
+      "material component/end region not separately identified",
+      "out-of-frame or self/registration/depth ambiguity"
+    ],
+    "q_shift": "A shifted q can sample background or a different facet while the intended end remains visible nearby. Preserve q and supervise the original crop question; do not infer a coordinate correction."
+  },
+  "synthetic_to_MR_adapter_limits": {
+    "reusable_question": "V180 separates visible support and foreign-front support, permits both, retains UNKNOWN, and samples the unchanged original96 grid.",
+    "not_drop_in": "V180 expects constructive target-alone/scene part_id+triangle+float64 exact depth and R orthogonality within1e-13. These are synthetic contracts, not actual sensor/pose precision claims.",
+    "MR_required_adapter": "Preserve supplied R/K/t without orthonormalization or fitting; preserve integer full-image pixel-center convention and original crop sampler. Define nominal mesh material-end regions under a separately frozen source-only actual-entry protocol.",
+    "depth_limit": "V186 official-document review does not establish the exact MR depth-to-color export frame/processing. Raw zero stays missing. Signed residual or nominal mask overlap alone cannot create front/self labels, and residuals must not choose unit/scale/pose interpretations.",
+    "no_new_native_or_quality_targets": true
+  },
+  "next_safe_calculation": [
+    "Prepare immutable source-only original-frame/original-query metadata joined to every provided GT-instance identity and deterministic nominal camera-facing reference; preserve all1480 slots and inputU.",
+    "Keep selected-proposal identity diagnostics and their uncertainty separate from nominal slot-role mapping; retain all other-object/tie/no-overlap cases.",
+    "Under a later exact root body-entry, declare fixed coarse nominal end-region geometry once and inspect same selected-instance structural support in unchanged crops; source weak authority/UNKNOWN explicit, no q/ref optimization.",
+    "Write fresh supervision sidecar only after root review; native D/E/S and quality remain unchanged, training_admission=false until separately authorized."
+  ],
+  "selected_model": null,
+  "full_goal_solved": false,
+  "training_admission": false
+}
