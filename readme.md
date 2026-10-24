@@ -1,3 +1,11 @@
+# V206 · 8 source visible-part weak witness 게시
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V206_KO.md) · [독립 weak ROI·시각근거·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_visible_part_witness_20261025_v206/PORTABLE_REPORT_KO.md)
+
+기존 공개 TRAIN3프레임·고정8 원query의 visible-part weak witness를 보존한다. q/L/native는 그대로이며 ROI는 교정q·native gold·모델/학습 성공이 아니다. V205 결과와 strict join은 유지하고 fit admission·전체 해결을 주장하지 않는다.
+
+---
+
 # V205 공개 TRAIN native 의미 관찰 pilot 게시
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V205_KO.md) · [원본 프리뷰·약관찰·합의와 한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_native_visibility_annotation_pilot_20261025_v205/PORTABLE_REPORT_KO.md)
