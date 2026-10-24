@@ -1,3 +1,11 @@
+# V209–V211 · SOURCE point 정합·학습 준비 진단 게시
+
+[최신 SOURCE V211 통합 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V211_KO.md) · [고정8 source control gallery](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_control_alignment_20261025_v209/fixed8_source_native_point_visual_v1/PORTABLE_GALLERY_KO.md) · [V211 저장 point3520 조회](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_dense_source_native_point_teacher_20261025_v211/PORTABLE_REPORT_KO.md)
+
+원82 point/alpha 대응, source110 base의 point D2957/E123/SELF440, image와 BEFORE query-anchor 분리, 코드·실패·CSV·PNG를 보존한다. 새 학습·실사 성능 개선·모델 채택 결과가 아니며 최신 실사 비교는 V203이다. 아래 기존 README는 바이트 그대로다.
+
+---
+
 # V207 + V208 · SOURCE 제어·판정 정의 진전 게시
 
 [최신 V208 통합 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V208_KO.md) · [V207 제어 gallery](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_witness_conditioned_controls_20261025_v207/raw96_weak_witness_control_pilot_v1/PORTABLE_GALLERY_KO.md) · [V208 source point/region 진단](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_native_point_state_grounding_20261025_v208/PORTABLE_REPORT_KO.md)

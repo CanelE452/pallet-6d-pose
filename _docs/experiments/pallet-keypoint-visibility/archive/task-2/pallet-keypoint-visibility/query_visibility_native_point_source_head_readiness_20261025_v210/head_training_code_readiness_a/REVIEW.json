@@ -1,0 +1,359 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_point_source_head_readiness_20261025_v210/ROOT_PROSPECTIVE_NATIVE_POINT_HEAD_SOURCE_CODE_READINESS_SCOPE.json",
+    "sha256": "5536d19d322ab9fddf10dc3795ef1275ea918bfb4b261b2b2acc858fa7e607c1"
+  },
+  "kind": "CODE_AND_SOURCE_TRAIN_METADATA_READINESS_ONLY",
+  "source_census": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_point_source_head_readiness_20261025_v210/head_training_code_readiness_a/SOURCE_TRAIN_COVERAGE_CENSUS.json",
+    "sha256": "b022e525e8148e24e3cfd2c110ce8155820a963fae38cf0d7f6421568db0d533"
+  },
+  "census_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_point_source_head_readiness_20261025_v210/head_training_code_readiness_a/census_source_train_metadata.py",
+    "sha256": "ccc07e38cc56b59f56c360a6af7dbb73f0b8bdfadb3b6159d2cdf9540b1ff841"
+  },
+  "census_terminal": {
+    "chunk_id": "68d41e",
+    "exit_code": 0
+  },
+  "code_dependencies": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_point_source_head_readiness_20261025_v210/head_training_code_readiness_a/CODE_DEPENDENCY_BINDINGS.json",
+    "sha256": "6bd8ccaaffe2a1b58efaf2a1f4f21ac2198d68d98e2164236dfdb5ab3360f6ac"
+  },
+  "C61_contract": {
+    "parameters": 118359,
+    "RAW_use_sam": false,
+    "input_image_tensor": "FP32[N,8,96,96] = uint8 RGB/255(3) + valid(1) + fixed pixel-center XY(2) + zero SAM mask/available(2); no RGB mean/std normalization or new crop",
+    "CNN": "3x3 padded Conv16/32/32/48/48/64 stride1/2/1/2/1/2, GroupNorm+SiLU,96->12;AvgPool4/4->3x3;flatten576->Linear64+SiLU",
+    "shared_heads": "support64->2; owner64->3; old zero-init direct64->1",
+    "C61_condition": "[shared64,nativeonehot8,othermask8,otherXY16] =96 ->Linear32 SiLU ->Linear1; final layer zero-init. C60 same native/mask but XY16 zero.",
+    "context": "FP64(original_q_j-active_q)/active_L clipped[-8,8], then FP32; self mask/XY zero; unavailable others zero; original activeU context zero. Original initializer q8 only, no GT reference/end/role feature.",
+    "loss": "(BCE_visible+BCE_foreign+CE_synthowner+CE_publicowner+CE_CFowner)/5 + (meanBCE_directD+meanBCE_directE)/2, direct weight1",
+    "draws": "old192=32+32+48+48+32; direct32=16D+16E, paired deterministic RNG1810/1811",
+    "normalization": "allloss indices intersect immutable component TRAIN and nominal eligibility; synthetic owner soft classmass normalized over masked TRAIN only",
+    "execution": "fresh seed1810;FP32/TF32off;AdamW lr3e-4,wd1e-4;clipgrad5;4000x2;both final4000 frozen before all source predictions",
+    "decoding": "direct logit>=0 E/<0 D; original inputU or nonfinite -> U; existing support/owner remain separately decoded",
+    "existing_direct_authority": "Root-admitted finite near-anchor-end and public RGB semantic-weak direct target; no native point-state loss was used in C61.",
+    "shared_backbone_caveat": "Condition residual directly modifies direct scalar, but its loss can change shared CNN and support/owner training indirectly."
+  },
+  "actual_SOURCE_TRAIN_exposure": {
+    "physical_rows": 2784,
+    "known": 327,
+    "unknown": 2457,
+    "by_domain": [
+      {
+        "domain": "SYNTH_FINITE_END",
+        "physical_TRAIN_rows": 1968,
+        "known_D": 164,
+        "known_E": 82,
+        "complete_DED_triplets": 82,
+        "distinct_source_bases": 41,
+        "distinct_source_frames": 0,
+        "distinct_source_components": 41
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "physical_TRAIN_rows": 816,
+        "known_D": 54,
+        "known_E": 27,
+        "complete_DED_triplets": 27,
+        "distinct_source_bases": 0,
+        "distinct_source_frames": 12,
+        "distinct_source_components": 1
+      }
+    ],
+    "per_native": [
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 0,
+        "D": 52,
+        "E": 26,
+        "triplets": 26,
+        "bases": 26,
+        "frames": 0
+      },
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 1,
+        "D": 38,
+        "E": 19,
+        "triplets": 19,
+        "bases": 19,
+        "frames": 0
+      },
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 2,
+        "D": 26,
+        "E": 13,
+        "triplets": 13,
+        "bases": 13,
+        "frames": 0
+      },
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 3,
+        "D": 44,
+        "E": 22,
+        "triplets": 22,
+        "bases": 22,
+        "frames": 0
+      },
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 4,
+        "D": 4,
+        "E": 2,
+        "triplets": 2,
+        "bases": 2,
+        "frames": 0
+      },
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 5,
+        "D": 0,
+        "E": 0,
+        "triplets": 0,
+        "bases": 0,
+        "frames": 0
+      },
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 6,
+        "D": 0,
+        "E": 0,
+        "triplets": 0,
+        "bases": 0,
+        "frames": 0
+      },
+      {
+        "domain": "SYNTH_FINITE_END",
+        "native_slot": 7,
+        "D": 0,
+        "E": 0,
+        "triplets": 0,
+        "bases": 0,
+        "frames": 0
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 0,
+        "D": 18,
+        "E": 9,
+        "triplets": 9,
+        "bases": 0,
+        "frames": 4
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 1,
+        "D": 14,
+        "E": 7,
+        "triplets": 7,
+        "bases": 0,
+        "frames": 3
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 2,
+        "D": 0,
+        "E": 0,
+        "triplets": 0,
+        "bases": 0,
+        "frames": 0
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 3,
+        "D": 0,
+        "E": 0,
+        "triplets": 0,
+        "bases": 0,
+        "frames": 0
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 4,
+        "D": 8,
+        "E": 4,
+        "triplets": 4,
+        "bases": 0,
+        "frames": 2
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 5,
+        "D": 14,
+        "E": 7,
+        "triplets": 7,
+        "bases": 0,
+        "frames": 3
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 6,
+        "D": 0,
+        "E": 0,
+        "triplets": 0,
+        "bases": 0,
+        "frames": 0
+      },
+      {
+        "domain": "REAL_SEMANTIC_END_WEAK",
+        "native_slot": 7,
+        "D": 0,
+        "E": 0,
+        "triplets": 0,
+        "bases": 0,
+        "frames": 0
+      }
+    ],
+    "synthetic_COVER_canonical_mapping_counts": {
+      "0": 12,
+      "1": 12,
+      "2": 11,
+      "3": 11,
+      "4": 11,
+      "5": 12,
+      "6": 9,
+      "7": 4
+    },
+    "authority": "Stored finite-end / real RGB semantic-weak targets; not newly admitted native point states."
+  },
+  "original_SYNTH_TRAIN_provenance": {
+    "rows": 56320,
+    "families": {
+      "SELF_SCENE15": 52800,
+      "BEFORE_ANCHOR4": 3520
+    },
+    "original_parent_bases": 110,
+    "original_scenes": 440,
+    "original_native_rows": 3520,
+    "variants": {
+      "BEFORE": 110,
+      "COVER": 110,
+      "NEAR_SHAM": 110,
+      "FAR_SHAM": 110
+    },
+    "C61_fit_eligible_rows": 7040,
+    "C61_fit_eligible_families": {
+      "SELF_SCENE15": 3520,
+      "BEFORE_ANCHOR4": 3520
+    },
+    "C61_fit_eligible_input_U": 64,
+    "all110_bases_all4_scenes_same_TRAIN_role": true,
+    "all_scene_RGB_origin_V129": true,
+    "TARGET_SHIFT_in_current4views": false,
+    "factor_cells": [
+      {
+        "geometry": "BOARD_BLOCK_RUNNER",
+        "aspect": "RECTANGULAR",
+        "material": "DARK_POLYMER",
+        "TRAIN_bases": 14,
+        "original_scenes": 56,
+        "original_native_rows": 448
+      },
+      {
+        "geometry": "BOARD_BLOCK_RUNNER",
+        "aspect": "RECTANGULAR",
+        "material": "PROCEDURAL_WOOD",
+        "TRAIN_bases": 13,
+        "original_scenes": 52,
+        "original_native_rows": 416
+      },
+      {
+        "geometry": "BOARD_BLOCK_RUNNER",
+        "aspect": "SQUARE",
+        "material": "DARK_POLYMER",
+        "TRAIN_bases": 14,
+        "original_scenes": 56,
+        "original_native_rows": 448
+      },
+      {
+        "geometry": "BOARD_BLOCK_RUNNER",
+        "aspect": "SQUARE",
+        "material": "PROCEDURAL_WOOD",
+        "TRAIN_bases": 12,
+        "original_scenes": 48,
+        "original_native_rows": 384
+      },
+      {
+        "geometry": "RIB_LEG_RUNNER",
+        "aspect": "RECTANGULAR",
+        "material": "DARK_POLYMER",
+        "TRAIN_bases": 15,
+        "original_scenes": 60,
+        "original_native_rows": 480
+      },
+      {
+        "geometry": "RIB_LEG_RUNNER",
+        "aspect": "RECTANGULAR",
+        "material": "PROCEDURAL_WOOD",
+        "TRAIN_bases": 13,
+        "original_scenes": 52,
+        "original_native_rows": 416
+      },
+      {
+        "geometry": "RIB_LEG_RUNNER",
+        "aspect": "SQUARE",
+        "material": "DARK_POLYMER",
+        "TRAIN_bases": 14,
+        "original_scenes": 56,
+        "original_native_rows": 448
+      },
+      {
+        "geometry": "RIB_LEG_RUNNER",
+        "aspect": "SQUARE",
+        "material": "PROCEDURAL_WOOD",
+        "TRAIN_bases": 15,
+        "original_scenes": 60,
+        "original_native_rows": 480
+      }
+    ]
+  },
+  "dense_GT_proposal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_point_source_head_readiness_20261025_v210/head_training_code_readiness_a/SOURCE110_TRAIN_GT_BINDING_PROPOSAL_NOT_OPENED.json",
+    "sha256": "5e835b841cfddb368e527ffc156932ea4167bf7c701048269edc98090db1d555"
+  },
+  "point_vs_region_authority": "Original native target point0 target_witness_states[0]/combined_witness_states[0] and projected_reference belong to each own original scene; region state is different. V208 original BEFORE only does not label new V189 COVER/SHAM. V209 selected point footprint alignment is separate coverage evidence, not automatic label admission.",
+  "V129_geometry_contract": {
+    "signed_quarter_mapping": "corpus_math.py14–23 exact rotated sign corners, permCF_to_canonical[k], not GT-best/query nearest/PnP",
+    "foreign_placement": "48–54 uses selected canonical native patch quads projected with fixed camera; COVER front cuboid nearer; NEAR_SHAM and FAR_SHAM translate same foreign geometry only, clearance>=1px and additional>=128px asserted",
+    "selected_CF_slots_code": "slots=[side,1-side,2 if side else3,5 if side else4] at36; selected role at39. It does not directly select native6/7; incidental E on other slots cannot be assumed.",
+    "same_RGB_math": "shade60–71 uses supplied scene buffer/camera/translated foreign material; CF_records72–76 copies records[perm[k]] and projects active witness/patch using supplied same camera.",
+    "current_original_scene_variants": [
+      "BEFORE",
+      "COVER",
+      "NEAR_SHAM",
+      "FAR_SHAM"
+    ],
+    "TARGET_SHIFT_in_current4views": false,
+    "writer_exact_call_binding": "UNKNOWN: BASE_COMPLETE records input/GT scene bindings but no writer-code pointer; pure corpus math contains no writer import. No wider search or guessed writer path was used."
+  },
+  "minimal_next_candidate": {
+    "status": "READY_FOR_BOUNDED_SOURCE_GT_LOOKUP_AND_VISUAL_ASSOCIATION; NOT_ADMITTED_OR_READY_TO_FIT_YET",
+    "single_candidate": "Keep C61 original RAW96/native/q8 input, shared head architecture and original q/L/U/sampler/component roles fixed; prospectively test replacing the direct target authority with declared own-scene SOURCE point0 D/E supervision. Preserve S/U/UNKNOWN separately rather than mapping them to D/E.",
+    "source_route_first": "Prefer existing110 TRAIN V129 parents ×4 own original scenes ×8 native metadata route before new generation. Actual per-native point D/E/S/U, reference locality and key/scene identity remain to be read under separate root entry.",
+    "minimum_before_fit": [
+      "Bind writer/same-scene call or validate exact own-scene records_CF/variant identity against fixed source metadata; do not substitute region state8_CF.",
+      "Read only proposed110 GT bindings, quantify D/E/S/U by native/canonical/material/aspect/camera at fixed TRAIN role; report missing E explicitly.",
+      "Actual pre-fit native/part correspondence visualization uses fixed source cases and unchanged q/crops. No GT crop/recenter/new initializer.",
+      "Root separately freezes label admission, target mapping and fixed fit budget after source evidence. Existing native0..7 inputs stay intact; U is never promoted from finite coordinates."
+    ],
+    "not_a_candidate_change": "No architecture/threshold/checkpoint/data selection from any HOLDOUT or protected real score; no tiny82-only fit claimed sufficient; no new labels written by this readiness step."
+  },
+  "limits": [
+    "110 GT file path+SHA declarations were read from metadata receipts; none of110 GT payloads was statted/hashed/opened. Dense point D/E counts are UNKNOWN until root entry.",
+    "All current TRAIN direct known counts are stored sidecar metadata, joined to newest V194 rows by control_join_key; no target NPZ revalidation.",
+    "Native6/7 have zero existing direct target exposure, but every canonical0..7 appears in SYN selected controls; input-native absence is not physical-part absence.",
+    "Point D/E internal procedural evidence is permitted source authority for future explicit admission, not physical real/human gold or transfer success.",
+    "No actual images/NPZ/headers/weights/forward/training/newprojection/rays/GT configuration/protected scores read or run."
+  ],
+  "original_artifacts_unchanged": true,
+  "new_labels_or_training_admission": false,
+  "actual_fit": false,
+  "protected_evaluation_used_for_design": false,
+  "goal_solved": false
+}
