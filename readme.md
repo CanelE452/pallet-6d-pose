@@ -1,3 +1,11 @@
+# V191 frozen real evaluation records update
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V191_KO.md) · [V191 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_direct_end_heads_frozen_real_benchmark_20261024_v191/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 반복 노출된 고정 실사 평가와68개 선택 gallery의 비교 기록입니다. 새 독립 검증·학습·모델 채택이나 전체 가림 목표 해결을 뜻하지 않습니다.
+
+---
+
 # V190 sampled-domain source records update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V190_KO.md) · [V190 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_direct_end_paired_source_training_20261024_v190/PORTABLE_REPORT_KO.md)

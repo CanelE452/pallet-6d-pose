@@ -1,0 +1,134 @@
+--- before_root_path_guard.py
++++ final_guarded.py
+@@ -13,11 +13,14 @@
+ import json
+ import math
+ import platform
++import os
++import stat
++import tempfile
+ import traceback
+ 
+ import numpy as np
+ 
+-H = Path(__file__).resolve().parent
++H = Path(__file__).absolute().parent
+ V = H.parent
+ P = V.parent
+ OLD184 = P/'query_visibility_jitter_heads_frozen_real_benchmark_20261024_v184'
+@@ -71,42 +74,48 @@
+         raise ValueError(message)
+ 
+ 
++def safe(path):
++    # Pure lexical refusal happens before stat/open/hash/resolve.
++    p=Path(path).absolute()
++    require(P in p.parents and '..' not in p.parts and all('v112' not in x.casefold() for x in p.parts),'Exact safe project path before access')
++    return p
++
++def opened(path,create=False):
++    p=safe(path);fd=os.open(p.anchor,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
++    try:
++        for part in p.parts[1:-1]:
++            nxt=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);os.close(fd);fd=nxt
++        flags=(os.O_WRONLY|os.O_CREAT|os.O_EXCL) if create else os.O_RDONLY
++        last=os.open(p.name,flags|os.O_NOFOLLOW,0o644,dir_fd=fd)
++    finally:os.close(fd)
++    require(stat.S_ISREG(os.fstat(last).st_mode),'Regular file/no symlink')
++    return os.fdopen(last,'w' if create else 'rb')
++
+ def sha(path):
+-    require('_v112' not in str(path).lower(), 'V112 prohibited')
+-    digest = hashlib.sha256()
+-    with Path(path).open('rb') as handle:
+-        for chunk in iter(lambda: handle.read(1 << 20), b''):
+-            digest.update(chunk)
++    digest=hashlib.sha256()
++    with opened(path) as handle:
++        for chunk in iter(lambda:handle.read(1<<20),b''):digest.update(chunk)
+     return digest.hexdigest()
+ 
+-
+-def bind(path):
+-    return dict(path=str(Path(path).resolve()), sha256=sha(path))
+-
++def bind(path):return dict(path=str(safe(path)),sha256=sha(path))
+ 
+ def check(binding):
+-    require(bind(binding['path']) == binding, 'Frozen binding changed')
+-    return Path(binding['path'])
+-
++    require(bind(binding['path'])==binding,'Frozen binding changed')
++    return safe(binding['path'])
+ 
+ def read(path):
+-    return json.loads(Path(path).read_text())
+-
++    with opened(path) as handle:return json.load(handle)
+ 
+ def lines(path):
+-    return [json.loads(line) for line in Path(path).read_text().splitlines() if line]
+-
+-
+-def write(path, value):
+-    with Path(path).open('x') as handle:
+-        json.dump(value, handle, ensure_ascii=False, indent=2, allow_nan=False)
+-        handle.write('\n')
+-
+-
+-def write_lines(path, rows):
+-    with Path(path).open('x') as handle:
+-        for row in rows:
+-            handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False)+'\n')
++    with opened(path) as handle:return [json.loads(line) for line in handle if line.strip()]
++
++def write(path,value):
++    with opened(path,create=True) as handle:
++        json.dump(value,handle,ensure_ascii=False,indent=2,allow_nan=False);handle.write('\n')
++
++def write_lines(path,rows):
++    with opened(path,create=True) as handle:
++        for row in rows:handle.write(json.dumps(row,ensure_ascii=False,allow_nan=False)+'\n')
+ 
+ 
+ def equal(a, b):
+@@ -114,7 +123,8 @@
+ 
+ 
+ def extract(path, names, namespace):
+-    nodes = [n for n in ast.parse(Path(path).read_text()).body if isinstance(n, ast.FunctionDef) and n.name in names]
++    with opened(path) as handle:tree=ast.parse(handle.read().decode('utf-8'))
++    nodes = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in names]
+     require({n.name for n in nodes} == set(names), 'Pinned pure function coverage')
+     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path)+'::pure', 'exec'), namespace)
+ 
+@@ -202,8 +212,8 @@
+ 
+ 
+ def load_packet(binding, rows, domain, reference=None, tag=None):
+-    with np.load(check(binding), allow_pickle=False) as handle:
+-        packet = {k: handle[k].copy() for k in handle.files}
++    with opened(check(binding)) as source_handle:
++        with np.load(source_handle, allow_pickle=False) as handle:packet = {k:handle[k].copy() for k in handle.files}
+     n, start, original_u = DOMAINS[domain]
+     packet_schema(packet, n, tag in TAGS)
+     require(len(rows) == n and np.array_equal(packet['original_global_index'], np.arange(start,start+n)), 'Original domain IDs, no concat alias')
+@@ -512,6 +522,18 @@
+     require(rejected==4,'Actual new both-model pre-label seal adapter fails closed')
+     passed.append('Actual_new_prediction_seal_both8000_scope_input_exposure_binding_failclosed')
+ 
++    try:safe(P/'blocked_v112'/'unopened');ok=False
++    except ValueError:ok=True
++    require(ok,'Lexical forbidden name before path access');passed.append('Forbidden_name_lexical_precheck_no_stat_open_hash_resolve')
++    with tempfile.TemporaryDirectory(prefix='invented_path_guard_',dir=H) as td:
++        d=Path(td);a=d/'ordinary.txt';a.write_text('invented only');link=d/'alias.txt';link.symlink_to(a)
++        with opened(a) as handle:require(handle.read()==b'invented only','Ordinary explicit authored file')
++        passed.append('Actual_NOFOLLOW_reader_accepts_authored_regular_file')
++        try:
++            with opened(link) as handle:handle.read()
++        except OSError:ok=True
++        else:ok=False
++        require(ok,'Symlink refused before body');passed.append('Actual_NOFOLLOW_reader_refuses_symlink_without_target_read')
+     return dict(completed=True,PASS=True,invented_only=True,checks=passed,count=len(passed),
+                 actual_real_annotation_old_or_new_scores_RGB_features_weights_body_or_hash_reads=0,model_forward_fit_threshold_selection=0)
+ 
