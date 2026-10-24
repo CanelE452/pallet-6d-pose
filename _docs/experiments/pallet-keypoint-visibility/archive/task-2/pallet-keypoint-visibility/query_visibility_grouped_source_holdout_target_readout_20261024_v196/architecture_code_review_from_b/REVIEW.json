@@ -1,0 +1,166 @@
+{
+  "completed": true,
+  "PASS": true,
+  "review_type": "CODE_ONLY_ARCHITECTURE_FACTS_AND_LIMITED_HYPOTHESES",
+  "created_utc": "2026-10-24T13:35:49.502758+00:00",
+  "scope": "Root requested independent code-only review; outputs confined to publication_root_preparation/V196_ARCHITECTURE_CODE_REVIEW_B.",
+  "inputs": {
+    "trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_group_split_direct_end_training_20261024_v194/grouped_fit_preparation_b/train_grouped_direct_end.py",
+      "sha256": "6cc8c09e74cf1c72b8209709e78d7d37d67fa2b4c8b0c5245fda74fe7e695ec8"
+    },
+    "head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/head_preparation/local_support_head.py",
+      "sha256": "14a40c4dd14d416c1648e62b408fd7acdf74f06d4113c69785bd737b45aa848b"
+    },
+    "candidate": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sampled_domain_direct_end_20261024_v189/direct_end_training_preparation_c/synthetic_direct_end_candidate.py",
+      "sha256": "1668550225434f609ed70d2d62093e35bea6bd8471b9c1f5692f7cfb0b358341"
+    }
+  },
+  "actual_reads": {
+    "code_files": 3,
+    "source_code_executed_or_imported": 0,
+    "checkpoint_or_array_or_image_or_result_bodies": 0,
+    "model_forward_or_fit": 0,
+    "scientific_phase_writes": 0,
+    "forbidden_path_access": 0
+  },
+  "code_facts": {
+    "arms": [
+      "C56_RAW96_DIRECT_END_GROUPED",
+      "C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED"
+    ],
+    "input_channels": [
+      "RGB3 /255 only",
+      "valid1",
+      "constant crop-relative XY2",
+      "SAMmask1",
+      "SAMavailability1"
+    ],
+    "raw_arm_SAM_channels": "both zero",
+    "numeric_q_L_native_or_end_enclosure_in_forward": false,
+    "q_conditioning": "Original crop is centered at original q; relative XY is identical across rows; original numeric q/L/native and endpoint location are not forward tensors.",
+    "convolution_channels": [
+      16,
+      32,
+      32,
+      48,
+      48,
+      64
+    ],
+    "convolution_kernel": 3,
+    "convolution_padding": 1,
+    "convolution_strides": [
+      1,
+      2,
+      1,
+      2,
+      1,
+      2
+    ],
+    "spatial_sizes_including_input": [
+      96,
+      96,
+      48,
+      48,
+      24,
+      24,
+      12
+    ],
+    "normalization": "GroupNorm per convolution; no BatchNorm or dropout",
+    "pool": {
+      "kind": "AvgPool2d",
+      "kernel": 4,
+      "stride": 4,
+      "input": [
+        64,
+        12,
+        12
+      ],
+      "output": [
+        64,
+        3,
+        3
+      ],
+      "global_1x1_average_pooling": false
+    },
+    "shared": "Flatten576 -> Linear64 -> SiLU",
+    "outputs": "support Linear64->2, owner Linear64->3, separate direct_end Linear64->1, all sharing encoder/pool/shared64",
+    "parameters": 115222,
+    "direct_end_localized_dense_or_endpoint_conditioned_readout": false,
+    "objective": "Mean of old five losses on192 rows plus balanced direct BCE on32 rows (16D+16E), weight1.",
+    "direct_decode": "Finite available raw>=0 -> E; raw<0 -> D; original unavailable/nonfinite -> U; separate support/owner/proxy outputs.",
+    "source_line_ranges": {
+      "trainer": [
+        "68-84",
+        "179-180",
+        "195-214"
+      ],
+      "head": [
+        "21-26",
+        "29-66",
+        "69-95"
+      ],
+      "candidate": [
+        "140-160"
+      ]
+    }
+  },
+  "pure_integer_shape_and_parameter_checks": {
+    "PASS": true,
+    "no_torch_import": true,
+    "base_parameters": 115157,
+    "direct_parameters": 65,
+    "final_parameters": 115222
+  },
+  "root_reported_metadata_not_remeasured": {
+    "authority": "Root message; saved V196 metadata observation, not opened or independently remeasured in this review.",
+    "approx_end_enclosure_in_output_crop_coordinate_pixels": [
+      1,
+      1.5
+    ],
+    "positive_interpolation_participation_range": [
+      20,
+      30
+    ],
+    "output_sample_denominator": 9216,
+    "q_center_to_end_px_range": [
+      0.2,
+      32.4
+    ],
+    "triplets_COVER_changed": 15,
+    "triplets_SHAM_changed": 0,
+    "not_human_visibility_gold": true,
+    "not_visual_signal_strength_quantification": true,
+    "quantity_distinction": "Continuous enclosure extent and positive fourtap sample participation have different definitions; neither is a count of exact semantic end pixels."
+  },
+  "code_consistent_hypotheses_not_established_causes": [
+    "A small spatially varying end cue can be mixed with surrounding context by strided convolution, average pooling and shared feature compression.",
+    "The network must infer which endpoint is intended from the q-centered image and constant coordinates; no explicit endpoint offset/native identity is supplied.",
+    "Broad support, ownership and whole-object SAM mask can encode a different target from queried-end visibility; their causal help, harm or gradient interference has not been measured."
+  ],
+  "countervailing_facts": [
+    "Convolution may encode small cues before downsampling; code alone cannot prove cue destruction.",
+    "The final3x3 bins and constant XY retain coarse position information; this is not spatially invariant1x1 global pooling.",
+    "GroupNorm has spatial coupling, so convolution-only receptive-field arithmetic would not be a strict effective dependency boundary."
+  ],
+  "not_measured": [
+    "Learned activations, saliency, gradients, effective receptive field or checkpoint behavior.",
+    "End-local RGB delta magnitude/contrast/noise or observer-level visibility and target-identification reliability.",
+    "Causal effect of pooling, SAM, shared losses or localization on source or real generalization.",
+    "Confidence calibration or whether zero abstentions imply solved uncertainty."
+  ],
+  "decisions": {
+    "architecture_or_threshold_or_arm_selection": false,
+    "HOLDOUT_based_optimization": false,
+    "new_experiment": false,
+    "target_impossible_claim": false,
+    "confidence_or_physical_gold_claim": false
+  },
+  "limitations": "Static code supports possible mechanisms only. Root-reported saved geometry/byte-change facts do not establish learned-feature loss, semantic correctness, learnability, or real transfer.",
+  "summary_KO": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V196_ARCHITECTURE_CODE_REVIEW_B/KO.md",
+    "sha256": "8e508bd12242808983e95713d031cd9f16b7d661763373572f6513fdcc623cfb"
+  }
+}

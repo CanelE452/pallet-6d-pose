@@ -1,3 +1,11 @@
+# V196 saved source-HOLDOUT diagnostic records update
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V196_KO.md) · [V196 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_grouped_source_holdout_target_readout_20261024_v196/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 학습에서 뺀 source의 저장된360행·15대조·315UNKNOWN 및 약한 표적 대응·시각·코드 검토입니다. 새 학습·추론·실사 성능개선·원인 확정·모델 선택·채택이나 전체 목표 해결을 뜻하지 않습니다. 원본 배열은 제외하고 원문·표·그림·한계를 보존합니다.
+
+---
+
 # V195 frozen grouped direct-end real comparison and fixed68 review update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V195_KO.md) · [V195 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_grouped_direct_end_heads_frozen_real_benchmark_20261024_v195/PORTABLE_REPORT_KO.md)
