@@ -1,0 +1,217 @@
+{
+  "schema": "DOCUMENT_ONLY_GOAL_AND_LABEL_ALIGNMENT_AUDIT_V1",
+  "completed": true,
+  "created_UTC": "2026-10-22T15:50:16.536542+00:00",
+  "status": "INDEPENDENT_DESIGN_RECOMMENDATION_ONLY; no new label/model protocol is authorized or executed by this audit",
+  "read_set": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/START_HERE_KO.md",
+      "sha256": "015ae7aff61f425e12d392d22331990f8df836f5c36f3827687bf0985a3fb64f"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/HANDOFF_KO.md",
+      "sha256": "400e3a2269b0e3f5b3dc7976e4c61bc1363d5b45e9fd467a0791828e5c60bf79"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/contract/LABEL_EVALUATION_CONTRACT.json",
+      "sha256": "b52e813927dd2699b53f0a1a563b55152322613aea6238b1e326c5f4df1b3a71"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/contract/LABEL_OUTPUT_SELECTION_CONTRACT.json",
+      "sha256": "f03ae5de1a4e87fadb87746ed92dd5593bc3862ea2b321cc5faa259a3f485c85"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_multitarget_20261022_v64/PROTOCOL.json",
+      "sha256": "1812fb0a40c54b36e6c1f5f85eb77bd44010411d501cebe664f3cb2cec5e4ce8"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_amodal_global_20261022_v65/PROTOCOL.json",
+      "sha256": "e99859f1369a328af812383ba01c2fe9fe08bc2d0a04fa26da476d02e9bfd4f8"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/DATA_LABEL_PROTOCOL.json",
+      "sha256": "7ab257789998262dba23508aa4b5e7cce4450d85293c64e3dba948d78c040109"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/FIT_PROTOCOL.json",
+      "sha256": "6ea43e9e55e69b442285a2c99e0960a11a491257c376a0264db9c212cf6c3980"
+    }
+  ],
+  "active_goal_evidence": {
+    "original_user_exact": "현재 목표는 자세 개선이 아니라 초기 추론 키포인트 중심 crop에서 대상 팔레트의 존재/가림 여부를 판별하는 거야.",
+    "root_supplied_active_goal_exact": "그럼 YCB-V 공개 실사와 합성을 써서 query 위치를 직접 읽는 작은 head부터 만들고 v61과 비교해줘. 현재 평가 데이터는 학습이나 문턱 선택에 쓰지 말고, 라벨 정의부터 맞춰서 외부 가림·자기 가림·위치 오류를 나눠 봐줘. PnP는 건드리지 마. 그리고 쭉 해서 이거 문제 해결해줄수있어? 합성이나 오픈데이터로 아니면 다른 sam이나 모델들 이용해서등 가려져있는지 안가려져있는지를 판단할수있게 해줄수있어?",
+    "supplied_by": "Root direct task message; local subagent get_goal returned null, so no active-goal state was invented.",
+    "original_document_scope": "START/HANDOFF are historical handoff documents. Their synthetic-only source restriction was later superseded by the direct user authorization of public real training; the current-corpus exclusion and no-PnP goal remain.",
+    "operational_reading": "A query-reading head is an explicitly authorized first component. Full success must retain the original crop-conditioned keypoint/target visibility objective and the requested separation of external, self and initial-location failure."
+  },
+  "conclusion": {
+    "existing_native_pixel_contract_valid": true,
+    "existing_native_pixel_results_preserved": true,
+    "native_pixel_task_sufficient_for_full_visibility_goal": false,
+    "new_versioned_reference_visibility_contract_recommended": true,
+    "reason": "Query-pixel target ownership, target existence somewhere in the crop, and visibility of the associated semantic reference keypoint are different random variables. Perfect source native-pixel classification does not bound semantic reference-visibility error under query displacement or self occlusion.",
+    "limitation": "This is a structural sufficiency statement, not proof that a particular existing model failed only because of the definition gap. Source known-visible recognition errors remain errors relative to their own frozen source labels."
+  },
+  "evidence_from_documents": [
+    {
+      "document": "START_HERE_KO.md",
+      "finding": "Explicitly states initial-keypoint-centered crop visibility, evaluation-only human annotations, and separate semantic visibility versus query-pixel presence/initial-location error."
+    },
+    {
+      "document": "HANDOFF_KO.md",
+      "finding": "Explicitly states visible semantic corners can have background query pixels, hidden corners may project onto another visible target face, and physical mesh support/PnP success must not be imposed as a prerequisite."
+    },
+    {
+      "document": "v63 LABEL_EVALUATION_CONTRACT",
+      "finding": "Exact visible means target-instance surface occupies initial query pixel. Human DIRECT/EXTERNAL/SELF refer to corner identity; human annotation does not label the initial query pixel. Contract already limits broad semantic-completion claims."
+    },
+    {
+      "document": "v64/v65 protocols",
+      "finding": "Exact nearest native mask membership and existential native5x5 support are distinct source targets. Self stays UNKNOWN; mask support difference is not guaranteed semantic external occlusion."
+    },
+    {
+      "document": "v66 DATA_LABEL_PROTOCOL",
+      "finding": "Controlled source certifies originally observed target pixels newly hidden by opaque paste. OV is outside exact support with visible nearby support, not verified coordinate error or visible semantic corner."
+    },
+    {
+      "document": "v67 FIT_PROTOCOL",
+      "finding": "One-factor preservation of source exact-visible facts leaves the six-state target unchanged. It is a useful pixel-component test and cannot alone close the semantic goal gap."
+    }
+  ],
+  "variable_definitions": {
+    "I": "Observed scene RGB",
+    "k": "Associated target instance and fixed semantic keypoint identity",
+    "r": "Reference point/identity to which the visibility statement refers; supervision/audit only",
+    "q": "Unchanged initial estimate used as crop center at deployment",
+    "L": "Crop side produced by frozen input-only normalization",
+    "Y_pixel": "Visible/full target support at nearest(q), using the frozen source mask contract",
+    "Y_near": "Existential support in a fixed native window around nearest(q)",
+    "Y_crop_any": "Some target surface occurs anywhere in the crop; not a semantic visibility label",
+    "Y_reference": "Whether associated reference keypoint k is directly visible, externally hidden, self hidden, out of frame, or unknown",
+    "key_relation": "Y_reference is invariant to changing q for the same I,target,k,r. Y_pixel and Y_near generally are not."
+  },
+  "deterministic_counterexamples": [
+    {
+      "name": "Visible reference;1pixel displaced query outside",
+      "construction": "On a9x9 toy image let full=visible={x<=4}. Reference r=(4,4) is DIRECT. Set q=(5,4), only1pixel away.",
+      "reference_state": "D",
+      "perfect_exact_state": "O",
+      "perfect_radius2_state": "V",
+      "implication": "Exact M4 training correctly penalizes a V prediction at q, even though the unchanged associated reference remains directly visible. This is objective conflict, not a wrongly implemented exact-pixel label."
+    },
+    {
+      "name": "Hidden reference; nearby target face visible",
+      "construction": "Let full cover the toy image. At reference r=(4,4) an opaque external object removes target visibility, while target at adjacent q=(5,4) remains visible.",
+      "reference_state": "E",
+      "perfect_exact_state_at_q": "V",
+      "perfect_radius2_state": "V",
+      "implication": "Both perfect exact and radius2 support can say V while the intended reference point is externally hidden. Any-visible pooling cannot identify which point is hidden."
+    },
+    {
+      "name": "Semantic self hidden; front surface at same projected pixel",
+      "construction": "A back semantic corner can be hidden by the pallet while its image projection lands on a visible front/side pallet surface.",
+      "reference_state": "S",
+      "possible_exact_and_radius2_state": "V",
+      "implication": "Visible/full2D masks do not identify semantic point ownership along the ray. No fixed window radius can manufacture the missing semantic self label."
+    }
+  ],
+  "implications": {
+    "structural_obstacle": "If final success is defined by semantic reference visibility but only initial-pixel occupancy is optimized, some valid source labels explicitly reward a prediction opposite to the semantic answer. More data or perfect occupancy alone does not remove this mismatch.",
+    "not_an_impossibility_claim": "The crop/global RGB may contain evidence sufficient for a semantic model. An occupancy head might transfer incidentally, but its loss does not guarantee that behavior.",
+    "source_errors": "Boundary and strict-interior errors relative to certified source visible labels remain recognition/representation/objective-fit failures. They must not be excused by redefining their GT.",
+    "radius": "Do not replace any old primary result with radius2 or tune a radius from the current cohort. Existing radius2 remains its frozen window-support diagnostic. A new semantic label is identity-based rather than an optimized support radius.",
+    "coordinate_error": "q-r is an evaluation/audit quantity, not an inference input or coordinate correction. O/OV from source-support predictions is not itself proof of a localization error.",
+    "no_pose_requirement": "Neither moving q to r nor PnP, pose optimization, a physical-mesh DIRECT proof, or a new3D corner definition is required to define an operational2D semantic visibility target."
+  },
+  "concrete_proposal": {
+    "name": "REFERENCE_VISIBILITY_WITH_INITIAL_QUERY_JITTER_V1",
+    "version_policy": "New source-label task/version after v67. Preserve all v61-v67 labels, caches, primary tables, thresholds, weights and seals byte-for-byte. This proposal is not a relabeling of them.",
+    "purpose": "Learn visibility of the associated reference point from a crop centered at an imperfect initial query; use exact query occupancy as a separately named diagnostic.",
+    "records": {
+      "labels_only": [
+        "source_image_SHA",
+        "target_instance_id",
+        "semantic_keypoint_id",
+        "reference_xy",
+        "reference_state_D_E_S_F_or_UNKNOWN",
+        "reference_annotation_provenance",
+        "evidence_tier",
+        "coordinate_uncertainty",
+        "controlled_occluder_lineage"
+      ],
+      "model_inputs": [
+        "RGB crop centered at q",
+        "q and input-only crop normalization if used",
+        "fixed target/keypoint slot identity available at deployment",
+        "optional global RGB/frozen SAM conditioning from the same input-only rough target prompt"
+      ],
+      "forbidden_model_inputs": [
+        "reference_xy",
+        "reference_state",
+        "GT target/full/visible masks",
+        "occluder support mask",
+        "depth",
+        "pose",
+        "current annotations/scores"
+      ]
+    },
+    "public_pallet_source": {
+      "base": "Use a separately admitted public flat-pallet capture family, such as the already inspected R2B source, with scene/session grouping locked before annotation/model selection.",
+      "visible_reference": "Independently annotate/review clearly observable reference keypoint identities and2D locations in source RGB using the same operational corner definitions intended for evaluation. Mark ambiguity/missing correspondence UNKNOWN. A SAM-positive random pixel is not automatically a pallet semantic corner.",
+      "controlled_external": "For a source-certified D reference, create an opaque foreground composition. Assign E only when actual final pasted support completely hides the source reference/cue and its locked coordinate-uncertainty guard. Retain D for a registered unchanged control. Covering q alone does not change reference visibility.",
+      "invariant": "Reference identity/coordinate/state is fixed across query jitter; q can cross target/background boundaries without converting a D reference into O.",
+      "synthetic": "Synthetic semantic reference definitions must be audited against the intended operational2D landmark convention. Existing virtual cuboid projections or M4(r) alone are not silently promoted to semantic D/S. Existing support labels can remain auxiliary.",
+      "generic_YCB": "Observed-point controlled visibility can be useful generic pretraining. If anchors are arbitrary visible pixels, call them observed-anchor proxies; they do not certify pallet-corner semantics or solve self occlusion."
+    },
+    "query_recipe": {
+      "base": "Use an independently frozen initial proposal q0 for the source semantic slot when available; do not center the input crop at reference_xy. Reference is used only to supervise/audit correspondence.",
+      "jitter": "Construct q=q0+delta, with the same reference label for all deltas. Freeze one finite, scale-normalized jitter distribution before any new source fit. Determine its scale from independent source initializer residuals or an a priori sensor/crop specification, never current223 errors or results.",
+      "concrete_a_priori_option": "If no source initializer residuals exist, one explicit future recipe can use delta/L~Uniform([-0.05,0.05]^2) plus the delta=0 control, fixed before source generation. This is an example design choice, not a selected optimum or an executed recipe.",
+      "unchanged_controls": "Generate the same q/delta set for visible/control and controlled-E views. Keep original-image siblings, target instance, pasted occluder donor and all sensors/session siblings within one split.",
+      "out_of_crop": "Keep reference-outside-crop/large-displacement flags and their full denominator. Do not relabel D as O or silently discard hard displaced queries. Report whether input evidence is insufficient; abstention does not alter underlying semantic GT."
+    },
+    "labels_and_unknowns": {
+      "primary": "Semantic reference D versus nonvisible, with external E and self S reasons separate when independently known. Keep out-of-frame F and annotation/association UNKNOWN separate from absence.",
+      "external": "Controlled E is only a known formerly visible reference hidden by a distinct opaque layer; natural E needs independent semantic correspondence/occluder evidence.",
+      "self": "Require independent source semantic S annotation/evidence under the same point identity. Do not derive S from M4=0, M0-M4, target-prompt SAM, convex-cuboid orientation, or an unchanged optional geometry proxy.",
+      "no_self_evidence": "If admitted sources provide D/E only, report that learned external-visibility component and explicitly leave self as unsupported/UNKNOWN. Do not call the complete requested visibility problem solved.",
+      "outside": "Exact-query O remains an auxiliary occupancy outcome. It is never the semantic negative label for an otherwise visible reference.",
+      "partial": "Unknown semantic reasons remain partial/unknown labels; no padding to E, S or O."
+    },
+    "minimal_learning_intervention": "After the new source annotation/recipe audit is accepted, a separate small crop-conditioned semantic head could use frozen generic features and partial semantic supervision. No coordinate regression or solver is necessary. Architecture/loss/budget/selection would need a new frozen protocol; none are executed here.",
+    "primary_success_definition": {
+      "source": "On independent source scenes/recording families with semantic labels, report D/E/S/F/UNKNOWN denominators and D-vsE, D-vs(E+S) confusion/P/R/abstention at a frozen rule, across all registered jitter bins and both pallet types when present.",
+      "counterfactual": "For same I,target,k,r and state, compare predictions across q jitter. For same target/r/q, compare visible control versus actually covered reference. An occluder covering q but not r is a negative control for semantic change.",
+      "occupancy_audit": "Report exact/radius2 support at actual q separately and count semanticD/exactO, semanticE/nearV and semanticS/pixelV disagreements. They are expected cross-target disagreements, not automatically annotation errors.",
+      "selection": "Freeze/checkpoint-select using only registered source semantic validation, not legacy/current semantic results. No current-driven radius, threshold, crop size, annotation filtering or checkpoint choice.",
+      "completion": "Source accuracy alone establishes source feasibility. Full original-goal transfer needs a later frozen evaluation on independently annotated pallet semantic references with current data still excluded from fitting/selection. Existing repeated current cohort remains a development diagnostic, not a fresh final holdout."
+    }
+  },
+  "teacher_and_identifiability_limits": [
+    "Public RGB without referencepoint/identity annotation cannot supply semantic D/E/S truth merely because a flat pallet is visible.",
+    "SAM is a target-support teacher, not an independent hidden-corner visibility label. Manual prompts, target confusion, holes, boundary errors and incomplete masks must retain provenance/uncertainty.",
+    "Opaque compositing gives controlled source reference hiding, not proof of natural occlusion transfer; seams/occluder materials may shortcut learning. Natural held-out source validation remains necessary.",
+    "R2B is a short moving-camera, dual-sensor sequence. A fixed2D pixel is not a persistent physical/reference point across times. Without verified correspondence, do not form natural before/after semantic labels by same-pixel subtraction.",
+    "A semantic point hidden before any source observation, or an indistinguishable corner association, can be unidentifiable from one crop. UNKNOWN/U is honest; it is not solved by changing occupancy radius.",
+    "An operational2D human/source convention can support the task without demanding physical mesh DIRECT or PnP. Its semantic mapping and observer uncertainty still need explicit verification."
+  ],
+  "prohibited_reinterpretations": [
+    "Do not change v63-v67 exact/radius2 primary definitions or relabel existing source negatives as positives.",
+    "Do not use current223 metrics/coordinates/GT to select a jitter radius, positive guard, threshold, source case or checkpoint.",
+    "Do not equate crop-any-visible, exactM4, radius2support, semanticD or successful pose.",
+    "Do not claim shape/global context alone creates semantic labels or self truth."
+  ],
+  "execution_accounting": {
+    "documentation_only": true,
+    "actual_source_RGB_masks_arrays_opened": 0,
+    "current_RGB_GT_metrics_features_arrays_opened": 0,
+    "model_weights_opened": 0,
+    "new_forward_or_training_or_PnP": 0,
+    "source_model_protocol_cache_threshold_mutations": 0,
+    "documentation_caveat": "Required HANDOFF text contains historical annotation/metric summaries. No underlying current-data/metric/annotation artifact was opened and no current statistic or parameter was derived from those summaries."
+  },
+  "author_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/source_audit/write_goal_and_label_alignment_audit.py",
+    "sha256": "b1707b2bf31afb333c7676cca568a9c044aa08eae675a855a7c1083555bb3a64"
+  }
+}

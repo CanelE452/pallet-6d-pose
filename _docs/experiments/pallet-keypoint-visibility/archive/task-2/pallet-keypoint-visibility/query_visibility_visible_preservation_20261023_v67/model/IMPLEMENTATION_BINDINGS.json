@@ -1,0 +1,41 @@
+{
+  "schema": "V67_VISIBLE_PRESERVATION_SINGLE_OBJECTIVE_FACTOR_CODE_ONLY",
+  "created_at": "2026-10-22T15:31:31.906589+00:00",
+  "model": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/model/query_global_amodal_head.py",
+    "sha256": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144"
+  },
+  "trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/model/fit_partial_head.py",
+    "sha256": "c21b6811ada09b75a15e78404aa6f7300bc29738109607c6e95dbc00b5483f18"
+  },
+  "parent_model": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/model/query_global_amodal_head.py",
+    "sha256": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144"
+  },
+  "parent_trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/model/fit_partial_head.py",
+    "sha256": "0a820e59c6ea7edc631f6592c27f2291700b21d1c1fe2527dfe5cc938e8c133a"
+  },
+  "smoke": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/model/IMPLEMENTATION_SMOKE.json",
+    "sha256": "616878ba6ed10297d285125c6f9eb5582ddafddd066b6a7fc0b54009d127a586"
+  },
+  "architecture_parameters": 95508,
+  "objective": "partial center + .25partial local + .25partial uniqueglobal + 1.0*(knownvisible BCE center + .25BCE local + .25BCE uniqueglobal)",
+  "known_facts": {
+    "positive": "allowed==1",
+    "negative": "bit0 absent, allowed in1..63",
+    "unknown_excluded": "odd allowed>1 including63; validfalse excluded"
+  },
+  "normalization": "BCEeligible facts only: equal source mean; global per unique target informativefactmean then within-source targetmean then equal source mean; empty source terms ignored",
+  "checkpoint_selection": "Unchanged V66 macro informative-center partialNLL; visibleBCE never changes selection metric",
+  "required_root_protocol_field": {
+    "visible_bce_weight": 1.0
+  },
+  "CLI": "--visible-bce-weight 1.0 default; lambda0 available only objective_terms API parity, forbidden actualfit",
+  "root_inputs_protocol_quality_gate_pending": true,
+  "actual_cache_checkpoint_current_reads": 0,
+  "actual_fit_forward_optimizer_PnP_GPU_calls": 0,
+  "V66_existing_code_modified": false
+}

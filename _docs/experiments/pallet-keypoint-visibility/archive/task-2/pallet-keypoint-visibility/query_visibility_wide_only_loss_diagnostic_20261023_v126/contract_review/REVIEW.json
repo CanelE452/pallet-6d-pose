@@ -1,0 +1,89 @@
+{
+  "completed": true,
+  "PASS": true,
+  "blockers": [],
+  "scope": "Prospective design and existing public source metadata only. No model execution, parameter or feature-array bodies, source pixels, fit, current or V112.",
+  "C18_decisions": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_wide_only_loss_diagnostic_20261023_v126/ROOT_C18_DECISIONS_BEFORE_FIT.json",
+    "sha256": "031b9975b61b0a01bdff6c4d2901b1ad169d3eb5ff6258098d9fd1480e42b1f9"
+  },
+  "C18_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_wide_only_loss_diagnostic_20261023_v126/ROOT_C18_DESIGN_BEFORE_SOURCE_FIT.json",
+    "sha256": "84e72ea8c69649a4885cd95ef0fd60325ff3012b34a6b4555cd41f1ec948887c"
+  },
+  "parent_C17_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/ROOT_C17_DESIGN_BEFORE_SOURCE_FIT.json",
+    "sha256": "4a415c196acb6748a1883c0115bfe188e3690cab79211caf5b3badfc9c65529a"
+  },
+  "parent_C17_decisions": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/ROOT_C17_DECISIONS_BEFORE_BASELINE_READ.json",
+    "sha256": "623239107ad7ba27a25038af99ff25561824b89bdd2c7ff7287e0efedf4c217d"
+  },
+  "old_target_audit": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/old_training_target_audit/REVIEW.json",
+    "sha256": "ad43cef48754901e4551479747cf493072a7fd634d63f58cee67a98063d30088"
+  },
+  "C17_saved_fit_review": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/saved_fit_review/REVIEW.json",
+    "sha256": "dbc430b28bbca42476eda23e3c2de0fa7ec89a27b450b52be3d195682a61f079"
+  },
+  "same_shared_design_fields": 32,
+  "changed_shared_metadata_fields": [
+    "created_UTC",
+    "decisions_before_baseline_read",
+    "purpose"
+  ],
+  "training_intervention": {
+    "old192_loss_coefficient_C17": 1,
+    "old192_loss_coefficient_C18": 0,
+    "wide64_BCE_coefficient_both": 1,
+    "old192_draw_forward_and_diagnostic_logging_retained": true,
+    "old_hinge_diagnostic_retained_but_zero_gradient_contribution": true,
+    "data_features_GT_availability_sourcefolds_and_warmstart_bindings_same": true,
+    "model_221825_same": true,
+    "Torch_seed_219_same": true,
+    "old_sampler_seeds_208_214_215_216_217_flat218_same": true,
+    "wide_seed220_and_five_quotas_same": true,
+    "batch256_128D128E_and_same_forward_batch_geometry_same": true,
+    "AdamW_fresh_lr1e_4_wd0_001_clip5_same": true,
+    "updates1000_and_eval0_to1000_every100_same": true,
+    "secondary18cohort_strict_earliest_selector_same": true,
+    "primary_fixed1000_vs_C17_fixed1000_not_selected900": true,
+    "raw0_threshold_same": true
+  },
+  "metadata_constraints": {
+    "wide_planned_rows": 4896,
+    "wide_TRAIN_all_rows": 918,
+    "wide_TRAIN_teacher_D": 450,
+    "wide_TRAIN_teacher_E": 396,
+    "wide_TRAIN_teacher_U": 72,
+    "wide_TRAIN_known_nominal": 846,
+    "wide_TRAIN_known_input_U": 51,
+    "wide_TRAIN_known_available_loss_pool": 795,
+    "wide_TRAIN_known_available_D": 423,
+    "wide_TRAIN_known_available_E": 372,
+    "wide_TRAIN_LOCO_cues": 6,
+    "wide_TRAIN_original_RGB_groups": 3,
+    "TOMIE_TRAIN": 0,
+    "old_known_TRAIN": 4079,
+    "old_known_TRAIN_D": 2931,
+    "old_known_TRAIN_E": 1148,
+    "old_actual_sampleable_TRAIN_occurrences": 4051,
+    "old_report_only_BEFORE_aliases_not_directly_sampled": 28,
+    "all_folds_and_weak_source_definitions_unchanged": true,
+    "counts_are_correlated_occurrences_not_independent_scenes": true
+  },
+  "interpretation_KO": [
+    "C17과 공통인 설계 필드32개는 값/바인딩이 정확히 같고, 공통 필드의 변경은 시각·목적 설명·C18 결정 문서 연결뿐이다. 실제 학습 개입은 old192 loss 계수1→0이며 wide64 BCE 계수1은 유지된다.",
+    "기존192행을 계속 같은 순서로 draw/forward/log하고 전체256 forward 형태도 유지해야 한다. old128BCE·hinge·flat64BCE는 진단 로그에만 남고 backward에는 기여하지 않는 구현이 이 단일 요인 대조를 실현한다.",
+    "주 비교는 양쪽 고정1000회 checkpoint다. C17 source-selected900과 C18 best-selector를 비교해 결과를 바꾸지 않는다. 동일18cohort selector와 best artifact는 부차적 source 기록으로만 유지한다.",
+    "C18이 같은 wide TRAIN795에서 개선되면 이 고정 설정에서 old-loss 제약이 영향을 줬다는 근거가 될 수 있다. 그래도 어느 old semantic teacher/표본이 원인인지 또는 gradient의 구체 경로까지 분리하는 실험은 아니다.",
+    "C18이 wide TRAIN을 충분히 맞히지 못해도 고정 표현의 불가능성을 증명하지는 않는다. 이 학습률·1000회 최적화·head·약한 cue 식별 모호성 등의 가능성이 남는다.",
+    "wide-only TRAIN 성공은6cue/3원본의 상관된 보조 과제 학습 가능성을 보여줄 뿐이다. 기존 sourcefold 검증과 oldsource 퇴행을 따로 보고해야 하며 실사 해결이나 배포 후보 승격을 대신하지 않는다.",
+    "기존4079는 서로 다른 recorded-cue/junction/surface proxy가 섞인 known TRAIN 메타데이터 분모다. 전체가 오답이거나 동일 입력의 상충 라벨이라는 주장은 기존 감사도 지지하지 않는다.",
+    "새 native8 정답 요구·게이트·추가 승인 절차는 만들지 않는다. original teacherU/inputU/fold와 conditional AUX 한계는 그대로 유지한다."
+  ],
+  "implementation_and_actual_parity_not_reviewed_yet": true,
+  "training_or_current_admission_created_by_this_review": false,
+  "new_forward_fit_current_V112_calls": 0
+}

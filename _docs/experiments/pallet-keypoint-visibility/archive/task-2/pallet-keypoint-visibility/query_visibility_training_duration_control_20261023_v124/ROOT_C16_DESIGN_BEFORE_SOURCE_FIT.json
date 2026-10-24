@@ -1,0 +1,163 @@
+{
+  "created_UTC": "2026-10-23T12:26:40.598019+00:00",
+  "candidate": "C16_EXACT_C15_DURATION_CONTROL_8000",
+  "prospective_before_new_training_or_headforward": true,
+  "rationale": "PUBLIC source C15 fourteen-cohort validationBCE decreases at every100 update through1000, best islast .042670509 vsinitial .101094662. New public TOMIE woodblock central16/32miss persists. Test whetherfixed1000duration truncateslearning before changingdata/architecture. Private current outcomes not used for duration, LR, sampler, thresholds or selector.",
+  "parent_C15_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/ROOT_C15_DESIGN_BEFORE_SOURCE_FIT.json",
+    "sha256": "78b6734aba6822b2b8162f4b70583e2d7d0e848dea74749aee1e7c8d977a5efc"
+  },
+  "parent_C15_trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/source_fit_preparation/train_source_once.py",
+    "sha256": "1ae7f8daada610257772a64df30c52b4fe41e604e05a8497c878570742b9ba1f"
+  },
+  "parent_C15_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/source_fit_preparation/FIT_PROTOCOL_BEFORE_SOURCE_FIT.json",
+    "sha256": "48c66821d8c08f6b5bf12a1aefe42da1afa259c7db384a38dfefb40429bf2bd5"
+  },
+  "parent_C15_fit": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/runs/C15_PUBLIC_FLAT_PALLET_AUGMENTED_SPATIAL_QUERY/FIT_COMPLETE.json",
+    "sha256": "9b033ffcfab7e85e073a3244963183f04347055a356e82332395de4452578c1d"
+  },
+  "parent_C15_freeze": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/runs/C15_PUBLIC_FLAT_PALLET_AUGMENTED_SPATIAL_QUERY/MODEL_FREEZE.json",
+    "sha256": "4e38757107e252edbbbb36e1a00fc9abedfb89f7a570bccafd76ead71f511fff"
+  },
+  "parent_C15_history": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/runs/C15_PUBLIC_FLAT_PALLET_AUGMENTED_SPATIAL_QUERY/HISTORY.jsonl",
+    "sha256": "1e956063e33ea738d6cde58cd728396e9e73d9e6b8eda362d42b90a3338af2c8"
+  },
+  "parent_C15_trace": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/runs/C15_PUBLIC_FLAT_PALLET_AUGMENTED_SPATIAL_QUERY/TRAIN_UPDATES.jsonl",
+    "sha256": "bfdecad78c6f7fba152475cc1bb421f585ffa4b88ab68bff4fb7bae7b6f28f06"
+  },
+  "parent_C15_scores": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/runs/C15_PUBLIC_FLAT_PALLET_AUGMENTED_SPATIAL_QUERY/SELECTED_ALL51004_SOURCE_SCORES.npz",
+    "sha256": "5ab5c17c484b1454e08ffd9bc34206253dbcd9f5a5def96b727b5ce68a15b385"
+  },
+  "parent_C15_checkpoint": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_augmented_head_20261023_v123/runs/C15_PUBLIC_FLAT_PALLET_AUGMENTED_SPATIAL_QUERY/BEST_SPATIAL_TARGET_QUERY_HEAD.pt",
+    "sha256": "e02f54a77494a4f1a01cb218577da7c93b6025c2bdf164c921cb24ad61f2600e"
+  },
+  "source_data_features_labels_folds": "Exact C15 all51004/19432units, no data/label/q/L/context/feature change. New846 knownTRAIN only6LOCOcues; allTOMIE validation. Conditional AUX limits retained.",
+  "training_control": {
+    "total_updates": 8000,
+    "exact_replay_updates": 1000,
+    "additional_updates": 7000,
+    "initialization": "Original C15 initialization from C14source-selected1200, fresh originalAdamW then exact1000 deterministic replay to recover trueoptimizer/RNG state. No parameter/optimizer reset at1000.",
+    "invariants_from_C15": [
+      "221825parameter1928feature64hiddenhead;encoderfrozen/noDINOforward",
+      "sameAdamWlr0.0001/weightdecay0.001/clipnorm5",
+      "sameold128+new64order/sampler seeds208214215216217/new218",
+      "sameoldmeanBCE+.25old24hinge+newmeanBCE; noS/U/VALloss",
+      "all old/new input metadata/availability/labels and source folds unchanged",
+      "two separateold15004/new4428sourceevaluationcalls; logit0/firstU unchanged"
+    ],
+    "replay_checks": [
+      "Original C15 first1000 batch indices and24oldpairs bitexact; new64indices exact; perupdate loss/BCE/hinge/newBCE/gradientnorm values bitexact",
+      "At1000 modelparameterstorch.equal C15selected1000; all51004scoresand14BCEsamebitexact",
+      "Old128savedC14trace matching through2000;afterwards exactsame helper/generator state continues withoutreference substitution"
+    ],
+    "save_resume_state": "Best-selected andfinal8000 checkpoints save completeoptimizer state, oldfive/newRNG states and globalTorch CPU/CUDARNG fortruefuturecontinuation. Storedstatesatthatstep, noC15reset."
+  },
+  "selection": {
+    "updates": [
+      0,
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900,
+      1000,
+      1100,
+      1200,
+      1300,
+      1400,
+      1500,
+      1600,
+      1700,
+      1800,
+      1900,
+      2000,
+      2100,
+      2200,
+      2300,
+      2400,
+      2500,
+      2600,
+      2700,
+      2800,
+      2900,
+      3000,
+      3100,
+      3200,
+      3300,
+      3400,
+      3500,
+      3600,
+      3700,
+      3800,
+      3900,
+      4000,
+      4100,
+      4200,
+      4300,
+      4400,
+      4500,
+      4600,
+      4700,
+      4800,
+      4900,
+      5000,
+      5100,
+      5200,
+      5300,
+      5400,
+      5500,
+      5600,
+      5700,
+      5800,
+      5900,
+      6000,
+      6100,
+      6200,
+      6300,
+      6400,
+      6500,
+      6600,
+      6700,
+      6800,
+      6900,
+      7000,
+      7100,
+      7200,
+      7300,
+      7400,
+      7500,
+      7600,
+      7700,
+      7800,
+      7900,
+      8000
+    ],
+    "criterion": "Exact C15 fourteen validation-cohort equallyweighted meanBCE; sameunavailableknownsafe0 denominators andearlieststrictminimum; include0..1000replayhistorysamevalues",
+    "threshold_logit": 0,
+    "source_only": true,
+    "no_early_stop_or_extension_inside_run": true
+  },
+  "reporting": {
+    "source_old15": "Exact original15 regression definitions; reportfailedgateshonestly, nofailedmodelpromotion",
+    "new_source": "Exact all4896centre/all9/source/rawsplit/variant/donor-rank metrics; originalU separate",
+    "source_learning_curve": "Full0..8000 and14parts per100; allsource knownTRAINvsVAL BCE, public woodblock perrank/source development transfer",
+    "current": "Afteronefrozen source-selectedhead, descriptiveevaluationcached1784featuresraw0/Ufirst, comparev61legacyC11C14C15. No currentfit/threshold/checkpoint/armchoice. IfselectedweightsexactlyC15same, existingcurrentsealedoutputcanbereusedasidenticalmodelfunctionwithoutnewheadforward."
+  },
+  "current_training_normalizer_threshold_checkpoint_arm_selection": false,
+  "V112_allowed": false,
+  "PnP_or_q_L_correction": false,
+  "additional_public_data_task": "Parallel prospective intake canidentify licensed independentflatpalletTRAIN originals but noneincludedinC16; currentdata/V112 excluded.",
+  "fully_solved": false
+}

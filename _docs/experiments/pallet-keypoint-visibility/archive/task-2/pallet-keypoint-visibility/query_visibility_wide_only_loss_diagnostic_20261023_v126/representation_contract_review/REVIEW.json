@@ -1,0 +1,244 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": "Code/protocol-only review of the frozen C11 assemble1928/SpatialTargetQueryHead actually reused by C17. No model import/forward, feature arrays, source predictions, current, or V112.",
+  "conclusion_KO": "공간 정보가 전혀 없는 표현은 아니다. q 중심 crop과 context patch의 q 위치 샘플링, ViT positional embedding을 통해 정보가 암묵적으로 남는다. 다만 head는 전체 patch 격자를 받지 않고 5개 요약 벡터와 8개 scalar만 받아 공간 배치를 강하게 압축한다. 이것이 성능 병목인지는 old-loss 대조 전후의 증거가 필요하다.",
+  "actual_chain": {
+    "C17_feature_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/feature_baseline_preparation/FEATURE_BASELINE_PROTOCOL_BEFORE_FORWARD.json",
+      "sha256": "0325b4bddf0c98aed34f8a6928f24d217373dd5c2ba421a38ca736bb9a897858"
+    },
+    "C17_feature_driver": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/feature_baseline_preparation/run_frozen_boundary_source.py",
+      "sha256": "c59d986a29668c04e19500ac1418062ad1912fdcdcfd5ed0e56209e8225be1e1"
+    },
+    "C11_exact_assemble": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e"
+    },
+    "C11_exact_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+      "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de"
+    },
+    "protocol_feature_operator": "Exact C11 assemble T/Q/F/C/P384 each +4cos/3fractions/Qinside=1928; exact C8/C9 preprocessing unchanged",
+    "protocol_availability": "finite non-sentinel native continuous AND nearest query support AND stored/canonical RGB96 central4valid AND context any; Qinside feature only; no weak label/construction status input",
+    "same_native_composition": "Fresh input RGB96 and context224 must replay from the same native original/composed fullRGB; centre aliases assert exact1928 parity. Existing feature packets are reused without changing this frozen representation."
+  },
+  "feature_layout": [
+    {
+      "name": "T",
+      "half_open_columns": [
+        0,
+        384
+      ],
+      "definition": "L2-normalized context224 CLS token",
+      "spatial_compression": "One descriptor for context image; no spatial grid passed to head."
+    },
+    {
+      "name": "Q",
+      "half_open_columns": [
+        384,
+        768
+      ],
+      "definition": "Bilinear sample of raw 16x16 context patch tokens at native q transformed by context box, then L2",
+      "spatial_compression": "One q-conditioned token; final-layer global self-attention means it is not a strictly local pixel/ownership measurement."
+    },
+    {
+      "name": "F",
+      "half_open_columns": [
+        768,
+        1152
+      ],
+      "definition": "L2-normalized CLS of full stored RGB96, resized directly to224",
+      "spatial_compression": "One descriptor over the original q-centred crop."
+    },
+    {
+      "name": "C",
+      "half_open_columns": [
+        1152,
+        1536
+      ],
+      "definition": "L2-normalized CLS of literal RGB96[:,32:64,32:64], resized directly to224",
+      "spatial_compression": "One descriptor for central32; surrounding central spatial topology is not separately presented."
+    },
+    {
+      "name": "P",
+      "half_open_columns": [
+        1536,
+        1920
+      ],
+      "definition": "Mean RAW x_norm_patchtokens[7:9,7:9] from full96 view, THEN L2",
+      "spatial_compression": "Four centre tokens averaged; their quadrant-specific ordering is not explicitly retained by this pooling."
+    },
+    {
+      "name": "scalars",
+      "half_open_columns": [
+        1920,
+        1928
+      ],
+      "order": [
+        "cos(T,C)",
+        "cos(T,F)",
+        "cos(Q,C)",
+        "cos(Q,P)",
+        "context_valid_fraction",
+        "local96_valid_fraction",
+        "central32_valid_fraction",
+        "Q_inside_supported_context"
+      ]
+    }
+  ],
+  "Q_geometry": {
+    "native_uv": "u=(q_xy-context_box_lo)/(context_box_hi-context_box_lo), computed in float64",
+    "grid": "FP32(2*u-1); grid_sample bilinear/padding_mode=border/align_corners=False on raw context patch tokens",
+    "token_centres": "lo+(j+0.5)*span/16",
+    "Q_inside": "finite non-sentinel q, finite positive context box, context support>0, closed 0<=u<=1",
+    "outside": "Q exactly zero, Qinside=0; Qoutside does not by itself change factual/model U",
+    "explicit_native_uv_in_head": false
+  },
+  "preprocessing": {
+    "full_and_central": "Literal uint8 RGB96 + bool valid; invalid filled with ImageNet mean before bilinear resize224 align_corners=False antialias=True and standard normalization. Central branch uses [32:64] before resize.",
+    "context": "Exact native V107 bilinear context224, followed by invalid mean fill/ImageNet normalization. Source context comes from finite non-sentinel q8 minmax as fixed in C14/wide corpus; no GT r sampling.",
+    "normalization": "Each of T/Q/F/C/P independently L2 eps1e-12 after sample/pool. No-support descriptor is zero. Valid fractions/Qinside remain scalar features.",
+    "P_support": "P zeroed unless literal stored RGB96 central4 samples are all valid; it is not an observed class."
+  },
+  "head_contract": {
+    "input_shape": "float32[N,1928]",
+    "derived_input": "concat(features, abs(T-C), T*C, abs(Q-P), Q*P)",
+    "derived_dimension": 3464,
+    "network": "Linear(3464,64), ReLU, Linear(64,1)",
+    "parameters": 221825,
+    "output": "One external hidden raw logit; raw sign0 decoding is outside this feature-to-logit forward. No learned geometric-S output."
+  },
+  "spatial_information": {
+    "implicitly_retained": [
+      "Native q determines local96 crop centre and L determines its field of view.",
+      "Context q-relative position chooses Q via normalized box coordinate.",
+      "DINO adds learned/interpolated positional embeddings before all transformer blocks; final CLS/patch tokens can encode spatial appearance and global context.",
+      "Named branches identify context versus local96 versus central32 and centre pooled patch, with exact relative query phase."
+    ],
+    "explicit_head_inputs": [
+      "5x384 descriptor order",
+      "four pairwise cosine scalars",
+      "three valid fractions",
+      "Qinside bit",
+      "four derived 384-D difference/product vectors"
+    ],
+    "not_explicit_head_inputs": [
+      "native slot/index or native8 identity",
+      "all8 query coordinates",
+      "native q_xy or L or signed u/v coordinate values",
+      "expected physical cue identity or part token",
+      "GT reference r, uncertainty region, mask, depth, pose, labels, donor ID, source/fold ID",
+      "ordered 16x16 patch grid or original RGB pixels"
+    ],
+    "q8_role": "All8 queries determine the context box upstream; their full coordinate array is not concatenated into the head input.",
+    "attention_limitation": "Q and P are final globally contextualized patch tokens; their sampling locations do not establish pixel-only causality, target ownership, or a sharply bounded receptive field."
+  },
+  "previous_changes": {
+    "V101": "Trainable copied C1 CNN on central32, query-phase bilinear sample of its 4x4 map, plus strong frozen C1 scalar prior. This differs from the later frozen DINO descriptor+MLP route.",
+    "V111": "Already added spatial Q from context patch grid and pooled P from local centre2x2, plus descriptor differences/products. Re-proposing a single query token or central crop alone would repeat existing work."
+  },
+  "one_minimal_next_representation_candidate": {
+    "status": "OPTIONAL prospective candidate only, after old-loss ablation evidence; not implemented or selected.",
+    "change": "Preserve a fixed ordered 3x3 query-relative local patch stencil instead of collapsing local spatial evidence into a single centre mean P.",
+    "definition": "Use the SAME frozen full96 DINO raw16x16 token grid. Bilinearly sample at token-index coordinates (3.5,7.5,11.5) per axis, row-major, each vector normalized separately. These correspond to fixed q-relative local offsets {-L/4,0,+L/4} per axis; no GT r, native slot or target-specific recentering.",
+    "difference": "Unlike V101, no learned CNN/residual/C1 prior. Unlike V111, head retains multiple ordered query-relative positions rather than one Q and one averaged P.",
+    "invariants": "Same source labels/q/L/folds/encoder and raw0 decoder; keep factual availability independent of label. A future comparison would need fresh readout dimensions and source-only fixed evaluation, not a claim that this works.",
+    "limits": "Still globally contextualized patch vectors; no exact pixel ownership or expected-cue identity is introduced. Raw token grids are not present in existing1928 feature caches, so actual extraction would need a separately authorized producer replay. This review executes none."
+  },
+  "unproven": [
+    "Whether compression is the dominant error mechanism.",
+    "Whether old-loss gradients oppose the new semantic task on identical inputs.",
+    "Whether an ordered stencil improves held-out source performance or actual task performance."
+  ],
+  "code_evidence": [
+    {
+      "file": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+        "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e"
+      },
+      "lines": [
+        36,
+        67
+      ]
+    },
+    {
+      "file": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+        "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de"
+      },
+      "lines": [
+        28,
+        39
+      ]
+    },
+    {
+      "file": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/feature_baseline_preparation/run_frozen_boundary_source.py",
+        "sha256": "c59d986a29668c04e19500ac1418062ad1912fdcdcfd5ed0e56209e8225be1e1"
+      },
+      "lines": [
+        182,
+        200
+      ]
+    },
+    {
+      "file": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/frozen_rgb_feature_preparation/prepare_frozen_rgb_features.py",
+        "sha256": "cc1e2c331d41aaea5b3d42d144c9abbc40231dd3784d24f52dcc58f41d607578"
+      },
+      "lines": [
+        36,
+        47
+      ]
+    },
+    {
+      "file": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_relative_rgb_head_20261023_v108/context_feature_preparation/prepare_target_context_features.py",
+        "sha256": "8deae91931c12bcc1692c98ce74fa5e703cfb0d57da980b126d5ca45ca74873e"
+      },
+      "lines": [
+        26,
+        32
+      ]
+    },
+    {
+      "file": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/models/vision_transformer.py",
+        "sha256": "7799a260f2d7d0fe197331d08502fb8c542f9b7424723650f6a39b64fa2639ea"
+      },
+      "lines": [
+        216,
+        235
+      ]
+    },
+    {
+      "file": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/models/vision_transformer.py",
+        "sha256": "7799a260f2d7d0fe197331d08502fb8c542f9b7424723650f6a39b64fa2639ea"
+      },
+      "lines": [
+        257,
+        274
+      ]
+    },
+    {
+      "file": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_residual_head_20261023_v101/model/local_rgb_residual.py",
+        "sha256": "836f7309d8aa2e4db28fe3b7197c2befc3c8643dd986bc1571a07d17906701f4"
+      },
+      "lines": [
+        64,
+        137
+      ]
+    }
+  ],
+  "read_scope_note": {
+    "actual_model_imports_forwards_parameter_deserializations_feature_array_current_V112_reads": 0,
+    "incidental": "One initial broad rg over the assets directory also pattern-scanned a checkpoint binary and reported a binary match. No checkpoint was deserialized, tensors inspected, or parameters used; subsequent reads were explicit code/JSON paths."
+  },
+  "original_artifacts_modified": false,
+  "new_model_or_training_decision": false,
+  "fully_solved": false
+}

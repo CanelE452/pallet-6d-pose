@@ -1,0 +1,97 @@
+{
+  "schema": "v67_independent_objective_control_math_review_v1",
+  "PASS": true,
+  "scope": "Code plus generated CPU leaf logits only. No source/cache/checkpoint/current data opened.",
+  "trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/model/fit_partial_head.py",
+    "sha256": "c21b6811ada09b75a15e78404aa6f7300bc29738109607c6e95dbc00b5483f18"
+  },
+  "model": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/model/query_global_amodal_head.py",
+    "sha256": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144"
+  },
+  "baseline_trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/model/fit_partial_head.py",
+    "sha256": "0a820e59c6ea7edc631f6592c27f2291700b21d1c1fe2527dfe5cc938e8c133a"
+  },
+  "baseline_model": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/model/query_global_amodal_head.py",
+    "sha256": "068e9ea147b093371244b02779e1df0e31e22a747063eb26b64be12419492144"
+  },
+  "reviewer_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/source_audit/review_objective_control_generated.py",
+    "sha256": "72343416e6675f201facffd8197c5bf12642e1e2f5b6958b7a2d78d865c4e2a6"
+  },
+  "fit_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/FIT_PROTOCOL.json",
+    "sha256": "6ea43e9e55e69b442285a2c99e0960a11a491257c376a0264db9c212cf6c3980"
+  },
+  "built_in_generated_smoke": {
+    "PASS": true,
+    "partial_mask_probability_sum": true,
+    "unknown63_loss_and_gradient_exact_zero": true,
+    "onehot_CE_parity": true,
+    "domain_normalization": true,
+    "new_training": 0,
+    "new_PnP": 0,
+    "known_visible_masks_all63_verified": true,
+    "known_visible_positive_masks": 1,
+    "known_nonvisible_masks": 31,
+    "unknown_odd_masks_excluded": 31,
+    "marginal_BCE_reference_atol": 1e-12,
+    "unknown_and_invalid_gradient_exact_zero": true,
+    "extreme_logit_loss_and_grad_finite": true,
+    "per_source_and_unique_target_manual_normalization_exact": true,
+    "lambda0_V66_scalar_and_all3_leaf_logit_gradient_bit_exact": true,
+    "lambda0_gradient_max_difference": 0.0,
+    "mock_logits_unchanged": true,
+    "isolated_visible_lambda1_loss_exactly_doubled": true,
+    "baseline_trainer_code_sha256": "0a820e59c6ea7edc631f6592c27f2291700b21d1c1fe2527dfe5cc938e8c133a",
+    "baseline_model_code_SHA_identity": true,
+    "actual_cache_or_checkpoint_or_current_reads": 0,
+    "model_forward_calls": 0,
+    "optimizer_updates": 0,
+    "GPU_calls": 0
+  },
+  "independent_tests": {
+    "all_nonempty_joint_subsets": 63,
+    "known_positive_masks": 1,
+    "known_nonvisible_masks": 31,
+    "unknown_masks": 31,
+    "marginal_BCE_max_abs_error": 4.440892098500626e-16,
+    "leaf_logit_gradient_max_abs_error": 2.498001805406602e-16,
+    "analytic_gradient_verified": true,
+    "unknown_gradient_bit_exact_zero": true,
+    "manual_source_and_target_normalization_cases": 40,
+    "all_unknown_or_invalid_zero_gradient_cases": 40,
+    "lambda0_bit_exact_scalar_and_three_leaf_gradient_cases": 8,
+    "invalid_mask_rejections": 3,
+    "unchanged_function_AST": {
+      "partial_nll": true,
+      "domain_loss": true,
+      "load_cache": true,
+      "tensor": true,
+      "inputs": true,
+      "validation": true
+    },
+    "baseline_architecture_byte_identical": true
+  },
+  "findings": [],
+  "blockers": [],
+  "mathematical_interpretation": [
+    "Exact V is only joint VV: allowed1. Every nonempty even mask excludes V and certifies nonvisible; every odd mask greater than1 leaves exact visibility unknown.",
+    "Added BCE supervises exact-visible versus exact-nonvisible at all three existing scales. It adds no radius2-visible BCE and invents no E/O/self label.",
+    "This is not a positive-only V-preservation objective: known negatives also receive BCE. It remains a legitimate one-factor known-marginal objective change.",
+    "BCE uses its own known-and-valid denominator within each source, and unique-target means at global scale. Thus known-V weights are not generally exactly doubled relative to V66.",
+    "At a fully known isolated VV target, BCE equals its partial NLL; the isolated generated fixture doubles. This special case does not generalize to mixed partial masks.",
+    "Architecture, data sampling, V66 partial-NLL checkpoint selector, fixed binary threshold, and budget are unchanged. Source release gates must not be used for checkpoint selection.",
+    "Generated loss/gradient checks do not establish a feature-branch or parameter-level causal mechanism."
+  ],
+  "source_admission_status": "Fit authorization and immutable source input/admission bindings are owned by root; this math audit does not authorize fitting or current evaluation.",
+  "actual_cache_reads": 0,
+  "actual_weight_reads": 0,
+  "actual_current_reads": 0,
+  "model_forward_calls": 0,
+  "optimizer_updates": 0,
+  "GPU_calls": 0
+}
