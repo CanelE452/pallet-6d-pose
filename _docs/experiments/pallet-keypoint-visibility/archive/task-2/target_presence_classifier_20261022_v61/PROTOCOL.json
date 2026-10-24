@@ -1,0 +1,22 @@
+{
+  "experiment":"VISIBLE_TARGET_PIXEL_PRESENCE_AT_INITIAL_PREDICTED_QUERY",
+  "corrected_user_goal":"Does the visible target pallet occupy this predicted keypoint image position? Not pose improvement, semantic corner identity, physical DIRECT or ray blockage.",
+  "queries":"unchanged initial N0 predicted native first8 coordinates; centroid excluded; no GT-centered query/crop",
+  "label":"M4[floor(y+0.5),floor(x+0.5)]>127 at original-resolution pixel centers indexed0..W-1/0..H-1; no interpolation, clamping, patch voting or moving the query",
+  "valid":"finite original coordinate, continuous coordinate within image, nearest pixel within image, frozen ROI contains at least one valid source pixel",
+  "mask_contract":"verify raw uint8 PNG value distribution, dimensions, thresholded area against annotation and visible subset amodal on every frame; unexpected contract blocks affected labels rather than guessing",
+  "boundary":"full3x3 nearest-pixel stencil all-one=clear interior; all-zero=clear exterior; mixed=boundary-uncertain; clipped stencil=image-border uncertainty. This attribute never replaces center-pixel label and never changes loss weight. Report all-valid and strata separately.",
+  "auxiliary":"M0 only distinguishes target-only silhouette present but final visible target absent (M0=1,M4=0). M0=0 includes background and target holes; no certified physical owner. Initial convex-cuboid B/I/S are inference geometry attributes, not target-pixel visibility truths.",
+  "split":"existing synthetic TRAIN768/VAL235; scene IDs and RGB hashes disjoint; repeated VAL and upstream detector-validation exposure disclosed; complete source-family lineage unresolved",
+  "input":"reuse exactly hashed v60 frozen YOLO26 P3 9x9 ROI+valid channel cache at same original predicted coordinates; no old head reuse/relabel; frozen backbone/BN; no new normalizer",
+  "head":"fresh random Conv65to32 k3p1/GELU/Conv32to32/GELU/GAP/Linear1; 28033 trainable parameters",
+  "fit":{"seed":20261018,"fits":1,"epochs":20,"batch_frames":32,"max_updates":480,"optimizer":"AdamW lr0.001 weight_decay0.0001","loss":"unweighted BCE over fixed valid center-pixel queries"},
+  "selection":"lowest synthetic VAL BCE, strict improvement; threshold0.5 fixed before results; no real fit/calibration/threshold/checkpoint choice",
+  "comparators":["always absent","always present","constant TRAIN presence prevalence"],
+  "primary_metrics":["presence AP","precision","recall","TP_FP_FN_TN","false presence FP","false absence FN","BCE","balanced accuracy","coverage","boundary/clear-interior/clear-exterior/M0-only/B-I/initial-S strata"],
+  "feasibility_screen":"VAL BCE below constant TRAIN prior, AP above VAL prevalence, nonzero recall at0.5; this is feasibility rather than universal accuracy certification",
+  "pose":"no PnP or pose success gate and no new pose evaluation; preserve v60 as a different-target experiment, not failure of this presence goal",
+  "real":"after synthetic freeze, use same frozen head on already verified wood105/square118 ROI caches for inference overlays only. Without real target-pixel masks no quantitative presence accuracy, precision or recall.",
+  "budget":"one small head at most480updates, GPU fit<=300s, CPU label audit<=300s, existing same-host environment only",
+  "preservation":"all older models/outputs/manuscripts preserved; local new version only; no upload/publication/install"
+}

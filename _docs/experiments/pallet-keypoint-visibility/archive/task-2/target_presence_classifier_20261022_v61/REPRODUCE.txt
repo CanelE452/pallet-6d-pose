@@ -1,0 +1,22 @@
+Target corrected by user: visible target pallet present at initial predicted keypoint image coordinate.
+This is a different target from v60 external-ray blockage. No new pose evaluation.
+
+Use a new output directory; existing receipts and outputs are intentionally exclusive-create.
+Scientific source revision:93c24d143fa3901de1fa127b3156e8250d81dba8
+CPU Python:/home/minjae/anaconda3/envs/pallet-pose/bin/python
+GPU Python:/home/minjae/anaconda3/envs/pallet-yolo26/bin/python
+Set OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1.
+
+Actual order:
+1. Save PROTOCOL.json before labels/training results.
+2. CPU build_presence_labels.py > LABEL_PREPARATION.log
+3. Same-host GPU fit_presence.py > TRAIN.log [one fit,480updates]
+4. CPU evaluate_presence.py > EVALUATION.log
+5. Same-host GPU predict_real_presence.py > REAL_INFERENCE.log [no real targets or optimizer]
+6. CPU verify_and_plot.py > VERIFY_FIGURES.log
+7. CPU redraw_synthetic_v2.py > FIGURE_PADDING_REPAIR.log [visual padding only]
+
+Requires original v60 SYNTH_ROI_CACHE.npz, REAL_ROI_CACHE.npz, predicted-query inputs, raw synthetic visible/amodal masks and RGB at existing local paths.
+Cache hashes are in LABEL_PREPARATION.json and SOURCE_BINDINGS.json.
+No feature-cache replacement, GT-centered crops, ray labels, real residual calibration, threshold tuning or PnP.
+Full datasets/ROI caches/raw RGB are intentionally not included in the small local result ZIP.

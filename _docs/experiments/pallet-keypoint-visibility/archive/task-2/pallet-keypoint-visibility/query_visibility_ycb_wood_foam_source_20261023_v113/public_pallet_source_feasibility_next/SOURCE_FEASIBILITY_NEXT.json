@@ -1,0 +1,171 @@
+{
+  "completed": true,
+  "scope": "Public source/annotation feasibility and model-file inventory only. No new dataset/image payload, pixels, inference, fit, private/current or V112 access.",
+  "recommended_one_next_source": {
+    "name": "Existing LOCO fixed20 real pallet frames: annotation-identified target-mask pilot",
+    "why_actionable": "Raw frames, official COCO instance IDs/bboxes, frozen initializer q/L and locked visual cue observations already exist. Adds target-ownership annotation evidence rather than a new classifier sweep or native-corner requirement.",
+    "open_source_evidence": {
+      "official_repo": "https://github.com/tum-fml/loco",
+      "annotations": "https://github.com/tum-fml/loco/blob/main/rgb/loco-all-v1.json",
+      "license": "https://github.com/tum-fml/loco/blob/main/LICENSE",
+      "license_name": "CC0-1.0"
+    },
+    "actual_local_schema": {
+      "COCO_images": 5097,
+      "COCO_annotations": 151428,
+      "pallet_category_id": 7,
+      "pallet_annotation_rows": 120445,
+      "pallet_annotated_images": 4727,
+      "correction": "4727 is pallet-containing images, not pallet bbox count.",
+      "segmentation": "150568/151428 all-class segmentations are single axis-aligned four-corner rectangles; remaining860 polygon/multi-rect entries have unverified visible/amodal semantics. Published native8/E/S fields absent. Do not rasterize these as visible-mask truth."
+    },
+    "target_identity_source": "Use the already frozen official representative ann_id/category7/bbox from the source frame, plus a source-visible own-cue witness when already locked. Preserve the original initializer first-argmax q/L/candidate; if its intended instance cannot be associated unambiguously, record target-association U rather than switching to a GT-best detection/annotation.",
+    "credible_mask_definition": "A SAM2 candidate image-membership mask indexed by that source annotation, visually audited against the target body and competing instances. It is a predicted auxiliary ownership proposal, not official visible/amodal GT or D/E gold.",
+    "occluder_ownership_source": "Other official instance IDs/bboxes provide competitor identity candidates. Separately prompted/audited other-instance masks can support foreign ownership; overlaps, merged pallets, incomplete annotation and unannotated foreground stay unresolved. Do not assume complete owner coverage.",
+    "bounded_next_step_not_executed": [
+      "Retain all existing20frames/160logical query slots, including no-query/OOB, and original source folds/family grouping. Freeze the20target annotation IDs/bboxes and existing positive own-cue witnesses before SAM outputs; no new RGB or query selection.",
+      "Prospectively allow one target-mask output per frame using cached SAM2.1, multimask_output=False. Optionally freeze at most one largest-overlap other-annotation competitor per frame (tie lowest ann_id) before outputs: at most40mask calls, all missing/failures retained.",
+      "Save full-resolution native masks and exact original-query stencil membership, with source-target association and overlapping-owner uncertainty separate. Audit the fixed raw/context crops and mask leaks/holes; do not rank masks by GT or model correctness.",
+      "Initially this can supply conditional target-owned visible-support evidence. External E requires independently defensible expected target/cue support at that q and a foreign-owner witness; mask absence, wrong target, crop MISS, own holes and background are not E. S remains geometric/outside learned D/E; unresolved U remains separate.",
+      "Only after these source masks/association observations are concrete should root decide a training contract. No native8/CAD/physical-junction exact gold is required for a separately named crop-presence auxiliary, and no such gold is claimed."
+    ],
+    "why_distinct_from_prior_category_detector_SAM_pilot": "The teacher target comes from published source annotation identity and pre-locked own-cue evidence, not an all-category text detector choosing the target. This is source annotation construction/QA, not a claim that SAM output is itself correct or a deployed sourceGT input."
+  },
+  "other_existing_sources_not_selected_as_immediate_mask_route": [
+    {
+      "source": "Pallox",
+      "usable": "Existing50pairs/100real frames bind one physical bin before/after real cardboard cover, with saved actual initializer queries and conditional2D cue evidence. This is the strongest cached natural before/after correspondence evidence.",
+      "limit": "One physical tall bin and LAB/HALL development exposure; original teacher-guided shared q differs from actual per-view initializer q. Nominal paired pose is not pixel registration. No official per-instance visible/amodal mask definition was certified here. Use independent visible-own and cardboard witnesses plus alignment uncertainty; no before-mask0 or after-mask0=>E shortcut."
+    },
+    {
+      "source": "TOMIE fixed4",
+      "usable": "Real flat wood/polymer pallet RGB, entity names and pose records; actual frozen4initializer/32q and2weak2D cue proposals exist. Source data.csv has bbox/Visible for some camera0/7 records; raw_data.csv does not.",
+      "limit": "Selected first image may lack matching processed annotation row. Visible is whole-entity generator/render/FOV eligibility, not cue visibility. Raw Occlusion physical meaning is unverified. Multiple pallet/episode identity, exporter convention and raster alignment remain conditional; no official pixel masks or new natural E can be asserted from these fields. All4 belong to one conservative capture family.",
+      "primary_urls": [
+        "https://github.com/FLW-TUDO/TOMIE-Dataset",
+        "https://github.com/FLW-TUDO/TOMIE-Dataset/blob/main/generator.py",
+        "https://doi.org/10.1186/s13640-024-00623-6"
+      ]
+    },
+    {
+      "source": "Author RGBD Pallet Dataset / pallet_pose_est",
+      "usable": "Primary loader expects color/depth/label PNGs, cls_indexes/poses/factor_depth MAT and modelpoints. It could offer more direct pallet mask/depth ownership evidence than boxes.",
+      "limit": "Official public download pointer was inaccessible through the web tool again; actual release listing/size/checksum and dataset-specific license remain unverified. Loader label==class_index does not prove same-class instance ownership or visible-vs-amodal semantics. Not immediate intake-ready; do not contact authors or download payload in this task.",
+      "primary_urls": [
+        "https://github.com/hoangcuongbk80/pallet_pose_est",
+        "https://cloud.oru.se/s/4JPf5s4YE4Gbx3A",
+        "https://raw.githubusercontent.com/hoangcuongbk80/pallet_pose_est/1a18539ee288abfeb782a1bf2c41827ba6d05f70/datasets/pallet/dataset.py"
+      ]
+    }
+  ],
+  "SAM_reuse_inventory": {
+    "SAM2_available_without_download": true,
+    "checkpoint": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+      "sha256": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5",
+      "bytes": 323606802,
+      "current_file_stat_only": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+        "exists": true,
+        "bytes": 323606802
+      },
+      "SHA_source": "Existing sealed runtime manifest; no checkpoint bytes/deserialization in this task."
+    },
+    "repo": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/sam2_repo/sam2/sam2_image_predictor.py",
+      "exists": true,
+      "bytes": 19937
+    },
+    "build_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/sam2_repo/sam2/build_sam.py",
+      "exists": true,
+      "bytes": 6405
+    },
+    "repo_revision_from_existing_seal": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+    "config": "configs/sam2.1/sam2.1_hiera_b+.yaml",
+    "runtime": {
+      "python": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python",
+      "versions": {
+        "python": "3.10.20",
+        "torch": "2.5.1+cu121",
+        "torchvision": "0.20.1+cu121",
+        "triton": "3.1.0"
+      }
+    },
+    "existing_reusable_runner": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/segmentation/run_sam_from_saved_associations.py",
+    "API_cautions": "Use a newly frozen source prompt contract. Existing V82 singlemask/no-quality-selection and strict exact0/1float32-to-bool API handling are reusable. Predicted_quality is not target visibility or E probability; masks are neither official gold nor complete owner evidence.",
+    "official_docs": "https://github.com/facebookresearch/sam2",
+    "MobileSAM": {
+      "checkpoint": {
+        "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/foundation_mask_v1/vendor/MobileSAM/weights/mobile_sam.pt",
+        "exists": true,
+        "bytes": 40728226
+      },
+      "code": {
+        "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/foundation_mask_v1/vendor/MobileSAM/mobile_sam/build_sam.py",
+        "exists": true,
+        "bytes": 4695
+      },
+      "checkpoint_SHA_not_recomputed": true,
+      "reusable_status": "Code and generic checkpoint present; no deserialization/import/forward performed."
+    },
+    "full_original_SAM_ViTB_H_checkpoint": "Not established by this bounded inventory; not needed because SAM2.1 is already present."
+  },
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_pallet_loco_20261023_v73/data/intake/ACTUAL_COCO_SCHEMA_AUDIT.json",
+      "sha256": "d8441501949ee6259485a052e05a8de1fb1822ba6089d61781329b1c192b31ba"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_pallet_loco_20261023_v73/data/intake/FIXED_20_RGB_SELECTION_LOCK.json",
+      "sha256": "333486dc92050c92f6ab87e2fb0bc1f0299f530f6bfba7e58136b8e8c92846bc"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/source_metadata_physicalcue/SOURCE_METADATA_PHYSICAL_CUE_AUDIT_KO.json",
+      "sha256": "d969e2cfb10dc008b5a2c2498cd28468046b9bdd56615ca8a5fc0703eb9d9bc3"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_pilot_20261023_v103/annotation_preparation/ACTIONABLE_METADATA_RESULT.json",
+      "sha256": "e26f4a9892a4003c480baba264d75b7da7ae6a35ad8674a288045691da71c480"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_pilot_20261023_v103/annotation_preparation/ACTUAL_CSV_SCHEMA_AND_CUE_READINESS.json",
+      "sha256": "eef62d6f8ef1d34a2305537a434fd7aba940d173a0580bc8301dc7dbb83ccb7d"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_queries_20261023_v104/visual_query_review/ACTUAL_ALL32_VISUAL_EVIDENCE.json",
+      "sha256": "b29472d79a57959358d3ce43ed9431d709d080744288178b5e5b6a4359f68f48"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_flat_pallet_queries_20261023_v104/visual_query_review/AUXILIARY_CUE_REFERENCE_CANDIDATES.json",
+      "sha256": "8ef5b45de9b9a27df28549bef67c51c9afce9d132806f232c9beecead04b0781"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_flat_pallet_cue_bridge_20261023_v92/public_source_research/PUBLIC_REAL_NATIVE_VISIBILITY_AND_POSE_SOURCE_RESEARCH.json",
+      "sha256": "8606ca681adfeb9d90634e1f310efb4fdf8a5032a0c03d4cb790ecbb1d5ca7fc"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/RUNTIME_SEAL.json",
+      "sha256": "e5655309c2c99ee18e76fa0ebe85541194445895673d9b64f915384130bcbf82"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/INTEGRATION.json",
+      "sha256": "bb7fdd78ca1dcfcb3a12c17b6d602a604663c28a3e8e4b82cb31da1a15a070dc"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/segmentation/run_sam_from_saved_associations.py",
+      "sha256": "f47893e4d169a6c28d46ec1e9c7e85c1dee5dc4dbf8c6501345c38fc1c02cecf"
+    }
+  ],
+  "research_boundary": "Primary official web pages/code only where verification was needed; no dataset/image payload downloaded or author-code execution. Old HANDOFF synthetic-only phrasing is historical; this public-source feasibility follows the current user/root source authorization.",
+  "no_source_choice_from_private_or_holdout_errors": true,
+  "new_source_RGB_depth_mask_pixels_read": 0,
+  "new_dataset_payload_bytes": 0,
+  "model_calls": 0,
+  "checkpoint_deserializations": 0,
+  "fit": 0,
+  "private_current_V112_PnP": 0,
+  "native_mapping": "UNKNOWN",
+  "human_gold": false,
+  "training_admission": false
+}

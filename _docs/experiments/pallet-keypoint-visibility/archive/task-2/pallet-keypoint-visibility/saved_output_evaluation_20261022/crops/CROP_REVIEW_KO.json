@@ -1,0 +1,107 @@
+{
+  "review_date": "2026-10-22",
+  "review_method": "Crop_Diagnostics_A.png와 B.png를 view_image로 직접 열어 확인하고, 05 개별 panel도 다시 확인했다.",
+  "source_policy": "저장 출력과 원본 RGB만 사용했다. 새 학습·추론·PnP·문턱 변경·GT 기반 crop 중심/크기 변경은 없다.",
+  "interpretation_limits": [
+    "진단 표본은 미리 명시한 불일치/극값/작은오차 규칙으로 선택했으며 빈도 대표표본이 아니다.",
+    "실사 pixel-presence 정답이 없으므로 외관으로 새 pixel GT를 만들지 않는다.",
+    "저장 출력만 있어 좌표 이동이 출력을 바꾸는 인과효과를 측정하지 않았다.",
+    "초기-to-reference 거리는 보존된 native-to-reference 대응을 적용한 후의 거리다. 큰 거리를 순수 회귀오차나 순수 대응오류 중 하나로 단정하지 않는다.",
+    "그림은 저장 nominal v61 ROI의 RGB 진단이다. 실제 v61 P3 feature tensor 또는 legacy RGB 입력과 동일하다고 주장하지 않는다.",
+    "legacy S는 RGB score 없는 기하 gate이며 같은 query의 RGB 분류 결과로 해석하지 않는다."
+  ],
+  "summary_ko": "큰 위치·대응 거리 때문에 semantic reference와 crop 중심이 다른 곳을 보는 사례가 있다. 동시에 0.25px·0.12px control에서도 v61 음성/legacy 양성 불일치가 남고 cone 중심 외부가림에서 v61 양성도 확인된다. 현재 차이는 큰 좌표오차 하나로 전부 설명할 수 없다. semantic corner visibility와 query-pixel presence의 목표 차이·경계조건·분류/전이 오류 가능성을 함께 유지해야 한다.",
+  "findings_by_category": {
+    "large_location_or_correspondence_offset": {
+      "case_numbers": [1, 2, 3, 8],
+      "observation": "보존 mapping의 semantic reference가 저장 nominal crop 밖이다. 전체 맥락에서 query와 reference가 다른 코너·표면 주변을 가리킨다.",
+      "implication": "semantic slot 주석을 query pixel 존재 정답으로 직접 대입하면 위치·대응 차이가 섞인다. 개별 semantic 정답 일치를 실제 가림 인식 성공이라고 곧바로 해석할 수 없다."
+    },
+    "boundary_conditions": {
+      "case_numbers": [1, 2, 3, 4, 6, 7, 8],
+      "observation": "query 주변에 판재 끝·외곽·홈·바닥 경계가 함께 보인다. 04는 query와 reference 모두 crop 안이지만 격자 상판과 더 오른쪽 외곽으로 분리된다.",
+      "implication": "한 semantic 코너와 한 query 픽셀이 서로 다른 시각적 내용을 가리킬 수 있다. 실제 중심 픽셀의 대상 여부는 확인된 별도 정답 없이 판정하지 않는다."
+    },
+    "near_zero_error_controls": {
+      "case_numbers": [6, 7],
+      "observation": "06의 오차는 0.2483px, 07은 0.1179px로 query/reference가 거의 겹친다. 둘 다 사람 D, v61 음성(.3940/.1332), legacy 양성(.9879/.9866)이다.",
+      "implication": "이 불일치는 큰 위치·대응 거리로 설명되지 않는다. 경계 모호성 또는 분류·실사 전이의 영향을 별도 가능성으로 남긴다."
+    },
+    "cone_semantic_false_positive": {
+      "case_numbers": [5],
+      "observation": "crop을 cone이 크게 차지하고 query/reference 모두 cone 쪽에 놓인다. query는 cone 왼쪽 경계에 더 가깝다. 사람 E에 v61 p_present=.5492 양성, legacy p_DIRECT=.0182/O이다.",
+      "implication": "semantic 평가에서 v61 false positive인 사례다. 21px 위치 차이만으로 이 양성을 정당화할 수 없으며 실제 pixel presence 오답으로 재명명하지 않는다."
+    },
+    "self_visibility_vs_query_presence": {
+      "case_numbers": [3, 8],
+      "observation": "사람 S의 reference와 실제 query가 분리된다. 03은 v61 음성/legacy B 양성, 08은 v61 양성/legacy 기하 S이며 08에는 RGB score가 없다.",
+      "implication": "숨겨진 semantic corner 주변 또는 다른 query 위치에 팔레트 표면이 있을 가능성과 semantic S는 서로 양립할 수 있다. 외관만으로 실제 query pixel 존재 정답을 만들거나 legacy S와 p_present를 같은 RGB target으로 해석하지 않는다."
+    }
+  },
+  "cases": [
+    {
+      "case_number": 1,
+      "id": "wood_night_01:030652",
+      "native_to_reference": [5, 5],
+      "human_state": "DIRECT_VISIBLE",
+      "error_px": 193.71933422803252,
+      "observation_ko": "reference는 팔레트 반대편 윗 코너 쪽이고 query는 오른쪽 외곽·바닥 근처다. reference가 crop 밖이다."
+    },
+    {
+      "case_number": 2,
+      "id": "wood_day_01:004687",
+      "native_to_reference": [4, 4],
+      "human_state": "EXTERNAL_OCCLUDED",
+      "error_px": 103.57221027735665,
+      "observation_ko": "reference는 cone 옆 가려진 코너 쪽, query는 다른 상단 판재·바닥 경계 쪽이다. reference가 crop 밖이다."
+    },
+    {
+      "case_number": 3,
+      "id": "wood_183705:000460",
+      "native_to_reference": [2, 7],
+      "human_state": "SELF_OCCLUDED",
+      "error_px": 470.4854786473229,
+      "observation_ko": "보존 mapping의 reference는 멀리 있는 반대 코너다. query는 오른쪽 가까운 판재 끝·바닥 경계에 있고 reference가 crop 밖이다."
+    },
+    {
+      "case_number": 4,
+      "id": "SQUARE_YOLO:024711",
+      "native_to_reference": [0, 1],
+      "human_state": "DIRECT_VISIBLE",
+      "error_px": 36.149571636400744,
+      "observation_ko": "둘 다 crop 안이지만 query는 격자 상판, reference는 더 오른쪽 외곽으로 분리된다."
+    },
+    {
+      "case_number": 5,
+      "id": "SQUARE_YOLO:030462",
+      "native_to_reference": [0, 0],
+      "human_state": "EXTERNAL_OCCLUDED",
+      "error_px": 21.005557832815814,
+      "observation_ko": "crop을 cone이 크게 차지하며 reference와 query 모두 cone 쪽이다. query는 cone의 왼쪽 경계에 더 가깝다. semantic E에서 v61 양성이다."
+    },
+    {
+      "case_number": 6,
+      "id": "wood_night_01:029419",
+      "native_to_reference": [0, 0],
+      "human_state": "DIRECT_VISIBLE",
+      "error_px": 0.24827552473268275,
+      "observation_ko": "좌표가 거의 겹친다. 어두운 판재 끝·바닥 경계가 중심 부근이다. 큰 위치·대응 거리 없이 v61 음성/legacy 양성이 남는다."
+    },
+    {
+      "case_number": 7,
+      "id": "SQUARE_YOLO:025747",
+      "native_to_reference": [5, 5],
+      "human_state": "DIRECT_VISIBLE",
+      "error_px": 0.11788311279161799,
+      "observation_ko": "좌표가 거의 겹치며 팔레트 오른쪽 외곽이다. crop에는 바닥도 넓게 포함된다. 큰 위치·대응 거리 없이 v61 음성/legacy 양성이 남는다."
+    },
+    {
+      "case_number": 8,
+      "id": "wood_night_01:032781",
+      "native_to_reference": [6, 6],
+      "human_state": "SELF_OCCLUDED",
+      "error_px": 50.87675342235355,
+      "observation_ko": "query는 cone 왼쪽 판재·홈 주변, reference는 더 오른쪽이며 crop 밖이다. legacy S는 RGB 확률 없는 기하 gate다."
+    }
+  ]
+}

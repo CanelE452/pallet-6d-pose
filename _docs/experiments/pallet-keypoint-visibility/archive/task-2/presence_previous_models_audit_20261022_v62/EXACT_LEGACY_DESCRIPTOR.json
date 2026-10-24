@@ -1,0 +1,145 @@
+{
+  "path": "/tmp/pallet-bi-full-execution-20261019-v1/_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/statewise_joint_ot_20261014_v2/state_visibility/bounded_ownership_spatial_v3/MODEL.json",
+  "sha256": "32f1683e9b43dca9731795d061a12bef30253a978f375511b7f98d5cb2291042",
+  "descriptor": {
+    "schema": "STATE_VISIBILITY_DIRECT_EXTERNAL_V2",
+    "feature_family": "NON_S_RGB26_GEOMETRY_RAW_SPATIAL",
+    "rgb26_version": "legacy_zero_soft",
+    "arrays_file": "PARAMETERS.npz",
+    "arrays_sha256": "a23a573bfe74b0c95575c6e8249dcbc9df15c7d9b15b093926af4deaa30e4269",
+    "backbone": {
+      "architecture": "ImageNet ResNet18 frozen stem+layer1+layer2",
+      "weights_repo_relative": "data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+      "weights_sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec",
+      "trainable_parameters": 0,
+      "normalization": {
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ]
+      },
+      "crop": "4r/8r floororigins reflect101 padding linear128 resize",
+      "pooling": {
+        "F4": "layer2avg4x4flatten2048",
+        "F8": "layer2avg2x2flatten512"
+      }
+    },
+    "pallet_segmenter": {
+      "weights_repo_relative": "_docs/experiments/pallet_visibility_curriculum_20261013_v1/nonsevere_v1/clean_source_segmentation_v1/best_source_CAL.pt",
+      "weights_sha256": "032c4afb3800528b8c619453f7e2e024f8c6038f1c82ac27a91d25f11d2b2d65"
+    },
+    "RGB26_feature_names": [
+      "inward_material_fraction",
+      "outward_material_fraction",
+      "patch_material_fraction",
+      "nearby_inward_material_fraction",
+      "soft_inward_material_support",
+      "soft_nearby_inward_material_support",
+      "corner_structure",
+      "edge_energy",
+      "patch_chroma_mean",
+      "patch_chroma_std",
+      "patch_lab_mean_L",
+      "patch_lab_mean_a",
+      "patch_lab_mean_b",
+      "patch_lab_median_L",
+      "patch_lab_median_a",
+      "patch_lab_median_b",
+      "patch_lab_std_L",
+      "patch_lab_std_a",
+      "patch_lab_std_b",
+      "inward_lab_mean_L",
+      "inward_lab_mean_a",
+      "inward_lab_mean_b",
+      "inward_lab_std_L",
+      "inward_lab_std_a",
+      "inward_lab_std_b",
+      "edge_distance_over_patch_radius"
+    ],
+    "ownership_feature_names": [
+      "raw_center_palette_distance",
+      "raw_center_chroma",
+      "raw_inward_soft_1",
+      "raw_inward_soft_2",
+      "raw_outward_soft_1",
+      "raw_outward_soft_2",
+      "raw_near_edge_normal_energy",
+      "raw_far_edge_normal_energy",
+      "raw_near_edge_tangent_energy",
+      "raw_far_edge_tangent_energy",
+      "raw_wedge_soft_mean",
+      "raw_wedge_missing_fraction",
+      "initial_projected_center_palette_distance",
+      "initial_projected_center_chroma",
+      "initial_projected_inward_soft_1",
+      "initial_projected_inward_soft_2",
+      "initial_projected_outward_soft_1",
+      "initial_projected_outward_soft_2",
+      "initial_projected_near_edge_normal_energy",
+      "initial_projected_far_edge_normal_energy",
+      "initial_projected_near_edge_tangent_energy",
+      "initial_projected_far_edge_tangent_energy",
+      "initial_projected_wedge_soft_mean",
+      "initial_projected_wedge_missing_fraction"
+    ],
+    "C": 0.01,
+    "visible_threshold": 0.97,
+    "abstention_margin": 0.01,
+    "external_O_enabled": true,
+    "external_O_enabled_gate": {
+      "min_LOGO_AUC": 0.6,
+      "min_LOGO_EXTERNAL_recall": 0.5,
+      "max_LOGO_DIRECT_false_O_fraction": 0.1
+    },
+    "target": "Native human DIRECT_VISIBLE versus EXTERNAL_OCCLUDED; no coordinate-error or palette-negative labels",
+    "train_scope": "CAL46 CLEAN/MODERATE nonS RGB eligible only",
+    "DIRECT": 263,
+    "EXTERNAL": 7,
+    "crossfit_AUC": 0.9397066811515481,
+    "crossfit_confusion": {
+      "DIRECT": 263,
+      "EXTERNAL": 7,
+      "direct_pred_visible": 245,
+      "direct_pred_O": 18,
+      "direct_pred_U": 0,
+      "external_pred_visible": 2,
+      "external_pred_O": 5,
+      "external_pred_U": 0,
+      "direct_recall": 0.9315589353612167,
+      "external_recall": 0.7142857142857143,
+      "balanced_accuracy": 0.8229223248234655
+    },
+    "crossfit_abstention_confusion": {
+      "DIRECT": 263,
+      "EXTERNAL": 7,
+      "direct_pred_visible": 218,
+      "direct_pred_O": 10,
+      "direct_pred_U": 35,
+      "external_pred_visible": 1,
+      "external_pred_O": 4,
+      "external_pred_U": 2,
+      "direct_recall": 0.8288973384030418,
+      "external_recall": 0.5714285714285714,
+      "balanced_accuracy": 0.7001629549158066
+    },
+    "initial_projected_RGB_guidance_used": true,
+    "projected_coordinates_used_as_observations": false,
+    "S_feature_queries": 0,
+    "protocol_sha256": "a7bb72b0456c0a96bfa6a912ea267e797f367e1ff64f0b444a5581e755cffc36",
+    "feature_seal_sha256": "64efff42f626bfd99accfb058f8badab796b27053a487154bd2ad50fd3c4e91a",
+    "TEST_rows_for_fit": 0,
+    "FINAL_rows_used": 0,
+    "O_generalization_status": "limited_CAL_LOGO_development_evidence",
+    "limitations": [
+      "Seven RGB-eligible O labels in only two CAL sessions",
+      "Initial-model RGB probes are conditional guidance, never independent image coordinates",
+      "No TEST feature choice or tuning; CAL LOGO is development evidence"
+    ]
+  }
+}
