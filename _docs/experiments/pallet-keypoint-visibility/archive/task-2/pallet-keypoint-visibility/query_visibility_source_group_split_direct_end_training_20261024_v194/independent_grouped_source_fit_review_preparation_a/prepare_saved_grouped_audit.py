@@ -1,0 +1,33 @@
+"""Seal saved-fit audit code/text contracts and authored fixtures only."""
+from pathlib import Path
+import ast,json
+import audit_saved_grouped_source_fit as a
+H,V,P=a.H,a.V,a.P
+
+def prepare():
+    b=V/'grouped_fit_preparation_b';ready=json.loads(a.raw(b/'FINAL_READY.json'));fp=json.loads(a.checked(ready['protocol']))
+    review_path=V/'independent_grouped_fit_preflight_a/REVIEW.json';review=json.loads(a.raw(review_path));a.need(review['completed']is True and review['PASS']is True and review['code']==ready['code']and review['protocol']==ready['protocol'],'Exact closed grouped static review')
+    check_path=H/'GENERATED_INVENTED_SAVED_GROUPED_FIT_CHECKS.json';checks=json.loads(a.raw(check_path));a.need(checks['completed']is True and checks['PASS']is True and checks['count']==8,'All authored-only checks')
+    code=H/'audit_saved_grouped_source_fit.py';test=H/'test_invented_saved_grouped_audit.py'
+    for file in(code,test,Path(__file__).absolute()):ast.parse(a.raw(file))
+    old=P/'query_visibility_direct_end_paired_source_training_20261024_v190/independent_source_fit_review_b/audit_saved_source_fit.py'
+    references=dict(old_saved_source_fit_auditor=a.bind(old),grouped_fit_code=ready['code'],grouped_fit_protocol=ready['protocol'],mask_adapter=ready['mask_adapter'],grouped_source_scope=fp['prospective_scope'],grouped_static_review=a.bind(review_path),grouped_invented_checks=ready['checks'])
+    for value in references.values():a.checked(value)
+    protocol=dict(completed=True,prepared_only=True,code=a.bind(code),test_code=a.bind(test),prepare_code=a.bind(Path(__file__).absolute()),checks=a.bind(check_path),fit_code=ready['code'],fit_protocol=ready['protocol'],split_complete=fp['split_complete'],source_fit_expected_complete=str(a.RUN/'COMPLETE.json'),runtime=dict(executable='/home/minjae/anaconda3/envs/pallet-yolo26/bin/python',numpy='1.26.4',torch_CPU_checkpoint_reader='2.1.1+cu118'),code_text_references=references,output_directory=str(V/'independent_grouped_source_fit_review_a/actual_review_v1'),
+      actual_gate='Separate root approved_actual_independent_grouped_sourcefit_audit=true,both_models_completed=true,source_only=true,automatic_retry=false and exact complete/code/protocol/root_audit_scope bindings. Verify final2barrier before reading source arrays/logs/final tensors. No automatic retry.',
+      finite_actual_readset='Only metadata/log/final-checkpoint/full-output/cohort-output and original source cache META/target bindings closed transitively by the exact completed grouped fit. Construct finite array whitelist before NPZ header/hash/load; named members only. No RGB/valid/SAM input arrays decoded or model instantiated. Final torch checkpoint tensors CPU-only.',
+      source_domains=a.DOMAINS,full_original_inputU=[1264,194,360,112],all_full_output_rows_two_arms=147952,direct_known_D_E=[248,124],direct_TRAIN_D_E=[218,109],direct_HOLDOUT_D_E=[30,15],
+      masks='Independently join direct [domain,attempt,canonicalSHAMvariant,native] without cache order assumption; source_packet/authority/META6/root_admitted exact. Verify each component id and fixed salt role. Reconstruct all five TRAIN-filtered original pools and separate direct pools; partial known owner class mass stays raw, no row renormalization. Original full class counts retained for authority checks.',
+      draws='Every one of both8000 JSONL rows: sequential update, exact old192 RNG1810 and direct16+16 RNG1811, every route TRAIN-only, every cumulative draw hash, paired stream final equality. Logged mean5 uses frozen8eps FP32 reduction tolerance; directweight1 additive total exactFP32; losses/gradient norm finite. Actual forward/gradient tensors not recomputed.',
+      final_state='Exact32 tensor shape schema/115222 finiteFP32 parameters, CPU statehash, same initial sealedhash receipt, each AdamW32param step8000/moment schema and finite values; lr3e-4/weightdecay1e-4. Checkpoint envelope source_split binding and all2freeze checkpoint map. No source model construction/forward/optimizer run.',
+      outputs='Strict16keys/full73976rows perarm; META6 byteexact, finite available rawFP32/NaN U, independent scalar support>0, direct>=0, ownerfirsttie, regional proxy and Ufirst. Each TRAIN/HOLDOUT packet every row/output byte equals indexed full packet, same taskorders, exact component/authority lineage; indices disjoint union full; original native/U denominator tables exact. Barrier file ordering corroboration only, not independent event chronology certification.',
+      source_readout='Source-only direct ALL/TRAIN/HOLDOUT CM/P/R with UNKNOWN truth separate and distinct authorities.45 heldout direct labels synthetic only, real-end holdout0; historically known source design; C54/C55 not retrospectively blind or independent. No nativegold/natural-real-transfer/modeladoption claim.',
+      prohibited=['V112 any lexical access/stat/read/hash','current223/publicheld45/anyVAL/V182COMMON','new encoder/model/SAM/head instantiation or forward','fit/optimizer/update/label/query/threshold/arm/data choice'],
+      preparation_actual_source_cache_target_log_prediction_checkpoint_header_or_body_reads=0,production_model_instantiation_forward_fit_calls=0,automatic_retry=False)
+    a.write(a.PROTO,protocol)
+    template=H/'ROOT_ACTUAL_GROUPED_SAVED_FIT_AUDIT_ENTRY_TEMPLATE_APPROVED_FALSE.json'
+    a.write(template,dict(approved_actual_independent_grouped_sourcefit_audit=False,both_models_completed=False,source_only=True,automatic_retry=False,code=a.bind(code),protocol=a.bind(a.PROTO),root_audit_scope=dict(path='ROOT_FILL_EXACT_POSTTERMINAL_AUDIT_SCOPE',sha256='ROOT_FILL'),complete=dict(path=str(a.RUN/'COMPLETE.json'),sha256='ROOT_FILL_AFTER_BOTH_TERMINAL'),note='Never run before root completion and separate actual audit entry; no actual outputs consumed during preparation.'))
+    final=dict(completed=True,PASS=True,prepared_only=True,FINAL_READY_FROZEN=True,code=a.bind(code),protocol=a.bind(a.PROTO),checks=a.bind(check_path),test_code=a.bind(test),prepare_code=a.bind(Path(__file__).absolute()),false_entry=a.bind(template),grouped_fit_static_review=a.bind(review_path),source_output_log_cache_target_checkpoint_header_body_reads=0,production_model_instantiation_forward_fit_calls=0,command=[protocol['runtime']['executable'],'-B',str(code),'--entry','ROOT_FILL_APPROVED_POSTTERMINAL_AUDIT_ENTRY'],output=protocol['output_directory'])
+    a.write(H/'FINAL_READY.json',final);print(json.dumps(dict(completed=True,PASS=True,final_ready=a.bind(H/'FINAL_READY.json'),code=final['code'],protocol=final['protocol'],checks=final['checks']),ensure_ascii=False),flush=True)
+
+if __name__=='__main__':prepare()

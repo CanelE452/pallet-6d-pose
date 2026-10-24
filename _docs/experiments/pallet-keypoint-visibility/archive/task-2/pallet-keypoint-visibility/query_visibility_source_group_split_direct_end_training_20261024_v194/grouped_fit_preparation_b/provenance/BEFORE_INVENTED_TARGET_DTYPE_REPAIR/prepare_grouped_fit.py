@@ -1,0 +1,25 @@
+"""Seal grouped source fit code/protocol using text contracts and invented checks."""
+from pathlib import Path
+import hashlib,importlib.util,json
+H=Path(__file__).absolute().parent;V=H.parent;P=V.parent
+
+def bind(p):
+    p=Path(p);assert 'v112'not in str(p).casefold();return dict(path=str(p),sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+def read(p):
+    p=Path(p);assert 'v112'not in str(p).casefold();return json.loads(p.read_text())
+def write(p,d):
+    with p.open('x')as f:json.dump(d,f,ensure_ascii=False,indent=2,allow_nan=False);f.write('\n')
+
+def main():
+    scope=V/'ROOT_PROSPECTIVE_GROUPED_SOURCE_HEAD_FIT_BEFORE_CACHE_OR_FIT.json';assert bind(scope)['sha256']=='aa44068959de11c5dfc0de717ffff03ffa9e101c47a6474e0faf11f3f2a8bd8e';s=read(scope)
+    old=P/'query_visibility_sampled_domain_direct_end_20261024_v189/paired_direct_end_fit_preparation_c/PROTOCOL_BEFORE_DIRECT_CONTROL_CACHE_OR_FIT.json';previous=read(old)
+    cache=read(V/'direct_cache_preparation_a/FINAL_READY.json');assert cache['FINAL_READY_FROZEN']and cache['PASS']
+    spec=importlib.util.spec_from_file_location('invented_grouped_fit_checks',H/'check_invented_grouped_fit.py');test=importlib.util.module_from_spec(spec);spec.loader.exec_module(test);checks=test.check();write(H/'GENERATED_INVENTED_GROUPED_FIT_CHECKS.json',checks)
+    inherited=previous['source_bindings'];sources=dict(inherited,grouped_trainer=bind(H/'train_grouped_direct_end.py'),mask_adapter=bind(V/'source_component_split_preparation_b/trainer_component_mask_adapter.py'),prospective_grouped_scope=bind(scope),new_cache_code=cache['code'],new_cache_protocol=cache['protocol'],new_cache_schema=cache['output_schema'])
+    p=dict(completed=True,prepared_only=True,trainer_code=bind(H/'train_grouped_direct_end.py'),mask_adapter=sources['mask_adapter'],checks=bind(H/'GENERATED_INVENTED_GROUPED_FIT_CHECKS.json'),test_code=bind(H/'check_invented_grouped_fit.py'),prospective_scope=bind(scope),split_complete=s['source_split'],partition_QA=s['source_partition_QA'],training=s['training'],arms=s['arms'],source_bindings=sources,old_cache_bindings=dict(augmentation=previous['unchanged_TRAIN_caches']['augmentation_TRAIN_complete'],public_CF=previous['unchanged_TRAIN_caches']['original_public_CF_cache_complete']),new_cache_code=cache['code'],new_cache_protocol=cache['protocol'],new_cache_schema=cache['output_schema'],direct_cache_expected=s['source_direct_cache_expected'],output_directory=str(V/'runs/C56_C57_DIRECT_END_GROUPED_SOURCE_FIXED8000'),mask_semantics='Apply one immutable component TRAIN mask to all five historical loss pools and direct pools. Preserve original rows, target arrays, q/L/native/availability. Classconditional soft probabilities filtered then normalized perclass, no row renormalization, no partial-known exclusion. Empty training class fails without seed/row retry.',direct_join='Exact control_join_key [source domain,attempt,logical variant,native] unique; source packet/authority/META6/root admission exact, split index separate from actual cache order.',output_schema='Full immutable-source16-key output perdomain, plus exact TRAIN/HOLDOUT row subsets with same16keys and separate component/authority lineage JSONL. No metrics/checkpoint/arm/threshold choice; all2final8000 barrier first.',disclosure='Full target containers are loaded for original authority guards, but HOLDOUT rows never enter any draw/loss/normalization fitting. This is grouped-withheld for new fromscratch heads in previously known source design,45direct heldout labels synthetic only; not freshblind/realend generalization or retroactive C54/C55 validation.',current_private_publicheld_COMMON_VAL_loader=False,actual_array_header_checkpoint_source_pixel_or_fit_reads=0,actual_fit_requires_separate_root_entry=True,automatic_retry=False)
+    proto=H/'PROTOCOL_BEFORE_GROUPED_SOURCE_CACHE_ARRAY_OR_FIT_BODIES.json';write(proto,p)
+    e=dict(approved_grouped_direct_end_source_fit=False,source_only=True,automatic_retry=False,code=p['trainer_code'],protocol=bind(proto),root_scope=dict(path=None,sha256=None),augmentation_complete=p['old_cache_bindings']['augmentation'],original_public_CF_complete=p['old_cache_bindings']['public_CF'],direct_cache_complete=dict(path=p['direct_cache_expected'],sha256=None),split_complete=p['split_complete'],partition_QA=p['partition_QA'],output_directory=p['output_directory']);template=H/'ROOT_ACTUAL_GROUPED_SOURCE_FIT_ENTRY_TEMPLATE_APPROVED_FALSE.json';write(template,e)
+    write(H/'FINAL_READY.json',dict(completed=True,PASS=True,prepared_only=True,FINAL_READY_FROZEN=True,code=p['trainer_code'],protocol=bind(proto),mask_adapter=p['mask_adapter'],checks=p['checks'],test_code=p['test_code'],prepare_code=bind(__file__),false_entry=bind(template),actual_array_header_checkpoint_source_pixel_or_fit_reads=0,command=['/home/minjae/anaconda3/envs/pallet-yolo26/bin/python','-B',str(H/'train_grouped_direct_end.py'),'--entry','<separate-root-entry>']))
+    print(json.dumps(dict(completed=True,PASS=True,code=p['trainer_code'],protocol=bind(proto),invented_checks=len(checks['tests']))))
+
+if __name__=='__main__':main()

@@ -1,3 +1,11 @@
+# V194 source-only grouped paired fit and source TRAIN/HOLDOUT records update
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V194_KO.md) · [V194 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_group_split_direct_end_training_20261024_v194/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 공개 source 그룹 분할을 고정한 두 head 학습과 source TRAIN/HOLDOUT 저장 결과·UNKNOWN·실패·검산입니다. 실사 개선·새 blind 검증·일반화·모델 채택이나 전체 목표 해결을 뜻하지 않습니다. 지정된 자체 head와 저장 출력만 포함하고 raw 입력 배열과 외부 가중치는 제외합니다.
+
+---
+
 # V193 source-only finite-end weak control-data records update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V193_KO.md) · [V193 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_end_pairs_opposite_sham_20261024_v193/PORTABLE_REPORT_KO.md)

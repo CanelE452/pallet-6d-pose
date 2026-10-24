@@ -1,0 +1,153 @@
+# V194 원본 그룹 분리 source 학습 결과
+
+같은 115222개 파라미터 모델 두 조건을 처음부터 각각 고정8000회 학습했다. RAW와 RAW+frozen SAM 조건의 구조·seed1810·AdamW(lr3e-4,wd1e-4,clip5)·기존5loss 평균과 별도 direct16D+16E 가중치1은 같다. 새로운 모델·문턱·정규화·checkpoint·arm 선택은 없다.
+
+동일한 원본 component TRAIN 마스크를 기존5개 loss 풀과 direct 풀 모두에 적용했다. 전체 입력·UNKNOWN·U·q/L·native8은 보존했고 학습 인덱스만 제한했다. 양쪽 최종8000 상태를 먼저 동결한 뒤 source TRAIN/HOLDOUT 예측을 저장했으며 독립 감사가 draw16000개·checkpoint·출력 subset과 분모를 검산했다.
+
+Direct FULL은372개 약한 라벨(D248/E124), TRAIN327(D218/E109), HOLDOUT45(D30/E15)다. HOLDOUT45는 전부 합성이며 실사 끝점 holdout은0이다. source 설계가 이미 알려진 상태에서 새 fromscratch 모델에 원본 그룹을 withholding한 결과이며 fresh blind 검증이나 과거 C54/C55의 독립 검증이 아니다. TRAIN 수치는 학습자료 apparent 응답이다.
+
+총124 triplet(합성97+공개 실사 약한 끝점27)은 독립124 frame이 아니다. 공개 실사 control은 기존5→27 triplet, 원source frame2→12로 늘었지만 동일 끝점/원본/물체·texture가 여러 row에서 재사용된다. 이 라벨은 source의 구성적/assistant weak end 권한이며 자연 실사 native 물리 gold가 아니다. 넓은 crop 내 팔레트 존재·점소속·native끝점 가시성은 같은 정답이 아니다.
+
+V195 동일 실사 benchmark는 별도 단계로 대기 중이다. 이 source 결과만으로 C56/C57의 실사 개선·모델 채택·전체 목표 해결을 주장하지 않는다.
+
+## Source direct TRAIN/HOLDOUT와 FULL
+
+|model|cohort|N_all|known|truth_UNKNOWN|D|E|CM_D_E_by_D_E_U|D_precision|D_recall|E_precision|E_recall|known_prediction_U|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|C56_RAW96_DIRECT_END_GROUPED|ALL|3144|372|2772|248|124|[[246, 2, 0], [11, 113, 0]]|0.957198|0.991935|0.982609|0.911290|0|
+|C56_RAW96_DIRECT_END_GROUPED|TRAIN|2784|327|2457|218|109|[[218, 0, 0], [0, 109, 0]]|1.000000|1.000000|1.000000|1.000000|0|
+|C56_RAW96_DIRECT_END_GROUPED|HOLDOUT|360|45|315|30|15|[[28, 2, 0], [11, 4, 0]]|0.717949|0.933333|0.666667|0.266667|0|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|ALL|3144|372|2772|248|124|[[246, 2, 0], [8, 116, 0]]|0.968504|0.991935|0.983051|0.935484|0|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|TRAIN|2784|327|2457|218|109|[[218, 0, 0], [0, 109, 0]]|1.000000|1.000000|1.000000|1.000000|0|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|HOLDOUT|360|45|315|30|15|[[28, 2, 0], [8, 7, 0]]|0.777778|0.933333|0.777778|0.466667|0|
+
+
+## 권한별 별도 집계
+
+|model|cohort|authority|N_all|known|truth_UNKNOWN|CM_D_E_by_D_E_U|D_precision|D_recall|E_precision|E_recall|
+|---|---|---|---|---|---|---|---|---|---|---|
+|C56_RAW96_DIRECT_END_GROUPED|ALL|CONSTRUCTIVE_SOURCE_FIXED_NEAR_ANCHOR_END|2328|291|2037|[[192, 2, 0], [11, 86, 0]]|0.945813|0.989691|0.977273|0.886598|
+|C56_RAW96_DIRECT_END_GROUPED|TRAIN|CONSTRUCTIVE_SOURCE_FIXED_NEAR_ANCHOR_END|1968|246|1722|[[164, 0, 0], [0, 82, 0]]|1.000000|1.000000|1.000000|1.000000|
+|C56_RAW96_DIRECT_END_GROUPED|HOLDOUT|CONSTRUCTIVE_SOURCE_FIXED_NEAR_ANCHOR_END|360|45|315|[[28, 2, 0], [11, 4, 0]]|0.717949|0.933333|0.666667|0.266667|
+|C56_RAW96_DIRECT_END_GROUPED|ALL|SOURCE_RGB_SEMANTIC_END_WEAK|816|81|735|[[54, 0, 0], [0, 27, 0]]|1.000000|1.000000|1.000000|1.000000|
+|C56_RAW96_DIRECT_END_GROUPED|TRAIN|SOURCE_RGB_SEMANTIC_END_WEAK|816|81|735|[[54, 0, 0], [0, 27, 0]]|1.000000|1.000000|1.000000|1.000000|
+|C56_RAW96_DIRECT_END_GROUPED|HOLDOUT|SOURCE_RGB_SEMANTIC_END_WEAK|0|0|0|[[0, 0, 0], [0, 0, 0]]|UNKNOWN/미정의|UNKNOWN/미정의|UNKNOWN/미정의|UNKNOWN/미정의|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|ALL|CONSTRUCTIVE_SOURCE_FIXED_NEAR_ANCHOR_END|2328|291|2037|[[192, 2, 0], [8, 89, 0]]|0.960000|0.989691|0.978022|0.917526|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|TRAIN|CONSTRUCTIVE_SOURCE_FIXED_NEAR_ANCHOR_END|1968|246|1722|[[164, 0, 0], [0, 82, 0]]|1.000000|1.000000|1.000000|1.000000|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|HOLDOUT|CONSTRUCTIVE_SOURCE_FIXED_NEAR_ANCHOR_END|360|45|315|[[28, 2, 0], [8, 7, 0]]|0.777778|0.933333|0.777778|0.466667|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|ALL|SOURCE_RGB_SEMANTIC_END_WEAK|816|81|735|[[54, 0, 0], [0, 27, 0]]|1.000000|1.000000|1.000000|1.000000|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|TRAIN|SOURCE_RGB_SEMANTIC_END_WEAK|816|81|735|[[54, 0, 0], [0, 27, 0]]|1.000000|1.000000|1.000000|1.000000|
+|C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED|HOLDOUT|SOURCE_RGB_SEMANTIC_END_WEAK|0|0|0|[[0, 0, 0], [0, 0, 0]]|UNKNOWN/미정의|UNKNOWN/미정의|UNKNOWN/미정의|UNKNOWN/미정의|
+
+
+## 전체4domain / native8 / 원U
+
+각 arm 전체73976 rows(두 arm147952)를 유지한다. HOLDOUT/UNKNOWN은 삭제하거나 가짜0으로 채우지 않는다. 아래 분모는 두 arm이 공유한다.
+
+|domain|cohort|N_all|original_input_U|original_available|
+|---|---|---|---|---|
+|SYNTH_AUG65536|TRAIN|56320|512|55808|
+|SYNTH_AUG65536|HOLDOUT|9216|752|8464|
+|PUBLIC_TRAIN1480|TRAIN|1240|161|1079|
+|PUBLIC_TRAIN1480|HOLDOUT|240|33|207|
+|CF3816|TRAIN|3816|360|3456|
+|CF3816|HOLDOUT|0|0|0|
+|DIRECT_CONTROL|TRAIN|2784|112|2672|
+|DIRECT_CONTROL|HOLDOUT|360|0|360|
+
+
+|domain|cohort|native_slot|N_all|
+|---|---|---|---|
+|SYNTH_AUG65536|TRAIN|0|7040|
+|SYNTH_AUG65536|TRAIN|1|7040|
+|SYNTH_AUG65536|TRAIN|2|7040|
+|SYNTH_AUG65536|TRAIN|3|7040|
+|SYNTH_AUG65536|TRAIN|4|7040|
+|SYNTH_AUG65536|TRAIN|5|7040|
+|SYNTH_AUG65536|TRAIN|6|7040|
+|SYNTH_AUG65536|TRAIN|7|7040|
+|SYNTH_AUG65536|HOLDOUT|0|1152|
+|SYNTH_AUG65536|HOLDOUT|1|1152|
+|SYNTH_AUG65536|HOLDOUT|2|1152|
+|SYNTH_AUG65536|HOLDOUT|3|1152|
+|SYNTH_AUG65536|HOLDOUT|4|1152|
+|SYNTH_AUG65536|HOLDOUT|5|1152|
+|SYNTH_AUG65536|HOLDOUT|6|1152|
+|SYNTH_AUG65536|HOLDOUT|7|1152|
+|PUBLIC_TRAIN1480|TRAIN|0|155|
+|PUBLIC_TRAIN1480|TRAIN|1|155|
+|PUBLIC_TRAIN1480|TRAIN|2|155|
+|PUBLIC_TRAIN1480|TRAIN|3|155|
+|PUBLIC_TRAIN1480|TRAIN|4|155|
+|PUBLIC_TRAIN1480|TRAIN|5|155|
+|PUBLIC_TRAIN1480|TRAIN|6|155|
+|PUBLIC_TRAIN1480|TRAIN|7|155|
+|PUBLIC_TRAIN1480|HOLDOUT|0|30|
+|PUBLIC_TRAIN1480|HOLDOUT|1|30|
+|PUBLIC_TRAIN1480|HOLDOUT|2|30|
+|PUBLIC_TRAIN1480|HOLDOUT|3|30|
+|PUBLIC_TRAIN1480|HOLDOUT|4|30|
+|PUBLIC_TRAIN1480|HOLDOUT|5|30|
+|PUBLIC_TRAIN1480|HOLDOUT|6|30|
+|PUBLIC_TRAIN1480|HOLDOUT|7|30|
+|CF3816|TRAIN|0|477|
+|CF3816|TRAIN|1|477|
+|CF3816|TRAIN|2|477|
+|CF3816|TRAIN|3|477|
+|CF3816|TRAIN|4|477|
+|CF3816|TRAIN|5|477|
+|CF3816|TRAIN|6|477|
+|CF3816|TRAIN|7|477|
+|CF3816|HOLDOUT|0|0|
+|CF3816|HOLDOUT|1|0|
+|CF3816|HOLDOUT|2|0|
+|CF3816|HOLDOUT|3|0|
+|CF3816|HOLDOUT|4|0|
+|CF3816|HOLDOUT|5|0|
+|CF3816|HOLDOUT|6|0|
+|CF3816|HOLDOUT|7|0|
+|DIRECT_CONTROL|TRAIN|0|348|
+|DIRECT_CONTROL|TRAIN|1|348|
+|DIRECT_CONTROL|TRAIN|2|348|
+|DIRECT_CONTROL|TRAIN|3|348|
+|DIRECT_CONTROL|TRAIN|4|348|
+|DIRECT_CONTROL|TRAIN|5|348|
+|DIRECT_CONTROL|TRAIN|6|348|
+|DIRECT_CONTROL|TRAIN|7|348|
+|DIRECT_CONTROL|HOLDOUT|0|45|
+|DIRECT_CONTROL|HOLDOUT|1|45|
+|DIRECT_CONTROL|HOLDOUT|2|45|
+|DIRECT_CONTROL|HOLDOUT|3|45|
+|DIRECT_CONTROL|HOLDOUT|4|45|
+|DIRECT_CONTROL|HOLDOUT|5|45|
+|DIRECT_CONTROL|HOLDOUT|6|45|
+|DIRECT_CONTROL|HOLDOUT|7|45|
+
+
+## 근거와 보존 기록
+
+- [source_fit_complete](runs/C56_C57_DIRECT_END_GROUPED_SOURCE_FIXED8000/COMPLETE.json) · SHA256 cd68d0a3005c95943bdb87241e8fce1da2c7231879edb8de71da4f19ca13cdb1
+- [source_fit_review](independent_grouped_source_fit_review_a/actual_review_v1/REVIEW.json) · SHA256 421fb0e865edbefa14e6bfbb82cb4c3488b38a1e92dfbf6da6f3c152e3232236
+- [source_direct_readout](independent_grouped_source_fit_review_a/actual_review_v1/SOURCE_GROUPED_DIRECT_READOUT.json) · SHA256 5542cbabe502f9a6cdf990607c342903a4cd46a18316244e2ea4422362d285de
+- [source_terminal](ROOT_ACTUAL_GROUPED_SOURCE_HEAD_FIT_TERMINAL.json) · SHA256 2704853c99187f40de6f13dd860f1bc779378e6378ffa9bf04a52ae12b8569d8
+- [source_cache_audit](independent_direct_cache_review_c/actual_review_v1/REVIEW.json) · SHA256 cf6226c165116742250c81b8ac4a4391c4da6af6fb1341a3e0567a34ac9bff51
+- [direct_cache_complete](direct_control_raw_sam_cache_v1/COMPLETE.json) · SHA256 4bad28053a1ba96d20e64ab4b1039edfbbfb90afd3aac586b8d06d6548bbe197
+- [component_split](source_component_split_v1/COMPLETE.json) · SHA256 f2dd0929ad73e843f2d0044c296c4c54f618ead69899400e75b2b6bac486d445
+- [partition_QA](ROOT_ACTUAL_COMPONENT_PARTITION_QA.json) · SHA256 fd373f6065f260c29acd8ebd582dba9026798d2fc8d1c8f3cd298b887eed3cce
+- [all2_freeze](runs/C56_C57_DIRECT_END_GROUPED_SOURCE_FIXED8000/ALL2_FINAL8000_FROZEN_BEFORE_SOURCE_TRAIN_OR_HOLDOUT_OUTPUTS.json) · SHA256 ed02d6400bf69ddca3c81003abccf5b29874b90a05c34c56ec03f441affbe98d
+- [source_fit_entry](ROOT_ACTUAL_GROUPED_SOURCE_HEAD_FIT_ENTRY.json) · SHA256 a43740530ed3e2c0c4b378af51dd1910fdabc15e4b1268047c26c651ecb5852e
+- [source_fit_code](grouped_fit_preparation_b/train_grouped_direct_end.py) · SHA256 6cc8c09e74cf1c72b8209709e78d7d37d67fa2b4c8b0c5245fda74fe7e695ec8
+- [source_fit_protocol](grouped_fit_preparation_b/PROTOCOL_BEFORE_GROUPED_SOURCE_CACHE_ARRAY_OR_FIT_BODIES.json) · SHA256 8213ed394a045f0c2d4f55af92542e35c1d6386a8aef11d9dcd28958d0d4e51d
+- [source_auditor_code](independent_grouped_source_fit_review_preparation_a/audit_saved_grouped_source_fit.py) · SHA256 429cfb2cac2bd589df1f86221cb8097ff2f6c285652a08176b353bd300c6d4c2
+- [source_auditor_protocol](independent_grouped_source_fit_review_preparation_a/PROTOCOL_BEFORE_GROUPED_SOURCE_FIT_OUTPUT_BODIES.json) · SHA256 d64fb843debb4e94df0c42f413cc445f2ee0eac8b4a379b972d4775f7854d128
+- [prior_V193_source_gallery](../query_visibility_source_end_pairs_opposite_sham_20261024_v193/source_pair_visual_readout_v2_caption_fit/PORTABLE_GALLERY_KO.md) · SHA256 5158806b87ff697ce76092be4c207650c50d9fed7e419b28194c74b3e455c35a
+- [preserved_invented_fixture_failure](grouped_fit_preparation_b/provenance/BEFORE_INVENTED_TARGET_DTYPE_REPAIR/FAILURE.json) · SHA256 106479a01053622acc057ba91ba77db87938d4552061a964ad36cba34fd29e73
+
+독립 감사의 한계:
+
+- Logged five component means use prospective8eps FP32 bound and additive direct total exactFP32. Perstep CE/gradient tensors cannot be recreated without forbidden model forward/fit; finite logged gradients and frozen source code are checked.
+- Initial state is paired sealed SHA receipt, not regenerated by instantiating a source model.
+- Full source target containers are read for authority guards and independent draw reconstruction. Only TRAIN pools enter any reconstructed draw; no source score-based choice.
+- Grouped heldout direct45 labels are synthetic only, realend holdout0, historical design known. This is not retrospective independent validation of C54/C55 or natural-image/native-gold/transfer success.
+
+학습/관측/실행 원문과 실패 기록은 보존한다. 이 보고서는 배열·checkpoint·모델·새 이미지·실사 평가를 읽거나 실행하지 않고 닫힌 JSON 요약만 표시했다. HTML은 생성했으며 브라우저 렌더/추가 이미지 실제 확인을 주장하지 않는다.

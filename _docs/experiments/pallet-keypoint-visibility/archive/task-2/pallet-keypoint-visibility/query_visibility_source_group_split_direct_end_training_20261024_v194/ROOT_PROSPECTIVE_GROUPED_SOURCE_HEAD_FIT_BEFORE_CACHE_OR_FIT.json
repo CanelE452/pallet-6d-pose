@@ -1,0 +1,70 @@
+{
+  "approved_source_fit_code_preparation_only": true,
+  "phase": "V194",
+  "reason": "Source-grounded expansion from5 to27 real weak end controls and source lineage grouping. No protected real evaluation or heldout score used to choose recipe/model/threshold/steps.",
+  "arms": [
+    {
+      "id": "C56_RAW96_DIRECT_END_GROUPED",
+      "use_sam": false
+    },
+    {
+      "id": "C57_RAW96_PLUS_FROZEN_SAM_DIRECT_END_GROUPED",
+      "use_sam": true
+    }
+  ],
+  "architecture": {
+    "head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/head_preparation/local_support_head.py",
+      "sha256": "14a40c4dd14d416c1648e62b408fd7acdf74f06d4113c69785bd737b45aa848b"
+    },
+    "candidate": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sampled_domain_direct_end_20261024_v189/direct_end_training_preparation_c/synthetic_direct_end_candidate.py",
+      "sha256": "1668550225434f609ed70d2d62093e35bea6bd8471b9c1f5692f7cfb0b358341"
+    },
+    "parameters": 115222,
+    "change_from_C54_C55": "No architecture change; same fixed8-channel96CNN+separate direct end logit."
+  },
+  "training": {
+    "steps": 8000,
+    "seed": 1810,
+    "direct_rng_seed": 1811,
+    "optimizer": "AdamW",
+    "lr": 0.0003,
+    "weight_decay": 0.0001,
+    "clip_grad_norm": 5.0,
+    "dtype": "FP32",
+    "old5loss_batch": 192,
+    "direct_batch": [
+      16,
+      16
+    ],
+    "direct_loss_weight": 1.0,
+    "checkpoint_rule": "Both final8000 states sealed before any saved source TRAIN/HOLDOUT predictions; no checkpoint or arm selection."
+  },
+  "source_split": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_group_split_direct_end_training_20261024_v194/source_component_split_v1/COMPLETE.json",
+    "sha256": "f2dd0929ad73e843f2d0044c296c4c54f618ead69899400e75b2b6bac486d445"
+  },
+  "source_partition_QA": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_group_split_direct_end_training_20261024_v194/ROOT_ACTUAL_COMPONENT_PARTITION_QA.json",
+    "sha256": "fd373f6065f260c29acd8ebd582dba9026798d2fc8d1c8f3cd298b887eed3cce"
+  },
+  "split_masks_apply_to_all_old5_and_direct_pools": true,
+  "source_rows_and_input_availability_unchanged": true,
+  "source_direct_cache_expected": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_group_split_direct_end_training_20261024_v194/direct_control_raw_sam_cache_v1/COMPLETE.json",
+  "evaluation_policy": "Save source TRAIN/HOLDOUT outputs after both states freeze. HOLDOUT direct labels currently45 synthetic only, no real direct endpoint holdout. PUBLIC source-held owner14 is different task. Do not claim freshblind/generalization or posterior independent evaluation of C54/C55.",
+  "decode": "Fixed logit>=0 to E; unavailable/nonfinite U unchanged. No threshold calibration.",
+  "forbidden": [
+    "current223/publicheld45/protectedVAL/V182COMMON asfit/selection/normalization inputs",
+    "V112 any access",
+    "newinitializer/PnP/queryL/native/crop changes",
+    "oldnative/owner/quality labels redefined as direct end",
+    "seed/row rebalance to force holdout coverage",
+    "architecture/hyperparameter/checkpoint/threshold search"
+  ],
+  "actual_fit_requires_separate_frozen_code_protocol_independent_review_and_cache_admission_entry": true,
+  "actual_fit_started": false,
+  "fully_solved": false,
+  "goal_status": "active_unsolved",
+  "recorded_UTC": "2026-10-24T12:38:40.365935+00:00"
+}
