@@ -1,0 +1,136 @@
+{
+  "completed": true,
+  "PASS": true,
+  "audit_kind": "Original definition/code/provenance metadata only; row authority not presumed",
+  "UTC": "2026-10-23T22:58:27.427979+00:00",
+  "reviewed": {
+    "definition_document": {
+      "path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_static_registry_review_20261003_v1/CORNER_VISIBILITY_MINIMAL_KO.md",
+      "sha256": "5518c4c220375c8625d2b37c8239c3ca4555ac5dbbd7292828986c3345121fed"
+    },
+    "visibility_writer": {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_static_registry_review_20261003_v1/open_corner_visibility.py",
+      "sha256": "aa903351b7b66dd2684b21934d0c26c2e0e80e721fdf528112df335f4f39059e"
+    },
+    "original_annotator": {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/annotate/annotate.py",
+      "sha256": "19bb7e2a47c93701fb76c1a654ddc3a6071acae27139c0a68fcffb6276b38ac6"
+    },
+    "original_annotation_io": {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/annotate/annotate_io.py",
+      "sha256": "bd49c9598bcb27cd1d63d7526fe514ec7c7d33e525c854d52c40079773173fad"
+    },
+    "original_evaluation_preparer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/prepare_saved_evaluation.py",
+      "sha256": "26a855b356eb26866f45839e6d4d55e0de5d9609fa051e7b16802ba1c92fdd0f"
+    },
+    "manual_near_preparer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/near_error_diagnosis_20261022/real/audit_real_near.py",
+      "sha256": "cbd6ba334b134dc96634c90abaccc830d980a6c64700dac4dab2300f0f979f8e"
+    },
+    "original_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/EVALUATION_CONTRACT.json",
+      "sha256": "15beaf7a56ae6d437c52386c2dae8185cc76aea6830d6733b453bf170e2135d0"
+    },
+    "original_source_bindings": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/SOURCE_BINDINGS.json",
+      "sha256": "b1c7c2aae8461ab438ead31a5e7cdd41956948bcc5ec258c92e7b47041a47999"
+    },
+    "prior_contract_audit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_native_current_benchmark_20261024_v143/existing_evaluation_audit/CONTRACT_AUDIT.json",
+      "sha256": "428bd1c0f77fc4bad7cb16a94c1e1e385bb81e01aa53048ff4f7e1b3b65cbbcb"
+    },
+    "policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_separated_frozen_current_benchmark_20261024_v156/ROOT_DIAGNOSTIC_POLICY_BEFORE_CURRENT_BODIES.json",
+      "sha256": "d8b36d6e8cfb560c59170238e085e9444384468087d201737cb983a77ed5297d"
+    },
+    "definition_read_scope": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_separated_frozen_current_benchmark_20261024_v156/ROOT_ANNOTATION_DEFINITION_DOCUMENT_SCOPE_BEFORE_LABEL_PAYLOADS.json",
+      "sha256": "7cbc2fb0d13f7c63bbb5f60e0d7b2d325ed2771f5071b98806fc2681d5d85d95"
+    }
+  },
+  "findings": [
+    {
+      "source": "definition_document",
+      "evidence": "코너를 다시 찍지 않고 보임 여부만; 원본 좌표는 변경하지 않고 기존 manual/PnP 출처를 유지하며 새 독립 좌표 정답을 만들지 않는다고 명시한다."
+    },
+    {
+      "source": "visibility_writer",
+      "lines": [
+        69,
+        77,
+        112,
+        114,
+        308,
+        320
+      ],
+      "evidence": "annotation source를 복사하고 existing_frozen_annotation_not_new_independent_reference, coordinates_editable=False, reference_xy copy, identity_confirmed=False를 기록한다. 의미 가시성 입력과 위치 정답 생성은 별개다."
+    },
+    {
+      "source": "original_annotator",
+      "lines": [
+        13,
+        21,
+        1200,
+        1206,
+        1238,
+        1246
+      ],
+      "evidence": "camera-facing Near0..3/Far4..7/Centroid8 순서를 정의한다. 원래 CLICK 모드는 zoom/pan과 margin을 역변환한 raw u,v를 manual_click/visible로 쓴다. 실제 수동2D 생성 경로는 존재한다."
+    },
+    {
+      "source": "original_annotation_io",
+      "lines": [
+        401,
+        449,
+        474,
+        485
+      ],
+      "evidence": "명시 source/xy를 보존하지만 legacy manual_kps가 있으면 manual_click로 정규화하는 fallback도 있다. 문자열 하나로 실제 click event와 원본 좌표 권위를 증명할 수 없다."
+    },
+    {
+      "source": "original_evaluation_preparer",
+      "lines": [
+        100,
+        122,
+        162,
+        163
+      ],
+      "evidence": "기존 N3 branch/permutation의 native→reference 매핑과 frozen qFinal parity를 유지하고 sidecar reference_xy가 과거 metric reference와 같은지 검사한다. 독립 physical native-role 인증과 구분된다."
+    },
+    {
+      "source": "manual_near_preparer",
+      "lines": [
+        49,
+        57,
+        72,
+        79,
+        90
+      ],
+      "evidence": "이미 DIRECT/error<=3인 행에서 출처 필드를 복사한 표다. 원래 manual376 진단은 유지할 수 있지만 전체 DIRECT far>20의 provenance를 이 표만으로 복원할 수 없다."
+    }
+  ],
+  "new_primary_real_point_quality_gold_authority": false,
+  "new_primary_quality_target_for_all1784": "UNKNOWN_UNCERTIFIED_REFERENCE_AUTHORITY",
+  "semantic_visibility_evaluation_unblocked": true,
+  "original_manualnear376_unchanged_diagnostic": true,
+  "later_root_entry_row_traceback_contract": {
+    "allowed_sources_required": "Frozen human sidecar + fixed review manifest + original annotation JSON records, each original SHA; no RGB or new model.",
+    "strict_join": "population/frame/imageSHA/refcorner, same original stored native→reference evaluation permutation, original annotation keypoint_annotations source/xy ==sidecar reference_xy ==prepared human_reference_xy. Report fallback/legacy/source/coordinate mismatches explicitly, never repair.",
+    "conditional_secondary_quality_diagnostic": "DIRECT + explicit manual_click and strict raw2D traceback + finite non-sentinel original q/reference; <=3 near1, >20 far0, middle/missing uncertified unknown. Original inputU retained separately.",
+    "interpretation": "Existing-fixed-reference coordinate-deviation diagnostic only; original native physical mapping remains uncertified, human3px/pixelgold/realaccuracy not claimed. Primary visibility rows never filtered.",
+    "primary_authority_may_not_be_enabled_from_manual_string_or_model_score": true
+  },
+  "missing_authority_to_promote_new_gold": [
+    "Row-level binding to original explicit manual xy and raw image coordinate system has not yet been inspected.",
+    "Independent same-native physical-role correspondence is not established by the historical GT-evaluation branch alone.",
+    "Legacy manual_click normalization can preserve old coordinates without an actual newly documented click event."
+  ],
+  "access": {
+    "current_annotation_label_score_RGB_feature_checkpoint_payload_bodies_or_hashes": 0,
+    "models_fit_encoder_PnP_calls": 0,
+    "forbidden_access": 0,
+    "old_labels_or_references_modified": 0
+  },
+  "selected_model": null
+}

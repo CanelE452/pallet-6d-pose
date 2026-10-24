@@ -1,0 +1,177 @@
+{
+  "status": "PROPOSAL_ONLY_ROOT_DECIDES_NEXT_PHASE",
+  "purpose_KO": "6장 smoke test를 학습 결과로 취급하지 않고, 등록된 구조 코너의 카메라·형상·재질·외부물체·query 오차 coverage를 실제로 넓히는 첫 합성 corpus 후보.",
+  "scope": {
+    "new_renders": 0,
+    "model_encoder_or_fit_calls": 0,
+    "current223_or_V112_access": 0,
+    "existing_assets_or_results_changed": false,
+    "training_admission": false
+  },
+  "basis": {
+    "registered_geometry": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/registered_native_teacher_feasibility/RESULT.json",
+      "sha256": "a8d2dbf2d300ca064b3ffa16419f294e7030b9b509f4fc8611efc69a8b6cb806"
+    },
+    "renderer_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_render_20261023_v128/render_preparation/render_registered_six_once.py",
+      "sha256": "f82798206265fbff7138dc6860af6da7beb0560327d871b8802f0cd37a94b7fa"
+    },
+    "actual_render_receipt": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_render_20261023_v128/actual_render_v1/RENDER_COMPLETE.json",
+      "sha256": "78a3ac358250d7561d4b41330a458bd38ed045abac1a21d56d9a502a81ad59ac"
+    },
+    "existing_source_operator": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_render_20261023_v128/c16_baseline_preparation/FROZEN_C16_PROTOCOL_BEFORE_FORWARD.json",
+      "sha256": "cb21859331e9d4afd2289e306ccb7aba5d5b699b58cd5c18dd47f4479d7253d5"
+    }
+  },
+  "bounded_first_corpus_counts": {
+    "TRAIN_asset_seeds": [
+      6101,
+      6102
+    ],
+    "VALIDATION_asset_seeds": [
+      7101
+    ],
+    "geometry_families": 2,
+    "aspect_families": 2,
+    "material_families": 2,
+    "TRAIN_camera_groups": 8,
+    "VALIDATION_camera_groups": 8,
+    "TRAIN_bases": 128,
+    "VALIDATION_bases": 64,
+    "total_bases": 192,
+    "physical_variants": [
+      "BEFORE",
+      "COVER",
+      "NEAR_SHAM",
+      "FAR_SHAM"
+    ],
+    "full_RGB_scenes": 768,
+    "joint_q8_error_conditions": 9,
+    "queries_per_condition": 8,
+    "TRAIN_occurrences": 36864,
+    "VALIDATION_occurrences": 18432,
+    "all_occurrences": 55296,
+    "meaning": "Counts are attempts, not promised D/E labels or independent examples; retain every partial/failure/U. No source baseline score was used to choose these seeds/counts."
+  },
+  "independent_axes": {
+    "geometry_family": [
+      "BOARD_BLOCK_RUNNER",
+      "RIB_LEG_RUNNER"
+    ],
+    "aspect_family": {
+      "RECTANGULAR": "X/Z=1.20",
+      "SQUARE": "X/Z=1.00"
+    },
+    "material_family": [
+      "PROCEDURAL_WOOD",
+      "DARK_POLYMER"
+    ],
+    "crossing": "Full geometry×aspect×material cross in BOTH folds. Wood is not a rectangle label and polymer is not a square label; names describe material independently of topology.",
+    "size_and_shape_seed": "Static design ranges, not private measurements: plan footprint Z∈[0.90,1.20]m; X=aspect*Z; height∈[0.12,0.18]m; thickness/rib width/board count vary within existing connected registered construction. Whole generated component bounds still construct all8 physical endpoints exactly. No nearest-vertex snapping.",
+    "appearance_seed": "For each base derive independent target_texture/light/background/foreign seeds from SHA256(fold,asset_seed,geometry,aspect,material,camera_group,purpose); preserve literal table before RGB.",
+    "light_texture_background": "Balanced prospective four-cycle schedule of wood colour/grain or polymer roughness-like albedo; ambient+directional Lambert direction/intensity; procedural neutral backgrounds and already-local official YCB RGB backgrounds. YCB RGB is a 2D background behind the 3D target, not a new physical occluder. Existing background scene folds remain disjoint; no new downloads. Background-like foreign uses predetermined grey/beige palette, not pixel/model searches."
+  },
+  "camera_and_signed_registration": {
+    "size": 512,
+    "fov_degrees": 50,
+    "integer_pixel_centres": "0..511; principal255.5; focal256/tan25deg. Project unchanged world anchors anew, never rescale/move saved256 queries.",
+    "TRAIN_view_pairs_relative_to_CF_front": [
+      [
+        -24,
+        15
+      ],
+      [
+        24,
+        30
+      ]
+    ],
+    "VALIDATION_view_pairs_relative_to_CF_front": [
+      [
+        -12,
+        22
+      ],
+      [
+        12,
+        37
+      ]
+    ],
+    "view_pair_units": "[relative azimuth degrees,elevation degrees]; combine each with four signed quarters 0/90/180/270 =8 groups/fold. Gravity is -canonicalY.",
+    "mapping": "Use exact A_k quarter-turn matrices and perm[CF]=canonical from the canonical contract. Camera eye in canonical coordinates=A_k.T@eye_CF; project canonical anchors then reorder via literal perm. No PnP, image-derived front choice, private CAD or per-frame annotation.",
+    "fold_separation": "TRAIN/VAL numerical asset seeds, full camera-pose groups, texture/light seeds and selected background RGB groups are disjoint. Both folds cover every geometry/aspect/material and all signed quarters.",
+    "interpretation": "Simultaneous held-out asset/camera shift measures combined synthetic generalization; it does not isolate which factor caused a failure. One VAL geometry seed remains limited.",
+    "resolution_limit": "Current native1 all-face support bbox is roughly2.30×2.47px wood/1.88×2.03px polymer at256. At512 native coverage roughly doubles, but L from q8 also roughly doubles: support size in RGB96 does NOT automatically double. Main gain is less native raster aliasing, not guaranteed semantic recognizability. Keep per-face/native96 spans and disagreements."
+  },
+  "foreign_and_matched_variants": {
+    "fixed_geometry": "Use true opaque 3D plank/box or a component of a SECOND registered pallet; all foreign triangles have separate actor owner999. No alpha overlay or part-ID palette. Same foreign mesh/size/orientation/material across COVER/NEAR_SHAM/FAR_SHAM, only world translation changes.",
+    "appearance_families": [
+      "SAME_TARGET_MATERIAL: wood board/runner or polymer rib with same material family",
+      "CARDBOARD_TAN",
+      "BACKGROUND_LIKE_GREY_OR_BEIGE",
+      "HIGH_CONTRAST_BLUE_OR_RED"
+    ],
+    "schedule": "Cycle all four foreign appearances, eight sham screen directions, three object extents and three foreground-depth fractions(.45,.65,.80 of cue camera-depth) prospectively across base configs; balanced within fold/geometry/aspect/material. No colour reroll after seeing RGB or model output.",
+    "targeted_corner": "Prospective camera-facing role cycle: near-top same-side, near-top opposite-side, near-bottom same-side, far-top same-side. Map role through exact signed-quarter permutation. If the chosen registered region is not actually target-aloneD, retain the attempt/U; do not replace it by a favorable visible corner.",
+    "COVER": "Analytically cover the entire registered active face/edge/junction witness support using projected geometry and a predeclared small/medium/large physical box schedule. Validate ray evidence; mixed/partial cases stayU. Do not change object position for different q errors.",
+    "NEAR_SHAM": "Analytically translate the SAME cuboid/component in the assigned direction just beyond the selected registered support with fixed1px clearance at512, using projected bounds of ALL3D vertices including depth. No extra64px. All original selected active witnesses must be clear for D; otherwise retainU. Near-sham can lie inside the q neighbourhood and wider q can land on foreign while r remains structurally visible.",
+    "FAR_SHAM": "Additional far translation is a benign distant-object control, possibly outside local/context views; record whether object remains in full frame. Do not treat this easy control as the near-sham stress case.",
+    "all8_teacher": "Other native corners are evaluated independently; SHAM is a placement name, not a blanket D label for all8. All variant attempts and foreign off-frame/partial outcomes remain in the manifest."
+  },
+  "query_error_and_deployment_operator": {
+    "zero": "Original known synthetic CF native8 projections, explicitly source-emulated references, not actual initializer outputs.",
+    "joint_conditions": [
+      "identity",
+      "all8 +0.25Lref horizontal",
+      "all8 -0.25Lref horizontal",
+      "all8 +0.25Lref vertical",
+      "all8 -0.25Lref vertical",
+      "all8 (+0.25Lref,+0.25Lref)",
+      "all8 (-0.25Lref,-0.25Lref)",
+      "all8 centroid expansion1.12",
+      "all8 centroid contraction0.88"
+    ],
+    "Lref": "Compute from unperturbed native8 using exact deployed finite/non-sentinel q8 builder. Apply each joint error to all8 together, shared across four physical variants.",
+    "per_condition": "Recompute unclipped/unexpanded q8 minmax context and L=clip(.25*max(ptp(valid q8)),16,max(H,W)); exact native RGB96 bilinear/floor(+.5) and224context/C11 feature operator. No reference relocation, native-index reassignment, q correction or GT-best slot.",
+    "availability": "Keep continuous validity, nearest validity, literalRGB96central4 support, context-any and Q_inside distinct; U priority unchanged. A foreground/background pixel at q does not redefine the registered region D/E target.",
+    "diagnostics": "Store reference-to-q vector, complete registered support in local/context, q foreground membership, native raster/continuous discrepancies. These are GT-only readout, never features or success-driven sampling.",
+    "actual_initializer_option": "After RGB corpus is immutable, a separately authorized frozen initializer pass can preserve deployment first-score argmax/all8/no-detection rows. Known synthetic pose supplies teacher only; never select detector candidate or slot by GT. Keep actual-initializer and emulated runs distinct; emulation alone does not certify real initializer error/association coverage."
+  },
+  "teacher_and_loss_scope": {
+    "teacher": "Reuse registered physical endpoint+37face/edge/junction witnesses; evaluate target-only and combined scene ray states plus separate depth/owner/tie buffers. No in-frame-only, mask-absence→E or qpixel presence teacher.",
+    "states": "D all required visible-region evidence; E all originallyD active witnesses foreign-blocked; geometricS separate route; partial/tie/miss/off-frame/insufficient faces U. Preserve every row.",
+    "learned_task": "Train D versus external E only after geometricS route; S and teacherU contribute zero learned loss, unavailable known rows remain counted. No admission or training command in this candidate.",
+    "controlled_real_mix": "Use unchanged existing V125 known+available public TRAIN795 (423D/372E) with its pinned cached1928 inputs as a fixed real-source control mixture. Keep existing source folds and all U denominators. C16 sourceVAL has repeated-development exposure; no private/current arm selection.",
+    "minimal_future_comparison": "Root may compare the same fixed source head/training recipe with and without this synthetic TRAIN add-on while keeping real795 sampling/loss budget, seeds and predeclared syntheticVAL fixed. Model/sampler/update counts to be frozen later; this file does not select new hyperparameters or promise improvement."
+  },
+  "estimated_cost_not_measured": {
+    "measured_reference_seconds_6scenes256": 1.080173255992122,
+    "CPU512_nominal_seconds": 553.0,
+    "CPU_expected_range_minutes": [
+      5,
+      20
+    ],
+    "CPU_note": "Pixel-area4x extrapolation only; actual geometry/material/background/crop I/O differs. Share target layers across two materials and four variants; release layers per geometry/camera group, do not archive all per-part512 layers.",
+    "DINO_unoptimized_max_unique_query_units": 55296,
+    "DINO_3view_images_max": 165888,
+    "DINO_batch24_primary_calls_max": 6912,
+    "DINO_first_repeat_calls": 1,
+    "GPU_feature_stage_estimated_minutes": [
+      5,
+      15
+    ],
+    "GPU_note": "Estimate from prior same24-view frozenDINO calls, not a new benchmark. Exact duplicate inputs may deduplicate storage only; all55296 occurrence rows remain.",
+    "raw_features1928_FP32_max_MiB": 406.7,
+    "RGB96_uncompressed_GiB": 1.42,
+    "native_RGB_uncompressed_MiB": 576.0,
+    "storage_plan": "Chunk savedRGB96/valid and1928 features; compressed native RGB/depth/owner/triangle/ambiguity with explicit manifest. No savedDINO patch maps or fullP3. Tentative total1–3GB compressed, compression not guaranteed; select bounded chunks rather than duplicating all arrays in RAM.",
+    "head_fit_cost": "Tiny stored-feature head, expected tens of seconds per fixed run; no update count/runtime guarantee or fit is authorized here."
+  },
+  "limits_and_next_KO": [
+    "이는 구조 등록과 데이터 coverage를 넓히는 합성 source 계획이며 포토리얼·실제 전이 성공을 보장하지 않는다.",
+    "동일한 geometry 안의 재질·가림·오차 파생행은 독립 사례가 아니다. TRAIN128/VAL64 base도 소수의 procedural family에 묶인다.",
+    "nearSHAM과 wider/correlated q를 명시하여 q가foreign인데 cue는보이는 D, q가background인데 cue가가려진 E를 함께 검증한다. 실제 비율은 geometry-only ledger로 보고하며 유리한 비율을 만들기 위해 재선정하지 않는다.",
+    "기존 V128 RGB·labels·baselines는 그대로 보존한다. Root가 다음 phase 설계/실행 여부를 결정한다."
+  ]
+}

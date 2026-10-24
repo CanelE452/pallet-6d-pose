@@ -1,0 +1,11 @@
+{
+  "schema": "V82_AUDIT_LOGGING_ONLY_ADDENDUM_V1",
+  "before_any_V82_forward": true,
+  "base_protocol_SHA256": "ab89f3885627cdd319b93fb6ead6357950a10f7fa51d751798ddd7cabba5af28",
+  "reason": "FP32 sigmoid arithmetic can differ between CPU and CUDA at ULP scale. Freeze exact audit traces prospectively, without relaxing strict score/text thresholds or output comparisons.",
+  "additional_saved_field": "Complete FP32 active-token sigmoid probabilities for every raw query, copied directly from the exact CUDA tensor used by the official detector postprocessing. Save the corresponding raw active FP32 logits, token IDs/active indices/attention mask and padded-minus-inf assertion certificate as already required.",
+  "saved_output_replay": "Use saved FP32 active probabilities to replay maximum query score, strict box>0.4/text>0.3 and token-to-phrase extraction. Padding probabilities are exactly0 and active include all attended special tokens. All original ordinals/rawboxes/labels remain bound. Do not CPU-recompute sigmoid and then silently accept changed decisions.",
+  "optional_logit_to_probability_audit": "For bit-level sigmoid replay use the same Torch/CUDA runtime and arithmetic as the producer, without loading a model or weights. Report any discrepancy explicitly; no tolerance may change a threshold decision.",
+  "unchanged": ["models and weights", "model inputs", "caption", "thresholds", "association", "SAM", "cohort and GT", "query geometry", "current223 exclusion", "no training/PnP"],
+  "extra_storage": "Bounded per-token audit arrays only; no feature cache or model asset duplication."
+}

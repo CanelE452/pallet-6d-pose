@@ -1,0 +1,60 @@
+{
+  "method": "Direct visual review of original RGB-derived crops and inferred SAM masks after all source checkpoints and thresholds froze. No pixel GT creation and no subsequent selection or fit.",
+  "observations_KO": [
+    {
+      "id": "wood_night_01:032494",
+      "k": 5,
+      "finding": "0.314px 오차의 목재 경계. v61 .126→새 모델 .297로 여전히 낮음. SAM contour도 query를 제외하며 실제 경계 픽셀 정답은 없어 저조도/경계 전이와 목표 차이의 기여를 확정할 수 없음."
+    },
+    {
+      "id": "SQUARE_YOLO:025747",
+      "k": 5,
+      "finding": "0.118px, 동일 경계 위치의 점수 .133→.972. SAM exact는 음성이나 근방 support는 양성. 보이는 코너 회수는 개선했으나 실제 query 픽셀 ownership을 새로 검증한 것은 아님."
+    },
+    {
+      "id": "wood_night_01:032376",
+      "k": 0,
+      "finding": "0.384px, .069→.613. 같은 야간 영상에서도 보정 가능하므로 야간 도메인 전체가 원인이라는 설명은 부족."
+    },
+    {
+      "id": "SQUARE_YOLO:027620",
+      "k": 1,
+      "finding": "0.161px, .163→.835. 보이는 코너를 회수한 고정 사례."
+    },
+    {
+      "id": "wood_day_01:005249",
+      "k": 5,
+      "finding": "semantic E이고 오차2.740px이나 query는 reference보다 아래의 목재쪽으로 이동한 것으로 보임. .822 양성은 semantic 오류지만 pixel target 전이 실패의 직접 증거는 아님."
+    },
+    {
+      "id": "SQUARE_YOLO:030931",
+      "k": 4,
+      "finding": "semantic E이고 오차1.476px. reference는 cone/팔레트 경계, query는 조금 아래 팔레트쪽으로 보임. 근방 support만으로 외부 가림을 확정할 수 없는 사례."
+    },
+    {
+      "id": "wood_183705:000521",
+      "k": 6,
+      "finding": "semantic S인데 query 주변은 같은 팔레트의 보이는 면. raw .99997은 대상 픽셀 존재와 일치할 수 있으며 self 코너 가시성은 별도 기하 문제."
+    },
+    {
+      "id": "wood_183705:000768",
+      "k": 3,
+      "finding": "reference 오차414.85px로 현재 crop 밖. query 중심은 배경쪽이며 raw .138. 이 absence를 실제 코너 외부 가림으로 바꿔 부를 수 없음."
+    }
+  ],
+  "conclusion_KO": "합성 exact-positive miss로 실제 학습/표현 한계는 확인됨. 실사는 semantic corner GT뿐이어서 각 FN을 목표 불일치와 pixel 전이 실패로 확정 배분할 수 없음. source 선택된 새 모델은 일부 근거리 경계 FN을 회수했지만 두 개념을 합쳐서는 안 됨.",
+  "panels": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/diagnostics/FIXED_LOW_ERROR_REAL_CROPS.png",
+      "sha256": "63e10d45e2e5a611696bc66230f80edc523a151ebe62f2e3642745163655e1ba"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/diagnostics/FAILURE_MECHANISMS_REAL_CROPS.png",
+      "sha256": "5d9725c819452dde705e68cacc59d61e92881027d67e606a5153f3da1a338955"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/diagnostics/NEAR_EXTERNAL_REMAINING_CROPS.png",
+      "sha256": "c85d5594748f603aa0cc80b933e631a0044a7b290764cb846c58e64ddc34603c"
+    }
+  ]
+}

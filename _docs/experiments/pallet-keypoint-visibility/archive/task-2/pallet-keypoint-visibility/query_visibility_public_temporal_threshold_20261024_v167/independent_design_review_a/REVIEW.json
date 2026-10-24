@@ -1,0 +1,72 @@
+{
+  "schema": "V167_INDEPENDENT_STATISTICAL_DESIGN_REVIEW_A_METADATA_ONLY",
+  "completed": true,
+  "PASS": true,
+  "assessment": "MEANINGFUL_NARROW_FIXED_HEAD_WORKING_POINT_AND_WITHIN_SEQUENCE_THRESHOLD_STABILITY_DIAGNOSTIC",
+  "blocking_issues": [],
+  "UTC": "2026-10-24T02:47:14.231060+00:00",
+  "design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/ROOT_DESIGN_BEFORE_PUBLIC_THRESHOLD_CALIBRATION.json",
+    "sha256": "d957b8ed2d354539168a4a3146b9d9a723172dd9a88fcd88149f4a1129ea8a61"
+  },
+  "existing_ranking_metadata": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/ROOT_POST_FREEZE_PUBLIC_RANKING_DIAGNOSIS.json",
+    "sha256": "3bec8a2144c317141c5615df392f85da8048664af181b9883a127f5d780dec90"
+  },
+  "checks": [
+    {
+      "check": "Scalar/candidate/objective identity",
+      "PASS": true,
+      "reason_KO": "고정 두 head에 각각 한 scalar만 맞추므로 새 head 학습보다 제한된 decision working-point 실험으로 의미 있다. TN*N_E+TP*N_D 최대화는 fit 집합에서 balanced accuracy 최대화와 같은 순서다. unique finite FP32→FP64 scores와 nextafter(max,+inf)는 >= 판정의 모든 가능한 분할을 포함하며 highest-threshold tie는 사전 명시된 specificity 방향의 선택이다. 본 검토는 실제 score/threshold를 계산하지 않았다."
+    },
+    {
+      "check": "Temporal fit/test separation",
+      "PASS": true,
+      "reason_KO": "같은 frame의8개 native query를 같은 block에 두고 held5frame block 및 양옆5frame block을 threshold fitting에서 빼므로 단순 행 random split보다 직접적인 인접 누수를 줄인다. 모든360행을 한번씩 OOF로 남기고 class-absent fit에는0 fallback을 기록하므로 어려운 fold 삭제가 없다. endpoint와 interior는 fit frame 수가 다르므로 실행 결과에서 fold별 fitD/E·U·fallback·threshold를 함께 표시해야 한다."
+    },
+    {
+      "check": "Immutable denominators and U",
+      "PASS": true,
+      "reason_KO": "fit145=D93/E52와 원래 fullknown154=D102/E52(9D inputU 포함), 전체360 및 D/E밖206행을 분리한다. 연속 input availability만 U를 결정하고 nearest/central4/context/entity/quality로 새로운 gate를 만들지 않는다. full154 recall에는 U를 보류로 남기며 unknown-truth206의 예측을 D/E 정답인 것처럼 precision/recall 분모에 넣지 않는다. allsource535 및 PART178 U는 입력 사실과 known-truth U를 구분해 보존한다."
+    },
+    {
+      "check": "No feedback selection from other sources/current",
+      "PASS": true,
+      "reason_KO": "양 모델, BA objective, candidate/tie 및 purge를 사전 고정했고 두 모델 모두 보고한다. 원28976+PART1144 rethreshold 결과는 사후 설명으로만 쓰고 scalar/model 선택으로 되먹이지 않는다. fixed0 결과와 원래 qualification을 덮어쓰지 않는다. current/private/V112 없이도 이 좁은 source 단계는 진행 가능하다."
+    },
+    {
+      "check": "Apparent versus OOF authority",
+      "PASS": true,
+      "reason_KO": "all145 fit 후 동일145/154 결과는 PUBLIC_CAL apparent fit 성능이다. purged OOF는 한 public video 내부에서 threshold-fitting 안정성만 진단한다. 9fold는9개 독립 장면이 아니고 154query도 독립 표본154개로 볼 수 없다. frame/scene/occluder가 purge를 넘어 반복될 수 있으므로 unseen-scene 또는 외부 전이·실용 성공으로 과장하지 않는다."
+    },
+    {
+      "check": "Existing ranking metadata supports question only",
+      "PASS": true,
+      "reason_KO": "이미 동결된 ranking 통계와 fixed0 miss는 working-point 진단의 동기를 제공한다. 그것만으로 좋은 threshold가 외부에서도 유지된다고 보장하지 않는다. C46 TRAIN92 응답이나 단일 changed known query를 calibration 성공 증거로 바꾸지 않는다."
+    }
+  ],
+  "concise_reporting_clarifications": [
+    {
+      "priority": "REQUIRED_INTERPRETATION_NONBLOCKING",
+      "text_KO": "이 public sequence는 V153–V166의 지표·crop·ranking을 여러 번 본 뒤 이번 설계가 정해졌다. head gradient가 해당 sequence를 직접 학습하지 않았더라도 과제 설계·모델 경로 선택의 적응성이 있으므로 이번 OOF를 새롭고 독립적인 모델 검증이라고 부르지 않는다."
+    },
+    {
+      "priority": "REQUIRED_INTERPRETATION_NONBLOCKING",
+      "text_KO": "이는 decision threshold/working-point fitting이며 posterior 확률 calibration이 아니다. raw sigmoid p(E)는 calibrate된 실제 가림 확률이라고 주장하지 않는다."
+    },
+    {
+      "priority": "REQUIRED_REPORTING_NONBLOCKING",
+      "text_KO": "모든 결과에 full360 / known154(9U 포함) / fit·input-valid145를 함께 표시하고, fixed0 원결과·full-cal apparent·purged OOF를 명확히 구분한다. D/E precision·recall 및 U·unknown truth와 fold별 fit class 수/fallback을 함께 보고한다. BA 최대화는 원래 D/E 개별 요건 충족이나 배포 비용 최적화를 자동으로 뜻하지 않는다."
+    }
+  ],
+  "routine_changes_requiring_new_data_or_gate": false,
+  "new_native_or_quality_gold_required_to_execute_this_source_diagnostic": false,
+  "actual_threshold_search_authorized_by_review": false,
+  "actual_thresholds_computed": 0,
+  "saved_logit_feature_weight_RGB_or_label_bodies_read": 0,
+  "new_data_web_search_or_private_current_V112_reads": 0,
+  "model_encoder_fit_PnP_qL_changes": 0,
+  "selected_model": null,
+  "adopted": false,
+  "fully_solved": false
+}

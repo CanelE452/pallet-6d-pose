@@ -1,0 +1,3721 @@
+{
+  "schema": "SYNTH_NATIVE8_OPERATIONAL_REFERENCE_VISUAL_REVIEW_V1",
+  "status": "COMPLETED_AI_REVIEW_ONLY_NO_NEW_GT_ADMISSION",
+  "selection_lock": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/SELECTION_AND_REVIEW_PROTOCOL.json",
+    "sha256": "a2111d02aaf33a4550e73eca7141bc8d065a83c70ba94dc1f9de2a44a9baf868"
+  },
+  "review_method": "Actually viewed full marked overview,8 per-frame r/q overlays and all64 native96 RGB crops, including untouched center RGB crop sheets. No RGB-based sample replacement. No masks/depth/model score used.",
+  "frame_count": 8,
+  "point_count": 64,
+  "asset_count": 3,
+  "selected_asset_counts": {
+    "eur_pallet_bk_cc0.glb": 3,
+    "scene.usd": 3,
+    "scene_1.usd": 2
+  },
+  "TRAIN_only_asset_limitation": "The4th manifest asset has no TRAIN records;3/3/2 samples from3 TRAIN assets. No VAL image was opened. This is a deterministic pilot, not a representative prevalence estimate.",
+  "AI_tag_counts": {
+    "D_candidate": 30,
+    "ambiguous": 10,
+    "virtual-no-cue": 7,
+    "S_proxy_only": 8,
+    "E_candidate": 9
+  },
+  "reference_inframe": 58,
+  "reference_out_of_frame": 6,
+  "legacy_proxy_vs_AI_observation": {
+    "D_UNBLOCKED_RAY_CONVEX_PROXY": {
+      "D_candidate": 30,
+      "ambiguous": 4,
+      "virtual-no-cue": 7
+    },
+    "S_CONVEX_PROXY": {
+      "S_proxy_only": 8
+    },
+    "E_RAY_GE_HALF_PROXY": {
+      "E_candidate": 9
+    },
+    "F_REFERENCE_PROXY": {
+      "ambiguous": 6
+    }
+  },
+  "q_reference_displacement_px": {
+    "min": 0.09471826755263078,
+    "max": 102.72386012425888,
+    "over3": 33,
+    "meaning": "Existing source q-r coordinate relationship, not model performance. Saved q is not a freshly applied fixed ±3 jitter."
+  },
+  "main_findings_ko": [
+    "같은 native8 projected cuboid라도 실제 외곽 corner cue가 보이는 점, 외부 물체가 덮는 점, lower/back virtual envelope가 구멍·다른 target면·바닥으로 투영되는 점이 섞인다.",
+    "AI D_candidate는 r 근처 physical corner cue가 있다는 조건부 관찰이다. 1pixel material ownership이나 human semantic D를 인증하지 않으며 r좌표를 cue로 이동하지 않았다.",
+    "특히 기존 proxy-D41점 중7점에서 고유한 physical corner cue가 보이지 않았고4점은 분해가 불명확했다. 이8프레임 밖 빈도나 학습 가능 정답 수로 일반화하지 않는다.",
+    "보이는 top/front corner와 hidden lower/back corner는 같은 target 픽셀에 투영될 수 있다. visible target mask가1이어도 해당 reference 자체의 visibility를 증명하지 않는다.",
+    "외부 bin/선반/carton이 관찰되는 E_candidate는9점이다. self proxy8점 중 일부에도 별도 occluder가 함께 보여 S/E 배타 원인 확정은 불가능하다.",
+    "6개 out-of-frame reference는 ambiguous로 유지했다. saved q의 raster를 그대로 보여주었고, q와 r를 대체하거나 bbox/좌표를 최적화하지 않았다."
+  ],
+  "native8_mapping_notes": {
+    "dynamic": "0 frontTL,1 frontTR,2 frontBR,3 frontBL;4..7 corresponding back. This is existing camera_dynamic_0123_v4 convention, not a newly human-verified physical landmark dictionary.",
+    "permutation": "Each annotation and inventory is already dynamic. original_writer_corner=perm_v4_dynamic_to_original[k] is recorded for identity traceability; no second permutation applied.",
+    "viewpoint": "Dynamic index may refer to different original mesh corners across frames. New q-jitter must hold each reference identity/state fixed per source frame; a cross-frame physical corner ID needs the recorded original-index mapping.",
+    "mesh_envelope": "RGB shows slatted wood and hollow/rounded plastic. A mathematical cuboid extremum can be outside actual material or inside an opening. This does not make it an invalid semantic reference, but its operational visibility policy must be explicit instead of inherited from mask occupancy."
+  },
+  "concrete_contract_recommendation": {
+    "version_separation": "Propose REFERENCE_VISIBILITY_WITH_INITIAL_QUERY_JITTER_V1 separately; do not reinterpret old M4/radius2 truth or reports.",
+    "source_reference_policy": "First declare whether each asset/index means a physical visible corner cue or a virtual envelope landmark. Preserve r and identity, label its semantic visibility with an admitted evidence tier, then perturb input q only. Native q occupancy remains a separate audit target.",
+    "physical_corner_subset": "These30 D_candidate and9 E_candidate are reviewable AI proposals only; use human confirmation or stronger supplied annotation evidence before gold/admission. Ambiguous/virtual-no-cue/S_proxy_only are not silently converted to D/E/S.",
+    "virtual_reference_policy": "If operational goal deliberately includes virtual bbox corners, retain them and explicitly annotate whether the reference is visually supported/externally covered/self-hidden. Do not demand physical mesh DIRECT or PnP as a mandatory full-goal prerequisite.",
+    "scope": "This pilot settles the need for asset/index correspondence review; it does not complete semantic labels for all SYNTH or train a solution."
+  },
+  "read_scope": {
+    "unique_TRAIN_RGB_decoded": 8,
+    "source_annotation_content_read_in_this_visual_task": 0,
+    "existing_source_proxy_metadata_read": true,
+    "source_mask_depth_feature_checkpoint_arrays_read": 0,
+    "VAL_RGB_read": 0,
+    "current_RGB_GT_metrics_features_read": 0,
+    "new_render_forward_training_PnP": false,
+    "existing_snapshots_modified": false
+  },
+  "human_verified_anchor_count": 0,
+  "certified_semantic_GT_count": 0,
+  "new_training_admitted_anchor_count": 0,
+  "contact_sheet": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FIXED8_TRAIN_REFERENCE_QUERY_CONTACT_SHEET.png",
+    "sha256": "22304234617eef5aaa131b5b22d53c2f53de238e291478577292c66b23660592"
+  },
+  "frames": [
+    {
+      "frame_id": "G38__G__f25766",
+      "split": "train",
+      "source_asset": "eur_pallet_bk_cc0.glb",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f25766_rgb.png",
+      "image_sha256": "7dd57e600b1ff771240184d5994317f02f7f0f6574f1e17ede3d146c181151c6",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f25766_label.json",
+      "annotation_sha256": "5a6104d5ffb7f042be26f1f6c75a35e40234526a187e165f31ed45184426c54a",
+      "raw_hw": [
+        540,
+        960
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        1,
+        5,
+        6,
+        2,
+        0,
+        4,
+        7,
+        3
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f25766",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/00_G38__G__f25766.png",
+        "sha256": "2536b6ba0248a9524e81a68a1e68a2ea1d5b84b08aff39dc1f438f0153ed9e67",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              260.63647247698896,
+              367.64199480571267
+            ],
+            "initial_query": [
+              260.4395751953125,
+              370.3038330078125
+            ],
+            "reference_crop_native_xyxy": [
+              213,
+              320,
+              309,
+              416
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              374.0394138436632,
+              369.55769313335446
+            ],
+            "initial_query": [
+              374.66851806640625,
+              367.4908447265625
+            ],
+            "reference_crop_native_xyxy": [
+              326,
+              322,
+              422,
+              418
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              373.44077609983395,
+              386.0217782364283
+            ],
+            "initial_query": [
+              371.6933898925781,
+              384.8222351074219
+            ],
+            "reference_crop_native_xyxy": [
+              325,
+              338,
+              421,
+              434
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              259.5353932293749,
+              382.2599433719771
+            ],
+            "initial_query": [
+              259.20416259765625,
+              382.6246032714844
+            ],
+            "reference_crop_native_xyxy": [
+              212,
+              334,
+              308,
+              430
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              325.4868858788239,
+              365.3320004962384
+            ],
+            "initial_query": [
+              327.737060546875,
+              365.9911804199219
+            ],
+            "reference_crop_native_xyxy": [
+              277,
+              317,
+              373,
+              413
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              426.7913057291737,
+              366.68882307332694
+            ],
+            "initial_query": [
+              425.504150390625,
+              368.7618103027344
+            ],
+            "reference_crop_native_xyxy": [
+              379,
+              319,
+              475,
+              415
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              426.5408970826652,
+              380.38996695391535
+            ],
+            "initial_query": [
+              425.21759033203125,
+              380.4401550292969
+            ],
+            "reference_crop_native_xyxy": [
+              379,
+              332,
+              475,
+              428
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              324.8285723364201,
+              377.7300995303955
+            ],
+            "initial_query": [
+              327.14276123046875,
+              380.1485900878906
+            ],
+            "reference_crop_native_xyxy": [
+              277,
+              330,
+              373,
+              426
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f25766",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/00_G38__G__f25766_RAW.png",
+        "sha256": "dd229c9e1c35cc3233b9bad4515528cc3def3ea07f617ef2ad2348a480338548"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            260.63647247698896,
+            367.64199480571267
+          ],
+          "saved_initial_query_xy": [
+            260.4395751953125,
+            370.3038330078125
+          ],
+          "q_minus_r_xy": [
+            -0.19689728167645626,
+            2.6618382020998297
+          ],
+          "q_reference_displacement_px": 2.6691105547896723,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "왼쪽 상부 wood deck 끝의 윤곽 꺾임이 보인다. 팔레트가 작고 어두워 exact pixel 일치까지 확인하지 못했다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            374.0394138436632,
+            369.55769313335446
+          ],
+          "saved_initial_query_xy": [
+            374.66851806640625,
+            367.4908447265625
+          ],
+          "q_minus_r_xy": [
+            0.6291042227430239,
+            -2.066848406791962
+          ],
+          "q_reference_displacement_px": 2.160470888424923,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "앞쪽 deck/지지부 끝 부근에서 팔레트 모서리 단서가 보인다. 적재물과 낮은 해상도 때문에 native corner 대응은 조건부이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            373.44077609983395,
+            386.0217782364283
+          ],
+          "saved_initial_query_xy": [
+            371.6933898925781,
+            384.8222351074219
+          ],
+          "q_minus_r_xy": [
+            -1.747386207255829,
+            -1.199543129006429
+          ],
+          "q_reference_displacement_px": 2.1194957597632613,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "support_floor_boundary_unresolved",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "아래쪽 projected r이 지지부 하단/바닥 경계 부근이다. 이 해상도에서 독립된 물리 vertex 대응을 분리하기 어렵다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            259.5353932293749,
+            382.2599433719771
+          ],
+          "saved_initial_query_xy": [
+            259.20416259765625,
+            382.6246032714844
+          ],
+          "q_minus_r_xy": [
+            -0.33123063171865397,
+            0.3646598995072736
+          ],
+          "q_reference_displacement_px": 0.4926363503613933,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "virtual-no-cue",
+          "observed_appearance_at_or_near_r": "background_near_empty_envelope_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "왼쪽 아래 cuboid 끝은 얇은 deck 아래 바닥 쪽에 놓인다. 해당 r에서 wood 지지부의 물리적 모서리가 보이지 않는다. 빈 cuboid 외곽점 후보이며 absence GT는 아니다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            325.4868858788239,
+            365.3320004962384
+          ],
+          "saved_initial_query_xy": [
+            327.737060546875,
+            365.9911804199219
+          ],
+          "q_minus_r_xy": [
+            2.250174668051102,
+            0.6591799236834959
+          ],
+          "q_reference_displacement_px": 2.3447396888623406,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "load_deck_junction_unresolved",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "뒤쪽 위 r은 carton 하단과 deck 근처에 중첩된다. 뚜렷한 독립 pallet corner가 보이지 않아 D/E를 관찰만으로 확정하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.2222,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            426.7913057291737,
+            366.68882307332694
+          ],
+          "saved_initial_query_xy": [
+            425.504150390625,
+            368.7618103027344
+          ],
+          "q_minus_r_xy": [
+            -1.2871553385487005,
+            2.072987229407431
+          ],
+          "q_reference_displacement_px": 2.44009117019031,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 wood deck 끝의 상부 외곽 꺾임이 보인다. 작은 투영 크기로 subpixel 대응은 미확정이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            426.5408970826652,
+            380.38996695391535
+          ],
+          "saved_initial_query_xy": [
+            425.21759033203125,
+            380.4401550292969
+          ],
+          "q_minus_r_xy": [
+            -1.3233067506339466,
+            0.05018807538152714
+          ],
+          "q_reference_displacement_px": 1.3242581316283757,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "far_lower_endpoint_unresolved",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "오른쪽 하단 pallet 끝 부근이지만 지지부 형상과 바닥의 정확한 corner 대응이 해상도상 불명확하다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            324.8285723364201,
+            377.7300995303955
+          ],
+          "saved_initial_query_xy": [
+            327.14276123046875,
+            380.1485900878906
+          ],
+          "q_minus_r_xy": [
+            2.314188894048641,
+            2.418490557495147
+          ],
+          "q_reference_displacement_px": 3.347322334946436,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "other_target_surface_at_projected_hidden_corner",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "기존 convex self proxy는 hidden이다. r 투영에는 앞쪽 fork opening/wood 지지부가 보이며, 이것을 뒤쪽 아래 reference의 직접 가시성으로 바꿀 수 없다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    },
+    {
+      "frame_id": "G38__G__f13527",
+      "split": "train",
+      "source_asset": "eur_pallet_bk_cc0.glb",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f13527_rgb.png",
+      "image_sha256": "8fb5ff241761539498867210f999eaf8a490185c99d86103aa00294c7e9c858c",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f13527_label.json",
+      "annotation_sha256": "9c8b8bb0c838100a0c4e63ea0ce3bed71864e04231e7f3aca65b5585c6a43754",
+      "raw_hw": [
+        480,
+        640
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        4,
+        0,
+        3,
+        7,
+        5,
+        1,
+        2,
+        6
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f13527",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/01_G38__G__f13527.png",
+        "sha256": "ae6f4510d1231a97188a31c32253ba461197f08ecde8ab424626d36e3ee98ed5",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              421.01571715657576,
+              244.79014766923248
+            ],
+            "initial_query": [
+              449.03338623046875,
+              261.8081359863281
+            ],
+            "reference_crop_native_xyxy": [
+              373,
+              197,
+              469,
+              293
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              619.4499746229978,
+              341.76858440355034
+            ],
+            "initial_query": [
+              625.0437622070312,
+              343.84814453125
+            ],
+            "reference_crop_native_xyxy": [
+              571,
+              294,
+              667,
+              390
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              614.1004754960901,
+              365.9902276194175
+            ],
+            "initial_query": [
+              615.334228515625,
+              364.5418395996094
+            ],
+            "reference_crop_native_xyxy": [
+              566,
+              318,
+              662,
+              414
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              419.63149435118163,
+              264.69845283902396
+            ],
+            "initial_query": [
+              448.6160583496094,
+              278.669921875
+            ],
+            "reference_crop_native_xyxy": [
+              372,
+              217,
+              468,
+              313
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              506.4797154327184,
+              215.266993612832
+            ],
+            "initial_query": [
+              517.2915649414062,
+              223.59237670898438
+            ],
+            "reference_crop_native_xyxy": [
+              458,
+              167,
+              554,
+              263
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              704.4124514989694,
+              292.59649275397004
+            ],
+            "initial_query": [
+              685.1644630432129,
+              284.94066619873047
+            ],
+            "reference_crop_native_xyxy": [
+              656,
+              245,
+              752,
+              341
+            ],
+            "reference_inframe": false
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              698.3545625851249,
+              314.7381446901833
+            ],
+            "initial_query": [
+              679.3244514465332,
+              303.5897750854492
+            ],
+            "reference_crop_native_xyxy": [
+              650,
+              267,
+              746,
+              363
+            ],
+            "reference_inframe": false
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              504.1619243750686,
+              233.6915381135608
+            ],
+            "initial_query": [
+              511.3731689453125,
+              244.08853149414062
+            ],
+            "reference_crop_native_xyxy": [
+              456,
+              186,
+              552,
+              282
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f13527",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/01_G38__G__f13527_RAW.png",
+        "sha256": "f735f451ce52607bc155d573c539fe41116a7e0345fcd76d6479f227357db7ce"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            421.01571715657576,
+            244.79014766923248
+          ],
+          "saved_initial_query_xy": [
+            449.03338623046875,
+            261.8081359863281
+          ],
+          "q_minus_r_xy": [
+            28.01766907389299,
+            17.017988317095643
+          ],
+          "q_reference_displacement_px": 32.78111814284228,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "virtual-no-cue",
+          "observed_appearance_at_or_near_r": "ground_shadow_no_target_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "r0는 검은 bin 왼쪽 바닥/그림자 경계에 있다. 인접 wood pallet는 보이지만 이 위치에 고유한 wood corner cue가 없다. ray-proxy D와 물리 corner 관찰은 다르다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            619.4499746229978,
+            341.76858440355034
+          ],
+          "saved_initial_query_xy": [
+            625.0437622070312,
+            343.84814453125
+          ],
+          "q_minus_r_xy": [
+            5.593787584033407,
+            2.079560127699665
+          ],
+          "q_reference_displacement_px": 5.967832928291856,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 wood deck 전면 끝의 모서리/세로 지지면이 보인다. q는 r에서 약6px 떨어져 있어 둘의 exact occupancy를 동일시하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            614.1004754960901,
+            365.9902276194175
+          ],
+          "saved_initial_query_xy": [
+            615.334228515625,
+            364.5418395996094
+          ],
+          "q_minus_r_xy": [
+            1.2337530195349018,
+            -1.4483880198081351
+          ],
+          "q_reference_displacement_px": 1.9026230233903978,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 아래 wood 지지부와 바닥의 끝 모서리가 보인다. round/bevel와 낮은 광량 때문에 exact pixel ownership은 별도 미확정이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            419.63149435118163,
+            264.69845283902396
+          ],
+          "saved_initial_query_xy": [
+            448.6160583496094,
+            278.669921875
+          ],
+          "q_minus_r_xy": [
+            28.984563998427745,
+            13.971469035976043
+          ],
+          "q_reference_displacement_px": 32.17618524937646,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "virtual-no-cue",
+          "observed_appearance_at_or_near_r": "ground_shadow_no_target_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "r3는 bin 옆 바닥/그림자에 놓인다. wood pallet lower envelope corner에 해당하는 물리 vertex가 관찰되지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            506.4797154327184,
+            215.266993612832
+          ],
+          "saved_initial_query_xy": [
+            517.2915649414062,
+            223.59237670898438
+          ],
+          "q_minus_r_xy": [
+            10.811849508687828,
+            8.325383096152365
+          ],
+          "q_reference_displacement_px": 13.645808642078078,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_occluder",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "기준 위치는 검은 별도 bin 표면 안에 있다. 주변 wood pallet와 구분되는 외부 물체가 뒤쪽 pallet reference 영역을 덮는 후보이다. 해당 reference 형상의 실재는 RGB만으로 증명하지 못한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            704.4124514989694,
+            292.59649275397004
+          ],
+          "saved_initial_query_xy": [
+            685.1644630432129,
+            284.94066619873047
+          ],
+          "q_minus_r_xy": [
+            -19.247988455756513,
+            -7.655826555239571
+          ],
+          "q_reference_displacement_px": 20.714650367236406,
+          "reference_inframe": false,
+          "query_nearestpixel_valid": false,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "out_of_frame",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "r5와 q5 모두 이미지 오른쪽 밖이다. padding을 물체 부재나 가림 라벨로 사용하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "F_REFERENCE_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            698.3545625851249,
+            314.7381446901833
+          ],
+          "saved_initial_query_xy": [
+            679.3244514465332,
+            303.5897750854492
+          ],
+          "q_minus_r_xy": [
+            -19.03011113859168,
+            -11.148369604734057
+          ],
+          "q_reference_displacement_px": 22.055187026885744,
+          "reference_inframe": false,
+          "query_nearestpixel_valid": false,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "out_of_frame",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "r6와 q6 모두 이미지 오른쪽 밖이다. semantic D/E/S 관찰 불가.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "F_REFERENCE_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            504.1619243750686,
+            233.6915381135608
+          ],
+          "saved_initial_query_xy": [
+            511.3731689453125,
+            244.08853149414062
+          ],
+          "q_minus_r_xy": [
+            7.211244570243878,
+            10.39699338057983
+          ],
+          "q_reference_displacement_px": 12.65304388705313,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "external_occluder_also_visible",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "convex self proxy가 hidden이고 투영 위치에는 검은 bin도 보인다. self와 external 원인을 RGB 한 장으로 분리하지 못한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    },
+    {
+      "frame_id": "G38__G__f3515",
+      "split": "train",
+      "source_asset": "eur_pallet_bk_cc0.glb",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f3515_rgb.png",
+      "image_sha256": "306244611665381f2971127d332099eac17926b9295f41071bfe6de825eb7733",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f3515_label.json",
+      "annotation_sha256": "d80bc1fc570f0b032180ff720776c50e276ed1a5b6bfe192a22d03a76ebe97da",
+      "raw_hw": [
+        480,
+        640
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f3515",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/02_G38__G__f3515.png",
+        "sha256": "476902a642e0fe0398442fdcd521683b0125e612d2f032c3378b7a63b2b96647",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              -30.829144458022544,
+              352.77133687866484
+            ],
+            "initial_query": [
+              -27.300394296646118,
+              349.41846656799316
+            ],
+            "reference_crop_native_xyxy": [
+              -79,
+              305,
+              17,
+              401
+            ],
+            "reference_inframe": false
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              138.65288235256006,
+              367.18419780700617
+            ],
+            "initial_query": [
+              141.39854431152344,
+              365.6596984863281
+            ],
+            "reference_crop_native_xyxy": [
+              91,
+              319,
+              187,
+              415
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              146.6392180998207,
+              391.02152412183744
+            ],
+            "initial_query": [
+              143.17681884765625,
+              392.62945556640625
+            ],
+            "reference_crop_native_xyxy": [
+              99,
+              343,
+              195,
+              439
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              -16.135137918120623,
+              376.04571421799085
+            ],
+            "initial_query": [
+              -16.042261123657227,
+              376.0643005371094
+            ],
+            "reference_crop_native_xyxy": [
+              -64,
+              328,
+              32,
+              424
+            ],
+            "reference_inframe": false
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              136.87634043111174,
+              236.83186980329995
+            ],
+            "initial_query": [
+              134.7151336669922,
+              234.2161102294922
+            ],
+            "reference_crop_native_xyxy": [
+              89,
+              189,
+              185,
+              285
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              235.78327953125296,
+              241.35967379832636
+            ],
+            "initial_query": [
+              234.0179901123047,
+              241.525634765625
+            ],
+            "reference_crop_native_xyxy": [
+              188,
+              193,
+              284,
+              289
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              237.87939011267255,
+              257.9635183623967
+            ],
+            "initial_query": [
+              238.727294921875,
+              259.4248046875
+            ],
+            "reference_crop_native_xyxy": [
+              190,
+              210,
+              286,
+              306
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              141.30538335310945,
+              253.07598040980608
+            ],
+            "initial_query": [
+              136.3556365966797,
+              250.5143585205078
+            ],
+            "reference_crop_native_xyxy": [
+              93,
+              205,
+              189,
+              301
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f3515",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/02_G38__G__f3515_RAW.png",
+        "sha256": "e1ec7fdc899fac4b9868317bfae58622e5780ea25af12d5a83bde60036b52a59"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            -30.829144458022544,
+            352.77133687866484
+          ],
+          "saved_initial_query_xy": [
+            -27.300394296646118,
+            349.41846656799316
+          ],
+          "q_minus_r_xy": [
+            3.5287501613764256,
+            -3.352870310671676
+          ],
+          "q_reference_displacement_px": 4.867629507429435,
+          "reference_inframe": false,
+          "query_nearestpixel_valid": false,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "out_of_frame",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "r0/q0가 왼쪽 이미지 밖이다. 목재가 crop 일부에 보여도 reference 자체의 가시성을 정하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "F_REFERENCE_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            138.65288235256006,
+            367.18419780700617
+          ],
+          "saved_initial_query_xy": [
+            141.39854431152344,
+            365.6596984863281
+          ],
+          "q_minus_r_xy": [
+            2.7456619589633817,
+            -1.5244993206780464
+          ],
+          "q_reference_displacement_px": 3.1405027896256454,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "앞쪽 wood deck 오른쪽 끝에서 상판과 세로 지지면의 물리적 꺾임이 보인다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            146.6392180998207,
+            391.02152412183744
+          ],
+          "saved_initial_query_xy": [
+            143.17681884765625,
+            392.62945556640625
+          ],
+          "q_minus_r_xy": [
+            -3.4623992521644595,
+            1.6079314445688055
+          ],
+          "q_reference_displacement_px": 3.817545299249524,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "앞쪽 오른쪽 wood 지지부의 하단 끝이 보인다. r 근처 cue는 있으나 최하단 bbox point와 실제 목재 vertex의 exact 일치는 확정하지 못했다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            -16.135137918120623,
+            376.04571421799085
+          ],
+          "saved_initial_query_xy": [
+            -16.042261123657227,
+            376.0643005371094
+          ],
+          "q_minus_r_xy": [
+            0.0928767944633968,
+            0.018586319118526262
+          ],
+          "q_reference_displacement_px": 0.09471826755263078,
+          "reference_inframe": false,
+          "query_nearestpixel_valid": false,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "out_of_frame",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "r3/q3가 왼쪽 이미지 밖이다. 시야 밖 상태를 유지한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "F_REFERENCE_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            136.87634043111174,
+            236.83186980329995
+          ],
+          "saved_initial_query_xy": [
+            134.7151336669922,
+            234.2161102294922
+          ],
+          "q_minus_r_xy": [
+            -2.161206764119555,
+            -2.6157595738077646
+          ],
+          "q_reference_displacement_px": 3.393083085520173,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_load",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "뒤쪽 reference는 carton 표면 안에 투영된다. 목재 대신 적재 상자가 보이므로 외부 덮임 후보로 기록하되 teacher 후보만이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            235.78327953125296,
+            241.35967379832636
+          ],
+          "saved_initial_query_xy": [
+            234.0179901123047,
+            241.525634765625
+          ],
+          "q_minus_r_xy": [
+            -1.7652894189482708,
+            0.16596096729864485
+          ],
+          "q_reference_displacement_px": 1.7730735391735521,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "virtual-no-cue",
+          "observed_appearance_at_or_near_r": "ground_beyond_slatted_mesh_extremum",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "r5 중심은 wood slat 끝 주변 바닥에 놓이고, r에서 고유한 물리적 pallet corner가 보이지 않는다. bbox envelope와 실제 slat 형상 사이 빈 영역 후보이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            237.87939011267255,
+            257.9635183623967
+          ],
+          "saved_initial_query_xy": [
+            238.727294921875,
+            259.4248046875
+          ],
+          "q_minus_r_xy": [
+            0.847904809202447,
+            1.4612863251032877
+          ],
+          "q_reference_displacement_px": 1.6894674573375212,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "virtual-no-cue",
+          "observed_appearance_at_or_near_r": "ground_beyond_slatted_mesh_extremum",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "r6 아래쪽 extremum 역시 wood 끝 옆 바닥에 놓인다. 보이는 인접 slat를 이 lower reference 자체로 바꾸지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.2222,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            141.30538335310945,
+            253.07598040980608
+          ],
+          "saved_initial_query_xy": [
+            136.3556365966797,
+            250.5143585205078
+          ],
+          "q_minus_r_xy": [
+            -4.949746756429761,
+            -2.561621889298266
+          ],
+          "q_reference_displacement_px": 5.573320343970814,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "external_load_also_visible",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "뒤쪽 lower self proxy이며 carton도 투영 위치를 덮는다. hidden reference의 직접 cue가 없고 S/E 복합 원인 미해결이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    },
+    {
+      "frame_id": "G38__G__f20333",
+      "split": "train",
+      "source_asset": "scene.usd",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f20333_rgb.png",
+      "image_sha256": "37a104343f376a00960463bfa9203fb8454c656824d1305683709a17782a7b94",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f20333_label.json",
+      "annotation_sha256": "edcfc4bd388505cefe1b27504104fcff925da0c42acd3a1cf191d3cc39fc2242",
+      "raw_hw": [
+        540,
+        960
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        5,
+        4,
+        7,
+        6,
+        1,
+        0,
+        3,
+        2
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f20333",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/03_G38__G__f20333.png",
+        "sha256": "031fb8db01048d03412485128e03aeb633005b641b432e56f0b65d74436a2e0e",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              275.5980312896673,
+              376.4855545199492
+            ],
+            "initial_query": [
+              352.91851806640625,
+              401.786865234375
+            ],
+            "reference_crop_native_xyxy": [
+              228,
+              328,
+              324,
+              424
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              355.3374773255281,
+              400.49257491723273
+            ],
+            "initial_query": [
+              445.2384033203125,
+              355.7631530761719
+            ],
+            "reference_crop_native_xyxy": [
+              307,
+              352,
+              403,
+              448
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              356.35830750940625,
+              419.64272031329034
+            ],
+            "initial_query": [
+              446.38677978515625,
+              370.1748962402344
+            ],
+            "reference_crop_native_xyxy": [
+              308,
+              372,
+              404,
+              468
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              277.0718569883195,
+              393.52090582436426
+            ],
+            "initial_query": [
+              355.6166687011719,
+              420.3516845703125
+            ],
+            "reference_crop_native_xyxy": [
+              229,
+              346,
+              325,
+              442
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              371.17752983161574,
+              337.19105576641863
+            ],
+            "initial_query": [
+              277.87164306640625,
+              376.0996398925781
+            ],
+            "reference_crop_native_xyxy": [
+              323,
+              289,
+              419,
+              385
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              441.0687886012469,
+              351.22087201558236
+            ],
+            "initial_query": [
+              376.97979736328125,
+              338.9220275878906
+            ],
+            "reference_crop_native_xyxy": [
+              393,
+              303,
+              489,
+              399
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              441.30933557195794,
+              365.97493157274204
+            ],
+            "initial_query": [
+              375.4774169921875,
+              349.7812805175781
+            ],
+            "reference_crop_native_xyxy": [
+              393,
+              318,
+              489,
+              414
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              371.78747415287785,
+              350.65354554127765
+            ],
+            "initial_query": [
+              279.3587341308594,
+              392.8406982421875
+            ],
+            "reference_crop_native_xyxy": [
+              324,
+              303,
+              420,
+              399
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f20333",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/03_G38__G__f20333_RAW.png",
+        "sha256": "f42fdea0f730bbfdb71b65c4f6371852fe692d008041622c4b4d8695cb4ed9b3"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            275.5980312896673,
+            376.4855545199492
+          ],
+          "saved_initial_query_xy": [
+            352.91851806640625,
+            401.786865234375
+          ],
+          "q_minus_r_xy": [
+            77.32048677673896,
+            25.301310714425824
+          ],
+          "q_reference_displacement_px": 81.35486463180787,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "왼쪽 앞 상부 plastic deck 외곽의 꺾임이 보인다. r은 rounded/mesh 외곽의 근처여서 exact material pixel을 뜻하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            355.3374773255281,
+            400.49257491723273
+          ],
+          "saved_initial_query_xy": [
+            445.2384033203125,
+            355.7631530761719
+          ],
+          "q_minus_r_xy": [
+            89.90092599478442,
+            -44.729421841060855
+          ],
+          "q_reference_displacement_px": 100.41363290388051,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "가까운 전면 우상부 deck/body 꺾임이 뚜렷하다. q는 다른 쪽으로 크게 이동해 있다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            356.35830750940625,
+            419.64272031329034
+          ],
+          "saved_initial_query_xy": [
+            446.38677978515625,
+            370.1748962402344
+          ],
+          "q_minus_r_xy": [
+            90.02847227575,
+            -49.467824073055965
+          ],
+          "q_reference_displacement_px": 102.72386012425888,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "가까운 전면 우하부 body 끝/바닥 경계가 보인다. geometry envelope와 bevel 대응은 조건부이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            277.0718569883195,
+            393.52090582436426
+          ],
+          "saved_initial_query_xy": [
+            355.6166687011719,
+            420.3516845703125
+          ],
+          "q_minus_r_xy": [
+            78.54481171285238,
+            26.830778745948237
+          ],
+          "q_reference_displacement_px": 83.00107309620437,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "왼쪽 lower plastic body 끝이 보인다. 작은 bevel 때문에 raster 한 점의 material 여부와 corner 의미를 분리한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            371.17752983161574,
+            337.19105576641863
+          ],
+          "saved_initial_query_xy": [
+            277.87164306640625,
+            376.0996398925781
+          ],
+          "q_minus_r_xy": [
+            -93.3058867652095,
+            38.9085841261595
+          ],
+          "q_reference_displacement_px": 101.09335499301883,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "far_upper_envelope_near_bin_edge",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "뒤쪽 위 r은 bin 옆 바닥/상판 외곽 근처이다. 고유한 physical vertex가 분리되지 않아 D나 external cover를 확정하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            441.0687886012469,
+            351.22087201558236
+          ],
+          "saved_initial_query_xy": [
+            376.97979736328125,
+            338.9220275878906
+          ],
+          "q_minus_r_xy": [
+            -64.08899123796567,
+            -12.298844427691733
+          ],
+          "q_reference_displacement_px": 65.25841227119002,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_occluder",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "검은 독립 bin이 projected reference 위치를 덮는다. 주변 팔레트 상판과 별도 물체의 경계가 분명하다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            441.30933557195794,
+            365.97493157274204
+          ],
+          "saved_initial_query_xy": [
+            375.4774169921875,
+            349.7812805175781
+          ],
+          "q_minus_r_xy": [
+            -65.83191857977044,
+            -16.19365105516391
+          ],
+          "q_reference_displacement_px": 67.7943643556744,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_occluder",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "뒤쪽 아래 reference 위치도 검은 bin 표면에 놓여 있다. 단순 검은 pallet 구멍으로 해석할 수 없다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            371.78747415287785,
+            350.65354554127765
+          ],
+          "saved_initial_query_xy": [
+            279.3587341308594,
+            392.8406982421875
+          ],
+          "q_minus_r_xy": [
+            -92.42874002201847,
+            42.18715270090985
+          ],
+          "q_reference_displacement_px": 101.60131807741357,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "visible_top_grid_is_other_surface",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "self-hidden lower reference가 상판 grid 쪽에 투영된다. 그 위치의 상판 픽셀은 lower corner가 보인다는 증거가 아니다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    },
+    {
+      "frame_id": "G38__G__f33622",
+      "split": "train",
+      "source_asset": "scene.usd",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f33622_rgb.png",
+      "image_sha256": "9ca4e28807fcc165fcce3915b29d32a08a46cce8c224ba9a6bdaa93b907872b3",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f33622_label.json",
+      "annotation_sha256": "84179585241780b081555e97ae275fda4f32cadd93caf1f2a03640090eb342fc",
+      "raw_hw": [
+        480,
+        640
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        1,
+        5,
+        6,
+        2,
+        0,
+        4,
+        7,
+        3
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f33622",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/04_G38__G__f33622.png",
+        "sha256": "149c31e8402756ade8f210ac44c944017243a1ab4a886743a45e5ba67c27cafe",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              69.71200498194978,
+              256.9479420489094
+            ],
+            "initial_query": [
+              72.03589630126953,
+              255.9432373046875
+            ],
+            "reference_crop_native_xyxy": [
+              22,
+              209,
+              118,
+              305
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              271.92019015971806,
+              174.11304655570703
+            ],
+            "initial_query": [
+              271.21026611328125,
+              174.09588623046875
+            ],
+            "reference_crop_native_xyxy": [
+              224,
+              126,
+              320,
+              222
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              273.27658034978845,
+              194.3634029940033
+            ],
+            "initial_query": [
+              269.1797180175781,
+              194.80584716796875
+            ],
+            "reference_crop_native_xyxy": [
+              225,
+              146,
+              321,
+              242
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              77.73636874614365,
+              277.3056425726065
+            ],
+            "initial_query": [
+              76.51781463623047,
+              273.5263671875
+            ],
+            "reference_crop_native_xyxy": [
+              30,
+              229,
+              126,
+              325
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              17.131555201906423,
+              160.38337444347917
+            ],
+            "initial_query": [
+              19.1165828704834,
+              162.4727020263672
+            ],
+            "reference_crop_native_xyxy": [
+              -31,
+              112,
+              65,
+              208
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              199.01341764263069,
+              98.59153712043702
+            ],
+            "initial_query": [
+              200.9030303955078,
+              101.501953125
+            ],
+            "reference_crop_native_xyxy": [
+              151,
+              51,
+              247,
+              147
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              201.99876092195402,
+              118.16703966156727
+            ],
+            "initial_query": [
+              202.805908203125,
+              118.58361053466797
+            ],
+            "reference_crop_native_xyxy": [
+              154,
+              70,
+              250,
+              166
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              25.48171433168382,
+              180.5521648456878
+            ],
+            "initial_query": [
+              24.510257720947266,
+              178.1930389404297
+            ],
+            "reference_crop_native_xyxy": [
+              -23,
+              133,
+              73,
+              229
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f33622",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/04_G38__G__f33622_RAW.png",
+        "sha256": "26002e2c58b1e90d49cb3ee136033fdfe075352dc3837447a7ea8cddb58a14cd"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            69.71200498194978,
+            256.9479420489094
+          ],
+          "saved_initial_query_xy": [
+            72.03589630126953,
+            255.9432373046875
+          ],
+          "q_minus_r_xy": [
+            2.323891319319756,
+            -1.0047047442218968
+          ],
+          "q_reference_displacement_px": 2.5317785225156846,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "가까운 왼쪽 상부 plastic body/상판의 rounded 외곽 모서리가 명확하다. 수학 cuboid vertex는 bevel 바깥일 수 있다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            271.92019015971806,
+            174.11304655570703
+          ],
+          "saved_initial_query_xy": [
+            271.21026611328125,
+            174.09588623046875
+          ],
+          "q_minus_r_xy": [
+            -0.7099240464368108,
+            -0.017160325238279484
+          ],
+          "q_reference_displacement_px": 0.7101314163389046,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "오른쪽 상판/body 외곽 모서리가 보이고 occluder가 없다. exact pixel 인증은 하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            273.27658034978845,
+            194.3634029940033
+          ],
+          "saved_initial_query_xy": [
+            269.1797180175781,
+            194.80584716796875
+          ],
+          "q_minus_r_xy": [
+            -4.096862332210321,
+            0.4424441739654412
+          ],
+          "q_reference_displacement_px": 4.12068414418768,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 아래 body 끝의 rounded corner가 보인다. reference는 부드러운 외곽 근처이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            77.73636874614365,
+            277.3056425726065
+          ],
+          "saved_initial_query_xy": [
+            76.51781463623047,
+            273.5263671875
+          ],
+          "q_minus_r_xy": [
+            -1.2185541099131854,
+            -3.779275385106473
+          ],
+          "q_reference_displacement_px": 3.9708684887890704,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "가까운 왼쪽 아래 body 끝이 보인다. raster의 r 자체는 bevel 바깥/바닥일 수 있어 semantic cue와 pixel label을 구분한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            17.131555201906423,
+            160.38337444347917
+          ],
+          "saved_initial_query_xy": [
+            19.1165828704834,
+            162.4727020263672
+          ],
+          "q_minus_r_xy": [
+            1.9850276685769757,
+            2.089327582888018
+          ],
+          "q_reference_displacement_px": 2.881948055332162,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "뒤쪽 왼쪽 top 외곽의 rounded 꺾임이 보인다. r은 material 외곽과 완전히 일치하는 vertex라기보다 envelope 근처이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            199.01341764263069,
+            98.59153712043702
+          ],
+          "saved_initial_query_xy": [
+            200.9030303955078,
+            101.501953125
+          ],
+          "q_minus_r_xy": [
+            1.8896127528771274,
+            2.9104160045629754
+          ],
+          "q_reference_displacement_px": 3.470037128829055,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "먼 쪽 상판 외곽 모서리 cue가 보인다. top grid/rounded outline로 위치 의미가 관찰 가능하다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            201.99876092195402,
+            118.16703966156727
+          ],
+          "saved_initial_query_xy": [
+            202.805908203125,
+            118.58361053466797
+          ],
+          "q_minus_r_xy": [
+            0.8071472811709839,
+            0.41657087310069585
+          ],
+          "q_reference_displacement_px": 0.9083050290610458,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "visible_top_grid_is_other_surface",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "convex self-hidden lower far reference는 상판 내부에 투영된다. 눈에 보이는 grid를 해당 lower corner의 직접 가시성으로 사용하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            25.48171433168382,
+            180.5521648456878
+          ],
+          "saved_initial_query_xy": [
+            24.510257720947266,
+            178.1930389404297
+          ],
+          "q_minus_r_xy": [
+            -0.9714566107365528,
+            -2.359125905258111
+          ],
+          "q_reference_displacement_px": 2.551313971937529,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "virtual-no-cue",
+          "observed_appearance_at_or_near_r": "background_near_rounded_missing_lower_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "뒤쪽 왼쪽 lower envelope r은 외곽 옆 바닥으로 빠진다. 가까운 측면은 보이나 해당 full cuboid lower vertex의 물리 cue는 관찰되지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.2222,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    },
+    {
+      "frame_id": "G38__G__f13380",
+      "split": "train",
+      "source_asset": "scene.usd",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f13380_rgb.png",
+      "image_sha256": "277b33197e949e2fd167f189f384e8894e0d06008ab08ae1b9c2e9c70abd2438",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f13380_label.json",
+      "annotation_sha256": "493cc43baabf9cc8af4281625d3de3d94d61d3737464f39002edee1e21c98799",
+      "raw_hw": [
+        480,
+        640
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f13380",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/05_G38__G__f13380.png",
+        "sha256": "503dbac84b1dae49efc1eb71a7d5e54012342740b5763e816d50adb0f1c4c6a4",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              -51.79374438994099,
+              230.9104047007667
+            ],
+            "initial_query": [
+              -57.216241121292114,
+              232.75009727478027
+            ],
+            "reference_crop_native_xyxy": [
+              -100,
+              183,
+              -4,
+              279
+            ],
+            "reference_inframe": false
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              296.2925772581619,
+              232.5244671376628
+            ],
+            "initial_query": [
+              295.5705871582031,
+              233.51858520507812
+            ],
+            "reference_crop_native_xyxy": [
+              248,
+              185,
+              344,
+              281
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              296.636283958103,
+              293.9384653021095
+            ],
+            "initial_query": [
+              297.8294982910156,
+              290.6212463378906
+            ],
+            "reference_crop_native_xyxy": [
+              249,
+              246,
+              345,
+              342
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              -46.86243119547226,
+              287.11730974346733
+            ],
+            "initial_query": [
+              -56.40626049041748,
+              289.0310287475586
+            ],
+            "reference_crop_native_xyxy": [
+              -95,
+              239,
+              1,
+              335
+            ],
+            "reference_inframe": false
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              164.68229334738552,
+              221.6423245336822
+            ],
+            "initial_query": [
+              145.59117126464844,
+              221.0630645751953
+            ],
+            "reference_crop_native_xyxy": [
+              117,
+              174,
+              213,
+              270
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              325.17245480384867,
+              221.96411334849412
+            ],
+            "initial_query": [
+              324.7197265625,
+              220.93711853027344
+            ],
+            "reference_crop_native_xyxy": [
+              277,
+              174,
+              373,
+              270
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              325.13952812005164,
+              248.99724355350594
+            ],
+            "initial_query": [
+              323.54229736328125,
+              251.0829315185547
+            ],
+            "reference_crop_native_xyxy": [
+              277,
+              201,
+              373,
+              297
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              165.63219742325566,
+              247.61619898256336
+            ],
+            "initial_query": [
+              143.297119140625,
+              251.8284912109375
+            ],
+            "reference_crop_native_xyxy": [
+              118,
+              200,
+              214,
+              296
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f13380",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/05_G38__G__f13380_RAW.png",
+        "sha256": "61554aa385f6ccea8c7622b600276e97660e8ff23f5499f477a945d670445534"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            -51.79374438994099,
+            230.9104047007667
+          ],
+          "saved_initial_query_xy": [
+            -57.216241121292114,
+            232.75009727478027
+          ],
+          "q_minus_r_xy": [
+            -5.422496731351124,
+            1.8396925740135828
+          ],
+          "q_reference_displacement_px": 5.7260754071522975,
+          "reference_inframe": false,
+          "query_nearestpixel_valid": false,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "out_of_frame",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "r0/q0가 이미지 왼쪽 밖이다. 바깥 부분의 visibility를 추론 라벨로 채우지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "F_REFERENCE_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            296.2925772581619,
+            232.5244671376628
+          ],
+          "saved_initial_query_xy": [
+            295.5705871582031,
+            233.51858520507812
+          ],
+          "q_minus_r_xy": [
+            -0.7219900999587594,
+            0.9941180674153145
+          ],
+          "q_reference_displacement_px": 1.22863356473768,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "전면 오른쪽 upper plastic body/deck 모서리가 보인다. q도 근처이나 r과 q를 동일 좌표로 덮어쓰지 않았다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            296.636283958103,
+            293.9384653021095
+          ],
+          "saved_initial_query_xy": [
+            297.8294982910156,
+            290.6212463378906
+          ],
+          "q_minus_r_xy": [
+            1.1932143329126461,
+            -3.3172189642188528
+          ],
+          "q_reference_displacement_px": 3.5252946119213027,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "전면 오른쪽 body 하단 끝이 바닥과 만나는 cue가 보인다. bbox와 둥근 외곽 exact 일치는 미인증이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            -46.86243119547226,
+            287.11730974346733
+          ],
+          "saved_initial_query_xy": [
+            -56.40626049041748,
+            289.0310287475586
+          ],
+          "q_minus_r_xy": [
+            -9.543829294945219,
+            1.9137190040912628
+          ],
+          "q_reference_displacement_px": 9.733806965297525,
+          "reference_inframe": false,
+          "query_nearestpixel_valid": false,
+          "AI_observation_tag": "ambiguous",
+          "observed_appearance_at_or_near_r": "out_of_frame",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "r3/q3가 이미지 왼쪽 밖이다. 시야 밖 ambiguity를 유지한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "F_REFERENCE_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            164.68229334738552,
+            221.6423245336822
+          ],
+          "saved_initial_query_xy": [
+            145.59117126464844,
+            221.0630645751953
+          ],
+          "q_minus_r_xy": [
+            -19.091122082737087,
+            -0.5792599584868867
+          ],
+          "q_reference_displacement_px": 19.09990797039289,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "load_deck_boundary",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "carton의 하단이 r 부근 deck 위를 덮는다. r가 carton/deck 경계와 가까워 raster 정합·가림 원인 확정은 보류하는 조건부 E 후보이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.6667,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            325.17245480384867,
+            221.96411334849412
+          ],
+          "saved_initial_query_xy": [
+            324.7197265625,
+            220.93711853027344
+          ],
+          "q_minus_r_xy": [
+            -0.45272824134866596,
+            -1.026994818220686
+          ],
+          "q_reference_displacement_px": 1.1223552098898084,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 먼 deck/body 끝의 상부 꺾임이 보인다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            325.13952812005164,
+            248.99724355350594
+          ],
+          "saved_initial_query_xy": [
+            323.54229736328125,
+            251.0829315185547
+          ],
+          "q_minus_r_xy": [
+            -1.5972307567703865,
+            2.0856879650487485
+          ],
+          "q_reference_displacement_px": 2.6270211986054646,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 먼 body 외곽 끝이 보이지만 둥근 형상이라 수학 lower vertex와 exact 일치는 미확정이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.2222,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            165.63219742325566,
+            247.61619898256336
+          ],
+          "saved_initial_query_xy": [
+            143.297119140625,
+            251.8284912109375
+          ],
+          "q_minus_r_xy": [
+            -22.33507828263066,
+            4.212292228374139
+          ],
+          "q_reference_displacement_px": 22.728817120749177,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "fork_opening_other_surface_projection",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "self-hidden back lower reference 투영은 front fork opening 안이다. 구멍이나 주변 front face가 보이는 것으로 뒤쪽 reference visibility를 확정할 수 없다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    },
+    {
+      "frame_id": "G38__G__f17160",
+      "split": "train",
+      "source_asset": "scene_1.usd",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f17160_rgb.png",
+      "image_sha256": "0ba7764636dc12ca4c639d1e3d99fef987b92ffc245d5e490dc3984334da357b",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f17160_label.json",
+      "annotation_sha256": "a9d10a5befb05dd91f103ff3d07552e9edbbea127e5f39ee060aee5986a854d9",
+      "raw_hw": [
+        480,
+        640
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        5,
+        4,
+        7,
+        6,
+        1,
+        0,
+        3,
+        2
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f17160",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/06_G38__G__f17160.png",
+        "sha256": "0daa36e87995c0186eb774018ae7a7173251310e37c182b558cc7147da344e3c",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              311.7577878983099,
+              333.57254623427553
+            ],
+            "initial_query": [
+              310.5865478515625,
+              331.2925720214844
+            ],
+            "reference_crop_native_xyxy": [
+              264,
+              286,
+              360,
+              382
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              440.1745671946684,
+              251.55144765047297
+            ],
+            "initial_query": [
+              439.56396484375,
+              251.5214080810547
+            ],
+            "reference_crop_native_xyxy": [
+              392,
+              204,
+              488,
+              300
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              436.5396758221662,
+              266.43185232850885
+            ],
+            "initial_query": [
+              435.5127258300781,
+              265.13128662109375
+            ],
+            "reference_crop_native_xyxy": [
+              389,
+              218,
+              485,
+              314
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              312.0399982764586,
+              347.608942585778
+            ],
+            "initial_query": [
+              311.4847717285156,
+              346.19427490234375
+            ],
+            "reference_crop_native_xyxy": [
+              264,
+              300,
+              360,
+              396
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              207.2598933610671,
+              214.43024273070327
+            ],
+            "initial_query": [
+              206.49635314941406,
+              214.68862915039062
+            ],
+            "reference_crop_native_xyxy": [
+              159,
+              166,
+              255,
+              262
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              326.11290758464986,
+              157.3621968185909
+            ],
+            "initial_query": [
+              323.5477294921875,
+              160.0094757080078
+            ],
+            "reference_crop_native_xyxy": [
+              278,
+              109,
+              374,
+              205
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              325.95629122404586,
+              172.37986880657212
+            ],
+            "initial_query": [
+              323.566162109375,
+              175.13946533203125
+            ],
+            "reference_crop_native_xyxy": [
+              278,
+              124,
+              374,
+              220
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              210.46495765860482,
+              229.47157454347538
+            ],
+            "initial_query": [
+              208.752197265625,
+              235.54861450195312
+            ],
+            "reference_crop_native_xyxy": [
+              162,
+              181,
+              258,
+              277
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f17160",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/06_G38__G__f17160_RAW.png",
+        "sha256": "9d4f99905a71a1b145623614d774f40c7467db7d7c47e68b787d4da8bff32c34"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            311.7577878983099,
+            333.57254623427553
+          ],
+          "saved_initial_query_xy": [
+            310.5865478515625,
+            331.2925720214844
+          ],
+          "q_minus_r_xy": [
+            -1.171240046747414,
+            -2.27997421279116
+          ],
+          "q_reference_displacement_px": 2.5632178327441375,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "가까운 green plastic top/body 모서리의 꺾임이 뚜렷하다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            440.1745671946684,
+            251.55144765047297
+          ],
+          "saved_initial_query_xy": [
+            439.56396484375,
+            251.5214080810547
+          ],
+          "q_minus_r_xy": [
+            -0.6106023509183842,
+            -0.030039569418278234
+          ],
+          "q_reference_displacement_px": 0.6113408269352646,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "오른쪽 top/body 외곽 끝이 보인다. carton과 구분된다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            436.5396758221662,
+            266.43185232850885
+          ],
+          "saved_initial_query_xy": [
+            435.5127258300781,
+            265.13128662109375
+          ],
+          "q_minus_r_xy": [
+            -1.0269499920880776,
+            -1.3005657074151031
+          ],
+          "q_reference_displacement_px": 1.6571353129886075,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 lower support/body 끝의 cue가 보인다. rounded outline 때문에 exact r material 여부는 별도이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            312.0399982764586,
+            347.608942585778
+          ],
+          "saved_initial_query_xy": [
+            311.4847717285156,
+            346.19427490234375
+          ],
+          "q_minus_r_xy": [
+            -0.5552265479429934,
+            -1.4146676834342315
+          ],
+          "q_reference_displacement_px": 1.5197240453759586,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "가까운 lower support의 바닥 끝이 보인다. 구멍을 full solid cuboid로 간주하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            207.2598933610671,
+            214.43024273070327
+          ],
+          "saved_initial_query_xy": [
+            206.49635314941406,
+            214.68862915039062
+          ],
+          "q_minus_r_xy": [
+            -0.7635402116530372,
+            0.2583864196873549
+          ],
+          "q_reference_displacement_px": 0.8060751805446033,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "왼쪽 먼 top 외곽의 green pallet corner가 명확하다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            326.11290758464986,
+            157.3621968185909
+          ],
+          "saved_initial_query_xy": [
+            323.5477294921875,
+            160.0094757080078
+          ],
+          "q_minus_r_xy": [
+            -2.565178092462361,
+            2.647278889416924
+          ],
+          "q_reference_displacement_px": 3.686220851278629,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_load",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "뒤쪽 top reference는 carton 안에 투영된다. green pallet가 아니라 적재 상자가 덮는 후보이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.5556,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            325.95629122404586,
+            172.37986880657212
+          ],
+          "saved_initial_query_xy": [
+            323.566162109375,
+            175.13946533203125
+          ],
+          "q_minus_r_xy": [
+            -2.390129114670856,
+            2.7595965254591306
+          ],
+          "q_reference_displacement_px": 3.6507656961414816,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "external_load_also_visible",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "self-hidden lower far reference이며 projected 위치는 carton 표면이다. self/external cause 분리는 proxy만으로 인증하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            210.46495765860482,
+            229.47157454347538
+          ],
+          "saved_initial_query_xy": [
+            208.752197265625,
+            235.54861450195312
+          ],
+          "q_minus_r_xy": [
+            -1.712760392979817,
+            6.077039958477741
+          ],
+          "q_reference_displacement_px": 6.313791477448041,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "virtual-no-cue",
+          "observed_appearance_at_or_near_r": "ground_beside_open_or_rounded_lower_extent",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "왼쪽 먼 lower cuboid point는 green pallet 옆 바닥에 놓인다. 실제 lower support corner가 그 r에 관찰되지 않아 virtual/no-cue 후보로 기록한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.2222,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    },
+    {
+      "frame_id": "G38__G__f22364",
+      "split": "train",
+      "source_asset": "scene_1.usd",
+      "image": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/rgb/f22364_rgb.png",
+      "image_sha256": "7dbfca2dfa22c7e7e7ad9f0bbd8f3f2995ff26a0537c3a0a4fc5f2a9cc47652f",
+      "annotation": "/home/minjae/Documents/github/pallet-pose/data/pallet/training_data/paper_release/v2_prod40k_clean_merged/labels/f22364_label.json",
+      "annotation_sha256": "894273c6acbd28f44b434195fce0e29977b77098b167818c52665e60da5d80ec",
+      "raw_hw": [
+        480,
+        640
+      ],
+      "keypoint_convention": "camera_dynamic_0123_v4",
+      "perm_dynamic_to_original": [
+        5,
+        4,
+        7,
+        6,
+        1,
+        0,
+        3,
+        2
+      ],
+      "marked_sheet": {
+        "id": "G38__G__f22364",
+        "frame_sheet": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/FRAME_SHEETS/07_G38__G__f22364.png",
+        "sha256": "0a5fd92616bdc50f32023e373e6cdf90e8bdae7d598b4d8a9f343c021099437f",
+        "corners8": [
+          {
+            "native_corner": 0,
+            "reference": [
+              252.8109908053021,
+              246.44958309899488
+            ],
+            "initial_query": [
+              253.63807678222656,
+              246.517578125
+            ],
+            "reference_crop_native_xyxy": [
+              205,
+              198,
+              301,
+              294
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 1,
+            "reference": [
+              332.40532667954665,
+              273.09260251336985
+            ],
+            "initial_query": [
+              331.7988586425781,
+              272.5418395996094
+            ],
+            "reference_crop_native_xyxy": [
+              284,
+              225,
+              380,
+              321
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 2,
+            "reference": [
+              332.24516287339407,
+              283.29419491162895
+            ],
+            "initial_query": [
+              333.76446533203125,
+              283.6970520019531
+            ],
+            "reference_crop_native_xyxy": [
+              284,
+              235,
+              380,
+              331
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 3,
+            "reference": [
+              253.60517780843048,
+              256.1042819183983
+            ],
+            "initial_query": [
+              254.50607299804688,
+              256.11102294921875
+            ],
+            "reference_crop_native_xyxy": [
+              206,
+              208,
+              302,
+              304
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 4,
+            "reference": [
+              310.27988399942467,
+              205.63340710019577
+            ],
+            "initial_query": [
+              313.5524597167969,
+              206.9618377685547
+            ],
+            "reference_crop_native_xyxy": [
+              262,
+              158,
+              358,
+              254
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 5,
+            "reference": [
+              382.11672655488525,
+              224.93339604368887
+            ],
+            "initial_query": [
+              381.0325927734375,
+              222.4599609375
+            ],
+            "reference_crop_native_xyxy": [
+              334,
+              177,
+              430,
+              273
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 6,
+            "reference": [
+              381.437317822625,
+              234.10254266403425
+            ],
+            "initial_query": [
+              379.49267578125,
+              231.83502197265625
+            ],
+            "reference_crop_native_xyxy": [
+              333,
+              186,
+              429,
+              282
+            ],
+            "reference_inframe": true
+          },
+          {
+            "native_corner": 7,
+            "reference": [
+              310.378490676789,
+              214.33354981877355
+            ],
+            "initial_query": [
+              312.1336364746094,
+              213.61111450195312
+            ],
+            "reference_crop_native_xyxy": [
+              262,
+              166,
+              358,
+              262
+            ],
+            "reference_inframe": true
+          }
+        ]
+      },
+      "raw_crop_sheet": {
+        "id": "G38__G__f22364",
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/source_anchor_review/RAW_REFERENCE_CROP_SHEETS/07_G38__G__f22364_RAW.png",
+        "sha256": "f410a0249def2f220e3585dc996c301a32d8826ca43fd43194f11200321cc157"
+      },
+      "observations8": [
+        {
+          "native_corner": 0,
+          "original_writer_corner": 5,
+          "reference_xy": [
+            252.8109908053021,
+            246.44958309899488
+          ],
+          "saved_initial_query_xy": [
+            253.63807678222656,
+            246.517578125
+          ],
+          "q_minus_r_xy": [
+            0.827085976924451,
+            0.06799502600512142
+          ],
+          "q_reference_displacement_px": 0.8298762177496778,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "왼쪽 앞 상판/전면 외곽의 물리적 꺾임이 보인다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 1,
+          "original_writer_corner": 4,
+          "reference_xy": [
+            332.40532667954665,
+            273.09260251336985
+          ],
+          "saved_initial_query_xy": [
+            331.7988586425781,
+            272.5418395996094
+          ],
+          "q_minus_r_xy": [
+            -0.606468036968522,
+            -0.5507629137604795
+          ],
+          "q_reference_displacement_px": 0.8192333410197524,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 앞 상판/body corner가 선반 옆에 보인다. 선반 자체의 corner와 구분한다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.0,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 2,
+          "original_writer_corner": 7,
+          "reference_xy": [
+            332.24516287339407,
+            283.29419491162895
+          ],
+          "saved_initial_query_xy": [
+            333.76446533203125,
+            283.6970520019531
+          ],
+          "q_minus_r_xy": [
+            1.5193024586371848,
+            0.4028570903241757
+          ],
+          "q_reference_displacement_px": 1.57180590278999,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_rounded_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "오른쪽 앞 body 하단의 둥근 끝이 보인다. 그림자/바닥과 exact bbox vertex는 미인증이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 3,
+          "original_writer_corner": 6,
+          "reference_xy": [
+            253.60517780843048,
+            256.1042819183983
+          ],
+          "saved_initial_query_xy": [
+            254.50607299804688,
+            256.11102294921875
+          ],
+          "q_minus_r_xy": [
+            0.9008951896163921,
+            0.006741030820421656
+          ],
+          "q_reference_displacement_px": 0.9009204094538413,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "D_candidate",
+          "observed_appearance_at_or_near_r": "nearby_physical_corner",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "왼쪽 앞 lower body 끝이 보인다. 검은 front opening을 해당 lower corner 부재로 취급하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 0.3333,
+            "conditional_proxy_state": "D_UNBLOCKED_RAY_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 4,
+          "original_writer_corner": 1,
+          "reference_xy": [
+            310.27988399942467,
+            205.63340710019577
+          ],
+          "saved_initial_query_xy": [
+            313.5524597167969,
+            206.9618377685547
+          ],
+          "q_minus_r_xy": [
+            3.272575717372206,
+            1.3284306683589193
+          ],
+          "q_reference_displacement_px": 3.531922970078868,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_load",
+          "AI_observation_confidence_only": "medium",
+          "observation_ko": "뒤쪽 reference가 carton 표면에 투영된다. carton corner는 target pallet corner로 라벨링하지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 5,
+          "original_writer_corner": 0,
+          "reference_xy": [
+            382.11672655488525,
+            224.93339604368887
+          ],
+          "saved_initial_query_xy": [
+            381.0325927734375,
+            222.4599609375
+          ],
+          "q_minus_r_xy": [
+            -1.084133781447747,
+            -2.473435106188873
+          ],
+          "q_reference_displacement_px": 2.7005975784266254,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_shelf",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "우측 뒤 top reference 위치에는 나무 선반이 있다. 팔레트와 다른 외부 물체가 덮는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 6,
+          "original_writer_corner": 3,
+          "reference_xy": [
+            381.437317822625,
+            234.10254266403425
+          ],
+          "saved_initial_query_xy": [
+            379.49267578125,
+            231.83502197265625
+          ],
+          "q_minus_r_xy": [
+            -1.9446420413750047,
+            -2.267520691377996
+          ],
+          "q_reference_displacement_px": 2.9871864278800024,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "E_candidate",
+          "observed_appearance_at_or_near_r": "distinct_external_shelf",
+          "AI_observation_confidence_only": "high",
+          "observation_ko": "우측 뒤 lower reference도 선반 표면 뒤에 있다. 선반 모서리의 가시성을 target D로 바꾸지 않는다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": true,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "E_RAY_GE_HALF_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        },
+        {
+          "native_corner": 7,
+          "original_writer_corner": 2,
+          "reference_xy": [
+            310.378490676789,
+            214.33354981877355
+          ],
+          "saved_initial_query_xy": [
+            312.1336364746094,
+            213.61111450195312
+          ],
+          "q_minus_r_xy": [
+            1.7551457978203757,
+            -0.7224353168204232
+          ],
+          "q_reference_displacement_px": 1.8980120016996596,
+          "reference_inframe": true,
+          "query_nearestpixel_valid": true,
+          "AI_observation_tag": "S_proxy_only",
+          "observed_appearance_at_or_near_r": "external_load_also_visible",
+          "AI_observation_confidence_only": "low",
+          "observation_ko": "self-hidden lower back reference가 carton 안에 투영된다. carton의 가시성은 pallet reference의 D 증거가 아니며 S/E는 분리 미인증이다.",
+          "legacy_proxy_kept_separate": {
+            "convex_self_visible_proxy": false,
+            "external_9ray_fraction": 1.0,
+            "conditional_proxy_state": "S_CONVEX_PROXY"
+          },
+          "evidence_tier": "AI_OBSERVATIONAL_CONDITIONAL_TEACHER_CANDIDATE_ONLY",
+          "human_verified": false,
+          "certified_semantic_D_E_S": null,
+          "admitted_for_training": false,
+          "exact_r_pixel_ownership_certified": false,
+          "coordinate_adjustment_performed": false
+        }
+      ]
+    }
+  ]
+}

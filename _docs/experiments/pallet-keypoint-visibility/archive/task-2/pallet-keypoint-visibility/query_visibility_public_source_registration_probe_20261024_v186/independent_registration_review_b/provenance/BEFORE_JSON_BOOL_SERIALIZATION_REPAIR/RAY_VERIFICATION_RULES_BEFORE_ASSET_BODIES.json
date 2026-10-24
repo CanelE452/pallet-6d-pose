@@ -1,0 +1,15 @@
+{
+  "schema": "V186_INDEPENDENT_CAMERA_RAY_FIRST_SURFACE_VERIFICATION_v1",
+  "prepared_only": true,
+  "asset_mesh_header_pose_or_output_body_read_before_rule": false,
+  "population": "All5 obj1 GT-list instances in the four fixed SOURCE_DEVELOPMENT frames. Every fixed sample slot retained, including duplicate sampled pixels, projected centroid OOB/behind-camera, no-hit, surface boundary and parallel geometry diagnostics.",
+  "algorithm": "Independent float64 Moller-Trumbore camera-ray versus original triangles, both face windings. p_cam=R_m2c p_model+t_m2c, integer image pixel centers without+0.5, ray=inv(K)[u,v,1] normalized to ray_z=1. Positive first camera-axis Z>=1e-6mm only; strictly smallerZ wins, exact equalZ keeps original first triangle index. No producer renderer imports.",
+  "sampling": "Perinstance fixed9x7 full-image integer grid: floor(linspace(0,W-1,9)+0.5) columns x floor(linspace(0,H-1,7)+0.5) rows, row-major63slots. Plus17 equallyspaced original triangle-order centroids projected with unchanged K/R/t, floor(u+0.5),floor(v+0.5), duplicates retained. Final triangle-order adapter must be bound to frozen producer protocol before actual assets; no sample selection from depth/mask quality.",
+  "numerics": "F64 exact determinant zero marks parallel and zero normal marks degenerate. Nonzero nearparallel determinants still evaluated, with relative64*eps64*norm(edge1)*norm(edge2)*norm(ray) flag only. Surface-boundary and near-boundary miss flags use fixed barycentric1e-9; no rays are removed from the output and hit computation uses strict barycentric>=0,<=1 only.",
+  "depth_difference_bound_mm": "For saved float64Z, abs(savedZ-independentZ)<=1e-6mm. For saved float32Z, <=1e-6mm + 0.5*max(adjacent float32 spacing above/below nearestFloat32(independentZ)). This is declared rounding allowance only, never fitted to observed results. Unsupported dtypes fail. No tolerance changes after failures.",
+  "edge_scope": "All interior/no-hit comparisons checked. Borderline barycentric cases are explicitly separate records: any fill/no-hit/triangle-id discrepancy remains visible and cannot establish original mask/physical registration quality. Exact same-surface edge conventions can differ from dataset masks. No sample replacement or pose/K/mesh adjustment.",
+  "scope": "Rendering computation check only, not sensor-depth quality, nativepart/visibility/owner labels, private/current/held/VAL performance or training admission. No PnP, pose refinement, scale fitting, new model or threshold.",
+  "new_labels_or_training_admission": false,
+  "selected_model": null,
+  "automatic_retry": false
+}

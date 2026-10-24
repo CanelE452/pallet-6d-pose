@@ -1,0 +1,207 @@
+{
+  "schema": "V185_PUBLIC_SOURCE_SEMANTICS_DOCUMENT_ONLY_REVIEW_A_v1",
+  "completed": true,
+  "PASS": true,
+  "UTC": "2026-10-24T08:01:16.732781+00:00",
+  "PASS_scope": "Read-only primary-document and declared local metadata lineage review; not actual asset validation, newly generated supervision or training admission.",
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_part_supervision_readiness_20261024_v185/ROOT_SCOPE_BEFORE_PUBLIC_SOURCE_TARGET_OR_ASSET_BODIES.json",
+    "sha256": "1b5630a5e7c6f2c9b4bbbbdbf44d6d118a745e19dd23cb48fffbbdac64e0f1e6"
+  },
+  "local_document_bindings": {
+    "V179_Pallox_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_source_target_definition_audit_20261024_v179/source_annotation_contract_review_b/REVIEW.json",
+      "sha256": "131d3a2ee0a3ebadb5ba3c347f2ad7282c48629ad01e21b7218de86f4f58463c"
+    },
+    "V177_MR6D_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_held_blind_center_owner_review_20261024_v177/public_target_semantics_review_b/REVIEW.json",
+      "sha256": "c3f5984cff61e64d27009211b483403faaf30539aaf71a474b8625131cae050e"
+    },
+    "V153_source_policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/ROOT_POLICY_BEFORE_NEW_SOURCE_BODIES.json",
+      "sha256": "46b3b077edfc78d113dcd0b38771bb3df96053a3741002ac774bc1c9866e2334"
+    },
+    "V153_pinned_content_plan_metadata": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/full_source_v1/PINNED_CONTENT_PLAN_BEFORE_NEW_PAYLOADS.json",
+      "sha256": "bb68d96f08029535430ed23fc3770e5c62a7d79522dad305b2ee7e5f706d6da6"
+    },
+    "V160_existing_TRAIN_donor_metadata": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/next_source_counterfactual_readiness/V95_DONOR_PROVENANCE_METADATA.json",
+      "sha256": "162516e5c952198446b68f2e84f228806056cab998cf168cebc95b57f92a2021"
+    }
+  },
+  "official_primary_sources": [
+    {
+      "id": "MR6D_PAPER",
+      "title": "MR6D official author paper",
+      "url": "https://arxiv.org/html/2508.13775",
+      "sections": [
+        "3.1 Objects and Modeling",
+        "Figure6 caption",
+        "3.2 Collection Environment and Process / Quality of annotations"
+      ],
+      "facts": "Euro pallet has manually designed mesh; Figure6 explicitly identifies Object1 as Euro Pallet. Validation uses RGB-D/camera trajectory and manually refined static object poses. Authors describe low-centimeter expected static annotation accuracy and few-centimeter Euro-pallet dimensional variation; these are not image-pixel error bounds. MR6D has no dedicated training set.",
+      "not_provided": "Selected query-to-GT-instance or native8 endpoint labels, exact part mask, or a per-pixel registration guarantee."
+    },
+    {
+      "id": "MR6D_RELEASE",
+      "title": "Official MR6D release linked by author paper",
+      "url": "https://huggingface.co/datasets/anas-gouda/mr6d",
+      "facts": "Official release host; main README body empty when read. Local pinned intake policy supplies version and named RGB/depth/mask/mask_visib/camera/pose/obj1 mesh provenance.",
+      "limit": "No image or per-frame annotation link opened; names alone do not establish the exact MR6D visible-mask-generation algorithm or tolerance."
+    },
+    {
+      "id": "YCB_ORIGINAL",
+      "title": "PoseCNN / original YCB-Video author toolbox",
+      "url": "https://github.com/yuxng/YCB_Video_toolbox",
+      "sections": [
+        "README Annotation format"
+      ],
+      "facts": "Original meta.mat describes class IDs, camera intrinsics, depth conversion factor, object poses, and model-space coordinates per pixel. It is an object-pose dataset, not a pallet endpoint-visibility annotation contract."
+    },
+    {
+      "id": "YCB_CLASSES",
+      "title": "Official YCB-Video class list",
+      "url": "https://raw.githubusercontent.com/yuxng/YCB_Video_toolbox/master/classes.txt",
+      "facts": "The 21 listed classes include cans, boxes, wood block, drill, clamps and foam brick, with no pallet class. A YCB wood_block is not a pallet native corner."
+    },
+    {
+      "id": "YCB_ANNOTATION_CODE",
+      "title": "Author toolbox annotation example",
+      "url": "https://raw.githubusercontent.com/yuxng/YCB_Video_toolbox/master/show_pose_annotations.m",
+      "sections": [
+        "lines48-74",
+        "lines115-120"
+      ],
+      "facts": "Author code separately loads color, depth, class-label PNG and meta.mat, and projects model geometry using RT_o2c. This is not a release of arbitrary semantic surface-part labels."
+    },
+    {
+      "id": "BOP_YCB",
+      "title": "Official BOP YCB-V dataset definition",
+      "url": "https://bop.felk.cvut.cz/datasets/#YCB-V",
+      "sections": [
+        "YCB-V (YCB-Video)"
+      ],
+      "facts": "BOP YCB-V is a converted YCB-Video dataset. Its mesh units change meters to millimeters and model bounding-box centers become origins; GT poses are transformed consistently. Original/BOP mesh and pose conventions must not be mixed. Real training images and PBR training images are separate assets."
+    },
+    {
+      "id": "BOP_FORMAT",
+      "title": "Official BOP format",
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/docs/bop_datasets_format.md",
+      "sections": [
+        "lines49-59",
+        "lines66-114",
+        "lines133-158"
+      ],
+      "facts": "RGB and uint16 depth share frame IDs; depth_scale converts depth to mm. scene_gt has per-instance obj_id and model-to-camera pose. mask is object silhouette and mask_visib its visible part; IMID_GTID names use GT-list index. PLY models/translations use mm. Masks are optional in the general format. These fields do not name pallet parts."
+    },
+    {
+      "id": "BOP_MASK_CODE",
+      "title": "Official BOP mask construction",
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/scripts/calc_gt_masks.py",
+      "sections": [
+        "lines114-147"
+      ],
+      "facts": "The script renders each GT object alone, converts scene/rendered depth to ray-distance images, stores full silhouette where rendered distance is positive, and derives visible silhouette with the visibility helper. Default delta15mm is a convention, not certified pose accuracy or selected-part truth."
+    },
+    {
+      "id": "BOP_VISIBILITY",
+      "title": "Official BOP visible-surface predicate",
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/bop_toolkit_lib/visibility.py",
+      "sections": [
+        "lines8-39",
+        "lines42-51"
+      ],
+      "facts": "bop19 uses d_model>0 and (d_model-d_scene<=delta OR d_scene==0). Thus missing measured depth may be called visible, and the test is one-sided. bop18 instead requires both depths positive. Neither mode by itself identifies a semantic part or establishes physical external occlusion."
+    },
+    {
+      "id": "YCB_UNCERTAINTY",
+      "title": "PoseCNN original dataset paper",
+      "url": "https://arxiv.org/html/1711.00199",
+      "sections": [
+        "IV-A 6D Pose Annotation",
+        "IV-B Dataset Characteristics"
+      ],
+      "facts": "Initial manually set poses are depth-refined then trajectory/object poses globally optimized. Authors acknowledge RGB rolling shutter, model inaccuracies, RGB-depth asynchrony and calibration uncertainty. No per-query pixel bound is stated in the inspected text."
+    }
+  ],
+  "retrieval_date": "2026-10-24",
+  "web_method": "Official author papers, author toolbox text and official BOP docs/source read through web. No dataset image/depth/mask/pose/mesh/zip or model asset downloaded. CVF PDF direct fetch403; author arXiv HTML supplies complete text. Some pinned HF directory URLs unavailable to web tool; no release substitution.",
+  "actual_existing_lineage": {
+    "main_public_target": "MR6D pinned3c4ed8453312655499c3d3a3cf38b4929fae77ee; local SOURCE_DEVELOPMENT is a predeclared project split of released MR6D validation scenes, not official MR6D train. Existing185frames/1480slots is provenance only, not a new selection.",
+    "MR6D_obj1_authority_update": {
+      "old_V177_status": "Official numeric obj1-to-Euro crosswalk not confirmed in that review.",
+      "new_primary_document_evidence": "MR6D Figure6 caption explicitly says Object1 (Euro Pallet).",
+      "numeric_class_name_now_documented": true,
+      "selected_R0_query_to_one_physical_GT_instance_proven": false,
+      "native8_part_or_exact_coordinate_gold_proven": false
+    },
+    "YCB_CF": "Existing TRAIN59 donor metadata declares V63 ycb/data/train_real instance mask_visib and GT-list identities; later CF combines these YCB objects with MR6D target frames. This is mixed controlled compositing, not natural YCB-V pallet training imagery. Source-root inventory reports46 original MR frames with these donors; this review did not re-inventory payloads.",
+    "YCB_release_authentication_limit": "Donor metadata inherits existing certificates and BOP-style train_real paths. This review did not re-download the official YCB-V archive or reverify asset bytes/revision; exact intake authority remains an inventory/provenance question, not proof from the word YCB alone.",
+    "Pallox": "V179 reviewed KU Leuven DOI10.48804/DJLDFS Pallox pallet-bin dataset, a separate target/object and binary full-bin mask/pose/area-visibility contract. It is neither YCB-V nor MR6D and does not automatically establish flat-pallet/native8 correspondence.",
+    "not_one_unified_public_native_gold_dataset": true
+  },
+  "provided_vs_required": [
+    {
+      "asset": "RGB/depth/calibration/GTpose/mesh",
+      "authority": "Available by YCB-V/BOP specification and MR6D author/intake metadata.",
+      "supports": "A registered model-surface projection/depth-derived supervision proxy in a known source frame.",
+      "does_not_by_itself_prove": "Which original initializer proposal corresponds to which GT-list instance or which native8 semantic part."
+    },
+    {
+      "asset": "Full/amodal silhouette versus visible silhouette",
+      "authority": "BOP-format object-instance masks.",
+      "supports": "Whole-object projected/visible support and coarse occlusion evidence.",
+      "does_not_by_itself_prove": "Per-material-end part identity, self-hidden surface visibility, exact native-corner position, or physical pixel-perfect gold. Amodal here is target-alone silhouette; it is not a projection of every hidden back surface."
+    },
+    {
+      "asset": "YCB donor visible-instance masks / controlled alpha",
+      "authority": "Existing selected-visible-minus-other-instance mask certificate and synthetic compositing policy.",
+      "supports": "Declared source donor ownership and later opaque compositing intervention.",
+      "does_not_by_itself_prove": "Original MR intended part beneath pasted pixels or natural external-occlusion truth."
+    }
+  ],
+  "feasibility": {
+    "direct_selected_material_part_labels_released": false,
+    "derived_source_part_supervision_possible_conditionally": true,
+    "minimum_conditions": [
+      "Bind original SOURCE_DEVELOPMENT frame, GT-list instance index, obj_id, camera intrinsics, pose direction/units and matching mesh version. Preserve q/L/native/input flags and full original crop.",
+      "Declare a small material surface/triangle patch for the intended end in that mesh, separately from virtual box corner/ray or dynamic native role. Reuse the existing declared part convention when justified; do not demand exact physical-corner certification as a new user-goal barrier.",
+      "Render the full target alone so the selected patch contributes only where it is the target first surface. Same-pixel valid scene depth and selected-instance visible evidence can then support visibility; reliable closer distinct foreground evidence can support external-front occlusion.",
+      "Register RGB/depth/mask/camera conventions and preserve missing depth, uncertain instance/part association, self-hidden patch, truncation, boundary or registration disagreement as UNKNOWN. Do not treat missing-depth BOP19 visible pixels as confirmed selected-part visibility.",
+      "Intersect the declared patch with the unchanged original96 crop sampling grid, record visible and foreign-front masses separately; both can coexist. A center FOREIGN pixel or any pallet elsewhere in crop does not establish that endpoint external occlusion."
+    ],
+    "not_a_new_pose_fit_requirement": "Use supplied GT only as supervision geometry; no PnP, pose optimization, coordinate correction, GT-centered model inputs, or result-selected tolerance/permutation. Quantitative paper uncertainty is not converted to an invented pixel bound.",
+    "practical_source_only_construction": "A prospective operator may produce explicitly nominal/derived part-support targets from supplied mesh/pose + same-pixel depth under the above guards. Where selected material-end correspondence remains unsupported, keep UNKNOWN; a score-blind RGB structural coarse-region witness followed by a controlled cover/sham can instead give weak regional intervention support, clearly distinguished from native semantic gold. Neither construction is executed/admitted in this review.",
+    "no_visible_negative_from_absence_alone": "No patch sample/OOF/self-hidden/missing correspondence is not native E. Negative support only follows the frozen defined observable support domain; unresolved absence stays UNKNOWN."
+  },
+  "important_semantic_caveats": [
+    "BOP mask_visib generation is depth-derived with a visibility convention, not independent manual selected-part truth. The exact existing MR6D mask-generation mode/tolerance was not established by the inspected release README; generic BOP code cannot silently certify it.",
+    "Original YCB and BOP-converted coordinates differ. Instance ID is GT-list position; obj_id is class/model identity and cannot replace instance selection.",
+    "MR6D nominal Euro CAD and low-centimeter expected static accuracy enable useful nominal supervision, but do not justify <=3px gold or exact physical surface/corner location for every sample.",
+    "Whole-pallet masks, literal central2x2 owner, crop-any-target presence, selected-end regional support, self-occlusion and native semantic visibility remain different targets.",
+    "No new assessment of current/private human semantic annotation authority is made; source geometry uncertainty does not revoke that existing authority.",
+    "Official YCB classes contain no pallet, MR6D obj1 is nominal Euro pallet, and Pallox is a bin; none alone closes all WOOD/SQUARE/native8 supervision scope."
+  ],
+  "unknowns_preserved": [
+    "Per-original-query selected-instance and selected-material-end mapping",
+    "Actual source payload registration/missing-depth/visibility convention validity",
+    "Exact CF donor official archive revision/bytes in this document-only pass",
+    "Pallox operational pose direction and part correspondence remain unresolved per V179",
+    "SQUARE and allnative8 direct public part supervision coverage"
+  ],
+  "next_safe_preparation": "Finish source-only local asset/instance/mesh/camera contract inventory, then freeze the conservative part-patch/depth/crop operator and invented cases before any new source target bodies are used. Keep unsupported association UNKNOWN and all original rows/slots/U; no current/held/VAL feedback or model outcomes for rule/data selection.",
+  "restrictions_observed": {
+    "current223_publicheld45_or_VAL_RGB_score_label_bodies": 0,
+    "source_RGB_depth_mask_pose_mesh_payload_bodies_or_payload_hashes": 0,
+    "new_model_SAM_encoder_forward_fit_PnP": 0,
+    "V112_any_access": 0,
+    "new_labels_or_admission": 0,
+    "historical_document_counts_used_for_new_selection": false,
+    "original_query_native_material_scope_changed": false
+  },
+  "training_admission": false,
+  "selected_model": null,
+  "adopted": false,
+  "fully_solved": false
+}

@@ -1,0 +1,467 @@
+{
+  "completed": true,
+  "created_UTC": "2026-10-23T09:38:58.631302+00:00",
+  "recommendation": "DATA_ONLY_C13_KEEP_C12_OPERATOR_OBJECTIVE_OPTIMIZER_SELECTOR_AND_GATES",
+  "scope": "Saved PUBLIC source code, JSON and CSV metadata only; no source pixels/tensors, learned model execution, private/current, V112 or V117 bodies read. No fit, labels or source records changed.",
+  "decision_KO": "기존 절대 BCE는 올바르므로 새 loss나 gate를 추가하지 않고, 사전 고정된 V116 목재 foreground TRAIN 쌍으로 한 번의 data-only C13을 검토한다. 성공 여부는 기존 고정 VAL의 절대 D/E 판정과 D 보존을 분리해 평가한다.",
+  "root_prospective_design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/ROOT_C13_DESIGN_BEFORE_SOURCE_FORWARD.json",
+    "sha256": "18eb784ea40cdb726dd4303b65904446f2a1bd9655542bca36d534112948f089"
+  },
+  "operator": {
+    "descriptor_dimensions": 1928,
+    "learned_parameters": 221825,
+    "inputs": "Frozen DINO context/local/central/spatial-query descriptors plus fixed factual scalars; original q/L unchanged. No teacher r/masks/depth/pose/native identity in learned forward.",
+    "task": "D versus external E at supplied q; geometric S separate; no coordinate correction.",
+    "decode": "available & z<0 => D; available & z>=0 => external E; unavailable => U"
+  },
+  "loss_review": {
+    "absolute_BCE_already_present": true,
+    "formula": "mean BCEWithLogits(z,target) over known available D/E sampled rows + 0.25*mean relu(2-(z_cover-z_sham)) over available matched pairs",
+    "hinge_not_absolute_decision": {
+      "z_cover": -2,
+      "z_sham": -5,
+      "margin": 3,
+      "hinge": 0,
+      "cover_prediction": "wrong D",
+      "cover_E_BCE": 2.1269280110429727
+    },
+    "recommended_changes": "None to formula, architecture, threshold or existing gate/selector; retain all failed/unavailable rows in reports and known U denominators."
+  },
+  "C12_source_selection": {
+    "selected_update": 1200,
+    "selected_criterion": 0.0632563245402773,
+    "rule": "Strict earliest minimum equal mean of ten fixed VAL-cohort BCEs at update0 and100..2000; known unavailable safe-z0 constant BCE remains in each cohort denominator.",
+    "VAL_cohorts": {
+      "old_LOCO_BEFORE_D": {
+        "count": 3,
+        "mean_BCE": 0.030534943535672144,
+        "unavailable": 0
+      },
+      "old_PALLOX_BEFORE_D": {
+        "count": 30,
+        "mean_BCE": 0.00025770982759195244,
+        "unavailable": 0
+      },
+      "old_SHAM_D": {
+        "count": 119,
+        "mean_BCE": 0.06569681199937977,
+        "unavailable": 0
+      },
+      "old_BEFORE_E": {
+        "count": 2,
+        "mean_BCE": 0.098375482522287,
+        "unavailable": 0
+      },
+      "old_COVER_E": {
+        "count": 119,
+        "mean_BCE": 0.27592399935252115,
+        "unavailable": 0
+      },
+      "new_BEFORE_D": {
+        "count": 82,
+        "mean_BCE": 0.046384882233422194,
+        "unavailable": 0
+      },
+      "new_SHAM_D": {
+        "count": 77,
+        "mean_BCE": 0.03529253895717769,
+        "unavailable": 0
+      },
+      "new_COVER_E": {
+        "count": 32,
+        "mean_BCE": 0.0001943193478514682,
+        "unavailable": 0
+      },
+      "material_VALIDATION_D": {
+        "count": 102,
+        "mean_BCE": 0.0010209304324421166,
+        "unavailable": 0
+      },
+      "material_VALIDATION_E": {
+        "count": 18,
+        "mean_BCE": 0.07888162719442746,
+        "unavailable": 0
+      }
+    },
+    "all_existing_15_gates_pass": true,
+    "existing_gates_unchanged": {
+      "old_LOCO_before_D_recall_min": {
+        "value": 1.0,
+        "limit": 0.85,
+        "PASS": true
+      },
+      "old_PALLOX_before_D_recall_min": {
+        "value": 1.0,
+        "limit": 0.85,
+        "PASS": true
+      },
+      "old_natural_before_E_recall_min": {
+        "value": 1.0,
+        "limit": 0.75,
+        "PASS": true
+      },
+      "old_sham_D_recall_min": {
+        "value": 0.957983193277311,
+        "limit": 0.85,
+        "PASS": true
+      },
+      "old_cover_E_recall_min": {
+        "value": 0.9327731092436975,
+        "limit": 0.75,
+        "PASS": true
+      },
+      "old_accepted_VAL_pair_all3_min": {
+        "value": 0.8907563025210085,
+        "limit": 0.75,
+        "PASS": true
+      },
+      "old_known_VAL_U_rate_max": {
+        "value": 0.0,
+        "limit": 0.05,
+        "PASS": true
+      },
+      "new_BEFORE_D_recall_min": {
+        "value": 0.975609756097561,
+        "limit": 0.85,
+        "N": 82,
+        "PASS": true
+      },
+      "new_SHAM_D_recall_min": {
+        "value": 0.987012987012987,
+        "limit": 0.85,
+        "N": 77,
+        "PASS": true
+      },
+      "new_COVER_E_recall_min": {
+        "value": 1.0,
+        "limit": 0.75,
+        "N": 32,
+        "PASS": true
+      },
+      "new_selected_VAL_pair_all3_min": {
+        "value": 0.96875,
+        "limit": 0.75,
+        "PASS": true
+      },
+      "new_known_VAL_U_rate_max": {
+        "value": 0.0,
+        "limit": 0.05,
+        "N": 243,
+        "PASS": true
+      },
+      "material_VAL_D_recall_min": {
+        "value": 1.0,
+        "limit": 0.85,
+        "N": 102,
+        "PASS": true
+      },
+      "material_VAL_E_recall_min": {
+        "value": 1.0,
+        "limit": 0.75,
+        "N": 18,
+        "PASS": true
+      },
+      "material_VAL_known_U_rate_max": {
+        "value": 0.0,
+        "limit": 0.05,
+        "N": 120,
+        "PASS": true
+      }
+    },
+    "no_new_validation_or_privately_driven_gate": true
+  },
+  "source_family_denominators": {
+    "old_public_VAL": {
+      "known_DE": 273,
+      "D": 152,
+      "E": 121,
+      "LOCO_before_D": 3,
+      "PALLOX_before_D": 30,
+      "natural_before_E": 2,
+      "controlled_cover_E": 119,
+      "controlled_sham_D": 119,
+      "controlled_LOCO_pairs": 0
+    },
+    "V99_synthetic_VAL": {
+      "known_DE": 243,
+      "D": 209,
+      "E": 34,
+      "selected_pairs": 32,
+      "selector_before_D": 82,
+      "selector_sham_D": 77,
+      "selector_cover_E": 32,
+      "additional_cover_D": 50,
+      "additional_sham_E": 2
+    },
+    "material_VAL": {
+      "known_DE": 120,
+      "D": 102,
+      "E": 18,
+      "development_exposed": true,
+      "foam21_E_or_VAL": 0
+    },
+    "V109_natural_surface": {
+      "TRAIN_D": 1181,
+      "TRAIN_E": 340,
+      "VAL": 0,
+      "TRAIN_performance_not_holdout_evidence": true
+    }
+  },
+  "independent_saved_PUBLIC_logit_replay": {
+    "old_TRAIN_all": {
+      "pairs": 75,
+      "base_queries": 10,
+      "base_images": 6,
+      "donor_instances": 74,
+      "source_counts": {
+        "PALLOX": 75
+      },
+      "C11": {
+        "before_D": 75,
+        "cover_E": 75,
+        "sham_D": 75,
+        "all3": 75,
+        "hinge_satisfied": 75,
+        "hinge_satisfied_cover_wrong_D": 0,
+        "equal_base_mean_cover_E": 1.0,
+        "equal_base_mean_sham_D": 1.0,
+        "equal_base_mean_all3": 1.0,
+        "equal_image_mean_cover_E": 1.0,
+        "equal_image_mean_sham_D": 1.0,
+        "equal_image_mean_all3": 1.0
+      },
+      "C12": {
+        "before_D": 75,
+        "cover_E": 75,
+        "sham_D": 75,
+        "all3": 75,
+        "hinge_satisfied": 75,
+        "hinge_satisfied_cover_wrong_D": 0,
+        "equal_base_mean_cover_E": 1.0,
+        "equal_base_mean_sham_D": 1.0,
+        "equal_base_mean_all3": 1.0,
+        "equal_image_mean_cover_E": 1.0,
+        "equal_image_mean_sham_D": 1.0,
+        "equal_image_mean_all3": 1.0
+      }
+    },
+    "old_VAL_all": {
+      "pairs": 119,
+      "base_queries": 18,
+      "base_images": 9,
+      "donor_instances": 98,
+      "source_counts": {
+        "PALLOX": 119
+      },
+      "C11": {
+        "before_D": 119,
+        "cover_E": 116,
+        "sham_D": 114,
+        "all3": 111,
+        "hinge_satisfied": 118,
+        "hinge_satisfied_cover_wrong_D": 3,
+        "equal_base_mean_cover_E": 0.9698412698412697,
+        "equal_base_mean_sham_D": 0.9679012345679011,
+        "equal_base_mean_all3": 0.9377425044091711,
+        "equal_image_mean_cover_E": 0.9866666666666668,
+        "equal_image_mean_sham_D": 0.9503248862897986,
+        "equal_image_mean_all3": 0.9369915529564652
+      },
+      "C12": {
+        "before_D": 119,
+        "cover_E": 111,
+        "sham_D": 114,
+        "all3": 106,
+        "hinge_satisfied": 118,
+        "hinge_satisfied_cover_wrong_D": 8,
+        "equal_base_mean_cover_E": 0.9281084656084657,
+        "equal_base_mean_sham_D": 0.9679012345679011,
+        "equal_base_mean_all3": 0.8960097001763668,
+        "equal_image_mean_cover_E": 0.9464814814814814,
+        "equal_image_mean_sham_D": 0.9503248862897986,
+        "equal_image_mean_all3": 0.8968063677712801
+      }
+    },
+    "old_VAL_wood_foreground16": {
+      "pairs": 35,
+      "base_queries": 14,
+      "base_images": 7,
+      "donor_instances": 31,
+      "source_counts": {
+        "PALLOX": 35
+      },
+      "C11": {
+        "before_D": 35,
+        "cover_E": 32,
+        "sham_D": 34,
+        "all3": 31,
+        "hinge_satisfied": 34,
+        "hinge_satisfied_cover_wrong_D": 3,
+        "equal_base_mean_cover_E": 0.8571428571428571,
+        "equal_base_mean_sham_D": 0.9880952380952381,
+        "equal_base_mean_all3": 0.8452380952380952,
+        "equal_image_mean_cover_E": 0.9285714285714286,
+        "equal_image_mean_sham_D": 0.9761904761904762,
+        "equal_image_mean_all3": 0.9047619047619048
+      },
+      "C12": {
+        "before_D": 35,
+        "cover_E": 27,
+        "sham_D": 34,
+        "all3": 26,
+        "hinge_satisfied": 34,
+        "hinge_satisfied_cover_wrong_D": 8,
+        "equal_base_mean_cover_E": 0.619047619047619,
+        "equal_base_mean_sham_D": 0.9880952380952381,
+        "equal_base_mean_all3": 0.6071428571428571,
+        "equal_image_mean_cover_E": 0.6904761904761905,
+        "equal_image_mean_sham_D": 0.9761904761904762,
+        "equal_image_mean_all3": 0.6666666666666667
+      }
+    },
+    "old_VAL_other_foreground": {
+      "pairs": 84,
+      "base_queries": 18,
+      "base_images": 9,
+      "donor_instances": 67,
+      "source_counts": {
+        "PALLOX": 84
+      },
+      "C11": {
+        "before_D": 84,
+        "cover_E": 84,
+        "sham_D": 80,
+        "all3": 80,
+        "hinge_satisfied": 84,
+        "hinge_satisfied_cover_wrong_D": 0,
+        "equal_base_mean_cover_E": 1.0,
+        "equal_base_mean_sham_D": 0.966820987654321,
+        "equal_base_mean_all3": 0.966820987654321,
+        "equal_image_mean_cover_E": 1.0,
+        "equal_image_mean_sham_D": 0.9513295346628681,
+        "equal_image_mean_all3": 0.9513295346628681
+      },
+      "C12": {
+        "before_D": 84,
+        "cover_E": 84,
+        "sham_D": 80,
+        "all3": 80,
+        "hinge_satisfied": 84,
+        "hinge_satisfied_cover_wrong_D": 0,
+        "equal_base_mean_cover_E": 1.0,
+        "equal_base_mean_sham_D": 0.966820987654321,
+        "equal_base_mean_all3": 0.966820987654321,
+        "equal_image_mean_cover_E": 1.0,
+        "equal_image_mean_sham_D": 0.9513295346628681,
+        "equal_image_mean_all3": 0.9513295346628681
+      }
+    }
+  },
+  "interpretation_KO": [
+    "C12 목재 foreground VAL 35쌍의 cover E는27/35, sham D는34/35, all3는26/35이다. 잘못 D로 남은8cover 모두 상대 margin>=2를 만족한다. 절대 BCE 부재가 아니라, 이 subgroup의 절대 external E 일반화 실패가 남아 있다.",
+    "기존 selector는10cohort 동일가중이므로 쉬운 YCB의 단순 샘플 수가 selector를 지배한다고 말할 수 없다. 다만 목재35는 old-cover119 cohort 안의 subgroup이며 selector 전체에서 이 부분의 가중은 약2.94%다.",
+    "35쌍은14basequeries/7images에서 반복되며 pair 가중 cover recall27/35와 equal-base mean0.619가 다르다. donor ranks를 독립 표본으로 간주하지 않는다.",
+    "추가 source는 기존 TRAIN 이미지에 목재 foreground 역할을 추가한다. 새 이미지/새 holdout/LOCO controlled 성공 증거가 아니며 원인 하나의 독립 증명도 아니다."
+  ],
+  "V116_source_denominators": {
+    "attempts": 448,
+    "accepted_pairs": 62,
+    "failed_pairs_retained_U": 386,
+    "records": 924,
+    "raw_D": 90,
+    "raw_E": 62,
+    "raw_U": 772,
+    "accepted_sources": {
+      "PALLOX": 62
+    },
+    "accepted_raw_folds": {
+      "TRAIN_LAB": 62
+    },
+    "accepted_unique_base_queries": 14,
+    "accepted_unique_base_images": 8,
+    "accepted_unique_donor_instances": 11,
+    "new_validation_pairs": 0,
+    "new_LOCO_accepted_pairs": 0,
+    "before_rows": 28,
+    "before_rows_are_existing_base_inputs_not_independent_new_evidence": true,
+    "failures_not_silently_resampled": true
+  },
+  "C13_prospective_optimization_mass": {
+    "unchanged_original_batch_rows": 96,
+    "append_same_material_cover_sham_pairs": 16,
+    "appended_rows": 32,
+    "total_rows": 128,
+    "D_rows": 64,
+    "E_rows": 64,
+    "hinge_pairs": 24,
+    "BCE_mixture_old_new": [
+      0.75,
+      0.25
+    ],
+    "hinge_pair_mixture_old_new": [
+      0.3333333333333333,
+      0.6666666666666666
+    ],
+    "caveat": "Same formulas but changed data and optimization mixture; not an isolated causal proof. Use root-frozen RNG and hierarchy; no new seed/threshold/quotas chosen by this review."
+  },
+  "minimal_descriptive_reporting_without_new_selector_or_gate": [
+    "For unchanged full VAL cohorts and every source family: raw0 D/E/U matrix, precision/recall, known U numerator/denominator; preserve geometric S versus unresolved U distinction.",
+    "On exactly fixed old wood16 VAL35 and other VAL84: BEFORE_D, COVER_E, SHAM_D, all3, signed absolute logits and delta, delta>=2 with wrong COVER_D count. Keep every original pair.",
+    "For all old and new accepted controls: pair-weighted plus equal-base and equal-image summaries with base/image/donor counts. Record LOCO controlled denominator0 explicitly.",
+    "For new62 TRAIN pairs: same absolute role/all3 and cluster reports to distinguish fitability from unchanged VAL transfer. No new source validation created.",
+    "Keep synthetic nonselected COVER_D50 and SHAM_E2 in by-state/by-variant reports; success on selected triples alone is not all-query D retention."
+  ],
+  "limitations": {
+    "conditional_aux_labels_not_native_or_human_gold": true,
+    "native_expected_part_mapping": "UNKNOWN",
+    "geometric_S_learned_loss": false,
+    "unresolved_U_learned_loss": false,
+    "old_VAL_development_exposed": true,
+    "tiny_natural_public_E_VAL": 2,
+    "one_Pallox_physical_bin": "accepted old/new controls remain clustered; no broad pallet external-occlusion claim",
+    "training_admission_or_current_authorization_by_this_review": false
+  },
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+      "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/train_natural_surface_rgb_head.py",
+      "sha256": "3baff03b0c73b17fff8cbad4f1ba96b9c5b134bc50538b96fb0a27827ddfc6e0"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/source_fit_preparation/train_source_once.py",
+      "sha256": "a330cb5ed3d77386b5dcd0f02d737cdaab29234394cf1ad69ad5ec011f2e4b2d"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/source_fit_preparation/FIT_PROTOCOL_BEFORE_SOURCE_FORWARD.json",
+      "sha256": "5b933d83d5daf58ceea9745c76c3a56c7414a8cc2109a692d27436ab2161c705"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/runs/C12_MATERIAL_AUGMENTED_SPATIAL_QUERY/SOURCE_RESULTS.json",
+      "sha256": "842bf93f43e011ec2f5e9f45223d2dff6d76f5c74c73b409077990ecfc9aed03"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/runs/C12_MATERIAL_AUGMENTED_SPATIAL_QUERY/SOURCE_GATE_RESULTS.json",
+      "sha256": "3c7cf6873213ef6d3ede2f58158f84626ade40ff84ebc9d600848666e40587a4"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/public_source_regression_inventory/ALL194_ACCEPTED_COVERS.csv",
+      "sha256": "2e1d940fa0f05b0ac518c802d79a0725c0b858d3c66b6ccec1137d69ee0674ee"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/SUMMARY.json",
+      "sha256": "b4eb7164e2b08ed38597c2895062a77dd8740f27e92219f940df0f8feaeb8fce"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/FEASIBILITY448_GT_ONLY.jsonl",
+      "sha256": "c2c22d1a39159862bc611d8d763d3c031350a50e683852a442e275dd9181cd28"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/OCCURRENCES924_INPUT_ONLY.jsonl",
+      "sha256": "b2166db56e8e665cc65ecc7e405e136b960ccb383694b4b5908ea743972b85eb"
+    }
+  ]
+}

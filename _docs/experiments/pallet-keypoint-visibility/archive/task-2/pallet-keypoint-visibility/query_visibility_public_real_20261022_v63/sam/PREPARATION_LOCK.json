@@ -1,0 +1,48 @@
+{
+  "schema": "STANDALONE_FROZEN_MOBILESAM_SOURCE_ONLY_V1",
+  "source_subset": "YCB200 sorted(scene,frame)[::4]=50frames,2stable-source-hash-selected targets/frame; SYNTHVAL235 sortedid[::4]=59frames",
+  "targets": 159,
+  "source_frame_counts": {
+    "YCB": 50,
+    "SYNTH": 59
+  },
+  "checkpoint": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/foundation_mask_v1/vendor/MobileSAM/weights/mobile_sam.pt",
+  "checkpoint_sha256": "6dbb90523a35330fedd7f1d3dfc66f995213d81b29a5ca8108dbcdd4e37d6c2f",
+  "model_type": "vit_t",
+  "vendor": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_visibility_curriculum_20261013_v1/foundation_mask_v1/vendor/MobileSAM",
+  "prompt": "box only; no point prompts; unchanged existing query coordinates are readouts, not prompts",
+  "mask_selection": "highest finite uncalibrated predicted IoU; exact tie first index",
+  "mask_logit_threshold": 0.0,
+  "output_targets": {
+    "radius0": "exact nearest pixel presence",
+    "radius1": "any visible-instance support in clipped3x3 square centered at nearest query pixel",
+    "radius2": "any visible-instance support in clipped5x5 square centered at nearest query pixel"
+  },
+  "target_distinction": "radius1/radius2 are separate finite-neighborhood targets, never relabel exact pixel metric",
+  "query_sampling": "YCB stored source-mask-supervised query set reused unchanged; masks do not enter SAM prompt, inference or mask alternative selection",
+  "private_evaluation_accessed": false,
+  "real_CAL_model_accessed": false,
+  "new_PnP_calls": 0,
+  "training": false,
+  "sources": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/SOURCE_VAL_LOCKED_200.jsonl",
+      "sha256": "0e2fbc717a12bf2b9135bdb3a71931ad619aeb6a580e521d6aacfe2472f4aa36"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/source_cache/v2/YCB_VALIDATION_QUERIES.csv",
+      "sha256": "6b5f30d3bb2b35fa6a2d433b98cc8e1d1411de155c1f02adc2aac072a67f4a13"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/external_ray_proxy_head_20261022_v60/PREPARED_INPUTS_SYNTH.json.gz",
+      "sha256": "17c24bcb3e3694d3d8bb40851a944468fd491719fb7a15ca1e485a5607eb799e"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/target_presence_classifier_20261022_v61/MASK_CONTRACT_AUDIT.csv",
+      "sha256": "f13c50ec0075c9adfd5f5934e27b90fb83a798e1866857583acb32dd32e018ad"
+    }
+  ],
+  "input_sha256": "0895c44b5a63ed7c5d74393ce534b4919e7dd1e7be2f50208fa5617a98fcaf99",
+  "scoring_mask_manifest_sha256": "08afe71418b91c19f667a0be36e6fba01a02c95a58ca5512aed187b46356687c",
+  "code_sha256": "1be7e378aafec49bfb03a6a0df6d81588cebc6d6278e60a1d29b5c8cf61ba60d"
+}

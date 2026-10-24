@@ -1,0 +1,184 @@
+{
+  "completed": true,
+  "N": 26624,
+  "risk_names": [
+    "risk_low_detector_confidence",
+    "risk_low_native_keypoint_confidence",
+    "risk_local_invalid_fraction",
+    "risk_central32_invalid_fraction",
+    "risk_context_invalid_fraction",
+    "risk_input_unavailable",
+    "risk_native_bounds_invalid",
+    "risk_query_outside_pred_bbox_normalized",
+    "risk_global_edge_concurrence_rms",
+    "risk_native_heldout_edge_rms"
+  ],
+  "risk_direction": "Higher=worse, fixed before GT join; no sign/model/threshold selection.",
+  "descriptor_names": [
+    "G42_native_slot_onehot_0",
+    "G42_native_slot_onehot_1",
+    "G42_native_slot_onehot_2",
+    "G42_native_slot_onehot_3",
+    "G42_native_slot_onehot_4",
+    "G42_native_slot_onehot_5",
+    "G42_native_slot_onehot_6",
+    "G42_native_slot_onehot_7",
+    "G42_relative_q0_x",
+    "G42_relative_q0_y",
+    "G42_relative_q1_x",
+    "G42_relative_q1_y",
+    "G42_relative_q2_x",
+    "G42_relative_q2_y",
+    "G42_relative_q3_x",
+    "G42_relative_q3_y",
+    "G42_relative_q4_x",
+    "G42_relative_q4_y",
+    "G42_relative_q5_x",
+    "G42_relative_q5_y",
+    "G42_relative_q6_x",
+    "G42_relative_q6_y",
+    "G42_relative_q7_x",
+    "G42_relative_q7_y",
+    "G42_continuous_valid_0",
+    "G42_continuous_valid_1",
+    "G42_continuous_valid_2",
+    "G42_continuous_valid_3",
+    "G42_continuous_valid_4",
+    "G42_continuous_valid_5",
+    "G42_continuous_valid_6",
+    "G42_continuous_valid_7",
+    "G42_context_x0_relative",
+    "G42_context_y0_relative",
+    "G42_context_x1_relative",
+    "G42_context_y1_relative",
+    "G42_qx_over_W",
+    "G42_qy_over_H",
+    "G42_spanx_over_scale",
+    "G42_spany_over_scale",
+    "G42_H_over_scale",
+    "G42_W_over_scale",
+    "q0_x_over_image",
+    "q0_y_over_image",
+    "q1_x_over_image",
+    "q1_y_over_image",
+    "q2_x_over_image",
+    "q2_y_over_image",
+    "q3_x_over_image",
+    "q3_y_over_image",
+    "q4_x_over_image",
+    "q4_y_over_image",
+    "q5_x_over_image",
+    "q5_y_over_image",
+    "q6_x_over_image",
+    "q6_y_over_image",
+    "q7_x_over_image",
+    "q7_y_over_image"
+  ],
+  "descriptor_count": 58,
+  "metadata_not_numeric_features": [
+    "global_index",
+    "corpus",
+    "source_occurrence_index",
+    "occurrence_id",
+    "scene_index",
+    "base_index",
+    "native_slot",
+    "split"
+  ],
+  "table_keys": {
+    "risks": "float64[N,10]; undefined NaN",
+    "risk_valid": "bool[N,10]",
+    "risk_names": "unicode[10]",
+    "descriptors": "float64[N,58]",
+    "descriptor_valid": "bool[N,58]",
+    "descriptor_names": "unicode[58]",
+    "G42": "float32[N,42] exactV74; missing0",
+    "G42_constructed": "bool[N]",
+    "q8_image_normalized": "float64[N,16] rawq8/[W,H]",
+    "q8_image_normalized_valid": "bool[N,16]",
+    "query_xy": "float64[N,2], null→NaN",
+    "L": "float64[N], original",
+    "global_group_residual": "float64[N,3]",
+    "global_group_condition": "float64[N,3]",
+    "global_group_valid": "bool[N,3]",
+    "heldout_group_residual": "float64[N,3]",
+    "heldout_group_condition": "float64[N,3]",
+    "heldout_group_valid": "bool[N,3]"
+  },
+  "G42_placeholder": "All42descriptor_valid false when unconstructed; zeros are not measured geometry.",
+  "q8_sentinel": "Original[-1,-1] retained; numeric descriptor validity false for sentinel.",
+  "edge_groups": {
+    "width": [
+      [
+        0,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        7,
+        6
+      ]
+    ],
+    "vertical": [
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        5,
+        6
+      ]
+    ],
+    "depth": [
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        3,
+        7
+      ]
+    ]
+  },
+  "edge_contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_reliability_20261024_v138/independent_design_review/STATIC_REGISTERED_CUBOID_CF_EDGE_CERTIFICATE.json",
+    "sha256": "86116533ee23ac81adce96048284024a6b0328046a6e60fd542abcd0db3a4ee0"
+  },
+  "algebra": "Normalize2D q by exact maxspan after span>EPS. Homogeneous-line SVD only(3/4×3); legitimate VP infinity; rank/zero EPS1e-10. No fitted camera/pose/query and no query correction.",
+  "limits": [
+    "Low concurrence does not certify absolute location or identity; common projective warp can preserve it.",
+    "Heldout residual can implicate qk or another endpoint, not uniquely qk.",
+    "Input-unavailable partly defines known failure including modelU; report definitional association."
+  ],
+  "crop_mask_access": "Read valid96/global_index/crop_constructed keys only; inherit wholeNPZ sealed binding without hashing RGB bytes; verify perrowvalid96SHA.",
+  "context_valid": "Pure existing224 sampler positive-bilinear-neighbor geometry; verified with invented zero images.",
+  "forbidden_numeric_inputs": [
+    "corpus/fold/IDs",
+    "factors/variant/material/occluder",
+    "GT/reference/error/teacher/camera/perimagepermutation",
+    "C29/v61scores"
+  ]
+}

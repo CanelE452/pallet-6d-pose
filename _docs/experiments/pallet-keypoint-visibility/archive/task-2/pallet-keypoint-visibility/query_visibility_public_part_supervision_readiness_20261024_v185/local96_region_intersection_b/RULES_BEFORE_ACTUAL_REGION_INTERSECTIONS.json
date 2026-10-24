@@ -1,0 +1,18 @@
+{
+  "schema": "V185_SOURCE_TRAIN_COARSE_REGION_VS_ORIGINAL96_GRID_DIAGNOSTIC_v1",
+  "prepared_only": true,
+  "actual_intersections_computed_before_rule": false,
+  "input_scope": "Only V164 fixed22/66 metadata, V163 original22 coarse region observations and V164 saved66 pixel-input proofs. All SOURCE_DEVELOPMENT. No pixels, NPZ headers/bodies, models, predictions, private, held, VAL or V112.",
+  "population": "Keep every original22 region and all66 donor attempts, including5 UNKNOWN regions/15 attempts and all original placement/proof failures. No replacements, no availability/quality/geometry filter or new labels.",
+  "bbox": "Use original_fullRGB_bbox_xyxy exactly, integer half-open [x0,y0,x1,y1]. These are coarse weak visible-material-end neighborhood observations, not material masks, exact corners or exhaustive component boundaries.",
+  "grid": "Original F64 q/L. x_i=q_x+((float64(i)+0.5)/96-0.5)*L, y_j analogous. Do not use linspace, change q/L/native, recenter at reference, or round q. Central32 is original indices32:64 and center4 is47:49.",
+  "bilinear": "At every grid sample enumerate four raw image integer pixels floor(x/y)+(0/1), weights (1-dx)(1-dy),dx(1-dy),(1-dx)dy,dxdy. Keep only strictly positive weight and in-image raw pixels. A contributor intersects bbox iff integerpixel x0<=x<x1,y0<=y<y1. No interpolation of IDs and no product of aggregate probabilities.",
+  "image_validity": "Report original pixel-center continuous samplingdomain [-0.5,W-0.5)x[-0.5,H-0.5) separately from in-image bilinear taps. Report both raw contributor intersection (actual zero-padding RGB interpolation footprint) and intersection restricted to original-domain-valid samples. Do not silently erase partial invalid footprints or invent an availability gate.",
+  "reported_geometry": "For full96, central32 and center4: total/domain-valid sample counts, positive-overlap sample counts, sum/mean/max of bbox contributing weight, and unique positive in-image contributing bbox pixels. All UNKNOWN/nonfinite geometry remains null with original status/reason.",
+  "proof_comparison": "Copy original saved proof PASS/constructed/reason and selected target224/local96/central32 COVER/SHAM changed booleans as metadata only; do not replay pixel proofs or infer new target labels from them.",
+  "interpretation": "Positive bbox overlap is only a necessary footprint condition for the observed coarse bbox to affect raw96, never supportYES, actual part presence or native visibility gold. Zero overlap excludes only this observed coarse box from the sampled footprint; it does not prove the entire intended component is absent because the box is coarse and not exhaustive. No model/input/label/admission selection.",
+  "new_support_owner_native_quality_labels": false,
+  "new_training_admission": false,
+  "selected_model": null,
+  "automatic_retry": false
+}

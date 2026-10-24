@@ -1,0 +1,69 @@
+{
+  "schema": "V71_YCB_GT_INDEPENDENT_SOURCE_PROPOSAL_GRID_V1",
+  "source_only": true,
+  "scope": "New emulated source proposal distribution. NOT current/native8 initializer results, canonical8 semantics, humanGT, model success, or current-data inference.",
+  "query_recipe": "Row-major9x9 cell centers: qx=oldbox.x0+(col+.5)*oldbox.width/9; qy=oldbox.y0+(row+.5)*oldbox.height/9. No cue/GT/mask/state/score participates.",
+  "L": "Exact preexisting old source L, unchanged for all81 proposals in both original and controlled views.",
+  "counts": {
+    "targets": 12,
+    "views": 24,
+    "queries_per_view": 81,
+    "all_input_crops": 1944,
+    "TRAIN_targets": 8,
+    "VALIDATION_targets": 4
+  },
+  "crop_recipe": "RGB96 output resolution, oldL native span: samplexy=q+((j+.5)/96-.5)*L; float64 bilinear at native pixel centers, outside neighbor0, uint8 floor(value+.5). Samples outside raw pixel-cell footprint[-.5,W-.5)x[-.5,H-.5) are RGB0 and cropvalidFalse.",
+  "query_valid": "finite q, continuous0<=qx<W/0<=qy<H AND floor(q+.5) native integer bounds. Invalid queries retained with teacherU.",
+  "model_input_NPZ_whitelist": [
+    "L",
+    "box_xyxy",
+    "crop_valid96",
+    "query_valid",
+    "query_xy",
+    "rgb96"
+  ],
+  "GT_forbidden_in_NPZ": [
+    "reference_xy",
+    "reference_uncertainty",
+    "GT_state",
+    "mask",
+    "alpha",
+    "source",
+    "semanticID",
+    "native8_ID",
+    "offset",
+    "targetID",
+    "sampleID"
+  ],
+  "metadata": "IDs, source/split/family/group, rawRGB/path/hash and grid row/col are external index lineage only, not NPZ model tensors.",
+  "GT_stage": "Only after input grid+actualRGB/inputNPZ seal, join fixed12 refs and root-approved conditionalD7/U5 in separate GT-only files. FULL plus conditionalD=>trainingD; PARTIAL/MISS/INVALID or sourceU=>trainingU. Existing cutout uncertainties clear12, so neutralD only/E0; do not manufacture E.",
+  "conflict_audit": "Exact full decodedRGB/q/L/box tuple and exact effectiveRGBcrop/valid/queryvalid/q/L/box tuple; strict supervisedD-versusE conflicts reject. Preserve D/U mixed knowledge groups as unresolved diagnostics.",
+  "preserve_all_proposals": true,
+  "GT_center_recenter": false,
+  "L_expansion": false,
+  "new_jitters_or_composites": false,
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_proposal_grid/build_proposal_grid.py",
+    "sha256": "c0163206dff98905338a792eea533c277d4956fcad3c7f7a488ba5224b4e4c95"
+  },
+  "source_input_manifest": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/INPUTS_RGB_ONLY.jsonl",
+    "sha256": "ff6db77738cb995d9df3cc317a5e77be1202b033af696b742933edf9dfecd847"
+  },
+  "later_GT_bindings_only": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/FROZEN_AI_CUE_PROPOSALS_GT_ONLY.json",
+      "sha256": "84d4109bc59d6bd638c2e922e7163d8b41e25f32133aacba782fa2243df7e121"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/FROZEN_CUE_OWNERSHIP_SANITY/SANITY_REPORT.json",
+      "sha256": "40f9c5942ce6b5516b5488a2af3294e4ea0120592f1267ccb84682d52799e6bc"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/source_audit/ROOT_YCB_CUE_CONDITIONAL_TEACHER_REVIEW.json",
+      "sha256": "0ac99abe7811114ab0cfe18b44dfb14afa619241e496a0d6e1d2b68a2fdad7b7"
+    }
+  ],
+  "teacher_GT_content_parsed_before_grid": false,
+  "current_model_forward_training_PnP": 0
+}

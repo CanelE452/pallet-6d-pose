@@ -1,0 +1,203 @@
+{
+  "schema": "V174_SAVED_SOURCE_OWNER_REPORT_KO_v1",
+  "phase": "V174",
+  "completed": true,
+  "UTC": "2026-10-24T03:52:47.271263+00:00",
+  "report_status": "FINAL: saved-only evaluation and independent scalar review complete",
+  "main_finding_KO": "기존 owner3 출력을 읽는 것만으로 query-content 문제가 해결된다는 가설은 뒷받침되지 않는다. source VALIDATION exactpoint target recall은 C45/C46 모두 약26%이며 foreign precision도 낮다. 별도 source 정답 직접 감독의 필요성을 시사하지만 이번은 저장출력 진단으로 새 학습 결과가 아니다.",
+  "primary": "original VALIDATION2048 FULL_INVENTORY",
+  "validation_binary_and_owner3_summary": {
+    "C45": {
+      "target_precision": 0.7119865887974091,
+      "target_recall": 0.26178840799038283,
+      "non_target_recall": 0.9220614689770116,
+      "original_inputU_rows": 8,
+      "foreign_precision": 0.09986569335548624,
+      "foreign_recall": 0.9846618520149892
+    },
+    "C46": {
+      "target_precision": 0.744735881283639,
+      "target_recall": 0.2669411034030296,
+      "non_target_recall": 0.9326614359269322,
+      "original_inputU_rows": 8,
+      "foreign_precision": 0.1293011667054425,
+      "foreign_recall": 0.9656186496708443
+    },
+    "v61": {
+      "target_precision": 0.798935464293674,
+      "target_recall": 0.5865930374425863,
+      "non_target_recall": 0.8913520376496239,
+      "original_inputU_rows": 8,
+      "foreign_precision": null,
+      "foreign_recall": null
+    }
+  },
+  "cohort_denominators": {
+    "ALL": {
+      "rows": 6144,
+      "known_mass": 6056.0,
+      "target_mass": 2400.7019595522434,
+      "non_target_mass": 3655.2980404477566,
+      "inputU_rows": 88,
+      "ambiguous_mass": 0.0,
+      "invalid_mass": 32.0,
+      "null_query_unknown_rows": 56,
+      "paired_matched_available_rows": 6056,
+      "TRAIN_apparent_only": false
+    },
+    "TRAIN": {
+      "rows": 4096,
+      "known_mass": 4016.0,
+      "target_mass": 1535.8365631978959,
+      "non_target_mass": 2480.163436802104,
+      "inputU_rows": 80,
+      "ambiguous_mass": 0.0,
+      "invalid_mass": 32.0,
+      "null_query_unknown_rows": 48,
+      "paired_matched_available_rows": 4016,
+      "TRAIN_apparent_only": true
+    },
+    "VALIDATION": {
+      "rows": 2048,
+      "known_mass": 2040.0,
+      "target_mass": 864.8653963543475,
+      "non_target_mass": 1175.1346036456525,
+      "inputU_rows": 8,
+      "ambiguous_mass": 0.0,
+      "invalid_mass": 0.0,
+      "null_query_unknown_rows": 8,
+      "paired_matched_available_rows": 2040,
+      "TRAIN_apparent_only": false
+    }
+  },
+  "full_inventory_all_models_alignment": [
+    {
+      "model": "C45",
+      "matched_rows": 6144,
+      "mismatch_rows": 0,
+      "original_inputU": 88,
+      "available_nonfinite": 0,
+      "saved_query_availability_equals_original_census": true
+    },
+    {
+      "model": "C46",
+      "matched_rows": 6144,
+      "mismatch_rows": 0,
+      "original_inputU": 88,
+      "available_nonfinite": 0,
+      "saved_query_availability_equals_original_census": true
+    },
+    {
+      "model": "v61",
+      "matched_rows": 6144,
+      "mismatch_rows": 0,
+      "original_inputU": 88,
+      "available_nonfinite": 0,
+      "saved_query_availability_equals_original_census": true
+    }
+  ],
+  "soft_truth_definition": "원 q exactpoint owner6 float64 질량에서 INCIDENT+OTHER_TARGET=T, FOREIGN=F, BG=B; ambiguity/invalid은unknown, null q는 inventory unknown으로 별도 보존. categorical GT cutoff 없음.",
+  "metrics_definition": "Expected known-mass confusion, precision and recall; integer human-label counts or calibrated probabilities are not claimed. U prediction column remains in confusion/recall denominator.",
+  "v61_scope": "Original saved raw_visible threshold0, T versus non-T only; no FOREIGN/BG three-way ability asserted.",
+  "rules_unchanged": [
+    "original q/L/native/inputU and nulls",
+    "argmax first-index ties for owner3",
+    "v61 original threshold0",
+    "native semantic D/E/S/U and uncertain CF physical identity",
+    "original source qualification/native35 failures"
+  ],
+  "limitations_KO": [
+    "Exactpoint owner는 crop 안에 부위가 있음·physical native/keypoint 정확도·원 native 외부가림/자체가림 정답과 같지 않다.",
+    "TRAIN4096은 apparent 진단이며 primary는 고정 VALIDATION2048이다. 전체6144 및 paired6056을 구분한다.",
+    "C45/C46과 v61의 수치는 서로 다른 출력 의미의 제한된 source 진단이다. 모델 승자 선택·채택·전체 목표 해결을 뜻하지 않는다.",
+    "고정 VALIDATION은 과거 반복 사용된 공개 source 분할이며 새 blind/external 검증이 아니다."
+  ],
+  "strata_report_binding": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/saved_owner_source_benchmark_v1/EXPECTED_SOFT_CONFUSIONS_AND_STRATA.json",
+    "sha256": "ea252e0b8101be9318008a38f629351d82a99f315ffe813d90446696bb061653"
+  },
+  "validation_strata_keys": {
+    "material": [
+      "VALIDATION::material::DARK_POLYMER",
+      "VALIDATION::material::PROCEDURAL_WOOD"
+    ],
+    "aspect": [
+      "VALIDATION::aspect::RECTANGULAR",
+      "VALIDATION::aspect::SQUARE"
+    ],
+    "native_slot": [
+      "VALIDATION::native_slot::0",
+      "VALIDATION::native_slot::1",
+      "VALIDATION::native_slot::2",
+      "VALIDATION::native_slot::3",
+      "VALIDATION::native_slot::4",
+      "VALIDATION::native_slot::5",
+      "VALIDATION::native_slot::6",
+      "VALIDATION::native_slot::7"
+    ],
+    "variant": [
+      "VALIDATION::variant::BEFORE",
+      "VALIDATION::variant::COVER",
+      "VALIDATION::variant::FAR_SHAM",
+      "VALIDATION::variant::NEAR_SHAM"
+    ],
+    "original_semantic_state": [
+      "VALIDATION::original_semantic_state::D",
+      "VALIDATION::original_semantic_state::E",
+      "VALIDATION::original_semantic_state::S",
+      "VALIDATION::original_semantic_state::U"
+    ]
+  },
+  "complete": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/saved_owner_source_benchmark_v1/COMPLETE.json",
+    "sha256": "b0ef94f49e074b3273ff9590be783cd72ff16d151352b9fc9858b53237d98a11"
+  },
+  "ledger_binding_inherited_not_opened": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/saved_owner_source_benchmark_v1/ALL6144_SAVED_OWNER_AND_EXACT_POINT_MASS.csv",
+    "sha256": "d06365178b2a4c7dd5849392ea67499cb8c804c1e1f7c15451039f15a7da3f64"
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/saved_evaluation_preparation/PROTOCOL_BEFORE_SAVED_SCORE_OR_SOFT_TRUTH_BODIES.json",
+    "sha256": "7bf562f406642adc51e065a261b235da887a84babba0ce839389490a48671cb9"
+  },
+  "independent_review_A": {
+    "completed": true,
+    "PASS": true,
+    "binding": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/actual_saved_owner_evaluation_review_a/REVIEW.json",
+      "sha256": "9d0a2b54be3fa0996154404a4c91b7b64ef26648912d7a308e8cbf1c7e52c63c"
+    },
+    "coverage": {
+      "original_rows": 6144,
+      "TRAIN": 4096,
+      "VALIDATION": 2048,
+      "missing_q": 56,
+      "original_inputU": 88,
+      "raw_score_packets": 3,
+      "GT_soft_sidecars": 2,
+      "source_packet_hashes_before_after_match": true,
+      "saved_row_alignments_checked": 18432,
+      "predictions_checked": 18432,
+      "all_ledger_rows_and_mass_columns_exact": true,
+      "paired_rows": 6056,
+      "groups_per_cohort": 63,
+      "cohorts": 2,
+      "model_task_metric_records": 630,
+      "all_reported_strata_checked": true,
+      "max_mass_abs_difference": 0.0,
+      "max_ratio_abs_difference": 0.0
+    },
+    "method": "Original saved score3 packets and source soft-truth2 packets first; scalar row equality/NaN checks, built-in first-tie max, original v61>=0 rule, inputU precedence. Scalar soft-truth merge and math.fsum CM/P/R computed and sealed before published report/CSV reads. No evaluator/producer/helper imports.",
+    "scope": "Independent original saved3 score packets +2 source soft-truth sidecars; report author did not reopen them."
+  },
+  "new_training_forward_encoder_thresholdfit_PnP_qL_or_label_change": 0,
+  "original_source_qualification_overridden": false,
+  "selected_model": null,
+  "adopted": false,
+  "fully_solved": false,
+  "report_author_new_NPZ_pixels_or_score_truth_arrays_read": false,
+  "actual_terminal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_saved_query_owner_source_benchmark_20261024_v174/ROOT_ACTUAL_SAVED_OWNER_EVALUATION_TERMINAL.json",
+    "sha256": "ff38f5e2c6bd49b7412775fb6d2a1059a09555bde06aa6e40bfb27beb4cb9a77"
+  }
+}

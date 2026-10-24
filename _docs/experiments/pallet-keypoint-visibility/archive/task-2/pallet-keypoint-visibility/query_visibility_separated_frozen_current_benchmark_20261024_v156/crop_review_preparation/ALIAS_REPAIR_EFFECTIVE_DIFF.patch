@@ -1,0 +1,172 @@
+--- query_visibility_separated_frozen_current_benchmark_20261024_v156/crop_review_preparation/render_fixed_saved_crops.py
++++ query_visibility_separated_frozen_current_benchmark_20261024_v156/crop_review_preparation/render_fixed_saved_crops_alias_repair.py
+@@ -4,7 +4,7 @@
+ completed evaluation -> deterministic IDs seal -> cached RGB/fullframes -> PNGs.
+ """
+ from pathlib import Path
+-import argparse,csv,gzip,hashlib,html,json,traceback
++import argparse,csv,gzip,hashlib,html,json,traceback,os,stat,tempfile
+ import numpy as np
+ H=Path(__file__).resolve().parent;V=H.parent;P=V.parent
+ POLICY=V/'ROOT_FIXED_VISUAL_CASE_POLICY_BEFORE_SAVED_EVALUATION.json'
+@@ -15,7 +15,12 @@
+ C11=P/'query_visibility_spatial_target_query_features_20261023_v111/private_evaluation/C11_FROZEN_CURRENT223'
+ AUDIT=C11/'INPUT_PREPARATION_AUDIT.json';AUDIT_SHA='e282d01560c523ab8d3b95e79cf19881364a71ad63e0d42d6a75aa7f78757a6d'
+ SEAL=C11/'INFERENCE_SEAL.json';SEAL_SHA='d49f56f81cb59ee76d9a571612acbe945a1148300c1f5a235c939e4cb0764498'
+-PROTOCOL=H/'PROTOCOL_BEFORE_CROP_LABEL_SCORE_OR_RGB_BODIES.json';OUT=V/'fixed_current_crop_review_v1'
++OLD_CODE=H/'render_fixed_saved_crops.py'
++OLD_PROTOCOL=H/'PROTOCOL_BEFORE_CROP_LABEL_SCORE_OR_RGB_BODIES.json'
++OLD_ENTRY=V/'ROOT_APPROVED_FIXED_CROP_VISUAL_ENTRY.json'
++OLD_OUTPUT=V/'fixed_current_crop_review_v1'
++DIAGNOSIS=H/'ORIGINAL_ALIAS_BINDING_FAILURE_DIAGNOSIS.json'
++PROTOCOL=H/'PROTOCOL_BEFORE_ALIAS_REPAIR_RENDER.json';OUT=V/'fixed_current_crop_review_v2_alias_preserving'
+ MODELS=('v61','legacy','C16','C35','C36','C37','C38');NEW=MODELS[3:]
+ FIELDS=('global_index','id','native_corner','group','human_state','query_x','query_y','roi_side','query_available',
+  'original_query_valid','initial_reference_error_px','annotation_coordinate_source')
+@@ -28,6 +33,27 @@
+ def lines(p):return[json.loads(s)for s in Path(p).read_text().splitlines()if s]
+ def check(b):
+  assert '_v112'not in str(b['path']).lower();assert bind(b['path'])==b;return Path(b['path'])
++def safe_original_image_path(binding):
++ """Check original alias and every symlink expansion before target access.
++
++ The original descriptor remains unchanged; content identity is its original SHA,
++ while alias spelling need not equal canonical spelling. Never resolve blindly.
++ """
++ original=str(binding['path']);assert '_v112'not in original.lower()
++ pending=os.path.abspath(original).split('/')[1:];current='/';hops=0
++ while pending:
++  component=pending.pop(0);candidate=os.path.normpath(os.path.join(current,component))
++  assert '_v112'not in candidate.lower(),'Forbidden image path before filesystem access'
++  status=os.lstat(candidate)
++  if stat.S_ISLNK(status.st_mode):
++   target=os.readlink(candidate);assert '_v112'not in target.lower(),'Forbidden symlink target before access'
++   expanded=os.path.normpath(target if os.path.isabs(target)else os.path.join(os.path.dirname(candidate),target))
++   assert '_v112'not in expanded.lower(),'Forbidden expanded target before access'
++   hops+=1;assert hops<=40,'Symlink loop/depth limit'
++   pending=expanded.split('/')[1:]+pending;current='/'
++  else:current=candidate
++ assert '_v112'not in current.lower()and sha(current)==binding['sha256'],'Original image SHA changed'
++ return Path(current)
+ def write(p,x):
+  with Path(p).open('x')as f:json.dump(x,f,ensure_ascii=False,indent=2,allow_nan=False);f.write('\n')
+ def array_sha(a):return hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest()
+@@ -71,14 +97,39 @@
+  a=np.arange(96*96*3,dtype=np.uint8).reshape(96,96,3);copy=a.copy();center=a[32:64,32:64].copy()
+  from PIL import Image,__version__
+  zoom=np.array(Image.fromarray(a).resize((192,192),Image.Resampling.NEAREST));assert np.array_equal(zoom,np.repeat(np.repeat(a,2,0),2,1))and np.array_equal(a,copy)and center.shape==(32,32,3)
++ # Invented filesystem objects only; record that forbidden target components are
++ # rejected before lstat or file hashing can reach them.
++ with tempfile.TemporaryDirectory(prefix='v156_alias_generated_')as td:
++  root=Path(td);safe=root/'safe';safe.write_bytes(b'invented source bytes')
++  alias=root/'alias';alias.symlink_to(safe)
++  descriptor=dict(path=str(alias),sha256=sha(safe));assert safe_original_image_path(descriptor)==safe
++  bad=root/'bad';bad.symlink_to(root/'never_v112'/'not_created')
++  original_lstat=os.lstat;accessed=[]
++  def traced(path,*args,**kwargs):
++   accessed.append(str(path));assert '_v112'not in str(path).lower();return original_lstat(path,*args,**kwargs)
++  os.lstat=traced
++  try:
++   try:safe_original_image_path(dict(path=str(bad),sha256='0'*64))
++   except AssertionError:pass
++   else:raise AssertionError('Forbidden symlink target accepted')
++  finally:os.lstat=original_lstat
++  assert accessed and all('_v112'not in path.lower()for path in accessed)
++  try:safe_original_image_path(dict(path=str(alias),sha256='0'*64))
++  except AssertionError:pass
++  else:raise AssertionError('Changed original content accepted')
+  return dict(completed=True,PASS=True,invented_only=True,distinct_frame_preference_global_order_empty_buckets=True,manual_near_requires_original_manual_provenance_and3px=True,
+-  raw96_nearest_display_and_center32_exact_no_source_mutation=True,Pillow=__version__,private_labels_scores_RGB_or_models_read=0)
++  raw96_nearest_display_and_center32_exact_no_source_mutation=True,Pillow=__version__,private_labels_scores_RGB_or_models_read=0,
++  safe_alias_original_content_hash_required=True,forbidden_symlink_target_rejected_before_target_lstat_or_hash=True,wrong_SHA_rejected=True)
+ def prepare():
+  assert sha(POLICY)==PSHA and sha(AUDIT)==AUDIT_SHA and sha(SEAL)==SEAL_SHA
+  policy=read(POLICY);assert policy['models']==list(MODELS)and policy['maximum_cases']==8
+  audit=read(AUDIT);seal=read(SEAL);facts=next(b for b in seal['outputs']if Path(b['path']).name=='CONTEXT_FRAME_FACTS_INPUT_ONLY.jsonl')
+  b=audit['prior_artifact_bindings'];proof=generated();assert proof['Pillow']==audit['decoder']['Pillow']=='12.2.0'
+- write(H/'GENERATED_INVENTED_CHECKS.json',proof)
++ oldentry=read(OLD_ENTRY);oldprotocol=read(OLD_PROTOCOL);oldfailure=read(OLD_OUTPUT/'FAILED_EXECUTION.json')
++ assert oldentry['code']==bind(OLD_CODE)and oldentry['protocol']==bind(OLD_PROTOCOL)
++ assert not oldfailure['completed']and oldfailure['case_ID_seal_preserved']==bind(OLD_OUTPUT/'CASE_IDS_BEFORE_ANY_RGB.json')
++ assert read(DIAGNOSIS)['completed']and read(DIAGNOSIS)['cause']=='ALIAS_VS_CANONICAL_PATH_STRING_ONLY'
++ write(H/'GENERATED_ALIAS_REPAIR_CHECKS.json',proof)
+  evaluation=read(EVAL);assert evaluation['completed']and evaluation['PASS']and evaluation['selected_model']is None
+  p=dict(completed=True,prepared_only=True,code=bind(__file__),case_policy=bind(POLICY),evaluator_code=bind(BCODE),evaluator_protocol=bind(BPROTOCOL),evaluation_seal_metadata=bind(EVAL),
+   required_evaluation_seal=str(EVAL),required_ledger=str(LEDGER),required_ledger_fields=list(FIELDS),models=list(MODELS),
+@@ -90,16 +141,20 @@
+   crop_contract='Original uint8CHW96 cache, center32 exact indices32:64, raw PNG bytes decode to exactsavedpixels. Nearest2x96 and6x32 display only; validmasks separate. Fullframe wholeimage display is not the DINOtarget224 tensor.',
+   fullframe_decoder=audit['decoder'],selection='Exactly four prospectivebuckets perWOOD/SQUARE, firstglobalidx preferringnotusedframe; emptyexplicit. No image/score magnitude based replacement.',
+   baseline_scope='v61/legacy used same query/cohort but different operators; these are DINOactualinput crops for C16/C35-C38.',
++  original_failed_code=bind(OLD_CODE),original_failed_protocol=bind(OLD_PROTOCOL),original_failed_entry=bind(OLD_ENTRY),
++  original_failed_execution=bind(OLD_OUTPUT/'FAILED_EXECUTION.json'),frozen_original_case_ids=bind(OLD_OUTPUT/'CASE_IDS_BEFORE_ANY_RGB.json'),diagnosis=bind(DIAGNOSIS),
++  repair_scope='Only original-image alias/canonical spelling guard repaired; original SHA/C11 alias descriptors remain fixed. Recompute declared policy cases, assert equality to sealed original cases, then use frozen IDs and seal reuse BEFORE RGB/cache hash/read. No metric/label/selection/crop/score changes and no automatic retry.',
+   labels_scores_RGB_or_caches_or_weights_body_hash_reads_during_prepare=0,actual_model_or_encoder_R0_PnP_calls=0,selected_model=None)
+  write(PROTOCOL,p)
+  template=dict(approved_saved_crop_visualization=False,code=bind(__file__),protocol=bind(PROTOCOL),case_policy=bind(POLICY),
+   evaluation_seal=bind(EVAL),
+   allow_saved_labels_scores_and_original_RGB_cache_for_render=True,case_ID_seal_before_RGB_required=True,
+   new_model_encoder_R0_or_fit=False,private_weights=False,V112=False,PnP=False,q_L_correction=False,model_threshold_or_case_rule_choice=False,automatic_retry=False)
+- write(H/'ROOT_CROP_VISUAL_ENTRY_TEMPLATE.json',template)
+- ready=dict(completed=True,prepared_only=True,code=bind(__file__),protocol=bind(PROTOCOL),generated=bind(H/'GENERATED_INVENTED_CHECKS.json'),template=bind(H/'ROOT_CROP_VISUAL_ENTRY_TEMPLATE.json'),
+-  labels_scores_RGB_cache_or_weight_body_hash_reads=0,actual_model_calls=0,command='/home/minjae/anaconda3/envs/pallet-yolo26/bin/python '+str(Path(__file__).resolve())+' --entry '+str(V/'ROOT_APPROVED_FIXED_CROP_VISUAL_ENTRY.json'))
+- write(H/'PREPARATION_READY.json',ready);print(json.dumps(ready),flush=True)
++ template.update(original_failed_execution=p['original_failed_execution'],frozen_original_case_ids=p['frozen_original_case_ids'],alias_repair_only=True)
++ write(H/'ROOT_ALIAS_REPAIR_CROP_VISUAL_ENTRY_TEMPLATE.json',template)
++ ready=dict(completed=True,prepared_only=True,code=bind(__file__),protocol=bind(PROTOCOL),generated=bind(H/'GENERATED_ALIAS_REPAIR_CHECKS.json'),template=bind(H/'ROOT_ALIAS_REPAIR_CROP_VISUAL_ENTRY_TEMPLATE.json'),
++  labels_scores_RGB_cache_or_weight_body_hash_reads=0,actual_model_calls=0,command='/home/minjae/anaconda3/envs/pallet-yolo26/bin/python '+str(Path(__file__).resolve())+' --entry '+str(V/'ROOT_APPROVED_ALIAS_REPAIR_CROP_VISUAL_ENTRY.json'))
++ write(H/'ALIAS_REPAIR_PREPARATION_READY.json',ready);print(json.dumps(ready),flush=True)
+ def font(size):
+  from PIL import ImageFont
+  return ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',size)
+@@ -159,6 +214,8 @@
+  assert all(e[k]is False for k in('new_model_encoder_R0_or_fit','private_weights','V112','PnP','q_L_correction','model_threshold_or_case_rule_choice','automatic_retry'))
+  assert e['code']==bind(__file__)and e['protocol']==bind(PROTOCOL)and e['case_policy']==bind(POLICY)and sha(POLICY)==PSHA and not OUT.exists()
+  p=read(PROTOCOL);assert p['code']==e['code']and p['case_policy']==e['case_policy']
++ assert e['alias_repair_only']and e['original_failed_execution']==p['original_failed_execution']and e['frozen_original_case_ids']==p['frozen_original_case_ids']
++ for key in('original_failed_code','original_failed_protocol','original_failed_entry','original_failed_execution','frozen_original_case_ids','diagnosis'):check(p[key])
+  for k in('evaluator_code','evaluator_protocol','C11_input_audit','C11_inference_seal'):check(p[k])
+  assert Path(e['evaluation_seal']['path']).resolve()==EVAL.resolve()
+  seal=read(check(e['evaluation_seal']));assert seal['completed']and seal['PASS']and seal['selected_model']is None and not seal['source_admission_changed']
+@@ -175,9 +232,14 @@
+    r=rows[i*8+k];assert r['id']==frame['id']
+    assert np.array_equal(np.asarray([float(r['query_x']),float(r['query_y'])],np.float64),np.asarray(frame['initial_points'],np.float64)[k],equal_nan=True)
+    assert float(r['roi_side'])==float(meta['side'])
+- cases=selected_buckets(rows);OUT.mkdir()
+- casefile=OUT/'CASE_IDS_BEFORE_ANY_RGB.json';write(casefile,dict(completed=True,PASS=True,code=bind(__file__),entry=bind(entry),case_policy=p['case_policy'],evaluation_seal=e['evaluation_seal'],ledger=lb,
+-  cases=cases,selected_global_indices=[r['selected_global_index']for r in cases if not r['empty']],RGB_body_or_cache_reads_so_far=0,selection_rule_unchanged=True,selected_model=None))
++ recomputed=selected_buckets(rows);frozen=read(check(p['frozen_original_case_ids']))
++ assert frozen['completed']and frozen['PASS']and frozen['case_policy']==p['case_policy']and frozen['evaluation_seal']==e['evaluation_seal']and frozen['ledger']==lb
++ assert recomputed==frozen['cases'];cases=frozen['cases']
++ assert[c['selected_global_index']for c in cases if not c['empty']]==frozen['selected_global_indices']
++ OUT.mkdir();casefile=OUT/'REUSED_FROZEN_CASE_IDS_BEFORE_ANY_RGB.json'
++ write(casefile,dict(completed=True,PASS=True,code=bind(__file__),entry=bind(entry),case_policy=p['case_policy'],evaluation_seal=e['evaluation_seal'],ledger=lb,
++  cases=cases,selected_global_indices=frozen['selected_global_indices'],original_frozen_case_ids=p['frozen_original_case_ids'],recomputed_policy_cases_equal_frozen=True,
++  RGB_body_or_cache_reads_so_far=0,selection_rule_unchanged=True,selected_model=None))
+  try:
+   # First RGB/cached-pixel file hash/read is strictly after the durable ID seal.
+   from PIL import Image,__version__
+@@ -194,11 +256,11 @@
+    rgb=data['rgb96'][sl];valid=data['crop_valid96'][sl]
+    assert array_sha(rgb)==fact['RGB96_original_cached_sha256']and array_sha(valid)==fact['valid96_original_cached_sha256']
+    if fi not in images:
+-    imagebinding=dict(path=frame['image'],sha256=frame['image_sha256']);check(imagebinding)
+-    full=np.asarray(Image.open(frame['image']).convert('RGB'),dtype=np.uint8).copy()
++    imagebinding=dict(path=frame['image'],sha256=frame['image_sha256']);safe_image=safe_original_image_path(imagebinding)
++    full=np.asarray(Image.open(safe_image).convert('RGB'),dtype=np.uint8).copy()
+     assert list(full.shape[:2])==frame['raw_hw']and imagebinding==fact['image']
+     if fact['decoded_RGB_sha256']is not None:assert array_sha(full)==fact['decoded_RGB_sha256']
+-    images[fi]=full;verifiedframes[str(fi)]=dict(id=frame['id'],image=imagebinding,decoded_RGB_sha256=array_sha(full),
++    images[fi]=full;verifiedframes[str(fi)]=dict(id=frame['id'],image=imagebinding,safe_canonical_image_path=str(safe_image),decoded_RGB_sha256=array_sha(full),
+       C11_decoded_hash_available=fact['decoded_RGB_sha256']is not None,original_frame8_RGB96_CHW_sha256=array_sha(rgb),original_frame8_valid96_sha256=array_sha(valid))
+    artifacts.append(draw_case(c,rows[idx],frame,q,L,rgb,valid,images[fi],OUT))
+   content=['<!doctype html><meta charset="utf-8"><title>Fixed original-query crop evidence</title><h1>Fixed original-query crop evidence</h1><p>Prospective 4 buckets × WOOD/SQUARE; all seven frozen predictions. Saved input evidence, no new inference.</p>']
+@@ -211,7 +273,8 @@
+   receipt=dict(completed=True,PASS=True,code=bind(__file__),protocol=bind(PROTOCOL),entry=bind(entry),case_ids_before_RGB=bind(casefile),evaluation_seal=e['evaluation_seal'],
+     cases=cases,panels=artifacts,verified_original_frames=verifiedframes,index=bind(index),selected_cases=len(artifacts),empty_buckets=sum(c['empty']for c in cases),
+     original_cache=p['original_cache'],cache_deserialized_keys=list(RGB_KEYS),P3_box_model_features_or_weights_deserialized=False,
+-    new_model_encoder_R0_optimizer_PnP_or_q_L_changes=0,case_selection_changed_after_RGB=False,all7_and_new_aux_scores_reported=True,selected_model=None)
++    new_model_encoder_R0_optimizer_PnP_or_q_L_changes=0,case_selection_changed_after_RGB=False,all7_and_new_aux_scores_reported=True,selected_model=None,
++    frozen_original_case_ids=p['frozen_original_case_ids'],original_failure_preserved=p['original_failed_execution'],alias_repair_only=True)
+   write(OUT/'CROP_RENDER_COMPLETE.json',receipt);print(json.dumps(dict(completed=True,PASS=True,receipt=bind(OUT/'CROP_RENDER_COMPLETE.json'))),flush=True)
+  except BaseException:
+   write(OUT/'FAILED_EXECUTION.json',dict(completed=False,case_ID_seal_preserved=bind(casefile),automatic_retry=False,traceback=traceback.format_exc()));raise

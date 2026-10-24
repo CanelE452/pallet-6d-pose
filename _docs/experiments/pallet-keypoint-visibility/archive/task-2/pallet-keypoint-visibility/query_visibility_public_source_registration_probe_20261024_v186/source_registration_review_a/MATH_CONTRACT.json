@@ -1,0 +1,68 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_source_registration_probe_20261024_v186/ROOT_SCOPE_BEFORE_SOURCE_RGB_DEPTH_MASK_POSE_MESH_BODIES.json",
+    "sha256": "c62e53f4337ced281031937e51c6ad9c562afc373a5f9ee351744749299a6b34"
+  },
+  "review_type": "Official BOP math/source documentation only; no actual dataset body or code execution.",
+  "retrieved_UTC": "2026-10-24T08:05:54.117312+00:00",
+  "projection": {
+    "equation": "p_c=R_m2c p_m+t_m2c; homogeneous p_i=K p_c; u=p_i[0]/p_i[2], v=p_i[1]/p_i[2].",
+    "units": "BOP mesh coordinates and translation vectors are mm. Scene uint16 depth multiplied by per-frame depth_scale gives camera-axis Z in mm; K remains pixel units. Do not mix meter-space original models with converted poses or infer scale by fitting.",
+    "coordinate_system": "Right-handed OpenCV camera: +Z forward; image x right/y down. Preserve supplied camera and pose, no axis reorder or K/q adjustment.",
+    "pixel_centers": "BOP misc depth conversion uses zero-based integer array coordinates (x=column,y=row) with no +0.5; project_pts is continuous K projection with no implicit shift. A CPU integer-center ray convention is explicit and consistent with this depth convention.",
+    "renderer_limit": "Official Vispy uses a K-to-OpenGL projection with x0=y0=0, flips camera Y/Z and image rows. Raster sample/fill/edge and precision conventions remain renderer-specific; CPU integer-ray results are not promised byte-identical to supplied masks. Do not choose offsets from observed overlap."
+  },
+  "depth": {
+    "sensor_Z": "For valid pixel(u,v), X=(u-cx)*Z/fx, Y=(v-cy)*Z/fy for standard pinholeK.",
+    "Euclidean_range": "range=sqrt(X²+Y²+Z²)=Z*sqrt(((u-cx)/fx)²+((v-cy)/fy)²+1).",
+    "signed_probe_residual": "Compare Z_model - raw_depth*depth_scale only where both are positive finite. Preserve signed distribution, support counts and missing partitions; no residual threshold labels.",
+    "BOP_visibility_distinction": "Official calc_gt_masks converts BOTH scene and rendered Z to Euclidean range before BOP visibility(delta in mm). A range-tolerance test is not the same as a fixed Z-tolerance test off axis. No such threshold classification is required by this probe.",
+    "zero_missing": "Raw sensor0 is missing/UNKNOWN and excluded from residual statistics, never unoccluded/occluded truth. Rendered no-hit is separate absent model support. BOP19 missingdepth-visible convention must not supply new supervision here."
+  },
+  "CPU_firstsurface_contract": [
+    "Render each fixed GT-list obj1 instance alone, all5; no best instance or pose choice. Geometry/pose are unmodified and GT is diagnostic only.",
+    "Use perspective-correct triangle Z: Z=1/(lambda0/Z0+lambda1/Z1+lambda2/Z2), or an equivalent camera-ray triangle intersection. Screen-linear interpolation of vertexZ is wrong for slanted triangles.",
+    "Both triangle faces participate (official Vispy cull_face=False). Resolve nearest positive finiteZ; exact ties keep original first triangle index. Preserve source triangle IDs/winding; do not repair/merge geometry to improve masks.",
+    "Declare fixed near-plane clipping and raster edge/tie conventions before bodies; test oblique depth, overlap, winding, clipping and no-hit with invented geometry. C reports fixed1e-6mm nearplane and integer-center convention, no outcome adaptation."
+  ],
+  "mask_comparison_claims": {
+    "full_mask": "Target-alone model depth>0 yields a projected whole-object first-surface silhouette. Its overlap/XOR/boundary differences with supplied per-instance full mask are registration/raster consistency evidence only.",
+    "visible_mask": "Provided visible mask may be compared with target-alone support and sensor-depth validity/residual partitions. Difference from full mask alone is not a selected-part self/external classification.",
+    "cannot_conclude": [
+      "Exact physical native8/material-part identity or correctness of original initializer q.",
+      "Which real foreground object causes a discrepancy without additional source evidence.",
+      "CPU renderer reproduces the unknown original dataset renderer bit-for-bit.",
+      "A fixed small source probe certifies all SOURCE_TRAIN rows or private/current/held performance."
+    ]
+  },
+  "official_primary_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/docs/bop_datasets_format.md",
+      "locations": "Camera/GT pose/coordinate systems/units sections"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/bop_toolkit_lib/misc.py",
+      "locations": "project_pts lines85-98; Precomputer/depth_im_to_dist_im lines100-176"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/bop_toolkit_lib/rendering/renderer_vispy.py",
+      "locations": "depth shader100-134; projection172-213; modelview434-459; depth_test/cull_face469-484; depth readback518-548"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/scripts/calc_gt_masks.py",
+      "locations": "depth_scale and Z-to-range114-136; targetalone silhouette132-147"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/master/bop_toolkit_lib/visibility.py",
+      "locations": "bop18/bop19 predicates8-39"
+    }
+  ],
+  "claim_scope": "FIRSTSURFACE_REGISTRATION_DIAGNOSTIC_ONLY; no new native/self/external/owner/quality labels or admission. Supplied mask authority and source uncertainty retained; no extra physical-corner certification requirement.",
+  "actual_RGB_depth_mask_pose_mesh_body_or_hash_reads": 0,
+  "model_forward_fit_or_new_labels": 0,
+  "V112_current_held_VAL_access": 0,
+  "selected_model": null,
+  "fully_solved": false
+}

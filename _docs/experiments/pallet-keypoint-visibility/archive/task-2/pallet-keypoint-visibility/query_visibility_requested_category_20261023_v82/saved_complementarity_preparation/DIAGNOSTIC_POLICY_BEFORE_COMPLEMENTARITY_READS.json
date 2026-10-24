@@ -1,0 +1,38 @@
+{
+  "schema": "V82_V76_SOURCE_SAVED_COMPLEMENTARITY_PRE_OUTPUT_READ_POLICY",
+  "stage": "PREPARATION_ONLY_NO_ACTUAL_EXECUTION_AUTHORIZED",
+  "prior_information_KO": "V82 평가 및 V81비교 수치와 과거 V76 source 결과는 이미 알려져 있다. 이번 새 진단용 V76 저장 점수값과 V82와의 행별 결합 결과는 아직 열지 않았다. 정책·생성 검사를 고정한 뒤 별도 root 승인으로만 실행한다.",
+  "execution_requires_new_root_authorization": true,
+  "cohorts": {
+    "NATURAL_YCB_PRIMARY2018": "기존 natural YCB VAL800 targets의 원 primary2018; C287/V1731. 일치 original_id/native_k로 V76 best200 logits와 V82 query-mask C/V/U를 결합.",
+    "FIXED_STRICT535": "기존 V79/V81/V82 동일 strict535; C76/V459. 새 오류·성공에 따라 행을 바꾸지 않음."
+  },
+  "model_decisions": {
+    "V76": "Frozen source best200 support_logit>=0 => V1, else C0; 기존 probability .5 문턱 및 0동률V. primary에서 finite 필수.",
+    "V82": "이미 봉인된 native query-mask decision_CVU 0C/1V/2U 그대로. mask없음/invalid는 U, 가짜0mask 없음. request-category GT class side information 제공 조건."
+  },
+  "join_and_labels": "V81 GTpack과 V82 saved labels/primary/strict/qstate exact 재검증; V76 ID/split/primary exact. GTunknown/O를 C로 바꾸지 않는다. 두 cohort 모두 기존 reference-local weak teacher 알려진 C/V에 대해 채점한다.",
+  "joint_table": "GT_CV × V76_CV × V82_CVU 2×2×3를 전체 및 GTclass별로 보고. V76 CM과 V82 CM은 joint marginal로 재구성.",
+  "error_partition": [
+    "both_correct",
+    "V76_only_correct_V82_accepted_wrong",
+    "V76_only_correct_V82_U",
+    "V82_only_correct",
+    "both_wrong_V82_accepted_wrong",
+    "both_fail_V82_U"
+  ],
+  "error_denominators": "모든 cohort 행 유지. V82 U는 failure 및 별도 U이며 negative가 아니다. 각 단독 정답/양쪽실패의 U 포함 수와 accepted-error/U 세분류를 함께 보고; 6개 서로배타적 항목 합=N.",
+  "target_definition_conditions_KO": "V76은 emulated initial q crop 안의 source reference r 주변 local target-support binary weak teacher를 학습했다. V82는 sourceGT에서 제공한 category로 선택된 target mask를 실제 q 1pixel에서 읽는다. 2018에서는 r-label과 q-occupancy가 다를 수 있어 별도 refGT×qGT(-1/C/V/O) 교차표를 보존한다. strict535는 기존 q-r<=3px/STRONG3x3/central-cell 조건이며 qGT와 reference C/V 일치를 재검증한다. 둘 다 인간 semantic D/E/S·native8 visibility gold를 입증하지 않는다.",
+  "interpretation_KO": "저장 두 출력의 오류 중복과 한쪽만 맞는 경우를 세는 진단이다. 어느 출력을 택할지 GT로 고르지 않고 ensemble을 만들지 않는다. 정답 합집합의 결합 정확도나 upper bound로 보고하지 않는다. 단독 정답 사례는 상보적 신호 후보일 뿐 학습 가능한 추가 정보·원인·일반화의 증명이 아니다. V82는 GT 요청 category라는 추가 정보를 받았고 source VAL은 이미 반복 진단에 사용되었으므로 새 독립 test라고 주장하지 않는다. expensive TRAIN extraction/fit의 유용성 판단 참고이며 자동 실행·현재 평가 승인이 아니다.",
+  "forbidden": [
+    "model or source forward",
+    "training",
+    "threshold or model selection",
+    "GT-best output/ensemble selection",
+    "current223 files or metrics",
+    "source RGB/native mask pixel/feature/weight decoding",
+    "PnP",
+    "new data download"
+  ],
+  "allowed_actual_run_after_root_review": "이미 있는 source saved logits/decisions/labels 및 binding metadata만 읽는다. 출력은 새 디렉터리에만 저장하고 기존 산출물은 수정하지 않는다. 실패 시 started receipt/부분산출 보존."
+}

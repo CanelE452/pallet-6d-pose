@@ -1,0 +1,36 @@
+{
+  "schema": "V71_FIXED_YCB_REAL_CUE_INTAKE_PROTOCOL_V1",
+  "purpose": "Prepare actual RGB for reference-cue association review; no semantic reference is invented from masks.",
+  "selection": "SHA256(UTF8(original image SHA256+\":\"+targetID)) ascending; first distinct original RGB SHA per split. Prefix-stable count expansion; no replacement based on ambiguity, mask geometry, composite availability, or scores.",
+  "counts": {
+    "TRAIN": 8,
+    "VALIDATION": 4
+  },
+  "splits": "Original source scenes0..7 TRAIN and8..9 VALIDATION; composites/donors inherit same split, never reassign by output.",
+  "model_input_fields": [
+    "box",
+    "id",
+    "image",
+    "image_sha256",
+    "query8",
+    "raw_hw",
+    "side",
+    "source",
+    "split"
+  ],
+  "input_queryset_semantics": "Eight preexisting available initial-query rows, not canonical/native semantic8 IDs. All GT r/uncertainty/state/masks and offset remain label-only.",
+  "GT_review": "Keep original target mask proxies and controlled causal-paste lineage separate. Every query site and boundary inspection seed starts semantic U with null reference_xy and null uncertainty. Only independent actual RGB review can propose a new physical cue reference.",
+  "boundary_seed_recipe": "8 evenly spaced quantile indices in row-major visible-inside8-neighbor boundary; inspection points only, not semantic corners/anchors/labels.",
+  "rendering": "Same original RGB and existing composite. Raw context, visible/full/paste raster boundaries, unchanged q8/roughbox/inputL and raw/overlay native96 diagnostic crops. Mask boundaries are not semantic proof.",
+  "future_builder": "After reviewed target-specific cue association, freeze new GT refID/r/visual uncertainty and D_teacher evidence separately. Existing opaque paste can certify E_teacher only if entire fixed reference uncertainty is covered; partial/unknown staysU. Jitter changes only initialq in a separately frozen recipe; no such jitters are generated here.",
+  "association_limit": "Hidden reference identity may be unidentifiable from RGB+q+box alone. Multi-query input is available but no semantic slot token is silently added; this intake does not resolve hidden-ref collisions.",
+  "proxy_limit": "BOP visible/full are rendered/depth-derived with raster/pose alignment caveats. Originalfull-only is not automatically causalE/self; mask0 is not physical absence.",
+  "box_provenance": "Preexisting source annotation-derived jittered roughbox and L are retained; no mask-extrema prompt replacement.",
+  "source_initializer_evidence": "V69 TRAIN residuals describe renderer-cuboid proxy vs saved initializer, not physical GT or real-source jitter calibration; no radius/offset policy selected.",
+  "labels_admitted_for_semantic_training": 0,
+  "new_jitters_or_composites": false,
+  "model_forward_calls": 0,
+  "training_calls": 0,
+  "PnP_calls": 0,
+  "current_data_reads": 0
+}

@@ -1,0 +1,117 @@
+{
+  "scope": "CODE+GENERATED ONLY; no current/source RGB, inputarrays, GT, oldmetadata, weights or realmodel execution",
+  "bindings": {
+    "prepare_and_infer_after_freeze.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/private_evaluation/provenance/PRE_BINDING_AND_SENTINEL_FIX_V1/prepare_and_infer_after_freeze.py",
+      "sha256": "43be531a598bc82a27de19a98cdc0f5a1b455d680cbb4df75b1b0a98457e6d93"
+    },
+    "compile_input_pack.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/native_context_cache/compile_input_pack.py",
+      "sha256": "802f2e17f1ee98ae09d8468b8ab749653a50054a85f24ef0af16385a7c262b66"
+    },
+    "current_input_adapter.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/private_evaluation/current_input_adapter.py",
+      "sha256": "69efc742474527d9f60f70d4ef2549a891d4e0179a8493735db140e2aa7b97ab"
+    },
+    "native_context_contract_v2.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_contract/native_context_contract_v2.py",
+      "sha256": "4ddd134aa26da1d676628bd6987a161ab36f09328dfdaa89bedd213e397755ab"
+    },
+    "build_synth1003_input_pack.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/synth1003_input_pack_code/build_synth1003_input_pack.py",
+      "sha256": "b44309bcf88f2ba91d6c8651849884888244b4e332d28ea70053cbb7e45a05bc"
+    },
+    "review_adapter_generated.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/private_adapter_preparation_audit/review_adapter_generated.py",
+      "sha256": "7031d55c7570c49f4f61aa820667096dc41f372c6fcbb181ee9e070283378c10"
+    }
+  },
+  "generated": {
+    "AST_extract_imports_only_numpy": true,
+    "crop_cases": 36,
+    "scalar_RGB_pixels": 2304,
+    "crop_maxdiff": 0,
+    "box_cases": 5,
+    "context_vs_actual_source_compiler": [
+      {
+        "case": "finite",
+        "context42_maxabs_difference": 0.0,
+        "equal": true
+      },
+      {
+        "case": "finite_outside",
+        "context42_maxabs_difference": 0.0,
+        "equal": true
+      },
+      {
+        "case": "one_nonfinite",
+        "context42_maxabs_difference": 0.0,
+        "equal": true
+      },
+      {
+        "case": "one_missing_sentinel",
+        "context42_maxabs_difference": 1.0,
+        "equal": false
+      }
+    ],
+    "export_generated_slots": 6,
+    "strict_zero_and_subnormal_signs_preserved": true,
+    "savedgeometry_q_identity_preserved": true,
+    "early_guard_cases": [
+      {
+        "case": "gate_disapproved",
+        "rejects_before_old_private_access": true,
+        "events": [
+          "load:/generated/V76/private_evaluation/POST_SOURCE_FREEZE_GATE.json",
+          "check:/generated/adapter.py"
+        ]
+      },
+      {
+        "case": "freeze_incomplete",
+        "rejects_before_old_private_access": true,
+        "events": [
+          "load:/generated/V76/private_evaluation/POST_SOURCE_FREEZE_GATE.json",
+          "check:/generated/adapter.py",
+          "load:/generated/source/MODEL_FREEZE.json"
+        ]
+      },
+      {
+        "case": "current_used",
+        "rejects_before_old_private_access": true,
+        "events": [
+          "load:/generated/V76/private_evaluation/POST_SOURCE_FREEZE_GATE.json",
+          "check:/generated/adapter.py",
+          "load:/generated/source/MODEL_FREEZE.json"
+        ]
+      },
+      {
+        "case": "checkpoint_binding_fail",
+        "rejects_before_old_private_access": true,
+        "events": [
+          "load:/generated/V76/private_evaluation/POST_SOURCE_FREEZE_GATE.json",
+          "check:/generated/adapter.py",
+          "load:/generated/source/MODEL_FREEZE.json",
+          "check:/generated/source/checkpoint"
+        ]
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "UNBOUND_HELPER_AND_PRIOR_SEALS",
+      "severity": "pre-inference provenance blocker",
+      "detail": "Current adapter binds self+MODEL_FREEZE, but hardcoded crop/box/context .py and oldadaptergate/oldpreparationseal have no expected binding check in newgate. Bind/check before private input read."
+    },
+    {
+      "id": "MISSING_SENTINEL_CONTEXT_DIFFERENCE",
+      "severity": "conditional input parity blocker",
+      "detail": "Generated(-1,-1) source-missing q is converted toNaN before context42 by sourcecompiler; private H(q) treats it as finite and changes scale/relativegeometry. Either use same missing preprocessing for context only while preserving rawq, or assert beforeforward that no exact(-1,-1) is present and disclose rejection."
+    }
+  ],
+  "GT_read_path_found": false,
+  "pose_or_geometry_recompute_found": false,
+  "no_PnP": true,
+  "runtime_precision": "Code preserves originalfloat64q/L, checks oldfloat32q/L, casts model outputfloat32, stablefloat64sigmoid, logit>=0 tieVISIBLE. No precision conversion bug found.",
+  "score_scope": "predicted_D_or_E is evaluator compatibility naming; raw model target remains reference-local support, not semantic E/S.",
+  "critical_status": "HOLD pending guard/sentinel resolution; arithmetic generatedchecks otherwisePASS"
+}

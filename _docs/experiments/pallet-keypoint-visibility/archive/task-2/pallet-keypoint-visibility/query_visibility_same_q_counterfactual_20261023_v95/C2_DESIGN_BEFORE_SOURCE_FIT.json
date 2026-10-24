@@ -1,0 +1,40 @@
+{
+  "schema": "V95_C2_PROSPECTIVE_SAME_QUERY_COUNTERFACTUAL_SOURCE_DESIGN",
+  "created_UTC": "2026-10-23T01:53:40.139597+00:00",
+  "goal_status": "active",
+  "fully_solved": false,
+  "private_current_access_allowed": false,
+  "source_data_only": true,
+  "input_rows": 960,
+  "all_occurrences": 2880,
+  "candidate_semantics": "Conditional recorded cue-set visibility; controlled support-cover label, not natural/human native gold. Original captured realE20 remain on unmodified BEFORE rows.",
+  "model": "Unchanged V94 QueryCenterScalar 26573 params, no coordinate output; fresh seed194, same3tensor inputs and same authoritative scalar at train/VAL/deploy.",
+  "training": {
+    "updates": 2000,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 64,
+    "sampler": "TRAIN known D32+E32 replacement, shuffle by CPUgenerator seed194",
+    "clip_grad_norm": 5,
+    "loss": "Unchanged known_binary_loss, known&operator_available mask; no variant/support/donor input"
+  },
+  "selector": {
+    "every_updates": 100,
+    "include_update0": true,
+    "criterion": "Mean of BCE on four VAL known strata BEFORE_D, BEFORE_E, SHAM_D, COVER_E; unavailable-safezero logits included. Strictlower only, exacttie earliest.",
+    "threshold": "rawlogit0, D if z<0 else auxiliary hiddenE; unsupportedU"
+  },
+  "source_gates": {
+    "natural_before_D_recall_min": 0.85,
+    "natural_before_E_recall_min": 0.75,
+    "controlled_sham_D_recall_min": 0.85,
+    "controlled_cover_E_recall_min": 0.75,
+    "all3_correct_beforeD_shamD_coverE_VAL_pair_rate_min": 0.75,
+    "known_U_rate_max": 0.05,
+    "recall_U_in_denominator": true
+  },
+  "no_new_counterfactual_rule": "If TRAIN or VAL has no accepted controlled pairs, do not repeat a natural-only C2 fit; retain image-feasibility evidence and improve source construction.",
+  "counts_and_exact_input_bindings": "Must be frozen in the root actualfit entry after the actual source corpus exists, before any optimizer update.",
+  "C1_comparison_limit": "Only source training data/selector differ as declared; do not select model/checkpoint/threshold from current223 performance. No PnP, private GT fit, or q/L changes."
+}

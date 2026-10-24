@@ -1,0 +1,19 @@
+{
+  "schema": "V82_OFFICIAL_POSTPROCESS_WITH_SAME_TENSOR_TRACE_V1",
+  "official_processor_source": {
+    "path": "/home/minjae/anaconda3/lib/python3.13/site-packages/transformers/models/grounding_dino/processing_grounding_dino.py",
+    "sha256": "07204d1bbfaf9a4f8e9367c7b303883f19850dbea9c98f45302371c4f000a239"
+  },
+  "official_source_lines": "40-63 phrase extraction; 233-273 post_process_grounded_object_detection",
+  "method": "Identical sigmoid fullshape -> max -> center_to_corners -> native scale -> strict score>.4 -> official get_phrases_from_posmap(probs>.3) -> processor.batch_decode. The same batch_probs tensor used for predictions is sliced at all attended indices and saved FP32.",
+  "special_tokens": "All attended tokens are stored, including special tokens. Official phrase helper excludes fullshape index0 and255; save original active indices to reconstruct full256 position map.",
+  "thresholds": {
+    "box_strict": 0.4,
+    "text_strict": 0.3,
+    "association_inclusive_IoU": 0.1
+  },
+  "same_tensor_trace_key": "raw_active_probabilities",
+  "no_monkeypatch": true,
+  "generated_parity": "Compared against installed pinned official class method using generated tensors and generated token decode only, no constructors/weights/source RGB.",
+  "no_actual_forward_yet": true
+}

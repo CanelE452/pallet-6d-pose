@@ -1,0 +1,127 @@
+{
+  "completed": true,
+  "trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/source_fit_preparation/train_source_once.py",
+    "sha256": "48418a0e1ca495a489ce19a95f1c08c2c37f7fa9c5ed46ec5f6ab36e053a54e4"
+  },
+  "design": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/ROOT_C13_DESIGN_BEFORE_SOURCE_FORWARD.json",
+    "sha256": "18eb784ea40cdb726dd4303b65904446f2a1bd9655542bca36d534112948f089"
+  },
+  "generated": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/source_fit_preparation/GENERATED_TRAINER_TESTS.json",
+    "sha256": "78bf648f17bdf2aeee321d9a35e162a6d00b8176b374555ccfe4e0041f679451"
+  },
+  "parent_C12_trainer": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/source_fit_preparation/train_source_once.py",
+    "sha256": "a330cb5ed3d77386b5dcd0f02d737cdaab29234394cf1ad69ad5ec011f2e4b2d"
+  },
+  "parent_C12_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/source_fit_preparation/FIT_PROTOCOL_BEFORE_SOURCE_FORWARD.json",
+    "sha256": "5b933d83d5daf58ceea9745c76c3a56c7414a8cc2109a692d27436ab2161c705"
+  },
+  "schema": {
+    "old_occurrences": 45184,
+    "new_occurrences": 924,
+    "combined_occurrences": 46108,
+    "old_units": 14852,
+    "new_units": 152,
+    "combined_units": 15004,
+    "features": [
+      15004,
+      1928
+    ],
+    "new_packet_features": [
+      152,
+      1928
+    ],
+    "new_packet_occurrence_unit": "int32[924], local0..151; add14852 only in combined mapping",
+    "score_file": "SELECTED_ALL46108_SOURCE_SCORES.npz",
+    "new_pair_array": "samewood_accepted_cover_sham_pairs int64[62,2] global COVER,SHAM; original28 BEFORE rows retained separately",
+    "all_rows_including_U_S_saved": true
+  },
+  "sampling": {
+    "updates": 2000,
+    "batch": 128,
+    "D_E_per_batch": [
+      64,
+      64
+    ],
+    "base96_exact_C12": {
+      "updates": 2000,
+      "batch": 96,
+      "D_E_per_batch": [
+        48,
+        48
+      ],
+      "base64_exact_C10_draw_seed": 208,
+      "base64_draw_SHA256_required": "8d6ec2eecbdd0937e710173328cea8e0d4211d21b11d722faea5d5c6fb8cf680",
+      "base_old_and_synth_triplets": 8,
+      "material_extras": {
+        "TRAIN_D": 16,
+        "TRAIN_E": 16
+      },
+      "material_generator_seed": 214,
+      "final96_shuffle_generator_seed": 215,
+      "triplet_positions": "Map existing shuffled64 triplet positions through inverse final96 permutation. All new natural rows remain unpaired.",
+      "eligibility": "TRAIN and known D/E and factualANDcontext available. Required TRAIN D/E pools cannot silently fall back to S/U or VAL."
+    },
+    "base64_draw_SHA256_required": "8d6ec2eecbdd0937e710173328cea8e0d4211d21b11d722faea5d5c6fb8cf680",
+    "base96_draw_SHA256_required": "77e99c76f7c0f797aaadd00efaddd73824dd564defc84535114c3e7d24b1484a",
+    "new_draw": "Uniform with replacement16 of accepted62 TRAIN cover/sham pairs; append coverE andshamD for each pair. Original28 BEFORE D retained/reported, not inserted as extra sampled duplicates.",
+    "new_pair_generator_seed": 216,
+    "final128_shuffle_seed": 217,
+    "matched_hinge_pairs_per_batch": 24,
+    "old_pair_mapping": "Map old8 cover/sham positions through inverse final128 shuffle. New16 use actual cover/sham batch positions; no fabricated BEFORE index."
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.001,
+    "gradient_clip_norm": 5,
+    "loss": "Mean absolute BCE over all128 known available rows +0.25*mean max(0,2-(z_cover-z_sham)) over24 matched pairs (old8+new16)."
+  },
+  "selector": {
+    "evaluate_updates": "0 and every100 through2000",
+    "criterion": "Equal mean of10cohort mean BCE: exact old8sourceVAL cohorts plus materialVALIDATION_D and materialVALIDATION_E. Unavailable known rows get safe logit0 and remain in count.",
+    "earliest_strict_minimum": true,
+    "empty_required_cohort": "Report failure; no changed split/label or fallback selection",
+    "source_only": true
+  },
+  "source_gates": {
+    "old_LOCO_before_D_recall_min": 0.85,
+    "old_PALLOX_before_D_recall_min": 0.85,
+    "old_natural_before_E_recall_min": 0.75,
+    "old_sham_D_recall_min": 0.85,
+    "old_cover_E_recall_min": 0.75,
+    "old_accepted_VAL_pair_all3_min": 0.75,
+    "old_known_VAL_U_rate_max": 0.05,
+    "new_BEFORE_D_recall_min": 0.85,
+    "new_SHAM_D_recall_min": 0.85,
+    "new_COVER_E_recall_min": 0.75,
+    "new_selected_VAL_pair_all3_min": 0.75,
+    "new_known_VAL_U_rate_max": 0.05,
+    "material_VAL_D_recall_min": 0.85,
+    "material_VAL_E_recall_min": 0.75,
+    "material_VAL_known_U_rate_max": 0.05
+  },
+  "feature_expected_paths": {
+    "pack": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/spatial_features_v1/SOURCE_SPATIAL_QUERY_FEATURES.npz",
+    "receipt": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/spatial_features_v1/FEATURE_COMPLETE.json"
+  },
+  "feature_integrity_review_contract": {
+    "completed": true,
+    "PASS": true,
+    "feature_pack": "exact entry.new_feature_pack pathSHA",
+    "feature_receipt": "exact entry.new_feature_receipt pathSHA"
+  },
+  "new_source_admission": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/ROOT_ACTUAL_EXECUTION_AND_FIXED_VISUAL_DECISION.json",
+    "sha256": "25ae238eb931515ef34f5a73f6f0af9555eaeadf6197e5e24597de5566480500"
+  },
+  "run_directory": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/runs/C13_SAME_MATERIAL_FOREGROUND_SPATIAL_QUERY",
+  "entry_before_feature_and_GT_bodies": true,
+  "mandatory_source_comparison_owner": "root afterfit: all194 old triplets by donor, five public regressions, all62 newTRAIN pairs; no change to selector/gates",
+  "preparation_actual_source_arrays_weights_forward_fit_current_V112_reads": 0,
+  "no_restart_after_update": true
+}

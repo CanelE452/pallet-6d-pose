@@ -1,0 +1,48 @@
+{
+  "completed": true,
+  "PASS": true,
+  "source_only": true,
+  "fully_solved": false,
+  "diagnosis_seal_sha256": "0872ad6105050a4b78dbe87c29c9bf1d2fe22375478a3efd365bb811f0ce14ed",
+  "extraction_seal_sha256": "347df8978e6a338bbe55e3eacb2d7731ee46ee0c9f383632ab91ab784869a210",
+  "fixed_signs_and_all_ten_risks_preserved": true,
+  "all_original_rows": {"OLD_NATIVE": 6144, "CONTINUOUS_NATIVE": 20480},
+  "conclusion_KO": "초기 추론 confidence와 q8 기하 불일치에는 좌표 위험에 관한 제한적인 신호가 있다. 그러나 그것을 외부 가림의 직접 판정값이나 좌표 정확성의 보증으로 사용할 근거는 없다. 데이터 범위를 넓힌 C29의 개선과 남은 좌표 오차 연관성은 확인됐지만, 실제 평가 자료에서의 개선이나 목표 달성은 이번 검사로 확인되지 않았다.",
+  "interpretation_by_fixed_signal": [
+    {"signal": "risk_low_detector_confidence", "finding_KO": "좌표 오차>3px의 VAL AUC가 기존 D/E .639/.693, 연속 source .659/.658로 두 의미 상태에서 같은 위험 방향을 보인다. 연속 source의 보이는 D를 E로 틀리는 오류에는 .746이지만 가려진 E를 D로 틀리는 오류에는 .446이다. 낮은 detector confidence를 외부 가림 또는 모든 오류로 해석할 수 없다."},
+    {"signal": "risk_low_native_keypoint_confidence", "finding_KO": "좌표 위험 신호는 약하다: VAL D/E 기존 .544/.555, 연속 .543/.613. 직접 E-vs-D AUC는 기존 .583, 연속 .618이며 ≤3px에서는 .576/.590으로 여전히 약하다. 연속 source E 오분류에 대한 고정 방향 AUC .364를 반전하거나 좋은 위험 신호로 재선정하지 않았다."},
+    {"signal": "risk_local_invalid_fraction", "finding_KO": "대부분 사용 가능한 crop에서 상수여서 VAL 외부 가림과 오류의 분리력이 거의 .5이다. 정상 이미지 경계 내부에서도 남는 실패를 설명하지 못한다."},
+    {"signal": "risk_central32_invalid_fraction", "finding_KO": "대부분 상수이고 VAL AUC가 거의 .5이다. 중심32 영역의 이미지 유효성은 의미상 팔레트 부위의 보임과 다른 조건이다."},
+    {"signal": "risk_context_invalid_fraction", "finding_KO": "대부분 상수이고 VAL AUC가 거의 .5이다. context sampling 유효성과 외부 물체에 의한 가림을 동일시할 수 없다."},
+    {"signal": "risk_input_unavailable", "finding_KO": "기존 VAL known-DE 4건, 연속 VAL 2건의 input-U를 원래 분모에 유지한다. 이 플래그가 C29 prediction-U를 정의하므로 전체 실패와의 연관성은 일부 정의상 일치이고 독립적 발견이 아니다. 사용 가능한 입력만의 보조 표에서는 상수이고 AUC .5이다."},
+    {"signal": "risk_native_bounds_invalid", "finding_KO": "현재 source에서는 입력 불가 조건과 크게 겹친다. 이미지 밖 좌표/검출 부재를 기록하는 데 필요하지만, 이미지 내부 외부 가림을 가르는 신호라고 주장할 수 없다."},
+    {"signal": "risk_query_outside_pred_bbox_normalized", "finding_KO": "선언한 큰 값=위험 방향이 안정적이지 않다. 좌표 위험 VAL AUC 기존 D/E .394/.273, 연속 .517/.480이다. 다수 값의 동률 때문에 TRAIN quintile의 빈 구간도 그대로 남는다. 부호 반전이나 사후 임계값 선정은 하지 않았다."},
+    {"signal": "risk_global_edge_concurrence_rms", "finding_KO": "좌표 위험에는 제한적인 일관된 연관성이 있다: VAL 기존 D/E .645/.618, 연속 .639/.699. 연속 source 사용가능 오류 D/E .731/.616이지만, ≤3px 직접 외부 E-vs-D는 .447이다. 구조 조건 정보의 후보이지 직접 가림 점수는 아니다."},
+    {"signal": "risk_native_heldout_edge_rms", "finding_KO": "좌표 위험 VAL AUC 기존 D/E .611/.605, 연속 .600/.614이며 연속 source 오류 D/E .670/.654이다. ≤3px 직접 E-vs-D AUC는 기존 .495, 연속 .455이다. 단일 값으로 정답 키포인트나 외부 가림을 확정할 수 없다."}
+  ],
+  "TRAIN_VAL_and_binning": {
+    "statement_KO": "모든 quintile은 각 source의 전체 TRAIN 입력 분포만으로 GT와 C29 점수 읽기 전에 고정했다. VAL 빈도나 라벨에 맞춰 다시 나누지 않았다. 동률, 빈 bin, 정의 안 된 입력, TRAIN 기준 부재는 모두 보존했다.",
+    "fit_gap_KO": "기존 TRAIN의 사용가능 E 오류는 0/131이므로 해당 오류 AUC는 정의되지 않는다. 연속 source TRAIN의 사용가능 E 오류는 8/496, VAL은 18/130이다. 적합도와 일반화가 다르며 TRAIN의 좋은 위험 순위가 VAL에서 유지된다고 볼 수 없다.",
+    "example_fixed_bins_not_deployment_cuts_KO": "연속 VAL D의 detector-confidence TRAIN-input Q1→Q5에서 좌표오차>3 비율은 85/295,145/384,226/525,165/288,201/280이고 D 오분류는 1/295,4/384,15/525,13/288,23/278이다. 위험은 집중되지만 Q1에도 좌표 오차가 28.8%이고 Q5에도 정답이 많아 안전한 채택/배제 경계가 되지 않는다.",
+    "small_positive_counts_KO": "≤3px 직접 외부 가림의 VAL 양성은 기존 E16/D398, 연속 E37/D950뿐이다. 같은 base의 여러 variant/slot도 상관되어 있으므로 작은 AUC 차이의 우열이나 통계적 확실성을 주장하지 않는다."
+  },
+  "separating_explanations": {
+    "data_coverage_KO": "V137의 같은 예산 C28 대비 C29 source 개선은 높이·시점·거리·재질 범위를 넓히는 것이 도움이 됐다는 증거다. 이것은 이번 입력 표에서 새로 학습한 결과가 아니며 실제 평가 전이의 증거도 아니다.",
+    "position_KO": "V137 잔여 오분류가 qerror>3px에 집중된다는 사실은 이번 입력 audit에서 중간 정도의 좌표 위험 신호로 이어진다. 높은 GT 오차가 실패를 유발했다는 인과 결론이나 confidence가 실제 정답 위치를 알려준다는 결론은 아니다.",
+    "confidence_KO": "confidence는 좌표 위험, 외부 가림, 학습된 오류 패턴에 서로 다르게 연관된다. 특히 teacher D/E를 분리하면 연속 source E 오분류와의 confidence 관계는 D 오분류와 다르므로 confidence=가림 또는 confidence=정확도로 합칠 수 없다.",
+    "external_visibility_KO": "정확한 위치에 가까운 ≤3px에서도 10개 입력 위험의 단변량 외부 E-vs-D 신호는 약하다. 이는 이미지/다변량/구조 조건의 가림 판정이 불가능하다는 증거가 아니다. 그 정보를 외부 가림 정답과 혼동하지 않는 입력 조건으로 시험해야 한다."
+  },
+  "next_step_assessment_only_no_protocol_or_fit": {
+    "supported_control_KO": "다음에 학습을 한다면 C29의 넓어진 source와 동일한 표본·손실·예산을 쓰고 G0 대 원래 입력 G42 조건만 바꾸는 비교는 반증 가능한 통제 실험이다. 기하 입력은 위치/구조 해석 조건으로 쓰되 원래 q/L과 모든 known-DE 분모 및 기존 gate를 유지해야 한다. V133의 좁은 source G42 비교가 개선되지 않았으므로 성공을 기대 사실처럼 말할 근거는 없다.",
+    "auxiliary_KO": "별도의 query-reliability 보조 출력은 좌표 위험과 가림을 다른 목표로 유지할 때만 검토할 이유가 있다. 이번 단변량 신호만으로 보조 출력의 품질이나 개선 효과를 보증할 수 없다. GT오차는 source의 감독/진단용일 뿐 배포 입력, GT 필터, 좌표 이동, 보류율로 점수를 높이는 규칙이 되어서는 안 된다.",
+    "unsupported_KO": "confidence나 edge RMS에 임계값을 붙여 외부 가림으로 간주하거나, 좌표 오차가 큰 평가 항목을 제외하거나, 남은 실패를 라벨 변경으로 없애는 방향은 근거가 없다. 새 모델·threshold·abstention·현재 평가 선택은 하지 않았다."
+  },
+  "not_inferred": [
+    "현재 실사 223장 성능 향상 또는 이전 실사 학습 모델 추월",
+    "초기 추론 키포인트 좌표 정확성 해결",
+    "단변량 AUC에 의한 인과 효과, 다변량 불가능성, 전이 성공",
+    "GTerror≤3 조건을 배포 가능한 입력 필터로 사용 가능",
+    "모든 보류/누락 사례에 confidence 순위를 매길 수 있음"
+  ],
+  "new_model_forward_fit_private_RGB_threshold_or_adaptive_selection": 0
+}

@@ -1,0 +1,111 @@
+{
+  "schema": "V167_PROSPECTIVE_PUBLIC_ONLY_THRESHOLD_FIT_AND_PURGED_TEMPORAL_CROSSFIT_BEFORE_ANY_THRESHOLD_SEARCH",
+  "completed_design": true,
+  "UTC": "2026-10-24T02:42:11.226865+00:00",
+  "parent_control": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/runs/C45_C46_PART_NATIVE_FIXED8000/CONTROL_COMPLETE.json",
+    "sha256": "7ee94f466e1e842614427f47d302d3618af1ea7d3617fca415cdc0f1fc3380b3"
+  },
+  "parent_trainer_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/PROTOCOL_BEFORE_SOURCE_FIT_FEATURE_BODIES.json",
+    "sha256": "aad1f9533a90de3424ea3a1628ddecb1d81f08f29e1419d3562429919dfd3cd6"
+  },
+  "parent_saved_fit_audit": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/independent_saved_fit_review_preparation/SAVED_C45_C46_EXECUTION_REVIEW.json",
+    "sha256": "029a199336746f752d76a3f98d0472c253d9b91d219befb5ddfbe12385631e87"
+  },
+  "parent_ranking_diagnosis": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/ROOT_POST_FREEZE_PUBLIC_RANKING_DIAGNOSIS.json",
+    "sha256": "3bec8a2144c317141c5615df392f85da8048664af181b9883a127f5d780dec90"
+  },
+  "source_labels": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/ROOT_ALL1840_SEPARATE_QUERY_SUPERVISION.jsonl",
+    "sha256": "e5c37048b35fc4194b0ec22acb1c045e514a09c8355385d839e7edd6c96baf68"
+  },
+  "reason": "Fixed0 source working point misses mostE despite C45 publicvalid ranking AUROC.923; C46 direct92weak learning fitsTRAIN but ranking falls.849. Test a 1D public-only decision threshold before more head retraining.",
+  "models_fixed": [
+    "C45_REPLAY_C43_OWNER253_NATIVE0",
+    "C46_PART_NATIVE92_OWNER253_NATIVE0"
+  ],
+  "head_weights_frozen": true,
+  "no_new_head_model_or_encoder_fit": true,
+  "calibration_cohort": "Original MR SOURCE_VALIDATION360 from45frames of one official public sequence val/000001. New V167 calls it PUBLIC_CAL; original V166 split names/results remain immutable. Only inputavailable knownD/E145(D93/E52) fit thresholds. All360 status/predictions and known154 incl9D inputU retained.",
+  "public_sequence_inventory": {
+    "sequences": [
+      "val/000001"
+    ],
+    "original_frame_numbers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44
+    ],
+    "frames": 45,
+    "rows": 360
+  },
+  "threshold_rule": "One global scalar E-logit threshold per fixed model. Optimize balanced accuracy on designated PUBLIC_CAL fit rows: maximize integer TN*N_E + TP*N_D, tie choose highest threshold (fewest E calls). Predictions are E iff float64(raw_FP32_logit)>=float64(threshold), otherwiseD; factual original inputU staysU. No new abstention, no entity/quality/nearest/center4 gate.",
+  "candidate_rule": "Sorted unique finite float64-cast fit logits plus float64 nextafter(max,+inf) for all-D extreme. min(unique) represents all-E. Same>= boundary and float64 comparisons for fit/apply; no threshold based on current223 or synthetic/otherdataset outcomes.",
+  "crossfit_rule": "Deterministic9 temporal blocks block_id=original_public_frame_number//5. Hold one5frame block; exclude held and its immediate adjacent blocks (absolute block difference<=1) from threshold fitting. Fit using only other-block inputavailable knownD/E rows for that model; apply to every original heldblock row, preserve originalU. If remaining fit set lacks either class, use original threshold0 and record fallback; no fold/row dropping. Pool all360 OOF predictions and fullknown154 metrics, with inputvalid145 separate.",
+  "validation_authority": "This is out-of-fold threshold-fitting stability within a single public sequence, NOT unseen-scene validation or independent full model generalization. Frozen heads originally never trained on sequence000001; fitting full145 threshold changes its role to PUBLIC_CAL. Full-cal145/154 apparent metrics are not held-test accuracy. Current223 remains evaluation-only and closed throughout this stage.",
+  "full_fit_rule": "After fixed crossfit calculation, fit one threshold on all145 PUBLIC_CAL known inputavailable rows for each fixed head, freeze both scalar values+modelstate/output bindings before any current223 read. No winner selected by current data. Report both models; do not replace prior fixed0 negative results.",
+  "other_sources": "Using each full-cal frozen scalar, rethreshold existing saved original28976+PART1144 outputs for complete source/material/native panels; this is retrospective source reporting, never a scalar/model selection criterion. Keep original535+178 inputU and all status/label denominators.",
+  "prospective_tests": [
+    "Known toy separation/unequal classes and deterministic highest-threshold tie, exact>= boundary, float64 nextafter all-D extreme and no float32 scalar downcast bug.",
+    "Crossfit fit/test/adjacent-purge indices disjoint; every original frame/row assigned exactly once outoffold, originalU retained, class-absent fallback0 recorded.",
+    "Changing a held-block or adjacent-block label must not change that fold threshold. Changing unknown-truth/U labels must not admit them into fitting.",
+    "Original fixed0 source metrics still byte-identical, head/output inputs immutable, no current/private/V112/model/encoder/PnP/qL calls."
+  ],
+  "preparation_allowed": true,
+  "actual_threshold_search_allowed_by_this_file": false,
+  "actual_current_eval_allowed_by_this_file": false,
+  "private_current_allowed": false,
+  "V112_allowed": false,
+  "PnP_allowed": false,
+  "q_L_change_allowed": false,
+  "automatic_retry": false,
+  "selected_model": null,
+  "adopted": false,
+  "fully_solved": false,
+  "goal_status": "active_unsolved"
+}

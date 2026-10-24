@@ -1,0 +1,85 @@
+{
+  "schema": "V161_SOURCE_ONLY_OWNER_COUNTERFACTUAL_PIXEL_INPUT_PROOF_BEFORE_ANY_NEW_PIXELS",
+  "completed": true,
+  "UTC": "2026-10-24T00:30:05.533098+00:00",
+  "previous_phase": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/ROOT_PHASE_RESULT.json",
+    "sha256": "6357f88931cca2c4b3a9a9821ea58e2e2783c361eb167e98c1ee5413bf340d28"
+  },
+  "requirements": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/ROOT_NEXT_SOURCE_GENERATION_REQUIREMENTS.json",
+    "sha256": "09150fdd17bd7f37ef542939ad79cf57d0eb1a68747af8d67e7ca14fe3f0a4d3"
+  },
+  "readiness": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/next_source_counterfactual_readiness/READY_METADATA_FINDINGS.json",
+    "sha256": "2839da37d0453ed29d3a6fae392652568ac5706b470f91ce0f832b6cc91a0d2f"
+  },
+  "anchors": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/next_source_counterfactual_readiness/TARGET53_CANONICAL_TRAIN_ANCHORS.jsonl",
+    "sha256": "4fc0c89c34cfe1a9629641db93866d9a64c1286fb28e1c3fa1ca81f14494d25d"
+  },
+  "donor_catalog": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_slot_owner_factorial_20261024_v160/next_source_counterfactual_readiness/V95_DONOR_PROVENANCE_METADATA.json",
+    "sha256": "162516e5c952198446b68f2e84f228806056cab998cf168cebc95b57f92a2021"
+  },
+  "full_objective_preserved": "WOOD/SQUARE all native8 visibility, external vs self and coordinate error separate; owner-only generation is auxiliary preparation, not primary success.",
+  "source_only": true,
+  "training_allowed": false,
+  "encoder_allowed": false,
+  "initializer_allowed": false,
+  "current_allowed": false,
+  "V112_allowed": false,
+  "PnP_allowed": false,
+  "q_L_or_native_or_split_change_allowed": false,
+  "automatic_retry": false,
+  "number_of_anchor_queries": 53,
+  "number_of_anchor_frames": 46,
+  "number_of_donors": 59,
+  "pairs_per_anchor": 3,
+  "pairs_total": 159,
+  "variants_per_pair": [
+    "BEFORE",
+    "COVER",
+    "ADJACENT_SHAM"
+  ],
+  "all_attempts_retained": true,
+  "assignment": {
+    "salt": "V161_FIXED_TRAIN_OWNER_CF_V1",
+    "anchor_order": "ascending SHA256(salt+anchor_query_id), tie query_id",
+    "donor_order": "ascending SHA256(salt+donor_id), tie donor_id",
+    "index_rule": "donor[(3*anchor_rank+replica)%59]; no replacement, no search, all59 used 2 or3 times",
+    "scales_per_replica": [
+      0.35,
+      0.5,
+      0.7
+    ],
+    "rotation_degrees": 0
+  },
+  "compositing": {
+    "source": "Existing V95 V2 TRAIN59 exclusive-alpha cutouts and complete source mask proof. Reverify original RGB/selected/all-other masks and stored exclusive/core/cutout bindings.",
+    "transform": "Resize each existing compact cutout once, RGB bilinear and hard alpha conservative nearest plus erode1; same transformed RGB/alpha for cover and sham. No donor replacement or iterative scale/placement search.",
+    "longside_rule": "max(1,min(ceil(scale*L),floor(min(qx-4,W-5-qx)),floor((W-12)/4))); geometry-only cap before donor pixels",
+    "opaque_anchor": "Max distance-to-zero in resized hard alpha with zero outside; row-major first argmax. Deterministic placement rule, not label/model search.",
+    "cover_origin": "round(qxy-opaque_anchor_xy), numpy rint ties-to-even",
+    "sham_origin": "same y; x shifted toward image horizontal midpoint by resized_width+ceil(L/96)+4 pixels",
+    "clipping": "Same vertical clipping in cover/sham, both x boxes must be fully in bounds. Preserve failure if not. Require equal pasted alpha mass.",
+    "rgb": "Hard overwrite wherever transformed alpha is true. Controlled augmentation opacity only; no claim of measured natural optical opacity."
+  },
+  "proof": {
+    "original_q8_L_native_input": "Use original source initializer metadata; no GT/pose/depth/reference used for input.",
+    "canonical_coherence": "Every variant comes from one fullRGB. Derive targetcontext224, all8 exact local96+valid96, central32 and fractions from that same RGB at unchanged q8/L. No neural preprocessing/encoder call here.",
+    "before_parity": "Reconstructed BEFORE all8 RGB96/valid96 must equal original saved packets; target224 hash must match original source inputfacts where available.",
+    "center_support": "Use exact frozen RGB96 sampler and independently enumerate all raw-image bilinear footprints of central47:49. Cover alpha1 at all contributing raw pixels; sham alpha0 and exact unchanged center4 RGB. No native E relabel.",
+    "sham_visible": "Require some pasted donor support in original selected RGB96 despite protected center being unchanged.",
+    "availability": "Original construct/continuous/nearest/center/context masks unchanged; no padding-as-background supervision.",
+    "unknown_labels": "All new native D/E and point-quality labels remain UNKNOWN; original labels are separate immutable lineage, not copied as CF targets.",
+    "success": "Only pixel/input proof for weak-owner auxiliary eligibility. No learned accuracy, no primary visibility/adoption/full-goal success claim."
+  },
+  "fixed_visual_selection": "Before new pixels: choose smallest pair SHA per each of the 6 represented native slots plus remaining smallest pair SHAs to12 distinct anchors; do not replace failed cases with successes.",
+  "missing_anchor_native_slots": [
+    2,
+    3
+  ],
+  "selected_model": null,
+  "fully_solved": false
+}

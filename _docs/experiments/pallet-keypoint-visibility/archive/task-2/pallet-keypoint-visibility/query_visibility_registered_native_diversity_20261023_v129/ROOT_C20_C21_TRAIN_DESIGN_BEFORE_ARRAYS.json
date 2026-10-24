@@ -1,0 +1,75 @@
+{
+  "created_UTC": "2026-10-23T15:08:46.087656+00:00",
+  "stage": "C20_PUBLIC_REPLAY_CONTROL_C21_PUBLIC_PLUS_NATIVE_FIXED1000",
+  "scope": "Prepare same-head source control and new registered-native add-on; root actualfit only after completed corpus/features review. Privatecurrent andV112 excluded fromall choices.",
+  "source_policies": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/ROOT_CORPUS_POLICY_BEFORE_PIXELS.json",
+      "sha256": "43a0a3989793a6e1ead3e2cf2b7897c8a7e7dfc7c7d21f46a7e29c471a3663ed"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/ROOT_PUBLIC6_POLICY_BEFORE_COMPOSITES.json",
+      "sha256": "1e04b0616a3087bc559750d7bcc626d7c0b558f5656580f6583a4e31114c30aa"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/ROOT_FROZEN_FEATURE_POLICY_BEFORE_FORWARD.json",
+      "sha256": "0f3c950ef6487d07a5ba3997c4923ef713ed2ab7e280b79abac137720cc95464"
+    }
+  ],
+  "head": "Existingexact221825parameter SpatialTargetQueryHead, same1928features; C16source-selected4500 warmstartforboth. No newarchitecture, no normalizerfit, rawhiddenlogit0 threshold.",
+  "TRAIN_sources": {
+    "fixed_existing_public": "V125 knownavailable795(D423/E372), all795 preserved as fixedsourcecontrol; planned846 includes51inputU, nevernegative.",
+    "new_public": "V129cases4/10/16/17 internalTRAIN612 knownavailableexpected, originalofficialTRAIN preserved. VALcases12/23 neverloss.",
+    "new_native": "V129TRAIN36864 plannedoccurrences; onlyteacherD/E andinputavailableeligible;S/U zero loss. NativeVALIDATION18432 neverloss."
+  },
+  "arms": {
+    "C20_PUBLIC_REPLAY_CONTROL": "publicloss only, existing795+newpublic612; samepublicdraws/initialweights/optimizer asC21.",
+    "C21_PUBLIC_PLUS_NATIVE": "samepublicloss plus1.0*nativeloss; native batchclassbalanced32D32E, notclasscountweightedwhole55296. Exactsamepublicdraws asC20."
+  },
+  "training_recipe": {
+    "updates": 1000,
+    "public_batch": 64,
+    "public_sampling": "uniformwithreplacementovereligibleexisting795+new612; fixedsequence beforeheadconstruction,seed1301",
+    "native_batch": 64,
+    "native_sampling": "32D+32Ewithreplacement fromnativeTRAINeligible; seed1302",
+    "torch_seed": 1300,
+    "optimizer": "freshAdamW",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.001,
+    "clip_grad_norm": 5.0,
+    "loss": "BCEWithLogitsmean;C20public,C21public+native",
+    "TF32": false,
+    "AMP": false,
+    "device": "cuda:0",
+    "threads": 1,
+    "checkpoints": "finalupdate1000only; noVALcheckpointselection,noearlystopping,noextraepochs afterreport",
+    "old18_proxy_loss": "zero forboth; oldsource regressionsreportedseparately, not relabelled nativesemantic supervision"
+  },
+  "evaluation_after_both_fit_complete": [
+    "originalpublicVALknown3582(D1908/E1674) withfrozenC16 baseline",
+    "oldEout483 andSHAMin394 stresscohorts unchanged",
+    "newpublicVAL306(2cue/2takes;case23takeexposedoldUinputs)",
+    "nativeVALIDATION allplannedrows/teacherD_E/S/U/inputavailability andfactorbreakdowns",
+    "TRAINfit onlydiagnostic, notvalidation success",
+    "old15sourcegate readout ifexistingfeaturepackavailable, noPASSclaimifnotcomputed"
+  ],
+  "source_eligibility_before_any_private_eval": {
+    "old_public_all_D_and_E_recalls": "each >=frozenC16baseline minus0.01 absolute",
+    "old_hard_Eout_and_SHAMin": "each at least1additionalcorrectcase vsfrozenC16baseline; jointlyimprove, no tradeoff accepted",
+    "new_public_VAL": "Drecall>=.80andErecall>=.80; reportbothframesseparately, notblindhumangold",
+    "native_VAL": "Drecall>=.80andErecall>=.80; teacher/inputUcountspreserved",
+    "selection_if_any_pass": "Choosepassedarmwithhighestworstclassrecall acrossoldpublic/newpublic/nativeVAL; tiesC20smallertrainingchange. Thisissource-onlyselection, frozenbeforecurrent. Ifnonepass doNOTnewcurrentforward; continue sourcework.",
+    "not_final_goal_success": "These are source eligibility criteria, not proof realapplication solved."
+  },
+  "forbidden": [
+    "current223fit/threshold/checkpoint/armchoice",
+    "V112access",
+    "PnP",
+    "qcorrection",
+    "GTbestassociation",
+    "nativeVALornewpublicVALtraining",
+    "automaticretry"
+  ],
+  "fully_solved": false,
+  "fit_in_this_design_document": false
+}

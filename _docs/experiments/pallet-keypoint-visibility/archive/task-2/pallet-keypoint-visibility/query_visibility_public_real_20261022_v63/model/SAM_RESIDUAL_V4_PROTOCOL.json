@@ -1,0 +1,78 @@
+{
+  "schema": "SOURCE_ONLY_QUERY_SAM_RESIDUAL_V4",
+  "frozen_before_current_evaluation": true,
+  "candidates": [
+    "SYNTH_CONTEXT_RGB_SAM_V4",
+    "MIXED_CONTEXT_RGB_SAM_V4"
+  ],
+  "target": {
+    "positive": "target-instance visible mask membership at nearest initial-query pixel",
+    "negative_name": "absent_or_nonvisible_at_query",
+    "negative_is_not_automatically_external_occlusion": true,
+    "semantic_self_visibility_supervision": "not inferred from outside-support labels",
+    "current_human_D_E_S": "evaluation strata only"
+  },
+  "inputs": {
+    "x": "N,65,9,9 frozen P3+native validity",
+    "context": "N,64 mean valid first64-channel cells over target 8 input-query ROIs, no mask weighting",
+    "rgb": "N,3,65,65 uint8; nearest-pixel center, full-side raw crop",
+    "rgb_sampling_version": "native9 normalized [-8/9,8/9] with center exact",
+    "sam": "N,1,9,9 frozen selected SAM logits at native query grid /8 clipped[-4,4]",
+    "sam_logit_scale": 8.0,
+    "foundation_SAM": "frozen; original/public source inputs only"
+  },
+  "model": {
+    "parameters": 50498,
+    "architecture": "spatial",
+    "target_context": true,
+    "rgb_branch": true,
+    "sam_branch": true,
+    "sam_hidden_channels": 8,
+    "sam_prior_mode": "learned_raw_residual",
+    "sam_prior_weight_initial": 1.0,
+    "readout_weights_and_bias_initial": 0.0,
+    "initial_prediction": "exactly 8*stored_normalized_clipped_SAM at query center",
+    "scalar_readout": "dense logits [4,4]",
+    "head_parameters_only_in_optimizer": true
+  },
+  "training": {
+    "seed": 20261022,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 256,
+    "max_updates": 2000,
+    "source_balanced_loss": true,
+    "dense_aux_loss_weight": 0.25,
+    "boundary_positive_weight": 1.0,
+    "validation_every_updates": 100,
+    "selection": "lowest unweighted BCE for SYNTH candidate; mean(SYNTH_VAL_BCE,YCB_VAL_BCE) for MIXED candidate",
+    "threshold": 0.5,
+    "threshold_selected_on_current_evaluation": false,
+    "same_initialization_and_budget_for_two_candidates": true,
+    "OOM_policy": "if batch adjustment required, record and apply same batch to both candidates"
+  },
+  "evaluation_exclusion": {
+    "denylist_path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/contract/EVALUATION_SHA256_DENYLIST.json",
+    "denylist_sha256": "58ef8b2ca79b9cb511fe7b5813d22b31f6ff82ef5049a2be340ec293bdbef987",
+    "denied_images": 223,
+    "enforced_by": "trainer image_sha256 arrays plus cross-split sample_id and group_id checks",
+    "current_evaluation_training_or_selection_queries": 0
+  },
+  "invariants": {
+    "PnP_changed": false,
+    "prior_runs_preserved": true,
+    "private_evaluation_before_all_source_freezes": false,
+    "GPU_training_started": false
+  },
+  "verification": {
+    "smoke_path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/SAM_BRANCH_SMOKE.json",
+    "smoke_sha256": "843407b59b9aec2f10c5dd03f741235405d6c3285b682820cdece3255cc672c0",
+    "native9_ramp_path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/RGB_NATIVE9_ALIGNMENT_SMOKE.json",
+    "native9_ramp_sha256": "d171dd4b231273f6ca1d39b5382f3cfc26078454b0c7c96343911786475c344c",
+    "code_sha256": {
+      "query_head.py": "049ec1c41f0d087fdf3a8e152fa981dadbe4e9fdcc795355f9322972191f54dd",
+      "fit_query_head.py": "6bb27458feed51ffc7a663ba81d6d3da0f10fa0974e5abdf5c7322f5584149b4"
+    }
+  }
+}

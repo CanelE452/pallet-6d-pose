@@ -1,0 +1,131 @@
+{
+  "PASS": true,
+  "schema": "SOURCE_INPUT_METADATA_ONLY_INDEPENDENT_AUDIT_V1",
+  "input_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_inputs/INPUTS_RGB_ONLY.jsonl",
+      "sha256": "0a347a477e8d1d69ab0e9b956103f9b657b4c4b9c4505242d76849f8e25a3fc8"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_inputs/QUERY_ID_MAP.csv",
+      "sha256": "bf22a08502fcaa580caa7132ec6d4630e1d7363d99d28b276344549f6be6efe5"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_inputs/SEAL.json",
+      "sha256": "081c4a58cce0a20830872358d1559b59ef75a57df333bdc357a164d35abec979"
+    }
+  ],
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_audit/audit_source_inputs_metadata_independent.py",
+    "sha256": "598722eeefc1d7456b7018bd839418a2978c9001d80cd14838ed2f8e0c07ec72"
+  },
+  "targets": 1091,
+  "query_rows": 8590,
+  "native_input_valid": 8584,
+  "canonical_joined_target_index_coverage": "0..1090 exactly once",
+  "canonical_joined_query_index_coverage": "0..8589 exactly once",
+  "per_target_native_corner": "Unique0..7 subset. SYNTH4..8queries are retained source-valid subset, not silently expanded. Other sources8each.",
+  "source_summary": [
+    {
+      "source": "SYNTH",
+      "targets": 235,
+      "queries": 1742,
+      "unique_RGB_SHA": 235,
+      "native_input_valid": 1742,
+      "target_query_count_histogram": {
+        "4": 1,
+        "5": 4,
+        "6": 49,
+        "7": 24,
+        "8": 157
+      },
+      "native_HW_counts": {
+        "(480, 640)": 104,
+        "(480, 720)": 40,
+        "(540, 960)": 66,
+        "(560, 560)": 25
+      }
+    },
+    {
+      "source": "ORIGINAL_YCB",
+      "targets": 400,
+      "queries": 3200,
+      "unique_RGB_SHA": 200,
+      "native_input_valid": 3200,
+      "target_query_count_histogram": {
+        "8": 400
+      },
+      "native_HW_counts": {
+        "(480, 640)": 400
+      }
+    },
+    {
+      "source": "CONTROLLED_YCB",
+      "targets": 400,
+      "queries": 3200,
+      "unique_RGB_SHA": 400,
+      "native_input_valid": 3200,
+      "target_query_count_histogram": {
+        "8": 400
+      },
+      "native_HW_counts": {
+        "(480, 640)": 400
+      }
+    },
+    {
+      "source": "PALLOX",
+      "targets": 56,
+      "queries": 448,
+      "unique_RGB_SHA": 56,
+      "native_input_valid": 442,
+      "target_query_count_histogram": {
+        "8": 56
+      },
+      "native_HW_counts": {
+        "(480, 640)": 56
+      }
+    }
+  ],
+  "source_metadata_aliases": {
+    "SYNTH": "SYNTH",
+    "ORIGINAL_YCB": "YCB",
+    "CONTROLLED_YCB": "ABSENT_SOURCE_KEY_IN_CONTROLLED_MANIFEST",
+    "PALLOX": "PALLOX"
+  },
+  "GT_fields_in_model_input": 0,
+  "auditor_assumption_correction": "The draft incorrectly assumed canonical source==raw metadata source label. Corrected to preserve the explicit lineage aliases above; no input/code/model artifact was changed.",
+  "explicit_input_key_whitelist": {
+    "target": [
+      "box",
+      "global_id",
+      "group_id",
+      "id",
+      "image",
+      "image_sha256",
+      "joined_target_index",
+      "queries",
+      "raw_hw",
+      "side",
+      "source",
+      "source_metadata_label",
+      "split"
+    ],
+    "query": [
+      "joined_query_index",
+      "native_corner",
+      "native_input_valid",
+      "pixel",
+      "query",
+      "sample_id"
+    ]
+  },
+  "forbidden_data_not_read": [
+    "RGBbytes",
+    "current RGB/GT/scores",
+    "models/checkpoints",
+    "P3/x/xvalid",
+    "NPZ/feature/label arrays"
+  ],
+  "limitation": "This metadata audit verifies text identity/coordinates/validity and bound text hashes. It does not independently replay image decoding or feature values; root owns separate x-valid audit.",
+  "new_forward_training_or_PnP": 0
+}

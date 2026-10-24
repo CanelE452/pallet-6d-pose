@@ -1,0 +1,56 @@
+{
+  "schema": "V69_NEXT_COMPONENT_SOURCE_ONLY_FEASIBILITY_MEMO_V1",
+  "status": "FUTURE_DESIGN_CANDIDATE_ONLY; NO_FIT_OR_INFERENCE_AUTHORIZED",
+  "hypothesis": "기존 mask/base presence를 동결한 채, 입력 RGB의 목표 문맥·입력 target box·q와 동결 출력을 이용하는 별도 조건부 V-vs-E 모듈이 target support와 불투명 다른 물체의 support를 구별할 수 있는지 검증한다. six-joint/O/near 목적을 추가하는 실험과 분리한다.",
+  "source_facts": [
+    "V66 CONTROLLED의 E→binary nonvisible은 383/445였으나 V recall은 약 .54885다. V67의 known V와 non-V 모두를 재가중한 BCE도 사전 고정 source admission을 해결하지 못했다.",
+    "SAM2.1 CONTROLLED V precision/recall은 .61935/.59680, E→binary nonvisible은 178/445=.4다. 고정 4개 strict25E 사례에서 선택 마스크가 남은 target과 opaque donor를 함께 포함했다.",
+    "따라서 강한 mask만으로 ownership 판별이 보장되지는 않는다. 이 수치들은 정확한 query-pixel support의 source 결과이며 semantic reference/corner 성공률이 아니다."
+  ],
+  "bounded_candidate": {
+    "training_population": "TRAIN의 확인된 exact V/E만 사용한다. O, full/visible unknown, semantic S는 loss에서 제외하며 O를 E로 바꾸지 않는다. Source teacher tier를 유지한다.",
+    "permitted_inputs": "배포 시 같은 방식으로 얻는 q-centered RGB와 input target box, 그 입력에서 계산된 동결 mask/base score만 사용한다. RGB 문맥 안의 남은 target 외관을 활용할 수 있어야 한다. GT mask/target ID/donor ID/reference r/original counterfactual RGB는 입력 금지다.",
+    "paired_preservation": "원본-합성은 같은 q/box/target의 학습 쌍으로만 묶는다. 유지된 V에는 두 장 모두 V 보존, 새로 가린 원래 V에는 original V→composite E를 요구한다. 쌍의 유무나 파일명으로 label을 읽게 하지 않는다.",
+    "sampling": "같은 동결 baseline으로 TRAIN에서만 hard-case strata를 미리 정의한다. base-positive E뿐 아니라 base-positive V와 base-negative V/E도 보존하고 source/target별 기여를 보고한다. VAL의 오류·confidence로 sampler, crop, loss, threshold를 고르지 않는다.",
+    "output": "P(V | admitted known-V/E task, permitted inputs). E도 이 조건부 support 의미만 갖는다. O/unknown을 포함하는 전체 질의에서 calibrated E 확률이라고 부르지 않는다."
+  },
+  "required_admission_facts": [
+    "원래 target visible ownership과 opacity/다른-instance foreground certificate가 같은 native pixel에 정합하고, label tier·원본/합성 ID·q/box/SHA가 재현되어야 한다.",
+    "원본/합성/jitter siblings와 donor·scene/session 계열을 split 내 묶고, target/object·paste 크기/경계·source/camera 편향을 별도 감사한다. 합성 경계의 탐지 성공과 target ownership 성공을 구별한다.",
+    "외관이 구별되는 source target에만 성공한 결과를 flat pallet로 일반화하지 않는다. 공개 팔레트의 독립 target appearance/가림 자료가 부족하면 그 gap을 명시한다.",
+    "학습 전에 하나의 input/route/loss/budget/selector와 source V 보존·E 판별 최소조건을 고정한다. strict25V와 strict25E, 경계·원본/합성 V, base-positive hard cohorts를 같은 ID로 보고한다. 조건부 known-V/E precision은 O/unknown 제외 범위를 명시한다."
+  ],
+  "go_no_go_and_limits": [
+    "SAM21 양성에 veto만 적용하면 V recall 상한은 기존 .59680이므로 CONTROLLED V recall .8 gate를 통과할 수 없다. V 복구까지 시험하려면 base-negative도 별도 조건부 평가에 포함해야 하며, 전역 deploy score는 아직 정의되지 않는다.",
+    "local crop에 target을 식별할 문맥이 없거나 target/occluder 외관이 동일하고 box도 ownership을 정하지 못하면 입력 비식별성으로 NO-GO다. GT-only reference/slot을 숨긴 D/E 충돌은 V69가 이미 보인 구조적 한계이며 이 모듈이 해소하지 않는다.",
+    "우선 실험 가치는 ownership 조건부 분리와 V 보존을 독립 검증하는 데 있다. 또 하나의 joint loss보다 원인 범위가 좁지만, 성공해도 crop 존재·semantic reference·canonical slot/self visibility의 정답이나 사용자 목표 완료를 뜻하지 않는다."
+  ],
+  "selection_policy": "새 VAL/current hyperparameter 탐색 없음. 사전 고정 source-only 선택 규칙과 quality gates만 사용하며 current inference authorization을 발급하지 않는다.",
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/DRAFT_PROTOCOL.json",
+      "sha256": "fc918fccde2aa376087d152ec8884ac1ae5c8e0a53bd3366004be113428b82db"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/source_audit/SOURCE_LOSS_TRADEOFF_DIAGNOSIS.json",
+      "sha256": "0decfaa4ee71aff44ba4afa4aee5a7b0b300b0887f4892edd2a9e24330f60634"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_evaluation/SAM21_FIXED_COMPARISON/SOURCE_RESULTS.json",
+      "sha256": "9f362cdca0ba5ea00282c7dc0963f2fec2b0d0877390862d79c2cdadbd0883f3"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_audit/SAM21_EXTERNAL_FALSE_VISIBLE_CROPS/VISUAL_REVIEW_SUPPLEMENT.json",
+      "sha256": "4ea98e3ddedaaa3febf2a70dd488a3005a22583b1901dbfa9cc7b3da77b26892"
+    }
+  ],
+  "execution": {
+    "new_code_implementation": 0,
+    "source_RGB_or_masks_read_for_this_memo": 0,
+    "weights_or_features_read": 0,
+    "model_forward": 0,
+    "fit": 0,
+    "current_data_read": 0,
+    "prior_artifacts_modified": false
+  }
+}

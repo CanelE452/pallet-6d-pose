@@ -1,0 +1,57 @@
+{
+  "completed": true,
+  "PASS": true,
+  "review_type": "OFFICIAL_PRIMARY_DOCUMENTATION_AUTHORITY_REVIEW_ONLY",
+  "retrieved_UTC": "2026-10-24T08:14:16.241951+00:00",
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_source_registration_probe_20261024_v186/ROOT_SCOPE_BEFORE_SOURCE_RGB_DEPTH_MASK_POSE_MESH_BODIES.json",
+    "sha256": "c62e53f4337ced281031937e51c6ad9c562afc373a5f9ee351744749299a6b34"
+  },
+  "prior_math_contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_source_registration_probe_20261024_v186/source_registration_review_a/MATH_CONTRACT.json",
+    "sha256": "08f28fa38ab09d74a5295b662b3f993faa3673485d52480055b9372b11cb92ad"
+  },
+  "MR6D_authority": {
+    "source": "https://arxiv.org/html/2508.13775",
+    "locations": "Sections3.1/3.2, figures3/4/6; HTML lines118,121-155",
+    "documented": "Validation capture uses RealSense D435i at30FPS and VICON camera tracking. Eye-in-hand maps camera MoCap to its optical frame. Static object placement is manually refined against a trajectory-assembled cloud, then projected perframe. Euro mesh is manually designed; real nominal dimensions may vary by centimeters. Authors expect static annotation accuracy in the low-centimeter range from process and visual checks.",
+    "not_certified_by_this_text": [
+      "RGB-versus-depth optical-frame choice, exact depth-to-color export/reprojection or resampling implementation.",
+      "Synchronization settings, raw capture filters/hole-fill, per-pixel alignment uncertainty or exact depth PNG processing history.",
+      "A numerical pixel/part boundary bound or a sensor-depth accuracy bound."
+    ],
+    "release_card": "https://huggingface.co/datasets/anas-gouda/mr6d",
+    "release_card_limit": "The reviewed release card says README content is empty. No capture/export authority was found in the reviewed paper/card; this is not proof that no author-held code exists.",
+    "CVF_PDF_fetch": "Official conference PDF URL returned403 on direct open; author arXiv HTML supplied readable primary text."
+  },
+  "BOP_normative_contract": {
+    "sources": [
+      "https://raw.githubusercontent.com/thodan/bop_toolkit/master/docs/bop_datasets_format.md",
+      "https://raw.githubusercontent.com/thodan/bop_toolkit/master/bop_toolkit_lib/misc.py"
+    ],
+    "fact": "Per-frame depth_scale converts stored depth to mm. misc.Precomputer/depth_im_to_dist_im defines input depth as camera-axis Z at integer pixel coordinates and converts it to Euclidean range. This is the format/toolkit convention used by the frozen probe, not an independent reconstruction of MR6D capture history."
+  },
+  "RealSense_device_and_SDK_authority": {
+    "projection_document": "https://dev.realsenseai.com/docs/projection-texture-mapping-and-occlusion-with-intel-realsense-depth-cameras/",
+    "locations": "Sections2.3/3.1/3.4, lines196,208-227,256-282",
+    "fact": "The official device document distinguishes Z depth from Euclidean distance. Depth/color have separate sensor frames and intrinsics/extrinsics. Stream alignment is a separate operation, may have holes and pixel splatting, and does not follow merely from equal dimensions.",
+    "SDK_projection": "https://github.com/realsenseai/librealsense/wiki/Projection-in-RealSense-SDK-2.0?language=en_US",
+    "SDK_fact": "Z16 units are sensor-specific and queried via depth_scale; zero means missing. Integer(0,0) is the top-left pixel center. Default device units are not a substitute for supplied per-frame dataset scale.",
+    "SDK_align_source": "https://raw.githubusercontent.com/realsenseai/librealsense/master/src/proc/align.cpp",
+    "SDK_align_locations": "align_images lines45-87; align_z_to_other lines89-110",
+    "SDK_align_fact": "The reviewed generic align implementation transforms/project depth-pixel corners to another viewport but transfers the original z16 sample (minimum original sample on collisions). Thus an aligned image alone does not certify recomputed color-optical-axis Z.",
+    "authority_limit": "Current official SDK code/doc is general primary evidence, not the pinned SDK version or exporter used for MR6D. No assertion that MR6D used this path."
+  },
+  "conclusion": {
+    "source_depth_interpretation": "Frozen supplied-depth_scale/Z comparison remains unchanged. Exact released MR6D RGB/depth processing and optical-frame provenance remain UNCONFIRMED by reviewed dataset-specific documents.",
+    "residual_interpretation": "No residual-driven switch to range, scale, offset, intrinsics, pose, mesh, pixel convention, tolerance, or mask mode. Signed residual and missing partitions remain measurements; cause is unresolved.",
+    "mask_interpretation": "A high target-alone/full-mask overlap does not independently certify sensor/RGB registration, exact visible part or native8 correspondence. Supplied masks/poses retain their original authority.",
+    "safe_documentary_followup": "If needed, inspect author-provided capture/export configuration or documented depth-alignment provenance without tuning against these observed residuals. This does not impose a new physical-corner certification requirement on the user task."
+  },
+  "new_depth_or_pose_labels": 0,
+  "asset_or_output_numeric_body_reads_for_document_review": 0,
+  "V112_current_held_VAL_access": 0,
+  "new_model_forward_fit_downloaded_asset_or_posefit": 0,
+  "selected_model": null,
+  "fully_solved": false
+}

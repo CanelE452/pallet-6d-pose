@@ -1,0 +1,80 @@
+{
+  "completed": true,
+  "PASS": true,
+  "blocker_count": 0,
+  "blockers": [],
+  "schema": "V95_INDEPENDENT_CHANGED_FULLRGB_FEATURE_DRIVER_REVIEW",
+  "created_UTC": "2026-10-23T02:00:04.957413+00:00",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/actual_pair_builder_preparation/build_changed_inputs.py",
+    "sha256": "912c218de69f42e57fc9ce8951a255b9744d5e701993a227bc10f289171feb1d"
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/actual_pair_builder_preparation/FEATURE_PROTOCOL_BEFORE_SOURCE_EXECUTION.json",
+    "sha256": "da8f39b12bcd7f2b06a9564730d626c046c8bc2f52d06b0f2dac0d127c58f85c"
+  },
+  "template": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/actual_pair_builder_preparation/ROOT_FEATURE_ENTRYLOCK_TEMPLATE.json",
+    "sha256": "697d4df4105f0c7e8d37f4c1f0af6c7936a185e2b410d8cee0c6f22da351ff11"
+  },
+  "generated": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/actual_pair_builder_preparation/GENERATED_DRIVER_TESTS.json",
+    "sha256": "3d571e1cacdc2096127f87ff3a1125fffbe057315f7a0302109862db6c7a4392"
+  },
+  "producer_rerun": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/independent_feature_driver_review/GENERATED_DRIVER_RERUN.json",
+    "sha256": "3d571e1cacdc2096127f87ff3a1125fffbe057315f7a0302109862db6c7a4392"
+  },
+  "independent_fixture_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/independent_feature_driver_review/check_generated_driver.py",
+    "sha256": "2649348e7c8b1996deb64cdc5f571e09952b77250a02eb8466582a6eb5f8d32c"
+  },
+  "independent_fixture_proof": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/independent_feature_driver_review/INDEPENDENT_GENERATED_DRIVER_PROOF.json",
+    "sha256": "ca7ea91460a7d4a1c90d940c3acdddfd606f402186f966420b61bdf9b5170b33"
+  },
+  "checks": {
+    "same_q_L_slot_candidate": {
+      "PASS": true,
+      "evidence": "validate_metadata + same_q enforce bound original row/source lineage identities/q/L/slot and exact 960x3 order; no query-selection or coordinate-correction code."
+    },
+    "fresh_changed_fullRGB_P3": {
+      "PASS": true,
+      "evidence": "materialize_one compares full decoded RGB SHA, loads/checks actual changedRGB, then passes that full RGB and unchanged q/L to extractor. Generated changed full image outside the local crop still triggers fresh P3 and retains crop-equal RGB96."
+    },
+    "unchanged_fullRGB_reuse": {
+      "PASS": true,
+      "evidence": "Only exact decoded-fullRGB equality returns the existing bound three tensors without loading changed image or invoking extractor. Output records BASE_ROW file/key/index lineage and per-tensor hashes."
+    },
+    "same_new_RGB_for_local_and_P3": {
+      "PASS": true,
+      "evidence": "Changed callback runs frozen whole-image feature producer on BGR conversion of the same RGB array passed to pinned native RGB96 crop. F16 padded P3 + exact shape/gain/offset assertions precede native sampling."
+    },
+    "U_and_denominator": {
+      "PASS": true,
+      "evidence": "All2880 occurrences remain. Only absent q/L gets a zero placeholder; finite outside-centre q retains its actual intersecting RGB96/P3 tensors with factual operator availability. Source/inference U is not an auxiliary negative label."
+    },
+    "GT_only_natural_E20": {
+      "PASS": true,
+      "evidence": "Natural D143/E20/U797 copied into separate GT-only original-label sidecar. Construction D/U is distinct. Neither labels/references/regions/donor/variant enter backbone or three-head-tensor input."
+    },
+    "preflight_runtime": {
+      "PASS": true,
+      "evidence": "Root-approved source-only entry and exact driver/protocol/proof/sealed intake metadata bindings checked before source arrays/model construction. Runtime only imports torch/cv2/PIL inside run. One blank warmup, one first-repeat and before/after parameter digest + final asset SHA checks recorded."
+    }
+  },
+  "limitations": [
+    "This is static/generated review, not a certification that actual RGB/P3 arrays or ownership edits are correct. The source feature run and saved array audit remain separate.",
+    "authorize hashes bound weight bytes only during root-authorized execution; this reviewer read no weight bytes or tensors.",
+    "No model-quality/semantic-native gold claim follows from changed-image matching or mass certificates."
+  ],
+  "activity": {
+    "actual_source_RGB_mask_feature_GT_arrays": 0,
+    "weight_reads": 0,
+    "model_or_backbone_forward": 0,
+    "fit": 0,
+    "current": 0,
+    "PnP": 0
+  },
+  "verdict": "PASS: no critical functional blocker found in the frozen driver within the requested bounded code/generated scope."
+}

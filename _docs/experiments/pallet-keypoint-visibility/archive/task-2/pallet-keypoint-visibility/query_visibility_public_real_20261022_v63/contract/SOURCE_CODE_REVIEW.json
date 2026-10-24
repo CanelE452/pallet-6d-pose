@@ -1,0 +1,53 @@
+{
+  "schema": "V63_SOURCE_STATIC_REVIEW_V1",
+  "scope": "Read-only review at recorded file hashes; no fit or model forward by reviewer",
+  "files": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/build_synthetic_cache.py",
+      "sha256": "87bd55b9a523b831a203d255441e5b772347662a78dea7d82cf5c001c68faf81",
+      "AST_forbidden_pose_solver_calls": []
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/query_head.py",
+      "sha256": "97598bd8edc5e03fb068311957585d1044213680bee67477b007672daae5e01f",
+      "AST_forbidden_pose_solver_calls": []
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/fit_query_head.py",
+      "sha256": "10fba908837467fe648b069fc57bbd8d0e0aa726da36bc523aac66e32ac547ea",
+      "AST_forbidden_pose_solver_calls": []
+    }
+  ],
+  "verified_in_code": [
+    "Trainer loads only explicit source train and validation NPZ caches; source whitelist synthetic/ycbv.",
+    "Trainer checks sample_id/group_id cross-split overlap and optional current-eval SHA denylist before optimizer construction.",
+    "Trainer threshold fixed0.5; strict lowest source validation BCE (source_mean mode equal domain BCE) selects checkpoint.",
+    "Model spatial output is dense[:,4,4] after two local convolutions; no GAP for spatial arm.",
+    "No geometry S-to-negative rewrite, external-ray proxy target, or real human labels in source trainer.",
+    "v61 exact scalar center labels reused unchanged and dense center/scalar match asserted.",
+    "Best checkpoints and run output directory refuse prior RUN_STARTED overwrite."
+  ],
+  "independent_evidence": [
+    "SOURCE_SYNTH_INVARIANT_AUDIT.json:5673TRAIN/1742VAL; center dense_y equals exact M4 scalar; current223SHA overlap0; source train/validationSHA overlap0",
+    "V61_REPLAY_CONTROL_SUMMARY.json: all original v61/legacy aggregate metrics reproduced exactly for frozen cohorts"
+  ],
+  "limitations": [
+    "No dedicated self semantic supervision: current scalar absence output cannot distinguish external occluder from outside-support or hidden semantic corner projected onto visible surface.",
+    "Source-only split is historically repeated synthetic development and upstream detector validation exposure; not a new independent synthetic test.",
+    "P3 center readout remains feature-stride resolution and cannot certify raw one-pixel ownership.",
+    "Source whitelist strings alone are insufficient provenance; registered RGB SHA and record manifests must be audited."
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "status": "reported_to_root_before_mixed_fit",
+      "file": "build_synthetic_cache.py",
+      "issue": "dense_valid originally tests nearest integer bounds without raw continuous coordinate bounds. Scalar y matches preserved query labels. Some dense grid points can round into image despite continuous grid lying outside.",
+      "measured_densevalid_true_featurevalid_false": {
+        "TRAIN": 141,
+        "VAL": 70
+      },
+      "suggestion": "Guard continuous query+offset bounds plus rounded bounds. Preserve existing completed synthetic arm if corrected. Feature validity channel is not identical, so do not simply replace dense_valid with featurevalid."
+    }
+  ]
+}

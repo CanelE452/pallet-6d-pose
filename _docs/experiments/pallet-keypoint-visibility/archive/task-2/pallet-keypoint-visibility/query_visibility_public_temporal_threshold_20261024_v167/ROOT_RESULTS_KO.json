@@ -1,0 +1,358 @@
+{
+  "schema": "V167_PUBLIC_ONLY_SCALAR_THRESHOLD_SAME_VIDEO_STABILITY_RESULT_KO",
+  "completed": true,
+  "UTC": "2026-10-24T02:54:53.174253+00:00",
+  "report_as_of_KST": "2026-10-24 11:54:53 KST",
+  "summary_KO": "공개 저장 logit으로 문턱을 맞추면 E 출력은 늘지만 오탐도 늘어난다. 한 공개 영상 내부의 문턱 fitting 안정성 진단이며 새 모델 일반화나 현재223 성능을 입증하지 않는다.",
+  "actual_execution": {
+    "completed": true,
+    "actual_exec_exit_code": 0,
+    "automatic_retry": false,
+    "fixed_models": [
+      "C45_REPLAY_C43_OWNER253_NATIVE0",
+      "C46_PART_NATIVE92_OWNER253_NATIVE0"
+    ],
+    "new_head_training_calls": 0,
+    "new_model_or_encoder_forward_calls": 0,
+    "inputs": "already saved public MR logits and existing assistant weak labels only",
+    "actual_scalar_fit_results": "18 purged folds plus2 full PUBLIC_CAL scalars",
+    "independent_saved_audit_B_PASS": true,
+    "independent_audit_checks_passed": 8,
+    "both_full_scalars_frozen": true
+  },
+  "cohort": {
+    "public_sequence": "val/000001",
+    "public_sequences": 1,
+    "frames": 45,
+    "all_original_rows": 360,
+    "full_known_D_E_rows": 154,
+    "full_known_D": 102,
+    "full_known_E": 52,
+    "threshold_fit_eligible_rows": 145,
+    "fit_D": 93,
+    "fit_E": 52,
+    "known_inputU9_all_D": true,
+    "all360_inputU": 108,
+    "unknown_truth": 206,
+    "all_original_status_and_U_retained": true,
+    "original_V166_split_labels_and_fixed0_results_unchanged": true
+  },
+  "threshold_rule": {
+    "decision": "E iff float64(raw_FP32_logit)>=float64(threshold); otherwiseD; original inputU staysU",
+    "objective": "maximize integer TN*N_E+TP*N_D on designated available knownD/E fit rows",
+    "tie": "highest threshold among equal integer objectives",
+    "posterior_probability_calibration": false,
+    "folds": 9,
+    "block_definition": "original public frame number//5, five frames per block",
+    "purge": "held block and immediately adjacent blocks excluded from that fold fit",
+    "fallback_counts": [
+      0,
+      0
+    ],
+    "full_CAL_role": "fit and apply to same145 eligible rows, apparent only"
+  },
+  "measurements": [
+    {
+      "stage": "original_fixed0",
+      "arm": "C45_REPLAY_C43_OWNER253_NATIVE0",
+      "authority_KO": "원래 고정0 결과 보존",
+      "CM_rows_D_E_columns_D_E_U": [
+        [
+          93,
+          0,
+          9
+        ],
+        [
+          50,
+          2,
+          0
+        ]
+      ],
+      "E_hits": 2,
+      "E_denominator": 52,
+      "E_hit_rate": 0.038461538461538464,
+      "D_hits": 93,
+      "D_denominator_full": 102,
+      "D_hit_rate_full": 0.9117647058823529,
+      "D_denominator_inputvalid": 93,
+      "D_hit_rate_inputvalid": 1.0,
+      "false_alarm_D_as_E": 0,
+      "E_precision_numerator": 2,
+      "E_precision_denominator": 2,
+      "E_precision": 1.0,
+      "known_inputU": 9,
+      "known_denominator": 154,
+      "U_rate": 0.05844155844155844
+    },
+    {
+      "stage": "original_fixed0",
+      "arm": "C46_PART_NATIVE92_OWNER253_NATIVE0",
+      "authority_KO": "원래 고정0 결과 보존",
+      "CM_rows_D_E_columns_D_E_U": [
+        [
+          93,
+          0,
+          9
+        ],
+        [
+          49,
+          3,
+          0
+        ]
+      ],
+      "E_hits": 3,
+      "E_denominator": 52,
+      "E_hit_rate": 0.057692307692307696,
+      "D_hits": 93,
+      "D_denominator_full": 102,
+      "D_hit_rate_full": 0.9117647058823529,
+      "D_denominator_inputvalid": 93,
+      "D_hit_rate_inputvalid": 1.0,
+      "false_alarm_D_as_E": 0,
+      "E_precision_numerator": 3,
+      "E_precision_denominator": 3,
+      "E_precision": 1.0,
+      "known_inputU": 9,
+      "known_denominator": 154,
+      "U_rate": 0.05844155844155844
+    },
+    {
+      "stage": "purged_temporal_OOF",
+      "arm": "C45_REPLAY_C43_OWNER253_NATIVE0",
+      "authority_KO": "한 영상 내부 문턱 fitting의 시간-block 안정성; fresh fullmodel 검증 아님",
+      "CM_rows_D_E_columns_D_E_U": [
+        [
+          71,
+          22,
+          9
+        ],
+        [
+          11,
+          41,
+          0
+        ]
+      ],
+      "E_hits": 41,
+      "E_denominator": 52,
+      "E_hit_rate": 0.7884615384615384,
+      "D_hits": 71,
+      "D_denominator_full": 102,
+      "D_hit_rate_full": 0.696078431372549,
+      "D_denominator_inputvalid": 93,
+      "D_hit_rate_inputvalid": 0.7634408602150538,
+      "false_alarm_D_as_E": 22,
+      "E_precision_numerator": 41,
+      "E_precision_denominator": 63,
+      "E_precision": 0.6507936507936508,
+      "known_inputU": 9,
+      "known_denominator": 154,
+      "U_rate": 0.05844155844155844
+    },
+    {
+      "stage": "purged_temporal_OOF",
+      "arm": "C46_PART_NATIVE92_OWNER253_NATIVE0",
+      "authority_KO": "한 영상 내부 문턱 fitting의 시간-block 안정성; fresh fullmodel 검증 아님",
+      "CM_rows_D_E_columns_D_E_U": [
+        [
+          64,
+          29,
+          9
+        ],
+        [
+          10,
+          42,
+          0
+        ]
+      ],
+      "E_hits": 42,
+      "E_denominator": 52,
+      "E_hit_rate": 0.8076923076923077,
+      "D_hits": 64,
+      "D_denominator_full": 102,
+      "D_hit_rate_full": 0.6274509803921569,
+      "D_denominator_inputvalid": 93,
+      "D_hit_rate_inputvalid": 0.6881720430107527,
+      "false_alarm_D_as_E": 29,
+      "E_precision_numerator": 42,
+      "E_precision_denominator": 71,
+      "E_precision": 0.5915492957746479,
+      "known_inputU": 9,
+      "known_denominator": 154,
+      "U_rate": 0.05844155844155844
+    },
+    {
+      "stage": "full_PUBLIC_CAL_apparent",
+      "arm": "C45_REPLAY_C43_OWNER253_NATIVE0",
+      "authority_KO": "같은145행에 fit/apply한 apparent 결과; held-test 성공 증거 아님",
+      "CM_rows_D_E_columns_D_E_U": [
+        [
+          74,
+          19,
+          9
+        ],
+        [
+          5,
+          47,
+          0
+        ]
+      ],
+      "E_hits": 47,
+      "E_denominator": 52,
+      "E_hit_rate": 0.9038461538461539,
+      "D_hits": 74,
+      "D_denominator_full": 102,
+      "D_hit_rate_full": 0.7254901960784313,
+      "D_denominator_inputvalid": 93,
+      "D_hit_rate_inputvalid": 0.7956989247311828,
+      "false_alarm_D_as_E": 19,
+      "E_precision_numerator": 47,
+      "E_precision_denominator": 66,
+      "E_precision": 0.7121212121212122,
+      "known_inputU": 9,
+      "known_denominator": 154,
+      "U_rate": 0.05844155844155844
+    },
+    {
+      "stage": "full_PUBLIC_CAL_apparent",
+      "arm": "C46_PART_NATIVE92_OWNER253_NATIVE0",
+      "authority_KO": "같은145행에 fit/apply한 apparent 결과; held-test 성공 증거 아님",
+      "CM_rows_D_E_columns_D_E_U": [
+        [
+          65,
+          28,
+          9
+        ],
+        [
+          7,
+          45,
+          0
+        ]
+      ],
+      "E_hits": 45,
+      "E_denominator": 52,
+      "E_hit_rate": 0.8653846153846154,
+      "D_hits": 65,
+      "D_denominator_full": 102,
+      "D_hit_rate_full": 0.6372549019607843,
+      "D_denominator_inputvalid": 93,
+      "D_hit_rate_inputvalid": 0.6989247311827957,
+      "false_alarm_D_as_E": 28,
+      "E_precision_numerator": 45,
+      "E_precision_denominator": 73,
+      "E_precision": 0.6164383561643836,
+      "known_inputU": 9,
+      "known_denominator": 154,
+      "U_rate": 0.05844155844155844
+    }
+  ],
+  "full_scalars": [
+    {
+      "arm": "C45_REPLAY_C43_OWNER253_NATIVE0",
+      "threshold_float64": -10.97239875793457,
+      "frozen_binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/public_calibration_v1/ALL2_THRESHOLDS_FROZEN_BEFORE_ANY_PRIVATE_READ.json",
+        "sha256": "f59143616bc9d964b21733c21ee29aafd11310f092090b9ca230b640a51ab833"
+      },
+      "role": "full PUBLIC_CAL apparent / future fixed retrospective source panels; not model adoption"
+    },
+    {
+      "arm": "C46_PART_NATIVE92_OWNER253_NATIVE0",
+      "threshold_float64": -9.855539321899414,
+      "frozen_binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/public_calibration_v1/ALL2_THRESHOLDS_FROZEN_BEFORE_ANY_PRIVATE_READ.json",
+        "sha256": "f59143616bc9d964b21733c21ee29aafd11310f092090b9ca230b640a51ab833"
+      },
+      "role": "full PUBLIC_CAL apparent / future fixed retrospective source panels; not model adoption"
+    }
+  ],
+  "OOF_tradeoff_KO": "C45 E41/52(78.85%), D71/102(69.61%; 유효입력71/93=76.34%), 오탐22, E precision41/63=65.08%. C46 E42/52(80.77%), D64/102(62.75%; 유효입력64/93=68.82%), 오탐29, E precision42/71=59.15%. 두 조건 모두 U9/154=5.84%.",
+  "authority_and_limits_KO": [
+    "공식 공개 영상 val/000001 하나의45프레임이다. 9fold는9개 독립 장면이 아니고154query는154개 독립 표본이 아니다.",
+    "V153~V166에서 공개 metric·crop·ranking을 반복 관찰하고 설계를 발전시켰다. 이 OOF는 문턱 fitting의 영상 내부 안정성만 다루며 fresh independent fullmodel validation이나 보지 않은 장면의 일반화가 아니다.",
+    "D/E는 기존 assistant 약라벨이며 사람 native 가시성·물리 가림·좌표 품질 gold가 아니다.",
+    "full PUBLIC_CAL은 같은145행에 문턱을 맞추고 적용한 apparent 수치다. C45 E47/52,D74/102 및 C46 E45/52,D65/102를 held-test 성공으로 해석하지 않는다.",
+    "결정 logit 문턱만 맞췄다. p(E)가 확률적으로 보정됐다는 주장은 하지 않는다. 원래0문턱의 부정적 결과도 유지한다."
+  ],
+  "pending_scope": {
+    "other_original_source28976_and_PART1144_rethresholded_panels_executed": false,
+    "full_source_qualification_for_new_scalars_evaluated": false,
+    "full_source_qualification_pass_claimed": false,
+    "current223_performance_verified": false,
+    "new_current223_evaluations": 0,
+    "purpose_KO": "다른 source28,976행과 PART1,144행의 전체 native/material/quality 패널은 이 계산에 아직 포함되지 않았다. 그 검증 전 전체 자격 통과를 주장하지 않는다."
+  },
+  "report_scope_note": {
+    "historical_parent_index_current_summary_incidentally_visible": true,
+    "new_current_raw_output_model_artifacts_opened": false,
+    "historical_summary_used_for_rules_numbers_or_selection": false,
+    "design_and_actual_scalar_calculation_already_frozen_before_report_context_lookup": true,
+    "new_private_current_V112_experimental_inputs_or_outputs_read_in_this_threshold_calculation": 0,
+    "global_filename_directory_zero_access_claimed": false
+  },
+  "bindings": {
+    "actual_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/public_calibration_v1/COMPLETE.json",
+      "sha256": "ba4d0a96a83deb13f48deb2f0f68956a2aa1384f8c0987028b657331f134f42e"
+    },
+    "frozen_two_scalars": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/public_calibration_v1/ALL2_THRESHOLDS_FROZEN_BEFORE_ANY_PRIVATE_READ.json",
+      "sha256": "f59143616bc9d964b21733c21ee29aafd11310f092090b9ca230b640a51ab833"
+    },
+    "actual_entry": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/ROOT_ACTUAL_PUBLIC_THRESHOLD_ENTRY.json",
+      "sha256": "c1857f3ab1f72b931a3910951c65168b6e4a9cd49fd129dc9f24a459fcdbbb90"
+    },
+    "actual_terminal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/ROOT_ACTUAL_PUBLIC_THRESHOLD_EXECUTION_TERMINAL.json",
+      "sha256": "cc314de47e9b656cc10975c0daaf62beecbf454564e2f9e14cfc2fa961e3e589"
+    },
+    "frozen_design": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/ROOT_DESIGN_BEFORE_PUBLIC_THRESHOLD_CALIBRATION.json",
+      "sha256": "d957b8ed2d354539168a4a3146b9d9a723172dd9a88fcd88149f4a1129ea8a61"
+    },
+    "frozen_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/calibration_preparation/PROTOCOL_BEFORE_PUBLIC_LOGIT_OR_CALIBRATION_LABEL_BODIES.json",
+      "sha256": "f2d2cfaecff6c35c2ba9efba627985de3f3198970da6361daf2484f7808ceb27"
+    },
+    "independent_code_review_A": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/independent_calibration_code_review_a/REVIEW.json",
+      "sha256": "d0fe786cd32c3f84e518d40275652adb323b19888cb049773f57a57534b08246"
+    },
+    "independent_saved_audit_B": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/independent_saved_calibration_review_b/REVIEW.json",
+      "sha256": "d480f71c3387fbf0774de9f5c961b37a7a0c489ca3f25614c08c428ad384c393"
+    },
+    "V166_report": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/ROOT_READOUT_KO.html",
+      "sha256": "38bc8bda70293d5b3e92a5a7e28e0ee6196528356bc095d61771507033e48f8d"
+    },
+    "V166_result": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/ROOT_RESULTS_KO.json",
+      "sha256": "e5b568cabbbae8521a549af293f60200e1ef50d46e12507227c4d260ff88aced"
+    },
+    "V166_gallery154": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/index.html",
+      "sha256": "58867c81425c33362725f860a10dcc57dea1676225e75bda9de7d5e2fc6c0c82"
+    },
+    "V166_diagnostic_gallery": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/source_validation_full154_visual_v1/diagnostic_representatives.html",
+      "sha256": "b992e730b9b41484d1fd60d2d0b552a52c4b9997bb040a2b37b21f71cd2bad5e"
+    },
+    "C45_REPLAY_C43_OWNER253_NATIVE0_folds": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/public_calibration_v1/C45_REPLAY_C43_OWNER253_NATIVE0_PURGED9_FOLDS.json",
+      "sha256": "8be3fde63c0b7f6b278a42d5dd7e137eea3ba205bf5cc5e793a225f07a7b083d"
+    },
+    "C46_PART_NATIVE92_OWNER253_NATIVE0_folds": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_temporal_threshold_20261024_v167/public_calibration_v1/C46_PART_NATIVE92_OWNER253_NATIVE0_PURGED9_FOLDS.json",
+      "sha256": "e196a7a7d8e4310b3b28b3e4c86f06e2091db5fc92efb10e78e94b73a5fe699b"
+    }
+  },
+  "new_crop_generation": false,
+  "selected": null,
+  "selected_model": null,
+  "adopted": false,
+  "fully_solved": false,
+  "goal_status": "active_unsolved",
+  "phase_complete": true,
+  "phase_complete_scope": "public MR-only scalar fitting and same-video purged threshold stability; no other-source/current qualification"
+}

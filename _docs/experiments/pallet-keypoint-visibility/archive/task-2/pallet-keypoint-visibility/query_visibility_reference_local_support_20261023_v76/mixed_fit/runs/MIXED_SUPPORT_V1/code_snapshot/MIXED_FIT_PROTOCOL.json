@@ -1,0 +1,117 @@
+{
+  "schema": "V76_MIXED_REFERENCE_LOCAL_SUPPORT_FIT_PROTOCOL",
+  "created_UTC": "2026-10-22T19:20:34.657222+00:00",
+  "status": "CHOICES_FROZEN_BEFORE_PUBLIC_INPUT_COMPLETION_AND_FIT",
+  "bindings": {
+    "model_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/mixed_fit/query_center_support_head.py",
+      "sha256": "67fdee4a9ad850ba91482e4ce1fc098834c88f207c4edc0ab178b685ae99c940"
+    },
+    "teacher_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/teacher_preparation/TARGET_CONTRACT_PROPOSAL_V2.json",
+      "sha256": "e0f3ecb156bda7a2b6fc778eea9964285accbd8b866e613db33bf3a5fd1d0271"
+    },
+    "teacher_GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/GT_ONLY_TEACHER_CORPUS.npz",
+      "sha256": "626338ae0dee48f5c5d5f53930e05d02960225ee9d3972e751aeff4b25c30f45"
+    },
+    "teacher_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/GT_ONLY_CORPUS_SEAL.json",
+      "sha256": "e153dd10359578cb15e1f939f0071c5dcf0a5a90e54901b6bbe4cb36b7ff1fee"
+    },
+    "synth_input_manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/synth1003_input_pack/PACK_MANIFEST.json",
+      "sha256": "0f617e8cc74f0c815a6f7599176157e901296eaaeafca1a4a721a37214c2d1a8"
+    },
+    "synth_input_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/synth1003_input_pack/FINAL_INPUT_PACK_SEAL.json",
+      "sha256": "09682394faa85f447157c0e4622a7e6ddc5ed4caa045e51bf20a518e140b0340"
+    },
+    "pretrain": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_context_pretrain_20261023_v75/runs/SOURCE_PRETRAIN_V1/BEST_PROXY_HEAD.pt",
+      "sha256": "256bd8e4d222afe9c4c6c533a78bde65e9171e960829a05bf8214a64a6d55b1e"
+    }
+  },
+  "source_rows": {
+    "SYNTHETIC": 1003,
+    "YCB_PUBLIC_REAL": 4200,
+    "total": 5203,
+    "slots": 41624,
+    "keep_every_row": true
+  },
+  "split": "Original synthetic768TRAIN/235VAL and YCB scenes0..7TRAIN3400/8..9VAL800; no current data.",
+  "input_binding": "Public pack manifest/seal/lineage + source-only query-emulation seal must be bound by separate pre-fit SOURCE_INPUT_BINDINGS.json, then exact trainer entrylock; no choices changed there.",
+  "forward_fields": [
+    "p3_roi",
+    "local_rgb96",
+    "local_valid96",
+    "target_rgb128",
+    "target_valid128",
+    "context42"
+  ],
+  "parameter_count": 41237,
+  "architecture": "V75 encoder/context/fusion + first classifier linear transferred. Remove reference_localizer and learned attention. Validity-weighted query-centered3x3 fused-feature mean24 +fullcrop valid max24 +target24+context16+fractions2 ->90->32GELU->binary1. New last linear weight/bias=0, old DES output excluded. No pose/location prediction.",
+  "target": {
+    "label_codes": {
+      "1": "VISIBLE",
+      "0": "COVERED",
+      "-1": "U"
+    },
+    "meaning": "Reference-local expected target support weak teacher. Not query-pixel presence or human semantic DES.",
+    "self_visibility": "Separate self proxy unchanged; S+localVISIBLE may coexist. No self-to-covered relabel.",
+    "loss_admission": "GTteacherknown0/1 AND factual query_center_valid AND ROI_anyvalid AND local_valid96.any AND target_valid128.any AND GTref finite AND GTref inside unchanged q square: -0.5 <= (r-q)/L <0.5 in both axes. Reference/query invalid, miss, U ->zero loss; all retained.",
+    "boundary": "Include near-boundary teacher labels using already frozen observed-image rules; report boundary and strong/fallback branches separately. No quality or teacher ratio filtering beyond label0/1.",
+    "GT_forward": false
+  },
+  "loss": "Unweighted binary cross entropy with logits, mean over sampled admitted queries. No location auxiliary, no self-class loss, no pseudo semanticU class, no GT-derived spatial forward.",
+  "sampling": {
+    "source_order": [
+      "SYNTHETIC",
+      "YCB_PUBLIC_REAL"
+    ],
+    "class_order": [
+      0,
+      1
+    ],
+    "per_source_class": 24,
+    "batch_queries": 96,
+    "replacement": true,
+    "generator_seed": 20261023,
+    "augmentation": "Public queries only: frozen synthTRAIN correlated error emulation defined separately. No RGB/random query online augment, no current error fitting."
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.0003,
+    "weight_decay": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "updates": 2000,
+    "clip_grad_norm": 5.0,
+    "LR_schedule": "constant",
+    "initialization_seed": 20261023
+  },
+  "checkpoint_selection": {
+    "every_updates": 100,
+    "criterion": "Minimum equal arithmetic mean BCE over four source x class VAL strata; all nonempty required; strict lower only, earliest tie. Updates100..2000 eligible, update0 diagnostic only.",
+    "fixed_visible_probability_threshold": 0.5,
+    "no_current_selection": true,
+    "validation_is_conditional": "Public GT-derived emulated query validation, not actual initializer/end-to-end. Synthetic235 includes84 V75 source-selection reused rows, not a fresh independent test."
+  },
+  "runtime": {
+    "python": "/home/minjae/anaconda3/bin/python",
+    "torch": "2.5.1+cu121",
+    "device": "cuda:0",
+    "CPU_threads": 1,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "allow_tf32": false,
+    "exact_GPU_backward_bits_claim": false
+  },
+  "report": "All four source/partition strata CM, P/R, macroNLL, label/query/input/admission coverage, U/miss counts, strong/fallback/boundary/self proxy separately, selected model hashes and update; fixed .5 with no confidence U threshold.",
+  "current_evaluation": "After source-selected weights freeze only, apply once to all unchanged223 stored inputs. Compare v61/legacy and last V72 saved outputs by wood/square,D/E vs D/S, manual-error<=3px and fixed bins. Raw binary support transfer and same old saved self geometry gate separately. Preserve unknown/missing; no current-based model/threshold selection. PnP0.",
+  "execution": "One fit; generated loss/sampler/forward and source GPU preflight first. Preserve exact failed code/protocol/log before pre-update repair. Never silently restart after optimizer update1.",
+  "goal_status": "active",
+  "fully_solved": false
+}

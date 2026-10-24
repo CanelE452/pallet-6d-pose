@@ -1,0 +1,192 @@
+{
+  "schema": "PALLET_QUERY_VISIBILITY_PUBLIC_REAL_V63_LABEL_EVAL_CONTRACT_V1",
+  "date_Asia_Seoul": "2026-10-22",
+  "user_policy": {
+    "supersedes_historical_synthetic_only": true,
+    "training_sources": [
+      "existing synthetic training split",
+      "public real YCB-V training scenes not current evaluation"
+    ],
+    "current_pallet_223": "evaluation only: no fitting, feature statistics, augmentation choice, calibration, threshold, checkpoint, radius or crop selection",
+    "PnP": "forbidden; no new pose solve or pose optimization; existing pose-derived saved fields are provenance only",
+    "v61": "preserve checkpoint, outputs, labels, thresholds and old metrics byte-for-byte"
+  },
+  "coordinate_contract": {
+    "query": "unaltered initial query, never human reference centered/resized",
+    "nearest_pixel": "floor(x+0.5), floor(y+0.5) at native raw image resolution; validity checks continuous and nearest pixel coordinates",
+    "native_order": "0 front top left,1 front top right,2 front bottom right,3 front bottom left;4-7 corresponding back;8 centroid excluded",
+    "synthetic_mapping": "saved arrays are camera_dynamic_0123_v4; do not apply perm_v4 twice",
+    "real_mapping": "use frozen evaluation preparation mapping only; SQUARE_YOLO:026048 stays UNKNOWN_MAPPING"
+  },
+  "source_mask_labels": {
+    "VISIBLE_TARGET": {
+      "condition": "visible_mask(query)=1 AND full_mask(query)=1",
+      "meaning": "target-instance visible surface occupies the exact query pixel",
+      "exact_presence": 1,
+      "external": 0
+    },
+    "EXTERNAL_OCCLUDED_SUPPORT": {
+      "condition": "visible_mask(query)=0 AND full_mask(query)=1",
+      "meaning": "target-only rendered silhouette has surface support at query but scene visibility removes it",
+      "exact_presence": 0,
+      "external": 1
+    },
+    "OUTSIDE_TARGET_SUPPORT": {
+      "condition": "visible_mask(query)=0 AND full_mask(query)=0",
+      "meaning": "background, target hole, outside target projection, or wrong target/query; mechanism not determined by these masks",
+      "exact_presence": 0,
+      "external": null
+    },
+    "INVALID_MASK_PAIR": {
+      "condition": "visible_mask=1 AND full_mask=0",
+      "handling": "fail mask consistency gate; do not relabel"
+    },
+    "SELF_OCCLUDED_SEMANTIC": {
+      "condition": "not supplied by target-only full silhouette or visible silhouette",
+      "loss": "masked as UNKNOWN; never turn into external-negative from absence alone",
+      "reason": "full silhouette is already camera-facing target support; hidden semantic 3D corners may project onto another visible target face"
+    },
+    "sources": {
+      "synthetic": "M0 target-only binary silhouette, M4 final-visible binary silhouette; M4 subset M0 verified historically; pixel >127",
+      "YCB-V": "BOP per-instance mask (full) and mask_visib (scene visible); nonzero binary; mask_visib subset mask must be verified for each record"
+    },
+    "boundary": "exact nearest-pixel target remains primary; 3x3 mixed mask is boundary_uncertain diagnostic. A finite-neighborhood target is a distinct auxiliary with radius fixed from source-only validation, never relabel exact target.",
+    "no_proxy_promotion": [
+      "external-ray9 proxy is not physical visibility",
+      "convex-cuboid self is geometry proxy, not human native-corner self GT",
+      "projected cuboid point mask membership is not semantic DIRECT GT"
+    ]
+  },
+  "human_evaluation_labels": {
+    "DIRECT_VISIBLE": "existing human corner identity is visible; pixel at initial query is not annotated",
+    "EXTERNAL_OCCLUDED": "human target corner hidden by another object; not all absent-query pixels",
+    "SELF_OCCLUDED": "human target corner hidden by the pallet itself; may project onto target-owned pixels",
+    "OUT_OF_FRAME": "exclude visibility confusion; report inventory",
+    "UNANNOTATED": "preserve; no inferred labels from source pnp_projected or visibility=1",
+    "UNKNOWN_MAPPING": "preserve8slots of SQUARE_YOLO:026048; exclude semantic metrics"
+  },
+  "evaluation": {
+    "name": "semantic keypoint visibility transfer of query-conditioned target-support classifier",
+    "not_established": "No current-real target-instance pixel GT exists, so no direct real exact-pixel accuracy or quantitative attribution of label mismatch versus domain transfer.",
+    "tasks": {
+      "D_vs_E": {
+        "positive": [
+          "DIRECT_VISIBLE"
+        ],
+        "negative": [
+          "EXTERNAL_OCCLUDED"
+        ],
+        "exclude": [
+          "SELF_OCCLUDED",
+          "OUT_OF_FRAME",
+          "UNANNOTATED",
+          "UNKNOWN_MAPPING"
+        ]
+      },
+      "D_vs_S": {
+        "positive": [
+          "DIRECT_VISIBLE"
+        ],
+        "negative": [
+          "SELF_OCCLUDED"
+        ],
+        "exclude": [
+          "EXTERNAL_OCCLUDED",
+          "OUT_OF_FRAME",
+          "UNANNOTATED",
+          "UNKNOWN_MAPPING"
+        ]
+      },
+      "D_vs_ES": {
+        "positive": [
+          "DIRECT_VISIBLE"
+        ],
+        "negative": [
+          "EXTERNAL_OCCLUDED",
+          "SELF_OCCLUDED"
+        ],
+        "exclude": [
+          "OUT_OF_FRAME",
+          "UNANNOTATED",
+          "UNKNOWN_MAPPING"
+        ]
+      }
+    },
+    "cohorts": [
+      "paired_same_query_RGB: fixed legacy-compatible valid coordinate cohort",
+      "same_slot_pipeline: valid query, geometry S kept separate",
+      "all_registered_slots:1784rows retained in denominator inventory"
+    ],
+    "group": [
+      "WOOD_PRIMARY105",
+      "SQUARE118"
+    ],
+    "square_self": "N/A because0humanSELFlabels",
+    "new_model_call": "p_visible compared with source-only frozen threshold for visible/absent transfer. If explicit support-state classes are output, show VISIBLE/EXTERNAL_SUPPORT/OUTSIDE_SUPPORT separately; never call all absent predictions external.",
+    "legacy": "unchanged historical CAL46 comparator: B/I visible,O external,U unresolved,geometricS remains separate RGB-before-gate provenance. S counts as nonvisible only in D_vs_S and D_vs_ES pipeline.",
+    "precision": "correct decided class / all predictions of that class",
+    "recall": "correct decided class / all human support including abstentions/unresolved",
+    "coverage": "report decisions, U, geometryS/out-of-task, invalid separately",
+    "threshold": "v61 .5 preserved; new-model threshold/source epoch frozen before first current-eval inference; never select on current223",
+    "location_error": "evaluation-only error_to_reference<=3,3to10,10to30,>30px and reference_inside_nominal_crop. These are diagnostic strata, not verified query-miss ground truth. Human reference can be manual_click, locked_DEV, pnp_projected or unknown; report source.",
+    "paired_changes": "same fixed rows, report improved/damaged/unresolved and frame-group counts; no new GT-best permutation",
+    "exposure": "Current223 repeatedly examined development material; current experiment exclusion does not make it independent final holdout."
+  },
+  "source_selection": {
+    "partition": "existing synthetic train/validation split; YCB-V disjoint scene split from public train, split before sampling queries",
+    "checkpoint": "fixed training budget and source-only validation objective written before fitting; head variants report separately",
+    "threshold": "predeclare0.5 or choose only public/synthetic validation; save rule and validation artifact SHA",
+    "strata": [
+      "center-positive low target occupancy",
+      "center-negative high target occupancy",
+      "external support pixels",
+      "outside support/background/hole",
+      "mask boundaries",
+      "interior",
+      "scene/domain"
+    ],
+    "freeze_record_required": [
+      "checkpoint_sha256",
+      "source_manifest_sha256",
+      "source_validation_manifest_sha256",
+      "selection_rule",
+      "selected_epoch",
+      "threshold",
+      "model_config_sha256",
+      "current_eval_used_for_selection=false",
+      "new_PnP_calls=0"
+    ]
+  },
+  "completion_limits": {
+    "this_first_head": "intervention test, not proof that broad pallet semantic occlusion problem is solved",
+    "self_solution_needs": "verified semantic self source supervision/identity and evidence; mask_full and mask_visib alone insufficient",
+    "SAM_candidate": "target-prompt-conditioned segmentation may supply target-support evidence; validate multiple-instance ownership, holes, boundaries, external occluders. Keep pretrained/frozen or public-source adaptation provenance. SAM mask cannot by itself supply hidden semantic native-corner self state."
+  },
+  "sources": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/evaluation_preparation_20261022/EVALUATION_CONTRACT.json",
+      "sha256": "15beaf7a56ae6d437c52386c2dae8185cc76aea6830d6733b453bf170e2135d0",
+      "bytes": 4970
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/near_error_diagnosis_20261022/DIAGNOSIS_SUMMARY.json",
+      "sha256": "4cc1bb851af172e3e37de40c86c6492694ec6ab96c9b381b7e39b34230ccaa8b",
+      "bytes": 2428
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/near_error_diagnosis_20261022/PUBLIC_REAL_LEARNING_DESIGN.json",
+      "sha256": "6124f30b1593d15d70ee9b5c41ac9290e6f8091188617ed11b42ce07bce6b118",
+      "bytes": 3620
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/target_presence_classifier_20261022_v61/MODEL_FREEZE.json",
+      "sha256": "1022768ff31c3ec0fb68436224d78ac03beaf1387a4c609ef7227ebe9e9ba8f8",
+      "bytes": 435
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/presence_previous_models_audit_20261022_v62/EXACT_LEGACY_DESCRIPTOR.json",
+      "sha256": "e0187ac55c7ff3dffe4c45146aac23fd1295719891d21f795e67e61d14e08bff",
+      "bytes": 5383
+    }
+  ]
+}

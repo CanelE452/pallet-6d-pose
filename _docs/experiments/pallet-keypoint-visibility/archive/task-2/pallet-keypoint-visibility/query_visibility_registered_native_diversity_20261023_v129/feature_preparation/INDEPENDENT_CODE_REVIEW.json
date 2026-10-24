@@ -1,0 +1,83 @@
+{
+  "completed": true,
+  "PASS": true,
+  "blockers": [],
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/feature_preparation/run_frozen_C16_corpora.py",
+    "sha256": "b08671ebf4296503ec901044908f3970274b1fa0af788a79da32c83faca0053b"
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/feature_preparation/FROZEN_FEATURE_PROTOCOL_BEFORE_FORWARD.json",
+    "sha256": "d25f3bb41ba3140f0f5191f3645da54c2427f8e87aac05a581529b75fa980832"
+  },
+  "source_policy": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/ROOT_FROZEN_FEATURE_POLICY_BEFORE_FORWARD.json",
+    "sha256": "0f3c950ef6487d07a5ba3997c4923ef713ed2ab7e280b79abac137720cc95464"
+  },
+  "reviewed_input_builders": {
+    "native": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/source_crop_preparation/build_registered_query_crops.py",
+      "sha256": "6efe54df25ae9dc1d5f5ae5e94970a6ddda95f840ae7e978bc7217e341a398a8"
+    },
+    "public": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/public_source_preparation/build_public6_corpus.py",
+      "sha256": "8e89f939a5b7016f319656573e469cfb74fd8ce45c5f789e53be997d0b34d985"
+    }
+  },
+  "pinned_helper_code": {
+    "C11_producer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e"
+    },
+    "C8_preprocess": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/frozen_rgb_feature_preparation/prepare_frozen_rgb_features.py",
+      "sha256": "cc1e2c331d41aaea5b3d42d144c9abbc40231dd3784d24f52dcc58f41d607578"
+    },
+    "C9_target_preprocess": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_relative_rgb_head_20261023_v108/context_feature_preparation/prepare_target_context_features.py",
+      "sha256": "8deae91931c12bcc1692c98ce74fa5e703cfb0d57da980b126d5ca45ca74873e"
+    },
+    "local_crop_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_cue_inputs_20261023_v90/producer/spatial_input_math.py",
+      "sha256": "6a6c2543e28715e3d47e15c543c25f75ff7d3efa3b881e523bd3451817fc004b"
+    },
+    "target_crop_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/target_context_math.py",
+      "sha256": "aa7cd8e2568c8b7d30827e8681b4b87899944bd23cfa1b27948ceda5b55d07f3"
+    },
+    "availability_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_boundary_query_source_20261023_v125/feature_baseline_preparation/run_frozen_boundary_source.py",
+      "sha256": "c59d986a29668c04e19500ac1418062ad1912fdcdcfd5ed0e56209e8225be1e1"
+    },
+    "head_class_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+      "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de"
+    }
+  },
+  "checks": {
+    "corpus_identity": "authorize requires exactly NATIVE55296/PUBLIC_AUX918 completed/PASS descriptors and input_manifest equality. Each source occurrence_index is contiguous; merged global_index is separate from (corpus,source_occurrence_index).",
+    "chunk_join": "stored() uses row rgb96_row as LOCAL index and asserts chunk occurrence_index[local] equals source-corpus row occurrence_index. It hashes HWC/HW values before transposing to CHW/1HW. No assumption localrow == merged globalindex.",
+    "LRU": "NativeRGB cache keys are exact(path,SHA), capacity4; cropcache exact(path,SHA),capacity2. move_to_end before return; evicted files can be reloaded. PUBLIC query-major order can cause repeated decompression, but no wrong-row reuse or cross-corpus collision is identified.",
+    "native_RGB_binding": "Only RGB_uint8 is loaded from full_RGB NPZ; shape/dtype/decodedSHA checked on cache fill. No scene owner/state/reference arrays are accessed.",
+    "query_operator": "validate_inputs checks supplied query equals carrier slot, exact finite nonsentinel q8 minmax context, and deployed V60 L. Actual localRGB/valid are re-extracted from same bound nativeRGB/q/L and required byte-exact to saved crops.",
+    "exact1928": "Views concatenate target224, C8full96->224 and C8central32->224. Slice order maps exactly to C11 assemble(T,Q,F,C,P plus8scalars); fractions/central4 masks match pinned implementation. assemble returns inside as NumPy; np.asarray(inside,bool) is correct. Qoutside zeros Q only and is not an availability gate.",
+    "availability": "Pinned V125 factual_availability computes continuous AND nearest AND RGB96central4; context positive-weight-any separate. All three flags are compared against metadata before logits; no teacher/failed-recipe flag enters availability.",
+    "GT_boundary": "No GT sidecar is loaded or hashed. Corpus completion JSON contains provenance descriptors only; model feature forward uses nativeRGB, localRGB/valid, supplied q/context and fractions. Source slot/style/fold/cue/donor/labels do not enter encoder/head.",
+    "encoder_freeze": "Official DINOasset/runtime statefingerprint pinned; float32 eval requires_gradFalse, mathSDPA/TF32disabled deterministic runtime, firstbatch repeat exact, poststate hash and eval/trainable flags checked.",
+    "C16_freeze_and_decode": "Root-bound freeze must select4500/threshold0/current-used-for-fitFalse and exact checkpoint. Payload update4500/headclass binding checked, head eval frozen/statehash/repeat checked. D=raw<0/E>=0, factual/contextU first with safe0 saved querylogit and pre-Uraw retained.",
+    "output_retention": "Full56214feature/prediction rows retained, feature chunks plus fullpack, corpus name and per-corpus sourceoccurrence retained. No optimizer/initializer/encoder reexecution fallback or threshold choice is present."
+  },
+  "notes": [
+    "Review is static code/metadata-schema inspection, not an independent DINO/head replay or actual saved-feature integrity claim.",
+    "Exact weight/checkpoint descriptors are recorded from protocol only; no checkpoint parameter file was read, rehashed or deserialized by this reviewer.",
+    "LRU bounds affect runtime/decompression only; retaining exact distinct row features is intentional."
+  ],
+  "scope": {
+    "actual_RGB_crop_GT_feature_arrays_weights_read": 0,
+    "model_forward": 0,
+    "fit": 0,
+    "current": 0,
+    "V112": 0
+  },
+  "requested_code_changes": []
+}

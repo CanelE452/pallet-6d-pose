@@ -1,0 +1,68 @@
+{
+  "PASS": true,
+  "completed": true,
+  "critical_blockers": [],
+  "scope_KO": "V82 SAM runner와contract/generated만읽은독립검토. 실제detector출력·RGB·mask·weights·모델은열거나실행하지않음.",
+  "bindings": {
+    "runner": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/segmentation/run_sam_from_saved_associations.py",
+      "sha256": "f47893e4d169a6c28d46ec1e9c7e85c1dee5dc4dbf8c6501345c38fc1c02cecf"
+    },
+    "helper": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/segmentation/requested_sam_contract.py",
+      "sha256": "baf5c727fc41b793fc8ebe25696fecdcce2f486fed23b53ab94bbe1259a255f6"
+    },
+    "legacy_helper": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_grounded_target_20261023_v81/segmentation/sam_stage_contract.py",
+      "sha256": "34cb8d3f36eef91d61742a057e0fb974b9b9cc6429da706891303984dd873006"
+    },
+    "generated": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/segmentation/GENERATED_REQUESTED_SAM_TESTS.json",
+      "sha256": "f27a0bb2041fc1d7db97f49448a107865d9b879deed72ef33d8853f3eacbe03c"
+    },
+    "generated_SAM_runtime": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/segmentation/GENERATED_REQUESTED_SAM_TESTS_SAM_RUNTIME.json",
+      "sha256": "f27a0bb2041fc1d7db97f49448a107865d9b879deed72ef33d8853f3eacbe03c"
+    },
+    "template": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/segmentation/SAM_ENTRYLOCK_TEMPLATE.json",
+      "sha256": "27ebac2d03930b01cbe22d2edf05ca6fedf49e59a38af157dab90670f2fc27d9"
+    },
+    "independent_generated_rerun": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_requested_category_20261023_v82/source_audit/INDEPENDENT_SAM_GENERATED_RERUN.json",
+      "sha256": "f27a0bb2041fc1d7db97f49448a107865d9b879deed72ef33d8853f3eacbe03c"
+    }
+  },
+  "checks": {
+    "exact_independent_detector_audit_PASS_binds_successful_seal_before_saved_metadata_arrays_and_model": true,
+    "full13trace_validated_before_pinned_legacy6_normalization": true,
+    "exact8input_and5request_category_caption_SHA_join": true,
+    "active_FP32logits_probs_tokenpositions_ordinals_and_strict_threshold_parity": true,
+    "legacy_unchanged_IoU_score_ordinal_ties_clip_and_U_reasons": true,
+    "same_RGB_different_category_groups_embedding_by_actual_RGB_SHA": true,
+    "source_file_SHA_native_HW_and_decodedpixelSHA_cross_detector_SAM": true,
+    "no_quality_gate_or_multimask_selection": true,
+    "official_exact_F32_binary_0_1_then_lossless_bool": true,
+    "all1035_order_all8280query_sampling_and_U_no_fakezero": true,
+    "frozen_FP32weights_BF16autocast_state_before_after_guard": true,
+    "postprocessing_hole_sprinkle_compile_disabled": true,
+    "failed_outputs_preserved_and_no_silent_retry": true
+  },
+  "설명": [
+    "entry_guard가root승인·exactbinding·독립detector감사PASS와동일완료seal을검증한후saved_metadata와실제모델import로진행한다. staticasset/checkpoint의hash무결성검사는guard에서수행하지만본독립검토는실행하지않았다.",
+    "full13trace의shape/dtype/activepositions/전체query순서/저장prob최대score/strict>.4/keptbox parity를먼저검증하고6legacy배열로정규화한다. logits→sigmoid/boxscale/phrase 수치재생은선행독립detector감사에위임하며해당완료seal을정확히바인딩한다.",
+    "서로다른requested_category는정확한caption/key/association으로유지하면서같은RGB는SAMembedding하나를공유한다. SAMforward에는선택box만들어가며category/GTreference/mask/visibility/token은전달하지않는다.",
+    "공식API의정확float32 0/1만수용해bool로손실없이변환한다. no-match는마스크None/U이고0mask를꾸며만들지않는다."
+  ],
+  "generated_test_runtime": {
+    "executable": "/home/minjae/anaconda3/bin/python",
+    "python": "3.13.9",
+    "numpy": "2.3.5",
+    "torch_imported_or_model_constructed": false
+  },
+  "limitations_KO": [
+    "이는code/generated검토이며실제새SAM출력의무결성·정확도검증을대신하지않는다.",
+    "template는아직실제run승인이아니다. root가완료detectorseal/독립감사hash를바인딩한entry로validate한후명시적run을진행해야한다."
+  ],
+  "actual_detector_outputs_RGB_GTmask_weights_model_forward_fit_current_PnP_reads": 0
+}

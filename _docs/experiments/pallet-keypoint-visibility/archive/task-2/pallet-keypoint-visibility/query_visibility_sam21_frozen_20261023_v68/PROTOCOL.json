@@ -1,0 +1,147 @@
+{
+  "schema": "V68_FROZEN_SAM21_SOURCE_ONLY_BOX_BASELINE_PROTOCOL_V1",
+  "status": "FROZEN_BEFORE_ANY_SOURCE_FORWARD",
+  "created_utc": "2026-10-22T15:48:22.809177+00:00",
+  "purpose": "Compare frozenMobileSAM andofficialSAM2.1visible-mask evidence onunchangedpublic/synthetic sourcequeries. No trainedhead, thresholdsearch, nativequery/crop redefinition orcurrentevalauthorization.",
+  "model": {
+    "name": "SAM2.1-hiera-base-plus",
+    "code_repo": "https://github.com/facebookresearch/sam2",
+    "code_revision": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+    "config": "configs/sam2.1/sam2.1_hiera_b+.yaml",
+    "checkpoint_filename": "sam2.1_hiera_base_plus.pt",
+    "checkpoint_SHA256": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5",
+    "checkpoint_bytes": 323606802,
+    "license": "Apache2.0",
+    "weights_dtype": "float32",
+    "autocast": "cuda bfloat16",
+    "batch_targets": 1,
+    "torch_compile": false,
+    "training": false,
+    "model_selection": false
+  },
+  "fixed_inputs": {
+    "joined_cache": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_controlled_real_20261022_v66/joined_source_cache/CONTROLLED_PLUS_PALLOX_VAL.npz",
+    "queries": 8590,
+    "targets": 1091,
+    "source_counts": {
+      "SYNTH": {
+        "queries": 1742,
+        "targets": 235
+      },
+      "ORIGINAL_YCB": {
+        "queries": 3200,
+        "targets": 400
+      },
+      "CONTROLLED_YCB": {
+        "queries": 3200,
+        "targets": 400
+      },
+      "PALLOX": {
+        "queries": 448,
+        "targets": 56
+      }
+    },
+    "model_input_whitelist": [
+      "original RGB image",
+      "same source prompt box"
+    ],
+    "query_use": "Coordinates are only sampled aftermaskprediction; neverpointprompts ormaskbranchselection. Allcurrentlyincludedqueriesareexportedunchanged, includingnativeinvalid. No missingSYNTHslotisgenerated.",
+    "sourcequery_sampling_limit": "Existing sourcequerieswereoriginallysampledwithsourceGTguidance. Thisrun reuses thatfrozenqueryset; noGTisusedtocreateprompts/selectmaskbranches orchangequeries now.",
+    "source_aliases": {
+      "SYNTH": "V63 sourceSYNTH unchanged; sampleID SYNTH:targetID:k andnative_corner checkedagainstoldSYNTHidentityarrays",
+      "ORIGINAL_YCB": "V63 sourceYCB, explicitlyrenamedORIGINAL_YCBbyV66merge lock",
+      "CONTROLLED_YCB": "V66manifest hassourcekeyabsent; entire sealedfile iscontrolledsource,ID/shas/boxes checkedagainstlabel-onlyidentities",
+      "PALLOX": "V66PALLOXsource andglobal IDs unchanged"
+    }
+  },
+  "prediction": {
+    "predictor": "official SAM2ImagePredictor",
+    "box_only": true,
+    "point_coords": null,
+    "point_labels": null,
+    "multimask_output": true,
+    "return_logits": true,
+    "selection": "argmax predicted maskquality(IoU); firstindexonexactties. SourceGT/masks/querycoordinatescannotselectbranch.",
+    "native_output": "Chosen fullresolutionnativefloat32logitmap beforequantization",
+    "postprocess": {
+      "apply_postprocessing": false,
+      "max_hole_area": 0,
+      "max_sprinkle_area": 0,
+      "mask_threshold": 0.0
+    },
+    "TF32": false
+  },
+  "decision": {
+    "exact": "floor(q+.5) nativepixel; presentiff chosenlogit>0 strict; zerotieisnonvisible",
+    "native_input_valid": "0<=qx<W and0<=qy<H androundedpixelin[0,W)x[0,H); nativeinvalid=>UNKNOWN notnegative",
+    "radius2": "Clipped native5x5 maximumofsamechosenlogitmap; >0 meansnearvisible support. Diagnostic only, separatetargets/metrics; nonewSAMcalls, no radiusselection.",
+    "confidence": "Predictedmaskquality isbranchranking, not a learnedexactvisibility/E/Oprobability. SAMnegative cannotclassifyexternalversusoutside/self.",
+    "no_U_threshold": "No quality/score confidence gate isfit. ModelpredictionU only forinvalid/missingruntimeoutputs, reportedseparatelyfromsourceGTUNKNOWN."
+  },
+  "source_truth": {
+    "SYNTH": "Frozenrenderedexact/radius2partialcompatibletruth.",
+    "ORIGINAL_YCB": "BOPvisible/render/depth-derived masks; full-only remainsfull-unknown whilevisible-negative completeness assumption isexplicit. Not humanpixelgold.",
+    "CONTROLLED_YCB": "Controlledoccluder coversoriginallyobservedtargetpixel; originalhidden-full staysunknown. Cutout interventionisnotnaturallyphotographedocclusion.",
+    "PALLOX": "ConditionalSAM-interior+suppliedmesh-depth symmetricteacher. NativeRGB-depthalignmentnotcalibration-certified. NoO/fullnegativecertificate.",
+    "semantic_self": "Unknown/separate; no semanticpalletcornertrainingclaim; physicalmeshcorner/PnPsuccessisnotarequirementfornativequery/cropsupport."
+  },
+  "metrics": {
+    "primary": "ExactnativebinaryvisibleP/R/confusion by4sources atstrictlogit0, samefrozenqueries. Primarypairedclass-known denominator matchesprior sourceevaluator; allallowed-setbinary-known facts asaseparatediagnostic.",
+    "external": "KnownexactE -> binarynonvisible recall only; neitherprecisionofrecognizedexternal nor3waymechanismE prediction.",
+    "outside": "KnownexactO -> binarynonvisible recall separately; nevermergeOintosemanticexternal.",
+    "unknown": "Nativeinvalid, GTUNKNOWN, all63uninformative andpredictionsonUNKNOWN retainexplicitcounts/coverage. Noallnegativepadding.",
+    "radius2": "Separate radius2GT/compatible-set binary diagnostic, notrenamedexactaccuracy.",
+    "strict25": "FrozenV65 sourcecohorts ORIGINAL_YCB714 andCONTROLLED296, sameIDs andsourceGT, noresult-drivenreselection."
+  },
+  "source_diagnostic_quality": {
+    "public_exact_visible": {
+      "sources": [
+        "ORIGINAL_YCB",
+        "CONTROLLED_YCB",
+        "PALLOX"
+      ],
+      "precision_at_least": 0.8,
+      "recall_at_least": 0.8
+    },
+    "known_external_to_binary_nonvisible_recall": {
+      "sources": [
+        "CONTROLLED_YCB",
+        "PALLOX"
+      ],
+      "recall_at_least": 0.6
+    },
+    "strict25_visible_nonregression": {
+      "ORIGINAL_YCB": {
+        "TP_at_least": 679,
+        "N": 714
+      },
+      "CONTROLLED_YCB": {
+        "TP_at_least": 278,
+        "N": 296
+      }
+    },
+    "interpretation": "Prefrozen diagnostics appliedtoonespecifiedfrozenmodel. Failure=>SOURCE_HOLD. Passingdoesnotprovesemantictransferorautomaticallyauthorizecurrentinference; noalternativecheckpoint/threshold/radiussearch."
+  },
+  "provenance": {
+    "input_identity_only": true,
+    "NPZ_array_access": "Whitelist identity/query/box arrays andoptionalGTnativevalid audit only; neverx/rgb_native/global_rgb/SAM/features/modelweights.",
+    "sourceimage_SHA": "TrustpreviouslysealedRGBSHA; originalRGBdecode/bodyreadunneededformanifest.",
+    "split": "Existingcommonfour-sourceVAL retained; nofreshindependentfinalholdoutclaim.",
+    "no_current_access": true,
+    "no_current_inference_authorization": true
+  },
+  "independent_model_metadata": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/source_audit/SAM21_BASEPLUS_OFFICIAL_METADATA_INDEPENDENT.json",
+    "sha256": "36246c92188407960f277999dc82f7422ecca88b5316f077f4d9742ab71bc996"
+  },
+  "prohibited": [
+    "RGBdecode/modelforward/fitduringmanifestbuild",
+    "queryclickorGTprompt",
+    "GTmask/scorebranchselection",
+    "positivequeryresampling",
+    "newthreshold/radius/checkpointselection",
+    "negativeSAM=>external/O/selfclassification",
+    "current223RGB/GT/scores/inputread",
+    "modifyingV66/V67artifacts"
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "V71_YCB_REFERENCE_JITTER_SOURCE_BUILDER_DESIGN_V1",
+  "status": "ACTUAL_FIXED_RGB_REVIEW_MATERIAL_READY_SEMANTIC_CUE_REVIEW_PENDING",
+  "source_pool": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/query_visibility_controlled_real_20261022_v66/provenance/TARGETS.jsonl",
+    "TRAIN": 1600,
+    "VALIDATION": 400
+  },
+  "source_split": "Original scenes0..7 TRAIN /8..9 VAL; all derived original/composite/donor lineage remains within that split.",
+  "metadata_selection": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/PROTOCOL.json",
+    "sha256": "ef43951c5650ab830f83ebb40fa8a4e855f2fd0d18e0c3fef12e05102acc8390"
+  },
+  "data_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/REVIEW_MATERIAL_SEAL.json",
+    "sha256": "4e5cf1747bb4363480e4c939031ef652d12e7d73680ee90b6ff6e749ff1736d5"
+  },
+  "QA": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/SOURCE_MATERIAL_QA.json",
+    "sha256": "d396c95c3f36e307f647e526ae8213005750a0ddb11b0f787a2dc4339fbaa589"
+  },
+  "component_files": {
+    "build_ycb_cue_review.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/build_ycb_cue_review.py",
+      "sha256": "785d8079341874a6e1b4358f0a43aebba92862257baeb313f010eb8803360b9f"
+    },
+    "build_ycb_cue_review_v2.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/build_ycb_cue_review_v2.py",
+      "sha256": "85938b1fe265e188437985bf7a2ee088a98d54625545d3116b3ab2e3b7367727"
+    },
+    "expand_fixed_ycb_review.py": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/expand_fixed_ycb_review.py",
+      "sha256": "21abbd62af845d3deb3b556d6ff78dd3d648a0cdd8c1d8b0465f8a99193f15d1"
+    },
+    "INPUTS_RGB_ONLY.jsonl": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/INPUTS_RGB_ONLY.jsonl",
+      "sha256": "ff6db77738cb995d9df3cc317a5e77be1202b033af696b742933edf9dfecd847"
+    },
+    "SOURCE_LINEAGE_GT_ONLY.jsonl": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/SOURCE_LINEAGE_GT_ONLY.jsonl",
+      "sha256": "f57123bf195688f2e08c66e2aed7bd8dbeb67664939cb5b69dd7fd90b21e25a6"
+    },
+    "CUE_REVIEW_TEMPLATE_GT_ONLY.jsonl": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/CUE_REVIEW_TEMPLATE_GT_ONLY.jsonl",
+      "sha256": "ff2f1a3e2adf7c958aa080bbe43271ab645c5207db5d47d57f7161993a51da74"
+    }
+  },
+  "model_input": "RGB + initial available query8 + preexisting roughbox + L. No GT reference/uncertainty/semantic state/mask/pose/depth/offset; query row index is lineage, not a semantic slot.",
+  "builder_growth": "The expansion wrapper reuses the original metadata SHA selection and separately bound corrected renderer in a NEW output directory; larger counts preserve the fixed prefix and ambiguous targets. Existing rows/images/labels never overwritten.",
+  "executable_command": [
+    "/home/minjae/anaconda3/bin/python",
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/expand_fixed_ycb_review.py",
+    "--out",
+    "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_jitter_20261023_v71/data/ycb_cue_review/NEW_REVIEW_BATCH",
+    "--train-count",
+    "8",
+    "--val-count",
+    "4"
+  ],
+  "current_candidate_schema": "96 unchanged query inspection sites +96 GT-only mask-boundary inspection seeds, all refxy/uncertainty unset and semantic stateU. Boundary points are not semantic cues.",
+  "actual_reference_admission_requirements": [
+    "Inspect actual unannotated target RGB, name a visible physical edge/corner/rim cue and establish target-specific reference association; record uncertainty from visible extent/blur rather than choose a tuned common radius.",
+    "Freeze AI proposal and evidence tier as a new GT-only record. Ambiguous association, absent cue, outframe or partial crop staysU, not forced canonical8 or physical absence.",
+    "For existing controlled RGB, keep the SAME actual reference/uncertainty and apply the opaque-paste coverage certificate only after original physical-cue D_teacher evidence. Fully covered=>conditionalE_teacher; untouched=>conditionalD_teacher; partial/unsupported=>U. No naturalE/self is inferred frommask0.",
+    "The root jitter builder must change only inputq under a separate source-derived fixed recipe and label crop FULL/PARTIAL/MISS separately. This intake generates no jitter/labels that pretend these are already resolved.",
+    "Resolve target-reference association/hidden-reference input identifiability before semantic training. RGB+q+box alone may collide for two hidden references; this material does not silently add semantic slot tokens."
+  ],
+  "prior_evidence_scope": "V69 cuboid initializer residuals and eight-frame cue audits motivated review but neither physical gold nor YCB jitter calibration. V70 scores and current223 are not read or used.",
+  "training_authorization_context": "Existing user goal authorization continues; source review/admission order is an internal data-quality step, not a new human approval requirement.",
+  "semantic_GT_admitted": 0,
+  "new_jitter_or_composite_images": 0,
+  "new_model_forward_training_PnP_current_reads": 0
+}

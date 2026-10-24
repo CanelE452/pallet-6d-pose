@@ -1,0 +1,62 @@
+{
+  "schema": "V76_REFERENCE_LOCAL_SUPPORT_TEACHER_V2_STRONG_CENTER_PRIMARY",
+  "status": "FROZEN_PURE_TEACHER_PROPOSAL_V2_BEFORE_CORPUS_LABELS_OR_FIT",
+  "supersedes_optional_strong_center_of_draft": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/TARGET_CONTRACT_BEFORE_CORPUS.json",
+    "sha256": "83e07b7f8ca241ab57f994db86ad2d9012d84499d5820ccb2f3400b47117c1ff"
+  },
+  "helper": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/teacher_preparation/reference_local_support_teacher.py",
+    "sha256": "dd78e99e47442141817d61202abfacda02b5dfa85e978ad67cf4e984ebd07e70"
+  },
+  "label_codes": {
+    "1": "VISIBLE",
+    "0": "COVERED",
+    "-1": "U"
+  },
+  "ordered_rules": [
+    "Requirepairedsamecamera/targetbinaryM0/M4 and M4subsetM0; invalidpairraisesratherthanrepair",
+    "GTref validity requiresfinite2Dcoordinates,continuousimagebounds,andfloor(r+.5)pixelbounds; rnotmoved",
+    "Strongcomplete3x3window atfloor(r+.5): all9M0target+all9M4target ->VISIBLE",
+    "Strongcomplete3x3window: all9M0target+all9M4zero ->COVERED",
+    "Onlyifstrongcenterdoesnotdecide: diskexpectedpixels>=4 andGaussianweightedA>=1pixel-equivalent; thenV/A>=.9VISIBLE,<=.1COVERED,elseU",
+    "Noexpectedtargetsupport ->U, neverE/COVEREDfromM0center0alone"
+  ],
+  "strong_center_priority": "Formalprimarybranch, notoptional. It overrides broadfootprint evenwhenbroadV/Awouldchooseoppositestate.",
+  "footprint": {
+    "radius": "max(4px,.05*max(ptp(r8,axis0)))",
+    "sigma": "rho/2",
+    "weight": "exp(-distance_squared/(2*sigma_squared)),peak1notunit-sum",
+    "disk": "nativeintegerpixelcenterswithdistance<=rho",
+    "mass_A": "sumweight*M0pixel",
+    "mass_V": "sumweight*M4pixel",
+    "ratio": "V/A; undefinedNaNifA0",
+    "nonfinite_reference_layout": "Ifany r8 nonfinite,globalrhoisundefined andallstatesU; nofinite-subsetguessedspan"
+  },
+  "boundary_policy": {
+    "strong_center": "Requiresfullactual3x3insideimage; clippedwindowneverstrong",
+    "footprint": "Forvalidreference,observedimageintersectionused; returnnear_boundary,validpixelcount/totaldiskcount/coverage. Fallbackmaydecidevisible/coveredinsideobservedimage; thisisnotcertificationoutsideframe.",
+    "invalid_reference": "AlwaysUevenifdiskoverlapstarget; noGTcoordinateclipping",
+    "fit_admission": "Boundary/miss/lossadmissionlefttoseparatefuturefrozenfitprotocol, notsilentlyaddedhere"
+  },
+  "center_diagnostics": "ReferencecenterM0/M4 andoptionalunchangedquerypixelM0/M4 arediagnosticsonly. Theyarenotdefaultsemanticnegative.",
+  "self_proxy": "Copiedonlyasseparatefield; nochangeoflocalstate, includingSproxy+localVISIBLEcoexistence.",
+  "query": "Optionalq8/local_side8 producemiss/offsetdiagnosticsONLY. Labelalwaysfixedreference r; q/Lneverrecenteredorchanged.",
+  "GT_only_forbidden_forward": [
+    "r8",
+    "M0/M4",
+    "teacherlabel",
+    "offset/miss",
+    "selfGTflag",
+    "sourceID/nativeGTcorrespondence"
+  ],
+  "meaning": "Reference-local expected target support weakteacher, notnativehumansemanticgold orquery-pixelpresence; exactmeshpointnotrequired.",
+  "allowed_verification": [
+    "generatedcriticaledgecases",
+    "samefixedYCBscene0/frame1/instance0/obj8only"
+  ],
+  "fullcorpus_label_generation": false,
+  "model_fit_or_backbone_forward": false,
+  "current_reads": 0,
+  "PnP": 0
+}

@@ -1,0 +1,1842 @@
+{
+  "completed": true,
+  "PASS": true,
+  "blockers": [],
+  "created_UTC": "2026-10-23T10:03:38.665133+00:00",
+  "scope": "Source input-only JSON/JSONL plus frozen source label metadata for denominators. Current CODE/operator contracts only; no current metadata/arrays/GT/scores/pixels, source pixels/features/weights/model calls/fit/PnP.",
+  "no_box_query_label_or_model_change": true,
+  "question": "Does source context construction always match documented current q8minmax?",
+  "answer_KO": "아니다. 기존 공개 LOCO/Pallox와 V116은 원 initializer selectedbbox를 쓰지만, V109/V113 YCB와 V99 합성은 q8minmax를 쓴다. 따라서 방식 차이는 source family에 따라 존재하며 전체 source에 보편적이지 않다.",
+  "current_documented_only": {
+    "mode": "FROZEN_INITIAL_Q8_UNCLIPPED_UNEXPANDED_MINMAX",
+    "code_rule": "FP64 finite non-sentinel original8q min/max; OOB finite points kept, no clipping/expansion/recenter; invalid extent=>missing.",
+    "contract_allows_verified_selected_box_in_principle": true,
+    "actual_adapter_code_forces_q8_fallback": true,
+    "actual_current_boxes_or_uv_not_read_or_measured": true,
+    "source_comparison_does_not_establish_cause_or_predictive_improvement": true
+  },
+  "diagnostic_geometry": {
+    "u": "(qx-xmin)/(xmax-xmin)",
+    "v": "(qy-ymin)/(ymax-ymin)",
+    "q_inside": "closed0<=u,v<=1, exact C11 token sampler support convention",
+    "boundary": "d=min(u,v,1-u,1-v); d<0 outside,d=0 exactboundary",
+    "half_token": "0<=d<=1/32 of16-token context grid; diagnostic only",
+    "one_token": "0<=d<=1/16; diagnostic only",
+    "counterfactual": "Metadata-only recomputation under original q8 extent; never substituted into features, labels or evaluation.",
+    "exposure": "Existing metadata was already examined; no blind-pre-exposure claim and no source/current outcome tuning."
+  },
+  "population": {
+    "all_occurrences": 46108,
+    "public_occurrences": 43804,
+    "all_state_counts": {
+      "U": 38718,
+      "D": 2944,
+      "E": 925,
+      "S": 3521
+    },
+    "public_state_counts": {
+      "U": 37875,
+      "D": 1984,
+      "E": 820,
+      "S": 3125
+    },
+    "known_public_occurrences": 2804,
+    "known_public": {
+      "N": 2804,
+      "base_queries": 2264,
+      "contexts": 1308,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 605,
+        "EMULATED_Q8_MINMAX": 2199
+      },
+      "state_counts": {
+        "D": 1984,
+        "E": 820
+      },
+      "geometry_available": 2804,
+      "missing": 0,
+      "inside": 2748,
+      "outside": 56,
+      "exact_boundary": 727,
+      "inside_within_half_context_token": 1455,
+      "inside_within_one_context_token": 1624,
+      "u": {
+        "min": -0.028567735854905376,
+        "p05": 0.0,
+        "p25": 0.12141833561381588,
+        "median": 0.48885248849953866,
+        "p75": 0.9154883192080121,
+        "p95": 0.9942276091335372,
+        "max": 1.0082908900240282
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.07899581879524806,
+        "p25": 0.3102086490765016,
+        "median": 0.6745688717483732,
+        "p75": 0.9445607547945137,
+        "p95": 1.0,
+        "max": 1.0108419960319797
+      },
+      "signed_edge_distance": {
+        "min": -0.028567735854905376,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.020774785198819923,
+        "p75": 0.1668331513859914,
+        "p95": 0.33464182335499015,
+        "max": 0.46323825845365674
+      },
+      "q8_extent_counterfactual_inside": 2804,
+      "q8_extent_counterfactual_exact_boundary": 1119
+    },
+    "known_synthetic_occurrences": 1065
+  },
+  "context_box_comparisons_by_original_definition": {
+    "LOCO": {
+      "contexts": 20,
+      "origins": {
+        "MISSING": 2,
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 18
+      },
+      "source_missing": 2,
+      "q8_extent_missing": 2,
+      "both_present": 18,
+      "exact_equal_when_present": 0,
+      "source_box_q8_inside": 108,
+      "source_box_q8_total": 144,
+      "box_IoU": {
+        "min": 0.6334787570623527,
+        "p05": 0.7395741151694463,
+        "p25": 0.8448661318609099,
+        "median": 0.8825132707359209,
+        "p75": 0.9178764241215027,
+        "p95": 0.942990249275129,
+        "max": 0.9455011379229403
+      },
+      "width_ratio": {
+        "min": 0.961955470661971,
+        "p05": 1.00133411523764,
+        "p25": 1.0095254859885219,
+        "median": 1.0218287369822927,
+        "p75": 1.0427905880109631,
+        "p95": 1.1196298924692065,
+        "max": 1.1639569433164703
+      },
+      "height_ratio": {
+        "min": 0.9486775451651948,
+        "p05": 0.9590918961151619,
+        "p25": 0.9756451126083162,
+        "median": 1.0123542078156935,
+        "p75": 1.1265799069852438,
+        "p95": 1.252159409512144,
+        "max": 1.4812137573919046
+      },
+      "max_edge_delta_px": {
+        "min": 2.49713134765625,
+        "p05": 2.6719406127929686,
+        "p25": 3.287872314453125,
+        "median": 5.2772216796875,
+        "p75": 12.439868927001953,
+        "p95": 43.75372009277342,
+        "max": 55.89532470703125
+      }
+    },
+    "PALLOX": {
+      "contexts": 100,
+      "origins": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 95,
+        "MISSING": 5
+      },
+      "source_missing": 5,
+      "q8_extent_missing": 5,
+      "both_present": 95,
+      "exact_equal_when_present": 0,
+      "source_box_q8_inside": 609,
+      "source_box_q8_total": 760,
+      "box_IoU": {
+        "min": 0.525955155207632,
+        "p05": 0.6417442011623196,
+        "p25": 0.8606557003392988,
+        "median": 0.921558677260887,
+        "p75": 0.9595720085959722,
+        "p95": 0.980704857361638,
+        "max": 0.9904446413628988
+      },
+      "width_ratio": {
+        "min": 0.8151627285982328,
+        "p05": 0.9674526753638749,
+        "p25": 0.9952640674970479,
+        "median": 1.0171832681125172,
+        "p75": 1.0639774491381901,
+        "p95": 1.2135349792893284,
+        "max": 1.284460726089871
+      },
+      "height_ratio": {
+        "min": 0.9015819047263511,
+        "p05": 0.9586364138864677,
+        "p25": 0.9956542093930684,
+        "median": 1.01530893524077,
+        "p75": 1.081896609000819,
+        "p95": 1.3440441502148053,
+        "max": 1.5363903046592045
+      },
+      "max_edge_delta_px": {
+        "min": 0.318145751953125,
+        "p05": 0.8745330810546875,
+        "p25": 1.9370880126953125,
+        "median": 3.269805908203125,
+        "p75": 6.5170135498046875,
+        "p95": 27.170349121093725,
+        "max": 83.93304443359375
+      }
+    },
+    "V109_YCB_BOX_SURFACE_EMULATION": {
+      "contexts": 1000,
+      "origins": {
+        "EMULATED_Q8_MINMAX": 1000
+      },
+      "source_missing": 0,
+      "q8_extent_missing": 0,
+      "both_present": 1000,
+      "exact_equal_when_present": 1000,
+      "source_box_q8_inside": 8000,
+      "source_box_q8_total": 8000,
+      "box_IoU": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "width_ratio": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "height_ratio": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "max_edge_delta_px": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "max": 0.0
+      }
+    },
+    "V113_YCB_MATERIAL_SURFACE_EMULATION": {
+      "contexts": 400,
+      "origins": {
+        "EMULATED_Q8_MINMAX": 400
+      },
+      "source_missing": 0,
+      "q8_extent_missing": 0,
+      "both_present": 400,
+      "exact_equal_when_present": 400,
+      "source_box_q8_inside": 3200,
+      "source_box_q8_total": 3200,
+      "box_IoU": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "width_ratio": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "height_ratio": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "max_edge_delta_px": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "max": 0.0
+      }
+    },
+    "V99_SYNTH": {
+      "contexts": 96,
+      "origins": {
+        "FROZEN_QUERY8_EXTENT_FALLBACK": 96
+      },
+      "source_missing": 0,
+      "q8_extent_missing": 0,
+      "both_present": 96,
+      "exact_equal_when_present": 96,
+      "source_box_q8_inside": 768,
+      "source_box_q8_total": 768,
+      "box_IoU": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "width_ratio": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "height_ratio": {
+        "min": 1.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "median": 1.0,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "max_edge_delta_px": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "max": 0.0
+      }
+    }
+  },
+  "known_by_family_fold_state": [
+    {
+      "family": "LOCO",
+      "fold": "TRAIN",
+      "state": "D",
+      "N": 3,
+      "base_queries": 3,
+      "contexts": 1,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 3
+      },
+      "state_counts": {
+        "D": 3
+      },
+      "geometry_available": 3,
+      "missing": 0,
+      "inside": 3,
+      "outside": 0,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 1,
+      "inside_within_one_context_token": 2,
+      "u": {
+        "min": 0.015150823204862447,
+        "p05": 0.09505186913514158,
+        "p25": 0.4146560528562581,
+        "median": 0.8141612825076537,
+        "p75": 0.8173390271588248,
+        "p95": 0.8198812228797615,
+        "max": 0.8205167718099957
+      },
+      "v": {
+        "min": 0.5403963696980922,
+        "p05": 0.5451353179098627,
+        "p25": 0.5640911107569446,
+        "median": 0.5877858518157971,
+        "p75": 0.7778102749432496,
+        "p95": 0.9298298134452115,
+        "max": 0.9678346980707021
+      },
+      "signed_edge_distance": {
+        "min": 0.015150823204862447,
+        "p05": 0.016852271077305993,
+        "p25": 0.02365806256708017,
+        "median": 0.032165301929297896,
+        "p75": 0.10582426505965109,
+        "p95": 0.16475143556393362,
+        "max": 0.17948322819000428
+      },
+      "q8_extent_counterfactual_inside": 3,
+      "q8_extent_counterfactual_exact_boundary": 2
+    },
+    {
+      "family": "LOCO",
+      "fold": "VALIDATION",
+      "state": "D",
+      "N": 3,
+      "base_queries": 3,
+      "contexts": 2,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 3
+      },
+      "state_counts": {
+        "D": 3
+      },
+      "geometry_available": 3,
+      "missing": 0,
+      "inside": 1,
+      "outside": 2,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 1,
+      "inside_within_one_context_token": 1,
+      "u": {
+        "min": 0.18941565739377364,
+        "p05": 0.2712522397276736,
+        "p25": 0.5985985690632734,
+        "median": 1.007781480732773,
+        "p75": 1.0080361853784006,
+        "p95": 1.0082399490949026,
+        "max": 1.0082908900240282
+      },
+      "v": {
+        "min": 0.4606743949779072,
+        "p05": 0.4949217609719275,
+        "p25": 0.6319112249480089,
+        "median": 0.8031480549181106,
+        "p75": 0.8989680535394294,
+        "p95": 0.9756240524364845,
+        "max": 0.9947880521607483
+      },
+      "signed_edge_distance": {
+        "min": -0.008290890024028164,
+        "p05": -0.008239949094902643,
+        "p25": -0.008036185378400562,
+        "median": -0.007781480732772961,
+        "p75": -0.0012847664467606212,
+        "p95": 0.003912604982049249,
+        "max": 0.005211947839251718
+      },
+      "q8_extent_counterfactual_inside": 3,
+      "q8_extent_counterfactual_exact_boundary": 2
+    },
+    {
+      "family": "PALLOX",
+      "fold": "TRAIN_LAB",
+      "state": "D",
+      "N": 100,
+      "base_queries": 25,
+      "contexts": 10,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 100
+      },
+      "state_counts": {
+        "D": 100
+      },
+      "geometry_available": 100,
+      "missing": 0,
+      "inside": 94,
+      "outside": 6,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 94,
+      "inside_within_one_context_token": 94,
+      "u": {
+        "min": -0.0045688228899366905,
+        "p05": 0.0029010830881502706,
+        "p25": 0.013763513289732335,
+        "median": 0.9805995364552791,
+        "p75": 0.9922952605610977,
+        "p95": 0.9925819396986284,
+        "max": 1.0009389876031158
+      },
+      "v": {
+        "min": 0.5572762455412305,
+        "p05": 0.7142600328636975,
+        "p25": 0.7623412276628737,
+        "median": 0.945569893082311,
+        "p75": 0.9760277561627387,
+        "p95": 0.9978024270464362,
+        "max": 1.0021835273457425
+      },
+      "signed_edge_distance": {
+        "min": -0.0045688228899366905,
+        "p05": -0.0003268139736081643,
+        "p25": 0.0074180603013715984,
+        "median": 0.008998019569371074,
+        "p75": 0.013763513289732335,
+        "p95": 0.019400463544720914,
+        "max": 0.02620357964855058
+      },
+      "q8_extent_counterfactual_inside": 100,
+      "q8_extent_counterfactual_exact_boundary": 68
+    },
+    {
+      "family": "PALLOX",
+      "fold": "TRAIN_LAB",
+      "state": "E",
+      "N": 77,
+      "base_queries": 12,
+      "contexts": 7,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 77
+      },
+      "state_counts": {
+        "E": 77
+      },
+      "geometry_available": 77,
+      "missing": 0,
+      "inside": 75,
+      "outside": 2,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 75,
+      "inside_within_one_context_token": 75,
+      "u": {
+        "min": -0.010981291832426916,
+        "p05": 0.0029010830881502706,
+        "p25": 0.013763513289732335,
+        "median": 0.9805995364552791,
+        "p75": 0.9922952605610977,
+        "p95": 0.9923674392926619,
+        "max": 0.9925819396986284
+      },
+      "v": {
+        "min": 0.7142600328636975,
+        "p05": 0.7142600328636975,
+        "p25": 0.7623412276628737,
+        "median": 0.945569893082311,
+        "p75": 0.9760277561627387,
+        "p95": 0.9892135015953974,
+        "max": 0.9978024270464362
+      },
+      "signed_edge_distance": {
+        "min": -0.010981291832426916,
+        "p05": 0.0027603810612329806,
+        "p25": 0.0076861858088297375,
+        "median": 0.008998019569371074,
+        "p75": 0.013763513289732335,
+        "p95": 0.019400463544720914,
+        "max": 0.019400463544720914
+      },
+      "q8_extent_counterfactual_inside": 77,
+      "q8_extent_counterfactual_exact_boundary": 51
+    },
+    {
+      "family": "PALLOX",
+      "fold": "VAL_HALL",
+      "state": "D",
+      "N": 149,
+      "base_queries": 30,
+      "contexts": 15,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 149
+      },
+      "state_counts": {
+        "D": 149
+      },
+      "geometry_available": 149,
+      "missing": 0,
+      "inside": 130,
+      "outside": 19,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 120,
+      "inside_within_one_context_token": 130,
+      "u": {
+        "min": -0.015692973543767388,
+        "p05": -0.006204569651892656,
+        "p25": 0.9620944575101217,
+        "median": 0.9821599344766874,
+        "p75": 0.9905137864743937,
+        "p95": 0.9943021547064206,
+        "max": 0.9977388727711666
+      },
+      "v": {
+        "min": 0.5298458213125622,
+        "p05": 0.5581825502299209,
+        "p25": 0.7022539247430495,
+        "median": 0.8102793980021891,
+        "p75": 0.9662846994296085,
+        "p95": 0.999766357986554,
+        "max": 0.999766357986554
+      },
+      "signed_edge_distance": {
+        "min": -0.015692973543767388,
+        "p05": -0.006204569651892656,
+        "p25": 0.0033449749846795607,
+        "median": 0.009137556282648895,
+        "p75": 0.017401616637869544,
+        "p95": 0.03790554248987832,
+        "max": 0.03790554248987832
+      },
+      "q8_extent_counterfactual_inside": 149,
+      "q8_extent_counterfactual_exact_boundary": 92
+    },
+    {
+      "family": "PALLOX",
+      "fold": "VAL_HALL",
+      "state": "E",
+      "N": 121,
+      "base_queries": 20,
+      "contexts": 10,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 121
+      },
+      "state_counts": {
+        "E": 121
+      },
+      "geometry_available": 121,
+      "missing": 0,
+      "inside": 106,
+      "outside": 15,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 97,
+      "inside_within_one_context_token": 106,
+      "u": {
+        "min": -0.028567735854905376,
+        "p05": -0.0105533910621432,
+        "p25": 0.9620944575101217,
+        "median": 0.9821599344766874,
+        "p75": 0.9905137864743937,
+        "p95": 0.9942276091335372,
+        "max": 0.9966550250153204
+      },
+      "v": {
+        "min": 0.5298458213125622,
+        "p05": 0.5581825502299209,
+        "p25": 0.7022539247430495,
+        "median": 0.7861884508938067,
+        "p75": 0.9662846994296085,
+        "p95": 0.999766357986554,
+        "max": 1.0108419960319797
+      },
+      "signed_edge_distance": {
+        "min": -0.028567735854905376,
+        "p05": -0.0105533910621432,
+        "p25": 0.005772390866462751,
+        "median": 0.009486213525606302,
+        "p75": 0.023010413350015857,
+        "p95": 0.03790554248987832,
+        "max": 0.03790554248987832
+      },
+      "q8_extent_counterfactual_inside": 121,
+      "q8_extent_counterfactual_exact_boundary": 75
+    },
+    {
+      "family": "V109_YCB_BOX_SURFACE_EMULATION",
+      "fold": "TRAIN",
+      "state": "D",
+      "N": 1181,
+      "base_queries": 1181,
+      "contexts": 864,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 1181
+      },
+      "state_counts": {
+        "D": 1181
+      },
+      "geometry_available": 1181,
+      "missing": 0,
+      "inside": 1181,
+      "outside": 0,
+      "exact_boundary": 209,
+      "inside_within_half_context_token": 305,
+      "inside_within_one_context_token": 373,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.142561496991856,
+        "median": 0.4026810861037322,
+        "p75": 0.7061312899896303,
+        "p95": 0.9316660150311435,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.08225821616432367,
+        "p25": 0.2408940526057933,
+        "median": 0.4448456281052848,
+        "p75": 0.6945434641976143,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.026746169443828016,
+        "median": 0.13468535907347778,
+        "p75": 0.2584224242997857,
+        "p95": 0.36129553109698986,
+        "max": 0.46323825845365674
+      },
+      "q8_extent_counterfactual_inside": 1181,
+      "q8_extent_counterfactual_exact_boundary": 209
+    },
+    {
+      "family": "V109_YCB_BOX_SURFACE_EMULATION",
+      "fold": "TRAIN",
+      "state": "E",
+      "N": 340,
+      "base_queries": 340,
+      "contexts": 267,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 340
+      },
+      "state_counts": {
+        "E": 340
+      },
+      "geometry_available": 340,
+      "missing": 0,
+      "inside": 340,
+      "outside": 0,
+      "exact_boundary": 253,
+      "inside_within_half_context_token": 289,
+      "inside_within_one_context_token": 308,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.10069973574477831,
+        "median": 0.3515089592561188,
+        "p75": 0.6951691459302447,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.7611729391249195,
+        "median": 0.9489592499361703,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0010381422315337485,
+        "p95": 0.09790692144112743,
+        "max": 0.30446267457678045
+      },
+      "q8_extent_counterfactual_inside": 340,
+      "q8_extent_counterfactual_exact_boundary": 253
+    },
+    {
+      "family": "V113_YCB_MATERIAL_SURFACE_EMULATION",
+      "fold": "TRAIN",
+      "state": "D",
+      "N": 356,
+      "base_queries": 356,
+      "contexts": 260,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 356
+      },
+      "state_counts": {
+        "D": 356
+      },
+      "geometry_available": 356,
+      "missing": 0,
+      "inside": 356,
+      "outside": 0,
+      "exact_boundary": 121,
+      "inside_within_half_context_token": 144,
+      "inside_within_one_context_token": 157,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.11501488501006203,
+        "median": 0.4086631069842156,
+        "p75": 0.6283777008101781,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.08520869963665594,
+        "p25": 0.18772677663523793,
+        "median": 0.32502805628910386,
+        "p75": 0.6038688141708577,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0974949084037315,
+        "p75": 0.25430733621232876,
+        "p95": 0.39418088412527785,
+        "max": 0.46160841907621647
+      },
+      "q8_extent_counterfactual_inside": 356,
+      "q8_extent_counterfactual_exact_boundary": 121
+    },
+    {
+      "family": "V113_YCB_MATERIAL_SURFACE_EMULATION",
+      "fold": "TRAIN",
+      "state": "E",
+      "N": 202,
+      "base_queries": 202,
+      "contexts": 175,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 202
+      },
+      "state_counts": {
+        "E": 202
+      },
+      "geometry_available": 202,
+      "missing": 0,
+      "inside": 202,
+      "outside": 0,
+      "exact_boundary": 90,
+      "inside_within_half_context_token": 127,
+      "inside_within_one_context_token": 163,
+      "u": {
+        "min": 0.0,
+        "p05": 0.019793433998216644,
+        "p25": 0.7231237768592749,
+        "median": 0.8928459963853224,
+        "p75": 0.9625748225744905,
+        "p95": 0.9999255375919327,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.15884619841822828,
+        "p05": 0.1821974157415487,
+        "p25": 0.7271597625394828,
+        "median": 0.8999081175501824,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.009737233915337151,
+        "p75": 0.04392024189475344,
+        "p95": 0.17151962310597793,
+        "max": 0.19545431950063663
+      },
+      "q8_extent_counterfactual_inside": 202,
+      "q8_extent_counterfactual_exact_boundary": 90
+    },
+    {
+      "family": "V113_YCB_MATERIAL_SURFACE_EMULATION",
+      "fold": "VALIDATION",
+      "state": "D",
+      "N": 102,
+      "base_queries": 102,
+      "contexts": 57,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 102
+      },
+      "state_counts": {
+        "D": 102
+      },
+      "geometry_available": 102,
+      "missing": 0,
+      "inside": 102,
+      "outside": 0,
+      "exact_boundary": 36,
+      "inside_within_half_context_token": 46,
+      "inside_within_one_context_token": 58,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.050181067975079645,
+        "median": 0.18294990949016487,
+        "p75": 0.3129927074209252,
+        "p95": 0.9804347575839114,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.46963709232722906,
+        "median": 0.6262232077988505,
+        "p75": 0.7678501882174584,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.041483667762580285,
+        "p75": 0.18825876722478752,
+        "p95": 0.2562888170201236,
+        "max": 0.31151201909626836
+      },
+      "q8_extent_counterfactual_inside": 102,
+      "q8_extent_counterfactual_exact_boundary": 36
+    },
+    {
+      "family": "V113_YCB_MATERIAL_SURFACE_EMULATION",
+      "fold": "VALIDATION",
+      "state": "E",
+      "N": 18,
+      "base_queries": 18,
+      "contexts": 18,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 18
+      },
+      "state_counts": {
+        "E": 18
+      },
+      "geometry_available": 18,
+      "missing": 0,
+      "inside": 18,
+      "outside": 0,
+      "exact_boundary": 18,
+      "inside_within_half_context_token": 18,
+      "inside_within_one_context_token": 18,
+      "u": {
+        "min": 0.5709008185755996,
+        "p05": 0.5768960902359951,
+        "p25": 0.5904044428217183,
+        "median": 0.6192917423023314,
+        "p75": 0.6688516341572568,
+        "p95": 0.7122787187419588,
+        "max": 0.7149779064568437
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "max": 0.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "max": 0.0
+      },
+      "q8_extent_counterfactual_inside": 18,
+      "q8_extent_counterfactual_exact_boundary": 18
+    },
+    {
+      "family": "V116_LOCO",
+      "fold": "TRAIN",
+      "state": "D",
+      "N": 3,
+      "base_queries": 3,
+      "contexts": 1,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 3
+      },
+      "state_counts": {
+        "D": 3
+      },
+      "geometry_available": 3,
+      "missing": 0,
+      "inside": 3,
+      "outside": 0,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 1,
+      "inside_within_one_context_token": 2,
+      "u": {
+        "min": 0.015150823204862447,
+        "p05": 0.09505186913514158,
+        "p25": 0.4146560528562581,
+        "median": 0.8141612825076537,
+        "p75": 0.8173390271588248,
+        "p95": 0.8198812228797615,
+        "max": 0.8205167718099957
+      },
+      "v": {
+        "min": 0.5403963696980922,
+        "p05": 0.5451353179098627,
+        "p25": 0.5640911107569446,
+        "median": 0.5877858518157971,
+        "p75": 0.7778102749432496,
+        "p95": 0.9298298134452115,
+        "max": 0.9678346980707021
+      },
+      "signed_edge_distance": {
+        "min": 0.015150823204862447,
+        "p05": 0.016852271077305993,
+        "p25": 0.02365806256708017,
+        "median": 0.032165301929297896,
+        "p75": 0.10582426505965109,
+        "p95": 0.16475143556393362,
+        "max": 0.17948322819000428
+      },
+      "q8_extent_counterfactual_inside": 3,
+      "q8_extent_counterfactual_exact_boundary": 2
+    },
+    {
+      "family": "V116_PALLOX",
+      "fold": "TRAIN_LAB",
+      "state": "D",
+      "N": 87,
+      "base_queries": 25,
+      "contexts": 10,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 87
+      },
+      "state_counts": {
+        "D": 87
+      },
+      "geometry_available": 87,
+      "missing": 0,
+      "inside": 78,
+      "outside": 9,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 78,
+      "inside_within_one_context_token": 78,
+      "u": {
+        "min": -0.0045688228899366905,
+        "p05": 0.0029010830881502706,
+        "p25": 0.013763513289732335,
+        "median": 0.9805995364552791,
+        "p75": 0.9922952605610977,
+        "p95": 0.9925819396986284,
+        "max": 1.0009389876031158
+      },
+      "v": {
+        "min": 0.5572762455412305,
+        "p05": 0.6466675490575611,
+        "p25": 0.7914284146797973,
+        "median": 0.9561216282377077,
+        "p75": 0.9760277561627387,
+        "p95": 0.9987230968383559,
+        "max": 1.0021835273457425
+      },
+      "signed_edge_distance": {
+        "min": -0.0045688228899366905,
+        "p05": -0.00042576723674872123,
+        "p25": 0.0074180603013715984,
+        "median": 0.00887317492099382,
+        "p75": 0.013763513289732335,
+        "p95": 0.019400463544720914,
+        "max": 0.02620357964855058
+      },
+      "q8_extent_counterfactual_inside": 87,
+      "q8_extent_counterfactual_exact_boundary": 59
+    },
+    {
+      "family": "V116_PALLOX",
+      "fold": "TRAIN_LAB",
+      "state": "E",
+      "N": 62,
+      "base_queries": 14,
+      "contexts": 8,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 62
+      },
+      "state_counts": {
+        "E": 62
+      },
+      "geometry_available": 62,
+      "missing": 0,
+      "inside": 59,
+      "outside": 3,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 59,
+      "inside_within_one_context_token": 59,
+      "u": {
+        "min": -0.0045688228899366905,
+        "p05": 0.0029010830881502706,
+        "p25": 0.013763513289732335,
+        "median": 0.9805995364552791,
+        "p75": 0.9922952605610977,
+        "p95": 0.9925685334232555,
+        "max": 0.9925819396986284
+      },
+      "v": {
+        "min": 0.592157228452195,
+        "p05": 0.7142600328636975,
+        "p25": 0.7623412276628737,
+        "median": 0.9566869846432382,
+        "p75": 0.9760277561627387,
+        "p95": 0.9978024270464362,
+        "max": 1.0003248579795463
+      },
+      "signed_edge_distance": {
+        "min": -0.0045688228899366905,
+        "p05": 0.00219757295356382,
+        "p25": 0.0076861858088297375,
+        "median": 0.008998019569371074,
+        "p75": 0.013763513289732335,
+        "p95": 0.019400463544720914,
+        "max": 0.02620357964855058
+      },
+      "q8_extent_counterfactual_inside": 62,
+      "q8_extent_counterfactual_exact_boundary": 41
+    },
+    {
+      "family": "V99_SYNTH",
+      "fold": "TRAIN",
+      "state": "D",
+      "N": 751,
+      "base_queries": 274,
+      "contexts": 64,
+      "origin_counts": {
+        "FROZEN_QUERY8_EXTENT_FALLBACK": 751
+      },
+      "state_counts": {
+        "D": 751
+      },
+      "geometry_available": 751,
+      "missing": 0,
+      "inside": 751,
+      "outside": 0,
+      "exact_boundary": 436,
+      "inside_within_half_context_token": 577,
+      "inside_within_one_context_token": 590,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.06450946455262907,
+        "median": 0.5427457034024034,
+        "p75": 0.9966236508577677,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.08219302521819918,
+        "p05": 0.1771626085565485,
+        "p25": 0.3144948817674104,
+        "median": 0.5733958249868022,
+        "p75": 0.8860414588572909,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.020307522966474534,
+        "p95": 0.2793984998433794,
+        "max": 0.32790288346175434
+      },
+      "q8_extent_counterfactual_inside": 751,
+      "q8_extent_counterfactual_exact_boundary": 436
+    },
+    {
+      "family": "V99_SYNTH",
+      "fold": "TRAIN",
+      "state": "E",
+      "N": 71,
+      "base_queries": 71,
+      "contexts": 64,
+      "origin_counts": {
+        "FROZEN_QUERY8_EXTENT_FALLBACK": 71
+      },
+      "state_counts": {
+        "E": 71
+      },
+      "geometry_available": 71,
+      "missing": 0,
+      "inside": 71,
+      "outside": 0,
+      "exact_boundary": 41,
+      "inside_within_half_context_token": 53,
+      "inside_within_one_context_token": 55,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.010999276804667234,
+        "median": 0.14353557673380715,
+        "p75": 0.7920519254028446,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.10873394475700814,
+        "p05": 0.15635859235543836,
+        "p25": 0.31824482807182886,
+        "median": 0.6801214882112672,
+        "p75": 0.8948923910292772,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.03795633748589283,
+        "p95": 0.20390662183475639,
+        "max": 0.3001526188506838
+      },
+      "q8_extent_counterfactual_inside": 71,
+      "q8_extent_counterfactual_exact_boundary": 41
+    },
+    {
+      "family": "V99_SYNTH",
+      "fold": "VALIDATION",
+      "state": "D",
+      "N": 209,
+      "base_queries": 82,
+      "contexts": 32,
+      "origin_counts": {
+        "FROZEN_QUERY8_EXTENT_FALLBACK": 209
+      },
+      "state_counts": {
+        "D": 209
+      },
+      "geometry_available": 209,
+      "missing": 0,
+      "inside": 209,
+      "outside": 0,
+      "exact_boundary": 154,
+      "inside_within_half_context_token": 201,
+      "inside_within_one_context_token": 209,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0007869883672384966,
+        "median": 0.9799857561017675,
+        "p75": 0.9989075815877608,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.4547338165114729,
+        "p05": 0.4786921724755824,
+        "p25": 0.6557900321291853,
+        "median": 0.7795037726070776,
+        "p75": 0.89659581184035,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.0007869883672384966,
+        "p95": 0.02073810957558471,
+        "max": 0.04554353426625668
+      },
+      "q8_extent_counterfactual_inside": 209,
+      "q8_extent_counterfactual_exact_boundary": 154
+    },
+    {
+      "family": "V99_SYNTH",
+      "fold": "VALIDATION",
+      "state": "E",
+      "N": 34,
+      "base_queries": 34,
+      "contexts": 32,
+      "origin_counts": {
+        "FROZEN_QUERY8_EXTENT_FALLBACK": 34
+      },
+      "state_counts": {
+        "E": 34
+      },
+      "geometry_available": 34,
+      "missing": 0,
+      "inside": 34,
+      "outside": 0,
+      "exact_boundary": 23,
+      "inside_within_half_context_token": 30,
+      "inside_within_one_context_token": 34,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.9557627061578075,
+        "median": 0.9862096368736825,
+        "p75": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.4547338165114729,
+        "p05": 0.5842844615099487,
+        "p25": 0.6853786656980152,
+        "median": 0.8614914560436596,
+        "p75": 0.8918941827258877,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.005027808305391135,
+        "p95": 0.03699078520793136,
+        "max": 0.04554353426625668
+      },
+      "q8_extent_counterfactual_inside": 34,
+      "q8_extent_counterfactual_exact_boundary": 23
+    }
+  ],
+  "known_by_family": [
+    {
+      "family": "LOCO",
+      "N": 6,
+      "base_queries": 6,
+      "contexts": 3,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 6
+      },
+      "state_counts": {
+        "D": 6
+      },
+      "geometry_available": 6,
+      "missing": 0,
+      "inside": 4,
+      "outside": 2,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 2,
+      "inside_within_one_context_token": 3,
+      "u": {
+        "min": 0.015150823204862447,
+        "p05": 0.05871703175209025,
+        "p25": 0.34560206367224366,
+        "median": 0.8173390271588248,
+        "p75": 0.9609653035020786,
+        "p95": 1.0081635377012144,
+        "max": 1.0082908900240282
+      },
+      "v": {
+        "min": 0.4606743949779072,
+        "p05": 0.4806048886579535,
+        "p25": 0.5522437402275184,
+        "median": 0.6954669533669539,
+        "p75": 0.9266630372825542,
+        "p95": 0.9880497136382367,
+        "max": 0.9947880521607483
+      },
+      "signed_edge_distance": {
+        "min": -0.008290890024028164,
+        "p05": -0.008163537701214363,
+        "p25": -0.004533123589766791,
+        "median": 0.010181385522057083,
+        "p75": 0.027911682248189032,
+        "p95": 0.1426537466248277,
+        "max": 0.17948322819000428
+      },
+      "q8_extent_counterfactual_inside": 6,
+      "q8_extent_counterfactual_exact_boundary": 4
+    },
+    {
+      "family": "PALLOX",
+      "N": 447,
+      "base_queries": 59,
+      "contexts": 25,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 447
+      },
+      "state_counts": {
+        "D": 249,
+        "E": 198
+      },
+      "geometry_available": 447,
+      "missing": 0,
+      "inside": 405,
+      "outside": 42,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 386,
+      "inside_within_one_context_token": 405,
+      "u": {
+        "min": -0.028567735854905376,
+        "p05": -0.004203148458761836,
+        "p25": 0.013851061882425821,
+        "median": 0.9821599344766874,
+        "p75": 0.9910019804306289,
+        "p95": 0.9942276091335372,
+        "max": 1.0009389876031158
+      },
+      "v": {
+        "min": 0.5298458213125622,
+        "p05": 0.562429999994632,
+        "p25": 0.7429512483518452,
+        "median": 0.8695836123763472,
+        "p75": 0.9726566655781704,
+        "p95": 0.9994759309481839,
+        "max": 1.0108419960319797
+      },
+      "signed_edge_distance": {
+        "min": -0.028567735854905376,
+        "p05": -0.004203148458761836,
+        "p25": 0.005772390866462751,
+        "median": 0.008998019569371074,
+        "p75": 0.017401616637869544,
+        "p95": 0.0259305238679558,
+        "max": 0.03790554248987832
+      },
+      "q8_extent_counterfactual_inside": 447,
+      "q8_extent_counterfactual_exact_boundary": 286
+    },
+    {
+      "family": "V109_YCB_BOX_SURFACE_EMULATION",
+      "N": 1521,
+      "base_queries": 1521,
+      "contexts": 926,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 1521
+      },
+      "state_counts": {
+        "D": 1181,
+        "E": 340
+      },
+      "geometry_available": 1521,
+      "missing": 0,
+      "inside": 1521,
+      "outside": 0,
+      "exact_boundary": 462,
+      "inside_within_half_context_token": 594,
+      "inside_within_one_context_token": 681,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.12491408152521004,
+        "median": 0.3944914974553013,
+        "p75": 0.70572555692625,
+        "p95": 0.9638045109383271,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.05497314278732959,
+        "p25": 0.2587441290681718,
+        "median": 0.5394023399216671,
+        "p75": 0.8296985778298874,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.08756913981432964,
+        "p75": 0.22048323106775036,
+        "p95": 0.35031226034879326,
+        "max": 0.46323825845365674
+      },
+      "q8_extent_counterfactual_inside": 1521,
+      "q8_extent_counterfactual_exact_boundary": 462
+    },
+    {
+      "family": "V113_YCB_MATERIAL_SURFACE_EMULATION",
+      "N": 678,
+      "base_queries": 678,
+      "contexts": 354,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 678
+      },
+      "state_counts": {
+        "D": 458,
+        "E": 220
+      },
+      "geometry_available": 678,
+      "missing": 0,
+      "inside": 678,
+      "outside": 0,
+      "exact_boundary": 265,
+      "inside_within_half_context_token": 335,
+      "inside_within_one_context_token": 396,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.1545059899316999,
+        "median": 0.5118682458729278,
+        "p75": 0.8722841114225233,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.06973327479863328,
+        "p25": 0.25548550922441515,
+        "median": 0.5503929819989535,
+        "p75": 0.8381938279899496,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.03280057007639203,
+        "p75": 0.17214200828294762,
+        "p95": 0.34712822647327135,
+        "max": 0.46160841907621647
+      },
+      "q8_extent_counterfactual_inside": 678,
+      "q8_extent_counterfactual_exact_boundary": 265
+    },
+    {
+      "family": "V116_LOCO",
+      "N": 3,
+      "base_queries": 3,
+      "contexts": 1,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 3
+      },
+      "state_counts": {
+        "D": 3
+      },
+      "geometry_available": 3,
+      "missing": 0,
+      "inside": 3,
+      "outside": 0,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 1,
+      "inside_within_one_context_token": 2,
+      "u": {
+        "min": 0.015150823204862447,
+        "p05": 0.09505186913514158,
+        "p25": 0.4146560528562581,
+        "median": 0.8141612825076537,
+        "p75": 0.8173390271588248,
+        "p95": 0.8198812228797615,
+        "max": 0.8205167718099957
+      },
+      "v": {
+        "min": 0.5403963696980922,
+        "p05": 0.5451353179098627,
+        "p25": 0.5640911107569446,
+        "median": 0.5877858518157971,
+        "p75": 0.7778102749432496,
+        "p95": 0.9298298134452115,
+        "max": 0.9678346980707021
+      },
+      "signed_edge_distance": {
+        "min": 0.015150823204862447,
+        "p05": 0.016852271077305993,
+        "p25": 0.02365806256708017,
+        "median": 0.032165301929297896,
+        "p75": 0.10582426505965109,
+        "p95": 0.16475143556393362,
+        "max": 0.17948322819000428
+      },
+      "q8_extent_counterfactual_inside": 3,
+      "q8_extent_counterfactual_exact_boundary": 2
+    },
+    {
+      "family": "V116_PALLOX",
+      "N": 149,
+      "base_queries": 25,
+      "contexts": 10,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 149
+      },
+      "state_counts": {
+        "D": 87,
+        "E": 62
+      },
+      "geometry_available": 149,
+      "missing": 0,
+      "inside": 137,
+      "outside": 12,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 137,
+      "inside_within_one_context_token": 137,
+      "u": {
+        "min": -0.0045688228899366905,
+        "p05": 0.0029010830881502706,
+        "p25": 0.013763513289732335,
+        "median": 0.9805995364552791,
+        "p75": 0.9922952605610977,
+        "p95": 0.9925819396986284,
+        "max": 1.0009389876031158
+      },
+      "v": {
+        "min": 0.5572762455412305,
+        "p05": 0.7142600328636975,
+        "p25": 0.7623412276628737,
+        "median": 0.9561216282377077,
+        "p75": 0.9760277561627387,
+        "p95": 0.9978024270464362,
+        "max": 1.0021835273457425
+      },
+      "signed_edge_distance": {
+        "min": -0.0045688228899366905,
+        "p05": -0.00032485797954628914,
+        "p25": 0.0074180603013715984,
+        "median": 0.008998019569371074,
+        "p75": 0.013763513289732335,
+        "p95": 0.019400463544720914,
+        "max": 0.02620357964855058
+      },
+      "q8_extent_counterfactual_inside": 149,
+      "q8_extent_counterfactual_exact_boundary": 100
+    },
+    {
+      "family": "V99_SYNTH",
+      "N": 1065,
+      "base_queries": 356,
+      "contexts": 96,
+      "origin_counts": {
+        "FROZEN_QUERY8_EXTENT_FALLBACK": 1065
+      },
+      "state_counts": {
+        "D": 960,
+        "E": 105
+      },
+      "geometry_available": 1065,
+      "missing": 0,
+      "inside": 1065,
+      "outside": 0,
+      "exact_boundary": 654,
+      "inside_within_half_context_token": 861,
+      "inside_within_one_context_token": 888,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0188124148386622,
+        "median": 0.5458623221526175,
+        "p75": 0.9966236508577677,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.08219302521819918,
+        "p05": 0.1890084045655144,
+        "p25": 0.4072236758140988,
+        "median": 0.6820829331197701,
+        "p75": 0.8893783403165083,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.0,
+        "p75": 0.014277756649951123,
+        "p95": 0.13535219974288445,
+        "max": 0.32790288346175434
+      },
+      "q8_extent_counterfactual_inside": 1065,
+      "q8_extent_counterfactual_exact_boundary": 654
+    }
+  ],
+  "known_by_origin": [
+    {
+      "box_origin": "EMULATED_Q8_MINMAX",
+      "N": 2199,
+      "base_queries": 2199,
+      "contexts": 1280,
+      "origin_counts": {
+        "EMULATED_Q8_MINMAX": 2199
+      },
+      "state_counts": {
+        "D": 1639,
+        "E": 560
+      },
+      "geometry_available": 2199,
+      "missing": 0,
+      "inside": 2199,
+      "outside": 0,
+      "exact_boundary": 727,
+      "inside_within_half_context_token": 929,
+      "inside_within_one_context_token": 1077,
+      "u": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.13096773797112454,
+        "median": 0.42016463787154884,
+        "p75": 0.7420764740372523,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "v": {
+        "min": 0.0,
+        "p05": 0.05555456491958032,
+        "p25": 0.2569716035552094,
+        "median": 0.5426608675489014,
+        "p75": 0.8323231746048286,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "signed_edge_distance": {
+        "min": 0.0,
+        "p05": 0.0,
+        "p25": 0.0,
+        "median": 0.06881884933100264,
+        "p75": 0.20342846367173867,
+        "p95": 0.3502931689291279,
+        "max": 0.46323825845365674
+      },
+      "q8_extent_counterfactual_inside": 2199,
+      "q8_extent_counterfactual_exact_boundary": 727
+    },
+    {
+      "box_origin": "ORIGINAL_INITIALIZER_SELECTED_BOX",
+      "N": 605,
+      "base_queries": 65,
+      "contexts": 28,
+      "origin_counts": {
+        "ORIGINAL_INITIALIZER_SELECTED_BOX": 605
+      },
+      "state_counts": {
+        "D": 345,
+        "E": 260
+      },
+      "geometry_available": 605,
+      "missing": 0,
+      "inside": 549,
+      "outside": 56,
+      "exact_boundary": 0,
+      "inside_within_half_context_token": 526,
+      "inside_within_one_context_token": 547,
+      "u": {
+        "min": -0.028567735854905376,
+        "p05": -0.004203148458761836,
+        "p25": 0.013763513289732335,
+        "median": 0.9805995364552791,
+        "p75": 0.9910019804306289,
+        "p95": 0.9937340050935821,
+        "max": 1.0082908900240282
+      },
+      "v": {
+        "min": 0.4606743949779072,
+        "p05": 0.5723407161122911,
+        "p25": 0.7429512483518452,
+        "median": 0.945569893082311,
+        "p75": 0.9760277561627387,
+        "p95": 0.9988546210943444,
+        "max": 1.0108419960319797
+      },
+      "signed_edge_distance": {
+        "min": -0.028567735854905376,
+        "p05": -0.004203148458761836,
+        "p25": 0.006250176801507856,
+        "median": 0.008998019569371074,
+        "p75": 0.015150823204862447,
+        "p95": 0.0259305238679558,
+        "max": 0.17948322819000428
+      },
+      "q8_extent_counterfactual_inside": 605,
+      "q8_extent_counterfactual_exact_boundary": 392
+    }
+  ],
+  "limitations_KO": [
+    "q8minmax를 source에 재계산할 메타데이터는 있다. 이는 input normalization 후보의 실행 가능성만 뜻하며 채택/성능/정답 association의 증거가 아니다.",
+    "YCB q8minmax의 수식은 current fallback과 같아도 q는 GT projection+jitter source emulation이다. 실제 initializer q 분포와 같다고 볼 수 없다.",
+    "원 selectedbbox도 target identity/whole-target support를 보증하지 않는다. q가 selectedbbox밖이면 Q는0이지만 기존 C11 availability는 그대로 유지된다.",
+    "known counts에는 같은 basequery의 before/cover/sham 및 여러 donor 반복이 포함된다. 별도 base/context 분모를 함께 기록했으며 IID 표본이 아니다.",
+    "current UV/box distribution은 이번 범위에서 측정하지 않았다. source 차이가 current 오류를 일으켰다는 단독 원인 주장을 하지 않는다.",
+    "S는 known geometric outside-task, U는 unresolved로 유지했다. Native expectedpart mapping UNKNOWN/human goldfalse/새 training admission없음."
+  ],
+  "outputs": {
+    "known_PUBLIC_GT_only": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/public_context_provenance_audit/KNOWN_PUBLIC2804_Q_CONTEXT_DIAGNOSTICS_GT_ONLY.jsonl",
+      "sha256": "3633bdc0c99f91c1dcaaf372fbe1b1d01104bafd19e7b767f261bb2de4b2f177"
+    },
+    "input_context_comparison": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/public_context_provenance_audit/CONTEXT1616_SOURCEBOX_VS_Q8_EXTENT_INPUT_ONLY.jsonl",
+      "sha256": "7aa66ed8be8f1f0abefa263b5ba0c8306da87031c7277f9f421ab4a7c89ee48a"
+    }
+  },
+  "source_metadata_bindings": {
+    "definitions": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/TARGET_CONTEXT_DEFINITIONS216_INPUT_ONLY.jsonl",
+      "sha256": "7bdbf705eb77958c44107b7d6acd927d96a9de3d31186d5ca14819e8db74136a"
+    },
+    "old_contexts": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_relative_rgb_head_20261023_v108/context_feature_preparation/UNIT_CONTEXTS3652_INPUT_ONLY.jsonl",
+      "sha256": "e1d224963aeed0a8fc2fd5eff8d22c851ce6a7da953f9c205b2c56c3099eb875"
+    },
+    "old_occurrences": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_query_anchored_cue_20261023_v96/actual_source_pair_input_pack/ALL31680_INPUT_LINEAGE.jsonl",
+      "sha256": "b473123b79cc1ca916cd3e92182e60bd5a5e2ec69ec9029444a12a1eaa415428"
+    },
+    "old_GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_query_anchored_cue_20261023_v96/actual_query_anchored_image_intake/OCCURRENCES31680_GT_ONLY.jsonl",
+      "sha256": "d6905c409e81848c618c655f8cd3a9437fcda13677a7fe2c58e66cfd53ad7582"
+    },
+    "synthetic_occurrences": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/matching_feature_pack/INPUT_LINEAGE2304_INPUT_ONLY.jsonl",
+      "sha256": "d507399aaaae9da8bcdc4336118d110a2b298456b5af0d595c8b56d7f190df4f"
+    },
+    "synthetic_GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_diverse_expected_cue_source_20261023_v99/geometry_query_preparation/EXPECTED_CUE_TARGETS96_GT_ONLY.jsonl",
+      "sha256": "1c063359ae2a72d71fcab8a5b9456360632a01ebfff9abde109fcfd26b2bc86b"
+    },
+    "surface_inputs": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/INPUTS1000_QUERY_EMULATION_ONLY.jsonl",
+      "sha256": "f06d1d2b2231835160c3c748c3269e518a460a694a37fcbddf7b00f5dfe166f2"
+    },
+    "surface_GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/corpus_build_v1/SLOT_EVIDENCE8000_GT_ONLY.jsonl",
+      "sha256": "2a949fe6610f6010f2b5b578c99473907c5e83c8db0faff562a75447a5d1d442"
+    },
+    "material_inputs": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_wood_foam_source_20261023_v113/query_preparation/INPUTS400_QUERY_EMULATION_ONLY.jsonl",
+      "sha256": "3448555230c78a753adc085afc3afb61932c4484c95a72e09b72d517f9217f13"
+    },
+    "material_GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_wood_foam_source_20261023_v113/corpus_build_v1/SLOT_EVIDENCE3200_GT_ONLY.jsonl",
+      "sha256": "28f96042aedd3efa14fa1694260bb7c3a256b55bba5b06868f25073b25709143"
+    },
+    "samewood_inputs": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/OCCURRENCES924_INPUT_ONLY.jsonl",
+      "sha256": "b2166db56e8e665cc65ecc7e405e136b960ccb383694b4b5908ea743972b85eb"
+    },
+    "samewood_GT": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/OCCURRENCES924_GT_ONLY.jsonl",
+      "sha256": "d5a5c01725d1b7a42aec3f88a7ac1d0ca1740a74c4a60c22751418963a9343e7"
+    }
+  },
+  "code_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/build_metadata_inventory.py",
+      "sha256": "09d0782fa7f1d1cc562853c62a890db9afe066a810b722044051985304141c83"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/producer/build_surface_source.py",
+      "sha256": "a431eaa92c06b5a9a7e2d14ac7a8d6fde18c685edf988c7d099ce02411b65f38"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_wood_foam_source_20261023_v113/teacher_preparation/build_material_teacher.py",
+      "sha256": "4769fa7db414636b6da350d22ab1da8081e5f3b59750fdf69c293d1820e00643"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/feature_preparation_v1/prepare_same_material_spatial_features.py",
+      "sha256": "8804021ddbc221f1da8aba9a4ae0743cdd2ffe2be5048068d7a9215847af6655"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/current_evaluation_preparation/current_adapter.py",
+      "sha256": "1f1ed2341c7ea9edc05b5dd1b376c80e4b58f908fbdca759748fb2ad2c610d90"
+    }
+  ],
+  "current_contract_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/ROOT_CURRENT_COMPARISON_OPERATOR_BEFORE_INPUT_READ.json",
+      "sha256": "fc9dd76c816029a6ee3b935ebb141e2229fd26f06c3c2a48e433075c9f8d1cac"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/ROOT_CURRENT_SAVED_FEATURE_OPERATOR_BEFORE_C13_FIT.json",
+      "sha256": "8824f676e1fdea306aec8b78f1103b99b5c61c17206b2b82a26ae6d034beb854"
+    }
+  ],
+  "own_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_query_head_20261023_v118/public_context_provenance_audit/audit_source_contexts.py",
+    "sha256": "2536970bf687a03ba2dc58364b74841d604ec68f7f1c6f07811886fcadd9cd95"
+  }
+}

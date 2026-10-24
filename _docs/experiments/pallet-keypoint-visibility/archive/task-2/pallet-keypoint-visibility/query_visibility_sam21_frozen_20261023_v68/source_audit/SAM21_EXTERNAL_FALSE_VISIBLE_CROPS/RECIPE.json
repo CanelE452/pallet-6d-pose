@@ -1,0 +1,24 @@
+{
+  "schema": "V68_SAVED_SOURCE_EXTERNAL_FALSE_VISIBLE_CROP_DIAGNOSIS_RECIPE_V1",
+  "created_utc": "2026-10-22T16:10:55.823443+00:00",
+  "eligibility": "CONTROLLED_YCB, native-valid, frozen compatible exactstate knownE, savedSAM21exact_visible1 /chosenlogit>0.",
+  "selection": "Preferstrict25E fromfrozenSOURCE_BOUNDARY V65truthrow. SortSHA256(sample_id)ascending, thenchoosefirst4withdistinctglobal_id. Noquality/confidence/logitmagnitude ranking. Retain4ifstrictpoolhasatleast4.",
+  "branch": "Useonlythepreviouslychosenpredicted-quality-argmaxSAM21mask. NoGTmaskbranchselectionornewprediction.",
+  "validation": [
+    "ExactsameID/nativecorner/query/pixel/imageSHA/boxbetweenjoinedGT,inputmanifest,savedqueryCSV,targetoutputs,composites.",
+    "Originalvisible&paste certifyE; strict25meansall25nativepixels originalvisibleandpaste.",
+    "ReconstructopaqueRGBpastefromsavedreal-donortransform. AlloutsidepasteRGB mustmatchoriginal andallinsidepasteRGBmustmatchresizeddonor.",
+    "SavedmaskSHA/index/qualitymax andsavedexact/radius2logits mustreplayatnativepixel."
+  ],
+  "displays": "Eachcase: originalYCB RGB, controlledRGB andcontrolled+savedSAM2mask atsameinput-onlypromptcontext andsamequerycropceil(savedside), nearestdisplayresampling. Originalvisiblecontourgreen,pasteedgeorange,maskcyan,querymagenta,5x5yellow.",
+  "interpretation": "Sourcecontrolledinterventionownershiponly. Quantifywhetherchosenmaskincludesknownoccluder, queryedgebleedversusstrictinterior, andremainingtargetconnectivity. Visualcauseclassification mayremainunresolved. NoEprecisionorsemanticgoldclaim.",
+  "forbidden": [
+    "newmodel/forward/training/GPU",
+    "current223RGB/GT/scores/inputs",
+    "featurearrays/weights",
+    "confidence-rankedselection",
+    "threshold/radiuschanges",
+    "GTbranchselection",
+    "mutatingpriorartifacts"
+  ]
+}

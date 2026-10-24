@@ -1,0 +1,30 @@
+{
+  "schema": "V71_NEXT_PUBLIC_PALLET_INPUT_INITIALIZER_FEASIBILITY",
+  "status": "EXISTING_SYNTH_TRAINED_FROZEN_INPUT_MODEL_AND_CODE_LOCATED_NO_NEW_FORWARD",
+  "model": {
+    "path": "/home/minjae/Documents/github/pallet-pose/challenge/yolo_pose_one_model/spatial_concat_scratch/runs/YOLO26N_G38_P0_TEX20K_CLEANSTART_60EP_SEED42/weights/best.pt",
+    "bytes": 6552807,
+    "sha256": "970a0913b38ed4c9e3662837abccbf9d91b8b0858deafae854c1055e477644f7"
+  },
+  "code": {
+    "path": "/tmp/pallet-bi-full-execution-20261019-v1/scripts/research/pallet_line_pose_v1/features.py",
+    "bytes": 6641,
+    "sha256": "296d81b2adde5ce74192f0012e554ae546c95f309a82dd808024ee34105721ab"
+  },
+  "runtime": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+  "source_provenance": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/synthetic_head_minimal_20261022_v54/FEATURE_SMOKE_PROTOCOL.json",
+    "bytes": 1137,
+    "sha256": "9fefce0dbb66ba00e53e1f6a941313c3d5629b0ccc973fdacc35f105e9ec57fd"
+  },
+  "actual_code_behavior_inspected": [
+    "FrozenYoloFeatures.predict uses task pose, 100px reflect101 source-border, conf.001/imgsz640/rectTrue, noaugment, full9keypoints+scores per detection; selectedhighestscoretiesargmaxfirst; subtractsborder before output.",
+    "No GT input or PnP in this initializer path. Source output includes predicted box and deployment-available query row0..8, not reference geometry.",
+    "Any later cue-to-native association remains GT-only conditional review. All candidates/selectedoutput must be kept; cannot choose detection by reference proximity."
+  ],
+  "why_ko": "R2B실제낮은목재cue7개는있지만현재initialq/L없다. Generic9x9 sourcegrid에더해실제synthetic-trainednativequeryproducer를sourceR2B에고정적용하면GT recenter없이배포와가까운query/crop자료를얻을수있다. 현파일은경로/코드실재확인이지실행성공이나native8가림정답인증이아니다.",
+  "next_execution_requires": "Separate pre-forwardsourceprotocol with fixedframeIDs from existing intakemanifests, CPU/GPUruntime/model/buffer freeze andallcandidate retention. SourceRGB-onlyforwardallowed by ongoinggoal; no current223/fit/threshold/PnP. No model selection by cueGT.",
+  "new_forward": 0,
+  "current223_access": 0,
+  "new_fit_PnP": 0
+}

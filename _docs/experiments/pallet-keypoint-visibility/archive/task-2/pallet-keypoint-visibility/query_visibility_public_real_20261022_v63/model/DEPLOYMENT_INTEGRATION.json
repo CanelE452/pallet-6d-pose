@@ -1,0 +1,117 @@
+{
+  "entrypoints": {
+    "fresh_RGB_API": "from deploy_query_visibility import QueryVisibility; api=QueryVisibility(); result=api.predict_rgb(rgb_uint8_HWC, initial_points_8x2, saved_initial_pose=None); api.close()",
+    "precomputed_API": "api.predict_precomputed(points=q8,raw_hw=[H,W],x=roi8,rgb=crops8,sam=sam8,context=None,sam_full_logits=None,saved_initial_pose=None)"
+  },
+  "CLI": {
+    "runtime": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+    "command": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/model/deploy_query_visibility.py --input-json /ABS/NEW_REQUEST.json --device cpu --out /ABS/NEW_RESULT.json",
+    "request_example": {
+      "image": "/ABS/NEW_IMAGE.png",
+      "initial_points": [
+        [
+          30,
+          35
+        ],
+        [
+          140,
+          35
+        ],
+        [
+          140,
+          85
+        ],
+        [
+          30,
+          85
+        ],
+        [
+          40,
+          25
+        ],
+        [
+          150,
+          25
+        ],
+        [
+          150,
+          75
+        ],
+        [
+          40,
+          75
+        ]
+      ],
+      "request_id": "new-target-001"
+    },
+    "optional_initial_pose": {
+      "available": true,
+      "cf_extents": "positive [width,height,depth]",
+      "R_cf": "saved proper 3x3 camera rotation",
+      "centroid": "saved camera translation3; no fitting performed"
+    }
+  },
+  "input_contract": {
+    "query_order": "original native cuboid order 0..7; center point8 excluded; never permute by visibility",
+    "x": "8,65,9,9 P3 frozen FP16-rounded + grid validity bit",
+    "rgb": "uint8 8,3,65,65 RGB, center=floor(q+.5), offsets=linspace(-L/2,L/2,65)",
+    "sam": "8,1,9,9 selected SAM normalized /8 clipped[-4,4] at native9 grid",
+    "context": "64 or8,64; defaults to mean valid first64 feature cells across target8ROIs",
+    "target_box": "fresh mode always q8 minmax clipped, at least2 finite points and width/height>=2px",
+    "invalid_queries": "nonfinite,[-1,-1],off-image,nearest pixel off-image,orROIwithoutvalidcells -> UNKNOWN"
+  },
+  "output_contract": {
+    "p_visible_exact": "learned frozen exact-nearest-pixel probability; .5 unchanged source threshold",
+    "raw_SAM_center_logit": "independent frozen selected mask exact point score; light cache reconstruction flagged clipped when full map absent",
+    "nearby_r2_support": "independent max rawSAM logit in clipped5x5 square, >0; without full SAM map UNKNOWN; never substitutes exact probability",
+    "self_hidden_geometry_proxy": "optional pure saved-cuboid geometry flag; UNKNOWN without valid saved pose; never changes learned/raw scores",
+    "negative": "absent_or_nonvisible at query; does not identify external vs self vs location error",
+    "learned_three_state_model": false
+  },
+  "limitations": [
+    "pixel presence is distinct from semantic corner visibility",
+    "radius2 support is a distinct neighborhood target",
+    "geometry is a conditional cuboid proxy using unchanged saved pose",
+    "SAM ownership depends on quality of query-derived target box",
+    "RGB nearest-center and P3 continuous-query grid retain <=.5px per-axis phase difference by design",
+    "CPU and original CUDA P3 cells are numerically close, not bit-exact; source fixture records actual feature and final probability differences."
+  ],
+  "asset_integrity": "DEPLOYMENT_BUNDLE.json binds source-selected checkpoint, source freeze, code, backbone and SAM vendor files; no threshold/model fitting in API",
+  "integration_rules": [
+    "keep initial point coordinates and native ordering unchanged",
+    "pass one target per8point group",
+    "reuse one API instance across frames and call close when done",
+    "freshRGB mode loads YOLO/MobileSAM lazily and never invokes PnP",
+    "use precomputedAPI to avoid heavyweight backbones; ensure caches match bound source recipe",
+    "source/private annotations and CAL parameters are neither accepted nor loaded",
+    "An existing imported MobileSAM package is accepted only when every pinned runtime file is byte-identical."
+  ],
+  "reproducible_test": "model/smoke_deployment.py uses generated RGB and mockfeatures only; no evaluation data",
+  "runtime_verified": {
+    "python": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+    "device_default": "cpu",
+    "heavy_imports_are_lazy": true,
+    "verified_versions": {
+      "python": "3.10",
+      "torch": "2.1.1+cu118",
+      "cv2": "4.9.0",
+      "ultralytics": "8.4.60",
+      "Pillow": "12.2.0",
+      "timm": "0.9.16"
+    },
+    "dependency_installation_required": false,
+    "backends": {
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "cudnn_allow_tf32": true,
+      "cuda_matmul_allow_tf32": false
+    }
+  },
+  "asset_layout": "deployment_assets contains copied SHA-bound selected head/freeze, YOLO26 weights+feature/ROI recipe, RGB recipe, pure geometry, and pinned MobileSAM package+weights. External dependencies are the recorded existing pallet-yolo26 environment.",
+  "portability": {
+    "scope": "local reproducibility in the current workspace",
+    "asset_paths": "absolute SHA-bound paths",
+    "fully_portable_archive": false,
+    "relocation": "Copy all bound assets and update manifest paths while preserving their hashes; recreate the recorded runtime separately."
+  }
+}

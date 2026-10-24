@@ -1,0 +1,134 @@
+{
+  "schema": "V76_PUBLIC_QUERY_EMULATION_PROTOCOL_V1",
+  "frozen_before_delta_derivation_and_use": true,
+  "scope": "SOURCE ONLY. GT-derived augmentation; not an actual deployment initializer or human semantic evidence.",
+  "bindings": {
+    "N3_prepared": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/external_ray_proxy_head_20261022_v60/PREPARED_INPUTS_SYNTH.json.gz",
+      "sha256": "17c24bcb3e3694d3d8bb40851a944468fd491719fb7a15ca1e485a5607eb799e",
+      "bytes": 517414
+    },
+    "teacher_corpus": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/GT_ONLY_TEACHER_CORPUS.npz",
+      "sha256": "626338ae0dee48f5c5d5f53930e05d02960225ee9d3972e751aeff4b25c30f45",
+      "bytes": 1442344
+    },
+    "ordered_index": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/ORDERED_METADATA_INDEX_GT_ONLY.jsonl",
+      "sha256": "58cc45a08aaeaeaf7d02c80e6f01cdf88ff40e394a80f4d6d8f3e94ca8d48918",
+      "bytes": 7703920
+    },
+    "YCB_instances": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/ycb/instances.jsonl",
+      "sha256": "8639706d6b352d507e9c05fd96573f9bf0a8ae43d1bf6b371ce8636b193b364a",
+      "bytes": 9785590
+    },
+    "native_grid_producer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/external_ray_proxy_head_20261022_v60/head_and_roi.py",
+      "sha256": "2c0f3bbeb29cb6f93152a62a3183d592d7b8c22bb45c20b2a84b80dc06843de0",
+      "bytes": 2222
+    },
+    "initial_box_producer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_cue_occlusion_20261023_v72/private_evaluation/current_input_adapter.py",
+      "sha256": "69efc742474527d9f60f70d4ef2549a891d4e0179a8493735db140e2aa7b97ab",
+      "bytes": 16154
+    },
+    "teacher_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/gt_corpus_build/GT_ONLY_CORPUS_SEAL.json",
+      "sha256": "e153dd10359578cb15e1f939f0071c5dcf0a5a90e54901b6bbe4cb36b7ff1fee",
+      "bytes": 3683
+    },
+    "error_bank_identities": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/public_query_emulation/ERROR_BANK_IDENTITIES_BEFORE_VALUES.json",
+      "sha256": "c291b2e05a5e650d22963321f2178dd4fc66e4fff40aecd095130108fe919452",
+      "bytes": 89208
+    },
+    "builder_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_local_support_20261023_v76/public_query_emulation/build_public_query_emulation.py",
+      "sha256": "2dc4814cef6ce442da77abd144e51989538569a23b72d0799db1d5d3e63248a5",
+      "bytes": 18037
+    }
+  },
+  "bank": {
+    "count": 768,
+    "all_TRAIN_rows": true,
+    "quality_filter": false,
+    "native_order": "original dynamic native slots0..7 preserved",
+    "q_source_stage": "SEALED_ACTUAL_N3_SUBPIX_F, original stored initial_points[:8]",
+    "reference_source": "same-id first1003 GT-only corpus native_GTref8",
+    "normalizer": "max(ptp(reference8,axis=0)); all8 original references, no per-slot filtering",
+    "delta8": "(stored_q8 - reference8) / normalizer",
+    "invalid_policy": "Keep all768 rows. If nonfinite reference or nonpositive/nonfinite span, delta8 allNaN; if individual q nonfinite, preserve nonfinite delta. Report and retain mapped public rows; JSON nonfinite is null. No bank substitution."
+  },
+  "mapping": {
+    "salt": "V76_PUBLIC_YCB_N3_TRAIN768_CORRELATED_NATIVE8_V1",
+    "identity": "YCB:{scene_id:06d}:{frame_id:06d}:{instance_id:06d}",
+    "hash": "SHA256((salt+\"\\n\"+identity).encode(\"utf-8\"))",
+    "bank_index": "int.from_bytes(digest,\"big\") % 768",
+    "query8": "public_reference8 + selected_delta8 * max(ptp(public_reference8,axis=0))",
+    "no_clip_no_reorder_no_query_refinement": true,
+    "native_slot_correlation": "One complete8x2 bank vector per target; never independent slot draws"
+  },
+  "public_rows": {
+    "count": 4200,
+    "unique_RGB": 1000,
+    "source_order": "Existing YCB instances.jsonl order, exact corpus[1003:] id join",
+    "split": "Original scenes0..7 TRAIN3400,8..9 VAL800 unchanged. Both use synthetic TRAIN-only error bank.",
+    "filter": "None: no teacher, class, mask, matched, quality, current or crop-visibility filtering"
+  },
+  "input_geometry": {
+    "L": "Exact native_grid(initial_points,raw_hw)[2]: clip(.25*maxptp(finite non-(-1,-1) q8),16,max(H,W)); fewer2=>16",
+    "box": "Exact initial_query_box: finite non-(-1,-1) q8 minmax, lo=max(lo,0), hi=min(hi,[W-1,H-1]); fewer2 or anyspan<2 => null",
+    "centroid_query": "Not synthesized; exactly8 input points",
+    "helpers": "Pure function AST only; no module imports/model loads"
+  },
+  "model_input_manifest": {
+    "name": "INPUTS_RGB_ONLY.jsonl",
+    "whitelist": [
+      "frame_index",
+      "id",
+      "source",
+      "split",
+      "image",
+      "image_sha256",
+      "raw_hw",
+      "initial_points",
+      "roi_side",
+      "box"
+    ],
+    "identity_fields_are_lineage_only": true,
+    "forward_forbidden": [
+      "reference8",
+      "mask",
+      "teacher",
+      "label",
+      "state",
+      "GTpose",
+      "GTperm",
+      "errorbank_id",
+      "delta8",
+      "GTspan",
+      "reference_offset"
+    ]
+  },
+  "loss_admission_proposal": {
+    "teacher_state": "Independent GT label8:1VISIBLE/0COVERED/-1U; preserve original label even when query misses, training target separatelyU.",
+    "self": "convex_self_proxy8_separate is visibility:1=may-visible,0=self-hidden,-1unknown; never self1=S and never merge into binary support target",
+    "admit": "teacher known0/1 & query_center_valid & ROI_anyvalid & local_valid96.any & target_valid128.any & finite GTref & (-.5 <= (r-q)/L < .5).all",
+    "query_center_valid": "finite/nonmissing & continuous native image bounds & floor(q+.5) nearest pixel bounds",
+    "ROI_anyvalid": "Exact native_grid9 continuous sampled coordinate bounds; input-only",
+    "near_boundary": "Retain already known teacher labels; no extra teacher quality filtering",
+    "query_miss": "Reference outside unchanged half-open local square => trainingU/loss0, even if underlying teacherCOVERED; never relabel miss toCOVERED",
+    "unknown_and_invalid": "U or invalid q/ref/input coverage => loss0; all rows retained",
+    "fit_authorization": false,
+    "current_authorization": false
+  },
+  "execution": {
+    "RGB_reads": false,
+    "feature_reads": false,
+    "model_forward": false,
+    "fit": false,
+    "current_data": false,
+    "PnP": false
+  }
+}

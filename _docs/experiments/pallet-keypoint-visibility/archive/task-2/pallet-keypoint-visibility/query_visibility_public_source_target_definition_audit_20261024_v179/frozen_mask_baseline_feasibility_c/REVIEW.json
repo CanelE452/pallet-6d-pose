@@ -1,0 +1,172 @@
+{
+  "completed": true,
+  "review_type": "metadata_and_official_documentation_feasibility_only",
+  "created_utc": "2026-10-24T05:03:22.508018+00:00",
+  "execution_ready": false,
+  "model_selected": null,
+  "adopted": false,
+  "full_goal_solved": false,
+  "scope": {
+    "purpose": "User-named frozen SAM baseline readiness; future SOURCE_TRAIN only, not a model comparison or new experimental result.",
+    "allowed_reads_actual": [
+      "Top-level importlib.util.find_spec in the specified Python",
+      "Official SAM2/GroundingDINO repository documentation and documented API source"
+    ],
+    "did_not_read": [
+      "Current223 feature/score/label/RGB bodies",
+      "V177 held annotation or score bodies",
+      "Feature/weight/checkpoint bodies",
+      "Project-wide inventory or global model caches",
+      "V112 paths"
+    ],
+    "executed_counts": {
+      "package_imports_for_probed_models": 0,
+      "model_construction": 0,
+      "inference": 0,
+      "training": 0,
+      "downloads": 0,
+      "installations": 0,
+      "new_threshold_fits": 0,
+      "new_pixel_or_annotation_reads": 0,
+      "PnP_or_query_L_changes": 0
+    }
+  },
+  "local_availability": {
+    "python_executable": "/home/minjae/anaconda3/envs/pallet-yolo26/bin/python",
+    "python_version": "3.10.20 (main, Mar 11 2026, 17:46:40) [GCC 14.3.0]",
+    "method": "importlib.util.find_spec(name) for top-level names only; no import_module, no submodule discovery, no package code executed by an explicit import.",
+    "probe_source": "import importlib.util; {name: importlib.util.find_spec(name) is not None for name in ['sam','segment_anything','sam2','transformers','groundingdino']}",
+    "packages": {
+      "sam": {
+        "available": false,
+        "origin": null,
+        "submodule_search_locations": null
+      },
+      "segment_anything": {
+        "available": false,
+        "origin": null,
+        "submodule_search_locations": null
+      },
+      "sam2": {
+        "available": false,
+        "origin": null,
+        "submodule_search_locations": null
+      },
+      "transformers": {
+        "available": false,
+        "origin": null,
+        "submodule_search_locations": null
+      },
+      "groundingdino": {
+        "available": false,
+        "origin": null,
+        "submodule_search_locations": null
+      }
+    },
+    "interpretation": "Not import-resolvable in this interpreter at probe time. This does not establish absence of arbitrary files elsewhere; no such search was performed.",
+    "historical_runtime_metadata_not_reprobed": {
+      "torch": "2.1.1+cu118",
+      "authority": "Previously established project pinned-runtime metadata, not a V179 torch import or compatibility test."
+    }
+  },
+  "official_sources": {
+    "sam2_readme": {
+      "url": "https://github.com/facebookresearch/sam2",
+      "read_date": "2026-10-24",
+      "facts": [
+        "Official image API uses set_image then predict with prompts.",
+        "Current requirements: Python>=3.10, torch>=2.5.1, torchvision>=0.20.1; lower-torch installation may upgrade torch.",
+        "Repository recommends a new environment and documents optional custom CUDA extension limitations."
+      ],
+      "locations": "README Installation; Image prediction"
+    },
+    "sam2_predictor": {
+      "url": "https://github.com/facebookresearch/sam2/blob/main/sam2/sam2_image_predictor.py",
+      "read_date": "2026-10-24",
+      "facts": [
+        "set_image accepts RGB HWC arrays with values 0..255.",
+        "predict accepts XY pixel points, foreground/background point labels 1/0, and an XYXY box; masks return at original image dimensions.",
+        "Multimask output and predicted mask quality are supported."
+      ],
+      "locations": "set_image docstring; predict and _predict docstrings"
+    },
+    "groundingdino_readme": {
+      "url": "https://github.com/IDEA-Research/GroundingDINO",
+      "read_date": "2026-10-24",
+      "facts": [
+        "Inputs are an image and text; outputs are boxes with word similarities, filtered using box/text thresholds.",
+        "Category names can be separated with periods; CPU-only inference is documented.",
+        "Installation requires model code/dependencies/config/checkpoint; CUDA extension setup is documented."
+      ],
+      "locations": "Explanations/Tips; Install; Running with Python"
+    },
+    "groundingdino_inference": {
+      "url": "https://github.com/IDEA-Research/GroundingDINO/blob/main/groundingdino/util/inference.py",
+      "read_date": "2026-10-24",
+      "facts": [
+        "Official helper preprocesses captions and returns boxes/logits/phrases.",
+        "Postprocessing scales normalized center-size boxes by original width/height and converts them to XYXY."
+      ],
+      "locations": "predict; Model.post_process_result"
+    }
+  },
+  "candidate_input_contracts_not_selected_arms": [
+    {
+      "input": "SAM2 image + initializer q8 bounding box",
+      "definition": "For a future frozen source-only adapter, a finite nondegenerate original q8 can supply [min_x,min_y,max_x,max_y] in original image pixel coordinates, with an explicitly frozen clipping/invalid policy. This is a derived prompt only; original q8, each selected q and L remain byte-preserved. No GT box replacement.",
+      "limitation": "A geometric envelope can include foreign objects, background, multiple pallets or invisible projected corners; it is not a certified pallet foreground box. Missing/degenerate prompts must remain explicit unavailable cases, without guessed replacements."
+    },
+    {
+      "input": "SAM2 image + remaining genuinely visible points",
+      "definition": "Official XY point prompts require foreground/background labels. A future adapter may use only separately justified source-input foreground witnesses whose acquisition is declared before inference. Original initializer points alone do not certify visibility or foreground ownership.",
+      "limitation": "Do not treat all available q8 as foreground, select points using new held labels/scores, or use native/pose/GT labels as an undeclared prompt. Adding a source-training manually certified point would be a distinct human-assisted prompt condition, not the unchanged initializer-only baseline."
+    },
+    {
+      "input": "GroundingDINO image + fixed text pallet.",
+      "definition": "The documented text API can propose semantic boxes for pallet; an explicitly frozen coordinate conversion can supply those XYXY boxes to SAM2. Neither text nor original q/L needs alteration.",
+      "limitation": "Text detection identifies category candidates, not the original selected instance. No proposal/mask choice using held/private outcomes; retain every no-detection/multiple-instance ambiguity under a prospective fixed policy. Official example thresholds are examples, not a calibrated physical visibility probability or a newly chosen threshold here."
+    }
+  ],
+  "target_definition_separation": {
+    "class_agnostic_mask": "SAM2 image prompt API returns masks and mask-quality estimates, not a pallet class/native-slot identity field. Treat semantic or selected-instance ownership as a separate unverified assignment.",
+    "semantic_pallet": "GroundingDINO text supplies semantic candidate boxes. Semantic pallet match does not certify which stacked/adjacent pallet is the initializer target.",
+    "literal_query_owner": "Mask membership at the unchanged q may be a predicted ownership witness, conditional on correct target-instance assignment. It is not an ownership ground truth.",
+    "crop_presence": "A target-like region somewhere in local96 is a crop-presence proposition. It does not establish that the literal center belongs to the target.",
+    "native_part_visibility": "Local query crop mask, center ownership, whole-pallet mask and original registered 3D/native-part external visibility are different propositions. None may silently replace the original native D/E/S task.",
+    "amodal_limit": "Reviewer inference from documented outputs: these APIs provide no certificate that a specific hidden native part exists behind an occluder, nor its physical correspondence/coordinate accuracy. Mask completion must not be called certified amodal presence or native visibility.",
+    "coordinate_contract": "Retain original q8/q/L/native IDs and input availability. If a crop is used later, separately verify its known original-to-crop prompt transform; never move q to a predicted mask, correct xy, or invoke PnP."
+  },
+  "blockers_before_any_future_actual_source_trial": [
+    {
+      "id": "packages_absent",
+      "status": "BLOCKED",
+      "detail": "All five probed top-level modules are unavailable in the requested interpreter; no import/inference was attempted."
+    },
+    {
+      "id": "sam2_runtime_gap",
+      "status": "BLOCKED",
+      "detail": "Official current SAM2 torch>=2.5.1/torchvision>=0.20.1 is above the historical pinned torch2.1.1 runtime. A separately declared environment is required; no upgrade of the existing experiment environment is authorized or performed."
+    },
+    {
+      "id": "assets_not_pinned",
+      "status": "NOT_PREPARED",
+      "detail": "No code commit, exact model config/checkpoint, license receipt or checkpoint hash has been frozen. No local/global cache or weight search/download was done."
+    },
+    {
+      "id": "runtime_not_verified",
+      "status": "NOT_TESTED",
+      "detail": "Torchvision/CUDA-extension/CPU-GPU behavior, memory use, deterministic repeats and output availability have not been tested for these models."
+    },
+    {
+      "id": "prompt_and_instance_authority",
+      "status": "UNRESOLVED",
+      "detail": "Need an outcome-independent prompt and multi-instance/multimask policy, plus separate public source TRAIN evidence for intended pallet identity. Existing weak owner labels are not certified dense native-part or amodal gold."
+    }
+  ],
+  "minimal_source_first_verification_not_execution_authorization": [
+    "Prospectively freeze one requested baseline specification: official code revision/config/checkpoint and isolated runtime; image/color/prompt transform; fixed text and proposal/mask handling; source TRAIN case IDs selected without current/held outcomes. Keep all failures and unchanged original q8/q/L/availability.",
+    "After a separate root entry, perform only a small deterministic frozen SOURCE_TRAIN smoke test: input/hash/coordinate parity, output dimensions, repeated inference equality and explicit no-prompt/no-detection/ambiguous-instance rows. This review neither installs nor runs that test.",
+    "Assess target-instance assignment, literal q membership and local crop presence as separate diagnostics against whatever certified public TRAIN mask/instance authority is actually available; preserve weak/unknown labels and native task. Native-part/occlusion/correspondence claims still require separate certified source witnesses. No held/private result may choose an arm, threshold, prompt or model."
+  ],
+  "conclusion_ko": "공식 API상 원 q8 박스·검증된 전경점·pallet 텍스트를 입력하는 source-only baseline 구조는 가능하지만 현재 환경은 실행 준비가 되지 않았습니다. 분할 마스크는 선택 팔레트 identity, 원 q 중심 소속, crop 내 존재, 3D native 부위 가시성·가림 뒤 존재를 자동으로 같은 정답으로 만들어 주지 않습니다. 새 성능·모델 채택 근거는 이번 조사에 없습니다."
+}

@@ -1,0 +1,249 @@
+{
+  "completed": true,
+  "PASS": true,
+  "timestamp_UTC": "2026-10-23T09:34:52.037468+00:00",
+  "scope": "Independent PUBLIC-source code/JSON/CSV-only objective, sampling, selector and coverage review. No current223, private_evaluation, V112 or V117 reads for this task. No pixels, feature/score NPZ bodies, weights, model forward or fit. No old artifact edited.",
+  "verdict": "No objective sign, triplet-remapping, sampler-eligibility or selector-arithmetic bug found in reviewed stable implementation. Absolute cover failures are real saved source classification failures despite satisfied relative ranking. The exact concentrated training-coverage gap motivates one prospectively fixed same-material augmentation candidate; it does not establish a unique cause.",
+  "actual_objective": {
+    "formula": "mean_i BCEWithLogits(z_i,y_i) + 0.25 * mean_pairs max(0, 2 - (z_cover-z_sham))",
+    "classification_rule": "D iff available and z<0; E iff available and z>=0; factual/context unavailable -> U",
+    "absolute_sign_is_already_supervised": true,
+    "logit_level_gradients": "For known cover y=1, dBCE/dz=sigmoid(z)-1<0 for every finite z. If hinge is active its cover derivative is also negative; if margin>=2 its derivative is0. Thus the hinge does not mathematically cancel the cover BCE or redefine E as a relative decision.",
+    "counterexample": {
+      "z_sham": -5.0,
+      "z_cover": -2.0,
+      "margin": 3.0,
+      "relative_hinge": 0.0,
+      "cover_class": "D (wrong for E)",
+      "cover_BCE": 2.1269280110429727
+    },
+    "limit": "Shared model parameters and minibatch weighting can trade off different examples even when per-example logit-level gradients have the correct sign. No gradient/model replay was performed."
+  },
+  "sampling_audit": {
+    "old64_exact_trace_SHA": "8d6ec2eecbdd0937e710173328cea8e0d4211d21b11d722faea5d5c6fb8cf680",
+    "C12_batch96_D48_E48": true,
+    "old_triplets_per_batch": 4,
+    "synthetic_triplets_per_batch": 4,
+    "old64_unpaired_quotas": {
+      "old_LOCO_D": 2,
+      "old_PALLOX_D": 2,
+      "synth_D": 4,
+      "YCB_D": 8,
+      "old_natural_E": 4,
+      "synth_E": 8,
+      "YCB_E": 12
+    },
+    "material_extra_quotas": {
+      "D": 16,
+      "E": 16
+    },
+    "controlled_old_public_cover_E_rows_per_batch": 4,
+    "controlled_old_public_cover_fraction_all_rows": 0.041666666666666664,
+    "controlled_old_public_cover_fraction_E_rows": 0.08333333333333333,
+    "eligibility": "TRAIN, teacherD/E, factualANDcontext available only; S/U excluded. Draws use replacement. Existing independent source audit replayed all2000 draws and matched8triplet remaps.",
+    "coverage": "Old controlled TRAIN donors used odd object IDs. There were0 object16 TRAIN controlled covers. Natural material object16 is a target surface under its own D/E labels; this is not the same relation as wood16 being a foreign occluder over a pallet cue."
+  },
+  "selector_audit": {
+    "criterion": "Equal mean of10 per-cohort sourceVALIDATION BCE; strict earliest minimum among update0 and100..2000; unavailable known safe0 included.",
+    "correct_implementation": true,
+    "selected_step": 1200,
+    "old_public_cover_BCE_weight": 0.1,
+    "material_D_and_E_combined_BCE_weight": 0.2,
+    "limitation": "Equal cohort means and recall gates are intentional, not worst-case or every-example guarantees. Old coverE gate .75 permits some absolute E errors; all15 sourcePASS therefore does not imply no cover failures. C11-to-C12 data/batch/selector changed together."
+  },
+  "saved_own_CSV_arithmetic": {
+    "TRAIN": {
+      "C11": {
+        "N": 75,
+        "correct_E": 75,
+        "cover_D": 0,
+        "mean_cover_E_BCE": 0.0002700078110373384,
+        "mean_relative_hinge": 0.0,
+        "margin_ge2_but_cover_D": 0
+      },
+      "C12": {
+        "N": 75,
+        "correct_E": 75,
+        "cover_D": 0,
+        "mean_cover_E_BCE": 0.0007969511559351386,
+        "mean_relative_hinge": 0.0,
+        "margin_ge2_but_cover_D": 0
+      }
+    },
+    "VALIDATION": {
+      "C11": {
+        "N": 119,
+        "correct_E": 116,
+        "cover_D": 3,
+        "mean_cover_E_BCE": 0.09540389108937015,
+        "mean_relative_hinge": 0.005294738697404621,
+        "margin_ge2_but_cover_D": 3
+      },
+      "C12": {
+        "N": 119,
+        "correct_E": 111,
+        "cover_D": 8,
+        "mean_cover_E_BCE": 0.2759239993525211,
+        "mean_relative_hinge": 0.0029277951777482232,
+        "margin_ge2_but_cover_D": 8
+      }
+    }
+  },
+  "coverage_evidence": {
+    "old_TRAIN_covers": 75,
+    "old_TRAIN_object16_covers": 0,
+    "old_VAL_covers": 119,
+    "old_VAL_object16_covers": 35,
+    "old_VAL_object16_C11_correct_E": 32,
+    "old_VAL_object16_C12_correct_E": 27,
+    "old_VAL_other_object_covers": 84,
+    "other_objects": [
+      4,
+      6,
+      12
+    ],
+    "other_objects_correct_both": 84,
+    "new_C11E_to_C12D_regressions": 5,
+    "counter_direction_fixes": 0,
+    "all5_regression_objectID": 16,
+    "all5_query_bases": 5,
+    "all5_base_images": 3,
+    "no_isolated_causality": "Donor identity/material/shape/scale, fold/admission and repeated base imagery co-vary; object16 concentration is descriptive evidence."
+  },
+  "V116_actual_metadata": {
+    "attempts": 448,
+    "accepted_pairs": 62,
+    "retained_occurrences": 924,
+    "failed_attempts_U": 386,
+    "all_TRAIN": true,
+    "source_counts": {
+      "PALLOX": 62
+    },
+    "unique_base_queries": 14,
+    "unique_base_images": 8,
+    "unique_successful_donors": 11,
+    "selected_donors": 16,
+    "labels": {
+      "0": 90,
+      "-1": 772,
+      "1": 62
+    },
+    "LOCO_successful_pairs": 0,
+    "unknown_failures_remain_U": true,
+    "all_original_q_L_retained": true,
+    "native_mapping": "UNKNOWN",
+    "human_gold": false
+  },
+  "one_recommended_controlled_candidate": {
+    "candidate": "One fresh C12-family same-material matched-foreground augmentation arm; parent root owns final prospective design/entry.",
+    "hold_fixed": [
+      "exact C12 DINO1928 and SpatialTargetQueryHead221825; no prior, architecture or normalizer change",
+      "fresh head seed211, AdamW lr.001/wd.001, clip5,2000 updates, fixed logit0",
+      "exact existing96 draw IDs/RNG stream, all original folds/q/L/GT and all924 new occurrence records",
+      "same ten sourceVAL selector cohorts, strict earliest checkpoint rule; no new V116 validation split or current-driven selection"
+    ],
+    "augmentation_proposal": "Append16 accepted V116 COVER/SHAM pairs sampled with replacement from all62 fixed accepted pairs using one independent prospective RNG;32 extra rows=16D16E, total128=64D64E. Keep28 BEFORE rows and772 U rows in outputs; do not label failed variants E or invent extra successful pairs.",
+    "loss": "Keep absolute BCE over all128 known available rows. Retain margin2 and coefficient.25 on pooled old8+new16 pairs. Margin success alone is never counted as correct E.",
+    "explicit_weight_change": "Old96 draw identities remain exact, but meanBCE old per-row weight becomes1/128 vs1/96 (x.75). Pooled24-pair hinge gives old8 pairs1/3 of hinge mass vs all previously. This is one controlled augmentation candidate with declared data/sampling/weight changes, not isolated material-only causality.",
+    "primary_source_evidence_to_report": [
+      "absolute E confusion/BCE on fixed old object16VAL35 controls, oldall119 cover/sham/triples and all ten original selector cohorts",
+      "new TRAIN62 cover/sham absolute signs and pair conjunction, not only margin",
+      "all15 original source gates and sourceU denominators unchanged; root may prospectively add a samewood TRAIN learning check but it is not a generalization certificate"
+    ],
+    "interpretation": "If new TRAIN controls learn and old object16VAL improves while original source cohorts remain stable, that supports a missing same-material target-relative coverage explanation. If new TRAIN controls still fail, inspect representation/optimization/teacher/input limits; no single cause follows. If only TRAIN improves, this is memorization/coverage evidence without proven new-scene transfer.",
+    "limitations": [
+      "V11662 successes are14 Pallox queries on8 images with11 successful donors, not62 independent environments. LOCO controls remain0.",
+      "All V116 rows are TRAIN; selected object16 scene2/4 imagery was already present in the public natural training pool. Old object16VAL donors are scene9/hash-disjoint, not established environment/pretraining independent.",
+      "Cue uncertainty/support AUX and native mappingUNKNOWN remain conditional; neither material presence nor synthetic cover labels verify native coordinate correctness."
+    ],
+    "no_actual_fit_or_admission_by_this_review": true
+  },
+  "bindings": {
+    "C12_design": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/ROOT_C12_DESIGN_BEFORE_SOURCE_FORWARD.json",
+      "sha256": "59cb674e7e3a9e884df9f4653c27709508926acc27da72d3042f65b4acf3e32b",
+      "bytes": 9413
+    },
+    "C12_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/source_fit_preparation/train_source_once.py",
+      "sha256": "a330cb5ed3d77386b5dcd0f02d737cdaab29234394cf1ad69ad5ec011f2e4b2d",
+      "bytes": 20048
+    },
+    "C12_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/source_fit_preparation/FIT_PROTOCOL_BEFORE_SOURCE_FORWARD.json",
+      "sha256": "5b933d83d5daf58ceea9745c76c3a56c7414a8cc2109a692d27436ab2161c705",
+      "bytes": 6037
+    },
+    "inherited_C10_sampler_and_loss": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/train_natural_surface_rgb_head.py",
+      "sha256": "3baff03b0c73b17fff8cbad4f1ba96b9c5b134bc50538b96fb0a27827ddfc6e0",
+      "bytes": 22284
+    },
+    "C12_source_started": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/runs/C12_MATERIAL_AUGMENTED_SPATIAL_QUERY/RUN_STARTED.json",
+      "sha256": "4f24c7c3699bb365a827326c35cb21a7bc28c4d526bb95e6f17550cd7b088744",
+      "bytes": 737
+    },
+    "C12_source_results": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/runs/C12_MATERIAL_AUGMENTED_SPATIAL_QUERY/SOURCE_RESULTS.json",
+      "sha256": "842bf93f43e011ec2f5e9f45223d2dff6d76f5c74c73b409077990ecfc9aed03",
+      "bytes": 39618
+    },
+    "C12_source_saved_audit": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/saved_source_review/REVIEW.json",
+      "sha256": "9e402355823fdaa29891ea4302022533c87efd2eeb73f272d03c7ae3b4a03e1d",
+      "bytes": 7646
+    },
+    "public_regression_compact": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/public_source_regression_inventory/COMPACT_RESULT.json",
+      "sha256": "5a0429db2fcf9ff9c7da30f26adfc4ff0f0d80510fdbb5446fc0c23076a339f2",
+      "bytes": 18855
+    },
+    "all194_cover_saved_logits_CSV": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_material_augmented_query_head_20261023_v114/public_source_regression_inventory/ALL194_ACCEPTED_COVERS.csv",
+      "sha256": "2e1d940fa0f05b0ac518c802d79a0725c0b858d3c66b6ccec1137d69ee0674ee",
+      "bytes": 123260
+    },
+    "V116_policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/ROOT_SOURCE_POLICY_BEFORE_DONORS_AND_PIXELS.json",
+      "sha256": "c2bb6ab955bb9d726281397a0f3df281192cd9acde964fe12cf843d24af0902c",
+      "bytes": 5983
+    },
+    "V116_summary": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/SUMMARY.json",
+      "sha256": "b4eb7164e2b08ed38597c2895062a77dd8740f27e92219f940df0f8feaeb8fce",
+      "bytes": 981
+    },
+    "V116_feasibility": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/FEASIBILITY448_GT_ONLY.jsonl",
+      "sha256": "c2c22d1a39159862bc611d8d763d3c031350a50e683852a442e275dd9181cd28",
+      "bytes": 705998
+    },
+    "V116_GT_occurrences": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/OCCURRENCES924_GT_ONLY.jsonl",
+      "sha256": "d5a5c01725d1b7a42aec3f88a7ac1d0ca1740a74c4a60c22751418963a9343e7",
+      "bytes": 632876
+    },
+    "V116_bases": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/metadata_preparation/BASES28_INPUT_ONLY.jsonl",
+      "sha256": "25121372f59c567182e91a1de472e9ebf60acfd72af9cc30b6c6e79b8ad01dca",
+      "bytes": 124741
+    },
+    "V116_corpus_seal": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_material_foreground_source_20261023_v116/corpus_build_v1/CORPUS_OUTPUT_SEAL.json",
+      "sha256": "0ef41a9fd9d35471acb286efc044aa4831fb6d209d2d916cae3bc343aec1689b",
+      "bytes": 72911
+    }
+  },
+  "forbidden_reads_this_task": {
+    "current223": 0,
+    "private_evaluation": 0,
+    "V112": 0,
+    "V117": 0,
+    "pixels": 0,
+    "features_or_weights": 0,
+    "model_forward": 0,
+    "fit": 0,
+    "PnP": 0
+  }
+}

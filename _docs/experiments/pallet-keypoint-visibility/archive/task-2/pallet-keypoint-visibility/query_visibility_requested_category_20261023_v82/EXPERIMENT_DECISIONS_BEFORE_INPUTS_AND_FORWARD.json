@@ -1,0 +1,83 @@
+{
+  "schema": "V82_REQUESTED_CATEGORY_PROVIDED_FROZEN_SOURCE_PILOT_V1",
+  "stage": "PROSPECTIVE_PROTOCOL_BEFORE_NEW_INPUT_PACKETS_AND_FORWARD",
+  "fully_solved": false,
+  "purpose_KO": "배포에서 알려진 대상 종류를 grounding 요청에 명시했을 때 대상 소유권 판별이 개선되는지 공개·합성 source만으로 확인합니다. V81의 모든 종류 동시 요청 결과와 구분되는 추가 입력 조건입니다.",
+  "motivation": "V81 saved diagnosis: all56 strict C-to-V points have predictedmask IoU higher with another annotated instance than with intended target. This supports an ownership ambiguity diagnosis; it does not certify detector causality for all56.",
+  "changed_information_contract": {
+    "new_model_input": "requested_category canonical lowercase string",
+    "deployment_availability": "The requested target category is the task's known constant pallet. No current223 annotation/score/type-dependent decision is needed to provide this string.",
+    "SYNTHETIC": "Every target receives the same fixed category pallet.",
+    "YCB_PUBLIC_REAL": "Requested category is provided using the source annotation object's published canonical category. This is GT-metadata-provided class side information, not a model-predicted class and not class-free zero-shot identification. It is an explicit source emulation of an externally specified category request.",
+    "not_a_same_input_ablation": true,
+    "unknown_category_or_wrong_provided_category": "Not tested; no claim of robustness to a missing or incorrect category request.",
+    "same_class_instances": "Category is not instance identity. Multiple same-category instances can still be ambiguous; retain them and report counts rather than use GT instance selection.",
+    "forbidden": ["GT reference xy/z", "GT pose/depth", "GT masks", "GT visibility", "GT box", "GT instance ID token", "source/VAL prototype", "current223 labels/scores/features", "per-row aliases selected by outputs"]
+  },
+  "fixed_category_map_YCB_obj_ids_1_through_21": [
+    "master chef can", "cracker box", "sugar box", "tomato soup can", "mustard bottle", "tuna fish can", "pudding box", "gelatin box", "potted meat can", "banana", "pitcher base", "bleach cleanser", "bowl", "mug", "power drill", "wood block", "scissors", "large marker", "large clamp", "extra large clamp", "foam brick"
+  ],
+  "caption_rule": "Exactly requested_category + a single period. No alternatives, synonyms, class-index tokens or per-row text choices.",
+  "cohort": {
+    "base_V81_input_seal_SHA256": "960534c1338459843ae30722e680ae7ee168fd76afc036f3d319580d45004fa3",
+    "all_original_VAL_targets": 1035,
+    "SYNTHETIC": 235,
+    "YCB_PUBLIC_REAL": 800,
+    "queries": 8280,
+    "query_geometry": "Copy all original q8/L/querybox/native order bit-for-bit; no recentering, resizing choice, coordinate optimization or missing-point generation.",
+    "retained": "All original rows including invalid/outside q and future association failures. No result-based subset or visibility admission.",
+    "source_initializer_limit": "Public YCB q is source GT-derived geometry plus source-only synthetic error emulation. It is not an independently run pallet initializer. Repeated source VAL is development evidence, not a fresh final test."
+  },
+  "model_input_whitelist": ["input_id", "image", "image_sha256", "raw_hw", "initial_points", "roi_side", "query_box_xyxy", "requested_category"],
+  "detector": {
+    "model": "IDEA-Research/grounding-dino-tiny",
+    "revision": "a2bb814dd30d776dcf7e30523b00659f4f141c71",
+    "weights_SHA256": "1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3",
+    "asset_reuse": "Use sealed V81 local weights/config/tokenizer and isolated hub0.36.0 overlay; no new asset/model or installation.",
+    "runtime": "Same official transformers4.57.6 explicit slow GroundingDinoImageProcessor+BertTokenizer, eval FP32/no autocast, TF32 false, threads1, batch1, custom kernels disabled, all weights frozen.",
+    "unique_forward_key": "decoded input RGB file SHA plus exact caption; multiple q-box targets of the same image/category reuse the same raw detector result.",
+    "box_threshold_strict": 0.4,
+    "text_threshold_strict": 0.3,
+    "NMS": false,
+    "text_label_filter_after_prediction": false,
+    "determinism": "Repeat the first unique image/category forward once. Require identical boxes, FP32 active logits, maxscores, order and labels. Loading-info lists empty and full state digest unchanged before/after.",
+    "numeric_guard": "Finite active text-token logits, exact -inf padded/inactive logits, finite boxes, no NaN/+inf. Use the V81 official-padding guard contract.",
+    "saved_audit_enhancement": "Save complete raw FP32 active-token logits plus token IDs/attention mask and native/raw normalized boxes for each unique image/category, enabling exact saved score/text threshold replay. Padded -inf contract is certified in the actual runner, not reconstructed from omitted padding."
+  },
+  "association": {
+    "same_as_V81": true,
+    "selection": "Maximum continuous XYXY IoU of original initial q-box and each raw detector box; ties higher FP32 detector score then lower original query ordinal. No GT/context class mask chooses the detection.",
+    "minimum_IoU_inclusive": 0.1,
+    "SAM_prompt_box": "Clip selected raw box to native image [0,W]x[0,H]. Positive finite area required.",
+    "missing_or_invalid": "U with explicit reason, selected fields null, no fabricated zero mask. Do not lower thresholds to rescue rows."
+  },
+  "SAM": {
+    "same_as_successful_V81": true,
+    "model": "SAM2.1 hiera base plus",
+    "checkpoint_SHA256": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5",
+    "code_revision": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+    "runtime": "Existing sealed SAM venv; frozen FP32 weights/eval, CUDA BF16 autocast, TF32 false, threads4, no compile, no postprocessing/hole/sprinkle filling.",
+    "prompt": "Associated detector box only; no q clicks/GT point/counterexample-specific prompt.",
+    "mask_selection": "multimask_output=false; single output index0. Predicted mask quality is recorded but not selected or gated.",
+    "API": "Official public predict returns exact binary float32 0/1 at native [1,H,W]. Require finite exact0/1, then lossless bool conversion; no alternative threshold/tolerance.",
+    "decode_identity": "Original file SHA/HW and decodedRGBbytes SHA must agree across detector and SAM. All823-like counts are output-dependent, not fixed admissions."
+  },
+  "evaluation": {
+    "after_outputs_only": true,
+    "frozen_GT_pack_reuse": "V81 same1035 GT packet, nativeM0/M4 paths and strict535 membership. No relabel/changed subset.",
+    "masks": "Native whole-target M4 IoU, all rows no-mask0 and mask-available conditional means separately. Empty/failure denominators retained.",
+    "q_prediction": "Native floor(q+.5), original continuous and NN bounds; boolmask1 visible,0 not-visible-mask; invalid/no-mask U. Not a semantic E/S classifier.",
+    "benchmarks": ["original reference-local primary unchanged", "separate exact q-pixel C/V conditional GT M0", "O and invalid separately", "same fixed strict535", "same fixed V79 four diagnostic cases"],
+    "metrics": "Rows GT C/V × columns pred C/V/U, precision on known C/V, end-to-end recall U as misses, hold rates, whole mask IoU. Compare saved V81/learned outputs only on matched IDs. No qO=semanticE/S.",
+    "ownership_diagnostic": "Reuse prospective V81 other-instance-IoU diagnostic bins to determine whether intended ownership improves, never choose output by GT-best IoU. Same-class ambiguity separately counted.",
+    "automatic_current223_admission": false
+  },
+  "execution_boundaries": {
+    "new_training_updates": 0,
+    "current223_reads_or_inference": 0,
+    "new_PnP": 0,
+    "model_or_threshold_sweep": 0,
+    "pretraining_overlap_unknown": true,
+    "before_actual_execution": "Input-only packet audit, generated threshold/association/API tests, exact code/asset/runtime/GT exclusion entrylock and independent review must pass. Preserve any failed attempt before repair."
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "schema": "V95_C2_ROOT_FIT_PROTOCOL_TEMPLATE",
+  "approved_actual_source_fit": false,
+  "source_only": true,
+  "current_allowed": false,
+  "settings": {
+    "seed": 194,
+    "updates": 2000,
+    "batch": 64,
+    "D_per_batch": 32,
+    "E_per_batch": 32,
+    "AdamW_lr": 0.001,
+    "AdamW_weight_decay": 0.0001,
+    "clip_norm": 5.0,
+    "validation_every": 100,
+    "validation_update0_eligible": true,
+    "selector": "earliest strict minimum mean BCE of four VAL strata",
+    "threshold_raw_logit": 0.0,
+    "online_augmentation": false
+  },
+  "bindings": {
+    "trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/source_fit_preparation/train_source_once.py",
+      "sha256": "92b50f1c6d65aedd88ce5bf2064f6cfdff7136620beaabc1b6297d63d6c6157b"
+    },
+    "model_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_matched_query_scalar_20261023_v94/operator_preparation/query_center_scalar.py",
+      "sha256": "d62e1610ca45f24e3cbf90e66dff3a7d954f87713afea4f5ae7bdc404411b0cb"
+    },
+    "candidate_definition": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/C2_DESIGN_BEFORE_SOURCE_FIT.json",
+      "sha256": "fc0d085f54eabd0468b38dc602e965bbdec48df3abee1233e25a5c813bac1cc2"
+    },
+    "generated_tests": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/source_fit_preparation/GENERATED_SOURCE_TRAINER_TESTS.json",
+      "sha256": "e4ac4a346340a6814056fd00c27164b464f66a3227a3ec1a192aebcadce038dc"
+    }
+  },
+  "expected_counts": "ROOT MUST REPLACE WITH EXACT split counts BEFORE ACTUAL FIT; trainer refuses placeholder",
+  "counts_schema": {
+    "TRAIN": {
+      "before_D": "int",
+      "before_E": "int",
+      "before_U": "int",
+      "accepted_pairs": "int",
+      "known_D": "int",
+      "known_E": "int",
+      "unknown": "int"
+    },
+    "VALIDATION": {
+      "before_D": "int",
+      "before_E": "int",
+      "before_U": "int",
+      "accepted_pairs": "int",
+      "known_D": "int",
+      "known_E": "int",
+      "unknown": "int"
+    }
+  },
+  "source_gates": {
+    "natural_before_D_recall_min": 0.85,
+    "natural_before_E_recall_min": 0.75,
+    "sham_D_recall_min": 0.85,
+    "cover_E_recall_min": 0.75,
+    "accepted_VAL_pair_all3_correct_rate_min": 0.75,
+    "VAL_all_known_U_rate_max": 0.05
+  },
+  "no_fit_rule": "No accepted TRAIN or VAL controlled pairs => no model/optimizer, NO_FIT_FEASIBILITY_ONLY.json",
+  "unknown_or_unavailable": "Unknown loss0; unavailable-known loss0 in training, fixed safe0/ln2 in selection and U in prediction; recall/pair denominators preserve U.",
+  "root_actual_protocol_path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/source_fit_preparation/FIT_PROTOCOL_BEFORE_SOURCE_ARRAYS.json",
+  "raw_split_mapping": {
+    "LOCO": {
+      "TRAIN": "TRAIN",
+      "VALIDATION": "VALIDATION"
+    },
+    "PALLOX": {
+      "TRAIN_LAB": "TRAIN",
+      "VAL_HALL": "VALIDATION"
+    }
+  },
+  "raw_split_repair_provenance": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_same_q_counterfactual_20261023_v95/source_fit_preparation/provenance/PRE_RAW_SPLIT_INTEGRATION_FIX_V1/REPAIR_REASON.json"
+}

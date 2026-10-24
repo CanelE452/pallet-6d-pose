@@ -1,0 +1,64 @@
+{
+  "schema": "V68_SAM21_SOURCE_EXTRACTOR_CODE_ONLY_INTEGRATION_V1",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/extract_source_masks.py",
+    "sha256": "185ccea1e43ff8cf43e57694c8e382d2dd8911538286a1a8f44218fdefdb81aa"
+  },
+  "entrylock_template": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/ENTRYLOCK_TEMPLATE.json",
+    "sha256": "b59bee7e88634d6932038760b1f673007cf22535c6b1e172a24f6a97e9929ebb"
+  },
+  "runtime_seal": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/RUNTIME_SEAL.json",
+    "sha256": "e5655309c2c99ee18e76fa0ebe85541194445895673d9b64f915384130bcbf82"
+  },
+  "source_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/PROTOCOL.json",
+    "sha256": "1e6a99030faf8b2c6cd1144b70b09395d55609c2b746c9fd7d12ad6f7e622128"
+  },
+  "inputs_opened_by_implementation_preparation": [
+    "source protocol metadata only",
+    "frozen runtime/generic API code only"
+  ],
+  "source_manifest_querymap_RGB_reads_during_implementation": 0,
+  "actual_source_model_forward_calls": 0,
+  "current_RGB_GT_scores_inputs_read": false,
+  "guard_order": [
+    "read root ENTRYLOCK",
+    "approve scope/code/output/runtime/schema",
+    "verify source protocol/runtime/wheel/checkpoint/denylist/input-seal bindings",
+    "validate identity-file paths/digests against input-seal metadata",
+    "open and validate hashed RGB-only manifest/query map",
+    "construct frozen official model",
+    "hash/decode each original RGB",
+    "box-only prediction",
+    "predicted quality max/tie-first mask choice",
+    "sample original queries without changing them",
+    "preserve full-native float32 masks and explicit invalid NaN/U",
+    "verify checkpoint and model-state hash unchanged",
+    "write complete extraction seal"
+  ],
+  "actual_command": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/venv/bin/python /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/extract_source_masks.py --entry-lock /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/ENTRYLOCK.json --out /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_outputs/SAM21_BASE_PLUS",
+  "command_not_executed": true,
+  "generated_mock": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/EXTRACTOR_GENERATED_MOCK_V1.json",
+    "sha256": "116adb22dbf3e04370d91a36ed889c79d72efa7c180238889c23866236587770"
+  },
+  "output_schema": {
+    "mask_npz": "masks/000000.npz: chosen_logit float32 native HxW, quality_scores float32(3), selected_index, original/predictor box, raw_hw, original query IDs/coords/pixels, native_valid, exact/radius2 float32 logits with invalidNaN, exact/radius2 visible int8(-1invalid,0nonvisible,1visible)",
+    "per_query_csv": "PER_QUERY.csv: all8590 original joined_query_index order, source/ID/query/pixel/shape/box lineage through TARGET_OUTPUTS.json, strict raw >0 decisions and explicit invalid U/NaN",
+    "query_npz": "SOURCE_QUERY_OUTPUTS.npz: sample_id/source/group_id/global_id/native_valid/exact/radius2 logits+binary+chosenindex",
+    "target_metadata": "TARGET_OUTPUTS.json: all1091 original targets with rawHW/originalbox/side/quality3/choice/native mask SHA",
+    "seal": "EXTRACTION_SEAL.json: all mask+output hashes, code/runtime/source/protocol/input bindings, model/checkpoint state unchanged, source counts, timing/peakmemory, noGT/current/train/PnP"
+  },
+  "decision": {
+    "threshold": 0,
+    "comparison": "strict >",
+    "zero_tie": "nonvisible",
+    "native_pixel": "floor(q+.5)",
+    "radius2": "clipped native5x5 maximum of same chosen mask",
+    "invalid": "U,NaN,-1 without negative padding",
+    "no_sigmoid_threshold_roundtrip": true
+  },
+  "caution": "Frozen visible-only mask baseline. Predicted-mask quality ranks branches and is not visibility probability or GT. SAM nonvisibility cannot identify E/O/self/physical absence. Radius2 remains a separate diagnostic."
+}

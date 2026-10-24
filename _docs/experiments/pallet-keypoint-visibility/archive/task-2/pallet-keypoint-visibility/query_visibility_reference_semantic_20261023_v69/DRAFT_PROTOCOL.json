@@ -1,0 +1,203 @@
+{
+  "schema": "V69_REFERENCE_VISIBILITY_CONTRACT_DRAFT_V1",
+  "created_unix": 1792685397.0176196,
+  "status": "DRAFT_HOLD; MATH_ONLY; NO_SOURCE_LABELS_COMPOSITES_OR_TRAINING_ADMITTED",
+  "purpose": "Define fixed-reference visibility separately from imperfect query-pixel/crop support while preserving every existing M4/near primary result.",
+  "goal_and_scope": {
+    "user_goal": "Judge target pallet presence/occlusion from an initial-keypoint-centered crop, without pose improvement.",
+    "this_contract": "Conditional visibility of one fixed reference identity r, observed through a crop centered at initial q; the reference is GT-only.",
+    "crop_support_is_different": "Whether any target surface occurs in a crop or at q is not the state of a particular corner/reference. A crop-support classifier can have a well-defined target with RGB/q/box while specific-reference labels can collide when identity is hidden.",
+    "unresolved": "Choose and admit an operational deployment reference-association convention before any semantic training. This draft does not silently substitute reference semantics for crop support or claim they are identical."
+  },
+  "immutable_GT_record": {
+    "fields": [
+      "target_instance_id",
+      "reference_id",
+      "reference_xy",
+      "uncertainty_bbox",
+      "original_state",
+      "reference_provenance",
+      "original_D_teacher_evidence",
+      "evidence_tier",
+      "semantic_keypoint_id_if_independently_mapped",
+      "semantic_self_evidence"
+    ],
+    "invariant": "For one observed image/layer/target/reference, r/identity/reference_state stay fixed while only q changes.",
+    "current_source_admission": "HOLD_UNADMITTED_DESIGN_ONLY",
+    "semantic_gold_admitted": 0,
+    "semantic_slot": "UNKNOWN for existing R2B3 AI anchor proposals. Anchor ID is not canonical8 semantic ID."
+  },
+  "model_inputs": {
+    "whitelist": [
+      "rgb",
+      "initial_query_xy",
+      "target_box_xyxy"
+    ],
+    "reference_and_target_IDs": "GT/lineage only, not supplied as model tokens in this draft",
+    "forbidden": [
+      "reference_xy",
+      "uncertainty_bbox",
+      "reference_state",
+      "semantic_GT",
+      "GT_masks",
+      "occluder_alpha",
+      "occluder_mask",
+      "generated_offset",
+      "depth",
+      "pose",
+      "reference_id",
+      "target_instance_id",
+      "semantic_keypoint_id",
+      "current_annotations_or_scores"
+    ],
+    "structural_guard": "Exact three-field whitelist and array/type checks. This does not alone prove independent q/box provenance; future data admission must check initializer lineage.",
+    "preprocessing": "q-centered RGB crop and input-only L normalization are not selected or implemented here; r never recenters/rescales the input."
+  },
+  "identifiability": {
+    "status": "GENERAL_NONIDENTIFIABILITY_EXPLICITLY_DEMONSTRATED",
+    "collision": "One identical generated composite RGB + identical q=(5,4) + identical box can refer to ref-A uncovered(D_teacher) or ref-B fully covered(E_teacher). Both uncertainty regions are fully contained in the same crop. Current model inputs are bit-identical; labels differ.",
+    "consequence": "No deterministic RGB/q/box-only model can correctly label both hidden identities. Equal-frequency toy pairs force at least 1/2 error. This is a conditional identifiability statement, not an empirical current/source performance result.",
+    "invariance_limit": "q-jitter-invariant labels are necessary for reference identity consistency and do not establish semantic learnability.",
+    "audit_function": "identifiability_audit records identical permitted-input hashes with conflicting fixed-reference states; absence of a finite-sample collision does not prove identifiability.",
+    "separate_public_slot_alternative": {
+      "status": "NOT_IMPLEMENTED_NOT_ADMITTED",
+      "proposal": "A deployment-available native slot ID with independently fixed public native-to-reference correspondence could be considered in a separately versioned input contract.",
+      "not_GT_leak": "A public slot identity would not reveal r/state, but it changes the model input and needs explicit protocol/source correspondence admission.",
+      "current_whitelist_unchanged": true,
+      "R2B3_native8_mapping": "UNKNOWN; do not invent canonical8 IDs from three local AI anchor candidates.",
+      "V68_input_contract_unchanged": true
+    }
+  },
+  "reference_controlled_truth": {
+    "original": "Only an explicitly recorded conditional original D_teacher can be preserved/converted; coordinate existence, M4(r)>0, SAM positivity, or aggregate visibility does not independently certify semantic D.",
+    "unchanged": "Every native cue cell of the entire supplied uncertainty region has alpha exactly0 => D_teacher.",
+    "external": "Every cue cell has alpha exactly1 AND certified distinct foreground instance in front of the target => E_teacher.",
+    "partial": "Mixed0/1 cover, any fractional alpha, missing foreground identity/front certificate, missing original D evidence, or unobservable uncertainty cells => U.",
+    "q_independence": "Covering q alone never changes reference D; a target-visible q/nearby surface never cancels reference E.",
+    "self": "Only independently admitted semantic-self evidence may preserve S. Mask0, same-target layers, convex-cuboid orientation, or ray fractions cannot manufacture semantic S.",
+    "outframe": "Reference out-of-frame F is separate from q out-of-frame and semantic E/S. Invalid reference evidence is U.",
+    "no_O_class": "Query-pixel O/physical absence is never a reference D/E/S class."
+  },
+  "uncertainty_geometry": {
+    "required": "Explicit GT-only uncertainty_bbox containing r; it must include visual-feature uncertainty as well as coordinate uncertainty.",
+    "numerical_guard_radius": null,
+    "default_radius": null,
+    "selection": "NOT_SELECTED; no radius from current223/human-metric tradeoffs.",
+    "raster": "Continuous half-open XYXY box. Each integer native pixel has cell[j-.5,j+.5); include all cells with positive-area overlap. Conservative cell bounds floor(lo+.5),ceil(hi+.5), half-open.",
+    "image_edge": "Outside-image uncertainty cells remain in the denominator; they cannot be clipped away to certify full opacity or full observation."
+  },
+  "crop_availability": {
+    "FULL": "Entire uncertainty region within the actually observed q-centered crop/image footprint; conditional D/E is a proposed mathematical training target.",
+    "PARTIAL": "Some but not all uncertainty region observed => training U, underlying reference D/E unchanged.",
+    "MISS": "No observed uncertainty-region overlap => location/evidence teacher flag and training U; never E/O or physical absence.",
+    "INVALID": "Nonfinite q, invalid L, or invalid reference region => U with explicit reason.",
+    "query_outframe": "Separate query_frame flag. It does not change reference state or turn it into F. An out-of-frame center can geometrically retain FULL evidence for a sufficiently large input-only crop; no such crop policy is selected here.",
+    "reference_vs_training_target": "reference_state and availability-conditioned training_target are different fields. All outputs keep training_authorized=false because data admission remains HOLD."
+  },
+  "native_audits": {
+    "exact": "Original nearest q pixel support remains a separate audit.",
+    "radius2": "Original fixed native5x5 support remains a separate audit/target; not a replacement for any primary.",
+    "counterexamples": [
+      "ReferenceD with background q",
+      "ReferenceE with visible q and nearV",
+      "SemanticS with visible projected target surface"
+    ],
+    "no_reinterpretation": "All V61-V68 M4/exact/radius2 labels, primary tables, scores, thresholds, model/runtime/code seals remain unchanged."
+  },
+  "query_jitter": {
+    "status": "UNSELECTED_UNEXECUTED",
+    "q0": "Independent frozen initial proposal when available. Existing SYNTH initial q is stored N3/SubPix output, not a fresh jitter sample.",
+    "delta_distribution": null,
+    "scale": null,
+    "number_of_jitters": null,
+    "crop_L_rule": null,
+    "rule": "Change only q=q0+delta; r,target/referenceID,uncertainty and controlled source state remain fixed. delta never enters model inputs.",
+    "future_freeze": "Derive scale only from independently admitted source initializer residuals or a priori input specifications. Never current223 coordinates/metrics, source posthoc best radius, or annotation-conditioned crops.",
+    "siblings": "All jitters, original/composite twins, same scene/session/sensor siblings and donor lineage stay grouped within one split. More jitter records do not increase independent reference-label evidence."
+  },
+  "source_inventory": {
+    "SYNTH": {
+      "renderer_reference_coordinates": {
+        "TRAIN": 6144,
+        "VAL": 1880
+      },
+      "existing_nearest_valid_q": {
+        "TRAIN": 5673,
+        "VAL": 1742
+      },
+      "q_lineage": "All source q are preserved initial estimates, not newly generated jitter.",
+      "native_reference_convention": "camera_dynamic_0123_v4/native index lineage is present; operational semantic/physical-corner interpretation still needs review.",
+      "occlusion_fraction9": "Conditional external9ray blockage proxy; no retained center-ray hit IDs/depth ownership. Not semantic corner gold.",
+      "convex_self": "Conditional convex-cuboid front-facing proxy; not independent pallet semantic-self evidence.",
+      "kp12": "Coordinate/in-frame candidates; kp12_visible has zero nonnull states. Do not transplant native8 ray labels to12points.",
+      "existing_M0_M4": "Pixel-support facts only; neither mask0 nor maskpositive unconditionally determines a reference corner state.",
+      "independent_semantic_D_E_S_gold": {
+        "TRAIN": 0,
+        "VAL": 0
+      },
+      "label_admission": "HOLD"
+    },
+    "R2B3_AI_ANCHOR": {
+      "candidate_count": 3,
+      "human_confirmed": 0,
+      "admitted_GT": 0,
+      "native8_identity": "UNKNOWN",
+      "status": "CONDITIONAL_REVIEW_CANDIDATES_ONLY; no training result or full-goal claim"
+    },
+    "generic_observed_pixel_anchor": "Could be a separately named observed-anchor proxy after admission; random mask-positive pixels are not canonical pallet corners."
+  },
+  "future_admission_requirements": [
+    "Operational2D reference semantics and deployment association strategy, with identifiability collisions audited",
+    "Original D/reference uncertainty evidence independently reviewed and tiered",
+    "Controlled opaque other-instance layer certificate and uncertainty coverage audit",
+    "Separately supported semantic S or explicitly unsupported S",
+    "Input-only initializer/crop/jitter recipe fixed without current data",
+    "Split grouping and source-family/session leakage audit",
+    "New model/loss/budget/checkpoint/threshold/source-quality protocol separately frozen before any training"
+  ],
+  "status_flags": {
+    "source_label_generation_authorized": false,
+    "RGB_composition_authorized": false,
+    "source_or_current_model_inference_authorized": false,
+    "training_authorized": false,
+    "PnP_authorized": false,
+    "existing_primary_reinterpretation": false,
+    "solved": false
+  },
+  "read_scope": {
+    "definition_document_paths_only": true,
+    "actual_source_annotation_JSON_arrays_read": 0,
+    "actual_source_RGB_masks_depth_features_weights_read": 0,
+    "current_RGB_GT_scores_inputs_read": false
+  },
+  "execution": {
+    "pure_generated_array_tests_only": true,
+    "actual_RGB_composites_generated": 0,
+    "jitter_samples_for_actual_sources_generated": 0,
+    "model_forward_calls": 0,
+    "optimizer_updates": 0,
+    "PnP_calls": 0
+  },
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/HANDOFF_KO.md",
+      "sha256": "400e3a2269b0e3f5b3dc7976e4c61bc1363d5b45e9fd467a0791828e5c60bf79"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/source_audit/GOAL_AND_LABEL_ALIGNMENT_AUDIT.json",
+      "sha256": "a4203e87979a962615441eb693ace0394f21d4118526d1071cf7af9d2c4a405c"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_visible_preservation_20261023_v67/source_audit/SYNTH_REFERENCE_VISIBILITY_INTAKE.json",
+      "sha256": "28daf4ac39b168e00c8cb5b166e72dbb4affd8c4717434f4772acd591f65a524"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/reference_visibility_contract.py",
+      "sha256": "b8cbefab422b467769293bf2451e825a4377ffe0482cd193b023821ce952e1dc"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_reference_semantic_20261023_v69/GENERATED_CONTRACT_TESTS_V2.json",
+      "sha256": "b9251a09491c7ecd4bf941786df01590b542812e3224ff8c5f6ac3fa2b20fb19"
+    }
+  ]
+}

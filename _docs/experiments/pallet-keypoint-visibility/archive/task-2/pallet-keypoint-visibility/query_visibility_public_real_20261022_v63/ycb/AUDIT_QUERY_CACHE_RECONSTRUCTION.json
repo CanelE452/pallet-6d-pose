@@ -1,0 +1,125 @@
+{
+  "code_input_dependency_review": {
+    "builder_sha256": "8b0481c3a9ad5bb0844cd024f8f1b1d3caa62dd1a79a006d1860a5d82b22193a",
+    "query_head_sha256": "97598bd8edc5e03fb068311957585d1044213680bee67477b007672daae5e01f",
+    "builder_context_expression": "(x[:, :64].astype(np.float32) * weight[:, None]).sum((0, 2, 3)) / max(weight.sum(), 1)",
+    "builder_weight_expression": "x[:, 64].astype(np.float32)",
+    "builder_context_referenced_names": [
+      "max",
+      "np",
+      "weight",
+      "x"
+    ],
+    "context_depends_on_raw_mask_values_directly": false,
+    "prototype_function_argument_names": [
+      "rois"
+    ],
+    "prototype_function_source": "def target_context_from_rois(rois):\n    \"\"\"GT-free prototype from one target's query ROIs, (...,Q,65,9,9).\n\n    Feature channel 64 is the saved native-grid validity bit. Average only the\n    first 64 feature channels over valid cells of all Q initial-query ROIs.\n    No target mask, visibility annotation, or refined coordinates are read.\n    \"\"\"\n    tensor_input = isinstance(rois, torch.Tensor)\n    tensor = rois.float() if tensor_input else torch.as_tensor(rois).float()\n    if tensor.ndim < 4 or tuple(tensor.shape[-3:]) != (65, 9, 9):\n        raise ValueError(\"prototype expects (...,Q,65,9,9) ROI array\")\n    features, valid = tensor[..., :64, :, :], tensor[..., 64:65, :, :].clamp(0, 1)\n    result = (features * valid).sum(dim=(-4, -2, -1)) / valid.sum(dim=(-4, -2, -1)).clamp_min(1)\n    return result if tensor_input else result.cpu().numpy()",
+    "supervision_note": "Source masks/bboxes supervise query sampling and source ROI scale; holding those query/ROI coordinates fixed, neural prototype uses first64 P3 channels weighted by native-valid channel only. No visibility labels, full/visible mask values or poses are concatenated as neural inputs.",
+    "dense_valid_note": "Dense loss validity is continuous native grid AND nearest rounded pixel in bounds. Prototype weighting uses x channel64 continuous-native validity, as declared."
+  },
+  "splits": {
+    "VALIDATION": {
+      "cache": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/source_cache/v2/YCB_VALIDATION.npz",
+      "cache_sha256": "0c9481243fe718aa2950eeefdbe9d7fb112c7617e5e756cb1871f6dee4a8046c",
+      "query_csv_sha256": "6b5f30d3bb2b35fa6a2d433b98cc8e1d1411de155c1f02adc2aac072a67f4a13",
+      "rows": 3200,
+      "frames": 200,
+      "target_groups": 400,
+      "dense_cells": 259200,
+      "mask_files_read": 800,
+      "label_counts": {
+        "visible": 1571,
+        "external_proxy": 533,
+        "outside_support": 1096
+      },
+      "mismatch_counts": {
+        "affine_metadata": 0,
+        "slot_order": 0,
+        "roi_feature_exact_elements": 0,
+        "input_native_valid_cells": 0,
+        "dense_y_cells": 0,
+        "dense_valid_cells": 0,
+        "scalar_y_rows": 0,
+        "scalar_equals_dense_center": 0,
+        "scalar_valid_rows": 0,
+        "center_dense_valid_rows": 0,
+        "context_exact_elements": 0,
+        "group_context_varies_by_query": 0,
+        "image_sha_rows": 0,
+        "eval_denylist_rows": 0,
+        "metadata_label_rows": 0,
+        "boundary_rows": 0
+      },
+      "max_absolute_errors": {
+        "roi_feature_abs": 0.0,
+        "target_context_abs": 0.0
+      },
+      "all_reconstruction_checks_passed": true,
+      "CPU_only": true,
+      "GPU_calls": 0,
+      "private_eval_images_read": false,
+      "new_model_inference": false,
+      "cache_modified": false,
+      "seconds": 2.7380104064941406,
+      "matches_builder_recorded_cache_sha256": true,
+      "matches_builder_recorded_script_sha256": true
+    },
+    "TRAIN": {
+      "cache": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_real_20261022_v63/source_cache/v2/YCB_TRAIN.npz",
+      "cache_sha256": "ac0f61961424db937c0b9bf6d8a9083591dc645c294b60a275f1df8056654a03",
+      "query_csv_sha256": "e49fd1dc2a2027ca83e40fae31367f2701f360cf09a84e8a6ded62da09a4c44e",
+      "rows": 12800,
+      "frames": 800,
+      "target_groups": 1600,
+      "dense_cells": 1036800,
+      "mask_files_read": 3200,
+      "label_counts": {
+        "visible": 6335,
+        "external_proxy": 1715,
+        "outside_support": 4750
+      },
+      "mismatch_counts": {
+        "affine_metadata": 0,
+        "slot_order": 0,
+        "roi_feature_exact_elements": 0,
+        "input_native_valid_cells": 0,
+        "dense_y_cells": 0,
+        "dense_valid_cells": 0,
+        "scalar_y_rows": 0,
+        "scalar_equals_dense_center": 0,
+        "scalar_valid_rows": 0,
+        "center_dense_valid_rows": 0,
+        "context_exact_elements": 0,
+        "group_context_varies_by_query": 0,
+        "image_sha_rows": 0,
+        "eval_denylist_rows": 0,
+        "metadata_label_rows": 0,
+        "boundary_rows": 0
+      },
+      "max_absolute_errors": {
+        "roi_feature_abs": 0.0,
+        "target_context_abs": 0.0
+      },
+      "all_reconstruction_checks_passed": true,
+      "CPU_only": true,
+      "GPU_calls": 0,
+      "private_eval_images_read": false,
+      "new_model_inference": false,
+      "cache_modified": false,
+      "seconds": 10.305136680603027,
+      "matches_builder_recorded_cache_sha256": true,
+      "matches_builder_recorded_script_sha256": true
+    }
+  },
+  "private_eval_images_read": false,
+  "GPU_used": false,
+  "original_code_or_cache_modified": false,
+  "actual_crop_visual_audit": {
+    "image": "AUDIT_QUERY_CACHE_ACTUAL_CROPS.png",
+    "sample_rows": "AUDIT_QUERY_CACHE_ACTUAL_CROPS.json",
+    "samples": 4,
+    "reviewed_directly": true,
+    "findings": "Visible interior, external occluder, and outside-support query categories agree with the visible/full masks. The visible-boundary sample is physically ambiguous at a drill/wood-block silhouette edge, so exact official-mask conformance does not independently certify subpixel physical visibility near rendered boundaries."
+  }
+}

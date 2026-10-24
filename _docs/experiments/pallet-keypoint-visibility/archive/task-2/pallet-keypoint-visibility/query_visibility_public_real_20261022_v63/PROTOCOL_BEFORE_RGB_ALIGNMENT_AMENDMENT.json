@@ -1,0 +1,73 @@
+{
+  "schema": "PUBLIC_REAL_QUERY_VISIBILITY_V63",
+  "objective": "Train small direct query head with public YCB-V and synthetic data; compare frozen v61; separate external/self/query-error diagnostics; no PnP.",
+  "status": "source training and source-only model selection underway; current evaluation inference not started",
+  "labels": {
+    "exact_presence": "visible target instance at floor(query+.5)",
+    "external_support": "full target silhouette=1 and visible target=0",
+    "outside_support": "full=0, including background/holes; never rename as occlusion",
+    "semantic_self": "human native-keypoint state is evaluation only; source full/visible masks do not supply this",
+    "geometric_self": "separate fixed saved-initial-pose proxy, never overwrite learned p_visible",
+    "query_error": "evaluation-only distance to frozen reference; not a neural input or crop correction"
+  },
+  "data": {
+    "synthetic_train_frames": 768,
+    "synthetic_val_frames": 235,
+    "YCB_train_scenes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "YCB_val_scenes": [
+      8,
+      9
+    ],
+    "YCB_train_frames": 800,
+    "YCB_val_frames": 200,
+    "YCB_max_target_instances_per_frame": 2,
+    "YCB_queries_per_instance": 8,
+    "YCB_query_sampler": "source-only mask-stratified supervised point queries + rough bbox jitter; source annotation-derived crop scale jitter. Explicit input-distribution difference from deployment N0 coordinates.",
+    "current_eval_images": 223,
+    "current_eval_role": "inference and diagnostics only; no fit/statistics/calibration/threshold/checkpoint selection"
+  },
+  "small_head": {
+    "spatial_center": "two conv/GELU + 1x1 spatial map read at[4,4], no GAP",
+    "target_context": "64-channel valid-weighted mean over all8query ROI; identical input-only calculation in train and deployment",
+    "optional_RGB": "65x65 crop centered on nearest query pixel; independent pixel-center audit; source-only selection",
+    "max_parameters": 100000,
+    "backbone": "existing frozen YOLO26 P3; BN unchanged"
+  },
+  "training": {
+    "seed": 20261022,
+    "updates_per_run": 2000,
+    "batch_queries": 256,
+    "optimizer": "AdamW lr.001 weight_decay.0001",
+    "source_balanced_scalar_and_dense_loss": true,
+    "dense_loss_weight": 0.25,
+    "checkpoint_selection": "strict lowest mean of per-source VAL BCE, every100updates",
+    "threshold": 0.5,
+    "private_eval_selection_allowed": false
+  },
+  "planned_primary_candidates": [
+    "MIXED_CONTEXT_V2",
+    "MIXED_CONTEXT_RGB_V2"
+  ],
+  "controls": [
+    "unchanged v61 GAP/480updates",
+    "SYNTH_CONTEXT_V2/2000updates",
+    "SYNTH_CONTEXT_RGB_V2/2000updates"
+  ],
+  "source_only_SAM_baseline": {
+    "checkpoint": "frozen generic public MobileSAM, no historical CAL wrapper",
+    "prompt": "box only from available source/deployment rough target bounds; never GT mask or query-positive click",
+    "mask_selection": "maximum model-predicted quality; threshold logit0",
+    "role": "source validation comparison and optional frozen inference baseline"
+  },
+  "evaluation_gate": "Freeze source-selected models/checkpoint hashes/thresholds before any current223 new-model scoring. Report all predesignated frozen comparisons, raw p_visible and geometric proxy separately.",
+  "preservation": "v61/legacy checkpoints, original inputs, bad/pilot runs kept; no PnP/pose optimization or pose replacement"
+}

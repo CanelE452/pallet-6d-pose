@@ -1,0 +1,42 @@
+{
+  "schema": "V76_REFERENCE_LOCAL_SUPPORT_TARGET_CONTRACT_BEFORE_CORPUS_LABELING",
+  "created_UTC": "2026-10-22T18:57:54.227372+00:00",
+  "goal": "Initial-query crop reading for target/reference local support; current223 evaluation-only, no PnP. Public real allowed.",
+  "reason": "V75 learns rendererproxy sourceclassification but does not localize reference better than unchangedq. A fully visible public target has virtual-rayE at a point withzeroexpectedtargetsupport. Do not teach that rayE as semanticocclusion.",
+  "target_tiers": {
+    "reference_local_support": "Use isolatedtarget fullsilhouette M0 and visiblesilhouette M4 from same source target/camera. Virtualreference r retained; q retained. Groundtruth r/masks are teacher/loss only, neverforward.",
+    "semantic_human_D_E_S": "UNKNOWN on synthetic/public weaklabel corpus; current human labels evaluationonly.",
+    "self_geometry_proxy": "Keep separate; expected/localvisible support can coexist with a selfhiddenvirtualpoint. Never rename one theother.",
+    "query_pixel_presence": "Separate diagnostic, no default negative fromM4(r)==0."
+  },
+  "candidate_teacher_rule_before_full_data_counts": {
+    "reference": "Storedcorrectdynamicnative8 reference r, no nearestcorner/GTpermutation choice. GTpixelnearest=floor(r+.5) for teachercentercheck.",
+    "footprint": "r-centered disk rho=max(4px,.05*max(ptp(projected8))); gaussian sigma=rho/2. Samekernel for M0/M4.",
+    "support_adequacy": "Atleast4expectedtargetmaskpixels and weightedexpectedmass>=1pixel-equivalent. Missingexpected support→UNKNOWN, noE.",
+    "high_confidence_center": "Optional strong branch to be separately audited before use: 3x3 at r all M0target and all M4target→LOCAL_VISIBLE; all M0target and all M4zero→LOCAL_COVERED. Boundary/mixed notnegative. This avoids broadfootprint visiblepixels overriding a clearly covered physical targetcenter.",
+    "footprint_fallback": "Whenstrongcenterdoesnotdecide, adequateexpected support V/A>=.9→LOCAL_VISIBLE, V/A<=.1→LOCAL_COVERED, otherwiseUNKNOWN. Never adapt these thresholds tocurrent223.",
+    "self_precedence": "Do not merge self into these local labels. A later declared semantic-transfer loss may mask selfproxy points or use a separate self branch.",
+    "query_miss": "Keep GTreference-in-localqcrop and initialqerror as separate teacherdiagnostics; no movingq toGT or forcing locationmiss toE. Lossadmission needs explicit fitprotocol.",
+    "label_scope": "Weak reference-local expected target support, notphysicalnative8humansemanticgold; no claim actualcorner is exactly onmesh."
+  },
+  "public_query_input_plan": "ExistingYCBofficialpose/K/AABB defines a declared teacherreference only. Any GT+source-onlyerror-augmented q is an emulated source producer, never called actualinitializer prediction. Errorbank fit from syntheticTRAIN only; no current-derived jitter/threshold. Preserve wholeinitial8 correlation/nativeorder and objectinstance association. Freeze producer before corpus labels/scoreinspection.",
+  "source_inventory_next": "Find existing1003syntheticpairedM0/M4/GTreference and frozeninputq/P3 producers, keep originalsplit and identify pretrainedV75TRAIN overlap before claiming validation. ExistingYCB1000frames/4200instances split scenes0..7TRAIN,8..9VAL preserved. No new full RGB/mesh archives needed.",
+  "new_fit_authorized_by_this_file": false,
+  "next_action": "Concretesource inventory and executable teacher/mock checks, then corpus/producercache and loss/selectorfreeze. Root will execute training once dataaretyped; no userapproval pending.",
+  "current_private_reads_or_inference_or_fit": 0,
+  "PnP": 0,
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_context_pretrain_20261023_v75/runs/SOURCE_PRETRAIN_V1/MODEL_FREEZE.json",
+      "sha256": "2f16de92c840b6a7c168059ccfe1801ff1e3eb3b83f4c2225a7f606dc25159ff"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_context_pretrain_20261023_v75/independent_saved_audit/LOCATION_VS_QUERY_CENTER_DIAGNOSTIC.json",
+      "sha256": "a257df2e6c338f4af38252e0477fa41c9bf2e51eca57661dd84d51b5ae0ecda1"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/source_contract/public_ycb_native_proxy_feasibility/SUBFOOTPRINT_COMPARISON/SUBFOOTPRINT_COMPARISON.json",
+      "sha256": "33b635eaf931ce919667d74304963e7271cff643555ef041b39206be0130a62b"
+    }
+  ]
+}
