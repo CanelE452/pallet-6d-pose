@@ -1,3 +1,15 @@
+# V222 — 예상 부위 COVER/SHAM 감독: SOURCE 일반화 개선 미확인
+
+같은 C65에서 C66/C67을 각1,100 update 학습했다. 추가 감독은 FIT39묶음 모두 맞혔지만 CF DEV 전체 정답19/27→17/27, natural weak DEV11/12→9/12였다. DEV9묶음 세 상태 완전정답1→2만으로 성공이라 하지 않는다. GT-derived 공개 학습 query의 finite-part weak 감독이며 native점 gold나 생산 초기query 정합성을 증명하지 않았다. 현재223 새추론·PnP·모델채택0, 최신 실사 평가V220 유지.
+
+- [V222 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/PORTABLE_REPORT_KO.md)
+- [분모별 CM·precision·recall 표](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/saved_source_comparison_v2/SOURCE_FAMILIES_SEPARATE_CM_PRECISION_RECALL.csv)
+- [검증9묶음 실제 crop 전부](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/saved_source_comparison_v2/PORTABLE_GALLERY_KO.md)
+- [원문 코드·실패·QA 보존 목록](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/provenance/ARCHIVE_MANIFEST.json)
+- [완결 결과](archive/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/ROOT_PHASE_RESULT.json)
+
+---
+
 [V221 검토 대조·중복 시도와 남은 과제](EXPERIMENT_INDEX_THROUGH_V221_KO.md)
 
 최신 모델은 보이는 점 보존이 늘었지만 외부 가림 검출은 함께 좋아지지 않았습니다. 첨부 V193 조언과 현재 계약·데이터·실험 이력을 대조한 결과이며 이번 새 학습·실사 추론은 없습니다.

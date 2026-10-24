@@ -1,0 +1,222 @@
+{
+  "completed": true,
+  "prepared_only": true,
+  "actual_execution_authorized": false,
+  "created_utc": "2026-10-24T23:26:19.363082+00:00",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V222_PAIRED_BRIDGE_TRAINING_B_V2/train_C65_continued_finite_part_CF_v2.py",
+    "sha256": "1e88783241417b97554bdc5b33225e0d6b8c2ae937d0f0288575acd1c26b3957",
+    "size_bytes": 31001
+  },
+  "contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V222_PAIRED_BRIDGE_TRAINING_B_V2/source_training_contract_v2.py",
+    "sha256": "40fb7d9e1994d7cd1aa30d063c19d785789062b7e6176af9cdb3ed5bde973c94",
+    "size_bytes": 15495
+  },
+  "kernels": {
+    "base_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/head_preparation/local_support_head.py",
+      "sha256": "14a40c4dd14d416c1648e62b408fd7acdf74f06d4113c69785bd737b45aa848b"
+    },
+    "candidate": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sampled_domain_direct_end_20261024_v189/direct_end_training_preparation_c/synthetic_direct_end_candidate.py",
+      "sha256": "1668550225434f609ed70d2d62093e35bea6bd8471b9c1f5692f7cfb0b358341"
+    },
+    "spatial_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_nominal_grouped_source_training_20261025_v202/fit_preparation_b/spatial_q8_conditioned_head.py",
+      "sha256": "a03f2f4f531d78ef8a2a4733ab89026e09727907dd91991464192dd799c56ad2"
+    },
+    "old_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_query_jitter_paired_source_training_20261024_v183/source_fit_preparation/train_jitter_paired_source.py",
+      "sha256": "80004a31dce09a9b8fc00e78b93defa1b60d3b8cc35aa8d910c2a776f0ed70b6"
+    },
+    "point_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_point_weak_bridge_source_training_20261025_v212/fit_preparation_a/source_target_contract.py",
+      "sha256": "d8925908d00f4f120bd80bae7a691a1a3846c4e9096e2e111d71984843e0b738"
+    }
+  },
+  "reference_V219_runner": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_TRAINING_PREPARATION_C/train_strong_plus_expected_part_weak.py",
+    "sha256": "11c40cb6edfb5260310e2370ff06f4ac04a30d3d69e3f892f3bcd9709696a06d",
+    "size_bytes": 17402
+  },
+  "reference_V219_contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_TRAINING_PREPARATION_C/source_training_contract.py",
+    "sha256": "fc0a161e8a4c1a413d528ce1e66eed1b2addf2d4593c632506280f10732451d7",
+    "size_bytes": 6765
+  },
+  "authority": "Root V222 source-only continuation task/messages: two arms same exact frozen C65 checkpoint, optimizer reset, common old/point/natural draws; treatment adds controlled finite-part weak BCE. Not selected from protected metrics.",
+  "arms": [
+    "C66CONTINUATION_CONTROL",
+    "C67PLUS_EXPECTED_PART_CF_WEAK"
+  ],
+  "architecture": {
+    "parameters_each": 118359,
+    "same_spatial_q8_C61_class": true,
+    "spatial_q8": true,
+    "use_sam": false,
+    "additional_backbone_or_head": false,
+    "checkpoint_state_strict_same_C65_both": true,
+    "optimizer_state_reused": false,
+    "checkpoint_note": "Exact SOURCE C65 PT may contain serialized optimizer tensors; torch.load deserializes the source checkpoint but none of those optimizer tensors are reused. Each new AdamW starts with empty state."
+  },
+  "recipe": {
+    "common_batch": "old192 + point32 + naturalweak16 =240 both arms",
+    "treatment_batch": "common240 +4CFparents*3variants=12 =>252",
+    "natural_weak_weight_both": 0.25,
+    "CF_weight_treatment_only": 0.25,
+    "CF_parent_loss": "mean4parents[.5 BCE(COVER,E)+.25 BCE(BEFORE,D)+.25 BCE(SHAM,D)]",
+    "CF_sampling": "UNIFORM_WITH_REPLACEMENT",
+    "extra_hinge_or_contrastive_loss": false,
+    "learning_rate_weight_decay": "Exact original C65 root_recipe values, no search",
+    "decoder": "original inputU first; known available raw>=0 ->E; raw<0 ->D; no threshold selection"
+  },
+  "paired_RNG": {
+    "old192": 1810,
+    "point32": 1811,
+    "naturalweak16_both": 1812,
+    "CF4parents_treatment_only": 1813,
+    "new_model_instantiation_seed": 1810,
+    "same_old_point_hash_and_naturalweak_hash_required": true,
+    "CF_draws_do_not_advance_common_generators": true
+  },
+  "budget": {
+    "probe_steps_each": 32,
+    "probe_state_optimizer_discarded": true,
+    "final_reloads_exact_C65": true,
+    "update_walltime": "Per-step synchronize+draw/assemble/forward/backward/optimizer; disk loading and per-step log writes excluded and separately recorded",
+    "rule": "max(200,min(2000,100*floor((60/max(step_seconds_by_arm))/100)))",
+    "final_steps_currently": null,
+    "score_or_loss_based_budget_choice": false
+  },
+  "data_authority": {
+    "strong": "Strong own-image point0 D/E with target-alone D and finite available frame+actualcrop locality; source authority/admission bound at runtime. Public weak expected finite-part consensus is separate authority, NOT native point gold.",
+    "natural_weak": "Same original360 GT-derived q-family metadata; FIT45(D39/E6), DEV12(D9/E3) not point gold. Existing scalar branch .25 both arms.",
+    "CF": {
+      "authority": "CONTROLLED_EXPECTED_FINITE_PART_WEAK_NOT_PHYSICAL_NATIVE_POINT_GOLD",
+      "family": "PUBLIC_GT_QUERY_EXPECTED_FINITE_PART_COUNTERFACTUAL_V1",
+      "parents48": "39FIT/9DEV inherited GT-family D48; correlated19 nominal parents, not48 independent frames",
+      "original_query9_nativeDE_minus1_used": false,
+      "original_query_L_native_q8_condition32_valid_unchanged_across_variants": true,
+      "geometry_failure": "BEFORE D factual metadata retained, unconstructed COVER/SHAM input unavailable/target UNKNOWN; no manufactured negative",
+      "native_point_DE_target_all": -1
+    },
+    "GT_origin": "Public q8 itself is GT-derived training initialization. No extra GT pose/reference/ROI/mask feature channel; no original-initializer transfer solution claim."
+  },
+  "physical_split": {
+    "fit_binary_whitelist": "Exact original V219 pre-extracted fit-only6 NPZ +sole C65 PT +natural FIT45 PNG +CF SOURCE_FIT manifest images; only successful CF triples sampled",
+    "postfreeze_binary_whitelist": "Natural SOURCE_DEV12 PNG +CF SOURCE_DEV manifest images, opened only after both new states saved and sealed",
+    "postfreeze_metadata_whitelist": "CF DEV role manifest; no DEV image decode/norm/forward before barrier",
+    "normalization": "Same C65 RGB/255/fixedXY/zeroSAM/GroupNorm affine state; no batch/fitted RGB normalizer. Exact V219 selected caches/row masks and unchanged old_pools recompute identical FIT-only owner class probabilities; new CF/DEV cannot enter this calculation."
+  },
+  "CF_current_metadata_bindings": {
+    "producer_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/expected_part_counterfactual_pairs_v1/COMPLETE.json",
+      "sha256": "7d06fad28f252dc0295667b527564baf86698a499f6d4e3210807899805918cc",
+      "size_bytes": 5314
+    },
+    "rows144": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/expected_part_counterfactual_pairs_v1/ALL144_VARIANT_ROWS.jsonl",
+      "sha256": "4097805a0e2fe2f7a68b196348284ad3c62b5721d56751d49dd5eb48d161e641",
+      "size_bytes": 611769
+    },
+    "attempts48": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/expected_part_counterfactual_pairs_v1/ALL48_ATTEMPTS.json",
+      "sha256": "eb0820002ab3d520f5eec9b26588ee4759196c6f17c99d17857417be3439f58f",
+      "size_bytes": 705454
+    },
+    "FIT_manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/expected_part_counterfactual_pairs_v1/SOURCE_FIT_ROWS_AND_EXACT_PNG_WHITELIST.json",
+      "sha256": "195c78666c4fb912f90c750a5f3a6dc22edffa1cd3a02fd6d9cda562de5f98fc",
+      "size_bytes": 1173054
+    },
+    "DEV_manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/expected_part_counterfactual_pairs_v1/SOURCE_DEV_ROWS_AND_EXACT_PNG_WHITELIST.json",
+      "sha256": "42ebcbd30ea287a627712f376f1b8adf6560f5e9e601d5633888d32a854bb22c",
+      "size_bytes": 252503
+    },
+    "root_weak_admission": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/ROOT_CF_WEAK_TRAINING_ADMISSION.json",
+      "sha256": "5d0a58bb29dde85e018a14c1fcbee6c35b5906000cd7c5e92c3ccadf087e968d"
+    },
+    "actual_pixel_QA": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V222_ACTUAL_PIXEL_QA_A/actual_review_v1/REVIEW.json",
+      "sha256": "b7ea457188b8f016a8affbef235c4f5d3a64152a356d2a5330b4e5b0356ae263"
+    }
+  },
+  "natural57_exact_input_authority": {
+    "rows360": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_train_intended_part_query_targets_20261025_v218/joined_weak_intended_part_targets_v1/ALL360_CHECKED_WEAK_TARGET_CANDIDATES.jsonl",
+      "sha256": "52ac5bb8d0fb19a1329b9bdb7f7b56964fed954a2a4d50489e3dcb7d598d139d",
+      "size_bytes": 1409135
+    },
+    "RGB_reference": "Per-row generated_input.RGB96 only; full original image/camera/GT/owner/depth not followed. condition32 recomputed by unchanged weak_plan.",
+    "fit_selection": "weak_loss_fit_candidate /SOURCE_FIT,45 known rows only",
+    "postfreeze_selection": "remaining known SOURCE_DEV12 only; no unknown303 image reads needed"
+  },
+  "planned_outputs": {
+    "THROUGHPUT_PROBE": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/throughput_probe_v1",
+    "FIXED_PAIRED_FIT": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_counterfactual_source_bridge_20261025_v222/paired_source_fit_v1"
+  },
+  "final_artifacts": [
+    "paired_source_fit_v1/COMPLETE.json",
+    "paired_source_fit_v1/ALL2_FINAL_FROZEN_BEFORE_ANY_DEV_OR_REAL_OUTPUT.json",
+    "paired_source_fit_v1/C66CONTINUATION_CONTROL/FINAL_CHECKPOINT.pt",
+    "paired_source_fit_v1/C67PLUS_EXPECTED_PART_CF_WEAK/FINAL_CHECKPOINT.pt"
+  ],
+  "source_output_contract": {
+    "both_after_freeze_only": true,
+    "per_arm": [
+      "STRONG_POINT_TRAIN_OUTPUTS.json",
+      "WEAK57_SOURCE_OUTPUTS.json",
+      "CF_ALL144_SOURCE_OUTPUTS.json"
+    ],
+    "all144": "All status rows retain UID/role/native/qL/U; missing variants predictionUminus1/rawnull/targetunknown, failed-parent BEFORE still forwarded after barrier if factual input exists.",
+    "future_metrics": "Full144 status/inputU vs known and successful-triplet denominators distinct; D/E CM/P/R; B_D,C_E,S_D allcorrect; cover-minus-before/sham logit response both directions; SHAM false-E; role/component/native strata. No metric used for model/threshold/arm selection."
+  },
+  "AST_reuse": {
+    "old_contract_all9": "need/context32/weak_plan/fit_mask/old_pools/balanced_pools/draw_balanced/balanced_loss/objective unchanged",
+    "old_runner_helpers9": [
+      "binding",
+      "js",
+      "module",
+      "write",
+      "arrays",
+      "same_meta",
+      "state_sha",
+      "cpu_copy",
+      "weak_RGB"
+    ],
+    "old192_kernels": "Exact same SHA-bound old validate_targets/draw_step/five_losses AST extraction at runtime; no import of operational fit side effects."
+  },
+  "limits": [
+    "Continuation effect is additional data+weak-loss-branch bundle, not equal example counts or addressability-only causal identification.",
+    "SOURCE FIT/DEV repeated/correlated/exposed, not fresh blind or physical-native gold; all future protected comparison remains a separate fixed protocol.",
+    "Both final states retained; no intermediate model selection/adoption.",
+    "No actual payload/probe/fit/model construction or source image opened by this preparation. Invented scalar-logit backward is algebra-only, not neural model training."
+  ],
+  "read_guard": "Lexical v112/absolute/no dotdot before FS; NOFOLLOW every ancestor and leaf; exact path/SHA whitelist before payload; SHA before companion/kernel code execution; sole designated C65 checkpoint exception.",
+  "actual_current_data_or_model_read": 0,
+  "protected_or_HOLD_oldVAL_payload_read": 0,
+  "science_phase_writes": 0,
+  "schema_revision_V2": {
+    "preserved_V1_READY": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V222_PAIRED_BRIDGE_TRAINING_B/FINAL_READY.json",
+      "sha256": "f2cc6fa5c15514cef68584f0490eef006b14daef757092f0e7e67d8d04665257",
+      "size_bytes": 3065
+    },
+    "preserved_diff": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V222_PAIRED_BRIDGE_TRAINING_B_V2/V1_PRESERVED_AND_MINIMAL_V2_DIFF.json",
+      "sha256": "c26c675b764fc9d4bbd838f77a73e0f808484ecf2bf46c1c9e9124715c169013",
+      "size_bytes": 2738
+    },
+    "actual_metadata_compatibility": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V222_PAIRED_BRIDGE_TRAINING_B_V2/ACTUAL_SOURCE_METADATA_COMPATIBILITY_V2.json",
+      "sha256": "6b7540e6e21df254d63869012c205ff4bebf0219229ee6612ffa5a91774d2696",
+      "size_bytes": 2292
+    },
+    "exact_authority": "CONTROLLED_EXPECTED_FINITE_PART_WEAK_NOT_PHYSICAL_NATIVE_POINT_GOLD",
+    "role_gate": "flag is (role != SOURCE_DEV); FIT True / DEV False",
+    "no_actual_model_or_payload_probe_fit": true
+  }
+}

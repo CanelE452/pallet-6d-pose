@@ -1,3 +1,5 @@
+V222 공개 SOURCE 대조학습·실패 결과·crop·코드/QA를 추가했습니다. SOURCE 일반화 개선 미확인, 현재223 새추론·모델채택0입니다. [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V222_KO.md).
+
 [V221 검토 대조·중복 시도와 남은 과제](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V221_KO.md)
 
 최신 모델은 보이는 점 보존이 늘었지만 외부 가림 검출은 함께 좋아지지 않았습니다. 첨부 V193 조언과 현재 계약·데이터·실험 이력을 대조한 결과이며 이번 새 학습·실사 추론은 없습니다.
