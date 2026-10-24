@@ -1,0 +1,263 @@
+{
+  "completed": true,
+  "PASS": true,
+  "status": "PASS_CODE_TEXT_CONTRACT_WITH_UNRESOLVED_INSTANCE_PART_MAPPING",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/nominal_crosswalk_preflight_b/review_nominal_crosswalk_text.py",
+    "sha256": "6dad3a0c73ecc5da97ae6ac819ced85bd979b440dfe03cbb375c6006fe246b1d"
+  },
+  "scope": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/ROOT_PROSPECTIVE_FIXED12_PUBLIC_GT_CORRESPONDENCE_AUDIT_SCOPE.json",
+    "sha256": "b396012313065b36781a927dc51222c8d6acf64d0fd19186f8a80d3e6ea1a4c4"
+  },
+  "prior_texts_exactly_three": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/native_definition_audit/DEFINITION_AND_FEASIBILITY.json",
+      "sha256": "76c0a83888f3c93445a8c216ceb4c6af069a939af97451fefab34bdae38d4ddc"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/ROOT_SUPERVISION_SEAL.json",
+      "sha256": "d6915b0abcfb8c7058bf4cc2d83b73492f57edd88e4862e55684712a310c4b34"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/full_intake_preparation/intake_full_source.py",
+      "sha256": "f2f564e30ef60428a13952d5d5bb8a907681d8b179546dd4dc7f73e24aa87920"
+    }
+  ],
+  "shared_subset_of_A16": true,
+  "declared_V216_readiness": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_train_part_query_support_contract_20261025_v216/public_GT_text_readiness_a/REVIEW.json",
+    "sha256": "66e94d2679e3323e3acfab84f6a8668a764d46506801ae6e43794e2bf953ff97"
+  },
+  "coordinate_and_order_contract": {
+    "unit": "millimeter",
+    "handedness": "right-handed",
+    "origin_model_mm": [
+      0,
+      0,
+      0
+    ],
+    "model_axes_bounds_mm": {
+      "X": [
+        -400,
+        400
+      ],
+      "Y": [
+        -600,
+        600
+      ],
+      "Z": [
+        -72,
+        72
+      ]
+    },
+    "axis_scope": "X=800 and Y=1200 are fixed nominal model spans, not invariant camera-dynamic front width/depth. Source +Z is anatomical deck side; camera coordinates use OpenCV +Z forward.",
+    "projection": "X_camera = R_m2c X_model + t_m2c; homogeneous image = K X_camera, then divide by camera Z. Row-vector code implements points @ R.T + t.",
+    "camera_object": "solve(R, -t), used in V153; exact linear inverse avoids silently treating rounded R as perfectly orthonormal.",
+    "fixed_canonical_XYZ_mm": [
+      [
+        -400.0,
+        -600.0,
+        72.0
+      ],
+      [
+        400.0,
+        -600.0,
+        72.0
+      ],
+      [
+        400.0,
+        -600.0,
+        -72.0
+      ],
+      [
+        -400.0,
+        -600.0,
+        -72.0
+      ],
+      [
+        -400.0,
+        600.0,
+        72.0
+      ],
+      [
+        400.0,
+        600.0,
+        72.0
+      ],
+      [
+        400.0,
+        600.0,
+        -72.0
+      ],
+      [
+        -400.0,
+        600.0,
+        -72.0
+      ]
+    ],
+    "native_names": [
+      "front_top_left",
+      "front_top_right",
+      "front_bottom_right",
+      "front_bottom_left",
+      "rear_top_left",
+      "rear_top_right",
+      "rear_bottom_right",
+      "rear_bottom_left"
+    ],
+    "front_candidates_fixed_indices": [
+      [
+        0,
+        1,
+        2,
+        3
+      ],
+      [
+        4,
+        5,
+        6,
+        7
+      ],
+      [
+        0,
+        4,
+        7,
+        3
+      ],
+      [
+        1,
+        5,
+        6,
+        2
+      ]
+    ],
+    "front_choice": "Maximum outward-normal cosine to camera from cuboid center, among four vertical faces only; top/bottom excluded.",
+    "top_bottom": "V74 uses source world Z; V153 MR adaptation passes centered model coordinates, retaining model +Z deck anatomy for upright source objects. This is an explicit adaptation, not a recovered official MR native8 rule.",
+    "front_left_right": "Front top endpoints sorted by projected image X; slots0/1 are left/right top and slots3/2 their vertical bottom partners.",
+    "rear": "Slots4..7 continue front0..3 through opposite depth edges; rear is not independently image-X sorted. A rear point can lie on a visible adjacent side/top; rear name does not force S.",
+    "permutation_direction": "dynamic[k] = fixed[perm[k]]; never reapply to already dynamic stored arrays.",
+    "ties": "np.argmax/face list order in replay helper. Exact historical writer tie policy uncertified. Face-score and top-LR margins are evidence flags, not automatic semantic thresholds.",
+    "centroid": "Separate projection of model center (0,0,0); index8 is outside native8 and is not the mean of eight 2D projections.",
+    "training_visibility_flag_caveat": "prepare_yolo_pose.py writes v=2 for known in-padded-canvas coordinates; this transport flag is not native semantic D."
+  },
+  "prior_bridge_invariants": {
+    "code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/join_source_role_and_query_supervision.py",
+      "sha256": "b3850871444582c713531b261b1fe36e2172b13b3ac4e571eaf326df832f9e1c"
+    },
+    "root_policy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/ROOT_POLICY_BEFORE_SOURCE_BRIDGE_REVIEW.json",
+      "sha256": "3dafcb17115eed8d8ee232e7544132bbe0b0b0cbc601d81866f107329f245d72"
+    },
+    "source_only": true,
+    "all_original_queries_retained": true,
+    "original_q_L_flags_source_ids_and_splits_unchanged": true,
+    "human_gold": false,
+    "exact_real_point_gold": false,
+    "wrong_entity_never_E": true,
+    "real_point_quality_labels_created": 0,
+    "no_GT_nearest_permutation_or_coordinate_correction": true
+  },
+  "concrete_columns_and_functions": [
+    {
+      "file": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/full_intake_preparation/intake_full_source.py",
+      "function": "prepare()",
+      "lines": "35-54",
+      "columns": [
+        "source_id",
+        "official_split",
+        "scene",
+        "frame_key",
+        "obj1_gt_instance_indices",
+        "source_files.full_masks[].gt_instance_index",
+        "source_files.visible_masks[].gt_instance_index"
+      ]
+    },
+    {
+      "file": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/full_intake_preparation/intake_full_source.py",
+      "function": "factual()",
+      "lines": "168-182",
+      "columns": [
+        "gt[frame_key][ix].obj_id",
+        "gi[frame_key][ix]",
+        "instances[].gt_instance_index",
+        "instances[].semantic_native_labels=UNASSIGNED",
+        "depth_scale_to_mm",
+        "instance_pair_overlaps"
+      ]
+    },
+    {
+      "file": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/native_definition_audit/DEFINITION_AND_FEASIBILITY.json",
+      "key": "exact_coordinate_and_order_contract",
+      "authority": "task nominal eight camera-dynamic AABB roles, not official MR6D native8 semantic labels"
+    }
+  ],
+  "prior_part_proposal_and_mask_diagnostic_pointers_not_opened": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/native_definition_audit/NATIVE8_EXPECTED_PART_AND_PROOF_REQUIREMENTS.jsonl",
+      "sha256": "dbed3a7b5d1fcd8eed253cd035b00908d0b8107b3fffe9d5448b14b238b586a0"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/native_definition_audit/EXACT_NATIVE8_NOMINAL_CAD_SUPPORT.json",
+      "sha256": "ccc268ac0d153760944dda59d25539b4cc4a0957dd7ade9e4bc2320017b6cd1c"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/owner_supervision_bridge/COMPLETE.json",
+      "sha256": "eee388d6c1452444bd0532a767ce287692f2905ca3b0c127e2fbe938f988c232"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/native_mask_support_audit/COMPLETE.json",
+      "sha256": "50814ba74c6ea90caf82d3c41d975464f4c448db6c92b3beb475b988a44aa81d"
+    }
+  ],
+  "actionable_next_checks": [
+    {
+      "id": "immutable_row_and_instance_key",
+      "check": "Join original source_id/frame/native/role to (official split,scene,frame_key,GT-list index,obj_id), retaining all same-class candidate instances. Selected index may remain null; no GT-nearest/first/silent fallback."
+    },
+    {
+      "id": "one_nominal_role_mapping",
+      "check": "When separately authorized, derive/consume the declared nominal perm once and record dynamic native k -> canonical perm[k], +Z deck, front face/LR margin and ambiguity. Do not permute original deployed q8 or search a permutation."
+    },
+    {
+      "id": "part_vs_point",
+      "check": "Keep nominal projected AABB corner, expected anatomical part neighborhood, actual visible local witness and original q as separate columns. The saved eight-role dictionary proposes a part; it does not certify each selected query."
+    },
+    {
+      "id": "mask_depth_support_axes",
+      "check": "Match full/visible masks by GT-list index and frame key; retain nonexclusive overlaps, missing support, measured-depth validity, camera/depth scale and registration flags. Mask absence or a foreign object at q alone is not native E."
+    },
+    {
+      "id": "same_part_positive_foreground",
+      "check": "Only positive same-intended-instance/part and foreground evidence can support a bounded future occlusion candidate. Wrong object/query OFF is correspondence/location evidence; retain UNKNOWN for native state, not E."
+    },
+    {
+      "id": "bounded_use",
+      "check": "Produce all96 fixed rows/U11 with original SOURCE_FIT/DEV roles; future DEV descendants remain excluded from all fit branches. SOURCE nominal evidence can be useful without a perfect-mesh/corner certificate; ambiguous correspondence remains explicit UNKNOWN. No labels/admission or training here."
+    }
+  ],
+  "unresolved": [
+    "Original deployed detection→GT-list-index association is not created by V153 intake; same obj_id is not same instance.",
+    "Shared three texts do not establish per-query intended-part correspondence for the fixed12/96; prior nominal dictionary and mask diagnostics are useful starting points, not current labels.",
+    "Source pose/dimension uncertainty and mask nonexclusivity prevent exact physical corner/visibility certification but do not prohibit bounded weak same-part review."
+  ],
+  "A_final_schema_reported_not_independently_reopened": {
+    "ready": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_fixed_public_train_instance_part_GT_correspondence_20261025_v217/fixed12_GT_payload_preparation_a/FINAL_READY.json",
+      "sha256": "b97dc7de1d15e8e251bbb5dbd262611d69b7ab711a24c4a2b0f26f559af243e4"
+    },
+    "selected_gt_instance_index": null,
+    "selected_instance_correspondence": "UNKNOWN_NO_GT_BEST_OR_FIRST_INSTANCE_FALLBACK",
+    "source": "A sealed schema-only message"
+  },
+  "SOURCE_projection_policy": "Only future separately approved SOURCE pose/camera nominal target generation; no projection executed here, no GT recenter/PnP/permutation search or deployment GT feature input.",
+  "raw_candidates_are_training_labels": false,
+  "training_admission": false,
+  "actual_GT_camera_mask_depth_CAD_NPZ_RGB_filesystem_stat_hash_read_decode": 0,
+  "protected_model_scores_or_HOLD_payload_reads": 0,
+  "new_observations_or_labels": 0,
+  "fit_or_forward": 0,
+  "goal_solved": false,
+  "frozen_no_further_edits": true
+}

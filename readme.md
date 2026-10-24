@@ -1,3 +1,9 @@
+## V217 공개 SOURCE 실제 GT 대응 진단
+
+공개 실사12장·15GT후보의 mask/depth와 원96query를 실제 대조했습니다. 다른 물체 query·native 부위 역할 차이·가시 proxy의 한계를 원 crop 그림과 CSV로 공개했습니다. 새 모델 개선 주장은 없으며 최신 실사 모델 비교는 V213입니다.
+
+- [V217까지 실험·결과·원 crop 그림·CSV](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V217_KO.md)
+
 ## V216 공개 SOURCE 실사 검토
 
 공개 실사 12장·96점의 두 독립 관찰과 실제 crop 대조를 공개했습니다. 기계 D 합의11개에서 같은 feature가 모호한2개를 보류해 약한 팔레트 부위 보임9개가 남았습니다. 외부 가림 확정0개이며 새 학습/모델 성능 개선 주장은 없습니다. 원 query/U와 SOURCE FIT/DEV 분리를 유지합니다.

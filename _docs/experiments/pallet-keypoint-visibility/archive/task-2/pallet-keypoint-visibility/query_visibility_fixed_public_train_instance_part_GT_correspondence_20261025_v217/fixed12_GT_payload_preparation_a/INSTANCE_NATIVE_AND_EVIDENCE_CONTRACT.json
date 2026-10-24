@@ -1,0 +1,156 @@
+{
+  "completed": true,
+  "prior_V154_instance_role_source": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_source_supervision_bridge_20261024_v154/ROOT_SUPERVISION_SEAL.json",
+    "sha256": "d6915b0abcfb8c7058bf4cc2d83b73492f57edd88e4862e55684712a310c4b34",
+    "size_bytes": 14995
+  },
+  "prior_V154_method": "Historical actual-query entity+role correspondence, quality unknown and wrong-entity-never-E; no new historical weak-label bodies opened.",
+  "prior_V159_nominal_definition": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_support_feasibility_20261024_v159/native_definition_audit/DEFINITION_AND_FEASIBILITY.json",
+    "sha256": "76c0a83888f3c93445a8c216ceb4c6af069a939af97451fefab34bdae38d4ddc",
+    "size_bytes": 19698
+  },
+  "exact_coordinate_and_order_contract": {
+    "unit": "millimeter",
+    "handedness": "right-handed",
+    "origin_model_mm": [
+      0,
+      0,
+      0
+    ],
+    "model_axes_bounds_mm": {
+      "X": [
+        -400,
+        400
+      ],
+      "Y": [
+        -600,
+        600
+      ],
+      "Z": [
+        -72,
+        72
+      ]
+    },
+    "axis_scope": "X=800 and Y=1200 are fixed nominal model spans, not invariant camera-dynamic front width/depth. Source +Z is anatomical deck side; camera coordinates use OpenCV +Z forward.",
+    "projection": "X_camera = R_m2c X_model + t_m2c; homogeneous image = K X_camera, then divide by camera Z. Row-vector code implements points @ R.T + t.",
+    "camera_object": "solve(R, -t), used in V153; exact linear inverse avoids silently treating rounded R as perfectly orthonormal.",
+    "fixed_canonical_XYZ_mm": [
+      [
+        -400.0,
+        -600.0,
+        72.0
+      ],
+      [
+        400.0,
+        -600.0,
+        72.0
+      ],
+      [
+        400.0,
+        -600.0,
+        -72.0
+      ],
+      [
+        -400.0,
+        -600.0,
+        -72.0
+      ],
+      [
+        -400.0,
+        600.0,
+        72.0
+      ],
+      [
+        400.0,
+        600.0,
+        72.0
+      ],
+      [
+        400.0,
+        600.0,
+        -72.0
+      ],
+      [
+        -400.0,
+        600.0,
+        -72.0
+      ]
+    ],
+    "native_names": [
+      "front_top_left",
+      "front_top_right",
+      "front_bottom_right",
+      "front_bottom_left",
+      "rear_top_left",
+      "rear_top_right",
+      "rear_bottom_right",
+      "rear_bottom_left"
+    ],
+    "front_candidates_fixed_indices": [
+      [
+        0,
+        1,
+        2,
+        3
+      ],
+      [
+        4,
+        5,
+        6,
+        7
+      ],
+      [
+        0,
+        4,
+        7,
+        3
+      ],
+      [
+        1,
+        5,
+        6,
+        2
+      ]
+    ],
+    "front_choice": "Maximum outward-normal cosine to camera from cuboid center, among four vertical faces only; top/bottom excluded.",
+    "top_bottom": "V74 uses source world Z; V153 MR adaptation passes centered model coordinates, retaining model +Z deck anatomy for upright source objects. This is an explicit adaptation, not a recovered official MR native8 rule.",
+    "front_left_right": "Front top endpoints sorted by projected image X; slots0/1 are left/right top and slots3/2 their vertical bottom partners.",
+    "rear": "Slots4..7 continue front0..3 through opposite depth edges; rear is not independently image-X sorted. A rear point can lie on a visible adjacent side/top; rear name does not force S.",
+    "permutation_direction": "dynamic[k] = fixed[perm[k]]; never reapply to already dynamic stored arrays.",
+    "ties": "np.argmax/face list order in replay helper. Exact historical writer tie policy uncertified. Face-score and top-LR margins are evidence flags, not automatic semantic thresholds.",
+    "centroid": "Separate projection of model center (0,0,0); index8 is outside native8 and is not the mean of eight 2D projections.",
+    "training_visibility_flag_caveat": "prepare_yolo_pose.py writes v=2 for known in-padded-canvas coordinates; this transport flag is not native semantic D."
+  },
+  "authority_separation": {
+    "MR6D_primary_release": "Provides nominal object mesh, BOP-style instance poses/camera/depth/masks. No official MR6D camera-dynamic native8 semantic labels identified in reviewed release metadata/docs.",
+    "task_native8": "Eight camera-dynamic cuboid roles are the existing task/trained-channel contract. MR projections are derived reference preparation using that contract, not native8 gold supplied by MR authors.",
+    "historical_writer_provenance": "Local original C#/Blender historical writer was not recovered in the existing audit. V74 reports exact empirical normal-facing reconstruction for 60000 stored synthetic records; this run verifies bound code and nominal CAD, not those 60000 bodies.",
+    "no_order_optimization": "No new permutation optimized against queries, old roles, predictions, or real pixels. Stored dynamic arrays remain in place."
+  },
+  "current_selected_instance_correspondence": "UNKNOWN; enumerate all obj1 GT-list candidates, no first/best/nearest fallback",
+  "native_part_correspondence": "nominal reference evidence only; explicit future same-instance/same-part support needed",
+  "separate_evidence_axes": [
+    "GT-list instance identity",
+    "nominal native-to-fixed part convention",
+    "full silhouette mask support",
+    "visible-surface mask support",
+    "valid measured depth and overlap/registration",
+    "query-local support/owner",
+    "native point/part visibility candidate with UNKNOWN"
+  ],
+  "not_automatic_E": [
+    "mask absence",
+    "query OFF/background",
+    "another object at q",
+    "missing/invalid depth",
+    "nominal point outside or drift",
+    "uncertain part/instance"
+  ],
+  "projection_policy": "SOURCE nominal pose projection may only run in a separately frozen actual protocol; no projection now, original production q/L/native/U are not moved; no PnP/coordinate optimization/GT-best permutation.",
+  "no_perfect_mesh_corner_blanket_gate": true,
+  "future_DEV_all_training_branches_excluded": true,
+  "historical_appearance_or_warmstart_exposure_not_freshblind": true,
+  "training_admission": false
+}
