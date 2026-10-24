@@ -1,3 +1,9 @@
+[V221 검토 대조·중복 시도와 남은 과제](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V221_KO.md)
+
+최신 모델은 보이는 점 보존이 늘었지만 외부 가림 검출은 함께 좋아지지 않았습니다. 첨부 V193 조언과 현재 계약·데이터·실험 이력을 대조한 결과이며 이번 새 학습·실사 추론은 없습니다.
+
+---
+
 [V220 현재 실사 고정 비교·실패 진단](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V220_KO.md)
 
 C65는 보이는 점 보존이 늘었지만 외부 가림 검출은 악화했습니다. 같은 원래 query의 혼동행렬·precision/recall·보류율·목재/정사각형·3px 이하 실패·실제12crop을 공개합니다. SOURCE 학습·두 모델은 V219 기록에 보존했습니다.
