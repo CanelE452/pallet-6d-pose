@@ -1,0 +1,366 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "input",
+    "display_bindings",
+    "reader_id",
+    "observation_complete",
+    "instance",
+    "part",
+    "witness",
+    "addressability",
+    "query_support",
+    "visibility",
+    "ambiguity_note",
+    "actually_viewed_image_bindings",
+    "training_admission"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "V216_SOURCE_PART_QUERY_WEAK_V1"
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position",
+        "frame_key",
+        "original_frame_index",
+        "component_id",
+        "source_group_key",
+        "role",
+        "internal_source_role",
+        "native_slot",
+        "row_id",
+        "original_global_index",
+        "query_xy",
+        "L",
+        "original_query_available",
+        "original_flags"
+      ],
+      "properties": {
+        "position": {},
+        "frame_key": {},
+        "original_frame_index": {},
+        "component_id": {},
+        "source_group_key": {},
+        "role": {
+          "enum": [
+            "TRAIN"
+          ]
+        },
+        "internal_source_role": {
+          "enum": [
+            "SOURCE_FIT",
+            "SOURCE_DEV"
+          ]
+        },
+        "native_slot": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7
+        },
+        "row_id": {},
+        "original_global_index": {},
+        "query_xy": {},
+        "L": {},
+        "original_query_available": {
+          "type": "boolean"
+        },
+        "original_flags": {}
+      }
+    },
+    "display_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clean96",
+        "contact",
+        "full_context"
+      ],
+      "properties": {
+        "clean96": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^/"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^/"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "full_context": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^/"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "reader_id": {
+      "enum": [
+        null,
+        "A",
+        "C"
+      ]
+    },
+    "observation_complete": {
+      "type": "boolean"
+    },
+    "instance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "YES",
+            "UNKNOWN",
+            "UNREVIEWED"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        }
+      }
+    },
+    "part": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "description",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "YES",
+            "UNKNOWN",
+            "UNREVIEWED"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        }
+      }
+    },
+    "witness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "kind",
+        "roi",
+        "description",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "VISIBLE",
+            "UNKNOWN",
+            "UNREVIEWED"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "END_CORNER",
+            "EDGE_JUNCTION",
+            "BLOCK_FACE",
+            "OTHER",
+            "UNKNOWN"
+          ]
+        },
+        "roi": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 95
+              }
+            }
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        }
+      }
+    },
+    "addressability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "QUERY_NATIVE_SUPPORTED",
+            "EXPLICIT_ROI_ONLY",
+            "UNKNOWN",
+            "UNREVIEWED"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        }
+      }
+    },
+    "query_support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "evidence"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "ON",
+            "NEAR",
+            "OFF",
+            "UNKNOWN",
+            "UNREVIEWED"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        }
+      }
+    },
+    "visibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "evidence",
+        "occlusion_evidence",
+        "evidence_roi"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "D",
+            "E",
+            "SELF",
+            "UNKNOWN",
+            "UNREVIEWED"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "occlusion_evidence": {
+          "type": "string"
+        },
+        "evidence_roi": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 95
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ambiguity_note": {
+      "type": "string"
+    },
+    "actually_viewed_image_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "training_admission": {
+      "const": false
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Cross-field identity, ROI ordering, original U, actual views, and authority checks require the bound pure helper too. UNREVIEWED is preparation only."
+}
