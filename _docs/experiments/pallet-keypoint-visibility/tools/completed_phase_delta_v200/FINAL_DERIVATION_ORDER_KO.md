@@ -1,0 +1,1 @@
+원 derive_v200_code_only.py → 보존된 Unicode 치환 수정 → PRE_FINAL binding/fixture 수리 → STRICT_FREEZE_GUARD_CORRECTION_RECORD.json의 root 승인된 exactfreeze guard와 두 toy 추가 → 최종 protocol/template/READY binding 재봉인 순서다. 원 stage/code와 모든 실패·교정기록은 byteexact 보존됐다. source/repo/parent body 실행은 없다.

@@ -1,3 +1,11 @@
+# V200 동결 native 조건 head 실사 비교
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V200_KO.md) · [V200 결과·코드·같은68 gallery](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/PORTABLE_REPORT_KO.md)
+
+같은 원query 실사1237(D1147/E90)에서 새 native C58/C59는 이전 C57보다 D/E 정답 수가 모두 적었습니다. 두팔 모두 고정 평가했고 새 winner·threshold·학습자료 선택, 채택·실패원인 확정·freshblind 일반화·전체 목표 해결을 주장하지 않습니다. Source 학습은 이전 V199의 합성+허용공개실사이며 이번V200은 평가만 수행했습니다.4새 저장 예측은 바이트만 보존하고 weights·원input/SAM/feature/target cache는 제외합니다.
+
+---
+
 # V199 source-only native 조건부 대조 학습 기록
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V199_KO.md) · [V199 원문·방법·출력·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_native_conditioned_grouped_source_training_20261024_v199/PORTABLE_REPORT_KO.md)
