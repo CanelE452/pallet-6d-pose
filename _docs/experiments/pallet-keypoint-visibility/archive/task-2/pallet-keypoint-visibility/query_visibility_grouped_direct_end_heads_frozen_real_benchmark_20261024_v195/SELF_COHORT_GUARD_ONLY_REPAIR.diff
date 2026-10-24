@@ -1,0 +1,32 @@
+--- preserved/evaluation_preparation_b/evaluate_saved_grouped_direct_end_real.py
++++ corrected/evaluation_preparation_b/evaluate_saved_grouped_direct_end_real.py
+@@ -336,7 +336,7 @@
+             for tag in MODELS:native_panels.append(dict(group=group,native_slot=slot,model=tag,**base.calculate(rr,tag,'D_vs_E',{},.5)))
+     tables['primary_native8_D_E_with_U']=native_panels
+     state_inventory=dict(Counter(r['human_state']for r in truth))
+-    require(state_inventory.get(base.S,0)==136 and sum(base.yes(r,'paired_same_query_RGB_D_vs_E')and r['human_state']==base.S for r in truth)==21,'Original self all136 and pairedflag21 are separate from primary D/E1237')
++    require(state_inventory.get(base.S,0)==136 and sum(base.yes(r,'paired_same_query_RGB_D_vs_ES')and r['human_state']==base.S for r in truth)==21,'Original self all136 and pairedflag21 are separate from primary D/E1237')
+     require(sum(r['human_state']==base.D and core.error_bucket(r)=='LE3'for r in truth)==461,'Original <=3 reference humanD461 distinct from manualnear376')
+     prior_six=core.readcsv(check(p['prior_six_metrics']))
+     prior_six_exact=exact([r for r in tables['metrics']if r['model']in BASELINES+OLD_TAGS],prior_six)
+@@ -547,6 +547,20 @@
+     require(rejected==4,'Actual new both-model pre-label seal adapter fails closed')
+     passed.append('Actual_new_prediction_seal_both8000_scope_input_exposure_binding_failclosed')
+ 
++    # Execute the exact production guard AST with authored 136 S rows.
++    # D_vs_E eligibility is false for all; only the first21 D_vs_ES are true.
++    with opened(__file__)as handle:tree=ast.parse(handle.read().decode())
++    guard=next(n for n in ast.walk(tree)if isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)and isinstance(n.value.func,ast.Name)and n.value.func.id=='require'and len(n.value.args)==2 and isinstance(n.value.args[1],ast.Constant)and n.value.args[1].value=='Original self all136 and pairedflag21 are separate from primary D/E1237')
++    guard_code=compile(ast.fix_missing_locations(ast.Module(body=[guard],type_ignores=[])),str(__file__)+'::EXACT_PRODUCTION_SELF_GUARD','exec')
++    fixture=[dict(human_state=base.S,paired_same_query_RGB_D_vs_E='False',paired_same_query_RGB_D_vs_ES=str(i<21))for i in range(136)]
++    exec(guard_code,dict(require=require,base=base,state_inventory={base.S:136},truth=fixture))
++    passed.append('Actual_SELF_guard_AST_accepts136S_21_DvsES_true_while_all_DvsE_false')
++    wrong=[dict(r,paired_same_query_RGB_D_vs_E=str(i<21),paired_same_query_RGB_D_vs_ES='False')for i,r in enumerate(fixture)]
++    try:exec(guard_code,dict(require=require,base=base,state_inventory={base.S:136},truth=wrong));ok=False
++    except ValueError:ok=True
++    require(ok,'D_vs_E must not replace separate SELF D_vs_ES membership')
++    passed.append('Actual_SELF_guard_AST_rejects21_DvsE_true_but_zero_DvsES')
++
+     try:safe(P/'blocked_v112'/'unopened');ok=False
+     except ValueError:ok=True
+     require(ok,'Lexical forbidden name before path access');passed.append('Forbidden_name_lexical_precheck_no_stat_open_hash_resolve')

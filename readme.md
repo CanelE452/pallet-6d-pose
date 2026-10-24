@@ -1,3 +1,11 @@
+# V195 frozen grouped direct-end real comparison and fixed68 review update
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V195_KO.md) · [V195 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_grouped_direct_end_heads_frozen_real_benchmark_20261024_v195/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 고정된 8모델의 동일 실사 평가와 같은68그림·표·UNKNOWN·실패·검산입니다. 반복 노출된 평가이며 새 blind 검증·인과 분리·일반화·모델 채택이나 전체 목표 해결을 뜻하지 않습니다. 새 예측4개만 포함하고 자체 head·raw입력·SAM·feature·외부가중치는 제외합니다.
+
+---
+
 # V194 source-only grouped paired fit and source TRAIN/HOLDOUT records update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V194_KO.md) · [V194 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_group_split_direct_end_training_20261024_v194/PORTABLE_REPORT_KO.md)
