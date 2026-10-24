@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""Six pure functional groups; no SOURCE file/GT/image/model inputs."""
+import copy
+import importlib.util
+import json
+import math
+from pathlib import Path
+
+H = Path(__file__).parent
+spec = importlib.util.spec_from_file_location('pure_condition_builder', H/'build_deployable_query_conditions.py')
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+
+
+def reject(fn):
+    try:
+        fn()
+    except (AssertionError, TypeError, ValueError):
+        return
+    raise AssertionError('Expected rejection')
+
+
+def checks():
+    q = [[0., 0.], [4., 0.], [4., 2.], [0., 2.],
+         [1., -3.], [5., -3.], [5., -1.], [1., -1.]]
+    p = {'q8_xy': q, 'native_slot': 0, 'L': 2., 'query_available8': [True]*8}
+    results = []
+    c = m.build_deployment_condition(p)
+    assert c['condition32'] == c['native_onehot8'] + c['other_mask8'] + c['other_dxdy16']
+    assert c['native_onehot8'] == [1., 0., 0., 0., 0., 0., 0., 0.]
+    assert c['other_mask8'] == [0., 1., 1., 1., 1., 1., 1., 1.]
+    assert c['other_dxdy16'][:4] == [0., 0., 2., 0.]
+    pp = copy.deepcopy(p); pp['native_slot'] = 6
+    cc = m.build_deployment_condition(pp)
+    assert cc['native_onehot8'][6] == 1 and cc['other_mask8'][6] == 0 and cc['other_dxdy16'][12:14] == [0., 0.]
+    results.append('native identity, exact32 order, self-zero, no permutation')
+
+    pp = copy.deepcopy(p); pp['q8_xy'] = [[7+3*x, -11+3*y] for x, y in q]; pp['L'] *= 3
+    assert m.build_deployment_condition(pp) == c
+    a = m.initializer_geometry_diagnostics(p); b = m.initializer_geometry_diagnostics(pp)
+    assert a['initializer_span_over_active_L'] == b['initializer_span_over_active_L']
+    assert all(max(abs(x-y) for x, y in zip(ar['unit_dxdy'], br['unit_dxdy'])) < 1e-14
+               for ar, br in zip(a['adjacent_directions'], b['adjacent_directions']))
+    results.append('joint image translation/scale invariance; geometry summaries add no data')
+
+    pp = copy.deepcopy(p); pp['query_available8'][0] = False; pp['q8_xy'][0] = None; pp['L'] = None
+    u = m.build_deployment_condition(pp)
+    assert u['original_inputU'] and u['native_onehot8'] == c['native_onehot8']
+    assert u['other_mask8'] == [0.]*8 and u['other_dxdy16'] == [0.]*16
+    assert m.initializer_geometry_diagnostics(pp)['available_initializer_bbox_xyxy'] is None
+    results.append('active originalU preserved; no context or validity promotion')
+
+    pp = copy.deepcopy(p); pp['query_available8'][1] = False; pp['q8_xy'][1] = None; pp['q8_xy'][2] = [100., -100.]
+    z = m.build_deployment_condition(pp)
+    assert z['other_mask8'][1] == 0 and z['other_dxdy16'][2:4] == [0., 0.]
+    assert z['other_dxdy16'][4:6] == [8., -8.]
+    for field, value in [('L', 0.), ('native_slot', True), ('query_available8', [1]*8)]:
+        bad = copy.deepcopy(p); bad[field] = value; reject(lambda: m.build_deployment_condition(bad))
+    bad = copy.deepcopy(p); bad['q8_xy'][1] = None; reject(lambda: m.build_deployment_condition(bad))
+    results.append('missing-other stays zero, clip32 exact, malformed available inputs rejected')
+
+    for key in ('nominal_reference_xy', 'GT_candidate', 'mask', 'target', 'selected_instance', 'internal_source_role'):
+        bad = copy.deepcopy(p); bad[key] = 0; reject(lambda: m.build_deployment_condition(bad))
+    rows = [{'original_input': {'row_id': 'x', 'frame_key': 'f', 'frame_position': 0, 'native_slot': 0, 'query_xy': [1., 2.]},
+             'GT_candidate': 0, 'nominal_reference_xy': [9., 9.]}]
+    duplicate = copy.deepcopy(rows[0]); duplicate['GT_candidate'] = 99; duplicate['nominal_reference_xy'] = [-100., 88.]
+    assert m.unique_original_rows(rows+[duplicate]) == m.unique_original_rows(rows)
+    results.append('GT/label/role payload rejected; candidate target changes cannot change inputs')
+
+    bad = copy.deepcopy(duplicate); bad['original_input']['query_xy'][0] = 5.
+    reject(lambda: m.unique_original_rows(rows+[bad]))
+    rr = [{'row_id': str(k), 'frame_position': 0, 'frame_key': 'f', 'native_slot': k,
+           'component_id': 'same', 'internal_source_role': 'SOURCE_DEV', 'original_role': 'TRAIN',
+           'query_xy': q[k], 'L': 2., 'original_query_available': True} for k in range(8)]
+    assert m.make_frame_payload(rr, 7)['q8_xy'] == q
+    mixed = copy.deepcopy(rr); mixed[2]['internal_source_role'] = 'SOURCE_FIT'
+    reject(lambda: m.make_frame_payload(mixed, 7))
+    reject(lambda: m.make_frame_payload(rr[:-1], 7))
+    results.append('candidate duplicate identity drift rejected; all8/component/role closure enforced')
+    return {'completed': True, 'PASS': True, 'groups': len(results), 'checks': results,
+            'actual_SOURCE_metadata_images_arrays_models_GT_scores': 0}
+
+
+if __name__ == '__main__':
+    result = checks()
+    m.write_json(H/'INVENTED_CONDITION_CHECKS.json', result)
+    print(json.dumps(result))

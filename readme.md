@@ -1,3 +1,9 @@
+## V218 공개 SOURCE intended-part/query 약타깃 구성
+
+finite-part weak9 제어쌍과 별도 GT-query RGB360장을 만들고, 두 관찰자 nominal weak D19/E8 및 crop-support 확인 후보57(FIT45/DEV12)를 원장·그림으로 공개했습니다. ROI는 타깃 전용이고 native/물리점 gold나 새 모델 개선이 아닙니다. 새 학습0, 최신 실사 비교는 V213 그대로입니다.
+
+- [V218까지 실험·데이터·그림·CSV](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V218_KO.md)
+
 ## V217 공개 SOURCE 실제 GT 대응 진단
 
 공개 실사12장·15GT후보의 mask/depth와 원96query를 실제 대조했습니다. 다른 물체 query·native 부위 역할 차이·가시 proxy의 한계를 원 crop 그림과 CSV로 공개했습니다. 새 모델 개선 주장은 없으며 최신 실사 모델 비교는 V213입니다.
