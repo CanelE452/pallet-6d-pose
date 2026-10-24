@@ -1,3 +1,11 @@
+# V205 공개 TRAIN native 의미 관찰 pilot 게시
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V205_KO.md) · [원본 프리뷰·약관찰·합의와 한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_public_train_native_visibility_annotation_pilot_20261025_v205/PORTABLE_REPORT_KO.md)
+
+기존 공개 TRAIN6프레임48슬롯 원본·crop96·독립 약관찰 및 합의/불일치 표를 보존한다. 관찰 합의만으로 fit admission·native gold·모델 개선·전체 해결을 주장하지 않는다.
+
+---
+
 # V204 공개 SOURCE TRAIN 감독·입력 진단 게시
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V204_KO.md) · [출처·라벨·입력 대응과 한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_intervention_query_alignment_20261025_v204/PORTABLE_REPORT_KO.md)

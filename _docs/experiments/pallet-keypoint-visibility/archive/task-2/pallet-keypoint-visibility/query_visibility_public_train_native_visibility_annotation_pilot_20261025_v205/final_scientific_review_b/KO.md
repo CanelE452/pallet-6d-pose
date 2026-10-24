@@ -1,0 +1,1 @@
+V205 저장 관찰48행·원 q/L/native/U8·독립 scalar 결합·CSV/JSON/MD/HTML 표를 검산했다. PASS. 원상태 집계와 엄격 D/E 약합의 후보 집계는 별개이며 SELF/OFF/위치문제/UNKNOWN을 보존한다. 실제이미지·GT·평가·모델을 읽거나 관찰을 재판정하지 않았다. 관찰 합의는 source 약라벨 후보일 뿐 gold/성능/fit admission이 아니다.
