@@ -1,3 +1,9 @@
+## 2026-10-24 초기 키포인트 crop의 보임·외부가림 실험
+
+[전체 방법·결과·실패·검산·시각화](_docs/experiments/pallet-keypoint-visibility/README.md) · [전체 실험 목차](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_KO.md)
+
+허용된 V63–V186 기록과 초기 v60/v61/v62 관련 자료를 공개합니다. 최신 실제 비교는 보임 회복과 외부가림 손상이 함께 나타나 새 모델을 채택하지 않았습니다. 최신 공개 source 등록 진단도 모델 성공 결과와 구분합니다. 전체 목표는 미해결이며, 완료한 후속 실험도 같은 위치에 계속 게시합니다.
+
 # B·I 조건부 국소 관측 실험 — 완료
 
 [전체 보고서와192장 갤러리](_docs/experiments/pallet_bi_conditioned_observation_v1/README.md)

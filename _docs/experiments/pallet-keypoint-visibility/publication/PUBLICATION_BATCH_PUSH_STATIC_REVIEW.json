@@ -1,0 +1,41 @@
+{
+  "completed": true,
+  "review_type": "static_only",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/push_publication_batches.py",
+    "sha256": "6bf57d739dacfdcbc180e7e609ad201e18c7adafcf6bcbcd7eb2107d9f426c3f"
+  },
+  "git_commands_executed": 0,
+  "source_code_modified": false,
+  "blocking_findings": [
+    {
+      "id": "LOCAL_HEAD_NOT_BOUND_TO_EXPECTED_REMOTE_OR_PENDING_COMMIT",
+      "severity": "high",
+      "where": "before staging each new batch and before push/retry",
+      "finding": "The remote tip is checked, but local HEAD can include unrelated commits. Push uses HEAD rather than the sealed pending commit. Resume may therefore publish an unplanned local HEAD.",
+      "minimum_repair": "When pending is null assert HEAD == state.expected_remote before staging; before push assert HEAD == pending.commit; push pending.commit:refs/heads/main."
+    }
+  ],
+  "nonblocking_notes": [
+    {
+      "id": "CRASH_AFTER_REMOTE_PUSH_BEFORE_STATE_SAVE",
+      "finding": "A successful push followed by process failure before state save is safely rejected on resume because remote differs from expected_remote. It requires explicit reconciliation; current resume is not fully automatic/idempotent."
+    },
+    {
+      "id": "COMMIT_HOOKS",
+      "finding": "The index is verified before commit. For full isolation, disable repository hooks for commit or verify the resulting commit tree diff/blob OIDs after commit, because hooks may otherwise change the staged tree."
+    }
+  ],
+  "checks_supported": [
+    "Plan SHA binds resumed state",
+    "No force push",
+    "Remote expected tip equality",
+    "Per-batch <=512MiB declared physicalbytes",
+    "SHA256 bytes + Git blob SHA1/index comparison",
+    "Staged paths must exactly equal planned paths",
+    "No unrelated unstaged path is staged by broad discovery",
+    "Target prefix/readme allowlist",
+    "V112 lexical path rejection"
+  ],
+  "PASS": false
+}

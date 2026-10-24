@@ -1,0 +1,14 @@
+{
+  "completed": true,
+  "prepared_only": true,
+  "inputs": "Only the root-authorized staged publication manifest and its selected staged files; no source re-discovery, source absolute paths, remote lookups, or V112 access.",
+  "credential_output": "Only logical path, rule name, and match count. Never emit matched text, line content, snippets, credentials, or contextual exception text. Pattern matches are possible credentials, not a claim of active credential validation.",
+  "credential_rules": ["PRIVATE_KEY_HEADER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_KEY_ASSIGNMENT", "GITHUB_TOKEN", "OPENAI_API_KEY", "SLACK_TOKEN", "SLACK_WEBHOOK"],
+  "storage_size": "Every selected physical stored file must be strictly smaller than 100 MiB (104857600 bytes). Chunked logical texts may exceed that size after reconstruction; each published stored chunk must remain below it.",
+  "text_scope": "Selected textual logical paths are scanned after raw/gzip/parts decoding. Compressed parts are streamed, with overlapping scan windows to retain cross-boundary matches. Arrays, images, weights, and datasets are not decoded.",
+  "portable_markdown": "Only explicitly named portable paths or portable-prefix Markdown files are checked for relative links/images. Original archived text and plain absolute provenance strings are not portability errors. Code examples are excluded. External web/mail links and fragment-only references are not fetched. Local relative targets must exist inside the publication root; absolute local link targets in portable docs are reported as nonportable.",
+  "path_safety": "Check every selected logical/stored name for V112 before any resolve/stat/open. A forbidden path is reported and never touched. No directory scanning or traversal outside the staged publication root.",
+  "execution_order": ["freeze prospective rules", "prepare standalone QA code", "invented fixtures only", "root staging trigger", "one actual staged QA"],
+  "actual_staged_QA_executed": false,
+  "training_model_source_or_label_changes": false
+}

@@ -1,0 +1,13 @@
+{
+  "completed": true,
+  "prepared_only": true,
+  "scope": "Independent standard-library byte verifier/restorer for the final staged publication manifest (JSON entries object or canonical JSONL record stream). Never access source_absolute or original source files; never decode artifact code/JSON/images/arrays. Only manifest metadata is parsed; gzip is decompressed as bytes. A physical gzip descriptor is separately checked as opaque bytes against its stored SHA/size when declared.",
+  "raw": "For every PUBLISHED_RAW record, published_sha256 must equal source_sha256. Stream stored bytes and compare original SHA256 and size_bytes.",
+  "gzip": "For each PUBLISHED_GZIP_CHUNKS record, stream all ordered gzip parts, checking each stored SHA256/stored size and each decoded size. Hash their concatenated decoded bytes and compare both source_sha256/content_sha256 and size_bytes/content_size_bytes. No logical-file truncation or replacement.",
+  "paths": "Only manifest-relative publication paths, safe components, V112 name precheck before any open/stat. Use POSIX directory file descriptors and O_NOFOLLOW for every ancestor and file; symlink traversal is rejected.",
+  "CLI": "Default action is verification only (all records when no logical path is supplied). --verify-all explicitly verifies all published originals. --logical PATH verifies one logical artifact. --logical PATH --output NEW_PATH restores only that artifact; existing output is never overwritten.",
+  "restoration": "Write an exclusive new partial file under an existing safely opened output directory, verify full original SHA and size, then hard-link to the requested new name without overwrite. On failure retain the partial evidence and report failure; do not replace an existing file.",
+  "execution_order": ["freeze these rules", "independent code and invented fixtures", "root final staging trigger", "actual staged roundtrip verification"],
+  "actual_staged_package_reads": 0,
+  "models_datasets_training_or_label_changes": false
+}

@@ -1,0 +1,17 @@
+# 데이터·코드 출처
+
+프로젝트의 실험 코드·보고서·표·crop/overlay 파생 그림과 제3자 원본 데이터·모델을 구분합니다. 그림의 crop·resize·붙여넣기·색상 overlay 등 변경은 각 실험의 원 provenance/코드에 기록되어 있습니다. 이 문서는 전체 원 데이터나 사전학습 weights를 새로 배포했다는 뜻이 아닙니다.
+
+| 구성 | 공식 출처·저자 | 확인된 license 표기와 이 프로젝트에서의 역할 |
+|---|---|---|
+| MR6D | Anas Gouda 외, *MR6D: Benchmarking 6D Pose Estimation for Mobile Robots* (2025), [논문](https://arxiv.org/html/2508.13775), [공식 release](https://huggingface.co/datasets/anas-gouda/mr6d) | 공식 release 카드 `cc-by-4.0`. 공개 팔레트 target RGB-D/pose/mesh 출처이며 YCB-V가 아니다. 프로젝트 내부 SOURCE_DEVELOPMENT split과 원 upstream `val` 경로를 함께 보존한다. |
+| YCB-V/BOP | Yu Xiang 외, *PoseCNN* (RSS 2018), [BOP YCB-V 설명](https://bop.felk.cvut.cz/datasets/#YCB-V), [공식 BOP release](https://huggingface.co/datasets/bop-benchmark/ycbv) | 공식 BOP 페이지·카드의 표기는 `MIT`. CF의 59 train_real donor 출처와 MR6D 배경을 구분한다. YCB object를 팔레트 native8 정답으로 재명명하지 않는다. |
+| KU Leuven Pallox | Yanming Wu·Eric Demeester, *Replication Data for: 6D Pose Estimation of Pallet Bins for Autonomous Logistics Using a Synthetically Trained Object Detector and FoundationPose*, [공식 DOI](https://doi.org/10.48804/DJLDFS) | 기존 저장 공식 Dataverse metadata의 `latestVersion.license`는 `CC-BY-4.0`. Pallox pallet **bin** 자료이며 평판 팔레트 MR6D/YCB-V와 별개다. 온라인 DOI/API는 이번 도구에서 접근되지 않았고 아래 보존 metadata에 근거한다. |
+| SAM1 | Alexander Kirillov 외, *Segment Anything* (2023), [공식 저장소](https://github.com/facebookresearch/segment-anything), [README license](https://github.com/facebookresearch/segment-anything#license), [LICENSE](https://github.com/facebookresearch/segment-anything/blob/main/LICENSE) | 코드·모델 `Apache-2.0`. V180 이후 official SAM1 ViT-B frozen runtime과 exact commit/checkpoint provenance를 보존한다. SAM 학습 데이터 SA-1B의 별도 dataset license와 혼합하지 않는다. |
+| SAM2 계열 | [공식 SAM2 저장소](https://github.com/facebookresearch/sam2), [LICENSE](https://github.com/facebookresearch/sam2/blob/main/LICENSE) | 공식 코드 LICENSE는 `Apache-2.0`. 과거 SAM2/2.1 시도는 해당 버전 원 protocol을 따른다. SAM1 실행 결과와 같은 모델로 묶지 않는다. |
+| DINOv2 | Maxime Oquab 외, *DINOv2* (2023), [공식 저장소/모델 설명](https://github.com/facebookresearch/dinov2), [LICENSE](https://github.com/facebookresearch/dinov2/blob/main/LICENSE) | 표준 DINOv2 code/backbone weights는 공식 README의 `Apache-2.0`. 새 repo의 XRay/Cell-DINO 등 별도 license 모델까지 일괄 적용하지 않는다. 기존 frozen feature operator의 exact provenance를 유지한다. |
+| BOP toolkit | Tomas Hodan 외, [공식 저장소](https://github.com/thodan/bop_toolkit), [LICENSE](https://github.com/thodan/bop_toolkit/blob/master/LICENSE), [dataset 형식](https://github.com/thodan/bop_toolkit/blob/master/docs/bop_datasets_format.md) | toolkit code는 `MIT`(copyright2019 Tomas Hodan). Dataset별 license와 별개다. 원 저작권·license/NOTICE 포인터와 파생 변경 표시를 유지한다. |
+
+Pallox license의 저장 공식 근거: [OFFICIAL_DATAVERSE_DATASET_METADATA.json](archive/task-2/pallet-keypoint-visibility/query_visibility_public_source_target_definition_audit_20261024_v179/OFFICIAL_DATAVERSE_DATASET_METADATA.json). 자료형·출처 구분은 [V185 문서 검토](archive/task-2/pallet-keypoint-visibility/query_visibility_public_part_supervision_readiness_20261024_v185/public_semantics_review_a/REVIEW.json)와 [V179 annotation contract](archive/task-2/pallet-keypoint-visibility/query_visibility_public_source_target_definition_audit_20261024_v179/source_annotation_contract_review_b/REVIEW.json)를 함께 따른다.
+
+공식 웹 표기는 2026-10-24에 확인했습니다. 현재 upstream license URL과 실험 당시 pinned commit/배포본의 license 파일은 구분해 남기며, 제3자 코드가 archive에 복사된 경우 원 license·저작권/NOTICE 파일도 함께 보존합니다. 모델 weights와 원 image bank의 별도 대용량 배포 여부는 최종 파일 manifest로 확인합니다. 외부 인물·기관이 이 실험 결과를 검증하거나 보증했다는 뜻은 아닙니다.
