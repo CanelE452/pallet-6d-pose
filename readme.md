@@ -1,3 +1,11 @@
+# V188 direct-end source controls update
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V188_KO.md) · [V188 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_direct_end_local_counterfactual_20261024_v188/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 source 진단이며 모델 채택이나 전체 가림 목표 해결을 뜻하지 않습니다.
+
+---
+
 # V187 source correspondence update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V187_KO.md) · [V187 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_selected_part_correspondence_20261024_v187/PORTABLE_REPORT_KO.md)
