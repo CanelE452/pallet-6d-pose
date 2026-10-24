@@ -1,3 +1,11 @@
+# V204 공개 SOURCE TRAIN 감독·입력 진단 게시
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V204_KO.md) · [출처·라벨·입력 대응과 한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_train_intervention_query_alignment_20261025_v204/PORTABLE_REPORT_KO.md)
+
+공개 TRAIN 데이터 계보·감독 권한·입력 편집의 저장 증거를 보존한다. 새 학습·모델 선택·native gold·전체 해결을 주장하지 않는다.
+
+---
+
 # V203 spatial q8 고정 실사 비교 게시
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V203_KO.md) · [실사 비교·한계](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_heads_frozen_real_benchmark_20261025_v203/PORTABLE_REPORT_KO.md)
