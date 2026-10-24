@@ -1,0 +1,38 @@
+# V190 source 직접 끝 표적 학습 완료
+
+RAW C54와 RAW+동결 SAM C55를 같은 초기화와 같은 표본 순서로 각각 8,000회 학습했습니다. 두 최종 가중치를 먼저 동결한 뒤 source 저장 출력을 만들었고 독립 감사가 통과했습니다.
+
+아래 수치는 학습에 사용한 SOURCE TRAIN 306개 직접 표적의 적합 결과입니다. 실사 전이·독립 검증·사용자 실사 성능의 개선 증거가 아닙니다. 2,792행 중 표적 UNKNOWN 2,486행과 입력 U 60행은 별도 분모로 유지했습니다. D 204/E 102는 합성 finite-end 구성 증거와 실사 assistant weak 의미 관찰을 포함하며 물리 native 정답으로 승격하지 않습니다.
+
+| 모델 | 학습 표적 | 정답 분모 | 맞음 | Precision | Recall | 보류 U |
+| --- | --- | --- | --- | --- | --- | --- |
+| C54_RAW96_DIRECT_END | 보이는 끝 D | 204 | 203 | 100.00% | 99.51% | 0 |
+| C54_RAW96_DIRECT_END | 외부 차단 끝 E | 102 | 102 | 99.03% | 100.00% | 0 |
+| C55_RAW96_PLUS_FROZEN_SAM_DIRECT_END | 보이는 끝 D | 204 | 204 | 100.00% | 100.00% | 0 |
+| C55_RAW96_PLUS_FROZEN_SAM_DIRECT_END | 외부 차단 끝 E | 102 | 102 | 100.00% | 100.00% | 0 |
+
+기존 visible/foreign 두 support 손실과 owner 손실은 그대로 유지하고, 별도 direct-end logit 65개 파라미터 및 balanced 16D+16E 손실을 가중치 1로 더했습니다. 중심 owner FOREIGN, 넓은 support, native 가시성, 좌표 품질을 직접 끝 표적으로 치환하지 않았습니다.
+
+전체 16,000 step 로그를 빠짐없이 요약했습니다. 손실 크기나 감소는 실제 장면 일반화의 증거가 아닙니다.
+
+| 모델 | 로그 항목 | 전체 step 수 | 첫 값 | 마지막 값 | 전체 평균 |
+| --- | --- | --- | --- | --- | --- |
+| C54_RAW96_DIRECT_END | old_five_mean | 8000 | 0.946152 | 0.03716 | 0.0690952 |
+| C54_RAW96_DIRECT_END | direct_loss | 8000 | 0.693147 | 1.56742e-05 | 0.0619289 |
+| C54_RAW96_DIRECT_END | total_loss | 8000 | 1.6393 | 0.0371756 | 0.131024 |
+| C55_RAW96_PLUS_FROZEN_SAM_DIRECT_END | old_five_mean | 8000 | 0.934645 | 0.0255603 | 0.0677181 |
+| C55_RAW96_PLUS_FROZEN_SAM_DIRECT_END | direct_loss | 8000 | 0.693147 | 7.25046e-05 | 0.0675772 |
+| C55_RAW96_PLUS_FROZEN_SAM_DIRECT_END | total_loss | 8000 | 1.62779 | 0.0256328 | 0.135295 |
+
+기존 합성 증강 65,536행·공개 TRAIN 1,480행·CF 3,816행과 source 직접 통제 2,792행을 모두 보존했습니다. 공개/CF의 기존 owner 정답은 owner 보조 손실 전용이며 새 direct-end 정답으로 바꾸지 않았습니다.
+
+이 단계는 source 학습·기록의 완료입니다. 실사 평가와 비교는 별도 단계이며 이 보고서에 포함하지 않습니다. 모델 채택은 없고 전체 가림 목표는 미해결입니다.
+
+- [원본 source 통제·실패·UNKNOWN 기록](../query_visibility_sampled_domain_direct_end_20261024_v189/PORTABLE_REPORT_KO.md)
+- [합성 source 전체 gallery](../query_visibility_sampled_domain_direct_end_20261024_v189/synthetic_end_review_visuals_b/PORTABLE_GALLERY_KO.md)
+- [실사 weak source gallery](../query_visibility_sampled_domain_direct_end_20261024_v189/independent_actual_real_review_a/actual_saved_real_review_v1/PORTABLE_GALLERY_KO.md)
+- [학습 완료 원기록](runs/C54_C55_DIRECT_END_SOURCE_FIXED8000/COMPLETE.json)
+- [독립 학습 감사](independent_source_fit_review_b/actual_review_v1/REVIEW.json)
+- [TRAIN apparent 원수치](independent_source_fit_review_b/actual_review_v1/SOURCE_TRAIN_APPARENT_METRICS.json)
+
+[전체 수치·authority·native strata](ROOT_RESULTS_KO.json)
