@@ -1,0 +1,133 @@
+--- frozenV199
++++ V200
+@@ -1,4 +1,4 @@
+-"""Root-entry-only V199 append publisher. No Git commands are executed here.
++"""Root-entry-only V200 append publisher. No Git commands are executed here.
+ Build: phase-only sealed inventory -> existing copier -> immutable delta/index.
+ Finalize: independent reviews -> exact physical delta-only push plan.
+ Preparation uses invented metadata/bytes only; no phase enumeration or hashes.
+@@ -9,12 +9,12 @@
+ 
+ H=Path(__file__).absolute().parent;V=pure.PHASE;P=pure.P
+ REPO_PREFIX=pure.PREFIX
+-DELTA='publication/deltas/V199_20261024_v1'
+-NEW_INDEX='EXPERIMENT_INDEX_THROUGH_V199_KO.md'
+-NEW_CHAIN='MANIFEST_CHAIN_AFTER_V199.json'
+-PARENT_DELTA='publication/deltas/V198_20261024_v1/DELTA_MANIFEST.json'
+-PARENT_CHAIN='MANIFEST_CHAIN_AFTER_V198.json'
+-PARENT_INDEX='EXPERIMENT_INDEX_THROUGH_V198_KO.md'
++DELTA='publication/deltas/V200_20261024_v1'
++NEW_INDEX='EXPERIMENT_INDEX_THROUGH_V200_KO.md'
++NEW_CHAIN='MANIFEST_CHAIN_AFTER_V200.json'
++PARENT_DELTA='publication/deltas/V199_20261024_v1/DELTA_MANIFEST.json'
++PARENT_CHAIN='MANIFEST_CHAIN_AFTER_V199.json'
++PARENT_INDEX='EXPERIMENT_INDEX_THROUGH_V199_KO.md'
+ ARCHIVE_PHASE='archive/task-2/pallet-keypoint-visibility/'+V.name+'/'
+ PACKAGER=P/'publication_preparation_c/package_publication_snapshot.py'
+ PACK_HELPER=P/'publication_preparation_c/refine_inventory_and_hash.py'
+@@ -64,7 +64,7 @@
+ def parent_publication(e,root):
+     """Read only explicitly bound parent metadata, never old archive bodies."""
+     require(e['base_manifest']['path']==str(root/'PUBLICATION_MANIFEST.json'),'Initial base exact path')
+-    requested=e['ancestor_publications'];require(len(requested)==12,'All12 V187..V198 ancestor metadata mandatory')
++    requested=e['ancestor_publications'];require(len(requested)==13,'All13 V187..V199 ancestor metadata mandatory')
+     records=[]
+     for record,(tag,phase) in zip(requested,pure.ANCESTOR_PHASES):
+         require(record['tag']==tag,'Ordered ancestor entry tags')
+@@ -93,7 +93,7 @@
+     e=json.loads(read_bytes(entry_path));require(e['approved_completed_phase_delta_build'] is True,'Root build entry')
+     require(e['code']==bind(__file__) and e['pure_helper']==bind(H/'prepare_completed_phase_delta.py') and e['protocol']['path']==str(BUILDER_PROTOCOL),'Exact frozen builder/helper/protocol')
+     p=checked_json(e['protocol']);require(p['code']==e['code'] and p['pure_helper']==e['pure_helper'],'Protocol code/helper closure')
+-    require(e['completed_phase_frozen'] is True and e['phase']==V.name,'Only frozen V199')
++    require(e['completed_phase_frozen'] is True and e['phase']==V.name,'Only frozen V200')
+     require(isinstance(e['expected_remote_main'],str) and len(e['expected_remote_main'])==40 and all(c in '0123456789abcdef' for c in e['expected_remote_main']),'Future actual root-verified parent main must be supplied before build')
+     checked_json(e['root_scope']);pure.require_completion_barriers(e['completion_reviews']);check_reviews(e['completion_reviews'])
+     require(e['copy_packager']['path']==str(PACKAGER) and e['copy_helper']['path']==str(PACK_HELPER),'Existing copier exact paths')
+@@ -115,7 +115,7 @@
+         relative=str(Path(r['source_relative_path']).relative_to(V.name));expected_action=pure.classify_file(relative,Path(relative).suffix.casefold(),r['size_bytes'],own,saved)
+         if relative in authority['declared_artifact_bindings']:require(r['source_sha256']==authority['declared_artifact_bindings'][relative]['sha256'],'Selected original artifact SHA matches finalfit/target seal')
+         require(r['action']==expected_action and expected_action in {'INCLUDE','SMALL_OWN_HEAD_REVIEW','SAVED_OUTPUT_REVIEW'},'Only exact text/visual or fit-declared owned artifacts')
+-    require(own|saved<={str(Path(r['source_relative_path']).relative_to(V.name))for r in selected},'All2owned+24source outputs and 0directtarget selected')
++    require(own|saved<={str(Path(r['source_relative_path']).relative_to(V.name))for r in selected},'All4 saved real predictions;0owned0targets selected')
+     pure.assert_new_paths(old_entries,[dict(r,status='EXCLUDED' if r['action']=='EXCLUDE' else 'PUBLISHED_RAW') for r in rows])
+     portable=ARCHIVE_PHASE+'PORTABLE_REPORT_KO.md'
+     require(portable in {r['published_relative'] for r in selected},'Root final relative portable report included before inventory')
+@@ -125,7 +125,7 @@
+     cp=admin/'ROOT_APPROVED_COPY_PLAN.json';write_new(cp,json_bytes(copy_plan))
+     # Import only the already-reviewed publication copier, never experiment/model code.
+     sys.path.insert(0,str(PACKAGER.parent))
+-    spec=importlib.util.spec_from_file_location('frozen_v199_publication_copier',PACKAGER);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
++    spec=importlib.util.spec_from_file_location('frozen_v200_publication_copier',PACKAGER);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+     module.run(cp)
+     entries=[json.loads(s) for s in read_bytes(root/copy_plan['output_manifest_relative']).splitlines()]
+     md=read_bytes(root/portable);require(b'/home/' not in md and b'file://' not in md,'Portable report local absolute link forbidden')
+@@ -136,30 +136,30 @@
+     tools=e.get('publisher_tool_bindings',[]);require(bool(tools),'Versioned publication helper code/protocol/checks must be preserved')
+     for tool in tools:
+         source=checked(tool);require(source.parent==H and source.suffix in {'.py','.json','.md'},'Only explicit frozen publisher preparation files')
+-        relative='tools/completed_phase_delta_v199/'+source.name
++        relative='tools/completed_phase_delta_v200/'+source.name
+         write_new(root/relative,read_bytes(source))
+         row=raw_record(root,relative,'versioned_publication_tool')
+-        row.update(source_root_id='PUBLICATION_ADMIN_CODE',source_absolute=str(source),source_relative_path='publication_root_preparation/V199_DELTA_PREPARATION_B/'+source.name)
++        row.update(source_root_id='PUBLICATION_ADMIN_CODE',source_absolute=str(source),source_relative_path='publication_root_preparation/V200_DELTA_PREPARATION_C/'+source.name)
+         entries.append(row)
+     links=('[이번 delta manifest]('+DELTA+'/DELTA_MANIFEST.json) · [manifest chain]('+NEW_CHAIN+')\n\n').encode()
+-    index=links+pure.versioned_index_bytes(old_index,'V199 matched native input source fit and weak heldout limits',portable)
++    index=links+pure.versioned_index_bytes(old_index,'V200 frozen native heads real comparison, no improvement/adoption',portable)
+     require(index.endswith(old_index),'Old index exact bytes suffix retained')
+     write_new(root/NEW_INDEX,index);extras.add(NEW_INDEX)
+     # Preserve prior global README before the permitted new global entry is written.
+-    prior_readme=DELTA+'/GLOBAL_README_BEFORE_V199.md';write_new(root/prior_readme,old_readme);extras.add(prior_readme)
++    prior_readme=DELTA+'/GLOBAL_README_BEFORE_V200.md';write_new(root/prior_readme,old_readme);extras.add(prior_readme)
+     for source,name in [(entry_path,'ROOT_ACTUAL_DELTA_BUILD_ENTRY.json'),(cp,'ROOT_APPROVED_COPY_PLAN.json')]:
+         rel=DELTA+'/'+name;write_new(root/rel,read_bytes(source));extras.add(rel)
+     entries.extend(raw_record(root,p) for p in sorted(extras))
+     pure.assert_new_paths(old_entries,entries)
+     manifest_relative=DELTA+'/DELTA_MANIFEST.json'
+-    manifest={'format':'immutable-completed-phase-delta-v1','phase':V.name,'previous_base_manifest':e['base_manifest'],'previous_delta_manifest':e['parent_delta_manifest'],'previous_chain':e['parent_chain'],'previous_index':e['base_index'],'ancestor_publications':e['ancestor_publications'],'immutable_closing_plans':e['immutable_closing_plans'],'historical_global_readme_exceptions':historical_readme_exceptions,'entries':entries,'source_phase_original_records':original_logical,'artifact_authority':authority,'scope':'Completed V199 source-only matched fresh RAW zero8/onehot8 heads116407 each,8000 each,with independent source integrity audit and fixed source TRAIN/HOLDOUT readout. SourceTRAIN327 perfect both; weak synthetic-only45 heldout D28/30 both and E5/15 vs4/15; no native-ID improvement established.6sourcebases,real-end holdout0,weaknotphysicalgold,notfreshblind. No new real result, arm/checkpoint/data/threshold selection, adoption or fullgoal success. New V200 private metric body was unread at source freeze; this does not deny historical evaluation exposure. Exact2new owned checkpoints and24saved source outputs copied opaquely; no input/target/third-party weights.','model_adopted':False,'full_goal_solved':False}
++    manifest={'format':'immutable-completed-phase-delta-v1','phase':V.name,'previous_base_manifest':e['base_manifest'],'previous_delta_manifest':e['parent_delta_manifest'],'previous_chain':e['parent_chain'],'previous_index':e['base_index'],'ancestor_publications':e['ancestor_publications'],'immutable_closing_plans':e['immutable_closing_plans'],'historical_global_readme_exceptions':historical_readme_exceptions,'entries':entries,'source_phase_original_records':original_logical,'artifact_authority':authority,'scope':'V200 frozen same-query real evaluation of both V199 native source arms vs old8 with saved-only numeric audit and same68 visualcases. Source-only SYN+permittedpublicreal training, current223/publicheld/COMMON/VAL evalonly, humanD/E vs weakcenterowner distinct. NewC58/C59 show no D/E improvement over priorC57 on exposed human1237, no model/threshold/data/architecture/armselection/adoption/causal/freshblind/goalcompletion claim. Native6/7 direct supervision0, SELF136vs21 and ref461manual376 preserved;root6+A6 actualtoolviews,68pixelparity not68semanticinspection. Exact4 new saved prediction NPZ opaque bytes;0ownedweights0targets; sourcefit belongs to V199.','model_adopted':False,'full_goal_solved':False}
+     write_new(root/manifest_relative,json_bytes(manifest));delta_binding=bind(root/manifest_relative)
+     chain={'format':'immutable-publication-manifest-chain-v1','base':{'path':'PUBLICATION_MANIFEST.json','sha256':base_hash},'deltas':previous_chain['deltas']+[{'path':manifest_relative,'sha256':delta_binding['sha256']}],'previous_chain':{'path':PARENT_CHAIN,'sha256':e['parent_chain']['sha256']},'index':{'path':NEW_INDEX,'sha256':sha(root/NEW_INDEX)},'immutable_closing_plans':e['immutable_closing_plans'],'historical_global_readme_exceptions':historical_readme_exceptions,'restore':'Use existing tools/restore_original_artifacts.py with the relevant base or delta manifest; original logical paths/gzip descriptors retained.','chain_receipt_note':'Chain itself and later independent QA are Git-plan-bound outside the manifest they verify.'}
+     write_new(root/NEW_CHAIN,json_bytes(chain))
+-    new_readme=('# V199 source-only native 조건부 대조 학습 기록\n\n[최신 실험 인덱스]('+REPO_PREFIX+NEW_INDEX+') · [V199 원문·방법·출력·한계]('+REPO_PREFIX+portable+')\n\n새 RAW 두팔은 각116407parameter·8000step으로 고정됐습니다. Source TRAIN327은 두팔 모두 맞혔지만, weak 합성-only HOLDOUT45는 D28/30씩·E5/15 대4/15이며 native-ID 개선을 입증하지 못했습니다.6base·real-end HOLDOUT0·weak authority·기존 노출된 설계 한계를 보존하며 물리 gold·freshblind·실사 개선·선택·채택·전체 목표 해결을 주장하지 않습니다. Source freeze의 신규 실사 결과 미열람은 V200 새 metric에 한정되며 과거 실사 평가 노출을 부정하지 않습니다. 정확2개 자체 checkpoint와24저장 출력은 바이트만 보존하고 input/target/외부모델은 제외합니다.\n\n---\n\n').encode()+old_readme
++    new_readme=('# V200 동결 native 조건 head 실사 비교\n\n[최신 실험 인덱스]('+REPO_PREFIX+NEW_INDEX+') · [V200 결과·코드·같은68 gallery]('+REPO_PREFIX+portable+')\n\n같은 원query 실사1237(D1147/E90)에서 새 native C58/C59는 이전 C57보다 D/E 정답 수가 모두 적었습니다. 두팔 모두 고정 평가했고 새 winner·threshold·학습자료 선택, 채택·실패원인 확정·freshblind 일반화·전체 목표 해결을 주장하지 않습니다. Source 학습은 이전 V199의 합성+허용공개실사이며 이번V200은 평가만 수행했습니다.4새 저장 예측은 바이트만 보존하고 weights·원input/SAM/feature/target cache는 제외합니다.\n\n---\n\n').encode()+old_readme
+     require(new_readme.endswith(old_readme),'Global README suffix byteexact')
+     require(sha(repo/'readme.md')==e['global_readme_before']['sha256'],'Global README drift before update')
+-    tmp=repo/'readme.V199_publication_pending.tmp';write_new(tmp,new_readme);os.replace(tmp,repo/'readme.md')
++    tmp=repo/'readme.V200_publication_pending.tmp';write_new(tmp,new_readme);os.replace(tmp,repo/'readme.md')
+     recheck_parent_bindings(e)
+     physical={}
+     for r in entries:
+@@ -191,13 +191,13 @@
+     files[REPO_PREFIX+rel]={'path':REPO_PREFIX+rel,'sha256':sha(root/rel),'size_bytes':len(read_bytes(root/rel))}
+     for r in files.values():require(sha(repo/r['path'])==r['sha256'],'Staged delta bytes drift')
+     batches=pure.bounded_batches(list(files.values()))
+-    plan={'authorized_main_push':True,'repository':str(repo),'remote':'https://github.com/CanelE452/pallet-6d-pose.git','branch':'main','initial_remote_main':build['expected_remote_main'],'manifest_sha256':e['delta_manifest']['sha256'],'batch_max_bytes':480*1024**2,'batches':[{'files':b,'message':'Publish V199 code-only native input feasibility and preserved limits (%d/%d)'%(i+1,len(batches))} for i,b in enumerate(batches)],'scope':'New immutable V199 delta only plus global README; no old manifest-covered path changes.'}
++    plan={'authorized_main_push':True,'repository':str(repo),'remote':'https://github.com/CanelE452/pallet-6d-pose.git','branch':'main','initial_remote_main':build['expected_remote_main'],'manifest_sha256':e['delta_manifest']['sha256'],'batch_max_bytes':480*1024**2,'batches':[{'files':b,'message':'Publish V200 code-only native input feasibility and preserved limits (%d/%d)'%(i+1,len(batches))} for i,b in enumerate(batches)],'scope':'New immutable V200 delta only plus global README; no old manifest-covered path changes.'}
+     out=Path(e['output_plan']);require(P/'publication_root_preparation' in out.parents,'Root admin sealed plan only');write_new(out,json_bytes(plan))
+     print(json.dumps({'completed':True,'push_plan':bind(out),'batches':len(batches),'Git_commands':0}),flush=True)
+ 
+ def prepare():
+     checks=[]
+-    old=b'old index\n';checks.append(('new_index_old_bytes_suffix',pure.versioned_index_bytes(old,'V199','archive/new/PORTABLE_REPORT_KO.md').endswith(old)))
++    old=b'old index\n';checks.append(('new_index_old_bytes_suffix',pure.versioned_index_bytes(old,'V200','archive/new/PORTABLE_REPORT_KO.md').endswith(old)))
+     oldreadme=b'unchanged prior global readme';checks.append(('global_readme_old_suffix',(b'new header\n'+oldreadme).endswith(oldreadme)))
+     checks.append(('delta_and_chain_no_self_hash_cycle',DELTA+'/DELTA_MANIFEST.json'!=NEW_CHAIN))
+     try:pure.assert_new_paths([dict(status='PUBLISHED_RAW',published_relative='EXPERIMENT_INDEX_KO.md',gzipchunks=None)],[dict(status='PUBLISHED_RAW',published_relative='EXPERIMENT_INDEX_KO.md',gzipchunks=None)]);ok=False
+@@ -207,12 +207,12 @@
+     pure.write(H/'GENERATED_BUILDER_CHECKS.json',check)
+     parent_paths={'base':'PUBLICATION_MANIFEST.json'}
+     for tag,_ in pure.ANCESTOR_PHASES:parent_paths.update({tag+'_delta':'publication/deltas/'+tag+'_20261024_v1/DELTA_MANIFEST.json',tag+'_chain':'MANIFEST_CHAIN_AFTER_'+tag+'.json',tag+'_index':'EXPERIMENT_INDEX_THROUGH_'+tag+'_KO.md'})
+-    protocol={'completed':True,'prepared_only':True,'code':bind(__file__),'pure_helper':bind(H/'prepare_completed_phase_delta.py'),'actual_modes':['Root --build-entry after frozen phase/inventory and full parentclosure; copy exact text/table/visual bytes, append new delta/index/chain, README prior-byte suffix only. No Git.','Root --push-plan-entry only after independent completed/PASS byte/link/credential review; rehash physical files, add QA outside manifest and seal strict480MiB plan. No Git.'],'root_code_preparation_scope':bind(H.parent/'ROOT_V199_PUBLICATION_CODE_PREPARATION_SCOPE_B.json'),'required_parent_paths':parent_paths,'ancestor_tags':[t for t,_ in pure.ANCESTOR_PHASES],'immutable_closing_tags':list(pure.CLOSING_TAGS),'source_scope':V.name,'own_head_whitelist':list(pure.ROOT_OWNED),'saved_array_whitelist':list(pure.ROOT_SAVED),'direct_target_whitelist':[],'gzip_text_threshold_bytes':2*1024**2,'threshold_authority':'Frozen V195v2 packaging policy; lossless storage only. No source/semantic/numeric change.','portable':'Exactly6 root-fixed pages: PORTABLE_REPORT,ROOT_REPORT,ROOT_READOUT,independent_final_source_report_review_a/KO.md,independent_code_review_b/KO.md,THROUGH_V199 index. ROOT_RESULTS JSON direct target;2MiB text threshold preserves small links; no logical gzip fallback.','historical_README_exception':'Only one BASE historical root README SHA/size-shaped metadata exception; all other closing paths protected, current README exactSHA and suffix retained.','immutable_policy':'BASE+12ancestor deltas/index/chains and13closing plans; logical/raw/chunk/descriptor/cycle paths collide-fail before writing. Old initial manifest never rewritten.','new_names':{'delta':DELTA+'/DELTA_MANIFEST.json','index':NEW_INDEX,'chain':NEW_CHAIN},'model_data_threshold_selection_or_scientific_changes':False,'actual_preparation_phase_or_repo_artifact_reads':0,'automatic_retry':False}
++    protocol=dict(completed=True,prepared_only=True,code=bind(__file__),pure_helper=bind(H/'prepare_completed_phase_delta.py'),root_code_preparation_scope=bind(H.parent/'ROOT_V200_PUBLICATION_CODE_PREPARATION_SCOPE_C.json'),ancestor_tags=[t for t,_ in pure.ANCESTOR_PHASES],immutable_closing_tags=list(pure.CLOSING_TAGS),source_scope=V.name,own_head_whitelist=[],saved_array_whitelist=list(pure.ROOT_SAVED),direct_target_whitelist=[],gzip_text_threshold_bytes=2*1024**2,portable_pages=['archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/PORTABLE_REPORT_KO.md', 'archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/ROOT_REPORT_KO.md', 'archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/ROOT_READOUT_KO.html', 'archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/fixed_native_real_visual_v1/PORTABLE_GALLERY_KO.md', 'archive/task-2/pallet-keypoint-visibility/query_visibility_native_heads_frozen_real_benchmark_20261024_v200/fixed_native_real_visual_v1/index.html', 'EXPERIMENT_INDEX_THROUGH_V200_KO.md'],immutable_policy='BASE+13ancestor deltas/chains/index and14closing plans immutable; BASE historical rootREADME exception only; current README exact prior bytes suffix; physical descriptors and chunks protected.',research_prose='V200 frozen same-query real evaluation of both V199 native source arms vs old8 with saved-only numeric audit and same68 visualcases. Source-only SYN+permittedpublicreal training, current223/publicheld/COMMON/VAL evalonly, humanD/E vs weakcenterowner distinct. NewC58/C59 show no D/E improvement over priorC57 on exposed human1237, no model/threshold/data/architecture/armselection/adoption/causal/freshblind/goalcompletion claim. Native6/7 direct supervision0, SELF136vs21 and ref461manual376 preserved;root6+A6 actualtoolviews,68pixelparity not68semanticinspection.',actual_before_root_entry=0,expected_remote_main=None,automatic_retry=False)
+     pure.write(BUILDER_PROTOCOL,protocol)
+     common={'code':protocol['code'],'pure_helper':protocol['pure_helper'],'protocol':bind(BUILDER_PROTOCOL)}
+-    template={'approved_completed_phase_delta_build':False,'completed_phase_frozen':False,**common,'phase':V.name,'root_scope':{'path':None,'sha256':None},'completion_reviews':[dict(role=role,binding={'path':None,'sha256':None},expected_fields=None)for role in ('phase_result','independent_report_QA','final_phase_freeze')],'repository':'/home/minjae/Documents/pallet-visibility-publication-20261024','base_manifest':{'path':None,'sha256':None},'parent_delta_manifest':{'path':None,'sha256':None},'parent_chain':{'path':None,'sha256':None},'base_index':{'path':None,'sha256':None},'ancestor_publications':[dict(tag=tag,delta_manifest={'path':None,'sha256':None},chain={'path':None,'sha256':None},index={'path':None,'sha256':None})for tag,_ in pure.ANCESTOR_PHASES],'immutable_closing_plans':[dict(tag=tag,binding={'path':None,'sha256':None})for tag in pure.CLOSING_TAGS],'global_readme_before':{'path':None,'sha256':None},'inventory_complete':{'path':None,'sha256':None},'candidate_manifest':{'path':None,'sha256':None},'copy_packager':{'path':str(PACKAGER),'sha256':None},'copy_helper':{'path':str(PACK_HELPER),'sha256':None},'expected_remote_main':None,'publisher_tool_bindings':[],'source_fit_complete':{'path':str(V/pure.FIT_RUN/'COMPLETE.json'),'sha256':None},'source_prediction_seal':{'path':str(V/pure.FIT_RUN/'COMPLETE.json'),'sha256':None},'all2_final_states_freeze':{'path':str(V/pure.FIT_RUN/'ALL2_FINAL8000_FROZEN_BEFORE_SOURCE_TRAIN_OR_HOLDOUT_OUTPUTS.json'),'sha256':None},'explicit_own_head_relative_paths':list(pure.ROOT_OWNED),'explicit_saved_output_relative_paths':list(pure.ROOT_SAVED),'explicit_direct_target_relative_paths':[],'direct_target_cache_complete':None,'admin_output':str(P/'publication_root_preparation/V199_DELTA_BUILD_v1')}
++    template={'approved_completed_phase_delta_build':False,'completed_phase_frozen':False,**common,'phase':V.name,'root_scope':{'path':None,'sha256':None},'completion_reviews':[dict(role=role,binding={'path':None,'sha256':None},expected_fields=None)for role in ('phase_result','independent_report_QA','final_phase_freeze')],'repository':'/home/minjae/Documents/pallet-visibility-publication-20261024','base_manifest':{'path':None,'sha256':None},'parent_delta_manifest':{'path':None,'sha256':None},'parent_chain':{'path':None,'sha256':None},'base_index':{'path':None,'sha256':None},'ancestor_publications':[dict(tag=tag,delta_manifest={'path':None,'sha256':None},chain={'path':None,'sha256':None},index={'path':None,'sha256':None})for tag,_ in pure.ANCESTOR_PHASES],'immutable_closing_plans':[dict(tag=tag,binding={'path':None,'sha256':None})for tag in pure.CLOSING_TAGS],'global_readme_before':{'path':None,'sha256':None},'inventory_complete':{'path':None,'sha256':None},'candidate_manifest':{'path':None,'sha256':None},'copy_packager':{'path':str(PACKAGER),'sha256':None},'copy_helper':{'path':str(PACK_HELPER),'sha256':None},'expected_remote_main':None,'publisher_tool_bindings':[],**pure.authority_template(),'admin_output':str(P/'publication_root_preparation/V200_DELTA_BUILD_v1')}
+     pure.write(H/'ROOT_DELTA_BUILD_ENTRY_TEMPLATE_APPROVED_FALSE.json',template)
+-    pure.write(H/'ROOT_DELTA_PUSH_PLAN_ENTRY_TEMPLATE_APPROVED_FALSE.json',{'approved_verified_delta_push_plan':False,**common,'build_complete':{'path':None,'sha256':None},'delta_manifest':{'path':None,'sha256':None},'independent_delta_reviews':[],'output_plan':str(P/'publication_root_preparation/ROOT_V199_DELTA_PUSH_PLAN.json')})
++    pure.write(H/'ROOT_DELTA_PUSH_PLAN_ENTRY_TEMPLATE_APPROVED_FALSE.json',{'approved_verified_delta_push_plan':False,**common,'build_complete':{'path':None,'sha256':None},'delta_manifest':{'path':None,'sha256':None},'independent_delta_reviews':[],'output_plan':str(P/'publication_root_preparation/ROOT_V200_DELTA_PUSH_PLAN.json')})
+     print(json.dumps(check),flush=True)
+ 
+ if __name__=='__main__':
