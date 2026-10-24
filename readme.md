@@ -1,3 +1,11 @@
+# V193 source-only finite-end weak control-data records update
+
+[최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V193_KO.md) · [V193 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_end_pairs_opposite_sham_20261024_v193/PORTABLE_REPORT_KO.md)
+
+이 추가 기록은 공개 source의 고정 finite-end 약한 의미 관찰과 반대쪽 SHAM 픽셀 대조 자료·UNKNOWN·실패·검산입니다. 새 모델 학습·실사 평가·성능 개선·채택이나 전체 목표 해결을 뜻하지 않습니다. 원본 배열은 제외하고 검토용 그림과 원래 근거 경로를 보존합니다.
+
+---
+
 # V192 source-only metadata diagnosis records update
 
 [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V192_KO.md) · [V192 원문·그림·표·실패기록](_docs/experiments/pallet-keypoint-visibility/archive/task-2/pallet-keypoint-visibility/query_visibility_source_direct_end_coverage_audit_20261024_v192/PORTABLE_REPORT_KO.md)

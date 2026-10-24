@@ -1,0 +1,45 @@
+{
+  "approved_display_only_repair": true,
+  "issue": "Actual tool view found row-bottom captions overlapping adjacent columns and right-edge clipping.",
+  "old_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_end_pairs_opposite_sham_20261024_v193/source_visual_readout_preparation_c/render_saved_source_end_pairs.py",
+    "sha256": "8705328ffef34cfbb3231d3cdb2725d122fa5eef914e40c4876fa959a6372b2b"
+  },
+  "new_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_end_pairs_opposite_sham_20261024_v193/source_visual_readout_caption_fit_preparation_root/render_saved_source_end_pairs.py",
+    "sha256": "b53eceb968b5cfa708d5eabc241f01f861a5071e3f4e98731008a8e7cde95057"
+  },
+  "changes": [
+    "Shorten one display caption to fit378px column",
+    "New exclusive output directory v2_caption_fit"
+  ],
+  "scientific_arrays_labels_metadata_counts_source_and_old_v1_outputs_unchanged": true,
+  "code_diff": [
+    "--- \n",
+    "+++ \n",
+    "@@ -9,7 +9,7 @@\n",
+    " PRODUCER=V/'real_end_opposite_sham_preparation_c/build_real_end_opposite_sham_pairs.py'",
+    " PRODUCER_PROTOCOL=PRODUCER.with_name('PROTOCOL_BEFORE_REAL_END_PAIR_SOURCE_PIXELS.json')",
+    " PROTOCOL=H/'PROTOCOL_BEFORE_SAVED_SOURCE_PAIRS_OR_PIXELS.json'",
+    "-OUT=V/'source_pair_visual_readout_v1'",
+    "+OUT=V/'source_pair_visual_readout_v2_caption_fit'",
+    " VARIANTS=('BEFORE','COVER','ADJACENT_SHAM')",
+    " KEYS=('rgb96','valid96','query_xy','L','native_slot','query_id','original_global_index','query_available','native_visibility_target','point_quality_target','owner_target')",
+    " FONT='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'",
+    "@@ -97,7 +97,7 @@\n",
+    "             marker.line((c-5,c,c+5,c),fill='cyan',width=1);marker.line((c,c-5,c,c+5),fill='cyan',width=1)",
+    "             canvas.paste(display,(x,y+47))",
+    "             canvas.paste(Image.fromarray(a['rgb96'][k,32:64,32:64]).resize((128,128),Image.Resampling.NEAREST),(x+176,y+61))",
+    "-            d.text((x,y+211),'marked RGB96 / unmarked central32; original inputU='+str(not bool(a['query_available'][k])),font=font,fill='black')",
+    "+            d.text((x,y+211),'RGB96(q cross) | central32 | inputU='+str(not bool(a['query_available'][k])),font=font,fill='black')",
+    "     y=130+len(natives)*230",
+    "     d.text((12,y),'Clean/source RGB bytes are preserved separately. Display enlargement is nearest-neighbor; no new crop sampling.',font=font,fill='black')",
+    "     d.text((12,y+23),'Missing RGB is text only. InputU, weak UNKNOWN, geometry failure and closed pixel proof are distinct.',font=font,fill='black')"
+  ],
+  "preparation_guard_failure_before_code_write": {
+    "chunk": "0c2129",
+    "exit_code": 1,
+    "cause": "Strict diff length <20 failed at exactly20 context lines; replaced with exact two-string reversible equality guard. No production invocation."
+  },
+  "actual_run_requires_separate_entry": true
+}
