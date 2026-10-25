@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><title>공개 RGB-D point 교사 후보 V259</title>
+<style>body{font-family:system-ui,sans-serif;max-width:1200px;margin:30px auto;padding:0 16px;line-height:1.65}img{max-width:100%;height:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}.note{padding:14px;background:#fff4e8;border-left:4px solid #b56b17}a{color:#145bb0}</style>
+<h1>공개 실사에서 point 보임·외부 가림 교사 후보를 만들었습니다</h1>
+<p class="note">새 모델 학습·추론 0회. 독립 영상 2장으로 만든 보조 라벨이며 현재 pallet native gold·모델 정확도는 아직 입증하지 않았습니다. 현재 평가 데이터·PnP 변경 없이 진행했습니다.</p>
+<p>보이는 목재의 관측−렌더 깊이 중앙값은 약 −12mm, 종이상자가 가리는 영역은 약 −857mm였습니다. T와 inverse(T)를 보존하고 pose 보정은 하지 않았습니다. 깊이·SAM·안정된 11×11 창을 함께 확인한 부분만 D/E 후보로 남겼습니다.</p>
+<table><tr><th>공개 frame</th><th>고정 격자</th><th>D 후보</th><th>E 후보</th><th>U·제외</th></tr><tr><td>0000</td><td>4800</td><td>1434</td><td>0</td><td>3366</td></tr><tr><td>0011</td><td>4800</td><td>352</td><td>57</td><td>4391</td></tr></table>
+<p>E 57개는 교사점 수입니다. U는 물체 밖·깊이 결측·경계 등을 포함하며 모델의 보류율로 세지 않습니다. 모든 r 9600개와 emulated q 86400개를 별도 checker로 검산했습니다.</p>
+<img src="figures/PUBLIC_AUX_LABELS_OVERVIEW_V2.png" alt="두 공개 RGB-D 영상의 보수적인 D/E 교사점과 깊이 잔차">
+<p>cyan은 emulated q, ring은 참조 r입니다. 아래 96 source-pixel 창은 교사 후보의 관찰이며 classifier 입력이나 예측 결과로 주장하지 않습니다. 안전한 내부점의 결과로 경계·가상 코너 문제까지 해결됐다고 판단하지 않습니다.</p>
+<img src="figures/PUBLIC_R_Q_CROP_DIAGNOSTIC_V2.png" alt="고정된 세 점의 q 이동 표시 창">
+<p><a href="README_KO.md">정의·수치·한계·다음 단계</a> · <a href="artifacts/V259_PUBLIC_PILOT_QA_A/actual_review_v1/REVIEW.json">독립 원장 QA</a> · <a href="artifacts/V258_PUBLIC_VIRTUAL_QUERY_DIAGNOSIS_C/observations_v1/PORTABLE_GALLERY_KO.html">공개 가상주소 8개 전체 crop</a> · <a href="artifacts/V260_PUBLIC_POINT_FEATURE_TRANSPORT_B/TRANSPORT_COMPATIBILITY_REVIEW.json">현재 1186 입력 CODE 감사</a></p>
+<p>자료: Yanming Wu·Eric Demeester, <a href="https://doi.org/10.48804/DJLDFS">KU Leuven Pallox</a>, CC BY4.0. 전체 source·원장·수정 전후·코드 hash는 package MANIFEST에 있습니다.</p>
+</html>

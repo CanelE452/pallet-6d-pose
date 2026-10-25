@@ -1,0 +1,52 @@
+{
+  "API": {
+    "compile_surface_labels": "(observed_m, rendered_m, sam_bool, policy)->dict",
+    "depth_arrays": "Same nonempty HxW floating32/64 meters; invalid/nonpositive/nonfinite values yield U support masks. No conversion from encoded uint16, thresholding, bias correction or pose optimization.",
+    "emulated_query_records": "(compiled,sam_bool,policy)->list gridx9 fixedoffsets; r-derived fields separate from q_xy/q_inside_image/q_sam_target_present. q_pixel_DE_goldNone/r_label_copied_as_query_labelFalse. q_is_public_emulationTrue/q_is_actual_initializerFalse. q_local_L96. record_id is frame-local.",
+    "reference_grid_records": "(compiled,policy)->list JSON r_xy/r_derived_label/state/depth_eligible/known/rawresidual/exclusion_reasons/native_slotNone/SELF_UNKNOWN",
+    "reference_grid_xy": "(shape_hw,policy)->int64[N,2] xy, y-major stride8 offset4, including edgeU",
+    "return": {
+      "counts": "JSON-ready shape/label/eligibility/reason counts and semantic flags",
+      "eligibility": "bool[H,W] dict full_window_in_image/observed_positive_finite/render_positive_finite/observed_stable/render_stable/sam_all_target/sam_all_background/depth_eligible/D/E/known",
+      "labels": "int8[H,W] D0/E1/U-1",
+      "raw_center_residual_m": "float64[H,W], direct supplied observed-rendered; nonfinite values preserved in map",
+      "reasons": "overlapping bool[H,W] dict image_edge/observed_invalid/render_invalid/observed_discontinuity/render_discontinuity/sam_window_mixed/D_residual_not_close/E_residual_not_closer; union exactlyU"
+    }
+  },
+  "PASS": true,
+  "actual_execution": "Root separate exact frame/array trueentry only; no actual data loaded by this preparation.",
+  "actual_payload_or_model_execution": false,
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V259_PUBLIC_SURFACE_LABEL_COMPILER_B/surface_label_compiler.py",
+    "sha256": "20e226a7fe8c2b2515c3c5be05d0b4ef785c6de4040625ce5c0b11cd3316746a",
+    "size_bytes": 11673
+  },
+  "completed": true,
+  "exact_typed_policy_object_validation": true,
+  "frozen": true,
+  "invented_checks": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V259_PUBLIC_SURFACE_LABEL_COMPILER_B/INVENTED_CHECKS.json",
+    "sha256": "1371ea1df6e6fd368a48634cf9d9f665249b7e1f115fa0401676d496995e02b4",
+    "size_bytes": 1965
+  },
+  "limitations": [
+    "Conditional front-rendered surfaceAUX only, not eight-slot native gold or q-pixel gold.",
+    "SAM/background plus depth policy does not infer SELF.",
+    "U is exclusion/unknown ground-truth support, not a correct model abstention.",
+    "No count-dependent threshold/view/data/model selection or training/adoption admitted."
+  ],
+  "new_training_admission": false,
+  "one_EOF_newline": true,
+  "pure_NumPy_no_IO_or_model_or_pose": true,
+  "root_policy": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V259_ROOT_PUBLIC_OCCLUSION_PILOT/PROSPECTIVE_SURFACE_LABEL_POLICY.json",
+    "sha256": "793d580f602768c02ddebedf174f6d84d6b1d0dcbc04e71e33cb6afedf72f3e8",
+    "size_bytes": 2253
+  },
+  "test_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V259_PUBLIC_SURFACE_LABEL_COMPILER_B/test_surface_label_compiler.py",
+    "sha256": "9f5fd5cb399e85de5e546d217cfddb20191f90fd23831455a7ec3d1e3e8cea1c",
+    "size_bytes": 5949
+  },
+  "tests_command": "python -B /home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V259_PUBLIC_SURFACE_LABEL_COMPILER_B/test_surface_label_compiler.py"
+}
