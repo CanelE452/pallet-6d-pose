@@ -1,3 +1,5 @@
+[V225: 원 query crop15장·장면분리 점검; 독립 분리 후보 FIT의 가림 weak8개, 새학습/성능개선 결과 아님](_docs/experiments/pallet-keypoint-visibility/V225_DATA_AND_CROP_REVIEW/PORTABLE_REPORT_KO.md)
+
 [V224: 새 학습 없이 원 초기 query 약라벨 연결·현재 loss 경로 점검; 성능 개선 결과 아님](_docs/experiments/pallet-keypoint-visibility/V224_DATA_TARGET_READINESS/PORTABLE_REPORT_KO.md)
 
 V223 점·부위 출력 분리 실험/표/crop/QA를 추가했습니다. SOURCE 공동개선 미확인, 현재223 새추론·모델채택0입니다. [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V223_KO.md).
