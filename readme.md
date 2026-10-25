@@ -1,3 +1,5 @@
+[V224: 새 학습 없이 원 초기 query 약라벨 연결·현재 loss 경로 점검; 성능 개선 결과 아님](_docs/experiments/pallet-keypoint-visibility/V224_DATA_TARGET_READINESS/PORTABLE_REPORT_KO.md)
+
 V223 점·부위 출력 분리 실험/표/crop/QA를 추가했습니다. SOURCE 공동개선 미확인, 현재223 새추론·모델채택0입니다. [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V223_KO.md).
 
 V222 공개 SOURCE 대조학습·실패 결과·crop·코드/QA를 추가했습니다. SOURCE 일반화 개선 미확인, 현재223 새추론·모델채택0입니다. [최신 실험 인덱스](_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V222_KO.md).

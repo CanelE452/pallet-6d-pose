@@ -1,3 +1,5 @@
+[V224: 새 학습 없이 원 초기 query 약라벨 연결·현재 loss 경로 점검; 성능 개선 결과 아님](V224_DATA_TARGET_READINESS/PORTABLE_REPORT_KO.md)
+
 # V223 — 점·부위 출력 분리: SOURCE 공동 개선 미확인
 
 같은 구조/초기값/데이터/1100update에서 strong 감독 출력 경로만 대조했다. CF DEV 정답17/27→17/27, 세 상태 완전정답2/9→1/9, natural DEV9/12동일이다. 입력6297행의 exact opposite-label group0을 확인했고 shared control은 이전C67SOURCElogit전부재현했다. GT-derived finite-part weak이며 실제nativegold/생산query전이/실사개선은 미입증이다. 현재223새추론·PnP·모델채택0, 최신실사V220유지. 공개보류metadata360행 eager-parse 예외는기록했고설계/학습사용0이며phase전체metadata접근0주장은하지않는다.
