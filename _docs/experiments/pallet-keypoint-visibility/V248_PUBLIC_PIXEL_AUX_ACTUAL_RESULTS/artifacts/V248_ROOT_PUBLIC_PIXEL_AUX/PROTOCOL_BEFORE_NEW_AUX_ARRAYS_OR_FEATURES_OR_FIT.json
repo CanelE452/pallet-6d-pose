@@ -1,0 +1,114 @@
+{
+  "schema": "V248_ROOT_PROSPECTIVE_MATCHED_SOURCE_PUBLIC_PIXEL_AUX_TRIAL_V1",
+  "created_at_UTC": "2026-10-25T08:07:22.901347+00:00",
+  "previous_goal_turn_classification": "progress",
+  "previous_evidence": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V248_PREVIOUS_PROGRESS_QA_C/REVIEW.json",
+    "sha256": "699a1c0777f383a3b9b868cee86df44ee8ef3033c1a3b55b7d15e788acc8a26c",
+    "size_bytes": 2887
+  },
+  "goal_status": "active_unsolved",
+  "fully_solved": false,
+  "scientific_question": "Does a separate public-real conditional-pixel AUX loss on a shared visual stem improve the original SYN intended-native and YCB associated-r SOURCE head, without changing native inputs or using evaluation data?",
+  "known_limit_from_previous_SOURCE": "SAM support/outside is not native D/E/SELF; public original q8 may address a different actual pallet than teacher BIN. Originalquery/nativepart labels cannot be invented from mask outside.",
+  "existing_CODE_readiness": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V248_EXISTING_TRAINER_READINESS_A/FINAL_READY.json",
+    "sha256": "452e3e4db2164df34a5a05ab048e9f223295517bde2694eb0970bf58e4e39304",
+    "size_bytes": 2851
+  },
+  "existing_sampler_readiness": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V248_PALLOX_AUX_SAMPLER_READINESS_B/FINAL_READY.json",
+    "sha256": "5a1af5826eff00b83fe2ad495fb664b5f099cb07606c56f75ca63834efa908bf",
+    "size_bytes": 1451
+  },
+  "AUX_role_split": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V248_ROOT_PUBLIC_PIXEL_AUX/AUX_PAIR_USAGE_FROZEN_BEFORE_ARRAYS.json",
+    "sha256": "6e8324f107a4b14903a531b591daac0bf9d4d10e2093b1d219f559a41eb45497",
+    "size_bytes": 5833
+  },
+  "sampler_fixed": {
+    "source": "exact prior TRAIN22 certificate whitelist only",
+    "views": [
+      "A",
+      "B"
+    ],
+    "seed": 17,
+    "budget_V_per_pair_view": 32,
+    "budget_E_per_pair_view": 32,
+    "sampling": "independent perpair/view/class SHA256-seeded PCG64, rastercandidate order, withoutreplacement, no shortfall refill/reselection",
+    "AUX_L_pixels": 64.0,
+    "V_selector": "canonical visible_positive exact",
+    "E_selector": "entire inframe5x5 canonical conditional E core",
+    "U_O_SELF": "never promoted or sampled as binary targets",
+    "labels": "conditional pixel V0/E1, explicitly not native gold",
+    "new_queries": "Teacher-selected entirely new AUX query records. These are not original initializer queries or GT recentring of original queries.",
+    "original_native352": "q/L/U/native/split unchanged; not loaded into main supervision",
+    "native_slot": null,
+    "native_expected_part_correspondence": "UNKNOWN",
+    "teacher_authority": "conditional SAM+depth+mesh under inherited calibration/static-camera assumptions",
+    "head_forward_input": "Only RGB/valid crop canonicalpixel1154; no teacher/reference/depth/pose/object ID/label/pair ID/q8/native as features",
+    "admission": "Sampler raw records remain preparatory; Root final wrapper explicitly admits only feature-supported AUX_FIT to conditional AUX loss, native_training_admissionfalse. AUX_DEV labels are never optimized."
+  },
+  "feature_fixed": {
+    "canonical_pixel1154": "full96 CLS384, fixed-centreQ384, centre32 CLS384, fractions2, from existing official DINOv2 vits14_reg4 frozen producer function",
+    "official_weight_sha256": "f433177089a681826f849f194ece3bb48f4d63fb38d32fc837e3dc7a4e5641fb",
+    "vendor_revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "crop_sampler": "reuse existing fixed F32 original source crop sampler contract; no current-image access",
+    "batch_size": 32,
+    "dtype": "FP32, fixed existing deterministic runtime",
+    "feature_support": "input-only central4.all and valid96.any; keep unsupported records with loss mask, no retry or forced finite negative",
+    "normalizer": "Existing fixed ImageNet preprocess and unit-L2 descriptors only; no fitted normalization or AUX_DEV/current statistics",
+    "classifier_or_encoder_updates_during_features": 0
+  },
+  "model_fixed": {
+    "core": "Unchanged RelationalQueryHead86054, original main forward/slot0..7/active-node byte equality retained",
+    "AUX_forward": "aux1154 -> append exactzeros32 -> SAME core.base.head[0] Linear1186to64 -> SAME ReLU -> new publicpixel Linear64to1",
+    "public_head_init": "Torch default nonzero Linear init under seed17, identical for both arms",
+    "shared_gradient": "AUX-only check before optimizers: first1154 columns+bias of sharedLinear nonzero, remaining32 columns exactzero, main base.head[2] and relational noAUXgradient; publicreadout nonzero gradient; no optimizer side effects",
+    "checkpoint_start": "Both arms load exact prior V239 final1000 relational core checkpoint e645b50a2b9a41f6a06b502040c6683a7a5c3955093c07128b1095992409e65a; reset optimizer. New public head identical.",
+    "DINO_or_SAM_finetuning": false
+  },
+  "training_fixed": {
+    "arms": {
+      "CONTROL_NO_PUBLIC_AUX": 0.0,
+      "TREAT_PUBLIC_PIXEL_AUX": 0.25
+    },
+    "new_steps_each": 1000,
+    "new_total_optimizer_updates": 2000,
+    "prior_core_updates": 1000,
+    "cumulative_core_updates_each": 2000,
+    "seed": 17,
+    "original_source_batch": 32,
+    "original_SOURCE_draws": "Exact existing PCG64seed17 1000x32 SHA20a1fc74ea15a04a16fe29f8e5b9a114b4629677710ed43c1628b2a1ac00b734, SYN_D8/SYN_E8/YCB_D8/YCB_E8, original FIT+available+known only",
+    "native_loss": "unchanged .5*(family0/output0 meanBCE +family1/output1 meanBCE); no softmax",
+    "AUX_batch": 32,
+    "AUX_draws": "separate PCG64seed17, sixteen V then sixteen E, withreplacement only supported AUX_FIT records, same ledger fixed before optimizer. No AUX_DEV/UNKNOWN in batches.",
+    "total_loss": "original main loss + arm_weight*balanced scalarE-logit AUX BCE; control does not backprop AUX or decay auxreadout through zero gradients",
+    "optimizer": "AdamW lr0.001 weight_decay0.0001, FP32 deterministic, no scheduler/earlystop/threshold/seed selection",
+    "fresh_output": "one Root-owned new directory; preserve any failures; no automatic retry"
+  },
+  "evaluation_fixed": {
+    "barrier": "Both final1000 checkpoint+logs freeze before any NEW originalSOURCE_DEV or AUX_DEV head output. Saved original baseline metrics only after freeze.",
+    "original_SOURCE": "same 7617 known rows,5876FIT/1741DEV; keep15040 originalrows/7423S_U masked. SYN intended-native MAIN, YCB associated-r AUX remain distinct. SourceDEV exposed/reused, not blind.",
+    "public_AUX_DEV": "Only fixed5 internal pair groups within originalPUBLIC_TRAIN22; no original SOURCE_VAL use. Conditional weakpixel transfer, not native accuracy or blind physicalscene generalization.",
+    "threshold_main_and_AUX": "scalar selectedfamily main or scalarAUX E logit >=0; fixed before outputs",
+    "legacy_SOURCE_gate": "Unchanged: mean family DEV balanced recall gain vs frozen V239 >=3pp; each D/E recall drop<=2pp; YCB DEV E>=50%; SYN DEV D/E each>=90%.",
+    "matched_AUX_effect_gate": "Treatment mean original family DEV balanced recall >= control +1pp.",
+    "public_AUX_gate": "Treatment AUX_DEV conditional V recall>=80% and E recall>=80%; empty stratum FAIL, no replacement split.",
+    "current_admission": "All above SOURCE gates must PASS to authorize a separate original-current v61 benchmark; no current data/score/threshold selection. Candidate checkpoint fixed independently of current.",
+    "new_current_evaluation_in_this_preparation": false
+  },
+  "hard_limits": {
+    "current223_publicheld_oldVALHOLD_V177_V178_V194SOURCE_HOLDOUT_V182_protected_payloads": 0,
+    "current_aggregate_model_data_architecture_or_threshold_choice": 0,
+    "PnP": 0,
+    "original_query_GTrecrop_or_locationregression": 0,
+    "teacher_native_gold_created": 0,
+    "original_S_U_or_context_nodes_semantically_filtered": 0,
+    "new_download_or_dependency_install": 0,
+    "all_explicit_FS_guard": "v112 case-insensitive/cache/.pyc reject before stat/hash/read, boundartifact symlink ancestors reject; no broad P/R scanning",
+    "C_role": "QA/report/provenance only, not model/data/architecture selection"
+  },
+  "actual_payload_access_authorized_by_this_file_alone": false,
+  "next_precondition": "Separate pinned implementation CODE QA and exact Root true entries before sampling certificate/RGB/officialweights or cached feature/target/CP payload access."
+}

@@ -1,3 +1,12 @@
+<!-- V248 actual SOURCE results -->
+## 2026-10-25 · V248 공개 픽셀 보조학습 실제 결과
+
+[결과·코드·혼동행렬·실제 crop·재현 검산](_docs/experiments/pallet-keypoint-visibility/V248_PUBLIC_PIXEL_AUX_ACTUAL_RESULTS/README_KO.md)
+
+AUX 내부 DEV는 보임319/320·가림128/128이지만 기존 YCB 가림은 양군 모두0/57입니다. SOURCE 채택 기준 실패로 모델 채택·새 current/v61 평가·PnP는 없습니다.
+
+---
+
 ## 팔레트 가림: V247 공개 TRAIN 동결 SAM 진단
 
 [보고서·고정 사례·원 query readout·코드·검산](_docs/experiments/pallet-keypoint-visibility/V247_FROZEN_SAM_PUBLIC_TRAIN_DIAGNOSTIC/README_KO.md). 기존 SAM2.1과 원 q8 minmax prompt로 공개 TRAIN44프레임/352query의 segmentation proposal 근거를 기록했습니다. mask support/outside는 native D/E/SELF 정답이나 실사 성능 개선을 뜻하지 않으며, 새 학습·현재 평가 추론·PnP는0입니다. 이전 기록은 아래에 보존합니다.
