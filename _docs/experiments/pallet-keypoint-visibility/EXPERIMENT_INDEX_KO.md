@@ -1,3 +1,14 @@
+# V223 — 점·부위 출력 분리: SOURCE 공동 개선 미확인
+
+같은 구조/초기값/데이터/1100update에서 strong 감독 출력 경로만 대조했다. CF DEV 정답17/27→17/27, 세 상태 완전정답2/9→1/9, natural DEV9/12동일이다. 입력6297행의 exact opposite-label group0을 확인했고 shared control은 이전C67SOURCElogit전부재현했다. GT-derived finite-part weak이며 실제nativegold/생산query전이/실사개선은 미입증이다. 현재223새추론·PnP·모델채택0, 최신실사V220유지. 공개보류metadata360행 eager-parse 예외는기록했고설계/학습사용0이며phase전체metadata접근0주장은하지않는다.
+
+- [V223 보고서](archive/task-2/pallet-keypoint-visibility/query_visibility_source_target_address_consistency_20261025_v223/PORTABLE_REPORT_KO.md)
+- [CM·두클래스 P/R 표](archive/task-2/pallet-keypoint-visibility/query_visibility_source_target_address_consistency_20261025_v223/saved_source_comparison_v1/SOURCE_FAMILIES_SEPARATE_CM_PRECISION_RECALL.csv)
+- [DEV9묶음 실제 crop](archive/task-2/pallet-keypoint-visibility/query_visibility_source_target_address_consistency_20261025_v223/saved_source_comparison_v1/PORTABLE_GALLERY_KO.md)
+- [코드·실행·QA·범위예외 원문](archive/task-2/pallet-keypoint-visibility/query_visibility_source_target_address_consistency_20261025_v223/provenance/ARCHIVE_MANIFEST.json)
+
+---
+
 # V222 — 예상 부위 COVER/SHAM 감독: SOURCE 일반화 개선 미확인
 
 같은 C65에서 C66/C67을 각1,100 update 학습했다. 추가 감독은 FIT39묶음 모두 맞혔지만 CF DEV 전체 정답19/27→17/27, natural weak DEV11/12→9/12였다. DEV9묶음 세 상태 완전정답1→2만으로 성공이라 하지 않는다. GT-derived 공개 학습 query의 finite-part weak 감독이며 native점 gold나 생산 초기query 정합성을 증명하지 않았다. 현재223 새추론·PnP·모델채택0, 최신 실사 평가V220 유지.

@@ -1,0 +1,41 @@
+{
+  "phase": "V223",
+  "recorded_UTC": "2026-10-24T23:53:29.716597+00:00",
+  "kind": "PROSPECTIVE_SOURCE_ONLY_SINGLE_GRADIENT_ROUTING_CONTRAST",
+  "hypothesis": "Does separating synthetic point0 and observed finite-part visibility logits reduce negative transfer compared with supervising both targets on the same scalar, keeping encoder/data/budget constant?",
+  "basis": [
+    "V222 admitted SOURCE outputs: FIT39 exact but DEV total19->17/natural11->9; no new private evidence.",
+    "V222 code routes strong point0 and natural/CF finite-part weak labels to same direct_end_external_logit.",
+    "V223 SOURCE metadata: strong vs weak have no exact runtime-condition matches; actual identical-input contradiction is not established. Different semantic targets can still interfere on a shared scalar."
+  ],
+  "excluded_basis": "No current223/publicheld45/oldVAL/HOLD/V177/V178/V194_SOURCEHOLD/V182COMMON scores/labels. C accidental held metadata360 parse is disclosed and not used; values were not transmitted to root.",
+  "arms": [
+    "C68SHARED_POINT_PART_LOGIT",
+    "C69SEPARATE_POINT_PART_LOGITS"
+  ],
+  "same_architecture": "Both have existing C65 point direct+spatial heads and an exact cloned part direct+spatial head; encoder/support/owner unchanged. 121561 parameters expected. Compute features once, point and part logits separately. No new GT/reference/ROI/mask inputs.",
+  "control": "Strong point0, natural finite-part weak and CF finite-part weak all train PART logit. Existing POINT head remains unsupervised in this control (unused parameter capacity disclosed).",
+  "treatment": "Strong point0 trains POINT logit. Natural and CF finite-part weak train PART logit. Shared encoder still receives all objectives; this isolates direct scalar/head coupling, not all encoder transfer.",
+  "initialization": "Both initialize exactly from frozen V219 C65 SOURCE-continuity checkpoint. Clone part direct/spatial parameters from loaded point heads, identical across arms. Reset AdamW, no previous optimizer state. Warm start already mixes earlier targets; not a scratch target-pure model.",
+  "loss": "Old five task losses unchanged; strong balanced BCE weight1 on routed logit, natural balancedBCE weight.25 on PART, CF parentBCE weight.25 (.25BEFORE_D+.5COVER_E+.25SHAM_D) on PART.",
+  "data": "Reuse exact V222 admitted FIT data/pools/metadata/caches and CF39 parents. No label changes/filtering/new data. SOURCE DEV9 CF and12 natural excluded from every loss/pool/normalizer.",
+  "common_draws": "Same RNG1810 old/1811 point/1812 natural/1813 CF, same draws and4parents withreplacement perupdate in both arms.",
+  "budget": "Fixed1100 final updates perarm, total2200. No new throughput probe necessary given measured V222 samebase architecture; no accuracy-dependent budget or retry/seed search.",
+  "optimizer": {
+    "type": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 5
+  },
+  "outputs": "Primary natural/CF evaluate PART. Strong TRAIN apparent score evaluates actual routed strong logit: controlPART/treatmentPOINT. Save optional point logit beside part without treating weak part labels as point gold. Freeze both final checkpoints before any new-model DEV output; no checkpoint/threshold/arm selection.",
+  "new_current223_evaluation": false,
+  "new_PnP": false,
+  "not_claimed": [
+    "ROI localization or physical keypoint correction",
+    "natural pallet native gold",
+    "production initializer query alignment",
+    "real improvement or goal completion"
+  ],
+  "prepared_only": true,
+  "new_model_or_array_execution_authorized_by_this_protocol_alone": false
+}
