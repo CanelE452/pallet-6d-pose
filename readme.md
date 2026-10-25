@@ -1,3 +1,7 @@
+## 팔레트 가림: V246 공개 Pallox 원 query 조건부 근거 감사
+
+[보고서·고정 SOURCE 사례·코드·검산](_docs/experiments/pallet-keypoint-visibility/V246_PUBLIC_PALLOX_SAME_QUERY_AUDIT/README_KO.md). 기존 공개 TRAIN44프레임/352원 query를 보존하고, 선택22쌍의 기존 조건부 인증으로 같은 픽셀 근거를 진단했습니다. 새 학습·새 모델·현재 평가 추론은0이며 native gold나 실사 성능 개선을 뜻하지 않습니다. 이전 기록은 아래에 보존합니다.
+
 ## 팔레트 가림: V245 공개 SOURCE 장면 대조 결과
 
 [보고서·고정 사례·코드·독립 검산](_docs/experiments/pallet-keypoint-visibility/V245_SCENE_CF_SOURCE_TRIAL/README_KO.md). 같은 원 장면의 COVER/ADJACENT_SHAM을 추가한 고정 SOURCE 학습 1,000회를 완료했습니다. 파이프라인 검산은 통과했으나 사전 성능 기준은 통과하지 못했으며 모델은 채택하지 않았습니다. current/held 새 추론·PnP는0입니다. 이전 기록은 아래에 보존합니다.

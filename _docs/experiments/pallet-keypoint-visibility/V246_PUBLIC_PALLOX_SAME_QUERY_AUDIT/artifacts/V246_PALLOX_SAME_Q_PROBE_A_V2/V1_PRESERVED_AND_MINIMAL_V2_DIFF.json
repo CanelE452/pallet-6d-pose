@@ -1,0 +1,41 @@
+{
+  "completed": true,
+  "PASS": true,
+  "old_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V246_PALLOX_SAME_Q_PROBE_A/probe_same_q.py",
+    "sha256": "d95196bf6b3f406d1356e8dfa0bf532d0371de82b48dabfaf30beb5c4076ebd5",
+    "size_bytes": 22499
+  },
+  "old_READY": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V246_PALLOX_SAME_Q_PROBE_A/FINAL_READY.json",
+    "sha256": "73f3c602ed2c48e7e29f3a8835dfca9679615e60c5723925c990e7ea7e99da8d",
+    "size_bytes": 3994
+  },
+  "new_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V246_PALLOX_SAME_Q_PROBE_A_V2/probe_same_q_v2.py",
+    "sha256": "1cc8b6c449d658442b9eaea19967374c8ce66f97fa5cb5b9151e54f01faa19a5",
+    "size_bytes": 23673
+  },
+  "new_protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V246_PALLOX_SAME_Q_PROBE_A_V2/TWO_STAGE_PROTOCOL_BEFORE_CERTIFICATE_ACCESS_V2.json",
+    "sha256": "68f82397adfd648fa94930058d563f93cff792fceb4bb0da9ead4cad3717337b",
+    "size_bytes": 5424
+  },
+  "checks": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V246_PALLOX_SAME_Q_PROBE_A_V2/MINIMAL_TRANSPORT_REPAIR_CHECKS.json",
+    "sha256": "a63b17500faced32a1a5803951aee81fe901644677d367bfe61e1ed2155ec4dd",
+    "size_bytes": 663
+  },
+  "unchanged_function_AST_count": 17,
+  "changed_functions": [
+    "select",
+    "validate_pair"
+  ],
+  "added_functions": [
+    "canonicalize_evidence"
+  ],
+  "module_only_change": "OUT select/probe suffix_v1 -> _v2",
+  "unified_diff": "--- frozen_V1\n+++ V2\n@@ -20,8 +20,8 @@\n HELPER = {'path': str(V66 / 'contract/paired_truth.py'),\n           'sha256': '649c93b98085289bb1aa797b3beba141423f5ffbeb055b5c7f2f571e208f0c14'}\n PAIRED_PROTOCOL_SHA = '554178a520287030a5aef5162272ee45c3307d49c8e68c1e20449cb8c57ebbfb'\n-OUT = {'select': R / 'V246_ROOT_PALLOX_TRAIN/train_pair_certificate_metadata_v1',\n-       'probe': R / 'V246_ROOT_PALLOX_TRAIN/same_q_conditional_probe_v1'}\n+OUT = {'select': R / 'V246_ROOT_PALLOX_TRAIN/train_pair_certificate_metadata_v2',\n+       'probe': R / 'V246_ROOT_PALLOX_TRAIN/same_q_conditional_probe_v2'}\n FRAME_NAME = 'TRAIN44_FRAMES_INPUT_ONLY.jsonl'\n QUERY_NAME = 'TRAIN352_ORIGINAL_NATIVE_QUERIES_INPUT_ONLY.jsonl'\n CERT_KEYS = ('visible_positive', 'visible_negative', 'full_positive', 'full_negative')\n@@ -238,6 +238,24 @@\n     return complete, frames, queries, pairs\n \n \n+def canonicalize_evidence(r):\n+    # Pure transport of the one producer-declared relative alias; never search.\n+    name = r['pair_id'].replace(':', '__') + '.npz'\n+    relative = 'SYMMETRIC_ALL50_V2/' + name\n+    absolute = str(V66 / 'public_pallet/SYMMETRIC_ALL50_V2' / name)\n+    evidence = r['evidence']\n+    if set(evidence) != {'path', 'sha256'}:\n+        raise ValueError('Unexpected original evidence binding schema')\n+    original = evidence['path']\n+    if original == absolute:\n+        return r\n+    if original != relative:\n+        raise ValueError('Only exact declared relative evidence alias is allowed')\n+    r['evidence'] = {'path': absolute, 'sha256': evidence['sha256'],\n+                     'original_relative_path': original}\n+    return r\n+\n+\n def validate_pair(r, pair_id, pair):\n     if set(r) != set(TREE) or r['pair_id'] != pair_id or r['split'] != 'TRAIN_LAB':\n         raise ValueError('Selected metadata fields/role changed')\n@@ -258,6 +276,11 @@\n         if Path(im['path']).stem != r[side + '_frame']:\n             raise ValueError('A/B frame correspondence mismatch')\n     expected = V66 / 'public_pallet/SYMMETRIC_ALL50_V2' / (pair_id.replace(':', '__') + '.npz')\n+    evidence = r['evidence']\n+    if set(evidence) not in ({'path', 'sha256'}, {'path', 'sha256', 'original_relative_path'}):\n+        raise ValueError('Unexpected canonical evidence binding schema')\n+    if 'original_relative_path' in evidence and evidence['original_relative_path'] != 'SYMMETRIC_ALL50_V2/' + expected.name:\n+        raise ValueError('Original relative alias changed')\n     if identity(r['evidence'])[0] != str(expected):\n         raise ValueError('Unexpected per-pair certificate path')\n \n@@ -289,6 +312,7 @@\n         row, end = selected_object(text, TREE)\n         if text[end:].strip():\n             raise ValueError('Trailing record data')\n+        row = canonicalize_evidence(row)\n         validate_pair(row, pair_id, pairs[pair_id])\n         selected[pair_id] = row\n     if set(selected) != set(pairs) or skipped != 28:\n",
+  "original_V1_and_actual_failure_modified": false,
+  "actual_payload_read": 0
+}

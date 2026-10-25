@@ -1,0 +1,1 @@
+정확히 선언된 상대 certificate 경로만 V66/public_pallet 기준 절대 경로로 옮깁니다. 원 상대 문자열은 evidence.original_relative_path에 보존하고 stage2에서 재검증합니다. 절대 경로+SHA identity와 수학/원q/선별/교사 정의는 불변입니다. V1 및 실제 실패는 보존하며 Root가 별도 V2 stage별 true entry를 작성합니다. 실제 manifest/certificate/RGB/GT/모델 접근은 0입니다.
