@@ -1,3 +1,7 @@
+## V247 · SAM2.1 공개 SOURCE same-query proposal 진단
+
+[보고서·전체352행·chosen logits·실패 기록·검산](V247_FROZEN_SAM_PUBLIC_TRAIN_DIAGNOSTIC/README_KO.md). 공식 동결 모델의 class-agnostic mask와 조건부 교사/의도한 nativepart 권한을 분리합니다. 새 학습0·현재 평가 사용0·모델 미채택이며 기존 기록은 아래에 유지합니다.
+
 ## V246 · Pallox TRAIN 원 query 동일주소 조건부 감사
 
 [보고서·352행·22인증·실패 원본·재현 코드](V246_PUBLIC_PALLOX_SAME_QUERY_AUDIT/README_KO.md). 같은 픽셀/5×5 조건부 V/E/U 근거와 native D/E/SELF 권한을 분리합니다. 새 학습0·모델 미채택·현재 평가 사용0이며 기존 기록은 아래에 유지합니다.

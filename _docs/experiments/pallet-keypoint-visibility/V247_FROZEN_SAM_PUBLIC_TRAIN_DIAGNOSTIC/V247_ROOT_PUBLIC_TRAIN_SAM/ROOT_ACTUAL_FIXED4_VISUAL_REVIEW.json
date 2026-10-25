@@ -1,0 +1,56 @@
+{
+  "schema": "V247_ROOT_ACTUAL_FIXED4_VISUAL_REVIEW_V1",
+  "created_at_UTC": "2026-10-25T07:42:26.977559+00:00",
+  "actual_view_image_cards": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V247_FIXED4_SAM_VISUALS_A/gallery_v1/FRAME_00_CARD.png",
+      "sha256": "e8e7a70651facd0c6b1dd0d61c3dbedda4887a631b64bfbdef3079fb288a6b76",
+      "size_bytes": 647262
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V247_FIXED4_SAM_VISUALS_A/gallery_v1/FRAME_01_CARD.png",
+      "sha256": "71f954cf8045adf1f4273d6b0d4616f193bbdafb8542d663eb81da8aff19a31f",
+      "size_bytes": 647255
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V247_FIXED4_SAM_VISUALS_A/gallery_v1/FRAME_02_CARD.png",
+      "sha256": "9cb857167e285b3c4ad4bf4dd60a5eb3c2e28c1dbb59f8c59ef5b33c01f98bdb",
+      "size_bytes": 680183
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V247_FIXED4_SAM_VISUALS_A/gallery_v1/FRAME_03_CARD.png",
+      "sha256": "561725241e80e6d286e16d8a383126c47f40933a551e68debee596a5d8367123",
+      "size_bytes": 658576
+    }
+  ],
+  "frames_actually_viewed": 4,
+  "overview_actually_viewed": false,
+  "selection": "Same firsttwo public TRAIN pairs selected in V246 before certificate truth and SAM outputs; all32 original crops shown.",
+  "observations": [
+    {
+      "frames": [
+        0,
+        1
+      ],
+      "observation": "Original q8 and SAM proposal follow the small background white pallet, while the public teacher instance is the foreground wooden bin. The background object is an actual pallet. This illustrates different instance addresses; it does not show that the initializer selected a nonexistent object.",
+      "interpretation_limit": "No native label or foreground-bin teacher transfer to the background pallet."
+    },
+    {
+      "frame": 2,
+      "observation": "Before cardboard occlusion, SAM covers the wooden front/base and several exposed upper crop regions have support. Several right/lower boundary queries are OUTSIDE at the exact centre even while the crop contains exposed wood; native2 and3 gain support in the predefined clipped5x5 readout.",
+      "interpretation_limit": "A crop containing wood does not prove the original query is the correct anatomical/native point; no native GT or point error is assigned."
+    },
+    {
+      "frame": 3,
+      "observation": "After cardboard is added, SAM excludes much of the left covered area while retaining the central/right wooden surface. Exposed right-edge wood crops can still have OUTSIDE at the centre; native1 changes to support in clipped5x5, while native2 remains OUTSIDE.",
+      "interpretation_limit": "This is a fixed descriptive example of useful occluder separation plus query/boundary ambiguity, not population accuracy or proof that all OUTSIDE cases are external occlusion."
+    }
+  ],
+  "new_model_calls_for_review": 0,
+  "native_gold_created": 0,
+  "query_changes": 0,
+  "current_or_held_payloads": 0,
+  "PnP": 0,
+  "model_adopted": false,
+  "goal_status": "active_unsolved"
+}

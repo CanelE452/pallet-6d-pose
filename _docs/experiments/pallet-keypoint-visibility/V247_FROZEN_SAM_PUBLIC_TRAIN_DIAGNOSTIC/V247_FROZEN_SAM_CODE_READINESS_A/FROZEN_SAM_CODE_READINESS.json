@@ -1,0 +1,184 @@
+{
+  "completed": true,
+  "PASS": true,
+  "CODE_METADATA_ONLY": true,
+  "PASS_scope": "Exact four admitted CODE/protocol files plus V180 runner_preparation first-level names only. Existing implementation contracts, not live runtime/payload QA or evaluation results.",
+  "read_bindings": {
+    "V68_extractor": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/extract_source_masks.py",
+      "sha256": "185ccea1e43ff8cf43e57694c8e382d2dd8911538286a1a8f44218fdefdb81aa",
+      "size_bytes": 27564
+    },
+    "V68_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/PROTOCOL.json",
+      "sha256": "1e6a99030faf8b2c6cd1144b70b09395d55609c2b746c9fd7d12ad6f7e622128",
+      "size_bytes": 7413
+    },
+    "V180_runner": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/runner_preparation/run_frozen_sam_source.py",
+      "sha256": "b5d7f5591f83b231887270759de5059a27380ed58419acc3eef01ebdde0f8fa6",
+      "size_bytes": 28814
+    },
+    "V180_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/runner_preparation/PROTOCOL_BEFORE_WEIGHTS_OR_SOURCE_RGB_BODIES.json",
+      "sha256": "6a40ff7b6a63bb6f1c37c12789dc3979131e145cbc79371d8f358b866ace3508",
+      "size_bytes": 6338
+    }
+  },
+  "already_implemented": {
+    "SAM21_V68": {
+      "model": "Official SAM2.1 Hiera base-plus",
+      "vendor_revision": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+      "config": "configs/sam2.1/sam2.1_hiera_b+.yaml",
+      "checkpoint_inert": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/checkpoints/sam2.1_hiera_base_plus.pt",
+        "sha256": "a2345aede8715ab1d5d31b4a509fb160c5a4af1970f199d9054ccfb746c004c5",
+        "size_bytes": 323606802
+      },
+      "prompt": "One original sealed source box cast float32; no clicks/point labels/mask prompt. Original q is only sampled after mask inference. Exact upstream box derivation is not established beyond the four-file input contract; do not rename it initializer-q8-only.",
+      "source_sampling_limit": "Protocol says historical SOURCE queries were originally GT-guided. Reusing these old identities is distinct from actual initializer q8.",
+      "mask_choice": "predict multimask_output=True, return_logits=True; three float32 full-native[3,H,W] masks plus3qualities; argmax predicted quality, first on exactties; no GT/querybranch choice.",
+      "postprocessing": "apply_postprocessing=False; max_hole_area=max_sprinkle_area=0; mask_threshold0.",
+      "readout": "At unchanged q, floor(q+.5) exact native logit and clipped5x5 maximum; >0 strict. Separate exact/radius2 outputs. Invalid continuous/rounded q yields U/NaN/-1, not negative.",
+      "output": "masks/<target-index>.npz with chosen_logit F32[H,W],quality_scores F32[3],selected_index,original/predictor boxes,rawHW,originalsampleIDs/q/pixel/nativevalid,exact/radius2 logit/presence; PER_QUERY.csv,TARGET_OUTPUTS.json,SOURCE_QUERY_OUTPUTS.npz,EXTRACTION_SEAL.json.",
+      "runtime": "Isolated foundation_runtime_sam21_20261023/venv/bin/python; torch2.5.1+cu121; frozenFP32 eval, CUDA autocastBF16, batch1,TF32false,compilefalse,seed20261023; sealed package versions/sourcefiles/wheels checked beforeimage; modelstate before/after unchanged required.",
+      "legacy_scope_limitation": "Runner hard-codes1091targets/8590queries and source split VAL/VALIDATION. Its old SOURCE identity bodies are outside this task and must not be opened/reused for a newTRAIN cohort. Kernel/runtime assets can be referenced only under a new authorized TRAIN-specific input contract.",
+      "code_lines": {
+        "entry_runtime": [
+          70,
+          114
+        ],
+        "query_readout": [
+          117,
+          151
+        ],
+        "old_identity_scope": [
+          154,
+          198
+        ],
+        "inference": [
+          217,
+          258
+        ],
+        "saved_masks_and_seal": [
+          269,
+          320
+        ]
+      }
+    },
+    "SAM1_V180": {
+      "model": "Official SAM1 ViT-B registry[vit_b]",
+      "vendor_path_inert": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/vendor/segment-anything",
+      "vendor_revision": "dca509fe793f601edb92606367a655c15ac00fdf",
+      "checkpoint_inert": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/checkpoints/sam_vit_b_01ec64.pth",
+        "sha256": "ec2df62732614e57411cdcf32a23ffdf28910380d03139ee0f4fcbe91eb8c912",
+        "size_bytes": 375042383
+      },
+      "prompt": "Exact float64 minmax XYXY of all8 original_initial_points8. No expansion/clipping/recentering/GT region. Missing/nonnumeric/nonfinite/degenerate q8 gives PROMPT_UNAVAILABLE; original availability remains separate.",
+      "API": "set_image RGB; predict(point_coords=None,point_labels=None,box=originalq8box,mask_input=None,multimask_output=False,return_logits=True). Single mask; predicted quality saved only, no quality branch/model selection.",
+      "shapes": "Input native uint8[512,512,3]; image_logits F32[512,512],lowres_logits F32[256,256],predicted_quality F32[1],mask_logits_gt0 bool[512,512]. NPZ preserves original q/L/native/globalindex/occurrenceID/availability and box.",
+      "readout": "Runner saves visible-mask proposal/logits and original/prompt/runtime predictionavailability; it does not assign native D/E/SELF. No q centre correction or new confidence-U threshold. Later saved-output evaluation is separately authorized.",
+      "runtime": "Exact /home/minjae/anaconda3/envs/pallet-yolo26/bin/python, Python3.10.20/Torch2.1.1+cu118/Torchvision0.16.1+cu118/NumPy1.26.4/Pillow12.2.0. strictload officialstate onCPU then frozenFP32evalCUDA; TF32false/threads1. Strict deterministic set_image; predict-only warn_only scope with finally restore strict, prospectively pinned runtime repair and CUDA/CPU cumsum byte guard; first-scene replay and state/checkpoint SHA checks.",
+      "legacy_scope_limitation": "Generic CLI is still constrained to128/16 or4096/512 rows/scenes, allTRAIN, original512x512 V129 bases only. It cannot directly consume Pallox480x640/new44frame manifest without a separately versioned input adapter/protocol. No such adapter is implemented/executed here.",
+      "code_lines": {
+        "vendor_runtime": [
+          10,
+          47
+        ],
+        "prompt_and_original_metadata": [
+          49,
+          99
+        ],
+        "runtime_repair": [
+          101,
+          125
+        ],
+        "raw_RGB_and_infer": [
+          197,
+          217
+        ],
+        "entry_frozen_model_and_status": [
+          228,
+          294
+        ]
+      }
+    }
+  },
+  "inert_reuse_closure_NOT_FOLLOWED": {
+    "V68": {
+      "runtime_seal": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/foundation_runtime_sam21_20261023/RUNTIME_SEAL.json",
+        "sha256": "e5655309c2c99ee18e76fa0ebe85541194445895673d9b64f915384130bcbf82"
+      },
+      "input_seal_legacy_SOURCE_VAL": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_inputs/SEAL.json",
+        "sha256": "081c4a58cce0a20830872358d1559b59ef75a57df333bdc357a164d35abec979"
+      },
+      "manifest_legacy_SOURCE_VAL": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_inputs/INPUTS_RGB_ONLY.jsonl",
+        "sha256": "0a347a477e8d1d69ab0e9b956103f9b657b4c4b9c4505242d76849f8e25a3fc8"
+      },
+      "query_map_legacy_SOURCE_VAL": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/source_inputs/QUERY_ID_MAP.csv",
+        "sha256": "UNKNOWN_FROM_ADMITTED_CODE_PROTOCOL; input seal must supply exactbinding, not followed"
+      },
+      "entry_contract": "schema V68_FROZEN_SAM21_SOURCE_EXTRACTION_ENTRYLOCK_V1, approved/sourceonly true,current/modeltraining false; hardcoded old cohort/runtime/output bounds. NewTRAIN entry cannot silently borrow oldscope."
+    },
+    "V180": {
+      "source_runtime_pin": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/runner_preparation/OFFICIAL_SOURCE_AND_IMPORT_PROBE.json",
+        "sha256": "0465710d49b1bb8531dc6f064b8fa5d8f961e1b9b73a701d063f6063407ed020"
+      },
+      "root_scope": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ROOT_SCOPE_BEFORE_SAM_CODE_WEIGHTS_OR_SOURCE_RGB.json",
+        "sha256": "44471032f7d1fed944cc1bee78c3634b4ec1f65edf212d091ea6b5f966264a08"
+      },
+      "runtime_only_repair": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ROOT_RUNTIME_CUMSUM_REPAIR_BEFORE_NEW_MASK_OUTPUT.json",
+        "sha256": "5e147ff26ab9112a4e0d107a92d5a3833ca10a45f5e6fd11e34c901426e0db9a"
+      },
+      "default_TRAIN_manifest": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_source_target_definition_audit_20261024_v179/source_train_goal_alignment_a/SAM_SMOKE_INPUTS128_METADATA_ONLY.jsonl",
+        "sha256": "3c7a722faeda6e89b73a9e600ab3a56e83d6c3b927764904e428b862acdcda29"
+      },
+      "full_TRAIN_manifest": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ALL4096_TRAIN_INPUTS_METADATA_ONLY.jsonl",
+        "sha256": "86e016c7a528f0b631609c0088081e8033a715b35e971c4c28972cd683b44704"
+      },
+      "extension_scope": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/ROOT_ALL_TRAIN_EXTENSION_BEFORE_ANY_SAM_SOURCE_RGB_OR_SCORES.json",
+        "sha256": "511741e29620f0044e2a1d745183d773de33d07dcc8dd8800176711283b5e0c1"
+      },
+      "entry_template_path_seen_names_only": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_sam_source_baseline_20261024_v180/runner_preparation/ROOT_ACTUAL_RUN_ENTRY_TEMPLATE.json",
+      "runtime_source_files_and_checkpoint_current_FS_integrity": "NOT_VERIFIED; only literal pinned metadata observed."
+    }
+  },
+  "target_identity_and_label_authority": {
+    "input_only_prompt_not_instance_certificate": "A q8-derived/inherited box may enclose an object different from the conditional teacher instance. No code binds selected mask identity to the annotated teacher bin/nativepart.",
+    "mask_positive": "Class-agnostic visible-mask proposal/support for whatever the prompt/model selected; not native physical point/part visibility gold.",
+    "mask_zero_or_negative": "Outside the selected proposal only. It cannot distinguish external E, SELF, otherobject, background, poor mask, wrong prompted instance or actual absent support. Never copy mask0 to E.",
+    "SOURCE_truth_join": "Any comparison to existing conditional same-q certificates must retain separate teacher-instance/address authority and UNKNOWN, and must follow a separately approved saved-output join; teacher labels/reference/pose/depth never enter SAM prompt.",
+    "current_first4": "V246 fixed4 examples are descriptive cases only; no population prevalence, failure cause, statistical transfer or model choice inferred.",
+    "no_checkpoint_prompt_threshold_selection": "This audit describes two alreadyimplemented recipes and does not choose between them using current/held or SOURCE outcomes."
+  },
+  "bounded_next_input_requirements_not_execution": [
+    "New explicit SOURCE TRAIN-only RGB/q8/L/native/availability frame manifest with exactencoded/decodedRGB bindings, rowIDs/shape and prompt definition; preserve original q/U and noGTbox.",
+    "Exact existing officialruntime/vendor/config/checkpoint seals and current runtime compatibility check under later Root access; no download/install performed here.",
+    "A minimal versioned adapter is required for any newcohort/nativeHW; retain frozenpredictor semantics, originalU/prompt/runtime flags and fullmask outputs rather than nativeE labels.",
+    "Root trueentry and lexicalv112/root-firstsymlink guards before all future bound-file operations. Legacy code uses resolve-based guards and does not itself implement all current lexical/symlink restrictions; do not run oldentry wholesale."
+  ],
+  "limits": {
+    "only_four_allowed_files_read": true,
+    "V180_runner_preparation_names_only_once": true,
+    "actual_result_COMPLETE_or_mask_quality_outputs_read": 0,
+    "observed_evaluation_performance_or_label_rows_read": 0,
+    "oldSOURCE_VAL_row_or_array_body_read": 0,
+    "RGB_checkpoint_model_array_GT_body_stat_hash": 0,
+    "runtime_import_model_forward_train_Git_network_install": 0,
+    "v112_pycache_FS": 0,
+    "prior_artifacts_modified": false,
+    "new_source_execution_or_training_admission": false
+  },
+  "frozen_after_write": true
+}

@@ -1,3 +1,7 @@
+## V247: 공개 TRAIN 원 q8 prompt의 동결 SAM 진단
+
+[실제 실행·readout·고정 gallery·재검산](V247_FROZEN_SAM_PUBLIC_TRAIN_DIAGNOSTIC/README_KO.md). 원 q/L/native/U와 prompt/runtime 지원을 구분하고, logit>0 exact/5×5 proposal 근거를 별도로 기록합니다. teacher는 모델 입력이 아니며 native 라벨·모델 채택·새 학습 admission을 만들지 않았습니다.
+
 ## V246: 공개 TRAIN의 원 query를 바꾸지 않은 조건부 진단
 
 [결과·출처·SOURCE 사례·재검산](V246_PUBLIC_PALLOX_SAME_QUERY_AUDIT/README_KO.md). 입력 메타데이터의 SOURCE VAL 읽기/폐기는 투명하게 기록하며, 인증 배열은 선택 TRAIN22쌍만 사용했습니다. 원 U와 native UNKNOWN을 보존하고 라벨·학습 admission을 만들지 않았습니다.

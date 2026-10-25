@@ -1,3 +1,7 @@
+## 팔레트 가림: V247 공개 TRAIN 동결 SAM 진단
+
+[보고서·고정 사례·원 query readout·코드·검산](_docs/experiments/pallet-keypoint-visibility/V247_FROZEN_SAM_PUBLIC_TRAIN_DIAGNOSTIC/README_KO.md). 기존 SAM2.1과 원 q8 minmax prompt로 공개 TRAIN44프레임/352query의 segmentation proposal 근거를 기록했습니다. mask support/outside는 native D/E/SELF 정답이나 실사 성능 개선을 뜻하지 않으며, 새 학습·현재 평가 추론·PnP는0입니다. 이전 기록은 아래에 보존합니다.
+
 ## 팔레트 가림: V246 공개 Pallox 원 query 조건부 근거 감사
 
 [보고서·고정 SOURCE 사례·코드·검산](_docs/experiments/pallet-keypoint-visibility/V246_PUBLIC_PALLOX_SAME_QUERY_AUDIT/README_KO.md). 기존 공개 TRAIN44프레임/352원 query를 보존하고, 선택22쌍의 기존 조건부 인증으로 같은 픽셀 근거를 진단했습니다. 새 학습·새 모델·현재 평가 추론은0이며 native gold나 실사 성능 개선을 뜻하지 않습니다. 이전 기록은 아래에 보존합니다.
