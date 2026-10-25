@@ -1,0 +1,84 @@
+{
+  "completed": true,
+  "PASS": true,
+  "PASS_scope": "Static full code/protocol comparison only; no actual feature/data/model payload or training executed by this review.",
+  "bindings": {
+    "head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_ATTENTION_IMPLEMENTATION_A/head.py",
+      "sha256": "042ffd9c7bced899e0de2546109cdaafff54db27b47d7cd24113eb056570c5dc",
+      "size_bytes": 2723
+    },
+    "trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_ATTENTION_IMPLEMENTATION_A/train_compare.py",
+      "sha256": "f46250ffd0a2ec3f0381be78f21de76f07a4ab6a4bbfc8998233b8f70d587dd4",
+      "size_bytes": 15370
+    },
+    "protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_ROOT_CONTEXT_PROBE/PROTOCOL_BEFORE_CONTEXT_FEATURES_OR_PROBE_FIT.json",
+      "sha256": "8f92b3da3d6e66df4e1bac2c7121ef975d2eb5f6b2c19ebf9215977881399462",
+      "size_bytes": 4477
+    }
+  },
+  "checks": {
+    "same_architecture_and_initial_parameter_state": {
+      "PASS": true,
+      "parameters_each": 4561,
+      "analytic_count": {
+        "classifier_1184to1": 1185,
+        "query_32to8": 264,
+        "key_388to8": 3112
+      },
+      "initialization": "CONTROL created once; TREAT deepcopy then only use_attention=True. Classifier weights/bias zero; query/key CPU-generator seed17 normal std.02 and zero bias. Runtime state hashes must match.",
+      "unused_control_attention": "CONTROL forward does not call query/key; active_l2 excludes them; fit asserts attention grad=None. Passing all parameters to Adam does not imply unused attention gets optimizer updates."
+    },
+    "read_and_normalization": {
+      "PASS": true,
+      "CONTROL": "unit_rows(fixedQ); identical localCLS/contextCLS/condition32 classifier concatenation.",
+      "TREAT": "unit_rows tokens; key=[384token,relative_xy2,squared_relative2], query=condition32; dot/sqrt8 softmax over256; normalize weighted descriptor.",
+      "statistics": "Unit L2 per row/token only; no train/DEV corpus statistic or fitted normalizer in these files."
+    },
+    "objective_and_budget": {
+      "PASS": true,
+      "balanced_BCE": "0.5*(mean_D_BCE+mean_E_BCE)",
+      "L2": "0.001*sum of squared classifier plus active attention parameters; CONTROL unused attention excluded.",
+      "optimizer": "Adam lr0.01 weight_decay0",
+      "updates_each": 300,
+      "batch": "All65 FIT indices each step; D57/E8 runtime guards. No other draw, tuning, early stop, seed or epoch sweep."
+    },
+    "role_and_barrier": {
+      "PASS": true,
+      "metadata_counts": "368 unique IDs;65FIT(D57/E8),303DEV(D267/E36); original frame→context index equality and native0..7 checked.",
+      "before_barrier": "Only fit_indices passed into feature_batch/model fitting. Both models set eval/requires_gradFalse and both FINAL300 states saved before ALL2_FINAL300_FROZEN_BEFORE_DEV_DESCRIPTOR_OR_LOGIT.json.",
+      "after_barrier": "DEV feature_batch, descriptor normalization/read and logits run after the saved barrier; metrics/gates computed only after both frozen models.",
+      "physical_decode_caveat": "feature_batch reads NPZ members that can numerically decode arrays containing DEV rows before the barrier, then selects FIT rows. This is disclosed; do not claim DEV bytes or all DEV numeric decoding were0. No DEV model tensor/descriptor-normalization/read/logit is used for training before the barrier."
+    },
+    "input_and_output_scope": {
+      "PASS": true,
+      "features_consumed": [
+        "localCLS",
+        "fixedQ",
+        "contextCLS",
+        "tokens",
+        "condition32",
+        "normalized_active_q"
+      ],
+      "no_explicit_GT_inputs_read": "No ROI/pose/reference/instance/depth/mask/native-gold key is read by head/trainer. They use the root-bound frozen feature packet and exact protocol/code/head SHA gates.",
+      "fixed_decoder": "logit>=0→E1 elseD0; CM has forced U0, explicitly not trained abstention/confidence.",
+      "all_arms_reported": "Both FIT/DEV metrics and row logits saved; SOURCE pass gates are the fixed protocol gates, not goal success or new protected inference."
+    }
+  },
+  "concrete_blockers": [],
+  "required_code_changes": [],
+  "limits": [
+    "FixedQ bilinear align_corners=False, original-q8 contextbox and local96 construction, frozen DINO provenance, and absence of hidden GT in precomputed feature values are feature-producer/data-binding authorities; those bodies were not part of this two-file code review. They must not be claimed independently reproduced here.",
+    "Runtime entry binds exact protocol, trainer, head and feature packet; this static review is not permission to open unspecified feature/weight/source payloads. Original-context metadata QA was separately completed.",
+    "The author self_test is defined to print JSON to stdout and has no literal saved result filename. No additional self-test metadata path was guessed/opened, and no model/fixture was executed by B in this code-only task.",
+    "SOURCE weak roles and reused DEV are not human physical native gold or fresh blind practical validation. YCB/synthetic integration is explicitly not accomplished by this probe.",
+    "No alternative architecture, training budget or thresholds were proposed."
+  ],
+  "actual_payload_stat_hash_header_or_decode": 0,
+  "model_import_forward_fit_or_selftest_execution_by_B": 0,
+  "source_protected_or_V112_filesystem_access": 0,
+  "source_code_modified": false,
+  "new_experiment_design_or_epoch_recommendation": false
+}

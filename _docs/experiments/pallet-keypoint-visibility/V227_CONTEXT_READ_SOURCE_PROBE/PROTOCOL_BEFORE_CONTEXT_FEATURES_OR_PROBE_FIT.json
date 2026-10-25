@@ -1,0 +1,48 @@
+{
+  "phase": "V227",
+  "created_UTC": "2026-10-25T01:06:48.495244+00:00",
+  "purpose": "One bounded SOURCE-only context-reading contrast, not another local RAW96 head variant. Existing DINO context+native role BCE acknowledged; learned query-conditioned read vs fixed bilinear read is the tested difference.",
+  "current_goal_complete": false,
+  "user_preference_pending_optional": "No reply to balanced/visible/E-priority question; use balanced D/E as working assumption, not user approval or deployment requirement.",
+  "allowed_data": "Only original MR6D public TRAIN151 inputs bound by ORIGINAL_TRAIN151_CONTEXT_INPUT_BINDINGS.jsonl. Select existing available weak D/E368 exactly; no new labels/reference quality promotion.",
+  "fixed_candidate_split": "V225 candidate reused verbatim: FIT65=D57/E8 and DEV303=D267/E36. No alternative split search. C65 or project-trained warmstart forbidden.",
+  "data_authority": "Weak associated native-role semantic D/E; actual physical coordinate quality unknown. Dev source reused/inspected, not fresh blind; not current223/publicheld performance.",
+  "encoder": "Pinned official frozen DINOv2 vits14_reg4, metadata f433177089a681826f849f194ece3bb48f4d63fb38d32fc837e3dc7a4e5641fb. Shared target context224 from original q8 unexpanded minmax and local96 original q/L. No GT region, instance, pose, mask, native reference or recenter.",
+  "features": "Frozen context CLS384, context256x384 patch tokens, local96-to224 DINO CLS384; original native/availability/relativeq condition32. Frozen encoder features may be computed for all selected rows; trainable fit and any learned normalization only FIT. Unit L2 per descriptor/token is per-row fixed math, not learned normalization.",
+  "CONTROL": "Classifier input [local384,fixed-bilinear-query-context384,contextCLS384,condition32]. Bilinear border align_corners=False at original q in original contextbox. Single linear binary logit.",
+  "TREAT": "Same classifier input and initialization, replace fixed bilinear context descriptor by learned softmax attention over all256 contextpatches. Query=Linear32to8(condition32), keys=Linear388to8([normalized patch384, patch_xy-active_q_xy and squared components4]); dot/sqrt8, softmax; weighted normalized patch descriptor. No hidden MLP, no changed input/query/target.",
+  "arms": 2,
+  "parameters": "CONTROL identical module with unused attention parameters for same state shape; unused parameters disclosed. TREAT attention trained, all other features/loss/split same.",
+  "training": {
+    "seed": 17,
+    "steps_each": 300,
+    "batch": "all65 FIT rows each step",
+    "optimizer": "Adam lr0.01, weight_decay0",
+    "balanced_BCE": "mean over D plus mean over E, divided2",
+    "explicit_L2": 0.001,
+    "L2_scope": "sum of classifier and active attention parameter squares; CONTROL attention excluded as unused",
+    "classifier_initialization": "zeros in both arms",
+    "attention_initialization": "seed17 normal std0.02, biases0",
+    "DEV_before_both_final_states_frozen": false,
+    "earlystop_checkpoint_seed_lr_epoch_sweep": false
+  },
+  "reporting": "Threshold logit0 fixed, D0/E1, no trained abstention; show CM/P/R/forced-binary U0 and class denominators; this does not solve abstention. Report all arms. No model selected from protected evaluations.",
+  "source_branch_pass_before_any_new_current_inference": {
+    "D_recall_min": 0.8,
+    "E_recall_min": 0.8,
+    "balanced_recall_gain_vs_CONTROL_min": 0.05,
+    "neither_class_recall_declines": true,
+    "interpretation": "Only evidence to pursue source method, not goal success or independent practical performance. If fail, do not extend epochs/seeds or try nearby head variants in this branch."
+  },
+  "scope": {
+    "current223_GT_RGB_feature_score_access": 0,
+    "publicheld45_oldVAL_HOLD_V177_V178_V194SOURCE_HOLDOUT_V182COMMON": 0,
+    "V112_filesystem_access": 0,
+    "PnP": 0,
+    "new_external_download_install": 0,
+    "SAM3_execution": 0,
+    "YCB_or_synthetic_used_in_this_probe": false,
+    "YCB_synthetic_goal_requirement": "Remains unsatisfied by this diagnostic contrast; existing prior training/history retained. If this reading mechanism passes, correct-authority source teacher integration remains required."
+  },
+  "execution_admission": "Root design frozen; exact code/assets/data bindings and independent data scope verification required before feature/model payload access. No permission question needed under existing user goal authorization."
+}

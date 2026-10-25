@@ -1,3 +1,5 @@
+[V227: 공개 SOURCE에서 고정 읽기 대 학습 attention; attention 추가 효과 미확인. 원 특징·두 head·736출력·실제 crop·학습 없는 검산기 공개, 새 실사 개선 아님.](_docs/experiments/pallet-keypoint-visibility/V227_CONTEXT_READ_SOURCE_PROBE/PORTABLE_REPORT_KO.md)
+
 [V226: 공개 원 query368개 reference 정합; 가림37/44 crop안, 좌표·역할·문맥 혼재 확인. 새학습/실사개선 결과 아님.](_docs/experiments/pallet-keypoint-visibility/V226_REFERENCE_ALIGNMENT/PORTABLE_REPORT_KO.md)
 
 [V225: 원 query crop15장·장면분리 점검; 독립 분리 후보 FIT의 가림 weak8개, 새학습/성능개선 결과 아님](_docs/experiments/pallet-keypoint-visibility/V225_DATA_AND_CROP_REVIEW/PORTABLE_REPORT_KO.md)

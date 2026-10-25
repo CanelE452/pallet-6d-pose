@@ -1,0 +1,209 @@
+{
+  "completed": true,
+  "PASS": true,
+  "PASS_scope": "Bounded runtime/input/loss CODE history, not performance or historical execution replay",
+  "index_input_policy": "Only Markdown link target strings were extracted from index bytes; labels/body meaning and evaluation numbers were not read for selection. Index bytes were necessarily traversed, not zero-byte access.",
+  "index_bindings": [
+    {
+      "path": "/home/minjae/Documents/pallet-visibility-publication-20261024/_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_THROUGH_V221_KO.md",
+      "sha256": "bf398947213028bb30de6586f64915827c741b7d8f7f227c906634400f20c130"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-visibility-publication-20261024/_docs/experiments/pallet-keypoint-visibility/EXPERIMENT_INDEX_KO.md",
+      "sha256": "9d9403ac8416d7d298c80352720b1b6b512831bc580f5b2fe55809940d6c0f9d"
+    }
+  ],
+  "representative_method_families": [
+    {
+      "family": "V68_FROZEN_SAM21",
+      "evidence": [
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/extract_source_masks.py",
+          "sha256": "185ccea1e43ff8cf43e57694c8e382d2dd8911538286a1a8f44218fdefdb81aa",
+          "lines": "217-238,248-261,313-319"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sam21_frozen_20261023_v68/PROTOCOL.json",
+          "sha256": "1e6a99030faf8b2c6cd1144b70b09395d55609c2b746c9fd7d12ad6f7e622128",
+          "lines": "model/fixed_inputs/prediction/query_use/sourcequery_sampling_limit"
+        }
+      ],
+      "outside_original_local_crop_RGB": true,
+      "RGB_received": "Full native RGB goes to predictor.set_image(rgb); same source box is a box-only prompt.",
+      "region_selection": "Unchanged sealed source prompt box; no GT mask/quality branch selection. Query coordinates are only read after full-native mask prediction.",
+      "initializer_only_provenance": "UNKNOWN for all historical source boxes: protocol explicitly states source queries originally had sourceGT guidance. Do not call this proof of production initializer-only selection.",
+      "query_conditioned_patch_read_before_pooling": false,
+      "conditioning": "Box prompt to SAM decoder; q itself is not a point prompt.",
+      "pretrained": "Official frozen SAM2.1 Hiera base-plus checkpoint; not trained here.",
+      "semantic_output": "Visible mask/query support, not semantic external/self/native-role classification.",
+      "execution_evidence": "Runtime code+frozen protocol only; extraction result/weights/masks/logs not reopened."
+    },
+    {
+      "family": "V74_NATIVE_CONTEXT_PROXY_PREPARATION",
+      "evidence": [
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/model_preparation/native_context_proxy_head.py",
+          "sha256": "9f738428a864ddb8cc4fd1197bf22fe4eabee3fc5912c7d01c8382420125c473",
+          "lines": "12,23-39,48-56,86-114"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_loco_native_context_20261023_v74/model_preparation/MODEL_PREPARATION_CONTRACT.json",
+          "sha256": "0aeb3f1ab26117127ea37fc5f106a16a587167d15bc6e4a01ac4242b73f48569",
+          "lines": "inputs/architecture/loss_and_selection/actual_source_forward"
+        }
+      ],
+      "outside_original_local_crop_RGB": "Declared target_rgb128 own-frame q8-box context plus local96/P3; actual wider extent depends on caller.",
+      "region_selection": "Contract says complete original initializer q8 input-only target box; no reference/GT/perm in forward. Full caller crop lineage not re-audited.",
+      "query_conditioned_patch_read_before_pooling": true,
+      "conditioning": "context42 MLP and pooled target feature broadcast into9x9 spatial fusion before predicted response/attention pooling. Not query-conditioned backbone encoding.",
+      "pretrained": "Local/target RGB encoders are new small CNNs; upstream cached P3 backbone pretraining UNKNOWN here.",
+      "semantic_output": "Conditional renderer proxy D/E/S, not physical native gold.",
+      "execution_evidence": "Explicitly untrained/generated-tensor preparation; actual_source_forward0/checkpoint_writtenfalse in contract. Do not present this component as an executed trained solution."
+    },
+    {
+      "family": "V78_DINO_POOLED_LOCAL_AND_TARGET",
+      "evidence": [
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/feature_preparation/extract_frozen_features.py",
+          "sha256": "8c0256d8a9520762308ec9005a7e78e91c2cda66b274a2d37e25c2baa5cec6a2",
+          "lines": "12-15,45-67,90-102,121-164"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/feature_preparation/pooling.py",
+          "sha256": "bb9f9ba54a7b1b00d417b987b2a761d8689248e560b927a6c74e7d735cb5a84b",
+          "lines": "5-34"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dino_query_support_20261023_v78/model/dino_pooled_query_support_head.py",
+          "sha256": "a6bedecadfa3862953ec641f87a4f01a67d3795e8b8064e9b1ed4bd2a27e6567",
+          "lines": "11-12,26-47"
+        }
+      ],
+      "outside_original_local_crop_RGB": "Separate target_rgb128 view and local_rgb96 are encoded. Target context can extend beyond a local crop; no whole-frame claim.",
+      "region_selection": "Producer reuses sealed original/controlled input-bank target views. Head accepts input-only context42; exact all-bank target crop origin is UNKNOWN in this bounded read.",
+      "query_conditioned_patch_read_before_pooling": false,
+      "conditioning": "Fixed center2x2 and whole-local patch weighted means; whole-target weighted mean; context42 enters after feature pooling in head.",
+      "pretrained": "Frozen pretrained DINOv2 ViT-S/14,384 patch channels. Factory pretrained=False then strict official checkpoint load does not mean random features.",
+      "semantic_output": "Query-support candidate; not direct V154 role_target proof (V78 precedes that source bridge).",
+      "execution_evidence": "Implemented feature producer/head code; saved feature/result payloads and actual training logs not reopened."
+    },
+    {
+      "family": "V107_V111_SPATIAL_TARGET_QUERY_FEATURES",
+      "evidence": [
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/target_context_math.py",
+          "sha256": "aa7cd8e2568c8b7d30827e8681b4b87899944bd23cfa1b27948ceda5b55d07f3",
+          "lines": "4-11,18-46"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+          "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+          "lines": "36-64,72-93,165-170"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+          "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de",
+          "lines": "28-38,73-102"
+        }
+      ],
+      "outside_original_local_crop_RGB": true,
+      "RGB_received": "Target/context224 view from original full RGB plus each original local96 and its central32. T=contextCLS,Q=context-query patch,F=localCLS,C=centralCLS,P=localcenterpatch; five384 vectors+8scalars=1928.",
+      "region_selection": "Context sampler accepts a frozen input box; query_extent uses finite q8 minmax. Old input-bank provenance and GT-jitter natural family are distinct. Do not call every historical q/box an actual initializer.",
+      "query_conditioned_patch_read_before_pooling": true,
+      "conditioning": "sample_Q_raw computes q-to-contextbox coordinates and bilinearly grid_samples final16x16 DINO patchtokens before collapsing to one Q vector. Encoder itself is not q-conditioned; fixed final-patch read is not learned cross-attention.",
+      "pretrained": "Frozen pretrained DINOv2 ViT-S/14 reg4; register features themselves not used.",
+      "head_consumption": "Trainer head consumes all1928 and T/C,Q/P absolute/product relations. It does not use contextCLS alone.",
+      "target_loss": "Pinned C10 external_target + supervised_loss path, not a V154 original-query-role binding in this method.",
+      "execution_evidence": "Runtime/trainer code only; old mixed source row/feature/checkpoint/result files not read."
+    },
+    {
+      "family": "V153_V155_ORIGINAL_INITIALIZER_DINO_CONTEXT_AND_ROLE_LOSS",
+      "evidence": [
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_mr6d_full_public_source_20261024_v153/initializer_feature_preparation/encode_full230.py",
+          "sha256": "0294e12c7dcae7ede4f0d76d6766decf1b2f3e8e626b4e6645d31d1108e4d2d5",
+          "lines": "18,46-63,132-167,193"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/train_independent_warm_fresh_control.py",
+          "sha256": "86e534653cb7ff27fe412bed5b5a58875fbbd1f925591f85804ccebebadca6a2",
+          "lines": "75-91,214-227,250-267,323-337"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/independent_head_preparation/independent_query_head.py",
+          "sha256": "3c54dc75d6650aabce8b76a277998fded6f77f22293ba408bdddd998104bb39a",
+          "lines": "24-29,63-72"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_independent_auxiliary_source_control_20261024_v155/source_fit_preparation/PROTOCOL_BEFORE_SOURCE_FEATURE_OR_CHECKPOINT_BODIES.json",
+          "sha256": "a042ca1c7daa02959f08ccc45ee65920870d40090518b8ec61c685b7e50910d8",
+          "lines": "source_supervision_seal/source_labels/MR_feature_seal/MR_features"
+        }
+      ],
+      "outside_original_local_crop_RGB": true,
+      "region_selection": "BOX_MODE FROZEN_INITIAL_Q8_UNCLIPPED_UNEXPANDED_MINMAX; detector candidate uses score argmax and R0 GT_read false; target224 sampled from original fullRGB. Original q/L/native and IDs checked. No per-image GT instance/ref/ROI selects this feature crop.",
+      "query_conditioned_patch_read_before_pooling": true,
+      "conditioning": "Exact inherited V111 Q bilinear final-patch read from q8-derived context map; not q-conditioned backbone. V155 caller additionally passes zero geometry42 rather than using a new q8 geometry hint.",
+      "pretrained": "Frozen pretrained DINOv2 ViT-S/14 reg4, same T/Q/F/C/P1928 format.",
+      "V154_role_D_E_direct_loss": true,
+      "target_loss": "Protocol binds V154 ROOT_ALL1840_SEPARATE_QUERY_SUPERVISION e5c37048... via supervisionseal d6915b0a.... labels_and_masks takes role_target; vi=available & SOURCE_DEVELOPMENT & role>=0; ym=role[vi]; ml=balancedBCE(mo.external_occlusion,ym); loss includes ml separately from entity el and quality ql.",
+      "authority": "Existing assistant weak original-query native-role correspondence, not human/native physical point gold. It is not merely owner/entity AUX.",
+      "comparison_limit": "The proposed current selected368/revised component split is not the same old broad SOURCE_DEVELOPMENT split. This audit does not verify per-row historical update participation or outcomes, and does not create new admission.",
+      "execution_evidence": "Frozen protocol+trainer route confirmed; no old mixed label row, source score, fit log, checkpoint or performance report reopened."
+    },
+    {
+      "family": "V165_V166_DINO_CONTEXT_INTENDED_PART_CONTROLS",
+      "evidence": [
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_frozen_features_20261024_v165/feature_preparation/encode_all143_part_inputs.py",
+          "sha256": "2a9398f8edcdeb82ee922e6d4602d44678abdbef7186b74e4d60789565ce0469",
+          "lines": "20,38-71,73-87,226-228,251-270"
+        },
+        {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_native_part_supervision_control_20261024_v166/controlled_fit_preparation/train_native_part_supervision_control.py",
+          "sha256": "0f5de46a7f654c449e8b435bc03389f91be0a7aed72a1906f8601e402c6df5f6",
+          "lines": "63,145-174,389-405,522-542,559-562"
+        }
+      ],
+      "outside_original_local_crop_RGB": true,
+      "region_selection": "target224 and original context_box inherited from unchanged V153 initializer frame; original query/L/native exact parity checked. ROI/alpha is construction/target proof, not a head input or GT recrop selector.",
+      "query_conditioned_patch_read_before_pooling": true,
+      "conditioning": "Same fixed Q bilinear DINO final-patch read via V111 assemble; target1/full8/central8 views. No new learned query-conditioned encoder.",
+      "pretrained": "Same frozen DINOv2 reg4.",
+      "target_loss": "V166 inherits V155 role/entity/quality paths and separately adds controlled finite-part COVER/SHAM weak BCE in one condition. Code keeps physical native/quality/owner fields=-1 for the CF packet; part-native name is weak neighborhood authority, not exact corner gold.",
+      "execution_evidence": "Feature/trainer code only; no input-metadata rows, pixels, labels, scores or checkpoints reopened."
+    }
+  ],
+  "conclusions_KO": [
+    "기존 코드에는 local96 밖 target/context RGB를 쓰는 경로가 이미 존재한다. 특히 V153은 원 initializer q8 minmax로 영역을 정하고 per-image GT 없이 frozen DINO context를 만든다. 밖 RGB 문맥 자체를 미시도 신규라고 부를 수 없다.",
+    "V111의 Q는 전체 context patch를 CLS/평균 한 개로만 버리기 전에 원q 위치에서 읽는 고정 bilinear read이다. 이것은 encoder 자체의 query-conditioning이나 학습된 cross-attention과 같지 않다.",
+    "V74에는 context42로 spatial fusion/attention을 조건화하는 준비 head도 있지만 계약이 untrained임을 명시한다. 모델 정의 존재와 실제 학습/성공을 혼동하지 않는다.",
+    "V155는 V154 original-query role_target D/E를 external_occlusion balanced BCE에 직접 넣는 코드·프로토콜이 있다. 따라서 original-query role D/E+frozen context feature 조합 자체도 신규 미사용이라고 단정하면 안 된다. 현재 C65→V223의 owner-only AUX 경로와는 구별해야 한다.",
+    "기존 broad SOURCE_DEVELOPMENT 사용과 현재368/새 component 후보는 같은 실험이 아니다. 데이터/마스크/손실/초기화/예산 차이를 고정하기 전 중복 아님 또는 개선 가능을 단정하지 않는다.",
+    "이번 검토는 코드 입력·loss route만 확인했다. 실제 과거 선택368행의 업데이트별 사용, 성능·독립검증·성공여부는 로그/배열/결과를 열지 않아 인증하지 않는다."
+  ],
+  "prohibited_claims_KO": [
+    "과거에는 pretrained RGB/context를 쓰지 않았다.",
+    "과거에는 query로 pooling 전 patch를 읽지 않았다.",
+    "기존 원query weak D/E는 모든 과거 head에서 owner AUX로만 썼다.",
+    "이전 context 코드가 있으므로 이미 효과 또는 실패인과가 입증됐다.",
+    "고정 Q read와 learned spatial attention은 동일하므로 모든 향후 구조가 중복이다.",
+    "source GT-jitter/GT-guided source box를 실제 production initializer-only 증거로 부른다."
+  ],
+  "read_scope": {
+    "code_text_and_frozen_protocol_only": true,
+    "source_rows_mixed_or_protected": 0,
+    "images_NPZ_PT_GT_or_score_payload_FS": 0,
+    "actual_model_import_or_forward_training": 0,
+    "code_execution": 0,
+    "V112_FS": 0,
+    "protected_current_publicheld_oldVAL_HOLD_sourceHOLD_COMMON_payload_FS": 0,
+    "broad_P_scan": 0,
+    "discovery": "Two exact index targets; names-only inside selected phase preparation/model directories; exact literal code dependencies. No report/result/CSV/table bodies read.",
+    "new_architecture_or_training_design": false,
+    "source_edits": false,
+    "performance_used_for_method_selection": false
+  },
+  "output_files": 1,
+  "further_history_expansion_stopped": true
+}
