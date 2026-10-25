@@ -1,3 +1,5 @@
+> [V254：저장된 동일 query 가림 대조 반응](_docs/experiments/pallet-keypoint-visibility/V254_SAVED_SOURCE_COUNTERFACTUAL_RESPONSE/README_KO.md) — 새 학습 없이 저장된 세 모델의 같은 초기 좌표 BEFORE·COVER·SHAM 반응과 누락을 검산합니다. 현재 평가 데이터와 PnP는 사용하지 않았습니다.
+
 > [V253：저장 오판·참조 점수·Source FIT crop 진단](_docs/experiments/pallet-keypoint-visibility/V253_SAVED_FAILURE_SOURCE_FIT_CROP_AUDIT/README_KO.md) — 새 학습 없이 저장 점수의 오판 전이와 참조 분포를 검산하고, 고정 규칙으로 선택한 Source FIT crop을 공개합니다. 현재 평가 데이터와 PnP는 사용하지 않았습니다.
 
 > [V252：참조 특징에서 직접 판정하는 head의 SOURCE 비교](_docs/experiments/pallet-keypoint-visibility/V252_DIRECT_REFERENCE_HEAD_SOURCE_FIT/README_KO.md) — 합성·공개 실사 FIT으로 direct head 두 개를 각각 1,000회 학습하고, 두 checkpoint를 봉인한 뒤 SOURCE DEV를 평가했습니다. 실제 팔레트 전이는 별도 검증 대상입니다.
