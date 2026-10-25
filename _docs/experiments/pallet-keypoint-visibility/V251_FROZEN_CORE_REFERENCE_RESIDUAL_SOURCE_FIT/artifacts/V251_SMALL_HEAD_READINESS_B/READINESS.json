@@ -1,0 +1,169 @@
+{
+  "completed": true,
+  "PASS": true,
+  "status": "CODE_METADATA_READINESS_AND_PENDING_PROPOSAL_ONLY",
+  "actual_execution_authorized": false,
+  "code_bindings": {
+    "canonical_trainer": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_CANONICAL_PAIRED_TRAINER_A/train_canonical_pair.py",
+        "sha256": "ce3380b5938132717d349b7be27545e5347110da8663d2b698ec44c96dbfe419",
+        "size_bytes": 27187
+      },
+      "CODE_locations": {
+        "validate_samples": 139,
+        "fixed_draws": 154,
+        "family_loss": 163,
+        "source_gate": 187,
+        "global_feature_QA": 207,
+        "train_arm": 248,
+        "run": 271
+      }
+    },
+    "matched_AUX_trainer": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V248_PUBLIC_PIXEL_AUX_TRAINER_A/train_public_pixel_aux.py",
+        "sha256": "54da22049cac30b308daf7dddc96dd0f43a52c077afaa4787d7b8afa13e912bc",
+        "size_bytes": 45082
+      },
+      "CODE_locations": {
+        "PublicPixelAuxModel": 267,
+        "make_models": 410,
+        "combined_gate": 514,
+        "run": 524
+      }
+    },
+    "existing_head": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V237_RELATIONAL_QUERY_DESIGN_B/relational_query_head.py",
+        "sha256": "dfd26ab7ccfa7037f0c3dca548d59c8574aa8b78c50699f70f01e03bf48935a9",
+        "size_bytes": 6915
+      },
+      "CODE_locations": {
+        "CropFamilyHead": 10,
+        "RelationalQueryResidual": 20,
+        "RelationalQueryHead": 74,
+        "fixed_family_decode": 102
+      }
+    }
+  },
+  "metadata_read": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_CANONICAL_PAIRED_TRAINER_A/FINAL_READY.json",
+      "sha256": "73c0e76acf2f4f3b9c34188707ba81397837267e6fab224c6d07ecd868783bb0",
+      "size_bytes": 2389
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V248_ROOT_PUBLIC_PIXEL_AUX/PROTOCOL_BEFORE_NEW_AUX_ARRAYS_OR_FEATURES_OR_FIT.json",
+      "sha256": "f66d9e29f85141527aa2761311a29e512d611c6ba14b287d21dbb08c589e4fda",
+      "size_bytes": 8603
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V248_ROOT_PUBLIC_PIXEL_AUX/matched_source_public_pixel_aux_fit_v1/COMPLETE.json",
+      "sha256": "35c169e9263734b6b0faa5d73f71c18f2e5efbe0a195d9c64a15c815d69e870a",
+      "size_bytes": 13202
+    }
+  ],
+  "observed_CODE_facts": {
+    "canonical_source": {
+      "known_rows": 7617,
+      "original_rows": 15040,
+      "loss_masked_S_U": 7423,
+      "FIT_known": 5876,
+      "DEV_known": 1741,
+      "sample_members": [
+        "full_view",
+        "central_view",
+        "fractions",
+        "central4",
+        "condition",
+        "target",
+        "family",
+        "fit",
+        "available",
+        "row_id"
+      ],
+      "sample_target": "int8 knownD0/E1; S/U are outside known7617 rather than promoted",
+      "family": "0 SYN intended-native MAIN;1 YCB associated-r AUX; not interchangeable physical gold",
+      "sample_condition": "FP32[N,32]; SYN original first8 native-address onehot plus originalavailability8/relativeXY16; YCB exactzero32/nativeUNKNOWN",
+      "features": "frozen FP32[N,1186]: full96CLS384, fixed-centreQ384, centre32CLS384, fractions2, originalcondition32",
+      "mappings": "SAMPLE_GROUP_INDEX/NODE_INDEX; active first384 byteexact NODE_CLS[group,slot]",
+      "role_QA": "No original group overlap FIT/DEV; available equality and original fractions/condition bytes retained"
+    },
+    "loss_and_draws": {
+      "loss": ".5*(mean BCEwithlogits(logit[:,0],target) on family0 + mean BCEwithlogits(logit[:,1],target) on family1); two independent binary scalar outputs, no softmax",
+      "draws": "PCG64 seed17,1000 updates×32; SYN_D8/SYN_E8/YCB_D8/YCB_E8; replace=True; FIT&available&known only",
+      "draws_SHA256": "20a1fc74ea15a04a16fe29f8e5b9a114b4629677710ed43c1628b2a1ac00b734",
+      "optimizer": "AdamW lr.001 weight_decay.0001; no scheduler/earlystop",
+      "decode": "Selectedfamily raw E-logit>=0 (equiv sigmoid>=.5), never rawlogit>=.5. Original unavailable input remainsU."
+    },
+    "head_history": {
+      "local_base": "CropFamilyHead1186→64→ReLU→2:76098 params; final Linear2 zero-init",
+      "relational": "V237/V239 already adds same-actual-image other7 nodeCLS+contextCLS relation,9956 params,total86054. Not a new external bank method.",
+      "V248": "Same relational core +65 public conditional-pixel scalar sharing visual stem; separate AUX labels/nativeUNKNOWN; outputroute of original SOURCE still unchanged",
+      "canonical_feature_pipeline": "Frozen official DINO, fixed ImageNet preprocessing/unit-L2; no fitted normalization statistics to change"
+    },
+    "historical_gate": {
+      "code": "V239.source_gate reused verbatim byV248",
+      "authority": "historical only; Root must freeze the V251 comparator/applicability before payload/fit",
+      "requirements": "mean family DEV balanced recall gain>=3pp; every family D/E recall drop<=2pp; YCB DEV E>=.50; SYN DEV D andE each>=.90; absent class FAIL; no automatic current admission",
+      "V248_added_gates_not_automatically_inherited": "matched public AUX effect +1pp and conditional AUX V/E80% concerned separate V248 trial"
+    }
+  },
+  "pending_minimal_recipe_FOR_ROOT_SELECTION_NOT_IMPLEMENTED": {
+    "scientific_change": "Learn D/E supervision conditioned on external frozen SOURCEFIT-D reference appearance; compare new matched CONTROL and TREAT, not oracle-AUC alone. Does not introduce new same-image context or claim first-ever cosine use.",
+    "bank_namespace": {
+      "SYN_MAIN": "Proposed fixed3view×8 bank from original available finite nonzero SOURCEFIT-D grouped by ORIGINAL native slot0..7; pool both pallet types without inventing material/class fields. Select bank using original initializer native slot, no trueGTID. This input slot is not a newly certified canonical anatomical mapping.",
+      "YCB_AUX": "Reuse exact frozen V2493view×4 supervised object bank; reference index chosen by fixed V250 input-only leave-active-out selector, not true query object. True object IDs only later evaluation.",
+      "alternative_reference": "If Root freezes cyclicnext, SYNnext-native is a fixed alternative part reference, not certified wrong object or E negative. YCBnextbank is frozen cyclic next index. Label truth remains original D/E.",
+      "missing_support": "Per-view unsupported selected/next reference => zero corresponding input scores with explicit supportfalse; retain original row/target/U. No E imputation, new semantic availability, silent bank removal or teacher-owner filter. Exact support fallback awaits Root protocol."
+    },
+    "candidate_forward_API": {
+      "arguments": [
+        "query1186:FP32[B,1186]",
+        "reference_pair9:FP32[B,9]"
+      ],
+      "reference_pair9": "selected cosine3 + next cosine3 + support3, all3fixedviews jointly. Margins are deterministic selected−next and need not duplicate input. Input-side selector can consume original othernodes/masks; head never receives true objectID/state/role/r/ref coordinates/pose/depth/owner.",
+      "head": "Original seed17 local queryLinear1186→64 + zero-init bias-free referenceLinear9→64, add before sameReLU then existing2-output; total76098+576=76674 params. Construct base before reference branch so old initialbase can be checked if Root requires.",
+      "CONTROL": "Identical architecture/init; reference_pair9 exactzeros.576 reference weights are unused nuisance capacity, disclosed.",
+      "TREAT": "Identical architecture/init; input-selected references9; no trueID oracle routing.",
+      "effect_claim": "Bundle effect of explicit external reference scores+input selector+learned head vs samequeryhead; not pure retrieval improvement or isolation of scalarcosine causal mechanism."
+    },
+    "matched_training_proposal": "Both fresh seed17 localbase/newreference head; independent identical AdamW optimizers; same original1000×32 fixed ledger/loss/roles/normalization. No V248 publicpixel AUX carryover or newCF unless Root separately changes protocol before payload.1000steps is proposal inherited from old recipe, not yet V251 authorization.",
+    "freeze_evaluate": "Both final checkpoints/logs and bank/provenance/selection policy frozen before first learned DEV outputs; rawthreshold0 fixed; all fixedviews input jointly, no best-view/seed/epoch/threshold selection. SYN main andYCB AUX metrics remain separate."
+  },
+  "inert_SOURCE_bindings_do_not_follow": {
+    "features": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_ROOT_CANONICAL_CONTEXT/canonical_source_features_v1/ORIGINAL_ALL_FEATURES.npy",
+      "sha256": "607acc267dbd6f35e7a3fc6da4bcd1fb5e225f3f7045815702e67357f50463e1",
+      "size_bytes": 36135176
+    },
+    "samples": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_ROOT_CROP_ADAPTATION/crop_samples_v1/samples.npz",
+      "sha256": "837bbe7ff406e27c6ed2981493a83c2adab830cd5b2de498e4a48de456456e99",
+      "size_bytes": 2325681
+    },
+    "YCB_frozen_bank": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V249_ROOT_TARGET_RGB_DIAGNOSTIC/oracle_rgb_reference_diagnostic_v1/PROTOTYPES.npz",
+      "sha256": "d8aa3853a39efcf16f3d26ac74e3d58c3cb6e36a61c81b1fedf6674a77076d39",
+      "size_bytes": 38090
+    }
+  },
+  "unknowns_and_missing_authority": [
+    "No actual per-native SYN FIT-D reference support/census calculated; bank must be formed and checked only after prospective Root scope.",
+    "SYN material/CAD/class field is absent in samples; A reports upstream scene factors exist but current class-body access0. Native-only proposal does not require invented wood/square or YCB-class equivalence.",
+    "Cross-source physical anatomy/material/instance equivalence and realpallet transfer are unproved. INPUT native address differs from canonical anatomy authority.",
+    "Root/A must agree on bank grouping, comparator bank, unsupported policy, exact head/init/budget and acceptance comparator in frozen V251 protocol before implementation/actual entries."
+  ],
+  "access_this_task": {
+    "CODE_metadata_texts_only": true,
+    "actual_SOURCE_NPY_NPZ_header_stat_hash_or_body": 0,
+    "SOURCE_CSV_body": 0,
+    "RGB_GT_weights_checkpoint_or_model": 0,
+    "current_held_aggregate_or_score": 0,
+    "new_training_or_forward": 0,
+    "new_model_or_data_selection_executed": false,
+    "broad_search": 0
+  },
+  "frozen_prior_files_modified": false
+}

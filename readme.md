@@ -1,3 +1,5 @@
+> [V251：동결 core와 참조 residual의 SOURCE 학습 비교](_docs/experiments/pallet-keypoint-visibility/V251_FROZEN_CORE_REFERENCE_RESIDUAL_SOURCE_FIT/README_KO.md) — 합성·공개 실사 FIT으로 참조 head와 대조군을 각각 1,000회 학습하고, 두 checkpoint를 봉인한 뒤 SOURCE DEV를 평가했습니다. 실제 팔레트 전이는 별도 검증 대상입니다.
+
 > [V250：정답 ID 없이 주변 q8으로 참조를 선택한 SOURCE 진단](_docs/experiments/pallet-keypoint-visibility/V250_INPUT_ONLY_REFERENCE_SELECTOR/README_KO.md) — 정답 라벨을 읽기 전에 1,521행의 참조 선택과 세 특징 점수를 봉인했습니다. SOURCE 진단이며 새 배포 모델·팔레트 정확도가 아닙니다.
 
 <!-- V249 actual SOURCE oracle-reference diagnostic -->
