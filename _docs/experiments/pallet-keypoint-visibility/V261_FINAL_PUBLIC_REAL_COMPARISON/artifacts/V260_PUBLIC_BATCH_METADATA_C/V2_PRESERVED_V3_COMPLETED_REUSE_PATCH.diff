@@ -1,0 +1,121 @@
+--- public_batch_v2.py (preserved)
++++ public_batch_v3.py (explicit completed-file reuse)
+@@ -228,11 +228,64 @@
+         return super().redirect_request(req, fp, code, msg, headers, newurl)
+ 
+ 
++def validated_reuse_plan(e, previous_entry, previous_failure, needed):
++    need(e.get('explicit_user_authorized_resumption') is True,
++         'Root explicit user-authorized resumption required; never automatic retry')
++    need(previous_entry['code']['sha256'] == '23c59ba4e769a0c988993441bf2eee541060cdd262257edae4e8a2afa4f0d629' and
++         previous_entry['metadata_manifest'] == e['metadata_manifest'] and
++         previous_entry['bundle_ids'] == e['bundle_ids'] and
++         previous_entry['exact_download_allowlist'] == e['exact_download_allowlist'] and
++         previous_entry['redirect_scope'] == e['redirect_scope'], 'Same sealed V2 official allowlist/scope')
++    need(previous_failure.get('completed') is False and previous_failure.get('PASS') is False and
++         previous_failure.get('automatic_retry') is False, 'Preserved failed/interrupted V2 receipt')
++    completed = previous_failure['completed_downloads']
++    old_by_id = {r['file_id']: r for r in completed}
++    need(len(old_by_id) == len(completed), 'Unique previous completed IDs')
++    reusable = set(old_by_id) & set(needed)
++    planned = e['reuse_files']
++    need(len(planned) == len(reusable) == e['expected_reused_completed_files'] and
++         {r['publisherfile_id'] for r in planned} == reusable, 'Exact completed-file reuse subset; no partial records')
++    result = {}
++    for r in planned:
++        file_id = r['publisherfile_id']; before = old_by_id[file_id]; expected = needed[file_id]
++        source = r['source']
++        need(source == {k: before[k] for k in ('path', 'sha256', 'size_bytes')} and
++             r['original_MD5'] == before['publisher_MD5_verified'] == expected['publisher_MD5'] and
++             source['size_bytes'] == expected['size_bytes'] and
++             before['publisher_relative_path'] == expected['publisher_relative_path'],
++             'Reuse exact completed binding/metadata MD5/size/path')
++        need(not str(source['path']).casefold().endswith('.part'), 'Partial files never reused')
++        need(len(source['sha256']) == 64, 'Completed SHA256 required')
++        result[file_id] = r
++    return result
++
++
++def copy_verified_reuse(source, destination, expected):
++    # Source is an explicitly authorized completed-file binding, never a directory or .part.
++    need(not str(source['path']).casefold().endswith('.part'), 'Partial files never copied')
++    fd = os.open(safe(source['path']), os.O_RDONLY | os.O_NOFOLLOW)
++    part = safe(destination.with_name(destination.name+'.part'), False)
++    count, sha, md5 = 0, hashlib.sha256(), hashlib.md5()
++    with os.fdopen(fd, 'rb') as src, part.open('xb') as dst:
++        while True:
++            chunk = src.read(1024*1024)
++            if not chunk:break
++            count += len(chunk);need(count <= source['size_bytes'], 'Reuse source exceeds exact bound size')
++            sha.update(chunk);md5.update(chunk);dst.write(chunk)
++    need(count == source['size_bytes'] == expected['size_bytes'] and
++         sha.hexdigest() == source['sha256'] and md5.hexdigest() == expected['publisher_MD5'],
++         'Reuse source exact SHA256/size/publisherMD5; no GET fallback')
++    part.rename(destination)
++    return {'sha256':sha.hexdigest(), 'size_bytes':count, 'publisher_MD5_verified':md5.hexdigest()}
++
++
+ def download(entry_path):
+     """Future only: opaque MD5/size-checked files, no decoder/labels/models."""
+     e = json.loads(safe(entry_path).read_bytes())
+     need(e.get('approved_actual_public_allowlist_download') is True and e.get('opaque_only') is True,
+          'Root future exact public download entry required')
++    need(e.get('explicit_user_authorized_resumption') is True,
++         'Root explicit user-authorized resumption required before metadata access')
+     need(e.get('training_admission') is False and e.get('automatic_retry') is False,
+          'No automatic retry or training permission')
+     need(e.get('Rootapproved_same_dataset_official_redirect') is True and
+@@ -242,8 +295,8 @@
+     need(manifest['source_API']['sha256'] == API_SHA and manifest['source_README']['sha256'] == README_SHA,
+          'Same sealed official metadata')
+     all_bundles = {r['bundle_id']: r for r in manifest['complete_bundles']}
+-    need(len(e['bundle_ids']) == len(set(e['bundle_ids'])) > 0 and set(e['bundle_ids']) <= set(all_bundles),
+-         'Root selects literal complete bundle IDs, no discovery')
++    need(len(e['bundle_ids']) == len(set(e['bundle_ids'])) > 0 and set(e['bundle_ids']) == set(all_bundles),
++         'Root explicit full284 complete bundle set, no new selection or discovery')
+     needed = {}
+     for name in e['bundle_ids']:
+         row = all_bundles[name]
+@@ -256,7 +309,10 @@
+         need(x['publisher_relative_path'] == f['publisher_relative_path'] and x['size_bytes'] == f['size_bytes'] and
+              x['publisher_MD5'] == f['publisher_MD5'], 'Entry matches public metadata')
+         need(x['url'] == 'https://rdr.kuleuven.be/api/access/datafile/'+str(x['file_id']), 'Exact official HTTPS endpoint')
+-    out = safe(e['output_directory'], False);need(not out.exists(), 'Fresh opaque output; no resume');out.mkdir()
++    previous_entry = json.loads(bound_read(e['previous_download_entry']))
++    previous_failure = json.loads(bound_read(e['previous_failure']))
++    reuse = validated_reuse_plan(e, previous_entry, previous_failure, needed)
++    out = safe(e['output_directory'], False);need(not out.exists(), 'Fresh V3 opaque output; never in-place resume');out.mkdir()
+     completed, stage = [], 'before_first_request'
+     try:
+         for x in sorted(allowed, key=lambda a: a['publisher_relative_path']):
+@@ -265,6 +321,12 @@
+             need(not relative.is_absolute() and '..' not in relative.parts and
+                  not any(t in stage.casefold() for t in ('v112','cache','.pyc')), 'Safe declared destination')
+             p = safe(out/relative, False);p.parent.mkdir(parents=True, exist_ok=True)
++            if x['file_id'] in reuse:
++                source = reuse[x['file_id']]['source']
++                copied = copy_verified_reuse(source, p, needed[x['file_id']])
++                completed.append({'file_id':x['file_id'], 'publisher_relative_path':stage, 'url':x['url'],
++                                  'path':str(p), **copied, 'operation':'REUSE_VERIFIED_COPY', 'source':source})
++                continue
+             part = safe(p.with_name(p.name+'.part'), False)
+             count, md5, sha = 0, hashlib.md5(), hashlib.sha256()
+             request = urllib.request.Request(x['url'], headers={'User-Agent':'PublicMetadataBoundOpaqueCollector/1.0'})
+@@ -284,9 +346,16 @@
+             part.rename(p)
+             completed.append({'file_id':x['file_id'], 'publisher_relative_path':stage, 'url':x['url'],
+                               'path':str(p), 'sha256':sha.hexdigest(), 'size_bytes':count, 'publisher_MD5_verified':md5.hexdigest(),
+-                              'official_redirect_events':redirect.events, 'final_origin_redacted':final_origin})
++                              'official_redirect_events':redirect.events, 'final_origin_redacted':final_origin,
++                              'operation':'GET_OFFICIAL_SCOPE'})
++            if len(completed) % 25 == 0:
++                print(json.dumps({'stage':'opaque_public_files', 'completed_files':len(completed),
++                                  'required_files':len(needed), 'reused_files':len(reuse)}), flush=True)
+         receipt = dump(out/'OPAQUE_DOWNLOAD_COMPLETE.json', {'completed':True,'PASS':True,'entry':binding(entry_path),
+                        'metadata_manifest':e['metadata_manifest'],'downloads':completed,'decoded_files':0,
++                       'previous_failure':e['previous_failure'], 'previous_download_entry':e['previous_download_entry'],
++                       'explicit_user_authorized_resumption':True, 'reused_verified_files':len(reuse),
++                       'new_GET_files':len(completed)-len(reuse), 'required_files':len(needed),
+                        'labels_models_training_or_evaluation':0,'training_admission':False})
+         print(json.dumps({'completed':True,'PASS':True,'receipt':receipt},sort_keys=True))
+     except BaseException as exc:

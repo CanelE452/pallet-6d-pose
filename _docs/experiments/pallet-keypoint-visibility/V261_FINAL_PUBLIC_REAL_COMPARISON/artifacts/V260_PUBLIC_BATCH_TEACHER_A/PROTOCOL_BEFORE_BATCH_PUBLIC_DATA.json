@@ -1,0 +1,114 @@
+{
+  "completed": true,
+  "status": "CODE_ONLY_PREPARED_NOT_RUN_ON_PUBLIC_DATA",
+  "driver": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V260_PUBLIC_BATCH_TEACHER_A/compile_public_batch.py",
+    "sha256": "4f483b6106c4f09e2ad9073bae6873ac2adc1efc9a39c976257f0b106fa70583",
+    "size_bytes": 17256
+  },
+  "projection_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V258_PUBLIC_RGBD_PROJECTION_C/rgbd_geometry_v2.py",
+    "sha256": "820803cfe9e2657a1f8fcedda18b17ef12471ae576ae2b099ef3f6dccd98116a",
+    "size_bytes": 17436
+  },
+  "compiler_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V259_PUBLIC_SURFACE_LABEL_COMPILER_B/surface_label_compiler.py",
+    "sha256": "20e226a7fe8c2b2515c3c5be05d0b4ef785c6de4040625ce5c0b11cd3316746a",
+    "size_bytes": 11673
+  },
+  "policy": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V259_ROOT_PUBLIC_OCCLUSION_PILOT/PROSPECTIVE_SURFACE_LABEL_POLICY.json",
+    "sha256": "793d580f602768c02ddebedf174f6d84d6b1d0dcbc04e71e33cb6afedf72f3e8",
+    "size_bytes": 2253
+  },
+  "CLI": "python -B compile_public_batch.py --entry /ABS/ROOT_TRUE_ENTRY.json",
+  "authorization": "Root explicit approved_public_surface_batch_teacher true, exact driver SHA and every local input complete binding are required. Preparation authorizes no public payload access/download.",
+  "frame_schema": {
+    "frame_id": "unique inert public bundle identity, never used as an artifact path",
+    "inputs": {
+      "RGB": {
+        "path": "ABS",
+        "sha256": "64 hex",
+        "size_bytes": "int"
+      },
+      "DEPTH": {
+        "path": "ABS",
+        "sha256": "64 hex",
+        "size_bytes": "int"
+      },
+      "POSE": {
+        "path": "ABS",
+        "sha256": "64 hex",
+        "size_bytes": "int"
+      },
+      "SAM": {
+        "path": "ABS",
+        "sha256": "64 hex",
+        "size_bytes": "int"
+      },
+      "K": {
+        "path": "ABS",
+        "sha256": "64 hex",
+        "size_bytes": "int"
+      },
+      "OBJ": {
+        "path": "ABS",
+        "sha256": "64 hex",
+        "size_bytes": "int"
+      }
+    },
+    "provenance": "optional inert JSON object; no pointers followed"
+  },
+  "caller_plan": "Caller binds the predeclared complete public bundle list. Driver uses all listed frames, no source/group/pose/label/IoU/outcome selection. Coarse capture groups are not certified independent sessions.",
+  "fixed_math": [
+    "Pinned geometry module only, parse xyz/triangles with material refs inert; no mesh scaling/axis correction/triangulation/pose fitting.",
+    "Original integer depth float64/1000; depth0 becomes NaN. SAM uint8 values must be 0/255. K3x3/T4x4 use pinned validation.",
+    "T is always main object-to-camera convention. T and inverseT diagnostics retained; no winner selection. Same near/epsilon/tolerances from pinned geometry.",
+    "Pinned surface compiler and exact original policy:11x11 valid/stable windows; D full SAM target and residual abs<=.05; E full SAM background and residual<=-.15; all else U.",
+    "Exact original r-grid stride8/offset4 and all9 q offsets preserved; shape480x640 yields4800r/43200q. Other listed shapes retain the same rule, no resize.",
+    "r state and q SAM presence remain separate; query_pixel_DE_gold null, emulated q never claimed as fresh initializer, native_slot null and SELF UNKNOWN."
+  ],
+  "streaming_and_failure": [
+    "Per-frame files written under frames/F000000 by declared order; frame_id remains metadata.",
+    "Geometry validation/unsupported main render is explicit geometry UNKNOWN: missing main depth represented as NaN, unchanged compiler yields U; no fallback to inverseT.",
+    "Integrity/hash/decode/process failure gets FRAME_FAILURE and overall PASSfalse; listed frame remains in FRAME_INDEX and original STARTED plan. Other listed frames are attempted once, no retry.",
+    "Frame compilation PASS means deterministic processing, not registration correctness, geometry validity, physical gold or training admission.",
+    "Fresh output and exclusive writes; any partial output is preserved. Global fatal failure records all listed and attempted IDs."
+  ],
+  "per_frame_outputs": {
+    "T_GEOMETRY_MAPS.npz": {
+      "lossless_arrays": [
+        "T_RENDER_DEPTH_M float64 HxW",
+        "T_OBSERVED_MINUS_RENDER_M float64 HxW"
+      ],
+      "NaN_preserved": true
+    },
+    "SURFACE_AUX_MAPS.npz": "lossless labels int8 plus11 eligibility bool and8 reason bool maps",
+    "REFERENCE_ALL.jsonl.gz": "allr, deterministicgzip mtime0/filename empty, compressed and original UTF8-stream SHA/size/count",
+    "QUERY_ALL.jsonl.gz": "all9q perr with same deterministic compression and original-stream hashes",
+    "GEOMETRY_DIAGNOSTIC.json": "both T/inverseT IoU/depth residual/missing/support stats; inverseT arrays NOT_SAVED",
+    "SUMMARY.json": "oldpilot count/discordance fieldnames plus explicit geometry status/storage/noadmission",
+    "COMPLETE.json": "exact all per-frame outputbindings and original inputbindings"
+  },
+  "batch_outputs": [
+    "STARTED.json",
+    "FRAME_INDEX.json",
+    "SUMMARY.json",
+    "COMPLETE.json",
+    "FAILURE.json only on failure"
+  ],
+  "compatibility": "Compiler r/q records are unchanged oldpilot schema; only storage is deterministic gzip and lossless NPZ. Existing oldpilot outputs are preserved and not read by this driver.",
+  "admission": {
+    "training": false,
+    "native_gold": false,
+    "model_accuracy": false,
+    "U_model_abstention": false,
+    "pose_or_threshold_tuning": false
+  },
+  "preparation": {
+    "public_RGB_depth_pose_SAM_mesh_arrays_read_or_hashed": 0,
+    "pinned_CODE_policy_metadata_only": true,
+    "invented_frames": 2,
+    "Git_network_models_training": 0
+  }
+}
