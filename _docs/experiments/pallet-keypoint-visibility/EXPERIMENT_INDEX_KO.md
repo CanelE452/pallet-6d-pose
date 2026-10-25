@@ -1,3 +1,7 @@
+## V245 · 실제 SOURCE CF 특징 및 고정 학습 대조
+
+[보고서·표·동결 체크포인트·특징·검산](V245_SCENE_CF_SOURCE_TRIAL/README_KO.md). 원 q/L/q8·분리·교사 권한을 유지한 SOURCE-only 대조입니다. 파이프라인 PASS와 성능 기준 FAIL을 구분하고, 모델 미채택·current/held 새 접근0을 보존합니다. 기존 결과는 아래에 유지합니다.
+
 ## V242–V244 · 실제 데이터 검산 / 새 학습 전 동결 행동 진단
 
 [상태·진단 표·고정4사례·실패 원본·코드·재검산](V244_SCENE_DATA_AND_FROZEN_BEHAVIOR/README_KO.md). V2425,406부모 전부 시도,5,367proof PASS/39미생성 보존. V244는 V240 TREAT 자체 분기와 V235 옛 CF 쌍의 동결 forward 결과입니다. 새 optimizer0, current/held 새 payload0, PnP0, 모델 미채택. V241 준비 자료와 이전 결과는 아래에 유지합니다.

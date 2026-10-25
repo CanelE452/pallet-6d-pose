@@ -1,3 +1,7 @@
+## V245: 같은 장면 CF 추가의 SOURCE 대조
+
+[실제 결과·제한·고정 gallery·재생 코드](V245_SCENE_CF_SOURCE_TRIAL/README_KO.md). 기존 context baseline은 원본 바이트 재사용·새 업데이트0, treatment는 동일 seed17 초기값에서1,000회 학습했습니다. 사전 SOURCE 기준 미통과이며 현재 실사 개선이나 native gold 인증을 뜻하지 않습니다.
+
 ## V242/V244: 실제 장면 합성 검산과 동결 모델 행동 진단
 
 [전체 설명·표·실제 crop·코드](V244_SCENE_DATA_AND_FROZEN_BEHAVIOR/README_KO.md). 실제 생성5,367쌍/미생성39개 보존, 원 BEFORE·q8·문맥·교사 조건의 독립 전량 검산 완료. TREAT 자체 base/residual/total과 V235 학습 COVER/SHAM 기능을 분리 진단했습니다. V243는 코드 준비 상태이며 새 학습 성능 결과가 아닙니다. [공개 검산](V244_PUBLICATION_REVIEW.json).

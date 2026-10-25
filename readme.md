@@ -1,3 +1,7 @@
+## 팔레트 가림: V245 공개 SOURCE 장면 대조 결과
+
+[보고서·고정 사례·코드·독립 검산](_docs/experiments/pallet-keypoint-visibility/V245_SCENE_CF_SOURCE_TRIAL/README_KO.md). 같은 원 장면의 COVER/ADJACENT_SHAM을 추가한 고정 SOURCE 학습 1,000회를 완료했습니다. 파이프라인 검산은 통과했으나 사전 성능 기준은 통과하지 못했으며 모델은 채택하지 않았습니다. current/held 새 추론·PnP는0입니다. 이전 기록은 아래에 보존합니다.
+
 ## 팔레트 가림: V242 실제 데이터 검산·V244 동결 모델 진단
 
 [최신 결과·시각화·코드·검증 명령](_docs/experiments/pallet-keypoint-visibility/V244_SCENE_DATA_AND_FROZEN_BEHAVIOR/README_KO.md). 같은 원 장면에서 가림 대조 입력5,406개를 시도했고5,367개가 교사 조건을 통과했습니다. 기존 모델 내부 점수와 옛 학습 쌍 동작도 추가 진단했습니다. 새 학습·현재 평가셋 새 사용·PnP는0이며 성능 개선 완료를 뜻하지 않습니다. 이전 기록은 아래에 보존합니다.
