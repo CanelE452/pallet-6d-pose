@@ -1,0 +1,116 @@
+{
+  "completed": true,
+  "PASS": true,
+  "status": "PASS_BOUNDED_V3_CODE_REPAIR_NOT_ACTUAL_RUNTIME_QA",
+  "created_UTC": "2026-10-25T01:49:58.111633+00:00",
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_FROZEN_INFERENCE_A/infer_fixed_context_v3.py",
+    "sha256": "187e13310d31a7254ca2d8888044b909b0329e877d07a218c4355c11fce0c7fb",
+    "size_bytes": 35383
+  },
+  "FINAL_READY": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_FROZEN_INFERENCE_A/FINAL_READY_V3.json",
+    "sha256": "e0106321186f62eabfd8e54c3685687c840aee40c8182baccbbd7b0996b6b9e4"
+  },
+  "entry_template": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_FROZEN_INFERENCE_A/ROOT_INFERENCE_ENTRY_TEMPLATE_V3.json",
+    "sha256": "376ebc1ef68f2c0dd0aa6d87cf03387900af4bdbbf0ae5a475e25db1195a0dfd",
+    "size_bytes": 6982
+  },
+  "checks_by_A": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_FROZEN_INFERENCE_A/CODE_AND_SYNTHETIC_CHECKS_V3.json",
+    "sha256": "f37683bc6374a5844f22b9cbc23d93f77098871abeccd7c10c31ff13d324c3d6",
+    "size_bytes": 666
+  },
+  "preserved_prior_code_QA": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_REAL_QA_B/FROZEN_INFERENCE_CODE_QA.json",
+    "sha256": "bca533d495b8a9d0f29014973c76bba8fb4c52bd91265edb3bfd4465a02533c0",
+    "size_bytes": 8038
+  },
+  "protocol": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_SELECTED_FIXED_CONTEXT_REAL/CANDIDATE_AND_EVALUATION_PROTOCOL_BEFORE_CURRENT_INPUTS.json",
+    "sha256": "be3a9d24cee1b18458d3214bbd20833a37786af55d0c9bd2f16ed379129f6c41"
+  },
+  "clarification": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_SELECTED_FIXED_CONTEXT_REAL/CANDIDATE_AUTHORITY_CLARIFICATIONS.json",
+    "sha256": "d4ff8ca2f86b62c23bfa804443932ab6126d7d6dbb115dd98296062c35de9619"
+  },
+  "input_manifest": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V229_REAL_QA_B/current223_input_metadata_v1/INPUT_MANIFEST_CURRENT223_ONLY.json",
+    "sha256": "4a9d8e6c781d2116a22ad824d7e7e5f7bbb45e6458497e8cde3dea452d846dbd",
+    "size_bytes": 6360504
+  },
+  "prior_actual_failure_disclosure": {
+    "authority": "Root explicit execution message; B did not inspect source payloads or execute inference",
+    "V2_terminal": "11936 -> cd64d6 exit1",
+    "failure": "SOURCE preflight infer_frame attempted inside.cpu().numpy(), but pinned sample_Q_raw returns inside as numpy.ndarray(bool).",
+    "root_reported_access_boundary": "Weights/source feature packet/SOURCE frame0 RGB and encoder2calls were consumed by root V2. No current RGB/GT/score was consumed before this adapter failure.",
+    "not_a_model_result": "Adapter return-type error, not a visibility-performance or model-hypothesis result.",
+    "prior_B_QA_limit": "Prior CODE QA missed this return-type boundary. It remains preserved and is not evidence of a successful V2 runtime."
+  },
+  "V3_minimal_diff": {
+    "PASS": true,
+    "infer_frame_only_runtime_change": "inside.cpu().numpy() -> np.asarray(inside,dtype=bool)",
+    "unchanged_other_function_AST_count": 17,
+    "other_changed_function": "self_test only: CPU deterministic MockEncoder/MockHead supported branch added",
+    "entry_template_only_change": "Exact V3 code path/hash/size; all other template fields equal V2",
+    "terminal": "428257",
+    "exit_code": 0
+  },
+  "return_type_boundary_review": {
+    "pinned_sample_Q_raw": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+      "return": "value torch.float32[N,384], inside numpy.bool[N]",
+      "consumer": "fixed is F.normalize tensor; np.asarray(inside,dtype=bool) selects indices safely"
+    },
+    "condition32": "Pinned source helper returns numpy.float32[32]; stack then torch.from_numpy is correct.",
+    "descriptors": "Encoder outputs Torch tensors; unitL2 and query read stay Torch, supported take index Torch int64; CPU head receives CPU tensors and output logits.numpy() runs inside inference_mode.",
+    "capture": "features are CPU tensors before .numpy(); stored expected source features are NumPy arrays. No other unsupported .cpu() on NumPy metadata was found in the reviewed path.",
+    "serialization": "Approved original input metadata q/L nonfinite JSON rows0, so preserved U45 does not require serializing NaN in q/L fields."
+  },
+  "supported_branch_fixture_review": {
+    "PASS": true,
+    "code_reviewed": true,
+    "actual_pinned_sample_Q_raw_used": true,
+    "CPU_only_torch_device_proxy": true,
+    "deterministic_non_model_encoder_head_mocks": true,
+    "asserts_supported_logit_prediction_capture": true,
+    "received_A_fixture_groups_PASS": 7,
+    "received_A_terminal": "4d6fe0 exit0",
+    "independently_rerun_by_B": false
+  },
+  "preserved_prior_verified_invariants": [
+    "Original223 groups/1784 rows and q/L/crop-grid/native/order/ID exact metadata validator passed in prior72a12b; validate_current AST unchanged in V3.",
+    "Original inputU45 retained; unavailable or unsupported input U is not E or a trained confidence abstention claim.",
+    "Same selected scratch CONTROL_FIXED_Q/use_attentionFalse checkpoint and fixed logit>=0 E otherwise D. 80/90 are not thresholds0.8/0.9.",
+    "Same official frozen reg4/source operator pins; local96 original F64 q/L, original q8 context, unitL2/fixedQ/condition32; no current-fit norm or GT/ROI/reference features.",
+    "Same SOURCE frame0 preflight before current image loop; source failure prevents current image decode.",
+    "Same encodedSHA/safe alias, decodedRGBSHA/raw_hw checks and decoder version disclosure.",
+    "Same eval/no-grad/inference_mode and encoder/head statebefore==after plus repeat guards.",
+    "Same all1784 prediction/facts SHA freeze before any annotations or baseline-score evaluation; no new training/PnP/candidate/threshold choice."
+  ],
+  "independent_checker_comparison_assumption": {
+    "initial_terminal": "948b5e exit1",
+    "cause": "The B string-comparison fixture expected np.asarray(inside,bool); production uses equivalent explicit dtype=bool. No production failure or input access occurred.",
+    "corrected_comparison_terminal": "428257 exit0",
+    "scope_changed": false
+  },
+  "limitations": [
+    "This code-only repair review does not certify the actual V3 runtime/preflight or current benchmark performance; the root execution receipts must establish those.",
+    "No actual encoder/head construction, SOURCE/current image or feature packet/NPZ/weights decoding, GT/annotation/score reading was performed by B.",
+    "A synthetic7PASS is received evidence with test-code inspection, not an independent B rerun.",
+    "Prior model/data/geometry/decoder review was not repeated or expanded; no new experiment design or gate was added."
+  ],
+  "access": {
+    "B_model_import_or_forward": 0,
+    "B_source_current_image_or_feature_NPZ_weight_body": 0,
+    "B_GT_annotation_reference_score_body": 0,
+    "current_metadata_only": true,
+    "PUBLIC45_JSON_value_parse": 0,
+    "broad_scan": 0,
+    "V112_filesystem": 0,
+    "frozen_A_or_prior_B_files_modified": false,
+    "new_training_or_threshold_or_model_selection": 0
+  }
+}

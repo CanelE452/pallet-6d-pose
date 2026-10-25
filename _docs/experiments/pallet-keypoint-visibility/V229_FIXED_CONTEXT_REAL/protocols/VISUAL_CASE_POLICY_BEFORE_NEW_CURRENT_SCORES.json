@@ -1,0 +1,20 @@
+{
+  "phase": "V229",
+  "candidate_is_already_fixed": true,
+  "selection_occurs_after_prediction_freeze_and_evaluation": true,
+  "purpose": "Inspect original query crops for correct and incorrect fixed-candidate D/E judgments, including small coordinate error failures.",
+  "materials": ["WOOD", "SQUARE"],
+  "buckets_per_material": [
+    "PRIMARY_D_PRED_D",
+    "PRIMARY_D_PRED_E_MANUAL_CLICK_LE3_IF_AVAILABLE_OTHERWISE_ANY_D_PRED_E",
+    "PRIMARY_E_PRED_E",
+    "PRIMARY_E_PRED_D"
+  ],
+  "selection_rule": "For each material and bucket, choose the lowest original global index, preferring an unused frame. For D->E use manual_click original error<=3px candidates if any, otherwise all primary D->E. Preserve explicit empty buckets; do not replace based on image appearance or score magnitude.",
+  "maximum_cases": 8,
+  "input_display": "Original full RGB with original q8 context extent and original active q; original local96 and center32 derived from the unchanged q/L; any zoom uses nearest display only. Show original pixel-support mask separately.",
+  "annotation_display": "Text truth label and existing coordinate provenance/error only. No reference recentering, new matching, pose or corrected query.",
+  "models_shown": ["v61_saved", "legacy_saved", "V227_CONTROL_FIXED_Q_FINAL300"],
+  "interpretation_boundary": "Case panels illustrate the already computed evaluation. They cannot select a different model, threshold, input geometry, training examples, or future architecture in this run.",
+  "PnP_or_new_training": false
+}

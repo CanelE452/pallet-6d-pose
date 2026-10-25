@@ -1,0 +1,169 @@
+{
+  "completed": true,
+  "PASS": true,
+  "PASS_scope": "제한된 CODE/프로토콜 및 코드 포인터 메타데이터 점검 완료. 과거 loss 실행·학습 성과·보호 자료 검산 PASS가 아니다.",
+  "starting_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_DATA_INTERFACE_B/CONTEXT_DATA_READINESS.json",
+      "sha256": "b66901f9eac01a82f752fd8783a501fc656571cc580debbc700f515d3fd9336c"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/producer/build_surface_source.py",
+      "sha256": "a431eaa92c06b5a9a7e2d14ac7a8d6fde18c685edf988c7d099ce02411b65f38"
+    }
+  ],
+  "followed_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/raw_cache_preparation/build_source_raw96_cache.py",
+      "sha256": "01b6be15ad7941384ef5a209b397ef1a0b240dec8b403564e5e54c40a702225f"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/PRODUCER_PROTOCOL.json",
+      "sha256": "ceaf51771fe52bb963087793ca44b8fbd32028b9334d80e014d75e060b98eeaa"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/ACTIVE_HANDOFF_KO.json",
+      "sha256": "7c81cd4e26abc906ceeb9eb57f3d37ab3867d049fa2140ba7be8389ac7d31d3a"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/runs/C10_NATURAL_SURFACE_TARGET_RELATIVE_RGB/FIT_COMPLETE.json",
+      "sha256": "118b922d70db60f262314b2e2a87fad28a28c0cfbd017dd89fe4dfc6b58655c5"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/ROOT_ACTUAL_SOURCE_EXECUTION.json",
+      "sha256": "5ac2331393726179133885898a27c2b1950c6168de6e8d00d2b6d387083f49a8"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/ROOT_SOURCE_ADMISSION.json",
+      "sha256": "0ba0c12d133b0e284f7b9734edca33d588f0898508d341dbc147f41da45c5da0"
+    }
+  ],
+  "additional_followed_files": 6,
+  "additional_follow_limit": 6,
+  "confirmed_code_facts": [
+    {
+      "finding": "고정 GT surface reference r와 입력 q는 서로 다른 위치다.",
+      "evidence": {
+        "binding": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/producer/build_surface_source.py",
+          "sha256": "a431eaa92c06b5a9a7e2d14ac7a8d6fde18c685edf988c7d099ce02411b65f38"
+        },
+        "lines": [
+          35,
+          37,
+          78,
+          83
+        ]
+      },
+      "detail": "고정 CAD surface candidate를 카메라로 투영한 reference r에 seed207 PCG64의 반경4px 이내 jitter를 더해 q8 입력을 만든다. 입력 source=PUBLIC_YCB_GT_JITTER_EMULATION, split=TRAIN, source_emulation=true, native_mapping=UNKNOWN으로 선언한다. 이 logical auxiliary slot을 pallet native identity로 등치할 근거는 아니다."
+    },
+    {
+      "finding": "교사 상태는 associated-r의 ray/owner/depth에서 계산하고 literal-q entity presence와 분리한다.",
+      "evidence": {
+        "binding": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/producer/build_surface_source.py",
+          "sha256": "a431eaa92c06b5a9a7e2d14ac7a8d6fde18c685edf988c7d099ce02411b65f38"
+        },
+        "lines": [
+          118,
+          138
+        ]
+      },
+      "detail": "surface point/ray는 fixed model point와 r를 사용한다. nearest reference pixel rc=floor(r+.5)와 rc 중심3x3에서 observed depth/own-visible/all-owner/full-mask를 조회한다. q는 별도 continuous/nearest bounds 진단에 사용하며, q 위치 owner/depth로 교사 상태를 다시 계산하는 경로는 이 함수에 없다. reference displacement/error도 저장 진단으로 남긴다.",
+      "protocol_evidence": {
+        "binding": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/PRODUCER_PROTOCOL.json",
+          "sha256": "ceaf51771fe52bb963087793ca44b8fbd32028b9334d80e014d75e060b98eeaa"
+        },
+        "lines": [
+          51,
+          54
+        ]
+      }
+    },
+    {
+      "finding": "D/E/S/U를 producer에서 별도로 보존한다.",
+      "evidence": {
+        "binding": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/producer/build_surface_source.py",
+          "sha256": "a431eaa92c06b5a9a7e2d14ac7a8d6fde18c685edf988c7d099ce02411b65f38"
+        },
+        "lines": [
+          38,
+          66
+        ]
+      },
+      "detail": "q/r/nearest-r 범위 불충족은 U다. geometry SELF는 S이며, SELF_VISIBLE인 경우에만 observed-owner/depth 조건으로 D 또는 E를 준다. E는 고정 foreign/depth/amodal-support 조건을 요구한다. missing depth·overlap·unassigned·insufficient support 등은 U로 남긴다. mask absence나 SELF를 여기서 E로 자동 변환하지 않는다."
+    },
+    {
+      "finding": "저장 binary external AUX는 D0/E1, S와U는−1이다.",
+      "evidence": {
+        "binding": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/producer/build_surface_source.py",
+          "sha256": "a431eaa92c06b5a9a7e2d14ac7a8d6fde18c685edf988c7d099ce02411b65f38"
+        },
+        "lines": [
+          140,
+          145
+        ]
+      },
+      "binary_mapping": {
+        "D": 0,
+        "E": 1,
+        "S": -1,
+        "U": -1
+      },
+      "detail": "raw_surface_teacher_state 전체와 external_target_D0_E1_else_minus1을 함께 저장한다. known geometric S를 external loss 밖에 보존한다는 producer SUMMARY 작성 코드도 존재한다. 이것은 저장 contract에 관한 확인이며 downstream이−1을 어떻게 mask했는지 자체 증명하지 않는다."
+    },
+    {
+      "finding": "후대 YCB_CF 이름을 이 natural surface teacher 소비 경로와 혼동하면 안 된다.",
+      "evidence": {
+        "binding": {
+          "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/raw_cache_preparation/build_source_raw96_cache.py",
+          "sha256": "01b6be15ad7941384ef5a209b397ef1a0b240dec8b403564e5e54c40a702225f"
+        },
+        "lines": [
+          108,
+          151,
+          178,
+          207,
+          368,
+          374
+        ]
+      },
+      "detail": "V181의 YCB_CF는 V161 MR6D public counterfactual input과 V175/V176 owner-label binding을 가리킨다. support/owner 별도 target schema이며 V109 RAW_SURFACE_TEACHER8000을 읽는 literal 경로는 이 코드에서 확인하지 못했다. 해당 cache는 V109 downstream loss의 증거로 사용하지 않았다."
+    }
+  ],
+  "confirmed_vs_unconfirmed": {
+    "associated_surface_state_teacher_code_exists": true,
+    "typed_associated_point_AUX_storage_code_exists": true,
+    "producer_SELF_or_UNKNOWN_collapsed_to_E": false,
+    "producer_literal_q_owner_presence_reteacher_code": "NOT_PRESENT_IN_REVIEWED_PRODUCER: owner/depth evidence is evaluated at r/nearest(r), not at jittered q.",
+    "downstream_trainer_loss_reception_of_D_E_S_U": "UNKNOWN_NOT_RESOLVED_BY_THE_ALLOWED_LITERAL_CHAIN",
+    "downstream_SELF_or_UNKNOWN_collapsed_to_E": "UNKNOWN: do not infer a loss mask only from producer external_target=-1.",
+    "typed_point_AUX_used_in_a_specific_actual_loss": "UNKNOWN: producer representation exists, but consumer/loss code was not reached.",
+    "literal_q_reteacher_existed_elsewhere_in_history": "UNKNOWN_NOT_A_GENERAL_ABSENCE_CLAIM",
+    "actual_training_or_model_performance": "NOT_READ_OR_ASSESSED"
+  },
+  "routing_metadata_limits": {
+    "handoff": "Root authorized V110/V111 field literal path/code/protocol extraction only. Unrelated values were not used; current/private pointers were not followed.",
+    "V110_FIT_COMPLETE": "Only code/protocol and entry-file literal strings were sought. No .py/protocol binding was present in that bounded extraction; result/logit/model outputs were not followed or interpreted.",
+    "V111_ROOT_ACTUAL_SOURCE_EXECUTION": "Only code/protocol/entry paths were sought. It points to source feature/fit receipts rather than a direct trainer/loss .py binding. Those additional feature/fit bodies were not followed.",
+    "V110_ROOT_SOURCE_ADMISSION": "Only literal code/protocol strings were sought; none yielded a consumer .py path.",
+    "stop_reason": "추가6개 파일의 제한된 경로를 사용했고, 추측 파일명·디렉터리 탐색·결과를 이용한 설계 추론 없이 UNKNOWN으로 마감했다."
+  },
+  "no_design_or_selection_conclusion": "기존 teacher의 타입과 확인한 코드 범위를 구분한다. 새 모델·임계값·교사 재설계를 추천하지 않으며, literal-q 또는 typed-point 방식이 신규라고도 단정하지 않는다.",
+  "access_limits": {
+    "producer_or_training_code_import_execution": 0,
+    "past_actual_score_logit_model_GT_evidence_rows_arrays_RGB_body_reads": 0,
+    "mixed_row_metadata_reads": 0,
+    "current_publicheld_oldVAL_HOLD_V177_V178_V194SOURCE_HOLDOUT_V182COMMON_filesystem": 0,
+    "V112_filesystem": 0,
+    "weight_stat_hash_read": 0,
+    "broad_directory_or_source_search": 0,
+    "symlink_follow": 0,
+    "Git_network": 0,
+    "old_files_modified": false,
+    "new_output_files": 1
+  }
+}
