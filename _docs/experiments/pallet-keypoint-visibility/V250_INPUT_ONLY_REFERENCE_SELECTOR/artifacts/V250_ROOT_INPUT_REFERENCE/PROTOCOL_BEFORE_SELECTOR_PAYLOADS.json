@@ -1,0 +1,137 @@
+{
+  "schema": "V250_PROSPECTIVE_INPUT_ONLY_LEAVE_ACTIVE_OUT_REFERENCE_SELECTOR_V1",
+  "created_at_UTC": "2026-10-25T09:03:00.148592+00:00",
+  "goal_status": "active_unsolved",
+  "question": "Can frozen SOURCE FIT RGB reference banks be selected using original q8 RGB features without true query object identity, while retaining the oracle visibility rank signal?",
+  "prior_science": "V249 oracle reference signal main de362d26e; not a deployable classifier or pallet accuracy. Original q8/context alone and same-image context cosines already existed.",
+  "inputs": {
+    "ORIGINAL_ALL_FEATURES.npy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_ROOT_CANONICAL_CONTEXT/canonical_source_features_v1/ORIGINAL_ALL_FEATURES.npy",
+      "sha256": "607acc267dbd6f35e7a3fc6da4bcd1fb5e225f3f7045815702e67357f50463e1",
+      "size_bytes": 36135176
+    },
+    "NODE_CLS.npy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_ROOT_CANONICAL_CONTEXT/canonical_source_features_v1/NODE_CLS.npy",
+      "sha256": "3b2ac0dc7d29d0f7845987c6767820e315f3f150a76f69da826e901257eef4cb",
+      "size_bytes": 21713024
+    },
+    "SAMPLE_GROUP_INDEX.npy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_ROOT_CANONICAL_CONTEXT/canonical_source_features_v1/SAMPLE_GROUP_INDEX.npy",
+      "sha256": "dccbb5ba41dde3e018b93fd66c008a837a71b65352fb183c79b50ddbaa086fa4",
+      "size_bytes": 61064
+    },
+    "SAMPLE_NODE_INDEX.npy": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_ROOT_CANONICAL_CONTEXT/canonical_source_features_v1/SAMPLE_NODE_INDEX.npy",
+      "sha256": "152ac41d4ddc9feef4fd4015c60e953d5727a957bd23bef06b4a1318b345a91a",
+      "size_bytes": 61064
+    },
+    "samples.npz": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_ROOT_CROP_ADAPTATION/crop_samples_v1/samples.npz",
+      "sha256": "837bbe7ff406e27c6ed2981493a83c2adab830cd5b2de498e4a48de456456e99",
+      "size_bytes": 2325681
+    },
+    "INPUT_GEOMETRY.npz": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V237_ROOT_SOURCE_CONTEXT_INPUTS/original_source_inputs_v1/INPUT_GEOMETRY.npz",
+      "sha256": "994dd3a2a183a9ed5b4b53745daaca892516ec4507fca79cf280f0e78c514a83",
+      "size_bytes": 489486
+    },
+    "PROTOTYPES.npz": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V249_ROOT_TARGET_RGB_DIAGNOSTIC/oracle_rgb_reference_diagnostic_v1/PROTOTYPES.npz",
+      "sha256": "d8aa3853a39efcf16f3d26ac74e3d58c3cb6e36a61c81b1fedf6674a77076d39",
+      "size_bytes": 38090
+    },
+    "V249_DEV_ORACLE_SCORES.csv": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V249_ROOT_TARGET_RGB_DIAGNOSTIC/oracle_rgb_reference_diagnostic_v1/DEV397_DESCRIPTOR_SCORES.csv",
+      "sha256": "f5dc5ece54de83fc8253865d6837b58549c968dff9bab57e79b6a449c2fdd933",
+      "size_bytes": 329513
+    }
+  },
+  "metadata_provenance": {
+    "original_feature_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_ROOT_CANONICAL_CONTEXT/canonical_source_features_v1/COMPLETE.json",
+      "sha256": "e2e796ab5c0580b95204292f1f4ecb90d30842060d9b048eab6c41f942cfc392",
+      "size_bytes": 11988
+    },
+    "V249_oracle_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V249_ROOT_TARGET_RGB_DIAGNOSTIC/oracle_rgb_reference_diagnostic_v1/COMPLETE.json",
+      "sha256": "97ea68e715ba251778ecb0ff7262335283b4dbdec0bb6cc575c319001d807309",
+      "size_bytes": 5569
+    }
+  },
+  "selection_fixed": {
+    "pure_API_inputs": [
+      "node_cls8",
+      "original_available8",
+      "node_available8",
+      "active_slot",
+      "prototype_full_CLS4"
+    ],
+    "descriptor": "Only full_CLS bank is compared with full96 NODE_CLS; never compare different descriptor definitions. Query scoring still reports all3 views.",
+    "numeric": "FP64 node and prototype unit-L2 then cosine; no fitted normalization or bank recomputation.",
+    "node_support": "original_available8 & node_available8 & finite nonzero fullCLS norm, omit active_slot. No target/state/S_U/owner filter.",
+    "required_other_nodes": 2,
+    "per_bank_aggregation": "Mean of top2 valid other-node cosine scores. Node cosine ties use ascending slot. No random samples or K sweep.",
+    "bank_choice": "Max aggregate across all4 banks, exact bank-score ties choose lowest frozen bank index; no score/gap threshold. All4 fullCLS prototypes must be supported else selectorUNKNOWN; no silent bank removal.",
+    "unknown": "Fewer than2 valid othernodes or invalid fixed bank means UNKNOWN; retain all rows, no fill/negative.",
+    "true_query_object_ID_role_state_qr_owner_pose_depth": "Not selector API inputs. Source FIT class-labelled prototypes are legitimate frozen supervised assets; no true query ID lookup at inference.",
+    "selector_gap": "top bank score minus runnerup stored only, no threshold selected."
+  },
+  "prediction_fixed": {
+    "population": "All original known YCB1521 rows selected using samples.family==1 only. No FIT/DEV or D/E selection before prediction freeze; no SYN visibility claim.",
+    "sample_members_decoded_before_freeze": [
+      "family",
+      "row_id",
+      "available"
+    ],
+    "geometry_members_decoded_before_freeze": [
+      "original_available8",
+      "node_available"
+    ],
+    "prototype_members_decoded_before_freeze": [
+      "prototypes",
+      "supported",
+      "view"
+    ],
+    "never_before_freeze": [
+      "samples.target",
+      "samples.fit",
+      "prototype.object_id",
+      "V249_DEV_ORACLE_SCORES.csv numeric/semantic decoding"
+    ],
+    "maps": "Original SAMPLE_GROUP_INDEX/NODE_INDEX; unchanged group/slot/q/L. Require originalactive fullCLS bytes equal NODE_CLS[group,slot] for YCB rows.",
+    "query_scores": "All3 fixed descriptor slices full_CLS0:384, fixed_centre_Q384:768, centre_CLS768:1152; unitL2 FP64, cosine selectedbank, cosine nextcyclicbank, margin selected-next. Other bank=(predicted_index+1)%4, no trueID lookup. Query unavailable/zero/nonfinite or absentreference yields UNKNOWN, never E.",
+    "outputs": "1521 selector rows and4563 query descriptor rows, containing source row/sample identity and input-based bankindices/scores/support only; no true object/state/role/q-r before freeze.",
+    "barrier": "Write+SHA freeze selector outputs/query scores before decoding target/fit/object_id and oldoracle-score metadata. Entry bindings/whole-NPZ opaque SHA may contain inert metadata; selected members only decoded.",
+    "new_optimizer_or_neural_encoder_head_forward": 0,
+    "new_reference_fit": 0,
+    "reference_bank": "Reuse exact V249 FIT-D bank unchanged. Already source-supervised statistics; do not call it unsupervised."
+  },
+  "evaluation_fixed": {
+    "late_join": "After frozen predictions, read samples.fit/target, prototypes.object_id and existing V249 oracle DEV rows. Join exactly397 unique DEV(D340/E57), threeviews1191, verify row/sample/target/availability.",
+    "reference_selection": "Accuracy vs nominal teacher object on supported DEV queries; per D/E, old q-r strata and object. This is closed4bank selection, not native correctness or visibility accuracy.",
+    "visibility_scores": "E direction = negative selected-bank cosine and negative selected-minus-next margin. Both AUROCs/all3views always reported; no inversion, threshold, best-view, retraining or K/aggregator selection. Wrong cosine is distribution only.",
+    "comparators": "Auto supported outputs vs old oracle scores on the same supported rows, plus original fulloracle with original denominators. When chosenbank equals nominal target, cosine/margin must match oldoracle to abs1e-12. No artificially using correctbank on retrieval failures.",
+    "strata": [
+      "all",
+      "<=1px",
+      ">1_to_3px",
+      "<=3px",
+      ">3px",
+      "unknown"
+    ],
+    "support": "Show selectorUNKNOWN/queryUNKNOWN counts and rate over original397, not successful abstention or relabelled truth. Keep all perobject empty classes NA.",
+    "limitations": "4seen SOURCE classes, qGT-jitter emulation, repeated SourceDEV, E53of57 oneobject/twoscenes. Pallet native/Self unknown; no independent novelclass transfer or full deployment claim.",
+    "current_admission": false
+  },
+  "hard_limits": {
+    "new_raw_RGB_depth_mesh_annotation_weight_CP_reads": 0,
+    "current_held_oldprotected_payload_or_historical_currentaggregate_choice": 0,
+    "PnP_or_coordinate_correction_GTrecrop": 0,
+    "original_state_role_q_L_native_U_changes": 0,
+    "new_neural_training": 0,
+    "new_threshold_model_or_best_view_choice_from_this_diagnostic": false,
+    "explicit_path_guard": "Reject v112 case-insensitive/cache/.pyc/symlink before explicit access; no broadP/Rscan."
+  },
+  "actual_payload_authorized_by_this_file_alone": false,
+  "next": "Exact implementation CODE/policy QA and Root true entry before source arrays/body I/O."
+}

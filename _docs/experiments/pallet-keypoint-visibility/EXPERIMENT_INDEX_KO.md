@@ -1,3 +1,5 @@
+> [V250：입력 참조 선택·oracle 대비·모든 특징/오차 범위](V250_INPUT_ONLY_REFERENCE_SELECTOR/README_KO.md) — 정답 라벨을 읽기 전에 1,521행의 참조 선택과 세 특징 점수를 봉인했습니다. SOURCE 진단이며 새 배포 모델·팔레트 정확도가 아닙니다.
+
 <!-- V249 actual SOURCE oracle-reference diagnostic -->
 ## 2026-10-25 · V249 대상 RGB 참조 진단
 
