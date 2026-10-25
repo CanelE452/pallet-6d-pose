@@ -1,3 +1,7 @@
+## V242/V244: 실제 장면 합성 검산과 동결 모델 행동 진단
+
+[전체 설명·표·실제 crop·코드](V244_SCENE_DATA_AND_FROZEN_BEHAVIOR/README_KO.md). 실제 생성5,367쌍/미생성39개 보존, 원 BEFORE·q8·문맥·교사 조건의 독립 전량 검산 완료. TREAT 자체 base/residual/total과 V235 학습 COVER/SHAM 기능을 분리 진단했습니다. V243는 코드 준비 상태이며 새 학습 성능 결과가 아닙니다. [공개 검산](V244_PUBLICATION_REVIEW.json).
+
 ## V241: 원 장면 일치 가림 대조 데이터 준비 / 실제 생성·학습 전
 
 [상태표·코드·전체 부모5,406행·donor64·검증 명령](V241_SCENE_CONSISTENT_CF_PREPARATION/README_KO.md). 계약/메타데이터 감사와 가상 장면4개 계산 검증까지 공개했습니다. 이전 가상 테스트 실패2개·수정 전 코드도 포함합니다. 실제 scene CF 생성0·새 학습0·현재223/held 새 사용0·PnP0이며 성능 개선 결과가 아닙니다. [공개 파일 검산](V241_PUBLICATION_REVIEW.json) · [가상 계산 재실행](V241_PORTABLE_TOY_REPLAY.json). 최근 실제 모델 결과·crop 시각화는 V240입니다.

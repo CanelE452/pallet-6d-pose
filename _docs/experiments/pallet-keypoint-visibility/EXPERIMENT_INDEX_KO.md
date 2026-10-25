@@ -1,3 +1,7 @@
+## V242–V244 · 실제 데이터 검산 / 새 학습 전 동결 행동 진단
+
+[상태·진단 표·고정4사례·실패 원본·코드·재검산](V244_SCENE_DATA_AND_FROZEN_BEHAVIOR/README_KO.md). V2425,406부모 전부 시도,5,367proof PASS/39미생성 보존. V244는 V240 TREAT 자체 분기와 V235 옛 CF 쌍의 동결 forward 결과입니다. 새 optimizer0, current/held 새 payload0, PnP0, 모델 미채택. V241 준비 자료와 이전 결과는 아래에 유지합니다.
+
 ## V241 · 같은 원 장면의 COVER/SHAM 입력 준비 / 미실행 단계 명시
 
 [계약·부모5,406행·donor64·코드·가상 테스트·실패 원본](V241_SCENE_CONSISTENT_CF_PREPARATION/README_KO.md). 원래 FIT 보임 D 전체와 이전 실패39개를 보존했습니다. 메타데이터에서 부모·donor의 원 DEV group/image 중복0을 확인했습니다. 순수 계산/가상 테스트까지이며 실제 데이터 생성·독립 픽셀 검산·새 학습·성능 비교는 아직 없습니다. 원 q/L/native/U/분할 유지, 현재223/held 새 사용0, PnP0입니다. 최근 완료한 모델 실험은 아래 V239–V240입니다.

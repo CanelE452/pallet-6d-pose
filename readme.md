@@ -1,3 +1,7 @@
+## 팔레트 가림: V242 실제 데이터 검산·V244 동결 모델 진단
+
+[최신 결과·시각화·코드·검증 명령](_docs/experiments/pallet-keypoint-visibility/V244_SCENE_DATA_AND_FROZEN_BEHAVIOR/README_KO.md). 같은 원 장면에서 가림 대조 입력5,406개를 시도했고5,367개가 교사 조건을 통과했습니다. 기존 모델 내부 점수와 옛 학습 쌍 동작도 추가 진단했습니다. 새 학습·현재 평가셋 새 사용·PnP는0이며 성능 개선 완료를 뜻하지 않습니다. 이전 기록은 아래에 보존합니다.
+
 ## 팔레트 가림 실험: V241 준비 자료 추가
 
 [최신 진행 상태·코드·데이터 목록·실패 기록](_docs/experiments/pallet-keypoint-visibility/V241_SCENE_CONSISTENT_CF_PREPARATION/README_KO.md). V241은 원 장면과 crop·문맥을 일치시키는 계산 및 출처 준비까지 완료했습니다. 실제 데이터 생성·학습·새 성능 결과는 아직 없습니다. [최근 완료한 학습 결과와 시각화](_docs/experiments/pallet-keypoint-visibility/V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/README_KO.md)는 아래에 보존합니다.
