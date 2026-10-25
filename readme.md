@@ -1,3 +1,7 @@
+## 팔레트 가림 실험 최신 실제 결과: V239–V240
+
+[모델·특징·로그·지표·실제 crop·CPU 재검산](_docs/experiments/pallet-keypoint-visibility/V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/README_KO.md). 공통 특징으로 local/context 두 모델을 각각 1,000회 학습했습니다. 공개 YCB-V SOURCE 내부 DEV 가림은 0/57→1/57이며 사전 기준 미달로 미채택입니다. 현재223 새 평가·PnP는 없습니다.
+
 ## 팔레트 가림 실험 최신 공개: V237–V239
 
 [상태표·실제 crop·진단 CSV·코드·검증 기록](_docs/experiments/pallet-keypoint-visibility/V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/README_KO.md). 초기 query 입력 7,617개의 RGB/valid 일치를 확인했습니다. V238은 학습 전 특징 검증에서 중단됐고, V239는 공통 특징 생성과 두 모델 비교 코드를 준비한 단계입니다. 새 V238/V239 학습 성능은 없습니다. 현재223 새 사용·PnP는 0입니다.

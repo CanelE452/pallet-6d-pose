@@ -1,3 +1,9 @@
+## 최신 V239–V240: 공통 특징·두 모델 실제 학습 완료 / SOURCE 기준 미달
+
+[전체 보고서·재현 명령](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/README_KO.md) · [CM/precision/recall/보류율](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/artifacts/V240_SOURCE_REPORT_C/results/PORTABLE_REPORT_KO.md) · [성공·실패 crop](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/artifacts/V239_SOURCE_GALLERY_A/gallery_v1/FIXED12_SOURCE_DEV.png) · [문맥과 8개 query](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/artifacts/V239_SOURCE_GALLERY_A/gallery_v1/PORTABLE_GALLERY_KO.html).
+
+7,617개 활성 특징의 byte 일치와 원 좌표·분할 정합, 두 모델 각각 새 1,000회 학습과 동결, 독립 완료 검산·지표 재계산·CPU 예측 전량 일치를 확인했습니다. 공개 실사 SOURCE DEV E는 local0/57→context1/57, 가족 평균 균형 recall gain+0.345657pp로 사전 기준 FAIL입니다. 모델 채택·현재223 새 평가·문턱 조정은 없습니다. 6개 frozen 특징 배열과 두 작은 모델도 제공해 원 이미지·DINO 없이 CPU 검산할 수 있습니다. [공개 검증 기록](V240_PUBLICATION_REVIEW.json).
+
 ## 최신 공개 V237–V239: 입력 복원 완료·학습 전 중단 진단·다음 비교 준비
 
 [전체 보고서와 상태표](V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/README_KO.md) · [원 문맥과 8개 실제 crop](V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/artifacts/V237_ROOT_SOURCE_CONTEXT_INPUTS/fixed4_original_input_gallery/FIXED4_SOURCE_INPUT_CONTEXT_AND_Q8.png) · [FIT 5,876개 행별 특징 차이](V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/artifacts/V238_ALL_FIT_DESCRIPTOR_DIAG/ALL5876_DESCRIPTOR_DIFFERENCES.csv).
