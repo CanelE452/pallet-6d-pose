@@ -1,3 +1,7 @@
+## V237–V239 · 원 입력 복원 완료 / 특징 검증 실패 진단 / 공통 특징 비교 준비
+
+[실행 코드·진단 CSV·실제 crop·상태표·검산 안내](V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/README_KO.md). V237: SOURCE 15,040행, 알려진 D/E 7,617개, 그룹 1,767개를 유지하고 원 RGB/valid 일치를 확인했습니다. V238: 실제 시도는 특징 일치 검사에서 중단, 새 optimizer 0회·새 DEV 출력 0개입니다. 기존 CONTROL 복사본은 이전 모델 기록입니다. V239: 공통 특징과 CONTROL/TREAT 각각 1,000회 학습 코드를 준비했으며 실제 실행 전입니다. 허용 오차 완화·현재223 새 사용·PnP는 없습니다. 이전 기록을 아래에 유지합니다.
+
 ## V234–V236 · SOURCE 실패 진단·같은 점 COVER/SHAM 학습 완료 / 미채택
 
 [코드·모델·로그·원행 출력·표·시각화·검산](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/README_KO.md). V234는 라벨/좌표/물체×표면점 분포와 기존 코드를 감사했습니다. V235는 공개 FIT donor64개로 성공5,367쌍을 만들고 같은 고정 encoder/head를1000회 학습했습니다. SYN DEV D/E recall98.68/92.86%, YCB DEV96.76/0%, 가족 평균 균형 recall gain+0.113491pp로 사전3pp 기준 미달입니다. V236은 공개 원 장면3개와 다른 q8의 대상 픽셀을 대조했습니다. 현재223 새 사용0, 새 후보 admission=false, PnP/좌표 회귀 없음입니다.

@@ -1,3 +1,7 @@
+## 팔레트 가림 실험 최신 공개: V237–V239
+
+[상태표·실제 crop·진단 CSV·코드·검증 기록](_docs/experiments/pallet-keypoint-visibility/V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/README_KO.md). 초기 query 입력 7,617개의 RGB/valid 일치를 확인했습니다. V238은 학습 전 특징 검증에서 중단됐고, V239는 공통 특징 생성과 두 모델 비교 코드를 준비한 단계입니다. 새 V238/V239 학습 성능은 없습니다. 현재223 새 사용·PnP는 0입니다.
+
 ## 팔레트 가림 실험 최신 공개: V234–V236
 
 [진단·실제 학습·표·이미지·재검산 안내](_docs/experiments/pallet-keypoint-visibility/V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/README_KO.md). 같은 점을 덮는 COVER와 옆에 두는 SHAM 5,367쌍으로 고정 head를 학습했으나 공개 실사 내부 DEV 가림은 0/57로 미채택입니다. 코드·작은 모델·훈련로그·행별 출력·실제 성공/실패 crop·전체 장면을 포함합니다. 현재223 평가를 이번 학습·선택·추론에 사용하지 않았습니다.

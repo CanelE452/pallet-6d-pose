@@ -1,0 +1,129 @@
+{
+  "completed": true,
+  "PASS": true,
+  "status": "CODE frozen for Root V238 protocol integration; no feature/fit execution authority",
+  "Root_selection_basis": "SOURCE-only route/diagnosis and direct parent decision; no protected data or scores used",
+  "evidence_files": [
+    {
+      "role": "Root next scope",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V236_SOURCE_CONTEXT_DIAGNOSTIC/ROOT_NEXT_INPUT_DECISION_AFTER_SOURCE_FAILURE.json",
+      "sha256": "b28b00c2a37a240971346dfa7238d078653480901e9d242298acde7462d33967",
+      "size_bytes": 2481
+    },
+    {
+      "role": "V234 model input audit",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V234_MODEL_INPUT_AUDIT_A/MODEL_INPUT_AUDIT.json",
+      "sha256": "4827d1126cf2230f79e112dfe7214e87c1eaea6e0697efc64f8afa49aab640f0",
+      "size_bytes": 15998
+    },
+    {
+      "role": "V235 trainer CODE",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V235_DATA_ONLY_TRAINER_A/train_data_only_counterfactual.py",
+      "sha256": "7a118b4f650e0521edc57bb23dfc0f55cdd5a137bde8b8e0133e5968fa99cacb",
+      "size_bytes": 28157
+    },
+    {
+      "role": "V233 crop module CODE",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_DETERMINISTIC_CROP_FIX_A/crop_modules.py",
+      "sha256": "44f54dfcbf1671a401e748e66ec30463096e6c24b0779f07dda85d7c9f38ae88",
+      "size_bytes": 4262
+    },
+    {
+      "role": "V236 route",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V236_CONTEXT_ROUTE_C/ROUTE.json",
+      "sha256": "334f6ac780073d7c2b29008b15164c7cf9753d6c48e61ba02bb089c37bb425db",
+      "size_bytes": 11641
+    },
+    {
+      "role": "V107 context math CODE",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/target_context_math.py",
+      "sha256": "aa7cd8e2568c8b7d30827e8681b4b87899944bd23cfa1b27948ceda5b55d07f3",
+      "size_bytes": 2204
+    },
+    {
+      "role": "V111 feature CODE",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+      "size_bytes": 19042
+    }
+  ],
+  "comparison": {
+    "V235_V233_current": "full96CLS384 + centred RAW96 fixedQ384 + centre32CLS384 + support2 + condition32 ->1186 ->64 ->2; no outside96 RGB",
+    "C11_existing": "V111 assemble1928 already has target-contextCLS, active contextQ, local fullCLS, centreCLS, localQ,4 cosines and4support scalars. Raw context patch interpolation uses border/alignFalse after F64 normalization and F32 grid. This is already fullcontext plus explicit active/context comparisons.",
+    "proposal_difference": "Keep original1186 base untouched; individually expose each other originalqj/Lj full96 CLS from same actual image. A tiny shared query/other image projection and geometry bias form a masked relational read plus target-contextCLS, added by zero-initialized residual. No first context/DINO/attention/similarity use claim.",
+    "causal_limit": "Relative to reused original CONTROL the treatment changes input evidence, read architecture and adds9956 parameters; a SOURCE gain would not isolate geometry, capacity or relational computation alone."
+  },
+  "parameters": {
+    "base": 76098,
+    "relational_residual": 9956,
+    "total": 86054,
+    "base_parameter_tensors": 4,
+    "residual_parameter_tensors": 6,
+    "all_parameter_tensors": 10,
+    "new_DINO_or_LoRA_parameters": 0
+  },
+  "forward_API": {
+    "active_features": "FP32[N,1186], original feature vector unchanged; first384 active fullCLS and last32 existing condition32",
+    "query_local_cls8": "FP32[N,8,384], unitL2 fullCLS of original qj/Lj RAW96, original order, same ACTUAL RGB; active node checked against active_features[:,:384] but not substituted",
+    "target_context_cls": "FP32[N,384], unitL2 CLS of V107 originalq8-derived224 context; no GT-selected target crop",
+    "active_index": "int64[N], original logical slot0..7. For YCB aux is not a certified native part.",
+    "original_available8": "bool[N,8], input availability only",
+    "local_supported8": "bool[N,8], raw image pixel support only (positive validfraction); no D/E/S/U/ownership semantics",
+    "context_supported": "bool[N], positive image/context support, not target existence or confidence",
+    "relative_xy8": "FP32[N,8,2], existing original(qj-qi)/Li clipped±8; new YCB use derives only from original source input q8, not r/pose",
+    "outputs": "FP32[N,2] SOURCE-family logits plus attention/support diagnostics; fixed0 decoder emits U=-1 only for original active unavailable"
+  },
+  "read_math": [
+    "Shared bias-free Linear384→16 for active/node/context CLS. Active descriptor comes only from existing active_features[:,:384].",
+    "other_j mask=original_available_j & local_supported_j & j!=active. No labels, owner, SELF, target identity or GT visibility masks.",
+    "score_j=dot(P(active),P(node_j))/sqrt16 + Linear2→1(relativeXY_j), geometry weights initialized0; normalized masked softmax, no-other ->allzero weights.",
+    "message=sum_j weight_j*P(node_j); read=[a,message,a-message,a*message,P(context),condition32,4supportflags],116 dimensions.",
+    "Linear116→32 ReLU→2, finalweight/bias0. Base logits+residual; original base is exactly preserved before any residual learning."
+  ],
+  "initialization_contract": [
+    "Caller must strict-load original V233 INITIAL base4tensor state, not finaltrained base. No file loading is implemented in this module.",
+    "Root freezes seed17/full initial residual state and optimizer policy prospectively; module has no manual_seed or dataset-dependent initialization.",
+    "Zero output residual gives zero earlier-residual gradient on first backward; this is expected. Subsequent nonzero output weights can pass gradient into shared projection/attention. All10 tensors remain explicit trainable head scope."
+  ],
+  "future_Root_recipe_received_not_executed": {
+    "natural_original_SOURCE_only": true,
+    "new_V235_CF_first_trial": false,
+    "CONTROL_original_final1000_byte_reuse_new_updates": 0,
+    "TREAT_original_initial_base_plus_zero_residual_updates": 1000,
+    "original_PCG17_draws_and_family_loss": true,
+    "official_encoder_frozen_ImageNet_and_descriptor_L2": true,
+    "threshold0": true
+  },
+  "data_authority": [
+    "SYN must pair original input q8/L8/availability with its ACTUAL image. BEFORE_ANCHOR query provenance is retained; never replace actual COVER/SHAM image with clean anchor RGB.",
+    "q8 context minmax extent retains literal V107 finite/non-sentinel rule; availability masks the node read, not a silent new box definition. Future Root may explicitly choose a changed box rule only before pixels/features.",
+    "YCB q8 is GT-jitter SOURCE emulation; native mapping UNKNOWN and current condition32 stays all0. Logical aux positions are not pallet anatomy.",
+    "Original q/L/native/order/U and fit/dev siblings remain unchanged. SOURCEDEV may have fixed-pretrained feature computation but no learned-head outputs before freeze.",
+    "Public SOURCE GT/owner/ref/pose/depth/masks/instance IDs are supervision/diagnostic metadata only, never forward inputs. No semantic target identity is smuggled into context crop selection."
+  ],
+  "endpoint_boundary": [
+    "V107224 grid samples lie strictly inside the minmax box. Original endpoint q maps to normalized0/1; C11 border alignFalse read uses first/last patch token. This is declared embedding math, not an exact pixel visibility witness or proven bug.",
+    "Proposal uses qj-centred originalLj RAW96 CLS for other queries, not endpoint reads from the target patchgrid; image-edge padding/validity remains explicit and can still limit evidence.",
+    "Target-context CLS remains bounded by original q8 extent and can omit relevant surroundings; this proposal does not establish intended instance, correct coordinate error or certify physical native visibility."
+  ],
+  "active_node_QA": {
+    "helper": "verify_active_node_alignment",
+    "default_atol": 1e-06,
+    "rtol": 0,
+    "scope": "available+pixel-supported active nodes only; mismatch raises, never overwrite silently",
+    "authority": "Root must freeze tolerance and feature batch equivalence before actual extraction"
+  },
+  "tests": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V237_RELATIONAL_QUERY_DESIGN_B/INVENTED_CPU_CHECKS.json",
+    "sha256": "fd64ec43bad38dcafb7c5e1608c76bbbda0b81763652967a37ae2b55308e1302",
+    "size_bytes": 644
+  },
+  "actual_source_features_images_arrays_weights_or_OLD_run_execution": 0,
+  "new_training_or_model_adoption": false,
+  "limitations": [
+    "No inference that extra context caused previous SOURCE errors or will fix current real data.",
+    "No new D/E/SELF/location labels or confidence calibration. Both existing SOURCE referents remain separate family outputs.",
+    "Masked othernode invariance is head-local; global contextCLS may legitimately contain the same image regions.",
+    "The initially mentioned V236_ROOT_NEXT directory did not exist; only supplied exact replacement scope was followed. No broad path search."
+  ]
+}

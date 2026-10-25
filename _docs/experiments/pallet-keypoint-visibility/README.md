@@ -1,3 +1,9 @@
+## 최신 공개 V237–V239: 입력 복원 완료·학습 전 중단 진단·다음 비교 준비
+
+[전체 보고서와 상태표](V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/README_KO.md) · [원 문맥과 8개 실제 crop](V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/artifacts/V237_ROOT_SOURCE_CONTEXT_INPUTS/fixed4_original_input_gallery/FIXED4_SOURCE_INPUT_CONTEXT_AND_Q8.png) · [FIT 5,876개 행별 특징 차이](V239_SOURCE_CONTEXT_INPUTS_AND_PREPARATION/artifacts/V238_ALL_FIT_DESCRIPTOR_DIAG/ALL5876_DESCRIPTOR_DIFFERENCES.csv).
+
+V237은 원 crop 7,617개의 픽셀·valid SHA 일치와 독립 입력 QA를 완료했습니다. V238은 1e-6 특징 검증 초과로 optimizer 전에 중단됐습니다(66/5,876개, 최대 약 1.55158e-6). V239는 한 번 생성한 공통 특징으로 두 모델을 새로 비교하도록 준비했으며 실제 생성·학습·새 DEV 결과는 아직 없습니다. 완료·실패·준비 상태와 한계를 구분해 보존합니다. [공개 검증 기록](V239_PUBLICATION_REVIEW.json).
+
 ## 최신 공개 V234–V236: 실패 원인 진단과 같은 점 가림 대조
 
 [전체 보고서·실행 조건·재검산](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/README_KO.md) · [CM/precision/recall/보류율](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/artifacts/V235_SOURCE_REPORT_C/results/PORTABLE_REPORT_KO.md) · [성공·실패 crop](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/artifacts/V235_SOURCE_GALLERY_A/gallery_v1/FIXED12_SOURCE_DEV.png) · [crop과 공개 원 장면](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/artifacts/V236_CONTEXT_FRAMES_B/three_source_context_v1/THREE_SOURCE_CONTEXT_BOARD.png).
