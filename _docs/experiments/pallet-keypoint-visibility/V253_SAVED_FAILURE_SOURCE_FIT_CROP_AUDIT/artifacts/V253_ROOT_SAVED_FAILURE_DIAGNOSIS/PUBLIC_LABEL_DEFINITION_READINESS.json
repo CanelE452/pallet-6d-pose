@@ -1,0 +1,39 @@
+{
+  "schema": "V253_PUBLIC_OFFICIAL_DOCUMENTATION_LABEL_READINESS_ONLY_V1",
+  "created_at_UTC": "2026-10-25T10:17:51.697615+00:00",
+  "new_source_archive_download_or_access": 0,
+  "new_model_recipe_or_dataset_selection": false,
+  "purpose": "Separate public object visible-silhouette supervision from physical intendedpart visibility. Documentation readiness only; not new teacher certification or automatic training admission.",
+  "sources": [
+    {
+      "url": "https://github.com/thodan/bop_toolkit/blob/master/docs/bop_datasets_format.md",
+      "authority": "Official BOP toolkit format",
+      "observed": "mask is object silhouette; mask_visib is visible object silhouette; object GT includes model ID/pose, separate camera/depth_scale. These do not name a pallet native keypoint or intended part.",
+      "inference": "Surface/keypoint teacher would require explicitly verified 3Dpart correspondence, self-visible model surface and scene occlusion checks; existing mask alone does not certify targetnativevisibility."
+    },
+    {
+      "url": "https://github.com/thodan/bop_toolkit/blob/master/bop_toolkit_lib/visibility.py",
+      "authority": "Official BOP toolkit implementation, observed current master on2026-10-25",
+      "observed": "bop19 visibility accepts model-supported pixels when scene depth is zero; bop18 requires positive scene/model depth. Visibility also depends on a depth tolerance.",
+      "inference": "For a future local visibility teacher, missing-depth cases must retain their own authority/UNKNOWN handling, instead of silently treating toolkit visibility as exact physicalpoint gold. No change to existing source labels inV253."
+    },
+    {
+      "url": "https://bop.felk.cvut.cz/datasets/",
+      "authority": "Official BOP dataset description",
+      "observed": "YCB-V includes real training images; original 80K synthetic YCB-V images are discouraged due to shared poses with test images.",
+      "inference": "No dataset expansion was selected or downloaded here. Any future expansion must preserve train/held boundaries and source provenance."
+    },
+    {
+      "url": "https://www.kuleuven.be/wieiswie/en/person/00137888",
+      "authority": "KU Leuven author publication record",
+      "observed": "Lists pallet-bin replication dataset DOI10.48804/DJLDFS and related paper.",
+      "access_limit": "Direct DOI and RDR dataset page were inaccessible through this web tool. No file contents, label schema, counts, held data or license were newly verified. No source admission is based on secondary catalogue text."
+    }
+  ],
+  "limits": [
+    "Public object masks are not certified pallet intendedpart or nativekeypoint labels.",
+    "No current/held source payload or historical aggregate read; no threshold/architecture/data choice from evaluation.",
+    "Web master documentation may evolve; bind exact code/version if executing a future teacher.",
+    "This file is readiness evidence only; V253 actual run remains frozen savedscore+SourceFITcrop diagnosis."
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "completed": true,
+  "review_kind": "BOUNDED_EXISTING_CODE_ONLY_FOREIGN_PLACEMENT_POLICY",
+  "inputs": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/corpus_math.py",
+      "sha256": "96713b5c8380e7698081d9189d54b3f4911ea6cda14cbd47083a79f4df36817e",
+      "size_bytes": 10508
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/render_corpus_once.py",
+      "sha256": "f6093f950b9af0aff8494f3fc03d633ac6789a53e70e381d85d4e9f7716e0ec6",
+      "size_bytes": 15530
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/registered_native_teacher_feasibility/build_registered_pallet.py",
+      "sha256": "1ac00f53f037ceeebe3d67d6f76f69cbbdf3781461c514ae6b483256f3e7c01d",
+      "size_bytes": 16545
+    }
+  ],
+  "evidence": [
+    {
+      "code": "corpus_math.py",
+      "lines": [
+        6,
+        8,
+        24,
+        41
+      ],
+      "fact_KO": "V129은 각 base config에 foreign placement target 하나를 정한다. role=(camera_index//2+gi+ai+asset_ordinal)%4이며 네 이름은 near_top_same_side,near_top_opposite_side,near_bottom_same_side,far_top_same_side이다. side=(camera_pair_azimuth>0)로 정하고 slots=[side,1-side,2 if side else 3,5 if side else 4], selected_CF_index=slots[role], selected_canonical_index=perm[slots[role]]로 저장한다."
+    },
+    {
+      "code": "corpus_math.py",
+      "lines": [
+        35,
+        39
+      ],
+      "fact_KO": "직접 겨냥하는 CF주소 후보는 side=True일 때 [1,0,2,5], side=False일 때 [0,1,3,4]다. 따라서 항상 CF0만 겨냥하는 규칙은 아니지만 이 CODE의 slots 배열에 CF6/7은 없다. canonical 주소는 CF permutation으로 달라질 수 있으므로 CF6/7 미선택을 canonical6/7 미선택으로 그대로 바꾸면 안 된다."
+    },
+    {
+      "code": "corpus_math.py",
+      "lines": [
+        48,
+        54
+      ],
+      "fact_KO": "foreign_placements는 data.native_patch_quads[selected_canonical_index]의 세 face quad를 투영한 bbox/회전/extent/margin에 맞춰 COVER BOX를 만든다. 그 동일 BOX를 방향으로 평행이동해 NEAR_SHAM/FAR_SHAM을 만든다. 원 q나 pixel RGB 또는 실제 teacher label로 placement 대상을 검색하지 않는다."
+    },
+    {
+      "code": "render_corpus_once.py",
+      "lines": [
+        52,
+        66
+      ],
+      "fact_KO": "실제 loop는 configs의 base 하나당 foreign_placements 한 번, 그다음 BEFORE/COVER/NEAR_SHAM/FAR_SHAM 네 variant다. native0..7 각각에 별도 COVER intervention을 만드는 loop는 없다."
+    },
+    {
+      "code": "build_registered_pallet.py",
+      "lines": [
+        109,
+        135
+      ],
+      "fact_KO": "region_teacher는 native_witness_points의 여덟 native record를 모두 판정한다. 이는 여덟 intervention target을 차례로 겨냥하는 loop가 아니라 같은 scene/BOX에서 여덟 record의 D/E/S/U를 계산하는 loop다. 선택되지 않은 record도 같은 BOX에 가려질 가능성이 있으므로 direct target 주소와 E 발생 주소는 같은 모집단이 아니다."
+    },
+    {
+      "code": "build_registered_pallet.py",
+      "lines": [
+        137,
+        144
+      ],
+      "fact_KO": "V127 standalone feasibility의 fixed_foreign은 native1을 고정한다. 그러나 V129 renderer는 이 fixed_foreign을 호출하지 않고 자체 corpus_math.foreign_placements를 쓴다. V127 standalone native1 고정을 V129 corpus placement 규칙으로 인용하면 안 된다."
+    }
+  ],
+  "answers": {
+    "fixed_CF0_only": false,
+    "each_of8_direct_intervention_loop": false,
+    "selected_CF0_to5_candidates_from_CODE": true,
+    "selected_CF6_or7_directly_in_V129_slots": false,
+    "all8_teacher_records_evaluated": true,
+    "eight_balanced_placement_guarantee_present_in_reviewed_CODE": false,
+    "actual_selected_counts_by_role_or_fold": "UNKNOWN_NOT_READ",
+    "actual_SOURCE_E_distribution_cause": "NOT_ESTABLISHED",
+    "model_shortcut_or_failure_cause": "NOT_ESTABLISHED"
+  },
+  "limits_KO": [
+    "순수 CODE 구조만 확인했다. Root가 전달한 FIT/DEV E 집계는 이번 note의 재계산·원인판단·recipe선택에 사용하지 않았다.",
+    "프로토콜의 fixed_factors 내용과 실제 BASE_CONFIGS/GT/숫자입력은 새로 읽지 않았으므로 실제 role별 빈도/클래스 균형은 확인하지 않았다.",
+    "CODE에는 모든8주소를 직접 겨냥하는 balanced intervention loop가 없다. 이것은 설계상 coverage 제한의 근거이지 관찰된 E 분포 또는 모델오류 원인의 인과증명은 아니다.",
+    "등록 expected witness의 외부BOX E 권한은 앞선 RENDER_ENTITY_AUTHORITY_REVIEW_V2와 같다. literal q-owner/wholepart/실사physical nativegold로 확장하지 않는다."
+  ],
+  "access": {
+    "new_source_metadata_or_numeric_payload_reads": 0,
+    "new_renderer_runs": 0,
+    "new_model_runs": 0,
+    "new_file_reads": 0,
+    "basis": "이미 SHA검증 후 읽은 동일 세 CODE의 line evidence",
+    "prior_files_modified": 0
+  },
+  "new_training_recipe_or_selection": 0
+}

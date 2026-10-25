@@ -1,0 +1,177 @@
+{
+  "completed": true,
+  "review_type": "FINAL_THREE_PINNED_CODE_RENDER_AND_WITNESS_AUTHORITY",
+  "reviewer": "owner_witness_a_v158",
+  "inputs": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/render_corpus_once.py",
+      "sha256": "f6093f950b9af0aff8494f3fc03d633ac6789a53e70e381d85d4e9f7716e0ec6",
+      "size_bytes": 15530
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/corpus_math.py",
+      "sha256": "96713b5c8380e7698081d9189d54b3f4911ea6cda14cbd47083a79f4df36817e",
+      "size_bytes": 10508
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_stencil_control_20261023_v127/registered_native_teacher_feasibility/build_registered_pallet.py",
+      "sha256": "1ac00f53f037ceeebe3d67d6f76f69cbbdf3781461c514ae6b483256f3e7c01d",
+      "size_bytes": 16545
+    }
+  ],
+  "read_scope": {
+    "actual_reads": "These two CODE files only; opaque SHA then text inspection",
+    "metadata_or_source_payload_reads": 0,
+    "raw_GT_arrays_pixels_models": 0,
+    "import_or_execution_of_reviewed_CODE": 0,
+    "forbidden_FS_access": 0,
+    "prior_frozen_files_changed": 0,
+    "guard": "v112/cache/.pyc rejected case-insensitively before FS; traversal rejected; all ancestors checked root-first for symlinks"
+  },
+  "findings": [
+    {
+      "id": "WHOLE_REGISTERED_TARGET_MESH_RENDERED",
+      "status": "CODE_SUPPORTED",
+      "code": "render_corpus_once.py",
+      "lines": [
+        48,
+        59
+      ],
+      "detail_KO": "mesh template에서 vertices/triangles/part_owner 및 native geometry 전체를 가져온다. scaled_data는 전체 triangle·part_owner를 복사하고 모든좌표에 같은scale을 적용한다. target rasterize_parts는 전체 tri/pid와 모든 F face active=true를 받으며 특정 native primary part만 남기는 필터가 없다. target-alone raster layer는 단일part/단일point가 아니라 등록 target mesh 전체의 모든part layer이다.",
+      "supporting_core_lines": [
+        42,
+        47
+      ]
+    },
+    {
+      "id": "COMBINED_ADDS_SEPARATE_FOREIGN_BOX",
+      "status": "CODE_SUPPORTED",
+      "code": "render_corpus_once.py",
+      "lines": [
+        60,
+        69
+      ],
+      "detail_KO": "BEFORE는 target basebuf 복사다. 다른variant는 별도foreign BOX_TRI 12개를 rasterize하고 layer owner999로 resolve한다. continuous scene도 전체 target vertices/triangles/part owners에 foreign vertices/triangles와 owner999를 덧붙인다. target depth/face layer digest 불변 및 동일하게 보이는 target surface RGB 불변을 assert한다. foreign appearance가 target와 같은material이거나 backgroundlike여도 객체layer는 별도다.",
+      "supporting_core_lines": [
+        48,
+        54,
+        63,
+        70
+      ]
+    },
+    {
+      "id": "POINT_WITNESS_NOT_REGION_OR_WHOLEPART",
+      "status": "CODE_SUPPORTED",
+      "code": "render_corpus_once.py",
+      "lines": [
+        22,
+        32,
+        66,
+        72
+      ],
+      "detail_KO": "native_witness_points는 8×37 배열이며 diagnostics는 native별·witness별 nearest-pixel/continuous-firsthit 정보를 별도로 저장한다. 최종 region_teacher records와 point witness 상태는 같은 의미가 아니다. corpus_math.CF_records는 native별 records를 perm으로 재배열하고 active subset/3incident facequad의 projected supports를 더한다. 주석은 whole-part bbox/rastermask가 아님을 명시한다.",
+      "supporting_core_lines": [
+        72,
+        76
+      ]
+    },
+    {
+      "id": "TARGET_ALONE_INCLUDES_SELF_GEOMETRY",
+      "status": "CODE_SUPPORTED",
+      "code": "build_registered_pallet.py",
+      "lines": [
+        109,
+        122
+      ],
+      "detail_KO": "target-alone first_hit는 data.vertices[data.triangles] 전체와 part_owner 전체를 쓴다. 특정primarypart만 독립render한 것이 아니다. expected primarypart pid는 classifier의 비교대상이고, 나머지 자기pallet기하도 ray blocker로 남는다. combined는 같은 전체target에만 owner999 BOX를 더한다."
+    },
+    {
+      "id": "D_E_S_U_POINT_CLASSIFIER",
+      "status": "CODE_SUPPORTED",
+      "code": "build_registered_pallet.py",
+      "lines": [
+        89,
+        107
+      ],
+      "detail_KO": "first_hit는 reference point까지의 정규화 ray에서 가장 가까운 양의 triangle hit를 고른다. 다른part 동거리 tie는 U. classify_hits는 abs(hit_distance-reference_distance)<=1e-8*max(1,reference_distance)이고 owner==expected_part이면 D; reference보다 그tol 이상 앞이면 owner999일때만 E, 그외target owner는 S(같은part 앞면도 포함); 나머지는 U. 따라서 target-alone point0 D를 선행조건으로 combined point0 E를 채택할 때, 코드의 E는 외부BOX hit 권한이며 target selfsurface를 E로 복사하지 않는다."
+    },
+    {
+      "id": "WITNESS_ZERO_AND_REGISTERED_PART",
+      "status": "CODE_SUPPORTED",
+      "code": "build_registered_pallet.py",
+      "lines": [
+        67,
+        80,
+        113,
+        134
+      ],
+      "detail_KO": "각native i는 선언constructive role로 primarypart를 고르고, native_witness_points[i]는 anchor[None]를 첫항으로 넣은 endpoint+edge+facegrid37개다. projected_reference_xy는 project[0]. point0는 그native record의 anchor witness이며 physical native0 index가 아니다. V211은 이미선택한 record_CF[k]의 states[0]만 추출한다."
+    },
+    {
+      "id": "POINT_AND_REGION_AUTHORITIES_SEPARATE",
+      "status": "CODE_SUPPORTED",
+      "code": "build_registered_pallet.py",
+      "lines": [
+        114,
+        134
+      ],
+      "detail_KO": "regionstate는 front-facing 활성witness subset 전체와 target-alone regionstate를 추가로 요구한다. S우선, 다중face+active 모두D일때만 regionbeforeD, combined active전부E/D일때만 regionE/D이고 나머지U다. V212 point_loss_target은 point0 aloneD/combinedDE와 savedreference locality를 소비하며 regionstateD/E 전체를 요구하지 않는다. 단일point교사와 wholepart/region교사를 같은 권한으로 서술하면 안 된다."
+    },
+    {
+      "id": "SELF_ROW_NAME_NOT_SELF_STATE",
+      "status": "CODE_SUPPORTED_DIFFERENT_NAMESPACES",
+      "code": "lookup_dense_source_points.py",
+      "lines": [
+        43,
+        67,
+        87,
+        95,
+        138,
+        145
+      ],
+      "detail_KO": "SELF_SCENE15는 cache/augmentation family 필드이고 geometric S는 target_witness_states/combined_witness_states의 원소다. lookup은 family와 pointstate를 별도필드로 취급하며 ownimage scene/native로 매핑한다. V183_SELF row명과 inherited E의 공존만으로 state alias나 라벨충돌이라고 할 수 없다."
+    },
+    {
+      "id": "SAME_MATERIAL_FOREIGN_POSSIBLE",
+      "status": "CODE_SUPPORTED_NOT_ASSIGNED_TO_ANY_VIEWED_ROW",
+      "code": "corpus_math.py",
+      "lines": [
+        63,
+        70
+      ],
+      "detail_KO": "foreign_family SAME_TARGET_MATERIAL은 target와 같은 material_rgb를 쓰면서도 buffer owner999로 합성한다. 따라서 카드에서 target같은 색/표면이 보인다는 이유만으로 외부가림 E를 부정할 수 없다. 이번 검토는 각카드 실제foreign_family/factors 또는GT를 읽지 않았으므로 어떤카드가 이경우인지 새로 판정하지 않는다."
+    }
+  ],
+  "reconciliation_with_previous_review_KO": [
+    "이전 AFTER_RENDER_VISUAL_REVIEW와 두CODE RENDER_ENTITY_AUTHORITY_REVIEW는 당시 bounded UNKNOWN receipt로 그대로 보존한다. 새로Root가 허용한 V127 geometry CODE 하나가 D/E/S 분기closure를 추가로 닫았다.",
+    "최종 CODE 권한: 원own-image/native record 매핑과 point0 target-alone D·combined E·reference crop/frame locality 조건이 충족된 SOURCE 행은 해당 registered witness ray에서 foreign BOX(owner999)가 앞을 막는 synthetic E이다. target selfsurface는 S이며 consumer에서 E로 승격되지 않는다.",
+    "이것은 source CODE의 label definition 및 renderer closure 확인이다. 실제 모든GT row 또는배열/현재학습label을 새로 replay한 검산은 아니다.",
+    "그 witness reference와 원initializer q는 구분된다. q 주변에 표면이 보이더라도 expected reference/witness가 보인다는 증명은 아니며 literal q-owner label오류를 주장하지 않는다.",
+    "등록된 두procedural mesh의 expectedpart/anchor는 명시적constructive correspondence이다. 이를 실사pallet/native 대응, 배포selectedinstance, wholepart visibility 또는 모든physicalgold로 일반화하지 않는다.",
+    "physical identity/current evaluation/model 선택/새 라벨/recipe 변경0."
+  ],
+  "science_changes": 0,
+  "new_labels": 0,
+  "new_recipe_or_model_choice": 0,
+  "previous_bounded_review": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V253_DEPLOYMENT_SEMANTICS_A/RENDER_ENTITY_AUTHORITY_REVIEW.json",
+    "sha256": "682e1a5109f1fa6c3412279fd1bab3ffb6ed583691ae9bc7016a7fc041976275",
+    "size_bytes": 5578,
+    "preserved_unchanged": true
+  },
+  "authority_conclusion": {
+    "synthetic_point_E_external_foreign_BOX": true,
+    "synthetic_point_SELF_relabelled_E": false,
+    "whole_target_geometry_in_target_alone": true,
+    "single_primary_part_only_target_alone": false,
+    "point0_equals_native0": false,
+    "literal_q_visibility_certified": false,
+    "whole_part_visibility_certified": false,
+    "real_pallet_physical_native_gold_certified": false,
+    "conditional_on": "exact own image/scene/native mapping + target-alone point0 D + combined point0 E + source contract eligibility/locality"
+  },
+  "verification_terminals": [
+    "65088f exit0 (twoCODE)",
+    "ed1d38 exit0 (additional exact geometry CODE)"
+  ]
+}

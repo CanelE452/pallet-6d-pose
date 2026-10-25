@@ -1,0 +1,103 @@
+{
+  "completed": true,
+  "review_type": "PINNED_TWO_CODE_RENDER_ENTITY_AUTHORITY",
+  "reviewer": "owner_witness_a_v158",
+  "inputs": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/render_corpus_once.py",
+      "sha256": "f6093f950b9af0aff8494f3fc03d633ac6789a53e70e381d85d4e9f7716e0ec6",
+      "size_bytes": 15530
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/corpus_math.py",
+      "sha256": "96713b5c8380e7698081d9189d54b3f4911ea6cda14cbd47083a79f4df36817e",
+      "size_bytes": 10508
+    }
+  ],
+  "read_scope": {
+    "actual_reads": "These two CODE files only; opaque SHA then text inspection",
+    "metadata_or_source_payload_reads": 0,
+    "raw_GT_arrays_pixels_models": 0,
+    "import_or_execution_of_reviewed_CODE": 0,
+    "forbidden_FS_access": 0,
+    "prior_frozen_files_changed": 0,
+    "guard": "v112/cache/.pyc rejected case-insensitively before FS; traversal rejected; all ancestors checked root-first for symlinks"
+  },
+  "findings": [
+    {
+      "id": "WHOLE_REGISTERED_TARGET_MESH_RENDERED",
+      "status": "CODE_SUPPORTED",
+      "code": "render_corpus_once.py",
+      "lines": [
+        48,
+        59
+      ],
+      "detail_KO": "mesh template에서 vertices/triangles/part_owner 및 native geometry 전체를 가져온다. scaled_data는 전체 triangle·part_owner를 복사하고 모든좌표에 같은scale을 적용한다. target rasterize_parts는 전체 tri/pid와 모든 F face active=true를 받으며 특정 native primary part만 남기는 필터가 없다. target-alone raster layer는 단일part/단일point가 아니라 등록 target mesh 전체의 모든part layer이다.",
+      "supporting_core_lines": [
+        42,
+        47
+      ]
+    },
+    {
+      "id": "COMBINED_ADDS_SEPARATE_FOREIGN_BOX",
+      "status": "CODE_SUPPORTED",
+      "code": "render_corpus_once.py",
+      "lines": [
+        60,
+        69
+      ],
+      "detail_KO": "BEFORE는 target basebuf 복사다. 다른variant는 별도foreign BOX_TRI 12개를 rasterize하고 layer owner999로 resolve한다. continuous scene도 전체 target vertices/triangles/part owners에 foreign vertices/triangles와 owner999를 덧붙인다. target depth/face layer digest 불변 및 동일하게 보이는 target surface RGB 불변을 assert한다. foreign appearance가 target와 같은material이거나 backgroundlike여도 객체layer는 별도다.",
+      "supporting_core_lines": [
+        48,
+        54,
+        63,
+        70
+      ]
+    },
+    {
+      "id": "POINT_WITNESS_NOT_REGION_OR_WHOLEPART",
+      "status": "CODE_SUPPORTED",
+      "code": "render_corpus_once.py",
+      "lines": [
+        22,
+        32,
+        66,
+        72
+      ],
+      "detail_KO": "native_witness_points는 8×37 배열이며 diagnostics는 native별·witness별 nearest-pixel/continuous-firsthit 정보를 별도로 저장한다. 최종 region_teacher records와 point witness 상태는 같은 의미가 아니다. corpus_math.CF_records는 native별 records를 perm으로 재배열하고 active subset/3incident facequad의 projected supports를 더한다. 주석은 whole-part bbox/rastermask가 아님을 명시한다.",
+      "supporting_core_lines": [
+        72,
+        76
+      ]
+    },
+    {
+      "id": "WITNESS_STATE_D_E_S_DEFINITION",
+      "status": "UNKNOWN_DELEGATED_FUNCTION_NOT_IN_THESE_TWO_FILES",
+      "code": "render_corpus_once.py",
+      "lines": [
+        39,
+        47,
+        66,
+        85
+      ],
+      "detail_KO": "target_witness_states/combined_witness_states 및 D/E/S 분기 자체는 이 두 파일에 정의되지 않는다. 호출은 teacher.region_teacher(data,camera,raster,fv)이고 teacher는 protocol.geometry_code에서 load한다. target raster가 전체mesh라는 사실만으로 target_witness_states가 wholemesh raycast인지 primarypart-only 비교인지까지 확정하지 않는다. 외부 vs SELF 상태권한의 마지막 closure는 해당 pure geometry_code.region_teacher 및 그 classifier에 남아 있다."
+    }
+  ],
+  "reconciliation_with_previous_review_KO": [
+    "이전 AFTER_RENDER_VISUAL_REVIEW의 UNKNOWN은 당시 lookup/consumer만 확인한 bounded receipt로 보존한다. 이번 두CODE는 renderer scene target이 전체등록mesh임을 추가확인한다.",
+    "point0는 선택된 CF/native record 내부 첫witness이고 native0 전체와 동일한 alias라고 볼 근거는 여전히 없다.",
+    "시각적으로 q 근처 target같은 표면이 보인다는 사실은 teacher reference/witness 가시성과 같지 않다. qcenter 라벨 오류를 주장하지 않는다.",
+    "등록procedural synthetic teacher 권한을 real physical nativegold, wholepart visibility 또는 실제배포 instance correspondence로 격상하지 않는다.",
+    "현재 읽은 두CODE만으로 E의 모든 경우가 외부객체가림임을 완전히 증명했다는 문구는 사용하지 않는다. SELF/E classifier는 delegated UNKNOWN이다."
+  ],
+  "requested_minimum_remaining_CODE_pointer": {
+    "inert_only": true,
+    "path_source": "V129 render_preparation/CORPUS_PROTOCOL_BEFORE_PIXELS.json ['geometry_code']",
+    "callee": "region_teacher(data,camera,raster,fv) and its D/E/S classifier",
+    "access_performed": false
+  },
+  "science_changes": 0,
+  "new_labels": 0,
+  "new_recipe_or_model_choice": 0,
+  "verification_terminal": "65088f exit0"
+}
