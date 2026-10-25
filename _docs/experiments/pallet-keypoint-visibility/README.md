@@ -1,3 +1,9 @@
+## 최신 공개 V234–V236: 실패 원인 진단과 같은 점 가림 대조
+
+[전체 보고서·실행 조건·재검산](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/README_KO.md) · [CM/precision/recall/보류율](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/artifacts/V235_SOURCE_REPORT_C/results/PORTABLE_REPORT_KO.md) · [성공·실패 crop](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/artifacts/V235_SOURCE_GALLERY_A/gallery_v1/FIXED12_SOURCE_DEV.png) · [crop과 공개 원 장면](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/artifacts/V236_CONTEXT_FRAMES_B/three_source_context_v1/THREE_SOURCE_CONTEXT_BOARD.png).
+
+실제 SOURCE 대조쌍5,367개와 고정 head1000회 학습·독립 QA를 완료했습니다. 공개 실사 내부 DEV 외부 가림은 0/57이며 SOURCE 기준 미달로 모델을 채택하지 않았습니다. 실패57개 중56개는 crop 밖 다른 원 query에 대상 픽셀이 있음을 확인했고, 다음 입력 검증 경로를 기록했습니다. 새 context 모델은 아직 학습하지 않았습니다. [배포 검증 기록](V236_PUBLICATION_REVIEW.json). 이전 기록은 아래에 유지합니다.
+
 ## 최신 공개 V233: 공개 실사·합성 crop 대조
 
 [보고서와 재검산 안내](V233_SOURCE_CROP_ENCODER_ADAPTATION/README_KO.md) · [실제 성공/실패 crop](V233_SOURCE_CROP_ENCODER_ADAPTATION/artifacts/V233_ROOT_CROP_ADAPTATION/fixed8_source_dev_gallery_v2/SOURCE_DEV_FIXED8.png) · [CM/P/R/U 표](V233_SOURCE_CROP_ENCODER_ADAPTATION/artifacts/V233_SOURCE_REPORT_C/results/METRICS.csv). 실제1000회 학습 비교와 독립 QA를 완료했습니다. SOURCE 순개선0pp여서 미채택이며 실사 해결 완료가 아닙니다. 이전 기록은 아래에 유지합니다.

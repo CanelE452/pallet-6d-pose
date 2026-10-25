@@ -1,3 +1,7 @@
+## V234–V236 · SOURCE 실패 진단·같은 점 COVER/SHAM 학습 완료 / 미채택
+
+[코드·모델·로그·원행 출력·표·시각화·검산](V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/README_KO.md). V234는 라벨/좌표/물체×표면점 분포와 기존 코드를 감사했습니다. V235는 공개 FIT donor64개로 성공5,367쌍을 만들고 같은 고정 encoder/head를1000회 학습했습니다. SYN DEV D/E recall98.68/92.86%, YCB DEV96.76/0%, 가족 평균 균형 recall gain+0.113491pp로 사전3pp 기준 미달입니다. V236은 공개 원 장면3개와 다른 q8의 대상 픽셀을 대조했습니다. 현재223 새 사용0, 새 후보 admission=false, PnP/좌표 회귀 없음입니다.
+
 ## V232–V233 · SOURCE local crop encoder 적응 대조 완료 / 미채택
 
 [전체 과정·코드·체크포인트·결과·검산](V233_SOURCE_CROP_ENCODER_ADAPTATION/README_KO.md). 같은 query/L와 고정 head에서 CONTROL1000 vs 마지막qkv LoRA1000을 비교했습니다. SYN DEV D/E recall98.84/91.07%, YCB DEV97.94/0%, 양팔 순개선0pp입니다. 원 실패 및 동일 forward 수리, 두 final freeze 이후 DEV 출력 기록과 실제 crop을 포함합니다. 현재 평가 새 사용0, 후보 admission=false입니다.

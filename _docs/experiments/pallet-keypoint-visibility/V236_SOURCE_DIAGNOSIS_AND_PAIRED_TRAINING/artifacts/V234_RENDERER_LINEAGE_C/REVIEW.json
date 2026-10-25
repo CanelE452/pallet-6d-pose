@@ -1,0 +1,161 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": "Only exact V129 actual entry and two pinned CODE files; no import/run or data/model/split choice",
+  "evidence_files": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/ROOT_ACTUAL_CORPUS_RENDER_ENTRY.json",
+      "sha256": "54aeba8d067ffc38218526031c21553ecc8af59d4ec388b1505b54e3b7785d8e",
+      "size_bytes": 1935
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/render_corpus_once.py",
+      "sha256": "f6093f950b9af0aff8494f3fc03d633ac6789a53e70e381d85d4e9f7716e0ec6",
+      "size_bytes": 15530
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/corpus_math.py",
+      "sha256": "96713b5c8380e7698081d9189d54b3f4911ea6cda14cbd47083a79f4df36817e",
+      "size_bytes": 10508
+    }
+  ],
+  "verdict": "PINNED_RENDERER_RGB_IS_PROCEDURAL;_NO_EXPLICIT_EXTERNAL_PHOTO_BACKGROUND_OR_DONOR_INPUT_ROUTE_IN_REVIEWED_CODE",
+  "claims": {
+    "procedural_RGB_code_contract_confirmed": true,
+    "external_photographic_background_or_donor_explicit_input_route_in_reviewed_RGB_path": false,
+    "explicit_photo_file_decode_calls_in_reviewed_two_CODEs": 0,
+    "geometry_numeric_input_used": true,
+    "geometry_asset_origin_not_independently_proven": true,
+    "unknown_config_values_not_needed_to_identify_accepted_albedo_code_branches": true,
+    "selected110_raw_buffer_writer_schema_matches_prior_saved_GT_fields": true,
+    "selected110_per_base_execution_receipt_reverified_this_task": false,
+    "source_RGB_pixel_bytes_replayed": false,
+    "full_experiment_independence_or_freshblind_claim": false,
+    "V233_gate_or_current_admission_changed": false
+  },
+  "code_findings": [
+    {
+      "stage": "entry code binding",
+      "code": "runner",
+      "lines": "34–43",
+      "finding": "Actual entry pins runner/core hashes; authorize checks code/core/protocol/policy/config/generated bindings. Other bound metadata bodies not read in this audit."
+    },
+    {
+      "stage": "geometry input",
+      "code": "runner",
+      "lines": "47–56",
+      "finding": "Only mesh np.load reads named geometry arrays vertices/triangles/owners/anchors/witness geometry; no RGB/texture members are selected. Templates are scaled numeric geometry, origin body not audited here."
+    },
+    {
+      "stage": "foreign geometry",
+      "code": "core",
+      "lines": "48–54",
+      "finding": "COVER/NEAR_SHAM/FAR_SHAM vertices come from camera/projected quads and deterministic translations; no donor RGB argument or file access."
+    },
+    {
+      "stage": "target material",
+      "code": "core",
+      "lines": "55–59",
+      "finding": "PROCEDURAL_WOOD/DARK_POLYMER albedo uses fixed colors, seed tone and coordinate sine functions."
+    },
+    {
+      "stage": "foreign appearance",
+      "code": "core",
+      "lines": "63–68",
+      "finding": "SAME_TARGET_MATERIAL calls the same procedural material function; CARDBOARD_TAN/BACKGROUND_LIKE/HIGH_CONTRAST use arithmetic palettes, not a loaded source image."
+    },
+    {
+      "stage": "background/light",
+      "code": "core",
+      "lines": "63,69–71",
+      "finding": "Seed-dependent bgbase/light/ambient plus image-coordinate sinusoid; geometry normals illuminate albedo; sRGB conversion/uint8 rounding. No background photograph input."
+    },
+    {
+      "stage": "RGB pipeline",
+      "code": "runner",
+      "lines": "59–70",
+      "finding": "Numeric raster buffers and procedural foreign geometry feed core.shade; RGB_uint8 comes directly from its result. Image.fromarray saves a PNG; no Image.open exists."
+    },
+    {
+      "stage": "raw buffer binding",
+      "code": "runner",
+      "lines": "70–75",
+      "finding": "bf=baseout/(variant+_BUFFERS.npz), saved RGB_uint8=rgb; GT record raw_buffers=bind(bf), geometry/foreign_geometry bindings; per-base SCENES_GT_ONLY.json writes these records."
+    },
+    {
+      "stage": "actual image identity",
+      "code": "runner",
+      "lines": "61–75",
+      "finding": "scene_index=4*base_index+variant_index and identity stores base/scene/variant. This renderer creates full images, not q crops or BEFORE q-anchor metadata."
+    },
+    {
+      "stage": "completion metadata",
+      "code": "runner",
+      "lines": "78–80",
+      "finding": "Top RENDER_COMPLETE is coded to bind entry/code/core plus per-base checkpoints; its actual body and all-corpus outputs were not opened here."
+    }
+  ],
+  "dependency_boundary": "Imported raster/teacher/helper internal code and template origins were not opened. No new file is inferred or followed. This does not claim arbitrary dependency side effects were independently excluded.",
+  "writer_mapping": {
+    "entry_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/render_corpus_once.py",
+      "sha256": "f6093f950b9af0aff8494f3fc03d633ac6789a53e70e381d85d4e9f7716e0ec6",
+      "size_bytes": 15530
+    },
+    "entry_core": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/corpus_math.py",
+      "sha256": "96713b5c8380e7698081d9189d54b3f4911ea6cda14cbd47083a79f4df36817e",
+      "size_bytes": 10508
+    },
+    "base_dir": "actual_corpus_v1/bases/<cfg.base_id>",
+    "rawbuffer": "variant + _BUFFERS.npz",
+    "RGB_source": "core.shade(buffer,scene_vertices,scene_triangles,cfg,translation)",
+    "raw_member": "RGB_uint8",
+    "GT_record_binding": "/rows/*/raw_buffers",
+    "GT_file": "SCENES_GT_ONLY.json",
+    "geometry": "/rows/*/geometry",
+    "foreign_geometry": "/rows/*/foreign_geometry",
+    "prior_selectedGT_audit_inert": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V234_SELECTED_GT110_LINEAGE_C/REVIEW.json",
+      "sha256": "d747be81219e7f1917a630d4c564e2b112c8fda4533789d093b403f4e4ae3276",
+      "reopened_this_task": false
+    },
+    "bound_writer_expected_mapping": true,
+    "actual_execution_completion_receipt_or_pixel_replay_performed": false
+  },
+  "optional_inert_helper_CODE_routes": [
+    {
+      "kind": "optional helper CODE for broader imported-dependency audit",
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_render_20261023_v128/render_preparation/render_registered_six_once.py",
+      "sha256": null,
+      "source": "runner line11 literal; protocol prepare line85 binds it as reviewed_renderer_helper",
+      "read_now": false,
+      "FS_operations": 0
+    },
+    {
+      "kind": "closed protocol pointer for literal geometry/raster CODE bindings",
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_registered_native_diversity_20261023_v129/render_preparation/CORPUS_PROTOCOL_BEFORE_PIXELS.json",
+        "sha256": "5e7d84b57f926d5cd9fa7dae737faf10dac19c9cb6812b66d2c772ca1317ac4e"
+      },
+      "source": "entry /protocol; runner47 references protocol geometry_code/raster_code/reviewed_renderer_helper",
+      "read_now": false,
+      "FS_operations": 0,
+      "nested_CODE_paths_currently_unknown": [
+        "/geometry_code/path",
+        "/raster_code/path"
+      ]
+    }
+  ],
+  "access": {
+    "unique_allowed_files_read": 3,
+    "CODE_import_execution": 0,
+    "configs192_policy_generated_results_or_corpus_body_reads": 0,
+    "source_RGB_GT_depth_mesh_NPZ_weights_current_held_reads": 0,
+    "new_pointer_FS": 0,
+    "V112_or_forbidden_cache_anyFS": 0,
+    "broad_search_Git_network": 0
+  },
+  "prior_files_modified": false,
+  "frozen_after_write": true
+}

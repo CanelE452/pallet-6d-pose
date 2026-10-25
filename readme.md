@@ -1,3 +1,7 @@
+## 팔레트 가림 실험 최신 공개: V234–V236
+
+[진단·실제 학습·표·이미지·재검산 안내](_docs/experiments/pallet-keypoint-visibility/V236_SOURCE_DIAGNOSIS_AND_PAIRED_TRAINING/README_KO.md). 같은 점을 덮는 COVER와 옆에 두는 SHAM 5,367쌍으로 고정 head를 학습했으나 공개 실사 내부 DEV 가림은 0/57로 미채택입니다. 코드·작은 모델·훈련로그·행별 출력·실제 성공/실패 crop·전체 장면을 포함합니다. 현재223 평가를 이번 학습·선택·추론에 사용하지 않았습니다.
+
 ## 팔레트 가림 실험 최신 공개: V233
 
 [실제 실행·결과·검증·crop 모음](_docs/experiments/pallet-keypoint-visibility/V233_SOURCE_CROP_ENCODER_ADAPTATION/README_KO.md). 고정 encoder와 마지막 qkv 적응을 같은 SOURCE에서 비교했습니다. 순개선0pp, 공개 실사 DEV 가림 recall0%로 미채택입니다. 현재223 평가에 새 학습·문턱 선택·추론은 하지 않았습니다. 코드·모델2개·행별 예측·검산 도구와 실패 기록을 포함합니다.
