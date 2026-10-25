@@ -1,0 +1,289 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": "Bounded existing CODE/design/SOURCE execution metadata comparison only; no new design/fit or historical performance inspection",
+  "methods": [
+    {
+      "method": "C10 / V110",
+      "target_authority": "V109 natural YCB associated-r surface D/E, not literal-q owner or pallet native; S/U remain -1. Combined with prior old/synthetic D/E.",
+      "real_YCB": "TRAIN1000 instances /700frames /8000slots; declared D1181/E340/S1917/U4562; availability+TRAIN+D/E pools YCB_D8,YCB_E12 per64 draw. No new YCB VAL.",
+      "q_input": "YCB q=r+fixed <=4px jitter, context from q8 box; real RGB but emulated input query. No native ID/teacher r/mask/depth/pose forward inputs.",
+      "architecture": "Frozen ImageNet ResNet18; target512+local96_512+center32_512+cosines/validity =1541; abs(target-center),product ->2565->64ReLU->1;164289 trained params.",
+      "normalization": "ImageNet mean/std after invalid mean-fill; per-view L2; no fitted feature normalizer.",
+      "loss_and_matched_CF": "64 balanced D32/E32 BCE +0.25*relu(2-(z_COVER-z_SHAM)) on4 old+4 synth triplets. Natural YCB itself is not a matched triple.",
+      "split_and_selection": "TRAIN-only loss; old fixed eight VAL cohorts drive best checkpoint every100 steps. This audit reads code policy, not old VAL results.",
+      "actual_training_proof": "MODEL_FREEZE completed and exact trainer/design directly checked; existing V230 C closure pins FIT_COMPLETE2000. No actual update-log/gradient replay here.",
+      "evidence_lines": {
+        "C10_trainer": [
+          "17-19",
+          "34-64",
+          "89-126",
+          "151-188"
+        ],
+        "C10_design": [
+          "source",
+          "features",
+          "head",
+          "fit"
+        ]
+      }
+    },
+    {
+      "method": "C11 / V111",
+      "target_authority": "Exactly C10/V109 associated-r labels, metadata, flags and loss; no relabeling to q ownership.",
+      "real_YCB": "Same41984 occurrences/11652 feature units including YCB8000; same YCB_D/E quota and exact2000 draw SHA required.",
+      "q_input": "Frozen DINO context16x16 patches read at original initial q via bilinear border align_corners=False. q8-only context box; no GT r region/native/pose input.",
+      "architecture": "Frozen DINOv2 ViT-S/14 reg4; T/Q/F/C/P each384+8 scalars=1928; abs(T-C),T*C,abs(Q-P),Q*P ->3464->64ReLU->1;221825 trained params.",
+      "normalization": "Raw context patch tokens ->bilinear Q ->L2. Each pooled descriptor L2 eps1e-12; ImageNet RGB preprocessing; no fitted normalizer.",
+      "loss_and_matched_CF": "Calls pinned C10 supervised_loss, same BCE and old/synth matched margin2 weight.25; no natural YCB matched-pair claim.",
+      "split_and_selection": "Same TRAIN masks and old VAL checkpoint selection as C10; q-outside context zeros Q only, no new U selection.",
+      "actual_training_proof": "MODEL_FREEZE completed and exact trainer/design directly checked; existing V230 C closure pins FIT_COMPLETE2000. No weight/feature/log replay.",
+      "evidence_lines": {
+        "C11_trainer": [
+          "12-14",
+          "28-38",
+          "47-68",
+          "95-108"
+        ],
+        "C11_features": [
+          "36-64",
+          "165-174"
+        ],
+        "C11_design": [
+          "source",
+          "features",
+          "encoder"
+        ]
+      }
+    },
+    {
+      "method": "C65 / V219 STRONG_PLUS_EXPECTED_PART_WEAK",
+      "target_authority": "Main SYN own-image point0 target-alone D +combined D/E and finite available frame/crop locality. Public weak expected finite-part D/E is separate authority; not exact native gold. Old public/CF AUX remains literal owner.",
+      "real_YCB": "No natural V109 YCB loss pool in this recipe. Old domains are SYNTH_AUG65536/PUBLIC_TRAIN1480/CF3816; CF donor use does not make it natural YCB surface supervision.",
+      "q_input": "Old source context ORIGINAL_INITIALIZER. Public weak q8 is explicitly GT_DERIVED_TRAINING_INITIALIZATION, not initializer performance. Native8+othermask8+F64/clip/FP32 XY16 enters direct residual after pool/shared64.",
+      "architecture": "Scratch RAW96 eight channels RGB/255+valid+fixedXY2+zeroSAM2; GN CNN96->12->AvgPool4->3x3->shared64; direct64->1 plus96->32SiLU->1 residual;118359 total. No outside-crop RGB appearance.",
+      "normalization": "RGB/255; per-sample GroupNorm. Synthetic owner class probabilities renormalized after TRAIN/nominal/lineage/nonDEV masks; no fitted RGB/BN normalizer.",
+      "loss_and_matched_CF": "mean old5 AUX on192 +balanced point BCE32 +0.25 balanced weak BCE16. Single direct scalar receives both main point and finite-part targets. No explicit new COVER-SHAM pair hinge in V219; CF3816 is old owner AUX.",
+      "split_and_selection": "Main7040 retained, eligible6096=D5853/E243. WeakFIT45=D39/E6, DEV12=D9/E3. DEV4components/descendants excluded from every old/point/weak loss and owner normalization; both final4000 before DEV outputs, no earlystop.",
+      "actual_training_proof": "V219 COMPLETE completed/PASS/from_scratch true, steps_each4000, params118359, exact trainer/contract; census and root recipe read, no PT/output-score read.",
+      "evidence_lines": {
+        "C65_trainer": [
+          "86-140",
+          "157"
+        ],
+        "C65_contract": [
+          "14-25",
+          "27-73",
+          "86-90"
+        ],
+        "C65_point_contract": [
+          "13-35"
+        ],
+        "C65_old5_kernel": [
+          "145-165"
+        ],
+        "C65_base": [
+          "29-66",
+          "69-95"
+        ],
+        "C65_spatial": [
+          "22-39"
+        ]
+      }
+    },
+    {
+      "method": "V227 CONTROL_FIXED_Q / TREAT_ATTENTION",
+      "target_authority": "Existing MR6D original-query weak native-role D/E368; not YCB, not literal-q presence or physical coordinate gold. No new labels.",
+      "real_YCB": "No YCB input/loss;151 original public TRAIN frames/368 available D/E. FixedFIT65=D57/E8, SOURCEDEV303=D267/E36. No new split or current-result selection.",
+      "q_input": "Original initializer q/L/native/q8. localCLS384+fixedQ or attention read384+contextCLS384+condition32 ->1184. Attention uses condition32 query8, token384+relativeXY2+squareXY2 key8 before weighted read. Encoder remains frozen.",
+      "architecture": "Frozen DINO reg4 features; one Linear1184->1 classifier, both zeros. Same4561 owned params; CONTROL attention3376 unused/noL2 so active classifier1185; treatment attention active.",
+      "normalization": "Per-token L2 BEFORE bilinear fixedQ then read L2; local/contextCLS L2. Attention descriptor L2. Fixed math only/no data-stat fit. This is not the same Q normalization order as C11.",
+      "loss_and_matched_CF": "FullFIT65 class-balanced BCE +.001 active-parameter squared sum; Adam.01,300each. No matched CF hinge or ROI auxiliary.",
+      "split_and_selection": "SOURCEDEV excluded from all FIT and normalization; both final300 saved before DEV descriptor/logits. DEV reused/exposed SOURCE, not fresh blind.",
+      "actual_training_proof": "Own COMPLETE completed/PASS, steps_each300, params4561 and exact code/head/protocol; no PT/features/logits or performance read.",
+      "evidence_lines": {
+        "V227_head": [
+          "29-60"
+        ],
+        "V227_trainer": [
+          "79-138",
+          "204-230"
+        ],
+        "V227_features": [
+          "239-286"
+        ],
+        "V227_protocol": [
+          "allowed_data",
+          "fixed_candidate_split",
+          "data_authority",
+          "training"
+        ]
+      }
+    }
+  ],
+  "code_bindings": {
+    "C10_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/train_natural_surface_rgb_head.py",
+      "sha256": "3baff03b0c73b17fff8cbad4f1ba96b9c5b134bc50538b96fb0a27827ddfc6e0",
+      "size_bytes": 22284
+    },
+    "C11_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+      "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de",
+      "size_bytes": 14695
+    },
+    "C65_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_TRAINING_PREPARATION_C/train_strong_plus_expected_part_weak.py",
+      "sha256": "11c40cb6edfb5260310e2370ff06f4ac04a30d3d69e3f892f3bcd9709696a06d",
+      "size_bytes": 17402
+    },
+    "C65_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_TRAINING_PREPARATION_C/source_training_contract.py",
+      "sha256": "fc0a161e8a4c1a413d528ce1e66eed1b2addf2d4593c632506280f10732451d7",
+      "size_bytes": 6765
+    },
+    "V227_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_ATTENTION_IMPLEMENTATION_A/head.py",
+      "sha256": "042ffd9c7bced899e0de2546109cdaafff54db27b47d7cd24113eb056570c5dc",
+      "size_bytes": 2723
+    },
+    "V227_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_ATTENTION_IMPLEMENTATION_A/train_compare.py",
+      "sha256": "f46250ffd0a2ec3f0381be78f21de76f07a4ab6a4bbfc8998233b8f70d587dd4",
+      "size_bytes": 15370
+    },
+    "C65_base": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_local_support_raw_head_20261024_v181/head_preparation/local_support_head.py",
+      "sha256": "14a40c4dd14d416c1648e62b408fd7acdf74f06d4113c69785bd737b45aa848b",
+      "size_bytes": 4642
+    },
+    "C65_direct": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_sampled_domain_direct_end_20261024_v189/direct_end_training_preparation_c/synthetic_direct_end_candidate.py",
+      "sha256": "1668550225434f609ed70d2d62093e35bea6bd8471b9c1f5692f7cfb0b358341",
+      "size_bytes": 8895
+    },
+    "C65_spatial": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_nominal_grouped_source_training_20261025_v202/fit_preparation_b/spatial_q8_conditioned_head.py",
+      "sha256": "a03f2f4f531d78ef8a2a4733ab89026e09727907dd91991464192dd799c56ad2",
+      "size_bytes": 3063
+    },
+    "C65_point_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_point_weak_bridge_source_training_20261025_v212/fit_preparation_a/source_target_contract.py",
+      "sha256": "d8925908d00f4f120bd80bae7a691a1a3846c4e9096e2e111d71984843e0b738",
+      "size_bytes": 5284
+    },
+    "C65_old5_kernel": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_query_jitter_paired_source_training_20261024_v183/source_fit_preparation/train_jitter_paired_source.py",
+      "sha256": "80004a31dce09a9b8fc00e78b93defa1b60d3b8cc35aa8d910c2a776f0ed70b6",
+      "size_bytes": 30798
+    },
+    "C11_features": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+      "size_bytes": 19042
+    },
+    "V227_features": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_FROZEN_FEATURE_CODE_C/extract_context_features.py",
+      "sha256": "0279eca179150242b0542d371201cdeb6c32e06fa38df07d4333ae532ae0ed9f",
+      "size_bytes": 23251
+    }
+  },
+  "metadata_bindings": {
+    "prior_consumer_closure": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V230_LOSS_ROUTE_C/CONSUMER_LOSS_AUTHORITY.json",
+      "sha256": "75914367677fcecb76e0065b431ea4689d435d4558b5f6da3245849dafc465d2",
+      "size_bytes": 13031
+    },
+    "prior_runtime_history": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_CONTEXT_HISTORY_A/RUNTIME_INPUT_HISTORY.json",
+      "sha256": "ae7585e4a5942c3eb28bfad88d37eaaa10074781f1e542870925a57501648edc",
+      "size_bytes": 16978
+    },
+    "C10_design": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/ROOT_C10_DESIGN_BEFORE_FEATURE_FORWARD.json",
+      "sha256": "b7862cca1917375cb6b22421e76296f03d32623bed13a9502440b3c592f446ec",
+      "size_bytes": 6542
+    },
+    "C11_design": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/ROOT_C11_DESIGN_BEFORE_SOURCE_FORWARD.json",
+      "sha256": "f60d3d84ecc0fd3305864aae7e3f834969e1170e857f71541f8f900c06382daa",
+      "size_bytes": 8078
+    },
+    "C10_actual_model_freeze": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/runs/C10_NATURAL_SURFACE_TARGET_RELATIVE_RGB/MODEL_FREEZE.json",
+      "sha256": "508b9f03ff98297fbed57be9e14744966a2e4e6c272b70d254773c3acf54d0d6",
+      "size_bytes": 1749
+    },
+    "C11_actual_model_freeze": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/runs/C11_DINOV2_SPATIAL_TARGET_QUERY/MODEL_FREEZE.json",
+      "sha256": "2488cbe8a638c7f4a71722336e114b45a5f48e3eb5aa15dd752e60f9c09d93c2",
+      "size_bytes": 2064
+    },
+    "C65_READY": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_TRAINING_PREPARATION_C/FINAL_READY.json",
+      "sha256": "832e04ebc781ada27dc0d01cb9a4e60cec05bd3e9f3cdff1945fd199555c707a",
+      "size_bytes": 2969
+    },
+    "C65_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_TRAINING_PREPARATION_C/PROTOCOL_BEFORE_ANY_V219_SOURCE_PAYLOAD_OR_FIT.json",
+      "sha256": "f3b769daf7f5419db9ff77a28718db49a804fecc152a7691bbe3f8eb18a39540",
+      "size_bytes": 5920
+    },
+    "C65_minimum_inert_manifest": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V219_TRAINING_PREPARATION_C/MINIMUM_FUTURE_PAYLOAD_BINDINGS_NO_PAYLOAD_ACCESS.json",
+      "sha256": "4fe1508fb50bc2fe910e98f856047c32fb6d36cfad117300956cc3b7b04dd0e9",
+      "size_bytes": 31153
+    },
+    "C65_actual_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/paired_source_fit_v1/COMPLETE.json",
+      "sha256": "e6c820488e111049056384bce482a2d1bfb9c9b964ea285da5093d8d0d941f8f",
+      "size_bytes": 5099
+    },
+    "C65_actual_census": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/paired_source_fit_v1/ENTRY_AND_INPUT_CENSUS.json",
+      "sha256": "b90688bd8c80b9bc6002cc4661c72e17820d5bec0ca4a66a47b66d4d0b0c2dbd",
+      "size_bytes": 916
+    },
+    "C65_actual_recipe": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/ROOT_FIXED_PAIRED_SOURCE_RECIPE.json",
+      "sha256": "ce6d6938d7c1fd4c15a24bbafaf535c85be2c25e37c5cbcc1512f47211ba31df",
+      "size_bytes": 669
+    },
+    "V227_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_ROOT_CONTEXT_PROBE/PROTOCOL_BEFORE_CONTEXT_FEATURES_OR_PROBE_FIT.json",
+      "sha256": "8f92b3da3d6e66df4e1bac2c7121ef975d2eb5f6b2c19ebf9215977881399462",
+      "size_bytes": 4477
+    },
+    "V227_actual_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V227_ROOT_CONTEXT_PROBE/source_pair_fit_v1/COMPLETE.json",
+      "sha256": "2c658c83fb1ac66134cafdddf991bf09efe4dedd8cd442725aef35ea17fdc536",
+      "size_bytes": 3875
+    }
+  },
+  "closure_KO": [
+    "Natural YCB associated-r D/E를 direct BCE에 소비하고 frozen context RGB와 old/synth COVER-SHAM hinge를 결합한 학습은 C10/C11에서 이미 실행됐습니다. 이 consumer 사실은 기존 V230 C 봉인의 재확인이지 새 데이터·새 감독 발견이 아닙니다.",
+    "원 q 위치의 frozen context patch read도 C11에서 이미 쓰였습니다. 따라서 global/context RGB나 spatial Q 사용 자체를 새 아이디어로 부르면 안 됩니다.",
+    "V219 C65와 C10/C11은 데이터·교사·입력 provenance·head·normalization·split/selection 모두 다르므로 같은 실험은 아닙니다. C65에는 natural V109 YCB pool이 없고, public owner AUX·finite-part weak와 SYN point를 구분해야 합니다.",
+    "V227 fixedQ 대 learned attention 역시 실제 단일 대조가 끝났습니다. C11과는 라벨/feature구성 및 token L2 순서도 다릅니다. 학습된다는 사실과 실용적 전이 성공은 구분합니다.",
+    "같은 direct scalar에 다른 target 정의가 들어간 사실은 코드로 확인되지만, 그것만으로 실패 원인이나 full-input label collision을 증명하지 않습니다.",
+    "이 제한 범위 밖 이력의 부재·새 설계의 신규성·새 학습의 정당성·모델 우열을 판정하지 않습니다. 새 head 제안/성능 기반 선택은 하지 않았습니다."
+  ],
+  "unknown_and_limits": [
+    "C10/C11 실제 개별 draw/feature byte/gradient는 이번에 재생하지 않았습니다. 실제훈련 closure는 직접읽은 completed MODEL_FREEZE와 기존 독립 C metadata검토를 구분해 기록했습니다.",
+    "C65/V227도 이번에 모델·array·prediction이나 업데이트 log를 다시 열지 않았습니다. Metadata 완료 및 코드의 소비 경로만 확인했습니다.",
+    "q나 native category가 존재해도 물리 pallet native surface 대응이 보장되는 것은 아닙니다. YCB logical aux slot은 native UNKNOWN입니다.",
+    "부재/SELF/U를 E로 합치는 경로로 해석하지 않으며 완벽한 pallet native gold를 모든 AUX 학습의 blanket gate로 추가하지 않습니다."
+  ],
+  "access_this_audit": {
+    "code_files": 13,
+    "metadata_files": 14,
+    "code_import_execution": 0,
+    "arrays_features_weights_PT_pixel_GT_labelrow_or_training_log_reads": 0,
+    "current_publicheld_oldVAL_HOLD_score_or_payload_reads": 0,
+    "V112_filesystem": 0,
+    "broad_scan": 0,
+    "new_forward_training_or_PnP": 0,
+    "performance_based_model_data_threshold_selection": false
+  },
+  "final_frozen": true
+}
