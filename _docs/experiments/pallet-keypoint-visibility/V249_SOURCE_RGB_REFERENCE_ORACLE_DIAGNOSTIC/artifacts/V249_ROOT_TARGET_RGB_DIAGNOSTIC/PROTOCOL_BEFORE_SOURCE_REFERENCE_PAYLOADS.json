@@ -1,0 +1,88 @@
+{
+  "schema": "V249_PROSPECTIVE_SOURCE_FIT_RGB_REFERENCE_ORACLE_DIAGNOSTIC_V1",
+  "created_at_UTC": "2026-10-25T08:35:52.273383+00:00",
+  "goal_status": "active_unsolved",
+  "previous_phase": "V248 actual2x1000/sourcegateFAIL/mainc0e8c63; complete, do not rerun",
+  "scientific_question": "Are existing query RGB descriptors more consistent with a SOURCE FIT visible reference of the nominal target than a fixed different target, and does this separate associated-r D/E on YCB SOURCE DEV? This is a teacher-identity oracle representation diagnostic, not a deployable model.",
+  "context_history": "Original q8/context and same-image target-context T cosine features were previously tried; FIT-D object-level references differ. Bounded CODE review does not prove globally never attempted.",
+  "SOURCE_metadata": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V236_PUBLICATION_PACKAGE/artifacts/V234_ROOT_LABEL_DIAG/YCB_KNOWN1521_LABEL_QUERY_MODEL_DIAGNOSTIC.csv",
+    "sha256": "8eab4fe1f9c58ba55ab308437605cc64a2c30dc92f07d21416759b455a342b08",
+    "size_bytes": 474209
+  },
+  "metadata_columns_used_only": [
+    "row_id",
+    "sample_index",
+    "role",
+    "scene",
+    "frame_id",
+    "object_id",
+    "aux_slot",
+    "associated_r_state",
+    "q_x",
+    "q_y",
+    "r_x_GT_diagnostic_only",
+    "r_y_GT_diagnostic_only",
+    "q_reference_distance_px",
+    "L"
+  ],
+  "old_MODEL_score_or_prediction_columns_used": false,
+  "features": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V239_ROOT_CANONICAL_CONTEXT/canonical_source_features_v1/ORIGINAL_ALL_FEATURES.npy",
+    "sha256": "607acc267dbd6f35e7a3fc6da4bcd1fb5e225f3f7045815702e67357f50463e1",
+    "size_bytes": 36135176
+  },
+  "sample_metadata": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_ROOT_CROP_ADAPTATION/crop_samples_v1/samples.npz",
+    "sha256": "837bbe7ff406e27c6ed2981493a83c2adab830cd5b2de498e4a48de456456e99",
+    "size_bytes": 2325681
+  },
+  "descriptor_views_fixed": {
+    "full_CLS": [
+      0,
+      384
+    ],
+    "fixed_centre_Q": [
+      384,
+      768
+    ],
+    "centre_CLS": [
+      768,
+      1152
+    ]
+  },
+  "reference_recipe": {
+    "population": "All and only original YCB SOURCE FIT, available, targetD records with finite nonzero selected descriptor. No DEV reference, no owner filter or new target labels.",
+    "object_key": "nominal target object_id from source teacher metadata; diagnostic-only oracle selection",
+    "aggregation": "Global sample_index ascending, FP64 arithmetic mean, then unit-L2. Unit-L2 normalize each query descriptor before cosine. Exact zero norm means unsupported, retain UNKNOWN and counts; no replacement.",
+    "wrong_target": "SourceFIT nominal object IDs sorted numerically. Deterministic cyclic next different ID. No hard-negative search, similarity selection, DEV statistics, or replacement.",
+    "prototype_weighting": "Each eligible original FIT-D row has equal weight; count distinct scenes/frames and report supports. No per-class or part balancing.",
+    "logical_aux_slot": "bookkeeping only, not native correspondence, not prototype key",
+    "head_forward_features": "No classifier is run; teacher ID chooses oracle RGB-reference bank only, never declared deployable input. No numeric owner/GT/depth/pose/r/qerror as predictor."
+  },
+  "evaluation_recipe": {
+    "rows": "All original YCB SOURCE DEV knownD/E rows, expected397 (D340/E57), retain unsupported. FIT known1124 D841/E283 only crosscheck; no FIT accuracy. Original all15040/known7617/S_U7423 unchanged.",
+    "scores_all_reported": [
+      "cosine_nominal_target",
+      "cosine_fixed_other_target",
+      "nominal_minus_other_margin"
+    ],
+    "E_direction": "E has lower target cosine or margin; ROC-AUC uses negative cosine and negative margin, pairwise ties half. No threshold chosen, no binary precision/recall claim.",
+    "outputs": "All3 descriptor views, score distributions/means/quantiles, D true>other fraction, AUROC per pooled stratum and per object (bothclasses only; all missing strata explicit), fixed method no best-view selection",
+    "query_error": "Recompute Euclidean q-r from stored coords FP64; verify stored distance rtol1e-6 atol1e-5. Report all, <=1px, >1_to_3px, <=3px, >3px, unknown. No query/crop/reference coordinate change or GT recrop.",
+    "uncertainty": "SOURCE DEV exposed/reused, not blind; reference identity is oracle, physical native mapping unknown. AUC does not prove causal target use or deployment feasibility.",
+    "current_admission": false
+  },
+  "hard_limits": {
+    "new_optimizer_or_encoder_forward": 0,
+    "new_RGB_weight_CP_reads": 0,
+    "current_or_held_or_oldprotected_payload_or_historical_currentaggregate_choice": 0,
+    "PnP": 0,
+    "original_q_L_U_role_label_changes": 0,
+    "teacher_oracle_to_deployment_claim": false,
+    "automatic_fit_or_threshold_or_bestview_selection": false,
+    "v112_cache_symlink_explicit_artifact_paths": "reject before access; no broadP/Rscan"
+  },
+  "actual_payload_authorized_by_this_file_alone": false,
+  "next": "Exact CODE/metadata closure and Root true entry before SOURCE array/CSV body reads."
+}

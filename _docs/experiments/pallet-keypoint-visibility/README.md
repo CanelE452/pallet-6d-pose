@@ -1,3 +1,12 @@
+<!-- V249 actual SOURCE oracle-reference diagnostic -->
+## 2026-10-25 · V249 대상 RGB 참조 진단
+
+[전체 결과·원 점수·독립 검산·공개 CPU 재현](V249_SOURCE_RGB_REFERENCE_ORACLE_DIAGNOSTIC/README_KO.md)
+
+정답 물체 RGB 참조의 중심 특징 점수 차이는 SOURCE AUROC0.9837(오차≤3px 0.9919)이지만 teacher-ID oracle입니다. 기존 V248 head의 같은 SOURCE 순위는 약0.53이며, 배포 참조 선택·팔레트 전이는 미해결입니다. 새 분류기 학습·현재 평가·PnP는 없습니다.
+
+---
+
 <!-- V248 actual SOURCE results -->
 ## 2026-10-25 · V248 공개 픽셀 보조학습 실제 결과
 
