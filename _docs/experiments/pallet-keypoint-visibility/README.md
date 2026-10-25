@@ -1,3 +1,9 @@
+## 최신 공개 V233: 공개 실사·합성 crop 대조
+
+[보고서와 재검산 안내](V233_SOURCE_CROP_ENCODER_ADAPTATION/README_KO.md) · [실제 성공/실패 crop](V233_SOURCE_CROP_ENCODER_ADAPTATION/artifacts/V233_ROOT_CROP_ADAPTATION/fixed8_source_dev_gallery_v2/SOURCE_DEV_FIXED8.png) · [CM/P/R/U 표](V233_SOURCE_CROP_ENCODER_ADAPTATION/artifacts/V233_SOURCE_REPORT_C/results/METRICS.csv). 실제1000회 학습 비교와 독립 QA를 완료했습니다. SOURCE 순개선0pp여서 미채택이며 실사 해결 완료가 아닙니다. 이전 기록은 아래에 유지합니다.
+
+[패키지 배포 검증 기록](V233_PUBLICATION_REVIEW.json)
+
 [V231: 기존 head·라벨·Pallox·특징 cache 경로 점검 원본 추가. 새 학습·성능 개선 결과 없음. V229 실사 비교와 V230 표·실제 crop·검산 코드로 연결.](V231_EXISTING_HEAD_DATA_CACHE_AUDIT/PORTABLE_REPORT_KO.md)
 
 [V230: 공개 YCB8,000점의 q/r 관측·원라벨 재현. 기준점과 crop 중심의 차이·실제6crop·기존 BCE 학습 경로·검산 자료 공개. 새 모델 성능 개선 결과 아님.](V230_YCB_QUERY_OBSERVATION/PORTABLE_REPORT_KO.md)

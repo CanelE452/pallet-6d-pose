@@ -1,0 +1,106 @@
+{
+  "completed": true,
+  "prepared_only": true,
+  "trial_name": "COMMON_LOCAL_CROP_PAIRED_ADAPTATION",
+  "is_original_C11_whole_head_reproduction": false,
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_CROP_ADAPT_TRAINER_A/train_crop_adaptation.py",
+    "sha256": "3ca5e01dc27293cbc3da9df25b0411ea9286593c82a93aa0fb162c50aea0226a",
+    "size_bytes": 23893
+  },
+  "crop_module": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_CROP_ADAPT_TRAINER_A/crop_modules.py",
+    "sha256": "a3aaa1df13660595cc4878e0c808a409571c2d2f0d1015a6ad59a4b5fc239225",
+    "size_bytes": 3513
+  },
+  "prefix_runtime": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_PREFIX_TRAIN_CODE_A/prefix_runtime.py",
+    "sha256": "5b29e75eaa59c5be6091714a7999ada5272c3090fd4681f80979221984018be4",
+    "size_bytes": 12062
+  },
+  "adapter_module": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/adapter_modules.py",
+    "sha256": "9558f48279891f192eb9664968b41e9c03022a475b9666b5dc95229195fa8b9a",
+    "size_bytes": 7846
+  },
+  "fixed_feature_layout": [
+    "full96 unitL2 CLS384 gate full_validfraction>0",
+    "full96 RAWpatch at localq[47.5,47.5]/box[-.5,-.5,95.5,95.5] via pinned C11fixed_q_read thenL2; central4gate",
+    "centre32 unitL2 CLS384 gate central_validfraction>0",
+    "full/central validfractions2",
+    "input condition32 SYN native8+otheravailable8+relativeXY16; YCBall0(nativeUNKNOWN)"
+  ],
+  "feature_dimension": 1186,
+  "head": "Linear1186->64 ReLU->Linear64->2; final weights/bias0;76098 params",
+  "target_outputs": {
+    "0": "SYN saved intended-native witness0 D/E MAIN",
+    "1": "YCB associated-r surface D/E AUX"
+  },
+  "no_teacher_referent_mixing": true,
+  "CONTROL": "Official DINO base eval/frozen; identical scalar2head trains",
+  "TREATMENT": "Same base/head/data/draws; only finalblock fused qkv rank4A/B6144 also trains, seed17/scale1/B0",
+  "steps_each": 1000,
+  "draws": "PCG64seed17, precompute1000x32 replacement draws in fixed order family0D8/E8/family1D8/E8; same SHA both arms",
+  "loss": ".5*(meanBCE family0 rows onoutput0 +meanBCE family1 rows onoutput1)",
+  "optimizer": "AdamW; headLR.001;adapterLR.0001;weightdecay.0001;FP32deterministic mathSDPA/TF32off/xformersdisabled; no gradient clipping/dropout/fittednormalizer/earlystop",
+  "loss_mask": "Root samples.fit & samples.available & target>=0 only. Unknown/S/U/missing never converted to E. central4/fractions do not add loss/availability exclusions.",
+  "prefix_body_IO": "Opaque stream SHA of exactly whitelisted full .npy; header via mmap. Before final2 checkpoint+freeze, numerical fetch uses only selected known available FIT sample full/central viewindices; no np.asarray(fullprefix).",
+  "metadata_IO": "samples.npz contains fixed metadata only. Target/split/availability are not recomputed from pixels/GT. No raw_rgb96/raw_valid96 input to trainer.",
+  "control_precompute": "Only known available FIT rows; current/DEV features never cached before final2.",
+  "barrier": "Save both FINAL1000 PT and all2freeze BEFORE any DEV forward. Then freeze states, output every packet row; unavailable->U/null withoutforward, target-1 retainsUNKNOWN. Perfamily FIT/DEV CM/P/R/U separate.",
+  "checkpoint_policy": "Own head/adapter/optimizer and initialownhead states saved; official pretrained base pointer/hash only, no foundationweight copy. Verify originalbase before/after, headinitialsame, drawsSHA, final states immutable duringoutputs.",
+  "source_contract_limits": [
+    "Data packet and source teacher admission remain root-owned pending actualentry; code-ready is not fit admission.",
+    "No q/refregression/recenter/PnP/GTregion/nativegold promotion or geometry-based relabeling.",
+    "No real/private/current/held inference or model/threshold/data/checkpoint selection.",
+    "Masking/roles are root packet authority. Full ledger preservation outside model samplepack remains data assembler authority."
+  ],
+  "exported_loader": {
+    "function": "load_backbone(config,device,*,treatment=False)",
+    "requires": "approved_official_backbone_load:true OR approved_source_local_crop_paired_adaptation:true",
+    "config_keys": [
+      "code_whitelist",
+      "payload_whitelist",
+      "backbone_factory(binding,build_backbone())",
+      "backbone_code_bindings",
+      "official_state(binding)",
+      "asset_identity{sha256,vendor_revision}",
+      "vendor_root",
+      "prefix_runtime(binding)",
+      "adapter_module(binding)"
+    ],
+    "sequence": "pin/streamverify exact assets/code ->factory ->torch.load weights_only CPU ->strict original state ->FP32 ->eval/freeze ->optional seed17qkvwrap ->device",
+    "result": "model._v233_original_base_sha256 records original base. Prefixbuilder uses treatmentFalse; no SOURCE packet/cache is opened by loader.",
+    "import": "Add this code directory to sys.path to import train_crop_adaptation and own crop_modules; verify both code bindings first."
+  },
+  "original_asset_sha256": "f433177089a681826f849f194ece3bb48f4d63fb38d32fc837e3dc7a4e5641fb",
+  "vendor_revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+  "vendor_code_bindings": [
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/hub/backbones.py",
+      "sha256": "871fca671b12a9ff02e810654baf509e97ccf461bf8196ce5ddeefff2fd87d3e",
+      "size_bytes": 5586
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/models/vision_transformer.py",
+      "sha256": "7799a260f2d7d0fe197331d08502fb8c542f9b7424723650f6a39b64fa2639ea",
+      "size_bytes": 16438
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/layers/block.py",
+      "sha256": "60c0ac7dfa4474be313fabfa5a23d82faf6f0cecd4e720a88be35de9788cb636",
+      "size_bytes": 11609
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/layers/attention.py",
+      "sha256": "79c7be7a452b3aad96698ec38d5d5150b9f4d8ac084fa93324510dc9f624775d",
+      "size_bytes": 3298
+    }
+  ],
+  "actual_source_or_official_model_access_authorized_now": false,
+  "toy_checks": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_CROP_ADAPT_TRAINER_A/TOY_SMOKE_RESULT.json",
+    "sha256": "78fc3cb7084cf8febefd341c5a49f7147dd6ccf981f15681b4539ee796cb598d",
+    "size_bytes": 2332
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "phase": "V233",
+  "created_UTC": "2026-10-25T02:37:04.689853+00:00",
+  "stage": "before selected SYN source packet/metadata body and new RGB/weights/model reads",
+  "hypothesis": "Only backbone last qkv rank4 adaptation differs within a paired common-local-crop trial. Existing reviewed methods frozen or scratch; this is not a claim of global novelty or assured transfer.",
+  "input_basis": "Common raw original-q/L RGB96 crop because selected pure-TRAIN SYN packet lacks outside-crop RGB. No originalq/L change, GT recenter, PnP or location-regression head. Different from historical full-context C11.",
+  "feature_and_head": {
+    "image_features": "L2 full96 CLS384 + raw full96 patch original local-centre q bilinear→L2 Q384 gated central4 + L2 centre32 CLS384 + valid fractions2",
+    "condition32": "SYN/current input-only native8+otheravailability8+relativeXY16; allzeros for YCB UNKNOWN native. No teacher/ref/pose/mask/depth condition.",
+    "head": "Linear1186→64ReLU→2, final weights/bias0; paired identical scratch initialization seed17",
+    "output0": "SYN recorded intended-native witness0 associated-point D/E (main)",
+    "output1": "YCB recorded associated-r surface D/E (AUX); no native semantic gold claim",
+    "label_conflation": false,
+    "trained_head_params": 76098,
+    "adapter": "only official final blocks11.attn.qkv lowrankA[4,384]/B[1152,4];rank4/scale1/A std.02 local seed17/B0;6144"
+  },
+  "exact_SYN_read": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/source_fit_rows_v1/SYNTH_AUG65536_INPUTS.npz",
+      "sha256": "eb8b24014863012779114407630a66519010184ea8d3e864477de3550d38ef34",
+      "size_bytes": 23487096
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/source_fit_rows_v1/SYNTH_AUG65536_FILTERED_METADATA.jsonl",
+      "sha256": "5719025467dc1ecacb8cb8ba95f270d277e2eaf2438e03b8676912a3051e860c",
+      "size_bytes": 10067991
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_source_native_point_teacher_20261025_v211/dense_source_point_teacher_v1/ALL7040_INPUT_SOURCE_POINT_MAPPING.jsonl",
+      "sha256": "aeb958d6982717a22fd777d25c3b675325ea1a46c8f644941d8f86f0ea4aa7a9"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_dense_point_weak_bridge_source_training_20261025_v212/fit_preparation_a/source_target_contract.py",
+      "sha256": "d8925908d00f4f120bd80bae7a691a1a3846c4e9096e2e111d71984843e0b738",
+      "size_bytes": 5284
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/ROOT_ADMITTED_SYNTHETIC_POINT_TARGETS.json",
+      "sha256": "040901e6af7036c756ad0c0fccd079695915c1a576d2503f0ba7ae3ade308c11",
+      "size_bytes": 959
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_expected_part_weak_paired_source_training_20261025_v219/source_fit_rows_v1/COMPLETE.json",
+      "sha256": "85ae1bd485c88fa9184af02c7d98f4bad7b27db701081d458404e093f7e29a61",
+      "size_bytes": 6768
+    }
+  ],
+  "SYN_payload_authority": "Only prefiltered component-TRAIN/NOMINAL7040 physical INPUT8 packet; original65536 mixed/HOLD packet and TARGET5 are excluded. Original7040rows retained, existingpoint_loss_target gives known6096 plus944masked if byte/metadata checks match. No rawGT opening.",
+  "SYN_internal_split": {
+    "definition": "sha256((\"V233:\"+component_id).encode()).digest()[0] %5 ==0 →INTERNAL_SOURCE_DEV; otherwise FIT",
+    "freeze_before_source_row_reads": true,
+    "no_target_based_adjustment": true,
+    "all_declared_component_descendants_same_role": true,
+    "not_physical_independence_claim": true
+  },
+  "YCB_read": "Only V232 materialized originalTRAIN inputs1000/targets8000/RGB700 whitelist and their COMPLETE. Source internal FIT scene0..4/DEV6,7 already frozen, native UNKNOWN; originalS/U masked. RGB reads need subsequent actual execution entry with exact image subset and code pins.",
+  "availability": "SYN stored originalavailable & raw96 centre4 allvalid & anyfullvalid; YCB originalcontinuous+nearest qvalid & raw96 centre4allvalid &anyfullvalid. Preserve unavailable asU; no confidence abstention added.",
+  "training": {
+    "fixed_steps_each": 1000,
+    "batch": 32,
+    "per_family_per_class": 8,
+    "family_loss": "0.5*(SYN BCE16+YCB BCE16), balanced8D8E each",
+    "draws": "PCG64seed17, generate immutable identical ledger before fit",
+    "optimizer": "AdamW, headLR1e-3, adapterLR1e-4, wd1e-4",
+    "precision": "FP32 deterministic mathSDPA, noTF32/autocast/xformers",
+    "fixed_statistics": "ImageNet RGB mean/std and descriptorL2 only; no fitted normalizer",
+    "base": "official pretrained strictload thenfreeze/eval; allbaseunchanged",
+    "DEV_barrier": "Both final1000 checkpoints frozen before any trained model DEV output; no best epoch/earlystop/threshold choice"
+  },
+  "source_gate_before_results": {
+    "metrics": "perfamily D/E/U CM, class precision/recall, abstention and macro balanced recall, withU retained asmiss",
+    "treatment_gate": "macro balanced-recall gain>=3pp AND no family/class D/E recall decrease>2pp",
+    "cross_family_ancestry": "Resolve/record SYN donor or background overlap with YCB dev. If unresolved, gate is at most descriptive and no current candidate admission. Source internalDEV already exposed/reused, never freshblind.",
+    "no_gate_relaxation_or_nearby_variant_retry": true,
+    "threshold": "logit>=0→E elseD, unavailableU; fixed beforefit"
+  },
+  "goal_fidelity": "This paired SOURCE trial is one stage toward original full visibility goal. A SOURCE pass alone is not model adoption or completion; final deployment comparison must remain same original currentq/L, saved frozen outputs vs v61/legacy, withshape/external/self/location split. Current223 stays evaluation-only.",
+  "excluded_all": "current223/publicheld/oldVAL/HOLD/V177/V178/V194SOURCE_HOLDOUT/V182COMMON; original mixednpzs; v112 anyFS and2forbiddencachepaths; no downloads/installs/accounts/newchats/PnP",
+  "metadata_materialization_authorized_now": true,
+  "SOURCE_RGB_NPZ_pixel_model_weight_forward_fit_authorized_now": false,
+  "publication": "publish attempts/results/code/selected actualcrops to main after completed phase"
+}

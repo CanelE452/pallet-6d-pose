@@ -1,3 +1,7 @@
+## V232–V233 · SOURCE local crop encoder 적응 대조 완료 / 미채택
+
+[전체 과정·코드·체크포인트·결과·검산](V233_SOURCE_CROP_ENCODER_ADAPTATION/README_KO.md). 같은 query/L와 고정 head에서 CONTROL1000 vs 마지막qkv LoRA1000을 비교했습니다. SYN DEV D/E recall98.84/91.07%, YCB DEV97.94/0%, 양팔 순개선0pp입니다. 원 실패 및 동일 forward 수리, 두 final freeze 이후 DEV 출력 기록과 실제 crop을 포함합니다. 현재 평가 새 사용0, 후보 admission=false입니다.
+
 [V231: 기존 head·라벨·Pallox·특징 cache 경로 점검 원본 추가. 새 학습·성능 개선 결과 없음. V229 실사 비교와 V230 표·실제 crop·검산 코드로 연결.](V231_EXISTING_HEAD_DATA_CACHE_AUDIT/PORTABLE_REPORT_KO.md)
 
 [V230: 공개 YCB8,000점의 q/r 관측·원라벨 재현. 기준점과 crop 중심의 차이·실제6crop·기존 BCE 학습 경로·검산 자료 공개. 새 모델 성능 개선 결과 아님.](V230_YCB_QUERY_OBSERVATION/PORTABLE_REPORT_KO.md)

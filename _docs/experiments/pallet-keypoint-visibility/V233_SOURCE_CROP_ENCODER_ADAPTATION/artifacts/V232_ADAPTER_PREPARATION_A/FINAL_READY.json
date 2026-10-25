@@ -1,0 +1,110 @@
+{
+  "completed": true,
+  "PASS": true,
+  "prepared_only": true,
+  "code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/adapter_modules.py",
+    "sha256": "9558f48279891f192eb9664968b41e9c03022a475b9666b5dc95229195fa8b9a",
+    "size_bytes": 7846
+  },
+  "toy_test_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/toy_smoke.py",
+    "sha256": "9cfac4892374503e4d046167d5857b8ac4f76e8b8cac165c39b523b81310af8d",
+    "size_bytes": 6662
+  },
+  "toy_smoke": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/TOY_SMOKE_RESULT.json",
+    "sha256": "d07993135832ef213de30ae13fead862a4835429050cede64360c8c2050bc5cb",
+    "size_bytes": 2087
+  },
+  "contract": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/MODULE_CONTRACT.json",
+    "sha256": "2f19d3978aacdfe252ebe09d025710dfa6300af34b26b5c53fd65ac11f9640d4",
+    "size_bytes": 7353
+  },
+  "KO": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/KO.md",
+    "sha256": "bf20589d3e03d63b915d874ab37b8553716a805b70fd43086391793909950774",
+    "size_bytes": 1882
+  },
+  "source_code_bindings": {
+    "vendor_factory": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/hub/backbones.py",
+        "sha256": "871fca671b12a9ff02e810654baf509e97ccf461bf8196ce5ddeefff2fd87d3e",
+        "size_bytes": 5586
+      },
+      "lines": [
+        "30-77",
+        "80-84"
+      ],
+      "fact": "Factory default block_chunks0, caller pretrained=False before separately authorized strict base loading; no factory call in this preparation."
+    },
+    "vendor_vit": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/models/vision_transformer.py",
+        "sha256": "7799a260f2d7d0fe197331d08502fb8c542f9b7424723650f6a39b64fa2639ea",
+        "size_bytes": 16438
+      },
+      "lines": [
+        "21",
+        "140-166",
+        "257-273",
+        "364-377"
+      ],
+      "fact": "vit_small dim384/depth12/heads6, MemEffAttention, nonchunked blocks; forward_features returns final norm CLS/register/patch tokens."
+    },
+    "vendor_block": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/layers/block.py",
+        "sha256": "60c0ac7dfa4474be313fabfa5a23d82faf6f0cecd4e720a88be35de9788cb636",
+        "size_bytes": 11609
+      },
+      "lines": [
+        "43-85",
+        "89-114"
+      ],
+      "fact": "norm1 -> attention -> residual, norm2 -> MLP residual; only attention.qkv is adapted."
+    },
+    "vendor_attention": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/layers/attention.py",
+        "sha256": "79c7be7a452b3aad96698ec38d5d5150b9f4d8ac084fa93324510dc9f624775d",
+        "size_bytes": 3298
+      },
+      "lines": [
+        "36-55",
+        "69-99"
+      ],
+      "fact": "Fused qkv Linear(dim,3dim,bias), then reshape B,N,3,heads,C/heads. Non-xformers and xformers branches both call self.qkv(x)."
+    },
+    "C11_head": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+        "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de",
+        "size_bytes": 14695
+      },
+      "lines": [
+        "28-38"
+      ],
+      "fact": "Original scalar relation3464->64ReLU->1, last layer zeros; own class AST exact."
+    },
+    "C11_reader": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+        "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+        "size_bytes": 19042
+      },
+      "lines": [
+        "36-64"
+      ],
+      "fact": "Raw context tokens sampled at fixed original q with F64 geometry ->F32 grid, bilinear border alignFalse, then descriptor L2. No per-token L2 before fixed read."
+    }
+  },
+  "actual_source_model_weights_GT_pixel_array_reads": 0,
+  "actual_DINO_forward_or_fit": 0,
+  "optimizer_steps": 0,
+  "trainer_or_dual_target_head_written": false,
+  "actual_training_or_data_access_authorized": false,
+  "frozen_after_ready": true
+}

@@ -1,0 +1,117 @@
+{
+  "completed": true,
+  "prepared_only": true,
+  "module": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/adapter_modules.py",
+    "sha256": "9558f48279891f192eb9664968b41e9c03022a475b9666b5dc95229195fa8b9a",
+    "size_bytes": 7846
+  },
+  "source_code_bindings": {
+    "vendor_factory": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/hub/backbones.py",
+        "sha256": "871fca671b12a9ff02e810654baf509e97ccf461bf8196ce5ddeefff2fd87d3e",
+        "size_bytes": 5586
+      },
+      "lines": [
+        "30-77",
+        "80-84"
+      ],
+      "fact": "Factory default block_chunks0, caller pretrained=False before separately authorized strict base loading; no factory call in this preparation."
+    },
+    "vendor_vit": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/models/vision_transformer.py",
+        "sha256": "7799a260f2d7d0fe197331d08502fb8c542f9b7424723650f6a39b64fa2639ea",
+        "size_bytes": 16438
+      },
+      "lines": [
+        "21",
+        "140-166",
+        "257-273",
+        "364-377"
+      ],
+      "fact": "vit_small dim384/depth12/heads6, MemEffAttention, nonchunked blocks; forward_features returns final norm CLS/register/patch tokens."
+    },
+    "vendor_block": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/layers/block.py",
+        "sha256": "60c0ac7dfa4474be313fabfa5a23d82faf6f0cecd4e720a88be35de9788cb636",
+        "size_bytes": 11609
+      },
+      "lines": [
+        "43-85",
+        "89-114"
+      ],
+      "fact": "norm1 -> attention -> residual, norm2 -> MLP residual; only attention.qkv is adapted."
+    },
+    "vendor_attention": {
+      "binding": {
+        "path": "/home/minjae/Documents/github/pallet-pose/outputs/pallet_type_selftrain_v1/selftrain_recovery_v1/dino_localization_assets/dinov2/dinov2/layers/attention.py",
+        "sha256": "79c7be7a452b3aad96698ec38d5d5150b9f4d8ac084fa93324510dc9f624775d",
+        "size_bytes": 3298
+      },
+      "lines": [
+        "36-55",
+        "69-99"
+      ],
+      "fact": "Fused qkv Linear(dim,3dim,bias), then reshape B,N,3,heads,C/heads. Non-xformers and xformers branches both call self.qkv(x)."
+    },
+    "C11_head": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/train_spatial_target_query_head.py",
+        "sha256": "f34ce3b44cc491593bbe6b63fa498c0417a5ba70f54318787094ac0802efa5de",
+        "size_bytes": 14695
+      },
+      "lines": [
+        "28-38"
+      ],
+      "fact": "Original scalar relation3464->64ReLU->1, last layer zeros; own class AST exact."
+    },
+    "C11_reader": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+        "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+        "size_bytes": 19042
+      },
+      "lines": [
+        "36-64"
+      ],
+      "fact": "Raw context tokens sampled at fixed original q with F64 geometry ->F32 grid, bilinear border alignFalse, then descriptor L2. No per-token L2 before fixed read."
+    }
+  },
+  "scope": "Code/math module preparation only. Source target/data/dual-head/trainer design remains with root.",
+  "interfaces": {
+    "LoRAQKV": "LoRAQKV(existing_FP32_nnLinear,seed=explicit_int); original base frozen; Δ=B(A(x)),rank4,scale1,A normal(std.02),B zeros. Seed is caller-fixed, no seed sweep.",
+    "install_last_qkv_lora": "install_last_qkv_lora(backbone,seed=...) ->adapter; exact unchunked12/384/6heads/reg4/fused384->1152bias only. No fallback block, no model construction or loading.",
+    "fixed_q_raw": "raw_context_patch float32[N,256,384],queries float64[N,2],boxes float64[N,4],support bool[N] all same device ->raw float32[N,384],inside torch.bool[N]. q/boxes require_grad forbidden.",
+    "fixed_q_read": "fixed_q_raw then row L2 eps1e-12; no learned read/attention/recenter/reference input.",
+    "assemble_c11_features": "Raw CLS/patch outputs and fixed input support ->exact C11 T/Q/F/C/P+8 scalar1928 layout; no fitted normalization.",
+    "SpatialTargetQueryHead": "Original scalar C11 relation3464->64ReLU->1,221825 params,last linear zeros. Class AST exact; not a dual-target implementation."
+  },
+  "LoRA_parameters_only": 6144,
+  "base_qkv": "blocks[11].attn.qkv; fused weight[1152,384] and existing frozen bias[1152]",
+  "base_loading_order": "Future exact pretrained vendor state strict-load BEFORE replacement. New wrapper state keys base.weight/base.bias plus lora_A/lora_B; no vendor initializer call after replacement. No pretrained bytes were accessed here.",
+  "future_runtime_constraints": [
+    "Both arms use identical raw-token fixed-q reader and scalar head initial state; only treatment qkv LoRA trains. Root still must freeze actual source contract and head/target sharing choice.",
+    "Keep base encoder eval/frozen; do not put adapted last block or downstream read under no_grad/inference_mode while a future loss must reach adapter.",
+    "Only adapter A/B plus separately declared head parameters can enter a future optimizer; base bias/norm/MLP/otherblocks remain frozen.",
+    "Original q/L/native/q8 and q8-derived production context box must be provided by later approved data contract. This module does not assert instance/native teacher authority.",
+    "Zero B and zero classifier last layer imply no initial backbone-adapter gradient from the first classification backward until head output weights move. This is staged initialization, not an excuse to unfreeze base or alter the target.",
+    "No trainable query geometry, learned pooling, tokenwise pre-L2 replacement, fitted feature normalizer, GT recrop or new teacher is introduced."
+  ],
+  "dual_target_head_status": "DEFERRED per root: target semantics and shared-vs-independent heads not selected. No visibility/presence names or loss map.",
+  "actual_source_design_or_training_authorized": false,
+  "trainer_written": false,
+  "actual_data_model_forward_or_optimizer": 0,
+  "toy_validation": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V232_ADAPTER_PREPARATION_A/TOY_SMOKE_RESULT.json",
+    "sha256": "d07993135832ef213de30ae13fead862a4835429050cede64360c8c2050bc5cb",
+    "size_bytes": 2087
+  },
+  "limits": [
+    "No actual pretrained DINO forward/load or whole last-block integration replay was executed. Vendor correspondence is code/schema evidence; only own torch wrappers/readers and fake random modules were run.",
+    "Source labels/reference authority, split, data packets and optimizer/training budget remain unapproved by this module.",
+    "Mechanical LoRA init constants are module defaults only; this receipt is not actual fit admission or a search over alternatives."
+  ]
+}

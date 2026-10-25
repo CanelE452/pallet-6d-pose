@@ -1,0 +1,105 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": "Independent CODE-only review of exactly two Python files and prospective protocol. Bounded PASS for closed prefix orchestration; future trainer/runtime integration not certified.",
+  "bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_ROOT_CROP_ADAPTATION/backbone_factory.py",
+      "sha256": "c293292ded3805ee1b50f4c6d1c13689c18f35c5d71cb411643a26a6770c7b7b",
+      "size_bytes": 480
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_ROOT_CROP_ADAPTATION/build_prefix_cache.py",
+      "sha256": "319f9d8bbf0cbfce203baffeb442f69d6750477b6f7017a1c2211d1c62a7ab2f",
+      "size_bytes": 8702
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_ROOT_CROP_ADAPTATION/PROTOCOL_BEFORE_SOURCE_PACKET_RGB_WEIGHT_FIT.json",
+      "sha256": "6755fecc3fd7927163357eb0caa677f4635e135f7819c954ae52316f3f29b28b",
+      "size_bytes": 6640
+    }
+  ],
+  "blocking_issues_in_reviewed_closed_CODE": [],
+  "checks": {
+    "batch_interleave": {
+      "PASS": true,
+      "evidence": "samples full_view==2*arange(N),central_view==2*arange(N)+1. Pure preprocess returns full batch then central batch; writes prefix[:batch] to cache[2*positions] and prefix[batch:] to cache[2*positions+1]. ids have the same full-then-central order.",
+      "scope": "Static mapping inspection; no array/tensor execution."
+    },
+    "old_run_excluded": {
+      "PASS": true,
+      "evidence": "Pinned preprocessing source parsed as AST; exactly one top-level function named preprocess_views compiled into torch/F/constant ImageNet mean/std namespace. No historical producer module execution/run().",
+      "limit": "Future supplied preprocess_CODE binding must be the already reviewed exact tensor-only helper; its payload/code binding is not newly followed here."
+    },
+    "entry_execution_boundary": {
+      "PASS": true,
+      "evidence": "Module import defines functions and imports libraries only; main guard invokes execution. approved_SOURCE_prefix_cache is checked before trainer/runtime code loading, source packet SHA/member reads, official backbone construction/load or forward. Factory module creates no model until build_backbone() is called.",
+      "limit": "Future actual entry/pinned trainer/runtime code remain required; prospective protocol explicitly does not currently authorize RGB/weights/model/fit."
+    },
+    "official_model_factory": {
+      "PASS": true,
+      "evidence": "Local build_backbone imports official dinov2_vits14_reg and calls pretrained=False, avoiding automatic download. Factory does not load pretrained weights itself.",
+      "integration_pending": "Strict pinned pretrained load/freeze/eval and exact config schema are delegated to final trainer.load_backbone(config,device,treatment=False), not defined in these three files."
+    },
+    "actual_vendor_equivalence_guard": {
+      "PASS": true,
+      "evidence": "On first same preprocessed batch, original backbone.forward_features(views) versus runtime.last_block_features(backbone,extract_prefix(...).prefix_tokens,adapter_grad=False) compares torch.equal for CLS/register/patch/prenorm. Any mismatch writes EQUIVALENCE_FAILURE and raises. Successful equality stored with max_abs and same_batch flag.",
+      "limit": "This is an unexecuted CODE guard, not an observed actual vendor PASS, and it covers one batch rather than all cached views."
+    },
+    "fixed_prefix_immutability": {
+      "PASS": true,
+      "evidence": "Entire backbone state digests before/after all batches must match; output FP32[2N,261,384], requested deterministic FP32/mathSDPA/noTF32. No optimizer/training step in builder.",
+      "integration_pending": "extract_prefix must actually run fixed first11 blocks in eval/frozen mode and return detached CPU FP32 tokens for .numpy(); final runtime implementation is not among the three reviewed files."
+    },
+    "nonfit_DEV_prefix_authority": {
+      "PASS": true,
+      "evidence": "Common prefix for SOURCE FIT and internal DEV is fixed pretrained computation only; labels are not read as NPZ members or passed to encoder, no learned statistics/normalizer or trained-head DEV output occurs in this script. Reads only samples row_id/full_view/central_view members.",
+      "limit": "This relies on actual load_backbone being official unadapted/frozen/eval; final model DEV barrier belongs to future trainer. This is not a blind/independent generalization claim."
+    },
+    "protocol_alignment": {
+      "PASS": true,
+      "evidence": "Common unchanged RGB96+centre32 means prefix has no outside-crop RGB. V233 protocol explicitly differs from historical full-context C11, keeps original q/L and separate SYN point versus YCB associated-r AUX targets, no new native gold or PnP. These targets are not inputs to prefix extraction.",
+      "limit": "Protocol values describe planned recipe only; no recipe/head/target selection was changed by B."
+    }
+  },
+  "future_integration_unknowns": [
+    "Final trainer module export load_backbone and model_loader_config key schema are still pending; no assertion of callable API compatibility yet.",
+    "prefix_runtime extract_prefix/last_block_features CODE, prefix token count/type/device and vendor key order require their final binding review; no partial file was polled/read.",
+    "Future actual entry must close data/preprocess/trainer/runtime/weight/vendor pins; this code-only receipt does not grant payload execution.",
+    "owncrop_modules.py sibling import body unread here; final root entry plans its explicit code whitelist pin."
+  ],
+  "important_limits": [
+    "No actual official DINO model, pretrained state, source NPZ/NPY/sample packet, RGB, GT, label or protected data was instantiated/opened/stat-hashed/read.",
+    "No execution of reviewed Python modules, pure function, random fixture, model forward or optimizer; static CODE only.",
+    "No full packet ordering/identity/pixel-equivalence claim based on this review.",
+    "Data-scope/source ancestry uncertainties from separate audits are unchanged; no new split/model/recipe selection or blanket training prohibition."
+  ],
+  "access": {
+    "CODE_files_read": 2,
+    "protocol_metadata_files_read": 1,
+    "other_REFERENCED_files_followed": 0,
+    "source_array_RGB_weight_GT_or_protected_payload_FS": 0,
+    "V112_or_forbidden_cache_FS": 0,
+    "code_import_or_execution": 0,
+    "model_instantiation_forward_fit_or_PnP": 0,
+    "broad_search_Git_network": 0
+  },
+  "prior_files_modified": false,
+  "actual_execution_authorized_by_this_receipt": false,
+  "revision": {
+    "previous_review": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_PREFIX_CODE_QA_B/REVIEW.json",
+      "sha256": "48568d74cde867f940ae119ab65ba1bbb54e4f2073fc69a47901229813eb113f",
+      "size_bytes": 6664
+    },
+    "initial_displayed_CODE_binding": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V233_ROOT_CROP_ADAPTATION/build_prefix_cache.py",
+      "sha256": "b882c82e4e267489bf82c4f1920933275a987d132568ca9b894fe0181621c4a6",
+      "size_bytes": 8633
+    },
+    "only_CODE_change": "import sys and sys.path.insert(0,str(safe(binding.path).parent)) in pinned load_code; removing exactly these two lines reproduces initial reviewed bytes/SHA.",
+    "normalized_initial_SHA256": "b882c82e4e267489bf82c4f1920933275a987d132568ca9b894fe0181621c4a6",
+    "effect": "Makes loader-local owncrop_modules import resolvable. No payload execution before main/approved entry; sibling still needs explicit final root pin.",
+    "read_only_diff_fixture_repairs": "Two failed text assertions remain in tool history: first expected Path instead of actual safe parent expression; second assumed earlier REVIEW stored initial code SHA, but root had already updated source by receipt-binding read. Final direct normalized-byte SHA comparison passes. No production/model/source execution."
+  }
+}

@@ -1,3 +1,7 @@
+## 팔레트 가림 실험 최신 공개: V233
+
+[실제 실행·결과·검증·crop 모음](_docs/experiments/pallet-keypoint-visibility/V233_SOURCE_CROP_ENCODER_ADAPTATION/README_KO.md). 고정 encoder와 마지막 qkv 적응을 같은 SOURCE에서 비교했습니다. 순개선0pp, 공개 실사 DEV 가림 recall0%로 미채택입니다. 현재223 평가에 새 학습·문턱 선택·추론은 하지 않았습니다. 코드·모델2개·행별 예측·검산 도구와 실패 기록을 포함합니다.
+
 [V231: 기존 head·라벨·Pallox·특징 cache 경로 점검 원본 추가. 새 학습·성능 개선 결과 없음. V229 실사 비교와 V230 표·실제 crop·검산 코드로 연결.](_docs/experiments/pallet-keypoint-visibility/V231_EXISTING_HEAD_DATA_CACHE_AUDIT/PORTABLE_REPORT_KO.md)
 
 [V230: 공개 YCB8,000점의 q/r 관측·원라벨 재현. 기준점과 crop 중심의 차이·실제6crop·기존 BCE 학습 경로·검산 자료 공개. 새 모델 성능 개선 결과 아님.](_docs/experiments/pallet-keypoint-visibility/V230_YCB_QUERY_OBSERVATION/PORTABLE_REPORT_KO.md)

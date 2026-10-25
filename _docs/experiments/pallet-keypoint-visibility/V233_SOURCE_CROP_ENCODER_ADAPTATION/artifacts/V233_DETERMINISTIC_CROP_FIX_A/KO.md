@@ -1,0 +1,3 @@
+V233 V2는 고정 centre-Q grid_sample만 +0→NW→NE→SW→SE의 .25 합으로 바꿉니다. central4 mask·L2·head·loss·draw·optimizer·공식 base 로더는 유지합니다. CPU/CUDA random tensor의 기존 pinned reader 대비 1186 feature byte 동일성, deterministic backward 두 번 gradient byte 동일성, signed zero가 통과했습니다. 실제 DINO·SOURCE·checkpoint·cache 읽기/학습은 0입니다.
+
+실제 실행은 root의 새로운 repair entry와 SOURCEFIT5876 feature/CONTROL logit 전수 exact 검사 후에만 가능합니다. 기존 CONTROL1000 PT/log를 검산 후 byte 그대로 복사하며 CONTROL 재학습은 0입니다. TREAT만 같은 초기 head·공식 base·seed17 LoRA·공통 draw로 1000회 새로 실행합니다. 새 both-final freeze에 원 CONTROL sourcebinding을 남긴 뒤에만 DEV를 forward합니다. 원 실패한 V1 및 산출물은 수정하지 않았습니다.

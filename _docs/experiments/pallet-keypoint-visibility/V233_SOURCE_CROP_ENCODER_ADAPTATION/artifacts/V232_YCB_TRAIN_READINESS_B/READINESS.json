@@ -1,0 +1,283 @@
+{
+  "completed": true,
+  "PASS": true,
+  "scope": "Bounded CODE/recorded-metadata data-interface review only; no new split, model choice, training or payload access. PASS is not payload reconstruction or training admission.",
+  "conclusion_KO": "원본 TRAIN1000/700 RGB/8000 logical AUX slot의 기존 q/L/box와 crop/context 순수함수 경로는 확인했다. 실제 RGB700 목록·현재 bytes·teacher/labels 값·component 독립성은 이번에 확인하지 않았으며 실행 범위는 Root가 별도 문서화해야 한다.",
+  "starting_audits": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V231_EXISTING_HEAD_AUDIT_A/REVIEW.json",
+      "sha256": "c391f75867cc21bfe4513fa92a4871f5b3f1bf0976c3ead9d55aacbe2b65f796"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V231_SOURCE_CACHE_ROUTE_C/SOURCE_CACHE_ROUTE.json",
+      "sha256": "9614772c7c91fe261d9ecaeae70bc805e01c733fad7c58591cb530816d798128",
+      "consumed_from_prior_completed_read": true,
+      "reread_in_this_task": false
+    }
+  ],
+  "directly_read_CODE_bindings": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/feature_preparation/prepare_source_rgb_features.py",
+      "sha256": "69776e79f94c48f2ab1a9cf7a9e6b9830407e95d8303f1873101890b0d38b741",
+      "functions": {
+        "validate_inputs": "41-49",
+        "pure_local_math": "36-39",
+        "compose1541": "51-61"
+      },
+      "evidence": "Input schema 21, new lineage 68-72, new RGB/crop/context 100-118; whole run also reads old mixed caches and MUST NOT be reused as a SOURCE-only entry."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/prepare_spatial_query_features.py",
+      "sha256": "cbf2f1cad553673b727c39fbe5c9c4263dfbdac35dba0aeea086f956e74ff19e",
+      "functions": {
+        "sample_Q_raw": "36-48",
+        "assemble": "50-64"
+      },
+      "evidence": "New SOURCE image/crop equality 164-172; whole run 126-131/151-163 touches old mixed families and is not a new TRAIN-only executable."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_public_cue_inputs_20261023_v90/producer/spatial_input_math.py",
+      "sha256": "6a6c2543e28715e3d47e15c543c25f75ff7d3efa3b881e523bd3451817fc004b",
+      "functions": {
+        "crop": "74-83",
+        "query_validity": "86-93"
+      },
+      "purity": "In-memory NumPy RGB/q/L math; no GT or FS in these two functions."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_context_rgb_20261023_v107/target_context_math.py",
+      "sha256": "aa7cd8e2568c8b7d30827e8681b4b87899944bd23cfa1b27948ceda5b55d07f3",
+      "functions": {
+        "query_extent": "4-11",
+        "valid_box": "13-16",
+        "target_context_grid": "18-30",
+        "sample_target_context": "32-46"
+      },
+      "purity": "In-memory q8-box/native RGB sampling; no GT/FS."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_frozen_rgb_head_20261023_v105/frozen_rgb_feature_preparation/prepare_frozen_rgb_features.py",
+      "sha256": "cc1e2c331d41aaea5b3d42d144c9abbc40231dd3784d24f52dcc58f41d607578",
+      "functions": {
+        "preprocess_views": "33-42",
+        "assemble_features": "44-52",
+        "load_imagenet_backbone": "70-77"
+      },
+      "purity": "First two are tensor-only; load_imagenet_backbone is NOT pure and requires future weight/model authorization."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_target_relative_rgb_head_20261023_v108/context_feature_preparation/prepare_target_context_features.py",
+      "sha256": "8deae91931c12bcc1692c98ce74fa5e703cfb0d57da980b126d5ca45ca74873e",
+      "functions": {
+        "preprocess_target": "33-38"
+      },
+      "purity": "Tensor-only invalid-mean-fill/ImageNet scaling; whole producer not imported/executed."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/train_natural_surface_rgb_head.py",
+      "sha256": "3baff03b0c73b17fff8cbad4f1ba96b9c5b134bc50538b96fb0a27827ddfc6e0",
+      "functions": {
+        "join_ycb": "45-64",
+        "sampling_pools": "89-109",
+        "supervised_loss": "120-126"
+      },
+      "evidence": "Associated-r D0/E1, S/U=-1 and original TRAIN/q/L/lineage; no target field enters model.forward."
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V228_YCB_TEACHER_MATH_A_V2/build_query_observations_v2.py",
+      "sha256": "4912259ab5fcd782a0b13a9ceb63219984a607ed6e5f6e2e0d272eb26f1a2f14",
+      "evidence": "GT-side source_instance grouping 220-257; raw bindings frames700 key/uniqueness 208-210; reviewed as text only under explicit parent extension."
+    }
+  ],
+  "directly_read_protocol_metadata": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/feature_preparation/FEATURE_PROTOCOL_BEFORE_SOURCE_FORWARD.json",
+      "sha256": "25276c63b0bde811720f1271dd20c7fdba4603fb8cbad2bad9c3a75d87a1001a"
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/feature_preparation/FEATURE_PROTOCOL_BEFORE_SOURCE_FORWARD.json",
+      "sha256": "e7f12ad8bf61994ec22fd510839d213564f7dd97933e6a89587f6f1063080645"
+    }
+  ],
+  "future_data_bindings_INERT_NOT_STAT_HASH_OR_READ": {
+    "original_input1000": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/INPUTS1000_QUERY_EMULATION_ONLY.jsonl",
+      "sha256": "f06d1d2b2231835160c3c748c3269e518a460a694a37fcbddf7b00f5dfe166f2"
+    },
+    "existing_slot_lineage8000": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/feature_preparation/NEW8000_INPUT_LINEAGE_ONLY.jsonl",
+      "sha256": "0642d63afe68af736677665cb52f722831665484f736894a14cad7c5cfeb94b1"
+    },
+    "original_RGB_crop_hash_facts1000": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_natural_surface_rgb_head_20261023_v110/natural_surface_rgb_features/NEW1000_RGB_AND_QUERY_FACTS_INPUT_ONLY.jsonl",
+      "sha256": "95c74e847897fc2d4c615c32fb05010ac1cd07db835529a7e3f8d517aa196b97"
+    },
+    "GT_reference1000_only_if_future_entry_explicitly_authorizes": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/REFERENCE1000_GT_ONLY.jsonl",
+      "sha256": "ba57c94de53b6a779776b886cc845f5fcab04399475b0ee686729d03fe10e5e1"
+    },
+    "associated_r_teacher8000_only_if_future_entry_authorizes": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_ycb_real_surface_source_20261023_v109/corpus_build_v1/RAW_SURFACE_TEACHER8000_GT_ONLY.npz",
+      "sha256": "e0f1b4e0830f8f82acc3b17c03a2d9abaf233876b4b91a2aab23f4efbeb9e3d3"
+    },
+    "saved_SOURCE_observation_group_columns_only_under_future_entry": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V228_ROOT_QUERY_OBSERVATION/query_observations_v1/QUERY_OBSERVATIONS8000.jsonl",
+      "sha256": "c20440d6add5969a5d2655aeba5a0abe8009737ade2171049fbf217491c4496f2"
+    }
+  },
+  "input_interface": {
+    "strict_fields": [
+      "input_id",
+      "instance_row_index",
+      "image",
+      "raw_hw",
+      "initial_points",
+      "roi_side",
+      "query_box_xyxy",
+      "split",
+      "source",
+      "source_emulation",
+      "native_mapping"
+    ],
+    "image_binding_fields": [
+      "path",
+      "sha256"
+    ],
+    "raw_hw": [
+      480,
+      640
+    ],
+    "q8_shape": [
+      8,
+      2
+    ],
+    "q8_finite_required": true,
+    "L": "finite positive roi_side, unchanged",
+    "query_box": "saved query_box_xyxy; finite positive box, no GT recrop/recenter/nearest matching",
+    "source_counts_recorded_not_recensused": {
+      "original_TRAIN_instances": 1000,
+      "RGB_frames": 700,
+      "logical_AUX_slots": 8000
+    },
+    "input_population_filter": "New YCB inputs only; trainer join_ycb requires all1000 original split TRAIN. Do not use feature-validator allowance of VALIDATION as permission to add any old validation rows.",
+    "query_authority": "GT-associated surface reference r + fixed <=4px SOURCE emulation jitter. This is not actual original detector/initializer error or deployment-q distribution.",
+    "native_authority": "native_mapping UNKNOWN; logical slots0..7 are AUX surface sample addresses, not physical pallet native-part labels.",
+    "RGB700_exact_paths": "Stored per input image{path,sha256}; no per-image list extracted or RGB-file stat/hash/read this task. Future entry must explicitly authorize reading only that original1000 manifest then validate/deduplicate image bindings and retain exact instance order.",
+    "availability": "q continuous+nearest valid excluding(-1,-1), sampled96 centre4 valid, and context-any support. Preserve original U separately; absence of context or depth/mask is not semantic E."
+  },
+  "reconstruction_math_verified_in_CODE": {
+    "RGB_decode": "C10 PIL.Image.open(image).convert(RGB) -> uint8 HWC matching raw_hw. C11 compares existing decoded RGB/crop hashes. No decoder executed now; exact decoder runtime/hashes require future entry.",
+    "local96": "V90 crop: F64 cell-centre grid q+((j+.5)/96-.5)*L; four bilinear taps with zero outside, no renormalization, floor(clip(acc)+.5) uint8; valid is continuous pixel support extent and invalid output zero; return CHW uint8 and bool[1,96,96]. Do not silently replace with a different strict-four-tap valid bitmap.",
+    "context224": "V107 sample_target_context uses saved q8-derived box with native cell-centre224 grid, F64 four taps/zero outside -> F32 HWC RGB; valid iff every positive-weight tap exists. q/L unchanged.",
+    "local_preprocess": "Full96 and literal centre32[32:64] invalid mean-fill; bilinear224 antialias align_corners=False; fixed ImageNet mean/std, no fit statistic.",
+    "context_preprocess": "F32 native RGB224/255; invalid mean-fill, fixed ImageNet mean/std, no fitted normalization.",
+    "C10_descriptor": "Frozen ResNet18, per-view L2 eps1e-12, unsupported-view descriptor0; 1541 output features.",
+    "C11_descriptor": "Frozen DINO raw context16x16 patchtokens -> bilinear original-q sample(grid F32 from F64 normalized q; border/alignFalse) -> L2 eps1e-12; T/Q/F/C/P+8scalars=1928. Outside context Q0 does not create a new semantic U.",
+    "minimum_reuse_boundary": "Reuse/extract named in-memory pure functions under separately pinned code; do NOT invoke old run() or import historical training consumers, because their closure reads old mixed/source/validation caches."
+  },
+  "frozen_encoder_bindings_RECORDED_ONLY": {
+    "C10_weight": {
+      "path": "/home/minjae/Documents/github/pallet-pose/data/pallet/results/pallet_resnet18_refiner_20261001_v1/pretrained/resnet18-f37072fd.pth",
+      "sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec"
+    },
+    "C11_weight": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_target_query_features_20261023_v111/assets/dinov2_vits14_reg4_pretrain.pth",
+      "sha256": "f433177089a681826f849f194ece3bb48f4d63fb38d32fc837e3dc7a4e5641fb"
+    },
+    "C11_vendor_revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "no_encoder_or_architecture_selected": true,
+    "weight_or_vendor_body_access": 0
+  },
+  "supervision_authority": {
+    "target": "Immutable V109 associated-r surface D/E/S/U, not literal-q ownership, not semantic pallet native visibility, not physical3px coordinate gold.",
+    "consumer_mapping": "raw_surface_teacher_state D->0,E->1,S/U->-1; available & original TRAIN & known D/E enters direct BCE in C10/C11.",
+    "counts_FROM_PRIOR_METADATA_ONLY": {
+      "D": 1181,
+      "E": 340,
+      "S": 1917,
+      "U": 4562
+    },
+    "native_mapping": "UNKNOWN",
+    "GT_side_only_fields": [
+      "r/reference_xy",
+      "pose",
+      "depth",
+      "mask",
+      "geometry state",
+      "teacher state/reason",
+      "source-instance grouping"
+    ],
+    "GT_feature_boundary": "Grouping and teacher fields are metadata/target sidecars, not additional forward channels. GT-derived input q origin is nevertheless explicitly retained, so blanket GT influence0 would be false.",
+    "not_supported": [
+      "S/U or mask/depth absence=>E",
+      "q owner=>associated-r D/E",
+      "YCB object category=>pallet native part",
+      "logical8slots=>8 independent examples",
+      "metadata records=>new physical-gold certification"
+    ]
+  },
+  "grouping_and_future_INTERNAL_SOURCE_FIT_DEV": {
+    "direct_CODE_evidence": {
+      "binding": {
+        "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V228_YCB_TEACHER_MATH_A_V2/build_query_observations_v2.py",
+        "sha256": "4912259ab5fcd782a0b13a9ceb63219984a607ed6e5f6e2e0d272eb26f1a2f14",
+        "evidence": "GT-side source_instance grouping 220-257; raw bindings frames700 key/uniqueness 208-210; reviewed as text only under explicit parent extension."
+      },
+      "lines": "208-210,220-257"
+    },
+    "input1000_group_fields": "input_id,instance_row_index,image{path,sha256},source; explicit scene/frame/instance keys absent from strict input schema.",
+    "GT_side_original_fields": "REFERENCE1000.source_instance: scene_id,frame_id,instance_id,object_id,split; SOURCE_DEPTH_MASK_BINDINGS.frames: scene_id,frame_id,frame_index,instance_object_ids; only CODE schema checked, no body read.",
+    "already_generated_flat_fields": [
+      "slot_index",
+      "input_id",
+      "instance_row_index",
+      "frame_index",
+      "scene_id",
+      "source_frame_id",
+      "source_instance_id",
+      "object_id",
+      "logical_aux_slot"
+    ],
+    "saved_flat_group_pointer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V228_ROOT_QUERY_OBSERVATION/query_observations_v1/QUERY_OBSERVATIONS8000.jsonl",
+      "sha256": "c20440d6add5969a5d2655aeba5a0abe8009737ade2171049fbf217491c4496f2"
+    },
+    "minimum_group_closure": "All8 slots of an input instance, all instances sharing(scene_id,source_frame_id), and all descendants/augmentations of a source frame must keep one internal role. instance_id is a per-frame GT-list index, not global physical-object identity. object_id is a category, not independent component.",
+    "scene_level_option": "A future prospectively declared scene-level split can use scene_id without GT geometry/labels as model features; reviewed records do not prove distinct scenes/captures/objects are physically independent.",
+    "existing_INTERNAL_SOURCE_DEV_manifest": "NONE verified in this review; original1000 are TRAIN. No train/DEV assignment was created or selected here.",
+    "future_files_to_open_only_after_ROOT_scope": "Authorize original input1000 and a minimal grouping sidecar extracted from existing saved observation JSONL (or explicitly approved source frame metadata); avoid reopening raw GT/reference/labels merely to choose a split. Observation JSONL contains GT/label fields, so it is currently inert and any future read must be explicit.",
+    "split_target_labels_used_for_selection": false,
+    "component_count": "UNKNOWN; scene/frame/instance keys are established schema, not component independence proof.",
+    "exposure_limit": "All1000 original TRAIN instances were already consumed by C10/C11; a later internal DEV subset is reused/exposed SOURCE, not fresh blind test or publicheld."
+  },
+  "reuse_exclusions": {
+    "legacy_mixed_cache": "C10/C11 old3652units/33984occurrences contain old TRAIN/VALIDATION. Full mixed NPZ load then mask is not authorized; neither mixed cache path was stat/hashed/opened here.",
+    "recorded_new_only_slice": "global occurrence33984+8*i+k and unit3652+8*i+k for i0..999,k0..7; slice metadata alone does not authorize decoding the mixed container.",
+    "future_internal_DEV": "Once Root freezes a grouping, every DEV frame/instance/slot/descendant must be excluded from loss, fitted statistics and normalization training; original role remains TRAIN with an added internal role.",
+    "excluded_sources": "No legacy validation/current223/publicheld/oldVAL/HOLD/common or unrelated source families are admitted. Protected/forbidden files were not followed; V112 rejected lexically before FS.",
+    "historical_whole_run_not_SAFE_for_this_scope": true
+  },
+  "unknowns_and_limits": [
+    "Fresh existence/encoded/decoded SHA of RGB700 not checked.",
+    "Exact700 per-RGB binding list and grouping census not materialized because input1000/source-body reads are forbidden in this task.",
+    "No teacher/reference/label bodies or raw geometry inspected.",
+    "No independent-component count or prospective internal split chosen.",
+    "No model/architecture/threshold/budget choice, training, forward or new design.",
+    "This bounded PASS establishes recorded interface reuse, not reconstruction equivalence or new experiment admission."
+  ],
+  "access_this_task": {
+    "code_files_read": 8,
+    "metadata_files_read": 3,
+    "code_import_or_function_execution": 0,
+    "source_input1000_lineage_facts_or_observation_rows_read": 0,
+    "teacher_GT_reference_label_body_reads": 0,
+    "RGB_array_NPZ_weight_header_stat_hash_or_read": 0,
+    "mixed_cache_any_FS": 0,
+    "private_current_publicheld_oldVAL_HOLD_payload": 0,
+    "V112_any_FS": 0,
+    "broad_scan_network_Git": 0,
+    "new_model_training_inference_PnP": 0
+  },
+  "prior_folders_modified": false,
+  "output_is_training_admission": false
+}
