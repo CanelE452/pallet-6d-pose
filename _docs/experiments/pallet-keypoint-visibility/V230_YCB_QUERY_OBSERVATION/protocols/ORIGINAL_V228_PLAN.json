@@ -1,0 +1,57 @@
+{
+  "phase": "V228",
+  "created_UTC": "2026-10-25T01:31:56.074681+00:00",
+  "previous_turn_classification": "PROGRESS_V227_ACTUAL_SOURCE_CONTRAST",
+  "purpose": "Quantify literal q image/depth observations versus immutable associated-r surface teacher; not new native visibility labels or a training run.",
+  "original_teacher": "V109 D/E/S/U at reference r and fixed nearest-r 3x3; retain every original state/quality/identity.",
+  "allowed_data": "Only V109 exact TRAIN1000/8000 and its recorded 700frame depth/visible-mask/full-mask bindings after independent scope whitelist verification. No V113 mixed3200 or other source family follows.",
+  "inputs_before_payload": {
+    "inputs1000": "query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/INPUTS1000_QUERY_EMULATION_ONLY.jsonl",
+    "reference1000": "query_visibility_ycb_real_surface_source_20261023_v109/query_preparation/REFERENCE1000_GT_ONLY.jsonl",
+    "original_teacher_npz": "query_visibility_ycb_real_surface_source_20261023_v109/corpus_build_v1/RAW_SURFACE_TEACHER8000_GT_ONLY.npz",
+    "raw_file_bindings": "query_visibility_ycb_real_surface_source_20261023_v109/corpus_build_v1/SOURCE_DEPTH_MASK_BINDINGS.json",
+    "root": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility"
+  },
+  "fixed_math": {
+    "nearest_pixel": "floor(x+.5), exactly V109",
+    "continuous_bounds": "0<=x<W and0<=y<H, exactly V109; keep distinct from nearest-pixel validity and pixel-centre [0,W-1] convention.",
+    "window": "dy outer/dx inner [-1,0,1],centre4",
+    "q_observation_states": [
+      "QUERY_CONTINUOUS_OOB",
+      "QUERY_NEAREST_OOB",
+      "UNIQUE_OWN",
+      "UNIQUE_FOREIGN",
+      "OVERLAP",
+      "UNASSIGNED"
+    ],
+    "ownership_authority": "Complete official visible-mask owner set for source frame; owner count and bit mapping unchanged. Unique foreign at q is NOT native/associated-r E.",
+    "q_fields": "Inbounds9,rawdepth9,depth_mm9,ownfull9,ownvis9,ownercount9,ownerbits9,positive/own/foreign/overlap/unassigned counts, centre ownership/depth, same-foreign9 flag. Keep mask-only and depth-positive own intersection distinct.",
+    "jitter_bins_px": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "radius_is_constructed": "q=r+fixed original<=4px source jitter, not production initializer error."
+  },
+  "verification": "Re-sample original r-nearest3x3 from pinned rawfiles and compare old NPZ raw/inbounds/ownfull/ownvis/count/bits/counts exactly. Recompute old labels with same classify helper using original geometry fields, centre rayZ and reference cameraZ; require all original labels and reasons unchanged. If mismatch, preserve failure and diagnose code/binding before continuing. No new GT-nearest match or threshold fit.",
+  "not_allowed": [
+    "Copy q ownership into native D/E/S.",
+    "Turn missing mask/depth/background into external occlusion.",
+    "Replace associated-r D by E just because q centre lands elsewhere.",
+    "Use per-image GT pose/reference/ROI/mask as deployment feature.",
+    "Claim label mismatch or corruption solely from q-vs-r observation differences."
+  ],
+  "motivation_limit": "Associated-r visibility may intentionally remain correct when small q jitter changes centre pixel ownership; crop may still contain the visible part. Diagnose feature/target contract, not automatically repair a supposed wrong label.",
+  "new_training_admission": false,
+  "new_optimizer_updates": 0,
+  "new_model_forward": 0,
+  "PnP": 0,
+  "RGB_pixels_before_separate_visual_scope": false,
+  "current223_publicheld_oldVAL_HOLD_V177_V178_V194SOURCE_HOLDOUT_V182COMMON_payload_access": 0,
+  "V112_filesystem_access": 0,
+  "GT_teacher_only_no_deployment_input_change": true,
+  "new_download_install_account_action": 0,
+  "outputs": "New original8000+q-observation JSONL/NPZ sidecar, old-state x q-owner tables, jitter<=3 subset and q-nearest-OOB counts. All denominators explicit; do not call observation categories classifier predictions or confusion of semantic D/E."
+}

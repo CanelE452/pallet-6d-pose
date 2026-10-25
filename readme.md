@@ -1,3 +1,5 @@
+[V230: 공개 YCB8,000점의 q/r 관측·원라벨 재현. 기준점과 crop 중심의 차이·실제6crop·기존 BCE 학습 경로·검산 자료 공개. 새 모델 성능 개선 결과 아님.](_docs/experiments/pallet-keypoint-visibility/V230_YCB_QUERY_OBSERVATION/PORTABLE_REPORT_KO.md)
+
 [V229: 90%대 SOURCE 후보를 실사에 고정 평가. 보임 recall83.26%·외부 가림30.00%로 채택하지 않음. 원1784출력·목재/정사각형 CM/P/R/U·성공/실패8crop·재검산 코드 공개.](_docs/experiments/pallet-keypoint-visibility/V229_FIXED_CONTEXT_REAL/PORTABLE_REPORT_KO.md)
 
 [V227: 공개 SOURCE에서 고정 읽기 대 학습 attention; attention 추가 효과 미확인. 원 특징·두 head·736출력·실제 crop·학습 없는 검산기 공개, 새 실사 개선 아님.](_docs/experiments/pallet-keypoint-visibility/V227_CONTEXT_READ_SOURCE_PROBE/PORTABLE_REPORT_KO.md)
