@@ -1,3 +1,7 @@
+## V241 · 같은 원 장면의 COVER/SHAM 입력 준비 / 미실행 단계 명시
+
+[계약·부모5,406행·donor64·코드·가상 테스트·실패 원본](V241_SCENE_CONSISTENT_CF_PREPARATION/README_KO.md). 원래 FIT 보임 D 전체와 이전 실패39개를 보존했습니다. 메타데이터에서 부모·donor의 원 DEV group/image 중복0을 확인했습니다. 순수 계산/가상 테스트까지이며 실제 데이터 생성·독립 픽셀 검산·새 학습·성능 비교는 아직 없습니다. 원 q/L/native/U/분할 유지, 현재223/held 새 사용0, PnP0입니다. 최근 완료한 모델 실험은 아래 V239–V240입니다.
+
 ## V239–V240 · canonical 특징·local/context 새 학습·검산 완료 / 미채택
 
 [코드·6개 frozen 특징·두 모델·로그·행별 결과·표·crop·CPU replay](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/README_KO.md). 알려진 D/E 7,617개에서 입력 byte 정합을 확인하고 두 모델을 각각 동일 원 seed17/draw로 1,000회 학습했습니다. 합성 DEV context D/E recall98.76/91.07%, YCB DEV97.65/1.75%(E1/57), source gate FAIL(+0.345657pp). 공개 q-r≤3px E30도 모두 미검출입니다. 현재223/held 새 사용0·새 후보 admission=false·PnP0이며 원 q/L/native/U/FIT·DEV는 유지했습니다. 이전 준비·실패 기록을 아래에 보존합니다.

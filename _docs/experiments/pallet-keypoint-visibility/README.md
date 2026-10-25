@@ -1,3 +1,7 @@
+## V241: 원 장면 일치 가림 대조 데이터 준비 / 실제 생성·학습 전
+
+[상태표·코드·전체 부모5,406행·donor64·검증 명령](V241_SCENE_CONSISTENT_CF_PREPARATION/README_KO.md). 계약/메타데이터 감사와 가상 장면4개 계산 검증까지 공개했습니다. 이전 가상 테스트 실패2개·수정 전 코드도 포함합니다. 실제 scene CF 생성0·새 학습0·현재223/held 새 사용0·PnP0이며 성능 개선 결과가 아닙니다. [공개 파일 검산](V241_PUBLICATION_REVIEW.json) · [가상 계산 재실행](V241_PORTABLE_TOY_REPLAY.json). 최근 실제 모델 결과·crop 시각화는 V240입니다.
+
 ## 최신 V239–V240: 공통 특징·두 모델 실제 학습 완료 / SOURCE 기준 미달
 
 [전체 보고서·재현 명령](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/README_KO.md) · [CM/precision/recall/보류율](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/artifacts/V240_SOURCE_REPORT_C/results/PORTABLE_REPORT_KO.md) · [성공·실패 crop](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/artifacts/V239_SOURCE_GALLERY_A/gallery_v1/FIXED12_SOURCE_DEV.png) · [문맥과 8개 query](V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/artifacts/V239_SOURCE_GALLERY_A/gallery_v1/PORTABLE_GALLERY_KO.html).

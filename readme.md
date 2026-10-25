@@ -1,3 +1,7 @@
+## 팔레트 가림 실험: V241 준비 자료 추가
+
+[최신 진행 상태·코드·데이터 목록·실패 기록](_docs/experiments/pallet-keypoint-visibility/V241_SCENE_CONSISTENT_CF_PREPARATION/README_KO.md). V241은 원 장면과 crop·문맥을 일치시키는 계산 및 출처 준비까지 완료했습니다. 실제 데이터 생성·학습·새 성능 결과는 아직 없습니다. [최근 완료한 학습 결과와 시각화](_docs/experiments/pallet-keypoint-visibility/V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/README_KO.md)는 아래에 보존합니다.
+
 ## 팔레트 가림 실험 최신 실제 결과: V239–V240
 
 [모델·특징·로그·지표·실제 crop·CPU 재검산](_docs/experiments/pallet-keypoint-visibility/V240_CANONICAL_CONTEXT_ACTUAL_RESULTS/README_KO.md). 공통 특징으로 local/context 두 모델을 각각 1,000회 학습했습니다. 공개 YCB-V SOURCE 내부 DEV 가림은 0/57→1/57이며 사전 기준 미달로 미채택입니다. 현재223 새 평가·PnP는 없습니다.
