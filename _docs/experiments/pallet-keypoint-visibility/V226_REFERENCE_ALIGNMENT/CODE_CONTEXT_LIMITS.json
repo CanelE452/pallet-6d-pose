@@ -1,0 +1,110 @@
+{
+  "completed": true,
+  "PASS": true,
+  "PASS_scope": "Bounded CODE/TEXT statement of current model input and confirmed context-history limits; not experiment admission or proof of feasibility/impossibility.",
+  "read_bindings": {
+    "V223_split_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V223_SPLIT_TARGET_TRAINING_B/split_point_part_head.py",
+      "sha256": "1d305d80d32aa16ec79b74b93a50eb76eb5e86c159ac3ee697586bccb1e6270d"
+    },
+    "V223_trainer": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V223_SPLIT_TARGET_TRAINING_B/train_split_point_part_source.py",
+      "sha256": "0e9714dc01d933579ec485f08446e1381b6a3ef6579c6d541c8babf99b7ac8f1"
+    },
+    "V223_contract": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V223_SPLIT_TARGET_TRAINING_B/source_training_contract.py",
+      "sha256": "0705b1fa19395fe6174345c9fe5727beabe1bc82d35ccfc5815029780e20b95b"
+    },
+    "V202_spatial_head": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_spatial_q8_nominal_grouped_source_training_20261025_v202/fit_preparation_b/spatial_q8_conditioned_head.py",
+      "sha256": "a03f2f4f531d78ef8a2a4733ab89026e09727907dd91991464192dd799c56ad2"
+    },
+    "V207_readiness": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_train_witness_conditioned_controls_20261025_v207/source_donor_operator_preparation_b/FINAL_READY.json",
+      "sha256": "2e52652534f05a33559a3d9f4b7ab8f329a2422a01ac68be882c6ad11559c7bd"
+    },
+    "V207_dependency_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/query_visibility_source_train_witness_conditioned_controls_20261025_v207/source_donor_operator_preparation_b/prepare_source_dependencies.py",
+      "sha256": "92c418a711eed0d72866fb773097e2cdf9dd343a7993ebe9e6ec3a3a2cbcf28c"
+    },
+    "V224_report": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V224_ROOT_READINESS/PORTABLE_REPORT_KO.md",
+      "sha256": "3c128c85cc3b0490643dab82b5bc0b8eb477837215ce6fa23e56c7c7065af284"
+    },
+    "V225_report": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V225_ROOT_REVIEW/PORTABLE_REPORT_KO.md",
+      "sha256": "e7f314f8e41dc7266ca7bc47507fb1d95e7d04fb0a4f5975040f513c5d72aa65"
+    }
+  },
+  "current_model_input": {
+    "crop_outside_RGB_received": false,
+    "evidence": [
+      "V223 SplitPointPartHead.forward(x,native,other_mask,other_xy) requires float32 x[B,8,96,96]. It evaluates shared(pool(encoder(x))) once, then concatenates shared64 + native onehot8 + other_mask8 + other_xy16. No full-frame tensor, other-query RGB crop tensor, image embedding, ROI, pose, depth or reference argument is present.",
+      "V223 trainer constructs rgb from rgb96 rows and valid96, then calls base.assemble_local_input(rgb,valid,use_sam=False). Both fit and saved SOURCE forward paths use this same local assembly and four-argument head API. Checkpoint typing explicitly requires use_sam=False.",
+      "V202 SpatialQ8DirectEndHead likewise pools/encodes the local RAW8 input first and adds native/mask/XY only after features64; the name spatial_q8 does not mean pre-pooling RGB spatial attention or full-image context."
+    ],
+    "q8_condition32": {
+      "native_onehot8": "Original native category; no GT permutation/remap.",
+      "other_mask8": "Original availability, with active self slot excluded.",
+      "other_xy16": "For available other j, clip((q8[j]-active_q)/active_L,-8,8), F64 arithmetic then FP32; self/unavailable slots zero. Active inputU leaves native onehot and zero mask/XY.",
+      "is_full_RGB_context": false,
+      "is_other_query_appearance": false,
+      "what_it_can_represent": "Point-layout/address/relative scale geometry available from initializer q8/L/availability; it cannot supply pixels of the hidden/missing local part or retrieve another crop by itself.",
+      "no_new_observed_information_claim": "Reconstructing adjacency/directions from this same q8 is a representation of already available information, not evidence of new image context or improved performance."
+    },
+    "RAW8_channel_internal_reaudit": "V181 assembler body not reopened: the permitted V223 contract contains no literal V181 code path. Caller-level local RGB96/valid96/use_sam=False and head input shape are directly verified; no guessed helper path was followed."
+  },
+  "history_distinctions": [
+    {
+      "path": "V223 current C68/C69; inherited C65/C61 architecture",
+      "status": "CONFIRMED_LOCAL_ONLY",
+      "RGB_context": "No outside-original-crop RGB branch in the reviewed API/caller. q8 is coordinates only.",
+      "GT_per_image_selection": "No diagnostic GT reference/ROI added to the current runtime forward arguments."
+    },
+    {
+      "path": "V207 existing YCB-V donor/compositor and weak witness preparation",
+      "status": "CONFIRMED_DATA_CONSTRUCTION_AND_TARGET_DIAGNOSTIC_NOT_MODEL_CONTEXT_BRANCH",
+      "RGB_context": "The reviewed dependency code describes fullRGB-first paste followed by the original q/L sampler, or lifting RAW96 witness taps to source image pixels. This modifies/diagnoses augmentation images; it is not a model receiving full-frame RGB context.",
+      "authority": "Weak witness/finite-part/point-reference/region teacher stay separate. SOURCE reference is diagnostic/teacher-only and never replaces initializer q/L."
+    },
+    {
+      "path": "V224/V225 fullcontext and original-crop panels",
+      "status": "CONFIRMED_ASSISTANT_VISUAL_EVIDENCE_NOT_RUNTIME_FEATURE",
+      "RGB_context": "Observers saw full pallet context plus original crops, which helped coarse role reasoning. That observation is not evidence the head consumed those full-context pixels.",
+      "authority": "Unblinded qualitative weak observations, not physical native/3px gold or global crop-impossibility proof."
+    },
+    {
+      "path": "Earlier globalcontext/witness/SAM experiments beyond the exact reviewed code",
+      "status": "UNKNOWN_NOT_AUDITED_HERE",
+      "RGB_context": "No exact reviewed runtime route here positively establishes deployment-available outside-crop RGB without GT-per-image selection. This does not prove such a route was never tried.",
+      "claim_prohibited": "Do not call outside-crop RGB, global/witness context or a SAM-based method new/never attempted from this bounded review. No new architecture or model-performance claim."
+    }
+  ],
+  "reference_and_feature_authority": {
+    "public_reference_diagnostic_only": "Reading a SOURCE public GT/reference to compare original q against the intended part does not add that GT to deployment inputs if it remains a separate diagnostic/target sidecar. Original q/L/native/RAW96 must remain unchanged.",
+    "GT_derived_query_family_caveat": "Existing natural/CF weak training uses an explicitly GT-derived q8/query family. The query itself therefore has GT-derived training provenance; blanket GT-feature-zero wording would be wrong for that training family. Its feature format is the same condition32, but it is not proof of performance on production initializer queries.",
+    "not_allowed_as_deployment_features": [
+      "GT-best/nearest instance or permutation selection",
+      "per-image GT reference/pose/native point",
+      "annotation ROI recrop or ROI tensor",
+      "GT-corrected q/L or new initializer"
+    ],
+    "target_vs_input": "Training-only weak ROI/teacher/reference and deployment image/initializer inputs are separate authorities; a diagnostic reference does not certify local crop sufficiency or native semantic truth."
+  },
+  "next_checks_only_if_separately_authorized": [
+    "An exact past runtime code/protocol path would be needed to positively classify whether any previous global/witness/SAM experiment used outside-crop RGB and how it chose its input without per-image GT. No such discovery was performed here."
+  ],
+  "actions_and_limits": {
+    "new_model_architecture_design": false,
+    "new_experiment_admission": false,
+    "training_or_forward": 0,
+    "RGB_image_GT_array_PT_score_or_protected_payload_read": 0,
+    "V112_filesystem": 0,
+    "broad_search_or_directory_inventory": 0,
+    "code_import_or_execution": 0,
+    "web_or_download": 0,
+    "source_or_prior_files_modified": false,
+    "output_files": 1,
+    "goal_solved_or_success_claim": false
+  }
+}

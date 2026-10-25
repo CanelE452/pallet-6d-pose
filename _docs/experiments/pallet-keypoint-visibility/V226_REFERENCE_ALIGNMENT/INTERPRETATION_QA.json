@@ -1,0 +1,61 @@
+{
+  "completed": true,
+  "PASS": true,
+  "PASS_scope": "해석의 권위·한계 QA만; 수치 재계산·semantic 라벨 재판정·모델 검증 아님",
+  "inputs": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V226_ROOT_ALIGNMENT/ALIGNMENT_SUMMARY.json",
+      "sha256": "d143f973305659b68a311bf415625a2ea5ef546a161ced06c4973fa42277f09d",
+      "size_bytes": 18506
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V226_ROOT_ALIGNMENT/PRIOR_VISUAL29_REFERENCE_ALIGNMENT.json",
+      "sha256": "9126923149fce624229df76ebb9ecd8b2ed6b9763f26ccfa6ad0d00e8b6ff54c",
+      "size_bytes": 18603
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V226_CONTEXT_HISTORY_B/CODE_CONTEXT_LIMITS.json",
+      "sha256": "92ac19fea461f76ecc9803640307cf63f3323212380ba92c7bd9f61a263bca27",
+      "size_bytes": 8702
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V225_ROOT_REVIEW/PORTABLE_REPORT_KO.md",
+      "sha256": "e7f314f8e41dc7266ca7bc47507fb1d95e7d04fb0a4f5975040f513c5d72aa65",
+      "size_bytes": 8269
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V226_CONTEXT_HISTORY_B/ALIGNMENT_NUMERIC_QA.json",
+      "sha256": "0efb8a0e67f13ff356a38a3b2002bc21a9f5415d8c6b167d6112b0d1fa072c3d",
+      "size_bytes": 5746
+    }
+  ],
+  "judgments_KO": [
+    "이번 결과는 현재 원query·약한 역할감독·local 입력 사이의 정합 한계를 드러내는 SOURCE 진단이다. 전체 문제가 가능하다는 성공 증명도, 정보상 불가능하다는 증명도 아니다.",
+    "저장 요약에서 nominal reference는368행 중341행, E44 중37행에서 연속 crop 사각형 안이다. 기존15개 E 질문에서도13개는 안에 있다. 따라서 이전 local 판독 모호함을 reference가 crop 밖으로 밀린 경우만으로 설명할 수 없다. 반대로 사각형 안이라는 사실만으로 의도 부위가 보이거나 local에서 식별된다고 할 수도 없다.",
+    "기록된 reference 거리 중앙값은 E69.33px, D18.48px지만 이는 선택된 SOURCE 약라벨과 nominal CAD/제공pose reference 사이의 거리다. 실제 initializer 오차, 제공pose·치수·역할 관례 오차, instance/part 주소의 약한 대응이 섞일 수 있어 각 원인의 몫이나 기존 E 라벨 오류를 분리해 입증하지 못한다.",
+    "V225의 E15 local 식별근거0과 D14 중 노출부위 근거13은 기존 비블라인드 정성 관찰이며 분류기 정확도가 아니다. 화면 속 목재·foreign의 존재, local 근거 부재, reference 근접을 각각 native D/E·주석 무효·SELF로 자동 변환하지 않는다. 원 역할 상태와 coordinate-quality UNKNOWN은 그대로 유지한다.",
+    "검토된 현재 head는 원 RAW96 RGB/valid와 native·원q8 상대좌표/가용성을 받으며 crop 밖 RGB나 다른 query의 appearance는 받지 않는다. q8은 주소와 배치의 기하 단서를 줄 수 있지만 새 RGB 문맥을 공급하지 않는다. 이 구조 사실만으로 모델의 추론 가능성을 부정하거나 실패 원인을 확정할 수 없다.",
+    "연속 crop 포함은 q±L/2의 scalar 진단으로 정확한 RAW96 샘플/valid bitmap 재생이 아니다. reference와 convex self proxy는 진단용 권위이며 물리3px gold·semantic SELF가 아니다. reference를 재정렬하거나 q/L/원crop·배포입력으로 바꾸지 않았다.",
+    "29개 질문은 사전 고정된 기존 예시이며 전체 SOURCE나 실제 배포 실패의 대표 표본이 아니다. 현재 component 분리도 물리 독립성을 인증하지 않고 C65 계보 warmstart를 fresh DEV로 만들지 않는다. 추가 문맥의 성공·신규성이나 새 학습 admission은 이번 검토로 확정하지 않는다."
+  ],
+  "overclaims_to_avoid_KO": [
+    "crop 밖인27행 때문에 모든 E/모델 실패가 설명된다.",
+    "reference가 crop 안인341행은 입력이 충분하거나 그 부위가 보인다.",
+    "q-reference 거리는 물리적인 정확한 q 오차이고 기존 약라벨이 틀렸다는 증거다.",
+    "local crop만으로 원천적으로 불가능하거나, context를 추가하면 반드시 해결된다.",
+    "q8 기하를 다른 표현으로 만들면 새로운 관측정보가 생기거나 성능이 좋아진다.",
+    "전체 문맥·witness·SAM 입력은 과거에 안 해본 새로운 방법이다.",
+    "SELF proxy·mask 부재·foreign 표면·목재 존재를 native D/E/S로 자동 복사해도 된다.",
+    "이 선택된 SOURCE 분석은 실제 current/publicheld 성능·인과·독립 일반화를 검증했다."
+  ],
+  "numeric_evidence_policy": "Root scalar 요약과 B independent numeric QA의 저장 수치를 인용했으며 새 차감·거리·백분위·정합 수치를 재계산하지 않았다.",
+  "visual_evidence_policy": "새 이미지 열람0. V225 Root/B의 기존 정성 관찰을 저장 report에 적힌 한계와 함께 인용했다.",
+  "new_design_or_experiment_proposal": false,
+  "new_training_forward_GT_projection": 0,
+  "raw_or_mixed_GT_reference_image_array_model_or_protected_FS": 0,
+  "V112_FS": 0,
+  "other_source_pointer_follow": 0,
+  "original_files_modified": false,
+  "own_new_output_files": 1,
+  "frozen_after_completion": true
+}
