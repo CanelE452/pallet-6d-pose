@@ -1,0 +1,17 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>Heatmap으로 가림 판단하기 · 저장 출력 진단</title>
+<style>body{font:17px/1.7 sans-serif;max-width:1150px;margin:36px auto;padding:0 20px;color:#172431}img{width:100%}table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccd5dd;padding:7px}aside{background:#f1f5f9;padding:16px}code{background:#eef2f6}</style>
+<h1>Heatmap이 찾은 위치를 보임/외부 가림 판단에 이용할 수 있습니다</h1>
+<p>현재 VIS head는 crop 전체 특징의 균등 평균을 읽습니다. 위치 heatmap으로 점 주변의 특징을 골라 읽는 구조는 아직 사용하지 않았습니다.
+다음 개선 가설은 <b>heatmap → 위치 주변 특징 + 주변 맥락 → D/E 판단</b>입니다. 이 구조의 성능은 아직 검증하지 않았습니다.</p>
+<p>현재 heatmap은 각 crop에서 합이 1인 softmax이며, E에는 위치 heatmap 정답을 주지 않았습니다. 따라서 가려져도 봉우리가 생깁니다.
+봉우리 자체를 보임 확률로 사용할 수는 없습니다. 위치를 못 찾음/검색 범위 밖도 외부 가림과 구분해야 합니다.</p>
+<img src="DISTRIBUTIONS_KO.png" alt="D와 E heatmap 분포가 겹치는 정도">
+<p>기존 PRIMARY 주석의 D 1,147점/E 90점 기준입니다. AUC는 D/E 한 쌍의 순서를 점수가 맞추는 정도이며 분류 정확도나 보증된 성능이 아닙니다.
+목재/정사각형 및 256칸 모두 유효한 crop에서도 별도로 집계했습니다. 데이터 일부의 주석·native 대응은 재검토가 필요합니다.</p>
+<table><tr><th>그룹</th><th>집계</th><th>D</th><th>E</th><th>높은 peak AUC</th><th>낮은 entropy AUC</th><th>정규화 entropy AUC</th></tr><tr><td>ALL</td><td>PRIMARY_supported</td><td>1147</td><td>90</td><td>0.609</td><td>0.735</td><td>0.733</td></tr><tr><td>ALL</td><td>PRIMARY_supported_full256</td><td>1122</td><td>89</td><td>0.603</td><td>0.731</td><td>0.731</td></tr><tr><td>WOOD_PRIMARY105</td><td>PRIMARY_supported</td><td>616</td><td>29</td><td>0.619</td><td>0.721</td><td>0.719</td></tr><tr><td>WOOD_PRIMARY105</td><td>PRIMARY_supported_full256</td><td>600</td><td>28</td><td>0.604</td><td>0.711</td><td>0.711</td></tr><tr><td>SQUARE118</td><td>PRIMARY_supported</td><td>531</td><td>61</td><td>0.631</td><td>0.776</td><td>0.775</td></tr><tr><td>SQUARE118</td><td>PRIMARY_supported_full256</td><td>522</td><td>61</td><td>0.631</td><td>0.777</td><td>0.777</td></tr></table>
+<aside><b>사용자 시각 검토 반영</b><p>G996은 기존 E 주석과 모델 D가 불일치한 사례로, 명백한 모델 실패라고 단정하지 않습니다.
+G981과 G200은 각각 1.46→3.65px, 1.77→4.57px로 3px 기준을 넘은 경우입니다. 큰 시각적 실패나 실제 자세 손상을 뜻하지 않습니다.
+원 주석과 기존 집계는 바꾸지 않았습니다.</p></aside>
+<p>이번 작업: 저장 배열·주석 재집계만 수행. 새 학습, 모델 추론, PnP, 임계값 선택 없음. 반복 확인한 기존 개발 평가 자료이며 독립 검증 결과가 아닙니다.</p>
+<p><a href="RESULTS.json">입력 SHA·결과 JSON</a> · <a href="PRIMARY1237_FEATURES.csv">1,237점 수치</a> ·
+<a href="../diagnose_saved_heatmap_visibility.py">재현 코드</a> · <a href="../visual_success_failure_v1/INDEX_KO.html">원 사례 갤러리</a></p></html>
