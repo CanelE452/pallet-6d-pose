@@ -1,0 +1,33 @@
+{
+  "schema": "V267_ORIGINAL_SYN_FULL_FRAME_CLIP_DESIGN",
+  "created_UTC": "2026-10-26T04:18:31.739100+00:00",
+  "approved_scope": "User original synthetic RGB+visible pallet mask, full-image CLIP improvement, real223 eval-only, old comparison/full-frame visual/mainpush.",
+  "dataset": "Original1003 release frames, TRAIN768/DEV235. Never use internalV129440dataset forfit.",
+  "input": "FULLrawRGB resizeddirectly512x512 PILBICUBIC/CLIPmeanstd, no initialKP crop, bbox, GTpose ortargetcrop. Samefullimageencodeonepassperframe then sample all8 nativequeries.",
+  "frozen_encoder_arms": [
+    "PLAIN_CLIP",
+    "CLIP_SURGERY_ARCH"
+  ],
+  "method": "OfficialCSViTB16 architecture surgery, pinnedprimarysource. Supervisedbinarymaskdecoder. Not the fullzero-shottextfeature-surgery pipeline.",
+  "segmentation_supervision": "OriginalM4>127 target vs non-target, fullimagegeometry then32x32softarea. No foreign/backgroundGTinvented. M0notusedintraining.",
+  "head": "SameLayerNorm512,Linear512x32ReLU,conv3x332x32ReLU,conv1output1. No oldclassifierlogit orquery/nativeinputs.",
+  "fits": 2,
+  "optimizer_updates_each": 1000,
+  "seed": 17,
+  "batch_frames": 8,
+  "draws": "SamePCG64(17)FITframeuniformwithreplacement forbotharms; allpixelsofttargetsinframe.",
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001
+  },
+  "loss": "SYNFITclassbalancedsoftpixelBCE + softDice1, samebotharms; noSYNDEVorcurrentrecipe/checkpointselection.",
+  "checkpoints": "Bothfinal1000 sealedbeforeSYNDEVmodelscoring; no bestcheckpointsearch.",
+  "query_readout": "Afterfullframemaskprediction only: bilinearsample RAW32maplogit atgrid((q+.5)/rawWH)aligncornersFalse paddingborder; Ptargetsigmoid, Elogitnegative, D>=.5/E<.5, retain45originalinputU.",
+  "semantic_caveat": "This is MASK_PRESENCE_PROXY_E_NOT_CAUSE. A negative targetmask can be background/queryerror/nativeidentityerror/occluder. RealhumanD/E comparison issemantictransfer evaluation, not trainingnewnativeexternalocclusionlabels.",
+  "current": "Full223RGB input-onlyaudit available, but newmodels/maps/predictionsallfrozenbeforelatehumanGTjoin. Existing223 repeatedlyuseddevelopment evaluation, notblind.",
+  "evaluation": "PRIMARY1237 D1147/E90 wood/square, allregisteredDE/manualDnear3,SELFseparate, oldV264/v61/legacyCAL preservedhistoricalexposure. No realmaskIoU claim.",
+  "visualization": "CompleteframeRGB/fullprobmapfixed0..1/fullmaskoverlaywithinitialq8, localzoomDISPLAYONLY. All90E plusfixedcorrectnesspattern andknown370/908/1515/996 selectedbeforeRGB.",
+  "no_new_PnP": true,
+  "further_automatic_fits": false
+}
