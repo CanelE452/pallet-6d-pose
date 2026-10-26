@@ -1,0 +1,14 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>V266 범위 정정과 원래 합성 마스크 활용</title>
+<style>body{font-family:sans-serif;max-width:1200px;margin:30px auto;padding:0 24px;line-height:1.8;color:#17253d}img{max-width:100%}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:10px}.note{background:#fff1d1;padding:18px}a{color:#165db7}</style>
+<h1>전체 이미지 분할 제안과 V266 실행 범위 정정</h1>
+<p class="note"><b>V266은 전체 이미지 CLIP 분할을 시험하지 않았습니다.</b> 초기 키포인트 crop의 DINO 특징에 작은 분할 모듈을 학습한 결과입니다. 사용자가 제안한 전체 이미지의 문맥을 이용하는 방식과 달랐으며, 그 제안이 실패했다고 판단할 근거가 아닙니다.</p>
+<h2>사용자의 팔레트 마스크만 이용할 수 있는가?</h2>
+<p><b>가능합니다.</b> 보이는 대상 팔레트가 빠짐없이 표시된 마스크라면, 전체 이미지의 <b>대상 팔레트 / 대상 아님</b> 이진 분할 정답입니다. 나머지 영역을 콘·상자·바닥으로 세분화할 필요는 없습니다. 일부 팔레트만 주석했다면 미표시 팔레트는 negative로 만들면 안 됩니다.</p>
+<p><b>전체 RGB → 전체 팔레트 확률 지도 → 원영상의 초기 키포인트 주변 확인 → 보임 확인 후 위치 보정</b>이 사용자 의도에 맞는 순서입니다. 이미지 간 특징 묶기는 팔레트 픽셀을 positive, 확실한 non-target를 negative로 구성할 수 있습니다.</p>
+<p>마스크 밖은 외부 가림뿐 아니라 좌표 오차나 틈일 수 있습니다. 또한 non-target를 콘/배경으로 구별하는 정답은 binary mask에 없습니다. 전체 이미지의 사전학습 분할 출력을 보조 근거로 쓰더라도 실제 GT와 구분해야 합니다.</p>
+<h2>서로 다른 자료</h2><table><tr><th>자료</th><th>있는 정답</th></tr><tr><td>사용자의 원래 합성 데이터</td><td>보이는 대상 팔레트 마스크. 나머지 물체의 세부 의미 GT를 가정하지 않음</td></tr><tr><td>V266의 별도 진단용 합성440개 buffer</td><td>렌더러의 전체512×512 target/foreign/background 소유 ID</td></tr><tr><td>실사223장</td><td>키포인트 가림 주석. 픽셀 분할 GT는 없음</td></tr></table>
+<p>앞서 확인한 3종 GT는 별도 진단용 자료의 것입니다. 사용자의 원래 합성 데이터에 모든 물체의 분할 GT가 있다는 뜻으로 설명하면 안 됩니다.</p>
+<h2>V266의 실제 학습</h2><p>초기 KP96×96 crop →224 resize →동결 DINOv2 16×16 공간 특징. GT도 같은 crop으로 잘랐습니다. 기존 V264를 고정하고 분할/가림 점수 추가 모듈23,204개 파라미터를 각1,000업데이트했습니다. BCE+분할CE, 대조 방식만 픽셀 대조손실0.1 추가입니다. 110개 진단용 합성 base 중 학습86/검증24이며, 사용자 대용량 visible-mask 데이터 전체를 새로 학습한 것이 아닙니다.</p>
+<h2>별도 진단용 합성의 전체 GT 예시</h2><p>모델 예측이 아닙니다. 사용자의 원래 데이터 GT와도 구분해야 합니다.</p><img src="FULL_FRAME_GT_EXAMPLE.png">
+<p><a href="README_KO.md">정정 상세·binary mask 활용·학습 방법</a> · <a href="SOURCE.json">예시 출처와SHA</a> · <a href="render_full_gt_example.py">생성 코드</a></p>
+<p>새 학습·모델 추론·PnP·문턱 조정0. 기존 모델·수치·주석은 보존했습니다. 전체 이미지 CLIP 기반 비교는 미실행입니다.</p></html>
