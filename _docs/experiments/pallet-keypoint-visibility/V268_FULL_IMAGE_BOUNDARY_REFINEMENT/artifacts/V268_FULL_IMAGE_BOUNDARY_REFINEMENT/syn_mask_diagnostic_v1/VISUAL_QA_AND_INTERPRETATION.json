@@ -1,0 +1,113 @@
+{
+  "PASS": true,
+  "cards_show_whole_frame_top_and_display_only_zoom_bottom": true,
+  "completed": true,
+  "current_GT_reads": 0,
+  "limitations_KO": [
+    "합성 원본 M4 정답에 대해서만 픽셀 IoU·경계 P/R을 계산했다. 실사 픽셀 정답이나 실사 원인별 분할 성능은 이 자료로 평가하지 않는다.",
+    "B의 전체 IoU 개선에는 오검출 픽셀 감소가 기여하지만 참 대상 누락 픽셀은 이전보다 늘었다. 실사 키포인트 보임 재현율이 올랐다는 결론으로 바꾸면 안 된다.",
+    "고정된 여섯 사례를 모두 표시했으며 모델·임계값·사례 선택을 위한 추가 학습은 하지 않았다."
+  ],
+  "new_fits": 0,
+  "new_model_forwards": 0,
+  "no_model_crop_inputs": true,
+  "original_pixel_diagnostic_complete": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/syn_mask_diagnostic_v1/COMPLETE.json",
+    "sha256": "216491a9804e7a55f823bbe1d8eecd8d800d44fe714cae4d065e00bb9e2f640c",
+    "size_bytes": 5405
+  },
+  "per_frame_comparison_vs_old": {
+    "BOUNDARY_REFINE": {
+      "IoU": {
+        "improved": 174,
+        "tied": 11,
+        "worsened": 50
+      },
+      "boundary_F1_1px": {
+        "improved": 172,
+        "tied": 12,
+        "worsened": 51
+      },
+      "boundary_F1_3px": {
+        "improved": 187,
+        "tied": 11,
+        "worsened": 37
+      }
+    },
+    "HIGHRES_REFINE": {
+      "IoU": {
+        "improved": 133,
+        "tied": 9,
+        "worsened": 93
+      },
+      "boundary_F1_1px": {
+        "improved": 121,
+        "tied": 11,
+        "worsened": 103
+      },
+      "boundary_F1_3px": {
+        "improved": 130,
+        "tied": 9,
+        "worsened": 96
+      }
+    }
+  },
+  "qualitative_observations": [
+    {
+      "frame_index": 776,
+      "note_KO": "M4는 멀리 있는 팔레트만 대상이다. 모든 모델이 전경의 다른 팔레트처럼 보이는 물체도 크게 분할한다. 쿼리/대상 지정 없이 전체 영상만 입력하는 구조의 대상 식별 한계가 남는다. 관찰이며 가림 원인 정답을 새로 정의한 것이 아니다."
+    },
+    {
+      "frame_index": 768,
+      "note_KO": "경계 손실은 일부 슬롯을 열어 BF1@3을 높였지만 외곽 형상이 참값에 모두 맞지 않아 IoU는 이전보다 낮다. 경계 점수와 전체 IoU가 항상 함께 오르지 않는다."
+    },
+    {
+      "frame_index": 770,
+      "note_KO": "팔레트 위 상자에 해당하는 구멍을 B가 더 분명히 분리한다. 이 예에서는 원본 픽셀 IoU와 경계 BF1이 함께 개선됐다."
+    },
+    {
+      "frame_index": 769,
+      "note_KO": "어두운 큰 팔레트의 전체 몸체는 유지하지만 긴 내부 슬롯을 대부분 채운다. 경계 손실을 더해도 내부 가는 틈 재현이 불완전하다."
+    },
+    {
+      "frame_index": 792,
+      "note_KO": "작고 어두운 팔레트는 이전과 B가 사실상 빈 마스크다. A의 작은 일부 검출도 원본 IoU0.006에 그친다. 고해상도 보정만으로 대상 발견 실패를 복구하지 못했다."
+    },
+    {
+      "frame_index": 900,
+      "note_KO": "큰 팔레트 몸체/외곽은 잘 유지한다. B는 세부 구멍을 늘리지만 일부는 목재 표면 무늬를 깎은 모습이며 A보다 IoU가 낮다. 경계 학습이 항상 올바른 틈만 만드는 것은 아니다."
+    }
+  ],
+  "visuals_inspected": [
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/syn_mask_diagnostic_v1/SYN_FRAME0776.png",
+      "sha256": "5548fa887a44eb9ca73a931fe856a7c715b840567041fea894617ad9e6258418",
+      "size_bytes": 224870
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/syn_mask_diagnostic_v1/SYN_FRAME0768.png",
+      "sha256": "d49019ae200987504d937c039dbe1c72552caaced5b3b7f96c6b5418f61e7b0e",
+      "size_bytes": 265913
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/syn_mask_diagnostic_v1/SYN_FRAME0770.png",
+      "sha256": "57faedd45358f6b5639cf2ef708e2a6574b8b0f6773db1c6a08f711c896d0627",
+      "size_bytes": 221232
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/syn_mask_diagnostic_v1/SYN_FRAME0769.png",
+      "sha256": "5a1a6452d39189bb494dbef349b860577b89760896752b565cf876dbec2c090a",
+      "size_bytes": 422697
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/syn_mask_diagnostic_v1/SYN_FRAME0792.png",
+      "sha256": "67b82bdb0332cc4b9ca4d1ca9283ee9dc21757ea33bae285df3f4dff5cd53168",
+      "size_bytes": 235430
+    },
+    {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/syn_mask_diagnostic_v1/SYN_FRAME0900.png",
+      "sha256": "f78ce0bea0c3e9718daa744cca6450e860b960e678b3c159ea6e45ee0da59835",
+      "size_bytes": 464915
+    }
+  ]
+}

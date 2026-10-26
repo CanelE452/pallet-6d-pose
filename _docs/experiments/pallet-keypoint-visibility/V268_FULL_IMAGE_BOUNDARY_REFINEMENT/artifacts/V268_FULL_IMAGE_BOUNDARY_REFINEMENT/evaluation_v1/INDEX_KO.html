@@ -1,0 +1,157 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>V268 전체 영상 경계 보정</title>
+<style>body{font:17px/1.65 sans-serif;max-width:1500px;margin:30px auto;padding:0 20px;color:#172238}table{border-collapse:collapse}td,th{border:1px solid #cbd4df;padding:7px}img{max-width:100%}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.note{background:#fff0cb;padding:16px}.case{background:#f3f6fa;padding:10px}</style>
+<h1>전체 영상 경계 보정 · 두 합성 학습 방식과 고정 이전 모델 비교</h1>
+<p class="note">새 학습·설정 선택은 합성만 사용했습니다. 실사223장은 기존에도 확인한 개발 평가입니다. 원래 초기 좌표·native·입력불가45점(U)을 유지했습니다. 모델 입력은 전체 영상이고 crop은 표시 전용입니다.</p>
+<p>HIGHRES_REFINE과 BOUNDARY_REFINE을 모두 평가했으며 실사 결과로 하나를 선택하거나 threshold를 바꾸지 않았습니다. 새 E는 MASK_PRESENCE_PROXY_E_NOT_CAUSE입니다. P(target@원래q)≥0.5이면 D, 미만이면 E proxy로 기존 주석과 비교합니다. 배경·좌표 오차·다른 물체도 non-target이므로 외부 가림 원인을 학습한 분류기로 해석하지 않습니다.</p>
+<p>V267_CS는 FULL_CLIP_SURGERY_ARCH의 별칭이며 공식 CLIP Surgery 전체 방법을 재현했다는 뜻이 아닙니다. CAL은 과거 실사 학습 이력이 있습니다. 자기 가림은 별도로 집계합니다. 실사 픽셀 정답이 없어 실사 IoU를 주장하지 않습니다.</p>
+<h2>ALL · PRIMARY</h2><table><tr><th>모델</th><th>D→D/E/U</th><th>E→D/E/U</th><th>D P/R</th><th>E P/R/F1</th><th>U%</th></tr>
+<tr><td>HIGHRES_REFINE</td><td>619/528/0</td><td>12/78/0</td><td>98.1/54.0</td><td>12.9/86.7/22.4</td><td>0.0</td></tr>
+<tr><td>BOUNDARY_REFINE</td><td>512/635/0</td><td>6/84/0</td><td>98.8/44.6</td><td>11.7/93.3/20.8</td><td>0.0</td></tr>
+<tr><td>V267_CS</td><td>595/552/0</td><td>6/84/0</td><td>99.0/51.9</td><td>13.2/93.3/23.1</td><td>0.0</td></tr>
+<tr><td>V264_HEATMAP_LOCAL</td><td>1028/119/0</td><td>67/23/0</td><td>93.9/89.6</td><td>16.2/25.6/19.8</td><td>0.0</td></tr>
+<tr><td>v61</td><td>260/887/0</td><td>2/88/0</td><td>99.2/22.7</td><td>9.0/97.8/16.5</td><td>0.0</td></tr>
+<tr><td>CAL_LEGACY</td><td>655/319/173</td><td>3/83/4</td><td>99.5/57.1</td><td>20.6/92.2/33.7</td><td>14.3</td></tr>
+</table>
+<h2>WOOD_PRIMARY105 · PRIMARY</h2><table><tr><th>모델</th><th>D→D/E/U</th><th>E→D/E/U</th><th>D P/R</th><th>E P/R/F1</th><th>U%</th></tr>
+<tr><td>HIGHRES_REFINE</td><td>336/280/0</td><td>5/24/0</td><td>98.5/54.5</td><td>7.9/82.8/14.4</td><td>0.0</td></tr>
+<tr><td>BOUNDARY_REFINE</td><td>294/322/0</td><td>2/27/0</td><td>99.3/47.7</td><td>7.7/93.1/14.3</td><td>0.0</td></tr>
+<tr><td>V267_CS</td><td>307/309/0</td><td>2/27/0</td><td>99.4/49.8</td><td>8.0/93.1/14.8</td><td>0.0</td></tr>
+<tr><td>V264_HEATMAP_LOCAL</td><td>510/106/0</td><td>18/11/0</td><td>96.6/82.8</td><td>9.4/37.9/15.1</td><td>0.0</td></tr>
+<tr><td>v61</td><td>145/471/0</td><td>0/29/0</td><td>100.0/23.5</td><td>5.8/100.0/11.0</td><td>0.0</td></tr>
+<tr><td>CAL_LEGACY</td><td>448/65/103</td><td>2/23/4</td><td>99.6/72.7</td><td>26.1/79.3/39.3</td><td>16.6</td></tr>
+</table>
+<h2>SQUARE118 · PRIMARY</h2><table><tr><th>모델</th><th>D→D/E/U</th><th>E→D/E/U</th><th>D P/R</th><th>E P/R/F1</th><th>U%</th></tr>
+<tr><td>HIGHRES_REFINE</td><td>283/248/0</td><td>7/54/0</td><td>97.6/53.3</td><td>17.9/88.5/29.8</td><td>0.0</td></tr>
+<tr><td>BOUNDARY_REFINE</td><td>218/313/0</td><td>4/57/0</td><td>98.2/41.1</td><td>15.4/93.4/26.5</td><td>0.0</td></tr>
+<tr><td>V267_CS</td><td>288/243/0</td><td>4/57/0</td><td>98.6/54.2</td><td>19.0/93.4/31.6</td><td>0.0</td></tr>
+<tr><td>V264_HEATMAP_LOCAL</td><td>518/13/0</td><td>49/12/0</td><td>91.4/97.6</td><td>48.0/19.7/27.9</td><td>0.0</td></tr>
+<tr><td>v61</td><td>115/416/0</td><td>2/59/0</td><td>98.3/21.7</td><td>12.4/96.7/22.0</td><td>0.0</td></tr>
+<tr><td>CAL_LEGACY</td><td>207/254/70</td><td>1/60/0</td><td>99.5/39.0</td><td>19.1/98.4/32.0</td><td>11.8</td></tr>
+</table>
+<h2>외부 가림90점 · 이전 V267/V264에 대한 변화</h2><table><tr><th>재질</th><th>기준 모델</th><th>새 모델</th><th>기존 누락→E</th><th>누락 유지</th><th>정답 유지</th><th>새 누락</th></tr>
+<tr><td>ALL</td><td>V267_CS</td><td>HIGHRES_REFINE</td><td>0</td><td>6</td><td>78</td><td>6</td></tr>
+<tr><td>ALL</td><td>V267_CS</td><td>BOUNDARY_REFINE</td><td>0</td><td>6</td><td>84</td><td>0</td></tr>
+<tr><td>ALL</td><td>V264_HEATMAP_LOCAL</td><td>HIGHRES_REFINE</td><td>57</td><td>10</td><td>21</td><td>2</td></tr>
+<tr><td>ALL</td><td>V264_HEATMAP_LOCAL</td><td>BOUNDARY_REFINE</td><td>61</td><td>6</td><td>23</td><td>0</td></tr>
+<tr><td>WOOD_PRIMARY105</td><td>V267_CS</td><td>HIGHRES_REFINE</td><td>0</td><td>2</td><td>24</td><td>3</td></tr>
+<tr><td>WOOD_PRIMARY105</td><td>V267_CS</td><td>BOUNDARY_REFINE</td><td>0</td><td>2</td><td>27</td><td>0</td></tr>
+<tr><td>WOOD_PRIMARY105</td><td>V264_HEATMAP_LOCAL</td><td>HIGHRES_REFINE</td><td>15</td><td>3</td><td>9</td><td>2</td></tr>
+<tr><td>WOOD_PRIMARY105</td><td>V264_HEATMAP_LOCAL</td><td>BOUNDARY_REFINE</td><td>16</td><td>2</td><td>11</td><td>0</td></tr>
+<tr><td>SQUARE118</td><td>V267_CS</td><td>HIGHRES_REFINE</td><td>0</td><td>4</td><td>54</td><td>3</td></tr>
+<tr><td>SQUARE118</td><td>V267_CS</td><td>BOUNDARY_REFINE</td><td>0</td><td>4</td><td>57</td><td>0</td></tr>
+<tr><td>SQUARE118</td><td>V264_HEATMAP_LOCAL</td><td>HIGHRES_REFINE</td><td>42</td><td>7</td><td>12</td><td>0</td></tr>
+<tr><td>SQUARE118</td><td>V264_HEATMAP_LOCAL</td><td>BOUNDARY_REFINE</td><td>45</td><td>4</td><td>12</td><td>0</td></tr>
+</table><p><a href="CLASSIFICATION.csv">72행 전체 평가</a> · <a href="SELF_RESPONSES.csv">자기 가림</a> · <a href="ALL1784_COMPARISON.csv">1784점</a> · <a href="EXTERNAL90_TRANSITIONS.csv">외부 가림90점 변화</a> · <a href="SUMMARY.json">전체 JSON</a> · <a href="CASE_SELECTION_BEFORE_RGB.json">선정·빈 셀·과거 노출</a></p>
+<h2>전체 RGB · 이전/새 마스크와 P(target) · 표시 전용 확대</h2><p>외부 가림90점 전체와 고정 패턴 최소 G, 지정한 과거 사례를 보존했습니다. G996의 사용자 주석 이견도 유지합니다. E 주석만으로 모든 사례를 콘 가림으로 부르지 않습니다. 모든 확률 지도는 고정0–1 색입니다.</p><div class="grid">
+<div class="case"><p>G256 · wood_day_01:004294:native0</p><a href="CASE_G0256.png"><img loading="lazy" src="CASE_G0256.png"></a></div>
+<div class="case"><p>G259 · wood_day_01:004294:native3</p><a href="CASE_G0259.png"><img loading="lazy" src="CASE_G0259.png"></a></div>
+<div class="case"><p>G300 · wood_day_01:004687:native4</p><a href="CASE_G0300.png"><img loading="lazy" src="CASE_G0300.png"></a></div>
+<div class="case"><p>G308 · wood_day_01:004799:native4</p><a href="CASE_G0308.png"><img loading="lazy" src="CASE_G0308.png"></a></div>
+<div class="case"><p>G317 · wood_day_01:005174:native5</p><a href="CASE_G0317.png"><img loading="lazy" src="CASE_G0317.png"></a></div>
+<div class="case"><p>G325 · wood_day_01:005249:native5</p><a href="CASE_G0325.png"><img loading="lazy" src="CASE_G0325.png"></a></div>
+<div class="case"><p>G352 · wood_day_01:026122:native0</p><a href="CASE_G0352.png"><img loading="lazy" src="CASE_G0352.png"></a></div>
+<div class="case"><p>G355 · wood_day_01:026122:native3</p><a href="CASE_G0355.png"><img loading="lazy" src="CASE_G0355.png"></a></div>
+<div class="case"><p>G360 · wood_day_01:026141:native0</p><a href="CASE_G0360.png"><img loading="lazy" src="CASE_G0360.png"></a></div>
+<div class="case"><p>G363 · wood_day_01:026141:native3</p><a href="CASE_G0363.png"><img loading="lazy" src="CASE_G0363.png"></a></div>
+<div class="case"><p>G369 · wood_day_01:026673:native1</p><a href="CASE_G0369.png"><img loading="lazy" src="CASE_G0369.png"></a></div>
+<div class="case"><p>G370 · wood_day_01:026673:native2</p><a href="CASE_G0370.png"><img loading="lazy" src="CASE_G0370.png"></a></div>
+<div class="case"><p>G632 · wood_night_01:031016:native0</p><a href="CASE_G0632.png"><img loading="lazy" src="CASE_G0632.png"></a></div>
+<div class="case"><p>G635 · wood_night_01:031016:native3</p><a href="CASE_G0635.png"><img loading="lazy" src="CASE_G0635.png"></a></div>
+<div class="case"><p>G748 · wood_night_01:032276:native4</p><a href="CASE_G0748.png"><img loading="lazy" src="CASE_G0748.png"></a></div>
+<div class="case"><p>G756 · wood_night_01:032376:native4</p><a href="CASE_G0756.png"><img loading="lazy" src="CASE_G0756.png"></a></div>
+<div class="case"><p>G760 · wood_night_01:032494:native0</p><a href="CASE_G0760.png"><img loading="lazy" src="CASE_G0760.png"></a></div>
+<div class="case"><p>G763 · wood_night_01:032494:native3</p><a href="CASE_G0763.png"><img loading="lazy" src="CASE_G0763.png"></a></div>
+<div class="case"><p>G768 · wood_night_01:032645:native0</p><a href="CASE_G0768.png"><img loading="lazy" src="CASE_G0768.png"></a></div>
+<div class="case"><p>G771 · wood_night_01:032645:native3</p><a href="CASE_G0771.png"><img loading="lazy" src="CASE_G0771.png"></a></div>
+<div class="case"><p>G781 · wood_night_01:032781:native5</p><a href="CASE_G0781.png"><img loading="lazy" src="CASE_G0781.png"></a></div>
+<div class="case"><p>G789 · wood_night_01:032890:native5</p><a href="CASE_G0789.png"><img loading="lazy" src="CASE_G0789.png"></a></div>
+<div class="case"><p>G790 · wood_night_01:032890:native6</p><a href="CASE_G0790.png"><img loading="lazy" src="CASE_G0790.png"></a></div>
+<div class="case"><p>G792 · wood_night_01:033279:native0</p><a href="CASE_G0792.png"><img loading="lazy" src="CASE_G0792.png"></a></div>
+<div class="case"><p>G795 · wood_night_01:033279:native3</p><a href="CASE_G0795.png"><img loading="lazy" src="CASE_G0795.png"></a></div>
+<div class="case"><p>G800 · wood_night_01:033297:native0</p><a href="CASE_G0800.png"><img loading="lazy" src="CASE_G0800.png"></a></div>
+<div class="case"><p>G803 · wood_night_01:033297:native3</p><a href="CASE_G0803.png"><img loading="lazy" src="CASE_G0803.png"></a></div>
+<div class="case"><p>G829 · wood_night_01:033721:native5</p><a href="CASE_G0829.png"><img loading="lazy" src="CASE_G0829.png"></a></div>
+<div class="case"><p>G837 · wood_night_01:033821:native5</p><a href="CASE_G0837.png"><img loading="lazy" src="CASE_G0837.png"></a></div>
+<div class="case"><p>G908 · SQUARE_YOLO:025162:native4</p><a href="CASE_G0908.png"><img loading="lazy" src="CASE_G0908.png"></a></div>
+<div class="case"><p>G996 · SQUARE_YOLO:027085:native4</p><a href="CASE_G0996.png"><img loading="lazy" src="CASE_G0996.png"></a></div>
+<div class="case"><p>G1009 · SQUARE_YOLO:027453:native1</p><a href="CASE_G1009.png"><img loading="lazy" src="CASE_G1009.png"></a></div>
+<div class="case"><p>G1021 · SQUARE_YOLO:027503:native5</p><a href="CASE_G1021.png"><img loading="lazy" src="CASE_G1021.png"></a></div>
+<div class="case"><p>G1044 · SQUARE_YOLO:027620:native4</p><a href="CASE_G1044.png"><img loading="lazy" src="CASE_G1044.png"></a></div>
+<div class="case"><p>G1078 · SQUARE_YOLO:027837:native6</p><a href="CASE_G1078.png"><img loading="lazy" src="CASE_G1078.png"></a></div>
+<div class="case"><p>G1233 · SQUARE_YOLO:028506:native1</p><a href="CASE_G1233.png"><img loading="lazy" src="CASE_G1233.png"></a></div>
+<div class="case"><p>G1274 · SQUARE_YOLO:028824:native2</p><a href="CASE_G1274.png"><img loading="lazy" src="CASE_G1274.png"></a></div>
+<div class="case"><p>G1282 · SQUARE_YOLO:028891:native2</p><a href="CASE_G1282.png"><img loading="lazy" src="CASE_G1282.png"></a></div>
+<div class="case"><p>G1304 · SQUARE_YOLO:029225:native0</p><a href="CASE_G1304.png"><img loading="lazy" src="CASE_G1304.png"></a></div>
+<div class="case"><p>G1312 · SQUARE_YOLO:029242:native0</p><a href="CASE_G1312.png"><img loading="lazy" src="CASE_G1312.png"></a></div>
+<div class="case"><p>G1347 · SQUARE_YOLO:029359:native3</p><a href="CASE_G1347.png"><img loading="lazy" src="CASE_G1347.png"></a></div>
+<div class="case"><p>G1354 · SQUARE_YOLO:029426:native2</p><a href="CASE_G1354.png"><img loading="lazy" src="CASE_G1354.png"></a></div>
+<div class="case"><p>G1360 · SQUARE_YOLO:029459:native0</p><a href="CASE_G1360.png"><img loading="lazy" src="CASE_G1360.png"></a></div>
+<div class="case"><p>G1362 · SQUARE_YOLO:029459:native2</p><a href="CASE_G1362.png"><img loading="lazy" src="CASE_G1362.png"></a></div>
+<div class="case"><p>G1365 · SQUARE_YOLO:029459:native5</p><a href="CASE_G1365.png"><img loading="lazy" src="CASE_G1365.png"></a></div>
+<div class="case"><p>G1416 · SQUARE_YOLO:029727:native0</p><a href="CASE_G1416.png"><img loading="lazy" src="CASE_G1416.png"></a></div>
+<div class="case"><p>G1424 · SQUARE_YOLO:029794:native0</p><a href="CASE_G1424.png"><img loading="lazy" src="CASE_G1424.png"></a></div>
+<div class="case"><p>G1445 · SQUARE_YOLO:030061:native5</p><a href="CASE_G1445.png"><img loading="lazy" src="CASE_G1445.png"></a></div>
+<div class="case"><p>G1457 · SQUARE_YOLO:030145:native1</p><a href="CASE_G1457.png"><img loading="lazy" src="CASE_G1457.png"></a></div>
+<div class="case"><p>G1465 · SQUARE_YOLO:030178:native1</p><a href="CASE_G1465.png"><img loading="lazy" src="CASE_G1465.png"></a></div>
+<div class="case"><p>G1483 · SQUARE_YOLO:030295:native3</p><a href="CASE_G1483.png"><img loading="lazy" src="CASE_G1483.png"></a></div>
+<div class="case"><p>G1488 · SQUARE_YOLO:030329:native0</p><a href="CASE_G1488.png"><img loading="lazy" src="CASE_G1488.png"></a></div>
+<div class="case"><p>G1491 · SQUARE_YOLO:030329:native3</p><a href="CASE_G1491.png"><img loading="lazy" src="CASE_G1491.png"></a></div>
+<div class="case"><p>G1496 · SQUARE_YOLO:030345:native0</p><a href="CASE_G1496.png"><img loading="lazy" src="CASE_G1496.png"></a></div>
+<div class="case"><p>G1500 · SQUARE_YOLO:030345:native4</p><a href="CASE_G1500.png"><img loading="lazy" src="CASE_G1500.png"></a></div>
+<div class="case"><p>G1508 · SQUARE_YOLO:030362:native4</p><a href="CASE_G1508.png"><img loading="lazy" src="CASE_G1508.png"></a></div>
+<div class="case"><p>G1512 · SQUARE_YOLO:030379:native0</p><a href="CASE_G1512.png"><img loading="lazy" src="CASE_G1512.png"></a></div>
+<div class="case"><p>G1515 · SQUARE_YOLO:030379:native3</p><a href="CASE_G1515.png"><img loading="lazy" src="CASE_G1515.png"></a></div>
+<div class="case"><p>G1520 · SQUARE_YOLO:030412:native0</p><a href="CASE_G1520.png"><img loading="lazy" src="CASE_G1520.png"></a></div>
+<div class="case"><p>G1531 · SQUARE_YOLO:030446:native3</p><a href="CASE_G1531.png"><img loading="lazy" src="CASE_G1531.png"></a></div>
+<div class="case"><p>G1533 · SQUARE_YOLO:030446:native5</p><a href="CASE_G1533.png"><img loading="lazy" src="CASE_G1533.png"></a></div>
+<div class="case"><p>G1536 · SQUARE_YOLO:030462:native0</p><a href="CASE_G1536.png"><img loading="lazy" src="CASE_G1536.png"></a></div>
+<div class="case"><p>G1544 · SQUARE_YOLO:030479:native0</p><a href="CASE_G1544.png"><img loading="lazy" src="CASE_G1544.png"></a></div>
+<div class="case"><p>G1552 · SQUARE_YOLO:030513:native0</p><a href="CASE_G1552.png"><img loading="lazy" src="CASE_G1552.png"></a></div>
+<div class="case"><p>G1555 · SQUARE_YOLO:030513:native3</p><a href="CASE_G1555.png"><img loading="lazy" src="CASE_G1555.png"></a></div>
+<div class="case"><p>G1562 · SQUARE_YOLO:030546:native2</p><a href="CASE_G1562.png"><img loading="lazy" src="CASE_G1562.png"></a></div>
+<div class="case"><p>G1573 · SQUARE_YOLO:030563:native5</p><a href="CASE_G1573.png"><img loading="lazy" src="CASE_G1573.png"></a></div>
+<div class="case"><p>G1589 · SQUARE_YOLO:030596:native5</p><a href="CASE_G1589.png"><img loading="lazy" src="CASE_G1589.png"></a></div>
+<div class="case"><p>G1597 · SQUARE_YOLO:030597:native5</p><a href="CASE_G1597.png"><img loading="lazy" src="CASE_G1597.png"></a></div>
+<div class="case"><p>G1637 · SQUARE_YOLO:030646:native5</p><a href="CASE_G1637.png"><img loading="lazy" src="CASE_G1637.png"></a></div>
+<div class="case"><p>G1645 · SQUARE_YOLO:030663:native5</p><a href="CASE_G1645.png"><img loading="lazy" src="CASE_G1645.png"></a></div>
+<div class="case"><p>G1653 · SQUARE_YOLO:030680:native5</p><a href="CASE_G1653.png"><img loading="lazy" src="CASE_G1653.png"></a></div>
+<div class="case"><p>G1661 · SQUARE_YOLO:030696:native5</p><a href="CASE_G1661.png"><img loading="lazy" src="CASE_G1661.png"></a></div>
+<div class="case"><p>G1677 · SQUARE_YOLO:030730:native5</p><a href="CASE_G1677.png"><img loading="lazy" src="CASE_G1677.png"></a></div>
+<div class="case"><p>G1685 · SQUARE_YOLO:030763:native5</p><a href="CASE_G1685.png"><img loading="lazy" src="CASE_G1685.png"></a></div>
+<div class="case"><p>G1692 · SQUARE_YOLO:030797:native4</p><a href="CASE_G1692.png"><img loading="lazy" src="CASE_G1692.png"></a></div>
+<div class="case"><p>G1693 · SQUARE_YOLO:030797:native5</p><a href="CASE_G1693.png"><img loading="lazy" src="CASE_G1693.png"></a></div>
+<div class="case"><p>G1709 · SQUARE_YOLO:030847:native5</p><a href="CASE_G1709.png"><img loading="lazy" src="CASE_G1709.png"></a></div>
+<div class="case"><p>G1716 · SQUARE_YOLO:030931:native4</p><a href="CASE_G1716.png"><img loading="lazy" src="CASE_G1716.png"></a></div>
+<div class="case"><p>G1717 · SQUARE_YOLO:030931:native5</p><a href="CASE_G1717.png"><img loading="lazy" src="CASE_G1717.png"></a></div>
+<div class="case"><p>G1724 · SQUARE_YOLO:030947:native4</p><a href="CASE_G1724.png"><img loading="lazy" src="CASE_G1724.png"></a></div>
+<div class="case"><p>G1733 · SQUARE_YOLO:031198:native5</p><a href="CASE_G1733.png"><img loading="lazy" src="CASE_G1733.png"></a></div>
+<div class="case"><p>G1753 · SQUARE_YOLO:031248:native1</p><a href="CASE_G1753.png"><img loading="lazy" src="CASE_G1753.png"></a></div>
+<div class="case"><p>G1761 · SQUARE_YOLO:031315:native1</p><a href="CASE_G1761.png"><img loading="lazy" src="CASE_G1761.png"></a></div>
+<div class="case"><p>G1765 · SQUARE_YOLO:031315:native5</p><a href="CASE_G1765.png"><img loading="lazy" src="CASE_G1765.png"></a></div>
+<div class="case"><p>G1767 · SQUARE_YOLO:031315:native7</p><a href="CASE_G1767.png"><img loading="lazy" src="CASE_G1767.png"></a></div>
+<div class="case"><p>G1772 · SQUARE_YOLO:031365:native4</p><a href="CASE_G1772.png"><img loading="lazy" src="CASE_G1772.png"></a></div>
+<div class="case"><p>G1776 · SQUARE_YOLO:031382:native0</p><a href="CASE_G1776.png"><img loading="lazy" src="CASE_G1776.png"></a></div>
+<div class="case"><p>G1779 · SQUARE_YOLO:031382:native3</p><a href="CASE_G1779.png"><img loading="lazy" src="CASE_G1779.png"></a></div>
+<div class="case"><p>G1780 · SQUARE_YOLO:031382:native4</p><a href="CASE_G1780.png"><img loading="lazy" src="CASE_G1780.png"></a></div>
+<div class="case"><p>G3 · wood_183705:000000:native3</p><a href="CASE_G0003.png"><img loading="lazy" src="CASE_G0003.png"></a></div>
+<div class="case"><p>G243 · wood_day_01:003919:native3</p><a href="CASE_G0243.png"><img loading="lazy" src="CASE_G0243.png"></a></div>
+<div class="case"><p>G15 · wood_183705:000088:native7</p><a href="CASE_G0015.png"><img loading="lazy" src="CASE_G0015.png"></a></div>
+<div class="case"><p>G467 · wood_night_01:029973:native3</p><a href="CASE_G0467.png"><img loading="lazy" src="CASE_G0467.png"></a></div>
+<div class="case"><p>G50 · wood_183705:000400:native2</p><a href="CASE_G0050.png"><img loading="lazy" src="CASE_G0050.png"></a></div>
+<div class="case"><p>G53 · wood_183705:000400:native5</p><a href="CASE_G0053.png"><img loading="lazy" src="CASE_G0053.png"></a></div>
+<div class="case"><p>G196 · wood_183705:001523:native4</p><a href="CASE_G0196.png"><img loading="lazy" src="CASE_G0196.png"></a></div>
+<div class="case"><p>G0 · wood_183705:000000:native0</p><a href="CASE_G0000.png"><img loading="lazy" src="CASE_G0000.png"></a></div>
+<div class="case"><p>G850 · SQUARE_YOLO:024410:native2</p><a href="CASE_G0850.png"><img loading="lazy" src="CASE_G0850.png"></a></div>
+<div class="case"><p>G904 · SQUARE_YOLO:025162:native0</p><a href="CASE_G0904.png"><img loading="lazy" src="CASE_G0904.png"></a></div>
+<div class="case"><p>G915 · SQUARE_YOLO:025179:native3</p><a href="CASE_G0915.png"><img loading="lazy" src="CASE_G0915.png"></a></div>
+<div class="case"><p>G844 · SQUARE_YOLO:024276:native4</p><a href="CASE_G0844.png"><img loading="lazy" src="CASE_G0844.png"></a></div>
+<div class="case"><p>G1322 · SQUARE_YOLO:029292:native2</p><a href="CASE_G1322.png"><img loading="lazy" src="CASE_G1322.png"></a></div>
+<div class="case"><p>G860 · SQUARE_YOLO:024544:native4</p><a href="CASE_G0860.png"><img loading="lazy" src="CASE_G0860.png"></a></div>
+<div class="case"><p>G840 · SQUARE_YOLO:024276:native0</p><a href="CASE_G0840.png"><img loading="lazy" src="CASE_G0840.png"></a></div>
+<div class="case"><p>G200 · wood_day_01:002010:native0</p><a href="CASE_G0200.png"><img loading="lazy" src="CASE_G0200.png"></a></div>
+<div class="case"><p>G224 · wood_day_01:002628:native0</p><a href="CASE_G0224.png"><img loading="lazy" src="CASE_G0224.png"></a></div>
+<div class="case"><p>G852 · SQUARE_YOLO:024410:native4</p><a href="CASE_G0852.png"><img loading="lazy" src="CASE_G0852.png"></a></div>
+<div class="case"><p>G314 · wood_day_01:005174:native2</p><a href="CASE_G0314.png"><img loading="lazy" src="CASE_G0314.png"></a></div>
+<div class="case"><p>G332 · wood_day_01:005286:native4</p><a href="CASE_G0332.png"><img loading="lazy" src="CASE_G0332.png"></a></div>
+<div class="case"><p>G665 · wood_night_01:031298:native1</p><a href="CASE_G0665.png"><img loading="lazy" src="CASE_G0665.png"></a></div>
+</div><p>이 평가 스크립트는 새 모델 추론·학습·PnP·좌표 보정·운영 규칙 선택을 하지 않습니다.</p></html>

@@ -1,3 +1,13 @@
+## V268 — 전체 이미지 경계 보정·V267 실패 시각화·DeCLIP 확인
+
+**Full-image CLIP Surgery는 팔레트 영역을 찾는 앞단으로 활용할 수 있습니다.** 현재 한 지점의 마스크 값만으로 native 보임/외부 가림을 확정하는 방식에 한계가 있습니다. V267만 따로 보이는 모서리 누락·작은 야간 대상·가림 경계 오판·query/native 위치 차이를 실제 영상으로 정리했습니다.
+
+합성만으로 고해상도 보정 A / 경계 손실 추가 B를 각1000회 학습하고 실사223장은 평가만 했습니다. 이전 대비 보임 정답595→619/512, 외부 가림84→78/84로 **두 목표의 동시 개선을 얻지 못해 새 판별기를 채택하지 않았습니다.** 합성 원해상도 IoU65.29→66.01/67.30%의 개선과 실사 native 보임을 구분합니다. 모든 설정은 실사 평가 전에 동결했고 추가 fit·문턱·PnP 변경0입니다.
+
+[전체 표·학습·재현](_docs/experiments/pallet-keypoint-visibility/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/README_KO.md) · [V267만 보는 실패5개](_docs/experiments/pallet-keypoint-visibility/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/artifacts/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/v267_baseline_failures_v1/INDEX_KO.html) · [실사111사례](_docs/experiments/pallet-keypoint-visibility/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/artifacts/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/evaluation_v1/INDEX_KO.html) · [DeCLIP/DCLIP 공식 자료 검토](_docs/experiments/pallet-keypoint-visibility/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/artifacts/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/PRIMARY_SOURCE_DCLIP_REVIEW_KO.md)
+
+![V267 보이는 모서리 누락과 가림 경계 오판](_docs/experiments/pallet-keypoint-visibility/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/artifacts/V268_FULL_IMAGE_BOUNDARY_REFINEMENT/v267_baseline_failures_v1/OVERVIEW_KO.png)
+
 ## V267 — 원래 합성 마스크의 전체 이미지 CLIP 분할 비교 완료
 
 **콘을 제외하는 분할은 진전했지만 보이는 모서리를 놓쳐 새 판별기로 채택하지 않았습니다.** 전체 RGB를 처음부터512×512로 입력하고 사용자 원래 RGB/M4 학습768·검증235장만 사용했습니다. KP crop 없이 지도부터 저장한 뒤 초기 q를 읽으며, 실사223장은 평가에만 사용했습니다.
