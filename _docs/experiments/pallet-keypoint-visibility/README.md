@@ -1,3 +1,13 @@
+## V269 — 전체 이미지 DeCLIP의 보임/외부 가림 판정
+
+**초기 좌표는 그대로 두고 보임/가림만 판정했습니다.** 기존 Surgery→DeCLIP은 보임595→655/1147, 외부 가림84→89/90으로 전체 집계가 개선됐습니다. 목재 보임307→393, 정사각형 보임288→262로 **정사각형은 악화했습니다.** 보이는492점을 여전히 가림으로 오판하여 단독 판정기는 완성되지 않았습니다. 가림 recall98.89%는 전체 정확도가 아닙니다(가림 precision15.32%, 전체 정확도60.15%).
+
+원본 EVA 일반 / 같은 가중치의 CSA / 공개 DeCLIP CSA를 동일 합성768학습·235검증·head26721개·각1000회로 비교했습니다. 같은 EVA+CSA→DeCLIP은 보임594→655, 가림89→89여서, 가림 정답 증가를 DeCLIP만의 효과로 부르지 않습니다. 공개 COCO 적응 이력을 밝히고 이번 팔레트용 새 학습은 합성만 사용했습니다. 실사223장은 동결 후 평가만 했으며 반복 개발 평가입니다. 새 PnP·좌표 보정0입니다.
+
+[전체 표·학습·재현](V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/README_KO.md) · [실제123사례](V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/artifacts/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/evaluation_v1/INDEX_KO.html) · [보임/가림 판정 4유형](V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/artifacts/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/FOUR_VISIBILITY_CASES_KO.png) · [합성 원본 M4 대조](V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/artifacts/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/syn_mask_diagnostic_v1/INDEX_KO.html)
+
+![보임/가림 정답과 오판 · 좌표 이동 없음](V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/artifacts/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/FOUR_VISIBILITY_CASES_KO.png)
+
 ## V268 — 전체 이미지 경계 보정·V267 실패 시각화·DeCLIP 확인
 
 **Full-image CLIP Surgery는 팔레트 영역을 찾는 앞단으로 활용할 수 있습니다.** 현재 한 지점의 마스크 값만으로 native 보임/외부 가림을 확정하는 방식에 한계가 있습니다. V267만 따로 보이는 모서리 누락·작은 야간 대상·가림 경계 오판·query/native 위치 차이를 실제 영상으로 정리했습니다.
