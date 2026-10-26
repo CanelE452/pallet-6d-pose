@@ -1,0 +1,17 @@
+# Report / publication review
+
+**Status: RESOLVED_NO_ACTIVE_BLOCKING_ISSUES.** Ready for the root final audit and separately authorized publication steps. This is not a runtime push-verification receipt.
+
+The prior hold is preserved byte-for-byte in REPORT_PUBLICATION_REVIEW_BEFORE_AUTHORIZATION.json/md. The direct user reply, “기존 파생 SCORES 사용만 허용하고 push”, is bound through GATE5_RESOLUTION.json. Only existing derived SCORES are permitted; raw protected FINAL RGB/annotation bodies remain prohibited. All18 CSV hashes fixed at authorization still match exactly.
+
+The latest README and standalone PLASTIC184 CI table disclose the56 protected-FINAL overlaps, use of existing reference.xy for model-pair identity checks, cached error_px for CI, the prior stop, the exact user authorization and raw-body access0. Main DEV292 and supplemental PLASTIC184 remain distinct. The former whole-batch metadata-only interpretation is not claimed. T3 teacher wording now clearly separates own-kind R1 adapted models from shared R0.
+
+The integrated report checks narrow authorization and frozen CSV hashes before/after writing. The final-audit source checks the same authorization/frozen hashes and accurately distinguishes raw versus derived data. Reviewed numeric claims remain consistent with the frozen artifacts, including the original598 files plus R0, T3 forward/equivalence counts, native-pixel PCK/CI values, T4 primary21/auxiliary24 and T6 total72(shared18/own18/cross36).
+
+The publisher preserves its separate Git index/work tree, fresh origin/main parent, prefix-only additions, exact deliverable keyset/SHA validation, strict primary HEAD/index/modified-tracked checks, remote-movement stop, non-force push and post-push blob verification. The reviewer did not execute prepare, push or verify. Latest source/report/evidence SHA256 bindings and observed local Git refs are recorded in the JSON.
+
+No active blocking issue remains in this review. Root must complete final_audit before preparing/pushing and verify the remote commit afterward. No raw protected-body access, inference rerun or changed quantitative results is authorized by this review.
+
+The final-audit guard refresh was additionally reviewed (code/final_audit.py:91–106,123–124). It requires the complete independent audit status, empty pending_scope, named T3/T4/T5 PASS checks, current T5 evidence hashes and all publication-review bindings; COMPLETION records the three review-receipt SHA256 values. Only the final_audit.py source binding changed; all other recorded bindings remain exact. Status remains RESOLVED_NO_ACTIVE_BLOCKING_ISSUES. No final-audit or publisher command was executed by this reviewer.
+
+The publisher-only preparation repair was reviewed at code/publish_main.py:38–66,80–92. The final text-whitespace configuration explicitly uses `blank-at-eol,space-before-tab,-blank-at-eof,cr-at-eol`, with PDF/PNG path exclusions limited to whitespace checking. This preserves frozen source/binary bytes; common.py still matches its original T3 source SHA and all18 CSV hashes are exact. A partial isolated preparation can be retried only when PREPARED.json is absent, and its staged file inventory must exactly match current deliverables. Primary checkout isolation, remote-base checks, non-force push and blob verification remain intact. The parent reported the prior failure occurred before commit/push and the corrected isolated diff check returned0. No prepare/push was executed by this reviewer; status remains RESOLVED_NO_ACTIVE_BLOCKING_ISSUES.

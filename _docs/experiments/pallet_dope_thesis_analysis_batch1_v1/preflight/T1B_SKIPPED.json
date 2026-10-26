@@ -1,0 +1,70 @@
+{
+  "schema": "batch1_t1b_skipped_v1",
+  "created_utc": "2026-10-26T16:11:59.311367+00:00",
+  "status": "SKIPPED_UNPROVEN_ORIGINAL_INFERENCE_CONTRACT",
+  "결론": "T1(b)는 실행하지 않았다. 요청한 400×400 squash + 7×7 soft-argmax(T=0.1) 조합이 R0 학습 당시 추론 경로와 동일하다는 근거를 확인하지 못했다.",
+  "구분": "400×400 학습 전처리와 현재 D0/P0 진단 코드의 존재는 확인했다. 7×7·T=0.1의 학습 보조 손실과 추론 디코더를 동일시하지 않는다.",
+  "확인된_기존_경로": "/home/minjae/Documents/github/pallet-pose/scripts/stage0/diffpnp3d/diffpnp3d_q1_eval.py",
+  "inventory_오래된_호출경로": {
+    "path": "/home/minjae/Documents/github/pallet-pose/scripts/stage0/diffpnp3d_q1_eval.py",
+    "exists": false,
+    "is_symlink": false,
+    "actual_existing_path": "/home/minjae/Documents/github/pallet-pose/scripts/stage0/diffpnp3d/diffpnp3d_q1_eval.py"
+  },
+  "대체_구현": "작성하지 않음",
+  "모델_forward": 0,
+  "학습": 0,
+  "RGB_열람": 0,
+  "정답본문_열람": 0,
+  "evidence": [
+    {
+      "항목": "요청의 미실행 조건",
+      "path": "/home/minjae/.codex/attachments/26cfa37e-bef2-4ab6-9ebe-548345126331/goal-objective.md",
+      "lines": "30–31",
+      "sha256": "e966dbdc7f6b805d4ec2de739956f52d2278a4363a4d91b0e6d1044cfb9898a2",
+      "판단": "학습 당시와 같은 추론 경로라는 근거가 없으면 T1(b)를 실행하지 말고 유사 구현을 만들지 말라는 명시 조건이다."
+    },
+    {
+      "항목": "원 학습 기록",
+      "path": "/home/minjae/Documents/github/pallet-pose/data/pallet/results/paper_s2_scratch_diffpnp/diagnostic_audit/INVENTORY.md",
+      "lines": "16,63–88,109–111",
+      "sha256": "f3fe194ae336e32cf93b37d489164fee7e98d3c7ed8f35c767502e522bbb721e",
+      "판단": "400×400 squash와 R0 계보는 기록되어 있으나, 7×7·T=0.1은 DiffPnP3D 학습 보조 손실 항목이다. 원래 추론 디코더라는 인증 근거가 아니다. 일부 학습 코드가 미커밋이라는 경고도 있다."
+    },
+    {
+      "항목": "현재 D0/P0 의미",
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/stage0/decoder_paths.py",
+      "lines": "3–14,35–41,63–65",
+      "sha256": "381add4d51f0b3e3a53cbc18223f7ecfe1358ec07e6457cdca675a2d31bb4ab2",
+      "판단": "D0는 최근 eval56/wood 진단에 쓰인 mechanism decoder이고 P0는 그 진단 결과의 parity 경로이다. 해당 설명만으로 R0 학습 당시 공식 추론 경로와 동일하다고 확정할 수 없다."
+    },
+    {
+      "항목": "디코더 비교 문서",
+      "path": "/home/minjae/Documents/github/pallet-pose/_docs/audits/eval56_summary/decoder_reconciliation/DECODER_COORDINATE_COMPARISON.md",
+      "lines": "27–30",
+      "sha256": "3b75594db291f82374aa3d844413744117fcf7491155673b078c87dedd3eb245",
+      "판단": "D0가 7×7 soft-argmax(T=0.1)를 사용함을 뒷받침하지만 원 학습 당시 추론 경로의 인증은 하지 않는다."
+    },
+    {
+      "항목": "실제 현재 Q1 평가 경로",
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/stage0/diffpnp3d/diffpnp3d_q1_eval.py",
+      "lines": "4–12,51,76–81,137–140",
+      "sha256": "df6a7764f12613fb617b1a2b973aeed02c143093abc7263cb6ad92b029a005bb",
+      "판단": "400×400 squash+ImageNet 정규화의 기존 train/infer parity 평가 코드는 존재한다. 좌표 추출은 filter_pr_camfacing.extract_keypoints_from_belief를 호출하며 이 호출부가 7×7 soft-argmax를 고정하는 근거는 아니다."
+    },
+    {
+      "항목": "기존 선택기",
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/stage0/diffpnp3d/diffpnp3d_val_select.py",
+      "lines": "4–9,99–104",
+      "sha256": "5250a25a7a691752015f3bf72be00d97616b2c530c76209a281d2b9ff6f468f1",
+      "판단": "원 계보의 선택기는 Q1E.eval_frame을 재사용한다고 명시한다."
+    },
+    {
+      "항목": "기존 실행 스크립트",
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/stage0/_run/diffpnp3d_full_run.sh",
+      "lines": "9–10,81–89,99–104",
+      "sha256": "2bbadb39c5814c23e9d6e62f1f41881f1144b80cc5dfa968f1edb046c4f08724",
+      "판단": "학습 imagesize400 및 DiffPnP 온도 0.1과 실제 nested selector 경로를 구분할 수 있다."
+    }
+  ]
+}
