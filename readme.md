@@ -1,3 +1,13 @@
+## V271 — 팔레트 segmentation과 KP별 가림 판정 전체 시각 비교
+
+같은 실사에서 일반 CLIP / Surgery / DeCLIP의 **흑백 팔레트 마스크·팔레트만 남긴 RGB·확률 지도**와 각 KP의 정답·오판을 나란히 볼 수 있습니다. 대표10장×5분할 모델, 실사223장×8점×10방법 전체 표, 목재/정사각형·KP번호별540행 지표와 실제 합성 M4 GT 대조를 묶었습니다. 새 학습·모델 추론·PnP·문턱 변경0입니다.
+
+KP 공동 모델의 번호 사전값 의존, 분할의 거친 경계·외부 물체 오포함, 기존 query와 native 가림 정답의 위치/의미 차이가 서로 다른 문제임을 보여줍니다. 실사 마스크는 예측이며 pixel GT/IoU가 아닙니다. 모든 CLIP 빨간 칸을 픽셀 분할 오류라고 해석하지 않습니다.
+
+[장면·분할 종류·KP를 바꿔 보는 전체 비교](_docs/experiments/pallet-keypoint-visibility/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/README_KO.md) · [분할 마스크 원본](_docs/experiments/pallet-keypoint-visibility/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/artifacts/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/segmentation_atlas/INDEX_KO.html) · [223장 전체 점 검색](_docs/experiments/pallet-keypoint-visibility/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/artifacts/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/kp_comparison/POINT_MODEL_COMPARISON.html) · [공개 저장 자료 재현 검증](_docs/experiments/pallet-keypoint-visibility/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/PUBLICATION_SAVED_REPLAY_VERIFICATION.json)
+
+![원본과 Surgery·DeCLIP의 실제 예측 팔레트 분할](_docs/experiments/pallet-keypoint-visibility/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/artifacts/V271_KP_CLIP_SEGMENTATION_VISUAL_COMPARISON/segmentation_atlas/SEGMENTATION_OVERVIEW.png)
+
 ## V270 — 초기 KP 위치·가림 공동 학습 빠른 확인
 
 **공동 출력은 구현했지만 이번300회 pilot은 가림 판정을 개선하지 못했습니다.** 가림만→공동 학습에서 보임 오판511→471, 외부 가림 누락51→59입니다. 새 모델은 채택하지 않습니다. strict D=0 교사 선택으로 아래쪽 native2/3/6/7의 보임 학습 표본이 모두0개가 됐고 실사223장 전체에서 이 네 슬롯을 가림으로 출력했습니다. 합성 슬롯 사전값만으로도 DEV 균형 recall72.40%, 공동73.09%로 비슷해 영상 단서 학습을 주장할 수 없습니다.

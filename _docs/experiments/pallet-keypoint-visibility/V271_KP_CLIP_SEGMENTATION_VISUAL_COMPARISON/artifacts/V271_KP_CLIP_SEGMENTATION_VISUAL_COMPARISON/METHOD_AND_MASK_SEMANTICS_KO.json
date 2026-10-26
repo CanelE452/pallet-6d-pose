@@ -1,0 +1,211 @@
+{
+  "PASS": true,
+  "SYN235_original_resolution_pixel_results": {
+    "EVA_CSA": {
+      "boundary_F1_1px": 0.07329392794722933,
+      "boundary_F1_3px": 0.14604040683516922,
+      "micro_Dice": 0.6761374222410947,
+      "micro_IoU": 0.5107308217637596
+    },
+    "EVA_DECLIP": {
+      "boundary_F1_1px": 0.11802229946265863,
+      "boundary_F1_3px": 0.245732018250682,
+      "micro_Dice": 0.8374719856170758,
+      "micro_IoU": 0.720388648923536
+    },
+    "EVA_STANDARD": {
+      "boundary_F1_1px": 0.1065359109664284,
+      "boundary_F1_3px": 0.2147488102505787,
+      "micro_Dice": 0.783914496164171,
+      "micro_IoU": 0.6446211994892745
+    },
+    "OPENAI_FULL_CLIP": {
+      "boundary_F1_1px": 0.12427345472625417,
+      "boundary_F1_3px": 0.2515449037186713,
+      "micro_Dice": 0.7953162819223977,
+      "micro_IoU": 0.6601867942496469
+    },
+    "V267_CS": {
+      "boundary_F1_1px": 0.1251803557281588,
+      "boundary_F1_3px": 0.24987962632751043,
+      "micro_Dice": 0.7900013379369573,
+      "micro_IoU": 0.6528943896433804
+    }
+  },
+  "completed": true,
+  "mask_display": {
+    "color_scale": "Fixed P_target range0..1; no per-image minmax. Coarse grid upsampling does not create fine independent evidence.",
+    "target_grid_spacing_example_raw640x480": [
+      20.0,
+      15.0
+    ],
+    "transform": "Raw32logit→bilinear originalHW align_corners=False→sigmoid for P_target; binary mask logit>=0 / P_target>=.5."
+  },
+  "mask_training_target": {
+    "complement": "Non-target combines background, pallet holes, foreign objects and wrong-q locations; not a separate foreign-object class.",
+    "source": "Original SYN M4 uint8>127 visible target silhouette",
+    "transform": "Whole binary M4→torch bilinear512 align_corners=False antialias=True→avgpool16→32x32 fractional target; no GT crop."
+  },
+  "methods": [
+    {
+      "input": "Whole RGB for original R0 detector; N3/SubPix are historical pointwise coordinate processing. Numbered oldq is a correspondence/display reference.",
+      "limitation": "Do not interpret heatmap peak or original confidence as visibility. This audit does not recertify every historical N3/SubPix implementation.",
+      "method": "R0_RAW_KP / OLD_N3_SUBPIX",
+      "output": "9 coordinates plus original keypoint/canvas confidence; no new semantic E output.",
+      "supervision": "Original R0 keypoint-coordinate/canvas-validity training; no new training here. Original point confidence is not native external-occlusion probability."
+    },
+    {
+      "input": "Only historical stored per-native D/E/U outputs are reused here. Exact legacy input recipe is not re-audited in V271.",
+      "limitation": "Do not label this model SYN-only; input details are intentionally left unspecified rather than guessed.",
+      "method": "CAL_LEGACY",
+      "output": "Stored D/E/U labels; historical comparison, not a controlled architecture ablation.",
+      "supervision": "Historical own-real CAL training exposure; separate from new SYN-only methods."
+    },
+    {
+      "input": "Frozen YOLO P3 9x9 ROI + source-valid channel at unchanged initial predicted q; one new local classifier.",
+      "limitation": "Target absence can mean background, target hole, wrong q, external object or virtual boundary, not uniquely external occlusion.",
+      "method": "V61_TARGET_PRESENCE",
+      "output": "Whether target pallet occupies the queried image pixel.",
+      "supervision": "Original SYN1003 TRAIN768/DEV235. Center pixel M4[floor(q+.5)]>127. M0 auxiliary; no native semantic D/E gold."
+    },
+    {
+      "input": "Initial-q-centered crop, frozen DINOv2 patch features, externally supplied native ID. V264 pools local features around frozen heatmap softargmax plus global features and aux12.",
+      "limitation": "A sharp heatmap is a learned location hypothesis, not proof that the point is visible. V264 does not output full-image segmentation.",
+      "method": "V263_SPATIAL / V264_HEATMAP_LOCAL",
+      "output": "V263 location heatmap/softargmax and separate visibility; V264 new pointwise E classifier with frozen heatmap/coordinates.",
+      "supervision": "V263 geometry/material-anchor/edge-witness localization teacher, not photometric native gold. V264 source synthetic D0/E1; S/U ignored; different corpus from original1003."
+    },
+    {
+      "input": "Entire RGB→PIL bicubic512square, CLIP normalization; frozen OpenAI ViT-B/16 dense32x32 projected tokens→small learned pallet mask head. CS uses architecture surgery, no text-feature surgery.",
+      "limitation": "This is a trained binary pallet segmenter on CLIP features, not a text-prompt zero-shot attention map or native external-cause classifier.",
+      "method": "V267_OPENAI_FULL_CLIP / V267_CS",
+      "output": "One-channel target-pallet mask logit32x32; fixed q sample is an additional mask-presence proxy.",
+      "supervision": "Original SYN M4 visible-target pixel mask only, TRAIN768/DEV235. No q/native/pose/M0 input to mask generation."
+    },
+    {
+      "input": "Entire RGB512square; same small mask head. STANDARD→CSA keeps generic EVA weights and changes dense attention/readout; CSA→DECLIP keeps CSA path and changes released adapted weights.",
+      "limitation": "New pallet-head fits are SYN-only; not all pretrained weights are SYN-only. OpenAI→EVA also changes backbone/pretraining package, not only one algorithm.",
+      "method": "V269_EVA_STANDARD / EVA_CSA / EVA_DECLIP",
+      "output": "One-channel target mask32x32. Sampling original q gives target-presence D/E proxy, not native visibility.",
+      "supervision": "Same original SYN M4 and splits as V267; three fixed final1000 pallet-head fits. Released DeCLIP encoder has public COCO-image dense adaptation/DINO teacher history."
+    },
+    {
+      "input": "Whole RGB→reflect101 pad100→square640 letterbox. Original R0 shared pose cv4 stem plus new per-channel E head; frozen backbone/neck and existing terminal xy/canvas readout.",
+      "limitation": "Not segmentation. Strict filtering left TRAIN raw2/3/6/7 with D0, yielding E-only slot supervision. On current223 JOINT0/1 alwaysD,2/3/6/7 alwaysE; this is not corrected by displaying better coordinates.",
+      "method": "V270_VIS_ONLY / V270_JOINT",
+      "output": "9 xy coordinates plus native8 semantic E logits; centroid E ignored.",
+      "supervision": "Original SYN1003, strict external9ray fraction0=D,>=.5=E; partial/self/outside ignored. Joint also supervises projected virtual8+centroid coordinates. No M4 supervision."
+    }
+  ],
+  "model_forwards": 0,
+  "new_real_GT_annotation": 0,
+  "new_training": 0,
+  "pixel_GT_scope": {
+    "SYN235_original_pixel_results_available": true,
+    "SYN_original_M4_available": true,
+    "real223_pixel_GT_supplied_in_this_comparison": false,
+    "real_mask_IoU_or_pixel_accuracy_computed": false,
+    "real_native_D_E_annotations_are_pixel_segmentation_GT": false
+  },
+  "query_readout": {
+    "CLIP_D_E": "P_target>=.5→D proxy; otherwise E proxy; originalq not moved. Historical unavailable45 are retained for mask-query metrics.",
+    "V270_D_E": "Separate E head P_E>=.5→E; otherwise D. Input is full image, no oldq input or mask sample.",
+    "distinct_probability_signs": true,
+    "sample": "grid_sample raw32logit at normalized(2*(q+.5)/[W,H]-1),align_corners=False,padding_mode=border; sigmoid after sampling."
+  },
+  "schema": "V271_METHOD_AND_MASK_SEMANTICS_AUDIT_V1",
+  "scientific_limits": [
+    "Real segmentation visual plausibility is qualitative; native D/E confusion does not measure segmentation IoU.",
+    "A visually good target mask may exclude the exact virtual corner/q or include target material unrelated to the native point.",
+    "M4 does not teach invisible whole-pallet/amodal silhouette or external occluder identity.",
+    "SYN235 is repeatedly exposed development data; numeric SYN segmentation success does not certify independent real transfer.",
+    "V270 slot collapse follows teacher selection/slot priors; world ground-height coincidence does not prove floor ray first-hit ownership."
+  ],
+  "source_bindings": {
+    "V263_spatial_model": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/spatial_head_v2.py",
+      "sha256": "e630763c487e649bd47e47048a35269a61ff7101e59153b403abc9e5ffc9b1f0",
+      "size_bytes": 11225
+    },
+    "V263_teacher_guide": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/RUN_GUIDE_KO.md",
+      "sha256": "4b863559dda3f413bb4d5894b61eaf75412758eb6f794e94b9bb783ea5a127ea",
+      "size_bytes": 5669
+    },
+    "V264_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V264_HEATMAP_LOCAL_VISIBILITY/PROTOCOL_BEFORE_FIT.json",
+      "sha256": "e7bad4df255e3e1c26c632dacc8ea1dc7efd2b56ed6385f9b986f3850f28cf89",
+      "size_bytes": 6301
+    },
+    "V267_encoder": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V267_FULL_IMAGE_CLIP_VISIBLE_MASK/fullframe_clip_v267.py",
+      "sha256": "88a5ddad13bb8a285a18a47f7ac1c7ee13a94fe79d00a7c1a7bae37a798c9556",
+      "size_bytes": 10475
+    },
+    "V267_mask_targets": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V267_FULL_IMAGE_CLIP_VISIBLE_MASK/prepare_fullmask_targets_v267.py",
+      "sha256": "8bd3b4b5f1ce3cfc9e0fe049f1c55a61429c6bd7585ce2cf7a1c3cbc09ef070c",
+      "size_bytes": 5478
+    },
+    "V267_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V267_FULL_IMAGE_CLIP_VISIBLE_MASK/PROTOCOL_BEFORE_FIT.json",
+      "sha256": "6f2511499de8d40e996726aeb37a290148342fb7a58521130bda91e50968bd33",
+      "size_bytes": 7975
+    },
+    "V269_SYN_original_pixel_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/analyze_syn_pixels_v269.py",
+      "sha256": "6f68c4b92b0c9f13463f75a3de15fa4fca96b42a3669d54fea505c0c9966e5de",
+      "size_bytes": 13271
+    },
+    "V269_SYN_original_pixel_results": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/syn_mask_diagnostic_v1/ORIGINAL_PIXEL_RESULTS.json",
+      "sha256": "df8eafa711cfc13fcd847776503ec9f7da0cc6622f56078164d7871400e4df13",
+      "size_bytes": 5308
+    },
+    "V269_encoder": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/fullframe_eva_declip_v269.py",
+      "sha256": "1531607974dff5fd9ba0ae68fe41f915085b2d44109e276777bceed190fcac60",
+      "size_bytes": 10209
+    },
+    "V269_inference": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/infer_fullframe_v269.py",
+      "sha256": "7343b74c23fb6a7e8bd10ddd2c2cb6a88dc425efae089e64b3368dbfdb4c57ed",
+      "size_bytes": 12056
+    },
+    "V269_mask_model": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/model_mask_head_v269.py",
+      "sha256": "4fcb2593fc07595d44fa43ed4eb7c042e4297d7fee7f93a0737b863850f74590",
+      "size_bytes": 5316
+    },
+    "V269_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V269_FULL_IMAGE_DECLIP_MATCHED_BACKBONE/PROTOCOL_BEFORE_FIT.json",
+      "sha256": "66b4dcc9fa49fc24c2ffdb86ca445c6c78e95f1165e5b1d761f31634cdd03ab6",
+      "size_bytes": 12441
+    },
+    "V270_channel_identity": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/INPUT_CHANNEL_NATIVE_IDENTITY_BEFORE_GT.json",
+      "sha256": "33a07714f4f08938783e678b5af479bc1864c99933a48bc6e7da21585cdbe7cc",
+      "size_bytes": 676160
+    },
+    "V270_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/PROTOCOL_BEFORE_FIT.json",
+      "sha256": "8e7f44afa8f9f1b6f2f470f78a5a494f93c3f28b6f6c1162055aa61687f20085",
+      "size_bytes": 12326
+    },
+    "V270_real_result": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/FINAL_RESULT_SUMMARY.json",
+      "sha256": "20c8b97c64d5601d4ec26a8bbd5036323889b3a80176c09ea67cf30cb462cb08",
+      "size_bytes": 5971
+    },
+    "V270_slot_diagnosis": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/slot_prior_diagnosis_v1/RESULTS.json",
+      "sha256": "f5ce54cf55684ffa27e225b197c7236c734bd469cf1dbcc7a6d3c3dd846d31b4",
+      "size_bytes": 16758
+    },
+    "V61_protocol": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/target_presence_classifier_20261022_v61/PROTOCOL.json",
+      "sha256": "0464482217a49a8ccaf0fcbd6cd75addae23aba812320195a6605f3963afb6a9",
+      "size_bytes": 3413
+    }
+  }
+}
