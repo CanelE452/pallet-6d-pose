@@ -1,0 +1,21 @@
+{
+  "schema": "V263_THREE_FIXED_GT_FREE_LOCATION_ACCEPTANCE_RULES",
+  "Root_approval": "Root message: exact three rules approved; conservative verified precision over ALL accepted",
+  "shared_condition": "input_supported AND predicted_location_state == LOC_MATCH; semantic VIS never enters acceptance",
+  "rules": {
+    "OPEN": {"min_location_match_probability": 0.0, "min_peak_probability": 0.0, "max_normalized_entropy": 1.0, "min_nonlocal_peak_ratio": 1.0, "max_border_mass": 1.0, "max_std_normalized": 1.0, "max_anisotropy": 1000000000.0},
+    "MODERATE": {"min_location_match_probability": 0.5, "min_peak_probability": 0.02, "max_normalized_entropy": 0.75, "min_nonlocal_peak_ratio": 1.5, "max_border_mass": 0.5, "max_std_normalized": 0.2, "max_anisotropy": 10.0},
+    "STRICT": {"min_location_match_probability": 0.75, "min_peak_probability": 0.05, "max_normalized_entropy": 0.5, "min_nonlocal_peak_ratio": 2.0, "max_border_mass": 0.25, "max_std_normalized": 0.1, "max_anisotropy": 4.0}
+  },
+  "selection": {
+    "partition": "SYN DEV only; never current223",
+    "verified_correct": "GT-fixed identity AND direct two-direction cue AND in-range AND accepted point error <= 3 pixels",
+    "primary_precision": "verified_correct_accepted / ALL_accepted",
+    "unverified_accepted": "Retained as unverified and contributes zero to verified_correct numerator, remains in ALL_accepted denominator",
+    "minimum_verified_precision": 0.9,
+    "objective": "maximum ALL-query coverage among qualifying three rules",
+    "tie_order": ["OPEN", "MODERATE", "STRICT"],
+    "if_none_qualify": "ALL_ABSTAIN: original q0 unchanged for every query",
+    "auxiliary": "known-scorable precision, eligible coverage, total and unverified acceptance counts; no calibration claim"
+  }
+}

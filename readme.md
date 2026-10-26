@@ -1,3 +1,22 @@
+## V263 — 공간 위치 보정과 가림 비교 완료
+
+합성만으로4설정·각1,000업데이트를 실행하고 설정을 동결한 뒤 기존223장을 개발 평가했습니다. **가림 판별은 개선되지 않았고 새 모델은 채택하지 않았습니다. 위치 보정은 정사각형에서 개선됐지만 목재 손상이 남습니다.**
+
+| 동일 평가 | 원래 | 위치 전용 | 공동 모델 |
+|---|---:|---:|---:|
+| 목재 수동 보임점3px 이내 /323 |153|140|140|
+| 정사각형 수동 보임점3px 이내 /531 |223|321|317|
+| 목재 고정 후단 참조상대 성공 /105 |57|51|58|
+| 정사각형 고정 후단 참조상대 성공 /118 |30|72|50|
+
+공동 모델의 외부가림은35/90점(E precision11.67%, recall38.89%)으로 V261 CONTROL의68/90점(27.09%/75.56%)보다 낮았습니다. 가림 전용은0/90점입니다. 공동 위치 보정은 전체 수동 보임854점에서 복구140·손상59이며, 원오차≤3px 보임376점에서도102점을 E로 오판했습니다. 고정 후단은 기존 solver·C2/C4 참조 계약을 재생한 별도 진단이며 독립6D 정답 평가가 아닙니다.
+
+[전체 표와 실제 crop](_docs/experiments/pallet-keypoint-visibility/V263_SPATIAL_LOCALIZATION/artifacts/V263_ROOT_SPATIAL_LOCALIZATION/ROOT_READOUT_KO.html) · [가림·위치 상세 보고](_docs/experiments/pallet-keypoint-visibility/V263_SPATIAL_LOCALIZATION/artifacts/V263_CURRENT_EVALUATION_A/PORTABLE_CURRENT_REPORT_KO.md) · [고정 후단 전체 통계](_docs/experiments/pallet-keypoint-visibility/V263_SPATIAL_LOCALIZATION/artifacts/V263_CURRENT_UTILITY_B/current223_utility_v1/REPORT_KO.md) · [재현 안내](_docs/experiments/pallet-keypoint-visibility/V263_SPATIAL_LOCALIZATION/artifacts/V263_SPATIAL_HEAD_C/RUN_GUIDE_KO.md) · [전체 파일과 대형특징 제외 manifest](_docs/experiments/pallet-keypoint-visibility/V263_SPATIAL_LOCALIZATION/RESULTS_PACKAGE_MANIFEST.json)
+
+![유형별 위치 가림 복구 손상 비교](_docs/experiments/pallet-keypoint-visibility/V263_SPATIAL_LOCALIZATION/artifacts/V263_ROOT_SPATIAL_LOCALIZATION/RESULT_OVERVIEW.png)
+
+223장 외에9월6일20영상의 실사1,505장 ZIP이 있습니다. 현재223장·기존학습851장과 encoded SHA 중복0이나 점별 D/E 정답이 없어 이번 실험에는 편입하지 않았습니다. [추가 실사 조사](_docs/experiments/pallet-keypoint-visibility/V263_SPATIAL_LOCALIZATION/ADDITIONAL_REAL_DATA_INVENTORY.json). 현재223장은 반복 개발 자료이며 이번 제한된4설정 비교를 마쳤습니다.
+
 ## V263 — 공간 위치 보정 비교 실행 중 · 추가 실사 자료 확인
 
 사용자가 V262의 최소 후속 계획 실행을 새로 요청했습니다. 합성에서 최대4설정·seed17·각1000업데이트로 제한하고 현재223장은 개발 평가에만 사용합니다. 이 게시 단계에는 새 학습 성능 결과가 없습니다.
