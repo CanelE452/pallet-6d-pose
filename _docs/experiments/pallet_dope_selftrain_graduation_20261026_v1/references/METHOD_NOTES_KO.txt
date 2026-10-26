@@ -1,0 +1,22 @@
+방법 서술 검토 메모 (외부 논문과 로컬 구현을 구분)
+
+1. 원 DOPE는 belief map9개와 방향장8개를 출력하고, 알려진 내부행렬·물체 치수로 PnP 자세를 구한다[1]. 현재 평가의 same-index corner0..7 PCK/coverage/조건부 median은2D 참조점 비교다. 이것을 독립 실측6D 또는 파지 성공 평가로 쓰지 않는다.
+2. 현재 adapter는 미리 정해진 semantic 채널을 디코딩한다. 원 논문의 다중 객체 연결 절차 전체를 새로 재현·검증한 것으로 설명하지 않는다. 기존 architecture의 구현 사용과 새로운 architecture 기여를 구분한다.
+3. EPnP[5]와 RANSAC[6]은 pose fitting·이상치 선별의 기반이다. 본 코드의50회5점 subset,5 native-pixel residual,최소6corner,LOO error/D<0.05는 실험자가 고정한 설정이며 해당 문헌의 권고값이라고 쓰지 않는다.
+4. LOO는 이미지별로 선택된 RANSAC inlier 중 한 corner를 제외하고 나머지 최소5개만으로 EPnP와 LM을 다시 수행하여 제외점 오차를 측정한다. D는 고정 cuboid를 full-consensus pose로 투영한8corner 간 최대거리다. 이미지·물체 단위의 독립 검증 cross-validation이나 정답 보증으로 설명하지 않는다.
+5. LOO+flip에서는 native x=W−1−x와 채널[1,0,3,2,5,4,7,6,8] 복원 후 양뷰 유효점·confidence·flip error/D를 검사한다. LOO-only에서는 flip 입력·유효성·confidence·오차·median·가설 순위를 모두 제거한다. 학습 중 일반적인 photometric 증강까지 없앤 실험이 아니다.
+6. Real target은 raw teacher 좌표다. PnP 투영점으로 교체하지 않으며, 실패·누락 corner와 centroid는 mask로 loss에서 제외한다. unknown corner를0좌표 정답으로 학습하지 않는다. 보정된 affine/8−0.4395 Gaussian target·nativeK·mask 구현은 실험 재현 조건으로 명시한다.
+7. Noisy Student[3]는 교사–학생 반복, FixMatch[4]는 confidence/증강 배경으로만 인용한다. 본 구현은 같은 DOPE의 연속 학습이며 belief-map masked MSE를 사용한다. 큰 분류학생,dropout/stochastic depth,FixMatch class cross-entropy/EMA를 사용했다고 쓰지 않는다. DOPE peak값0.3은 calibrated class probability가 아니다.
+8. 종류별 모델은 동일R0에서 독립 시작한다. 각 무라벨 pool1000,동일 synthetic2212,동일 seed/스케줄/1656 update를 사용하며 source-only control과 비교한다. R1/R2는 모두 고정 보고하고 best checkpoint를 점수로 선택하지 않는다.
+9. 평가모집단은 반복 DEV292(PLASTIC128/WOOD45/GREEN119)이며 PLASTIC184는 별도 보조표다.184는128+56이며 학습pool184를 뜻하지 않는다. GREEN manual_click-only 패널을 구분하고,legacy/PnP 보완 참조의 한계를 유지한다.
+10. WOOD pool은 물리적FINAL과REC001/002를 공유한다. exact FINAL229 이미지 제외와 recording 독립성은 다른 조건이다. 이 모델의 physicalFINAL recording-independent 주장을 하지 않는다. K는 source-provided/unverified이며 calibration을 새로 실측했다고 쓰지 않는다.
+
+로컬 구현 근거(읽기 전용):
+/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/run_type.py
+/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/geometry.py
+/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/training.py
+/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/run_type.py
+/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/geometry.py
+/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/finalize.py
+
+위 메모는 방법 설명의 경계이며 새로운 결과·방법 신규성·학위 통과 가능성을 주장하지 않는다.

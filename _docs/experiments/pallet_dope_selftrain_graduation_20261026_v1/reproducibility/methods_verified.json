@@ -1,0 +1,1312 @@
+{
+  "schema": "dope_graduation_thesis_methods_verified_v1",
+  "client_date": "2026-10-26",
+  "status": "VERIFIED_AGAINST_FROZEN_SOURCES_PROTOCOLS_RECEIPTS_AND_CHECKPOINT_BYTES",
+  "scope": {
+    "main_experiment": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1",
+    "ablation_experiment": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1",
+    "same_starting_R0": true,
+    "three_independent_real_pallet_models": true,
+    "archived_April_v8_results_included": false,
+    "verification_operations": "Read frozen code/protocol/input metadata/receipts and compute hashes. No evaluation annotation body, original-image coordinate GT, network forward, optimization, or experiment-source modification."
+  },
+  "architecture": {
+    "name": "Generic NVIDIA DOPE/VGG19",
+    "stages": 6,
+    "belief_channels": 9,
+    "belief_channels_description": "Semantic corners0..7 and centroid8",
+    "affinity_channels": 16,
+    "trainable_parameters": 50267350,
+    "new_architecture_or_loss_head": false,
+    "pretrained_flag_at_construction": false,
+    "strict_R0_state_dict_load": true,
+    "R0": {
+      "path": "/home/minjae/Documents/github/pallet-pose/weights/paper_s2_stageB/net_epoch_0057_noseg.pth",
+      "sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41"
+    },
+    "pretraining_recipe_not_reconstructed_in_this_audit": true,
+    "adapter_default_checkpoint_unused": true,
+    "adapter_usage": "Only canonical prepare/decode helpers; the FrozenDopeAdapter default checkpoint is not loaded."
+  },
+  "data": {
+    "synthetic": {
+      "images": 2212,
+      "source": "aug_squash_v2",
+      "per_epoch_images": 2208,
+      "drop_last_images_per_epoch": 4,
+      "native_shape": [
+        480,
+        640
+      ],
+      "common_to_all_arms": true,
+      "GT": "Existing synthetic projected_cuboid8 plus centroid",
+      "physical_type_mapping": "Synthetic asset names and randomized dimensions do not establish a verified mapping to the three real pallet types."
+    },
+    "unlabeled_real_pools": {
+      "GREEN": {
+        "n_unlabeled_pool_images": 1000,
+        "native_shapes": {
+          "640x480": 1000
+        },
+        "registered_dimensions_xyz_m": {
+          "x": 1.1,
+          "y": 0.15,
+          "z": 1.1
+        },
+        "registered_type": "plastic_standard_110x110x15",
+        "recordings": [
+          "REC_005",
+          "REC_008",
+          "REC_013",
+          "REC_026"
+        ],
+        "pool_provenance": {
+          "schema": "per_type_dope_adaptation_pool_v1",
+          "kind": "GREEN",
+          "counts": {
+            "GREEN": 1000
+          },
+          "shapes": {
+            "640x480": 1000
+          },
+          "image_overlap_with_reused_DEV_and_physical_FINAL": 0,
+          "known_recording_overlap_with_reused_DEV_and_physical_FINAL": 0,
+          "source_pool_path": "/home/minjae/Documents/pallet-research/dope-loo-flip-corrected-20261026-v1/POOL.json",
+          "source_pool_sha256": "2584996b9862bd39afa64151c8b6a747b05a1e7b9d84d213b20fc2b64cbf4e38",
+          "separation": "Only this real pallet kind may provide pseudo-labels to this model."
+        }
+      },
+      "PLASTIC": {
+        "n_unlabeled_pool_images": 1000,
+        "native_shapes": {
+          "640x480": 1000
+        },
+        "registered_dimensions_xyz_m": {
+          "x": 1.1,
+          "y": 0.11,
+          "z": 1.3
+        },
+        "registered_type": "plastic_standard_110x130x11",
+        "recordings": [
+          "REC_011",
+          "REC_017",
+          "REC_019",
+          "REC_020",
+          "REC_023",
+          "REC_024",
+          "REC_028",
+          "REC_049"
+        ],
+        "pool_provenance": {
+          "schema": "per_type_dope_adaptation_pool_v1",
+          "kind": "PLASTIC",
+          "counts": {
+            "PLASTIC": 1000
+          },
+          "shapes": {
+            "640x480": 1000
+          },
+          "image_overlap_with_reused_DEV_and_physical_FINAL": 0,
+          "known_recording_overlap_with_reused_DEV_and_physical_FINAL": 0,
+          "source_pool_path": "/home/minjae/Documents/pallet-research/dope-loo-flip-corrected-20261026-v1/POOL.json",
+          "source_pool_sha256": "2584996b9862bd39afa64151c8b6a747b05a1e7b9d84d213b20fc2b64cbf4e38",
+          "separation": "Only this real pallet kind may provide pseudo-labels to this model."
+        }
+      },
+      "WOOD": {
+        "n_unlabeled_pool_images": 1000,
+        "native_shapes": {
+          "640x480": 1000
+        },
+        "registered_dimensions_xyz_m": {
+          "x": 0.8,
+          "y": 0.14,
+          "z": 0.59
+        },
+        "registered_type": "wood_small_80x59x14",
+        "recordings": [
+          "REC_001",
+          "REC_002"
+        ],
+        "pool_provenance": {
+          "schema": "per_type_dope_adaptation_pool_v1",
+          "kind": "WOOD",
+          "counts": {
+            "WOOD": 1000
+          },
+          "shapes": {
+            "640x480": 1000
+          },
+          "excluded_protected_exact_frames": [],
+          "source_pool_path": "/home/minjae/Documents/github/pallet-pose/_docs/experiments/pallet_material_selftrain_closure_v1/POOL.json",
+          "source_pool_sha256": "31decbb4242583af759c55180f0a70c3a0583ad5e90d7535f2d97ec3a16ff8e8",
+          "protected_role_metadata_path": "/home/minjae/Documents/github/pallet-pose/data/evaluation/pallet_eval_v1/manifests/frames.csv",
+          "protected_role_metadata_sha256": "d1ce33b783d0a90d44a851aa4067663e7c3c8696c1e73896e88076f81a7e5f79",
+          "camera_quality": "PROVIDED_UNVERIFIED",
+          "current_DEV292_image_and_recording_overlap": 0,
+          "physical_FINAL_exact_image_and_frame_ID_overlap": 0,
+          "physical_FINAL_recording_overlap": [
+            "REC_001",
+            "REC_002"
+          ],
+          "final_scope": "Unannotated sibling frames from REC_001/002 are training data. These models cannot claim independent evaluation on physical FINAL from those recordings. No physical FINAL image or annotation is used.",
+          "separation": "Only WOOD real images supervise the WOOD model; current primary WOOD45 remains REC039/042 and all currentDEV292 recordings are disjoint."
+        }
+      }
+    },
+    "main_evaluation": {
+      "frames": 292,
+      "role": "Repeatedly reused DEV",
+      "populations": {
+        "GREEN": {
+          "frames": 119,
+          "reference_points": 943
+        },
+        "PLASTIC": {
+          "frames": 128,
+          "reference_points": 985
+        },
+        "WOOD": {
+          "frames": 45,
+          "reference_points": 346
+        }
+      },
+      "training_exact_image_overlap": 0,
+      "training_known_recording_overlap_with_current292": 0,
+      "reference_limit": "Legacy unknown/PnP-completed points are included; not all reference corners are independent manual observations.",
+      "GREEN_manual_only_reference_points": 600
+    },
+    "PLASTIC184": {
+      "role": "Separate supplementary historical evaluation; never training or checkpoint-selection inputs",
+      "frames": 184,
+      "reference_points": 1413,
+      "core_frames": 128,
+      "core_reference_points": 985,
+      "additional_frames": 56,
+      "additional_reference_points": 428,
+      "additional_session_counts": {
+        "plastic_day_01": 39,
+        "plastic_night_01": 17
+      },
+      "additional_metadata_role": "FINAL",
+      "independent_TEST_claim": false,
+      "source": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC184_MANIFEST.json"
+    },
+    "physical_FINAL_limit": "WOOD training includes sibling images from REC_001/REC_002 also represented in protected physical FINAL. Exact229 protected images/frame identities are excluded, but recording-independent physical-FINAL evaluation cannot be claimed.",
+    "supplied_metadata": "Pallet type, registered dimensions and per-record native K are provided. No real keypoint/pose annotation coordinates supervise selection or training.",
+    "calibration_status": "Source-provided K; WOOD is explicitly PROVIDED_UNVERIFIED. No measured/independently verified calibration claim."
+  },
+  "preprocessing": {
+    "source_pre_padded": false,
+    "padding": {
+      "pixels_per_side": 100,
+      "mode": "cv2.BORDER_REFLECT_101"
+    },
+    "stages": [
+      "Add reflect100 border to native BGR uint8 image.",
+      "Resize padded canvas back to original native W,H using cv2.INTER_LINEAR with uint8 intermediate rounding.",
+      "Convert BGR to RGB.",
+      "Resize preserving native aspect ratio to shortest side400; actual dimensions are rounded then floored to multiples of8.",
+      "Normalize ImageNet RGB mean/std, final tensor FP32."
+    ],
+    "canonical_640x480_output_hw": [
+      400,
+      528
+    ],
+    "output_stride": 8,
+    "belief_hw_for640x480": [
+      50,
+      66
+    ],
+    "normalization_mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "normalization_std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "affine_input_to_net": "x_net=(x_native+100)*net_W/(native_W+200); y_net=(y_native+100)*net_H/(native_H+200)",
+    "native_K_policy": "Decode predictions by inverse exact affine into original pixels before PnP, RANSAC, LOO, flip errors and native bounds. Native K is used directly; resized coordinates are never paired with unscaled native K."
+  },
+  "decoder": {
+    "threshold": 0.3,
+    "confidence_definition": "Per-channel raw belief maximum, not calibrated probability",
+    "smoothed_peak_detection": "scipy Gaussian sigma2, local maxima and smoothed response>0.3",
+    "weighted_centroid_window_radius": 5,
+    "weighted_centroid_offset_grid_cells": 0.4395,
+    "semantic_channels_fixed": true,
+    "missing_points": "NaN/invalid maintained; no missing-point imputation"
+  },
+  "filter": {
+    "common": {
+      "ransac_threshold_px": 5.0,
+      "ransac_threshold_normalized": null,
+      "ransac_iterations": 50,
+      "ransac_subset": 5,
+      "min_support": 6,
+      "loo_threshold_normalized": 0.05,
+      "flip_threshold_normalized": 0.05,
+      "loo_median_threshold_normalized": 0.05,
+      "flip_median_threshold_normalized": 0.05,
+      "confidence_threshold": 0.3,
+      "min_depth": 1e-06,
+      "seed": 0
+    },
+    "geometry_units": "metres for registered3D cuboids; native pixels for2D",
+    "registered_cuboid": "C2 camera-facing corner order; x/z front-depth swap hypotheses for rectangular PLASTIC and WOOD; one hypothesis for square GREEN.",
+    "original_usable": "Finite decoded original point inside native image, valid decoder flag and original confidence>=0.3.",
+    "PnP": "EPnP then solvePnPRefineLM on exactly the selected fitting indices; zero-distortion pinhole; all projected corners positive depth>1e-6.",
+    "RANSAC": "50 deterministic5-corner draws; error<5 native pixels; at least6 inliers. Prefer most inliers, smallest median reprojection error, then smallest mean; refine consensus once, allowing no newly added inliers.",
+    "normalization_D": "Maximum pairwise Euclidean distance among the eight consensus-pose projected corners, not axis-aligned bounding-box diagonal.",
+    "LOO": "For each selected RANSAC inlier, fit on all other selected inliers (at least5), excluding the held-out corner from both EPnP and LM; compare held-out prediction with its reprojection. LOO is conditional on the initial RANSAC-selected consensus.",
+    "LOO_point_condition": "finite held-out error / D <0.05",
+    "LOO_frame_condition": "median normalized LOO error over the consensus <0.05",
+    "main_flip": {
+      "enabled": true,
+      "second_view": "Native horizontal image flip",
+      "restore_x": "W-1-x",
+      "semantic_permutation": [
+        1,
+        0,
+        3,
+        2,
+        5,
+        4,
+        7,
+        6,
+        8
+      ],
+      "usable": "Both restored views valid, finite, inside native bounds and confidence>=0.3",
+      "point_condition": "Original vs restored-flip error /D <0.05",
+      "frame_condition": "Median flip error /D over consensus <0.05",
+      "ranking": [
+        "passed",
+        "trusted_count descending",
+        "median LOO ascending",
+        "median flip ascending",
+        "registry order"
+      ]
+    },
+    "ablation": {
+      "use_flip": false,
+      "second_view_forwarded": false,
+      "flip_confidence_or_error_used": false,
+      "old_geometry_decisions_reused": false,
+      "ranking": [
+        "passed",
+        "trusted_count descending",
+        "median LOO ascending",
+        "registry order"
+      ],
+      "R1_cache": "Only original9-field R0 predictions imported from prior paired-view inference; geometry/pose/RANSAC/LOO/acceptance/masks recomputed. R1 raw original predictions remain identical across treatments.",
+      "R2_teacher_forward": "Own R1 model, original image only, batch1."
+    },
+    "final_acceptance": "At least6 corners individually survive all enabled checks and frame medians. Centroid channel8 is never trusted for real loss. Geometry is self-consistency, not proof of GT correctness."
+  },
+  "training": {
+    "seed": 42,
+    "filter_seed": 0,
+    "config": {
+      "epochs": 3,
+      "steps_per_epoch": 276,
+      "batch_size": 8,
+      "microbatch": 8,
+      "lr": 1e-05,
+      "weight_decay": 0.0001,
+      "lambda_real": 1.0,
+      "sigma": 2.0,
+      "log_interval": 25,
+      "resume_interval": 50,
+      "cache_size": 32,
+      "strong_augmentation": true,
+      "amp": true,
+      "initial_scale": 1024,
+      "scale_growth_interval": 2000,
+      "augmentation": {
+        "brightness": 0.4,
+        "contrast": 0.4,
+        "saturation": 0.4,
+        "hue": 0.1,
+        "gaussian_blur_prob": 0.5,
+        "gaussian_blur_kernel": [
+          3,
+          7
+        ],
+        "gaussian_noise_std": 0.05,
+        "random_erasing_prob": 0.5,
+        "random_erasing_scale": [
+          0.02,
+          0.2
+        ]
+      }
+    },
+    "optimizer": {
+      "name": "torch.optim.Adam",
+      "lr": 1e-05,
+      "weight_decay": 0.0001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "amsgrad": false,
+      "scheduler": null
+    },
+    "each_round": {
+      "epochs": 3,
+      "updates_per_epoch": 276,
+      "updates": 828
+    },
+    "rounds": 2,
+    "updates_per_arm": 1656,
+    "main_flip_arms": 4,
+    "main_flip_updates_including_control": 6624,
+    "ablation_new_arms": 3,
+    "ablation_new_updates": 4968,
+    "ablation_new_control_updates": 0,
+    "total_post_R0_updates": 11592,
+    "initialization": "Every kind and the shared synthetic-only control starts from the exact same original R0; no other kind or mixed-trained weights initialize an arm.",
+    "round_teacher": "R1=R0; R2=that kind own fixed R1. Pseudo-labels generated once at the start of each round; no EMA teacher.",
+    "optimizer_state": "Adam and GradScaler preserved between rounds; final Adam/scaler counters1656.",
+    "batch": "Synthetic batch8, all400x528; real batch<=8 homogeneous-shape buckets, short batches preserved. Accepted real set repeats as needed; repeated augmentation is not new independent data.",
+    "synthetic_sampler_seed": "seed42 + round_index*1000000 + zero_based_epoch*1000; private sampler RNG independent of real augmentation. All7 optimization arms share the same6epoch synthetic schedule.",
+    "schedule_sha256": [
+      "69478143ccabfc680c5db68f0d79cc3916148804eaceafcbcb035e8dc7ab92ab",
+      "059c0fb7f95bec7a58ddb461058f0db58aceb55c32f69aef10ca0235e577d41c",
+      "a4ebf69f0e75fa02fe744640ad5f707b2f2090fd0225ce34e224057eec84d3f8",
+      "6790a2149936946774cf7b8f2c2479498fa25b0d9471541688d8c32bb338b0ba",
+      "467bbf9abd632ed5fc33220d5d0437358234346292409efc335860f045d83e5e",
+      "90fddb7ef6b0204623518826e1d483748a81c5cff673aafe48b339e9422c1026"
+    ],
+    "numerics": {
+      "master_weights": "float32",
+      "Adam_state": "float32",
+      "forward_autocast": "float16",
+      "loss": "float32",
+      "GradScaler_initial_scale": 1024,
+      "GradScaler_growth_interval": 2000,
+      "TF32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "nonfinite_policy": "Fail and record; do not count a skipped optimizer update."
+    },
+    "augmentation": {
+      "applies_to": "Real pseudo branch only; photometric, no geometric target-coordinate change",
+      "brightness": 0.4,
+      "contrast": 0.4,
+      "saturation": 0.4,
+      "hue": 0.1,
+      "gaussian_blur_prob": 0.5,
+      "gaussian_blur_kernel": [
+        3,
+        7
+      ],
+      "gaussian_noise_std": 0.05,
+      "random_erasing_prob": 0.5,
+      "random_erasing_scale": [
+        0.02,
+        0.2
+      ],
+      "random_erasing_ratio": [
+        0.3,
+        3.3
+      ],
+      "random_erasing_fill": 0
+    },
+    "pseudo_unique_counts": {
+      "LOO_flip": {
+        "GREEN": {
+          "R1": 131,
+          "R2": 683
+        },
+        "PLASTIC": {
+          "R1": 1,
+          "R2": 26
+        },
+        "WOOD": {
+          "R1": 339,
+          "R2": 675
+        }
+      },
+      "LOO_only": {
+        "GREEN": {
+          "R1": 663,
+          "R2": 962
+        },
+        "PLASTIC": {
+          "R1": 31,
+          "R2": 461
+        },
+        "WOOD": {
+          "R1": 794,
+          "R2": 912
+        }
+      }
+    },
+    "checkpoint_policy": "Report both fixed R1 and R2 final checkpoints; no best epoch/round, threshold or model selected from evaluation outcomes.",
+    "controlled_comparison_limit": "Equal optimizer and synthetic budgets do not imply equal accepted-real sample counts or exposures. Main PLASTIC R1 uses one unique accepted real image."
+  },
+  "targets_and_loss": {
+    "belief": "Full-grid sigma2 Gaussian centred at affine(native)/8-0.4395; only map boundary clips tails. This corrects the canonical decoder offset and avoids asymmetric2sigma support truncation.",
+    "spatial_mask": "Finite transformed point centre inside belief map. Real supervision additionally intersects trusted native-bound corner mask; missing/untrusted/out-of-map channels have zero loss weight rather than all-zero negative targets.",
+    "synthetic_affinity": "Six-stage16-channel unit vectors from each corner to centroid on radius1 belief-grid support; physical corner coordinates receive no belief-offset shift; invalid corner/centroid pairs ignored.",
+    "loss": "L = sum_s(maskedMSE_belief_syn + maskedMSE_affinity_syn) +1.0*sum_s(maskedMSE_belief_real), over all6stages.",
+    "reduction": "For each branch/head, sum squared error over effective-batch valid channels and all spatial pixels divided by valid-channel-count*H*W. No affinity supervision on real images.",
+    "target_limitation": "Finite decoder11x11 window leaves a small subpixel residual; outer prepared-canvas boundary has unavoidable inward bias. Unit-test native640x480 interior/native-edge fixture max roundtrip error0.367px; no universal exact inversion claim."
+  },
+  "evaluation": {
+    "inference": "Frozen FP32, batch1, no autocast, TF32False, canonical prepare/decode; missing semantic corners preserved.",
+    "semantic_matching": "Same semantic corner index0..7; centroid excluded; no GT-based rematching or symmetry reorder.",
+    "eligible_references": "Finite annotation corner0..7, geometric native in-frame and annotated in_frame=True, visibility1/2 (>0).",
+    "PCK10": "Count(error<=10 original-image pixels) / all eligible reference corners; missing predictions fail. Not ten percent of object size.",
+    "PCK5_and20": "Same rule at5/20 native pixels.",
+    "coverage": "Observed predictions/all eligible references",
+    "conditional_median": "Median pixel error only over observed predictions; cannot summarize missing predictions alone.",
+    "primary_populations": {
+      "GREEN": [
+        119,
+        943
+      ],
+      "PLASTIC": [
+        128,
+        985
+      ],
+      "WOOD": [
+        45,
+        346
+      ]
+    },
+    "supplemental_PLASTIC184": [
+      184,
+      1413
+    ],
+    "new_forwards": {
+      "core": 1752,
+      "additional56": 392,
+      "total": 2144
+    },
+    "manual_reference_panel": "GREEN600 explicitly manual-click references is auxiliary and does not replace primary943 references.",
+    "interpretation_limit": "Single seed, repeatedly reused DEV, mixed unknown/PnP references; no independent TEST, causal population-wide guarantee, or physical6D pose-accuracy claim."
+  },
+  "environment_observed_during_audit": {
+    "note": "Observed from the exact experiment interpreter during this audit; package versions were not separately snapshotted in the original protocol.",
+    "python_executable": "/home/minjae/anaconda3/envs/pallet-pose/bin/python",
+    "python": "3.10.20",
+    "torch": "2.1.1+cu118",
+    "torchvision": "0.16.1+cu118",
+    "opencv": "4.9.0",
+    "numpy": "1.26.4",
+    "scipy": "1.12.0",
+    "pillow": "12.2.0",
+    "cuda_build": "11.8",
+    "hardware": "NVIDIA GeForce RTX3080 10GB; source protocol uses CUDA"
+  },
+  "evidence_anchors": {
+    "preprocessing": {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_dope_refiner_20261001_v1/dope_adapter.py",
+      "line": 68,
+      "anchor": "def prepare("
+    },
+    "decoder": {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_dope_refiner_20261001_v1/dope_adapter.py",
+      "line": 125,
+      "anchor": "def extract_keypoints_from_belief("
+    },
+    "targets": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/training.py",
+      "line": 38,
+      "anchor": "def native_target_maps("
+    },
+    "masked_loss": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/training.py",
+      "line": 92,
+      "anchor": "def masked_mse("
+    },
+    "training_loop": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/training.py",
+      "line": 287,
+      "anchor": "def train_round("
+    },
+    "PnP": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/geometry.py",
+      "line": 108,
+      "anchor": "def _fit_pose("
+    },
+    "normalization_D": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/geometry.py",
+      "line": 131,
+      "anchor": "def projected_diagonal("
+    },
+    "RANSAC": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/geometry.py",
+      "line": 138,
+      "anchor": "def _ransac("
+    },
+    "LOO": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/geometry.py",
+      "line": 188,
+      "anchor": "def leave_one_out_errors("
+    },
+    "main_filter": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/geometry.py",
+      "line": 220,
+      "anchor": "def filter_geometry("
+    },
+    "ablation_filter": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/geometry.py",
+      "line": 225,
+      "anchor": "def filter_geometry("
+    },
+    "main_driver": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/run_type.py",
+      "line": 280,
+      "anchor": "def select_pseudo("
+    },
+    "ablation_driver": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/run_type.py",
+      "line": 262,
+      "anchor": "def filter_original("
+    },
+    "scoring": {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/data_eval.py",
+      "line": 223,
+      "anchor": "def summarize("
+    }
+  },
+  "checkpoints": [
+    {
+      "model": "R0",
+      "treatment": "baseline",
+      "kind": "ALL",
+      "round": 0,
+      "path": "/home/minjae/Documents/github/pallet-pose/weights/paper_s2_stageB/net_epoch_0057_noseg.pth",
+      "sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "bytes": 201125518,
+      "role": "R0_checkpoint"
+    },
+    {
+      "model": "GREEN_LOO_flip_R1",
+      "treatment": "LOO_flip",
+      "kind": "GREEN",
+      "round": 1,
+      "teacher_sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/corrected_LOO_flip_R1.pth",
+      "sha256": "62ef6d2a7102c1a900de0af29c4975c4a62df3f6b5faa9d955c8da44fd6e462e",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "GREEN_LOO_flip_R2",
+      "treatment": "LOO_flip",
+      "kind": "GREEN",
+      "round": 2,
+      "teacher_sha256": "62ef6d2a7102c1a900de0af29c4975c4a62df3f6b5faa9d955c8da44fd6e462e",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/corrected_LOO_flip_R2.pth",
+      "sha256": "cc9d1880f919dcd72a10a1a97c5209f4926195a7ca5a66f2de017ba3f926fa49",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "PLASTIC_LOO_flip_R1",
+      "treatment": "LOO_flip",
+      "kind": "PLASTIC",
+      "round": 1,
+      "teacher_sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_flip_R1.pth",
+      "sha256": "0d68aed7cdd269ad6e0b702b8780feea22cf2c87ea00acc03c8cc7368e17e61e",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "PLASTIC_LOO_flip_R2",
+      "treatment": "LOO_flip",
+      "kind": "PLASTIC",
+      "round": 2,
+      "teacher_sha256": "0d68aed7cdd269ad6e0b702b8780feea22cf2c87ea00acc03c8cc7368e17e61e",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_flip_R2.pth",
+      "sha256": "de410959381260f045ae5d3ee9ee33081786b951e0516e00a0f028a865504ed0",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "WOOD_LOO_flip_R1",
+      "treatment": "LOO_flip",
+      "kind": "WOOD",
+      "round": 1,
+      "teacher_sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/corrected_LOO_flip_R1.pth",
+      "sha256": "3310f21eda1725bab1b4df533e48f77941bd577f5fb1f56d5af0ef6c7131f38d",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "WOOD_LOO_flip_R2",
+      "treatment": "LOO_flip",
+      "kind": "WOOD",
+      "round": 2,
+      "teacher_sha256": "3310f21eda1725bab1b4df533e48f77941bd577f5fb1f56d5af0ef6c7131f38d",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/corrected_LOO_flip_R2.pth",
+      "sha256": "2c5421057be4033c14c2ca7a3a7a97f42e03117daf0818a2429f15005e9e3702",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "GREEN_LOO_only_R1",
+      "treatment": "LOO_only",
+      "kind": "GREEN",
+      "round": 1,
+      "teacher_sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/corrected_LOO_only_R1.pth",
+      "sha256": "ea528672804dc4280b215e18c1d1797ea55e07620f1b510ab5923417ab896405",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "GREEN_LOO_only_R2",
+      "treatment": "LOO_only",
+      "kind": "GREEN",
+      "round": 2,
+      "teacher_sha256": "ea528672804dc4280b215e18c1d1797ea55e07620f1b510ab5923417ab896405",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/corrected_LOO_only_R2.pth",
+      "sha256": "1addae12b448c137116a3bd9eb7a7d4364a2f9defb3e59f5a7ef4b17adbe0d46",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "PLASTIC_LOO_only_R1",
+      "treatment": "LOO_only",
+      "kind": "PLASTIC",
+      "round": 1,
+      "teacher_sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_only_R1.pth",
+      "sha256": "44e96c2c4d5c7fc89e7e42b8560c9bb139e9d7d22eee3e4743daac43a3a2e84e",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "PLASTIC_LOO_only_R2",
+      "treatment": "LOO_only",
+      "kind": "PLASTIC",
+      "round": 2,
+      "teacher_sha256": "44e96c2c4d5c7fc89e7e42b8560c9bb139e9d7d22eee3e4743daac43a3a2e84e",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_only_R2.pth",
+      "sha256": "be3fce13b0447a14c4fe2853343afa0e47b80b11aba1402a10027ff137c95dd1",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "WOOD_LOO_only_R1",
+      "treatment": "LOO_only",
+      "kind": "WOOD",
+      "round": 1,
+      "teacher_sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/corrected_LOO_only_R1.pth",
+      "sha256": "d769837b22d59babc8cab30b0a6f51f7e5b89138be5c8789e2198963c011d32d",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "WOOD_LOO_only_R2",
+      "treatment": "LOO_only",
+      "kind": "WOOD",
+      "round": 2,
+      "teacher_sha256": "d769837b22d59babc8cab30b0a6f51f7e5b89138be5c8789e2198963c011d32d",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/corrected_LOO_only_R2.pth",
+      "sha256": "66be0f58e6eb56d66cda3b0caf7d3ae1b7558628995e20b579d8a2cb3eb25e64",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "model": "SYNTHETIC_CONTROL_R1",
+      "treatment": "synthetic_only",
+      "kind": "ALL",
+      "round": 1,
+      "teacher_sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SYNTHETIC_CONTROL/synthetic_control_R1.pth",
+      "sha256": "d5317c74d04a2e161b55c175327a930c7c5c626f0085e540a9cb0fb677d3e7dc",
+      "bytes": 201126334,
+      "role": "shared_source_only_control_checkpoint"
+    },
+    {
+      "model": "SYNTHETIC_CONTROL_R2",
+      "treatment": "synthetic_only",
+      "kind": "ALL",
+      "round": 2,
+      "teacher_sha256": "d5317c74d04a2e161b55c175327a930c7c5c626f0085e540a9cb0fb677d3e7dc",
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SYNTHETIC_CONTROL/synthetic_control_R2.pth",
+      "sha256": "eb5b02e5b05fc0f6043b6fcf2273bce6bbd059801de1b63c7e6d4e98d2c6b815",
+      "bytes": 201126334,
+      "role": "shared_source_only_control_checkpoint"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/PROTOCOL.json",
+      "sha256": "efbfd1d5b3e74a2e395d94f3004023b34bc56a5b14c118fc09f5a43b1b4ff669",
+      "bytes": 96322,
+      "role": "frozen_training_protocol"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/TRAIN_COMPLETION.json",
+      "sha256": "04e4ba03362d6e745455d48077ee4d06572fc3d214d09cd93bb7a3674123cf24",
+      "bytes": 559487,
+      "role": "training_receipt"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/weights/paper_s2_stageB/net_epoch_0057_noseg.pth",
+      "sha256": "f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41",
+      "bytes": 201125518,
+      "role": "R0_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/run_type.py",
+      "sha256": "a71406e389942d7c6a03e93a31bf0b48148f532e4bba853580298ef26072f1fc",
+      "bytes": 24441,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/prepare.py",
+      "sha256": "6c52939d19c3db5ed4002da83ac712e267643765ef48c029cf5b8cd4e3867902",
+      "bytes": 8675,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/geometry.py",
+      "sha256": "e9907fd881cd4f48d7629d3f3883ad7cf48602d57ab1d1820600f928305cbce2",
+      "bytes": 13385,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/training.py",
+      "sha256": "0004f7848077164cfd92d4804e86eaf136c054919fb175249ca09c64d8a155da",
+      "bytes": 23040,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/data_eval.py",
+      "sha256": "63466ec7e7153c97b197a81e8e7a78fdca1db1c7f8ce7e6ab2137f563195a6f1",
+      "bytes": 17646,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/test_geometry.py",
+      "sha256": "4db75c79077b08b70e2ab237b4e8f44b9a57f22f614ab84df90ee88502850fe6",
+      "bytes": 6482,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/test_training.py",
+      "sha256": "f4ef4b5480c55e70bcb6acf1fa8d93dc7cb5497d732ea3b5c6827769e19ee248",
+      "bytes": 10145,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/Deep_Object_Pose/common/models.py",
+      "sha256": "d692ea3b0cabc2c657e0428801d236bba2a1a3564ec6d75ffb26376714a51727",
+      "bytes": 14642,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/research/pallet_dope_refiner_20261001_v1/dope_adapter.py",
+      "sha256": "5b92b3ee88bb30d963ae907154a18c5d6e052b186242286418df4390b6024ced",
+      "bytes": 17200,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/github/pallet-pose/scripts/self_training/augmentations.py",
+      "sha256": "11e569a9397e11999efbd31f4f264aabf37303cdff308e148005d7bda1c8f2bf",
+      "bytes": 5766,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SYNTHETIC.json",
+      "sha256": "ac49160580125eb2ec4587ce788a7a6aa6de5917d6b06785f9c6946e37fff8cd",
+      "bytes": 1173828,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/MANIFEST.json",
+      "sha256": "4db3a2f24857b00f06ece3b39c4dc8b08df3619e7805d067e4c3f7a7635fe9df",
+      "bytes": 398404,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/POOL.json",
+      "sha256": "94c03bf4bfc9ba6a5fd971c5404cacd388203e628c26a794598b26f17dd2551b",
+      "bytes": 1067578,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/corrected_LOO_flip_R1.pth",
+      "sha256": "62ef6d2a7102c1a900de0af29c4975c4a62df3f6b5faa9d955c8da44fd6e462e",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/PSEUDO_R1.json",
+      "sha256": "f26d51abbef78d0892f9dcb33ebe98d058aeac654534662cea61f2aac705c65d",
+      "bytes": 174200,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/corrected_LOO_flip_R2.pth",
+      "sha256": "cc9d1880f919dcd72a10a1a97c5209f4926195a7ca5a66f2de017ba3f926fa49",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/GREEN/PSEUDO_R2.json",
+      "sha256": "ea05980975815cab83f64ead5e83d2da35aa4f613f4e8a1c667791f75f2d4a5a",
+      "bytes": 905927,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/PROTOCOL.json",
+      "sha256": "63b00f977f7f39a3ea590cc2ba25208a8e814eadf7e3645ce5a9d1dd9393938d",
+      "bytes": 98338,
+      "role": "frozen_training_protocol"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/TRAIN_COMPLETION.json",
+      "sha256": "050678993d94aa7ad2bda633fb29a4e36e31927169b9d40577d5898fd7aadc5c",
+      "bytes": 559744,
+      "role": "training_receipt"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/POOL.json",
+      "sha256": "c10d2e9d19ae3712a0c0c7affc167b8e95f86fcf69c01b615faa5584405d9433",
+      "bytes": 976582,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_flip_R1.pth",
+      "sha256": "0d68aed7cdd269ad6e0b702b8780feea22cf2c87ea00acc03c8cc7368e17e61e",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/PSEUDO_R1.json",
+      "sha256": "7161fde2d941dba94852d733731149b5ab78b4585b50b453c3afe9f2be0a92f3",
+      "bytes": 1898,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_flip_R2.pth",
+      "sha256": "de410959381260f045ae5d3ee9ee33081786b951e0516e00a0f028a865504ed0",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/PLASTIC/PSEUDO_R2.json",
+      "sha256": "987a9d0071f69b91ad3247a810bc594ae6c86b47c62d36fa12cbaf4e06736d4f",
+      "bytes": 34361,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/PROTOCOL.json",
+      "sha256": "a2767e5225a6e07b0b73e75c7c80b0082b8ed42e0b803859e410d8f7f6df13a3",
+      "bytes": 12561,
+      "role": "frozen_training_protocol"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/TRAIN_COMPLETION.json",
+      "sha256": "e3f9d3c46202bef1b7138bfe9d717b29d0e0714304ccb4d026eb32ba7f6d1406",
+      "bytes": 559115,
+      "role": "training_receipt"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/POOL.json",
+      "sha256": "d88e8b96d283fb2a79d21da54adfeb700e4c7cc6a8079a703f4717191b3668ea",
+      "bytes": 1460220,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/corrected_LOO_flip_R1.pth",
+      "sha256": "3310f21eda1725bab1b4df533e48f77941bd577f5fb1f56d5af0ef6c7131f38d",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/PSEUDO_R1.json",
+      "sha256": "b1d47a889d32be7c439a6326b8e3a1b7b6a181f2b10408edf2189e19862067e5",
+      "bytes": 443487,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/corrected_LOO_flip_R2.pth",
+      "sha256": "2c5421057be4033c14c2ca7a3a7a97f42e03117daf0818a2429f15005e9e3702",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/WOOD/PSEUDO_R2.json",
+      "sha256": "82bcbcc1ce0c1f3115c28dea7010e6ec53565a82320fbb2455b1632a1f449485",
+      "bytes": 882532,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/PROTOCOL.json",
+      "sha256": "ca67c7a8e238b4fbb379d236e266e565574fe32a80d66a62b852572bfe21b910",
+      "bytes": 13151,
+      "role": "frozen_training_protocol"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/TRAIN_COMPLETION.json",
+      "sha256": "6ba673e111e645260231d8b7ea34c27d4ccbe01a8bc1a0ee1d7bdadf004d9a6c",
+      "bytes": 559567,
+      "role": "training_receipt"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/run_type.py",
+      "sha256": "8bc8069a1f79c7d77f8cc9d4005d320e2692734a710946e5eb22ffc6a7d5504c",
+      "bytes": 24825,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/run_all.py",
+      "sha256": "2dceabacd1d59bdac6a7287ad75a88f8014ab3bce42ace006715728dd882f6a1",
+      "bytes": 3832,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/prepare.py",
+      "sha256": "20bee0d44b882497588912720c320e5f99ed592b26ca0b91e98582a3399d0468",
+      "bytes": 8561,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/geometry.py",
+      "sha256": "d14a4bb9731fccc0c993ea346e77bfd89762547ba462bb48cd3096e7b989e3b9",
+      "bytes": 14774,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/training.py",
+      "sha256": "0004f7848077164cfd92d4804e86eaf136c054919fb175249ca09c64d8a155da",
+      "bytes": 23040,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/data_eval.py",
+      "sha256": "63466ec7e7153c97b197a81e8e7a78fdca1db1c7f8ce7e6ab2137f563195a6f1",
+      "bytes": 17646,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/test_geometry.py",
+      "sha256": "379fe8e0e1638bd3ec36d993861e196abf51a9e238dcc561ad6314122124b140",
+      "bytes": 12398,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/test_training.py",
+      "sha256": "f4ef4b5480c55e70bcb6acf1fa8d93dc7cb5497d732ea3b5c6827769e19ee248",
+      "bytes": 10145,
+      "role": "frozen_source"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/POOL.json",
+      "sha256": "94c03bf4bfc9ba6a5fd971c5404cacd388203e628c26a794598b26f17dd2551b",
+      "bytes": 1067578,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/SYNTHETIC.json",
+      "sha256": "ac49160580125eb2ec4587ce788a7a6aa6de5917d6b06785f9c6946e37fff8cd",
+      "bytes": 1173828,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/MANIFEST.json",
+      "sha256": "4db3a2f24857b00f06ece3b39c4dc8b08df3619e7805d067e4c3f7a7635fe9df",
+      "bytes": 398404,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/RAW_R0_PREDICTIONS.json",
+      "sha256": "dc2340b13193dc6bdf5a10539925a3cc7f9505a04b35f6eeedd54f682c2caf3a",
+      "bytes": 1644615,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/RAW_R0_IMPORT_PROVENANCE.json",
+      "sha256": "ae2f23de6f8c32630648b59bb9bf1b9cffa19aa29b2012d2831c0b8583bf05fa",
+      "bytes": 1831,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC184_MANIFEST.json",
+      "sha256": "7b8ed5f27ac8cd17e635d60297345dcb8eb4a137bf4b888136d596b40955809c",
+      "bytes": 252084,
+      "role": "supplementary_evaluation_or_finalizer_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/EXPERIMENT_PLAN.json",
+      "sha256": "c5eeaad30d6ed6d18a6612c436faa538eb8cf9e95135a2ad2ffb8766865c9f36",
+      "bytes": 1715,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/corrected_LOO_only_R1.pth",
+      "sha256": "ea528672804dc4280b215e18c1d1797ea55e07620f1b510ab5923417ab896405",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/PSEUDO_R1.json",
+      "sha256": "810c8f3a4a3c4d79251e8210a8659b249edbbf839d76ba2096cd0f91023bd3ca",
+      "bytes": 877733,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/corrected_LOO_only_R2.pth",
+      "sha256": "1addae12b448c137116a3bd9eb7a7d4364a2f9defb3e59f5a7ef4b17adbe0d46",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/GREEN/PSEUDO_R2.json",
+      "sha256": "c20392b47db1d4cb2f4521ceb9aea9152cf745f7ea4363790ee41563b2ff4808",
+      "bytes": 1275490,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/PROTOCOL.json",
+      "sha256": "b7dcafb5dd07abe8d3aac09d32db973fb585da1e5381dd390ad9eb8196862316",
+      "bytes": 13179,
+      "role": "frozen_training_protocol"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/TRAIN_COMPLETION.json",
+      "sha256": "5b90e286618c8f423fd3601ba2bb428f8856464f454bb4307cb2e178ff20114f",
+      "bytes": 558683,
+      "role": "training_receipt"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/POOL.json",
+      "sha256": "c10d2e9d19ae3712a0c0c7affc167b8e95f86fcf69c01b615faa5584405d9433",
+      "bytes": 976582,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/RAW_R0_PREDICTIONS.json",
+      "sha256": "684de4a6d1f00ff3db8a8d77d5f094ea1fd33d40d93781f5c9db20298a6bb2f3",
+      "bytes": 1531562,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/RAW_R0_IMPORT_PROVENANCE.json",
+      "sha256": "343517d1f96a38cb8508fceab36de62bd829c052595253d4791ad5d6e66cd1ce",
+      "bytes": 1841,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_only_R1.pth",
+      "sha256": "44e96c2c4d5c7fc89e7e42b8560c9bb139e9d7d22eee3e4743daac43a3a2e84e",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/PSEUDO_R1.json",
+      "sha256": "a0abea2ac3a563cea2d5a44b0a2a536f66987414d62d1b2e7e92942bb24d7ccb",
+      "bytes": 40679,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/corrected_LOO_only_R2.pth",
+      "sha256": "be3fce13b0447a14c4fe2853343afa0e47b80b11aba1402a10027ff137c95dd1",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC/PSEUDO_R2.json",
+      "sha256": "3ed724bc513f1cb612619d7bd17145ecfd1a9b315ebcbc25017a958311750a48",
+      "bytes": 599451,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/PROTOCOL.json",
+      "sha256": "ea143dc31d7811f29061c9b66007884cc0553b2176275b700a2b633bcf713a0b",
+      "bytes": 16877,
+      "role": "frozen_training_protocol"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/TRAIN_COMPLETION.json",
+      "sha256": "baf26242ec524012a041a16e5a56e294b608ab6af69feeb670cd09d61edfd42d",
+      "bytes": 558876,
+      "role": "training_receipt"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/POOL.json",
+      "sha256": "d88e8b96d283fb2a79d21da54adfeb700e4c7cc6a8079a703f4717191b3668ea",
+      "bytes": 1460220,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/RAW_R0_PREDICTIONS.json",
+      "sha256": "cd1b56c7067a761fbd7859a07a8cc3b64a03c42df68bafd236ce81a7c3c0e150",
+      "bytes": 1644276,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/RAW_R0_IMPORT_PROVENANCE.json",
+      "sha256": "2a06890f57633ee2272258a4e8615a320eee71df2f69d83ba8c2557083660bc5",
+      "bytes": 1826,
+      "role": "frozen_input_manifest_or_raw_prediction_cache"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/corrected_LOO_only_R1.pth",
+      "sha256": "d769837b22d59babc8cab30b0a6f51f7e5b89138be5c8789e2198963c011d32d",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/PSEUDO_R1.json",
+      "sha256": "a6037f75c61caf60c1f92137bd10650680bb07f78d7553c503b2a3055ecbe635",
+      "bytes": 1037348,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/corrected_LOO_only_R2.pth",
+      "sha256": "66be0f58e6eb56d66cda3b0caf7d3ae1b7558628995e20b579d8a2cb3eb25e64",
+      "bytes": 201126522,
+      "role": "trained_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/WOOD/PSEUDO_R2.json",
+      "sha256": "00e7f92213d26052bb1b5ac5554ca3370cd8426de9a431bcc4c4e61ae701b01d",
+      "bytes": 1191964,
+      "role": "frozen_pseudo_selection"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SYNTHETIC_CONTROL/PROTOCOL.json",
+      "sha256": "8fa142e1967beceb066f7bd5756942d8d1991866d7b30fe165f58ff1ef9a8fcb",
+      "bytes": 7284,
+      "role": "frozen_control_protocol"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SYNTHETIC_CONTROL/TRAIN_COMPLETION.json",
+      "sha256": "326d5701adec0385a4ec1d00f3bec9a75d9e700f78e5f849987a73bfe52d89ac",
+      "bytes": 530569,
+      "role": "control_training_receipt"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SYNTHETIC_CONTROL/synthetic_control_R1.pth",
+      "sha256": "d5317c74d04a2e161b55c175327a930c7c5c626f0085e540a9cb0fb677d3e7dc",
+      "bytes": 201126334,
+      "role": "shared_source_only_control_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SYNTHETIC_CONTROL/synthetic_control_R2.pth",
+      "sha256": "eb5b02e5b05fc0f6043b6fcf2273bce6bbd059801de1b63c7e6d4e98d2c6b815",
+      "bytes": 201126334,
+      "role": "shared_source_only_control_checkpoint"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SUMMARY.json",
+      "sha256": "b3d99242c0bd69f75786c822f3f6d2142a3f806508646b50db74528a87c9444b",
+      "bytes": 17868,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/SCORES.json",
+      "sha256": "55dca96c48d9d7da9694f90f210a86952b23a32e17564785abff3ca8026f9abe",
+      "bytes": 9368407,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/RESULTS.txt",
+      "sha256": "a7b6d9690402df5d750585a65f89501cf6a5cf77b076666e9e08b65bff5c1360",
+      "bytes": 3440,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/FINAL_RESULT_AUDIT.json",
+      "sha256": "229276e2cedf8c0e648e07219a42ed8c195f38bc839ef44a57a80462b3dee427",
+      "bytes": 5041,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/COMPLETION.json",
+      "sha256": "d98fb108f24ddebdc8d572114982cc32fba1f486a7acf328a7e3fea71e0e7bdf",
+      "bytes": 1698,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/SUMMARY.json",
+      "sha256": "e0c4322e2d12c180f26cbb4acf4f9bde2df2be7450eeae188a3332f59aff2440",
+      "bytes": 37426,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/SCORES.json",
+      "sha256": "6e6b6069b4512e547337e8f5cc1afdbd109f3814e932ba50f7c523ecd1c6679d",
+      "bytes": 15628779,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/RESULTS.txt",
+      "sha256": "81240b4031c806df12f5b929a9de9de81814f0edff0845d53a2244b62f212e9e",
+      "bytes": 4673,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/FINAL_RESULT_AUDIT.json",
+      "sha256": "d95c197d6428f207eb4c29824eb8711886591b4100b5a713989925022cf89f10",
+      "bytes": 13068,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/COMPLETION.json",
+      "sha256": "3952bab8a94e2a0db1446798cdd9e5cc8b25af0a3b2a6714eda26148c5031421",
+      "bytes": 4064,
+      "role": "frozen_result_or_population_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC184_SUMMARY.json",
+      "sha256": "bf8bf42efbff0d5dea9d4fceaf7d65e1fd1eaeb0735c7410a89ed39a140f3c7a",
+      "bytes": 11657,
+      "role": "supplementary_evaluation_or_finalizer_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC184_SCORES.json",
+      "sha256": "38cc8bce6d8074d2c250b4d2e1292e06d01c8bfa5cb86b2b8fdeeebf1795f4e6",
+      "bytes": 4346464,
+      "role": "supplementary_evaluation_or_finalizer_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/FINALIZE_PROTOCOL.json",
+      "sha256": "87fff90ee98cc0e0d854e6bb3bb49c07e824134da5352028260b4a61331b00aa",
+      "bytes": 37160,
+      "role": "supplementary_evaluation_or_finalizer_artifact"
+    },
+    {
+      "path": "/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/PLASTIC184_PROTOCOL.json",
+      "sha256": "37894d259234b25f985f2d7ac9bd16920a9b47b069ae8b260c6bc135294ad05c",
+      "bytes": 3783,
+      "role": "supplementary_evaluation_or_finalizer_artifact"
+    }
+  ],
+  "verification": {
+    "checkpoint_files_hashed": 15,
+    "all_checkpoint_bytes_match_frozen_receipts": true,
+    "all_protocol_sources_and_inputs_hashed": true,
+    "same_training_source_across_treatments": true,
+    "same_training_configuration": true,
+    "same_six_epoch_synthetic_schedule": true,
+    "one_filter_configuration_difference": "use_flip=False in ablation; all numeric thresholds unchanged",
+    "no_model_forward": true,
+    "no_training": true,
+    "no_evaluation_annotation_file_read": true,
+    "no_original_experiment_file_modified": true
+  },
+  "generated_files": {
+    "REPRODUCTION_txt": {
+      "path": "/home/minjae/Documents/pallet-research/dope-graduation-thesis-20261026-v1/reproducibility/REPRODUCTION.txt",
+      "sha256": "e97c176a0af3b59df75ea2a8b495b604c695fd5be1009f5ab556ebf7a1f8d9f1"
+    }
+  }
+}

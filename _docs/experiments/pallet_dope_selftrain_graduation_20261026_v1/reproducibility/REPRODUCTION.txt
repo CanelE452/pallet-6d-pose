@@ -1,0 +1,127 @@
+DOPE 졸업논문 재현 자료 — 검증 명령과 선택 재학습 구분
+작성 기준: 2026-10-26, 동결된 실제 코드·프로토콜·receipt·checkpoint SHA 확인.
+
+자료 위치
+- 방법·파라미터·소스 줄번호·15개 checkpoint 경로/SHA: /home/minjae/Documents/pallet-research/dope-graduation-thesis-20261026-v1/reproducibility/methods_verified.json
+- 주 실험(LOO+flip): /home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1
+- flip 제거 ablation: /home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1
+- 원본 R0: /home/minjae/Documents/github/pallet-pose/weights/paper_s2_stageB/net_epoch_0057_noseg.pth
+  SHA256 f4b455b360fa6b693fb38ac27f79098a9bd27592cb761bfb50ce82c2d19f8a41
+- 실행 인터프리터: /home/minjae/anaconda3/envs/pallet-pose/bin/python
+
+핵심 설계
+세 실제 파렛트 GREEN/PLASTIC/WOOD는 같은 R0에서 각각 독립적으로 시작한다.
+각자 같은 종류의 비라벨 실사1000장만 pseudo-label 후보로 사용하고, 합성2212장은 공통 replay다.
+R1 teacher=R0, R2 teacher=해당 종류 자기 R1. 각 round3epoch*276update=828,
+두 round1656update. Adam/scaler state는 round 사이에 유지한다.
+주 실험은 세 종류+source-only control=4arm(6624update), flip 제거는 세 종류만
+새 학습=4968update이며 이미 완료한 같은 control을 재사용한다. R0 이전 사전학습은 별도다.
+결과를 보고 best epoch/round·threshold·종류별 최적모델을 고르지 않는다. R1/R2 모두 고정 보고한다.
+
+방법을 혼동하지 말 것
+- DOPE architecture는 그대로다: VGG19,6stage,9belief(8corner+centroid),16affinity.
+- filter confidence>=0.3, RANSAC5점*50회/재투영오차<5native px/최소6inlier.
+- LOO는 RANSAC consensus에서 한 점을 빼고 나머지로 EPnP+LM을 모두 수행한다.
+  한 점을 빼는 것은 pose fitting이며, 최초 consensus 선택은 여전히 RANSAC 결과에 조건부다.
+- D는 consensus pose로 재투영한8corner의 최대 pairwise 거리다. 축정렬bbox대각선이 아니다.
+  LOO개별/median<0.05D; 주 실험은 flip개별/median<0.05D도 요구한다.
+- flip은 teacher consistency 검사다. native x복원=W-1-x,
+  semantic swap=[1,0,3,2,5,4,7,6,8]. ablation에서는 second-view forward와
+  flipvalid/confidence/error/median/순위 tie-breaker를 모두 사용하지 않는다.
+- target은 재투영점이 아니라 원본 teacher점이다. 최소6개만 trusted일 수 있으며,
+  실패점·missing·outlier·centroid는 실사 belief loss에서 제외한다. 실사 affinity loss는 없다.
+- 입력은 reflect100 padding→원래W,H로중간resize→shortside400/8배수실제크기다.
+  native640x480은 network528x400,belief66x50. native K는 native decoded점과만 결합한다.
+- sigma2 full Gaussian 중심은 affine(native)/8-0.4395다. decoder의 offset을 상쇄하며,
+  누락점을 all-zero negative heatmap으로 학습시키지 않는다.
+- Adam lr1e-5,wd1e-4,betas(.9,.999),eps1e-8; source batch8, real batch<=8,
+  부족한 real batch는 짧게 유지한다. PLASTIC 주 실험 R1 고유pseudo는1장이다.
+- masterweights/Adam/MSE는FP32, forward만FP16 autocast, scaler1024/growth2000.
+  TF32/benchmarkFalse, deterministicTrue, seed42(filter seed0).
+- R1 ablation은 이전 paired-view R0 inference의 원본9필드만 재사용한다.
+  이전 mask/pose/RANSAC/LOO/acceptance는 가져오지 않고 모두 다시 계산했다.
+
+평가와 주장 범위
+주 비교는 반복 DEV292=GREEN119/943점,PLASTIC128/985점,WOOD45/346점이다.
+PLASTIC184/1413점은 별도 보조표다: 같은128/985점+추가56/428점이며,
+추가56은 metadata에서 FINAL 역할인 기존 촬영이다. 주 표의128을184로 섞지 않는다.
+PCK10은 원본 영상 error<=10px인 점 수/전체 유효reference수다. 물체크기의10%가 아니다.
+누락예측도 분모에 남아 실패로 계산한다. conditional median은 검출된 점에서만 계산한다.
+GREEN600manual-only는 보조 패널이다. unknown/PnP보완reference가 섞인 주 결과를
+독립 수동GT·독립TEST·물리적6D pose 개선의 증거로 과장하지 않는다.
+WOOD는 학습 sibling frame과 physical FINAL이 REC001/002를 공유한다.
+exact FINAL229이미지/GT는 학습에서 제외했어도 recording독립성은 주장할 수 없다.
+K는 제공값이며 특히 WOOD는 PROVIDED_UNVERIFIED다. 실측calibration을 했다고 쓰지 않는다.
+
+아래 1~4는 원본 학습을 다시 돌리지 않는 검증 명령이다. 현재 작성 중 실행한 GPU작업은 없다.
+
+1. JSON에 수록된 source/receipt/input/checkpoint SHA를 읽기 전용 검증
+   checkpoint15개를 읽으므로 수GB의 disk I/O가 있을 수 있지만 모델을 load/forward하지 않는다.
+
+PYTHONDONTWRITEBYTECODE=1 /home/minjae/anaconda3/envs/pallet-pose/bin/python - <<'CHECK'
+from pathlib import Path
+import hashlib,json
+p=Path('/home/minjae/Documents/pallet-research/dope-graduation-thesis-20261026-v1/reproducibility/methods_verified.json')
+m=json.loads(p.read_text())
+for a in m['artifacts']:
+    h=hashlib.sha256()
+    with Path(a['path']).open('rb') as f:
+        for chunk in iter(lambda:f.read(1024*1024),b''):h.update(chunk)
+    assert h.hexdigest()==a['sha256'],a['path']
+print('All artifact hashes match:',len(m['artifacts']))
+CHECK
+
+2. 학습·추론·GT좌표 파싱 없이 실험별 완료/출처 그래프 검증
+   --verify-only를 반드시 유지한다. 아래 두 entrypoint의 help/source에서 이 의미를 확인했다.
+
+PYTHONDONTWRITEBYTECODE=1 /home/minjae/anaconda3/envs/pallet-pose/bin/python /home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1/finalize.py --verify-only
+PYTHONDONTWRITEBYTECODE=1 /home/minjae/anaconda3/envs/pallet-pose/bin/python /home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1/finalize.py --verify-only
+
+3. 원본 source에 pyc를 만들지 않는 구문 검증
+
+PYTHONDONTWRITEBYTECODE=1 /home/minjae/anaconda3/envs/pallet-pose/bin/python - <<'CHECK'
+from pathlib import Path
+for folder in ['/home/minjae/Documents/pallet-research/dope-loo-flip-per-type-20261026-v1','/home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1']:
+    for name in ['run_type.py','run_all.py','geometry.py','training.py','finalize.py','data_eval.py']:
+        p=Path(folder)/name
+        compile(p.read_text(),str(p),'exec')
+print('Syntax OK; no source execution or pyc writes')
+CHECK
+
+4. synthetic fixture만 쓰는 CPU 기하/target 의미 검증
+   원본 DOPE학습이나 실제데이터 inference가 아니다. CUDA_VISIBLE_DEVICES를 비워 GPU를 차단한다.
+   geometry19개와 target8개를 확인한다. test_training 전체를 자동 실행하지 않는다:
+   전체 suite에는 별도의 CUDA AMP/작은 toyoptimizer fixture도 있기 때문이다.
+
+cd /home/minjae/Documents/pallet-research/dope-loo-no-flip-per-type-20261026-v1
+CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 /home/minjae/anaconda3/envs/pallet-pose/bin/python -m unittest -v test_geometry
+CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 /home/minjae/anaconda3/envs/pallet-pose/bin/python -m unittest -v \
+ test_training.NativeTargetTests.test_missing_pseudo_channel_has_no_gradient \
+ test_training.NativeTargetTests.test_border_gaussian_is_clipped_not_deleted \
+ test_training.NativeTargetTests.test_native_affine_target_peak \
+ test_training.NativeTargetTests.test_native_subpixel_targets_roundtrip_canonical_decoder \
+ test_training.NativeTargetTests.test_prepared_canvas_edge_cannot_roundtrip_weighted_window \
+ test_training.NativeTargetTests.test_valid_channel_normalization_and_microbatch_equivalence \
+ test_training.NativeTargetTests.test_untrusted_finite_point_ignored \
+ test_training.NativeTargetTests.test_bucket_schedule_is_independent_of_other_rng
+
+선택 단계 — 실제 GPU 재학습/추론, 지금 실행하지 않은 명령
+이 단계는 검증용 기본 명령이 아니다. CUDA GPU, 여유 디스크, 수십분~수시간 규모의
+실행시간이 필요할 수 있다. 원본 완료 experiment에서 run_all.py를 실행하면 기존
+resume/checkpoint를 불러오므로, 새로운 from-R0 재학습과 같지 않다.
+원본 폴더를 삭제·수정하지 말고 /home/minjae/Documents/pallet-research/<새실행폴더>에
+별도 복사본을 준비하고 새 protocol을 고정해야 한다. source/input/POOL/SYNTHETIC/MANIFEST와
+동결된 원본R0cache/provenance만 사용한다. 학습된 .pth/.resume.pt/기존PROTOCOL/학습status/
+R2journal/완료receipt는 새 실행폴더로 복사하지 않는다. 주 실험 R1 frozen R0journal와
+provenance는 고정된 pseudo-cache 재현을 위해 허용한다. ablation은 RAW_R0 두JSON만 사용한다.
+기존 비교 디렉터리는 보존해야 한다: ablation의 matchedcontrol과 sourcecompareproof가
+그 동결자료를 참조한다. 새source 또는경로가 바뀌면 기존protocol을 덮지 않고 새로 고정한다.
+
+# GPU·시간 필요: 새로 준비한 주 실험 복사본에서만 선택 실행
+# /home/minjae/anaconda3/envs/pallet-pose/bin/python /home/minjae/Documents/pallet-research/<새-flip-실행폴더>/run_all.py
+# GPU·시간 필요: 새로 준비한 ablation 복사본에서만 선택 실행; source-onlycontrol은기존것재사용
+# /home/minjae/anaconda3/envs/pallet-pose/bin/python /home/minjae/Documents/pallet-research/<새-no-flip-실행폴더>/run_all.py
+
+평가를 새로 계산하는 finalize.py의 일반 실행은 GPU추론 및 reference좌표읽기를 포함할 수 있다.
+완료cache검증만 원하면 위 --verify-only만 사용한다. 새로운 논문용 tuning/추가seed/새TEST는
+현재 수치와 구분하여 별도 protocol/결과로 기록한다.

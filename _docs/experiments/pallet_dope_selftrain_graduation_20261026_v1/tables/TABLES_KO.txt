@@ -1,0 +1,123 @@
+DOPE 졸업논문 결과표 — 계산된 완료 SUMMARY/receipt에서 추출
+주방법은 LOO+flip, flip 제거는 ablation. PCK/coverage는 %, median은 관측된 점만의 조건부 px.
+누락 예측은 전체 기준점 분모에서 PCK 실패. R1/R2 모두 고정 보고.
+
+직사각형 플라스틱 주 평가
+영상 128, 기준점 985
+| 모델 | PCK5 | PCK10 | PCK20 | coverage | 조건부 median px | PCK10 정답/전체 |
+|---|---:|---:|---:|---:|---:|---:|
+| 기본 DOPE(R0) | 7.21 | 26.19 | 44.87 | 77.36 | 14.95 | 258/985 |
+| LOO+flip 1차 | 19.09 | 38.07 | 53.50 | 82.03 | 11.25 | 375/985 |
+| LOO+flip 2차 | 21.12 | 39.49 | 59.39 | 93.60 | 12.25 | 389/985 |
+| 합성 데이터 추가학습 1차 | 19.90 | 36.35 | 48.73 | 70.36 | 9.40 | 358/985 |
+| 합성 데이터 추가학습 2차 | 22.23 | 43.05 | 56.04 | 80.00 | 9.13 | 424/985 |
+| flip 제거 1차 | 15.03 | 33.81 | 48.02 | 81.22 | 14.09 | 333/985 |
+| flip 제거 2차 | 15.33 | 35.13 | 51.27 | 86.29 | 13.59 | 346/985 |
+
+PCK10 변화 (percentage point, 후보−비교군):
+LOO+flip 1차: vs_R0 11.88, vs_same_round_source_only 1.73
+LOO+flip 2차: vs_R0 13.30, vs_same_round_source_only -3.55
+합성 데이터 추가학습 1차: vs_R0 10.15
+합성 데이터 추가학습 2차: vs_R0 16.85
+flip 제거 1차: vs_R0 7.61, vs_same_round_source_only -2.54, vs_same_round_LOO_flip -4.26
+flip 제거 2차: vs_R0 8.93, vs_same_round_source_only -7.92, vs_same_round_LOO_flip -4.37
+
+소형 목재 주 평가
+영상 45, 기준점 346
+| 모델 | PCK5 | PCK10 | PCK20 | coverage | 조건부 median px | PCK10 정답/전체 |
+|---|---:|---:|---:|---:|---:|---:|
+| 기본 DOPE(R0) | 5.78 | 29.77 | 64.45 | 85.26 | 12.46 | 103/346 |
+| LOO+flip 1차 | 14.74 | 48.27 | 82.95 | 91.62 | 9.68 | 167/346 |
+| LOO+flip 2차 | 20.23 | 60.12 | 87.28 | 96.53 | 8.24 | 208/346 |
+| 합성 데이터 추가학습 1차 | 21.68 | 52.89 | 73.41 | 81.50 | 7.61 | 183/346 |
+| 합성 데이터 추가학습 2차 | 20.81 | 53.47 | 75.43 | 86.42 | 8.33 | 185/346 |
+| flip 제거 1차 | 16.47 | 49.71 | 81.21 | 89.31 | 9.05 | 172/346 |
+| flip 제거 2차 | 21.10 | 54.91 | 85.55 | 93.64 | 8.44 | 190/346 |
+
+PCK10 변화 (percentage point, 후보−비교군):
+LOO+flip 1차: vs_R0 18.50, vs_same_round_source_only -4.62
+LOO+flip 2차: vs_R0 30.35, vs_same_round_source_only 6.65
+합성 데이터 추가학습 1차: vs_R0 23.12
+합성 데이터 추가학습 2차: vs_R0 23.70
+flip 제거 1차: vs_R0 19.94, vs_same_round_source_only -3.18, vs_same_round_LOO_flip 1.45
+flip 제거 2차: vs_R0 25.14, vs_same_round_source_only 1.45, vs_same_round_LOO_flip -5.20
+
+정사각형 녹색 플라스틱 주 평가
+영상 119, 기준점 943
+| 모델 | PCK5 | PCK10 | PCK20 | coverage | 조건부 median px | PCK10 정답/전체 |
+|---|---:|---:|---:|---:|---:|---:|
+| 기본 DOPE(R0) | 11.45 | 47.72 | 77.41 | 98.52 | 10.24 | 450/943 |
+| LOO+flip 1차 | 39.34 | 69.14 | 82.71 | 98.41 | 6.06 | 652/943 |
+| LOO+flip 2차 | 39.34 | 69.67 | 82.40 | 99.15 | 6.24 | 657/943 |
+| 합성 데이터 추가학습 1차 | 40.72 | 68.50 | 80.91 | 95.23 | 5.71 | 646/943 |
+| 합성 데이터 추가학습 2차 | 42.74 | 70.20 | 83.03 | 97.35 | 5.66 | 662/943 |
+| flip 제거 1차 | 35.31 | 67.97 | 82.40 | 98.30 | 6.36 | 641/943 |
+| flip 제거 2차 | 38.71 | 67.76 | 82.71 | 99.05 | 6.40 | 639/943 |
+
+PCK10 변화 (percentage point, 후보−비교군):
+LOO+flip 1차: vs_R0 21.42, vs_same_round_source_only 0.64
+LOO+flip 2차: vs_R0 21.95, vs_same_round_source_only -0.53
+합성 데이터 추가학습 1차: vs_R0 20.78
+합성 데이터 추가학습 2차: vs_R0 22.48
+flip 제거 1차: vs_R0 20.25, vs_same_round_source_only -0.53, vs_same_round_LOO_flip -1.17
+flip 제거 2차: vs_R0 20.04, vs_same_round_source_only -2.44, vs_same_round_LOO_flip -1.91
+
+GREEN 직접 클릭 기준점 보조 평가
+영상 119, 기준점 600
+| 모델 | PCK5 | PCK10 | PCK20 | coverage | 조건부 median px | PCK10 정답/전체 |
+|---|---:|---:|---:|---:|---:|---:|
+| 기본 DOPE(R0) | 14.83 | 59.83 | 84.17 | 98.83 | 8.61 | 359/600 |
+| LOO+flip 1차 | 46.67 | 77.50 | 86.00 | 98.33 | 5.28 | 465/600 |
+| LOO+flip 2차 | 47.67 | 78.50 | 87.00 | 99.00 | 5.27 | 471/600 |
+| 합성 데이터 추가학습 1차 | 46.67 | 75.33 | 84.33 | 94.83 | 5.09 | 452/600 |
+| 합성 데이터 추가학습 2차 | 50.50 | 77.83 | 86.33 | 97.33 | 4.80 | 467/600 |
+| flip 제거 1차 | 42.33 | 77.83 | 86.67 | 98.00 | 5.52 | 467/600 |
+| flip 제거 2차 | 46.83 | 77.83 | 87.50 | 99.17 | 5.33 | 467/600 |
+
+PCK10 변화 (percentage point, 후보−비교군):
+LOO+flip 1차: vs_R0 17.67, vs_same_round_source_only 2.17
+LOO+flip 2차: vs_R0 18.67, vs_same_round_source_only 0.67
+합성 데이터 추가학습 1차: vs_R0 15.50
+합성 데이터 추가학습 2차: vs_R0 18.00
+flip 제거 1차: vs_R0 18.00, vs_same_round_source_only 2.50, vs_same_round_LOO_flip 0.33
+flip 제거 2차: vs_R0 18.00, vs_same_round_source_only 0.00, vs_same_round_LOO_flip -0.67
+
+PLASTIC184 별도 보조 평가
+영상 184, 기준점 1413
+| 모델 | PCK5 | PCK10 | PCK20 | coverage | 조건부 median px | PCK10 정답/전체 |
+|---|---:|---:|---:|---:|---:|---:|
+| 기본 DOPE(R0) | 6.86 | 29.87 | 51.52 | 77.35 | 12.73 | 422/1413 |
+| LOO+flip 1차 | 24.13 | 43.88 | 57.68 | 79.26 | 8.42 | 620/1413 |
+| LOO+flip 2차 | 26.96 | 47.06 | 64.19 | 90.94 | 9.54 | 665/1413 |
+| 합성 데이터 추가학습 1차 | 25.76 | 43.88 | 55.13 | 71.83 | 7.21 | 620/1413 |
+| 합성 데이터 추가학습 2차 | 28.38 | 49.89 | 60.93 | 78.98 | 7.05 | 705/1413 |
+| flip 제거 1차 | 20.88 | 42.32 | 55.91 | 82.80 | 9.65 | 598/1413 |
+| flip 제거 2차 | 22.08 | 44.66 | 60.08 | 87.26 | 9.70 | 631/1413 |
+
+PCK10 변화 (percentage point, 후보−비교군):
+LOO+flip 1차: vs_R0 14.01, vs_same_round_source_only 0.00
+LOO+flip 2차: vs_R0 17.20, vs_same_round_source_only -2.83
+합성 데이터 추가학습 1차: vs_R0 14.01
+합성 데이터 추가학습 2차: vs_R0 20.03
+flip 제거 1차: vs_R0 12.46, vs_same_round_source_only -1.56, vs_same_round_LOO_flip -1.56
+flip 제거 2차: vs_R0 14.79, vs_same_round_source_only -5.24, vs_same_round_LOO_flip -2.41
+
+고유 승인 pseudo 영상과 공통 학습량
+| 방법 | 종류 | 후보 | R1 승인 | R2 승인 | 합성 | 총 update |
+|---|---|---:|---:|---:|---:|---:|
+| LOO_flip | PLASTIC | 1000 | 1 | 26 | 2212 | 1656 |
+| LOO_flip | WOOD | 1000 | 339 | 675 | 2212 | 1656 |
+| LOO_flip | GREEN | 1000 | 131 | 683 | 2212 | 1656 |
+| source_only | SYNTHETIC_CONTROL | 0 | 0 | 0 | 2212 | 1656 |
+| LOO_only | PLASTIC | 1000 | 31 | 461 | 2212 | 1656 |
+| LOO_only | WOOD | 1000 | 794 | 912 | 2212 | 1656 |
+| LOO_only | GREEN | 1000 | 663 | 962 | 2212 | 1656 |
+
+한계:
+- Repeated DEV data, one optimizer seed, descriptive results; no independent TEST or physical6D accuracy claim.
+- GREEN manual-only means the recorded manual_click source. Independent point verification is not established.
+- WOOD training sources REC001/002 share recordings with protected physical FINAL. Exact protected229 images are excluded, but recording-independent FINAL claims are relinquished.
+- PLASTIC184 is separate evaluation-only scope: core128 reused plus56 FINAL-role frames. It does not replace the core128 comparison.
+- Source-provided camera K is not independently calibrated/verified.
+- Real pseudo acceptance differs across methods; common optimizer/synthetic budgets do not equate real support.
+- All fixed R1/R2 checkpoints and source-only controls are reported; no requirement that self-training beats every control is imposed.
