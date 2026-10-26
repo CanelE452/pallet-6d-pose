@@ -1,0 +1,21 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>V265 · 가림 누락 진단과 위치 보정 역할</title>
+<style>body{font:18px/1.75 sans-serif;max-width:1180px;margin:36px auto;padding:0 22px;color:#172431}img{max-width:100%}table{border-collapse:collapse}td,th{border:1px solid #cbd5df;padding:9px}aside{padding:18px;background:#eaf2f9}a{color:#135ca5}</style>
+<h1>Heatmap은 보임이 확인된 점의 보정 후보를 만드는 역할이 더 맞습니다</h1>
+<aside>현재 근거는 정사각형에서 유효합니다. 목재는 개선되지 않았고, heatmap이 보임을 스스로 확인해 주는 것은 아닙니다. 이번 작업은 저장 결과 진단이며 새 학습·모델 추론·PnP는0입니다.</aside>
+<h2>외부 가림을 놓친67점</h2><table><tr><th>상태</th><th>전체</th><th>목재</th><th>정사각형</th></tr>
+<tr><td>참조 위치가 원래 crop 밖</td><td>5</td><td>4</td><td>1</td></tr><tr><td>crop 안, heatmap–참조 ≤3px</td><td>10</td><td>3</td><td>7</td></tr>
+<tr><td>crop 안,3–6px 차이</td><td>15</td><td>3</td><td>12</td></tr><tr><td>crop 안,6px 넘게 차이</td><td>37</td><td>8</td><td>29</td></tr></table>
+<p>숨은 E의 좌표는 직접 보이는 위치 정답이 아닙니다. 위 표는 기존 참조점과의 거리로 나눈 진단입니다.10점을 모두 ‘위치가 정확하다’고 확정하거나37점을 모두 ‘다른 물체를 찾았다’고 확정하지 않습니다. 원래 E 주석은 유지했습니다.</p>
+<p><b>서로 다른 실패가 실제 crop에 있습니다.</b> G370은 참조에서2.66px인데 콘의 흰 띠/빨간 몸체를 읽고 D를 출력했습니다. 위치 이탈만으로 설명되지 않습니다. G908·G256은 콘 받침/바닥 쪽으로 이동했습니다. G300·G1772는 참조점이 검색 crop 밖입니다. G792·G1233은 작은 팔레트 조각이 드러나는 경계라 native 점의 직접 보임/대응 재검토가 필요합니다.</p>
+<img src="diagnosis_v1/NEAR_VS_DISTRACTOR_KO.png" alt="참조 근처에서 가림 판정 실패와 다른 구조를 읽는 경우">
+<p>공통점은 콘의 경계·띠·받침·바닥·주변 팔레트 조각이 뚜렷한 위치 단서가 된다는 것입니다. 가려진 E에는 위치 heatmap 정답을 주지 않았고 softmax는 항상 봉우리를 만듭니다. 그래서 ‘후보 위치가 있다’가 ‘지정 점이 직접 보인다’로 연결되지 않습니다.</p>
+<h2>보임 조건에서의 위치 보정</h2><p>사람이 보임으로 주석하고 수동 위치가 있으며 입력이 유효한854점의 사후 비교입니다. 원시 JOINT 제안을 모두 적용한 가상 비교이며, 실제 보임 승인 규칙의 검증이나 새 배포 규칙이 아닙니다.</p>
+<table><tr><th>유형</th><th>초기 ≤3px</th><th>원시 제안 ≤3px</th><th>중앙값 변화</th><th>P90 변화</th></tr>
+<tr><td>정사각형531점</td><td>223(42.0%)</td><td>352(66.3%)</td><td>3.68→2.23px</td><td>9.11→5.91px</td></tr>
+<tr><td>목재323점</td><td>153(47.4%)</td><td>136(42.1%)</td><td>3.26→3.62px</td><td>18.95→19.61px</td></tr></table>
+<p>이전 고정 승인 규칙을 적용한 JOINT는 정사각형317/531,목재140/323입니다. 원시 제안은 더 많은 좋은 위치를 포함하지만 원래 정확한 점도 움직입니다. 고정 승인 JOINT의3px 경계 악화59점 중55점은 최종3–6px,4점은6–10px,10px 초과는0입니다. 작은 경계 초과를 큰 실패로 표현하지 않습니다.</p>
+<h2>어떻게 정리할 것인가</h2><ol><li><b>가림 판단과 위치 보정 역할을 분리합니다.</b> Heatmap은 지정 키포인트의 보정 후보만 냅니다. 보임이 별도로 확인된 점에서만 적용하고 불확실하면 초기 좌표를 유지합니다. 초기 기하의 self-occlusion 제거만으로 외부 가림이 없어지지는 않습니다.</li>
+<li><b>위치 보정의 다음 검증은 정사각형에 초점을 둡니다.</b> 목재에 같은 개선을 주장하지 않습니다. 실제 적용 승인 기준은 별도로 검증해야 하며 이번223장 결과에 맞춰 새 threshold를 선택하지 않았습니다.</li>
+<li><b>가림 분류를 계속한다면 원래 기대 위치와 native 대응을 보존해야 합니다.</b> 후보가 다른 구조로 이동했다고 원래 점을 보임으로 바꾸지 않습니다. 참조 위치 근처에서도 실패한 사례는 위치 개선으로 해결할 수 없어 가림 대상/직접 보임 목표와 전이를 별도로 다뤄야 합니다. 동일-query 합성 가림 대조는 이미 시도한 자료에 있으므로 단순 반복이 해결책이라는 근거는 없습니다.</li>
+<li><b>경계 사례의 주석·대응을 재검토합니다.</b> 작은 팔레트 조각이 보이는 것과 지정 native 꼭짓점이 직접 보이는 것을 구분합니다. G996의 사용자 이견을 포함해 자동 재라벨링하지 않았습니다.</li></ol>
+<p><a href="diagnosis_v1/INDEX_KO.html">대표12개 확대 crop·전체 위치 비교</a> · <a href="all67_gallery_v1/INDEX_KO.html">누락67점 전체 crop</a> · <a href="diagnosis_v1/MISSED_EXTERNAL_67.csv">67점 거리·주석 출처</a> · <a href="diagnosis_v1/VISIBLE_LOCATION_SUMMARY.csv">위치 비교15행</a> · <a href="INDEPENDENT_AUDIT.json">독립 수치 검산</a> · <a href="audit_agent_pixels/CROP_AUDIT_NOTES.json">실제 crop 감사 메모</a> · <a href="RUN_GUIDE_KO.md">재현 안내</a></p></html>
