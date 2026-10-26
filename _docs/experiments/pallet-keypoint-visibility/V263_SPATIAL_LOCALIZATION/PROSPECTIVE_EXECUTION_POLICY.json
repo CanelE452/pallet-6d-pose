@@ -1,0 +1,65 @@
+{
+  "schema": "V263_BOUNDED_SPATIAL_LOCALIZATION_EXECUTION_POLICY",
+  "created_UTC": "2026-10-26T01:33:18.293346+00:00",
+  "authorization": "사용자 계획한거 실행해서 결과 확인해줄수있어? 새 목표를 실행. 이전 V261 마지막 공개 실사 비교는 완료되었으며 이번 새 계획과 분리.",
+  "goal": "가림만 분류한 기존 모델과 공간 위치 보정 및 공동 학습을 비교해 실제 해결 범위 확인",
+  "evaluation_data": "현재223장은 반복 개발 평가. 새 촬영 미사용 자료는 사용자 현재없음 답변. 다른 로컬 자료 존재 여부는 메타데이터로 조사하며 미사용으로 자동 승격하지 않음.",
+  "data_rules": [
+    "합성만 신규 fit 및 설정 선택에 사용",
+    "현재223 및 보호 held RGB/정답으로 fit/calibration/normalizer/threshold/epoch/crop/모델 선택 금지",
+    "모든 최종 설정과 checkpoint freeze 이후 current223 추론 및 성능 집계",
+    "D/E semantic visibility와 query pixel presence 및 DIRECT location eligibility 분리",
+    "원native ID/permutation 유지; GT nearest 또는 best branch 변경 금지",
+    "S는 upstream geometry 상태이며 외부가림 E와 합치지 않음",
+    "unknown/out-of-search를 absent로 합치지 않음"
+  ],
+  "oracle": {
+    "arms": [
+      "ORIGINAL",
+      "VIS_PARTIAL_CERTIFIED",
+      "LOC_DIRECT_OBSERVABLE",
+      "BOTH"
+    ],
+    "downstream": "기존 고정 solver 동일CODE/config; 신규 최적화/탐색 없음",
+    "missing_centroid9": "all4 identical finite placeholder [0,0] with valid9[8]=False; no inferred centroid",
+    "partial_visibility": "certified E/S 제외, certified D와 unknown은 original availability 유지; original U 복구0",
+    "loc": "원 valid이면서 ID/direct-point/two-direction-visible-cue/in-search가 고정 GT로 입증된 점만 r 치환",
+    "coverage": "all8 및 frame 전체 분모와 certified coverage 별도 보고"
+  },
+  "learned_settings_max": 4,
+  "learned_order": [
+    "LOC_ONLY_simple2D_crop",
+    "LOC_ONLY_initial_geometry_crop",
+    "VIS_ONLY_on_SYN_selected_crop",
+    "JOINT_on_same_SYN_selected_crop"
+  ],
+  "recipe": {
+    "seed": 17,
+    "updates_per_arm": 1000,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 32,
+    "encoder": "frozen official DINOv2 vits14 reg4 spatial intermediate layer8 normTrue",
+    "head": "shared small stem + semantic VIS logits + spatial heatmap; no extra learned offset head"
+  },
+  "crop_selection": "SYN DEV only; same initial query q; geometry crop only initial predicted pose/K/registered dims, no GT pose in crop",
+  "loss_mask": "location loss from fixed GT direct/localizable/in-range mask, never predicted visibility gate",
+  "acceptance": "GT-free inference rule chosen only SYN DEV, report precision/coverage and no automatic probability calibration claim",
+  "no_further_automatic_recipe_search": true,
+  "report": [
+    "SYN oracle and fixed coverage",
+    "location error and abstention",
+    "D/E confusion precision recall",
+    "wood/square separately",
+    "recovery/damage on original fixed result",
+    "fixed pose utility symmetry/canonical separate",
+    "actual crop/heatmap examples",
+    "failed attempts and exact reproduction code"
+  ],
+  "publication": "publish authorized attempts/code/results/figures to main using normal nonforce push",
+  "previous_state": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_ROOT_SPATIAL_LOCALIZATION/PREVIOUS_STATE_V262.json",
+    "sha256": "1e65286e0ae012a4e096cfa58f37708b47cc6743d4448f343efb4c98df6baf4a"
+  }
+}
