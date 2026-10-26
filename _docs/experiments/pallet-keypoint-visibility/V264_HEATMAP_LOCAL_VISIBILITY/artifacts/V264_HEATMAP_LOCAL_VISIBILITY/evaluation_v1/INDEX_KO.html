@@ -1,0 +1,33 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>V264 위치 주변 특징 가림 판별 비교</title>
+<style>body{font-family:sans-serif;background:#f5f7fb;color:#172238;max-width:1500px;margin:30px auto;padding:0 24px;line-height:1.6}table{border-collapse:collapse;background:white;width:100%}td,th{padding:8px;border:1px solid #dce3ef}img{max-width:100%;height:auto}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:white;padding:12px;border-radius:10px}a{color:#165ec9}.note{background:#fff4cf;padding:16px}h1,h2{line-height:1.3}</style>
+<h1>Heatmap이 찾은 위치 주변 특징으로 보임/외부 가림 판단</h1>
+<p>합성으로 학습한 두 새 분류기: <b>GLOBAL_MATCHED</b>는 crop 전체 특징 평균, <b>HEATMAP_LOCAL</b>은 고정 heatmap 위치 주변 특징을 이용합니다. 동일 클래스 균형 학습·고정 logit 0 기준입니다. 실사 223장은 평가에만 사용했습니다.</p>
+<p class="note">223장은 이전에도 확인한 개발 평가입니다. 새 두 방식의 비교가 이번 구조 차이의 대조군입니다. V263·v61·기존 모델과의 차이에는 학습 구조·표본 조건의 차이도 포함됩니다. 기존 모델의 과거 실사 학습 이력은 그대로입니다. 자기 가림은 외부 가림과 합치지 않습니다.</p>
+<h2>동일 주 평가 1,237점</h2><p>주석 D 1,147 / E 90. 혼동행렬 각 행의 열 순서는 D/E/U입니다. 비율은 %이며, recall 분모에 보류를 포함합니다.</p>
+<table><thead><tr><th>모델</th><th>D→D/E/U</th><th>E→D/E/U</th><th>D precision</th><th>D recall</th><th>E precision</th><th>E recall</th><th>E F1</th><th>보류율</th></tr></thead><tbody><tr><td>GLOBAL_MATCHED</td><td>645/502/0</td><td>19/71/0</td><td>97.1</td><td>56.2</td><td>12.4</td><td>78.9</td><td>21.4</td><td>0.0</td></tr><tr><td>HEATMAP_LOCAL</td><td>1028/119/0</td><td>67/23/0</td><td>93.9</td><td>89.6</td><td>16.2</td><td>25.6</td><td>19.8</td><td>0.0</td></tr><tr><td>v61</td><td>260/887/0</td><td>2/88/0</td><td>99.2</td><td>22.7</td><td>9.0</td><td>97.8</td><td>16.5</td><td>0.0</td></tr><tr><td>CAL_LEGACY</td><td>655/319/173</td><td>3/83/4</td><td>99.5</td><td>57.1</td><td>20.6</td><td>92.2</td><td>33.7</td><td>14.3</td></tr><tr><td>V263_JOINT</td><td>882/265/0</td><td>55/35/0</td><td>94.1</td><td>76.9</td><td>11.7</td><td>38.9</td><td>17.9</td><td>0.0</td></tr><tr><td>V263_VIS</td><td>1145/2/0</td><td>90/0/0</td><td>92.7</td><td>99.8</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr><tr><td>V261_CONTROL</td><td>964/183/0</td><td>22/68/0</td><td>97.8</td><td>84.0</td><td>27.1</td><td>75.6</td><td>39.9</td><td>0.0</td></tr><tr><td>V261_TREAT</td><td>959/188/0</td><td>22/68/0</td><td>97.8</td><td>83.6</td><td>26.6</td><td>75.6</td><td>39.3</td><td>0.0</td></tr></tbody></table>
+<p>새 두 방식의 짝 비교: 둘 다 일치 646, 위치 주변만 일치 405, 전체 평균만 일치 70, 둘 다 불일치 116점. 순변화 +335점.</p>
+<p><a href="CLASSIFICATION.csv">재질·평가군별 전체 혼동행렬/precision/recall/F1/보류율 CSV</a> · <a href="SELF_RESPONSES.csv">자기 가림 별도 응답</a> · <a href="PAIRED_TRANSITIONS.json">짝 비교 전이</a> · <a href="ALL1784_COMPARISON.csv">1,784점 행별 결과</a> · <a href="SUMMARY.json">전체 결과 JSON</a></p>
+<h2>되는 경우와 안 되는 경우: 고정 16개 셀</h2>
+<p>재질 × 정답 D/E × 두 방식의 정오 조합에서 최소 원본 순번을 선택했습니다. RGB를 읽기 전에 사례 목록을 저장했습니다. 셀 전체 개수를 표시하며 빈 셀을 대체하지 않았습니다. 대표 이미지가 전체 빈도를 대신하지 않습니다.</p>
+<p>파랑 ○ 초기 위치 / 노랑 + 고정 JOINT 위치 후보 / 분홍 + 기존 주석 좌표. 가림 점의 분홍 좌표는 직접 보이는 위치의 정답을 뜻하지 않습니다. Heatmap은 crop별 min/max 표시이며 밝기는 보임 확률이 아닙니다. P(E)는 별도 분류기 출력입니다.</p>
+<div class="grid">
+<div class="card"><a href="CASE_G0001.png"><img loading="lazy" src="CASE_G0001.png"></a><a href="CLEAN_G0001.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0003.png"><img loading="lazy" src="CASE_G0003.png"></a><a href="CLEAN_G0003.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0035.png"><img loading="lazy" src="CASE_G0035.png"></a><a href="CLEAN_G0035.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0000.png"><img loading="lazy" src="CASE_G0000.png"></a><a href="CLEAN_G0000.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0308.png"><img loading="lazy" src="CASE_G0308.png"></a><a href="CLEAN_G0308.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0771.png"><img loading="lazy" src="CASE_G0771.png"></a><a href="CLEAN_G0771.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0256.png"><img loading="lazy" src="CASE_G0256.png"></a><a href="CLEAN_G0256.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0259.png"><img loading="lazy" src="CASE_G0259.png"></a><a href="CLEAN_G0259.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0841.png"><img loading="lazy" src="CASE_G0841.png"></a><a href="CLEAN_G0841.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0840.png"><img loading="lazy" src="CASE_G0840.png"></a><a href="CLEAN_G0840.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G1261.png"><img loading="lazy" src="CASE_G1261.png"></a><a href="CLEAN_G1261.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G1056.png"><img loading="lazy" src="CASE_G1056.png"></a><a href="CLEAN_G1056.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G1021.png"><img loading="lazy" src="CASE_G1021.png"></a><a href="CLEAN_G1021.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0908.png"><img loading="lazy" src="CASE_G0908.png"></a><a href="CLEAN_G0908.png">표시 없는 실제 crop</a></div>
+<div class="card"><a href="CASE_G0996.png"><img loading="lazy" src="CASE_G0996.png"></a><a href="CLEAN_G0996.png">표시 없는 실제 crop</a></div>
+</div><p>전체 셀: <a href="WOOD_FIXED8_CELLS_KO.png">목재 8셀</a> · <a href="SQUARE_FIXED8_CELLS_KO.png">정사각형 8셀</a> · <a href="CASE_SELECTION_BEFORE_RGB.json">사례 선택/빈 셀 목록</a></p><h2>사용자 피드백을 반영한 재검토 사례</h2><div class="grid">
+<div class="card"><img loading="lazy" src="CASE_G0996_CAUTION.png"><p>기존 E 주석과 사용자 시각적 판단이 다릅니다. 명백한 외부 가림 놓침으로 단정하지 않습니다. 원래 주석은 유지하며 주석/대응 재검토 대상으로 분리합니다.</p></div>
+<div class="card"><img loading="lazy" src="CASE_G0981_CAUTION.png"><p>V263 위치 오차 1.46→3.65px: 3px 기준 초과인 작은 이동입니다. 현재 가림 판정의 큰 실패를 입증하는 사례가 아닙니다.</p></div>
+<div class="card"><img loading="lazy" src="CASE_G0200_CAUTION.png"><p>V263 위치 오차 1.77→4.57px: 3px 기준 초과인 작은 이동입니다. 현재 가림 판정의 큰 실패를 입증하는 사례가 아닙니다.</p></div>
+</div><p>새 학습·threshold 검색·PnP는 이 평가 스크립트에 없습니다. 위치 출력은 V263에서 고정된 것을 표시합니다.</p></html>

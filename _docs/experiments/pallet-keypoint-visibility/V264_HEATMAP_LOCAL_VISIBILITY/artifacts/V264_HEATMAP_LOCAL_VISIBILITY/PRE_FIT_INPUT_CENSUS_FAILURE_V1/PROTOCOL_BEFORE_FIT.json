@@ -1,0 +1,117 @@
+{
+  "SYN_limitations": [
+    "E190 contains95 unique(base,native,variant),93 encodedRGB assets; repeated source families.",
+    "FIT E native6=2/native7=4; DEV E native6/7=0.",
+    "Layernorm uses only own descriptor; SYNDEV frozenfeaturevectors may be prepared before fit but enter no optimizer or selection."
+  ],
+  "SYN_roles": {
+    "DEV_bases": 24,
+    "DEV_rows": 1536,
+    "FIT_bases": 86,
+    "FIT_rows": 5504,
+    "VIS_DEV_D": 1288,
+    "VIS_DEV_E": 56,
+    "VIS_DEV_maskedSU": 192,
+    "VIS_FIT_D": 4626,
+    "VIS_FIT_E": 190,
+    "VIS_FIT_maskedSU": 688
+  },
+  "U_policy": "Original unavailable or RGBtokenunsupported only; no LOC accepted filter",
+  "approved_scope": "User explicitly authorized SYN training, current223 eval-only, comparison, actual-crop visualization and main publication.",
+  "arms": [
+    "GLOBAL_MATCHED",
+    "HEATMAP_LOCAL"
+  ],
+  "batch_size": 32,
+  "case_selection": "material x D/E x global/local correctness; first originalglobalindex percell beforeRGB,emptycellsretained; disputed G996 and small3pxcrossings qualified",
+  "checkpoint_selection": "Final1000 only, no DEV selection or retries",
+  "classifier": "Linear780x32,ReLU,Linear32x1;25025 trainableparams each",
+  "comparison": [
+    "new matchedglobal versus heatmaplocal primary causal comparison",
+    "historical V263JOINT/VIS,v61,legacyCAL,V261 control/treatment reference"
+  ],
+  "completed": true,
+  "current_role": "Existing223 is repeated development evaluation, never fit, normalizer, threshold, checkpoint or recipe selection.",
+  "draws": "Same PCG64(17) FIT rows;16 D +16 E perbatch, withreplacement, shuffledidentically",
+  "evaluation": "Same PRIMARY1237 (D1147/E90),wood/square separately,2x3D/E/U CM, P/R/F1,U,balancedrecall, allregisteredDE,manualDnear<=3,SELF separate",
+  "feature_normalization": "Perdescriptor384 layernorm without affine or fittedpopulationstatistics",
+  "frozen_components": "DINOv2 encoder, V263 JOINT stem+heatmap+locationstate, crop, initialquery, nativeID and all location coordinates",
+  "global_input": "[global pooled DINO384, same global384, sharedaux12]",
+  "inference_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V264_HEATMAP_LOCAL_VISIBILITY/infer_current_v264.py",
+    "sha256": "ba88ade00aa4f1ca7542527ab28db50848a914621105b68bb9b2f5cff45cf32e",
+    "size_bytes": 3917
+  },
+  "local_geometry": {
+    "centre": "frozen heatmap softargmax",
+    "input_validity_mask": true,
+    "sigma_patch_cells": 1.5
+  },
+  "local_input": "[global pooled DINO384, Gaussian-local pooledDINO384, sharedaux12]",
+  "model_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V264_HEATMAP_LOCAL_VISIBILITY/v264_model.py",
+    "sha256": "d412ed01b844ad8e8374d423c3015f20bdcc42a778855aad6d721492613c8c7b",
+    "size_bytes": 6909
+  },
+  "new_fits_max": 2,
+  "optimizer": {
+    "lr": 0.001,
+    "name": "AdamW",
+    "weight_decay": 0.0001
+  },
+  "optimizer_updates_each": 1000,
+  "positive_label": "E=1,D=0; S/U masked, never made E",
+  "post_current_changes": "No further fit or threshold changes; preserve negative result. No PnP.",
+  "pre_fit": true,
+  "schema": "V264_PAIRED_HEATMAP_LOCAL_VISIBILITY_PROTOCOL_V1",
+  "seed": 17,
+  "shared_auxiliary": [
+    "native_onehot8",
+    "predicted_normalized_shift2",
+    "heatmap_peak1",
+    "normalized_heatmap_entropy1"
+  ],
+  "source_bindings": {
+    "source_feature_complete": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/source_spatial_features_geometry_v1/COMPLETE.json",
+      "sha256": "3ec0b27cc20552ef7e8edc1c09b6f72a825eb343147f16708e2c6cb924f6271d",
+      "size_bytes": 4414
+    },
+    "source_labels": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_LOCALIZATION_DATA_A/actual_label_packet_v2/ALL_LOCALIZATION_ROWS.jsonl",
+      "sha256": "dd7d5b2b4bb96103f7f1635c96656774d7fc0b83f03d76a1388a259ed6a47785",
+      "size_bytes": 7725389
+    },
+    "spatial_checkpoint": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/JOINT_selected_v1/FINAL1000.pt",
+      "sha256": "f1ba62b8329df0ab46d3c5380e2e3ccd028be16e1283c04c9bfab6f5e320c6ce",
+      "size_bytes": 93140
+    },
+    "spatial_code": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/spatial_head_v2.py",
+      "sha256": "e630763c487e649bd47e47048a35269a61ff7101e59153b403abc9e5ffc9b1f0",
+      "size_bytes": 11225
+    },
+    "support": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/source_spatial_features_geometry_v1/TOKEN_SUPPORT.npy",
+      "sha256": "9060f6a038091ca1dce5b6b1a9d8bfad61070b6c6207c7f726b47aec4386da29",
+      "size_bytes": 1802368
+    },
+    "targets": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/JOINT_selected_v1/TARGETS_NONPIXEL.npz",
+      "sha256": "ec7be1f9c2b0b7179f1666bc6444f6016a0c5e792613311d4590fc22ac8611f9",
+      "size_bytes": 586878
+    },
+    "tokens": {
+      "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V263_SPATIAL_HEAD_C/source_spatial_features_geometry_v1/TOKENS_FP16.npy",
+      "sha256": "ed11b3c164f2b18a52bf3aa4f9ef05101d9110abf4e2e8e20c764089bb92f7eb",
+      "size_bytes": 1384120448
+    }
+  },
+  "threshold_E_logit": 0,
+  "training_code": {
+    "path": "/home/minjae/Documents/Codex/2026-10-20/task-2/pallet-keypoint-visibility/publication_root_preparation/V264_HEATMAP_LOCAL_VISIBILITY/train_syn_v264.py",
+    "sha256": "d1530300103585c5d6ca48e78ebc62f1fe3dbb476e5b44518f1174c02025a79a",
+    "size_bytes": 6658
+  }
+}
