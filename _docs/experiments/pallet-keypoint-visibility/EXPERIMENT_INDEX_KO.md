@@ -1,3 +1,13 @@
+## V270 — 초기 KP 위치·가림 공동 학습 빠른 확인
+
+**공동 출력은 구현했지만 이번300회 pilot은 가림 판정을 개선하지 못했습니다.** 가림만→공동 학습에서 보임 오판511→471, 외부 가림 누락51→59입니다. 새 모델은 채택하지 않습니다. strict D=0 교사 선택으로 아래쪽 native2/3/6/7의 보임 학습 표본이 모두0개가 됐고 실사223장 전체에서 이 네 슬롯을 가림으로 출력했습니다. 합성 슬롯 사전값만으로도 DEV 균형 recall72.40%, 공동73.09%로 비슷해 영상 단서 학습을 주장할 수 없습니다.
+
+전체 RGB640, frozen backbone/neck 위 기존 KP shared stem와 새 E head를 위치만/가림만/공동 각300회 학습했습니다. 새 학습은 합성768장뿐이고 실사223장은 동결 후 반복 개발 평가만 했습니다. 전체 네트워크 공동 학습의 불가능성을 보인 실험은 아닙니다. 먼저 슬롯별 보임/가림 양쪽 감독과 의미 정의를 바로잡아야 합니다. 새 PnP·실사 fit·threshold/체크포인트 선택0입니다.
+
+[전체 결과·학습·재현](V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/README_KO.md) · [실제19사례](V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/artifacts/V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/visual_v3/INDEX_KO.html) · [슬롯 교사 감사](V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/artifacts/V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/slot_prior_diagnosis_v1/READOUT_KO.html) · [공개본 CPU 재현 확인](V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/PUBLICATION_REPLAY_AND_SCIENTIFIC_QA.json)
+
+![같은 번호에서 보임과 콘 가림을 모두 E로 내는 실패](V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/artifacts/V270_INITIAL_KP_JOINT_VISIBILITY_QUICKCHECK/SAME_SLOT_DIAGNOSIS.png)
+
 ## V269 — 전체 이미지 DeCLIP의 보임/외부 가림 판정
 
 **초기 좌표는 그대로 두고 보임/가림만 판정했습니다.** 기존 Surgery→DeCLIP은 보임595→655/1147, 외부 가림84→89/90으로 전체 집계가 개선됐습니다. 목재 보임307→393, 정사각형 보임288→262로 **정사각형은 악화했습니다.** 보이는492점을 여전히 가림으로 오판하여 단독 판정기는 완성되지 않았습니다. 가림 recall98.89%는 전체 정확도가 아닙니다(가림 precision15.32%, 전체 정확도60.15%).
