@@ -1,0 +1,40 @@
+{
+  "PASS": true,
+  "SYN_DEV_D_E_recall_both_new_arms": [
+    0.9945652173913043,
+    0.9464285714285714
+  ],
+  "SYN_DEV_segmentation_fractional_FOREIGN_IoU": [
+    0.6587640276743242,
+    0.6743444255676995
+  ],
+  "actually_viewed_images": [
+    "evaluation_v1/CASE_G0370.png",
+    "evaluation_v1/CASE_G0256.png",
+    "evaluation_v1/CASE_G0908.png",
+    "evaluation_v1/CASE_G0996.png",
+    "syn_visual_v1/SYN_RGB_GT_PRED_FIXED6_KO.png"
+  ],
+  "completed": true,
+  "model_training_threshold_and_label_mutations": 0,
+  "observed_vs_inferred": {
+    "inference": [
+      "실사에서는 같은 물체의 내부 부분을 색·경계별로 다르게 읽어 단일 occluder ownership을 유지하지 못하는 문제가 의심됨.",
+      "분할 전이 실패와 분할 결과를 native visibility로 연결하는 readout 실패가 모두 남아 있음.",
+      "4실사 진단 사례만으로 전체 원인 기여율이나 유일한 실패 원인을 확정할 수 없음."
+    ],
+    "observed": [
+      "합성 DEV에서 TARGET/FOREIGN/BG 구조와 작은 foreign 영역을 두 모델이 대체로 재현함.",
+      "실사 G370의 콘 흰띠, G256의 콘 몸체, G908의 콘 받침을 TARGET으로 읽는 부분이 남음.",
+      "합성 source1928은 q주변 FOREIGN0.751/0.732인데 scalar가 두 모델 모두D임.",
+      "G996의 노출된 초록팔레트 TARGET/빨간콘 FOREIGN 분할 일부는 눈으로 타당해 보임."
+    ]
+  },
+  "real_segmentation_GT": "absent; no real pixel IoU claim",
+  "recommended_distinct_source_only_tests": [
+    "owner head 자체의 unseen synthetic shape/material/lighting 및 scene holdout 전이와 D/E readout 성능을 따로 검증.",
+    "합성 외부물체의 형상·한 물체 내부의 다색/띠/반사·스케일을 다양화하고 target과 같은 재질의 외부물체도 유지. 현재 평가crop을 직접 학습·tuning하지 않기.",
+    "target-instance ownership과 foreground object의 연속성을 조건화하고 native point/좌표 오차는 별도 유지. background를외부가림으로치환하지 않기.",
+    "분할 정답인데도D인source1928같은사례로 scalar readout가owner근거를실제로사용하는지SOURCE에서검증. heatmap위치가틀리면원query와분리해서관찰."
+  ]
+}
