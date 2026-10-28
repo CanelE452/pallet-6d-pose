@@ -1,0 +1,171 @@
+{
+  "schema": "R2_count_proportional_v1",
+  "status": "FROZEN_BEFORE_TRAINING",
+  "created_utc": "2026-10-28T02:04:15.778473+00:00",
+  "kinds": [
+    "WOOD",
+    "GREEN",
+    "PLASTIC"
+  ],
+  "conditions": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E"
+  ],
+  "training_seeds": [
+    42,
+    43,
+    44
+  ],
+  "subset_seed": 20261027,
+  "original_teacher_training_seed": 42,
+  "real_unique_counts": {
+    "WOOD": 550,
+    "GREEN": 550,
+    "PLASTIC": 20
+  },
+  "synthetic_unique_counts": {
+    "WOOD": {
+      "A": 110,
+      "B": 275,
+      "C": 550,
+      "D": 1100,
+      "E": 2200
+    },
+    "GREEN": {
+      "A": 110,
+      "B": 275,
+      "C": 550,
+      "D": 1100,
+      "E": 2200
+    },
+    "PLASTIC": {
+      "A": 4,
+      "B": 10,
+      "C": 20,
+      "D": 40,
+      "E": 80
+    }
+  },
+  "synthetic_percent": {
+    "A": 20,
+    "B": 50,
+    "C": 100,
+    "D": 200,
+    "E": 400
+  },
+  "training": {
+    "epochs": 3,
+    "steps_per_epoch": 276,
+    "batch_size": 16,
+    "microbatch": 8,
+    "lr": 1e-05,
+    "weight_decay": 0.0001,
+    "lambda_real": 1.0,
+    "sigma": 2.0,
+    "log_interval": 25,
+    "resume_interval": 50,
+    "cache_size": 32,
+    "strong_augmentation": true,
+    "amp": true,
+    "initial_scale": 1024,
+    "scale_growth_interval": 2000,
+    "augmentation": {
+      "brightness": 0.4,
+      "contrast": 0.4,
+      "saturation": 0.4,
+      "hue": 0.1,
+      "gaussian_blur_prob": 0.5,
+      "gaussian_blur_kernel": [
+        3,
+        7
+      ],
+      "gaussian_noise_std": 0.05,
+      "random_erasing_prob": 0.5,
+      "random_erasing_scale": [
+        0.02,
+        0.2
+      ]
+    },
+    "loss_mode": "count_weighted_original_branch_means_sum",
+    "real_batch_policy": "joint_uniform_shuffle_cycle_fill"
+  },
+  "original_training": {
+    "epochs": 3,
+    "steps_per_epoch": 276,
+    "batch_size": 8,
+    "microbatch": 8,
+    "lr": 1e-05,
+    "weight_decay": 0.0001,
+    "lambda_real": 1.0,
+    "sigma": 2.0,
+    "log_interval": 25,
+    "resume_interval": 50,
+    "cache_size": 32,
+    "strong_augmentation": true,
+    "amp": true,
+    "initial_scale": 1024,
+    "scale_growth_interval": 2000,
+    "augmentation": {
+      "brightness": 0.4,
+      "contrast": 0.4,
+      "saturation": 0.4,
+      "hue": 0.1,
+      "gaussian_blur_prob": 0.5,
+      "gaussian_blur_kernel": [
+        3,
+        7
+      ],
+      "gaussian_noise_std": 0.05,
+      "random_erasing_prob": 0.5,
+      "random_erasing_scale": [
+        0.02,
+        0.2
+      ]
+    },
+    "loss_mode": "original_branch_means_sum",
+    "real_batch_policy": "cycle_fill"
+  },
+  "updates_per_model": 828,
+  "effective_batch_size": 16,
+  "total_models": 45,
+  "sampling": "One continuous jointly shuffled concatenated real+synthetic pool. Cycle-fill across batch and epoch boundaries. Every image equally likely; full-pool traversal before reshuffle. No 8+8 source quota.",
+  "loss": "2*(n_syn/16*original_syn_branch_mean+n_real/16*original_real_branch_mean). Preserve original valid-channel/pixel normalization within each branch. Empty branches contribute zero. At 8+8 exactly the original sum, including variable masks. This is not a newly normalized per-image masked loss.",
+  "seed_interpretation": "Three R2 sampling/augmentation seeds conditional on the same original R1 weights, Adam state, scaler, and fixed pseudo-label/subset sets; not full-pipeline seed repetitions.",
+  "optimizer_accounting": "828 R2 optimizer.step calls from the frozen R1 state. Standard Adam skips parameters with grad=None, so final affinity-head counters legitimately lag on real-only batches. Validate every named parameter against its actual gradient-present update count; never fabricate gradients, parameter steps, or count skipped AMP updates.",
+  "evaluation": {
+    "primary_total": 372,
+    "PLASTIC": 128,
+    "WOOD": 125,
+    "GREEN": 119,
+    "reference_points": {
+      "PLASTIC": 985,
+      "WOOD": 963,
+      "GREEN": 943
+    },
+    "original_view_only": true,
+    "manual_panels_separate": true,
+    "bootstrap_seed": 20261026,
+    "bootstrap_replicates": 10000,
+    "interval": "percentile95 paired frame; conditional on fitted seeds",
+    "multiplicity_correction": "none",
+    "training_seed_sd": "sample standard deviation ddof=1 across 42/43/44",
+    "checkpoint_selection": "Final update828 for every condition; no evaluation selection",
+    "comparator_C": "New proportional C with the same R2 seed",
+    "comparator_control": "Historical shared synthetic control; contextual R1 history differs"
+  },
+  "storage": "Preserve45 FP32 final state_dict checkpoints; only one active new optimizer resume. Delete only own active resume after committed final checkpoint+receipt validation.",
+  "fixed_endpoints": true,
+  "all_conditions_reported": true,
+  "desired_direction_not_required": true,
+  "constraints": [
+    "No original files modified",
+    "No new teacher inference or pseudo-label filtering",
+    "No raw reference annotations",
+    "No unapproved FINAL",
+    "No Git operations in dirty primary repository",
+    "Prior results retained; this follow-up is exploratory after inspecting prior results"
+  ]
+}
